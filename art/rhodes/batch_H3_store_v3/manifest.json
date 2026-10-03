@@ -1,0 +1,733 @@
+{
+  "batch": "H3 STORE v3",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.3, 3.1.1, 3.5, 3.7, 4.4",
+  "method": "Each furniture/equipment item has its own generated PNG in sources/. The local build script crops alpha, reduces uniformly by an item-specific integer factor, quantizes to the 31-color palette and preserves binary alpha. Geometric modules reuse accepted native-grid exports.",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "store_warm_sign",
+      "file": "store_warm_sign.png",
+      "emit": "store_warm_sign_emit.png",
+      "kind": "wall",
+      "size_px": [
+        100,
+        35
+      ],
+      "anchor_px": [
+        50,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Generated warm shop sign; native B1-01 lettering and accepted M mark added after quantization.",
+      "coverage_35": [
+        "B: STORE supergraphic",
+        "C: warm lit identity"
+      ],
+      "source": {
+        "source": "sources/store_warm_sign_source.png",
+        "source_size_px": [
+          2022,
+          778
+        ],
+        "source_sha256": "7da32ad4724f7444a4961a6256c1fd6ab5ff685b5a7d7ddc6859fceeb59bfd4e",
+        "integer_reduction": 20,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "M and exact native text over generated face"
+    },
+    {
+      "id": "store_front_counter",
+      "file": "store_front_counter.png",
+      "emit": "store_front_counter_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        103,
+        39
+      ],
+      "anchor_px": [
+        51,
+        38
+      ],
+      "footprint_units": [
+        6.87,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Crowded front-facing shop counter; self-service product/price screen until Closure is recruited.",
+      "coverage_35": [
+        "A: level top and front counter planes",
+        "B: S on representative main object",
+        "D: boxed goods and receipt"
+      ],
+      "source": {
+        "source": "sources/store_front_counter_source.png",
+        "source_size_px": [
+          1774,
+          887
+        ],
+        "source_sha256": "d1cdbfcc5e267aba3d0dc7552a9baeb2a0f09d463a6de505b323a7fd8dff5014",
+        "integer_reduction": 16,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "native product/price screen polish and accepted S mark"
+    },
+    {
+      "id": "store_weapon_glass_case",
+      "file": "store_weapon_glass_case.png",
+      "emit": "store_weapon_glass_case_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        64,
+        20
+      ],
+      "anchor_px": [
+        32,
+        19
+      ],
+      "footprint_units": [
+        4.27,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Front-facing glass case with sword and attached brass price holder.",
+      "coverage_35": [
+        "A: level glass top and front display planes",
+        "C: cold display glints"
+      ],
+      "source": {
+        "source": "sources/store_weapon_case_source.png",
+        "source_size_px": [
+          1864,
+          844
+        ],
+        "source_sha256": "0f16db600615cec7f84e5978e19c2cce59f42724baedbc195971d83d07eeb74d",
+        "integer_reduction": 29,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "blue glass body muted to grey; bright glass glints retained"
+    },
+    {
+      "id": "store_equipment_glass_case",
+      "file": "store_equipment_glass_case.png",
+      "emit": "store_equipment_glass_case_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        56,
+        26
+      ],
+      "anchor_px": [
+        28,
+        25
+      ],
+      "footprint_units": [
+        3.73,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Front-facing glass case with armor and attached brass price holder.",
+      "coverage_35": [
+        "A: second glass product display",
+        "C: restrained cool case light"
+      ],
+      "source": {
+        "source": "sources/store_equipment_case_source.png",
+        "source_size_px": [
+          1842,
+          854
+        ],
+        "source_sha256": "323cc6d84eb0639b33367abc3fb1f1ab91e2ac6e8cd4eb945e86781c06107bdf",
+        "integer_reduction": 25,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "blue glass body muted to grey; bright glass glints retained"
+    },
+    {
+      "id": "store_back_product_shelf",
+      "file": "store_back_product_shelf.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        81,
+        36
+      ],
+      "anchor_px": [
+        40,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Dense wall-backed stock: boxed gadgets, consumables, weapon parts and price tabs.",
+      "coverage_35": [
+        "A: front-on shelf with shallow top cap",
+        "B: shelf price tabs",
+        "D: busy retail inventory"
+      ],
+      "source": {
+        "source": "sources/store_product_shelf_source.png",
+        "source_size_px": [
+          1774,
+          887
+        ],
+        "source_sha256": "af0239508ea41f9e8decd562846a50c9251a39a8a5218df4184d139328ebda77",
+        "integer_reduction": 22,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "restrain blue stock labels to the accent budget"
+    },
+    {
+      "id": "store_stacked_merchandise_boxes",
+      "file": "store_stacked_merchandise_boxes.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        43,
+        34
+      ],
+      "anchor_px": [
+        21,
+        33
+      ],
+      "footprint_units": [
+        2.87,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Six axis-aligned merchandise boxes stacked by the counter; shallow tops and front faces, no logo.",
+      "coverage_35": [
+        "A: stocked shop cargo",
+        "D: packed merchandise"
+      ],
+      "source": {
+        "source": "sources/store_stacked_boxes_source.png",
+        "source_size_px": [
+          1470,
+          1070
+        ],
+        "source_sha256": "6213d777c92ce86d9857b6cd3f63468f7fdbf3f29e8a8947fcb5d1643dae0c3e",
+        "integer_reduction": 24,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "box bodies cooled to grey; narrow accent tapes retained"
+    },
+    {
+      "id": "store_warm_pendant_lamp",
+      "file": "store_warm_pendant_lamp.png",
+      "emit": "store_warm_pendant_lamp_emit.png",
+      "kind": "wall",
+      "size_px": [
+        26,
+        24
+      ],
+      "anchor_px": [
+        13,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Warm ceiling pendant above the counter.",
+      "coverage_35": [
+        "A: suspended light",
+        "C: amber emit"
+      ],
+      "source": {
+        "source": "sources/store_pendant_lamp_source.png",
+        "source_size_px": [
+          1536,
+          1024
+        ],
+        "source_sha256": "5f3df936925bd165c1bc1997c53276908e15d36ac023d8e0aef5944836857244",
+        "integer_reduction": 42,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": null
+    },
+    {
+      "id": "store_product_poster",
+      "file": "store_product_poster.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        19,
+        36
+      ],
+      "anchor_px": [
+        9,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Illustrated product poster on side wall, without unsupported text.",
+      "coverage_35": [
+        "B: retail poster",
+        "D: attached shop life detail"
+      ],
+      "source": {
+        "source": "sources/store_product_poster_source.png",
+        "source_size_px": [
+          1084,
+          1451
+        ],
+        "source_sha256": "9b186f3a703aff0b2d43264afd6134a6b673228dedb032e2c717ba4cc879d2e9",
+        "integer_reduction": 40,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": null
+    },
+    {
+      "id": "store_potted_plant",
+      "file": "store_potted_plant.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        22,
+        28
+      ],
+      "anchor_px": [
+        11,
+        27
+      ],
+      "footprint_units": [
+        1.47,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Small warm-metal pot on merchandise shelf.",
+      "coverage_35": [
+        "D: attached shop plant"
+      ],
+      "source": {
+        "source": "sources/store_potted_plant_source.png",
+        "source_size_px": [
+          1145,
+          1374
+        ],
+        "source_sha256": "c3bd27804831bec8b0c9f61fd9c2423369aca36f7c892bd629f16a50ea84ecf8",
+        "integer_reduction": 40,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "leaves mapped to warm-light material tones"
+    },
+    {
+      "id": "store_counter_zone_80x36",
+      "file": "store_counter_zone_80x36.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        80,
+        36
+      ],
+      "anchor_px": [
+        40,
+        18
+      ],
+      "footprint_units": [
+        5.33,
+        2.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native geometric signage/decal; no resampling.",
+      "coverage_35": [
+        "C: shop floor graphic"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "store_safety_strip_30x10",
+      "file": "store_safety_strip_30x10.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        30,
+        10
+      ],
+      "anchor_px": [
+        15,
+        5
+      ],
+      "footprint_units": [
+        2.0,
+        0.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native geometric signage/decal; no resampling.",
+      "coverage_35": [
+        "C: shop floor graphic"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "store_price_tag_weapon_24x14",
+      "file": "store_price_tag_weapon_24x14.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        24,
+        14
+      ],
+      "anchor_px": [
+        12,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native geometric signage/decal; no resampling.",
+      "coverage_35": [
+        "B: shop wayfinding"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "store_price_tag_equipment_24x14",
+      "file": "store_price_tag_equipment_24x14.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        24,
+        14
+      ],
+      "anchor_px": [
+        12,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native geometric signage/decal; no resampling.",
+      "coverage_35": [
+        "B: shop wayfinding"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "store_stand_spot_closure_behind_counter_12x6",
+      "file": "store_stand_spot_closure_behind_counter_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native geometric signage/decal; no resampling.",
+      "coverage_35": [
+        "A: reserved standing area"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "store_stand_spot_customer_at_terminal_12x6",
+      "file": "store_stand_spot_customer_at_terminal_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native geometric signage/decal; no resampling.",
+      "coverage_35": [
+        "A: reserved standing area"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch_H3_store_v1/store_counter_zone_80x36.png",
+      "size_px": [
+        80,
+        36
+      ],
+      "sha256": "847e1e4e907969e748271f2830c98ab2b7f9353afb57671d429e4d91f498f646",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v1/store_safety_strip_30x10.png",
+      "size_px": [
+        30,
+        10
+      ],
+      "sha256": "e3a5ab177b73e386b9a6018ba81e005a70649f1073c3d36e22f716a0b804ee2a",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v1/store_price_tag_weapon_24x14.png",
+      "size_px": [
+        24,
+        14
+      ],
+      "sha256": "42d1c270c3d6e1be288635699abf27bc5ea456561e4fa184365a0a6a86ba2ace",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v1/store_price_tag_equipment_24x14.png",
+      "size_px": [
+        24,
+        14
+      ],
+      "sha256": "548725e4fca749441cdafc4b237555445f4dcdde825038ebf13d3a41da7d6e05",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v1/store_stand_spot_closure_behind_counter_12x6.png",
+      "size_px": [
+        12,
+        6
+      ],
+      "sha256": "d89530d22efd8487493ce3ea058df95863cf19bcd6ae0677bad602ed47b41656",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v1/store_stand_spot_customer_at_terminal_12x6.png",
+      "size_px": [
+        12,
+        6
+      ],
+      "sha256": "d89530d22efd8487493ce3ea058df95863cf19bcd6ae0677bad602ed47b41656",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/duty_mug_clip_12x10.png",
+      "size_px": [
+        12,
+        10
+      ],
+      "sha256": "050861edefee8c3a098733de49405ea79a4a0e4ccc9ee1f6b19391ebe7e0b538",
+      "use": "Accepted counter mug",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/desk_memo_sticker_16x14.png",
+      "size_px": [
+        16,
+        14
+      ],
+      "sha256": "c2bd2a7d42e48ed68b93cc31ef297124c7eeda99e054b711ef037163430d3ac9",
+      "use": "Accepted attached memo",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v1/store_wall_warm_60x46.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "16d395c2520b9368ca610e46eaa3be47e717e1333beddde3eb63359217ececdc",
+      "use": "46px room wall shell",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v3/store_floor_warm_120x120.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "5a82c56cdbf0dd0df276ae01c8cc8bd782c6e6c0b717ca3fa4644f2b2e5ceb38",
+      "use": "120x120 seamless floor shell",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Native unscaled character",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_M_gray_v1.png",
+      "size_px": [
+        24,
+        24
+      ],
+      "sha256": "6b4a4e6cd699333a5e8da4d2989ff19a625a8d59dc9e3ca581b71b43f29888f2",
+      "use": "Accepted M identity mark",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S identity mark",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_01.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "8b6bbdf3ce7591b3968ea8dfe693a1252c72684e15ee9f8fe8e7daa32e11e96e",
+      "use": "Accepted B1-01 door plate",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_circle_warm_60x40.png",
+      "size_px": [
+        60,
+        40
+      ],
+      "sha256": "cabed82ad046fae2f1eeea8d51af64f24a6639d2a007fe6c0cc43710fe501897",
+      "use": "Accepted additive warm pool",
+      "locked": true
+    }
+  ],
+  "shell": {
+    "size_units": [
+      12,
+      9
+    ],
+    "floor_size_px": [
+      180,
+      115
+    ],
+    "wall_height_px": 46,
+    "wall_tile": "../batch_H3_store_v1/store_wall_warm_60x46.png",
+    "floor_tile": "../batch_H3_store_v3/store_floor_warm_120x120.png",
+    "assembly": "Review composite shows one suggested layout; final scene assembly remains with user."
+  },
+  "preview": {
+    "file": "H3_store_lappland_1x.png",
+    "size_px": [
+      180,
+      161
+    ],
+    "character_origin_px": [
+      60,
+      105
+    ],
+    "character": "Lappland frame 0 unscaled; 30px visible height",
+    "review_4x": "H3_store_lappland_1x_4x.png"
+  },
+  "logo_policy": "M on department sign and S on the main interactive furniture only; two per review screen, below six cap.",
+  "stand_spots": [
+    "store_stand_spot_closure_behind_counter_12x6",
+    "store_stand_spot_customer_at_terminal_12x6"
+  ],
+  "life_details": [
+    "store_stacked_merchandise_boxes",
+    "store_product_poster",
+    "store_potted_plant",
+    "store_price_tag_weapon_24x14",
+    "store_price_tag_equipment_24x14",
+    "../batch_H1_bridge_hall_v2/duty_mug_clip_12x10.png",
+    "../batch_H1_bridge_hall_v2/desk_memo_sticker_16x14.png"
+  ],
+  "assembly": {
+    "counter": "Self-service until Closure is recruited; operator spot behind and customer spot in front.",
+    "retail": "Place densely stocked shelf and poster on the north wall; two glass cases flank the main counter.",
+    "lighting": "Use warm sign and pendant emit with accepted warm additive pool, cool case pins only."
+  },
+  "checklist_35": {
+    "A": "Generated front-facing counter, two glass cases, deep shelf and suspended lamp.",
+    "B": "B1-01 plate, warm STORE sign, case price tags and product/price UI.",
+    "C": "Warm wall/floor, amber sign, cool case glints and two work-zone signals.",
+    "D": "Stacked stock, poster, plant, mug, memo, receipt, price holders and hazard strip."
+  },
+  "build_script": "build_store.py"
+}

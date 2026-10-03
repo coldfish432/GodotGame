@@ -1,0 +1,1059 @@
+{
+ "id": "warehouse",
+ "origin": [
+  -65.06666666666666,
+  -8.0
+ ],
+ "size": [
+  64,
+  36
+ ],
+ "ground": {
+  "tex": "res://art/rhodes_runtime/tex/2413f9f09ed9eab8.png",
+  "w_px": 976,
+  "h_px": 457,
+  "x": -65.6,
+  "z": -8.0
+ },
+ "facade": {
+  "tex": "res://art/rhodes_runtime/tex/384d080708a1e018.png",
+  "w_px": 976,
+  "h_px": 46,
+  "x": -65.6,
+  "z": -8.0
+ },
+ "sprites": [
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -60.6667,
+   "z": -21.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:0",
+   "role": "rack",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -60.6667,
+   "z": -21.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:0",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1501cb9cb53a54c9.png",
+   "x": -63.1667,
+   "z": -21.2787,
+   "lift_px": 31.64,
+   "w": 21,
+   "h": 10,
+   "overhead": false,
+   "group": "shelf:weapon:0"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -40.4667,
+   "z": -21.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:0",
+   "role": "rack",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -40.4667,
+   "z": -21.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:0",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/505917f92063cb9d.png",
+   "x": -42.9667,
+   "z": -21.2787,
+   "lift_px": 31.64,
+   "w": 21,
+   "h": 10,
+   "overhead": false,
+   "group": "shelf:armor:0"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -60.6667,
+   "z": -38.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:0",
+   "role": "rack",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/570be9b254fac6d3.png",
+   "x": -60.6667,
+   "z": -38.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:0",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/e296338ae2de7dc2.png",
+   "x": -63.1667,
+   "z": -38.2787,
+   "lift_px": 31.54,
+   "w": 21,
+   "h": 10,
+   "overhead": false,
+   "group": "shelf:trinket:0"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -40.4667,
+   "z": -38.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:0",
+   "role": "rack",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -40.4667,
+   "z": -38.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:0",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bbb44585aa29edfe.png",
+   "x": -42.9667,
+   "z": -38.2787,
+   "lift_px": 31.54,
+   "w": 21,
+   "h": 10,
+   "overhead": false,
+   "group": "shelf:material:0"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/0da5208088577429.png",
+   "x": -23.8,
+   "z": -38.0787,
+   "lift_px": 0.0,
+   "w": 56,
+   "h": 48,
+   "overhead": false,
+   "collide": [
+    2.987,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/b6bca1f95c496fb2.png",
+   "x": -23.0667,
+   "z": -27.2787,
+   "lift_px": 0.0,
+   "w": 70,
+   "h": 48,
+   "overhead": false,
+   "collide": [
+    3.733,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/48da9315ce76cdbd.png",
+   "x": -15.0667,
+   "z": -20.0787,
+   "lift_px": 0.0,
+   "w": 64,
+   "h": 52,
+   "overhead": false,
+   "collide": [
+    3.413,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ae5c10045ec1be75.png",
+   "x": -11.5333,
+   "z": -13.0787,
+   "lift_px": 0.0,
+   "w": 51,
+   "h": 21,
+   "overhead": false,
+   "collide": [
+    2.72,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ae5c10045ec1be75.png",
+   "x": -7.6667,
+   "z": -13.0787,
+   "lift_px": 0.0,
+   "w": 51,
+   "h": 21,
+   "overhead": false,
+   "collide": [
+    2.72,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1a4995c596ebd50e.png",
+   "x": -5.0667,
+   "z": -28.6787,
+   "lift_px": 0.0,
+   "w": 42,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.24,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/fdfc8ab88f6db384.png",
+   "x": -7.0667,
+   "z": -41.8787,
+   "lift_px": 0.0,
+   "w": 96,
+   "h": 56,
+   "overhead": false,
+   "collide": [
+    5.12,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/a0f79d41613c77f3.png",
+   "x": -2.2667,
+   "z": -24.2205,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -60.6667,
+   "z": -14.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:6",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -54.9333,
+   "z": -14.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:7",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -49.2,
+   "z": -14.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:8",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -60.6667,
+   "z": -17.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:3",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -54.9333,
+   "z": -17.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:4",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -49.2,
+   "z": -17.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:5",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -54.9333,
+   "z": -21.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:1",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -54.9333,
+   "z": -21.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:1",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/edc6c7e483bb9f22.png",
+   "x": -49.2,
+   "z": -21.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:2",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -49.2,
+   "z": -21.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:weapon:2",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -40.4667,
+   "z": -14.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:6",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -34.7333,
+   "z": -14.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:7",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -29.0,
+   "z": -14.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:8",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -40.4667,
+   "z": -17.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:3",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -34.7333,
+   "z": -17.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:4",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -29.0,
+   "z": -17.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:5",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -34.7333,
+   "z": -21.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:1",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -34.7333,
+   "z": -21.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:1",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8a080d40ce1f622.png",
+   "x": -29.0,
+   "z": -21.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:2",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -29.0,
+   "z": -21.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:armor:2",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -60.6667,
+   "z": -31.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:6",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -54.9333,
+   "z": -31.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:7",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -49.2,
+   "z": -31.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:8",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -60.6667,
+   "z": -34.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:3",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -54.9333,
+   "z": -34.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:4",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -49.2,
+   "z": -34.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:5",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -54.9333,
+   "z": -38.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:1",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/570be9b254fac6d3.png",
+   "x": -54.9333,
+   "z": -38.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:1",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1612c6b0a36e0372.png",
+   "x": -49.2,
+   "z": -38.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:2",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/570be9b254fac6d3.png",
+   "x": -49.2,
+   "z": -38.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:trinket:2",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -40.4667,
+   "z": -31.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:6",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -34.7333,
+   "z": -31.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:7",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -29.0,
+   "z": -31.4,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:8",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -40.4667,
+   "z": -34.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:3",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -34.7333,
+   "z": -34.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:4",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -29.0,
+   "z": -34.8,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:5",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -34.7333,
+   "z": -38.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:1",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -34.7333,
+   "z": -38.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:1",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bd53a4bb7268c576.png",
+   "x": -29.0,
+   "z": -38.2,
+   "lift_px": 0.0,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:2",
+   "role": "rack"
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ec36b11fa44c9331.png",
+   "x": -29.0,
+   "z": -38.2394,
+   "lift_px": 0.5,
+   "w": 80,
+   "h": 64,
+   "overhead": false,
+   "group": "shelf:material:2",
+   "role": "cells",
+   "collide": [
+    4.267,
+    1.3
+   ]
+  }
+ ],
+ "colliders": [
+  [
+   -65.06666666666666,
+   -8.0,
+   -1.0666666666666629,
+   -7.4
+  ],
+  [
+   -65.06666666666666,
+   -44.599999999999994,
+   -1.0666666666666629,
+   -44.0
+  ],
+  [
+   -65.66666666666666,
+   -44.0,
+   -65.06666666666666,
+   -8.0
+  ],
+  [
+   -1.0666666666666629,
+   -24.5,
+   -0.46666666666666284,
+   -8.0
+  ],
+  [
+   -1.0666666666666629,
+   -44.0,
+   -0.46666666666666284,
+   -27.5
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "stash",
+   "kind": "stash",
+   "label": "仓管台：仓库",
+   "x": -15.066666666666663,
+   "z": -20.0
+  },
+  {
+   "id": "outbound",
+   "kind": "outbound",
+   "label": "出库区：订单与交付",
+   "x": -9.566666666666663,
+   "z": -16.2
+  }
+ ],
+ "spawns": {},
+ "anchors": {
+  "bays": [
+   [
+    -20.5667,
+    -33.0
+   ],
+   [
+    -17.9,
+    -33.0
+   ],
+   [
+    -15.2333,
+    -33.0
+   ],
+   [
+    -20.5667,
+    -36.0
+   ],
+   [
+    -17.9,
+    -36.0
+   ],
+   [
+    -15.2333,
+    -36.0
+   ]
+  ],
+  "overflow": [
+   [
+    -20.8667,
+    -41.8
+   ],
+   [
+    -18.1667,
+    -41.8
+   ],
+   [
+    -15.4667,
+    -41.8
+   ],
+   [
+    -12.7667,
+    -41.8
+   ],
+   [
+    -20.8667,
+    -39.0
+   ],
+   [
+    -18.1667,
+    -39.0
+   ]
+  ],
+  "zones": {
+   "weapon": [
+    -63.6667,
+    -24.6646,
+    -46.2,
+    -21.2
+   ],
+   "armor": [
+    -43.4667,
+    -24.6646,
+    -26.0,
+    -21.2
+   ],
+   "trinket": [
+    -63.6667,
+    -41.6646,
+    -46.2,
+    -38.2
+   ],
+   "material": [
+    -43.4667,
+    -41.6646,
+    -26.0,
+    -38.2
+   ]
+  },
+  "zone_decals": {
+   "weapon": [
+    [
+     -60.6667,
+     -24.6646
+    ],
+    [
+     -54.9333,
+     -24.6646
+    ],
+    [
+     -49.2,
+     -24.6646
+    ]
+   ],
+   "armor": [
+    [
+     -40.4667,
+     -24.6646
+    ],
+    [
+     -34.7333,
+     -24.6646
+    ],
+    [
+     -29.0,
+     -24.6646
+    ]
+   ],
+   "trinket": [
+    [
+     -60.6667,
+     -41.6646
+    ],
+    [
+     -54.9333,
+     -41.6646
+    ],
+    [
+     -49.2,
+     -41.6646
+    ]
+   ],
+   "material": [
+    [
+     -40.4667,
+     -41.6646
+    ],
+    [
+     -34.7333,
+     -41.6646
+    ],
+    [
+     -29.0,
+     -41.6646
+    ]
+   ]
+  },
+  "staging": [
+   -12.6667,
+   -37.6,
+   -6.4667,
+   -30.0
+  ],
+  "pallets": [
+   [
+    -11.0667,
+    -32.8
+   ],
+   [
+    -8.0667,
+    -32.8
+   ],
+   [
+    -11.0667,
+    -36.0
+   ],
+   [
+    -8.0667,
+    -36.0
+   ]
+  ],
+  "order_board": [
+   -9.6,
+   -8.0
+  ]
+ },
+ "textures": {
+  "pallet": "res://art/rhodes_runtime/tex/ae5c10045ec1be75.png",
+  "slot_empty": "res://art/rhodes_runtime/tex/6b317885f21bb5d5.png",
+  "slot_filled": "res://art/rhodes_runtime/tex/f79b8c13a7fd1d90.png",
+  "carried_frame": "res://art/rhodes_runtime/tex/4a4b1e9a07fe0cb9.png",
+  "crate_small_sealed": "res://art/rhodes_runtime/tex/d8dfe1fc6449bd34.png",
+  "crate_small_open": "res://art/rhodes_runtime/tex/e5d2854b9abea137.png",
+  "crate_medium_sealed": "res://art/rhodes_runtime/tex/56f345d19c5b0b0a.png",
+  "crate_medium_open": "res://art/rhodes_runtime/tex/0f965ad9edd14fb8.png",
+  "crate_large_sealed": "res://art/rhodes_runtime/tex/e134f93e6233d402.png",
+  "crate_large_open": "res://art/rhodes_runtime/tex/16e0f495ff97809b.png",
+  "icon_weapon": "res://art/rhodes_runtime/tex/f3f89e73029fb3ba.png",
+  "zone_weapon_highlight": "res://art/rhodes_runtime/tex/04d7f811397c134a.png",
+  "icon_armor": "res://art/rhodes_runtime/tex/7b7c8e52cf9a94f2.png",
+  "zone_armor_highlight": "res://art/rhodes_runtime/tex/45d82f9f27d1c240.png",
+  "icon_trinket": "res://art/rhodes_runtime/tex/bd232a3b20a64903.png",
+  "zone_trinket_highlight": "res://art/rhodes_runtime/tex/0fef58218349e396.png",
+  "icon_material": "res://art/rhodes_runtime/tex/b68252a9a5f194a9.png",
+  "zone_material_highlight": "res://art/rhodes_runtime/tex/5d10a3a41d7479b8.png",
+  "board_empty": "res://art/rhodes_runtime/tex/c602bfa7418c1ddd.png",
+  "board_open": "res://art/rhodes_runtime/tex/65b3558461bcd4b8.png",
+  "board_completed": "res://art/rhodes_runtime/tex/a658bd58261e929b.png",
+  "cargo_drone": "res://art/rhodes_runtime/tex/043903fcb19f997c.png"
+ },
+ "cells": [
+  [
+   12,
+   10
+  ],
+  [
+   27,
+   10
+  ],
+  [
+   42,
+   10
+  ],
+  [
+   57,
+   10
+  ],
+  [
+   12,
+   27
+  ],
+  [
+   27,
+   27
+  ],
+  [
+   42,
+   27
+  ],
+  [
+   57,
+   27
+  ],
+  [
+   12,
+   44
+  ],
+  [
+   27,
+   44
+  ],
+  [
+   42,
+   44
+  ],
+  [
+   57,
+   44
+  ]
+ ],
+ "board_lift": 6,
+ "anim": {
+  "shelf_hatch": [
+   "res://art/rhodes_runtime/tex/ef2d22f30aff460e.png",
+   "res://art/rhodes_runtime/tex/44b8cfa3eb331cf5.png",
+   "res://art/rhodes_runtime/tex/e4265741c4cf3e80.png",
+   "res://art/rhodes_runtime/tex/9f34994066816a8e.png",
+   "res://art/rhodes_runtime/tex/b5d3890ae84914d1.png",
+   "res://art/rhodes_runtime/tex/627b995b2a258231.png"
+  ]
+ }
+}

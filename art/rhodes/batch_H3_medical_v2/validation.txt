@@ -1,0 +1,41 @@
+H3 MEDICAL v2: 13 assets, 8 generated furniture/equipment items, 2 emit masks, 15 hashed dependencies.
+Uniform integer downscale only; independent validation follows.
+
+Independent H3 MEDICAL v2 audit:
+  Generated items 8; assets 13; emit masks 2; locked dependencies 15.
+  Checked source hashes, integer factors, palette, binary alpha, exact 8x, mask alignment, wall alpha, own-shell composite and Lappland 1:1.
+  medical_recovery_bed: luminance 0.619; accents 6.9% (max family 6.1%); near-black 0.0%; gray steps 10.
+  medical_ward_bed: luminance 0.628; accents 5.5% (max family 5.5%); near-black 0.0%; gray steps 10.
+  medical_suspended_monitor: luminance 0.466; accents 42.2% (max family 37.6%); near-black 0.0%; gray steps 10.
+  medical_privacy_curtain: luminance 0.743; accents 5.5% (max family 5.5%); near-black 0.0%; gray steps 10.
+  medical_medicine_cabinet: luminance 0.662; accents 5.1% (max family 5.0%); near-black 0.0%; gray steps 9.
+  medical_wash_sink: luminance 0.699; accents 0.5% (max family 0.5%); near-black 0.0%; gray steps 10.
+  medical_iv_stand: luminance 0.648; accents 1.8% (max family 1.8%); near-black 0.0%; gray steps 7.
+  medical_sanitizer: luminance 0.749; accents 1.6% (max family 1.6%); near-black 0.0%; gray steps 10.
+  Result: PASS (0 errors).
+
+Independent H3 MEDICAL v2 audit:
+  Generated items 8; assets 13; emit masks 2; locked dependencies 15.
+  Checked source hashes, integer factors, palette, binary alpha, exact 8x, mask alignment, wall alpha, own-shell composite and Lappland 1:1.
+  medical_recovery_bed: luminance 0.619; accents 6.9% (max family 6.1%); near-black 0.0%; gray steps 10.
+  medical_ward_bed: luminance 0.628; accents 5.5% (max family 5.5%); near-black 0.0%; gray steps 10.
+  medical_suspended_monitor: luminance 0.466; accents 42.2% (max family 37.6%); near-black 0.0%; gray steps 10.
+  medical_privacy_curtain: luminance 0.743; accents 5.5% (max family 5.5%); near-black 0.0%; gray steps 10.
+  medical_medicine_cabinet: luminance 0.662; accents 5.1% (max family 5.0%); near-black 0.0%; gray steps 9.
+  medical_wash_sink: luminance 0.699; accents 0.5% (max family 0.5%); near-black 0.0%; gray steps 10.
+  medical_iv_stand: luminance 0.648; accents 1.8% (max family 1.8%); near-black 0.0%; gray steps 7.
+  medical_sanitizer: luminance 0.749; accents 1.6% (max family 1.6%); near-black 0.0%; gray steps 10.
+  Result: PASS (0 errors).
+
+Independent H3 MEDICAL v2 audit:
+  Generated items 8; assets 13; emit masks 2; locked dependencies 15.
+  Checked source hashes, integer factors, palette, binary alpha, exact 8x, mask alignment, wall alpha, own-shell composite and Lappland 1:1.
+  medical_recovery_bed: luminance 0.619; accents 6.9% (max family 6.1%); near-black 0.0%; gray steps 10.
+  medical_ward_bed: luminance 0.628; accents 5.5% (max family 5.5%); near-black 0.0%; gray steps 10.
+  medical_suspended_monitor: luminance 0.466; accents 42.2% (max family 37.6%); near-black 0.0%; gray steps 10.
+  medical_privacy_curtain: luminance 0.743; accents 5.5% (max family 5.5%); near-black 0.0%; gray steps 10.
+  medical_medicine_cabinet: luminance 0.662; accents 5.1% (max family 5.0%); near-black 0.0%; gray steps 9.
+  medical_wash_sink: luminance 0.699; accents 0.5% (max family 0.5%); near-black 0.0%; gray steps 10.
+  medical_iv_stand: luminance 0.648; accents 1.8% (max family 1.8%); near-black 0.0%; gray steps 7.
+  medical_sanitizer: luminance 0.749; accents 1.6% (max family 1.6%); near-black 0.0%; gray steps 10.
+  Result: PASS (0 errors).

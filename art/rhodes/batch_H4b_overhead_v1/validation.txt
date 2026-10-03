@@ -1,0 +1,12 @@
+H4 overhead v1: 10 native assets; 31-color palette; 8x exact nearest previews.
+PASS overhead_ibeam_straight_ew_60x14: 60x14, source_factor=18, emit=False
+PASS overhead_ibeam_straight_ns_14x60: 14x60, source_factor=18, emit=False
+PASS overhead_ibeam_wall_bracket_right_28x28: 28x28, source_factor=25, emit=False
+PASS overhead_ibeam_wall_bracket_left_28x28: 28x28, source_factor=25, emit=False
+PASS overhead_ibeam_cross_junction_36x36: 36x36, source_factor=40, emit=False
+PASS overhead_ibeam_exposed_end_marker_6x14: 6x14, source_factor=-, emit=False
+PASS overhead_hoist_trolley: 32x18, source_factor=45, emit=False
+PASS overhead_hoist_hook: 14x27, source_factor=50, emit=False
+PASS overhead_cable_tray_orange_60x14: 60x14, source_factor=18, emit=False
+PASS overhead_medical_curtain_track_60x12: 60x12, source_factor=18, emit=False
+PASS batch_H4b_overhead_v1: 10 unique assets; 9 generated-source entries; 0 nonempty emit masks; state bounds/anchors, source/dependency hashes, binary alpha, 31-color palette, exact 8x and 4x checked.

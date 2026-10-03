@@ -1,0 +1,650 @@
+{
+  "batch": "H3 MEDICAL v1",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.3, 3.1.1, 3.5, 3.7, 4.4",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "medical_department_sign_120x46",
+      "file": "medical_department_sign_120x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        120,
+        46
+      ],
+      "anchor_px": [
+        60,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "White/blue B1-04 supergraphic with accepted M mark.",
+      "coverage_35": [
+        "B: MEDICAL wall supergraphic",
+        "C: Rhodes blue department identity"
+      ]
+    },
+    {
+      "id": "medical_recovery_bed_110x67",
+      "file": "medical_recovery_bed_110x67.png",
+      "emit": "medical_recovery_bed_110x67_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        110,
+        67
+      ],
+      "anchor_px": [
+        55,
+        66
+      ],
+      "footprint_units": [
+        7.33,
+        1.2
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Death-recovery wake-up bed and monitor gantry; principal interaction/display point. Leave patient side clear.",
+      "coverage_35": [
+        "A: main recovery treatment station",
+        "B: representative S mark",
+        "C: blue-white treatment signal"
+      ]
+    },
+    {
+      "id": "medical_ward_bed_1_80x47",
+      "file": "medical_ward_bed_1_80x47.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        80,
+        47
+      ],
+      "anchor_px": [
+        40,
+        46
+      ],
+      "footprint_units": [
+        5.33,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Secondary bed 1; place against wall with a privacy curtain between beds.",
+      "coverage_35": [
+        "A: ward bed",
+        "C: soft white shell and blue ID stripe"
+      ]
+    },
+    {
+      "id": "medical_ward_bed_2_80x47",
+      "file": "medical_ward_bed_2_80x47.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        80,
+        47
+      ],
+      "anchor_px": [
+        40,
+        46
+      ],
+      "footprint_units": [
+        5.33,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Secondary bed 2; place against wall with a privacy curtain between beds.",
+      "coverage_35": [
+        "A: ward bed",
+        "C: soft white shell and blue ID stripe"
+      ]
+    },
+    {
+      "id": "medical_suspended_monitor_56x47",
+      "file": "medical_suspended_monitor_56x47.png",
+      "emit": "medical_suspended_monitor_56x47_emit.png",
+      "kind": "wall",
+      "size_px": [
+        56,
+        47
+      ],
+      "anchor_px": [
+        28,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Angled articulated EMR monitor; do not use a floor stand.",
+      "coverage_35": [
+        "A: wall/ceiling articulated screen",
+        "C: cool medical vital trace"
+      ]
+    },
+    {
+      "id": "medical_privacy_curtain_74x66",
+      "file": "medical_privacy_curtain_74x66.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        74,
+        66
+      ],
+      "anchor_px": [
+        37,
+        65
+      ],
+      "footprint_units": [
+        4.93,
+        0.7
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Folded white privacy curtain with Rhodes-blue band, hanging from an overhead rail.",
+      "coverage_35": [
+        "A: curtain and overhead rail",
+        "C: white/blue ward textile"
+      ]
+    },
+    {
+      "id": "medical_medicine_cabinet_76x59",
+      "file": "medical_medicine_cabinet_76x59.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        76,
+        59
+      ],
+      "anchor_px": [
+        38,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Glass medicine cabinet with stocked bottles and B1-04 number.",
+      "coverage_35": [
+        "A: stocked medicine wall",
+        "B: B1-04 service code",
+        "D: visible medicines"
+      ]
+    },
+    {
+      "id": "medical_wash_sink_52x42",
+      "file": "medical_wash_sink_52x42.png",
+      "emit": "medical_wash_sink_52x42_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        52,
+        42
+      ],
+      "anchor_px": [
+        26,
+        41
+      ],
+      "footprint_units": [
+        3.47,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Wash sink with faucet, cabinet and one tiny cyan indicator.",
+      "coverage_35": [
+        "A: wash station",
+        "D: clinical handwash point"
+      ]
+    },
+    {
+      "id": "medical_recovery_zone_100x44",
+      "file": "medical_recovery_zone_100x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        100,
+        44
+      ],
+      "anchor_px": [
+        50,
+        22
+      ],
+      "footprint_units": [
+        6.67,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Rhodes-blue recovery-bed floor outline; clear central approach.",
+      "coverage_35": [
+        "B: floor work-zone line",
+        "C: medical blue"
+      ]
+    },
+    {
+      "id": "medical_safety_strip_30x10",
+      "file": "medical_safety_strip_30x10.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        30,
+        10
+      ],
+      "anchor_px": [
+        15,
+        5
+      ],
+      "footprint_units": [
+        2.0,
+        0.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Yellow-black threshold at recovery equipment service side.",
+      "coverage_35": [
+        "D: clinical equipment hazard marking"
+      ]
+    },
+    {
+      "id": "medical_clipboard_23x29",
+      "file": "medical_clipboard_23x29.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        23,
+        29
+      ],
+      "anchor_px": [
+        11,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach clipboard to bed, cabinet or wall; no loose floor scatter.",
+      "coverage_35": [
+        "D: attached clinic life/safety detail"
+      ]
+    },
+    {
+      "id": "medical_iv_22x56",
+      "file": "medical_iv_22x56.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        22,
+        56
+      ],
+      "anchor_px": [
+        11,
+        55
+      ],
+      "footprint_units": [
+        1.47,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach iv to bed, cabinet or wall; no loose floor scatter.",
+      "coverage_35": [
+        "D: attached clinic life/safety detail"
+      ]
+    },
+    {
+      "id": "medical_sanitizer_14x22",
+      "file": "medical_sanitizer_14x22.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        14,
+        22
+      ],
+      "anchor_px": [
+        7,
+        21
+      ],
+      "footprint_units": [
+        0.93,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach sanitizer to bed, cabinet or wall; no loose floor scatter.",
+      "coverage_35": [
+        "D: attached clinic life/safety detail"
+      ]
+    },
+    {
+      "id": "medical_memo_20x22",
+      "file": "medical_memo_20x22.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        20,
+        22
+      ],
+      "anchor_px": [
+        10,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach memo to bed, cabinet or wall; no loose floor scatter.",
+      "coverage_35": [
+        "D: attached clinic life/safety detail"
+      ]
+    },
+    {
+      "id": "medical_sticker_18x16",
+      "file": "medical_sticker_18x16.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        18,
+        16
+      ],
+      "anchor_px": [
+        9,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach sticker to bed, cabinet or wall; no loose floor scatter.",
+      "coverage_35": [
+        "D: attached clinic life/safety detail"
+      ]
+    },
+    {
+      "id": "medical_cable_36x31",
+      "file": "medical_cable_36x31.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        36,
+        31
+      ],
+      "anchor_px": [
+        18,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach cable to bed, cabinet or wall; no loose floor scatter.",
+      "coverage_35": [
+        "D: attached clinic life/safety detail"
+      ]
+    },
+    {
+      "id": "medical_stand_spot_recovery_attendant_12x6",
+      "file": "medical_stand_spot_recovery_attendant_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Reserved recovery attendant position; keep full 30px body visible.",
+      "coverage_35": [
+        "A: future character position"
+      ]
+    },
+    {
+      "id": "medical_stand_spot_medicine_cabinet_staff_12x6",
+      "file": "medical_stand_spot_medicine_cabinet_staff_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Reserved medicine cabinet staff position; keep full 30px body visible.",
+      "coverage_35": [
+        "A: future character position"
+      ]
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch3_equipment_v3/wall_straight_60x46_light_v2.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "0c9fe477f3c4374add8821b3a3fe6bf7f8ce484621039f6206d867f30276dd2f",
+      "use": "Accepted light wall alpha/geometry source for medical recolor",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/rhodes_floor_equipment_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "81cd2ad0c3fb1401f0745a2b672e49bf191eb4ae9b1970f7f6c04c405d741dc8",
+      "use": "Accepted plate pattern source for medical floor recolor",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_medical_v1/medical_wall_white_60x46.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "dec5f112b7647c7048733b92e21293f8d6b9868926bf3082865136ecdf57e550",
+      "use": "MEDICAL wall shell; locked 46px geometry",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_medical_v1/medical_floor_cool_120x120.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "ec819f95827d0ef1385b0959c3f80cd103c2dcfcd9e86ccf0e64d9301c7497ba",
+      "use": "MEDICAL floor tile; 30px plate pattern",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Native 1:1 character scale proof",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_M_gray_v1.png",
+      "size_px": [
+        24,
+        24
+      ],
+      "sha256": "6b4a4e6cd699333a5e8da4d2989ff19a625a8d59dc9e3ca581b71b43f29888f2",
+      "use": "Accepted M mark for department sign",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S mark for principal interactive prop",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_04.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "e33fd07a0aca082d0d3edd19898bd681ec077c04759d9664ffb314bd3da7e81b",
+      "use": "Accepted doorway number plate",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_rectangle_cool_90x60.png",
+      "size_px": [
+        90,
+        60
+      ],
+      "sha256": "86d93f4f08e6e8cf8567785fbeead86bfa3fc8f198d534169894b782df787a65",
+      "use": "Accepted opaque-black additive light pool; layer with additive blend",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/door_open_45x46_light_v2.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "2cfbb63c9cc131def423608e3d8eb92ded8fe058adc0caf5907d6db3ea3d567b",
+      "use": "Accepted 45x46 light door with 32x36 clearance",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/door_closed_45x46_light_v2.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "0155e130e4ea6190a082f3d67f4943a9e7fffd3a2c2f8a5d6a7a3ce2bd637d92",
+      "use": "Accepted light door closed state",
+      "locked": true
+    }
+  ],
+  "shell": {
+    "size_units": [
+      18,
+      12
+    ],
+    "floor_size_px": [
+      270,
+      152
+    ],
+    "wall_height_px": 46,
+    "wall_tile": "../batch_H3_medical_v1/medical_wall_white_60x46.png",
+    "floor_tile": "../batch_H3_medical_v1/medical_floor_cool_120x120.png",
+    "door_plate": "../batch_H1b_wayfinding_v1/small_number_plate_B1_04.png",
+    "assembly": "Parts only; use accepted light door, side strip and corner geometry; keep a >=45px central route."
+  },
+  "preview": {
+    "file": "H3_medical_lappland_1x.png",
+    "size_px": [
+      700,
+      330
+    ],
+    "character": "Lappland frame 0; 64x64 canvas, 30px visible character, no scaling",
+    "character_origin_px": [
+      626,
+      263
+    ],
+    "purpose": "1:1 native-scale asset review sheet, not an assembled room"
+  },
+  "logo_policy": "Exactly two representative marks in the preview: M on department sign and S on main interactive prop; <=6 per assembled screen.",
+  "stand_spots": [
+    "medical_stand_spot_recovery_attendant_12x6",
+    "medical_stand_spot_medicine_cabinet_staff_12x6"
+  ],
+  "life_details": [
+    "medical_clipboard_23x29",
+    "medical_iv_22x56",
+    "medical_sanitizer_14x22",
+    "medical_memo_20x22",
+    "medical_sticker_18x16",
+    "medical_cable_36x31"
+  ],
+  "assembly": {
+    "recovery": "Wake-up point is the principal bed. Keep a 30px attendant position beside it.",
+    "ward": "Total three beds. Curtain separates recovery and secondary beds; cabinet staff stands at wall.",
+    "lighting": "Brightest room. Use accepted cool additive pool and screen emit. Floor never exceeds #98a2a6; preserve Lappland's dark-coat contrast."
+  },
+  "checklist_35": {
+    "A": "Whiter 46px wall shell, three beds, articulated monitor and curtain rail.",
+    "B": "B1-04 accepted door plate and MEDICAL supergraphic.",
+    "C": "Rhodes blue/medical white identity, restrained cyan vital trace.",
+    "D": "Medicines, clipboard, IV, sanitizer, memo, sticker, service cable and safety strip."
+  }
+}

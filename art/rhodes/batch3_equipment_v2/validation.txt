@@ -1,0 +1,84 @@
+Recolor-only v2, spec v1.0.5. All statistics use opaque pixels only. mean_luminance_sRGB is Yprime=(0.2126R+0.7152G+0.0722B)/255; target0.50..0.65 uses this display-value metric. Linearized sRGB relative luminance is also reported, separately. Light pixels means Yprime>=0.50. Accents counted by complete palette ramps: orange15..17, yellow12..14, cyan18..21, red25; no screen exemption used. Enforced on EVERY final individual prop including OFF: mean0.50..0.65, accent total<=10%, each ramp<=6%, most frequent opaque color in cold-grey/white range7..10.
+PASS unchanged canvas and every alpha byte: wall_straight_60x46
+PASS unchanged canvas and every alpha byte: wall_rib_6x46
+PASS unchanged canvas and every alpha byte: wall_top_6_plus2
+PASS unchanged canvas and every alpha byte: door_side_gap38
+PASS unchanged canvas and every alpha byte: corner_right_L
+PASS unchanged canvas and every alpha byte: corner_left_L
+PASS unchanged canvas and every alpha byte: door_open_45x46
+PASS unchanged canvas and every alpha byte: door_closed_45x46
+PASS unchanged canvas and every alpha byte: door_sealed_45x46
+PASS unchanged canvas and every alpha byte: wall_floor_contact_shadow_60x2
+PASS unchanged canvas and every alpha byte: wall atlas
+PASS unchanged canvas and every alpha byte: floor same120x120 plate pattern
+equipment FLOOR: opaque=14400; mean_luminance_sRGB=0.354620; linear_relative_luminance=0.113174; light_pixels_Yprime>=0.5=1.000%; orange=0.000%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=0.000%; dominant=#566064
+PASS unchanged canvas and every alpha byte: workbench
+workbench BEFORE: opaque=781; mean_luminance_sRGB=0.322593; linear_relative_luminance=0.166556; light_pixels_Yprime>=0.5=22.535%; orange=5.634%; yellow=0.000%; cyan=12.036%; red=0.000%; accents_total=17.670%; dominant=#0b0c0d
+workbench ON: opaque=781; mean_luminance_sRGB=0.576448; linear_relative_luminance=0.366938; light_pixels_Yprime>=0.5=64.149%; orange=1.665%; yellow=0.000%; cyan=5.250%; red=0.000%; accents_total=6.914%; dominant=#98a2a6
+PASS unchanged canvas and every alpha byte: weapon_cabinet
+weapon_cabinet BEFORE: opaque=975; mean_luminance_sRGB=0.279041; linear_relative_luminance=0.118649; light_pixels_Yprime>=0.5=15.077%; orange=5.333%; yellow=1.949%; cyan=0.103%; red=0.000%; accents_total=7.385%; dominant=#0b0c0d
+weapon_cabinet ON: opaque=975; mean_luminance_sRGB=0.610380; linear_relative_luminance=0.391673; light_pixels_Yprime>=0.5=71.179%; orange=1.333%; yellow=0.000%; cyan=0.103%; red=0.000%; accents_total=1.436%; dominant=#c3cacc
+PASS unchanged canvas and every alpha byte: crane_hook
+crane_hook BEFORE: opaque=365; mean_luminance_sRGB=0.205950; linear_relative_luminance=0.070095; light_pixels_Yprime>=0.5=11.233%; orange=12.055%; yellow=1.370%; cyan=0.000%; red=0.000%; accents_total=13.425%; dominant=#0b0c0d
+crane_hook ON: opaque=365; mean_luminance_sRGB=0.516381; linear_relative_luminance=0.315342; light_pixels_Yprime>=0.5=70.685%; orange=1.644%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=1.644%; dominant=#98a2a6
+PASS unchanged canvas and every alpha byte: robotic_arm
+robotic_arm BEFORE: opaque=531; mean_luminance_sRGB=0.261423; linear_relative_luminance=0.110990; light_pixels_Yprime>=0.5=20.527%; orange=10.169%; yellow=0.000%; cyan=0.188%; red=0.000%; accents_total=10.358%; dominant=#0b0c0d
+robotic_arm ON: opaque=531; mean_luminance_sRGB=0.577830; linear_relative_luminance=0.374837; light_pixels_Yprime>=0.5=76.836%; orange=2.448%; yellow=0.000%; cyan=0.188%; red=0.000%; accents_total=2.637%; dominant=#98a2a6
+PASS unchanged canvas and every alpha byte: crate_single
+crate_single BEFORE: opaque=233; mean_luminance_sRGB=0.359395; linear_relative_luminance=0.166388; light_pixels_Yprime>=0.5=39.914%; orange=56.652%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=56.652%; dominant=#e0782a
+crate_single ON: opaque=233; mean_luminance_sRGB=0.636308; linear_relative_luminance=0.411312; light_pixels_Yprime>=0.5=76.824%; orange=5.150%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=5.150%; dominant=#c3cacc
+PASS unchanged canvas and every alpha byte: crate_stack
+crate_stack BEFORE: opaque=717; mean_luminance_sRGB=0.288891; linear_relative_luminance=0.120056; light_pixels_Yprime>=0.5=15.481%; orange=52.859%; yellow=0.558%; cyan=0.000%; red=0.000%; accents_total=53.417%; dominant=#b8531f
+crate_stack ON: opaque=717; mean_luminance_sRGB=0.590997; linear_relative_luminance=0.358826; light_pixels_Yprime>=0.5=77.824%; orange=4.881%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=4.881%; dominant=#a9b2b3
+atlas 512x256 cell=0,0 origin=29,88 feet baseline=113
+atlas 512x256 cell=1,0 origin=179,72 feet baseline=113
+atlas 512x256 cell=0,1 origin=29,216 feet baseline=241
+atlas 512x256 cell=1,1 origin=179,200 feet baseline=241
+atlas 256x192 cell=0,0 origin=19,46 feet baseline=56
+atlas 256x192 cell=1,0 origin=76,32 feet baseline=56
+atlas 256x192 cell=2,0 origin=143,13 feet baseline=56
+atlas 256x192 cell=3,0 origin=207,23 feet baseline=56
+atlas 256x192 cell=3,1 origin=207,87 feet baseline=120
+PASS static room composite196x169 (interior180x115), scale review480x150, both exact4x. Lappland frame0 copied at1:1, actual alpha>=128 height=29. Composite retains character original colors.
+PASS wall_straight_60x46_light_v1: 60x46, colors=6, cyan=0, binary alpha, palette and exact8x
+PASS wall_rib_6x46_light_v1: 6x46, colors=5, cyan=0, binary alpha, palette and exact8x
+PASS wall_top_6_plus2_light_v1: 8x60, colors=3, cyan=0, binary alpha, palette and exact8x
+PASS door_side_gap38_light_v1: 8x60, colors=4, cyan=0, binary alpha, palette and exact8x
+PASS corner_right_L_light_v1: 32x60, colors=6, cyan=0, binary alpha, palette and exact8x
+PASS corner_left_L_light_v1: 32x60, colors=6, cyan=0, binary alpha, palette and exact8x
+PASS door_open_45x46_light_v1: 45x46, colors=11, cyan=4, binary alpha, palette and exact8x
+PASS door_closed_45x46_light_v1: 45x46, colors=11, cyan=4, binary alpha, palette and exact8x
+PASS door_sealed_45x46_light_v1: 45x46, colors=12, cyan=0, binary alpha, palette and exact8x
+PASS wall_floor_contact_shadow_60x2_light_v1: 60x2, colors=1, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_walls_light_v1: 256x192, colors=13, cyan=8, binary alpha, palette and exact8x
+PASS rhodes_floor_equipment_v1: 120x120, colors=6, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_floor_equipment_quadrant_0_v1: 60x60, colors=6, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_floor_equipment_quadrant_1_v1: 60x60, colors=6, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_floor_equipment_quadrant_2_v1: 60x60, colors=6, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_floor_equipment_quadrant_3_v1: 60x60, colors=6, cyan=0, binary alpha, palette and exact8x
+rhodes_workbench_on_v2: opaque=781; mean_luminance_sRGB=0.576448; linear_relative_luminance=0.366938; light_pixels_Yprime>=0.5=64.149%; orange=1.665%; yellow=0.000%; cyan=5.250%; red=0.000%; accents_total=6.914%; dominant=#98a2a6
+PASS rhodes_workbench_on_v2: 70x26, colors=10, cyan=41, binary alpha, palette and exact8x
+rhodes_workbench_off_v2: opaque=781; mean_luminance_sRGB=0.570663; linear_relative_luminance=0.356014; light_pixels_Yprime>=0.5=64.149%; orange=1.665%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=1.665%; dominant=#98a2a6
+PASS rhodes_workbench_off_v2: 70x26, colors=8, cyan=0, binary alpha, palette and exact8x
+rhodes_weapon_cabinet_on_v2: opaque=975; mean_luminance_sRGB=0.610380; linear_relative_luminance=0.391673; light_pixels_Yprime>=0.5=71.179%; orange=1.333%; yellow=0.000%; cyan=0.103%; red=0.000%; accents_total=1.436%; dominant=#c3cacc
+PASS rhodes_weapon_cabinet_on_v2: 26x41, colors=10, cyan=1, binary alpha, palette and exact8x
+rhodes_weapon_cabinet_off_v2: opaque=975; mean_luminance_sRGB=0.610401; linear_relative_luminance=0.391664; light_pixels_Yprime>=0.5=71.179%; orange=1.333%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=1.333%; dominant=#c3cacc
+PASS rhodes_weapon_cabinet_off_v2: 26x41, colors=9, cyan=0, binary alpha, palette and exact8x
+rhodes_crane_hook_v2: opaque=365; mean_luminance_sRGB=0.516381; linear_relative_luminance=0.315342; light_pixels_Yprime>=0.5=70.685%; orange=1.644%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=1.644%; dominant=#98a2a6
+PASS rhodes_crane_hook_v2: 34x44, colors=7, cyan=0, binary alpha, palette and exact8x
+rhodes_robotic_arm_on_v2: opaque=531; mean_luminance_sRGB=0.577830; linear_relative_luminance=0.374837; light_pixels_Yprime>=0.5=76.836%; orange=2.448%; yellow=0.000%; cyan=0.188%; red=0.000%; accents_total=2.637%; dominant=#98a2a6
+PASS rhodes_robotic_arm_on_v2: 34x34, colors=9, cyan=1, binary alpha, palette and exact8x
+rhodes_robotic_arm_off_v2: opaque=531; mean_luminance_sRGB=0.577650; linear_relative_luminance=0.374513; light_pixels_Yprime>=0.5=76.836%; orange=2.448%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=2.448%; dominant=#98a2a6
+PASS rhodes_robotic_arm_off_v2: 34x34, colors=8, cyan=0, binary alpha, palette and exact8x
+rhodes_supply_crate_v2: opaque=233; mean_luminance_sRGB=0.636308; linear_relative_luminance=0.411312; light_pixels_Yprime>=0.5=76.824%; orange=5.150%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=5.150%; dominant=#c3cacc
+PASS rhodes_supply_crate_v2: 25x11, colors=9, cyan=0, binary alpha, palette and exact8x
+rhodes_supply_crates_stack_v2: opaque=717; mean_luminance_sRGB=0.590997; linear_relative_luminance=0.358826; light_pixels_Yprime>=0.5=77.824%; orange=4.881%; yellow=0.000%; cyan=0.000%; red=0.000%; accents_total=4.881%; dominant=#a9b2b3
+PASS rhodes_supply_crates_stack_v2: 40x25, colors=9, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_equipment_stations_v2: 512x256, colors=12, cyan=42, binary alpha, palette and exact8x
+PASS rhodes_equipment_props_v2: 256x192, colors=10, cyan=1, binary alpha, palette and exact8x
+Recolor only at native1:1. No resampling; original v1 dimensions, alpha masks, atlas origins, workbench surface height, composition, and crane anchor(17,0) preserved.
+Crane atlas baseline aligns hook tip ONLY; scene pivot is rail top midpoint, suspended with tip above floor. Empty slots intentional. NOT RUN: engine integration; visual acceptance pending.
+PASS independent delivery verification: 11 prop/atlas images have identical dimensions and alpha at every pixel versus v1; native placements therefore preserve their baselines.
+PASS all3 review/tile images are exact4x replicas; all3 doors retain3px corner chamfers.
+PASS crane native anchor(17,0), atlas anchor(160,13), room placement(106,3) and all other room placements copied unchanged from v1.
+PASS all protected Batch1 v5, Batch2 v2 and Batch3 v1 PNG SHA256 hashes unchanged, and canonical accepted floor unchanged.

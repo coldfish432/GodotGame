@@ -1,0 +1,14 @@
+H3 ARMORY v4: 12 assets, 7 generated furniture/equipment items, 2 emit masks, 16 hashed dependencies.
+Uniform integer downscale only; independent validation follows.
+
+Independent H3 ARMORY v4 audit:
+  Generated items 7; assets 12; emit masks 2; locked dependencies 16.
+  Checked source hashes, integer factors, palette, binary alpha, exact 8x, masks, wall alpha, item scale, native glyphs, own-shell composite, Lappland 1:1 and unchanged v3 assets.
+  armory_equipment_workbench: luminance 0.524; accents 10.3% (max family 5.8%); near-black 0.0%; gray steps 7.
+  armory_weapon_wall: luminance 0.520; accents 3.0% (max family 3.0%); near-black 0.0%; gray steps 7.
+  armory_robotic_arm: luminance 0.585; accents 3.5% (max family 2.0%); near-black 0.0%; gray steps 7.
+  armory_overhead_hoist: luminance 0.549; accents 1.4% (max family 1.0%); near-black 0.0%; gray steps 7.
+  armory_tool_board: luminance 0.578; accents 5.3% (max family 4.8%); near-black 0.0%; gray steps 7.
+  armory_equipment_case: luminance 0.636; accents 4.7% (max family 4.7%); near-black 0.0%; gray steps 5.
+  armory_task_lamp: luminance 0.576; accents 1.2% (max family 1.2%); near-black 0.0%; gray steps 7.
+  Result: PASS (0 errors).

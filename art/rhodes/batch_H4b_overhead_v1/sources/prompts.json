@@ -1,0 +1,35 @@
+{
+  "image_model": "built-in imagegen",
+  "transparent_background": true,
+  "assets": [
+    {
+      "source": "beam_source.png",
+      "prompt": "One isolated straight repeatable horizontal I-beam segment for a Rhodes Island base ceiling OVERHEAD layer. Front-facing orthographic zero yaw pixel-art hardware, a slim long dark-steel (#2c3236/#3d4448/#566064) horizontal I-section with visible narrow top lip, front web, lower lip, subtle local highlights, clean 3-tone shading. Important: both LEFT and RIGHT ends are cut straight and identical so multiple copies tile horizontally; NO end brackets or yellow marks on this straight segment. Transparent background. Large original intended for uniform integer reduction to 60x14 logical px. Match the reference scene's industrial material, improve placeholder detail."
+    },
+    {
+      "source": "bracket_source.png",
+      "prompt": "One isolated compact wall bracket supporting a Rhodes Island ceiling I-beam. Dark steel, front-facing orthographic zero yaw pixel art, axis-aligned steel wall plate and projecting horizontal short beam saddle. Add small yellow-black diagonal safety markings on its OUTER end only, tiny bolts, three tones plus highlight per metal and selective local outlines. Transparent background, large source for uniform integer reduction to about 24x22 logical pixels. Separate module, no long beam."
+    },
+    {
+      "source": "junction_source.png",
+      "prompt": "One isolated ceiling cross junction where TWO dark-steel Rhodes Island I-beams cross at 90 degrees, seen orthographically from above/front with zero yaw, all edges axis aligned: horizontal E-W beam and vertical N-S beam form a crisp +. Compact stepped gusset plate at center, small bolts and small yellow-black caution tab, dark steel three tones plus highlight. Transparent background. Large source intended for uniform integer reduction to about 30x30 logical px. No perspective diagonal beams."
+    },
+    {
+      "source": "hoist_hook_source.png",
+      "prompt": "One isolated Rhodes Island industrial crane HOOK BLOCK, no trolley and no long cable. Compact dark steel weight block and a clearly readable downward curved steel hook with tiny safety-yellow latch. Front-facing orthographic zero yaw pixel art, clean metal 3-tone shading, transparent background. Large original intended for uniform integer reduction to about 18x24 logical pixels. Short cable connection eye at exact top center. Match accepted base industrial art."
+    },
+    {
+      "source": "cable_tray_source.png",
+      "prompt": "One isolated repeatable horizontal overhead steel CABLE TRAY SEGMENT for Rhodes Island base. Front-facing orthographic zero yaw pixel art. Slim dark-steel tray with shallow visible top plane and front lip, straight identical ends for horizontal tiling. Three bright but restrained ORANGE bundled cables visible along top, tiny steel separators, clean no grime, three tones plus highlight. Transparent background. Large source intended for uniform integer reduction to 60x14 logical px. No hanging screens or devices."
+    },
+    {
+      "source": "curtain_track_source.png",
+      "prompt": "One isolated horizontal ceiling CURTAIN TRACK segment for a Rhodes Island medical room, white/silver with Rhodes-blue accent and several small sliding curtain loops, NO curtain fabric attached. Front-facing orthographic zero yaw pixel art, slim straight rail, identical square-cut left/right ends for horizontal repeat tiling, subtle 3-tone white metal highlight, selective darker-local outlines. Transparent background. Large original intended for uniform integer reduction to 60x12 logical px. Clean clinical style."
+    },
+    {
+      "source": "hoist_trolley_source.png",
+      "reference": "first trolley generation edited to remove baked-in rail",
+      "prompt": "Edit into the standalone moving hoist trolley only: remove long horizontal rail, retain motor housing, rollers, hazard latches and bottom cable-exit eye; no hook/cable, transparent zero-yaw pixel art."
+    }
+  ]
+}

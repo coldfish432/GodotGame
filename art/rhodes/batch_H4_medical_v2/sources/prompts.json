@@ -1,0 +1,51 @@
+{
+  "image_model": "built-in imagegen",
+  "transparent_background": true,
+  "assets": [
+    {
+      "source": "reception_source.png",
+      "prompt": "Create one standalone game prop source on transparent background: Rhodes Island medical reception desk with a gently curved or chamfered FRONT silhouette, centered tiny report terminal sitting on the desk, clean medical white and Rhodes blue. Orthographic front-facing 3/4 camera with zero yaw: front face horizontal, top surface visible as a shallow axis-aligned rectangle, sides vertical; NO diagonal receding side, NO isometric view. Pixel-art styled large original for uniform integer reduction to about 90x43 logical pixels. 3 tones plus highlight per material, selective dark-local outlines, clean illustration, compact readable vitals/report screen. No text or logos. Match reference bed material/render style."
+    },
+    {
+      "source": "pharmacy_window_source.png",
+      "prompt": "Create one standalone wall-mounted Rhodes Island medical pharmacy service window, front-facing elevation with zero yaw, transparent outside silhouette. Rectangular white and Rhodes blue frame, clear service aperture, shallow counter ledge, small warm illuminated service indicator. No bottles, no lettering. Clean pixel art large original to reduce uniformly to about 82x36 logical pixels; straight horizontal/vertical lines, no isometric receding edges, three tones plus highlight, local dark outlines. Wall mounted under a 40px wall face."
+    },
+    {
+      "source": "pharmacy_shelf_source.png",
+      "prompt": "Create one standalone compact pharmacy potion shelf, front-facing orthographic pixel art, transparent background. White/blue rack with THREE distinct empty bays behind glass, each bay sized for a separate potion icon to be composited later; continuous horizontal shelves, no perspective side faces, clean varied tones and narrow outlines. Large original to uniformly reduce to about 66x28 logical pixels. No letters or logos."
+    },
+    {
+      "source": "exam_bed_source.png",
+      "prompt": "Create one standalone Rhodes Island contamination examination bed, clean medical white and Rhodes blue with subtle hazard-yellow cuff at foot. Transparent background. Orthographic front-facing 3/4 with zero yaw, axis-aligned horizontal headboard, visible horizontal mattress top, front face and straight vertical sides, NO diagonal receding edges, no isometric view. Rectangular bed ~60x36 logical pixels after uniform integer reduction. Clean pixel-art source, 3 tones+highlight, selective dark local outlines, no lettering, no patient."
+    },
+    {
+      "source": "scanner_source.png",
+      "prompt": "Create one standalone Rhodes Island contamination scanner, a compact white/blue medical scanning gantry with vertical side posts and a horizontal sensor head spanning the upper area, orange/red tiny sensor and cyan readout. Empty central aperture visible; it will stand by an examination bed. Transparent background, front-facing orthographic pixel art, zero yaw, entirely axis aligned no receding side edges, about 47x44 logical pixels after uniform integer reduction. Three tone shaded surfaces, restrained dark local outlines, no text."
+    },
+    {
+      "source": "potion_a_source.png",
+      "prompt": "One standalone tiny Rhodes Island medical potion vial, TYPE A, squat square-sided bottle with blue-cyan liquid and white label blank, viewed straight-on front orthographic, transparent background, pixel art with three tones per glass/metal and selective local outlines. Large original suitable for uniform integer reduction to about 11x16 logical pixels. No text or extra props."
+    },
+    {
+      "source": "potion_b_source.png",
+      "prompt": "One standalone tiny Rhodes Island medical potion vial, TYPE B, tall narrow round-shouldered bottle with amber liquid and white label blank, viewed straight-on front orthographic, transparent background, pixel art with three tones per glass/metal and selective local outlines. Large original suitable for uniform integer reduction to about 11x16 logical pixels. No text or extra props."
+    },
+    {
+      "source": "potion_c_source.png",
+      "prompt": "One standalone tiny Rhodes Island medical potion vial, TYPE C, triangular-shouldered flask with rose-red liquid and Rhodes-blue cap, viewed straight-on front orthographic, transparent background, pixel art with three tones per glass/metal and selective local outlines. Large original suitable for uniform integer reduction to about 11x16 logical pixels. No text or extra props."
+    },
+    {
+      "source": "waiting_chairs_source.png",
+      "prompt": "Standalone row of THREE connected hospital waiting chairs, clean Rhodes Island white and blue vinyl seats and steel frame, front-facing orthographic 3/4 with zero yaw and straight horizontal seat fronts, upright vertical legs, shallow horizontal top surfaces, no isometric diagonal side edges. Transparent background. Pixel art large original to uniformly reduce to about 72x31 logical pixels. Selective local outlines and 3 tones plus highlight per material. No people, lettering or logo."
+    },
+    {
+      "source": "nurse_station_source.png",
+      "prompt": "Standalone compact Rhodes Island nurse station desk with a low chart rack and one clinical computer screen displaying small patient list blocks, white and blue, no text. Front-facing orthographic 3/4 with zero yaw, visible shallow top surface and vertical front face, horizontal edges only, no isometric receding sides. Transparent background, clean pixel art large original for uniform integer reduction to about 75x39 logical pixels. Selective dark-local outlines, 3 tones+highlight. No other props."
+    },
+    {
+      "source": "occupied_bed_source.png",
+      "reference": "H3 v4 medical_ward_bed_source.png",
+      "prompt": "Edit accepted ward bed to an occupied state with an anonymous patient under a white blanket. Preserve zero-yaw, orthographic front projection and the bed body."
+    }
+  ]
+}

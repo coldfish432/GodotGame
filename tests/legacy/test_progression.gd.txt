@@ -1,0 +1,102 @@
+extends SceneTree
+
+## Session progression: the exit is locked while enemies remain, floor
+## advance rebuilds the world and rebakes NavMesh, death resets run-scoped
+## stats but keeps gold (DownfallPrototype.DieAndRestart never resets gold),
+## and the debug map-regenerate key (R) reseeds without touching floor.
+
+const Game = preload("res://game/game_manager.gd")
+
+var game: Node3D
+var results: Array[Dictionary] = []
+var failures: int = 0
+
+func _initialize() -> void:
+	call_deferred("run")
+
+func step(n: int = 1) -> void:
+	for i in range(n):
+		await physics_frame
+		await process_frame
+
+func check(id: String, passed: bool, observation: Dictionary) -> void:
+	results.append({"id": id, "status": "PASS" if passed else "FAIL", "observed": observation})
+	if not passed:
+		failures += 1
+	print(JSON.stringify(results.back()))
+
+func enemy_count() -> int:
+	return get_nodes_in_group("enemies").size()
+
+func clear_all_enemies() -> void:
+	for node in get_nodes_in_group("enemies"):
+		node.queue_free()
+	await step(2)
+
+func run() -> void:
+	game = Game.new()
+	root.add_child(game)
+	await step(6)
+
+	# --- Exit is locked while the current wave is still alive.
+	check("wave-present-at-boot", enemy_count() > 0, {"enemies": enemy_count()})
+	var floor_before_locked_attempt: int = game.floor_number
+	game.player.teleport(game.world_map.exit_node.global_position)
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(2)
+	check("exit-refuses-while-enemies-remain", game.floor_number == floor_before_locked_attempt,
+		{"floor": game.floor_number, "enemies_remaining": enemy_count()})
+
+	# --- Floor advance: clear the way, reach the exit, dive one-way.
+	# Pin off the ~20% random-extraction roll so this exercises the "dive"
+	# branch deterministically — extraction itself has its own dedicated
+	# coverage in test_economy.gd.
+	await clear_all_enemies()
+	game._random_extraction_available = false
+	game.player.teleport(game.world_map.exit_node.global_position)
+	var seed_before_advance: int = game.world_map.seed_value
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(10)
+	check("floor-advance-rebuilds-world-and-spawns-wave", game.floor_number == 2 and enemy_count() > 0 and game.world_map.seed_value != seed_before_advance,
+		{"floor": game.floor_number, "enemies": enemy_count(), "seed_before": seed_before_advance, "seed_after": game.world_map.seed_value})
+
+	# --- Death: gold persists, everything run-scoped resets.
+	game.add_gold(77)
+	var gold_before_death: int = game.gold
+	game.player.take_damage(9999.0)
+	await step(10)
+	check("death-resets-floor-and-buffs-but-keeps-gold", game.floor_number == 1 and game.potions == 3
+		and is_equal_approx(game.player.max_hp, 10.0) and is_equal_approx(game.player.damage_bonus, 1.0) and game.gold == gold_before_death,
+		{"floor": game.floor_number, "potions": game.potions, "max_hp": game.player.max_hp, "damage_bonus": game.player.damage_bonus, "gold": game.gold})
+	check("death-spawns-a-fresh-wave", enemy_count() > 0, {"enemies": enemy_count()})
+
+	# --- Debug map regenerate (R): new seed, same floor.
+	var seed_before_regen: int = game.world_map.seed_value
+	var floor_before_regen: int = game.floor_number
+	Input.action_press("regenerate_map")
+	await step(2)
+	Input.action_release("regenerate_map")
+	await step(10)
+	check("regenerate-map-changes-seed-not-floor", game.world_map.seed_value != seed_before_regen and game.floor_number == floor_before_regen,
+		{"seed_before": seed_before_regen, "seed_after": game.world_map.seed_value, "floor": game.floor_number})
+
+	var report := {
+		"scope": "downfall-godot progression tests (exit gating, floor advance + NavMesh rebake, death reset vs. persistent gold, debug regen)",
+		"engine": Engine.get_version_info().string,
+		"created_at": Time.get_datetime_string_from_system(true),
+		"results": results,
+		"failures": failures,
+	}
+	var evidence_dir := ProjectSettings.globalize_path("res://../evidence")
+	DirAccess.make_dir_recursive_absolute(evidence_dir)
+	var file := FileAccess.open(evidence_dir + "/downfall-test-progression-" + str(Time.get_unix_time_from_system()) + ".json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(report, "  "))
+	file.close()
+	print("DOWNFALL TEST_PROGRESSION: %d checks / %d failures" % [results.size(), failures])
+	game.queue_free()
+	await process_frame
+	quit(1 if failures else 0)

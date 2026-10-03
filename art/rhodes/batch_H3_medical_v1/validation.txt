@@ -1,0 +1,17 @@
+H3 MEDICAL v1 native-grid delivery: 18 assets, 3 emit masks.
+Shell: 18x12 units, 270x152 floor px, 46px wall.
+Two stand spots; 6 attached life details; two accepted logo instances in preview.
+All assets exported natively and at exact 8x nearest-neighbor; independent audit follows.
+
+Independent H3 MEDICAL audit:
+  18 native assets; 3 emit masks; 11 hashed dependencies.
+  Exact inventory, palette, binary alpha, exact 8x, mask alignment, locked geometry, M/S silhouettes, Lappland 1:1, two spots and >=5 details checked.
+  Shell wall luminance 0.699; floor luminance 0.472.
+  medical_recovery_bed_110x67: luminance 0.602; accents 6.6% (max family 5.2%); near-black 0.0%.
+  medical_ward_bed_1_80x47: luminance 0.677; accents 2.6% (max family 2.6%); near-black 0.0%.
+  medical_ward_bed_2_80x47: luminance 0.707; accents 2.6% (max family 2.6%); near-black 0.0%.
+  medical_privacy_curtain_74x66: luminance 0.746; accents 3.5% (max family 3.5%); near-black 0.0%.
+  medical_wash_sink_52x42: luminance 0.731; accents 0.8% (max family 0.8%); near-black 0.0%.
+  medical_iv_22x56: luminance 0.682; accents 1.5% (max family 1.5%); near-black 0.0%.
+  medical_sanitizer_14x22: luminance 0.831; accents 5.9% (max family 5.9%); near-black 0.0%.
+  Result: PASS (0 errors).

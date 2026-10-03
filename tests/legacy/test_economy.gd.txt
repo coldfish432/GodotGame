@@ -1,0 +1,185 @@
+extends SceneTree
+
+## M2 loot economy: item pickup, gilding (once per floor, requires an
+## ungilded equippable item), safe-bag stash, equip/unequip stat recompute
+## (proving buffs and equipment don't clobber each other), fixed/random
+## extraction vs. dive at the exit, and death settlement respecting
+## gilded/safe-bag protection.
+
+const Game = preload("res://game/game_manager.gd")
+const ItemScript = preload("res://inventory/item.gd")
+
+var game: Node3D
+var results: Array[Dictionary] = []
+var failures: int = 0
+
+func _initialize() -> void:
+	call_deferred("run")
+
+func step(n: int = 1) -> void:
+	for i in range(n):
+		await physics_frame
+		await process_frame
+
+func check(id: String, passed: bool, observation: Dictionary) -> void:
+	results.append({"id": id, "status": "PASS" if passed else "FAIL", "observed": observation})
+	if not passed:
+		failures += 1
+	print(JSON.stringify(results.back()))
+
+func clear_all_enemies() -> void:
+	for node in get_nodes_in_group("enemies"):
+		node.queue_free()
+	await step(2)
+
+func run() -> void:
+	game = Game.new()
+	root.add_child(game)
+	await step(6)
+	var anchor: Vector3 = ContinuousWorldMap.ENTRY_POSITION
+	game.player.teleport(anchor)
+
+	# --- Loot pickup: a dropped Item routes into game.inventory, not gold.
+	var weapon := ItemScript.create("测试源石武器", ItemScript.Category.WEAPON, 2, 1, 2.0)
+	check("try_collect-adds-to-inventory", game.try_collect(weapon) and game.inventory.items.has(weapon),
+		{"inventory_count": game.inventory.items.size()})
+
+	# --- Safe bag: stash the last item, confirm it moves containers.
+	var inv_before: int = game.inventory.items.size()
+	var safe_before: int = game.safe_bag.items.size()
+	Input.action_press("stash_item")
+	await step(2)
+	Input.action_release("stash_item")
+	await step(2)
+	check("stash-item-moves-to-safe-bag", game.safe_bag.items.size() == safe_before + 1 and game.inventory.items.size() == inv_before - 1,
+		{"inventory": game.inventory.items.size(), "safe_bag": game.safe_bag.items.size()})
+
+	# --- Equip: stats recompute from a separate accumulator than buffs, so
+	# order of operations (buff, then equip, then unequip) can't corrupt
+	# either source — the bug class the plan's Player refactor exists to avoid.
+	await clear_all_enemies()
+	var hp_after_boot: float = game.player.max_hp
+	var dmg_after_boot: float = game.player.damage_bonus
+	game.player.teleport(game.world_map.buff_device_node.global_position)
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(2)
+	var hp_after_buff: float = game.player.max_hp
+	var dmg_after_buff: float = game.player.damage_bonus
+	check("buff-applies-before-equip-test", hp_after_buff > hp_after_boot and dmg_after_buff > dmg_after_boot,
+		{"max_hp": hp_after_buff, "damage_bonus": dmg_after_buff})
+
+	var armor := ItemScript.create("测试源石甲胄", ItemScript.Category.ARMOR, 2, 2, 4.0)
+	# equip() assumes the caller already removed the item from wherever it
+	# was (the real UI does this — see ui/inventory_panel.gd), so it isn't
+	# added to game.inventory here; this section is testing the stat
+	# recompute in isolation, not the pickup-then-equip flow.
+	var previous: Item = game.player.equip(armor)
+	var hp_after_equip: float = game.player.max_hp
+	check("equip-armor-adds-to-buffed-max-hp", is_equal_approx(hp_after_equip, hp_after_buff + armor.power * Player.ARMOR_POWER_TO_MAXHP),
+		{"expected": hp_after_buff + armor.power * Player.ARMOR_POWER_TO_MAXHP, "actual": hp_after_equip, "previous_equipped": previous})
+
+	game.player.unequip(ItemScript.Category.ARMOR)
+	check("unequip-reverts-to-buffed-value-not-base", is_equal_approx(game.player.max_hp, hp_after_buff),
+		{"expected": hp_after_buff, "actual": game.player.max_hp})
+
+	# --- Gilding: requires an ungilded equippable item, once per floor.
+	game.inventory.try_add(armor)
+	game.player.teleport(game.world_map.gilding_device_node.global_position)
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(2)
+	check("gilding-marks-last-equipment-gilded", armor.gilded, {"gilded": armor.gilded})
+
+	var second_item := ItemScript.create("第二件武器", ItemScript.Category.WEAPON, 1, 1, 1.0)
+	game.inventory.try_add(second_item)
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(2)
+	check("gilding-refuses-second-use-same-floor", not second_item.gilded, {"gilded": second_item.gilded})
+
+	# --- Extraction floor detection: floor 10 always qualifies; a rolled
+	# random-extraction flag can also make a non-tenth floor eligible.
+	game.floor_number = 9
+	game._random_extraction_available = false
+	check("floor-9-not-forced-extraction", not game.is_extraction_floor(), {"floor": 9})
+	game.floor_number = 10
+	check("floor-10-is-always-extraction-eligible", game.is_extraction_floor(), {"floor": 10})
+	game.floor_number = 7
+	game._random_extraction_available = true
+	check("random-extraction-flag-makes-non-tenth-floor-eligible", game.is_extraction_floor(), {"floor": 7})
+	game.floor_number = 9
+	game._random_extraction_available = false
+
+	# --- Death settlement: gilded (armor, wherever it sits) and safe-bag
+	# items survive; the rest is lost.
+	await clear_all_enemies()
+	var protected_equipped := ItemScript.create("已封装装备", ItemScript.Category.WEAPON, 1, 1, 1.0)
+	protected_equipped.gilded = true
+	game.player.equip(protected_equipped)
+	var safe_item := ItemScript.create("安全袋材料", ItemScript.Category.MATERIAL, 1, 1)
+	game.safe_bag.try_add(safe_item)
+	var unprotected := ItemScript.create("裸奔材料", ItemScript.Category.MATERIAL, 1, 1)
+	game.inventory.try_add(unprotected)
+
+	# Computed from actual state rather than hardcoded — earlier sections in
+	# this file leave residual gilded/safe-bag items behind on purpose (this
+	# test doesn't reset the world between sections), so the count of what
+	# *should* survive depends on everything accumulated so far, not just
+	# the three items just added above.
+	var expected_kept := 0
+	for item in game.inventory.items:
+		if item.gilded:
+			expected_kept += 1
+	expected_kept += game.safe_bag.items.size()
+	for category in game.player.equipped:
+		var equipped_item: Item = game.player.equipped[category]
+		if equipped_item != null and equipped_item.gilded:
+			expected_kept += 1
+	var stash_before: int = game.stash.size()
+
+	game.player.invulnerable = false
+	game.player.take_damage(9999.0)
+	await step(10)
+	check("death-keeps-gilded-and-safe-bag-only", game.stash.size() == stash_before + expected_kept,
+		{"stash_size": game.stash.size(), "expected": stash_before + expected_kept, "expected_kept": expected_kept})
+	check("death-clears-inventory-and-safe-bag", game.inventory.is_empty() and game.safe_bag.is_empty(),
+		{"inventory_empty": game.inventory.is_empty(), "safe_bag_empty": game.safe_bag.is_empty()})
+	check("death-unequips-and-resets-buff-stats", game.player.equipped.is_empty() and is_equal_approx(game.player.max_hp, 10.0),
+		{"equipped_count": game.player.equipped.size(), "max_hp": game.player.max_hp})
+
+	# --- Extraction: reach floor 10, clear it, extract — everything survives.
+	game.floor_number = 10
+	game._build_world()
+	await game._await_navigation_sync()
+	await clear_all_enemies()
+	var kept_item := ItemScript.create("撤离带回材料", ItemScript.Category.MATERIAL, 1, 1)
+	game.inventory.try_add(kept_item)
+	var stash_before_extract: int = game.stash.size()
+	game.player.teleport(game.world_map.exit_node.global_position)
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(10)
+	check("extraction-resets-floor-and-banks-everything", game.floor_number == 1 and game.stash.size() == stash_before_extract + 1,
+		{"floor": game.floor_number, "stash_size": game.stash.size()})
+
+	var report := {
+		"scope": "downfall-godot M2 economy tests (loot/inventory/safe-bag/equip/gilding/extraction/death settlement)",
+		"engine": Engine.get_version_info().string,
+		"created_at": Time.get_datetime_string_from_system(true),
+		"results": results,
+		"failures": failures,
+	}
+	var evidence_dir := ProjectSettings.globalize_path("res://../evidence")
+	DirAccess.make_dir_recursive_absolute(evidence_dir)
+	var file := FileAccess.open(evidence_dir + "/downfall-test-economy-" + str(Time.get_unix_time_from_system()) + ".json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(report, "  "))
+	file.close()
+	print("DOWNFALL TEST_ECONOMY: %d checks / %d failures" % [results.size(), failures])
+	game.queue_free()
+	await process_frame
+	quit(1 if failures else 0)

@@ -1,0 +1,28 @@
+H4 medical v1: 26 native assets; 31-color palette; 8x exact nearest previews.
+PASS medical_reception_idle: 88x31, source_factor=19, emit=True
+PASS medical_reception_alert: 88x31, source_factor=19, emit=True
+PASS medical_pharmacy_window: 78x34, source_factor=23, emit=False
+PASS medical_pharmacy_shelf_base: 66x25, source_factor=28, emit=False
+PASS medical_potion_a_full: 11x16, source_factor=90, emit=False
+PASS medical_potion_a_empty: 11x16, source_factor=90, emit=False
+PASS medical_potion_b_full: 8x17, source_factor=85, emit=False
+PASS medical_potion_b_empty: 8x17, source_factor=85, emit=False
+PASS medical_potion_c_full: 12x15, source_factor=90, emit=False
+PASS medical_potion_c_empty: 12x15, source_factor=90, emit=False
+PASS medical_pharmacy_shelf_full: 66x25, source_factor=28, emit=False
+PASS medical_pharmacy_shelf_empty: 66x25, source_factor=28, emit=False
+PASS medical_contamination_exam_bed: 55x35, source_factor=25, emit=False
+PASS medical_contamination_scanner: 44x40, source_factor=28, emit=True
+PASS medical_waiting_chairs_3: 69x26, source_factor=26, emit=False
+PASS medical_nurse_station: 66x35, source_factor=23, emit=True
+PASS medical_sign_contamination: 90x13, source_factor=-, emit=False
+PASS medical_sign_ward: 34x13, source_factor=-, emit=False
+PASS medical_contamination_door_lamp_green: 10x10, source_factor=-, emit=True
+PASS medical_contamination_door_lamp_red: 10x10, source_factor=-, emit=True
+PASS medical_glass_partition_ns_continuous_8x90: 8x90, source_factor=-, emit=False
+PASS medical_glass_partition_ns_door_gap_8x90: 8x90, source_factor=-, emit=False
+PASS medical_ward_bed_empty: 53x34, source_factor=-, emit=False
+PASS medical_ward_bed_occupied: 53x34, source_factor=28, emit=False
+PASS medical_staff_stand_spot_1: 12x6, source_factor=-, emit=False
+PASS medical_staff_stand_spot_2: 12x6, source_factor=-, emit=False
+PASS batch_H4_medical_v1: 26 unique assets; 17 generated-source entries; 6 nonempty emit masks; state bounds/anchors, source/dependency hashes, binary alpha, 31-color palette, exact 8x and 4x checked.

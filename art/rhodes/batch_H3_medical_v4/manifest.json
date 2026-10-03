@@ -1,0 +1,656 @@
+{
+  "batch": "H3 MEDICAL v4",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.3, 3.1.1, 3.5, 3.7, 4.4",
+  "method": "Each furniture/equipment item has its own generated PNG in sources/. The local build script crops alpha, reduces uniformly by an item-specific integer factor, quantizes to the 31-color palette and preserves binary alpha. Geometric modules reuse accepted native-grid exports.",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "medical_department_sign_120x36",
+      "file": "medical_department_sign_120x36.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        120,
+        36
+      ],
+      "anchor_px": [
+        60,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native 5x7 MEDICAL/B1-04 sign, accepted M mark and Rhodes-blue band; fits 40px wall face.",
+      "coverage_35": [
+        "B: department supergraphic",
+        "C: blue-white identity"
+      ],
+      "source": null,
+      "postprocess": "geometric sign with accepted glyph grid; no generated lettering"
+    },
+    {
+      "id": "medical_recovery_bed",
+      "file": "medical_recovery_bed.png",
+      "emit": "medical_recovery_bed_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        62,
+        32
+      ],
+      "anchor_px": [
+        31,
+        31
+      ],
+      "footprint_units": [
+        4.13,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Primary death-recovery/wake-up bed with top mattress, rails, casters and distinct EKG vital screen.",
+      "coverage_35": [
+        "A: deep white recovery station",
+        "B: S on representative main object",
+        "C: EKG signal"
+      ],
+      "source": {
+        "source": "sources/medical_recovery_bed_source.png",
+        "source_size_px": [
+          1619,
+          972
+        ],
+        "source_sha256": "a9fd2d0d8d67b29c8533ae22f0b76e6c443e1866d2bbab42edf5dfa836c7a4eb",
+        "integer_reduction": 26,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "native EKG screen polish and accepted S mark"
+    },
+    {
+      "id": "medical_ward_bed",
+      "file": "medical_ward_bed.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        53,
+        34
+      ],
+      "anchor_px": [
+        26,
+        33
+      ],
+      "footprint_units": [
+        3.53,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Simpler secondary white/blue ward bed; place twice for three beds total.",
+      "coverage_35": [
+        "A: front-facing secondary bed",
+        "C: Rhodes blue linen band"
+      ],
+      "source": {
+        "source": "sources/medical_ward_bed_source.png",
+        "source_size_px": [
+          1659,
+          948
+        ],
+        "source_sha256": "942b0f548299db6e56040e4ea45bc064d82f38e89733a45102a79c32bb466cdb",
+        "integer_reduction": 25,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "reduce broad blue areas to a narrow linen band"
+    },
+    {
+      "id": "medical_suspended_monitor",
+      "file": "medical_suspended_monitor.png",
+      "emit": "medical_suspended_monitor_emit.png",
+      "kind": "wall",
+      "size_px": [
+        44,
+        26
+      ],
+      "anchor_px": [
+        22,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Ceiling-arm dual vitals monitors with EKG spike and saturation number.",
+      "coverage_35": [
+        "A: articulated suspended screens",
+        "C: EKG and vitals"
+      ],
+      "source": {
+        "source": "sources/medical_monitor_source.png",
+        "source_size_px": [
+          1536,
+          1024
+        ],
+        "source_sha256": "9b3ee75eeb3335781501274c5701c9887b259b4dd2a3d51333764007063f5a30",
+        "integer_reduction": 34,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "native EKG/vital overlays inside generated screen housings"
+    },
+    {
+      "id": "medical_privacy_curtain",
+      "file": "medical_privacy_curtain.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        31,
+        41
+      ],
+      "anchor_px": [
+        15,
+        40
+      ],
+      "footprint_units": [
+        2.07,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Folded medical-white curtain with a straight right edge and blue fabric band.",
+      "coverage_35": [
+        "A: overhead curtain rail",
+        "C: banded soft-white fabric"
+      ],
+      "source": {
+        "source": "sources/medical_privacy_curtain_source.png",
+        "source_size_px": [
+          1338,
+          1176
+        ],
+        "source_sha256": "0973308dc43eb73e840c2d535241dbb45454c38ddb6cefc88932157cd3d838ee",
+        "integer_reduction": 30,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "narrow blue band, soft white fold shading and native straight right edge"
+    },
+    {
+      "id": "medical_medicine_cabinet",
+      "file": "medical_medicine_cabinet.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        62,
+        33
+      ],
+      "anchor_px": [
+        31,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Glazed cabinet with dense medicines, gauze and bandages.",
+      "coverage_35": [
+        "A: deep glazed medicine cabinet",
+        "D: stocked clinical supplies"
+      ],
+      "source": {
+        "source": "sources/medical_medicine_cabinet_source.png",
+        "source_size_px": [
+          1681,
+          935
+        ],
+        "source_sha256": "aedd80992aac30cabab7c6406c3fd39a78c267d9e1a9e22f06e826adfcfbc984",
+        "integer_reduction": 26,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "brighten cabinet enamel while retaining dark recesses"
+    },
+    {
+      "id": "medical_wash_sink",
+      "file": "medical_wash_sink.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        40,
+        38
+      ],
+      "anchor_px": [
+        20,
+        37
+      ],
+      "footprint_units": [
+        2.67,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Front-facing white ceramic wash station with basin, faucet and grey doors.",
+      "coverage_35": [
+        "A: clinical sink top/front",
+        "D: handwash point"
+      ],
+      "source": {
+        "source": "sources/medical_wash_sink_source.png",
+        "source_size_px": [
+          1536,
+          1024
+        ],
+        "source_sha256": "9d2bf2272ab269bb5f13f1972fae2ca3fb4bcfeb3b09186d70847c0e5192680d",
+        "integer_reduction": 26,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": null
+    },
+    {
+      "id": "medical_iv_stand",
+      "file": "medical_iv_stand.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        17,
+        44
+      ],
+      "anchor_px": [
+        8,
+        43
+      ],
+      "footprint_units": [
+        1.13,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Wheeled IV stand with visible bag and tubing attached beside recovery bed.",
+      "coverage_35": [
+        "A: clinical support",
+        "D: IV therapy detail"
+      ],
+      "source": {
+        "source": "sources/medical_iv_stand_source.png",
+        "source_size_px": [
+          1060,
+          1484
+        ],
+        "source_sha256": "a882517b35d87926d7fccf0632b3adaecff0bbfe90dacac4399cdaa205309d45",
+        "integer_reduction": 34,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "light-metal IV frame for the white medical room"
+    },
+    {
+      "id": "medical_sanitizer",
+      "file": "medical_sanitizer.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        16,
+        24
+      ],
+      "anchor_px": [
+        8,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small white wall sanitizer with blue label and push lever.",
+      "coverage_35": [
+        "D: attached hygiene detail"
+      ],
+      "source": {
+        "source": "sources/medical_sanitizer_source.png",
+        "source_size_px": [
+          1199,
+          1312
+        ],
+        "source_sha256": "b1955dc8cdc38088145182042b9be8a68c61acfa45469626e98c6b368b22ea11",
+        "integer_reduction": 50,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": null
+    },
+    {
+      "id": "medical_recovery_zone_100x44",
+      "file": "medical_recovery_zone_100x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        100,
+        44
+      ],
+      "anchor_px": [
+        50,
+        22
+      ],
+      "footprint_units": [
+        6.67,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "C: clinical zone/hazard"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "medical_safety_strip_30x10",
+      "file": "medical_safety_strip_30x10.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        30,
+        10
+      ],
+      "anchor_px": [
+        15,
+        5
+      ],
+      "footprint_units": [
+        2.0,
+        0.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "C: clinical zone/hazard"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "medical_stand_spot_recovery_attendant_12x6",
+      "file": "medical_stand_spot_recovery_attendant_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "A: reserved character position"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "medical_stand_spot_medicine_cabinet_staff_12x6",
+      "file": "medical_stand_spot_medicine_cabinet_staff_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "A: reserved character position"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch_H3_medical_v1/medical_recovery_zone_100x44.png",
+      "size_px": [
+        100,
+        44
+      ],
+      "sha256": "d9436ff423c82523971fe922656e38afda260d47113a02d0ae5f944d994bd965",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_medical_v1/medical_safety_strip_30x10.png",
+      "size_px": [
+        30,
+        10
+      ],
+      "sha256": "e3a5ab177b73e386b9a6018ba81e005a70649f1073c3d36e22f716a0b804ee2a",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_medical_v1/medical_stand_spot_recovery_attendant_12x6.png",
+      "size_px": [
+        12,
+        6
+      ],
+      "sha256": "d89530d22efd8487493ce3ea058df95863cf19bcd6ae0677bad602ed47b41656",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_medical_v1/medical_stand_spot_medicine_cabinet_staff_12x6.png",
+      "size_px": [
+        12,
+        6
+      ],
+      "sha256": "d89530d22efd8487493ce3ea058df95863cf19bcd6ae0677bad602ed47b41656",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/desk_memo_sticker_16x14.png",
+      "size_px": [
+        16,
+        14
+      ],
+      "sha256": "c2bd2a7d42e48ed68b93cc31ef297124c7eeda99e054b711ef037163430d3ac9",
+      "use": "Accepted treatment memo",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/wall_mounted_extinguisher_14x28.png",
+      "size_px": [
+        14,
+        28
+      ],
+      "sha256": "a2d5d38a433a83fb5c7ca4ab2b79a91d1cce86f94f5cd834b722a60789eaeb18",
+      "use": "Accepted safety extinguisher",
+      "locked": true
+    },
+    {
+      "file": "../batch_H2_warehouse_v2/warehouse_wall_clipboard_22x28.png",
+      "size_px": [
+        22,
+        28
+      ],
+      "sha256": "885e4ef446897b703529ec8ac73d51b68750cede4d8f1a78f473cd98f68f26f3",
+      "use": "Accepted care clipboard",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_medical_v1/medical_wall_white_60x46.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "dec5f112b7647c7048733b92e21293f8d6b9868926bf3082865136ecdf57e550",
+      "use": "46px room wall shell",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_medical_v1/medical_floor_cool_120x120.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "ec819f95827d0ef1385b0959c3f80cd103c2dcfcd9e86ccf0e64d9301c7497ba",
+      "use": "120x120 seamless floor shell",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Unscaled Lappland",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_M_gray_v1.png",
+      "size_px": [
+        24,
+        24
+      ],
+      "sha256": "6b4a4e6cd699333a5e8da4d2989ff19a625a8d59dc9e3ca581b71b43f29888f2",
+      "use": "Accepted M in geometric department sign",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S on recovery bed",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_04.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "e33fd07a0aca082d0d3edd19898bd681ec077c04759d9664ffb314bd3da7e81b",
+      "use": "Accepted B1-04 door plate",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_rectangle_cool_90x60.png",
+      "size_px": [
+        90,
+        60
+      ],
+      "sha256": "86d93f4f08e6e8cf8567785fbeead86bfa3fc8f198d534169894b782df787a65",
+      "use": "Accepted additive cool pool",
+      "locked": true
+    }
+  ],
+  "shell": {
+    "size_units": [
+      18,
+      12
+    ],
+    "floor_size_px": [
+      270,
+      152
+    ],
+    "wall_height_px": 46,
+    "wall_tile": "../batch_H3_medical_v1/medical_wall_white_60x46.png",
+    "floor_tile": "../batch_H3_medical_v1/medical_floor_cool_120x120.png",
+    "assembly": "Review composite shows one suggested layout; final scene assembly remains with user."
+  },
+  "preview": {
+    "file": "H3_medical_lappland_1x.png",
+    "size_px": [
+      270,
+      198
+    ],
+    "character_origin_px": [
+      83,
+      138
+    ],
+    "character": "Lappland frame 0 unscaled; 30px visible height",
+    "review_4x": "H3_medical_lappland_1x_4x.png"
+  },
+  "logo_policy": "M on department sign and S on the main interactive furniture only; two per review screen, below six cap.",
+  "stand_spots": [
+    "medical_stand_spot_recovery_attendant_12x6",
+    "medical_stand_spot_medicine_cabinet_staff_12x6"
+  ],
+  "life_details": [
+    "medical_medicine_cabinet",
+    "medical_iv_stand",
+    "medical_sanitizer",
+    "../batch_H1_bridge_hall_v2/desk_memo_sticker_16x14.png",
+    "../batch_H1_bridge_hall_v2/wall_mounted_extinguisher_14x28.png",
+    "../batch_H2_warehouse_v2/warehouse_wall_clipboard_22x28.png"
+  ],
+  "assembly": {
+    "wake_up": "Main recovery bed is the death wake-up point; keep a 30px attendant station alongside.",
+    "ward": "One recovery bed plus two placements of the secondary bed; curtain creates privacy.",
+    "contrast": "White wall and brighter floor remain behind Lappland in the 1:1 review; floor capped at #98a2a6.",
+    "lighting": "Vital screens use EKG emit masks; layer accepted cool additive pool under recovery bed."
+  },
+  "checklist_35": {
+    "A": "Generated deep recovery bed, ward beds, articulated dual monitors, curtain, cabinet and sink.",
+    "B": "B1-04 plate and MEDICAL supergraphic; vital UI distinct from store/armory/warehouse.",
+    "C": "Bright medical white with Rhodes-blue band, restrained cyan EKG signals.",
+    "D": "Stocked medicine cabinet, IV bag, sanitizer, clipboard, memo and extinguisher."
+  },
+  "build_script": "build_medical.py"
+}

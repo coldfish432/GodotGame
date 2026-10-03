@@ -1,0 +1,9 @@
+PASS: 11 native PNGs and matching exact 8x PNGs.
+PASS: palette membership, binary alpha, all 8x blocks uniform.
+PASS: wall matching left/right edge columns; no end pillars.
+PASS: wall cap 4 + face 30 + baseboard 2 = 36 px.
+PASS: front door module width 45 px.
+PASS: top wall width 4 px; gap 38 px between 6x6 post tops.
+PASS: console bounding canvas 90x50; desk section 15 px.
+PASS: OFF has zero cyan palette pixels.
+NOT RUN: in-engine scale and visual acceptance.

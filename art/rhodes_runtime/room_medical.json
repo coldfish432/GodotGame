@@ -1,0 +1,689 @@
+{
+ "id": "medical",
+ "origin": [
+  129.06666666666666,
+  4.0
+ ],
+ "size": [
+  45,
+  41
+ ],
+ "ground": {
+  "tex": "res://art/rhodes_runtime/tex/1affa6d6713f161e.png",
+  "w_px": 691,
+  "h_px": 521,
+  "x": 128.53333333333333,
+  "z": 4.0
+ },
+ "facade": {
+  "tex": "res://art/rhodes_runtime/tex/55c26918f72e9a17.png",
+  "w_px": 691,
+  "h_px": 46,
+  "x": 128.53333333333333,
+  "z": 4.0
+ },
+ "sprites": [
+  {
+   "tex": "res://art/rhodes_runtime/tex/d32a15e89beaa3da.png",
+   "x": 136.0667,
+   "z": -5.0787,
+   "lift_px": 0.0,
+   "w": 88,
+   "h": 31,
+   "overhead": false,
+   "role": "reception",
+   "collide": [
+    4.693,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/56f808a8ac7ae5c4.png",
+   "x": 135.1,
+   "z": -12.0787,
+   "lift_px": 0.0,
+   "w": 69,
+   "h": 26,
+   "overhead": false,
+   "collide": [
+    3.68,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/56f808a8ac7ae5c4.png",
+   "x": 135.1,
+   "z": -15.6787,
+   "lift_px": 0.0,
+   "w": 69,
+   "h": 26,
+   "overhead": false,
+   "collide": [
+    3.68,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/56f808a8ac7ae5c4.png",
+   "x": 135.1,
+   "z": -19.2787,
+   "lift_px": 0.0,
+   "w": 69,
+   "h": 26,
+   "overhead": false,
+   "collide": [
+    3.68,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d2fe88fbe6ef6e6a.png",
+   "x": 131.0667,
+   "z": -32.0787,
+   "lift_px": 0.0,
+   "w": 22,
+   "h": 28,
+   "overhead": false,
+   "collide": [
+    1.173,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d2fe88fbe6ef6e6a.png",
+   "x": 141.4667,
+   "z": -32.0787,
+   "lift_px": 0.0,
+   "w": 22,
+   "h": 28,
+   "overhead": false,
+   "collide": [
+    1.173,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/483a4552282977dd.png",
+   "x": 140.6667,
+   "z": 0.9213,
+   "lift_px": 0.0,
+   "w": 40,
+   "h": 38,
+   "overhead": false,
+   "collide": [
+    2.133,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/3fab980b1315bb36.png",
+   "x": 143.0667,
+   "z": -20.0945,
+   "lift_px": 0,
+   "w": 20,
+   "h": 90,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/57b49d70a9325ad8.png",
+   "x": 143.0667,
+   "z": -11.9843,
+   "lift_px": 0,
+   "w": 90,
+   "h": 13,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/f11ac06bad2ba91c.png",
+   "x": 146.9,
+   "z": -0.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 144.3,
+   "z": -0.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d8432da7e622be58.png",
+   "x": 149.1333,
+   "z": -2.7717,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/f11ac06bad2ba91c.png",
+   "x": 154.65,
+   "z": -0.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 152.05,
+   "z": -0.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/3df02ecd7049c3af.png",
+   "x": 156.8667,
+   "z": -2.7717,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/06ea2c603f7058b4.png",
+   "x": 162.4,
+   "z": -0.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 159.8,
+   "z": -0.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/0eac6a178f80169a.png",
+   "x": 164.6,
+   "z": -2.7717,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/f11ac06bad2ba91c.png",
+   "x": 170.15,
+   "z": -0.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 167.55,
+   "z": -0.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/281a1432a8823613.png",
+   "x": 172.3333,
+   "z": -2.7717,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/06ea2c603f7058b4.png",
+   "x": 146.9,
+   "z": -34.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 144.3,
+   "z": -34.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/bcf07023d9a4d81d.png",
+   "x": 149.1333,
+   "z": -29.7795,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/f11ac06bad2ba91c.png",
+   "x": 154.65,
+   "z": -34.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 152.05,
+   "z": -34.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/fe4cebe41ad8ffb6.png",
+   "x": 156.8667,
+   "z": -29.7795,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/f11ac06bad2ba91c.png",
+   "x": 162.4,
+   "z": -34.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 159.8,
+   "z": -34.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ca1666448711a052.png",
+   "x": 164.6,
+   "z": -29.7795,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/f11ac06bad2ba91c.png",
+   "x": 170.15,
+   "z": -34.6787,
+   "lift_px": 0.0,
+   "w": 53,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 167.55,
+   "z": -34.0787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/73ccd468b733ae2e.png",
+   "x": 172.3333,
+   "z": -29.7795,
+   "lift_px": 0,
+   "w": 32,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ab656fc0e2370db9.png",
+   "x": 158.5333,
+   "z": -6.1575,
+   "lift_px": 0,
+   "w": 58,
+   "h": 12,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/4010224fa35b880f.png",
+   "x": 158.5667,
+   "z": -17.5787,
+   "lift_px": 0.0,
+   "w": 62,
+   "h": 32,
+   "overhead": false,
+   "collide": [
+    3.307,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 155.9333,
+   "z": -17.1063,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/071f756a1be66300.png",
+   "x": 159.3667,
+   "z": -14.8228,
+   "lift_px": 0.0,
+   "w": 44,
+   "h": 26,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/0dd902fbf9645982.png",
+   "x": 158.5667,
+   "z": -23.4787,
+   "lift_px": 0.0,
+   "w": 66,
+   "h": 35,
+   "overhead": false,
+   "collide": [
+    3.52,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/483a4552282977dd.png",
+   "x": 153.1667,
+   "z": -10.6787,
+   "lift_px": 0.0,
+   "w": 40,
+   "h": 38,
+   "overhead": false,
+   "collide": [
+    2.133,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6b2044f6181d3b33.png",
+   "x": 165.0,
+   "z": -10.2787,
+   "lift_px": 0.0,
+   "w": 17,
+   "h": 44,
+   "overhead": false
+  }
+ ],
+ "colliders": [
+  [
+   129.06666666666666,
+   4.0,
+   174.06666666666666,
+   4.6
+  ],
+  [
+   129.06666666666666,
+   -37.599999999999994,
+   174.06666666666666,
+   -37.0
+  ],
+  [
+   128.46666666666664,
+   -24.5,
+   129.06666666666666,
+   4.0
+  ],
+  [
+   128.46666666666664,
+   -37.0,
+   129.06666666666666,
+   -27.5
+  ],
+  [
+   174.06666666666666,
+   -37.0,
+   174.66666666666669,
+   4.0
+  ],
+  [
+   142.91666666666666,
+   -15.24015748031496,
+   143.21666666666667,
+   4.0
+  ],
+  [
+   142.91666666666666,
+   -37.0,
+   143.21666666666667,
+   -17.75984251968504
+  ],
+  [
+   150.66666666666666,
+   -3.0,
+   150.96666666666667,
+   4.0
+  ],
+  [
+   158.41666666666666,
+   -3.0,
+   158.71666666666667,
+   4.0
+  ],
+  [
+   166.16666666666666,
+   -3.0,
+   166.46666666666667,
+   4.0
+  ],
+  [
+   143.06666666666666,
+   -3.1500000000000004,
+   147.6,
+   -2.8499999999999996
+  ],
+  [
+   150.13333333333333,
+   -3.1500000000000004,
+   155.35,
+   -2.8499999999999996
+  ],
+  [
+   157.88333333333333,
+   -3.1500000000000004,
+   163.1,
+   -2.8499999999999996
+  ],
+  [
+   165.63333333333333,
+   -3.1500000000000004,
+   170.85,
+   -2.8499999999999996
+  ],
+  [
+   173.38333333333333,
+   -3.1500000000000004,
+   174.06666666666666,
+   -2.8499999999999996
+  ],
+  [
+   143.06666666666666,
+   -30.15,
+   147.6,
+   -29.85
+  ],
+  [
+   150.13333333333333,
+   -30.15,
+   155.35,
+   -29.85
+  ],
+  [
+   157.88333333333333,
+   -30.15,
+   163.1,
+   -29.85
+  ],
+  [
+   165.63333333333333,
+   -30.15,
+   170.85,
+   -29.85
+  ],
+  [
+   173.38333333333333,
+   -30.15,
+   174.06666666666666,
+   -29.85
+  ],
+  [
+   150.66666666666666,
+   -37.0,
+   150.96666666666667,
+   -30.0
+  ],
+  [
+   158.41666666666666,
+   -37.0,
+   158.71666666666667,
+   -30.0
+  ],
+  [
+   166.16666666666666,
+   -37.0,
+   166.46666666666667,
+   -30.0
+  ],
+  [
+   150.56666666666666,
+   -7.15,
+   157.3,
+   -6.85
+  ],
+  [
+   159.83333333333331,
+   -7.15,
+   166.56666666666666,
+   -6.85
+  ],
+  [
+   150.56666666666666,
+   -26.15,
+   157.3,
+   -25.85
+  ],
+  [
+   159.83333333333331,
+   -26.15,
+   166.56666666666666,
+   -25.85
+  ],
+  [
+   150.41666666666666,
+   -15.24015748031496,
+   150.71666666666667,
+   -7.0
+  ],
+  [
+   150.41666666666666,
+   -26.0,
+   150.71666666666667,
+   -17.75984251968504
+  ],
+  [
+   166.41666666666666,
+   -15.24015748031496,
+   166.71666666666667,
+   -7.0
+  ],
+  [
+   166.41666666666666,
+   -26.0,
+   166.71666666666667,
+   -17.75984251968504
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "reception",
+   "kind": "report",
+   "label": "医疗前台：回收报告与治疗",
+   "x": 136.06666666666666,
+   "z": -5.0
+  },
+  {
+   "id": "pharmacy",
+   "kind": "pharmacy",
+   "label": "药房窗口：配药",
+   "x": 141.66666666666666,
+   "z": -1.0
+  },
+  {
+   "id": "decon",
+   "kind": "decon",
+   "label": "污染检测门：检测与处理",
+   "x": 141.06666666666666,
+   "z": -16.5
+  }
+ ],
+ "spawns": {
+  "death": [
+   161.56666666666666,
+   -21.0
+  ]
+ },
+ "anchors": {
+  "gate": [
+   143.0667,
+   -20.122
+  ]
+ },
+ "textures": {
+  "gate_red": "res://art/rhodes_runtime/tex/c6ca7c3eed5a711b.png",
+  "gate_green": "res://art/rhodes_runtime/tex/b068426165e11552.png",
+  "reception_idle": "res://art/rhodes_runtime/tex/5834151a9594db33.png",
+  "reception_alert": "res://art/rhodes_runtime/tex/d32a15e89beaa3da.png"
+ }
+}

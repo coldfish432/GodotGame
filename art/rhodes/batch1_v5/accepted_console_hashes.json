@@ -1,0 +1,22 @@
+[
+  {
+    "File": "console_on_v4.png",
+    "SHA256": "642FF77E7A2BE2AB3000D369A1A790133A5D0E2463007D3A67AAE83B46E283EF",
+    "Unchanged": true
+  },
+  {
+    "File": "console_off_v4.png",
+    "SHA256": "0F914719A91416B16FCEFD0202E45A74A71DAB0D143B2E93CE342FE4D1D9A5FD",
+    "Unchanged": true
+  },
+  {
+    "File": "rhodes_console_v4.png",
+    "SHA256": "04B1CFD0004CD5E28CD1E1A4B7601246139B38564F664ED91FEF2D4DAFB1DA93",
+    "Unchanged": true
+  },
+  {
+    "File": "rhodes_console_v4_8x.png",
+    "SHA256": "4ACCA73EF707E29F4EBA514FF2CE8AAFEE1E7D8451A144CBDE606B6E8AB40C15",
+    "Unchanged": true
+  }
+]

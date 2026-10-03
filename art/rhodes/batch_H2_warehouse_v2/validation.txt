@@ -1,0 +1,16 @@
+H2 v2 generated: 27 native assets and 20 locked dependencies.
+Warehouse shell metadata: 24x18 units, 360x229 floor pixels, 46px locked wall height; no assembled blockout.
+Four category racks and matching floor zones: WEAPONS B1-03-A, ARMOR B1-03-B, CONSUMABLES B1-03-C, MATERIALS B1-03-D, each drawn in the native 5x7 font.
+Logo cap: representative marks only on supergraphic, wall bay, storage terminal and freight lift; smaller props use number plates or icons.
+MATERIALS contains visible field-style black faceted originium with orange cores inside sealed containment and warm emit.
+Inventory terminal and freight lift have dark/active states; lit states have matching emit masks.
+§3.5 A/B/C/D per-asset coverage is recorded in manifest.json; final full-room read awaits assembly.
+
+H2 v2 review-specific audit:
+  PASS: 34 shared PNGs are byte-identical to v1; only the 29 authorized outputs changed.
+  PASS: revised props keep their outer sizes; four distinct B1-03-A through D codes match the native 5x7 bitmap font exactly.
+  PASS: materials rack, sealed crate and containment expose black/orange originium, with orange cores present in warm emit masks.
+  PASS: warehouse ON screen has an eight-slot inventory grid and a matching revised emit mask; OFF state is unchanged.
+  PASS: containment mean luminance 0.259; all accents 5.7% of opaque pixels.
+  PASS: S stamps occur only in wall bay, terminal and freight lift builders; the 1:1 composite shows one M plus five S marks (six total).
+  Result: PASS (0 errors).

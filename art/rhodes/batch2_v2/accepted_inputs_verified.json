@@ -1,0 +1,162 @@
+[
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\batch1_lock_verification.json",
+    "Hash": "1A8EEE22911BF1A95FF89E6079ABF3C5F8FDA30720E6BDE80C1292E59171500E",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\batch1_locked_hashes_before.json",
+    "Hash": "DECB2015FA59FFD81A71CC5827D134BEA625CA544F824A2AF47461342AA9E1DA",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\batch2_review_1x.png",
+    "Hash": "9C71FA3006567CE3437CD10F0793845423E631388F61F977A3791FBA5F8423E0",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\batch2_review_4x.png",
+    "Hash": "C88D699A393A402D647A8E96EE1332B45643BB97170B73729BB4E09F8AFDD5AE",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\build_batch2.ps1",
+    "Hash": "2B1FF92B5E14D55E95B19E48B9335CEA61903D3FE237B07DDAFBDB156D82A6B2",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\README.md",
+    "Hash": "CE295A060DC91610233CE33767532A41E7FAD505D8D3E0DC07C1F2A56FABA96E",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hall_decals_atlas_v1_8x.png",
+    "Hash": "89C5BC2B0DC5204827C70C24B76EAC2D4FEA370F66CC86FE9D8B8BCE6B5916CB",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hall_decals_atlas_v1.png",
+    "Hash": "DC50206F0742AE0DFA6A03D6C944A3655A056D0684C47602D6AB9DD892CCFB75",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_NE_v1_8x.png",
+    "Hash": "215568BDDC031B25AFC4B7DCAA73F212D4187521B17C406F66E854A49339C849",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_NE_v1.png",
+    "Hash": "51EFEA7BCF7D694931B6552A8B599CE899761D95049D1BB4E78AD40B26F7611F",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_NW_v1_8x.png",
+    "Hash": "1BDFA698A51849F8BD41E0E1CC1413C540ED7383617CBAED55DD54EDB00A86B1",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_NW_v1.png",
+    "Hash": "E4C977B65EF651797EDBF6D22B562A7CC3CE54178A0C4005180AD710D61F5263",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_SE_v1_8x.png",
+    "Hash": "256787BFFAD07ECA130F65C1502E4E1A47EBA3228A753F1CC9B50F51345626FC",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_SE_v1.png",
+    "Hash": "6D94F381D532D267B3F4D2910170540006B3AAA53B65F45E08C0A494F3633A6F",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_SW_v1_8x.png",
+    "Hash": "EC2C7F0B368597E91B611517FADC61D67CA777C3EC1C447A9B118FF95F4D0383",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_corner_SW_v1.png",
+    "Hash": "2B4739C38E66117ABFD1D0E52B1A0CA6286EAAB0504A577E1354B7E5BAA5657D",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_horizontal_v1_8x.png",
+    "Hash": "A6FD1F2CB02DF09C9E329BE30FC826304B5FF5A5CC63DBB3D59D2F4F3E9550D9",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_horizontal_v1.png",
+    "Hash": "76791EEA2719833ED904929E057D9D7E8F35D0A837165275441E1E8FCA42F75D",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_vertical_v1_8x.png",
+    "Hash": "6EE99CC96487E680CDB0D8A86EC3B4CAD6056F7F0C7581866DFFEA8445F1D0FB",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_hazard_vertical_v1.png",
+    "Hash": "92E3C6DE7B3A2BC3F59FF9097735B7400CF663C1BACD046310375F59552EF040",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logistics_atlas_v1_8x.png",
+    "Hash": "4AFE5EC47DA3FF120B8F45D2311683D4230E5AAE905D4D26A5252DB175E6448F",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logistics_atlas_v1.png",
+    "Hash": "6670E2D438A7A73ECA7FE6150579B0D3D601B3CA16BCC848B0C0D5D75DCE5A9C",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logistics_off_v1_8x.png",
+    "Hash": "F75A0A07A1854D89F76D25923CC8D14F8BB426B00B66EA71BA40F339AF8E8B24",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logistics_off_v1.png",
+    "Hash": "76CF17A9B6D1884AEDF9716AEC98D066B1832B83BE23E8E71AA3FD286D652649",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logistics_on_v1_8x.png",
+    "Hash": "F9569ABADA3860896E37EE0C8588CD35CC321ED97AE424DA67F9A114937EA212",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logistics_on_v1.png",
+    "Hash": "55B26F6267288829C7AC8BD205AE162527BD2D5A48E089F4D372C82637E93B4B",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logo_L_gray_v1_8x.png",
+    "Hash": "C49C3F060331EE5B7413A6467F6BFDFB52B5B2E22BAD0209C0A40EA82846AB34",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logo_L_gray_v1.png",
+    "Hash": "7F4E7DA0E082BA7C7CF7C6F4279E893575E37761C416D531966AA0C4FA9032D0",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logo_L_yellow_v1_8x.png",
+    "Hash": "7FA19DCF01367753BA28CFF8A4BEFA25398E2085C478AC563A9E20A5E44DB44D",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\rhodes_logo_L_yellow_v1.png",
+    "Hash": "7E7C71327818E278A95D4F8C9EE89F8B3FDCE21BDFB89149873D9C98CE0C2593",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v1\\validation.txt",
+    "Hash": "17723AE398625A0E505E17062ABB9AA35C296514FAB44077383137C8185F81B1",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\source_batch1_v2\\rhodes_floor_source_v2.png",
+    "Hash": "2CCF2529B9FEFC4153414E3D4FAFDD126E379DFFA4A25DC6F1F95F67A63AF609",
+    "Unchanged": true
+  }
+]

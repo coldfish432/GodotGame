@@ -1,0 +1,20 @@
+H2 v1 generated: 26 native assets and 20 locked dependencies.
+Warehouse shell metadata: 24x18 units, 360x229 floor pixels, 46px locked wall height; no assembled blockout.
+Four category racks and matching floor zones: WEAPONS, ARMOR, CONSUMABLES, MATERIALS.
+Inventory terminal and freight lift have dark/active states; lit states have matching emit masks.
+§3.5 A/B/C/D per-asset coverage is recorded in manifest.json; final full-room read awaits assembly.
+
+Independent native-grid audit:
+  Assets 26; emit masks 5; palette colors used 23/31; locked dependencies 20.
+  Exact 8x nearest-neighbor exports, binary alpha, palette membership, emit/source alignment, dependency hashes and visible Lappland pixels checked.
+PASS: 24x18-unit shell metadata, four rack/zone pairs, OFF terminal cyan-free, and prop luminance/accent budgets.
+  warehouse_rack_weapons_80x64: mean luminance 0.340; accent total 0.0% (max family 0.0%).
+  warehouse_rack_armor_80x64: mean luminance 0.378; accent total 0.0% (max family 0.0%).
+  warehouse_rack_consumables_80x64: mean luminance 0.378; accent total 2.7% (max family 2.7%).
+  warehouse_rack_materials_80x64: mean luminance 0.333; accent total 5.8% (max family 2.7%).
+  warehouse_trolley_42x34: mean luminance 0.341; accent total 3.8% (max family 3.8%).
+  warehouse_forklift_70x48: mean luminance 0.320; accent total 1.4% (max family 0.8%).
+  warehouse_pallet_48x24: mean luminance 0.321; accent total 0.0% (max family 0.0%).
+  warehouse_supply_crate_42x32: mean luminance 0.311; accent total 1.9% (max family 1.9%).
+  warehouse_originium_sealed_crate_44x36: mean luminance 0.314; accent total 5.8% (max family 3.5%).
+  Result: PASS (0 errors).

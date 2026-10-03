@@ -1,0 +1,493 @@
+{
+ "id": "hall",
+ "origin": [
+  0.0,
+  0.0
+ ],
+ "size": [
+  128,
+  56
+ ],
+ "ground": {
+  "tex": "res://art/rhodes_runtime/tex/c5c4ae6ea11c8c71.png",
+  "w_px": 1936,
+  "h_px": 711,
+  "x": -0.5333333333333333,
+  "z": 0.0
+ },
+ "facade": {
+  "tex": "res://art/rhodes_runtime/tex/3f33bd93944ce228.png",
+  "w_px": 1936,
+  "h_px": 46,
+  "x": -0.5333333333333333,
+  "z": 0.0
+ },
+ "sprites": [
+  {
+   "tex": "res://art/rhodes_runtime/tex/0f0054e9aad34fe0.png",
+   "x": 64.0,
+   "z": -0.0787,
+   "lift_px": 0,
+   "w": 96,
+   "h": 74,
+   "overhead": false,
+   "collide": [
+    5.12,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6826174eba012f68.png",
+   "x": 64.0333,
+   "z": -12.2787,
+   "lift_px": 0.0,
+   "w": 95,
+   "h": 43,
+   "overhead": false,
+   "collide": [
+    5.067,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/24cc82ccf33b966e.png",
+   "x": 64.0,
+   "z": -13.3787,
+   "lift_px": 0.0,
+   "w": 164,
+   "h": 44,
+   "overhead": false,
+   "collide": [
+    8.747,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/af0b7327f0877146.png",
+   "x": 57.4667,
+   "z": -13.3787,
+   "lift_px": 0.0,
+   "w": 32,
+   "h": 44,
+   "overhead": false,
+   "collide": [
+    1.707,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/292af13823c1a03e.png",
+   "x": 70.5333,
+   "z": -13.3787,
+   "lift_px": 0.0,
+   "w": 32,
+   "h": 44,
+   "overhead": false,
+   "collide": [
+    1.707,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/639f0de0fb696aea.png",
+   "x": 55.7333,
+   "z": -13.3787,
+   "lift_px": 0.0,
+   "w": 20,
+   "h": 44,
+   "overhead": false,
+   "collide": [
+    1.067,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/3226a54581caddc8.png",
+   "x": 72.2667,
+   "z": -13.3787,
+   "lift_px": 0.0,
+   "w": 20,
+   "h": 44,
+   "overhead": false,
+   "collide": [
+    1.067,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/808235e1094a3148.png",
+   "x": 22.0,
+   "z": -9.0787,
+   "lift_px": 0.0,
+   "w": 48,
+   "h": 50,
+   "overhead": false,
+   "collide": [
+    2.56,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/808235e1094a3148.png",
+   "x": 26.6667,
+   "z": -9.0787,
+   "lift_px": 0.0,
+   "w": 48,
+   "h": 50,
+   "overhead": false,
+   "collide": [
+    2.56,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/808235e1094a3148.png",
+   "x": 31.3333,
+   "z": -9.0787,
+   "lift_px": 0.0,
+   "w": 48,
+   "h": 50,
+   "overhead": false,
+   "collide": [
+    2.56,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6c5f38743c3de36f.png",
+   "x": 36.0,
+   "z": -9.0787,
+   "lift_px": 0.0,
+   "w": 48,
+   "h": 50,
+   "overhead": false,
+   "collide": [
+    2.56,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/19f30694d579a14d.png",
+   "x": 29.0,
+   "z": -9.4724,
+   "lift_px": 59.0,
+   "w": 88,
+   "h": 50,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d2fe88fbe6ef6e6a.png",
+   "x": 20.0,
+   "z": -13.0787,
+   "lift_px": 0.0,
+   "w": 22,
+   "h": 28,
+   "overhead": false,
+   "collide": [
+    1.173,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d2fe88fbe6ef6e6a.png",
+   "x": 38.0,
+   "z": -13.0787,
+   "lift_px": 0.0,
+   "w": 22,
+   "h": 28,
+   "overhead": false,
+   "collide": [
+    1.173,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/ff8fbd2daf7922a5.png",
+   "x": 101.3667,
+   "z": -14.0787,
+   "lift_px": 0.0,
+   "w": 71,
+   "h": 40,
+   "overhead": false,
+   "collide": [
+    3.787,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/e6ff5c8bfeeed57b.png",
+   "x": 101.3333,
+   "z": -15.4173,
+   "lift_px": 59.0,
+   "w": 56,
+   "h": 42,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6c5f38743c3de36f.png",
+   "x": 96.0,
+   "z": -17.6787,
+   "lift_px": 0.0,
+   "w": 48,
+   "h": 50,
+   "overhead": false,
+   "collide": [
+    2.56,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/6c5f38743c3de36f.png",
+   "x": 106.6667,
+   "z": -17.6787,
+   "lift_px": 0.0,
+   "w": 48,
+   "h": 50,
+   "overhead": false,
+   "collide": [
+    2.56,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d2fe88fbe6ef6e6a.png",
+   "x": 111.3333,
+   "z": -10.0787,
+   "lift_px": 0.0,
+   "w": 22,
+   "h": 28,
+   "overhead": false,
+   "collide": [
+    1.173,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/92704f0e54d75a39.png",
+   "x": 12.1333,
+   "z": -2.6787,
+   "lift_px": 0.0,
+   "w": 42,
+   "h": 32,
+   "overhead": false,
+   "collide": [
+    2.24,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/8a8b819e8a71d517.png",
+   "x": 15.2333,
+   "z": -2.8787,
+   "lift_px": 0.0,
+   "w": 43,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.293,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 119.5333,
+   "z": -2.6787,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/0606c2356277b0c4.png",
+   "x": 3.3333,
+   "z": -21.5787,
+   "lift_px": 0.0,
+   "w": 48,
+   "h": 24,
+   "overhead": false,
+   "collide": [
+    2.56,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/92704f0e54d75a39.png",
+   "x": 3.4667,
+   "z": -21.4787,
+   "lift_px": 0.0,
+   "w": 42,
+   "h": 32,
+   "overhead": false,
+   "collide": [
+    2.24,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/e46c1fb185e2ad73.png",
+   "x": 125.3333,
+   "z": -23.8898,
+   "lift_px": 0.0,
+   "w": 16,
+   "h": 24,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/a72f47a0ef4b6aa2.png",
+   "x": 1.4667,
+   "z": -24.9748,
+   "lift_px": 0.0,
+   "w": 58,
+   "h": 20,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/1b19fe2e6666e691.png",
+   "x": 126.5333,
+   "z": -24.9748,
+   "lift_px": 0.0,
+   "w": 58,
+   "h": 20,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/2b08222c67f0b0d6.png",
+   "x": 36.0,
+   "z": -46.0,
+   "lift_px": 0.0,
+   "w": 192,
+   "h": 64,
+   "overhead": false,
+   "collide": [
+    10.24,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/2b08222c67f0b0d6.png",
+   "x": 79.3333,
+   "z": -22.0,
+   "lift_px": 0.0,
+   "w": 192,
+   "h": 64,
+   "overhead": false,
+   "collide": [
+    10.24,
+    1.3
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/21819f0279549e30.png",
+   "x": 3.4667,
+   "z": -55.9055,
+   "lift_px": 0,
+   "w": 128,
+   "h": 56,
+   "overhead": false,
+   "collide": [
+    6.827,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/21819f0279549e30.png",
+   "x": 124.5333,
+   "z": -55.9055,
+   "lift_px": 0,
+   "w": 128,
+   "h": 56,
+   "overhead": false,
+   "collide": [
+    6.827,
+    0.9
+   ]
+  }
+ ],
+ "colliders": [
+  [
+   0.0,
+   0.0,
+   5.966666666666667,
+   0.6
+  ],
+  [
+   8.966666666666667,
+   0.0,
+   123.43,
+   0.6
+  ],
+  [
+   126.43,
+   0.0,
+   128.0,
+   0.6
+  ],
+  [
+   0.0,
+   -56.599999999999994,
+   128.0,
+   -56.0
+  ],
+  [
+   -0.6,
+   -24.5,
+   0.0,
+   0.0
+  ],
+  [
+   -0.6,
+   -56.0,
+   0.0,
+   -27.5
+  ],
+  [
+   128.0,
+   -24.5,
+   128.60000000000002,
+   0.0
+  ],
+  [
+   128.0,
+   -56.0,
+   128.60000000000002,
+   -27.5
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "dispatch",
+   "kind": "contracts",
+   "label": "调度台：接单",
+   "x": 64.0,
+   "z": -12.2
+  },
+  {
+   "id": "lift",
+   "kind": "contracts",
+   "label": "外勤出发升降梯",
+   "x": 64.0,
+   "z": -1.2
+  },
+  {
+   "id": "logistics",
+   "kind": "insurance",
+   "label": "后勤柜台：投保",
+   "x": 101.33,
+   "z": -14.0
+  }
+ ],
+ "spawns": {
+  "arrival": [
+   64.0,
+   -53.0
+  ]
+ },
+ "textures": {
+  "marker_cyan": "res://art/rhodes_runtime/tex/623a46a0335333f1.png",
+  "marker_yellow": "res://art/rhodes_runtime/tex/dd181f5f5d427775.png"
+ }
+}

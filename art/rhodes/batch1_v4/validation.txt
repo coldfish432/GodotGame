@@ -1,0 +1,9 @@
+PASS 14 native/8x PNG pairs, 26-color palette and binary alpha.
+PASS wall cap4 + face40 + base2 =46, matching repeat ends, separate rib.
+PASS doorway outer45x46; completely transparent32x36 clear rectangle.
+PASS side strip1+4+1 material pixels +2 contact shadow.
+PASS side door gap38 with6x6 post tops and threshold.
+PASS corners use axis-aligned L top caps; no V pillar or side elevation.
+PASS console single UNIFORM integer16x reduction; no section resampling.
+PASS OFF zero cyan and same alpha geometry as ON.
+NOT RUN: in-engine validation.

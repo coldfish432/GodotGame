@@ -1,0 +1,15 @@
+H3 ARMORY v1 native-grid delivery: 19 assets, 2 emit masks.
+Shell: 18x12 units, 270x152 floor px, 46px wall.
+Two stand spots; 6 attached life details; two accepted logo instances in preview.
+All assets exported natively and at exact 8x nearest-neighbor; independent audit follows.
+
+Independent H3 ARMORY audit:
+  19 native assets; 2 emit masks; 9 hashed dependencies.
+  Exact inventory, palette, binary alpha, exact 8x, mask alignment, locked geometry, M/S silhouettes, Lappland 1:1, two spots and >=5 details checked.
+  Shell wall luminance 0.571; floor luminance 0.355.
+  armory_equipment_workbench_110x50: luminance 0.627; accents 7.4% (max family 5.8%); near-black 0.0%.
+  armory_robotic_arm_55x58: luminance 0.562; accents 5.4% (max family 3.6%); near-black 0.0%.
+  armory_equipment_case_1_48x30: luminance 0.639; accents 0.9% (max family 0.9%); near-black 0.0%.
+  armory_equipment_case_2_48x30: luminance 0.639; accents 0.9% (max family 0.9%); near-black 0.0%.
+  armory_mug_13x14: luminance 0.758; accents 0.0% (max family 0.0%); near-black 0.0%.
+  Result: PASS (0 errors).

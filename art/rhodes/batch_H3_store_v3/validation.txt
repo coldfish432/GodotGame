@@ -1,0 +1,16 @@
+H3 STORE v3: 15 assets, 9 generated furniture/equipment items, 5 emit masks, 15 hashed dependencies.
+Uniform integer downscale only; independent validation follows.
+
+Independent H3 STORE v3 audit:
+  Generated items 9; assets 15; emit masks 5; locked dependencies 15.
+  Checked source hashes, integer factors, palette, binary alpha, exact 8x, masks, wall alpha, item scale, native glyphs, own-shell composite and Lappland 1:1.
+  store_warm_sign: luminance 0.544; accents 0.5% (max family 0.4%); near-black 0.0%; gray steps 5.
+  store_front_counter: luminance 0.493; accents 6.6% (max family 4.9%); near-black 0.0%; gray steps 10.
+  store_weapon_glass_case: luminance 0.479; accents 7.1% (max family 4.9%); near-black 0.0%; gray steps 10.
+  store_equipment_glass_case: luminance 0.461; accents 9.1% (max family 4.9%); near-black 0.0%; gray steps 10.
+  store_back_product_shelf: luminance 0.391; accents 9.3% (max family 5.0%); near-black 0.0%; gray steps 10.
+  store_stacked_merchandise_boxes: luminance 0.594; accents 6.8% (max family 4.1%); near-black 0.0%; gray steps 10.
+  store_warm_pendant_lamp: luminance 0.469; accents 34.0% (max family 29.6%); near-black 0.0%; gray steps 6.
+  store_product_poster: luminance 0.500; accents 40.7% (max family 19.4%); near-black 0.0%; gray steps 9.
+  store_potted_plant: luminance 0.458; accents 0.0% (max family 0.0%); near-black 0.0%; gray steps 8.
+  Result: PASS (0 errors).

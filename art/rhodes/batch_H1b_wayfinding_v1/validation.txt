@@ -1,0 +1,10 @@
+H1b v1 generated: 23 native assets; glyph lookup includes 41 characters in both 5x7 and 3x5.
+Directory has B1-01 STORE, B1-02 ARMORY, B1-03 WAREHOUSE and B1-04 MEDICAL; its icon masks derive from accepted H1 v2 arrows.
+Twelve small number plates cover B1-01 through B1-12. Eight horizontal arrow variants keep their four accepted icons upright.
+§3.5 B coverage is listed per asset in manifest.json; full-room readability awaits assembly.
+
+Independent native-grid audit:
+  Assets 23; emit masks 0; palette colors used 9/31; locked dependencies 13.
+  Exact 8x nearest-neighbor exports, binary alpha, palette membership, emit/source alignment, dependency hashes and visible Lappland pixels checked.
+PASS: 41 glyphs in each sheet with complete lookup; 12 B1 plates; 8 arrows reuse the accepted upright icon masks.
+  Result: PASS (0 errors).

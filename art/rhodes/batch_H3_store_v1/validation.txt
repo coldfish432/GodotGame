@@ -1,0 +1,15 @@
+H3 STORE v1 native-grid delivery: 17 assets, 5 emit masks.
+Shell: 12x9 units, 180x115 floor px, 46px wall.
+Two stand spots; 7 attached life details; two accepted logo instances in preview.
+All assets exported natively and at exact 8x nearest-neighbor; independent audit follows.
+
+Independent H3 STORE audit:
+  17 native assets; 5 emit masks; 11 hashed dependencies.
+  Exact inventory, palette, binary alpha, exact 8x, mask alignment, locked geometry, M/S silhouettes, Lappland 1:1, two spots and >=5 details checked.
+  Shell wall luminance 0.630; floor luminance 0.355.
+  store_front_counter_self_service_84x48: luminance 0.589; accents 7.3% (max family 5.8%); near-black 0.0%.
+  store_weapon_glass_case_58x42: luminance 0.482; accents 0.5% (max family 0.5%); near-black 0.0%.
+  store_equipment_glass_case_58x42: luminance 0.553; accents 1.2% (max family 0.8%); near-black 0.0%.
+  store_mug_13x14: luminance 0.758; accents 0.0% (max family 0.0%); near-black 0.0%.
+  store_plant_22x27: luminance 0.542; accents 0.0% (max family 0.0%); near-black 0.0%.
+  Result: PASS (0 errors).

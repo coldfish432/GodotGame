@@ -1,0 +1,56 @@
+{
+  "image_model": "built-in imagegen",
+  "transparent_background": true,
+  "assets": [
+    {
+      "source": "crate_small_sealed_source.png",
+      "prompt": "An isolated small SEALED unknown-loot shipping crate for Rhodes Island warehouse. Front-facing orthographic 3/4 with zero yaw, axis-aligned rectangular shallow top and front face, absolutely no diagonal receding side edges. Closed lid held by two dark latches and one narrow safety-yellow tamper band. No contents visible, no letters or logo. Compact about 24x18 native px against 30px character. Cold grey/white metal, three shaded tones plus highlight, clean illustration translated to clustered crisp pixel art, selective darker-local outlines. Transparent background."
+    },
+    {
+      "source": "crate_medium_sealed_source.png",
+      "prompt": "An isolated MEDIUM SEALED unknown-loot shipping crate for Rhodes Island warehouse. Front-facing orthographic 3/4 with zero yaw; level horizontal lid/top plane and front face, axis-aligned vertical edges, no visible diagonal receding right side. Wider than the small crate, about 32x24 logical pixels. Grey shipping case with two yellow small tamper seals and handle hardware, no contents, no letters, no logo. Rhodes Island clean base-illustration pixel style, soft banded light, local outlines, three material tones and one highlight, transparent background."
+    },
+    {
+      "source": "crate_large_sealed_source.png",
+      "prompt": "An isolated LARGE SEALED unknown-loot shipping crate for Rhodes Island warehouse. Front-facing orthographic 3/4 with zero yaw, level broad shallow top surface and flat front, square vertical left/right edges, no diagonal perspective or isometric rhombus. About 42x30 logical pixels beside a 30px character. Grey steel reinforced cargo chest, three dark latches, small safety-yellow tamper tabs, no visible contents, no letters or logo. Clean Rhodes Island illustrative pixel art with 3 tones and highlight per material, selective local outlines; transparent background."
+    },
+    {
+      "source": "order_board_source.png",
+      "prompt": "An isolated Rhodes Island warehouse outbound ORDER NOTICE BOARD as clean front-facing orthographic pixel-art furniture, zero yaw. Axis-aligned 62x38 logical target. Wall-hung dark steel rectangular board with slight shallow top lip and lighter front inset, three clear empty card clipping positions, small cold-white header light and tiny yellow pin; no writing or symbols on cards and no logos. The board frame should be shaded in 3 grey tones plus one highlight, selective darker local outlines, no grime, straight horizontal and vertical edges, transparent background. State cards and lettering will be overlaid on the native grid later."
+    },
+    {
+      "source": "dispatch_pallet_source.png",
+      "prompt": "An isolated Rhodes Island outbound dispatch pallet, front-facing orthographic 3/4 zero yaw. Approximately 48x24 logical pixels. Clear shallow horizontal slatted top and visible straight front riser, two strapped grey/white cargo bundles and small yellow outbound edge tabs, open enough front silhouette to read as loaded dispatch staging. No diagonal receding sides, no isometric view, no letters or logos. Clean shaded pixel-art industrial object with dark local seams, 3 grey tones plus highlight, transparent background."
+    },
+    {
+      "source": "trinkets_source.png",
+      "prompt": "An isolated horizontal strip of FOUR distinct trinket items for the accepted Rhodes Island storage rack: two pendant charms, a bracelet, and a small ornate insignia. All face forward on one baseline, evenly spaced, no shelf or frame. Cold grey-white metal with tiny Rhodes blue/yellow inset highlights, each silhouette readable at 8-12 logical pixels. Front-facing axis aligned pixel art, 3 tones and local outline, no diagonal receding edges, no logos or lettering, transparent background. This strip will be uniformly downscaled and placed into four individual shelf slots."
+    },
+    {
+      "source": "crate_small_open_source.png",
+      "prompt": "Edit the sealed Rhodes Island crate into an unmistakably opened state. Preserve the lower front-facing zero-yaw box and grey/yellow material. Raise the entire lid nearly vertical behind it and expose a large near-black empty top cavity with bright rim highlights, readable at native 23–43px width. No contents, logo, text or diagonal receding side edges. High-resolution transparent source for uniform integer reduction.",
+      "reference": "sealed and first-open source; revised for H4 warehouse v2"
+    },
+    {
+      "source": "crate_medium_open_source.png",
+      "prompt": "Edit the sealed Rhodes Island crate into an unmistakably opened state. Preserve the lower front-facing zero-yaw box and grey/yellow material. Raise the entire lid nearly vertical behind it and expose a large near-black empty top cavity with bright rim highlights, readable at native 23–43px width. No contents, logo, text or diagonal receding side edges. High-resolution transparent source for uniform integer reduction.",
+      "reference": "sealed and first-open source; revised for H4 warehouse v2"
+    },
+    {
+      "source": "crate_large_open_source.png",
+      "prompt": "Edit the sealed Rhodes Island crate into an unmistakably opened state. Preserve the lower front-facing zero-yaw box and grey/yellow material. Raise the entire lid nearly vertical behind it and expose a large near-black empty top cavity with bright rim highlights, readable at native 23–43px width. No contents, logo, text or diagonal receding side edges. High-resolution transparent source for uniform integer reduction.",
+      "reference": "sealed and first-open source; revised for H4 warehouse v2"
+    },
+    {
+      "source": "cargo_drone_source.png",
+      "prompt": "Edit the referenced H3b engineering drone into a CARGO-CARRYING variant. Preserve its front-on symmetric drone body, small cyan camera and two rotor pods exactly as style and scale. Add ONE compact sealed grey cargo box clamped beneath the central body, clearly suspended on two short vertical struts; the box has a small yellow latch. Show the cargo as distinct from the drone; no floor contact. Zero yaw, level horizontal rotor line, no perspective diagonal, clean shaded pixel art. Transparent isolated object, no lettering or logo.",
+      "reference": "accepted/sealed input as described in build script"
+    },
+    {
+      "source": "trolley_loaded_source.png",
+      "prompt": "Edit the accepted 42x34 logical-pixel Rhodes Island carry trolley into a LOADED state. Preserve the same two-wheel cart silhouette, handle, baseline, material palette and front-facing zero-yaw orthographic geometry. Add three small grey equipment cases/boxed items secured ON its flat tray with a narrow safety-yellow strap, clearly more cargo than the original. No isometric receding side or diagonal cart body; wheels stay on the same baseline. Clean shaded pixel-art finish similar to the accepted console reference. Transparent background, no letters/logo.",
+      "reference": "accepted/sealed input as described in build script"
+    }
+  ],
+  "revision": "H4 warehouse v2: clearer open-box originals replace v1 open sources; previous originals retained in previous_v1/."
+}

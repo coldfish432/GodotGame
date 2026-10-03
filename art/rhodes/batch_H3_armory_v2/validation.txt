@@ -1,0 +1,26 @@
+H3 ARMORY v2: 12 assets, 7 generated furniture/equipment items, 2 emit masks, 17 hashed dependencies.
+Uniform integer downscale only; independent validation follows.
+
+Independent H3 ARMORY v2 audit:
+  Generated items 7; assets 12; emit masks 2; locked dependencies 17.
+  Checked source hashes, integer factors, palette, binary alpha, exact 8x, mask alignment, wall alpha, own-shell composite and Lappland 1:1.
+  armory_equipment_workbench: luminance 0.511; accents 9.2% (max family 5.1%); near-black 0.0%; gray steps 7.
+  armory_weapon_wall: luminance 0.519; accents 2.4% (max family 2.3%); near-black 0.0%; gray steps 7.
+  armory_robotic_arm: luminance 0.584; accents 2.7% (max family 1.5%); near-black 0.0%; gray steps 7.
+  armory_overhead_hoist: luminance 0.506; accents 5.8% (max family 5.3%); near-black 0.0%; gray steps 7.
+  armory_tool_board: luminance 0.596; accents 3.7% (max family 3.0%); near-black 0.0%; gray steps 7.
+  armory_equipment_case: luminance 0.629; accents 5.0% (max family 5.0%); near-black 0.0%; gray steps 7.
+  armory_task_lamp: luminance 0.511; accents 1.6% (max family 1.6%); near-black 0.0%; gray steps 10.
+  Result: PASS (0 errors).
+
+Independent H3 ARMORY v2 audit:
+  Generated items 7; assets 12; emit masks 2; locked dependencies 17.
+  Checked source hashes, integer factors, palette, binary alpha, exact 8x, mask alignment, wall alpha, own-shell composite and Lappland 1:1.
+  armory_equipment_workbench: luminance 0.511; accents 9.2% (max family 5.1%); near-black 0.0%; gray steps 7.
+  armory_weapon_wall: luminance 0.519; accents 2.4% (max family 2.3%); near-black 0.0%; gray steps 7.
+  armory_robotic_arm: luminance 0.584; accents 2.7% (max family 1.5%); near-black 0.0%; gray steps 7.
+  armory_overhead_hoist: luminance 0.506; accents 5.8% (max family 5.3%); near-black 0.0%; gray steps 7.
+  armory_tool_board: luminance 0.596; accents 3.7% (max family 3.0%); near-black 0.0%; gray steps 7.
+  armory_equipment_case: luminance 0.629; accents 5.0% (max family 5.0%); near-black 0.0%; gray steps 7.
+  armory_task_lamp: luminance 0.511; accents 1.6% (max family 1.6%); near-black 0.0%; gray steps 10.
+  Result: PASS (0 errors).

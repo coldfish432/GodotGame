@@ -1,0 +1,28 @@
+{
+  "tool": "built-in image_gen",
+  "prompts": [
+    {
+      "key": "engineering_drone",
+      "prompt": "Use case: stylized-concept. Create one small hovering Rhodes Island engineering maintenance drone as an isolated clean pixel-art game asset. Reference images are STYLE REFERENCES only, not objects to copy. STRICT FRONT FACING orthographic view, zero yaw, horizontal left/right symmetry, no isometric camera. Compact cold grey white central body with a small cyan camera, two short level side rotor pods, two tiny gripper arms folded beneath, one restrained safety-yellow identification tab. Visible shallow top plane and front face, dark local-color selective outlines, 3 shaded tones + one highlight per material, soft banded light, no grime, no lettering or logos. No floor stand, no floor shadow, no background. Transparent background. At native reduction it will be about 24 pixels wide by 18 high next to a 30-pixel character. Crisp large clustered pixels, legible compact silhouette.",
+      "refs": [
+        "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch1_v4\\console_on_v4_8x.png",
+        "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H3_armory_v4\\armory_task_lamp_8x.png"
+      ]
+    },
+    {
+      "key": "construction_work_lamp",
+      "prompt": "Use case: stylized-concept. Create a compact portable construction work lamp for Rhodes Island base, clean pixel-art game asset, isolated transparent background. Reference is the accepted material and pixel-art style only. STRICT ZERO YAW, straight-on orthographic front view. Rectangular LEVEL horizontal lamp head with a warm-white rectangular diffuser inside a grey chamfered housing, perfectly vertical short telescopic shaft, horizontal T-shaped foot, small orange power cable curled beside the foot. No tilted lamp head, no diagonal perspective frame, no tripod. Shallow visible top plus shaded front face, three tones and one highlight per material, selective darker-local outlines, clean grey white enamel with tiny safety-yellow accent. No text or logo. Designed to reduce to about 20 pixels wide and 28 tall, slightly shorter than a 30-pixel character.",
+      "refs": [
+        "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H3_armory_v4\\armory_task_lamp_8x.png"
+      ]
+    },
+    {
+      "key": "corridor_debris",
+      "prompt": "Use case: stylized-concept. Create one compact low pile of abandoned maintenance materials for an uncleared Rhodes Island ship corridor. Transparent isolated pixel-art asset. STRICT FRONT-FACING ORTHOGRAPHIC ZERO YAW, all crate verticals vertical and all top/front boundaries horizontal, no isometric diamonds or diagonal receding sides. Two low grey shipping crates, three loose rectangular steel panels laid flat/front-facing, short disconnected orange cables and connectors. Deliberate stacked grouping, low silhouette, clean hard surface materials without dirt, rust or grime. Restrained cold steel greys with dark recesses and small muted-orange cables. Selective local outlines, 3 shaded tones + highlight, visible shallow rectangular top surfaces. No logos, letters, warning signs, fence, room, floor or shadows. Native target about 52 pixels wide by 24 tall, compared with a 30-pixel character. The supplied accepted barrier image is reference for debris language only.",
+      "refs": [
+        "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H1_bridge_hall_v2\\wing_construction_barrier_uncleared_128x56_8x.png",
+        "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch1_v4\\console_on_v4_8x.png"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+Source bbox: {X=86,Y=150,Width=1509,Height=684}
+Uniform nearest-neighbor integer divisor:16, BOTH AXES, ENTIRE SPRITE
+Transparent padding to full sampling cells; no geometry stretching.
+Native canvas: 95x43
+Native opaque bounds: {X=0,Y=0,Width=94,Height=43}
+OFF is same geometry, cyan palette pixels replaced by gunmetal.
+Source desk top y590..645, face y646..805; feet to y830. These correspond to approx4px surface /10px face; top to feet15px.

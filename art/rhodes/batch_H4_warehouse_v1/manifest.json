@@ -1,0 +1,1386 @@
+{
+  "batch": "H4 warehouse v1",
+  "spec": "罗德岛基地美术策划案_v2_0.md §2.5, §§3.5/3.7/4.4; 基地玩法补充案_v0_1.md",
+  "palette": {
+    "name": "Rhodes 31-color",
+    "colors": {
+      "K": "#0b0c0d",
+      "D": "#15181a",
+      "S0": "#1f2427",
+      "S1": "#2c3236",
+      "S2": "#3d4448",
+      "S3": "#566064",
+      "G0": "#737d82",
+      "G1": "#98a2a6",
+      "G2": "#c3cacc",
+      "W0": "#a9b2b3",
+      "W1": "#d4dadb",
+      "W2": "#eef2f2",
+      "Y0": "#6b5a1e",
+      "Y1": "#b89a2a",
+      "Y2": "#f4d73c",
+      "O0": "#6e2f14",
+      "O1": "#b8531f",
+      "O2": "#e0782a",
+      "T0": "#0f3a40",
+      "T1": "#2a8a92",
+      "T2": "#5fd0d8",
+      "T3": "#b8f4f6",
+      "B0": "#385878",
+      "B1": "#5888a8",
+      "B2": "#78b8e8",
+      "L0": "#5a4428",
+      "L1": "#c89a5a",
+      "L2": "#f1d9a6",
+      "R0": "#8a1f1f",
+      "E0": "#487808",
+      "E1": "#68d848"
+    }
+  },
+  "projection": {
+    "pixels_per_unit": 15,
+    "ground_y_scale": 0.85,
+    "yaw_degrees": 0,
+    "wall_height_px": 46,
+    "room_units": [
+      60,
+      32
+    ]
+  },
+  "method": "Furniture/equipment originals are stored in sources/ and reduced uniformly by an integer, nearest-neighbor, then palette-quantized. Native-grid edits are limited to state overlays, iconography, signage, decals and alignment to accepted geometry.",
+  "assets": [
+    {
+      "id": "warehouse_category_weapon_14x14",
+      "file": "warehouse_category_weapon_14x14.png",
+      "emit": null,
+      "kind": "icon",
+      "zone": "storage",
+      "state_group": "warehouse_category_weapon_14x14",
+      "state": "default",
+      "size_px": [
+        14,
+        14
+      ],
+      "anchor_px": [
+        7,
+        13
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        0.93,
+        1
+      ],
+      "source": null,
+      "notes": "Upright category icon; weapon / armor / trinket / material."
+    },
+    {
+      "id": "warehouse_category_armor_14x14",
+      "file": "warehouse_category_armor_14x14.png",
+      "emit": null,
+      "kind": "icon",
+      "zone": "storage",
+      "state_group": "warehouse_category_armor_14x14",
+      "state": "default",
+      "size_px": [
+        14,
+        14
+      ],
+      "anchor_px": [
+        7,
+        13
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        0.93,
+        1
+      ],
+      "source": null,
+      "notes": "Upright category icon; weapon / armor / trinket / material."
+    },
+    {
+      "id": "warehouse_category_trinket_14x14",
+      "file": "warehouse_category_trinket_14x14.png",
+      "emit": null,
+      "kind": "icon",
+      "zone": "storage",
+      "state_group": "warehouse_category_trinket_14x14",
+      "state": "default",
+      "size_px": [
+        14,
+        14
+      ],
+      "anchor_px": [
+        7,
+        13
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        0.93,
+        1
+      ],
+      "source": null,
+      "notes": "Upright category icon; weapon / armor / trinket / material."
+    },
+    {
+      "id": "warehouse_category_material_14x14",
+      "file": "warehouse_category_material_14x14.png",
+      "emit": null,
+      "kind": "icon",
+      "zone": "storage",
+      "state_group": "warehouse_category_material_14x14",
+      "state": "default",
+      "size_px": [
+        14,
+        14
+      ],
+      "anchor_px": [
+        7,
+        13
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        0.93,
+        1
+      ],
+      "source": null,
+      "notes": "Upright category icon; weapon / armor / trinket / material."
+    },
+    {
+      "id": "warehouse_loot_crate_small_sealed",
+      "file": "warehouse_loot_crate_small_sealed.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "receiving",
+      "state_group": "crate_small",
+      "state": "sealed",
+      "size_px": [
+        23,
+        18
+      ],
+      "anchor_px": [
+        11,
+        17
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.53,
+        1
+      ],
+      "source": {
+        "file": "sources/crate_small_sealed_source.png",
+        "size_px": [
+          1448,
+          1086
+        ],
+        "sha256": "4742d859b2aef06786909c607696350d65d98dd0721cde7ad7ffd0b1b26f95c4",
+        "uniform_integer_reduction": 60,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Sealed hides contents; opened reveals the empty dark cavity. Bottom-center aligned."
+    },
+    {
+      "id": "warehouse_loot_crate_small_open",
+      "file": "warehouse_loot_crate_small_open.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "receiving",
+      "state_group": "crate_small",
+      "state": "open",
+      "size_px": [
+        23,
+        18
+      ],
+      "anchor_px": [
+        11,
+        17
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.53,
+        1
+      ],
+      "source": {
+        "file": "sources/crate_small_open_source.png",
+        "size_px": [
+          1448,
+          1086
+        ],
+        "sha256": "3577d5d6e9fc8152dc239b19f1ba55ac03a4b1d471c668556433a27f256a9260",
+        "uniform_integer_reduction": 60,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Sealed hides contents; opened reveals the empty dark cavity. Bottom-center aligned."
+    },
+    {
+      "id": "warehouse_loot_crate_medium_sealed",
+      "file": "warehouse_loot_crate_medium_sealed.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "receiving",
+      "state_group": "crate_medium",
+      "state": "sealed",
+      "size_px": [
+        34,
+        24
+      ],
+      "anchor_px": [
+        17,
+        23
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.27,
+        1
+      ],
+      "source": {
+        "file": "sources/crate_medium_sealed_source.png",
+        "size_px": [
+          1448,
+          1086
+        ],
+        "sha256": "df248052d2ec21fbfa5520fadea55cbf47a47ebc7a8ed31109cbe5afa3b630e5",
+        "uniform_integer_reduction": 45,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Sealed hides contents; opened reveals the empty dark cavity. Bottom-center aligned."
+    },
+    {
+      "id": "warehouse_loot_crate_medium_open",
+      "file": "warehouse_loot_crate_medium_open.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "receiving",
+      "state_group": "crate_medium",
+      "state": "open",
+      "size_px": [
+        34,
+        24
+      ],
+      "anchor_px": [
+        17,
+        23
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.27,
+        1
+      ],
+      "source": {
+        "file": "sources/crate_medium_open_source.png",
+        "size_px": [
+          1448,
+          1086
+        ],
+        "sha256": "7d4fda7e53a091eb3aedcf2ededd6cf4c48991b678e4b0b25c79dc7c56f81fc1",
+        "uniform_integer_reduction": 45,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Sealed hides contents; opened reveals the empty dark cavity. Bottom-center aligned."
+    },
+    {
+      "id": "warehouse_loot_crate_large_sealed",
+      "file": "warehouse_loot_crate_large_sealed.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "receiving",
+      "state_group": "crate_large",
+      "state": "sealed",
+      "size_px": [
+        43,
+        30
+      ],
+      "anchor_px": [
+        21,
+        29
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.87,
+        1
+      ],
+      "source": {
+        "file": "sources/crate_large_sealed_source.png",
+        "size_px": [
+          1484,
+          1060
+        ],
+        "sha256": "8b4a238f95317870783f7ec8ed610e1684c7543ae3a0cd162b6cb7926ec3da53",
+        "uniform_integer_reduction": 35,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Sealed hides contents; opened reveals the empty dark cavity. Bottom-center aligned."
+    },
+    {
+      "id": "warehouse_loot_crate_large_open",
+      "file": "warehouse_loot_crate_large_open.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "receiving",
+      "state_group": "crate_large",
+      "state": "open",
+      "size_px": [
+        43,
+        30
+      ],
+      "anchor_px": [
+        21,
+        29
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.87,
+        1
+      ],
+      "source": {
+        "file": "sources/crate_large_open_source.png",
+        "size_px": [
+          1484,
+          1060
+        ],
+        "sha256": "ceb03d0815984b81bdf148c340628e9105030ffb66f238f93d689cf595cc62c0",
+        "uniform_integer_reduction": 35,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Sealed hides contents; opened reveals the empty dark cavity. Bottom-center aligned."
+    },
+    {
+      "id": "warehouse_cargo_drone",
+      "file": "warehouse_cargo_drone.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "storage",
+      "state_group": "warehouse_cargo_drone",
+      "state": "default",
+      "size_px": [
+        36,
+        19
+      ],
+      "anchor_px": [
+        18,
+        18
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.4,
+        1
+      ],
+      "source": {
+        "file": "sources/cargo_drone_source.png",
+        "size_px": [
+          1448,
+          1086
+        ],
+        "sha256": "bde8ad2a9205df7cf40f36fb6262de8266c82467c6c4e97918130feb4941570e",
+        "uniform_integer_reduction": 40,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Generated front-facing equipment; icon-free small hardware."
+    },
+    {
+      "id": "warehouse_dispatch_pallet",
+      "file": "warehouse_dispatch_pallet.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "dispatch",
+      "state_group": "warehouse_dispatch_pallet",
+      "state": "default",
+      "size_px": [
+        51,
+        21
+      ],
+      "anchor_px": [
+        25,
+        20
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        3.4,
+        1
+      ],
+      "source": {
+        "file": "sources/dispatch_pallet_source.png",
+        "size_px": [
+          1774,
+          887
+        ],
+        "sha256": "5fa114c0bfa9a3dd59bc1fda9f1753467a186ebf6316980e612748df4b300371",
+        "uniform_integer_reduction": 36,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Generated front-facing equipment; icon-free small hardware."
+    },
+    {
+      "id": "warehouse_trolley_empty",
+      "file": "warehouse_trolley_empty.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "carry-in",
+      "state_group": "carry_trolley",
+      "state": "empty",
+      "size_px": [
+        42,
+        34
+      ],
+      "anchor_px": [
+        21,
+        33
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.8,
+        1
+      ],
+      "source": null,
+      "notes": "Accepted H2 empty trolley, unchanged."
+    },
+    {
+      "id": "warehouse_trolley_loaded",
+      "file": "warehouse_trolley_loaded.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "carry-in",
+      "state_group": "carry_trolley",
+      "state": "loaded",
+      "size_px": [
+        42,
+        34
+      ],
+      "anchor_px": [
+        21,
+        33
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.8,
+        1
+      ],
+      "source": {
+        "file": "sources/trolley_loaded_source.png",
+        "size_px": [
+          1394,
+          1128
+        ],
+        "sha256": "fb277685f31445fe8776c6aae8382b1ae80b2f43f0fae257d17df20989c9b04a",
+        "uniform_integer_reduction": 35,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Generated cargo; exact 42x34 accepted trolley state box, bottom-center anchor."
+    },
+    {
+      "id": "warehouse_rack_trinket_80x64",
+      "file": "warehouse_rack_trinket_80x64.png",
+      "emit": null,
+      "kind": "prop",
+      "zone": "storage",
+      "state_group": "warehouse_rack_trinket_80x64",
+      "state": "default",
+      "size_px": [
+        80,
+        64
+      ],
+      "anchor_px": [
+        40,
+        63
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        5.33,
+        1
+      ],
+      "source": {
+        "file": "sources/trinkets_source.png",
+        "size_px": [
+          2172,
+          724
+        ],
+        "sha256": "b8352b0e8263e103d7881690634f42a816aab101cc2c909597e0717877e6f775",
+        "uniform_integer_reduction": 34,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Dedicated trinket rack; accepted H2 80x64 frame, bottles replaced with generated pendants."
+    },
+    {
+      "id": "warehouse_shelf_slot_empty_12x12",
+      "file": "warehouse_shelf_slot_empty_12x12.png",
+      "emit": null,
+      "kind": "overlay",
+      "zone": "storage",
+      "state_group": "shelf_slot",
+      "state": "empty",
+      "size_px": [
+        12,
+        12
+      ],
+      "anchor_px": [
+        6,
+        11
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        0.8,
+        1
+      ],
+      "source": null,
+      "notes": "Place on accepted rack cells; x=12,27,42,57; y=10,27,44. Cell replacement overlay."
+    },
+    {
+      "id": "warehouse_shelf_slot_filled_12x12",
+      "file": "warehouse_shelf_slot_filled_12x12.png",
+      "emit": null,
+      "kind": "overlay",
+      "zone": "storage",
+      "state_group": "shelf_slot",
+      "state": "filled",
+      "size_px": [
+        12,
+        12
+      ],
+      "anchor_px": [
+        6,
+        11
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        0.8,
+        1
+      ],
+      "source": null,
+      "notes": "Place on accepted rack cells; x=12,27,42,57; y=10,27,44. Cell replacement overlay."
+    },
+    {
+      "id": "warehouse_rack_plate_weapon_1",
+      "file": "warehouse_rack_plate_weapon_1.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_weapon_1",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_rack_plate_weapon_2",
+      "file": "warehouse_rack_plate_weapon_2.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_weapon_2",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_rack_plate_armor_1",
+      "file": "warehouse_rack_plate_armor_1.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_armor_1",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_rack_plate_armor_2",
+      "file": "warehouse_rack_plate_armor_2.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_armor_2",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_rack_plate_trinket_1",
+      "file": "warehouse_rack_plate_trinket_1.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_trinket_1",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_rack_plate_trinket_2",
+      "file": "warehouse_rack_plate_trinket_2.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_trinket_2",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_rack_plate_material_1",
+      "file": "warehouse_rack_plate_material_1.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_material_1",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_rack_plate_material_2",
+      "file": "warehouse_rack_plate_material_2.png",
+      "emit": null,
+      "kind": "sign",
+      "zone": "storage",
+      "state_group": "warehouse_rack_plate_material_2",
+      "state": "default",
+      "size_px": [
+        21,
+        10
+      ],
+      "anchor_px": [
+        10,
+        9
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.4,
+        1
+      ],
+      "source": null,
+      "notes": "Rack-head numbering A1–D2; 3x5 accepted glyphs."
+    },
+    {
+      "id": "warehouse_zone_weapon_normal_90x44",
+      "file": "warehouse_zone_weapon_normal_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_weapon",
+      "state": "normal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_zone_weapon_highlight_90x44",
+      "file": "warehouse_zone_weapon_highlight_90x44.png",
+      "emit": "warehouse_zone_weapon_highlight_90x44_emit.png",
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_weapon",
+      "state": "highlight",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_zone_armor_normal_90x44",
+      "file": "warehouse_zone_armor_normal_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_armor",
+      "state": "normal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_zone_armor_highlight_90x44",
+      "file": "warehouse_zone_armor_highlight_90x44.png",
+      "emit": "warehouse_zone_armor_highlight_90x44_emit.png",
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_armor",
+      "state": "highlight",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_zone_trinket_normal_90x44",
+      "file": "warehouse_zone_trinket_normal_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_trinket",
+      "state": "normal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_zone_trinket_highlight_90x44",
+      "file": "warehouse_zone_trinket_highlight_90x44.png",
+      "emit": "warehouse_zone_trinket_highlight_90x44_emit.png",
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_trinket",
+      "state": "highlight",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_zone_material_normal_90x44",
+      "file": "warehouse_zone_material_normal_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_material",
+      "state": "normal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_zone_material_highlight_90x44",
+      "file": "warehouse_zone_material_highlight_90x44.png",
+      "emit": "warehouse_zone_material_highlight_90x44_emit.png",
+      "kind": "decal",
+      "zone": "storage",
+      "state_group": "zone_material",
+      "state": "highlight",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        43
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        6.0,
+        1
+      ],
+      "source": null,
+      "notes": "Matching-category carry highlight; native 90x44 floor frame, transparent outside strokes."
+    },
+    {
+      "id": "warehouse_carried_item_frame_22x22",
+      "file": "warehouse_carried_item_frame_22x22.png",
+      "emit": null,
+      "kind": "overlay",
+      "zone": "carry",
+      "state_group": "warehouse_carried_item_frame_22x22",
+      "state": "default",
+      "size_px": [
+        22,
+        22
+      ],
+      "anchor_px": [
+        11,
+        21
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        1.47,
+        1
+      ],
+      "source": null,
+      "notes": "Draw at character head top minus 24px; place 14x14 category icon at (4,4)."
+    },
+    {
+      "id": "warehouse_order_board_empty",
+      "file": "warehouse_order_board_empty.png",
+      "emit": null,
+      "kind": "wall",
+      "zone": "dispatch",
+      "state_group": "order_board",
+      "state": "empty",
+      "size_px": [
+        62,
+        34
+      ],
+      "anchor_px": [
+        31,
+        0
+      ],
+      "wall_mounted": true,
+      "footprint_units": [
+        0,
+        0
+      ],
+      "source": {
+        "file": "sources/order_board_source.png",
+        "size_px": [
+          1603,
+          981
+        ],
+        "sha256": "42c47e30815d0a30a1a17412b25d490ed151057ec09df7aee7f0ebcdfc1d5203",
+        "uniform_integer_reduction": 25,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Three board states share the same generated frame and wall anchor."
+    },
+    {
+      "id": "warehouse_order_board_open",
+      "file": "warehouse_order_board_open.png",
+      "emit": "warehouse_order_board_open_emit.png",
+      "kind": "wall",
+      "zone": "dispatch",
+      "state_group": "order_board",
+      "state": "open",
+      "size_px": [
+        62,
+        34
+      ],
+      "anchor_px": [
+        31,
+        0
+      ],
+      "wall_mounted": true,
+      "footprint_units": [
+        0,
+        0
+      ],
+      "source": {
+        "file": "sources/order_board_source.png",
+        "size_px": [
+          1603,
+          981
+        ],
+        "sha256": "42c47e30815d0a30a1a17412b25d490ed151057ec09df7aee7f0ebcdfc1d5203",
+        "uniform_integer_reduction": 25,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Three board states share the same generated frame and wall anchor."
+    },
+    {
+      "id": "warehouse_order_board_completed",
+      "file": "warehouse_order_board_completed.png",
+      "emit": "warehouse_order_board_completed_emit.png",
+      "kind": "wall",
+      "zone": "dispatch",
+      "state_group": "order_board",
+      "state": "completed",
+      "size_px": [
+        62,
+        34
+      ],
+      "anchor_px": [
+        31,
+        0
+      ],
+      "wall_mounted": true,
+      "footprint_units": [
+        0,
+        0
+      ],
+      "source": {
+        "file": "sources/order_board_source.png",
+        "size_px": [
+          1603,
+          981
+        ],
+        "sha256": "42c47e30815d0a30a1a17412b25d490ed151057ec09df7aee7f0ebcdfc1d5203",
+        "uniform_integer_reduction": 25,
+        "quantization": "nearest CIELAB in Rhodes 31-color palette; no dithering"
+      },
+      "notes": "Three board states share the same generated frame and wall anchor."
+    },
+    {
+      "id": "warehouse_receiving_bay_R01_30x25",
+      "file": "warehouse_receiving_bay_R01_30x25.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "receiving",
+      "state_group": "warehouse_receiving_bay_R01_30x25",
+      "state": "default",
+      "size_px": [
+        30,
+        25
+      ],
+      "anchor_px": [
+        15,
+        24
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.0,
+        1
+      ],
+      "source": null,
+      "notes": "Numbered crate bay. Slot counts configurable; six examples R01–R06."
+    },
+    {
+      "id": "warehouse_receiving_bay_R02_30x25",
+      "file": "warehouse_receiving_bay_R02_30x25.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "receiving",
+      "state_group": "warehouse_receiving_bay_R02_30x25",
+      "state": "default",
+      "size_px": [
+        30,
+        25
+      ],
+      "anchor_px": [
+        15,
+        24
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.0,
+        1
+      ],
+      "source": null,
+      "notes": "Numbered crate bay. Slot counts configurable; six examples R01–R06."
+    },
+    {
+      "id": "warehouse_receiving_bay_R03_30x25",
+      "file": "warehouse_receiving_bay_R03_30x25.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "receiving",
+      "state_group": "warehouse_receiving_bay_R03_30x25",
+      "state": "default",
+      "size_px": [
+        30,
+        25
+      ],
+      "anchor_px": [
+        15,
+        24
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.0,
+        1
+      ],
+      "source": null,
+      "notes": "Numbered crate bay. Slot counts configurable; six examples R01–R06."
+    },
+    {
+      "id": "warehouse_receiving_bay_R04_30x25",
+      "file": "warehouse_receiving_bay_R04_30x25.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "receiving",
+      "state_group": "warehouse_receiving_bay_R04_30x25",
+      "state": "default",
+      "size_px": [
+        30,
+        25
+      ],
+      "anchor_px": [
+        15,
+        24
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.0,
+        1
+      ],
+      "source": null,
+      "notes": "Numbered crate bay. Slot counts configurable; six examples R01–R06."
+    },
+    {
+      "id": "warehouse_receiving_bay_R05_30x25",
+      "file": "warehouse_receiving_bay_R05_30x25.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "receiving",
+      "state_group": "warehouse_receiving_bay_R05_30x25",
+      "state": "default",
+      "size_px": [
+        30,
+        25
+      ],
+      "anchor_px": [
+        15,
+        24
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.0,
+        1
+      ],
+      "source": null,
+      "notes": "Numbered crate bay. Slot counts configurable; six examples R01–R06."
+    },
+    {
+      "id": "warehouse_receiving_bay_R06_30x25",
+      "file": "warehouse_receiving_bay_R06_30x25.png",
+      "emit": null,
+      "kind": "decal",
+      "zone": "receiving",
+      "state_group": "warehouse_receiving_bay_R06_30x25",
+      "state": "default",
+      "size_px": [
+        30,
+        25
+      ],
+      "anchor_px": [
+        15,
+        24
+      ],
+      "wall_mounted": false,
+      "footprint_units": [
+        2.0,
+        1
+      ],
+      "source": null,
+      "notes": "Numbered crate bay. Slot counts configurable; six examples R01–R06."
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H2_warehouse_v2\\warehouse_trolley_42x34.png",
+      "sha256": "be883fe14c380a3d656553269394395028507523db90a6821d29d67d4c3a4064",
+      "size_px": [
+        42,
+        34
+      ],
+      "use": "accepted 42x34 trolley empty state",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H2_warehouse_v2\\warehouse_rack_consumables_80x64.png",
+      "sha256": "d53e8942dada24ffe5a0d5598868f3642d50c40ce8bfe7fd6cdabc2f1ee9a8d1",
+      "size_px": [
+        80,
+        64
+      ],
+      "use": "accepted rack frame geometry, category contents retired",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch1_v5\\wall_straight_60x46_v5.png",
+      "sha256": "e6f67d8cd77fa8d3407d03f5700a7ba1307254d53e2dce65cbd1dc480e0a4ff8",
+      "size_px": [
+        60,
+        46
+      ],
+      "use": "accepted 46px room wall",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch2_v2\\rhodes_floor_v1.png",
+      "sha256": "433dded8f5a617327257266ccc33a5f01ced342413079bf54e84d41810798130",
+      "size_px": [
+        120,
+        120
+      ],
+      "use": "accepted room floor",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch1_v5\\lappland_frame0_64.png",
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "size_px": [
+        64,
+        64
+      ],
+      "use": "unscaled Lappland frame 0",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H2_warehouse_v2\\warehouse_rack_weapons_80x64.png",
+      "sha256": "38214df785c15f31436779c7c8278af11ea7da4fd5d5dbfc5d8f964606b7769a",
+      "size_px": [
+        80,
+        64
+      ],
+      "use": "accepted WEAPON rack",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H2_warehouse_v2\\warehouse_rack_armor_80x64.png",
+      "sha256": "4144115d13c64cc4fc68d8165cf3476a579b1cf0e93ec6e9fde948573c403a19",
+      "size_px": [
+        80,
+        64
+      ],
+      "use": "accepted ARMOR rack",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H2_warehouse_v2\\warehouse_rack_materials_80x64.png",
+      "sha256": "42e1f1d5a09fd0ed9dbdded9dc07057d5498918a1b016dc634a85316615467fc",
+      "size_px": [
+        80,
+        64
+      ],
+      "use": "accepted MATERIAL rack",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H2_warehouse_v2\\warehouse_storage_terminal_on_64x52.png",
+      "sha256": "3c19380c53ae67ec64e4c1d4382e29535fbabc60bc63b09f3cde4a6a3404d7ef",
+      "size_px": [
+        64,
+        52
+      ],
+      "use": "accepted dispatch/storage terminal",
+      "locked": true
+    },
+    {
+      "file": "D:\\CSYE 7370\\downfall-godot\\art\\rhodes\\batch_H2_warehouse_v2\\warehouse_freight_lift_idle_96x56.png",
+      "sha256": "f1501d2367cac205d035f19a8db7e0a7c4d57df00ca8c019592a782f2066042c",
+      "size_px": [
+        96,
+        56
+      ],
+      "use": "accepted receiving lift",
+      "locked": true
+    }
+  ],
+  "preview": {
+    "file": "H4_warehouse_lappland_1x.png",
+    "review_4x": "H4_warehouse_lappland_1x_4x.png",
+    "character": "Lappland frame 0, unscaled"
+  },
+  "assembly": {
+    "room_px": [
+      900,
+      408
+    ],
+    "receiving_bay_codes": [
+      "R01",
+      "R02",
+      "R03",
+      "R04",
+      "R05",
+      "R06"
+    ],
+    "rack_cell_top_left_px": [
+      [
+        12,
+        10
+      ],
+      [
+        27,
+        10
+      ],
+      [
+        42,
+        10
+      ],
+      [
+        57,
+        10
+      ],
+      [
+        12,
+        27
+      ],
+      [
+        27,
+        27
+      ],
+      [
+        42,
+        27
+      ],
+      [
+        57,
+        27
+      ],
+      [
+        12,
+        44
+      ],
+      [
+        27,
+        44
+      ],
+      [
+        42,
+        44
+      ],
+      [
+        57,
+        44
+      ]
+    ],
+    "carry_icon_offset_px": [
+      4,
+      4
+    ],
+    "state_switch": "Swap paired sprites by state_group; no transform or anchor change.",
+    "accepted_dependencies": "Use H2 weapon/armor/material racks, storage terminal, counter, forklift, wall bay and floor unchanged."
+  },
+  "notes": [
+    "Only four categories exist: weapon, armor, trinket, material. H2 consumables rack and zone are retired.",
+    "Crate size does not reveal contents until opened; source art includes no category logo.",
+    "S-logo is absent from ordinary racks, trolley, pallets and crates; H2 main terminal/supergraphic remain representative logo placements.",
+    "§3.5 A: volume from generated top/front surfaces; B: zone lines, rack codes and receiving numbers; C: lit state outlines; D: slot/board/crate interaction states."
+  ],
+  "build_script": "build_warehouse.py"
+}

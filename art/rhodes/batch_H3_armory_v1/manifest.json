@@ -1,0 +1,656 @@
+{
+  "batch": "H3 ARMORY v1",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.3, 3.1.1, 3.5, 3.7, 4.4",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "armory_department_sign_120x46",
+      "file": "armory_department_sign_120x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        120,
+        46
+      ],
+      "anchor_px": [
+        60,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "B1-02 safety-yellow department supergraphic and accepted M mark.",
+      "coverage_35": [
+        "B: ARMORY wall supergraphic",
+        "C: safety-yellow identity"
+      ]
+    },
+    {
+      "id": "armory_equipment_workbench_110x50",
+      "file": "armory_equipment_workbench_110x50.png",
+      "emit": "armory_equipment_workbench_110x50_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        110,
+        50
+      ],
+      "anchor_px": [
+        55,
+        49
+      ],
+      "footprint_units": [
+        7.33,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Primary equipment UI station, native 110x50 redraw. Desk top at 27-31px sprite y; 13px front, screens sit on desk.",
+      "coverage_35": [
+        "A: raised equipment station",
+        "B: representative S mark",
+        "C: yellow tool highlight"
+      ]
+    },
+    {
+      "id": "armory_weapon_wall_106x60",
+      "file": "armory_weapon_wall_106x60.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        106,
+        60
+      ],
+      "anchor_px": [
+        53,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Five visible hanging blades; B1-02 category number, no S stamp.",
+      "coverage_35": [
+        "A: wall-backed weapon storage",
+        "B: B1-02 rack ID"
+      ]
+    },
+    {
+      "id": "armory_robotic_arm_55x58",
+      "file": "armory_robotic_arm_55x58.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        55,
+        58
+      ],
+      "anchor_px": [
+        27,
+        57
+      ],
+      "footprint_units": [
+        3.67,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Jointed cold-grey robotic arm with dark joints and orange control cable.",
+      "coverage_35": [
+        "A: equipment manipulator",
+        "C: three-tone light shell and orange cable"
+      ]
+    },
+    {
+      "id": "armory_overhead_hoist_64x74",
+      "file": "armory_overhead_hoist_64x74.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        64,
+        74
+      ],
+      "anchor_px": [
+        32,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Overhead beam and suspended hook, 64x74; anchor to north wall ceiling at y=0.",
+      "coverage_35": [
+        "A: overhead repair structure",
+        "C: yellow carriage warning"
+      ]
+    },
+    {
+      "id": "armory_tool_board_58x42",
+      "file": "armory_tool_board_58x42.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        58,
+        42
+      ],
+      "anchor_px": [
+        29,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Pegboard with visible hanging tools; mount beside weapon wall.",
+      "coverage_35": [
+        "A: wall-mounted tooling",
+        "D: ready-use tools"
+      ]
+    },
+    {
+      "id": "armory_task_lamp_34x18",
+      "file": "armory_task_lamp_34x18.png",
+      "emit": "armory_task_lamp_34x18_emit.png",
+      "kind": "wall",
+      "size_px": [
+        34,
+        18
+      ],
+      "anchor_px": [
+        17,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Cool-white task lamp over the repair workbench.",
+      "coverage_35": [
+        "A: overhead task lamp",
+        "C: white work illumination"
+      ]
+    },
+    {
+      "id": "armory_bench_zone_100x44",
+      "file": "armory_bench_zone_100x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        100,
+        44
+      ],
+      "anchor_px": [
+        50,
+        22
+      ],
+      "footprint_units": [
+        6.67,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Safety-yellow dashed workbench footprint on the floor.",
+      "coverage_35": [
+        "B: floor work-zone line",
+        "C: safety-yellow department"
+      ]
+    },
+    {
+      "id": "armory_safety_strip_30x10",
+      "file": "armory_safety_strip_30x10.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        30,
+        10
+      ],
+      "anchor_px": [
+        15,
+        5
+      ],
+      "footprint_units": [
+        2.0,
+        0.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Yellow-black hoist base warning strip.",
+      "coverage_35": [
+        "D: industrial hazard marking"
+      ]
+    },
+    {
+      "id": "armory_equipment_case_1_48x30",
+      "file": "armory_equipment_case_1_48x30.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        48,
+        30
+      ],
+      "anchor_px": [
+        24,
+        29
+      ],
+      "footprint_units": [
+        3.2,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Cold-grey equipment case 1; numbered, no S stamp.",
+      "coverage_35": [
+        "A: equipment storage",
+        "B: RI-02 case code"
+      ]
+    },
+    {
+      "id": "armory_equipment_case_2_48x30",
+      "file": "armory_equipment_case_2_48x30.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        48,
+        30
+      ],
+      "anchor_px": [
+        24,
+        29
+      ],
+      "footprint_units": [
+        3.2,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Cold-grey equipment case 2; numbered, no S stamp.",
+      "coverage_35": [
+        "A: equipment storage",
+        "B: RI-02 case code"
+      ]
+    },
+    {
+      "id": "armory_memo_20x22",
+      "file": "armory_memo_20x22.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        20,
+        22
+      ],
+      "anchor_px": [
+        10,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach memo to workbench, wall or hoist.",
+      "coverage_35": [
+        "D: attached repair-room life and safety detail"
+      ]
+    },
+    {
+      "id": "armory_mug_13x14",
+      "file": "armory_mug_13x14.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        13,
+        14
+      ],
+      "anchor_px": [
+        6,
+        13
+      ],
+      "footprint_units": [
+        0.87,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach mug to workbench, wall or hoist.",
+      "coverage_35": [
+        "D: attached repair-room life and safety detail"
+      ]
+    },
+    {
+      "id": "armory_sticker_18x16",
+      "file": "armory_sticker_18x16.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        18,
+        16
+      ],
+      "anchor_px": [
+        9,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach sticker to workbench, wall or hoist.",
+      "coverage_35": [
+        "D: attached repair-room life and safety detail"
+      ]
+    },
+    {
+      "id": "armory_cable_36x31",
+      "file": "armory_cable_36x31.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        36,
+        31
+      ],
+      "anchor_px": [
+        18,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach cable to workbench, wall or hoist.",
+      "coverage_35": [
+        "D: attached repair-room life and safety detail"
+      ]
+    },
+    {
+      "id": "armory_stop_19x22",
+      "file": "armory_stop_19x22.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        19,
+        22
+      ],
+      "anchor_px": [
+        9,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach stop to workbench, wall or hoist.",
+      "coverage_35": [
+        "D: attached repair-room life and safety detail"
+      ]
+    },
+    {
+      "id": "armory_clipboard_23x29",
+      "file": "armory_clipboard_23x29.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        23,
+        29
+      ],
+      "anchor_px": [
+        11,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach clipboard to workbench, wall or hoist.",
+      "coverage_35": [
+        "D: attached repair-room life and safety detail"
+      ]
+    },
+    {
+      "id": "armory_stand_spot_bench_operator_12x6",
+      "file": "armory_stand_spot_bench_operator_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Reserved bench operator 30px character footprint.",
+      "coverage_35": [
+        "A: future character position"
+      ]
+    },
+    {
+      "id": "armory_stand_spot_weapon_wall_inspector_12x6",
+      "file": "armory_stand_spot_weapon_wall_inspector_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Reserved weapon wall inspector 30px character footprint.",
+      "coverage_35": [
+        "A: future character position"
+      ]
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch3_equipment_v3/wall_straight_60x46_light_v2.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "0c9fe477f3c4374add8821b3a3fe6bf7f8ce484621039f6206d867f30276dd2f",
+      "use": "ARMORY wall shell; locked 46px geometry",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/rhodes_floor_equipment_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "81cd2ad0c3fb1401f0745a2b672e49bf191eb4ae9b1970f7f6c04c405d741dc8",
+      "use": "ARMORY floor tile; 30px plate pattern",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Native 1:1 character scale proof",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_M_gray_v1.png",
+      "size_px": [
+        24,
+        24
+      ],
+      "sha256": "6b4a4e6cd699333a5e8da4d2989ff19a625a8d59dc9e3ca581b71b43f29888f2",
+      "use": "Accepted M mark for department sign",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S mark for principal interactive prop",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_02.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "6db1fb92d5c78b62718be4c00508b3a704e360aefb87d46296962d3c1c5f5322",
+      "use": "Accepted doorway number plate",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_rectangle_cool_90x60.png",
+      "size_px": [
+        90,
+        60
+      ],
+      "sha256": "86d93f4f08e6e8cf8567785fbeead86bfa3fc8f198d534169894b782df787a65",
+      "use": "Accepted opaque-black additive light pool; layer with additive blend",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/door_open_45x46_light_v2.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "2cfbb63c9cc131def423608e3d8eb92ded8fe058adc0caf5907d6db3ea3d567b",
+      "use": "Accepted 45x46 light door with 32x36 clearance",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/door_closed_45x46_light_v2.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "0155e130e4ea6190a082f3d67f4943a9e7fffd3a2c2f8a5d6a7a3ce2bd637d92",
+      "use": "Accepted light door closed state",
+      "locked": true
+    }
+  ],
+  "shell": {
+    "size_units": [
+      18,
+      12
+    ],
+    "floor_size_px": [
+      270,
+      152
+    ],
+    "wall_height_px": 46,
+    "wall_tile": "../batch3_equipment_v3/wall_straight_60x46_light_v2.png",
+    "floor_tile": "../batch3_equipment_v3/rhodes_floor_equipment_v1.png",
+    "door_plate": "../batch_H1b_wayfinding_v1/small_number_plate_B1_02.png",
+    "assembly": "Parts only; use accepted light door, side strip and corner geometry; keep a >=45px central route."
+  },
+  "preview": {
+    "file": "H3_armory_lappland_1x.png",
+    "size_px": [
+      660,
+      320
+    ],
+    "character": "Lappland frame 0; 64x64 canvas, 30px visible character, no scaling",
+    "character_origin_px": [
+      580,
+      250
+    ],
+    "purpose": "1:1 native-scale asset review sheet, not an assembled room"
+  },
+  "logo_policy": "Exactly two representative marks in the preview: M on department sign and S on main interactive prop; <=6 per assembled screen.",
+  "stand_spots": [
+    "armory_stand_spot_bench_operator_12x6",
+    "armory_stand_spot_weapon_wall_inspector_12x6"
+  ],
+  "life_details": [
+    "armory_memo_20x22",
+    "armory_mug_13x14",
+    "armory_sticker_18x16",
+    "armory_cable_36x31",
+    "armory_stop_19x22",
+    "armory_clipboard_23x29"
+  ],
+  "assembly": {
+    "station": "Workbench is the equipment interaction; leave 30px at operator spot in front.",
+    "wall": "Weapon rack, hoist and tool board attach to light 46px north wall. Arm and cases form the service edge.",
+    "lighting": "Use accepted cool additive pool in front of bench and masked screen emit."
+  },
+  "checklist_35": {
+    "A": "Light wall/corner shell, workbench, hanging hoist and jointed arm.",
+    "B": "B1-02 accepted door plate and ARMORY sign, numbered wall rack.",
+    "C": "Cold grey/white body, safety-yellow band, tiny orange cable and cyan screen.",
+    "D": "Peg tools, memo, mug, sticker, cable, emergency stop, clipboard and safety strip."
+  }
+}

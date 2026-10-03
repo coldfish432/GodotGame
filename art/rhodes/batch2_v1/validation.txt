@@ -1,0 +1,8 @@
+PASS 12 native and exact8x asset pairs, palette and binary alpha.
+Counter source bbox={X=275,Y=175,Width=1133,Height=632}; single uniform integer divisor=16 for whole sprite; native=71x40; opaque={X=0,Y=0,Width=71,Height=39}; atlas origin=28,74 baseline113.
+PASS ON/OFF same alpha, OFF zero cyan. Blank yellow header; no text or NPC.
+PASS logos native64x64, direct pixel drawing, exactly2 opaque colors plus transparency; no pre-squashing.
+PASS hazards3px yellow/3px black,45degree pattern; straight60x6 /6x60, four24x24 corners.
+PASS review1x480x180 and exact4x1920x720, character frame0 native size.
+Counter worktop in source roughly y579..662, front y663..794; at /16 approx5px top+8px face, top-to-feet<=15px. Native view is for visual review, not engine validation.
+NOT RUN: engine integration. Batch1 files are read-only inputs.

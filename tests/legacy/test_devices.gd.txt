@@ -1,0 +1,89 @@
+extends SceneTree
+
+## Interactables that don't involve combat or floor transitions: the buff
+## device's once-per-floor guard, and the potion.
+
+const Game = preload("res://game/game_manager.gd")
+
+var game: Node3D
+var results: Array[Dictionary] = []
+var failures: int = 0
+
+func _initialize() -> void:
+	call_deferred("run")
+
+func step(n: int = 1) -> void:
+	for i in range(n):
+		await physics_frame
+		await process_frame
+
+func check(id: String, passed: bool, observation: Dictionary) -> void:
+	results.append({"id": id, "status": "PASS" if passed else "FAIL", "observed": observation})
+	if not passed:
+		failures += 1
+	print(JSON.stringify(results.back()))
+
+func clear_all_enemies() -> void:
+	for node in get_nodes_in_group("enemies"):
+		node.queue_free()
+	await step(2)
+
+func run() -> void:
+	game = Game.new()
+	root.add_child(game)
+	await step(6)
+
+	# --- Buff device: applies once, then refuses a second trigger same floor.
+	await clear_all_enemies()
+	var hp_cap_before: float = game.player.max_hp
+	game.player.teleport(game.world_map.buff_device_node.global_position)
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(2)
+	check("buff-device-applies-once", is_equal_approx(game.player.max_hp, hp_cap_before + 2.0) and is_equal_approx(game.player.damage_bonus, 1.15),
+		{"max_hp": game.player.max_hp, "damage_bonus": game.player.damage_bonus})
+
+	Input.action_press("interact")
+	await step(2)
+	Input.action_release("interact")
+	await step(2)
+	check("buff-device-refuses-second-use-same-floor", is_equal_approx(game.player.max_hp, hp_cap_before + 2.0),
+		{"max_hp_after_retry": game.player.max_hp})
+
+	# --- Potion: heals a fixed amount and consumes one charge.
+	game.player.hp = 4.0
+	var potions_before: int = game.potions
+	Input.action_press("use_potion")
+	await step(2)
+	Input.action_release("use_potion")
+	await step(2)
+	check("potion-heals-and-consumes", is_equal_approx(game.player.hp, 8.0) and game.potions == potions_before - 1,
+		{"hp": game.player.hp, "potions": game.potions})
+
+	# --- Potion: refuses when already full or out of charges.
+	game.player.hp = game.player.max_hp
+	var potions_before_full: int = game.potions
+	Input.action_press("use_potion")
+	await step(2)
+	Input.action_release("use_potion")
+	await step(2)
+	check("potion-refuses-at-full-health", game.potions == potions_before_full,
+		{"potions": game.potions})
+
+	var report := {
+		"scope": "downfall-godot device tests (buff device once-per-floor, potion heal/consume/refuse)",
+		"engine": Engine.get_version_info().string,
+		"created_at": Time.get_datetime_string_from_system(true),
+		"results": results,
+		"failures": failures,
+	}
+	var evidence_dir := ProjectSettings.globalize_path("res://../evidence")
+	DirAccess.make_dir_recursive_absolute(evidence_dir)
+	var file := FileAccess.open(evidence_dir + "/downfall-test-devices-" + str(Time.get_unix_time_from_system()) + ".json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(report, "  "))
+	file.close()
+	print("DOWNFALL TEST_DEVICES: %d checks / %d failures" % [results.size(), failures])
+	game.queue_free()
+	await process_frame
+	quit(1 if failures else 0)

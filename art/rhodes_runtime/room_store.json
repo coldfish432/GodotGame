@@ -1,0 +1,162 @@
+{
+ "id": "store",
+ "origin": [
+  0.0,
+  10.0
+ ],
+ "size": [
+  18,
+  10
+ ],
+ "ground": {
+  "tex": "res://art/rhodes_runtime/tex/26cb9f58ed3d8af7.png",
+  "w_px": 286,
+  "h_px": 127,
+  "x": -0.5333333333333333,
+  "z": 10.0
+ },
+ "facade": {
+  "tex": "res://art/rhodes_runtime/tex/06ebcc4577be91e6.png",
+  "w_px": 286,
+  "h_px": 46,
+  "x": -0.5333333333333333,
+  "z": 10.0
+ },
+ "sprites": [
+  {
+   "tex": "res://art/rhodes_runtime/tex/866ea73dccd359be.png",
+   "x": 9.0,
+   "z": 5.7213,
+   "lift_px": 0.0,
+   "w": 108,
+   "h": 33,
+   "overhead": false,
+   "collide": [
+    5.76,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/8fc5de31ca1d6400.png",
+   "x": 10.7333,
+   "z": 8.0047,
+   "lift_px": 0.0,
+   "w": 26,
+   "h": 24,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/056e93de7f85149c.png",
+   "x": 2.8,
+   "z": 2.5213,
+   "lift_px": 0.0,
+   "w": 64,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    3.413,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/0e6e6ed57f64cdc9.png",
+   "x": 4.4,
+   "z": 1.9701,
+   "lift_px": 0.0,
+   "w": 24,
+   "h": 14,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/5335b957631bfdd1.png",
+   "x": 15.2,
+   "z": 2.5213,
+   "lift_px": 0.0,
+   "w": 56,
+   "h": 26,
+   "overhead": false,
+   "collide": [
+    2.987,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/58f38861bdcb68b5.png",
+   "x": 16.5333,
+   "z": 1.9701,
+   "lift_px": 0.0,
+   "w": 24,
+   "h": 14,
+   "overhead": false
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/8a8b819e8a71d517.png",
+   "x": 4.6333,
+   "z": 7.3213,
+   "lift_px": 0.0,
+   "w": 43,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.293,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/8a8b819e8a71d517.png",
+   "x": 13.8333,
+   "z": 7.5213,
+   "lift_px": 0.0,
+   "w": 43,
+   "h": 34,
+   "overhead": false,
+   "collide": [
+    2.293,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/d2fe88fbe6ef6e6a.png",
+   "x": 16.8,
+   "z": 7.7213,
+   "lift_px": 0.0,
+   "w": 22,
+   "h": 28,
+   "overhead": false,
+   "collide": [
+    1.173,
+    0.9
+   ]
+  }
+ ],
+ "colliders": [
+  [
+   0.0,
+   10.0,
+   18.0,
+   10.600000000000001
+  ],
+  [
+   -0.6,
+   0.0,
+   0.0,
+   10.0
+  ],
+  [
+   18.0,
+   0.0,
+   18.6,
+   10.0
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "store",
+   "kind": "store",
+   "label": "可露希尔的商店",
+   "x": 9.0,
+   "z": 5.8
+  }
+ ],
+ "spawns": {}
+}

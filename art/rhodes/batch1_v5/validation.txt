@@ -1,0 +1,11 @@
+PASS: all9 existing module dimensions and alpha masks identical to v4.
+PASS:32x36 clear opening unchanged;45deg3px outer chamfers all4 corners.
+PASS: side strip and side-door pixels unchanged; corner L caps and side strips unchanged.
+PASS: horizontal wall tiling edges, palette, binary alpha, exact8x exports.
+PASS: exact4x composite replica; character frame0 at native scale.
+NOTE: floor contact shadow is separate60x2 overlay.
+NOT RUN: engine validation.
+Frame0 source rect=(0,0,64,64), unscaled. Alpha>=128 bounds={X=13,Y=17,Width=38,Height=29}. No character pixel edits.
+Composite foreground actor is composited OVER door jambs. Sword tips may overlap frame; this is not collision validation.
+Preview floor only: centered1200x1200 source crop /10; nearest-palette dominant=#2c3236. Accepted floor source unchanged.
+Wall face dominant=#3d4448; supporting steel=#2c3236. Contact shadow is separate60x2 overlay, wall remains60x46.

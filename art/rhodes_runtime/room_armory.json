@@ -1,0 +1,219 @@
+{
+ "id": "armory",
+ "origin": [
+  100.0,
+  13.0
+ ],
+ "size": [
+  28,
+  13
+ ],
+ "ground": {
+  "tex": "res://art/rhodes_runtime/tex/2ce7d1bfc68049c2.png",
+  "w_px": 436,
+  "h_px": 165,
+  "x": 99.46666666666667,
+  "z": 13.0
+ },
+ "facade": {
+  "tex": "res://art/rhodes_runtime/tex/6802345b0c60d226.png",
+  "w_px": 436,
+  "h_px": 46,
+  "x": 99.46666666666667,
+  "z": 13.0
+ },
+ "sprites": [
+  {
+   "tex": "res://art/rhodes_runtime/tex/cb98b1bc2fa6959a.png",
+   "x": 113.0333,
+   "z": 7.5213,
+   "lift_px": 0.0,
+   "w": 101,
+   "h": 39,
+   "overhead": false,
+   "collide": [
+    5.387,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/102d151b5fa2bfbb.png",
+   "x": 114.0,
+   "z": 10.4016,
+   "lift_px": 0,
+   "w": 436,
+   "h": 28,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/4f935ac61d7da3f3.png",
+   "x": 123.0,
+   "z": 10.874,
+   "lift_px": 0,
+   "w": 32,
+   "h": 18,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/65f49680b62f49ea.png",
+   "x": 123.0,
+   "z": 9.378,
+   "lift_px": 0,
+   "w": 2,
+   "h": 20,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/c8e7c0f2d5c236fa.png",
+   "x": 123.0,
+   "z": 7.252,
+   "lift_px": 0,
+   "w": 14,
+   "h": 27,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 123.0,
+   "z": 5.3213,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 121.6667,
+   "z": 3.1213,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 124.3333,
+   "z": 3.1213,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/b2ed94b51605185c.png",
+   "x": 113.0333,
+   "z": 9.7717,
+   "lift_px": 0,
+   "w": 41,
+   "h": 20,
+   "overhead": true
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/de831267830c37a9.png",
+   "x": 117.8,
+   "z": 7.3638,
+   "lift_px": 0.0,
+   "w": 40,
+   "h": 44,
+   "overhead": false,
+   "collide": [
+    2.133,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 103.2,
+   "z": 6.9213,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 105.8,
+   "z": 6.9213,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 103.2,
+   "z": 5.1213,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  },
+  {
+   "tex": "res://art/rhodes_runtime/tex/344acf8f1575b2b8.png",
+   "x": 105.8,
+   "z": 5.1213,
+   "lift_px": 0.0,
+   "w": 38,
+   "h": 20,
+   "overhead": false,
+   "collide": [
+    2.027,
+    0.9
+   ]
+  }
+ ],
+ "colliders": [
+  [
+   100.0,
+   13.0,
+   128.0,
+   13.600000000000001
+  ],
+  [
+   99.4,
+   0.0,
+   100.0,
+   13.0
+  ],
+  [
+   128.0,
+   0.0,
+   128.60000000000002,
+   13.0
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "workbench",
+   "kind": "loadout",
+   "label": "整备台：装备",
+   "x": 113.0,
+   "z": 7.6
+  }
+ ],
+ "spawns": {}
+}

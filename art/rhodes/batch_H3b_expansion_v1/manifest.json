@@ -1,0 +1,1163 @@
+{
+  "batch": "H3b expansion v1",
+  "spec": "v2.0 sections 2.4, 3.5, 3.7, 4.4",
+  "pixel_scale": 1,
+  "projection": {
+    "pixels_per_unit": 15,
+    "ground_y_scale": 0.85,
+    "yaw_degrees": 0,
+    "corridor_orientation": "east-west",
+    "corridor_units": [
+      6,
+      4
+    ],
+    "floor_px": [
+      90,
+      51
+    ],
+    "wall_px": 46,
+    "door_px": [
+      45,
+      46
+    ],
+    "clear_opening_rect_px": [
+      6,
+      9,
+      32,
+      36
+    ]
+  },
+  "assets": [
+    {
+      "id": "engineering_drone",
+      "file": "engineering_drone.png",
+      "emit": "engineering_drone_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        30,
+        13
+      ],
+      "anchor_px": [
+        15,
+        12
+      ],
+      "footprint_units": [
+        1.8,
+        0.7
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Generated front-facing object; uniform integer reduction only. No yaw or section stretching.",
+      "coverage_35": [
+        "A: shaded top/front material planes",
+        "C: construction colour and light"
+      ],
+      "source": {
+        "source": "sources/engineering_drone_source.png",
+        "source_size_px": [
+          1448,
+          1086
+        ],
+        "source_sha256": "66a8913a344d8f6c09f783470cda294e21090d8fe044f803ae2683e80dc51ac0",
+        "integer_reduction": 48,
+        "quantization": "Rhodes palette, CIELAB nearest; no dithering",
+        "alpha": "binary 112/255 after uniform nearest reduction",
+        "postprocess": "T0/T1 mapped to local steel shades"
+      },
+      "locked_source": null
+    },
+    {
+      "id": "construction_work_lamp",
+      "file": "construction_work_lamp.png",
+      "emit": "construction_work_lamp_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        26,
+        28
+      ],
+      "anchor_px": [
+        13,
+        27
+      ],
+      "footprint_units": [
+        1.5,
+        0.6
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Generated front-facing object; uniform integer reduction only. No yaw or section stretching.",
+      "coverage_35": [
+        "A: shaded top/front material planes",
+        "C: construction colour and light"
+      ],
+      "source": {
+        "source": "sources/construction_work_lamp_source.png",
+        "source_size_px": [
+          1060,
+          1484
+        ],
+        "source_sha256": "b0f82d030fde9aed6ee85b0ea8ab343196fe84b06b22e73c66ca89c7d569021e",
+        "integer_reduction": 40,
+        "quantization": "Rhodes palette, CIELAB nearest; no dithering",
+        "alpha": "binary 112/255 after uniform nearest reduction",
+        "postprocess": "none"
+      },
+      "locked_source": null
+    },
+    {
+      "id": "corridor_debris",
+      "file": "corridor_debris.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        53,
+        16
+      ],
+      "anchor_px": [
+        26,
+        15
+      ],
+      "footprint_units": [
+        3.5,
+        0.9
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Generated front-facing object; uniform integer reduction only. No yaw or section stretching.",
+      "coverage_35": [
+        "A: shaded top/front material planes",
+        "C: construction colour and light"
+      ],
+      "source": {
+        "source": "sources/corridor_debris_source.png",
+        "source_size_px": [
+          1846,
+          852
+        ],
+        "source_sha256": "4d1b9a92c763c1b7a9c208d75a37ee0c9cb520c4363ead645f0b55ffdf7ddf34",
+        "integer_reduction": 34,
+        "quantization": "Rhodes palette, CIELAB nearest; no dithering",
+        "alpha": "binary 112/255 after uniform nearest reduction",
+        "postprocess": "none"
+      },
+      "locked_source": null
+    },
+    {
+      "id": "corridor_debris_dimmed",
+      "file": "corridor_debris_dimmed.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        53,
+        16
+      ],
+      "anchor_px": [
+        26,
+        15
+      ],
+      "footprint_units": [
+        3.5,
+        0.9
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Palette-step dimming of the same generated debris; identical alpha.",
+      "coverage_35": [
+        "A: crates and panels",
+        "D: disconnected orange cables"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "uncleared_warning_16x16",
+      "file": "uncleared_warning_16x16.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        16,
+        16
+      ],
+      "anchor_px": [
+        8,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Native warning triangle attached to blocked access.",
+      "coverage_35": [
+        "B: warning pictogram",
+        "C: safety yellow"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "accepted_wall_straight_60x46_v5",
+      "file": "accepted_wall_straight_60x46_v5.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        60,
+        46
+      ],
+      "anchor_px": [
+        30,
+        0
+      ],
+      "footprint_units": [
+        4,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Batch 1 v5 pixels and geometry, unchanged.",
+      "coverage_35": [
+        "A: locked shell geometry"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/wall_straight_60x46_v5.png"
+    },
+    {
+      "id": "accepted_wall_rib_6x46_v5",
+      "file": "accepted_wall_rib_6x46_v5.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        6,
+        46
+      ],
+      "anchor_px": [
+        3,
+        0
+      ],
+      "footprint_units": [
+        0.4,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Batch 1 v5 pixels and geometry, unchanged.",
+      "coverage_35": [
+        "A: locked shell geometry"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/wall_rib_6x46_v5.png"
+    },
+    {
+      "id": "accepted_wall_top_6_plus2_v5",
+      "file": "accepted_wall_top_6_plus2_v5.png",
+      "emit": null,
+      "kind": "tile",
+      "size_px": [
+        8,
+        60
+      ],
+      "anchor_px": [
+        4,
+        30
+      ],
+      "footprint_units": [
+        0.53,
+        4.71
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Batch 1 v5 pixels and geometry, unchanged.",
+      "coverage_35": [
+        "A: locked shell geometry"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/wall_top_6_plus2_v5.png"
+    },
+    {
+      "id": "accepted_corner_left_L_v5",
+      "file": "accepted_corner_left_L_v5.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        60
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Batch 1 v5 pixels and geometry, unchanged.",
+      "coverage_35": [
+        "A: locked shell geometry"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/corner_left_L_v5.png"
+    },
+    {
+      "id": "accepted_corner_right_L_v5",
+      "file": "accepted_corner_right_L_v5.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        60
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Batch 1 v5 pixels and geometry, unchanged.",
+      "coverage_35": [
+        "A: locked shell geometry"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/corner_right_L_v5.png"
+    },
+    {
+      "id": "accepted_door_side_gap38_v5",
+      "file": "accepted_door_side_gap38_v5.png",
+      "emit": null,
+      "kind": "tile",
+      "size_px": [
+        8,
+        60
+      ],
+      "anchor_px": [
+        4,
+        30
+      ],
+      "footprint_units": [
+        0.53,
+        4.71
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Batch 1 v5 pixels and geometry, unchanged.",
+      "coverage_35": [
+        "A: locked shell geometry"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/door_side_gap38_v5.png"
+    },
+    {
+      "id": "corridor_north_wall_90x46",
+      "file": "corridor_north_wall_90x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        90,
+        46
+      ],
+      "anchor_px": [
+        45,
+        0
+      ],
+      "footprint_units": [
+        6,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Six-unit repeat, 40px face +4px cap +2px baseboard, no end ribs.",
+      "coverage_35": [
+        "A: dark-steel wall"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_door_socket_90x46",
+      "file": "corridor_door_socket_90x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        90,
+        46
+      ],
+      "anchor_px": [
+        45,
+        0
+      ],
+      "footprint_units": [
+        6,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Swap for north wall; insert a 45x46 door at [22,0]. No rib beside jambs.",
+      "coverage_35": [
+        "A: standard room slot"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_floor_90x51",
+      "file": "corridor_floor_90x51.png",
+      "emit": null,
+      "kind": "tile",
+      "size_px": [
+        90,
+        51
+      ],
+      "anchor_px": [
+        45,
+        25
+      ],
+      "footprint_units": [
+        6,
+        4
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "E-W segment floor, 6x4 units. Accepted floor pixels at cyclic phase 110, no resampling; matching X edges.",
+      "coverage_35": [
+        "A: 4-unit clear depth"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_south_cap_90x6",
+      "file": "corridor_south_cap_90x6.png",
+      "emit": null,
+      "kind": "tile",
+      "size_px": [
+        90,
+        6
+      ],
+      "anchor_px": [
+        45,
+        3
+      ],
+      "footprint_units": [
+        6,
+        0
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Optional foreground top-cap: 4px cap and 2px contact shadow, outside the 51px clear floor.",
+      "coverage_35": [
+        "A: foreground wall-top"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_straight_cleared",
+      "file": "corridor_straight_cleared.png",
+      "emit": null,
+      "kind": "tile",
+      "size_px": [
+        90,
+        103
+      ],
+      "anchor_px": [
+        0,
+        46
+      ],
+      "footprint_units": [
+        6,
+        4
+      ],
+      "wall_mounted": false,
+      "state": "cleared",
+      "states": [
+        "uncleared",
+        "cleared"
+      ],
+      "notes": "Ready native E-W module; north wall at y0, floor y46..96, optional south cap y97..102. Connectors x0/x90.",
+      "coverage_35": [
+        "A: standard six-unit segment",
+        "C: readable open access"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_straight_uncleared",
+      "file": "corridor_straight_uncleared.png",
+      "emit": null,
+      "kind": "tile",
+      "size_px": [
+        90,
+        103
+      ],
+      "anchor_px": [
+        0,
+        46
+      ],
+      "footprint_units": [
+        6,
+        4
+      ],
+      "wall_mounted": false,
+      "state": "uncleared",
+      "states": [
+        "uncleared",
+        "cleared"
+      ],
+      "notes": "Same shell geometry, one palette step dimmer, debris and attached warning. Block traversal in assembly.",
+      "coverage_35": [
+        "A: standard segment",
+        "B: warning",
+        "D: debris"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_end_fence_60x46",
+      "file": "corridor_end_fence_60x46.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        60,
+        46
+      ],
+      "anchor_px": [
+        30,
+        45
+      ],
+      "footprint_units": [
+        4,
+        0.6
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Front-facing transverse fence; H1 yellow-black language, dim debris and accepted tarp at [18,3].",
+      "coverage_35": [
+        "A: construction fence",
+        "B: accepted tarp identity and warning",
+        "D: abandoned materials"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "uncleared_zone_sign_60x12",
+      "file": "uncleared_zone_sign_60x12.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        60,
+        12
+      ],
+      "anchor_px": [
+        30,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted 5x7 glyphs; hang above the end fence.",
+      "coverage_35": [
+        "B: uncleared zone label"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_dead_end_uncleared",
+      "file": "corridor_dead_end_uncleared.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        60,
+        58
+      ],
+      "anchor_px": [
+        30,
+        57
+      ],
+      "footprint_units": [
+        4,
+        0.6
+      ],
+      "wall_mounted": false,
+      "state": "uncleared",
+      "states": [
+        "uncleared"
+      ],
+      "notes": "Ready front-facing end cap: 46px fence plus 12px attached sign. World span 4 units; billboard always faces camera.",
+      "coverage_35": [
+        "A: closed expansion edge",
+        "B: warning and tarp mark",
+        "C: hazard fence",
+        "D: debris"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "corridor_clearing_overlay",
+      "file": "corridor_clearing_overlay.png",
+      "emit": "corridor_clearing_overlay_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        90,
+        103
+      ],
+      "anchor_px": [
+        0,
+        46
+      ],
+      "footprint_units": [
+        6,
+        4
+      ],
+      "wall_mounted": false,
+      "state": "clearing",
+      "states": [
+        "clearing"
+      ],
+      "notes": "Optional overlay on uncleared segment at the same top-left; two hovering drones over debris and one work lamp.",
+      "coverage_35": [
+        "A: active engineering",
+        "C: cyan cameras and warm work light",
+        "D: maintenance activity"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "pending_build_floor_90x51",
+      "file": "pending_build_floor_90x51.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        90,
+        51
+      ],
+      "anchor_px": [
+        45,
+        25
+      ],
+      "footprint_units": [
+        6,
+        4
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Native dashed construction reservation, accepted 5x7 PENDING BUILD text. Repeat/compose frames, never stretch lettering.",
+      "coverage_35": [
+        "B: pending build label",
+        "C: construction zone frame"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "pending_build_floor_compact_28x18",
+      "file": "pending_build_floor_compact_28x18.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        28,
+        18
+      ],
+      "anchor_px": [
+        14,
+        9
+      ],
+      "footprint_units": [
+        1.87,
+        1.41
+      ],
+      "wall_mounted": false,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Compact frame and build cross for the visible portion of an empty doorway.",
+      "coverage_35": [
+        "B: compact pending icon"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "room_slot_empty_backing_32x36",
+      "file": "room_slot_empty_backing_32x36.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        36
+      ],
+      "anchor_px": [
+        0,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Separate bare-room floor backing behind the opening at door-local [6,9]. Does not replace alpha/collision clearance.",
+      "coverage_35": [
+        "A: visible bare room",
+        "B: pending build frame"
+      ],
+      "source": null,
+      "locked_source": null
+    },
+    {
+      "id": "room_slot_door_sealed",
+      "file": "room_slot_door_sealed.png",
+      "emit": "room_slot_door_sealed_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        45,
+        46
+      ],
+      "anchor_px": [
+        22,
+        45
+      ],
+      "footprint_units": [
+        3,
+        0.5
+      ],
+      "wall_mounted": true,
+      "state": "sealed",
+      "states": [
+        "sealed",
+        "empty",
+        "built"
+      ],
+      "notes": "Locked 45x46 frame, 3px chamfers. Accepted hazard tape and red status lamp.",
+      "coverage_35": [
+        "A: locked door frame",
+        "B: room slot state",
+        "C: status light"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/door_sealed_45x46_v5.png",
+      "clearance_px": [
+        32,
+        36
+      ]
+    },
+    {
+      "id": "room_slot_door_empty",
+      "file": "room_slot_door_empty.png",
+      "emit": "room_slot_door_empty_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        45,
+        46
+      ],
+      "anchor_px": [
+        22,
+        45
+      ],
+      "footprint_units": [
+        3,
+        0.5
+      ],
+      "wall_mounted": true,
+      "state": "empty",
+      "states": [
+        "sealed",
+        "empty",
+        "built"
+      ],
+      "notes": "Locked 45x46 frame, 3px chamfers. Transparent 32x36 opening; add bare-room backing underneath.",
+      "coverage_35": [
+        "A: locked door frame",
+        "B: room slot state",
+        "C: status light"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/door_open_45x46_v5.png",
+      "clearance_px": [
+        32,
+        36
+      ]
+    },
+    {
+      "id": "room_slot_door_built",
+      "file": "room_slot_door_built.png",
+      "emit": "room_slot_door_built_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        45,
+        46
+      ],
+      "anchor_px": [
+        22,
+        45
+      ],
+      "footprint_units": [
+        3,
+        0.5
+      ],
+      "wall_mounted": true,
+      "state": "built",
+      "states": [
+        "sealed",
+        "empty",
+        "built"
+      ],
+      "notes": "Locked 45x46 frame, 3px chamfers. Normal closed door; attach supplied B1-05 plate separately.",
+      "coverage_35": [
+        "A: locked door frame",
+        "B: room slot state",
+        "C: status light"
+      ],
+      "source": null,
+      "locked_source": "../batch1_v5/door_closed_45x46_v5.png",
+      "clearance_px": [
+        32,
+        36
+      ]
+    },
+    {
+      "id": "room_slot_number_plate_B1_05",
+      "file": "room_slot_number_plate_B1_05.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "state": "default",
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted B1-05 number plate; separate from the locked door dimensions.",
+      "coverage_35": [
+        "B: standard room number"
+      ],
+      "source": null,
+      "locked_source": "../batch_H1b_wayfinding_v1/small_number_plate_B1_05.png"
+    }
+  ],
+  "assemblies": {
+    "corridor_straight": {
+      "uncleared": "corridor_straight_uncleared",
+      "cleared": "corridor_straight_cleared",
+      "clearing": [
+        "corridor_straight_uncleared",
+        "corridor_clearing_overlay"
+      ]
+    },
+    "room_slot": {
+      "sealed": [
+        {
+          "id": "room_slot_door_sealed",
+          "offset_px": [
+            0,
+            0
+          ]
+        }
+      ],
+      "empty": [
+        {
+          "id": "room_slot_empty_backing_32x36",
+          "offset_px": [
+            6,
+            9
+          ]
+        },
+        {
+          "id": "room_slot_door_empty",
+          "offset_px": [
+            0,
+            0
+          ]
+        }
+      ],
+      "built": [
+        {
+          "id": "room_slot_door_built",
+          "offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "room_slot_number_plate_B1_05",
+          "offset_px": [
+            6,
+            -14
+          ]
+        }
+      ]
+    },
+    "room_slot_wall": {
+      "wall": "corridor_door_socket_90x46",
+      "door_offset_px": [
+        22,
+        0
+      ]
+    }
+  },
+  "external_dependencies": [
+    {
+      "file": "../batch2_v2/rhodes_floor_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "433dded8f5a617327257266ccc33a5f01ced342413079bf54e84d41810798130",
+      "use": "Accepted dark-steel floor pixels",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Unscaled frame 0 character",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_tarp_print_v1.png",
+      "size_px": [
+        40,
+        40
+      ],
+      "sha256": "6d9b5c2c5fedc1cca4bdbed73e27b0bd82ca242279c4da592e37ffb7d5514fb1",
+      "use": "Accepted folded tarp, pasted at 1:1",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/wing_construction_barrier_uncleared_128x56.png",
+      "size_px": [
+        128,
+        56
+      ],
+      "sha256": "5e0dac382f686a9b3f234eb02645efe380d1c0341cba3f6baadec52bb5d159e1",
+      "use": "Accepted fence/tarp language",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_circle_warm_60x40.png",
+      "size_px": [
+        60,
+        40
+      ],
+      "sha256": "cabed82ad046fae2f1eeea8d51af64f24a6639d2a007fe6c0cc43710fe501897",
+      "use": "Optional additive work-light pool; black is zero light",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_straight_60x46_v5.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "e6f67d8cd77fa8d3407d03f5700a7ba1307254d53e2dce65cbd1dc480e0a4ff8",
+      "use": "Locked wall source for six-unit segment",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_rib_6x46_v5.png",
+      "size_px": [
+        6,
+        46
+      ],
+      "sha256": "b581ae70fab7a131ea749fd96748b709898af339d870f272bb7847d533e9dd89",
+      "use": "Batch 1 v5 pixels and geometry, unchanged.",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_top_6_plus2_v5.png",
+      "size_px": [
+        8,
+        60
+      ],
+      "sha256": "87fffb421a55f44fe0e60e8c0e65e1126ea0b32e0ab0504eee05dd071c6fab95",
+      "use": "Batch 1 v5 pixels and geometry, unchanged.",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/corner_left_L_v5.png",
+      "size_px": [
+        32,
+        60
+      ],
+      "sha256": "478a406e9054bf78d1dbe10c9da19316c7e13782fd4ba23126343a82c3e717fe",
+      "use": "Batch 1 v5 pixels and geometry, unchanged.",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/corner_right_L_v5.png",
+      "size_px": [
+        32,
+        60
+      ],
+      "sha256": "386156fcec2e1eada0a1db11e02a9e15ce2f821991d581102a3e460f7b53eb74",
+      "use": "Batch 1 v5 pixels and geometry, unchanged.",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_side_gap38_v5.png",
+      "size_px": [
+        8,
+        60
+      ],
+      "sha256": "3536ba48b53a26749a4cce6535b9b7dd37d786c79f7238c111df2b3bc6d2fb55",
+      "use": "Batch 1 v5 pixels and geometry, unchanged.",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_sealed_45x46_v5.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "7fb7e62718da1a444e307d3d3ada87871fbfa19cf5d9f0854756f2137044de53",
+      "use": "Locked 45x46 frame, 3px chamfers. Accepted hazard tape and red status lamp.",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_open_45x46_v5.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "549d0457b09634c025936a60827ee23e6eebfbdcb6bd36389943bc28a75bb4c7",
+      "use": "Locked 45x46 frame, 3px chamfers. Transparent 32x36 opening; add bare-room backing underneath.",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_closed_45x46_v5.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "07b7504b095bea4c474fd29b1334b39b60a825d39bb83dbe4825923ae7617976",
+      "use": "Locked 45x46 frame, 3px chamfers. Normal closed door; attach supplied B1-05 plate separately.",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_05.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "36f7b7ca571319b00825feb135794243a3df0ded4ad54062c968af2f7122d8bb",
+      "use": "Accepted B1-05 number plate; separate from the locked door dimensions.",
+      "locked": true
+    }
+  ],
+  "build_script": "build_h3b.py",
+  "validation_script": "validate_h3b.py",
+  "preview": {
+    "file": "H3b_expansion_lappland_1x.png",
+    "review_4x": "H3b_expansion_lappland_4x.png",
+    "size_px": [
+      480,
+      300
+    ],
+    "character_origins_px": [
+      [
+        20,
+        65
+      ],
+      [
+        303,
+        220
+      ]
+    ],
+    "purpose": "native-scale asset contact gallery only"
+  },
+  "layout_notes": [
+    "Clear floor is 4 units; the wall face and optional south cap lie outside that floor rectangle.",
+    "Only cleared corridor tiles are traversable. Clearing overlay does not unlock collision.",
+    "Repeat corridors in 90px X steps. Doors use six-unit pitch and center offset [22,0].",
+    "Do not place a rib directly beside a door frame.",
+    "End fence is a camera-facing 4-unit billboard; set its world collision across the corridor at assembly.",
+    "Empty door backing is behind the frame and excluded from door collision; leave 32x36 clearance.",
+    "One accepted tarp logo per dead-end. Keep total logos at or below six per screen.",
+    "Work-light pool is an accepted additive texture on black, with intensity tuned in engine."
+  ]
+}

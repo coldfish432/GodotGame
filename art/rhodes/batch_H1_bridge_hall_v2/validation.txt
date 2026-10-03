@@ -1,0 +1,72 @@
+H1 v2 native pixel asset kit. Files: 50 native assets; 12 locked external dependencies.
+PASS §3.5 A — warm-sky angled bridge windows, three locked 6px-chamfer lift states, locked side elevator, 2/4-screen ceiling clusters, cable routes, stepped platform, corner/end rails and yellow handrail.
+PASS §3.5 B — accepted 140x44 XL fits the transparent wall aperture; B1-01 STORE through B1-04 signs pair with four bright 40x28 arrows/icons; accepted lightbox slot and green EXIT sign remain.
+PASS §3.5 C — cold steel and gray dominate structure; yellow, restrained orange, cyan and Rhodes blue identify functions. Opaque-black light textures are a specified additive exception to the 31-color art palette.
+PASS §3.5 D — six safety-panel details (extinguisher, stop, memo, RI-01 caution sticker, RI-07 badge, cable clip) attach to one wall plate; S stamps and blocked-wing warning/debris add identity and narrative.
+REVIEW §3.5 one-screen recognition — branded cues are shown without Lappland being needed to interpret them; final whole-room judgement remains pending scene assembly, per H1 workflow.
+PASS exit lift: three 96x74 modules contain the byte-identical accepted 64x12 FIELD OPS header; 6px octagonal corners and 2px safety-yellow stripes per side.
+PASS duty stations: one 48x50 small desk with an empty chair, one small screen and S plaque has OFF/ON states; three instances are declared. The accepted 95x43 main dispatch console remains a separate pixel-identical asset.
+PASS wing barrier: striped yellow-black fence, dim crates/cut cables/panels behind it, folded cloth carrying the accepted print, and warning triangle.
+PASS dispatch platform: straight deck has a 6px front riser and hazard edge; corner and end pieces join at common height with a yellow top handrail.
+PASS light pools: circle 60x40, rectangle 90x60 and fan 120x80 in warm and cool sets; each base image is opaque black with three dark stepped light tones and an additive blend note.
+PASS source fidelity: accepted XL, lightbox and its emit mask, FIELD OPS header, S logo, logo print, walls, floor, dispatch console states, counter crops and generic door are recorded as locked inputs.
+PASS composite character fidelity: every opaque pixel in Lappland frame 0 matches the accepted 64x64 source at native 1:1 scale; transparent source pixels reveal the composite floor.
+Independent pixel and manifest audit is recorded below after generation; light pools are previewed by additive blending in the composite.
+PASS H1_asset_kit_lappland_1x is a 960x480 native-scale parts sheet, not a scene blockout; Lappland frame 0 is the unscaled 64x64 source frame.
+Locked accepted inputs and SHA-256 values are recorded under external_dependencies in manifest.json.
+§3.5 per-asset coverage map:
+  accepted_dispatch_console_off_95x43 => A: locked main dispatch console, separate from duty desks; C: active screen palette
+  accepted_dispatch_console_on_95x43 => A: locked main dispatch console, separate from duty desks; C: active screen palette
+  accepted_generic_door_open_45x46 => A: accepted generic open doorway shown unchanged for assembly reuse
+  accepted_logistics_counter_off_71x40 => A: accepted logistics counter OFF state copied unchanged
+  accepted_logistics_counter_on_71x40 => A: accepted logistics counter ON state copied unchanged
+  desk_memo_sticker_16x14 => D: memo attached beside duty monitor
+  dispatch_platform_corner_left_32x44 => A: raised deck with 6px front riser, hazard edge and yellow top handrail; A: modular corner/end railing pieces; C: safety yellow
+  dispatch_platform_corner_right_32x44 => A: raised deck with 6px front riser, hazard edge and yellow top handrail; A: modular corner/end railing pieces; C: safety yellow
+  dispatch_platform_end_left_20x44 => A: raised deck with 6px front riser, hazard edge and yellow top handrail; A: modular corner/end railing pieces; C: safety yellow
+  dispatch_platform_end_right_20x44 => A: raised deck with 6px front riser, hazard edge and yellow top handrail; A: modular corner/end railing pieces; C: safety yellow
+  dispatch_platform_railing_164x44 => A: raised deck with 6px front riser, hazard edge and yellow top handrail; A: modular corner/end railing pieces; C: safety yellow
+  duty_mug_clip_12x10 => D: mug attached to duty station shelf
+  duty_station_empty_off => A: small 48px duty desk with one screen and empty chair; C: dark steel and active screen palette; D: S-logo plaque
+  duty_station_empty_on => A: small 48px duty desk with one screen and empty chair; C: dark steel and active screen palette; D: S-logo plaque
+  emergency_stop_plate_16x20 => D: wall-attached emergency stop
+  equipment_id_badge_RI-07_38x14 => D: RI-07 identity badge with accepted S logo
+  exit_lift_closed_module => A: 6px chamfered octagon; A: paired 2px safety-yellow stripes and > < chevrons; B: accepted FIELD OPS header; C: yellow/warm/cyan state signal; D: S-logo stamp
+  exit_lift_open_module => A: 6px chamfered octagon; A: paired 2px safety-yellow stripes and > < chevrons; B: accepted FIELD OPS header; C: yellow/warm/cyan state signal; D: S-logo stamp
+  exit_lift_standby_module => A: 6px chamfered octagon; A: paired 2px safety-yellow stripes and > < chevrons; B: accepted FIELD OPS header; C: yellow/warm/cyan state signal; D: S-logo stamp
+  exit_wayfinding_sign => B: EXIT direction sign; C: approved green exit colors
+  floor_arrow_icon_01 => B: STORE floor arrow and bag icon
+  floor_arrow_icon_02 => B: ARMORY floor arrow and icon
+  floor_arrow_icon_03 => B: WAREHOUSE floor arrow and icon
+  floor_arrow_icon_04 => B: MEDICAL floor arrow and icon
+  hall_elevator_closed_64x58 => A: 6px chamfered elevator door; C: yellow stripes and warm open state; D: S-logo stamp
+  hall_elevator_open => A: 6px chamfered elevator door; C: yellow stripes and warm open state; D: S-logo stamp
+  hanging_monitor_cluster_2 => A: suspended angled display cluster; C: screen cyan and Rhodes blue; D: S-logo screen identity
+  hanging_monitor_cluster_4 => A: suspended angled display cluster; C: screen cyan and Rhodes blue; D: S-logo screen identity
+  interaction_marker_cyan => C: screen-cyan interaction marker
+  interaction_marker_yellow => C: safety-yellow claim-ready marker
+  lift_boarding_zone_decal_96x48 => A: lift approach zone; C: yellow floor boundary
+  light_pool_circle_cool_60x40 => C: opaque-black additive cool light with dark stepped bands
+  light_pool_circle_warm_60x40 => C: opaque-black additive warm light with dark stepped bands
+  light_pool_fan_cool_120x80 => C: opaque-black additive cool light with dark stepped bands
+  light_pool_fan_warm_120x80 => C: opaque-black additive warm light with dark stepped bands
+  light_pool_rectangle_cool_90x60 => C: opaque-black additive cool light with dark stepped bands
+  light_pool_rectangle_warm_90x60 => C: opaque-black additive warm light with dark stepped bands
+  north_wall_lightbox_slot_36x46 => B: accepted lightbox slot
+  north_wall_window_left_98x46 => A: angled bridge windows with diagonal truss mullions; A: warm-white sky band and frame-mounted screens; C: Rhodes blue, warm sky and screen cyan; D: S-logo identity stamp
+  north_wall_window_right_98x46 => A: angled bridge windows with diagonal truss mullions; A: warm-white sky band and frame-mounted screens; C: Rhodes blue, warm sky and screen cyan; D: S-logo identity stamp
+  north_wall_XL_backplate_slot_146x46 => A: modular North-wall structure; B: XL supergraphic slot
+  orange_cable_drop_28x36 => A: routed orange cable; C: restrained orange accent
+  orange_cable_run_44x18 => A: routed orange cable; C: restrained orange accent
+  side_wall_top_sign_01 => B: numbered department door sign; mount above corresponding side-wall door
+  side_wall_top_sign_02 => B: numbered department door sign; mount above corresponding side-wall door
+  side_wall_top_sign_03 => B: numbered department door sign; mount above corresponding side-wall door
+  side_wall_top_sign_04 => B: numbered department door sign; mount above corresponding side-wall door
+  wall_mounted_extinguisher_14x28 => D: wall-attached extinguisher
+  wall_safety_detail_panel_68x50 => D: extinguisher, E-stop, memo, ID badge, caution sticker and cable clip fixed to one wall plate
+  wing_construction_barrier_uncleared_128x56 => A: uncleared wing striped fence and dim debris behind it; C: steel/yellow palette; D: folded logo tarp, cut cables, crates, panels and warning sign
+
+Independent H1 v2 pixel audit:
+  Native assets: 50; emit masks: 20; RGB colors used: 32 including additive black.
+  Accepted H1 assets fixed against v1: 15 families and their available emit/8x exports.
+  Result: PASS (0 errors).

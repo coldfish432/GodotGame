@@ -1,0 +1,638 @@
+{
+  "batch": "H3 ARMORY v3",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.3, 3.1.1, 3.5, 3.7, 4.4",
+  "method": "Each furniture/equipment item has its own generated PNG in sources/. The local build script crops alpha, reduces uniformly by an item-specific integer factor, quantizes to the 31-color palette and preserves binary alpha. Geometric modules reuse accepted native-grid exports.",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "armory_department_sign_120x36",
+      "file": "armory_department_sign_120x36.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        120,
+        36
+      ],
+      "anchor_px": [
+        60,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native 5x7 ARMORY/B1-02 sign, accepted M mark and safety-yellow band; fits 40px wall face.",
+      "coverage_35": [
+        "B: department sign",
+        "C: safety-yellow band"
+      ],
+      "source": null,
+      "postprocess": "geometric sign with accepted glyph grid; no generated lettering"
+    },
+    {
+      "id": "armory_equipment_workbench",
+      "file": "armory_equipment_workbench.png",
+      "emit": "armory_equipment_workbench_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        101,
+        39
+      ],
+      "anchor_px": [
+        50,
+        38
+      ],
+      "footprint_units": [
+        6.73,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Main equipment UI station: axis-aligned top/front planes, tools and weapon-schematic screen; under 45px high.",
+      "coverage_35": [
+        "A: shaped workbench",
+        "B: representative S identity",
+        "C: weapon schematic"
+      ],
+      "source": {
+        "source": "sources/armory_workbench_source.png",
+        "source_size_px": [
+          1864,
+          844
+        ],
+        "source_sha256": "5b4dff27b12363f56bcb791d81a1bc9180e4cd93dd158300a76e61ef749b1a51",
+        "integer_reduction": 18,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "native weapon-schematic screen polish and accepted S mark"
+    },
+    {
+      "id": "armory_weapon_wall",
+      "file": "armory_weapon_wall.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        91,
+        32
+      ],
+      "anchor_px": [
+        45,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Six visibly distinct hung weapons in a front-facing recessed wall rack; no small S stamps.",
+      "coverage_35": [
+        "A: deep wall weapon storage",
+        "C: narrow safety-yellow guide"
+      ],
+      "source": {
+        "source": "sources/armory_weapon_wall_source.png",
+        "source_size_px": [
+          2078,
+          757
+        ],
+        "source_sha256": "e3b2671b481f021b11fb58d205131cf43eaf4116a94fa3d4e4ca1bcdb1254abf",
+        "integer_reduction": 22,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "local-value lift for light room shell"
+    },
+    {
+      "id": "armory_robotic_arm",
+      "file": "armory_robotic_arm.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        40,
+        44
+      ],
+      "anchor_px": [
+        20,
+        43
+      ],
+      "footprint_units": [
+        2.67,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Articulated arm with separate dark joints, top/front pedestal and orange cable.",
+      "coverage_35": [
+        "A: jointed repair robot",
+        "C: cold-grey body and small orange cable"
+      ],
+      "source": {
+        "source": "sources/armory_robotic_arm_source.png",
+        "source_size_px": [
+          1200,
+          1310
+        ],
+        "source_sha256": "6f5f87428658b9dcc233337000505ca5e181ecf0bd2e669dea1034ae91c3db11",
+        "integer_reduction": 29,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "local-value lift for light room shell"
+    },
+    {
+      "id": "armory_overhead_hoist",
+      "file": "armory_overhead_hoist.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        50,
+        35
+      ],
+      "anchor_px": [
+        25,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Level front-facing rail, yellow trolley, vertical chain and repair hook; mount at ceiling.",
+      "coverage_35": [
+        "A: overhead hoist structure",
+        "C: yellow safety carriage"
+      ],
+      "source": {
+        "source": "sources/armory_hoist_source.png",
+        "source_size_px": [
+          1536,
+          1024
+        ],
+        "source_sha256": "5e724648cef586b740692c97c01331ad8bc3d7b7633e3d2f98b650b5d0e7efbc",
+        "integer_reduction": 30,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "light-enamel lift; large yellow trolley panel recolored grey"
+    },
+    {
+      "id": "armory_tool_board",
+      "file": "armory_tool_board.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        58,
+        29
+      ],
+      "anchor_px": [
+        29,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Shaded pegboard with distinct hanging tools and recessed cubbies.",
+      "coverage_35": [
+        "A: wall tooling with thickness",
+        "D: ready-use tools"
+      ],
+      "source": {
+        "source": "sources/armory_toolboard_source.png",
+        "source_size_px": [
+          1774,
+          887
+        ],
+        "source_sha256": "ba82db3928d057b514c6fc1f111b6cdc390c9f7954cd4024cc7ff77f7eefcf43",
+        "integer_reduction": 28,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "local-value lift for light room shell"
+    },
+    {
+      "id": "armory_equipment_case",
+      "file": "armory_equipment_case.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        38,
+        20
+      ],
+      "anchor_px": [
+        19,
+        19
+      ],
+      "footprint_units": [
+        2.53,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Portable case with level lid, front latches and no receding side plane. Reuse for two placements.",
+      "coverage_35": [
+        "A: equipment storage case",
+        "C: narrow yellow band"
+      ],
+      "source": {
+        "source": "sources/armory_equipment_case_source.png",
+        "source_size_px": [
+          1619,
+          971
+        ],
+        "source_sha256": "ab57c6dbf0c745028bff2c999f268696cd9ba1e3c2e8860be0adc8c234d7a590",
+        "integer_reduction": 44,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": "light-room enamel with a distinct mid-grey front face"
+    },
+    {
+      "id": "armory_task_lamp",
+      "file": "armory_task_lamp.png",
+      "emit": "armory_task_lamp_emit.png",
+      "kind": "wall",
+      "size_px": [
+        36,
+        24
+      ],
+      "anchor_px": [
+        18,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Shaded suspended cool task lamp.",
+      "coverage_35": [
+        "A: overhead service light",
+        "C: cool-white emit"
+      ],
+      "source": {
+        "source": "sources/armory_task_lamp_source.png",
+        "source_size_px": [
+          1619,
+          972
+        ],
+        "source_sha256": "dc051ec25bc6312ede3e4c155a7f7a1679d5c5c3bdc58746b9cd958a86cc0bbc",
+        "integer_reduction": 40,
+        "quantization": "nearest CIELAB of Rhodes 31-color palette; no dithering",
+        "alpha": "binary at 112/255 after uniform nearest reduction"
+      },
+      "postprocess": null
+    },
+    {
+      "id": "armory_bench_zone_100x44",
+      "file": "armory_bench_zone_100x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        100,
+        44
+      ],
+      "anchor_px": [
+        50,
+        22
+      ],
+      "footprint_units": [
+        6.67,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "C: safety zone/hazard"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "armory_safety_strip_30x10",
+      "file": "armory_safety_strip_30x10.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        30,
+        10
+      ],
+      "anchor_px": [
+        15,
+        5
+      ],
+      "footprint_units": [
+        2.0,
+        0.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "C: safety zone/hazard"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "armory_stand_spot_bench_operator_12x6",
+      "file": "armory_stand_spot_bench_operator_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "A: reserved character position"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    },
+    {
+      "id": "armory_stand_spot_weapon_wall_inspector_12x6",
+      "file": "armory_stand_spot_weapon_wall_inspector_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Accepted native floor graphic; no resampling.",
+      "coverage_35": [
+        "A: reserved character position"
+      ],
+      "source": null,
+      "postprocess": "Accepted H3 v1 native-grid geometric module copied without resampling"
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch_H3_armory_v1/armory_bench_zone_100x44.png",
+      "size_px": [
+        100,
+        44
+      ],
+      "sha256": "1e95f438709c24512ef7dd744e5fd6175c48dbd89486bc4a9de912d9adc68218",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_armory_v1/armory_safety_strip_30x10.png",
+      "size_px": [
+        30,
+        10
+      ],
+      "sha256": "e3a5ab177b73e386b9a6018ba81e005a70649f1073c3d36e22f716a0b804ee2a",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_armory_v1/armory_stand_spot_bench_operator_12x6.png",
+      "size_px": [
+        12,
+        6
+      ],
+      "sha256": "d89530d22efd8487493ce3ea058df95863cf19bcd6ae0677bad602ed47b41656",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_armory_v1/armory_stand_spot_weapon_wall_inspector_12x6.png",
+      "size_px": [
+        12,
+        6
+      ],
+      "sha256": "d89530d22efd8487493ce3ea058df95863cf19bcd6ae0677bad602ed47b41656",
+      "use": "Accepted H3 v1 geometry source",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/duty_mug_clip_12x10.png",
+      "size_px": [
+        12,
+        10
+      ],
+      "sha256": "050861edefee8c3a098733de49405ea79a4a0e4ccc9ee1f6b19391ebe7e0b538",
+      "use": "Accepted mug",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/desk_memo_sticker_16x14.png",
+      "size_px": [
+        16,
+        14
+      ],
+      "sha256": "c2bd2a7d42e48ed68b93cc31ef297124c7eeda99e054b711ef037163430d3ac9",
+      "use": "Accepted service memo",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/emergency_stop_plate_16x20.png",
+      "size_px": [
+        16,
+        20
+      ],
+      "sha256": "d33a2b4faa60748b9754b4e6c92523843b5b2007c1e1132ef435e6f05462a3a5",
+      "use": "Accepted emergency stop",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/wall_mounted_extinguisher_14x28.png",
+      "size_px": [
+        14,
+        28
+      ],
+      "sha256": "a2d5d38a433a83fb5c7ca4ab2b79a91d1cce86f94f5cd834b722a60789eaeb18",
+      "use": "Accepted extinguisher",
+      "locked": true
+    },
+    {
+      "file": "../batch_H2_warehouse_v2/warehouse_wall_clipboard_22x28.png",
+      "size_px": [
+        22,
+        28
+      ],
+      "sha256": "885e4ef446897b703529ec8ac73d51b68750cede4d8f1a78f473cd98f68f26f3",
+      "use": "Accepted operations clipboard",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/wall_straight_60x46_light_v2.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "0c9fe477f3c4374add8821b3a3fe6bf7f8ce484621039f6206d867f30276dd2f",
+      "use": "46px room wall shell",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/rhodes_floor_equipment_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "81cd2ad0c3fb1401f0745a2b672e49bf191eb4ae9b1970f7f6c04c405d741dc8",
+      "use": "120x120 seamless floor shell",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Unscaled Lappland",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_M_gray_v1.png",
+      "size_px": [
+        24,
+        24
+      ],
+      "sha256": "6b4a4e6cd699333a5e8da4d2989ff19a625a8d59dc9e3ca581b71b43f29888f2",
+      "use": "Accepted M logo in geometric sign",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S mark on bench",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_02.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "6db1fb92d5c78b62718be4c00508b3a704e360aefb87d46296962d3c1c5f5322",
+      "use": "Accepted B1-02 door plate",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_rectangle_cool_90x60.png",
+      "size_px": [
+        90,
+        60
+      ],
+      "sha256": "86d93f4f08e6e8cf8567785fbeead86bfa3fc8f198d534169894b782df787a65",
+      "use": "Accepted additive cool pool",
+      "locked": true
+    }
+  ],
+  "shell": {
+    "size_units": [
+      18,
+      12
+    ],
+    "floor_size_px": [
+      270,
+      152
+    ],
+    "wall_height_px": 46,
+    "wall_tile": "../batch3_equipment_v3/wall_straight_60x46_light_v2.png",
+    "floor_tile": "../batch3_equipment_v3/rhodes_floor_equipment_v1.png",
+    "assembly": "Review composite shows one suggested layout; final scene assembly remains with user."
+  },
+  "preview": {
+    "file": "H3_armory_lappland_1x.png",
+    "size_px": [
+      270,
+      198
+    ],
+    "character_origin_px": [
+      112,
+      137
+    ],
+    "character": "Lappland frame 0 unscaled; 30px visible height",
+    "review_4x": "H3_armory_lappland_1x_4x.png"
+  },
+  "logo_policy": "M on department sign and S on the main interactive furniture only; two per review screen, below six cap.",
+  "stand_spots": [
+    "armory_stand_spot_bench_operator_12x6",
+    "armory_stand_spot_weapon_wall_inspector_12x6"
+  ],
+  "life_details": [
+    "armory_tool_board",
+    "armory_equipment_case",
+    "../batch_H1_bridge_hall_v2/duty_mug_clip_12x10.png",
+    "../batch_H1_bridge_hall_v2/desk_memo_sticker_16x14.png",
+    "../batch_H1_bridge_hall_v2/emergency_stop_plate_16x20.png",
+    "../batch_H1_bridge_hall_v2/wall_mounted_extinguisher_14x28.png",
+    "../batch_H2_warehouse_v2/warehouse_wall_clipboard_22x28.png"
+  ],
+  "assembly": {
+    "station": "Workbench is equipment interaction; leave 30px in front of its operator spot.",
+    "walls": "Weapon wall, hoist, pegboard and lamp attach to locked 46px light shell.",
+    "lighting": "Cool lamp and schematic screen emit; accepted additive cool light pool on floor."
+  },
+  "checklist_35": {
+    "A": "Generated front-facing workbench, weapon rack, robot arm, hoist, pegboard and cases.",
+    "B": "B1-02 plate and ARMORY department sign; unique schematic UI.",
+    "C": "Light shell, cold white equipment and safety-yellow guide lines.",
+    "D": "Tools, cases, mug, memo, emergency stop, extinguisher and clipboard."
+  },
+  "build_script": "build_armory.py"
+}

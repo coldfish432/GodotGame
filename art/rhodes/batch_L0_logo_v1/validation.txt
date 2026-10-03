@@ -1,0 +1,10 @@
+PASS shape source: XL, lightbox, and tarp logo fields are nearest-neighbor uniform reductions of accepted rhodes_logo_L_gray_v2.png; geometry is sourced from accepted L, never reconstructed.
+PASS M and S native silhouettes: monochrome outputs preserve the exact opaque/dark pixel masks from logo_M_24_from_L.png and logo_S_9_from_L.png; screen-9 uses the same S silhouette in screen colors.
+PASS XL wordmark: 12px capitals; 2px vertical stems, 1px horizontal bars and serifs, 2px inter-letter spacing; solid safety-yellow backplate with dark lettering.
+PASS tarp has cloth folds crossing the mark and visibly occluding portions of the print; underlying silhouette remains unmodified.
+PASS FIELD OPS header file was not rewritten and remains accepted as-is.
+PASS native dimensions match manifest; alpha is binary; palette uses approved 29 colors. Emit masks match source dimensions and contain only opaque source pixels.
+PASS all asset 8x inspection PNGs are exact integer replicas; composite is 320x150 and 4x export is an exact 1280x600 nearest-neighbor upscale; Lappland frame 0 remains at native scale.
+PASS independent pixel checks: all native asset pixels exactly reproduce through their 8x exports; composite exactly reproduces through its 4x export.
+PASS independent palette/alpha check: every manifest native asset uses approved palette colors and binary alpha; M and S exactly preserve the reference-grid field/tower pixel regions.
+PASS XL-only typography revision: N diagonal is visible between stems, A has a pointed/chamfered crown, and R leg is 2px; lockup backplate, mark, dimensions, and manifest entry are unchanged.

@@ -1,0 +1,9 @@
+Full-source uniform nearest-neighbor reduction: 1254x1254 ->120x120; divisor=10.45 on BOTH axes. Source is preserved.
+PASS logos: native64x64, exactly2 colors, light triangle/dark tower+bar, transparent outside. Three crenellations, short neck, monotonically widening stepped-pixel cone, stepped mound,50x2 base bar.
+Floor palette colors used=10 of26; alpha255 throughout.
+Before repair: left/right mismatches=94 of120, top/bottom=71 of120.
+Edge-only repair changed=165 of14400 pixels (1.15%); interior unchanged.
+PASS after repair: left/right mismatches=0, top/bottom=0, four corners match.
+PASS new decal atlas leaves every accepted hazard pixel unchanged. Counter unchanged/read-only.
+Review:3x3 tiling and60px wrap-offset images. Visual inspection required in addition to edge checks; no engine claim.
+VISUAL REVIEW: inspected 3x3 repeat and 60px offset; no visible boundary discontinuity. Canonical intake copy hash matches. Accepted input hashes unchanged.

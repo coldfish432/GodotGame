@@ -1,0 +1,30 @@
+workbench: source=1774x887, alpha bbox={X=55,Y=194,Width=1680,Height=611}, whole-sprite integer divisor=24, native canvas=70x26, visible={X=0,Y=0,Width=70,Height=25}
+weapon_cabinet: source=1024x1536, alpha bbox={X=198,Y=197,Width=726,Height=1146}, whole-sprite integer divisor=28, native canvas=26x41, visible={X=0,Y=0,Width=26,Height=41}
+crane_hook: source=1060x1484, alpha bbox={X=25,Y=97,Width=1010,Height=1294}, whole-sprite integer divisor=30, native canvas=34x44, visible={X=0,Y=0,Width=34,Height=43}
+robotic_arm: source=1274x1234, alpha bbox={X=233,Y=216,Width=872,Height=861}, whole-sprite integer divisor=26, native canvas=34x34, visible={X=0,Y=0,Width=34,Height=33}
+crate_single: source=1536x1024, alpha bbox={X=180,Y=289,Width=1176,Height=503}, whole-sprite integer divisor=48, native canvas=25x11, visible={X=0,Y=0,Width=24,Height=10}
+crate_stack: source=1374x1145, alpha bbox={X=90,Y=219,Width=1194,Height=724}, whole-sprite integer divisor=30, native canvas=40x25, visible={X=0,Y=0,Width=40,Height=24}
+atlas 512x256 cell=0,0 origin=29,88 feet baseline=113
+atlas 512x256 cell=1,0 origin=179,72 feet baseline=113
+atlas 512x256 cell=0,1 origin=29,216 feet baseline=241
+atlas 512x256 cell=1,1 origin=179,200 feet baseline=241
+atlas 256x192 cell=0,0 origin=19,46 feet baseline=56
+atlas 256x192 cell=1,0 origin=76,32 feet baseline=56
+atlas 256x192 cell=2,0 origin=143,13 feet baseline=56
+atlas 256x192 cell=3,0 origin=207,23 feet baseline=56
+atlas 256x192 cell=3,1 origin=207,87 feet baseline=120
+PASS static room composite196x169 (interior180x115), scale review480x150, both exact4x. Lappland frame0 copied at1:1, actual alpha>=128 height=29. Composite retains character original colors.
+PASS rhodes_workbench_on_v1: 70x26, colors=19, cyan=94, binary alpha, palette and exact8x
+PASS rhodes_workbench_off_v1: 70x26, colors=16, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_weapon_cabinet_on_v1: 26x41, colors=17, cyan=1, binary alpha, palette and exact8x
+PASS rhodes_weapon_cabinet_off_v1: 26x41, colors=16, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_crane_hook_v1: 34x44, colors=16, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_robotic_arm_on_v1: 34x34, colors=16, cyan=1, binary alpha, palette and exact8x
+PASS rhodes_robotic_arm_off_v1: 34x34, colors=15, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_supply_crate_v1: 25x11, colors=13, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_supply_crates_stack_v1: 40x25, colors=14, cyan=0, binary alpha, palette and exact8x
+PASS rhodes_equipment_stations_v1: 512x256, colors=21, cyan=95, binary alpha, palette and exact8x
+PASS rhodes_equipment_props_v1: 256x192, colors=19, cyan=1, binary alpha, palette and exact8x
+Workbench whole-source surface starts around y470; feet end805. /24 gives14px surface-to-ground; no section scaling. Monitor/lamp sit on surface.
+Crane atlas baseline aligns hook tip ONLY; scene pivot is rail top midpoint, suspended with tip above floor. Empty slots intentional. NOT RUN: engine integration; visual acceptance pending.
+PASS final verification: both 4x composites pixel-exact; all accepted Batch1 PNG SHA256 hashes unchanged; accepted floor SHA256 unchanged.

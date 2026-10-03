@@ -1,0 +1,5412 @@
+{
+  "cell": 64,
+  "foot": 51,
+  "centre": 32,
+  "directions": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "poses": [
+    "idle",
+    "startup",
+    "charge",
+    "strike",
+    "recovery"
+  ],
+  "enemies": {
+    "thug": {
+      "board": "01_暴徒_八方向动作原画.png",
+      "scale": 0.1588235294117647,
+      "idle_height": 27,
+      "tips": {
+        "S": [
+          9,
+          -33
+        ],
+        "SW": [
+          4,
+          -33
+        ],
+        "W": [
+          9,
+          -33
+        ],
+        "NW": [
+          8,
+          -31
+        ],
+        "N": [
+          -1,
+          -32
+        ],
+        "NE": [
+          -8,
+          -32
+        ],
+        "E": [
+          -9,
+          -33
+        ],
+        "SE": [
+          -4,
+          -32
+        ]
+      },
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            19,
+            23,
+            40,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            19,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            23,
+            23,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            24,
+            23,
+            46,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            21,
+            23,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            23,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            23,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            42,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            23,
+            18,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            24,
+            18,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            23,
+            18,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            23,
+            20,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            23,
+            19,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            23,
+            19,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            24,
+            19,
+            42,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            22,
+            19,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            19,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            18,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            25,
+            26,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            20,
+            25,
+            47,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            20,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 4,
+          "bounds": [
+            22,
+            24,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 4,
+          "bounds": [
+            23,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 4,
+          "bounds": [
+            19,
+            24,
+            40,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 4,
+          "bounds": [
+            18,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 4,
+          "bounds": [
+            23,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 4,
+          "bounds": [
+            23,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 4,
+          "bounds": [
+            24,
+            24,
+            46,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 4,
+          "bounds": [
+            22,
+            24,
+            48,
+            51
+          ]
+        }
+      ]
+    },
+    "crossbow": {
+      "board": "02_弩手_八方向动作原画.png",
+      "scale": 0.15126050420168066,
+      "idle_height": 27,
+      "tips": {
+        "S": [
+          0,
+          -12
+        ],
+        "SW": [
+          -15,
+          -13
+        ],
+        "W": [
+          -13,
+          -13
+        ],
+        "NW": [
+          -14,
+          -16
+        ],
+        "N": [
+          0,
+          -12
+        ],
+        "NE": [
+          14,
+          -16
+        ],
+        "E": [
+          13,
+          -13
+        ],
+        "SE": [
+          15,
+          -13
+        ]
+      },
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            19,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            20,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            19,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            23,
+            26,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            17,
+            27,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            19,
+            26,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            18,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            21,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            21,
+            26,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            22,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            22,
+            27,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            26,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            17,
+            26,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            18,
+            26,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            19,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            22,
+            26,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 4,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 4,
+          "bounds": [
+            21,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 4,
+          "bounds": [
+            20,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 4,
+          "bounds": [
+            20,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 4,
+          "bounds": [
+            22,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 4,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 4,
+          "bounds": [
+            22,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 4,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        }
+      ]
+    },
+    "slug": {
+      "board": "03_源石虫_八方向动作原画.png",
+      "scale": 0.1322314049586777,
+      "idle_height": 16,
+      "tips": {
+        "S": [
+          9,
+          -10
+        ],
+        "SW": [
+          8,
+          -9
+        ],
+        "W": [
+          2,
+          -14
+        ],
+        "NW": [
+          -8,
+          -12
+        ],
+        "N": [
+          -10,
+          -9
+        ],
+        "NE": [
+          8,
+          -12
+        ],
+        "E": [
+          -2,
+          -14
+        ],
+        "SE": [
+          -8,
+          -9
+        ]
+      },
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            21,
+            32,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            21,
+            33,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            22,
+            33,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            22,
+            33,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            21,
+            32,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            22,
+            33,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            32,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            22,
+            32,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            21,
+            33,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            21,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            22,
+            35,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            21,
+            34,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            33,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            22,
+            37,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            21,
+            38,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            22,
+            37,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            22,
+            37,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            22,
+            37,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            22,
+            37,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            23,
+            37,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            23,
+            38,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            22,
+            36,
+            43,
+            52
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            21,
+            35,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            21,
+            35,
+            43,
+            52
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            22,
+            35,
+            44,
+            52
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            21,
+            36,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            21,
+            35,
+            44,
+            52
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 4,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 4,
+          "bounds": [
+            21,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 4,
+          "bounds": [
+            22,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 4,
+          "bounds": [
+            22,
+            35,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 4,
+          "bounds": [
+            20,
+            33,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 4,
+          "bounds": [
+            23,
+            35,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 4,
+          "bounds": [
+            23,
+            35,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 4,
+          "bounds": [
+            22,
+            34,
+            45,
+            51
+          ]
+        }
+      ]
+    },
+    "brawler": {
+      "board": "04_拳刃武士_八方向动作原画.png",
+      "scale": 0.15472779369627507,
+      "idle_height": 27,
+      "tips": {
+        "S": [
+          -3,
+          -26
+        ],
+        "SW": [
+          10,
+          -22
+        ],
+        "W": [
+          -6,
+          -24
+        ],
+        "NW": [
+          -5,
+          -24
+        ],
+        "N": [
+          3,
+          -23
+        ],
+        "NE": [
+          5,
+          -25
+        ],
+        "E": [
+          6,
+          -24
+        ],
+        "SE": [
+          2,
+          -25
+        ]
+      },
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            21,
+            23,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            23,
+            23,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            20,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            19,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            24,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            21,
+            23,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            21,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            22,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            22,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            19,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            19,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            21,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            22,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            21,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            21,
+            27,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            20,
+            27,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            22,
+            28,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            19,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            20,
+            27,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            19,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            28,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            19,
+            30,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            17,
+            30,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            17,
+            30,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            24,
+            24,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            18,
+            29,
+            49,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            18,
+            30,
+            49,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            19,
+            29,
+            49,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 4,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 4,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 4,
+          "bounds": [
+            22,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 4,
+          "bounds": [
+            22,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 4,
+          "bounds": [
+            22,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 4,
+          "bounds": [
+            21,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 4,
+          "bounds": [
+            23,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 4,
+          "bounds": [
+            21,
+            25,
+            45,
+            51
+          ]
+        }
+      ]
+    },
+    "crossbow_leader": {
+      "board": "05_弩手组长_八方向动作原画.png",
+      "scale": 0.15211267605633802,
+      "idle_height": 27,
+      "tips": {
+        "S": [
+          0,
+          -12
+        ],
+        "SW": [
+          -14,
+          -10
+        ],
+        "W": [
+          -15,
+          -10
+        ],
+        "NW": [
+          -14,
+          -11
+        ],
+        "N": [
+          0,
+          -12
+        ],
+        "NE": [
+          13,
+          -12
+        ],
+        "E": [
+          15,
+          -10
+        ],
+        "SE": [
+          14,
+          -11
+        ]
+      },
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            19,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            18,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            16,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            19,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            17,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            21,
+            25,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            21,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            21,
+            27,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            18,
+            28,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            17,
+            28,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            18,
+            27,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            21,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            20,
+            28,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            19,
+            28,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            21,
+            28,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            18,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            18,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            18,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            18,
+            26,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            21,
+            25,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 4,
+          "bounds": [
+            21,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 4,
+          "bounds": [
+            18,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 4,
+          "bounds": [
+            19,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 4,
+          "bounds": [
+            18,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 4,
+          "bounds": [
+            22,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 4,
+          "bounds": [
+            21,
+            23,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 4,
+          "bounds": [
+            21,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 4,
+          "bounds": [
+            21,
+            24,
+            47,
+            51
+          ]
+        }
+      ]
+    },
+    "ice_warrior": {
+      "board": "06_冰原战士_八方向动作原画.png",
+      "scale": 0.1609907120743034,
+      "idle_height": 26,
+      "tips": {
+        "S": [
+          -6,
+          -37
+        ],
+        "SW": [
+          -11,
+          -36
+        ],
+        "W": [
+          7,
+          -37
+        ],
+        "NW": [
+          7,
+          -37
+        ],
+        "N": [
+          1,
+          -37
+        ],
+        "NE": [
+          -9,
+          -37
+        ],
+        "E": [
+          -7,
+          -37
+        ],
+        "SE": [
+          8,
+          -36
+        ]
+      },
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            48,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            22,
+            26,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            21,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            19,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            24,
+            25,
+            45,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            18,
+            14,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            20,
+            14,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            22,
+            14,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            22,
+            14,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            22,
+            14,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            21,
+            14,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            20,
+            14,
+            44,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            21,
+            14,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            22,
+            26,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            17,
+            28,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            18,
+            28,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            19,
+            28,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            22,
+            28,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            19,
+            28,
+            47,
+            52
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            20,
+            28,
+            47,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            22,
+            27,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 4,
+          "bounds": [
+            20,
+            25,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 4,
+          "bounds": [
+            20,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 4,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 4,
+          "bounds": [
+            19,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 4,
+          "bounds": [
+            22,
+            26,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 4,
+          "bounds": [
+            19,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 4,
+          "bounds": [
+            21,
+            25,
+            45,
+            51
+          ],
+          "mirrored_from": "W"
+        },
+        {
+          "direction": "SE",
+          "pose": 4,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        }
+      ]
+    },
+    "ice_hunter": {
+      "board": "07_冰原猎人_八方向动作原画.png",
+      "scale": 0.1489971346704871,
+      "idle_height": 26,
+      "tips": {
+        "S": [
+          0,
+          -12
+        ],
+        "SW": [
+          -12,
+          -14
+        ],
+        "W": [
+          -17,
+          -16
+        ],
+        "NW": [
+          -17,
+          -18
+        ],
+        "N": [
+          0,
+          -12
+        ],
+        "NE": [
+          16,
+          -18
+        ],
+        "E": [
+          17,
+          -16
+        ],
+        "SE": [
+          12,
+          -12
+        ]
+      },
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            23,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            17,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            18,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            18,
+            23,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            49,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            20,
+            23,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            16,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            20,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            50,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            20,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            15,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            15,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            20,
+            24,
+            49,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            19,
+            26,
+            50,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            20,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            14,
+            27,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            15,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            51,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            19,
+            27,
+            51,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            20,
+            27,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 4,
+          "bounds": [
+            22,
+            26,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 4,
+          "bounds": [
+            22,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 4,
+          "bounds": [
+            16,
+            27,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 4,
+          "bounds": [
+            16,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 4,
+          "bounds": [
+            23,
+            26,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 4,
+          "bounds": [
+            21,
+            25,
+            50,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 4,
+          "bounds": [
+            21,
+            27,
+            49,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 4,
+          "bounds": [
+            20,
+            27,
+            45,
+            51
+          ]
+        }
+      ]
+    }
+  },
+  "walk": {
+    "thug": {
+      "board": "01_暴徒_八方向移动原画.png",
+      "scale": 0.13170731707317074,
+      "height": 27,
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            24,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            25,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            40,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            25,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            24,
+            24,
+            40,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            25,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            23,
+            24,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            24,
+            24,
+            40,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            23,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            21,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            23,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            24,
+            24,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            23,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            25,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            21,
+            23,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            20,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            23,
+            23,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            24,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            23,
+            24,
+            40,
+            51
+          ]
+        }
+      ]
+    },
+    "crossbow": {
+      "board": "02_弩手_八方向移动原画.png",
+      "scale": 0.1377551020408163,
+      "height": 27,
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            23,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            19,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            23,
+            23,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            24,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            20,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            20,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            20,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            24,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            22,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            20,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            20,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            22,
+            23,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            21,
+            24,
+            44,
+            51
+          ]
+        }
+      ]
+    },
+    "slug": {
+      "board": "03_源石虫_八方向移动原画.png",
+      "scale": 0.11510791366906475,
+      "height": 16,
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            22,
+            33,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            21,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            23,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            22,
+            33,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            22,
+            33,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            23,
+            33,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            23,
+            35,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            22,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            22,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            23,
+            33,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            23,
+            33,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            23,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            23,
+            35,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            22,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            22,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            23,
+            33,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            23,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            22,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            21,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            22,
+            34,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            23,
+            34,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            22,
+            34,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            23,
+            35,
+            43,
+            51
+          ]
+        }
+      ]
+    },
+    "brawler": {
+      "board": "04_拳刃武士_八方向移动原画.png",
+      "scale": 0.13953488372093023,
+      "height": 27,
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            21,
+            23,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            22,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            21,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            23,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            22,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            22,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            23,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            20,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            21,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            22,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            21,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            23,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            21,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            22,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            23,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        }
+      ]
+    },
+    "crossbow_leader": {
+      "board": "05_弩手组长_八方向移动原画.png",
+      "scale": 0.14210526315789473,
+      "height": 27,
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            19,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            18,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            19,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            22,
+            23,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            19,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            18,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            18,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            22,
+            23,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            22,
+            23,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            22,
+            23,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            23,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            21,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            19,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            18,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            19,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            23,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            21,
+            23,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            19,
+            22,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            18,
+            22,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            18,
+            22,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            22,
+            23,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            23,
+            22,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            22,
+            22,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            23,
+            23,
+            46,
+            51
+          ]
+        }
+      ]
+    },
+    "ice_warrior": {
+      "board": "06_冰原战士_八方向移动原画.png",
+      "scale": 0.13506493506493505,
+      "height": 26,
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            47,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            23,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            20,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            20,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            21,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            23,
+            24,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            20,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            22,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            21,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            22,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            21,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            21,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            20,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            22,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            20,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            22,
+            26,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            21,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            20,
+            26,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        }
+      ]
+    },
+    "ice_hunter": {
+      "board": "07_冰原猎人_八方向移动原画.png",
+      "scale": 0.12206572769953052,
+      "height": 26,
+      "frames": [
+        {
+          "direction": "S",
+          "pose": 0,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 0,
+          "bounds": [
+            24,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 0,
+          "bounds": [
+            21,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 0,
+          "bounds": [
+            21,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 0,
+          "bounds": [
+            24,
+            25,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 0,
+          "bounds": [
+            22,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 0,
+          "bounds": [
+            23,
+            25,
+            46,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 0,
+          "bounds": [
+            23,
+            26,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 1,
+          "bounds": [
+            20,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 1,
+          "bounds": [
+            23,
+            25,
+            42,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 1,
+          "bounds": [
+            23,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 1,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 2,
+          "bounds": [
+            24,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 2,
+          "bounds": [
+            21,
+            25,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 2,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 2,
+          "bounds": [
+            24,
+            25,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            44,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 2,
+          "bounds": [
+            22,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 2,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "S",
+          "pose": 3,
+          "bounds": [
+            22,
+            24,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "SW",
+          "pose": 3,
+          "bounds": [
+            23,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "W",
+          "pose": 3,
+          "bounds": [
+            20,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "NW",
+          "pose": 3,
+          "bounds": [
+            22,
+            25,
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "N",
+          "pose": 3,
+          "bounds": [
+            24,
+            24,
+            41,
+            51
+          ]
+        },
+        {
+          "direction": "NE",
+          "pose": 3,
+          "bounds": [
+            22,
+            24,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "E",
+          "pose": 3,
+          "bounds": [
+            22,
+            25,
+            45,
+            51
+          ]
+        },
+        {
+          "direction": "SE",
+          "pose": 3,
+          "bounds": [
+            22,
+            25,
+            42,
+            51
+          ]
+        }
+      ]
+    }
+  }
+}

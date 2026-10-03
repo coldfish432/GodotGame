@@ -1,0 +1,770 @@
+{
+  "batch": "H1b wayfinding v1",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§3.4, 3.5 B, 4.2 H1b, 4.4",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "rhodes_glyphs_5x7",
+      "file": "rhodes_glyphs_5x7.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        90,
+        55
+      ],
+      "anchor_px": [
+        45,
+        27
+      ],
+      "footprint_units": [
+        6.0,
+        3.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native 5x7 glyph atlas; use glyph_lookup.json rectangles and one-pixel tracking.",
+      "coverage_35": [
+        "B: complete native-grid glyph sheet"
+      ]
+    },
+    {
+      "id": "rhodes_glyphs_3x5",
+      "file": "rhodes_glyphs_3x5.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        70,
+        45
+      ],
+      "anchor_px": [
+        35,
+        22
+      ],
+      "footprint_units": [
+        4.67,
+        3.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native 3x5 glyph atlas; use glyph_lookup.json rectangles and one-pixel tracking.",
+      "coverage_35": [
+        "B: complete native-grid glyph sheet"
+      ]
+    },
+    {
+      "id": "hall_directory_board_192x50",
+      "file": "hall_directory_board_192x50.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        192,
+        50
+      ],
+      "anchor_px": [
+        96,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Lists B1-01 STORE, B1-02 ARMORY, B1-03 WAREHOUSE, B1-04 MEDICAL; icons are pixel masks extracted from accepted H1 v2 arrows, with left/right directions from hall plan.",
+      "coverage_35": [
+        "B: hall directory board",
+        "B: four numbered destinations",
+        "D: accepted S identity stamp"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_01",
+      "file": "small_number_plate_B1_01.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-01; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_02",
+      "file": "small_number_plate_B1_02.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-02; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_03",
+      "file": "small_number_plate_B1_03.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-03; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_04",
+      "file": "small_number_plate_B1_04.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-04; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_05",
+      "file": "small_number_plate_B1_05.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-05; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_06",
+      "file": "small_number_plate_B1_06.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-06; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_07",
+      "file": "small_number_plate_B1_07.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-07; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_08",
+      "file": "small_number_plate_B1_08.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-08; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_09",
+      "file": "small_number_plate_B1_09.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-09; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_10",
+      "file": "small_number_plate_B1_10.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-10; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_11",
+      "file": "small_number_plate_B1_11.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-11; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "small_number_plate_B1_12",
+      "file": "small_number_plate_B1_12.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        32,
+        12
+      ],
+      "anchor_px": [
+        16,
+        0
+      ],
+      "footprint_units": [
+        0,
+        0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Small numbered plate B1-12; 3x5 lettering. B1-01 through B1-04 pair with accepted hall room signs; B1-05 through B1-12 reserve future rooms.",
+      "coverage_35": [
+        "B: numbered room plate",
+        "D: standardized ship ID"
+      ]
+    },
+    {
+      "id": "floor_arrow_store_left_40x28",
+      "file": "floor_arrow_store_left_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "LEFT floor arrow for B1-01 STORE; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: STORE left-pointing floor arrow and upright icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_armory_left_40x28",
+      "file": "floor_arrow_armory_left_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "LEFT floor arrow for B1-02 ARMORY; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: ARMORY left-pointing floor arrow and upright icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_warehouse_left_40x28",
+      "file": "floor_arrow_warehouse_left_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "LEFT floor arrow for B1-03 WAREHOUSE; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: WAREHOUSE left-pointing floor arrow and upright icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_medical_left_40x28",
+      "file": "floor_arrow_medical_left_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "LEFT floor arrow for B1-04 MEDICAL; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: MEDICAL left-pointing floor arrow and upright icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_store_right_40x28",
+      "file": "floor_arrow_store_right_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "RIGHT floor arrow for B1-01 STORE; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: STORE right-pointing floor arrow and upright icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_armory_right_40x28",
+      "file": "floor_arrow_armory_right_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "RIGHT floor arrow for B1-02 ARMORY; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: ARMORY right-pointing floor arrow and upright icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_warehouse_right_40x28",
+      "file": "floor_arrow_warehouse_right_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "RIGHT floor arrow for B1-03 WAREHOUSE; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: WAREHOUSE right-pointing floor arrow and upright icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_medical_right_40x28",
+      "file": "floor_arrow_medical_right_40x28.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "RIGHT floor arrow for B1-04 MEDICAL; 40x28, bright safety yellow, dark outline; icon remains upright and matches the H1 v2 source mask.",
+      "coverage_35": [
+        "B: MEDICAL right-pointing floor arrow and upright icon"
+      ]
+    }
+  ],
+  "glyph_lookup": "glyph_lookup.json",
+  "external_dependencies": [
+    {
+      "file": "../batch2_v2/rhodes_floor_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "433dded8f5a617327257266ccc33a5f01ced342413079bf54e84d41810798130",
+      "use": "Accepted dark-steel floor for native-scale composite",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_straight_60x46_v5.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "e6f67d8cd77fa8d3407d03f5700a7ba1307254d53e2dce65cbd1dc480e0a4ff8",
+      "use": "Accepted 46px wall for native-scale composite",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Lappland frame 0 at original 1:1 scale",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S stamp on directory board",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/exit_wayfinding_sign.png",
+      "size_px": [
+        48,
+        18
+      ],
+      "sha256": "c6b6f09ec77e41afb2d6844e6c2df494e581e0b70f576a210ddea71d9107b582",
+      "use": "Accepted green EXIT sign; reuse unchanged",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/floor_arrow_icon_01.png",
+      "size_px": [
+        40,
+        28
+      ],
+      "sha256": "45a15c3d28d2536d5e9bb968ba8f9bfc507e974de940f468706d34915e26e364",
+      "use": "Accepted icon shape source for horizontal arrows and hall directory",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/side_wall_top_sign_01.png",
+      "size_px": [
+        58,
+        20
+      ],
+      "sha256": "3cd4ee198a1167590a07b227f2bc53141670dc64ace960b21d21424ff3fa9126",
+      "use": "Accepted door/sign plate styling; use unchanged",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/floor_arrow_icon_02.png",
+      "size_px": [
+        40,
+        28
+      ],
+      "sha256": "6d21623e3108cd479817044bc83221106b64f5fbccfbe267045bf5f6c6493ccf",
+      "use": "Accepted icon shape source for horizontal arrows and hall directory",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/side_wall_top_sign_02.png",
+      "size_px": [
+        58,
+        20
+      ],
+      "sha256": "10b2bee6954a4c66def7a2b6608ef68f2989544459478012976c0a46210acc05",
+      "use": "Accepted door/sign plate styling; use unchanged",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/floor_arrow_icon_03.png",
+      "size_px": [
+        40,
+        28
+      ],
+      "sha256": "14b23f1e0ed2d5f0bf1fad7350aacb8986e803a34e52b980c13891976b4d91e8",
+      "use": "Accepted icon shape source for horizontal arrows and hall directory",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/side_wall_top_sign_03.png",
+      "size_px": [
+        58,
+        20
+      ],
+      "sha256": "bf356a217cd4b8a795d2e07206ff7cea001c34dd81588cf97581613e607c52e5",
+      "use": "Accepted door/sign plate styling; use unchanged",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/floor_arrow_icon_04.png",
+      "size_px": [
+        40,
+        28
+      ],
+      "sha256": "d8ead1f5879e3144ea889075b3a6f3280bd36e3114a6ca533587fe6de284eb1b",
+      "use": "Accepted icon shape source for horizontal arrows and hall directory",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/side_wall_top_sign_04.png",
+      "size_px": [
+        58,
+        20
+      ],
+      "sha256": "2b75e3301ec4d58a530d46c0c8fbe9279d2e07c83f6d135e1d1096e3e84e5a53",
+      "use": "Accepted door/sign plate styling; use unchanged",
+      "locked": true
+    }
+  ],
+  "preview": {
+    "file": "H1b_wayfinding_lappland_1x.png",
+    "size_px": [
+      760,
+      300
+    ],
+    "character": "Lappland frame 0, unscaled 64x64 source",
+    "character_origin_px": [
+      680,
+      215
+    ],
+    "purpose": "Native-scale parts sheet"
+  },
+  "assembly": {
+    "directory": "Wall-mount as one 192x50 board; STORE and WAREHOUSE point left, ARMORY and MEDICAL point right.",
+    "arrows": "Use the accepted upward arrows from H1 v2 and these eight new left/right arrows; icons stay upright.",
+    "font": "Glyphs are hand-drawn. Use glyph_lookup.json rect_px and 1px tracking; no engine text rendering required."
+  }
+}

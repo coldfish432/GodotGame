@@ -1,0 +1,626 @@
+{
+  "batch": "H3 STORE v1",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.3, 3.1.1, 3.5, 3.7, 4.4",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "store_department_sign_120x46",
+      "file": "store_department_sign_120x46.png",
+      "emit": "store_department_sign_120x46_emit.png",
+      "kind": "wall",
+      "size_px": [
+        120,
+        46
+      ],
+      "anchor_px": [
+        60,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Warm B1-01 wall supergraphic with accepted M mark; pair with accepted door plate.",
+      "coverage_35": [
+        "B: STORE supergraphic and B1-01",
+        "C: warm department identity"
+      ]
+    },
+    {
+      "id": "store_front_counter_self_service_84x48",
+      "file": "store_front_counter_self_service_84x48.png",
+      "emit": "store_front_counter_self_service_84x48_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        84,
+        48
+      ],
+      "anchor_px": [
+        42,
+        47
+      ],
+      "footprint_units": [
+        5.6,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Primary sales counter; screen is self-service until Closure is recruited. Leave the operator stand spot behind it.",
+      "coverage_35": [
+        "A: waist-high counter and built-in terminal",
+        "B: representative S mark",
+        "D: receipt and till"
+      ]
+    },
+    {
+      "id": "store_weapon_glass_case_58x42",
+      "file": "store_weapon_glass_case_58x42.png",
+      "emit": "store_weapon_glass_case_58x42_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        58,
+        42
+      ],
+      "anchor_px": [
+        29,
+        41
+      ],
+      "footprint_units": [
+        3.87,
+        0.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Glass case with one visible blade and two cold-light pins; attach price tag 01.",
+      "coverage_35": [
+        "A: glass product display",
+        "C: restrained cold case light"
+      ]
+    },
+    {
+      "id": "store_equipment_glass_case_58x42",
+      "file": "store_equipment_glass_case_58x42.png",
+      "emit": "store_equipment_glass_case_58x42_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        58,
+        42
+      ],
+      "anchor_px": [
+        29,
+        41
+      ],
+      "footprint_units": [
+        3.87,
+        0.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Second glass case with a visible chest piece; attach price tag 02.",
+      "coverage_35": [
+        "A: paired product display",
+        "C: restrained cold case light"
+      ]
+    },
+    {
+      "id": "store_back_product_shelf_92x56",
+      "file": "store_back_product_shelf_92x56.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        92,
+        56
+      ],
+      "anchor_px": [
+        46,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Back-wall stocked shelf. RI-01 inventory code replaces any S stamp.",
+      "coverage_35": [
+        "A: wall-backed product display",
+        "B: inventory code",
+        "D: bottles and packs"
+      ]
+    },
+    {
+      "id": "store_warm_pendant_34x18",
+      "file": "store_warm_pendant_34x18.png",
+      "emit": "store_warm_pendant_34x18_emit.png",
+      "kind": "wall",
+      "size_px": [
+        34,
+        18
+      ],
+      "anchor_px": [
+        17,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Warm pendant above front counter.",
+      "coverage_35": [
+        "A: suspended shop luminaire",
+        "C: warm source"
+      ]
+    },
+    {
+      "id": "store_counter_zone_80x36",
+      "file": "store_counter_zone_80x36.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        80,
+        36
+      ],
+      "anchor_px": [
+        40,
+        18
+      ],
+      "footprint_units": [
+        5.33,
+        2.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Warm dashed counter work-zone outline, native top-down decal.",
+      "coverage_35": [
+        "B: floor work-zone line",
+        "C: warm identity"
+      ]
+    },
+    {
+      "id": "store_safety_strip_30x10",
+      "file": "store_safety_strip_30x10.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        30,
+        10
+      ],
+      "anchor_px": [
+        15,
+        5
+      ],
+      "footprint_units": [
+        2.0,
+        0.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Yellow-black counter-side safety strip.",
+      "coverage_35": [
+        "D: industrial hazard marking"
+      ]
+    },
+    {
+      "id": "store_price_tag_weapon_24x14",
+      "file": "store_price_tag_weapon_24x14.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        24,
+        14
+      ],
+      "anchor_px": [
+        12,
+        13
+      ],
+      "footprint_units": [
+        1.6,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach to weapon case edge.",
+      "coverage_35": [
+        "B: product price/category tag",
+        "D: retail detail"
+      ]
+    },
+    {
+      "id": "store_price_tag_equipment_24x14",
+      "file": "store_price_tag_equipment_24x14.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        24,
+        14
+      ],
+      "anchor_px": [
+        12,
+        13
+      ],
+      "footprint_units": [
+        1.6,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach to equipment case edge.",
+      "coverage_35": [
+        "B: product price/category tag",
+        "D: retail detail"
+      ]
+    },
+    {
+      "id": "store_sale_poster_30x38",
+      "file": "store_sale_poster_30x38.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        30,
+        38
+      ],
+      "anchor_px": [
+        15,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Warm illustrated product poster attached to wall; no non-spec text.",
+      "coverage_35": [
+        "B: shop promotion",
+        "D: lived-in wall poster"
+      ]
+    },
+    {
+      "id": "store_mug_13x14",
+      "file": "store_mug_13x14.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        13,
+        14
+      ],
+      "anchor_px": [
+        6,
+        13
+      ],
+      "footprint_units": [
+        0.87,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach mug to counter, shelf or wall; never scatter on floor.",
+      "coverage_35": [
+        "D: attached shop life detail"
+      ]
+    },
+    {
+      "id": "store_memo_20x22",
+      "file": "store_memo_20x22.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        20,
+        22
+      ],
+      "anchor_px": [
+        10,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach memo to counter, shelf or wall; never scatter on floor.",
+      "coverage_35": [
+        "D: attached shop life detail"
+      ]
+    },
+    {
+      "id": "store_plant_22x27",
+      "file": "store_plant_22x27.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        22,
+        27
+      ],
+      "anchor_px": [
+        11,
+        26
+      ],
+      "footprint_units": [
+        1.47,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach plant to counter, shelf or wall; never scatter on floor.",
+      "coverage_35": [
+        "D: attached shop life detail"
+      ]
+    },
+    {
+      "id": "store_cable_36x31",
+      "file": "store_cable_36x31.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        36,
+        31
+      ],
+      "anchor_px": [
+        18,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Attach cable to counter, shelf or wall; never scatter on floor.",
+      "coverage_35": [
+        "D: attached shop life detail"
+      ]
+    },
+    {
+      "id": "store_stand_spot_closure_behind_counter_12x6",
+      "file": "store_stand_spot_closure_behind_counter_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Reserved closure behind counter position; keep 30px body clearance.",
+      "coverage_35": [
+        "A: future character position"
+      ]
+    },
+    {
+      "id": "store_stand_spot_customer_at_terminal_12x6",
+      "file": "store_stand_spot_customer_at_terminal_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Reserved customer at terminal position; keep 30px body clearance.",
+      "coverage_35": [
+        "A: future character position"
+      ]
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch3_equipment_v3/wall_straight_60x46_light_v2.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "0c9fe477f3c4374add8821b3a3fe6bf7f8ce484621039f6206d867f30276dd2f",
+      "use": "Accepted light wall alpha/geometry source for warm recolor",
+      "locked": true
+    },
+    {
+      "file": "../batch_H3_store_v1/store_wall_warm_60x46.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "16d395c2520b9368ca610e46eaa3be47e717e1333beddde3eb63359217ececdc",
+      "use": "STORE wall shell; locked 46px geometry",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/rhodes_floor_equipment_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "81cd2ad0c3fb1401f0745a2b672e49bf191eb4ae9b1970f7f6c04c405d741dc8",
+      "use": "STORE floor tile; 30px plate pattern",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Native 1:1 character scale proof",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_M_gray_v1.png",
+      "size_px": [
+        24,
+        24
+      ],
+      "sha256": "6b4a4e6cd699333a5e8da4d2989ff19a625a8d59dc9e3ca581b71b43f29888f2",
+      "use": "Accepted M mark for department sign",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S mark for principal interactive prop",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_01.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "8b6bbdf3ce7591b3968ea8dfe693a1252c72684e15ee9f8fe8e7daa32e11e96e",
+      "use": "Accepted doorway number plate",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_circle_warm_60x40.png",
+      "size_px": [
+        60,
+        40
+      ],
+      "sha256": "cabed82ad046fae2f1eeea8d51af64f24a6639d2a007fe6c0cc43710fe501897",
+      "use": "Accepted opaque-black additive light pool; layer with additive blend",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_rectangle_cool_90x60.png",
+      "size_px": [
+        90,
+        60
+      ],
+      "sha256": "86d93f4f08e6e8cf8567785fbeead86bfa3fc8f198d534169894b782df787a65",
+      "use": "Accepted opaque-black additive light pool; layer with additive blend",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/door_open_45x46_light_v2.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "2cfbb63c9cc131def423608e3d8eb92ded8fe058adc0caf5907d6db3ea3d567b",
+      "use": "Accepted 45x46 light door with 32x36 clearance",
+      "locked": true
+    },
+    {
+      "file": "../batch3_equipment_v3/door_closed_45x46_light_v2.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "0155e130e4ea6190a082f3d67f4943a9e7fffd3a2c2f8a5d6a7a3ce2bd637d92",
+      "use": "Accepted light door closed state",
+      "locked": true
+    }
+  ],
+  "shell": {
+    "size_units": [
+      12,
+      9
+    ],
+    "floor_size_px": [
+      180,
+      115
+    ],
+    "wall_height_px": 46,
+    "wall_tile": "../batch_H3_store_v1/store_wall_warm_60x46.png",
+    "floor_tile": "../batch3_equipment_v3/rhodes_floor_equipment_v1.png",
+    "door_plate": "../batch_H1b_wayfinding_v1/small_number_plate_B1_01.png",
+    "assembly": "Parts only; use accepted light door, side strip and corner geometry; keep a >=45px central route."
+  },
+  "preview": {
+    "file": "H3_store_lappland_1x.png",
+    "size_px": [
+      540,
+      270
+    ],
+    "character": "Lappland frame 0; 64x64 canvas, 30px visible character, no scaling",
+    "character_origin_px": [
+      464,
+      195
+    ],
+    "purpose": "1:1 native-scale asset review sheet, not an assembled room"
+  },
+  "logo_policy": "Exactly two representative marks in the preview: M on department sign and S on main interactive prop; <=6 per assembled screen.",
+  "stand_spots": [
+    "store_stand_spot_closure_behind_counter_12x6",
+    "store_stand_spot_customer_at_terminal_12x6"
+  ],
+  "life_details": [
+    "store_price_tag_weapon_24x14",
+    "store_price_tag_equipment_24x14",
+    "store_sale_poster_30x38",
+    "store_mug_13x14",
+    "store_memo_20x22",
+    "store_plant_22x27",
+    "store_cable_36x31"
+  ],
+  "assembly": {
+    "counter": "Self-service until Closure is recruited; operator spot behind, customer spot in front.",
+    "displays": "Two cases and price tags flank the >=45px central approach; back shelf mounts on north wall.",
+    "lighting": "Warm pendant emit with accepted additive warm pool; display pins stay cool."
+  },
+  "checklist_35": {
+    "A": "Warm light wall shell, counter, suspended lamp and paired glass cases.",
+    "B": "B1-01 plate and STORE supergraphic.",
+    "C": "Warm L1/L2 sign and lamp, restrained cool case lights.",
+    "D": "Two tags, poster, mug, memo, plant, cable and yellow-black safety strip, attached to fixtures."
+  }
+}

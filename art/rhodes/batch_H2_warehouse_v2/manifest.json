@@ -1,0 +1,1012 @@
+{
+  "batch": "H2 warehouse v2",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.1, 2.3 warehouse, 2.4 expansion, 3.2, 3.5, 3.7 v2.0.2 cap, 4.2 H2, 4.4",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "warehouse_wall_bay_120x46",
+      "file": "warehouse_wall_bay_120x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        120,
+        46
+      ],
+      "anchor_px": [
+        60,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Two exact accepted 60x46 dark-wall modules with a shallow orange service conduit and B1-03/S stamps. Tile along the 360px north wall; keep accepted 46px wall height.",
+      "coverage_35": [
+        "A: dark-steel modular warehouse shell",
+        "B: B1-03 bay ID",
+        "C: restrained orange conduit",
+        "D: accepted S mark"
+      ]
+    },
+    {
+      "id": "warehouse_supergraphic_160x46",
+      "file": "warehouse_supergraphic_160x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        160,
+        46
+      ],
+      "anchor_px": [
+        80,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "B1-03 WAREHOUSE supergraphic for the primary wall. Accepted M tower at 24x24; native 5x7 glyphs integer-upscaled to 10x14; orange warehouse identity band.",
+      "coverage_35": [
+        "B: WAREHOUSE supergraphic",
+        "B: B1-03",
+        "C: orange department identity",
+        "D: accepted M logo"
+      ]
+    },
+    {
+      "id": "expansion_pending_zone_90x60",
+      "file": "expansion_pending_zone_90x60.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        90,
+        60
+      ],
+      "anchor_px": [
+        45,
+        30
+      ],
+      "footprint_units": [
+        6.0,
+        4.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Pending-build frame for the warehouse expansion area; dashed safety boundary and crossed construction tools, no lettering.",
+      "coverage_35": [
+        "A: reserved warehouse expansion",
+        "C: safety-yellow floor boundary"
+      ]
+    },
+    {
+      "id": "expansion_temporary_partition_90x46",
+      "file": "expansion_temporary_partition_90x46.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        90,
+        46
+      ],
+      "anchor_px": [
+        45,
+        45
+      ],
+      "footprint_units": [
+        6.0,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Removable striped divider for the pending construction zone; 90px wide and 46px high with free-standing feet.",
+      "coverage_35": [
+        "A: temporary partition",
+        "C: safety-yellow fencing",
+        "D: B1-03 number plate"
+      ]
+    },
+    {
+      "id": "warehouse_storage_terminal_off_64x52",
+      "file": "warehouse_storage_terminal_off_64x52.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        64,
+        52
+      ],
+      "anchor_px": [
+        32,
+        51
+      ],
+      "footprint_units": [
+        4.27,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "off"
+      ],
+      "notes": "Warehouse inventory terminal OFF state; S plaque, native 64x52 and a standing space in front. ON screen shows an inventory slot grid, with screen and indicator emit.",
+      "coverage_35": [
+        "A: storage interaction terminal",
+        "B: S/PRTS identity",
+        "C: cold cyan screen signal"
+      ]
+    },
+    {
+      "id": "warehouse_storage_terminal_on_64x52",
+      "file": "warehouse_storage_terminal_on_64x52.png",
+      "emit": "warehouse_storage_terminal_on_64x52_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        64,
+        52
+      ],
+      "anchor_px": [
+        32,
+        51
+      ],
+      "footprint_units": [
+        4.27,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "on"
+      ],
+      "notes": "Warehouse inventory terminal ON state; S plaque, native 64x52 and a standing space in front. ON screen shows an inventory slot grid, with screen and indicator emit.",
+      "coverage_35": [
+        "A: storage interaction terminal",
+        "B: S/PRTS identity",
+        "C: cold cyan screen signal"
+      ]
+    },
+    {
+      "id": "warehouse_freight_lift_idle_96x56",
+      "file": "warehouse_freight_lift_idle_96x56.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        96,
+        56
+      ],
+      "anchor_px": [
+        48,
+        55
+      ],
+      "footprint_units": [
+        6.4,
+        2.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "idle"
+      ],
+      "notes": "Cargo delivery/recovery lift deck IDLE state; 96x56, raised front riser, paired control posts and clear pallet landing surface.",
+      "coverage_35": [
+        "A: freight lift/recovery point",
+        "B: S-marked cargo deck",
+        "C: safety-yellow loading edge"
+      ]
+    },
+    {
+      "id": "warehouse_freight_lift_ready_96x56",
+      "file": "warehouse_freight_lift_ready_96x56.png",
+      "emit": "warehouse_freight_lift_ready_96x56_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        96,
+        56
+      ],
+      "anchor_px": [
+        48,
+        55
+      ],
+      "footprint_units": [
+        6.4,
+        2.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "ready"
+      ],
+      "notes": "Cargo delivery/recovery lift deck READY state; 96x56, raised front riser, paired control posts and clear pallet landing surface.",
+      "coverage_35": [
+        "A: freight lift/recovery point",
+        "B: S-marked cargo deck",
+        "C: safety-yellow loading edge"
+      ]
+    },
+    {
+      "id": "warehouse_rack_weapons_80x64",
+      "file": "warehouse_rack_weapons_80x64.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        80,
+        64
+      ],
+      "anchor_px": [
+        40,
+        0
+      ],
+      "footprint_units": [
+        5.33,
+        1.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Wall-backed weapons shelving/display group; 80x64 with unique 5x7 rack code B1-03-A. Keep shelf face against north wall.",
+      "coverage_35": [
+        "A: high wall-backed category rack",
+        "B: WEAPONS category and unique 5x7 rack code",
+        "C: dark-steel warehouse palette",
+        "D: numbered shelf identity"
+      ]
+    },
+    {
+      "id": "warehouse_rack_armor_80x64",
+      "file": "warehouse_rack_armor_80x64.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        80,
+        64
+      ],
+      "anchor_px": [
+        40,
+        0
+      ],
+      "footprint_units": [
+        5.33,
+        1.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Wall-backed armor shelving/display group; 80x64 with unique 5x7 rack code B1-03-B. Keep shelf face against north wall.",
+      "coverage_35": [
+        "A: high wall-backed category rack",
+        "B: ARMOR category and unique 5x7 rack code",
+        "C: dark-steel warehouse palette",
+        "D: numbered shelf identity"
+      ]
+    },
+    {
+      "id": "warehouse_rack_consumables_80x64",
+      "file": "warehouse_rack_consumables_80x64.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        80,
+        64
+      ],
+      "anchor_px": [
+        40,
+        0
+      ],
+      "footprint_units": [
+        5.33,
+        1.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Wall-backed consumables shelving/display group; 80x64 with unique 5x7 rack code B1-03-C. Keep shelf face against north wall.",
+      "coverage_35": [
+        "A: high wall-backed category rack",
+        "B: CONSUMABLES category and unique 5x7 rack code",
+        "C: dark-steel warehouse palette",
+        "D: numbered shelf identity"
+      ]
+    },
+    {
+      "id": "warehouse_rack_materials_80x64",
+      "file": "warehouse_rack_materials_80x64.png",
+      "emit": "warehouse_rack_materials_80x64_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        80,
+        64
+      ],
+      "anchor_px": [
+        40,
+        0
+      ],
+      "footprint_units": [
+        5.33,
+        1.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Wall-backed materials shelving/display group; 80x64 with unique 5x7 rack code B1-03-D. Keep shelf face against north wall.",
+      "coverage_35": [
+        "A: high wall-backed category rack",
+        "B: MATERIALS category and unique 5x7 rack code",
+        "C: dark-steel warehouse palette",
+        "D: numbered shelf identity"
+      ]
+    },
+    {
+      "id": "warehouse_zone_weapons_90x44",
+      "file": "warehouse_zone_weapons_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        22
+      ],
+      "footprint_units": [
+        6.0,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Top-down category floor frame and icon for WEAPONS; place at the corresponding rack group. Orange identifies MATERIALS; all zones keep the 45px center aisle clear.",
+      "coverage_35": [
+        "B: WEAPONS floor icon",
+        "C: category-colored boundary"
+      ]
+    },
+    {
+      "id": "warehouse_zone_armor_90x44",
+      "file": "warehouse_zone_armor_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        22
+      ],
+      "footprint_units": [
+        6.0,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Top-down category floor frame and icon for ARMOR; place at the corresponding rack group. Orange identifies MATERIALS; all zones keep the 45px center aisle clear.",
+      "coverage_35": [
+        "B: ARMOR floor icon",
+        "C: category-colored boundary"
+      ]
+    },
+    {
+      "id": "warehouse_zone_consumables_90x44",
+      "file": "warehouse_zone_consumables_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        22
+      ],
+      "footprint_units": [
+        6.0,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Top-down category floor frame and icon for CONSUMABLES; place at the corresponding rack group. Orange identifies MATERIALS; all zones keep the 45px center aisle clear.",
+      "coverage_35": [
+        "B: CONSUMABLES floor icon",
+        "C: category-colored boundary"
+      ]
+    },
+    {
+      "id": "warehouse_zone_materials_90x44",
+      "file": "warehouse_zone_materials_90x44.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        90,
+        44
+      ],
+      "anchor_px": [
+        45,
+        22
+      ],
+      "footprint_units": [
+        6.0,
+        2.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Top-down category floor frame and icon for MATERIALS; place at the corresponding rack group. Orange identifies MATERIALS; all zones keep the 45px center aisle clear.",
+      "coverage_35": [
+        "B: MATERIALS floor icon",
+        "C: category-colored boundary"
+      ]
+    },
+    {
+      "id": "warehouse_over_shelf_lamp_48x12",
+      "file": "warehouse_over_shelf_lamp_48x12.png",
+      "emit": "warehouse_over_shelf_lamp_48x12_emit.png",
+      "kind": "wall",
+      "size_px": [
+        48,
+        12
+      ],
+      "anchor_px": [
+        24,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Ceiling-mounted strip above a category rack; pair with accepted H1 v2 additive cool pool using additive blend.",
+      "coverage_35": [
+        "A: overhead rack light",
+        "C: cool-white work light"
+      ]
+    },
+    {
+      "id": "warehouse_trolley_42x34",
+      "file": "warehouse_trolley_42x34.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        42,
+        34
+      ],
+      "anchor_px": [
+        21,
+        33
+      ],
+      "footprint_units": [
+        2.8,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Unoccupied handling trolley with a gray crate, two wheels and a handle; leave a 30px character standing space beside it.",
+      "coverage_35": [
+        "A: warehouse handling cart",
+        "C: gray body with a narrow orange seal",
+        "D: RI-07 equipment number"
+      ]
+    },
+    {
+      "id": "warehouse_forklift_70x48",
+      "file": "warehouse_forklift_70x48.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        70,
+        48
+      ],
+      "anchor_px": [
+        35,
+        47
+      ],
+      "footprint_units": [
+        4.67,
+        1.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Parked unmanned gray forklift with roll cage, wheels and two forward forks; orange/yellow is confined to small safety parts.",
+      "coverage_35": [
+        "A: warehouse forklift",
+        "C: dark steel with small safety accents",
+        "D: B1-03 chassis number"
+      ]
+    },
+    {
+      "id": "warehouse_pallet_48x24",
+      "file": "warehouse_pallet_48x24.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        48,
+        24
+      ],
+      "anchor_px": [
+        24,
+        23
+      ],
+      "footprint_units": [
+        3.2,
+        0.6
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Empty low pallet for modular cargo placement; gray deck over warm-dark supports.",
+      "coverage_35": [
+        "A: pallet logistics prop",
+        "C: cool-gray steel and warm-dark supports"
+      ]
+    },
+    {
+      "id": "warehouse_supply_crate_42x32",
+      "file": "warehouse_supply_crate_42x32.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        42,
+        32
+      ],
+      "anchor_px": [
+        21,
+        31
+      ],
+      "footprint_units": [
+        2.8,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Cold-gray supply crate with a single orange lid band and RI-07 number; may stack on pallet.",
+      "coverage_35": [
+        "A: modular supply crate",
+        "C: narrow orange lid accent",
+        "D: RI-07 cargo number"
+      ]
+    },
+    {
+      "id": "warehouse_originium_sealed_crate_44x36",
+      "file": "warehouse_originium_sealed_crate_44x36.png",
+      "emit": "warehouse_originium_sealed_crate_44x36_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        44,
+        36
+      ],
+      "anchor_px": [
+        22,
+        35
+      ],
+      "footprint_units": [
+        2.93,
+        0.9
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Sealed material crate with black faceted originium and orange cores visible behind a locked port; tiny status lamp and narrow lid band.",
+      "coverage_35": [
+        "A: sealed materials cargo",
+        "C: orange-core originium and warm emit",
+        "D: originium warning sign"
+      ]
+    },
+    {
+      "id": "warehouse_originium_containment_56x48",
+      "file": "warehouse_originium_containment_56x48.png",
+      "emit": "warehouse_originium_containment_56x48_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        56,
+        48
+      ],
+      "anchor_px": [
+        28,
+        47
+      ],
+      "footprint_units": [
+        3.73,
+        1.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Sealed clear-front material vessel with multiple black faceted originium crystals, orange cores and a warm emit mask. Place inside the MATERIALS floor frame.",
+      "coverage_35": [
+        "A: sealed materials containment",
+        "C: visible black/orange originium",
+        "D: controlled hazard handling"
+      ]
+    },
+    {
+      "id": "warehouse_wall_clipboard_22x28",
+      "file": "warehouse_wall_clipboard_22x28.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        22,
+        28
+      ],
+      "anchor_px": [
+        11,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Wall-attached cargo tally clipboard, one of the warehouse's small work-life details.",
+      "coverage_35": [
+        "D: wall-attached cargo tally clipboard"
+      ]
+    },
+    {
+      "id": "warehouse_notice_board_76x38",
+      "file": "warehouse_notice_board_76x38.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        76,
+        38
+      ],
+      "anchor_px": [
+        38,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Wall-mounted warehouse notice and shelf number board; approved labels WAREHOUSE, B1-03 and RI-07.",
+      "coverage_35": [
+        "B: warehouse section and equipment IDs",
+        "D: wall-attached notice board"
+      ]
+    },
+    {
+      "id": "warehouse_operator_spot_12x6",
+      "file": "warehouse_operator_spot_12x6.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        12,
+        6
+      ],
+      "anchor_px": [
+        6,
+        3
+      ],
+      "footprint_units": [
+        0.8,
+        0.4
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Subtle 12x6 standing mark; use one in front of inventory terminal and one beside trolley/forklift with a 30px-tall character clearance.",
+      "coverage_35": [
+        "D: reserved future operator station"
+      ]
+    },
+    {
+      "id": "warehouse_wall_contact_shadow_60x8",
+      "file": "warehouse_wall_contact_shadow_60x8.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        60,
+        8
+      ],
+      "anchor_px": [
+        30,
+        4
+      ],
+      "footprint_units": [
+        4.0,
+        0.53
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Dark 8px shadow strip at the north wall/floor contact; tile horizontally. Uses the accepted dark-steel material steps.",
+      "coverage_35": [
+        "C: darker wall-root value framing"
+      ]
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch2_v2/rhodes_floor_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "433dded8f5a617327257266ccc33a5f01ced342413079bf54e84d41810798130",
+      "use": "Locked dark-steel seamless floor tile for 360x229 shell and composite",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_straight_60x46_v5.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "e6f67d8cd77fa8d3407d03f5700a7ba1307254d53e2dce65cbd1dc480e0a4ff8",
+      "use": "Locked 46px dark-steel wall module",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/corner_left_L_v5.png",
+      "size_px": [
+        32,
+        60
+      ],
+      "sha256": "478a406e9054bf78d1dbe10c9da19316c7e13782fd4ba23126343a82c3e717fe",
+      "use": "Locked left wall-cap corner",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/corner_right_L_v5.png",
+      "size_px": [
+        32,
+        60
+      ],
+      "sha256": "386156fcec2e1eada0a1db11e02a9e15ce2f821991d581102a3e460f7b53eb74",
+      "use": "Locked right wall-cap corner",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_rib_6x46_v5.png",
+      "size_px": [
+        6,
+        46
+      ],
+      "sha256": "b581ae70fab7a131ea749fd96748b709898af339d870f272bb7847d533e9dd89",
+      "use": "Locked separate structural rib; keep away from door frames",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_top_6_plus2_v5.png",
+      "size_px": [
+        8,
+        60
+      ],
+      "sha256": "87fffb421a55f44fe0e60e8c0e65e1126ea0b32e0ab0504eee05dd071c6fab95",
+      "use": "Locked 6px side-wall top strip and 2px contact shadow",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_side_gap38_v5.png",
+      "size_px": [
+        8,
+        60
+      ],
+      "sha256": "3536ba48b53a26749a4cce6535b9b7dd37d786c79f7238c111df2b3bc6d2fb55",
+      "use": "Locked top-down side-wall doorway",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/wall_floor_contact_shadow_60x2_v5.png",
+      "size_px": [
+        60,
+        2
+      ],
+      "sha256": "0c4a9be8bc8f712e9edb387097d3b37da09f71d08f13cde60cf955f2d6452e12",
+      "use": "Locked wall-root shadow strip",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_open_45x46_v5.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "549d0457b09634c025936a60827ee23e6eebfbdcb6bd36389943bc28a75bb4c7",
+      "use": "Locked 45px open warehouse doorway",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_closed_45x46_v5.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "07b7504b095bea4c474fd29b1334b39b60a825d39bb83dbe4825923ae7617976",
+      "use": "Locked 45px closed warehouse doorway",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_sealed_45x46_v5.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "7fb7e62718da1a444e307d3d3ada87871fbfa19cf5d9f0854756f2137044de53",
+      "use": "Locked 45px sealed warehouse doorway",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Lappland frame 0 at native 1:1 scale",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted S identity stamps on props",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_M_gray_v1.png",
+      "size_px": [
+        24,
+        24
+      ],
+      "sha256": "6b4a4e6cd699333a5e8da4d2989ff19a625a8d59dc9e3ca581b71b43f29888f2",
+      "use": "Accepted M tower in warehouse supergraphic",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1b_wayfinding_v1/small_number_plate_B1_03.png",
+      "size_px": [
+        32,
+        12
+      ],
+      "sha256": "2348d38db2a63d2744c9a68f0580f0117453dd1c8f49c598387544e0facb7e35",
+      "use": "Accepted H1b B1-03 plate to pair with warehouse door",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_rectangle_cool_90x60.png",
+      "size_px": [
+        90,
+        60
+      ],
+      "sha256": "86d93f4f08e6e8cf8567785fbeead86bfa3fc8f198d534169894b782df787a65",
+      "use": "Additive rack light pool; apply opaque-black additive blend",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_rectangle_cool_90x60_emit.png",
+      "size_px": [
+        90,
+        60
+      ],
+      "sha256": "ec90fbfb7e98d02e8d431b152bd30fa204e67a20b8196c3a3a011bee8dca6185",
+      "use": "Accepted cool pool emit mask",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_circle_warm_60x40.png",
+      "size_px": [
+        60,
+        40
+      ],
+      "sha256": "cabed82ad046fae2f1eeea8d51af64f24a6639d2a007fe6c0cc43710fe501897",
+      "use": "Additive small warm pool near sealed materials crate",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/light_pool_circle_warm_60x40_emit.png",
+      "size_px": [
+        60,
+        40
+      ],
+      "sha256": "d5032acb324479cadb3068dbf0dc20adefaa110d4997422ee80f24c8f69646b0",
+      "use": "Accepted warm pool emit mask",
+      "locked": true
+    },
+    {
+      "file": "../batch_H1_bridge_hall_v2/wall_mounted_extinguisher_14x28.png",
+      "size_px": [
+        14,
+        28
+      ],
+      "sha256": "a2d5d38a433a83fb5c7ca4ab2b79a91d1cce86f94f5cd834b722a60789eaeb18",
+      "use": "Accepted fire extinguisher for warehouse safety wall",
+      "locked": true
+    }
+  ],
+  "style_reference": {
+    "file": "../../field/props_v1.png",
+    "use": "Field originium black angular facets and orange cores; H2 crystals are redrawn on the native grid."
+  },
+  "logo_policy": "At most six marks per displayed screen. Use only the M supergraphic and S marks on wall bay, storage terminal and freight lift; small props and shelves use numbers or category icons.",
+  "shell": {
+    "type": "large",
+    "size_units": [
+      24,
+      18
+    ],
+    "floor_size_px": [
+      360,
+      229
+    ],
+    "wall_height_px": 46,
+    "floor_tile": "../batch2_v2/rhodes_floor_v1.png",
+    "north_wall_modules": [
+      "warehouse_wall_bay_120x46.png",
+      "../batch1_v5/wall_straight_60x46_v5.png"
+    ],
+    "corners_and_doors": "Use locked batch1_v5 corners and 45x46 door states; no wall geometry changed.",
+    "side_walls": [
+      "../batch1_v5/wall_top_6_plus2_v5.png",
+      "../batch1_v5/door_side_gap38_v5.png"
+    ],
+    "assembly": "Asset kit only; position shelves against walls and reserve a central aisle at least 45px wide."
+  },
+  "preview": {
+    "file": "H2_warehouse_lappland_1x.png",
+    "size_px": [
+      700,
+      420
+    ],
+    "character": "Lappland frame 0, original 64x64 source unscaled",
+    "character_origin_px": [
+      565,
+      305
+    ],
+    "purpose": "Native-scale asset sheet; no room blockout"
+  },
+  "assembly": {
+    "categories": "Pair each rack's unique B1-03-A through B1-03-D 5x7 code with its same-named floor zone. Place the sealed originium containment inside MATERIALS; preserve a >=45px central aisle.",
+    "delivery": "Inventory terminal opens warehouse UI; freight lift is the delivery/recovery point. Leave a 30px character position at both.",
+    "expansion": "Pair the 90x60 pending frame with the removable 90x46 partition at the reserved expansion area.",
+    "lighting": "Place the 48x12 lamp over each rack, with the locked H1 v2 additive cool pool on the floor; use a small warm pool for the sealed originium containment and its warm emit mask.",
+    "identity": "Use accepted B1-03 plate at the door and M supergraphic on the primary wall. S marks appear only on wall bay, storage terminal and freight lift; smaller items use codes/icons."
+  },
+  "checklist_35": {
+    "A": "Dark-steel 46px modular shell, four high wall-backed rack groups, freight lift, trolley/forklift and expansion partition.",
+    "B": "B1-03 door plate dependency, WAREHOUSE supergraphic, shelf IDs and four category icons/zone frames.",
+    "C": "Dark-steel body with restrained orange warehouse identity, safety yellow loading edges, cold screens and warm emit from black/orange originium under seal.",
+    "D": "Representative S marks only; four unique 5x7 rack IDs, equipment codes, sealed-material warning, wall clipboard, notice board, extinguisher dependency and operator positions.",
+    "one_screen_readability": "Parts carry warehouse and Rhodes identity; final assembled-room recognition is for scene assembly."
+  }
+}

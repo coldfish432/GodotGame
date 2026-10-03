@@ -1,0 +1,8 @@
+H3b expansion v1 independent validation
+Assets: 28; emit masks: 6; generated originals: 3.
+PASS checks cover palette, binary alpha, source/dependency hashes, uniform integer factors, exact 8x exports, locked frames and corners, 32x36 clearance, 4-unit corridor width, repeat seams, tarp pixels, native glyphs, 1x Lappland and exact 4x gallery.
+engineering_drone: 30x13, factor 48, mean luminance 0.429, near-black 0.0%, grey steps 10; orange 0.0%, yellow 0.7%, cyan 5.4%, blue 0.0%, red 0.0%
+construction_work_lamp: 26x28, factor 40, mean luminance 0.521, near-black 0.0%, grey steps 10; orange 4.8%, yellow 1.2%, cyan 0.0%, blue 0.0%, red 0.4%
+corridor_debris: 53x16, factor 34, mean luminance 0.279, near-black 0.0%, grey steps 9; orange 3.8%, yellow 0.0%, cyan 0.0%, blue 0.0%, red 0.0%
+Result: PASS (0 errors).
+Visual review: front-facing generated hardware, level lamp head, native fence and orthogonal modules. Asset kit only; no gameplay scene assembled.

@@ -1,0 +1,7 @@
+Set-piece A: Repair Station; spec v1.0.7 搂搂2.4, 3.1, 3.5. Mean Y' is display luma (.2126R+.7152G+.0722B)/255 over opaque pixels only. Accent ramps orange15-17, yellow12-14, cyan18-21, red25, Rhodes blue26-28. Screen, functional hazard pedestal, graphic signage band and floor frame are recorded in total, even where signage may be exempt. Near-black is palette index0 / #0b0c0d.
+REPAIR STATION GROUP (signage and hazard included): opaque=4170; mean Y'=0.5098; near-black=0.887%; orange=0.120%; yellow=8.153%; cyan=2.350%; red=0.000%; Rhodes-blue=11.799%; total accents=22.422%
+Source=1774x887; alpha>=128 bbox={X=144,Y=125,Width=1486,Height=683}; uniform integer nearest reduction /12; sampled artwork=124x57; centered sprite canvas128x80; feet baseline70; placed at 2,13. Semi-transparent pixels thresholded at50%; no sections scaled separately.
+Composite=196x169; repair sprite origin=(34,0), atlas cell128x80, group baseline70 and group width=124. Wall shell is exact accepted v3 light module sizes. Lappland frame0 64x64 sampled from source at native scale; visible source bounds={X=13,Y=17,Width=38,Height=29}; feet baseline145. Floor path clear apart from access-zone edge. Static art composite; not an engine screenshot.
+
+PASS verified integer replicas: native set-piece is pixel-exact8x; native room composite is pixel-exact4x. Lappland frame0 copied at native scale.
+

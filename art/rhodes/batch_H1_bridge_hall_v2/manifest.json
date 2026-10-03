@@ -1,0 +1,1510 @@
+{
+  "batch": "H1 v2",
+  "spec": "罗德岛基地美术策划案_v2_0.md §§2.2, 2.4(5), 3.2(2) v2.0.1, 3.5, 3.7, 4.2, 4.4",
+  "pixel_scale": 1,
+  "assets": [
+    {
+      "id": "accepted_dispatch_console_off_95x43",
+      "file": "accepted_dispatch_console_off_95x43.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        95,
+        43
+      ],
+      "anchor_px": [
+        47,
+        42
+      ],
+      "footprint_units": [
+        6.33,
+        0.96
+      ],
+      "wall_mounted": false,
+      "states": [
+        "off"
+      ],
+      "notes": "Pixel-identical accepted main dispatch console; distinct from the 48px duty stations.",
+      "coverage_35": [
+        "A: locked main dispatch console, separate from duty desks",
+        "C: active screen palette"
+      ]
+    },
+    {
+      "id": "accepted_dispatch_console_on_95x43",
+      "file": "accepted_dispatch_console_on_95x43.png",
+      "emit": "accepted_dispatch_console_on_95x43_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        95,
+        43
+      ],
+      "anchor_px": [
+        47,
+        42
+      ],
+      "footprint_units": [
+        6.33,
+        0.96
+      ],
+      "wall_mounted": false,
+      "states": [
+        "on"
+      ],
+      "notes": "Pixel-identical accepted main dispatch console; distinct from the 48px duty stations.",
+      "coverage_35": [
+        "A: locked main dispatch console, separate from duty desks",
+        "C: active screen palette"
+      ]
+    },
+    {
+      "id": "accepted_generic_door_open_45x46",
+      "file": "accepted_generic_door_open_45x46.png",
+      "emit": "accepted_generic_door_open_45x46_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        45,
+        46
+      ],
+      "anchor_px": [
+        22,
+        45
+      ],
+      "footprint_units": [
+        3.0,
+        1.02
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 45 x 46; anchor 22,45; place at 1:1.",
+      "coverage_35": [
+        "A: accepted generic open doorway shown unchanged for assembly reuse"
+      ]
+    },
+    {
+      "id": "accepted_logistics_counter_off_71x40",
+      "file": "accepted_logistics_counter_off_71x40.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        71,
+        40
+      ],
+      "anchor_px": [
+        35,
+        39
+      ],
+      "footprint_units": [
+        4.73,
+        0.89
+      ],
+      "wall_mounted": false,
+      "states": [
+        "off"
+      ],
+      "notes": "Native pixel asset 71 x 40; anchor 35,39; place at 1:1.",
+      "coverage_35": [
+        "A: accepted logistics counter OFF state copied unchanged"
+      ]
+    },
+    {
+      "id": "accepted_logistics_counter_on_71x40",
+      "file": "accepted_logistics_counter_on_71x40.png",
+      "emit": "accepted_logistics_counter_on_71x40_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        71,
+        40
+      ],
+      "anchor_px": [
+        35,
+        39
+      ],
+      "footprint_units": [
+        4.73,
+        0.89
+      ],
+      "wall_mounted": false,
+      "states": [
+        "on"
+      ],
+      "notes": "Native pixel asset 71 x 40; anchor 35,39; place at 1:1.",
+      "coverage_35": [
+        "A: accepted logistics counter ON state copied unchanged"
+      ]
+    },
+    {
+      "id": "desk_memo_sticker_16x14",
+      "file": "desk_memo_sticker_16x14.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        16,
+        14
+      ],
+      "anchor_px": [
+        8,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 16 x 14; anchor 8,0; place at 1:1.",
+      "coverage_35": [
+        "D: memo attached beside duty monitor"
+      ]
+    },
+    {
+      "id": "dispatch_platform_corner_left_32x44",
+      "file": "dispatch_platform_corner_left_32x44.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        32,
+        44
+      ],
+      "anchor_px": [
+        16,
+        43
+      ],
+      "footprint_units": [
+        2.13,
+        0.98
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Use the 164x44 straight deck, 32x44 corners and 20x44 end caps at the same top y and edge-to-edge. The front riser is 6px high with a hazard edge; yellow handrail is on top.",
+      "coverage_35": [
+        "A: raised deck with 6px front riser, hazard edge and yellow top handrail",
+        "A: modular corner/end railing pieces",
+        "C: safety yellow"
+      ]
+    },
+    {
+      "id": "dispatch_platform_corner_right_32x44",
+      "file": "dispatch_platform_corner_right_32x44.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        32,
+        44
+      ],
+      "anchor_px": [
+        16,
+        43
+      ],
+      "footprint_units": [
+        2.13,
+        0.98
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Use the 164x44 straight deck, 32x44 corners and 20x44 end caps at the same top y and edge-to-edge. The front riser is 6px high with a hazard edge; yellow handrail is on top.",
+      "coverage_35": [
+        "A: raised deck with 6px front riser, hazard edge and yellow top handrail",
+        "A: modular corner/end railing pieces",
+        "C: safety yellow"
+      ]
+    },
+    {
+      "id": "dispatch_platform_end_left_20x44",
+      "file": "dispatch_platform_end_left_20x44.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        20,
+        44
+      ],
+      "anchor_px": [
+        10,
+        43
+      ],
+      "footprint_units": [
+        1.33,
+        0.98
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Use the 164x44 straight deck, 32x44 corners and 20x44 end caps at the same top y and edge-to-edge. The front riser is 6px high with a hazard edge; yellow handrail is on top.",
+      "coverage_35": [
+        "A: raised deck with 6px front riser, hazard edge and yellow top handrail",
+        "A: modular corner/end railing pieces",
+        "C: safety yellow"
+      ]
+    },
+    {
+      "id": "dispatch_platform_end_right_20x44",
+      "file": "dispatch_platform_end_right_20x44.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        20,
+        44
+      ],
+      "anchor_px": [
+        10,
+        43
+      ],
+      "footprint_units": [
+        1.33,
+        0.98
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Use the 164x44 straight deck, 32x44 corners and 20x44 end caps at the same top y and edge-to-edge. The front riser is 6px high with a hazard edge; yellow handrail is on top.",
+      "coverage_35": [
+        "A: raised deck with 6px front riser, hazard edge and yellow top handrail",
+        "A: modular corner/end railing pieces",
+        "C: safety yellow"
+      ]
+    },
+    {
+      "id": "dispatch_platform_railing_164x44",
+      "file": "dispatch_platform_railing_164x44.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        164,
+        44
+      ],
+      "anchor_px": [
+        82,
+        43
+      ],
+      "footprint_units": [
+        10.93,
+        0.98
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Use the 164x44 straight deck, 32x44 corners and 20x44 end caps at the same top y and edge-to-edge. The front riser is 6px high with a hazard edge; yellow handrail is on top.",
+      "coverage_35": [
+        "A: raised deck with 6px front riser, hazard edge and yellow top handrail",
+        "A: modular corner/end railing pieces",
+        "C: safety yellow"
+      ]
+    },
+    {
+      "id": "duty_mug_clip_12x10",
+      "file": "duty_mug_clip_12x10.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        12,
+        10
+      ],
+      "anchor_px": [
+        6,
+        9
+      ],
+      "footprint_units": [
+        0.8,
+        0.22
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 12 x 10; anchor 6,9; place at 1:1.",
+      "coverage_35": [
+        "D: mug attached to duty station shelf"
+      ]
+    },
+    {
+      "id": "duty_station_empty_off",
+      "file": "duty_station_empty_off.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        48,
+        50
+      ],
+      "anchor_px": [
+        24,
+        49
+      ],
+      "footprint_units": [
+        3.2,
+        1.11
+      ],
+      "wall_mounted": false,
+      "states": [
+        "off"
+      ],
+      "notes": "48x50 small duty desk, one monitor, empty chair and accepted S plaque. Place three instances. The accepted 95x43 main dispatch console is separate.",
+      "coverage_35": [
+        "A: small 48px duty desk with one screen and empty chair",
+        "C: dark steel and active screen palette",
+        "D: S-logo plaque"
+      ],
+      "instances": 3
+    },
+    {
+      "id": "duty_station_empty_on",
+      "file": "duty_station_empty_on.png",
+      "emit": "duty_station_empty_on_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        48,
+        50
+      ],
+      "anchor_px": [
+        24,
+        49
+      ],
+      "footprint_units": [
+        3.2,
+        1.11
+      ],
+      "wall_mounted": false,
+      "states": [
+        "on"
+      ],
+      "notes": "48x50 small duty desk, one monitor, empty chair and accepted S plaque. Place three instances. The accepted 95x43 main dispatch console is separate.",
+      "coverage_35": [
+        "A: small 48px duty desk with one screen and empty chair",
+        "C: dark steel and active screen palette",
+        "D: S-logo plaque"
+      ],
+      "instances": 3
+    },
+    {
+      "id": "emergency_stop_plate_16x20",
+      "file": "emergency_stop_plate_16x20.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        16,
+        20
+      ],
+      "anchor_px": [
+        8,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 16 x 20; anchor 8,0; place at 1:1.",
+      "coverage_35": [
+        "D: wall-attached emergency stop"
+      ]
+    },
+    {
+      "id": "equipment_id_badge_RI-07_38x14",
+      "file": "equipment_id_badge_RI-07_38x14.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        38,
+        14
+      ],
+      "anchor_px": [
+        19,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 38 x 14; anchor 19,0; place at 1:1.",
+      "coverage_35": [
+        "D: RI-07 identity badge with accepted S logo"
+      ]
+    },
+    {
+      "id": "exit_lift_closed_module",
+      "file": "exit_lift_closed_module.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        96,
+        74
+      ],
+      "anchor_px": [
+        48,
+        73
+      ],
+      "footprint_units": [
+        6.4,
+        1.5
+      ],
+      "wall_mounted": false,
+      "states": [
+        "closed"
+      ],
+      "notes": "96x74 wall module includes the accepted FIELD OPS header unchanged over the 96x62 lift state. Chamfer 6px; yellow stripes 2px per side.",
+      "coverage_35": [
+        "A: 6px chamfered octagon",
+        "A: paired 2px safety-yellow stripes and > < chevrons",
+        "B: accepted FIELD OPS header",
+        "C: yellow/warm/cyan state signal",
+        "D: S-logo stamp"
+      ]
+    },
+    {
+      "id": "exit_lift_open_module",
+      "file": "exit_lift_open_module.png",
+      "emit": "exit_lift_open_module_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        96,
+        74
+      ],
+      "anchor_px": [
+        48,
+        73
+      ],
+      "footprint_units": [
+        6.4,
+        1.5
+      ],
+      "wall_mounted": false,
+      "states": [
+        "open"
+      ],
+      "notes": "96x74 wall module includes the accepted FIELD OPS header unchanged over the 96x62 lift state. Chamfer 6px; yellow stripes 2px per side.",
+      "coverage_35": [
+        "A: 6px chamfered octagon",
+        "A: paired 2px safety-yellow stripes and > < chevrons",
+        "B: accepted FIELD OPS header",
+        "C: yellow/warm/cyan state signal",
+        "D: S-logo stamp"
+      ]
+    },
+    {
+      "id": "exit_lift_standby_module",
+      "file": "exit_lift_standby_module.png",
+      "emit": "exit_lift_standby_module_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        96,
+        74
+      ],
+      "anchor_px": [
+        48,
+        73
+      ],
+      "footprint_units": [
+        6.4,
+        1.5
+      ],
+      "wall_mounted": false,
+      "states": [
+        "standby"
+      ],
+      "notes": "96x74 wall module includes the accepted FIELD OPS header unchanged over the 96x62 lift state. Chamfer 6px; yellow stripes 2px per side.",
+      "coverage_35": [
+        "A: 6px chamfered octagon",
+        "A: paired 2px safety-yellow stripes and > < chevrons",
+        "B: accepted FIELD OPS header",
+        "C: yellow/warm/cyan state signal",
+        "D: S-logo stamp"
+      ]
+    },
+    {
+      "id": "exit_wayfinding_sign",
+      "file": "exit_wayfinding_sign.png",
+      "emit": "exit_wayfinding_sign_emit.png",
+      "kind": "wall",
+      "size_px": [
+        48,
+        18
+      ],
+      "anchor_px": [
+        24,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 48 x 18; anchor 24,0; place at 1:1.",
+      "coverage_35": [
+        "B: EXIT direction sign",
+        "C: approved green exit colors"
+      ]
+    },
+    {
+      "id": "floor_arrow_icon_01",
+      "file": "floor_arrow_icon_01.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Bright outlined floor arrow with STORE bag icon; pair with B1-01.",
+      "coverage_35": [
+        "B: STORE floor arrow and bag icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_icon_02",
+      "file": "floor_arrow_icon_02.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Floor arrow/icon for ARMORY; pair with B1-02.",
+      "coverage_35": [
+        "B: ARMORY floor arrow and icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_icon_03",
+      "file": "floor_arrow_icon_03.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Floor arrow/icon for WAREHOUSE; pair with B1-03.",
+      "coverage_35": [
+        "B: WAREHOUSE floor arrow and icon"
+      ]
+    },
+    {
+      "id": "floor_arrow_icon_04",
+      "file": "floor_arrow_icon_04.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        40,
+        28
+      ],
+      "anchor_px": [
+        20,
+        14
+      ],
+      "footprint_units": [
+        2.67,
+        1.87
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Floor arrow/icon for MEDICAL; pair with B1-04.",
+      "coverage_35": [
+        "B: MEDICAL floor arrow and icon"
+      ]
+    },
+    {
+      "id": "hall_elevator_closed_64x58",
+      "file": "hall_elevator_closed_64x58.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        64,
+        58
+      ],
+      "anchor_px": [
+        32,
+        57
+      ],
+      "footprint_units": [
+        4.27,
+        1.29
+      ],
+      "wall_mounted": false,
+      "states": [
+        "closed"
+      ],
+      "notes": "Native pixel asset 64 x 58; anchor 32,57; place at 1:1.",
+      "coverage_35": [
+        "A: 6px chamfered elevator door",
+        "C: yellow stripes and warm open state",
+        "D: S-logo stamp"
+      ]
+    },
+    {
+      "id": "hall_elevator_open",
+      "file": "hall_elevator_open.png",
+      "emit": "hall_elevator_open_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        64,
+        58
+      ],
+      "anchor_px": [
+        32,
+        57
+      ],
+      "footprint_units": [
+        4.27,
+        1.29
+      ],
+      "wall_mounted": false,
+      "states": [
+        "open"
+      ],
+      "notes": "Native pixel asset 64 x 58; anchor 32,57; place at 1:1.",
+      "coverage_35": [
+        "A: 6px chamfered elevator door",
+        "C: yellow stripes and warm open state",
+        "D: S-logo stamp"
+      ]
+    },
+    {
+      "id": "hanging_monitor_cluster_2",
+      "file": "hanging_monitor_cluster_2.png",
+      "emit": "hanging_monitor_cluster_2_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        56,
+        42
+      ],
+      "anchor_px": [
+        28,
+        41
+      ],
+      "footprint_units": [
+        3.73,
+        0.93
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 56 x 42; anchor 28,41; place at 1:1.",
+      "coverage_35": [
+        "A: suspended angled display cluster",
+        "C: screen cyan and Rhodes blue",
+        "D: S-logo screen identity"
+      ]
+    },
+    {
+      "id": "hanging_monitor_cluster_4",
+      "file": "hanging_monitor_cluster_4.png",
+      "emit": "hanging_monitor_cluster_4_emit.png",
+      "kind": "billboard",
+      "size_px": [
+        88,
+        50
+      ],
+      "anchor_px": [
+        44,
+        49
+      ],
+      "footprint_units": [
+        5.87,
+        1.11
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 88 x 50; anchor 44,49; place at 1:1.",
+      "coverage_35": [
+        "A: suspended angled display cluster",
+        "C: screen cyan and Rhodes blue",
+        "D: S-logo screen identity"
+      ]
+    },
+    {
+      "id": "interaction_marker_cyan",
+      "file": "interaction_marker_cyan.png",
+      "emit": "interaction_marker_cyan_emit.png",
+      "kind": "decal",
+      "size_px": [
+        12,
+        12
+      ],
+      "anchor_px": [
+        6,
+        6
+      ],
+      "footprint_units": [
+        0.8,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 12 x 12; anchor 6,6; place at 1:1.",
+      "coverage_35": [
+        "C: screen-cyan interaction marker"
+      ]
+    },
+    {
+      "id": "interaction_marker_yellow",
+      "file": "interaction_marker_yellow.png",
+      "emit": "interaction_marker_yellow_emit.png",
+      "kind": "decal",
+      "size_px": [
+        12,
+        12
+      ],
+      "anchor_px": [
+        6,
+        6
+      ],
+      "footprint_units": [
+        0.8,
+        0.8
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 12 x 12; anchor 6,6; place at 1:1.",
+      "coverage_35": [
+        "C: safety-yellow claim-ready marker"
+      ]
+    },
+    {
+      "id": "lift_boarding_zone_decal_96x48",
+      "file": "lift_boarding_zone_decal_96x48.png",
+      "emit": null,
+      "kind": "decal",
+      "size_px": [
+        96,
+        48
+      ],
+      "anchor_px": [
+        48,
+        24
+      ],
+      "footprint_units": [
+        6.4,
+        3.2
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 96 x 48; anchor 48,24; place at 1:1.",
+      "coverage_35": [
+        "A: lift approach zone",
+        "C: yellow floor boundary"
+      ]
+    },
+    {
+      "id": "light_pool_circle_cool_60x40",
+      "file": "light_pool_circle_cool_60x40.png",
+      "emit": "light_pool_circle_cool_60x40_emit.png",
+      "kind": "decal",
+      "size_px": [
+        60,
+        40
+      ],
+      "anchor_px": [
+        30,
+        20
+      ],
+      "footprint_units": [
+        4.0,
+        2.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Opaque #000000 additive light texture; black adds no light. Apply additive blending over the floor at 1:1. Dark 3-tone steps, with a separate matching emit mask.",
+      "coverage_35": [
+        "C: opaque-black additive cool light with dark stepped bands"
+      ]
+    },
+    {
+      "id": "light_pool_circle_warm_60x40",
+      "file": "light_pool_circle_warm_60x40.png",
+      "emit": "light_pool_circle_warm_60x40_emit.png",
+      "kind": "decal",
+      "size_px": [
+        60,
+        40
+      ],
+      "anchor_px": [
+        30,
+        20
+      ],
+      "footprint_units": [
+        4.0,
+        2.67
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Opaque #000000 additive light texture; black adds no light. Apply additive blending over the floor at 1:1. Dark 3-tone steps, with a separate matching emit mask.",
+      "coverage_35": [
+        "C: opaque-black additive warm light with dark stepped bands"
+      ]
+    },
+    {
+      "id": "light_pool_fan_cool_120x80",
+      "file": "light_pool_fan_cool_120x80.png",
+      "emit": "light_pool_fan_cool_120x80_emit.png",
+      "kind": "decal",
+      "size_px": [
+        120,
+        80
+      ],
+      "anchor_px": [
+        60,
+        40
+      ],
+      "footprint_units": [
+        8.0,
+        5.33
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Opaque #000000 additive light texture; black adds no light. Apply additive blending over the floor at 1:1. Dark 3-tone steps, with a separate matching emit mask.",
+      "coverage_35": [
+        "C: opaque-black additive cool light with dark stepped bands"
+      ]
+    },
+    {
+      "id": "light_pool_fan_warm_120x80",
+      "file": "light_pool_fan_warm_120x80.png",
+      "emit": "light_pool_fan_warm_120x80_emit.png",
+      "kind": "decal",
+      "size_px": [
+        120,
+        80
+      ],
+      "anchor_px": [
+        60,
+        40
+      ],
+      "footprint_units": [
+        8.0,
+        5.33
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Opaque #000000 additive light texture; black adds no light. Apply additive blending over the floor at 1:1. Dark 3-tone steps, with a separate matching emit mask.",
+      "coverage_35": [
+        "C: opaque-black additive warm light with dark stepped bands"
+      ]
+    },
+    {
+      "id": "light_pool_rectangle_cool_90x60",
+      "file": "light_pool_rectangle_cool_90x60.png",
+      "emit": "light_pool_rectangle_cool_90x60_emit.png",
+      "kind": "decal",
+      "size_px": [
+        90,
+        60
+      ],
+      "anchor_px": [
+        45,
+        30
+      ],
+      "footprint_units": [
+        6.0,
+        4.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Opaque #000000 additive light texture; black adds no light. Apply additive blending over the floor at 1:1. Dark 3-tone steps, with a separate matching emit mask.",
+      "coverage_35": [
+        "C: opaque-black additive cool light with dark stepped bands"
+      ]
+    },
+    {
+      "id": "light_pool_rectangle_warm_90x60",
+      "file": "light_pool_rectangle_warm_90x60.png",
+      "emit": "light_pool_rectangle_warm_90x60_emit.png",
+      "kind": "decal",
+      "size_px": [
+        90,
+        60
+      ],
+      "anchor_px": [
+        45,
+        30
+      ],
+      "footprint_units": [
+        6.0,
+        4.0
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Opaque #000000 additive light texture; black adds no light. Apply additive blending over the floor at 1:1. Dark 3-tone steps, with a separate matching emit mask.",
+      "coverage_35": [
+        "C: opaque-black additive warm light with dark stepped bands"
+      ]
+    },
+    {
+      "id": "north_wall_lightbox_slot_36x46",
+      "file": "north_wall_lightbox_slot_36x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        36,
+        46
+      ],
+      "anchor_px": [
+        18,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Transparent 32x44 aperture. Place accepted L0 lightbox unchanged.",
+      "coverage_35": [
+        "B: accepted lightbox slot"
+      ]
+    },
+    {
+      "id": "north_wall_window_left_98x46",
+      "file": "north_wall_window_left_98x46.png",
+      "emit": "north_wall_window_left_98x46_emit.png",
+      "kind": "wall",
+      "size_px": [
+        98,
+        46
+      ],
+      "anchor_px": [
+        49,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 98 x 46; anchor 49,0; place at 1:1.",
+      "coverage_35": [
+        "A: angled bridge windows with diagonal truss mullions",
+        "A: warm-white sky band and frame-mounted screens",
+        "C: Rhodes blue, warm sky and screen cyan",
+        "D: S-logo identity stamp"
+      ]
+    },
+    {
+      "id": "north_wall_window_right_98x46",
+      "file": "north_wall_window_right_98x46.png",
+      "emit": "north_wall_window_right_98x46_emit.png",
+      "kind": "wall",
+      "size_px": [
+        98,
+        46
+      ],
+      "anchor_px": [
+        49,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 98 x 46; anchor 49,0; place at 1:1.",
+      "coverage_35": [
+        "A: angled bridge windows with diagonal truss mullions",
+        "A: warm-white sky band and frame-mounted screens",
+        "C: Rhodes blue, warm sky and screen cyan",
+        "D: S-logo identity stamp"
+      ]
+    },
+    {
+      "id": "north_wall_XL_backplate_slot_146x46",
+      "file": "north_wall_XL_backplate_slot_146x46.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        146,
+        46
+      ],
+      "anchor_px": [
+        73,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Transparent 140x44 aperture. Place the accepted L0 140x44 lockup unchanged.",
+      "coverage_35": [
+        "A: modular North-wall structure",
+        "B: XL supergraphic slot"
+      ]
+    },
+    {
+      "id": "orange_cable_drop_28x36",
+      "file": "orange_cable_drop_28x36.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        28,
+        36
+      ],
+      "anchor_px": [
+        14,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 28 x 36; anchor 14,0; place at 1:1.",
+      "coverage_35": [
+        "A: routed orange cable",
+        "C: restrained orange accent"
+      ]
+    },
+    {
+      "id": "orange_cable_run_44x18",
+      "file": "orange_cable_run_44x18.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        44,
+        18
+      ],
+      "anchor_px": [
+        22,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 44 x 18; anchor 22,0; place at 1:1.",
+      "coverage_35": [
+        "A: routed orange cable",
+        "C: restrained orange accent"
+      ]
+    },
+    {
+      "id": "side_wall_top_sign_01",
+      "file": "side_wall_top_sign_01.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        58,
+        20
+      ],
+      "anchor_px": [
+        29,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Place on side-wall top strip above its matching door; numbered B1-01 through B1-04.",
+      "coverage_35": [
+        "B: numbered department door sign; mount above corresponding side-wall door"
+      ]
+    },
+    {
+      "id": "side_wall_top_sign_02",
+      "file": "side_wall_top_sign_02.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        58,
+        20
+      ],
+      "anchor_px": [
+        29,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Place on side-wall top strip above its matching door; numbered B1-01 through B1-04.",
+      "coverage_35": [
+        "B: numbered department door sign; mount above corresponding side-wall door"
+      ]
+    },
+    {
+      "id": "side_wall_top_sign_03",
+      "file": "side_wall_top_sign_03.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        58,
+        20
+      ],
+      "anchor_px": [
+        29,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Place on side-wall top strip above its matching door; numbered B1-01 through B1-04.",
+      "coverage_35": [
+        "B: numbered department door sign; mount above corresponding side-wall door"
+      ]
+    },
+    {
+      "id": "side_wall_top_sign_04",
+      "file": "side_wall_top_sign_04.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        58,
+        20
+      ],
+      "anchor_px": [
+        29,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Place on side-wall top strip above its matching door; numbered B1-01 through B1-04.",
+      "coverage_35": [
+        "B: numbered department door sign; mount above corresponding side-wall door"
+      ]
+    },
+    {
+      "id": "wall_mounted_extinguisher_14x28",
+      "file": "wall_mounted_extinguisher_14x28.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        14,
+        28
+      ],
+      "anchor_px": [
+        7,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Native pixel asset 14 x 28; anchor 7,0; place at 1:1.",
+      "coverage_35": [
+        "D: wall-attached extinguisher"
+      ]
+    },
+    {
+      "id": "wall_safety_detail_panel_68x50",
+      "file": "wall_safety_detail_panel_68x50.png",
+      "emit": null,
+      "kind": "wall",
+      "size_px": [
+        68,
+        50
+      ],
+      "anchor_px": [
+        34,
+        0
+      ],
+      "footprint_units": [
+        0.0,
+        0.0
+      ],
+      "wall_mounted": true,
+      "states": [
+        "default"
+      ],
+      "notes": "Wall-mounted composed detail group; all six maintenance/life details are physically attached to its plate.",
+      "coverage_35": [
+        "D: extinguisher, E-stop, memo, ID badge, caution sticker and cable clip fixed to one wall plate"
+      ]
+    },
+    {
+      "id": "wing_construction_barrier_uncleared_128x56",
+      "file": "wing_construction_barrier_uncleared_128x56.png",
+      "emit": null,
+      "kind": "billboard",
+      "size_px": [
+        128,
+        56
+      ],
+      "anchor_px": [
+        64,
+        55
+      ],
+      "footprint_units": [
+        8.53,
+        1.24
+      ],
+      "wall_mounted": false,
+      "states": [
+        "default"
+      ],
+      "notes": "Dim crates, cut cables and panels sit behind the yellow-black fence; a warning triangle and the accepted 40x40 logo print hang on folded tarp.",
+      "coverage_35": [
+        "A: uncleared wing striped fence and dim debris behind it",
+        "C: steel/yellow palette",
+        "D: folded logo tarp, cut cables, crates, panels and warning sign"
+      ]
+    }
+  ],
+  "external_dependencies": [
+    {
+      "file": "../batch1_v5/wall_straight_60x46_v5.png",
+      "size_px": [
+        60,
+        46
+      ],
+      "sha256": "e6f67d8cd77fa8d3407d03f5700a7ba1307254d53e2dce65cbd1dc480e0a4ff8",
+      "use": "Accepted north-wall shell; composite background",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/door_open_45x46_v5.png",
+      "size_px": [
+        45,
+        46
+      ],
+      "sha256": "549d0457b09634c025936a60827ee23e6eebfbdcb6bd36389943bc28a75bb4c7",
+      "use": "Accepted generic door, shown unchanged for compatibility",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/console_off_v4.png",
+      "size_px": [
+        95,
+        43
+      ],
+      "sha256": "0f914719a91416b16fcefd0202e45a74a71dab0d143b2e93ce342fe4d1d9a5fd",
+      "use": "Accepted main dispatch console OFF, copied unchanged as separate kit asset",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/console_on_v4.png",
+      "size_px": [
+        95,
+        43
+      ],
+      "sha256": "642ff77e7a2be2ab3000d369a1a790133a5d0e2463007d3a67aae83b46e283ef",
+      "use": "Accepted main dispatch console ON, copied unchanged as separate kit asset",
+      "locked": true
+    },
+    {
+      "file": "../batch1_v5/lappland_frame0_64.png",
+      "size_px": [
+        64,
+        64
+      ],
+      "sha256": "5ca18c1414d2aa20f59612e12ba9992c27987c40054cb87139a414c79c67fa0b",
+      "use": "Lappland frame 0 for 1:1 composite",
+      "locked": true
+    },
+    {
+      "file": "../batch2_v1/rhodes_logistics_atlas_v1.png",
+      "size_px": [
+        256,
+        128
+      ],
+      "sha256": "6670e2d438a7a73eca7fe6150579b0d3d601b3ca16bcc848b0c0d5d75dce5a9c",
+      "use": "Accepted logistics counter atlas; 71x40 crop shown unchanged",
+      "locked": true
+    },
+    {
+      "file": "../batch2_v2/rhodes_floor_v1.png",
+      "size_px": [
+        120,
+        120
+      ],
+      "sha256": "433dded8f5a617327257266ccc33a5f01ced342413079bf54e84d41810798130",
+      "use": "Accepted 120x120 hall floor, tiled unchanged in composite",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_XL_lockup_v1.png",
+      "size_px": [
+        140,
+        44
+      ],
+      "sha256": "4d71fb8478adc08917c81bb99ac1d195109bbbaca1732cd540f44f2e50fc0645",
+      "use": "Accepted XL 140x44 mounted unchanged in facade slot",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_lightbox_v1.png",
+      "size_px": [
+        32,
+        44
+      ],
+      "sha256": "7763c65ff724e8d5b0d05ed1803b7e3b3140c61432659626ae192d581bab495d",
+      "use": "Accepted lightbox 32x44 mounted unchanged in facade slot",
+      "locked": true,
+      "emit_file": "../batch_L0_logo_v1/rhodes_logo_lightbox_emit_v1.png",
+      "emit_size_px": [
+        32,
+        44
+      ],
+      "emit_sha256": "1e3456cd3a75cf980b0fc7b51530f92bc97a4a6de11ae71cc73fb8c8c7ff809b"
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_FIELD_OPS_header_v1.png",
+      "size_px": [
+        64,
+        12
+      ],
+      "sha256": "2bd25dd9df7b5a30830cbbadaba4b9333327dc24184fa9bdb103df18d358ed88",
+      "use": "Accepted header 64x12 embedded unchanged above lift states",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_S_gray_v1.png",
+      "size_px": [
+        9,
+        9
+      ],
+      "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89",
+      "use": "Accepted 9x9 S stamp copied unchanged to H1 props",
+      "locked": true
+    },
+    {
+      "file": "../batch_L0_logo_v1/rhodes_logo_tarp_print_v1.png",
+      "size_px": [
+        40,
+        40
+      ],
+      "sha256": "6d9b5c2c5fedc1cca4bdbed73e27b0bd82ca242279c4da592e37ffb7d5514fb1",
+      "use": "Accepted 40x40 logo print copied unchanged onto folded barrier tarp",
+      "locked": true
+    }
+  ],
+  "preview": {
+    "file": "H1_asset_kit_lappland_1x.png",
+    "size_px": [
+      960,
+      480
+    ],
+    "character": "Lappland frame 0; original 64x64 frame, unscaled",
+    "purpose": "Native-scale asset sheet, not a proposed room layout"
+  },
+  "palette": "31 art colors: v1.0 palette of 29 plus approved exit greens #487808 and #68d848; opaque #000000 is reserved for additive light texture backgrounds",
+  "assembly": {
+    "platform": "Align the 164x44 straight deck, 32x44 corner pieces and 20x44 end caps at the same top y, touching edge-to-edge; wrap the raised dispatch-console area.",
+    "duty_stations": "Place three 48x50 small desks, selecting the OFF or ON state per desk. Keep the accepted 95x43 main dispatch console separate.",
+    "wing_barrier": "Place at each uncleared wing entrance. The debris is already layered behind the striped fence and folded logo tarp.",
+    "light_pools": "Use additive blending on the opaque-black warm/cool textures; black contributes zero light. Do not use alpha blending for the pool base images.",
+    "store_sign": "B1-01 is STORE; pair side_wall_top_sign_01 with floor_arrow_icon_01."
+  },
+  "checklist_35": {
+    "A": "Covered: warm-sky angled window/truss modules; 6px chamfered lift and elevator doors; 2/4 ceiling monitor clusters; routed orange cables; raised dispatch platform with 6px riser, corners, ends and yellow top rail.",
+    "B": "Covered: accepted XL mounted in supergraphic slot; accepted lightbox slot; numbered B1-01 STORE through B1-04 department signs; four bright floor arrow/icon decals; green EXIT direction sign.",
+    "C": "Covered: dark steel/cold panels dominate; safety yellow, restrained orange, cyan, Rhodes blue and approved green exit sign are present. Light pools use black plus dark additive tones.",
+    "D": "Covered: wall safety panel groups extinguisher, emergency stop, memo, RI-01 caution sticker, RI-07 badge and cable clip; S marks repeat on hall props; uncleared wing has debris and a warning sign.",
+    "one_screen_readability": "The identity cues are present on the 1:1 sheet; final assembled-room recognition remains for scene assembly."
+  }
+}

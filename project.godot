@@ -1,0 +1,20 @@
+; Downfall (working title): Godot migration of D:\Unity3D\projects\My project
+; (Assets/Scripts/DownfallPrototype.cs + ContinuousWorldMap.cs).
+config_version=5
+
+[application]
+config/name="downfall-godot"
+config/description="Downfall — 外勤合同、地区搜刮与本次构筑 ARPG"
+run/main_scene="res://game/main.tscn"
+config/features=PackedStringArray("4.7")
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[physics]
+common/physics_ticks_per_second=60
+
+[rendering]
+textures/canvas_textures/default_texture_filter=0

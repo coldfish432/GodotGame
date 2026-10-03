@@ -1,0 +1,57 @@
+[
+  {
+    "File": "console_off_90x50_v3.png",
+    "Canvas": "90x50",
+    "OpaqueBounds": "90x50"
+  },
+  {
+    "File": "console_on_90x50_v3.png",
+    "Canvas": "90x50",
+    "OpaqueBounds": "90x50"
+  },
+  {
+    "File": "door_closed_45x36_v3.png",
+    "Canvas": "45x36",
+    "OpaqueBounds": "45x36"
+  },
+  {
+    "File": "door_open_45x36_v3.png",
+    "Canvas": "45x36",
+    "OpaqueBounds": "45x36"
+  },
+  {
+    "File": "door_sealed_45x36_v3.png",
+    "Canvas": "45x36",
+    "OpaqueBounds": "45x36"
+  },
+  {
+    "File": "door_top_gap38_posts6_v3.png",
+    "Canvas": "6x60",
+    "OpaqueBounds": "6x60"
+  },
+  {
+    "File": "rhodes_console_v3.png",
+    "Canvas": "256x128",
+    "OpaqueBounds": "218x50"
+  },
+  {
+    "File": "rhodes_walls_doors_v3.png",
+    "Canvas": "256x192",
+    "OpaqueBounds": "235x170"
+  },
+  {
+    "File": "wall_rib_6x36_v3.png",
+    "Canvas": "6x36",
+    "OpaqueBounds": "6x36"
+  },
+  {
+    "File": "wall_straight_60x36_v3.png",
+    "Canvas": "60x36",
+    "OpaqueBounds": "60x36"
+  },
+  {
+    "File": "wall_top_4x60_v3.png",
+    "Canvas": "4x60",
+    "OpaqueBounds": "4x60"
+  }
+]
