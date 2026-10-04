@@ -130,6 +130,14 @@ static func decon_price(points: int) -> int:
 ## the start): front row 2nd and 3rd, then the middle row, then the back row.
 const RACK_PRICES := [0, 60, 90, 140, 140, 140, 200, 200, 200]
 const RACK_RANKS := [0, 1, 1, 2, 2, 2, 3, 3, 3]
+## Pack and safe-bag expansions (装备与背包界面调研 §5.11, after Grim Dawn's
+## extra bags and Tarkov's secure containers). Level 0 is what she starts with.
+const PACK_SIZES := [Vector2i(10, 6), Vector2i(10, 8), Vector2i(12, 8)]
+const PACK_PRICES := [0, 120, 260]
+const PACK_RANKS := [0, 1, 2]
+const SAFE_SIZES := [Vector2i(2, 2), Vector2i(3, 2), Vector2i(3, 3)]
+const SAFE_PRICES := [0, 150, 320]
+const SAFE_RANKS := [0, 2, 3]
 const DRONE_PRICE := 150
 const DRONE_RANK := 1
 const REROLL_RANK := 3            # one free order reroll after every settlement
@@ -139,8 +147,8 @@ const STAGING_WARNING := 0.9
 ## What each rank opens, for the rank-up message and the warehouse terminal.
 const RANK_UNLOCKS := [
 	"",
-	"仓管台可以购买一键分类无人机，以及各区前排的第 2、3 个货架",
-	"中排货架；药房的抑制喷剂；第 3 个订单栏",
-	"后排货架；每次结算后可以免费刷新 1 张订单",
+	"仓管台可以购买一键分类无人机，以及各区前排的第 2、3 个货架；背包扩容到 10×8",
+	"中排货架；药房的抑制喷剂；第 3 个订单栏；背包扩容到 12×8；安全袋扩容到 3×2",
+	"后排货架；每次结算后可以免费刷新 1 张订单；安全袋扩容到 3×3",
 	"预留：两翼走廊的清理",
 ]

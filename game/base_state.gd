@@ -43,6 +43,9 @@ var report_unread := false
 ## The engineering drone (§3.5): bought once at R1, sorts on command and empties
 ## staging onto the shelves at every return.
 var drone := false
+## Expansion levels into BaseCatalog.PACK_SIZES / SAFE_SIZES.
+var pack_level := 0
+var safe_level := 0
 ## R3: one free order reroll per settlement.
 var reroll_available := false
 ## A rank-up opened something to buy at the warehouse terminal, not yet looked at.
@@ -102,6 +105,19 @@ func add_prestige(amount: int) -> int:
 	return -1
 
 # --- Expansion and the drone (§3.5, §3.6) ---------------------------------------
+
+## "" when the next pack ("pack") or safe-bag ("safe") level can be bought.
+func upgrade_refusal(kind: String, money: int) -> String:
+	var level := pack_level if kind == "pack" else safe_level
+	var prices: Array = BaseCatalog.PACK_PRICES if kind == "pack" else BaseCatalog.SAFE_PRICES
+	var ranks: Array = BaseCatalog.PACK_RANKS if kind == "pack" else BaseCatalog.SAFE_RANKS
+	if level + 1 >= prices.size(): return "已满配"
+	if rank() < int(ranks[level + 1]): return "需要声望 R%d" % int(ranks[level + 1])
+	if money < int(prices[level + 1]): return "资金不足"
+	return ""
+
+func can_upgrade(kind: String, money: int) -> bool:
+	return upgrade_refusal(kind, money).is_empty()
 
 ## The next rack slot for `category`, or -1 when all nine are built.
 func next_rack_slot(category: int) -> int:
@@ -342,7 +358,8 @@ func to_data() -> Dictionary:
 		"staging": staging_data, "racks": rack_data, "prestige": prestige, "orders": orders.to_data(),
 		"contamination": contamination, "injured": injured, "potions": potions.duplicate(), "extra_potion": extra_potion,
 		"medical_report": medical_report, "report_unread": report_unread,
-		"drone": drone, "reroll_available": reroll_available, "unseen_unlocks": unseen_unlocks}
+		"drone": drone, "reroll_available": reroll_available, "unseen_unlocks": unseen_unlocks,
+		"pack_level": pack_level, "safe_level": safe_level}
 
 ## Version 2 data. `seen` holds uids already loaded elsewhere; duplicates are
 ## skipped and new uids are added to it.
@@ -363,6 +380,8 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	medical_report = data.get("medical_report", {})
 	report_unread = bool(data.get("report_unread", false))
 	drone = bool(data.get("drone", false))
+	pack_level = clampi(int(data.get("pack_level", 0)), 0, BaseCatalog.PACK_SIZES.size() - 1)
+	safe_level = clampi(int(data.get("safe_level", 0)), 0, BaseCatalog.SAFE_SIZES.size() - 1)
 	reroll_available = bool(data.get("reroll_available", false)) and rank() >= BaseCatalog.REROLL_RANK
 	unseen_unlocks = bool(data.get("unseen_unlocks", false))
 	if data.has("orders"): orders.load_data(data.orders)

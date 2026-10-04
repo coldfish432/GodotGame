@@ -156,8 +156,7 @@ func run() -> void:
 	# so each check reads the relic alone.
 	await game.start_contract("mine")
 	await clean()
-	game.builds.assign(["ore_heart", "pack_plate", "unsealed"])
-	game.player._recompute_stats()
+	# Relics themselves are covered one by one in test_builds.gd.
 	var ore := FieldCatalog.exclusive("mine")
 	game.inventory.try_add(ore)
 	game.player.hp = game.player.max_hp * 0.5
@@ -165,63 +164,18 @@ func run() -> void:
 	var hp := game.player.hp
 	game._physics_process(2)
 	check("raw ore drains 60 per second while carried", is_equal_approx(game.player.hp, hp - 120))
-	game.player.on_hit()
-	check("ore build converts carried ore to on-hit healing (1% max HP each)", is_equal_approx(game.player.hp, hp - 120 + game.player.max_hp * 0.01))
 	game.transfer_item(ore, game.inventory, game.safe_bag)
 	hp = game.player.hp
 	game._physics_process(2)
 	check("safe bag protects ownership, not pollution damage", is_equal_approx(game.player.hp, hp - 120))
-	var pre_gild := game.player.attack_multiplier()
-	game.run_gildings = 1
-	check("unsealed build changes when gilding is used", pre_gild > game.player.attack_multiplier())
-	game.builds.assign(["counter", "brace"])
+	var plain_hp := game.player.max_hp
+	game.builds.assign(["急救药箱"])
 	game.player._recompute_stats()
-	game.player.stationary_time = 1
-	game.player.stamina = 100
-	game.player.hp = 1000
-	game.player.take_damage(200, "true")
-	check("stationary block consumes stamina and reduces damage", game.player.stamina == 85 and is_equal_approx(game.player.hp, 920))
-	check("counter empowers exactly one melee attack", game.player.attack_multiplier() > game.player.attack_multiplier())
-	game.builds.assign(["ambush", "empty_safe", "rest"])
+	check("a relic's stats reach the sheet (急救药箱 +35% life)", is_equal_approx(game.player.max_hp, plain_hp * 1.35))
+	game.builds.clear()
 	game.player._recompute_stats()
-	game.safe_bag.items.clear()
-	game.player.combat_timer = 6
-	var opening := game.player.attack_multiplier()
-	game.player.combat_timer = 0
-	check("ambush boosts first attack after disengagement", is_equal_approx(opening, game.player.attack_multiplier() * 2))
-	var empty_bonus := game.player.wave_multiplier()
-	game.safe_bag.try_add(material)
-	check("empty safe bag boosts the sword wave by half", is_equal_approx(empty_bonus, game.player.wave_multiplier() * 1.5))
-	game.builds.assign(["gild_guard"])
-	game.player._recompute_stats()
-	var gilded := Item.create("护盾锚点", Item.Category.WEAPON, 1, 1)
-	gilded.gilded = true
-	game.inventory.try_add(gilded)
-	game.player.hp = 300
-	game.player.take_damage(500, "true")
-	check("gild-conditional ward blocks lethal damage", game.player.hp == 300)
-	game.player.take_damage(500, "true")
-	check("gild ward is consumed once per segment", game.player.hp < 0)
-	game.player.hp = 300
-	game.player.reset_floor_state()
-	game.player.take_damage(500, "true")
-	check("gild ward resets on next segment", game.player.hp == 300)
-	game.builds.assign(["deep"])
-	game.floor_number = 1
-	var shallow := game.player.attack_multiplier()
-	game.floor_number = 4
-	check("depth build grows on one-way progression", game.player.attack_multiplier() > shallow)
-	game.builds.assign(["last_light"])
-	game.floor_number = 3
-	game.player.hp = 1000
-	game.player.take_damage(400, "true")
-	check("extraction-state build reduces damage in extraction segment", game.player.hp == 700)
-	game.builds.assign(["rest"])
-	game.player._recompute_stats()
-	game.player.combat_timer = 6
-	game.player.hp = 500
-	game.player._physics_process(0.5)
-	check("rest build heals 2.5% of max HP per second out of combat", is_equal_approx(game.player.hp, 500 + game.player.max_hp * 0.0125))
+	game.inventory.remove(ore)
+	game.safe_bag.remove(ore)
 	var frozen_relic := FieldCatalog.exclusive("snow")
 	game.player.equip(frozen_relic)
 	game.builds.clear()

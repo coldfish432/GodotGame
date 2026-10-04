@@ -129,7 +129,7 @@ func through_game() -> void:
 	game._tick_medical(10.0)
 	check("and stops at 1680 in total", is_equal_approx(game.player.hp, 1681.0))
 	game.potion_belt.assign(["C", "B", "A", "B"])
-	game.builds.assign(["gild_guard"])
+	game.builds.assign(["\"剑锤\""])
 	game.player._recompute_stats()
 	game._clamp_belt()
 	check("a build that costs a flask takes it from the end (3 + bought 1 -> 2 + 1)", game.potion_belt == ["C", "B", "A"])

@@ -396,7 +396,7 @@ func _begin_telegraphed_attack() -> void:
 	_lock_flash = 0
 	_lock_direction()
 	_windup_remaining = float(attack_profile.windup)
-	_pending_damage = atk * float(attack_profile.damage) * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR)
+	_pending_damage = atk * float(attack_profile.damage) * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR) * game.enemy_attack_multiplier()
 	pending_warning_position = game.player.global_position if elite else attack_origin
 	pending_warning_radius = float(attack_profile.get("radius", 0.0))
 	if elite:

@@ -4,6 +4,12 @@ class_name Item
 ## Equipment/material identity, footprint, affixes and contract protection.
 
 enum Category { WEAPON, ARMOR, TRINKET, MATERIAL }
+## One palette for rarity everywhere (grid borders, names, ground drops), the
+## same as relics: grey-white, blue, gold — 明日方舟's 3★ / 4★-5★ feel
+## (装备与背包界面调研 §5.2).
+const RARITY_COLORS := [Color("c9d3db"), Color("5aa9ff"), Color("f3b04a")]
+const RARITY_NAMES := ["普通", "精良", "稀有"]
+const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料"]
 
 @export var item_name: String = ""
 @export var category: Category = Category.MATERIAL
@@ -23,6 +29,8 @@ enum Category { WEAPON, ARMOR, TRINKET, MATERIAL }
 @export var description: String = ""
 @export var insured: bool = false
 @export var carried_in: bool = false
+## SpecialGear template id for special equipment, "" otherwise.
+@export var special: String = ""
 
 var grid_x: int = -1
 var grid_y: int = -1
@@ -40,8 +48,13 @@ static func create(p_name: String, p_category: Category, p_width: int, p_height:
 	item.power = p_power
 	return item
 
+const SPECIAL_COLOR := Color("ff7a45")
+
 func display_name() -> String:
-	return ["普通", "精良", "稀有"][clampi(rarity, 0, 2)] + " · " + item_name
+	return ("特殊" if not special.is_empty() else RARITY_NAMES[clampi(rarity, 0, 2)]) + " · " + item_name
+
+func rarity_color() -> Color:
+	return SPECIAL_COLOR if not special.is_empty() else RARITY_COLORS[clampi(rarity, 0, 2)]
 
 func details() -> String:
 	var parts: Array[String] = [description]
@@ -56,10 +69,10 @@ func details() -> String:
 func to_data() -> Dictionary:
 	var mods: Array = []
 	for mod in modifiers:
-		mods.append({"stat": mod.stat, "amount": mod.amount, "trigger": mod.trigger})
+		mods.append({"stat": mod.stat, "amount": mod.amount, "trigger": mod.trigger, "tier": mod.tier})
 	return {"uid": uid, "name": item_name, "category": category, "width": width, "height": height,
 		"power": power, "rarity": rarity, "value": value, "region": exclusive_region, "origin": origin_region, "effect": effect,
-		"description": description, "mods": mods, "gilded": gilded, "insured": insured, "carried_in": carried_in}
+		"description": description, "mods": mods, "gilded": gilded, "insured": insured, "carried_in": carried_in, "special": special}
 
 static func from_data(data: Dictionary) -> Item:
 	var item := create(str(data.get("name", "物品")), int(data.get("category", 3)) as Category,
@@ -74,6 +87,7 @@ static func from_data(data: Dictionary) -> Item:
 	item.gilded = bool(data.get("gilded", false))
 	item.insured = bool(data.get("insured", false))
 	item.carried_in = bool(data.get("carried_in", false))
+	item.special = str(data.get("special", ""))
 	for data_mod in data.get("mods", []):
 		var mod := ItemModifier.new()
 		mod.stat = int(data_mod.get("stat", 0)) as ItemModifier.Stat
@@ -84,5 +98,6 @@ static func from_data(data: Dictionary) -> Item:
 		if mod.trigger == ItemModifier.Trigger.NONE and mod.stat == ItemModifier.Stat.BLADE_COOLDOWN_PCT and mod.amount > -1.0:
 			mod.stat = ItemModifier.Stat.ATTACK_SPEED_PCT
 			mod.amount = 1.0 / (1.0 + mod.amount) - 1.0
+		mod.tier = int(data_mod["tier"]) if data_mod.has("tier") else ItemModifier.infer_tier(mod.stat, mod.amount)
 		item.modifiers.append(mod)
 	return item

@@ -64,7 +64,7 @@ func run() -> void:
 	weapon.rarity = 2
 	weapon.modifiers = [ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE), ItemModifier.stat_mod(ItemModifier.Stat.ATTACK_SPEED_PCT, 0.10)]
 	p.equip(weapon)
-	check("wave affix and attack speed stack", p.has_sword_wave() and is_equal_approx(p.blade_cooldown, 0.42 / 1.1))
+	check("wave affix and attack speed stack", p.has_sword_wave() and is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN / 1.1))
 	var restored := Item.from_data(weapon.to_data())
 	check("affix survives save roundtrip with tooltip", restored.modifiers[0].trigger == ItemModifier.Trigger.SWORD_WAVE and "幼狼之牙" in restored.details())
 	var enemy := dummy(origin + Vector3(0, 0, 2))
@@ -192,17 +192,19 @@ func run() -> void:
 	check("buffered dash fires only once", not p._dash_buffered and p.stamina > 70 and p.stamina < 80)
 	p.reset_combat_state()
 	p.teleport(origin)
-	# Whiffs must not spend one-shot build bonuses.
-	game.builds.append("counter")
-	p.counter_timer = 3.0
+	# Whiffs must not spend one-shot relic bonuses (赏善郎 after an evade).
+	game.builds.append("赏善郎")
+	p._recompute_stats()
+	p._on_evade()
 	p._attack_cooldown = 0
 	p.attack_direction(Vector3.BACK)
-	check("whiff keeps counter bonus armed", p.counter_timer == 3.0)
+	check("whiff keeps 赏善郎 armed", p.avenge_ready)
 	var counter_hp := enemy.health
 	p.teleport(origin)
 	swing(enemy)
-	check("next landed hit spends counter for double damage", p.counter_timer == 0 and is_equal_approx(counter_hp - enemy.health, 1200.0))
-	game.builds.erase("counter")
+	check("next landed hit spends 赏善郎 for double damage", not p.avenge_ready and is_equal_approx(counter_hp - enemy.health, 1200.0))
+	game.builds.erase("赏善郎")
+	p._recompute_stats()
 	p.combat_timer = 6.0
 	p._attack_cooldown = 0
 	p.hitstop_remaining = 0
@@ -217,6 +219,7 @@ func run() -> void:
 	var speed_rolls := {}
 	for i in range(4000):
 		var item := FieldCatalog.roll_item(["mine", "city", "snow"][i % 3], 2, rng)
+		if not item.special.is_empty(): continue  # special gear carries fixed effects of its own
 		var count := 0
 		for mod in item.modifiers:
 			if mod.trigger == ItemModifier.Trigger.SWORD_WAVE: count += 1
@@ -244,7 +247,7 @@ func run() -> void:
 	var charm := Item.create("测试挂饰", Item.Category.TRINKET, 1, 1)
 	charm.modifiers = [ItemModifier.stat_mod(ItemModifier.Stat.ATTACK_SPEED_PCT, 0.4)]
 	p.equip(charm)
-	check("weapon and trinket attack speed add up", is_equal_approx(p.attack_speed, 1.5) and is_equal_approx(p.blade_cooldown, 0.28))
+	check("weapon and trinket attack speed add up", is_equal_approx(p.attack_speed, 1.5) and is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN / 1.5))
 	p.teleport(origin)
 	p.sword_charge = 0
 	p.combo_step = 2
@@ -297,20 +300,20 @@ func run() -> void:
 	p._sprite._process(0.12)
 	check("fast swing reaches its last frame early", p._sprite.frame == 2)
 	p._sprite.cancel_action()
-	game.builds.append("ambush")
+	charm.modifiers.append(ItemModifier.stat_mod(ItemModifier.Stat.BLADE_COOLDOWN_PCT, 0.15))
 	p._recompute_stats()
-	check("cooldown builds still scale the attack-speed interval", is_equal_approx(p.blade_cooldown, 0.42 * 1.15 / 1.5))
-	game.builds.erase("ambush")
+	check("interval modifiers still scale the attack-speed interval", is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN * 1.15 / 1.5))
+	charm.modifiers.pop_back()
 	p.unequip(Item.Category.TRINKET)
 	charm.modifiers = [ItemModifier.stat_mod(ItemModifier.Stat.ATTACK_SPEED_PCT, -0.5)]
 	p.equip(charm)
-	check("slower attacks lengthen the interval but not the animation", is_equal_approx(p.blade_cooldown, 0.42 / 0.6) and p.animation_rate() == 1.0)
+	check("slower attacks lengthen the interval but not the animation", is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN / 0.6) and p.animation_rate() == 1.0)
 	p.unequip(Item.Category.TRINKET)
 	var old_save := weapon.to_data()
 	old_save.mods = [{"stat": ItemModifier.Stat.BLADE_COOLDOWN_PCT, "amount": -0.08, "trigger": ItemModifier.Trigger.NONE}]
 	var converted := Item.from_data(old_save)
 	p.equip(converted)
-	check("saved cooldown affix loads as equivalent attack speed", converted.modifiers[0].stat == ItemModifier.Stat.ATTACK_SPEED_PCT and is_equal_approx(p.blade_cooldown, 0.42 * 0.92) and "攻速 +9" in converted.details())
+	check("saved cooldown affix loads as equivalent attack speed", converted.modifiers[0].stat == ItemModifier.Stat.ATTACK_SPEED_PCT and is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN * 0.92) and "攻速 +9" in converted.details())
 	p.equip(weapon)
 	# Switching from walk to an attack must not resize or lift her: compare
 	# the body's foot line and height against the idle frame per direction.

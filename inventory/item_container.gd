@@ -73,3 +73,54 @@ func reposition(item: Item, x: int, y: int) -> bool:
 		item.grid_y = y
 	items.append(item)
 	return allowed
+
+## Whether `item` could sit at (x, y), ignoring its own current cells — the
+## drop preview for dragging (装备与背包界面调研 §5.4).
+func can_place(item: Item, x: int, y: int) -> bool:
+	var had := items.has(item)
+	if had: items.erase(item)
+	var allowed := _cell_free(x, y, item)
+	if had: items.append(item)
+	return allowed
+
+## Puts an item that is not in this container at (x, y). Fails without change.
+func place(item: Item, x: int, y: int) -> bool:
+	if item == null or items.has(item) or not _cell_free(x, y, item): return false
+	item.grid_x = x
+	item.grid_y = y
+	items.append(item)
+	return true
+
+## Repacks by category, then rarity (best first), then size (largest first),
+## the order Grim Dawn / Last Epoch sort by. If the repack somehow does not
+## fit, every item goes back where it was.
+func sort_items() -> bool:
+	var before := {}
+	for item in items: before[item] = Vector2i(item.grid_x, item.grid_y)
+	var order := items.duplicate()
+	order.sort_custom(func(a: Item, b: Item) -> bool:
+		if a.category != b.category: return a.category < b.category
+		if a.rarity != b.rarity: return a.rarity > b.rarity
+		if a.width * a.height != b.width * b.height: return a.width * a.height > b.width * b.height
+		return a.item_name < b.item_name)
+	items.clear()
+	for item in order:
+		if not try_add(item):
+			items.clear()
+			for kept in before:
+				kept.grid_x = before[kept].x
+				kept.grid_y = before[kept].y
+				items.append(kept)
+			return false
+	return true
+
+## Grows the grid (base expansions). Never shrinks under existing items.
+func resize(p_width: int, p_height: int) -> void:
+	for item in items:
+		p_width = maxi(p_width, item.grid_x + item.width)
+		p_height = maxi(p_height, item.grid_y + item.height)
+	width = maxi(width, p_width)
+	height = maxi(height, p_height)
+
+func cell_count() -> int:
+	return width * height

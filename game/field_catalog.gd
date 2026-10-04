@@ -50,13 +50,13 @@ const SOURCE := "https://prts.wiki/w/萨卡兹的无终奇语/想象实体图鉴
 const REGIONS := {
 	"mine": {"name": "切尔诺伯格 · 坍塌矿区", "brief": "回收矿料，测绘污染。狭窄矿道 / 密集追击",
 		"loot": "材料多，装备少", "exclusive": "未封装源石原矿：高价值，但携带持续失血",
-		"build": "源石 · 坚壁 · 血契（承伤与持续作战）", "color": Color("514b3b"), "weights": [0.12, 0.12, 0.11, 0.65]},
+		"build": "防御与生命类藏品更常见（承伤与持续作战）", "color": Color("514b3b"), "weights": [0.12, 0.12, 0.11, 0.65]},
 	"city": {"name": "龙门 · 下城区废墟", "brief": "回收防务与医疗物资。曲折街区 / 近战伏击",
 		"loot": "防具多，制式装备品质较高", "exclusive": "近卫局暴动盾：更能承伤，但降低移速",
-		"build": "坚壁 · 锋刃 · 迅捷（反击与格挡）", "color": Color("354656"), "weights": [0.18, 0.56, 0.14, 0.12]},
+		"build": "攻击、防御与攻速类藏品更常见（近战与格挡）", "color": Color("354656"), "weights": [0.18, 0.56, 0.14, 0.12]},
 	"snow": {"name": "萨米 · 冻土林线", "brief": "采集极寒样本，回收冻土旧物。开阔林线 / 稀疏强敌",
 		"loot": "低频高值，饰品与稀有装备", "exclusive": "冻土下的旧物：强化伤害，降低体力恢复",
-		"build": "猎手 · 狼魂 · 锋刃（先手与爆发）", "color": Color("9eafb8"), "weights": [0.25, 0.18, 0.42, 0.15]}
+		"build": "剑气与攻击类藏品更常见（先手与爆发）", "color": Color("9eafb8"), "weights": [0.25, 0.18, 0.42, 0.15]}
 }
 const ROUTES := [
 	{"name": "巡检支路", "detail": "低危险 / 常规掉落 / 敌人较少", "pressure": 6.0, "reward": 0.0},
@@ -93,9 +93,22 @@ static func exclusive(region: String) -> Item:
 	item.rarity = 2
 	return item
 
+## Better items roll better tiers: weights for Ⅰ/Ⅱ/Ⅲ by rarity.
+const TIER_WEIGHTS := [[0.5, 0.4, 0.1], [0.3, 0.5, 0.2], [0.15, 0.45, 0.4]]
+
+static func _roll_tier(rarity: int, rng: RandomNumberGenerator) -> int:
+	var roll := rng.randf()
+	var weights: Array = TIER_WEIGHTS[clampi(rarity, 0, 2)]
+	for i in range(3):
+		roll -= float(weights[i])
+		if roll <= 0.0: return i
+	return 2
+
 static func roll_item(region: String, depth: int, rng: RandomNumberGenerator, reward: float = 0.0) -> Item:
 	if rng.randf() < 0.12 + reward * 0.08:
 		return exclusive(region)
+	if rng.randf() < SpecialGear.drop_chance(reward):
+		return SpecialGear.roll(region, depth, rng)
 	var roll := rng.randf()
 	var category := 3
 	var weights: Array = REGIONS[region].weights
@@ -120,5 +133,8 @@ static func roll_item(region: String, depth: int, rng: RandomNumberGenerator, re
 			var index := rng.randi_range(0, possible.size() - 1)
 			var stat: int = possible[index]
 			possible.remove_at(index)
-			item.modifiers.append(ItemModifier.stat_mod(stat as ItemModifier.Stat, AFFIX_AMOUNTS[stat]))
+			var tier := _roll_tier(item.rarity, rng)
+			var mod := ItemModifier.stat_mod(stat as ItemModifier.Stat, float(AFFIX_AMOUNTS[stat]) * ItemModifier.TIER_SCALES[tier])
+			mod.tier = tier
+			item.modifiers.append(mod)
 	return item

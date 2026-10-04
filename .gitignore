@@ -4,3 +4,6 @@
 .DS_Store
 Thumbs.db
 *.tmp
+
+# Design docs stay local
+*.md

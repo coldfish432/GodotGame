@@ -25,6 +25,9 @@ func find_button(node: Node, text: String) -> Button:
 		if found != null: return found
 	return null
 func click_button(label: String) -> void:
+	# Menus rebuilt this frame (auto-wrapping cards and panels) take a frame or
+	# two to settle; measuring earlier aims at where the button used to be.
+	await step(2)
 	var button := find_button(rig, label)
 	if button == null:
 		check("button exists: " + label, false)

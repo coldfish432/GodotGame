@@ -99,14 +99,10 @@ func _process(_delta: float) -> void:
 	if game.simulation_active(): _charge_time += _delta
 	_charge_label.modulate = CombatVfx.LIGHT if p.sword_charge >= needed else CombatVfx.BLUE
 	if p.sword_charge >= needed: _charge_label.modulate.a = 0.75 + 0.25 * sin(_charge_time * TAU * 2)
-	var counts := RelicCatalog.school_counts(game.builds)
-	var schools: Array[String] = []
-	for school in counts:
-		if counts[school] > 0: schools.append("%s%d" % [RelicCatalog.school_name(school), counts[school]])
-	_stats_label.text = "攻 %d  法 %d  防 %d  抗 %d  攻速 %d  暴 %d%%\n构筑 %s" % [roundi(p.attack_power()), roundi(p.arts_power()), roundi(p.defense_value()), roundi(p.resistance()),
-		roundi(p.current_aspd()), roundi(p.crit_rate() * 100), " ".join(schools) if not schools.is_empty() else "无"]
+	_stats_label.text = "攻 %d  法 %d  防 %d  抗 %d  攻速 %d  暴 %d%%\n藏品 %d 件" % [roundi(p.attack_power()), roundi(p.arts_power()), roundi(p.defense_value()), roundi(p.resistance()),
+		roundi(p.current_aspd()), roundi(p.crit_rate() * 100), game.builds.size()]
 	_seed_label.text = "%s · 警戒 %d / 100（敌伤 +%d%%）" % [FieldCatalog.REGIONS[game.region_id].name, game.pressure, game.pressure / 1.6]
-	_loot_label.text = "背包 %d / 60 格 · 构筑 %d 件 · 待交付 %d\n%s" % [game.inventory.occupied_cells(), game.builds.size(), game.run_gold, "本段有撤离点：绿色标记 E 撤离" if game.is_extraction_floor() else "下个固定撤离：第 %d 区段" % ((game.floor_number / 3 + 1) * 3)]
+	_loot_label.text = "背包 %d / %d 格 · 拾取 %s · 待交付 %d\n%s" % [game.inventory.occupied_cells(), game.inventory.cell_count(), GameManager.PICKUP_FILTER_NAMES[game.pickup_filter], game.run_gold, "本段有撤离点：绿色标记 E 撤离" if game.is_extraction_floor() else "下个固定撤离：第 %d 区段" % ((game.floor_number / 3 + 1) * 3)]
 	_message_label.text = game.message if game.message_timer > 0 else "橙：强化 / 金：点金 / 蓝：深入 / 绿：撤离 / 浅蓝菱形：战斗缴获"
 
 func map_point(position: Vector3) -> Vector2:
@@ -147,6 +143,7 @@ func _draw() -> void:
 		if cache.game == game and game.fog.is_point_revealed(cache.position):
 			draw_circle(map_point(cache.position), 3, Color("8a8f96") if cache.sealed else (Color("f3b04a") if cache.source == "vault" else Color("72b8ff")))
 	draw_circle(map_point(game.player.position), 4, Color.WHITE)
+	_draw_ground_names()
 
 ## Panel-space geometry is computed once; which of it is drawn is decided per
 ## refresh from the fog. Each triangle and each outline segment keeps the world
@@ -207,3 +204,17 @@ func _map_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.02, 0.04, 0.07, 0.85)
 	return style
+
+## Hold Alt: names of the items on the ground, in rarity colour (装备与背包界面调研
+## §5.10, PoE / Grim Dawn). Drops the pickup filter leaves behind are marked.
+func _draw_ground_names() -> void:
+	if not Input.is_key_pressed(KEY_ALT) or not game.simulation_active(): return
+	var font := ThemeDB.fallback_font
+	for node in get_tree().get_nodes_in_group("loot"):
+		var loot := node as Loot
+		if loot.game != game or loot.item == null or loot.is_search_point: continue
+		var point := game.screen_point(loot.global_position + Vector3.UP * 0.8)
+		var label := loot.item.display_name() + ("（已过滤 · E 拾取）" if not game.passes_pickup_filter(loot.item) else "")
+		var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+		draw_rect(Rect2(point.x - width * 0.5 - 4, point.y - 16, width + 8, 21), Color(0.03, 0.05, 0.08, 0.8))
+		draw_string(font, Vector2(point.x - width * 0.5, point.y), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, loot.item.rarity_color())

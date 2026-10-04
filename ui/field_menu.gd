@@ -68,6 +68,8 @@ const STATIONS := {
 	"store": ["可露希尔的商店", "暂未开张"],
 }
 var _station := ""
+## The stash list's search text (装备与背包界面调研 §5.13); kept while the menu redraws.
+var _stash_query := ""
 
 ## Everything on one page; kept for tools and tests that want the overview.
 func show_base() -> void:
@@ -123,7 +125,7 @@ func _contracts_section() -> void:
 		text(box, data.brief)
 		text(box, data.loot)
 		text(box, "专属 / " + data.exclusive, 14)
-		text(box, "构筑 / " + data.build, 14)
+		text(box, "藏品 / " + data.build, 14)
 		var orders := game.base.orders.pointing_at(region)
 		if orders > 0: text(box, "有 %d 张订单指向此地区" % orders, 14, GOLD)
 		button(box, "接下合同 →", func(): game.request_contract(region))
@@ -142,6 +144,8 @@ func _loadout_section() -> void:
 			if game.inventory.items.has(item):
 				button(row, "装备", func(): game.equip_from(item, game.inventory); game.save_base(); _refresh())
 		button(row, "存回仓库", func(): game.store_item(item); _refresh())
+	if game.carried_items().any(func(x): return not x.is_equippable()):
+		button(body, "背包与安全袋的材料全部存回仓库", func(): game.store_all_materials(); _refresh())
 
 func _stash_section() -> void:
 	var base: BaseState = game.base
@@ -151,11 +155,34 @@ func _stash_section() -> void:
 	text(body, "个人仓库 / %s" % "  ·  ".join(load_by_zone), 18)
 	_expansion_section()
 	if game.stash.is_empty(): text(body, "个人仓库是空的。上架的物品可以在这里带入下一份合同；交付在出库区。", 15)
-	for item in game.stash:
-		var row := HBoxContainer.new()
-		body.add_child(row)
-		text(row, item.display_name(), 15).tooltip_text = item.details()
-		button(row, "带入", func(): game.bring_item(item); _refresh())
+	var search := LineEdit.new()
+	search.placeholder_text = "搜索仓库（名称或词缀，如“攻击力”“稀有”）"
+	search.text = _stash_query
+	search.custom_minimum_size.x = 420
+	search.text_submitted.connect(func(value: String): _stash_query = value; _refresh())
+	var bar := HBoxContainer.new()
+	body.add_child(bar)
+	bar.add_child(search)
+	button(bar, "搜索", func(): _stash_query = search.text; _refresh())
+	if not _stash_query.is_empty(): button(bar, "清除", func(): _stash_query = ""; _refresh())
+	if game.carried_items().any(func(x): return not x.is_equippable()):
+		button(bar, "背包材料全部存回", func(): game.store_all_materials(); _refresh())
+	for category in range(Item.Category.size()):
+		var shown := game.stash.filter(func(x): return x.category == category and _matches(x))
+		if shown.is_empty(): continue
+		text(body, "%s（%d）" % [BaseCatalog.CATEGORY_NAMES[category], shown.size()], 16, GOLD)
+		for item: Item in shown:
+			var row := HBoxContainer.new()
+			body.add_child(row)
+			text(row, item.display_name(), 15, item.rarity_color()).tooltip_text = item.details()
+			button(row, "带入", func(): game.bring_item(item); _refresh())
+
+func _matches(item: Item) -> bool:
+	if _stash_query.strip_edges().is_empty(): return true
+	var haystack := item.display_name() + " " + item.details()
+	for word in _stash_query.split(" ", false):
+		if not word in haystack: return false
+	return true
 
 ## Building racks and buying the drone (§3.5, §3.6), at the warehouse terminal.
 func _expansion_section() -> void:
@@ -174,6 +201,24 @@ func _expansion_section() -> void:
 		var need_rank := int(BaseCatalog.RACK_RANKS[slot])
 		var label := "%s区第 %d 个货架 %d" % [name, slot + 1, BaseCatalog.RACK_PRICES[slot]] + ("（R%d）" % need_rank if rank < need_rank else "")
 		button(row, label, func(): game.build_rack(category); _refresh(), not refusal.is_empty())
+	var upgrades := HBoxContainer.new()
+	body.add_child(upgrades)
+	for kind in ["pack", "safe"]:
+		var level := base.pack_level if kind == "pack" else base.safe_level
+		var sizes: Array = BaseCatalog.PACK_SIZES if kind == "pack" else BaseCatalog.SAFE_SIZES
+		var prices: Array = BaseCatalog.PACK_PRICES if kind == "pack" else BaseCatalog.SAFE_PRICES
+		var title := "背包" if kind == "pack" else "安全袋"
+		var now: Vector2i = sizes[level]
+		if level + 1 >= sizes.size():
+			button(upgrades, "%s %d×%d（已满配）" % [title, now.x, now.y], func(): pass, true)
+			continue
+		var next: Vector2i = sizes[level + 1]
+		var refusal := base.upgrade_refusal(kind, game.gold)
+		var label := "%s扩容 %d×%d → %d×%d  %d" % [title, now.x, now.y, next.x, next.y, int(prices[level + 1])] + ("" if refusal.is_empty() else "（%s）" % refusal)
+		button(upgrades, label, func():
+			if kind == "pack": game.buy_pack_upgrade()
+			else: game.buy_safe_upgrade()
+			_refresh(), not refusal.is_empty())
 	if base.drone: text(body, "一键分类无人机：已就位。在货箱或暂存区可以全部开箱并归类；每次回到基地会把暂存区能上架的物品送上货架。", 14, Color("99aab8"))
 	else:
 		button(body, "购买工程部搬运无人机 %d%s" % [BaseCatalog.DRONE_PRICE, "（R%d）" % BaseCatalog.DRONE_RANK if rank < BaseCatalog.DRONE_RANK else ""],
@@ -346,7 +391,7 @@ func _pharmacy_section() -> void:
 		button(extra, "退掉", func(): game.return_extra_potion(); _refresh())
 	for type in BaseCatalog.POTIONS:
 		text(body, "%s：%s" % [BaseCatalog.POTIONS[type].name, BaseCatalog.POTIONS[type].text], 14, Color("99aab8"))
-	text(body, "构筑物或词缀减少药瓶容量时，从最后一瓶开始扣。没用掉的付费药剂结算后不退款、不保留。", 14, Color("99aab8"))
+	text(body, "藏品或词缀减少药瓶容量时，从最后一瓶开始扣。没用掉的付费药剂结算后不退款、不保留。", 14, Color("99aab8"))
 
 ## Contamination treatment at the scan gate (§4.1).
 func _decon_section() -> void:
@@ -371,10 +416,9 @@ func _report_section(always: bool = false) -> void:
 const OFFER_TITLES := {"device": "强化装置", "cache": "战斗缴获", "vault": "密室藏品"}
 
 ## The relic choice (局内构筑与数值策划案 §8.5): one card per offer with its
-## rarity, school, effect, what it adds to the school's resonance, and where
-## in 集成战略 it came from. The current build sits underneath.
+## rarity, its effect here and its 集成战略 original. Owned relics sit underneath.
 func show_builds() -> void:
-	clear("%s / 选择一件构筑物" % OFFER_TITLES.get(game.offer_source, "强化装置"), "本次合同有效 · 跨区段保留 · 不占背包 · 结算后清空")
+	clear("%s / 选择一件藏品" % OFFER_TITLES.get(game.offer_source, "强化装置"), "本次合同有效 · 跨区段保留 · 不占背包 · 结算后清空")
 	var cards := HBoxContainer.new()
 	cards.add_theme_constant_override("separation", 16)
 	body.add_child(cards)
@@ -392,16 +436,10 @@ func show_builds() -> void:
 		var box := VBoxContainer.new()
 		box.add_theme_constant_override("separation", 8)
 		panel.add_child(box)
-		var school_label: String = RelicCatalog.school_name(offer.school)
-		if offer.school == RelicCatalog.BRIDGE:
-			school_label += "（%s）" % " + ".join(offer.requires.map(func(x): return RelicCatalog.school_name(x)))
-		text(box, "%s · %s" % [RelicCatalog.RARITY_NAMES[offer.rarity], school_label], 14, RelicCatalog.school_color(offer.school))
+		text(box, "%s稀有度" % RelicCatalog.RARITY_NAMES[offer.rarity], 14, RelicCatalog.RARITY_COLORS[offer.rarity])
 		text(box, offer.name, 22, RelicCatalog.RARITY_COLORS[offer.rarity])
-		text(box, offer.hook, 14, Color("99aab8"))
 		text(box, offer.effect, 17)
-		var hint := RelicCatalog.resonance_hint(offer.id, game.builds)
-		if not hint.is_empty(): text(box, hint, 14, GOLD)
-		text(box, "底本：%s — %s" % [offer.source_name, offer.adaptation], 12, Color("6f8396")).tooltip_text = offer.source_url
+		text(box, "集成战略原效果：%s" % offer.original, 12, Color("6f8396")).tooltip_text = offer.source_url
 		button(box, "选择 " + offer.name, func(): game.choose_build(offer.id))
 	var row := HBoxContainer.new()
 	body.add_child(row)
@@ -409,26 +447,17 @@ func show_builds() -> void:
 	button(row, "稍后选择", game.close_modal)
 	build_summary(body)
 
-## Owned relics grouped by school, with each school's resonance progress.
+## The relics owned this contract, one line each.
 func build_summary(parent: Node) -> void:
 	parent.add_child(HSeparator.new())
-	var counts := RelicCatalog.school_counts(game.builds)
-	text(parent, "本次构筑 / %d 件" % game.builds.size(), 18, GOLD)
-	var line: Array[String] = []
-	for school in RelicCatalog.SCHOOLS:
-		if counts[school] > 0: line.append("%s %d" % [RelicCatalog.school_name(school), counts[school]])
-	if line.is_empty():
-		text(parent, "还没有构筑物。同一体系集齐 2 件、4 件时激活共鸣。", 14, Color("99aab8"))
+	text(parent, "本次藏品 / %d 件" % game.builds.size(), 18, GOLD)
+	if game.builds.is_empty():
+		text(parent, "还没有藏品。强化装置、战斗缴获和密室都会给出藏品选择。", 14, Color("99aab8"))
 		return
-	text(parent, "  ·  ".join(line), 15)
-	for school in RelicCatalog.SCHOOLS:
-		var reached := RelicCatalog.tier(counts, school)
-		for step in [2, 4]:
-			if reached >= step: text(parent, "%s 共鸣 %d：%s" % [RelicCatalog.school_name(school), step, RelicCatalog.SCHOOLS[school][step].text], 14, RelicCatalog.school_color(school))
 	for id in game.builds:
 		var relic := RelicCatalog.get_relic(id)
 		if relic.is_empty(): continue
-		text(parent, "%s [%s] / %s" % [relic.name, RelicCatalog.school_name(relic.school), relic.effect], 13, RelicCatalog.RARITY_COLORS[relic.rarity])
+		text(parent, "%s / %s" % [relic.name, relic.effect], 13, RelicCatalog.RARITY_COLORS[relic.rarity])
 
 ## Lappland's sheet as it stands, in 明日方舟's terms.
 func stat_lines(parent: Node) -> void:

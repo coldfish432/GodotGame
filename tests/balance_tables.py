@@ -3,7 +3,7 @@ E = {'暴徒 thug':(1400,440,100,0,'p'),'弩手 crossbow':(1100,440,60,0,'p'),'�
  '冰原猎人 ice_hunter':(1100,560,60,20,'p'),'精英 elite':(3600,560,300,30,'a')}
 def phys(a,d): return max(a-d,a*0.1)
 def arts(a,r): return a*max(1-r/100,0.1)
-INT=0.42; COMBO=[1,1,1.3]
+INT=0.7; COMBO=[1,1,1.3]
 builds = {
  '白板': dict(atk=600,arts=360,crit=0,cdmg=1.5,aspd=100,df=200,res=10,hp=2400,pierce=0),
  '锋刃4(中期)': dict(atk=600*1.15+60,arts=360,crit=0.15+0.05,cdmg=1.8,aspd=100,df=200,res=10,hp=2400*0.92,pierce=0.4),

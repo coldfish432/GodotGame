@@ -26,13 +26,14 @@ func run() -> void:
 	await step(15)
 	game = find_game(rig)
 	await game.start_contract("snow")
-	game.builds.assign(["howl", "wolf_fang"])
+	game.builds.assign(["显圣吊坠", "古高卢银币"])
 	game.player._recompute_stats()
 	game.player.teleport(game.world_map.buff_position)
 	game._interact()
 	await capture("offer")
 	game.choose_build(game.build_offers[0].id)
-	game.builds.assign(["howl", "wolf_fang", "pale_spark", "ember_wave", "blade_edge", "whetstone", "moon_blades"])
+	game.builds.assign(["显圣吊坠", "古高卢银币", "制式防暴用具", "皇帝的恩宠", "残破合影", "演出用香水", "设计师量尺"])
+	game.player.equip(SpecialGear.create("ember_fang", 2, RandomNumberGenerator.new()))
 	game.player._recompute_stats()
 	game.player.reset_floor_state()
 	var stage: Vector3 = game.world_map.try_sample_navigation_position(game.world_map.buff_position, 25.0)
@@ -60,8 +61,22 @@ func run() -> void:
 	for i in range(6): await physics_frame
 	game.player.take_damage(700, "phys")
 	await capture("combat")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 21
+	for i in range(14):
+		var loot := FieldCatalog.roll_item("snow", 4, rng, 1.5)
+		if i == 2: loot.insured = true
+		if i == 3: loot.gilded = true
+		game.inventory.try_add(loot)
+	var shield := FieldCatalog.exclusive("city")
+	game.safe_bag.try_add(FieldCatalog.exclusive("snow"))
+	game.inventory.try_add(shield)
+	var worn := Item.create("外勤战刃", Item.Category.WEAPON, 2, 1, 1.5)
+	game.player.equip(worn)
 	game.open_modal("inventory")
 	game._inventory_panel.open()
+	var candidate: Item = game.inventory.items.filter(func(x): return x.category == Item.Category.WEAPON and x != worn).front() if game.inventory.items.any(func(x): return x.category == Item.Category.WEAPON) else shield
+	game._inventory_panel.hover(candidate, game.inventory)
 	await capture("inventory")
 	game.close_modal()
 	rig.queue_free()

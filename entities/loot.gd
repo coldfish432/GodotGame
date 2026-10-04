@@ -20,7 +20,7 @@ func _ready() -> void:
 	var is_item := item != null
 	var color := Color(0.35, 0.55, 1.0) if is_item else Color(1.0, 0.75, 0.15)
 	if is_item:
-		color = [Color("a9bacb"), Color("86d2b7"), Color("bc88e8")][item.rarity]
+		color = item.rarity_color()
 	var mesh := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.4 if is_item else 0.35
@@ -75,6 +75,7 @@ func _process(delta: float) -> void:
 	if sealed: return
 	if global_position.distance_to(game.player.global_position) < 1.25:
 		if item != null:
+			if not game.passes_pickup_filter(item): return
 			if game.try_collect(item):
 				queue_free()
 			# else: pack is full — leave the drop for the player to retry

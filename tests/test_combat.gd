@@ -61,7 +61,7 @@ func run() -> void:
 		var gold_before_kill: int = game.run_gold
 		var inventory_count_before_kill: int = game.inventory.items.size()
 		while is_instance_valid(target) and swings < 10:
-			await step(30)  # clear the blade cooldown (0.42s) between swings
+			await step(45)  # clear the blade cooldown (0.7s) between swings
 			if is_instance_valid(target):
 				game.player.attack(target)
 			swings += 1

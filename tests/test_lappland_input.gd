@@ -61,7 +61,7 @@ func run() -> void:
 	var poses: Dictionary = {}
 	var saw_wave := false
 	var saw_ready := false
-	for i in range(86):
+	for i in range(150):
 		poses[p._sprite.action_name] = true
 		if p.sword_charge == 3: saw_ready = true
 		for node in game.get_children():

@@ -14,12 +14,12 @@ const BASE := {
 	"aspd": 100.0, "crit": 0.0, "crit_dmg": 1.5, "regen": 48.0,
 	"move": 5.0, "stamina_regen": 18.0,
 }
-## Every key a relic, resonance tier or equipment affix may add to. Flat and
+## Every key a relic or equipment affix may add to. Flat and
 ## percentage keys combine as (base + flat) * (1 + pct), the way 明日方舟
 ## stacks its own "+X" and "+X%" buffs.
 const KEYS := ["hp", "hp_pct", "atk", "atk_pct", "arts", "arts_pct", "def", "def_pct", "res",
 	"aspd", "interval_pct", "crit", "crit_dmg", "move_pct", "regen", "regen_pct", "regen_max_pct", "lifesteal",
-	"dmg_pct", "arts_dmg_pct", "taken_pct", "evasion", "heal_pct", "stamina_regen_pct", "dash_cost", "dash_cd_pct",
+	"dmg_pct", "arts_dmg_pct", "phys_dmg_pct", "def_ignore", "taken_pct", "evasion", "evasion_arts", "heal_pct", "stamina_regen_pct", "dash_cost", "dash_cd_pct",
 	"potion_cap", "gold_pct", "elite_pct", "wave_pct", "pressure_pct", "contam_pct"]
 
 ## Equipment "power" (基础效能) turns into stats per slot (§7). Matches the old

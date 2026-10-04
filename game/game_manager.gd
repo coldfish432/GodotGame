@@ -91,11 +91,14 @@ var offer_source := "device"
 var _device_offers: Array[Dictionary] = []
 var _active_cache: RelicCache
 var reroll_count := 0
-## Offers in a row without the main school (pity, 局内构筑与数值策划案 §8.3).
-var _offer_misses := 0
 ## Threat defeated this segment and whether its combat cache has appeared (§8.2).
 var segment_threat := 0
 var _cache_spawned := false
+## Ground pickup filter (装备与背包界面调研 §5.10, Grim Dawn style): 0 picks up
+## everything, 1 equipment of 精良 and up, 2 only 稀有. Materials, exclusives
+## and money are always picked up. Filtered drops stay; E picks one up.
+var pickup_filter := 0
+const PICKUP_FILTER_NAMES := ["全部", "精良以上", "仅稀有"]
 var settlement: Array[Dictionary] = []
 var rng := RandomNumberGenerator.new()
 var _settled := true
@@ -235,8 +238,7 @@ func _physics_process(delta: float) -> void:
 	if simulation_active() and is_instance_valid(player):
 		fog.reveal(player.global_position)
 		_tick_medical(delta)
-		var drain := FieldCatalog.RAW_ORE_DRAIN * (0.5 if player.school_tier("ore") >= 2 else 1.0)
-		player.hp -= count_effect("raw_ore") * drain * delta
+		player.hp -= count_effect("raw_ore") * FieldCatalog.RAW_ORE_DRAIN * delta
 		if player.hp <= 0: _on_player_died()
 
 func show_base() -> void:
@@ -343,7 +345,6 @@ func start_contract(region: String) -> void:
 	builds.clear()
 	build_offers.clear()
 	reroll_count = 0
-	_offer_misses = 0
 	player._recompute_stats()
 	floor_number = 1
 	pressure = 0
@@ -404,6 +405,13 @@ func is_gilding_available() -> bool: return not _gilding_taken
 
 func _interact() -> void:
 	if not simulation_active(): return
+	for node in get_tree().get_nodes_in_group("loot"):
+		var loot := node as Loot
+		# Only what the pickup filter left behind; everything else is picked
+		# up by walking over it, so E stays free for caches and devices.
+		if loot.game == self and loot.item != null and not loot.sealed and not loot.is_search_point and not passes_pickup_filter(loot.item) and player.global_position.distance_to(loot.global_position) < 2.0:
+			if try_collect(loot.item): loot.queue_free()
+			return
 	for node in get_tree().get_nodes_in_group("relic_caches"):
 		var cache := node as RelicCache
 		if cache.game != self or not near(cache): continue
@@ -484,10 +492,6 @@ func advance(route: int) -> void:
 	_spawn_wave()
 	transitioning = false
 	set_message("进入第 %d 区段 · %s；上一段已无法返回。" % [floor_number, FieldCatalog.ROUTES[route].name])
-	if is_extraction_floor() and player.school_tier("field") >= 4:
-		player.heal(player.max_hp * 0.4, true)
-		if potion_belt.size() < player.potion_capacity + (1 if _run_extra_potion else 0): potion_belt.append("A")
-		set_message("外勤 4：抵达可撤离区段，回复 40% 生命并补 1 瓶急救剂。")
 
 func _offer_builds() -> void:
 	open_relic_offer("device")
@@ -501,7 +505,7 @@ func open_relic_offer(source: String, cache: RelicCache = null) -> void:
 		if cache == null: _device_offers = stored
 		else: cache.offers = stored
 	if stored.size() < 3:
-		set_message("本地区可用构筑不足三个：装置休眠。当前构筑跨区段保留。")
+		set_message("本地区可选藏品不足三件：装置休眠。已有藏品跨区段保留。")
 		return
 	offer_source = source
 	_active_cache = cache
@@ -510,16 +514,12 @@ func open_relic_offer(source: String, cache: RelicCache = null) -> void:
 	menu.show_builds()
 
 func _roll_relics(source: String) -> Array[Dictionary]:
-	var counts := RelicCatalog.school_counts(builds)
-	var main := RelicCatalog.main_school(counts)
-	var force := main if _offer_misses >= RelicCatalog.PITY_AFTER else ""
-	var offers := RelicCatalog.roll_offers(region_id, builds, source, rng, 4 if builds.has("radio") else 3, force)
-	if main.is_empty() or offers.any(func(x): return x.school == main): _offer_misses = 0
-	else: _offer_misses += 1
-	return offers
+	# 罗德岛战术电台: one more option.
+	return RelicCatalog.roll_offers(region_id, builds, source, rng, 3 + int(player.f("radio")))
 
+## 锈蚀的铁锤 halves it.
 func reroll_cost() -> int:
-	return RelicCatalog.REROLL_BASE + RelicCatalog.REROLL_STEP * reroll_count
+	return roundi((RelicCatalog.REROLL_BASE + RelicCatalog.REROLL_STEP * reroll_count) * (1.0 - minf(0.9, player.f("reroll_discount"))))
 
 ## Pays from the contract's not-yet-banked reward (the same money extraction
 ## would bring home), so a reroll is a bet against extracting.
@@ -541,7 +541,7 @@ func choose_build(id: String) -> bool:
 	if not is_instance_valid(_active_cache) and _buff_taken: return false
 	for offer in build_offers:
 		if offer.id == id:
-			var before := RelicCatalog.school_counts(builds)
+			var enemy_hp_before := player.f("enemy_hp")
 			builds.append(id)
 			if is_instance_valid(_active_cache):
 				_active_cache.claim()
@@ -550,16 +550,10 @@ func choose_build(id: String) -> bool:
 				_buff_taken = true
 			sound.play("build")
 			player._recompute_stats()
-			if id == "spare_pouch": potion_belt.append("A")
+			_rescale_enemy_life(enemy_hp_before, player.f("enemy_hp"))
 			_clamp_belt()
 			close_modal()
-			var line := "获得 %s — %s" % [offer.name, offer.effect]
-			if offer.school != RelicCatalog.BRIDGE:
-				var after := RelicCatalog.school_counts(builds)
-				var reached := RelicCatalog.tier(after, offer.school)
-				if reached > RelicCatalog.tier(before, offer.school):
-					line = "%s · %s 共鸣 %d：%s" % [offer.name, RelicCatalog.school_name(offer.school), reached, RelicCatalog.SCHOOLS[offer.school][reached].text]
-			set_message(line)
+			set_message("获得藏品 %s — %s" % [offer.name, offer.effect])
 			return true
 	return false
 
@@ -572,6 +566,23 @@ func _spawn_relic_cache(at: Vector3, source: String, sealed: bool) -> RelicCache
 	cache.global_position = world_map.nearest_walkable(at)
 	cache.global_position.y = 0.0
 	return cache
+
+## "黑夜呢喃" / 《大静谧》 also shrink enemies already standing in the segment.
+func _rescale_enemy_life(before: float, after: float) -> void:
+	if is_equal_approx(before, after): return
+	var factor := enemy_life_multiplier(after) / enemy_life_multiplier(before)
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var enemy := node as Enemy
+		if enemy.game != self or enemy._dead: continue
+		enemy.max_health *= factor
+		enemy.health *= factor
+
+static func enemy_life_multiplier(enemy_hp: float) -> float:
+	return maxf(0.3, 1.0 + enemy_hp)
+
+## Relic effects on enemy attack (开裂的束缚带 … 死仇时代的恨意).
+func enemy_attack_multiplier() -> float:
+	return maxf(0.3, 1.0 + player.f("enemy_atk")) if is_instance_valid(player) else 1.0
 
 func pressure_multiplier() -> float:
 	return maxf(0.1, 1.0 + float(player.stats.get("pressure_pct", 0.0)))
@@ -680,6 +691,99 @@ func settle(extracted: bool) -> void:
 	set_message("%s：%d 件新物品已送到仓储区收货区。" % ["合同交付" if extracted else "回收队归来", new_finds])
 	base_spawn = "arrival" if extracted else "death"
 	show_base()
+
+func passes_pickup_filter(item: Item) -> bool:
+	if item == null or not item.is_equippable() or not item.exclusive_region.is_empty(): return true
+	return item.rarity >= pickup_filter
+
+func cycle_pickup_filter() -> void:
+	pickup_filter = (pickup_filter + 1) % PICKUP_FILTER_NAMES.size()
+	save_base(not in_base)
+	set_message("拾取过滤：%s（被过滤的装备留在地上，靠近按 E 拾取；按住 Alt 显示地面物品名）" % PICKUP_FILTER_NAMES[pickup_filter])
+
+## What happens to `item` if she dies right now (策划案 §6 settlement order).
+func death_outcome(item: Item) -> String:
+	if in_base: return ""
+	if item.gilded: return "保留（点金）"
+	if safe_bag.items.has(item): return "保留（安全袋）"
+	if item.insured and item.carried_in: return "%d%% 概率返还（保险）" % roundi(FieldCatalog.INSURANCE_CHANCE * 100)
+	return "丢失"
+
+## Value at stake (装备与背包界面调研 §5.9): what she carries, what is certain
+## to come back on death, what insurance is expected to return, what is lost.
+func value_summary() -> Dictionary:
+	var summary := {"carried": 0, "safe": 0, "gilded": 0, "insured": 0, "kept": 0, "expected": 0.0, "lost": 0}
+	for item in carried_items():
+		summary.carried += item.value
+		if item.gilded: summary.gilded += item.value
+		if safe_bag.items.has(item): summary.safe += item.value
+		if item.insured and item.carried_in: summary.insured += item.value
+		var outcome := death_outcome(item)
+		if outcome.begins_with("保留"): summary.kept += item.value
+		elif outcome.ends_with("（保险）"): summary.expected += item.value * FieldCatalog.INSURANCE_CHANCE
+		else: summary.lost += item.value
+	return summary
+
+## Repacks the pack (the safe bag is never touched).
+func sort_pack() -> bool:
+	var sorted := inventory.sort_items()
+	save_base(not in_base)
+	set_message("背包已整理。" if sorted else "整理失败：当前摆放已是最紧凑，物品未移动。")
+	return sorted
+
+## Drag and drop (装备与背包界面调研 §5.4): `from` is a container, or null for
+## an equipped item; the target is a cell of `to`.
+func move_item(item: Item, from: ItemContainer, to: ItemContainer, x: int, y: int) -> bool:
+	if item == null or to == null: return false
+	if from == to: return to.reposition(item, x, y)
+	if from == null:
+		if player.equipped.get(item.category) != item or not to.place(item, x, y): return false
+		player.unequip(item.category)
+	else:
+		if not from.items.has(item) or not to.can_place(item, x, y): return false
+		from.remove(item)
+		to.place(item, x, y)
+	save_base(not in_base)
+	return true
+
+## Ctrl+click: pack ↔ safe bag.
+func quick_move(item: Item, from: ItemContainer) -> bool:
+	var to := safe_bag if from == inventory else inventory
+	return transfer_item(item, from, to)
+
+## Container sizes from the base's expansion levels.
+func apply_container_sizes() -> void:
+	var pack: Vector2i = BaseCatalog.PACK_SIZES[base.pack_level]
+	var safe: Vector2i = BaseCatalog.SAFE_SIZES[base.safe_level]
+	inventory.resize(pack.x, pack.y)
+	safe_bag.resize(safe.x, safe.y)
+
+func buy_pack_upgrade() -> bool:
+	if not base.can_upgrade("pack", gold): return false
+	gold -= int(BaseCatalog.PACK_PRICES[base.pack_level + 1])
+	base.pack_level += 1
+	apply_container_sizes()
+	save_base()
+	set_message("背包扩容到 %d×%d。" % [inventory.width, inventory.height])
+	return true
+
+func buy_safe_upgrade() -> bool:
+	if not base.can_upgrade("safe", gold): return false
+	gold -= int(BaseCatalog.SAFE_PRICES[base.safe_level + 1])
+	base.safe_level += 1
+	apply_container_sizes()
+	save_base()
+	set_message("安全袋扩容到 %d×%d。" % [safe_bag.width, safe_bag.height])
+	return true
+
+## Every material in the pack and safe bag back to the warehouse at once
+## (装备与背包界面调研 §5.13, Grim Dawn's one-click materials button).
+func store_all_materials() -> int:
+	var stored := 0
+	for item in carried_items():
+		if not item.is_equippable() and store_item(item): stored += 1
+	if stored > 0: set_message("已存回 %d 件材料。" % stored)
+	return stored
 
 func try_collect(item: Item) -> bool:
 	if inventory.try_add(item):
@@ -1176,6 +1280,7 @@ func _spawn_enemy(position: Vector3, elite: bool, ranged: bool, type: String = "
 	enemy.setup(self, elite, ranged, type)
 	var depth := floor_number - 1
 	enemy.max_health *= 1.0 + depth * EnemyAttacks.HP_PER_DEPTH + (EnemyAttacks.SNOW_HP_BONUS if region_id == "snow" else 0.0)
+	enemy.max_health *= enemy_life_multiplier(player.f("enemy_hp"))
 	enemy.health = enemy.max_health
 	enemy.atk *= 1.0 + depth * EnemyAttacks.ATK_PER_DEPTH
 	enemy.died.connect(_on_enemy_died)
@@ -1214,7 +1319,7 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 	if not _cache_spawned and segment_threat >= RelicCatalog.CACHE_THREAT and not in_base and not _enemy in _vault_guardians:
 		_cache_spawned = true
 		_spawn_relic_cache(_enemy.global_position, "cache", false)
-		set_message("战斗缴获：附近出现了藏品箱，靠近按 E 选择一件构筑物。")
+		set_message("战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。")
 		return
 	if _enemy in _vault_guardians:
 		_vault_guardians.erase(_enemy)
@@ -1243,7 +1348,6 @@ func spawn_loot(position: Vector3) -> void:
 
 func add_gold(amount: int) -> void:
 	run_gold += int(amount * player.gold_gain_multiplier)
-	if builds.has("rush_clause"): player.heal(player.max_hp * 0.02)
 	set_message("获得合同报酬 %d（撤离后入账）" % amount)
 
 func save_base(active_contract: bool = false) -> void:
@@ -1254,7 +1358,7 @@ func save_base(active_contract: bool = false) -> void:
 		entry["place"] = "safe" if safe_bag.items.has(item) else ("equipped" if player.equipped.values().has(item) else "pack")
 		loadout.append(entry)
 	var data := {"version": 2, "gold": gold, "base": base.to_data(), "loadout": loadout,
-		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state)}
+		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter}
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		set_message("存档写入失败：当前会话仍可继续。")
@@ -1276,12 +1380,14 @@ func load_base() -> void:
 			save_enabled = false
 			return
 	gold = int(parsed.get("gold", 60))
+	pickup_filter = clampi(int(parsed.get("pickup_filter", 0)), 0, PICKUP_FILTER_NAMES.size() - 1)
 	var seen := {}
 	# Version 1 kept one flat warehouse list; it goes onto the shelves, overflow to staging.
 	if int(parsed.get("version", 1)) == 1: base.migrate_v1(parsed.get("stash", []), seen)
 	else: base.load_data(parsed.get("base", {}), seen)
 	inventory.items.clear()
 	safe_bag.items.clear()
+	apply_container_sizes()
 	player.reset_stats()
 	for data in parsed.get("loadout", []):
 		var item := Item.from_data(data)

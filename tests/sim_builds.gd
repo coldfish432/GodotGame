@@ -39,9 +39,8 @@ func run() -> void:
 			low[0] = minf(low[0], game.player.hp)
 
 			driver.decide(game)
-		var counts := RelicCatalog.school_counts(seen.relics)
 		print("SIM %s: %s  depth %d  relics %d %s  hp %d/%d (lowest %d)  alert %d  real %.0fs" % [region, "DIED" if died else ("EXTRACTED" if game.in_base else "alive"),
-			seen.depth, seen.relics.size(), counts.keys().filter(func(k): return counts[k] > 0).map(func(k): return "%s%d" % [k, counts[k]]),
+			seen.depth, seen.relics.size(), seen.relics,
 			roundi(seen.hp), roundi(seen.max), roundi(low[0]), roundi(seen.alert), (Time.get_ticks_msec() - start) / 1000.0])
 		game.queue_free()
 		await process_frame
