@@ -1,0 +1,57 @@
+{
+  "generator": "built-in image_gen",
+  "transparent_background": true,
+  "revision_brief": "../E4_revision_v3.md",
+  "edits": [
+    {
+      "id": "raw_originium",
+      "prompt": "Use case: precise-object-edit. Pixel-art source for inventory icons, orthographic flat front view, top-left light, hard crisp edges and broad value planes. Transparent background, no shadow, aura, halo, text, number or emblem. Object fully visible. Input image1 is the OLD ore specimen to REPAINT ENTIRELY. Images2 and3 are PRTS originium visual references only; exclude their UI border, badges, icons and circular medals. Make a new tall dangerous ore specimen for native32x72: grey-brown fractured host rock (#2a2d33 #4a5058 #5a4d3a) supports jagged STAR-LIKE clusters of BLACK glossy sharply faceted originium SHARDS. Crystal bodies #0b0c0d #2a2d33, warm dark facets #4a2a1d #6e1616. Many sharp WHITE #eef3f5 facet EDGE glints, narrow planes catching top-left light. Orange-red glow exists INSIDE thin cracks and the biggest shard's INNER CORE only, #b85a12 #ee8a24 #ffb35a; orange never coats the crystal surfaces. In the biggest central shard include one tiny glowing hollow square motif, a3-4 native-pixel square OUTLINE with dark hollow center. Limit glow to about30-60 native pixels, keep most mineral surface near black. Black angular shards grow in multiple outward directions and break the silhouette, no regular hexagonal prism columns. Host rock is matte grey-brown and entirely different from glossy black crystal. Tall32:72 portrait composition, dangerous compact specimen with some attached grit at base. Pale facet glints across multiple shards provide readability on dark background while body remains black.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-5c4644e3-1dee-4c1d-98f7-064156cca04d.png",
+      "initial_source": "../batch_E4_v2/sources/raw_originium_source.png",
+      "reference_inputs": [
+        "references/prts_originium_shard.png",
+        "references/prts_originium_prime.png"
+      ],
+      "packaged_source": "sources/raw_originium_source.png",
+      "packaged_source_sha256": "6abc1ba369a3ca9da1d6a2d97c5ecbf91c74a9b0609fbdb89668dab9c0431102"
+    },
+    {
+      "id": "crystal_edge",
+      "prompt": "Use case: precise-object-edit. Pixel-art source for inventory icons, orthographic flat front view, top-left light, hard crisp edges and broad value planes. Transparent background, no shadow, aura, halo, text, number or emblem. Object fully visible. Input image1 is the EDIT TARGET Kindjal blade, image2 is PRTS black originium material reference only; exclude circular UI and badges. Preserve taped canvas grip LEFT, iron guard and pommel, broad straight double-edge Kindjal shape, tip RIGHT, horizontal orientation. Replace three orange crystal clusters with a fused jagged CRUST OF BLACK FACETED ORIGINIUM covering BOTH CUTTING EDGES all the way from just after the guard to the tip. The crust grows thicker toward the tip, full length of edges densely covered in small angular black shards, sawlike angular line breaking silhouette. Keep a steel grey central ridge/spine plainly visible through blade middle so this remains a steel dagger under ore. Crystal bodies #0b0c0d #2a2d33; warm dark facets #4a2a1d #6e1616; hard WHITE #eef3f5 glints on shard edges. INTERNAL thin orange-red #b85a12 #ee8a24 #ffb35a cracks between shards, no orange surface fills, no halo. Add one tiny 3-pixel glowing hollow square in the largest fused shard near tip, dark center. Native72x32 landscape, fully visible, no extra hilt decorations.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-13ad3008-fdfb-4d38-981b-76e92a284874.png",
+      "initial_source": "../batch_E4_v2/sources/crystal_edge_source.png",
+      "reference_inputs": [
+        "references/prts_originium_shard.png"
+      ],
+      "packaged_source": "sources/crystal_edge_source.png",
+      "packaged_source_sha256": "29d626cb6bbffad383e58b58c89243d331b835cca047d7a28d2b95c24028894f"
+    },
+    {
+      "id": "shadow_bracer",
+      "prompt": "Precise object edit. Produce ONLY the main single bracer layer for later pixel-grid duplication. Remove existing dark echo entirely. One flat front-view upright closed forearm bracer, broad rigid navy metal body, narrow bright steel left and right edge rims, lit upper-left, rectangular taper and strap detail. Keep the recognizable current design, no cylindrical opening or perspective. Transparent background. Bright exposed front rim on both sides. Navy blue body with steel silver edge. No second copy now, no text, no emblem, no aura or shadow.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-bd500bd1-d373-4bdc-adc4-ecd3e304aca1.png",
+      "initial_source": "../batch_E4_v2/sources/shadow_bracer_source.png",
+      "reference_inputs": [],
+      "packaged_source": "sources/shadow_bracer_source.png",
+      "packaged_source_sha256": "0cffc769f85bd4bd56d37284cc69a09908de671c818189f43d806a5f893a0e9b"
+    },
+    {
+      "id": "spike_plate",
+      "prompt": "Use case: precise-object-edit. Pixel-art source for inventory icons, orthographic flat front view, top-left light, hard crisp edges and broad value planes. Transparent background, no shadow, aura, halo, text, number or emblem. Object fully visible. Repaint MATERIAL ONLY of this mine-region heavy spike armor. Lock the silhouette, size, placement and direction of ALL TEN outward shoulder/chest spikes, entire armor layout and canvas straps. Main iron plates are DARK and matte: #2a2d33 #4a5058 #7d868e in broad calm planes, a few dull light-grey edge catches; keep plate faces dark slate iron. Large restrained rust-ramp patches #7d4529 #b06a3a #d99560 along rims and rivets, no single-pixel rust speckles. White #eef3f5 only on spike TIPS and a few isolated metal EDGE GLINTS. Make the canvas shoulder and side straps visibly broad tan woven material #857555 #b3a27c #d6c8a2 with lit planes, darker leather underside. Native72x72 front view. Worn mine iron, rust and canvas material language. The pale straps and little bright spike tips provide readability without silver-white plate faces. Keep angular silhouette completely identical to the target.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-a54e26ec-7d20-4dad-a8f6-a0c6a1bc054b.png",
+      "initial_source": "../batch_E4_v2/sources/spike_plate_source.png",
+      "reference_inputs": [],
+      "packaged_source": "sources/spike_plate_source.png",
+      "packaged_source_sha256": "87f32984cde0dc4556d8808e5dbf71f7b5ff05a8c219cb64c849f7d981a2455c"
+    },
+    {
+      "id": "riot_shield",
+      "prompt": "Precise local edit: preserve silhouette, steel rim, all upper viewport and cream reflective band, shield colors, proportions, alpha and every other part. In the lower navy panel REMOVE all scribbled or clustered scratches. Replace with exactly FIVE short separated thin straight diagonal light-blue scratches, all parallel running down-right, spaced apart, no crossing, no curves, no symbol or lettering. Flat front-view inventory shield, transparent background, hard pixel-art shapes.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-1fc8d134-fa20-42a2-8cc6-b281a3e9e228.png",
+      "initial_source": "../batch_E4_v2/sources/riot_shield_source.png",
+      "reference_inputs": [],
+      "packaged_source": "sources/riot_shield_source.png",
+      "packaged_source_sha256": "61f3db1c77fe573ff85d86f03dda4d12f578c5af1b0b0aaba4a5ff0524534051"
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "result": "PASS_V4_WITH_NOTES",
+  "item_count": 12,
+  "emit_count": 6,
+  "checks": [
+    "native sizes",
+    "binary alpha",
+    "approved palette, <=24 colors",
+    ">=15% bright pixels for 11 icons; raw follows v4 white-line budget",
+    "<=25% largest color",
+    "<=10% isolated pixels in broad interiors",
+    "exact nearest-neighbor 8x and 2x",
+    "emit pixels equal base pixels",
+    "effect continuity and mineral-only originium ramp",
+    "nine accepted items byte-identical to v3 including sources, previews and emits",
+    "armor alpha identical; shield unchanged outside lower panel",
+    "full bracer echo offset [5,1] in exactly two navy tones",
+    "raw: five continuous white lines, 40-60 white pixels, full 32px width and core-only glow",
+    "blade: measured 40-50% ore edge coverage with continuous exposed steel highlights",
+    "armor: compact 2-4px rust patches, <=5 brown highlight pixels and unchanged repair exterior"
+  ],
+  "rule_resolution": {
+    "item": "raw_originium",
+    "superseding_brief": "../E4_revision_v4.md",
+    "reason": "Five big black flat-faceted shards with 40-60 white edge pixels and concentrated small glow conflict with the old 15% bright-pixel floor; the latest explicit white-edge budget takes precedence.",
+    "old_bright_pixel_minimum_percent": 15,
+    "actual_bright_pixel_percent": 4.32
+  },
+  "thin_detail_note": "Twin fang and ember fang exceed 10% across all pixels because of thin outlines, guards and ember details; their broad interiors are below 10%.",
+  "items": [
+    {
+      "id": "raw_originium",
+      "color_count": 9,
+      "isolated_pixel_percent": 3.45,
+      "interior_isolated_pixel_percent": 2.27,
+      "bright_pixel_percent": 4.32,
+      "largest_color_percent": 24.39,
+      "emit_component_sizes": [
+        33
+      ],
+      "sha256": "e8079e91b68551d45c02035a393a60ce45884e1c219420738e5fc33710206609"
+    },
+    {
+      "id": "riot_shield",
+      "color_count": 11,
+      "isolated_pixel_percent": 0.88,
+      "interior_isolated_pixel_percent": 0.91,
+      "bright_pixel_percent": 19.73,
+      "largest_color_percent": 17.35,
+      "emit_component_sizes": [],
+      "sha256": "9507c94ef7efc1afc08e44cb1750d6d85e0c869a726a1d5838754b2e01ce6a41"
+    },
+    {
+      "id": "frozen_relic",
+      "color_count": 9,
+      "isolated_pixel_percent": 3.77,
+      "interior_isolated_pixel_percent": 0.95,
+      "bright_pixel_percent": 47.31,
+      "largest_color_percent": 24.42,
+      "emit_component_sizes": [],
+      "sha256": "4fcaa474a5a0ab9a1a1c3e0bb81f725acbabcf04fe9784b561271d4340cf55d5"
+    },
+    {
+      "id": "lord_blade",
+      "color_count": 12,
+      "isolated_pixel_percent": 1.8,
+      "interior_isolated_pixel_percent": 0.4,
+      "bright_pixel_percent": 32.79,
+      "largest_color_percent": 20.72,
+      "emit_component_sizes": [],
+      "sha256": "47dd0f3291daa2cbb5ffc79c48c45ec7dc8cbebd3a8ec005b9f3c7e9543f7255"
+    },
+    {
+      "id": "twin_fang",
+      "color_count": 11,
+      "isolated_pixel_percent": 11.65,
+      "interior_isolated_pixel_percent": 4.86,
+      "bright_pixel_percent": 36.39,
+      "largest_color_percent": 21.52,
+      "emit_component_sizes": [
+        3,
+        3
+      ],
+      "sha256": "dc24260d10918907d96be5a6c4e8e2ea701dc242763603642ca5a8ee6e149f1d"
+    },
+    {
+      "id": "ember_fang",
+      "color_count": 17,
+      "isolated_pixel_percent": 11.92,
+      "interior_isolated_pixel_percent": 5.58,
+      "bright_pixel_percent": 27.1,
+      "largest_color_percent": 11.67,
+      "emit_component_sizes": [
+        81
+      ],
+      "sha256": "728af9c2e0a84100d314a6cacb5f25d2976062981cc721f202a5b0b09b048c40"
+    },
+    {
+      "id": "moon_edge",
+      "color_count": 13,
+      "isolated_pixel_percent": 6.34,
+      "interior_isolated_pixel_percent": 2.88,
+      "bright_pixel_percent": 37.23,
+      "largest_color_percent": 19.41,
+      "emit_component_sizes": [
+        66
+      ],
+      "sha256": "b49bf78fd5d2f123a0d66acbcec02c844c0d4ac8b63f3d99a933bfbaa8b79747"
+    },
+    {
+      "id": "crystal_edge",
+      "color_count": 14,
+      "isolated_pixel_percent": 8.16,
+      "interior_isolated_pixel_percent": 5.65,
+      "bright_pixel_percent": 23.31,
+      "largest_color_percent": 17.27,
+      "emit_component_sizes": [
+        34,
+        4,
+        3,
+        2,
+        2,
+        1,
+        1,
+        1
+      ],
+      "sha256": "3a7570b595818f44f4972a6a0b44a0ce89f4289f1a7af2f9e0cca5131fdb38af"
+    },
+    {
+      "id": "vein_core",
+      "color_count": 14,
+      "isolated_pixel_percent": 8.52,
+      "interior_isolated_pixel_percent": 7.09,
+      "bright_pixel_percent": 25.16,
+      "largest_color_percent": 15.8,
+      "emit_component_sizes": [
+        175
+      ],
+      "sha256": "92946052001ab113fdde6869b9ebdb89ce4ff8ff72cafcfd095522b92f34f166"
+    },
+    {
+      "id": "shadow_bracer",
+      "color_count": 9,
+      "isolated_pixel_percent": 3.36,
+      "interior_isolated_pixel_percent": 1.35,
+      "bright_pixel_percent": 17.01,
+      "largest_color_percent": 22.43,
+      "emit_component_sizes": [],
+      "sha256": "da816ddbc024c30f4e7683be9112296544f12df4e03b67cf8adc834dce2ac8c6"
+    },
+    {
+      "id": "spike_plate",
+      "color_count": 13,
+      "isolated_pixel_percent": 8.2,
+      "interior_isolated_pixel_percent": 6.51,
+      "bright_pixel_percent": 20.31,
+      "largest_color_percent": 24.69,
+      "emit_component_sizes": [],
+      "sha256": "f39de1757e2642726540717f94c8ea41fec7601fac93824f3618d16c87e455b5"
+    },
+    {
+      "id": "bash_shield",
+      "color_count": 18,
+      "isolated_pixel_percent": 3.23,
+      "interior_isolated_pixel_percent": 3.1,
+      "bright_pixel_percent": 15.84,
+      "largest_color_percent": 11.73,
+      "emit_component_sizes": [],
+      "sha256": "3ff02bd30fb041d962a3f65912366e3aa65959cda9189b2a9b3de05b7fdaed52"
+    }
+  ]
+}

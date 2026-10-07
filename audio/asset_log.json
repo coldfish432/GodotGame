@@ -1,0 +1,87 @@
+{
+  "audio/sfx/lights_on.wav": {
+    "source": "music/开灯.mp3",
+    "start": 0.0685,
+    "length": 0.7,
+    "fade": "squared from 0.35 s",
+    "gain": "peak -3 dBFS",
+    "sha256": "9a39bead468d81dfa5cd950eb7f93bae78dab56bff9d87c7404724c7cb474e1a"
+  },
+  "audio/sfx/lights_off.wav": {
+    "source": "music/关灯.mp3",
+    "start": 49.2556,
+    "length": 1.1,
+    "fade": "squared from 0.50 s",
+    "gain": "peak -3 dBFS",
+    "sha256": "f1094c89c705240c88b1af0d2f3e952403ec05a95d5c3d3c60dcb5e7c800b3d7"
+  },
+  "audio/music/base_loop.ogg": {
+    "source": "music/基地背景音乐.mp3",
+    "cut": "0 – 115.4652 s",
+    "loop_offset": 40.171,
+    "loop_length": 75.2942,
+    "crossfade": "40 ms raised-cosine into the audio before loop_offset",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "fc7c50488a745dabb7bab0dbb0452db1a11b77bc33c698ae47916d88248b752e"
+  },
+  "audio/music/mine_loop.ogg": {
+    "source": "music/矿洞外勤音乐.mp3",
+    "cut": "0 – 45.3041 s",
+    "loop_offset": 13.3034,
+    "loop_length": 32.0007,
+    "bars": "intro 0–loop_offset; loop = 10 bars of 3.2 s",
+    "crossfade": "40 ms raised-cosine into the audio before loop_offset",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "6420e551a3f4948b8c6d2dae37d6c021efba193b0f19b7df5f9266af4846788e"
+  },
+  "audio/music/mine_end.ogg": {
+    "source": "music/矿洞外勤音乐.mp3",
+    "cut": "48.5032 s – end (56.3984 s)",
+    "fade": "10 ms fade-in",
+    "gain": "same as mine_loop",
+    "format": "OGG Vorbis q6",
+    "sha256": "a24abff5f5742b89cabffcdc7311dfcbcf8f878c3ea8f526dbf2654b18aa7e70"
+  },
+  "audio/music/sting_extract.ogg": {
+    "source": "music/撤离.mp3",
+    "cut": "0.6080 – 6.2788 s (first take; next take starts 6.2988 s)",
+    "fade": "2 ms in, squared 0.5 s out",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "3748b354a223f7a58573b82867534133b16762267db6999798a2f2813c00c05a"
+  },
+  "audio/music/sting_fail.ogg": {
+    "source": "music/失败.mp3",
+    "cut": "0.0493 – 12.0308 s (first take; next take starts 12.0508 s)",
+    "fade": "2 ms in, squared 0.5 s out",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "60c09f412ba20c95e4861142e03ab1c9b708a68c05b73796337eac12eaec207d"
+  },
+  "music/开灯.mp3": {
+    "raw": true,
+    "sha256": "7e2118f88215a1832f5fcee23e2158012fde404297c4d00db8baa0c3b82c2552"
+  },
+  "music/关灯.mp3": {
+    "raw": true,
+    "sha256": "1fa94afebdd60eae90711b88e9118739c91991c092b79263d707c874a67a631e"
+  },
+  "music/基地背景音乐.mp3": {
+    "raw": true,
+    "sha256": "a6191f1a317088e11fc7d61dc217312264542f8c1d2ac170e38b4aed3cb79dd8"
+  },
+  "music/矿洞外勤音乐.mp3": {
+    "raw": true,
+    "sha256": "88cd71e2a79eb132fba9eb45041e6344f378d4b96687086f53aaf10dbc268f5e"
+  },
+  "music/撤离.mp3": {
+    "raw": true,
+    "sha256": "1d8b9dac62e92c08733a4c00dca83d9d0727ea7869cd1def33f06213f7b8e1b2"
+  },
+  "music/失败.mp3": {
+    "raw": true,
+    "sha256": "dd77388eed1f7febb51c26a4094646f2af7abbf6630d4cf991b8b008dc1b0f57"
+  }
+}

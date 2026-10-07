@@ -161,7 +161,9 @@ static func afterimage(parent: GameManager, sprite: AnimatedSprite3D, point: Vec
 	return fx
 
 func _process(delta: float) -> void:
-	if is_instance_valid(game) and not game.simulation_active(): return
+	# Effects pause with the game, not with the base: a dash's afterimages in
+	# the hall must fade too (用户 2026-10-07).
+	if is_instance_valid(game) and not (game.simulation_active() or game.base_walk_active()): return
 	age += delta
 	if age >= duration:
 		queue_free()

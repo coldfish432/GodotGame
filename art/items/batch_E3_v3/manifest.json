@@ -1,0 +1,277 @@
+{
+  "batch": "E3",
+  "version": 3,
+  "source_brief": "../E3_brief_v1.md",
+  "revision_brief": "../E3_revision_v3.md",
+  "reference_board": "../E_reference_board.md",
+  "display_scale": 1,
+  "preview_scale": 8,
+  "contact_sheet": "contact_sheet.png",
+  "contact_sheet_2x": "contact_sheet_2x.png",
+  "silhouette_check": "silhouette_check.png",
+  "generation_prompts": "generation_prompts.md",
+  "items": [
+    {
+      "id": "icebreaker_knife",
+      "name": "破冰刀",
+      "kind": "weapon",
+      "file": "icebreaker_knife.png",
+      "preview": "icebreaker_knife_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/icebreaker_knife_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Seax"
+      ],
+      "isolated_pixel_percent": 3.23,
+      "bright_pixel_percent": 23.96,
+      "largest_color_percent": 22.06
+    },
+    {
+      "id": "skinning_knife",
+      "name": "猎刀",
+      "kind": "weapon",
+      "file": "skinning_knife.png",
+      "preview": "skinning_knife_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/skinning_knife_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Puukko"
+      ],
+      "isolated_pixel_percent": 1.2,
+      "bright_pixel_percent": 30.19,
+      "largest_color_percent": 21.23
+    },
+    {
+      "id": "antler_hunter_knife",
+      "name": "角柄猎刀",
+      "kind": "weapon",
+      "file": "antler_hunter_knife.png",
+      "preview": "antler_hunter_knife_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/antler_hunter_knife_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Leuku",
+        "https://en.wikipedia.org/wiki/Duodji"
+      ],
+      "isolated_pixel_percent": 4.84,
+      "bright_pixel_percent": 26.59,
+      "largest_color_percent": 21.98
+    },
+    {
+      "id": "expedition_machete",
+      "name": "科考队开路刀",
+      "kind": "weapon",
+      "file": "expedition_machete.png",
+      "preview": "expedition_machete_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/expedition_machete_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Machete"
+      ],
+      "isolated_pixel_percent": 2.74,
+      "bright_pixel_percent": 32.53,
+      "largest_color_percent": 22.95
+    },
+    {
+      "id": "snowpriest_blade",
+      "name": "雪祀礼刃",
+      "kind": "weapon",
+      "file": "snowpriest_blade.png",
+      "preview": "snowpriest_blade_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "snowpriest_blade_emit.png",
+      "source": "sources/snowpriest_blade_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Leuku",
+        "https://en.wikipedia.org/wiki/Duodji"
+      ],
+      "isolated_pixel_percent": 2.38,
+      "bright_pixel_percent": 42.25,
+      "largest_color_percent": 19.75
+    },
+    {
+      "id": "tundra_fur_coat",
+      "name": "冰原毛皮外套",
+      "kind": "armor",
+      "file": "tundra_fur_coat.png",
+      "preview": "tundra_fur_coat_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/tundra_fur_coat_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Parka"
+      ],
+      "isolated_pixel_percent": 2.69,
+      "bright_pixel_percent": 22.83,
+      "largest_color_percent": 24.94
+    },
+    {
+      "id": "sled_patrol_cloak",
+      "name": "雪橇巡逻队斗篷",
+      "kind": "armor",
+      "file": "sled_patrol_cloak.png",
+      "preview": "sled_patrol_cloak_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/sled_patrol_cloak_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/G%C3%A1kti"
+      ],
+      "isolated_pixel_percent": 8.39,
+      "bright_pixel_percent": 78.28,
+      "largest_color_percent": 24.03
+    },
+    {
+      "id": "expedition_parka",
+      "name": "科考队防寒服",
+      "kind": "armor",
+      "file": "expedition_parka.png",
+      "preview": "expedition_parka_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/expedition_parka_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Parka"
+      ],
+      "isolated_pixel_percent": 1.66,
+      "bright_pixel_percent": 29.67,
+      "largest_color_percent": 23.6
+    },
+    {
+      "id": "bone_lamellar",
+      "name": "骨片札甲",
+      "kind": "armor",
+      "file": "bone_lamellar.png",
+      "preview": "bone_lamellar_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/bone_lamellar_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Lamellar_armour"
+      ],
+      "isolated_pixel_percent": 4.25,
+      "bright_pixel_percent": 36.37,
+      "largest_color_percent": 20.73
+    },
+    {
+      "id": "bone_amulet",
+      "name": "骨制护符",
+      "kind": "trinket",
+      "file": "bone_amulet.png",
+      "preview": "bone_amulet_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/bone_amulet_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Amulet"
+      ],
+      "isolated_pixel_percent": 10.16,
+      "bright_pixel_percent": 55.47,
+      "largest_color_percent": 23.44
+    },
+    {
+      "id": "antler_flute",
+      "name": "角兽骨笛",
+      "kind": "trinket",
+      "file": "antler_flute.png",
+      "preview": "antler_flute_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/antler_flute_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Bone_flute"
+      ],
+      "isolated_pixel_percent": 25.56,
+      "bright_pixel_percent": 59.02,
+      "largest_color_percent": 24.44
+    },
+    {
+      "id": "bone_drumstick",
+      "name": "兽骨鼓槌",
+      "kind": "trinket",
+      "file": "bone_drumstick.png",
+      "preview": "bone_drumstick_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/bone_drumstick_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/S%C3%A1mi_drum"
+      ],
+      "isolated_pixel_percent": 13.86,
+      "bright_pixel_percent": 49.17,
+      "largest_color_percent": 22.44
+    },
+    {
+      "id": "cipher_fragment",
+      "name": "密文板残片",
+      "kind": "trinket",
+      "file": "cipher_fragment.png",
+      "preview": "cipher_fragment_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "cipher_fragment_emit.png",
+      "source": "sources/cipher_fragment_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Runestone"
+      ],
+      "isolated_pixel_percent": 9.57,
+      "bright_pixel_percent": 30.86,
+      "largest_color_percent": 24.16
+    }
+  ]
+}

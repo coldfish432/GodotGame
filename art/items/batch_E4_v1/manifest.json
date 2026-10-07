@@ -1,0 +1,189 @@
+{
+  "batch": "E4",
+  "source": "装备策划案_v1_0.md §§3-6",
+  "scale": 2,
+  "preview_scale": 8,
+  "palette": "§6.3",
+  "items": [
+    {
+      "id": "raw_originium",
+      "name": "未封装源石原矿",
+      "region": "mine",
+      "kind": "ore",
+      "file": "raw_originium.png",
+      "preview": "raw_originium_8x.png",
+      "native_size": [
+        16,
+        36
+      ],
+      "has_emit": true,
+      "emit_file": "raw_originium_emit.png",
+      "description": "vertical dark ore rock, orange crystal prisms and chips"
+    },
+    {
+      "id": "riot_shield",
+      "name": "近卫局暴动盾",
+      "region": "city",
+      "kind": "shield",
+      "file": "riot_shield.png",
+      "preview": "riot_shield_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "front rectangular riot shield, blue viewport, reflection, scratches"
+    },
+    {
+      "id": "frozen_relic",
+      "name": "冻土下的旧物",
+      "region": "snow",
+      "kind": "relic",
+      "file": "frozen_relic.png",
+      "preview": "frozen_relic_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "carved bone piece half frozen in ice block"
+    },
+    {
+      "id": "lord_blade",
+      "name": "领主宽刃",
+      "region": "city",
+      "kind": "weapon",
+      "file": "lord_blade.png",
+      "preview": "lord_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "extremely wide almost square blade, transverse scuffs"
+    },
+    {
+      "id": "twin_fang",
+      "name": "双生狼牙",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "twin_fang.png",
+      "preview": "twin_fang_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "twin_fang_emit.png",
+      "description": "two crossed curved blades, white glints"
+    },
+    {
+      "id": "ember_fang",
+      "name": "余烬之牙",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "ember_fang.png",
+      "preview": "ember_fang_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "ember_fang_emit.png",
+      "description": "single blade with dark red-orange ember ridge"
+    },
+    {
+      "id": "moon_edge",
+      "name": "月下刃",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "moon_edge.png",
+      "preview": "moon_edge_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "moon_edge_emit.png",
+      "description": "fine curved blade with continuous cold-white highlight"
+    },
+    {
+      "id": "crystal_edge",
+      "name": "源石结晶刃",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "crystal_edge.png",
+      "preview": "crystal_edge_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "crystal_edge_emit.png",
+      "description": "blade broken by two orange crystal clusters"
+    },
+    {
+      "id": "vein_core",
+      "name": "共振矿芯",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "vein_core.png",
+      "preview": "vein_core_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "vein_core_emit.png",
+      "description": "metal frame, orange crystal core, three vibration marks"
+    },
+    {
+      "id": "shadow_bracer",
+      "name": "残影护腕",
+      "region": "city",
+      "kind": "trinket",
+      "file": "shadow_bracer.png",
+      "preview": "shadow_bracer_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "front wrist guard with displaced dark afterimage"
+    },
+    {
+      "id": "spike_plate",
+      "name": "尖刺重铠",
+      "region": "mine",
+      "kind": "armor",
+      "file": "spike_plate.png",
+      "preview": "spike_plate_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "heavy iron plate with shoulder and chest spikes"
+    },
+    {
+      "id": "bash_shield",
+      "name": "反击塔盾",
+      "region": "city",
+      "kind": "shield",
+      "file": "bash_shield.png",
+      "preview": "bash_shield_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "tall tower shield, protruding steel boss, red rim"
+    }
+  ]
+}

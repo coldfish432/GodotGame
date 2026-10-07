@@ -21,6 +21,8 @@ func item(name: String, category: Item.Category, w: int = 1, h: int = 1) -> Item
 func each_once(game: GameManager, expected: Array) -> bool:
 	var all: Array = game.base.all_items()
 	all.append_array(game.carried_items())
+	# Flasks issued free at departure (药剂进背包) are not part of what is tracked here.
+	all = all.filter(func(x): return not x.is_potion())
 	for x in expected:
 		if all.count(x) != 1: return false
 	return all.size() == expected.size()
@@ -141,7 +143,7 @@ func through_game() -> void:
 		[found, found_safe, found_gear].all(func(x): return game.base.location_of(x) == "crate_sealed")
 		and game.player.equipped.get(Item.Category.ARMOR) == null)
 	check("extraction: every item in exactly one place", each_once(game, everything))
-	check("protections and run flags are cleared", everything.all(func(x): return not x.gilded and not x.insured and not x.carried_in))
+	check("protections and run flags are cleared", everything.all(func(x): return not x.insured and not x.carried_in))
 	check("nothing goes straight onto the shelves", game.stash.is_empty())
 	game.settle(true)
 	check("settling again changes nothing", each_once(game, everything) and game.base.crates.size() == 3)
@@ -152,10 +154,11 @@ func through_game() -> void:
 	var lost_find := item("遗失新物", Item.Category.TRINKET)
 	game.safe_bag.try_add(safe_find)
 	game.inventory.try_add(lost_find)
-	blade.gilded = true
+	blade.insured = true
 	game.player.hp = -1
 	await step(2)
-	check("death: gilded gear she carried in stays equipped", game.in_base and game.player.equipped.get(Item.Category.WEAPON) == blade and not blade.gilded)
+	check("death: insured gear she carried in waits in the insurance queue (保全系统修订案 §3)", game.in_base and game.player.equipped.get(Item.Category.WEAPON) == null
+		and game.base.insurance_queue.any(func(e): return e.item == blade and int(e.left) >= 1 and int(e.left) <= 3) and not blade.insured)
 	check("death: a find in the safe bag arrives as a crate", game.base.location_of(safe_find) == "crate_sealed")
 	check("death: unprotected items are gone from everywhere",
 		game.base.location_of(lost_find) == "" and not game.carried_items().has(lost_find)
@@ -191,7 +194,7 @@ func through_game() -> void:
 	var before := game.base.all_items().map(func(x): return [x.uid, game.base.location_of(x)])
 	before.sort()
 	var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(game.save_path))
-	check("saves are version 2 with the base section", int(parsed.version) == 2 and parsed.has("base") and not parsed.has("stash"))
+	check("saves are version 3 with the base section", int(parsed.version) == 3 and parsed.has("base") and not parsed.has("stash"))
 	game.base = BaseState.new()
 	game.load_base()
 	var after := game.base.all_items().map(func(x): return [x.uid, game.base.location_of(x)])
@@ -203,7 +206,7 @@ func through_game() -> void:
 	file.store_string(JSON.stringify(v1))
 	file.close()
 	game.load_base()
-	check("a version 1 save loads onto the shelves", game.gold == 99 and game.stash.size() == 2 and game.base.crates.is_empty() and game.base.staging.is_empty())
+	check("a version 1 save loads onto the shelves (资金 ×100 → 龙门币)", game.gold == 9900 and game.stash.size() == 2 and game.base.crates.is_empty() and game.base.staging.is_empty())
 	game.save_enabled = false
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(game.save_path + suffix): DirAccess.remove_absolute(game.save_path + suffix)

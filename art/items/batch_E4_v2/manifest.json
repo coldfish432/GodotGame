@@ -1,0 +1,394 @@
+{
+  "batch": "E4",
+  "version": 2,
+  "source_brief": "../E4_brief_v1.md",
+  "reference_board": "../E_reference_board.md",
+  "display_scale": 1,
+  "preview_scale": 8,
+  "palette": {
+    "outline": [
+      "#0b0c0d"
+    ],
+    "steel": [
+      "#2a2d33",
+      "#4a5058",
+      "#7d868e",
+      "#b4bec4",
+      "#eef3f5"
+    ],
+    "leather": [
+      "#2e2018",
+      "#5a3d2a",
+      "#86603f",
+      "#b48a5e"
+    ],
+    "rust": [
+      "#4a2a1d",
+      "#7d4529",
+      "#b06a3a",
+      "#d99560"
+    ],
+    "canvas": [
+      "#5a4d3a",
+      "#857555",
+      "#b3a27c",
+      "#d6c8a2"
+    ],
+    "originium": [
+      "#b85a12",
+      "#ee8a24",
+      "#ffb35a",
+      "#ffe0a8"
+    ],
+    "navy": [
+      "#141f30",
+      "#24395a",
+      "#3d6088",
+      "#6f9cc6",
+      "#b5d2ea"
+    ],
+    "vermilion": [
+      "#6e1616",
+      "#a82a22",
+      "#d9483a",
+      "#f07a62"
+    ],
+    "brass": [
+      "#6e5220",
+      "#a8822e",
+      "#dcb85a"
+    ],
+    "wood": [
+      "#3f2a1a",
+      "#6b4a2e",
+      "#9a7048"
+    ],
+    "bone": [
+      "#8e8470",
+      "#b9ae95",
+      "#e6dfcc",
+      "#fbf8ee"
+    ],
+    "ice": [
+      "#3d6a8a",
+      "#5d8fb0",
+      "#9cc8e0",
+      "#e4f4fb"
+    ]
+  },
+  "slot_backgrounds": [
+    "#2c2e30",
+    "#142538",
+    "#352710",
+    "#381b0f"
+  ],
+  "contact_sheet": "contact_sheet.png",
+  "contact_sheet_2x": "contact_sheet_2x.png",
+  "silhouette_check": "silhouette_check.png",
+  "generation_prompts": "generation_prompts.md",
+  "isolated_pixel_definition": "Opaque pixels with no equal RGBA orthogonal neighbor / all opaque pixels",
+  "interior_isolated_pixel_definition": "Same test restricted to pixels with four opaque orthogonal neighbors; checks broad areas separately from thin contours and effects",
+  "items": [
+    {
+      "id": "raw_originium",
+      "name": "未封装源石原矿",
+      "kind": "trinket",
+      "region": "mine",
+      "category": "regional_exclusive",
+      "file": "raw_originium.png",
+      "preview": "raw_originium_8x.png",
+      "native_size": [
+        32,
+        72
+      ],
+      "has_emit": true,
+      "emit_file": "raw_originium_emit.png",
+      "emit_pixel_count": 133,
+      "source": "sources/raw_originium_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Crystal_habit"
+      ],
+      "color_count": 10,
+      "isolated_pixel_percent": 6.93,
+      "interior_isolated_pixel_percent": 3.98,
+      "bright_pixel_percent": 26.49,
+      "largest_color_percent": 24.9
+    },
+    {
+      "id": "riot_shield",
+      "name": "近卫局暴动盾",
+      "kind": "armor",
+      "region": "lungmen",
+      "category": "regional_exclusive",
+      "file": "riot_shield.png",
+      "preview": "riot_shield_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/riot_shield_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Riot_shield"
+      ],
+      "color_count": 11,
+      "isolated_pixel_percent": 0.3,
+      "interior_isolated_pixel_percent": 0.29,
+      "bright_pixel_percent": 19.73,
+      "largest_color_percent": 14.73
+    },
+    {
+      "id": "frozen_relic",
+      "name": "冻土下的旧物",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "regional_exclusive",
+      "file": "frozen_relic.png",
+      "preview": "frozen_relic_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/frozen_relic_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Bone_carving"
+      ],
+      "color_count": 9,
+      "isolated_pixel_percent": 3.77,
+      "interior_isolated_pixel_percent": 0.95,
+      "bright_pixel_percent": 47.31,
+      "largest_color_percent": 24.42
+    },
+    {
+      "id": "lord_blade",
+      "name": "领主宽刃",
+      "kind": "weapon",
+      "region": "lungmen",
+      "category": "special",
+      "file": "lord_blade.png",
+      "preview": "lord_blade_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/lord_blade_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Zhanmadao",
+        "https://en.wikipedia.org/wiki/Chinese_chef%27s_knife"
+      ],
+      "color_count": 12,
+      "isolated_pixel_percent": 1.8,
+      "interior_isolated_pixel_percent": 0.4,
+      "bright_pixel_percent": 32.79,
+      "largest_color_percent": 20.72
+    },
+    {
+      "id": "twin_fang",
+      "name": "双生狼牙",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "special",
+      "file": "twin_fang.png",
+      "preview": "twin_fang_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "twin_fang_emit.png",
+      "emit_pixel_count": 6,
+      "source": "sources/twin_fang_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Butterfly_sword"
+      ],
+      "color_count": 11,
+      "isolated_pixel_percent": 11.65,
+      "interior_isolated_pixel_percent": 4.86,
+      "bright_pixel_percent": 36.39,
+      "largest_color_percent": 21.52
+    },
+    {
+      "id": "ember_fang",
+      "name": "余烬之牙",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "special",
+      "file": "ember_fang.png",
+      "preview": "ember_fang_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "ember_fang_emit.png",
+      "emit_pixel_count": 81,
+      "source": "sources/ember_fang_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Kukri"
+      ],
+      "color_count": 17,
+      "isolated_pixel_percent": 11.92,
+      "interior_isolated_pixel_percent": 5.58,
+      "bright_pixel_percent": 27.1,
+      "largest_color_percent": 11.67
+    },
+    {
+      "id": "moon_edge",
+      "name": "月下刃",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "special",
+      "file": "moon_edge.png",
+      "preview": "moon_edge_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "moon_edge_emit.png",
+      "emit_pixel_count": 66,
+      "source": "sources/moon_edge_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Miao_dao"
+      ],
+      "color_count": 13,
+      "isolated_pixel_percent": 6.34,
+      "interior_isolated_pixel_percent": 2.88,
+      "bright_pixel_percent": 37.23,
+      "largest_color_percent": 19.41
+    },
+    {
+      "id": "crystal_edge",
+      "name": "源石结晶刃",
+      "kind": "weapon",
+      "region": "mine",
+      "category": "special",
+      "file": "crystal_edge.png",
+      "preview": "crystal_edge_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "crystal_edge_emit.png",
+      "emit_pixel_count": 95,
+      "source": "sources/crystal_edge_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Kindjal"
+      ],
+      "color_count": 14,
+      "isolated_pixel_percent": 6.84,
+      "interior_isolated_pixel_percent": 4.38,
+      "bright_pixel_percent": 19.03,
+      "largest_color_percent": 24.88
+    },
+    {
+      "id": "vein_core",
+      "name": "共振矿芯",
+      "kind": "trinket",
+      "region": "mine",
+      "category": "special",
+      "file": "vein_core.png",
+      "preview": "vein_core_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "vein_core_emit.png",
+      "emit_pixel_count": 175,
+      "source": "sources/vein_core_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Crystal_habit"
+      ],
+      "color_count": 14,
+      "isolated_pixel_percent": 8.52,
+      "interior_isolated_pixel_percent": 7.09,
+      "bright_pixel_percent": 25.16,
+      "largest_color_percent": 15.8
+    },
+    {
+      "id": "shadow_bracer",
+      "name": "残影护腕",
+      "kind": "trinket",
+      "region": "lungmen",
+      "category": "special",
+      "file": "shadow_bracer.png",
+      "preview": "shadow_bracer_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/shadow_bracer_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Bracer"
+      ],
+      "color_count": 11,
+      "isolated_pixel_percent": 6.21,
+      "interior_isolated_pixel_percent": 2.93,
+      "bright_pixel_percent": 21.47,
+      "largest_color_percent": 19.21
+    },
+    {
+      "id": "spike_plate",
+      "name": "尖刺重铠",
+      "kind": "armor",
+      "region": "mine",
+      "category": "special",
+      "file": "spike_plate.png",
+      "preview": "spike_plate_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/spike_plate_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Breastplate"
+      ],
+      "color_count": 14,
+      "isolated_pixel_percent": 7.3,
+      "interior_isolated_pixel_percent": 5.42,
+      "bright_pixel_percent": 30.95,
+      "largest_color_percent": 15.42
+    },
+    {
+      "id": "bash_shield",
+      "name": "反击塔盾",
+      "kind": "armor",
+      "region": "lungmen",
+      "category": "special",
+      "file": "bash_shield.png",
+      "preview": "bash_shield_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/bash_shield_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Shield_boss"
+      ],
+      "color_count": 18,
+      "isolated_pixel_percent": 3.23,
+      "interior_isolated_pixel_percent": 3.1,
+      "bright_pixel_percent": 15.84,
+      "largest_color_percent": 11.73
+    }
+  ]
+}

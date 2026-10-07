@@ -100,7 +100,7 @@ func run() -> void:
 	check("partial charge expires and combo resets", p.sword_charge == 0 and p.combo_step == 0)
 	p._attack_cooldown = 0
 	p.hitstop_remaining = 0
-	p.attack_direction(Vector3.BACK)
+	p.attack_direction(Vector3.FORWARD)  # away from the dummies: a true air swing
 	check("whiff animates but adds no charge", p.sword_charge == 0 and p._sprite.action_name == "attack_1")
 	swing(enemy)
 	p._tick_combat(3.5)
@@ -119,7 +119,7 @@ func run() -> void:
 	p.teleport(origin)
 	p.sword_charge = 3
 	p._attack_cooldown = 0
-	p.attack_direction(Vector3.BACK)
+	p.attack_direction(Vector3.FORWARD)  # away from the dummies: a true air swing
 	check("full charge can release on empty ground", waves().size() == 1 and p.sword_charge == 0)
 	clear_waves()
 	p.sword_charge = 3
@@ -197,7 +197,7 @@ func run() -> void:
 	p._recompute_stats()
 	p._on_evade()
 	p._attack_cooldown = 0
-	p.attack_direction(Vector3.BACK)
+	p.attack_direction(Vector3.FORWARD)  # away from the dummies: a true air swing
 	check("whiff keeps 赏善郎 armed", p.avenge_ready)
 	var counter_hp := enemy.health
 	p.teleport(origin)
@@ -208,7 +208,7 @@ func run() -> void:
 	p.combat_timer = 6.0
 	p._attack_cooldown = 0
 	p.hitstop_remaining = 0
-	p.attack_direction(Vector3.BACK)
+	p.attack_direction(Vector3.FORWARD)  # away from the dummies: a true air swing
 	check("whiff does not reset out-of-combat timer", p.combat_timer == 6.0)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 9329
@@ -253,7 +253,7 @@ func run() -> void:
 	p.combo_step = 2
 	p._attack_cooldown = 0
 	p.hitstop_remaining = 0
-	p.attack_direction(Vector3.BACK)
+	p.attack_direction(Vector3.FORWARD)  # away from the dummies: a true air swing
 	var slash: CombatVfx = game.get_children().filter(func(n): return n is CombatVfx and n.kind == "slash").back()
 	check("fast swing animation fits the shorter interval", p._sprite.action_name == "attack_3" and is_equal_approx(p._sprite.action_duration, 4.0 / 18.0) and p._sprite.action_duration + 0.05 < p.blade_cooldown)
 	check("slash effect speeds up with the swing", is_equal_approx(slash.duration, 0.2 / 1.5) and is_equal_approx(slash.rate, 1.5))

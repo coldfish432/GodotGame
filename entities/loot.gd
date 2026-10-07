@@ -8,7 +8,7 @@ extends Node3D
 
 var game: GameManager
 var item: Item  # null means this drop is a plain gold pile
-var gold_value: int = 10
+var gold_value: int = 1   # 赤金 (a plain pile; the field now drops 赤金 as items)
 var pickup_delay := 0.0
 var is_search_point := false
 ## Vault spoils stay sealed until the vault's guardian is dead, so the room is
@@ -39,6 +39,11 @@ func _ready() -> void:
 		label.pixel_size = 0.01
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		add_child(label)
+	elif is_item and not item.material_id.is_empty():
+		# A material: a small crate in its PRTS rarity colour.
+		var crate := BoxMesh.new()
+		crate.size = Vector3(0.45, 0.35, 0.45)
+		mesh.mesh = crate
 	elif is_item:
 		match item.effect:
 			"raw_ore":
@@ -64,6 +69,33 @@ func _ready() -> void:
 		mat.emission = color
 	mesh.material_override = mat
 	add_child(mesh)
+	if is_item and is_notable(): _add_beam(color)
+
+## Rare equipment, special gear and ★4+ materials get a light beam (掉落物策划案 §6).
+func is_notable() -> bool:
+	if item == null: return false
+	if not item.special.is_empty() or not item.exclusive_region.is_empty(): return true
+	if not item.material_id.is_empty(): return MaterialCatalog.star(item.material_id) >= 4
+	return item.is_equippable() and item.rarity >= 2
+
+func _add_beam(color: Color) -> void:
+	var beam := MeshInstance3D.new()
+	var shape := CylinderMesh.new()
+	var tall := not item.special.is_empty()
+	shape.top_radius = 0.06
+	shape.bottom_radius = 0.12
+	shape.height = 5.0 if tall else 3.0
+	beam.mesh = shape
+	var glow := StandardMaterial3D.new()
+	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glow.albedo_color = Color(color, 0.45)
+	glow.emission_enabled = true
+	glow.emission = color
+	beam.material_override = glow
+	beam.position.y = shape.height * 0.5
+	add_child(beam)
+	if is_instance_valid(game) and game.sound != null: game.sound.play("build")
 
 func _process(delta: float) -> void:
 	if is_instance_valid(game) and not game.simulation_active(): return
@@ -78,6 +110,11 @@ func _process(delta: float) -> void:
 			if not game.passes_pickup_filter(item): return
 			if game.try_collect(item):
 				queue_free()
+			elif item.is_stackable() and item.quantity <= 0:
+				queue_free()
+			else:
+				# Retry in a moment, not every frame (keeps the message readable).
+				pickup_delay = 1.0
 			# else: pack is full — leave the drop for the player to retry
 			# after freeing up space, rather than destroying it silently.
 		else:

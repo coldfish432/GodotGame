@@ -85,25 +85,25 @@ func run() -> void:
 	# --- Rarity colours are one palette.
 	check("rarity colours match the relic palette", Item.RARITY_COLORS[1] != Item.RARITY_COLORS[0] and Item.RARITY_COLORS[2] == RelicCatalog.RARITY_COLORS[2])
 
-	# --- 战力 and side-effect-free preview.
+	# --- Side-effect-free preview (no 战力: 用户 2026-10-06).
 	var p := game.player
 	p.sword_charge = 2
 	p.hp = 1000
-	var rating := p.power_rating()
+	var atk_now := p.attack_power()
 	var blade := weapon(3.0)
 	blade.modifiers = [ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE)]
 	var preview := p.preview_equip(blade)
-	check("preview reports higher ATK and 战力 for a better weapon", preview.after.atk > preview.before.atk and preview.after.rating > preview.before.rating)
-	check("preview leaves life, charge and the slot untouched", p.hp == 1000 and p.sword_charge == 2 and p.equipped.get(Item.Category.WEAPON) == null and p.power_rating() == rating)
+	check("preview reports higher ATK for a better weapon, and no 战力", preview.after.atk > preview.before.atk and not preview.after.has("rating") and not p.has_method("power_rating"))
+	check("preview leaves life, charge and the slot untouched", p.hp == 1000 and p.sword_charge == 2 and p.equipped.get(Item.Category.WEAPON) == null and is_equal_approx(p.attack_power(), atk_now))
 	var tip := ItemTooltip.text(game, blade, false, false)
-	check("tooltip shows the 战力 change and per-stat differences", "战力" in tip and "▲" in tip and "攻击力" in tip and "触发" in tip)
-	check("tooltip shows what death would do", "死亡时" in tip and "丢失" in tip)
+	check("tooltip shows per-stat differences and no 战力", not "战力" in tip and "▲" in tip and "攻击力" in tip and "触发" in tip)
+	check("tooltip has no death forecast or key hints, and gives the 交付价 in 龙门币", not "死亡时" in tip and not "按住" in tip and "龙门币" in tip)
 	check("stat panel previews the change in brackets", "(+" in ItemTooltip.stats_text(game, blade))
 
 	# --- Death outcomes and the value preview.
-	var gilded := weapon(1.0)
-	gilded.gilded = true
-	gilded.value = 100
+	var covered := weapon(1.0)   # an insured find
+	covered.insured = true
+	covered.value = 100
 	var insured := weapon(1.0)
 	insured.insured = true
 	insured.carried_in = true
@@ -112,20 +112,23 @@ func run() -> void:
 	safe.value = 30
 	var loose := weapon(1.0)
 	loose.value = 20
-	game.inventory.try_add(gilded)
+	game.inventory.try_add(covered)
 	game.inventory.try_add(insured)
 	game.safe_bag.try_add(safe)
 	game.inventory.try_add(loose)
-	check("death outcome per protection", game.death_outcome(gilded) == "保留（点金）" and game.death_outcome(safe) == "保留（安全袋）"
-		and "保险" in game.death_outcome(insured) and game.death_outcome(loose) == "丢失")
+	check("death outcome per protection", game.death_outcome(covered) == "送回（投保）" and game.death_outcome(safe) == "保留（安全袋）"
+		and game.death_outcome(insured) == "送回（投保）" and game.death_outcome(loose) == "丢失")
 	var value := game.value_summary()
-	check("value preview adds up what is kept, expected and lost", value.kept == 130 and is_equal_approx(value.expected, 30.0) and value.lost == 20 and value.carried == 200, value)
+	var flasks: int = game.carried_potions().reduce(func(n, x): return n + x.value, 0)
+	check("value preview adds up what is kept, insured and lost", value.kept == 30 and value.insured == 150 and value.lost == 20 + flasks and value.carried == 200 + flasks, value)
 
 	# --- The panel: badges, drag and drop, quick moves.
 	game.open_modal("inventory")
 	panel().open()
 	await step(2)
-	check("panel shows a value bar and the shortcut line", _find(panel(), func(n): return n is Label and "若此刻阵亡" in n.text) != null and _find(panel(), func(n): return n is Label and "Ctrl+左键" in n.text) != null)
+	# The value-at-stake line was explanatory content the user ruled out (2026-10-05).
+	# Explanatory content and key hints were ruled out (用户 2026-10-05/06).
+	check("panel has no value-at-stake or shortcut line", _find(panel(), func(n): return n is Label and ("若此刻阵亡" in n.text or "Ctrl+左键" in n.text)) == null)
 	var pack_grid := grid_for(game.inventory)
 	var safe_grid := grid_for(game.safe_bag)
 	check("pack and safe bag grids accept drops", pack_grid != null and safe_grid != null)
@@ -140,7 +143,7 @@ func run() -> void:
 	await step()
 	check("dropping moves the item to that cell", loose.grid_x == free.x and loose.grid_y == free.y and game.inventory.items.has(loose))
 	pack_grid = grid_for(game.inventory)
-	var onto := Vector2(gilded.grid_x * InventoryPanel.CELL + 4, gilded.grid_y * InventoryPanel.CELL + 4)
+	var onto := Vector2(covered.grid_x * InventoryPanel.CELL + 4, covered.grid_y * InventoryPanel.CELL + 4)
 	check("an occupied spot previews red and refuses", not pack_grid._can_drop_data(onto, data))
 	safe_grid = grid_for(game.safe_bag)
 	var small := Item.create("小饰品", Item.Category.TRINKET, 1, 1, 1.0)
@@ -178,8 +181,6 @@ func run() -> void:
 	panel().right_click(blade, null)
 	await step()
 	check("right click on the worn item unequips", p.equipped.get(Item.Category.WEAPON) == null and game.inventory.items.has(blade))
-	panel().ask_drop(gilded, game.inventory)
-	check("gilded gear cannot even be offered for dropping", not panel()._confirm.visible and game.inventory.items.has(gilded))
 	panel().ask_drop(loose, game.inventory)
 	check("dropping asks first", panel()._confirm.visible and game.inventory.items.has(loose))
 	panel()._confirm.confirmed.emit()
@@ -242,12 +243,23 @@ func run() -> void:
 	game.settle(true)
 	await step(2)
 	check("starts at 10×6 and 2×2", game.inventory.width == 10 and game.inventory.height == 6 and game.safe_bag.width == 2 and game.safe_bag.height == 2)
-	game.gold = 1000
+	game.gold = 100000
 	check("pack expansion needs R1", not game.buy_pack_upgrade())
 	game.base.prestige = 60
+	check("expansions also need base materials", not game.buy_pack_upgrade() and "缺少" in game.upgrade_refusal("pack"))
+	var needed := {}
+	for cost in [BaseCatalog.PACK_MATERIALS[1], BaseCatalog.PACK_MATERIALS[2], BaseCatalog.SAFE_MATERIALS[1]]:
+		for id in cost: needed[id] = int(needed.get(id, 0)) + int(cost[id])
+	for id in needed:
+		var left := int(needed[id])
+		while left > 0:
+			var m := MaterialCatalog.create(id, left)
+			game.base.shelf.append(m)
+			left -= m.quantity
 	check("at R2 the pack grows to 10×8 then 12×8", game.buy_pack_upgrade() and game.inventory.height == 8 and game.buy_pack_upgrade() and game.inventory.width == 12)
-	check("then it is fully expanded", not game.buy_pack_upgrade() and game.gold == 1000 - 120 - 260)
+	check("then it is fully expanded", not game.buy_pack_upgrade() and game.gold == 100000 - 12000 - 26000)
 	check("safe bag grows to 3×2 at R2, 3×3 needs R3", game.buy_safe_upgrade() and game.safe_bag.width == 3 and not game.buy_safe_upgrade())
+	check("and every material was used", needed.keys().all(func(id): return game.material_count(id) == 0))
 	var data_out := game.base.to_data()
 	var reloaded := BaseState.new()
 	reloaded.load_data(data_out, {})
@@ -259,15 +271,15 @@ func run() -> void:
 	check("store-all sends every carried material to the warehouse", game.store_all_materials() == 3 and mats.all(func(x): return game.stash.has(x) or game.base.staging.has(x)))
 	game.open_station("stash")
 	await step()
-	game.menu._stash_query = "不存在的名字"
+	game.menu.stash_query = "不存在的名字"
 	game.menu._refresh()
 	await step()
-	check("a search with no match hides the stash rows", not _find(game.menu, func(n): return n is Button and n.text == "带入"))
-	game.menu._stash_query = "封装"
+	check("a search with no match hides the stash rows", not _find(game.menu, func(n): return n is Button and n.has_meta("item") and game.stash.has(n.get_meta("item"))))
+	game.menu.stash_query = "封装"
 	game.menu._refresh()
 	await step()
-	check("a matching search shows them", _find(game.menu, func(n): return n is Button and n.text == "带入") != null)
-	game.menu._stash_query = ""
+	check("a matching search shows them", _find(game.menu, func(n): return n is Button and n.has_meta("item") and game.stash.has(n.get_meta("item"))) != null)
+	game.menu.stash_query = ""
 	game.close_modal()
 	print("INVENTORY RESULT: %d checks, %d failures" % [checks, failures])
 	game.queue_free()

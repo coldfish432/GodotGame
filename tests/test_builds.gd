@@ -111,7 +111,7 @@ func _catalog() -> void:
 		ids[relic.id] = true
 		complete = complete and relic.name == relic.source_name and not str(relic.original).is_empty() and not str(relic.effect).is_empty()
 		for key in relic.stats: valid_keys = valid_keys and CombatStats.KEYS.has(key)
-	check("94 relics, unique, each named after its 集成战略 collectible with its original effect", all.size() == 94 and ids.size() == 94 and complete, all.size())
+	check("96 relics, unique, each named after its 集成战略 collectible with its original effect", all.size() == 96 and ids.size() == 96 and complete, all.size())
 	check("every stat key is part of the sheet", valid_keys)
 	var research := FileAccess.get_file_as_string("res://局内构筑调研_集成战略藏品.md")
 	var missing := all.filter(func(r): return not r.name.replace("\"", "") in research.replace("\"", ""))
@@ -170,16 +170,16 @@ func _sources() -> void:
 	game.close_modal()
 	game._interact()
 	check("device offer opens with three and does not reroll on reopen", game.modal == "build" and first.size() == 3 and first == game.build_offers.map(func(x): return x.id))
-	game.run_gold = 100
-	check("reroll costs 25 of the unbanked reward and changes the offer", game.reroll_offers() and game.run_gold == 75 and game.reroll_count == 1)
-	check("the next reroll costs 50", game.reroll_cost() == 50 and game.reroll_offers() and game.run_gold == 25)
-	check("no reroll without the money", not game.reroll_offers() and game.run_gold == 25)
+	game.run_gold = 10
+	check("reroll costs 3 赤金 from the pack and changes the offer", game.reroll_offers() and game.run_gold == 7 and game.reroll_count == 1)
+	check("the next reroll costs 6", game.reroll_cost() == 6 and game.reroll_offers() and game.run_gold == 1)
+	check("no reroll without the 赤金", not game.reroll_offers() and game.run_gold == 1)
 	var pick: String = game.build_offers[0].id
 	check("device pick succeeds once", game.choose_build(pick) and not game.is_buff_available() and game.builds == [pick])
 	await reset_arena()
 	use(["锈蚀的铁锤"])
 	game.reroll_count = 0
-	check("锈蚀的铁锤 halves the reroll price (25 → 13)", game.reroll_cost() == 13)
+	check("锈蚀的铁锤 no longer touches the reroll (it halves 坎诺特's prices)", game.reroll_cost() == 3 and game._trader_discount(16) == 8 and game._trader_discount(3) == 2)
 	use([])
 	game.segment_threat = 0
 	game._cache_spawned = false
@@ -364,9 +364,9 @@ func _tempo() -> void:
 	p.dash_remaining = 0
 	p.invulnerable = false
 	use(["投币玩具"])
-	game.run_gold = 200
-	check("投币玩具: +3 攻速 per 50 unbanked reward", is_equal_approx(p.current_aspd(), 112))
-	game.run_gold = 5000
+	game.run_gold = 20
+	check("投币玩具: +3 攻速 per 5 赤金 carried", is_equal_approx(p.current_aspd(), 112))
+	game.run_gold = 60
 	check("capped at +30", is_equal_approx(p.current_aspd(), 130))
 	game.run_gold = 0
 	use(["\"永夜的窥视\""])
@@ -456,7 +456,7 @@ func _life() -> void:
 
 func _misc() -> void:
 	use(["\"剑锤\""])
-	check("\"剑锤\": ATK, DEF and life +10%, one flask less", is_equal_approx(p.attack_power(), 660) and p.potion_capacity == 2)
+	check("\"剑锤\": ATK, DEF and life +10%, flask healing −20%", is_equal_approx(p.attack_power(), 660) and is_equal_approx(p.potion_heal_multiplier, 0.8))
 	use(["统帅肖像"])
 	check("统帅肖像: +10% normally", is_equal_approx(p.attack_power(), 660))
 	game.route_index = 2
@@ -475,7 +475,7 @@ func _misc() -> void:
 	check("圆石祭坛: stacks on new segments, at most 10", p.altar_stacks == 10 and is_equal_approx(p.attack_power(), 900))
 	use(["友谊之证"])
 	game.add_gold(10)
-	check("友谊之证: reward +30%", game.run_gold == 13)
+	check("友谊之证: 赤金 +30%", game.run_gold == 13)
 	await reset_arena()
 
 func _special() -> void:

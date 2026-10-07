@@ -69,20 +69,16 @@ func run() -> void:
 		{"gold_before": gold_before, "gold_after": game.run_gold})
 	game.player.unequip(Item.Category.TRINKET)
 
-	# --- Potion-capacity modifier shrinks capacity and GameManager clamps
-	# the live count down to match (a relic equipped mid-run with a full
-	# stock shouldn't leave potions above the new cap).
-	check("full-potion-capacity-before-relic", game.potions == 3 and game.player.potion_capacity == 3,
-		{"potions": game.potions, "capacity": game.player.potion_capacity})
+	# --- The old flask-capacity stat now scales flask healing (药剂进背包: flasks
+	# are pack items, there is no belt to shrink). Each point is ±20%.
+	check("flask-healing-starts-at-100%", is_equal_approx(game.player.potion_heal_multiplier, 1.0), {"multiplier": game.player.potion_heal_multiplier})
 	var capacity_drain := make_relic("测试负重", [ModScript.stat_mod(ModScript.Stat.POTION_CAPACITY_FLAT, -1.0)])
 	game.player.equip(capacity_drain)
-	await step(2)  # let GameManager._process's clamp run
-	check("potion-capacity-modifier-shrinks-capacity-and-clamps-count", game.player.potion_capacity == 2 and game.potions == 2,
-		{"capacity": game.player.potion_capacity, "potions": game.potions})
+	await step(2)
+	check("flask-stat-minus-one-cuts-healing-20%", is_equal_approx(game.player.potion_heal_multiplier, 0.8), {"multiplier": game.player.potion_heal_multiplier})
 	game.player.unequip(Item.Category.TRINKET)
 	await step(2)
-	check("potion-capacity-reverts-but-count-stays-clamped", game.player.potion_capacity == 3 and game.potions == 2,
-		{"capacity": game.player.potion_capacity, "potions": game.potions, "note": "capacity reverting doesn't refund a potion that was already lost"})
+	check("flask-healing-reverts-on-unequip", is_equal_approx(game.player.potion_heal_multiplier, 1.0), {"multiplier": game.player.potion_heal_multiplier})
 
 	# --- Blade-cooldown modifier changes the derived cooldown Player.attack() uses.
 	var base_blade_cooldown: float = game.player.blade_cooldown

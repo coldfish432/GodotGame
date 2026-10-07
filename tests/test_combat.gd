@@ -12,6 +12,12 @@ var results: Array[Dictionary] = []
 var failures: int = 0
 var arena_anchor: Vector3
 
+## Pack contents counted by units, so a drop that merges into a stack counts.
+func inventory_units() -> int:
+	var total := 0
+	for item in game.inventory.items: total += item.quantity
+	return total
+
 func _initialize() -> void:
 	call_deferred("run")
 
@@ -60,20 +66,115 @@ func run() -> void:
 		var swings := 0
 		var gold_before_kill: int = game.run_gold
 		var inventory_count_before_kill: int = game.inventory.items.size()
+		var units_before_kill: int = inventory_units()
 		while is_instance_valid(target) and swings < 10:
 			await step(45)  # clear the blade cooldown (0.7s) between swings
 			if is_instance_valid(target):
 				game.player.attack(target)
 			swings += 1
-		# The player stands 1 unit from the kill, well inside Loot's 1.25
-		# pickup radius, so the drop is auto-collected before a lingering
-		# "loot" group node could ever be observed. spawn_loot() rolls either
-		# gold or an Item (45% chance, since the M2 economy pass), so check
-		# for either outcome rather than assuming gold specifically.
-		var got_gold: bool = game.run_gold == gold_before_kill + 10
-		var got_item: bool = game.inventory.items.size() == inventory_count_before_kill + 1
-		check("melee-kills-enemy-and-loot-is-auto-collected", not is_instance_valid(target) and (got_gold or got_item),
-			{"gold_before": gold_before_kill, "gold_after": game.run_gold, "inventory_before": inventory_count_before_kill, "inventory_after": game.inventory.items.size()})
+		# Drops follow 掉落物策划案 §3.1: a kill can drop nothing (12%), gold
+		# (8–14) or items, scattered in a ring around the body. Walk over every
+		# drop, then check each was collected and something was gained unless
+		# the roll was "nothing".
+		var drops := get_nodes_in_group("loot").filter(func(n): return is_instance_valid(n) and not n.is_queued_for_deletion())
+		var dropped := drops.size()
+		for loot in drops:
+			if is_instance_valid(loot):
+				game.player.teleport(loot.global_position)
+				await step(3)
+		await step(2)
+		var left := get_nodes_in_group("loot").filter(func(n): return is_instance_valid(n) and not n.is_queued_for_deletion()).size()
+		var gained: bool = game.run_gold > gold_before_kill or inventory_units() > units_before_kill
+		check("melee-kills-enemy-and-loot-is-auto-collected", not is_instance_valid(target) and left == 0 and (gained or dropped == 0),
+			{"dropped": dropped, "left": left, "gold_before": gold_before_kill, "gold_after": game.run_gold, "inventory_before": inventory_count_before_kill, "inventory_after": game.inventory.items.size()})
+
+	# --- Air swings (用户 2026-10-07): a ground click still lands on an enemy in
+	# reach in front of her; one behind her, or out of reach, is untouched.
+	game.player.teleport(arena_anchor)
+	await clear_all_enemies()
+	var front: Enemy = game._spawn_enemy(arena_anchor + Vector3(2.0, 0.0, 0.0), false, false)
+	var behind: Enemy = game._spawn_enemy(arena_anchor + Vector3(-2.0, 0.0, 0.0), false, false)
+	var far: Enemy = game._spawn_enemy(arena_anchor + Vector3(8.0, 0.0, 0.5), false, false)
+	await step(2)
+	var front_hp: float = front.health
+	var behind_hp: float = behind.health
+	var far_hp: float = far.health
+	game.player._attack_cooldown = 0
+	game.player.attack_direction(Vector3.RIGHT)
+	check("air-swing-hits-enemy-in-reach-in-front", front.health < front_hp and is_equal_approx(behind.health, behind_hp) and is_equal_approx(far.health, far_hp),
+		{"front": [front_hp, front.health], "behind": [behind_hp, behind.health], "far": [far_hp, far.health]})
+	await step(45)
+	var charge_before: int = game.player.sword_charge
+	game.player.attack_direction(Vector3.FORWARD)
+	check("air-swing-at-nobody-is-a-whiff", game.player.sword_charge == charge_before and is_equal_approx(behind.health, behind_hp),
+		{"charge": [charge_before, game.player.sword_charge]})
+	# A ranged weapon cannot swing at the air.
+	await step(45)
+	var bow := Item.create("测试弩", Item.Category.WEAPON, 1, 3)
+	bow.base_id = "_test_crossbow"
+	GearCatalog.extra_bases["_test_crossbow"] = {"form": "crossbow"}
+	game.player.equipped[Item.Category.WEAPON] = bow
+	var front_before_bow: float = front.health
+	game.player._attack_cooldown = 0
+	game.player.attack_direction(Vector3.RIGHT)
+	check("ranged-weapon-cannot-air-attack", game.player.is_ranged_weapon() and is_equal_approx(front.health, front_before_bow) and game.player._attack_cooldown <= 0,
+		{"front": [front_before_bow, front.health]})
+	game.player.equipped.erase(Item.Category.WEAPON)
+	GearCatalog.extra_bases.erase("_test_crossbow")
+	await clear_all_enemies()
+
+	# --- Target lock (用户 2026-10-07): one click locks an enemy; she closes to
+	# her weapon's reach, stops there and attacks only it.
+	game.player.teleport(arena_anchor)
+	await clear_all_enemies()
+	var mark: Enemy = game._spawn_enemy(arena_anchor + Vector3(8.0, 0.0, 0.0), false, false)
+	mark.set_physics_process(false)
+	var bystander: Enemy = game._spawn_enemy(arena_anchor + Vector3(0.0, 0.0, 2.5), false, false)
+	bystander.set_physics_process(false)
+	for e in [mark, bystander]:
+		e.max_health = 100000.0
+		e.health = 100000.0
+	await step(2)
+	var mark_hp: float = mark.health
+	var bystander_hp: float = bystander.health
+	game.player._attack_cooldown = 0
+	game.player.lock_target(mark)
+	await step(120)
+	var gap: float = Vector2(mark.global_position.x - game.player.global_position.x, mark.global_position.z - game.player.global_position.z).length()
+	check("melee-lock-closes-in-and-attacks-only-the-target", mark.health < mark_hp and is_equal_approx(bystander.health, bystander_hp) and gap <= Player.BLADE_RANGE + 0.05,
+		{"gap": gap, "mark": [mark_hp, mark.health], "bystander": [bystander_hp, bystander.health]})
+	# Ranged: stops at its own range instead of walking into melee.
+	GearCatalog.extra_bases["_test_crossbow"] = {"form": "crossbow", "range": 7.0}
+	var crossbow := Item.create("测试弩", Item.Category.WEAPON, 1, 3)
+	crossbow.base_id = "_test_crossbow"
+	game.player.equipped[Item.Category.WEAPON] = crossbow
+	game.player.teleport(arena_anchor)
+	# A spot 12 away with a clear line from her (the field has pillars).
+	var spot := arena_anchor + Vector3(12.0, 0.0, 0.0)
+	for angle in range(0, 360, 15):
+		var candidate := arena_anchor + Vector3(12.0, 0.0, 0.0).rotated(Vector3.UP, deg_to_rad(angle))
+		if game.line_of_sight(arena_anchor, candidate) and game.world_map.try_sample_navigation_position(candidate, 0.5).distance_to(candidate) < 0.6:
+			spot = candidate
+			break
+	mark.global_position = spot
+	await step(2)
+	mark_hp = mark.health
+	game.player.lock_target(mark)
+	await step(150)
+	gap = Vector2(mark.global_position.x - game.player.global_position.x, mark.global_position.z - game.player.global_position.z).length()
+	check("ranged-lock-stops-at-max-range-and-attacks", mark.health < mark_hp and gap > 6.0 and gap <= 7.05, {"gap": gap, "mark": [mark_hp, mark.health]})
+	# Keys cancel the lock; a dead target releases it.
+	Input.action_press("move_left")
+	await step(3)
+	Input.action_release("move_left")
+	check("keys-cancel-the-lock", not game.player.has_target(), {})
+	game.player.lock_target(mark)
+	mark.take_hit(mark.health + 1.0, "true")
+	await step(3)
+	check("a-dead-target-releases-the-lock", game.player.attack_target == null, {})
+	game.player.equipped.erase(Item.Category.WEAPON)
+	GearCatalog.extra_bases.erase("_test_crossbow")
+	await clear_all_enemies()
 
 	# Isolate enemy damage from the new carried-ore pollution mechanic.
 	game.inventory.items.clear()

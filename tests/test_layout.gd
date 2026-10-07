@@ -54,7 +54,7 @@ func run() -> void:
 		var map_rid: RID = game.world_map._generated_root.get_navigation_map()
 		var targets: Array = [
 			game.world_map.buff_position,
-			game.world_map.gilding_position,
+			game.world_map.encounter_position,
 			game.world_map.exit_node.position,
 		]
 		for node in game.world_map.route_nodes:

@@ -1,0 +1,1026 @@
+<meta charset="utf-8">
+<title>Downfall 界面原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Saira:wdth,wght@75..125,400..900&display=swap">
+<style>
+/* Layout: one fixed 1280x720 game viewport (Godot reference size) scaled to fit; screen picker above, design notes below.
+   Look: Arknights client UI — battle HUD (blue HP / yellow SP, cost counter + deploy cards), sub-page shell
+   (back/home pill, currency pills, wide English watermark), Integrated Strategies top bar and node map, stage-detail panel. */
+:root{
+  color-scheme:dark;
+  --bg:#161616;  --plate:rgba(24,24,24,.86);  --plate-s:#202020;  --plate-2:#2c2c2c;  --plate-3:#383838;
+  --line:#3a3a3a; --line-2:#5a5a5a;
+  --fg:#f4f4f4;  --mute:#a3a3a3;  --dim:#6d6d6d;  --ink:#101010;  --paper:#e9e9e9;
+  --blue:#0098dc;   /* confirm / 开始行动 / selected */
+  --hp:#27a6ef;     /* ally HP */
+  --sp:#f5c000;     /* skill points, skill ready, stars */
+  --red:#e23c3c;    /* enemy, elite, failure */
+  --ori:#e0782a;    /* contamination and originium only */
+  --green:#8fc31f;  /* extraction, kept */
+  --t0:#9a9a9a; --t1:#16a2e8; --t2:#ffc400; --sp-item:#c48cff;   /* item tiers: 普通 / 精良 / 稀有 / 特殊 */
+  --f-cn:"Noto Sans SC","Microsoft YaHei","PingFang SC",sans-serif;
+  --f-en:"Saira","Bahnschrift","Arial",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#0b0b0b;color:var(--fg);font-family:var(--f-cn);font-size:14px}
+button{font-family:inherit}
+.page{padding-inline:16px;padding-block:18px 40px;max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.brand small{display:block;font:600 11px var(--f-en);font-stretch:125%;color:var(--mute);letter-spacing:.2em}
+.brand h1{margin:2px 0 0;font:900 26px var(--f-cn);letter-spacing:.04em;text-wrap:balance}
+.brand h1 span{font:800 26px var(--f-en);font-stretch:125%;letter-spacing:.06em;margin-right:10px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--mute)}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
+nav.picker{display:flex;flex-wrap:wrap;gap:14px 22px}
+.grp{display:flex;flex-direction:column;gap:6px;min-width:0}
+.grp>span{font:600 10.5px var(--f-en);font-stretch:125%;color:var(--mute);letter-spacing:.2em}
+.grp div{display:flex;flex-wrap:wrap;gap:4px}
+.pick{font:500 13px var(--f-cn);color:var(--fg);background:var(--plate-s);border:0;border-bottom:2px solid transparent;padding:6px 11px;cursor:pointer}
+.pick:hover{background:var(--plate-2)}
+.pick[aria-pressed="true"]{background:var(--paper);color:var(--ink)}
+:focus-visible{outline:2px solid var(--sp);outline-offset:2px}
+.stage-wrap{width:100%;position:relative;background:#000;overflow:hidden}
+.stage{width:1280px;height:720px;position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;background:#111 center/cover no-repeat;image-rendering:pixelated;user-select:none}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.note{background:var(--plate-s);padding:12px 14px;min-width:0;border-top:2px solid var(--line-2)}
+.note h3{margin:0 0 6px;font:700 11px var(--f-en);font-stretch:125%;letter-spacing:.2em;color:var(--sp)}
+.note p{margin:0;line-height:1.7;color:#cfcfcf;font-size:13px}
+.hint{font-size:12px;color:var(--mute);margin:0}
+.hint kbd{font:600 11px var(--f-en);background:var(--plate-2);padding:1px 5px;color:var(--fg)}
+
+/* ================= in-game kit ================= */
+.stage *{image-rendering:auto}
+.stage img.px{image-rendering:pixelated}
+.abs{position:absolute}
+.en{font-family:var(--f-en);font-stretch:125%;letter-spacing:.12em;font-weight:700}
+.num{font-family:var(--f-en);font-stretch:100%;font-weight:700;font-variant-numeric:tabular-nums}
+.mute{color:var(--mute)} .dimc{color:var(--dim)}
+.b{color:var(--hp)} .y{color:var(--sp)} .rd{color:var(--red)} .o{color:var(--ori)} .g{color:var(--green)}
+.q0{color:#d0d0d0} .q1{color:#5cc4ff} .q2{color:var(--t2)} .qs{color:var(--sp-item)}
+.plate{background:var(--plate)}
+.wplate{background:var(--paper);color:var(--ink)}
+.stars{color:var(--sp);letter-spacing:-1px;text-shadow:0 0 6px rgba(245,192,0,.35)}
+.wm{position:absolute;font:900 150px/0.8 var(--f-en);font-stretch:125%;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.07);pointer-events:none;white-space:nowrap}
+.slash{background:repeating-linear-gradient(-60deg,rgba(255,255,255,.08) 0 2px,transparent 2px 7px)}
+.geo{background:
+  linear-gradient(115deg,transparent 0 62%,rgba(255,255,255,.025) 62% 63%,transparent 63%),
+  linear-gradient(115deg,transparent 0 70%,rgba(255,255,255,.03) 70% 78%,transparent 78%),
+  radial-gradient(circle at 1px 1px,rgba(255,255,255,.045) 1px,transparent 0) 0 0/16px 16px,
+  #1a1a1a}
+.brk{--bc:var(--sp);background:
+ linear-gradient(var(--bc),var(--bc)) 0 0/12px 2px no-repeat, linear-gradient(var(--bc),var(--bc)) 0 0/2px 12px no-repeat,
+ linear-gradient(var(--bc),var(--bc)) 100% 0/12px 2px no-repeat, linear-gradient(var(--bc),var(--bc)) 100% 0/2px 12px no-repeat,
+ linear-gradient(var(--bc),var(--bc)) 0 100%/12px 2px no-repeat, linear-gradient(var(--bc),var(--bc)) 0 100%/2px 12px no-repeat,
+ linear-gradient(var(--bc),var(--bc)) 100% 100%/12px 2px no-repeat, linear-gradient(var(--bc),var(--bc)) 100% 100%/2px 12px no-repeat}
+.bar{position:relative;height:6px;background:rgba(0,0,0,.75)}
+.bar>i{position:absolute;inset:0 auto 0 0;display:block}
+.seg{display:flex;gap:2px}.seg i{flex:1;height:100%;background:rgba(255,255,255,.12)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;background:var(--plate);font-size:13px}
+.chip svg{width:16px;height:16px}
+.tagw{display:inline-block;background:var(--paper);color:var(--ink);font:800 10.5px var(--f-cn);padding:1px 6px;letter-spacing:.04em}
+.tagd{display:inline-block;background:var(--plate-3);color:var(--fg);font:700 10.5px var(--f-cn);padding:1px 6px}
+.tagc{display:inline-block;font:800 10.5px var(--f-cn);padding:1px 6px;color:var(--ink)}
+.btn{font:700 14px var(--f-cn);color:var(--fg);background:var(--plate-3);border:0;padding:9px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{filter:brightness(1.15)}
+.btn.blue{background:var(--blue)}
+.btn.yel{background:var(--sp);color:var(--ink)}
+.btn[disabled]{opacity:.35;cursor:not-allowed;filter:none}
+.btn .en{font-size:10px;opacity:.8}
+.go{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;background:var(--blue);color:#fff;border:0;cursor:pointer;padding:0 22px;position:relative;overflow:hidden}
+.go b{font:900 24px var(--f-cn);letter-spacing:.2em}
+.go small{font:700 10px var(--f-en);font-stretch:125%;letter-spacing:.3em;opacity:.85}
+.go::after{content:"";position:absolute;right:-20px;top:0;bottom:0;width:90px;background:repeating-linear-gradient(-60deg,rgba(255,255,255,.18) 0 3px,transparent 3px 9px)}
+.go[disabled]{background:#3a3a3a;color:#888;cursor:not-allowed}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;background:#000;color:#fff;font:700 10px var(--f-en)}
+.dim{position:absolute;inset:0;background:rgba(8,8,8,.74)}
+.scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+.sec{display:flex;align-items:center;gap:8px;margin:0 0 8px;font:900 13px var(--f-cn)}
+.sec::before{content:"";width:4px;height:13px;background:var(--fg)}
+.sec em{font:700 9.5px var(--f-en);font-stretch:125%;letter-spacing:.2em;color:var(--dim);font-style:normal}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:0;font-size:13px}
+.kv>div{display:contents}
+.kv span{padding:6px 10px;border-bottom:1px solid var(--line)}
+.kv span:nth-child(even){text-align:right;font:700 15px var(--f-en);font-variant-numeric:tabular-nums}
+.up{color:#9fe04a}.dn{color:var(--red)}
+.cls{width:40px;height:40px;background:#000;display:grid;place-items:center;flex:none}
+.cls svg{width:26px;height:26px}
+
+/* page shell (AK sub-page) */
+.shell{position:absolute;inset:0;display:flex;flex-direction:column}
+.shtop{height:58px;flex:none;display:flex;align-items:center;gap:14px;padding:0 0 0 14px;position:relative;z-index:2}
+.navp{display:flex;height:38px;background:#000}
+.navp button{width:46px;border:0;background:#000;color:#fff;cursor:pointer;display:grid;place-items:center;padding:0}
+.navp button+button{border-left:1px solid #333;width:60px}
+.navp svg{width:18px;height:18px}
+.pt{display:flex;flex-direction:column;line-height:1.05}
+.pt small{font:700 10px var(--f-en);font-stretch:125%;letter-spacing:.32em;color:var(--mute)}
+.pt b{font:900 22px var(--f-cn);letter-spacing:.06em}
+.tabs{display:flex;gap:2px;margin-left:12px;align-self:stretch;align-items:flex-end;padding-bottom:10px}
+.tab{border:0;background:transparent;color:var(--mute);font:700 13px var(--f-cn);padding:6px 14px;cursor:pointer;position:relative}
+.tab.on{color:var(--ink);background:var(--paper)}
+.curs{margin-left:auto;display:flex;gap:6px;padding-right:14px}
+.cur{display:flex;align-items:center;height:30px;background:rgba(0,0,0,.72);font:700 14px var(--f-en);padding-left:8px}
+.cur i{width:16px;height:16px;margin-right:8px;display:grid;place-items:center;font-style:normal}
+.cur .v{min-width:56px;text-align:right;padding-right:8px}
+.cur .p{width:24px;height:30px;background:var(--paper);color:var(--ink);display:grid;place-items:center;font:900 15px var(--f-en)}
+.shbody{flex:1;min-height:0;display:flex;gap:16px;padding:6px 16px 0;position:relative;z-index:1}
+.shfoot{height:34px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;font-size:12px;color:var(--mute);position:relative;z-index:1}
+.shfoot .kbd{margin-right:4px}
+
+/* item tile (AK depot style) */
+.grid{position:relative;background:rgba(0,0,0,.55);background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:36px 36px;background-position:-1px -1px}
+.it{position:absolute;display:grid;place-items:center;cursor:pointer;--rc:var(--t0);
+ background:linear-gradient(0deg,color-mix(in srgb,var(--rc) 55%,transparent) 0,transparent 62%),#2b2b2b;
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.it::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--rc)}
+.it.q1{--rc:var(--t1)}.it.q2{--rc:var(--t2)}.it.qs{--rc:var(--sp-item)}
+.it img{image-rendering:pixelated;position:relative;z-index:1}
+.it:hover,.it.sel{outline:2px solid var(--fg);outline-offset:-1px;z-index:3}
+.it .st{position:absolute;right:0;bottom:3px;background:#000;color:#fff;font:700 11px var(--f-en);padding:0 4px;z-index:2}
+.it .badge{position:absolute;left:2px;top:2px;width:10px;height:10px;z-index:2}
+.it .t{font:700 11.5px var(--f-cn);position:relative;z-index:1;text-shadow:0 1px 2px #000}
+.b-ins{background:var(--hp);clip-path:polygon(50% 0,100% 20%,90% 70%,50% 100%,10% 70%,0 20%)}
+.b-reg{background:var(--ori);transform:rotate(45deg) scale(.7)}
+.b-lock{background:var(--green);clip-path:polygon(20% 40%,20% 20%,35% 5%,65% 5%,80% 20%,80% 40%,100% 40%,100% 100%,0 100%,0 40%,35% 40%,35% 25%,65% 25%,65% 40%)}
+
+/* AK item detail */
+.idt{background:var(--plate-s);font-size:12.5px}
+.idt .hd{display:flex;gap:12px;padding:14px;background:linear-gradient(90deg,color-mix(in srgb,var(--rc) 30%,transparent),transparent 70%);position:relative}
+.idt .hd::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--rc)}
+.idt .ic{width:76px;height:76px;flex:none;display:grid;place-items:center;background:linear-gradient(0deg,color-mix(in srgb,var(--rc) 55%,transparent),transparent 65%),#2b2b2b;border-bottom:3px solid var(--rc)}
+.idt .ic img{max-width:70px;max-height:70px;image-rendering:pixelated}
+.idt .nm{font:900 17px var(--f-cn)}
+.idt .bd{padding:10px 14px 14px;display:flex;flex-direction:column;gap:7px}
+.idt .row{display:flex;justify-content:space-between;gap:8px}
+.idt .row .num{font-size:14px}
+.idt .afx{color:#9fd8ff}
+.idt .lbl{font:700 9.5px var(--f-en);font-stretch:125%;letter-spacing:.2em;color:var(--dim);margin-top:4px}
+.idt .fl{font-style:italic;color:var(--mute);line-height:1.6}
+.grid.dead .it{filter:grayscale(.8);opacity:.38}
+.grid.dead .it[data-it="yan"],.grid.dead .it[data-it="eq-武器"],.grid.dead .it[data-it="lgd"]{filter:none;opacity:1}
+.z2 .it .t{font-size:8px}
+.z2 .it .st{font-size:7px}
+.ftag{position:absolute;z-index:5;font:800 7px var(--f-cn);color:#111;padding:0 2px;line-height:10px;pointer-events:none}
+.fg{color:var(--fg)}
+.win{position:absolute;top:0;bottom:0;background:rgba(16,16,16,.97);display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--line-2),0 0 40px rgba(0,0,0,.6);z-index:10}
+.wtop{height:52px;flex:none;display:flex;align-items:center;padding:0 0 0 16px;border-bottom:1px solid var(--line);background:#0c0c0c}
+.wx{width:52px;height:52px;border:0;background:transparent;color:#fff;font-size:18px;cursor:pointer;margin-left:8px}
+.wx:hover{background:var(--red)}
+.wbody{flex:1;min-height:0;overflow:auto}
+.it.qp{--rc:#8fc31f}
+.idt.ft{width:270px;box-shadow:0 0 0 1px var(--line-2),0 10px 28px rgba(0,0,0,.7)}
+
+/* battle HUD */
+.card{position:relative;width:64px;height:82px;background:linear-gradient(180deg,#3b3b3b,#1d1d1d);cursor:pointer;overflow:hidden}
+.card .cost{position:absolute;right:0;top:0;min-width:20px;height:18px;background:#000;color:#fff;font:800 13px var(--f-en);display:grid;place-items:center;padding:0 3px;z-index:3}
+.card .ico{position:absolute;inset:6px 6px 22px 6px;display:grid;place-items:center}
+.card .ico svg{width:34px;height:34px}
+.card .kb{position:absolute;left:0;right:0;bottom:3px;height:19px;background:rgba(0,0,0,.65);font:700 11px var(--f-cn);display:flex;align-items:center;justify-content:center;gap:4px}
+.card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--cc,#9a9a9a)}
+.card .cdv{position:absolute;inset:0;background:rgba(0,0,0,.7);display:grid;place-items:center;font:800 18px var(--f-en);z-index:2}
+.card.ready{box-shadow:0 0 0 2px var(--sp),0 0 14px rgba(245,192,0,.5)}
+.unitbar{position:absolute;transform:translateX(-50%);width:54px;display:flex;flex-direction:column;gap:1px;pointer-events:none}
+.unitbar .bar{height:5px;background:rgba(0,0,0,.8)}
+.ready-ic{position:absolute;transform:translate(-50%,-100%);width:22px;height:22px;background:var(--sp);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);display:grid;place-items:center;font:900 12px var(--f-en);color:var(--ink)}
+.eplate{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
+.ehp{position:relative;width:40px;height:3px;background:rgba(0,0,0,.85)}
+.ehp>i{position:absolute;inset:0 auto 0 0;background:var(--red)}
+.ehp.elite{width:64px;height:6px;box-shadow:0 0 0 1px #000,0 0 0 2px #b8862e;background:#1a0606}
+.ehp.elite>i{background:linear-gradient(180deg,#ff6a5a,#c4231c)}
+.ehp.elite::before{content:"★";position:absolute;right:calc(100% + 5px);top:50%;transform:translateY(-52%);font:900 13px/1 var(--f-en);color:#f5c000;text-shadow:0 0 0 #000,1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000}
+.dmg{position:absolute;font:800 22px var(--f-en);text-shadow:0 2px 0 #000;pointer-events:none;animation:rise 1.3s ease-out infinite}
+@keyframes rise{0%{transform:translateY(6px);opacity:0}15%{opacity:1}100%{transform:translateY(-26px);opacity:0}}
+.pulse{animation:pulse 1.4s ease-in-out infinite}@keyframes pulse{50%{box-shadow:0 0 0 2px var(--sp),0 0 22px rgba(245,192,0,.75)}}
+@media (prefers-reduced-motion:reduce){.dmg,.pulse,.spin{animation:none!important}}
+.grade{width:34px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.grade b{width:26px;height:26px;display:grid;place-items:center;background:var(--paper);color:var(--ink);font:900 17px var(--f-en)}
+.grade span{font-size:10px;color:var(--mute)}
+.buff{position:relative;width:28px;height:28px;background:#000;display:grid;place-items:center;font:900 12px var(--f-cn);box-shadow:inset 0 -2px 0 var(--bc,#777)}
+.buff i{position:absolute;right:-2px;bottom:-6px;background:#000;font:700 9.5px var(--f-en);font-style:normal;padding:0 2px}
+.log{font-size:12px;line-height:1.6}
+.log p{margin:0}
+.log .t{font:600 10.5px var(--f-en);color:var(--dim);margin-right:6px}
+.toast{display:flex;align-items:center;gap:8px;height:30px;padding-left:40px;background:linear-gradient(90deg,transparent,rgba(0,0,0,.78) 30%);font-size:12.5px;justify-content:flex-end}
+.toast .mini{width:26px;height:26px;position:relative;flex:none}
+.mm-dot{position:absolute;width:7px;height:7px;transform:translate(-50%,-50%) rotate(45deg)}
+.relic{width:64px;height:64px;position:relative;display:grid;place-items:center;font:900 22px var(--f-cn);background:radial-gradient(circle at 50% 38%,#3a3a3a,#141414 72%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.relic.r0{color:#e6e6e6}.relic.r1{color:#5cc4ff}.relic.r2{color:var(--t2)}
+.relic::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:currentColor}
+.toggle{display:inline-flex;background:#000}
+.toggle button{background:none;border:0;color:var(--mute);font:700 12px var(--f-cn);padding:6px 12px;cursor:pointer}
+.toggle button.on{background:var(--blue);color:#fff}
+input.srch{background:#000;border:0;border-bottom:2px solid var(--line-2);color:var(--fg);font:13px var(--f-cn);padding:6px 10px;width:280px}
+.rng{width:100%;accent-color:var(--blue)}
+.node{position:absolute;width:132px;height:58px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--plate-2);cursor:pointer;border:0;color:var(--fg);text-align:left;transform:translate(-50%,-50%)}
+.node .ni{width:34px;height:34px;display:grid;place-items:center;background:#000;flex:none}
+.node .ni svg{width:22px;height:22px}
+.node b{font:900 13px var(--f-cn);display:block}
+.node small{font:700 9px var(--f-en);font-stretch:125%;letter-spacing:.16em;color:var(--mute)}
+.node.done{opacity:.42;cursor:default}
+.node.sel{outline:2px solid var(--sp);outline-offset:3px}
+.band{position:absolute;left:0;right:0;background:rgba(18,18,18,.96);box-shadow:0 -1px 0 var(--line-2),0 1px 0 var(--line-2)}
+.spin{animation:spin 2.4s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
+<div class="page">
+  <header class="top">
+    <div class="brand">
+      <small>RHODES ISLAND · FIELD CONTRACTS · UI PROTOTYPE V2 · 1280×720</small>
+      <h1><span>DOWNFALL</span>界面原型</h1>
+    </div>
+    <div class="legend" aria-label="颜色用途">
+      <span><i style="background:var(--blue)"></i>蓝 · 确认 / 开始行动 / 我方生命</span>
+      <span><i style="background:var(--sp)"></i>黄 · 技力 / 可领取 / 星级</span>
+      <span><i style="background:var(--red)"></i>红 · 敌方 / 精英 / 失败</span>
+      <span><i style="background:var(--ori)"></i>橙 · 只给污染与源石</span>
+      <span><i style="background:var(--green)"></i>绿 · 撤离 / 保留</span>
+    </div>
+  </header>
+  <nav class="picker" id="picker" aria-label="选择界面"></nav>
+  <div class="stage-wrap" id="wrap"><div class="stage" id="stage" tabindex="0" aria-label="游戏画面原型"></div></div>
+  <p class="hint">在画面里可以直接按键：<kbd>I</kbd> / <kbd>C</kbd> 干员与背包 <kbd>R</kbd> 藏品 <kbd>M</kbd> 地图 <kbd>J</kbd> 合同 <kbd>Esc</kbd> 菜单 / 返回。局内 HUD：<kbd>1</kbd> 连斩（攒技力，满了自动放剑气） <kbd>Shift</kbd> 闪避（花 30 体力） <kbd>Q</kbd> 药瓶。底图是引擎截图，数值为示例。</p>
+  <section class="notes" id="notes" aria-live="polite"></section>
+</div>
+
+<script>
+const IMG = n => `img/${n}.png`;
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const stage = $('#stage'), wrap = $('#wrap');
+
+/* ---------------- sample data (names are real catalog entries; numbers are examples) ---------------- */
+const P = {hp:2160, max:2880, shield:240, sta:100, ori:18, potions:['A','A','B'], charge:2, need:3};
+const POT = {A:{n:'标准急救剂',s:'急',t:'立即回复 960 生命'},B:{n:'缓释凝胶',s:'缓',t:'6 秒内共回复 1680 生命'},C:{n:'抑制喷剂',s:'抑',t:'回复 480，污染 −6'}};
+const ITEMS = [
+ {id:'twin',n:'双生狼牙',img:'twin_fang',w:2,h:1,q:2,cat:'武器',special:1,x:0,y:0,base:'特殊装备',stats:[['攻击力','+180'],['攻速','+8']],afx:[['剑气命中后 2 秒内攻击力 +20%','Ⅱ']],fate:'丢失',val:260,fl:'两柄刃口相对的短刀，握柄缠着褪色的布条。'},
+ {id:'lgd',n:'近卫局警用刀',img:'lgd_knife',w:2,h:1,q:1,cat:'武器',x:2,y:0,base:'龙门 · 中层',stats:[['攻击力','+128']],afx:[['攻击力 +6%','Ⅱ'],['暴击率 +4%','Ⅰ']],fate:'投保',ins:1,reg:1,val:118,fl:'近卫局统一配发的制式刀具，刀鞘上有编号。'},
+ {id:'gang',n:'帮派砍刀',img:'gang_machete',w:2,h:1,q:0,cat:'武器',x:4,y:0,base:'龙门 · 浅层',stats:[['攻击力','+74']],afx:[],fate:'丢失',val:34,fl:'刃口卷了好几处，但还能用。'},
+ {id:'vest',n:'押运防弹背心',img:'lgd_vest',w:2,h:2,q:1,cat:'防具',x:0,y:1,base:'龙门 · 中层',stats:[['防御','+96'],['生命上限','+220']],afx:[['法抗 +6','Ⅲ']],fate:'丢失',reg:1,val:126,fl:'押运公司的标准装备，反光条已经磨得发灰。'},
+ {id:'fire',n:'消防署隔热服',img:'fire_suit',w:2,h:2,q:2,cat:'防具',x:2,y:1,base:'龙门 · 深层',stats:[['防御','+140'],['生命上限','+360']],afx:[['法抗 +8','Ⅱ'],['生命上限 +5%','Ⅱ']],fate:'丢失',val:240,fl:'厚重的隔热层能挡住不少东西，不只是火。'},
+ {id:'radio',n:'近卫局对讲机',img:'lgd_radio',w:1,h:1,q:1,cat:'饰品',x:4,y:1,base:'龙门 · 中层',stats:[['攻速','+6']],afx:[['暴击伤害 +12%','Ⅰ']],fate:'丢失',val:72,fl:'频道还开着，偶尔传出沙沙声。'},
+ {id:'wallet',n:'龙门币钱夹',img:'lungmen_wallet',w:1,h:1,q:0,cat:'饰品',x:5,y:1,base:'龙门 · 浅层',stats:[['赤金掉落','+5%']],afx:[],fate:'丢失',val:40,fl:'里面只剩几张收据。'},
+ {id:'ori',n:'原矿',img:'raw_originium',w:1,h:2,q:2,cat:'材料',x:4,y:2,base:'地区专属',stats:[['携带污染','+0.08/s']],afx:[],fate:'丢失',reg:1,val:180,fl:'未经处理的源石原矿。放进安全袋也挡不住污染。'},
+ {id:'mask',n:'整合运动面具',img:'reunion_mask',w:1,h:1,q:0,cat:'饰品',x:6,y:0,base:'切尔诺伯格 · 浅层',stats:[['法抗','+4']],afx:[],fate:'丢失',val:28,fl:'白色的面具，额头有一道裂痕。'},
+ {id:'bolt',n:'螺栓',txt:'螺栓',w:1,h:1,q:0,cat:'材料',x:7,y:0,stack:12,base:'通用物资',stats:[['交付价','每个 4']],afx:[],fate:'丢失',val:48,fl:'工程部永远缺这个。'},
+ {id:'wire',n:'电线',txt:'电线',w:1,h:1,q:0,cat:'材料',x:8,y:0,stack:5,base:'通用物资',stats:[['交付价','每个 6']],afx:[],fate:'丢失',val:30,fl:'绝缘皮有些老化。'},
+ {id:'dev',n:'装置',txt:'装置',w:1,h:1,q:1,cat:'材料',x:9,y:0,stack:2,base:'PRTS 材料 ★2',stats:[['交付价','每个 22']],afx:[],fate:'丢失',val:44,fl:'收缴来的机械装置，相对完整，主板上塞满电子元件。'},
+];
+const POTITEM = (id,k,x,y)=>({id,pot:k,n:POT[k].n,txt:POT[k].s,w:1,h:1,q:0,cat:'药剂',x,y,base:'医疗部配发',stats:[['效果',POT[k].t]],afx:[],fate:'丢失',val:k==='A'?0:k==='B'?6:10,fl:''});
+const GOLD=(id,x,y,n)=>({id,n:'赤金',txt:'赤金',w:1,h:1,q:1,cat:'材料',x,y,stack:n,base:'PRTS 材料 ★3',stats:[['可露希尔收购','每个 1,000']],afx:[],fate:'丢失',val:10,fl:'提纯精炼后的金条，可以换取大量龙门币。'});
+ITEMS.push(GOLD('g1',5,2,10),GOLD('g2',7,2,10),GOLD('g3',8,2,10),GOLD('g4',9,2,10),GOLD('g5',5,3,1));
+ITEMS.push(POTITEM('pa1','A',6,1),POTITEM('pa2','A',7,1),POTITEM('pa3','A',8,1),POTITEM('pa4','A',9,1),POTITEM('pb1','B',6,2));
+let BOUND='A';
+function drink(it){ const i=ITEMS.indexOf(it); if(i<0) return; ITEMS.splice(i,1); P.hp=Math.min(P.max,P.hp+(it.pot==='A'?960:it.pot==='B'?420:480)); pushLog('','',`饮用 ${POT[it.pot].n}。`); drawUnit(); }
+const SAFE = [{id:'yan',n:'炎式平安符',img:'yan_talisman',w:1,h:1,q:2,cat:'饰品',x:0,y:0,base:'龙门 · 深层',stats:[['生命上限','+8%']],afx:[['受到的治疗 +10%','Ⅲ']],fate:'必定保留（安全袋）',lock:1,val:150,fl:'红绳已经褪色，结却打得很紧。'}];
+const EQUIP = {武器:{n:'月下刃',img:'moon_edge',q:2,w:2,h:1,special:1,stats:[['攻击力','+160'],['法术攻击','+60']],afx:[['剑气强化 +25%','Ⅱ']],base:'特殊装备',fate:'投保',ins:1,cat:'武器',val:300,fl:'刃身映着冷光。'},
+  防具:{n:'近卫局制式护甲',img:'inspector_armor',q:1,w:2,h:2,stats:[['防御','+110'],['生命上限','+300']],afx:[['防御 +6%','Ⅰ']],base:'龙门 · 中层',fate:'丢失',cat:'防具',val:130,fl:'肩甲上的徽记被刮掉了。'},
+  饰品:{n:'残影护腕',img:'shadow_bracer',q:2,w:1,h:1,special:1,stats:[['闪避后','原地留下一道残影斩击']],afx:[],base:'特殊装备',fate:'丢失',cat:'饰品',val:220,fl:'动得越快，它留下的影子越清楚。'}};
+Object.entries(EQUIP).forEach(([k,e])=>e.id='eq-'+k);
+const RELICS = [
+ ['皇帝的恩宠',0,'攻击力 +15%','所有我方近战单位攻击力+15%'],
+ ['叙拉古人的愤怒',1,'释放剑气后 1 秒内攻击力 +100%','所有干员技能触发后1秒内攻击力+100%'],
+ ['鸣脊兽',1,'没有释放剑气时，攻速在 40 秒内逐渐提升至 +40；释放剑气后归零','所有我方单位技能未开启时40秒内攻速逐渐提升至最高+40'],
+ ['开裂的束缚带',0,'敌人攻击力 −7%','所有敌方单位攻击力-7%'],
+ ['活玫瑰',0,'受到的治疗与生命回复 +20%','所有我方单位受到的治疗和生命回复效果+20%'],
+ ['魔王的床榻',0,'满血时防御 +20%、法抗 +10','目标生命值达到上限时，所有干员防御力+20%，法术抗性+10'],
+ ['投币玩具',0,'背包里每有 5 赤金，攻速 +3（至多 +30）','每有5源石锭，所有我方单位攻击速度+3'],
+];
+const OFFER = [
+ ['撕扯之手',2,'攻击','攻击无视目标 70% 防御','【无畏者】【剑豪】【教官】攻击时无视目标70%的防御力'],
+ ['迷梦香精',1,'剑气','每 3 秒自动获得 1 点剑气充能','所有自然回复技能的技力恢复+0.5/s'],
+ ['《麻木与庸俗》',0,'防守','法抗 +10','所有我方单位法术抗性+5'],
+];
+const QN = ['普通','精良','稀有'], RN = ['低','中','高'], RC=['#e6e6e6','#5cc4ff','var(--t2)'];
+
+/* ---------------- icons (simple glyphs; final art per spec §8) ---------------- */
+const I = {
+  back:'<svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.4"><path d="M13 3 6 10l7 7"/></svg>',
+  home:'<svg viewBox="0 0 20 20" fill="#fff"><path d="M10 2 1 10h3v8h5v-5h2v5h5v-8h3z"/></svg>',
+  guard:'<svg viewBox="0 0 26 26" fill="#fff"><path d="M20 2h4v4L11 19l-4-4z"/><path d="M4 16l6 6-2 2-2-2-3 3-2-2 3-3-2-2z"/></svg>',
+  slash:'<svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2.4"><path d="M6 28 28 6M11 29 29 11"/><path d="M5 22l7 7" stroke="#f5c000"/></svg>',
+  dodge:'<svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2.4"><path d="M7 25c8 0 13-5 15-15"/><path d="M17 10h6v6"/><path d="M4 29h9" stroke="#27a6ef"/></svg>',
+  wave:'<svg viewBox="0 0 34 34" fill="none" stroke-width="2.6"><path d="M4 22c6-13 20-13 26 0" stroke="#f5c000"/><path d="M9 25c4-7 12-7 16 0" stroke="#fff"/></svg>',
+  hand:'<svg viewBox="0 0 34 34" fill="none" stroke="#fff" stroke-width="2.4"><rect x="9" y="9" width="16" height="16" transform="rotate(45 17 17)"/><circle cx="17" cy="17" r="3" fill="#27a6ef" stroke="none"/></svg>',
+  ingot:'<svg viewBox="0 0 16 16"><path d="M2 11 5 5h6l3 6z" fill="#f5c000"/><path d="M5 5h6l-1 2H6z" fill="#fff6c2"/></svg>',
+  relic:'<svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" fill="none" stroke="#fff" stroke-width="1.6"/><rect x="6" y="6" width="4" height="4" fill="#fff"/></svg>',
+  alert:'<svg viewBox="0 0 16 16"><path d="M8 1 15 14H1z" fill="#e23c3c"/><path d="M7.2 5h1.6v5H7.2zM7.2 11h1.6v1.6H7.2z" fill="#000"/></svg>',
+  ori:'<svg viewBox="0 0 16 16"><path d="M8 1 13 6 8 15 3 6z" fill="#111" stroke="#e0782a" stroke-width="1.4"/><rect x="6.6" y="6" width="2.8" height="2.8" fill="#e0782a"/></svg>',
+  fund:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="#f5c000"/><path d="M5 5h6v1.6H8.8V11H7.2V6.6H5z" fill="#111"/></svg>',
+  rep:'<svg viewBox="0 0 16 16"><path d="M8 1l2 4.5 5 .5-3.8 3.3L12.3 15 8 12.4 3.7 15l1.1-5.7L1 6l5-.5z" fill="#27a6ef"/></svg>',
+  pause:'<svg viewBox="0 0 20 20" fill="#fff"><rect x="5" y="4" width="3.4" height="12"/><rect x="11.6" y="4" width="3.4" height="12"/></svg>',
+  battle:'<svg viewBox="0 0 22 22" fill="none" stroke="#fff" stroke-width="2"><path d="M4 18 18 4M4 4l14 14"/></svg>',
+  elite:'<svg viewBox="0 0 22 22" fill="none" stroke="#e23c3c" stroke-width="2"><path d="M4 18 18 4M4 4l14 14"/><circle cx="11" cy="11" r="9"/></svg>',
+  rest:'<svg viewBox="0 0 22 22" fill="none" stroke="#fff" stroke-width="2"><path d="M3 15h16M5 15V9h12v6M8 9V6h6v3"/></svg>',
+  exit:'<svg viewBox="0 0 22 22" fill="none" stroke="#8fc31f" stroke-width="2.2"><path d="M8 4H4v14h4M12 7l4 4-4 4M16 11H8"/></svg>',
+  box:'<svg viewBox="0 0 22 22" fill="none" stroke="#f5c000" stroke-width="2"><path d="M3 8h16v10H3zM3 8l2-4h12l2 4M9 11h4"/></svg>',
+  rhodes:'<svg viewBox="0 0 40 40" fill="currentColor"><path d="M20 3 36 12v16L20 37 4 28V12z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 12h14v4h-5v12h-4V16h-5z"/></svg>',
+};
+
+/* ---------------- builders ---------------- */
+const bar = (pct,color,h=6,extra='') => `<div class="bar" style="height:${h}px">${extra}<i style="width:${pct}%;background:${color}"></i></div>`;
+const qcls = it => it.pot?'qp':it.special?'qs':'q'+it.q;
+function tile(it, cell=36){
+  const w=it.w*cell, h=it.h*cell;
+  const inner = it.img ? `<img class="px" src="${IMG(it.img)}" alt="" style="max-width:${w-4}px;max-height:${h-6}px">` : `<span class="t">${it.txt}</span>`;
+  const badge = it.lock?'<span class="badge b-lock"></span>':it.ins?'<span class="badge b-ins"></span>':it.reg?'<span class="badge b-reg"></span>':'';
+  return `<div class="it ${qcls(it)}" data-it="${it.id}" style="left:${it.x*cell}px;top:${it.y*cell}px;width:${w}px;height:${h}px">${inner}${it.stack?`<span class="st">${it.stack}</span>`:''}${badge}</div>`;
+}
+function mini(it, size=48){ return `<div class="it ${qcls(it)}" style="position:relative;width:${size}px;height:${size}px;flex:none">${it.img?`<img class="px" src="${IMG(it.img)}" alt="" style="max-width:${size-6}px;max-height:${size-8}px">`:`<span class="t">${it.txt}</span>`}${it.stack?`<span class="st">${it.stack}</span>`:''}</div>`; }
+function detail(it, cmp){
+  if(!it) return `<div class="idt" style="height:140px"></div>`;
+  const rc = it.special?'var(--sp-item)':['var(--t0)','var(--t1)','var(--t2)'][it.q];
+  return `<div class="idt" style="--rc:${rc}">
+   <div class="hd"><div class="ic">${it.img?`<img src="${IMG(it.img)}" alt="">`:`<b style="font-size:18px">${it.txt}</b>`}</div>
+    <div style="display:flex;flex-direction:column;gap:5px;min-width:0"><span class="nm">${it.n}${it.stack?` ×${it.stack}`:''}</span>
+     <div style="display:flex;gap:4px;flex-wrap:wrap"><span class="tagc" style="background:${rc}">${it.special?'特殊装备':QN[it.q]}</span><span class="tagd">${it.cat}</span></div>
+     <span class="mute" style="font-size:11.5px">${it.base}</span></div></div>
+   <div class="bd">
+    ${it.stats.map(([k,v])=>`<div class="row"><span>${k}</span><span class="num">${v}</span></div>`).join('')}
+    ${it.afx.length?`<div class="lbl">AFFIX · 词缀</div>`+it.afx.map(([k,t])=>`<div class="row afx"><span>◆ ${k}</span><span class="mute">${t}</span></div>`).join(''):''}
+    ${cmp?`<div class="lbl">COMPARE · 对比 ${cmp.n}</div>${cmp.rows}`:''}
+    <div class="fl">${it.fl||''}</div>
+    <div class="row" style="border-top:1px solid var(--line);padding-top:7px"><span class="mute">交付价</span><span class="num y" style="display:flex;gap:4px;align-items:center"><span style="width:13px">${I.fund}</span>${(it.val*100).toLocaleString('en-US')}</span></div>
+   </div></div>`;
+}
+function cmpRows(it){
+  const e = EQUIP[it.cat]; if(!e||it.cat==='材料'||e===it) return null;
+  const d = {lgd:[['攻击力','760 → 728','dn'],['法术攻击','420 → 360','dn'],['暴击率','6% → 10%','up']],
+    gang:[['攻击力','760 → 674','dn']],twin:[['攻击力','760 → 780','up'],['攻速','122 → 130','up']],
+    vest:[['防御','310 → 296','dn'],['法抗','10 → 16','up']],fire:[['防御','310 → 340','up'],['生命上限','2880 → 2940','up']],
+    radio:[['攻速','122 → 128','up'],['闪避残影斩击','有 → 无','dn']],wallet:[],mask:[],yan:[['生命上限','2880 → 3110','up']]}[it.id]||[];
+  return {n:e.n, rows:d.map(([k,v,c])=>`<div class="row"><span>${k}</span><span class="num ${c}">${v} ${c==='up'?'▲':'▼'}</span></div>`).join('')};
+}
+function shell(o){
+  return `<div class="shell geo">${o.wm?`<div class="wm" style="${o.wmpos||'right:-10px;bottom:-6px'}">${o.wm}</div>`:''}
+   <div class="shtop"><div class="navp"><button data-back aria-label="返回">${I.back}</button><button data-home aria-label="首页">${I.home}<span style="font-size:8px;margin-top:-4px">▾</span></button></div>
+    <div class="pt"><small>${o.en}</small><b>${o.cn}</b></div>
+    ${o.tabs?`<div class="tabs">${o.tabs.map((t,i)=>`<button class="tab ${i===(o.on||0)?'on':''}" data-tabx>${t}</button>`).join('')}</div>`:''}
+    <div class="curs">${(o.curs||[['fund','龙门币','90,000']]).map(([ic,l,v])=>`<div class="cur" title="${l}"><i>${I[ic]}</i><span class="v num">${v}</span><span class="p">+</span></div>`).join('')}</div></div>
+   <div class="shbody">${o.body}</div>
+   <div class="shfoot"><span style="margin-left:auto" class="en dimc" style="font-size:9px">RHODES ISLAND · PRTS</span></div></div>`;
+}
+
+/* ================= screens ================= */
+const S = {};
+
+/* ----- 1. battle HUD ----- */
+S.hud = {grp:'局内', name:'局内 HUD', bg:'field_city', html:()=>`
+ <!-- IS-style top bar -->
+ <div class="abs" style="left:0;top:0;display:flex;align-items:stretch;height:44px;background:linear-gradient(90deg,rgba(0,0,0,.85),rgba(0,0,0,.7) 80%,transparent)">
+   <div class="wplate" style="display:flex;flex-direction:column;justify-content:center;padding:0 12px"><span class="en" style="font-size:9px;letter-spacing:.24em">SEGMENT</span><b class="num" style="font-size:20px;line-height:1">LG-04</b></div>
+   <div style="display:flex;flex-direction:column;justify-content:center;padding:0 14px"><b style="font-size:14px">龙门 · 下城区废墟</b><span class="en mute" style="font-size:9px;letter-spacing:.22em">LUNGMEN · LOWER RUINS</span></div>
+   <div style="display:flex;align-items:center;gap:16px;padding:0 40px 0 6px;font-size:13px">
+     <span title="赤金" style="display:flex;gap:5px;align-items:center"><span style="width:16px">${I.ingot}</span><b class="num" style="font-size:17px">41</b></span>
+     <span title="藏品" style="display:flex;gap:5px;align-items:center"><span style="width:16px">${I.relic}</span><b class="num" style="font-size:17px">7</b></span>
+     <span title="污染" style="display:flex;gap:5px;align-items:center"><span style="width:16px">${I.ori}</span><b class="num o" style="font-size:17px">18</b><span class="mute" style="font-size:11px">+0.08/s</span></span>
+   </div>
+ </div>
+ <!-- buffs -->
+ <div class="abs" style="left:12px;top:54px;display:flex;gap:5px">
+   <div class="buff" style="--bc:var(--hp);color:var(--hp)" title="缓释凝胶">缓<i>4s</i></div>
+   <div class="buff" style="--bc:var(--t2);color:var(--t2)" title="叙拉古人的愤怒">怒<i>0.6</i></div>
+   <div class="buff" style="--bc:#fff" title="鸣脊兽">鸣<i>+22</i></div>
+   <div class="buff" style="--bc:var(--ori);color:var(--ori)" title="污染：轻度">染<i>轻</i></div>
+ </div>
+ <!-- top-right buttons + minimap -->
+ <div class="abs" id="hud-tr" style="right:12px;top:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+   <div style="display:flex;gap:4px">
+     ${[['干员','I','inv'],['藏品','R','relics'],['地图','M','map'],['合同','J','journal']].map(([n,k,id])=>`<button data-go="${id}" style="width:42px;height:40px;border:0;background:rgba(0,0,0,.78);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:11px"><span>${n}</span><span class="kbd" style="height:13px;background:#333">${k}</span></button>`).join('')}
+     <button data-go="esc" aria-label="暂停" style="width:48px;height:40px;border:0;background:var(--paper);cursor:pointer;display:grid;place-items:center"><svg viewBox="0 0 20 20" width="20" height="20" fill="#111"><rect x="5" y="4" width="3.4" height="12"/><rect x="11.6" y="4" width="3.4" height="12"/></svg></button>
+   </div>
+   <div style="width:232px;background:rgba(0,0,0,.78)">
+     <div style="position:relative;height:176px;overflow:hidden">
+       <svg viewBox="0 0 232 176" style="position:absolute;inset:0;width:100%;height:100%"><path d="M20 168 L40 112 L95 94 L106 56 L156 38 L176 10 L212 10 L212 58 L170 76 L148 112 L86 132 L64 168 Z" fill="#2f2f2f" stroke="#8a8a8a"/><path d="M95 94 L44 56 L22 66 L32 94 Z" fill="#242424" stroke="#4a4a4a" stroke-dasharray="3 3"/></svg>
+       <span class="mm-dot" style="left:100px;top:106px;background:#fff;transform:translate(-50%,-50%);border-radius:50%"></span>
+       <span class="mm-dot" style="left:156px;top:58px;background:var(--red)"></span>
+       <span class="mm-dot" style="left:124px;top:90px;background:var(--red);width:5px;height:5px"></span>
+       <span class="mm-dot" style="left:46px;top:68px;background:#ef9b42"></span>
+       <span class="mm-dot" style="left:198px;top:22px;background:#72b8ff;width:9px;height:9px"></span>
+       <span class="mm-dot" style="left:74px;top:146px;background:var(--hp);width:5px;height:5px"></span>
+       <span class="mm-dot" style="left:150px;top:132px;background:#5fd0d8;width:9px;height:9px;box-shadow:0 0 0 2px #0f3a40"></span>
+       <span class="abs en dimc" style="left:8px;top:6px;font-size:9px">N ▲</span>
+     </div>
+     <div style="display:flex;justify-content:space-between;padding:4px 8px;font-size:11px;background:#000"><span class="en mute" style="font-size:9px">FIELD MAP</span><span class="mute">已探索 46%</span></div>
+   </div>
+ </div>
+ <!-- tracker: orders only -->
+ <div class="abs" id="hud-trk" style="right:12px;top:262px;width:250px;display:flex;flex-direction:column;gap:2px;font-size:12px">
+   <div style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.78);padding:5px 8px"><span class="tagw">订单</span><b>龙门</b><span class="kbd" style="margin-left:auto;background:#333">J</span></div>
+   ${[['医疗部','#8fc31f','龙门产防具','0 / 1',0],['工程部','#f5c000','螺栓','12 / 12',1],['后勤部','#0098dc','精良以上武器','1 / 1',1]].map(([d,c,t,n,ok])=>`<div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.55);padding:4px 8px"><span style="width:4px;align-self:stretch;background:${c}"></span><span class="mute" style="width:42px">${d}</span><span style="flex:1">${t}</span><b class="num ${ok?'g':''}">${n}</b></div>`).join('')}
+ </div>
+ <div id="hud-toast"></div>
+ <!-- world: enemies, player bars, damage -->
+ <div class="eplate" style="left:646px;top:262px"><div class="ehp elite"><i style="width:62%"></i></div></div>
+ <div class="eplate" style="left:858px;top:322px"><div class="ehp"><i style="width:85%"></i></div></div>
+ <div class="eplate" style="left:452px;top:330px"><div class="ehp"><i style="width:100%"></i></div></div>
+ <div class="unitbar" style="left:650px;top:392px" id="ubar"></div>
+ <div class="ready-ic" id="uready" style="left:650px;top:304px;display:none">▲</div>
+ <span class="dmg" style="left:684px;top:196px;color:#fff">412</span>
+ <span class="dmg" style="left:584px;top:204px;color:#7fd0ff;animation-delay:.4s">688</span>
+ <span class="dmg" style="left:880px;top:300px;color:var(--sp);font-size:26px;animation-delay:.8s">1264</span>
+ <div class="abs" style="left:820px;top:560px;font-size:11px;padding:2px 8px;background:rgba(0,0,0,.7);box-shadow:inset 3px 0 0 var(--t1)"><span class="q1">押运短刃</span> <span class="mute">已过滤 · E 拾取</span></div>
+ <div class="abs" style="left:50%;top:430px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:rgba(0,0,0,.8);font-size:12.5px"><span class="kbd" style="background:var(--paper);color:var(--ink);height:20px;min-width:22px;font-size:12px">E</span>补给箱 · 搜刮 <span class="mute">守卫 2</span></div>
+ <!-- PRTS log -->
+ <div class="abs" style="left:12px;bottom:12px;width:370px;height:146px;display:flex;flex-direction:column;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.45))">
+   <div style="display:flex;align-items:center">
+     <span style="display:flex;align-items:center;gap:6px;padding:4px 10px"><span class="tagc" style="background:var(--hp);color:#fff">PRTS</span></span>
+     <span class="en dimc" style="margin-left:auto;padding-right:8px;font-size:8.5px">PRTS BROADCAST</span>
+   </div>
+   <div class="log scroll" id="log" style="flex:1;padding:4px 10px"></div>
+ </div>
+ <!-- cost counter + action cards (AK DP / deploy cards) -->
+ <div class="abs" style="right:12px;bottom:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+   <div style="display:flex;align-items:stretch;background:rgba(0,0,0,.82);height:38px">
+     <div style="display:flex;flex-direction:column;justify-content:center;padding:0 10px;background:var(--paper);color:var(--ink)"><span class="en" style="font-size:8px;letter-spacing:.2em">STAMINA</span><b style="font-size:12px">体力</b></div>
+     <div style="display:flex;flex-direction:column;justify-content:center;padding:0 12px;width:110px"><b class="num" id="stav" style="font-size:22px;line-height:1">100</b><div id="stab"></div></div>
+   </div>
+   <div style="display:flex;gap:4px">
+     <div class="card" id="c-atk" style="--cc:#fff"><span class="ico">${I.slash}</span><span class="kb"><span class="kbd">LMB</span>连斩</span></div>
+     <div class="card" id="c-wave" style="--cc:var(--sp)"><span class="cost" style="background:var(--sp);color:var(--ink)" id="wavecost">2/3</span><span class="ico">${I.wave}</span><span class="kb">剑气</span></div>
+     <div class="card" id="c-dodge" style="--cc:var(--hp)"><span class="cost">30</span><span class="ico">${I.dodge}</span><span class="kb"><span class="kbd">⇧</span>闪避</span></div>
+     <div class="card" id="c-pot" style="--cc:#8fc31f"><span class="cost" id="potn">4</span><span class="ico" id="potbelt" style="font:900 26px var(--f-cn)"></span><span class="kb"><span class="kbd">Q</span>急救剂</span></div>
+     <div class="card" style="--cc:#fff"><span class="ico">${I.hand}</span><span class="kb"><span class="kbd">E</span>交互</span></div>
+     <div class="card" style="--cc:var(--sp-item)" title="已装备特殊装备：残影护腕（闪避后触发）"><span class="cost" style="background:var(--sp-item);color:#111">特</span><span class="ico"><img class="px" src="${IMG('shadow_bracer')}" alt="" style="width:32px"></span><span class="kb" style="font-size:10px">残影护腕</span></div>
+   </div>
+ </div>`,
+ init(){ hudInit(); },
+ note:{mmo:'MMO 的分区骨架保留：右上小地图与菜单键、右侧任务追踪、左下 PRTS 播报（只显示 PRTS 的系统播报，不显示战斗和拾取）、自身框和动作条。',
+  prts:'敌人头顶不显示名字，只靠血条形制区分级别（照恐怖黎明）：普通敌人是细红条；精英对应恐怖黎明的“英雄”怪，血条加粗、带金边，左侧有一颗星。另借方舟战斗界面：生命和技力只画在拉普兰德脚下（蓝色生命条、黄色技力条），不另设头像面板，技力满时头顶出现黄色就绪标记；右下“费用”位置改成体力计数，下面是部署卡式的动作卡（右上角黑框写消耗）；左上是集成战略式的顶栏（区段编号白底牌、赤金、藏品、污染）。',
+  data:'数据都来自现有 GameManager 和 Player：生命、护盾、体力、剑气充能（幼狼之牙 3 次命中）、背包药剂、污染、撤离计划、机关、战斗缴获、订单。守卫触发范围不显示（已拍板）。'}};
+
+/* ----- 2–6. in-run panels: ARPG docked windows over the paused game (Grim Dawn / Diablo) ----- */
+function win(o){
+  return `<div class="win" style="${o.side==='left'?'left:0':o.side==='center'?`left:${(1280-o.w)/2}px`:'right:0'};width:${o.w}px${o.h?`;top:${(720-o.h)/2}px;bottom:auto;height:${o.h}px`:''}">
+   <div class="wtop"><div class="pt"><small>${o.en}</small><b>${o.cn}</b></div>${o.tabs?`<div class="toggle" style="margin-left:14px">${o.tabs.map((t,i)=>`<button class="${i===0?'on':''}" data-wt="${i}">${t}</button>`).join('')}</div>`:''}
+    <span class="kbd" style="margin-left:auto;background:#333">${o.key}</span><button class="wx" data-close aria-label="关闭">✕</button></div>
+   <div class="wbody">${o.body}</div></div>`;
+}
+const withHud = inner => S.hud.html() + `<div class="dim" style="background:rgba(8,8,8,.35)"></div>` + inner;
+const DOLL = {武器:{x:12,y:84,w:110,h:58}, 防具:{x:282,y:40,w:104,h:104}, 饰品:{x:282,y:166,w:58,h:58}};
+
+/* 2. operator + inventory, docked right, flat layout: left = operator & gear over pack, right = attributes */
+S.inv = {grp:'局内面板', name:'干员 · 背包 I', bg:'field_city', html:()=>withHud(win({side:'center',w:1120,h:470,en:'OPERATOR · INVENTORY',cn:'干员 · 背包',key:'I',
+  body:`<div style="display:flex;height:100%">
+   <div style="width:400px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--line)">
+    <div style="position:relative;height:290px;flex:none;background:linear-gradient(180deg,#1b1b1b,#111);overflow:hidden">${dollView()}</div>
+    <div style="padding:10px 12px">${skillCard()}</div>
+   </div>
+   <div style="width:400px;flex:none;padding:10px 12px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--line)">
+      <div style="display:flex;align-items:center;gap:6px"><div class="sec" style="margin:0;flex:1">背包 <span class="num mute" style="font-size:12px" id="bagn"></span></div>
+        <div class="toggle"><button class="on">全部</button><button>精良+</button><button>稀有</button></div><button class="btn" style="padding:6px 10px;font-size:12px">整理</button></div>
+      <div class="grid" id="bag" style="width:361px;height:217px"></div>
+      <div style="display:flex;align-items:flex-end;gap:14px">
+        <div><div class="sec">安全袋</div><div class="grid" style="width:73px;height:73px">${SAFE.map(t=>tile(t)).join('')}</div></div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px"><span style="width:16px">${I.ingot}</span><b class="num y" style="font-size:16px">41</b></div>
+      </div>
+   </div>
+   <div style="flex:1;min-width:0;padding:10px 14px;overflow:hidden">${statsView()}</div>
+  </div>`})+`<div id="ftip" class="abs" style="display:none;z-index:30;gap:6px;pointer-events:none;align-items:flex-start"></div>`),
+  init(){ hudInit(); drawBag(); bindWin(); toggles(); },
+  note:{mmo:'照暗黑破坏神 / 恐怖黎明的角色背包窗，扁平的横向窗口，三栏平铺：左栏是干员、纸娃娃和技能，中栏是背包、安全袋和赤金，右栏是属性。窗口居中，两侧露出暂停中的战场；悬停时浮动提示出现在物品旁边，并排显示“已装备”卡。',
+   prts:'窗口是刷宝游戏的停靠式写法，只有标题、快捷键角标和关闭；颜色、物品格、技能卡沿用方舟风格。',
+   data:'药剂是背包物品（每瓶 1×1），右键直接饮用。已实现的拖拽、快捷键、整理、拾取过滤保留。'}};
+function dollView(){
+  return `<div class="abs" style="left:12px;top:12px;display:flex;gap:10px;align-items:center"><div class="cls" style="width:40px;height:40px">${I.guard}</div><div style="line-height:1.15"><div class="stars" style="font-size:11px">★★★★★</div><b style="font:900 20px var(--f-cn)">拉普兰德</b><div class="en mute" style="font-size:8.5px">GUARD · LORD</div></div></div>
+   <div class="abs slash" style="left:160px;top:24px;width:150px;height:250px;opacity:.3"></div>
+   <img class="px abs" src="${IMG('lappland_sprite')}" alt="拉普兰德" style="left:110px;top:44px;width:168px">
+   ${Object.entries(DOLL).map(([slot,d])=>{const e=EQUIP[slot];return `<div class="abs" style="left:${d.x}px;top:${d.y}px;width:${d.w}px">
+     <div class="it ${qcls(e)}" data-it="${e.id}" style="position:relative;width:${d.w}px;height:${d.h}px"><img class="px" src="${IMG(e.img)}" alt="" style="max-width:${d.w-8}px;max-height:${d.h-10}px">${e.ins?'<span class="badge b-ins"></span>':''}</div>
+     <div style="font-size:11px;color:var(--mute);margin-top:3px">${slot}</div></div>`}).join('')}`;
+}
+function statsView(){
+  const groups=[['基础',[['生命','2160 / 2880','+480'],['攻击','760','+160'],['法术攻击','420','+60'],['防御','310','+110'],['法术抗性','10','']]],
+    ['战斗',[['攻击速度','122','+22'],['暴击率','6%',''],['暴击伤害','150%',''],['剑气强化','+25%','']]],
+    ['其他',[['移动速度','5.0',''],['生命回复','48 / 秒','']]]];
+  return groups.map(([g,rows])=>`<div style="margin-bottom:6px"><div class="sec" style="margin-bottom:2px">${g}</div>${rows.map(([a,b,c])=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--line);font-size:12.5px"><span class="mute">${a}</span><span class="num" style="font-size:14px">${b}${c?` <small class="up">${c}</small>`:''}</span></div>`).join('')}</div>`).join('');
+}
+function skillCard(){
+  return `<div style="display:flex;gap:10px;background:var(--plate-2);padding:10px"><div style="width:44px;height:44px;background:#000;display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 2px var(--sp)">${I.wave}</div>
+    <div style="min-width:0"><div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap"><b style="font-size:14px">幼狼之牙</b><span class="tagc" style="background:#8fc31f">攻击回复</span><span class="tagc" style="background:var(--paper)">自动触发</span></div>
+    <div style="font-size:12px;line-height:1.5;margin-top:3px">双剑三段连斩，每次命中回复 1 点技力；技力满后，下一次攻击放出<span class="b">剑气</span>，造成法术伤害。</div></div></div>`;
+}
+function drawBag(){
+  const b=$('#bag'); if(!b) return; b.innerHTML=ITEMS.map(t=>tile(t)).join('');
+  const used=ITEMS.reduce((n,t)=>n+t.w*t.h,0); $('#bagn').textContent=`${used} / 60`;
+  bindFloat();
+  $$('#bag [data-it]').forEach(el=>el.oncontextmenu=e=>{e.preventDefault(); const it=ITEMS.find(t=>t.id===el.dataset.it); if(it&&it.pot){drink(it); $('#ftip').style.display='none'; drawBag();}});
+}
+function bindWin(){ $$('[data-close]').forEach(b=>b.onclick=()=>show('hud')); }
+
+/* 4. relics, docked left */
+S.relics = {grp:'局内面板', name:'藏品 R', bg:'field_city', html:()=>withHud(win({side:'left',w:520,en:'COLLECTIBLES',cn:'藏品',key:'R',tabs:['本次 7','图鉴 94'],
+  body:`<div style="padding:14px 16px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:grid;grid-template-columns:repeat(6,72px);gap:10px">
+      ${RELICS.map((r,i)=>`<button class="relic r${r[1]}" data-r="${i}" style="width:72px;height:72px;border:0;cursor:pointer;font-size:24px" aria-label="${r[0]}">${r[0].replace(/[《》]/g,'')[0]}</button>`).join('')}
+      ${Array.from({length:11}).map(()=>`<div class="relic" style="width:72px;height:72px;opacity:.18"></div>`).join('')}
+    </div>
+    <div id="rdetail"></div></div>`})),
+  init(){ hudInit(); bindWin(); const show1=i=>{const r=RELICS[i];$('#rdetail').innerHTML=`<div style="display:flex;gap:14px;background:var(--plate-2);padding:14px"><div class="relic r${r[1]} brk" style="width:92px;height:92px;font-size:36px;flex:none;--bc:${RC[r[1]]}">${r[0].replace(/[《》]/g,'')[0]}</div>
+     <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><div style="display:flex;align-items:center;gap:8px"><b style="font-size:18px">${r[0]}</b><span class="tagc" style="background:${RC[r[1]]}">${RN[r[1]]}</span></div><div style="font-size:14px;line-height:1.55">${r[2]}</div><div style="font-style:italic;color:var(--mute);font-size:12px;line-height:1.55">${r[3]}</div></div></div>`;
+    $$('[data-r]').forEach(b=>b.classList.toggle('brk',b.dataset.r==i));}; $$('[data-r]').forEach(b=>b.onclick=()=>show1(+b.dataset.r)); show1(1); },
+  note:{mmo:'刷宝游戏的被动 / 祝福面板，停靠在左半边（恐怖黎明的星座、暗黑的巅峰盘都是半屏窗）。', prts:'藏品格是集成战略的陈列方式：方形底座、底部稀有度色条、选中时加黄角框；正文是本作效果，斜体是原作效果。', data:'RelicCatalog 94 件，名字和原效果都是真实条目；藏品还没有图标。'}};
+
+/* 5. map overlay (Diablo Tab map) */
+S.map = {grp:'局内面板', name:'地图 M', bg:'field_city', html:()=>S.hud.html()+`<div class="dim" style="background:rgba(4,6,8,.62)"></div>
+  <svg class="abs" style="left:0;top:0" width="1280" height="720"><g fill="none" stroke-linejoin="round">
+    <path d="M140 690 L230 500 L420 430 L470 270 L660 205 L740 80 L930 66 L955 255 L770 340 L690 500 L410 580 L330 690" stroke="rgba(190,230,255,.8)" stroke-width="2"/>
+    <path d="M420 430 L230 270 L150 305 L190 430" stroke="rgba(190,230,255,.45)" stroke-width="2" stroke-dasharray="6 6"/>
+    <path d="M770 340 L930 430 L1010 380 L955 255" stroke="rgba(190,230,255,.35)" stroke-width="2"/>
+    <path d="M250 660 L330 520 L440 440 L490 300 L660 230" stroke="#fff" stroke-width="2" stroke-dasharray="2 8"/></g></svg>
+  ${[[490,300,'#fff',''],[230,320,'#ef9b42','强化装置'],[660,230,'#5fd0d8','罗德岛小队'],[880,520,'#e6c25a','坎诺特'],[860,100,'#72b8ff','深入入口'],[300,650,'var(--green)','撤离信标'],[790,370,'var(--t2)','密室'],[660,450,'var(--hp)','战斗缴获'],[560,330,'var(--red)',''],[600,360,'var(--red)','']].map(([x,y,c,t])=>`<div class="abs" style="left:${x}px;top:${y}px;transform:translate(-6px,-6px);display:flex;align-items:center;gap:6px;font-size:12px;text-shadow:0 1px 2px #000"><span style="width:${t===''&&c==='#fff'?14:11}px;height:${t===''&&c==='#fff'?14:11}px;background:${c};transform:rotate(45deg)"></span>${t}</div>`).join('')}
+  <div class="abs" style="right:24px;top:24px;text-align:right;text-shadow:0 1px 3px #000"><div class="wplate num" style="display:inline-block;font-size:20px;padding:1px 10px">LG-04</div><div style="font:900 18px var(--f-cn);margin-top:4px">龙门 · 下城区废墟</div><div class="mute" style="font-size:12px">已探索 46%</div></div>
+  <div class="abs" style="right:24px;top:120px;display:flex;flex-direction:column;gap:3px">${[1,2,3,4,5,6,7,8,9,10,11].map(n=>{const camp=n===11, cur=n===4; const lbl=camp?'营地 10|11':'LG-'+String(n).padStart(2,'0');
+   return `<div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span style="font-size:11.5px;${n<4?'color:var(--dim)':''}">${['矿道入口','物资作业面','巡检支路','深部污染带','','','','','','',''][n-1]}${cur?' · <span class="g">撤离</span>':''}</span><b class="num" style="width:${camp?84:56}px;text-align:center;font-size:12px;padding:1px 0;background:${cur?'var(--paper)':camp?'var(--green)':'rgba(0,0,0,.6)'};color:${cur||camp?'#111':n<4?'var(--dim)':'#fff'}">${lbl}</b></div>`}).join('')}</div>`,
+  init(){ hudInit(); ['hud-tr','hud-trk','hud-toast'].forEach(i=>$('#'+i).style.display='none'); },
+  note:{mmo:'暗黑破坏神式的叠加地图：直接画在暂停的战场上，半透明线条，不另开窗口；右上角是区域名，下面是区段路线。', prts:'区段用关卡编号 LG-0X，当前一格白底、撤离一格绿底；装置图标是旋转 45° 的方块，配色和小地图一致。', data:'来自 FieldFog：没走过的地形不画，守卫范围不显示。'}};
+
+/* 6. journal, docked left */
+S.journal = {grp:'局内面板', name:'合同 J', bg:'field_city', html:()=>withHud(win({side:'left',w:500,en:'CONTRACT',cn:'外勤合同',key:'J',tabs:['目标','订单'],
+  body:`<div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;background:var(--plate-2)"><div class="wplate" style="width:84px;display:flex;align-items:center;justify-content:center"><b class="num" style="font-size:24px">LG</b></div>
+      <div style="padding:10px 12px;flex:1"><b style="font-size:16px">龙门 · 下城区废墟</b><div style="display:flex;gap:16px;margin-top:4px;font-size:12px"><span class="mute">层 <b class="num fg">4</b></span><span class="mute">赤金 <b class="num y">41</b></span></div></div></div>
+    ${[['到达营地 10|11',40,'4 / 10','var(--green)'],['触发 4 个机关，开启密室',50,'2 / 4','var(--sp)'],['击败威胁值 8，解锁战斗缴获',62,'5 / 8','var(--sp)']].map(([a,p,b,c])=>`<div style="background:var(--plate-2);padding:9px 12px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${a}</span><b class="num" style="color:${c}">${b}</b></div><div style="margin-top:6px">${bar(p,c,4)}</div></div>`).join('')}
+    <div class="sec" style="margin-top:6px">订单</div>
+    ${orderCards(true)}
+  </div>`})),
+  init(){ hudInit(); bindWin(); },
+  note:{mmo:'刷宝游戏的任务日志：左侧半屏窗，上面是当前合同和目标进度，下面是指向这个地区的订单；勾选追踪的条目显示在 HUD 右侧追踪栏。', prts:'合同牌用白底代号；订单条借基建贸易站订单。', data:'订单来自 BaseCatalog.ORDERS，进度按背包实时计算。'}};
+
+function orderCards(field){
+  return [['工程部','#f5c000','螺栓',12,12,'龙门币 ×1.5','声望 +5'],['后勤部','#0098dc','精良以上武器',1,1,'龙门币 ×1.5','声望 +8'],['医疗部','#8fc31f','龙门产防具',1,0,'龙门币 ×1.4','声望 +6']].map(([d,c,t,need,have,g,p],i)=>{const ok=have>=need;
+   return `<div style="display:flex;background:var(--plate-2);align-items:stretch">
+    <div style="width:92px;background:${c};color:#111;display:flex;flex-direction:column;justify-content:center;padding:0 12px"><span class="en" style="font-size:8px">ORDER 0${i+1}</span><b style="font-size:15px">${d}</b></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;flex:1;min-width:0">${mini(i===0?{...ITEMS[9],stack:need}:i===1?{...ITEMS[1]}:{...EQUIP.防具},50)}
+      <div style="min-width:0"><div style="font-size:14px;font-weight:700">${t} ×${need}</div><div class="${ok?'g':'mute'}" style="font-size:12px">持有 ${have} / ${need}</div></div></div>
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;padding:0 14px"><span style="display:flex;gap:4px;align-items:center"><span style="width:14px">${I.fund}</span><b class="num y">${g}</b></span><span class="mute" style="font-size:12px">${p}</span></div>
+    ${field?'':`<button class="btn ${ok?'blue':''}" ${ok?'':'disabled'} style="border-radius:0;width:86px;justify-content:center">交付</button>`}
+   </div>`}).join('');
+}
+
+
+
+/* ----- 7. relic offer (IS reward) ----- */
+S.offer = {grp:'局内事件', name:'藏品三选一', bg:'field_city', html:()=>`<div class="dim" style="background:linear-gradient(180deg,rgba(8,8,8,.9),rgba(8,8,8,.7) 50%,rgba(8,8,8,.92))"></div>
+  <div class="abs" style="left:60px;top:44px"><div class="en mute" style="font-size:11px;letter-spacing:.3em">ENHANCEMENT DEVICE</div><b style="font:900 34px var(--f-cn);letter-spacing:.12em">选择藏品</b><div class="mute" style="font-size:13px">强化装置 · 本区段已获得 1 / 3</div></div>
+  <div class="abs" style="left:0;right:0;top:150px;display:flex;justify-content:center;gap:70px" id="offer">
+    ${OFFER.map((r,i)=>`<button data-o="${i}" style="width:250px;border:0;background:none;color:var(--fg);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0">
+      <div class="relic r${r[1]}" style="width:150px;height:150px;font-size:58px;--bc:${RC[r[1]]}">${r[0].replace(/[《》]/g,'')[0]}</div>
+      <div style="display:flex;gap:6px;align-items:center"><span class="tagc" style="background:${RC[r[1]]}">${RN[r[1]]}</span><span class="tagd">${r[2]}</span></div>
+      <b style="font-size:20px">${r[0]}</b>
+      <div style="font-size:14px;text-align:center;line-height:1.6;min-height:46px">${r[3]}</div>
+    </button>`).join('')}
+  </div>
+  <div class="band" style="bottom:0;height:112px;display:flex;align-items:center;padding:0 60px;gap:24px">
+    <div style="flex:1;min-width:0"><div class="en dimc" style="font-size:9px">ORIGINAL EFFECT · PRTS</div><div id="orig" class="mute" style="font-style:italic;font-size:13px;margin-top:4px"></div></div>
+    <button class="btn" style="height:56px"><span style="width:16px">${I.ingot}</span>刷新 <b class="num y">25</b></button>
+    <button class="go" id="takeOffer" disabled style="width:220px;height:64px"><b>获取</b><small>ACQUIRE</small></button>
+  </div>`,
+  init(){ pickInit(i=>{ const o=$('#orig'); if(o) o.textContent='原作效果：'+OFFER[i][4]; }); },
+  note:{mmo:'任务奖励三选一：大图标、选中后确认，避免误点。', prts:'集成战略的藏品获取画面：三件藏品悬在暗底上，选中加黄色角框；底部横条写原作效果，右边是蓝色“获取”和以赤金支付的刷新。', data:'RelicCatalog 加权抽取；刷新价 25 起、每次 +25。'}};
+
+/* ----- 8. route (IS node map) ----- */
+const ROUTES=[['巡检支路','INSPECTION','低危险 · 常规掉落 · 敌人较少',6,0,I.battle,'#fff'],['物资作业面','SUPPLY FACE','中危险 · 更多搜刮 · 更多守卫',12,25,I.box,'var(--sp)'],['深部污染带','DEEP ZONE','高危险 · 稀有率提高 · 精英增援',20,50,I.elite,'var(--red)']];
+S.route = {grp:'局内事件', name:'路线选择', bg:'', html:()=>`<div class="abs geo" style="inset:0"></div><div class="wm" style="left:-10px;bottom:-8px">ROUTE</div>
+  <div class="abs" style="left:24px;top:18px;display:flex;align-items:center;gap:14px"><div class="navp"><button aria-label="返回">${I.back}</button></div><div class="pt"><small>INTEGRATED ROUTE</small><b>选择去向</b></div></div>
+  <div class="abs" style="right:24px;top:22px;display:flex;gap:6px"><div class="cur"><i>${I.ingot}</i><span class="v num">41</span></div></div>
+  <div class="abs" style="inset:0;transform:translateX(-70px)">
+  <svg class="abs" style="left:0;top:0" width="1280" height="720"><g stroke="#666" stroke-width="2" fill="none">
+    <path d="M150 360 H300"/><path d="M300 360 L450 280"/><path d="M450 280 L600 360"/>
+    <path d="M600 360 L760 220" stroke="#fff" stroke-dasharray="6 6"/><path d="M600 360 L760 360" stroke="#fff" stroke-dasharray="6 6"/><path d="M600 360 L760 500" stroke="#fff" stroke-dasharray="6 6"/>
+    <path d="M760 220 L920 360M760 360 L920 360M760 500 L920 360" stroke="#444"/></g>
+    <g stroke="#3a3a3a" stroke-width="2"><path d="M300 360 L450 440"/></g></svg>
+  ${[[150,360,'LG-01','矿道入口',I.battle,1],[300,360,'LG-02','物资作业面',I.box,1],[450,280,'LG-03','巡检支路',I.exit,1],[450,440,'—','未选',I.battle,2],[600,360,'LG-04','深部污染带',I.elite,0]].map(([x,y,c,t,ic,st])=>`<div class="node ${st?'done':''}" style="left:${x}px;top:${y}px;${st===0?'background:var(--paper);color:var(--ink)':''}${st===2?';opacity:.2':''}"><span class="ni">${ic}</span><span><small style="${st===0?'color:#555':''}">${c}</small><b>${t}</b></span></div>`).join('')}
+  ${ROUTES.map((r,i)=>`<button class="node" data-o="${i}" style="left:760px;top:${[220,360,500][i]}px;box-shadow:inset 0 -3px 0 ${r[6]}"><span class="ni">${r[5]}</span><span><small>LG-05</small><b>${r[0]}</b></span></button>`).join('')}
+  <div class="node done" style="left:920px;top:360px;opacity:.6"><span class="ni">${I.battle}</span><span><small>LG-06</small><b>—</b></span></div></div>
+  <div class="abs" style="right:0;top:80px;bottom:0;width:300px;background:rgba(14,14,14,.95);display:flex;flex-direction:column" id="rdet"></div>`,
+  init(){ const det=i=>{const r=ROUTES[i];$('#rdet').innerHTML=`<div style="height:150px;position:relative;background:#0b0b0b;overflow:hidden;box-shadow:inset 0 -3px 0 ${r[6]}"><span class="wm" style="font-size:80px;left:10px;bottom:-6px">0${i+1}</span><div class="abs" style="left:16px;top:16px"><span class="en mute" style="font-size:10px">${r[1]}</span><div style="font:900 24px var(--f-cn);color:${r[6]}">${r[0]}</div></div></div>
+     <div style="padding:16px;display:flex;flex-direction:column;gap:12px;flex:1"><div class="mute" style="font-size:13px">${r[2]}</div>
+     <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:8px"><span class="mute">掉落加成</span><b class="num y" style="font-size:20px">+${r[4]}%</b></div>
+     <button class="go" style="margin-top:auto;height:66px;width:100%"><b>前进</b><small>PROCEED</small></button></div>`;};
+    pickInit(det); det(1); $$('[data-o]')[1].classList.add('sel'); },
+  note:{mmo:'副本入口的难度选择。', prts:'改成集成战略的节点地图：走过的节点压暗、当前节点反白、下一列三个去向用虚线连出，节点底部色条表示危险；右侧是节点详情和蓝色“前进”。区段用关卡编号 LG-0X。', data:'FieldCatalog 三条去向，奖励 +0 / +25% / +50%。难度不显示数字（撤离与营地修订案 §4：危险度按层号计算，路线只修正本层）。'}};
+
+/* ----- 9. Rhodes squad encounter (IS 不期而遇 layout) ----- */
+let sqMode=0, sqPick=null; const SQ_MULT=1.2, SQ_FUNDS=41;
+S.squad = {grp:'局内事件', name:'罗德岛小队', bg:'field_city', html:()=>{
+  const pool = sqMode===0 ? [EQUIP.武器,EQUIP.防具,EQUIP.饰品,...ITEMS.filter(t=>t.cat!=='材料'&&t.cat!=='药剂')] : [EQUIP.武器,EQUIP.防具,EQUIP.饰品,...ITEMS.filter(t=>t.cat!=='药剂'&&t.cat!=='材料'),SAFE[0]];
+  const price = it => Math.ceil(it.val*SQ_MULT/10);
+  return `<div class="dim" style="background:rgba(8,8,8,.8)"></div>
+  <div class="abs" style="left:0;top:0;bottom:0;width:430px;background:linear-gradient(160deg,#0f2a30,#0b0b0b 70%);overflow:hidden">
+    <div class="abs slash" style="inset:0;opacity:.25"></div>
+    <div class="abs" style="left:50%;top:46%;transform:translate(-50%,-50%);width:220px;color:rgba(95,208,216,.85)">${I.rhodes}</div>
+    <div class="abs" style="left:36px;top:40px"><div class="en" style="font-size:10px;color:var(--rhodes,#5fd0d8);letter-spacing:.3em">ENCOUNTER</div><b style="font:900 34px var(--f-cn);letter-spacing:.1em">罗德岛小队</b><div class="mute" style="font-size:13px;margin-top:2px">外勤支援 · LG-04</div></div>
+  </div>
+  <div class="abs" style="left:470px;right:40px;top:40px;bottom:40px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      ${[['投保','INSURE','b-ins','var(--hp)'],['送回','SEND HOME','b-lock','var(--green)']].map(([t,e,b,c],i)=>`<button data-sqm="${i}" style="border:0;cursor:pointer;text-align:left;padding:14px 16px;display:flex;align-items:center;gap:14px;background:${sqMode===i?'var(--paper)':'var(--plate-2)'};color:${sqMode===i?'var(--ink)':'var(--fg)'};box-shadow:inset 4px 0 0 ${c}">
+        <span style="width:30px;height:30px;position:relative;display:block"><span class="badge ${b}" style="position:absolute;inset:0;width:30px;height:30px;left:0;top:0"></span></span>
+        <span><span class="en" style="font-size:9px;opacity:.7">${e}</span><b style="display:block;font:900 20px var(--f-cn)">${t}</b></span></button>`).join('')}
+    </div>
+    <div style="display:flex;align-items:center;gap:8px"><div class="sec" style="margin:0;flex:1">${sqMode===0?'可投保':'可送回'}</div><span style="display:flex;gap:5px;align-items:center;font-size:13px"><span style="width:16px">${I.ingot}</span><b class="num y">${SQ_FUNDS}</b></span></div>
+    <div class="scroll" style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px;align-content:start">
+      ${pool.map(it=>{const p=price(it), dis=p>SQ_FUNDS||(it.ins&&sqMode===0);return `<button data-sq="${it.id}" ${dis?'disabled':''} style="border:0;cursor:${dis?'not-allowed':'pointer'};background:${sqPick===it.id?'#333':'var(--plate-2)'};color:var(--fg);display:flex;align-items:center;gap:10px;padding:6px 10px 6px 6px;text-align:left;opacity:${dis?.35:1};${sqPick===it.id?'outline:2px solid var(--sp);outline-offset:-2px':''}">
+        ${mini(it,48)}<span style="flex:1;min-width:0"><span class="${qcls(it)}" style="display:block;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.n}</span><span class="mute" style="font-size:11px">${it.ins?'已投保':it.cat}</span></span>
+        <b class="num ${p>SQ_FUNDS?'rd':'y'}" style="font-size:15px">${p}</b></button>`}).join('')}
+    </div>
+    <div style="display:flex;height:58px">
+      <button class="btn" style="flex:1;justify-content:center;font-size:16px;background:#2a2a2a">✕ 离开</button>
+      <button class="btn blue" id="sqGo" ${sqPick?'':'disabled'} style="flex:1;justify-content:center;font-size:16px">✓ ${sqMode===0?'投保':'送回'}${sqPick?` · ${price([...pool].find(t=>t.id===sqPick)||{val:0})}`:''}</button>
+    </div>
+  </div>`;},
+  init(){ $$('[data-sqm]').forEach(b=>b.onclick=()=>{sqMode=+b.dataset.sqm;sqPick=null;show('squad');}); $$('[data-sq]').forEach(b=>b.onclick=()=>{sqPick=b.dataset.sq;show('squad');}); },
+  note:{mmo:'刷宝 / 撤离游戏里的随机商人与保险商：地图上随机遇到，一次交易。', prts:'照集成战略“不期而遇”的事件排法：左边是事件图（这里先放舰徽，用屏幕青），右边是选项和条目；不写延迟、去向、剩余次数和倍率这类说明，价格直接标在每件物品上；底部是方舟的 ✕ / ✓ 双按钮。投保用青盾标记，送回用绿色标记。',
+   data:'保全系统修订案：每段 30% 出现一支小队，不保底，每支只能做一件事——投保一件（阵亡后随机 1–3 份合同送达）或送回一件装备（立即进暂存区；材料、原矿不能送回；已投保的也能送回）；价格 = 物品价值 × 本支小队的倍率（100%–150%，按 10% 一档），从赤金里扣。'}};
+
+/* ----- 9b. 坎诺特 trader (IS 诡意行商 layout) ----- */
+let shopTab=0, shopPick=null, shopRoll=0, shopFunds=41;
+const SHOP_POOLS=[
+ [{k:'relic',r:OFFER[0],price:16},{k:'relic',r:OFFER[1],price:12},{k:'item',it:ITEMS[4],price:36},{k:'item',it:ITEMS[3],price:19},{k:'item',it:ITEMS[5],price:11},{k:'item',it:POTITEM('sp1','A',0,0),price:4},{k:'item',it:POTITEM('sp2','B',0,0),price:6},{k:'item',it:EQUIP.饰品,price:33}],
+ [{k:'relic',r:OFFER[2],price:8},{k:'relic',r:['皇帝的恩宠',0,'攻击','攻击力 +15%',''],price:8},{k:'item',it:ITEMS[2],price:6},{k:'item',it:ITEMS[0],price:39},{k:'item',it:ITEMS[6],price:6},{k:'item',it:POTITEM('sp3','C',0,0),price:10},{k:'item',it:POTITEM('sp4','A',0,0),price:4},{k:'item',it:ITEMS[1],price:18}]];
+S.shop = {grp:'局内事件', name:'坎诺特', bg:'field_city', html:()=>{
+  const stock=SHOP_POOLS[shopRoll%2], reroll=3+3*shopRoll;
+  const sellable=[...ITEMS.filter(t=>t.cat!=='药剂'&&t.id!=='ori'&&!t.ins)];
+  const cell=(e,i)=>{const dis=e.price>shopFunds; const nm=e.k==='relic'?e.r[0]:e.it.n;
+    const icon=e.k==='relic'?`<div class="relic r${e.r[1]}" style="width:64px;height:64px;font-size:24px">${e.r[0].replace(/[《》]/g,'')[0]}</div>`:mini(e.it,64);
+    return `<button data-shop="${i}" ${dis?'disabled':''} style="border:0;background:${shopPick==i?'#333':'var(--plate-2)'};color:var(--fg);cursor:${dis?'not-allowed':'pointer'};padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:${dis?.35:1};${shopPick==i?'outline:2px solid var(--sp);outline-offset:-2px':''}">
+      ${icon}<span class="${e.k==='relic'?'':qcls(e.it)}" style="font-size:12.5px;font-weight:700;text-align:center;line-height:1.3;min-height:32px;${e.k==='relic'?`color:${RC[e.r[1]]}`:''}">${nm}</span>
+      <span style="display:flex;gap:4px;align-items:center"><span style="width:14px">${I.ingot}</span><b class="num ${dis?'rd':'y'}" style="font-size:16px">${e.price}</b></span></button>`;};
+  return `<div class="dim" style="background:rgba(8,8,8,.82)"></div>
+  <div class="abs" style="left:0;top:0;bottom:0;width:360px;background:linear-gradient(170deg,#3a2c12,#0b0b0b 65%);overflow:hidden">
+    <div class="abs slash" style="inset:0;opacity:.2"></div>
+    <div class="wm" style="font-size:96px;left:-6px;bottom:80px;-webkit-text-stroke:1px rgba(255,210,120,.12)">TRADER</div>
+    <div class="abs" style="left:50%;top:46%;transform:translate(-50%,-50%);width:150px;height:260px;background:radial-gradient(ellipse at 50% 20%,#e6c25a 0 18%,transparent 19%),radial-gradient(ellipse at 50% 70%,#2a2418 0 45%,transparent 46%);opacity:.9"></div>
+    <div class="abs" style="left:32px;top:36px"><div class="en" style="font-size:10px;color:#e6c25a;letter-spacing:.3em">ROGUE TRADER</div><b style="font:900 34px var(--f-cn);letter-spacing:.12em">坎诺特</b><div class="mute" style="font-size:13px">诡意行商 · LG-04</div></div>
+  </div>
+  <div class="abs" style="left:390px;right:36px;top:32px;bottom:32px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="toggle">${['购买','出售'].map((t,i)=>`<button class="${shopTab===i?'on':''}" data-stab="${i}" style="padding:8px 22px;font-size:14px">${t}</button>`).join('')}</div>
+      <span style="margin-left:auto;display:flex;gap:6px;align-items:center;font-size:14px"><span style="width:16px">${I.ingot}</span><b class="num y" style="font-size:20px">${shopFunds}</b></span>
+    </div>
+    ${shopTab===0?`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${stock.map(cell).join('')}</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:auto"><button class="btn" id="reroll" style="height:52px">刷新 <span style="width:16px">${I.ingot}</span><b class="num y">${reroll}</b></button><span style="flex:1"></span></div>`
+     :`<div style="display:flex;gap:18px"><div class="grid" id="sellgrid" style="width:361px;height:217px">${ITEMS.map(t=>tile(t)).join('')}</div>
+       <div id="sellinfo" style="flex:1;min-width:0"></div></div>`}
+    <div style="display:flex;height:58px">
+      <button class="btn" style="flex:1;justify-content:center;font-size:16px;background:#2a2a2a">✕ 离开</button>
+      <button class="btn blue" id="shopGo" ${shopPick!==null?'':'disabled'} style="flex:1;justify-content:center;font-size:16px">✓ ${shopTab===0?'购买':'出售'}</button>
+    </div>
+  </div>`;},
+  init(){
+    $$('[data-stab]').forEach(b=>b.onclick=()=>{shopTab=+b.dataset.stab;shopPick=null;show('shop');});
+    $$('[data-shop]').forEach(b=>b.onclick=()=>{shopPick=+b.dataset.shop;show('shop');});
+    const r=$('#reroll'); if(r) r.onclick=()=>{const c=3+3*shopRoll; if(shopFunds>=c){shopFunds-=c;shopRoll++;shopPick=null;show('shop');}};
+    const go=$('#shopGo'); if(go&&shopTab===0) go.onclick=()=>{const e=SHOP_POOLS[shopRoll%2][shopPick]; if(e&&shopFunds>=e.price){shopFunds-=e.price;shopPick=null;show('shop');}};
+    if(shopTab===1){ const no=t=>t.cat==='药剂'||t.id==='ori'||t.ins;
+      $$('#sellgrid [data-it]').forEach(el=>{const it=ITEMS.find(t=>t.id===el.dataset.it); if(it&&no(it)) el.style.opacity=.3;
+        el.onclick=()=>{ if(!it||no(it)) return; $$('#sellgrid .it.sel').forEach(x=>x.classList.remove('sel')); el.classList.add('sel'); shopPick=it.id;
+          $('#sellinfo').innerHTML=detail(it)+`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--plate-2);padding:10px 14px;margin-top:6px"><span class="mute">收购价</span><span style="display:flex;gap:4px;align-items:center"><span style="width:16px">${I.ingot}</span><b class="num y" style="font-size:20px">${Math.ceil(it.val*.5/10)}</b></span></div>`;
+          const g=$('#shopGo'); g.disabled=false; g.onclick=()=>{shopFunds+=Math.ceil(it.val*.5/10); const i=ITEMS.indexOf(it); if(i>=0) ITEMS.splice(i,1); shopPick=null; show('shop');}; }; });
+    }
+  },
+  note:{mmo:'刷宝游戏的随机商人：买卖都在一个窗口里，可以花钱刷新货架。', prts:'照集成战略“诡意行商”排：左边是店主（坎诺特，暂用占位剪影，需要美术），右边是 8 格货架，藏品和物品混排，价格用赤金显示；付不起的压暗。出售页显示背包，原矿、药剂和已投保的物品压暗，不能卖。',
+   data:'坎诺特商店策划案：每段 20% 出现，和罗德岛小队不在同一段出现；货架 2 藏品 + 3 装备 + 2 药剂 + 1 特殊；装备按价值 ×150% 卖、×50% 收；藏品 80/120/160；刷新 25 起每次 +25；锈蚀的铁锤让购买价 −50%。'}};
+
+/* ----- 9c. squad camp 10|11 (可露希尔 shop + deposit + fixed extraction) ----- */
+let campTab=0, campPick=null, sellN=10, lmd=90000;
+const goldCount=()=>ITEMS.filter(t=>t.n==='赤金').reduce((n,t)=>n+t.stack,0);
+function spendGold(n){ for(let i=ITEMS.length-1;i>=0&&n>0;i--){const t=ITEMS[i]; if(t.n!=='赤金') continue; const d=Math.min(n,t.stack); t.stack-=d; n-=d; if(t.stack<=0) ITEMS.splice(i,1);} }
+const POT_PRICE={A:0,B:1,C:1};
+const depFee = it => Math.max(1, Math.ceil(it.val*0.2/10));
+const noDeposit = it => it.cat!=='材料' || it.reg;   // only materials; region-special materials (原矿 etc.) refused
+S.camp = {grp:'局内事件', name:'营地 10|11', bg:'field_city', html:()=>`<div class="abs geo" style="inset:0"></div>
+  <div class="abs" style="left:0;top:0;bottom:0;width:380px;background:linear-gradient(165deg,#13321f,#0b0b0b 65%);overflow:hidden">
+    <div class="abs slash" style="inset:0;opacity:.2"></div>
+    <div class="wm" style="font-size:110px;left:-8px;bottom:120px;-webkit-text-stroke:1px rgba(143,195,31,.14)">CAMP</div>
+    <div class="abs" style="left:50%;top:44%;transform:translate(-50%,-50%);width:140px;height:240px;background:radial-gradient(ellipse at 50% 18%,#d9d9d9 0 16%,transparent 17%),radial-gradient(ellipse at 50% 68%,#262a2c 0 45%,transparent 46%);opacity:.85"></div>
+    <div class="abs" style="left:32px;top:32px"><span class="wplate num" style="font-size:18px;padding:1px 10px">营地 10|11</span><b style="display:block;font:900 30px var(--f-cn);letter-spacing:.1em;margin-top:10px">可露希尔</b><div class="en mute" style="font-size:10px;letter-spacing:.3em">CLOSURE · RHODES ISLAND</div></div>
+    <div class="abs" style="left:24px;right:24px;bottom:24px;display:flex;flex-direction:column;gap:8px">
+      <button class="go" style="height:64px;width:100%;background:var(--green);color:#111"><b>撤离</b><small>EXTRACT</small></button>
+      <button class="btn" style="height:48px;justify-content:center;font-size:15px">继续 · LG-11</button>
+    </div>
+  </div>
+  <div class="abs" style="left:410px;right:36px;top:32px;bottom:32px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="toggle">${['商店','寄存','出售赤金'].map((t,i)=>`<button class="${campTab===i?'on':''}" data-ctab="${i}" style="padding:8px 22px;font-size:14px">${t}</button>`).join('')}</div>
+      <span style="margin-left:auto;display:flex;gap:6px;align-items:center;font-size:14px"><span style="width:16px">${I.ingot}</span><b class="num y" style="font-size:20px">${goldCount()}</b></span>
+      <span style="display:flex;gap:6px;align-items:center;font-size:14px;margin-left:12px"><span style="width:16px">${I.fund}</span><b class="num" style="font-size:20px">${lmd.toLocaleString('en-US')}</b></span>
+    </div>
+    ${campTab===0?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${Object.entries(POT).map(([k,p])=>{const pr=POT_PRICE[k];return `<button data-cpot="${k}" style="border:0;background:${campPick===k?'#333':'var(--plate-2)'};color:var(--fg);cursor:pointer;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:inset 0 -3px 0 ${k==='C'?'var(--ori)':'#8fc31f'};${campPick===k?'outline:2px solid var(--sp);outline-offset:-2px':''}">
+        ${mini(POTITEM('cp'+k,k,0,0),72)}<b style="font-size:14px">${p.n}</b>
+        <span style="display:flex;gap:4px;align-items:center"><span style="width:14px">${I.ingot}</span><b class="num y" style="font-size:16px">${pr}</b></span></button>`}).join('')}</div>
+      <div class="sec" style="margin-top:6px">背包 <span class="num mute" style="font-size:12px" id="bagn"></span></div><div class="grid" id="bag" style="width:361px;height:217px"></div>`
+ :campTab===2?`<div style="display:flex;gap:28px;align-items:center;background:var(--plate-2);padding:24px">
+        ${mini(GOLD('gs',0,0,goldCount()),96)}
+        <div style="display:flex;flex-direction:column;gap:12px"><div class="toggle">${[1,10,'全部'].map(v=>`<button class="${(v==='全部'?goldCount():v)===sellN?'on':''}" data-sell="${v}" style="padding:8px 18px;font-size:14px">${v}</button>`).join('')}</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px"><span style="width:18px">${I.ingot}</span><b class="num y" style="font-size:24px">${Math.min(sellN,goldCount())}</b><span class="mute">→</span><span style="width:18px">${I.fund}</span><b class="num" style="font-size:24px">${(Math.min(sellN,goldCount())*1000).toLocaleString('en-US')}</b></div></div></div>`
+     :`<div style="display:flex;gap:18px"><div class="grid" id="depgrid" style="width:361px;height:217px">${ITEMS.map(t=>tile(t)).join('')}</div><div id="depinfo" style="flex:1;min-width:0"></div></div>`}
+    <div style="display:flex;height:58px;margin-top:auto">
+      <button class="btn" style="flex:1;justify-content:center;font-size:16px;background:#2a2a2a">✕ 关闭</button>
+      <button class="btn blue" id="campGo" ${campPick||campTab===2?'':'disabled'} style="flex:1;justify-content:center;font-size:16px">✓ ${['购买','寄存','出售'][campTab]}</button>
+    </div>
+  </div><div id="ftip" class="abs" style="display:none;z-index:30;gap:6px;pointer-events:none;align-items:flex-start"></div>`,
+  init(){
+    $$('[data-ctab]').forEach(b=>b.onclick=()=>{campTab=+b.dataset.ctab;campPick=null;show('camp');});
+    if(campTab===0){ drawBag();
+      $$('[data-cpot]').forEach(b=>b.onclick=()=>{campPick=b.dataset.cpot;show('camp');});
+      const g=$('#campGo'); if(g) g.onclick=()=>{const c=freeCell(ITEMS); const pr=POT_PRICE[campPick]; if(!c||goldCount()<pr) return; spendGold(pr); ITEMS.push(POTITEM('cb'+Date.now(),campPick,c[0],c[1])); campPick=null; show('camp');}; }
+    else if(campTab===2){
+      $$('[data-sell]').forEach(b=>b.onclick=()=>{sellN=b.dataset.sell==='全部'?goldCount():+b.dataset.sell;show('camp');});
+      $('#campGo').onclick=()=>{const n=Math.min(sellN,goldCount()); if(!n) return; spendGold(n); lmd+=n*1000; show('camp');}; }
+    else {
+      $$('#depgrid [data-it]').forEach(el=>{const it=ITEMS.find(t=>t.id===el.dataset.it); if(it&&noDeposit(it)) el.style.opacity=.3;
+        el.onclick=()=>{ if(!it||noDeposit(it)) return; $$('#depgrid .it.sel').forEach(x=>x.classList.remove('sel')); el.classList.add('sel'); campPick=it.id;
+          $('#depinfo').innerHTML=detail(it)+`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--plate-2);padding:10px 14px;margin-top:6px"><span class="mute">费用</span><span style="display:flex;gap:4px;align-items:center"><span style="width:16px">${I.ingot}</span><b class="num y" style="font-size:20px">${depFee(it)}</b></span></div>`;
+          const g=$('#campGo'); g.disabled=false; g.onclick=()=>{ if(goldCount()<depFee(it)) return; const i=ITEMS.indexOf(it); if(i>=0) ITEMS.splice(i,1); spendGold(depFee(it)); campPick=null; show('camp'); return; if(i>=0) ITEMS.splice(i,1); campPick=null; show('camp');}; }; });
+    }
+  },
+  note:{mmo:'刷宝游戏的城镇传送点：安全区、补给、存放，加一个回城出口。', prts:'左边是营地与店主可露希尔（占位剪影，需要美术），下面是绿色“撤离”和“继续 · LG-11”；右边是商店 / 寄存两个页签，价格用龙门币。',
+   data:'撤离与营地修订案：营地在 10|11 之间；可露希尔卖药剂，与基地药房同价，买下放进背包；寄存只收材料，地区专属等特殊材料不能交，费用为交付价的 20%（至少 1 龙门币），交出的材料直接进暂存区。'}};
+
+/* ----- 10. settlement ----- */
+let settleMode='ok';
+const FATE = {yan:'keep','eq-武器':'ins',lgd:'ins'};
+S.settle = {grp:'局内事件', name:'行动结束 / 失败', bg:'', html:()=>{const ok=settleMode==='ok';
+  const mark = it => { if(ok||!FATE[it.id]) return ''; const f=FATE[it.id]; const [l,c]={keep:['保留','var(--green)'],ins:['投保','var(--hp)'],lost:['丢失','var(--red)']}[f];
+    return `<span class="ftag" style="left:${it.x*36}px;top:${it.y*36}px;background:${c}">${l}</span>`; };
+  const grid = (list,w,h) => `<div class="grid ${ok?'':'dead'}" style="width:${w*36+1}px;height:${h*36+1}px">${list.map(t=>tile(t)).join('')}${list.map(mark).join('')}</div>`;
+  const eqList = [{...EQUIP.武器,x:0,y:0},{...EQUIP.防具,x:2,y:0},{...EQUIP.饰品,x:4,y:0}];
+  return `<div class="abs geo" style="inset:0"></div>
+  <div class="abs" style="left:0;right:0;top:0;height:6px;background:${ok?'var(--green)':'var(--red)'}"></div>
+  <div class="abs" style="left:48px;top:44px;width:330px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px"><span class="wplate num" style="font-size:20px;padding:2px 10px">营地 10|11</span><span class="mute" style="font-size:12.5px">龙门 · 下城区废墟 · 18:42</span></div>
+    <div><div style="font:900 52px/1.1 var(--f-cn);letter-spacing:.12em;color:${ok?'#fff':'var(--red)'}">${ok?'行动结束':'行动失败'}</div>
+      <div class="en" style="font-size:12px;letter-spacing:.36em;color:${ok?'var(--sp)':'var(--red)'}">${ok?'MISSION ACCOMPLISHED':'MISSION FAILED'}</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;background:var(--plate)">${(ok?[['赤金','41','y'],['合同报酬','+10,460',''],['污染','18 → 23','o'],['可交付订单','2','y']]:[['保留','1 件','g'],['投保','2 件','b'],['丢失','26 件','rd'],['污染','18 → 31','o']]).map(([a,b,c])=>`<div style="padding:10px 12px;border-bottom:1px solid var(--line)"><div class="mute" style="font-size:11.5px">${a}</div><b class="num ${c}" style="font-size:22px">${b}</b></div>`).join('')}</div>
+    <img class="px" src="${IMG('lappland_sprite')}" alt="" style="width:168px;align-self:center;margin-top:6px;${ok?'':'filter:grayscale(1);opacity:.5'}">
+    <div class="toggle" style="align-self:flex-start"><button class="${ok?'on':''}" data-sm="ok">撤离</button><button class="${ok?'':'on'}" data-sm="dead">阵亡</button></div>
+  </div>
+  <div class="abs" style="left:420px;top:44px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:22px;align-items:flex-end">
+      <div><div class="sec">装备 <em>EQUIPPED</em></div><div class="z2" style="zoom:2;display:flex;gap:4px;align-items:flex-end">${eqList.map(e=>grid([{...e,x:0,y:0}],e.w,e.h)).join('')}</div></div>
+      <div><div class="sec">安全袋 <em>SAFE</em></div><div class="z2" style="zoom:2">${grid(SAFE,2,2)}</div></div>
+    </div>
+    <div><div class="sec">背包 <em>PACK 10×6</em></div><div class="z2" style="zoom:2">${grid(ITEMS,10,6)}</div></div>
+  </div>
+  <div class="abs" style="left:48px;bottom:36px;display:flex;gap:10px;align-items:stretch">
+    <button class="go" style="width:330px;height:60px"><b>返回罗德岛</b><small>RETURN</small></button>
+  </div>`;},
+  init(){ $$('[data-sm]').forEach(b=>b.onclick=()=>{settleMode=b.dataset.sm;show('settle');}); },
+  note:{mmo:'刷宝 / 撤离类游戏的结算：直接把带回来的背包摊开给你看（逃离塔科夫的撤离结算、暗黑的背包），装备、安全袋和背包按原位放大两倍显示。', prts:'左栏保留方舟作战结算的写法：关卡编号白底牌、“行动结束 / MISSION ACCOMPLISHED”、四格汇总；阵亡时变成红色“行动失败”，像素图去色。',
+   data:'撤离：背包原样带回，进收货区货箱。阵亡：安全袋里的物品和已投保的物品保持原色，格子左上角标出“保留”或“投保”（投保的在之后随机 1–3 份合同后送达）；丢失的物品压暗去色。点金已取消（保全系统修订案）。'}};
+
+/* ----- 11. esc / settings ----- */
+let setTab=0;
+S.esc = {grp:'系统', name:'暂停与设置', bg:'field_city', html:()=>`<div class="dim" style="background:rgba(8,8,8,.85)"></div>
+  <div class="abs" style="left:0;top:0;bottom:0;width:280px;background:#0e0e0e;display:flex;flex-direction:column;padding:36px 0">
+    <div style="padding:0 26px 22px"><div class="en mute" style="font-size:10px">PAUSED</div><b style="font:900 28px var(--f-cn);letter-spacing:.1em">暂停</b></div>
+    ${['继续作业','设置','按键说明','放弃合同','回到标题'].map((t,i)=>`<button style="text-align:left;border:0;padding:13px 26px;font:700 15px var(--f-cn);cursor:pointer;background:${i===1?'var(--paper)':'transparent'};color:${i===1?'var(--ink)':i===3?'var(--red)':'var(--fg)'}">${t}</button>`).join('')}
+  </div>
+  <div class="abs" style="left:310px;top:36px;right:36px;bottom:36px;display:flex;flex-direction:column;background:var(--plate-s)">
+    <div style="display:flex;gap:2px;padding:12px 14px 0">${['画面','界面','音频','操作'].map((t,i)=>`<button class="tab ${i===setTab?'on':''}" data-st="${i}">${t}</button>`).join('')}</div>
+    <div style="padding:16px 24px;display:flex;flex-direction:column;gap:0;font-size:13.5px" id="setbody">${setBody()}</div>
+  </div>`,
+  init(){ $$('[data-st]').forEach(b=>b.onclick=()=>{setTab=+b.dataset.st;show('esc');}); toggles(); },
+  note:{mmo:'MMO 系统菜单 + 设置窗；界面页放 HUD 缩放、伤害数字、追踪栏、名牌这些 MMO 玩家常调的项。', prts:'左侧黑色竖条菜单，当前项反白；设置行一行一项，选项是蓝色分段按钮，与方舟设置页一致。', data:'写入 user://settings.cfg，不进合同存档。'}};
+function setBody(){
+  const row=(a,ctrl,d='')=>`<div style="display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding:12px 0"><div style="flex:1"><div style="font-weight:700">${a}</div>${d?`<div class="mute" style="font-size:12px">${d}</div>`:''}</div><div style="width:320px;display:flex;justify-content:flex-end">${ctrl}</div></div>`;
+  const tg=(o,on=0)=>`<div class="toggle">${o.map((x,i)=>`<button class="${i===on?'on':''}">${x}</button>`).join('')}</div>`;
+  const sl=(v,id)=>`<input type="range" class="rng" id="${id}" value="${v}" aria-label="${id}">`;
+  return [[row('分辨率',tg(['1280×720','1920×1080','2560×1440'],1)),row('窗口模式',tg(['窗口','无边框','全屏'],1)),row('像素缩放','整数倍'),row('垂直同步',tg(['关','开'],1))],
+   [row('HUD 缩放',sl(50,'hudscale')),row('伤害数字',tg(['关','只显示自己','全部'],2)),row('合同追踪',tg(['隐藏','显示'],1)),row('敌人名牌',tg(['仅交战','全部','关'],0)),row('日志透明度',sl(70,'logalpha')),row('色弱模式',tg(['关','红绿','蓝黄'],0))],
+   [row('主音量',sl(80,'v1')),row('音效',sl(90,'v2')),row('敌人攻击提示音',sl(100,'v3'))],
+   [row('移动 / 攻击',`<span class="kbd">右键</span>&nbsp;<span class="kbd">左键</span>`),row('闪避 / 药瓶 / 交互',`<span class="kbd">Shift</span>&nbsp;<span class="kbd">Q</span>&nbsp;<span class="kbd">E</span>`),row('背包 / 干员 / 藏品 / 地图 / 合同',`<span class="kbd">I</span>&nbsp;<span class="kbd">C</span>&nbsp;<span class="kbd">R</span>&nbsp;<span class="kbd">M</span>&nbsp;<span class="kbd">J</span>`),row('地面物品名',`<span class="kbd">Alt</span>`)]][setTab].join('');
+}
+
+/* ----- 12. base HUD (AK 基建) ----- */
+const STATIONS=[['调度台','外勤合同','#ffffff',0],['整备台','装备 · 投保','#0098dc',0],['仓管台','仓库 118/160','#0098dc',0],['出库区','订单 · 可交付 2','#f5c000',1],['医疗前台','返还中 2','#8fc31f',1],['药房窗口','配药','#8fc31f',0],['污染检测门','污染 46','#e0782a',0],['可露希尔的商店','药剂','#8fc31f',0]];
+S.base = {grp:'罗德岛基地', name:'基地 HUD', bg:'base_hall', html:()=>`
+  <div class="abs" style="left:0;right:0;top:0;height:56px;display:flex;align-items:center;gap:14px;padding-left:14px;background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.4))">
+    <div class="navp"><button aria-label="返回">${I.back}</button><button aria-label="首页">${I.home}</button></div>
+    <div class="pt"><small>RHODES ISLAND · BRIDGE HALL</small><b>罗德岛 · 舰桥大厅</b></div>
+    <div class="curs"><div class="cur"><i>${I.fund}</i><span class="v num">90,000</span><span class="p">+</span></div><div class="cur"><i>${I.rep}</i><span class="v num">R2 <span class="mute" style="font-size:11px">60/120</span></span></div><div class="cur"><i>${I.ori}</i><span class="v num o">46</span></div></div>
+  </div>
+  <div class="abs" style="left:50%;top:66px;transform:translateX(-50%);display:flex;align-items:stretch;background:rgba(0,0,0,.85)"><span class="tagc" style="background:var(--sp);display:flex;align-items:center;font-size:13px;padding:0 10px">R2</span><span style="padding:6px 14px;font-size:13px">声望提升：中排货架 · 药房抑制喷剂 · 第 3 个订单栏</span></div>
+  <div class="abs" style="left:14px;top:70px;width:236px;display:flex;flex-direction:column;gap:3px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px 4px"><b style="font-size:13px">站点总览</b><span class="en dimc" style="font-size:8.5px">FACILITIES</span></div>
+    ${STATIONS.map(([n,s,c,claim])=>`<div style="display:flex;align-items:stretch;height:36px;background:rgba(0,0,0,.8);position:relative;${c==='#555'?'opacity:.45':''}"><span style="width:6px;background:${c}"></span><div style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:12.5px"><b>${n}</b><span class="mute" style="font-size:11px">${s}</span></div>${claim?`<span style="position:absolute;right:-8px;top:-6px;width:18px;height:18px;background:var(--sp);color:#111;font:900 12px var(--f-en);display:grid;place-items:center;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)">!</span>`:''}</div>`).join('')}
+  </div>
+  <div class="abs" style="left:640px;top:318px;transform:translate(-50%,-100%);width:16px;height:16px;background:var(--hp);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></div>
+  <div class="abs" style="left:50%;top:420px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:rgba(0,0,0,.85);font-size:12.5px"><span class="kbd" style="background:var(--paper);color:var(--ink);height:20px;min-width:22px;font-size:12px">E</span>调度台 · 外勤合同</div>
+  <div class="abs" style="left:268px;top:262px;font-size:12px;padding:3px 8px;background:rgba(0,0,0,.7)">◀ 仓储区</div>
+  <div class="abs" style="right:90px;top:262px;font-size:12px;padding:3px 8px;background:rgba(0,0,0,.7)">医疗部 ▶</div>
+  <div class="abs" style="left:14px;bottom:14px;width:380px;padding:8px 10px;background:linear-gradient(90deg,rgba(0,0,0,.8),rgba(0,0,0,.4))"><div class="log"><p><span class="t">14:00</span>欢迎回来，博士。拉普兰德已完成撤离。</p><p><span class="t">14:00</span>收货区货箱有 <b class="y">23</b> 件新物品待开箱。</p><p><span class="t">14:01</span><span class="y">出库区</span>两张订单可以交付。</p></div></div>
+  <div class="abs" style="right:14px;bottom:14px;display:flex;gap:4px">
+    ${[['干员','I','inv'],['合同','—','contracts'],['菜单','Esc','esc']].map(([n,k,id])=>`<button data-go="${id}" style="width:56px;height:48px;border:0;background:rgba(0,0,0,.82);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px"><span>${n}</span><span class="kbd" style="background:#333">${k}</span></button>`).join('')}
+  </div>`, init(){ $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go)); },
+  note:{mmo:'主城 HUD：顶部资源条、左侧设施目录。', prts:'照基建总览：左侧设施条按部门上色（工程黄、后勤蓝、医疗绿，对应基建的制造站 / 贸易站 / 发电站配色习惯），有东西可领时右上角弹黄色“!”；顶部是子页面的返回/首页和货币栏。场景浮标沿用基地美术规范的屏幕青菱形。',
+   data:'龙门币、声望 R、污染、仓库占用来自 BaseState；8 个站点与现有一一对应。'}};
+
+/* ----- 13. contracts (AK stage detail) ----- */
+let region=1;
+const REG=[['mine','CH','切尔诺伯格','坍塌矿区','CHERNOBOG','回收矿料，测绘污染。','狭窄矿道 / 密集追击',['暴徒','源石虫','弩手'],[ITEMS[8]],[{n:'原矿',img:'raw_originium',q:2,w:1,h:2,stats:[],afx:[]}],0,'防守 · 生命'],
+ ['city','LG','龙门','下城区废墟','LUNGMEN','回收防务与医疗物资。','曲折街区 / 近战伏击',['暴徒','拳刃武士','弩手组长'],[ITEMS[2],ITEMS[3]],[ITEMS[1],EQUIP.防具],2,'攻击 · 防守 · 节奏'],
+ ['snow','SM','萨米','冻土林线','SAMI','采集极寒样本，回收冻土旧物。','开阔林线 / 稀疏强敌',['冰原战士','冰原猎人'],[ITEMS[9]],[ITEMS[0]],1,'剑气 · 攻击']];
+S.contracts = {grp:'罗德岛基地', name:'调度台 · 合同', bg:'', html:()=>{const r=REG[region];return shell({en:'DISPATCH',cn:'调度台',wm:r[4],wmpos:'left:220px;bottom:-4px',
+  body:`
+  <div style="width:200px;display:flex;flex-direction:column;gap:4px">
+    ${REG.map((x,i)=>`<button data-reg="${i}" style="border:0;cursor:pointer;text-align:left;padding:12px 14px;background:${i===region?'var(--paper)':'var(--plate-2)'};color:${i===region?'var(--ink)':'var(--fg)'}"><div class="num" style="font-size:22px;line-height:1">${x[1]}</div><b style="font-size:14px">${x[2]}</b><div style="font-size:11.5px;opacity:.7">${x[3]}</div>${x[10]?`<span class="tagc" style="background:var(--sp);margin-top:6px">订单 ${x[10]}</span>`:''}</button>`).join('')}
+  </div>
+  <div style="flex:1;position:relative;min-width:0">
+    <svg class="abs" style="inset:0" width="100%" height="100%"><path d="M62 207 H478 V287 H62 V370" stroke="#5a5a5a" stroke-width="2" fill="none" stroke-dasharray="4 5"/></svg>
+    ${[1,2,3,4,5,6,7,8,9,10].map((n,i)=>{const row=i<5?0:1, col=row?9-i:i; return `<div class="abs" style="left:${20+col*104}px;top:${190+row*80}px;width:84px;height:34px;display:flex;align-items:center;justify-content:center;font:800 14px var(--f-en);background:${n>=4&&n<=6?'#3b3b2a':'var(--plate-3)'};color:#fff">${r[1]}-${String(n).padStart(2,'0')}</div>`}).join('')}
+    <div class="abs" style="left:20px;top:350px;width:188px;height:40px;display:flex;align-items:center;justify-content:center;gap:6px;font:800 14px var(--f-en);background:var(--green);color:#111">营地 10|11 <span style="font:900 11px var(--f-cn)">撤离 · 可露希尔</span></div>
+  </div>
+  <div style="width:380px;background:rgba(10,10,10,.92);display:flex;flex-direction:column;margin:-6px -16px 0 0">
+    <div style="padding:18px 18px 12px;border-bottom:1px solid var(--line)"><div style="display:flex;gap:8px;align-items:center"><span class="wplate num" style="font-size:16px;padding:1px 8px">${r[1]}</span><span class="en mute" style="font-size:10px">FIELD CONTRACT</span></div>
+      <b style="font:900 28px var(--f-cn);letter-spacing:.06em;display:block;margin-top:6px">${r[2]}</b><div style="font-size:15px">${r[3]}</div>
+      <div class="mute" style="font-size:12.5px;margin-top:8px;line-height:1.6">${r[5]} ${r[6]}。</div></div>
+    <div style="padding:12px 18px;display:flex;flex-direction:column;gap:12px;flex:1">
+      <div><div class="sec">敌人情报 <em>ENEMIES</em></div><div style="display:flex;gap:6px">${r[7].map(e=>`<div style="width:56px;text-align:center"><div style="width:56px;height:56px;background:#222;display:grid;place-items:center;box-shadow:inset 0 -3px 0 ${e.includes('组长')?'var(--red)':'#666'}"><b style="font-size:20px">${e[0]}</b></div><div style="font-size:10.5px;margin-top:3px">${e}</div></div>`).join('')}</div></div>
+      <div><div class="sec">掉落 <em>DROPS</em></div>
+        <div style="display:flex;gap:10px;align-items:center"><span class="tagc" style="background:#e6e6e6">常规</span>${r[8].map(it=>mini(it,46)).join('')}<span class="tagc" style="background:var(--sp)">专属</span>${r[9].map(it=>mini(it,46)).join('')}</div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px"><span class="mute">藏品倾向</span><span>${r[11]}</span></div>
+      <div><div class="sec">起点 <em>START</em></div><div class="toggle"><button>${r[1]}-01</button><button class="on">营地 10|11</button><button disabled style="opacity:.35">营地 20|21</button></div></div>
+      <button class="go" data-go="depart" style="margin-top:auto;height:72px;width:100%"><b>开始行动</b><small>OPERATION START</small></button>
+    </div>
+  </div>`, keys:[['左键','选择地区'],['Esc','返回']]});},
+  init(){ $$('[data-reg]').forEach(b=>b.onclick=()=>{region=+b.dataset.reg;show('contracts');}); $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go)); },
+  note:{mmo:'副本 / 地区选择。', prts:'照主线作战选关：左边章节式地区列表（代号 CH / LG / SM 大字）、中间关卡节点串（撤离段绿色）、右侧关卡详情：代号白底牌、地区名、敌人情报、常规 / 专属掉落、蓝色“开始行动 / OPERATION START”。',
+   data:'FieldCatalog.REGIONS 的名称、简介、专属物与藏品倾向；订单数来自 BaseState。敌人名单按 enemy_attacks 的地区配置（冰原战士 / 冰原猎人未在 PRTS 确认为萨米敌人，名字沿用代码）。'}};
+
+/* ----- 14. stash ----- */
+let stashCat='全部';
+S.stash = {grp:'罗德岛基地', name:'仓管台 · 仓库', bg:'', html:()=>shell({en:'DEPOT',cn:'仓库',wm:'DEPOT',tabs:['全部','武器','防具','饰品','材料'],on:['全部','武器','防具','饰品','材料'].indexOf(stashCat),curs:[['fund','龙门币','90,000']],
+  body:`
+  <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0">
+    <div style="display:flex;gap:10px;align-items:center"><input class="srch" id="srch" placeholder="搜索"><button class="btn" style="font-size:12px;padding:7px 12px">背包材料全部存回</button>
+      <div style="margin-left:auto;display:flex;gap:14px;font-size:12px">${[['武器',22,32],['防具',18,32],['饰品',14,32],['材料',64,64]].map(([n,a,b])=>`<div style="width:70px"><div style="display:flex;justify-content:space-between"><span class="mute">${n}</span><span class="num ${a===b?'rd':''}">${a}/${b}</span></div>${bar(a/b*100,a===b?'var(--red)':'#cfcfcf',3)}</div>`).join('')}</div></div>
+    <div class="grid" id="stashgrid" style="width:${16*36}px;height:${10*36}px"></div>
+    <div style="display:flex;align-items:center;gap:10px"><div class="sec" style="margin:0">将带入 <em>CARRY-IN</em></div>${[EQUIP.武器,EQUIP.防具,EQUIP.饰品].map(e=>mini(e,46)).join('')}<div style="width:46px;height:46px;background:var(--plate-2);display:grid;place-items:center;color:var(--mute);font-size:20px">+</div></div>
+  </div>
+  <div style="width:300px" id="tipbox">${detail(null)}</div>`, keys:[['左键','带入 / 取回'],['悬停','对比已装备'],['Esc','返回']]}),
+  init(){ renderStash(); $$('[data-tabx]').forEach((b,i)=>b.onclick=()=>{stashCat=['全部','武器','防具','饰品','材料'][i];show('stash');}); $('#srch').oninput=renderStash; },
+  note:{mmo:'MMO 银行：分页、搜索、大网格，分区容量直接显示，满了变红。', prts:'方舟仓库页：顶部分类页签、道具格的稀有度底光与黑框数量、右侧道具详情；容量条放在搜索栏右边。', data:'BaseCatalog 四个分区与货架容量、搜索（名称或词缀）、一键存回已实现。暂存区不算仓库、不能交付。'}};
+function renderStash(){
+  const q=($('#srch')?.value||'').trim();
+  const pool=[...ITEMS,SAFE[0],...Object.values(EQUIP),...ITEMS.slice(9).map(t=>({...t,id:t.id+'2',stack:t.stack+7}))];
+  let x=0,y=0,rowH=0,out='';
+  pool.filter(t=>(stashCat==='全部'||t.cat===stashCat)&&(!q||t.n.includes(q)||t.afx.some(a=>a[0].includes(q))||QN[t.q].includes(q))).forEach(t=>{
+    const c={...t,ins:0,lock:0}; if(x+c.w>16){x=0;y+=rowH;rowH=0;} c.x=x;c.y=y;x+=c.w;rowH=Math.max(rowH,c.h); if(y+c.h<=10) out+=tile(c);});
+  $('#stashgrid').innerHTML=out; bindTips();
+}
+
+/* ----- 15. orders ----- */
+S.orders = {grp:'罗德岛基地', name:'出库区 · 订单', bg:'', html:()=>shell({en:'OUTBOUND',cn:'出库区',wm:'ORDERS',tabs:['订单','直接交付'],curs:[['fund','龙门币','90,000'],['rep','声望','R2']],
+  body:`<div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0">
+    <div style="display:flex;align-items:center;gap:18px;background:var(--plate-2);padding:12px 16px"><div><div class="en mute" style="font-size:9px">PRESTIGE</div><b class="num" style="font-size:30px;line-height:1">R2</b></div>
+      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:12px"><span class="mute">R3 解锁：后排货架 · 安全袋 3×3 · 第 4 个订单栏</span><span class="num">60 / 120</span></div><div style="margin-top:6px">${bar(50,'var(--sp)',6)}</div></div></div>
+    ${orderCards(false)}
+  </div>`, keys:[['左键','交付'],['Esc','返回']]}),
+  note:{mmo:'任务交付 NPC 窗。', prts:'基建贸易站的订单条：左边部门色块（工程黄 / 后勤蓝 / 医疗绿）、中间需求道具与持有数、右边龙门币与声望、蓝色“交付”。声望条放在顶部，下一级解锁直接列出。', data:'BaseCatalog.ORDERS、PRESTIGE_RANKS [20,60,120,200]、RANK_UNLOCKS。'}};
+
+/* ----- 16. medical ----- */
+let CARRY=[POTITEM('ca1','A',0,0),POTITEM('ca2','A',1,0),POTITEM('ca3','A',2,0),POTITEM('cb1','B',3,0)];
+function freeCell(list){ for(let y=0;y<6;y++) for(let x=0;x<10;x++) if(!list.some(t=>x>=t.x&&x<t.x+t.w&&y>=t.y&&y<t.y+t.h)) return [x,y]; return null; }
+const packGrid=(id)=>`<div class="grid" id="${id}" style="width:361px;height:217px"></div>`;
+function drawCarry(id){ const g=$('#'+id); if(!g) return; g.innerHTML=CARRY.map(t=>tile(t)).join(''); $$('#'+id+' [data-it]').forEach(el=>el.oncontextmenu=e=>{e.preventDefault(); CARRY=CARRY.filter(t=>t.id!==el.dataset.it); drawCarry(id);}); }
+S.pharmacy = {grp:'罗德岛基地', name:'医疗部', bg:'', html:()=>shell({en:'MEDICAL',cn:'医疗部',wm:'MEDICAL',tabs:['药房窗口','回收报告','污染检测门'],curs:[['fund','龙门币','90,000'],['ori','污染','46']],
+  body:`<div style="flex:1;display:flex;flex-direction:column;gap:14px">
+    <div class="sec">将带入 · 背包 <em>CARRY-IN</em></div>
+    ${packGrid('carryv')}
+    <div class="sec" style="margin-top:6px">可配药剂 <em>PHARMACY</em></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      ${Object.entries(POT).map(([k,p])=>`<button data-pot="${k}" style="border:0;background:var(--plate-2);color:var(--fg);cursor:pointer;text-align:left;display:flex;gap:12px;padding:12px;box-shadow:inset 0 -3px 0 ${k==='C'?'var(--ori)':'#8fc31f'}"><div style="width:52px;height:52px;background:#000;display:grid;place-items:center;font:900 22px var(--f-cn);flex:none">${p.s}</div><div><b>${p.n}</b><div class="mute" style="font-size:12px;margin:3px 0">${p.t}</div><span class="num y">${{A:'免费',B:'600 龙门币',C:'1,000 龙门币 · R2'}[k]}</span></div></button>`).join('')}
+    </div>
+  </div>
+  <div style="width:340px;display:flex;flex-direction:column;gap:10px">
+    <div class="sec">污染 <em>CONTAMINATION</em></div>
+    <div style="background:var(--plate-2);padding:16px"><div style="display:flex;align-items:baseline;gap:8px"><b class="num o" style="font-size:52px;line-height:1">46</b><span class="tagc" style="background:var(--ori)">轻度</span></div>
+      <div style="margin-top:10px">${bar(46,'var(--ori)',6)}</div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px" class="mute"><span>0</span><span>30 轻度</span><span>60 中度</span><span>100</span></div></div>
+  </div>`, keys:[]}),
+  init(){ drawCarry('carryv'); $$('[data-pot]').forEach(b=>b.onclick=()=>{const c=freeCell(CARRY); if(!c) return; CARRY.push(POTITEM('c'+Date.now(),b.dataset.pot,c[0],c[1])); drawCarry('carryv');}); },
+  note:{mmo:'刷宝游戏的药剂是背包物品：配好的药直接占下一份合同背包的格子，带多少药就少多少搜刮空间。', prts:'药剂卡底部色条用医疗绿，抑制喷剂和污染用源石橙。', data:'BaseCatalog.POTIONS（A 免费 / B 6 / C 10 且需 R2）。药瓶腰带取消（用户 2026-10-05）：药剂每瓶 1×1，放进背包。点卡片放入背包，右键移出。'}};
+
+/* ----- 17. departure (AK squad) ----- */
+S.depart = {grp:'罗德岛基地', name:'出发编队', bg:'', html:()=>shell({en:'SQUAD',cn:'出发准备',wm:'LG',wmpos:'right:20px;top:60px',curs:[['fund','龙门币','90,000']],
+  body:`
+  <div style="width:250px;position:relative;background:linear-gradient(0deg,rgba(255,196,0,.28),transparent 45%),#262626;overflow:hidden">
+    <img class="px" src="${IMG('lappland_sprite')}" alt="拉普兰德" style="position:absolute;left:-1px;top:90px;width:252px">
+    <div class="cls" style="position:absolute;left:0;top:0">${I.guard}</div>
+    <div style="position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(0deg,rgba(0,0,0,.9),transparent)"><div class="stars" style="font-size:13px">★★★★★</div><b style="font-size:20px">拉普兰德</b></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--sp)"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+    <div class="sec">带入装备 <em>LOADOUT</em></div>
+    ${[EQUIP.武器,EQUIP.防具,EQUIP.饰品].map(e=>`<div style="display:flex;align-items:center;gap:12px;background:var(--plate-2);padding-right:12px">${mini(e,60)}<div style="flex:1"><div class="${qcls(e)}" style="font-weight:700">${e.n}</div><div class="mute" style="font-size:12px">${e.cat} · 价值 ${(e.val*100).toLocaleString('en-US')}</div></div>${e.ins?'<span class="tagc" style="background:var(--hp);color:#fff">已投保</span>':`<button class="btn" style="padding:6px 12px;font-size:12px;display:flex;gap:4px;align-items:center">投保 <span style="width:13px">${I.fund}</span>${(e.val*100).toLocaleString('en-US')}</button>`}</div>`).join('')}
+    <div class="sec" style="margin-top:4px">背包 <em>PACK 10×6</em></div>
+    ${packGrid('carryd')}
+  </div>
+  <div style="width:340px;display:flex;flex-direction:column;gap:10px;background:rgba(10,10,10,.92);padding:16px;margin:-6px -16px 0 0">
+    <div style="display:flex;gap:8px;align-items:center"><span class="wplate num" style="font-size:16px;padding:1px 8px">LG</span><span class="en mute" style="font-size:10px">DEPLOY TO</span></div>
+    <b style="font:900 30px var(--f-cn)">龙门</b><div>下城区废墟</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px">${[['起点','营地 10|11','g'],['深度','LG-11',''],['污染','46','o']].map(([a,b,c])=>`<div style="background:var(--plate-2);padding:8px"><div class="mute" style="font-size:11px">${a}</div><b class="num ${c}" style="font-size:17px">${b}</b></div>`).join('')}</div>
+    <div style="display:flex;gap:6px"><span class="tagc" style="background:var(--sp)">订单 2</span><span class="tagc" style="background:var(--ori)">污染 轻度</span></div>
+    <button class="go pulse" style="margin-top:auto;height:84px;width:100%"><b>开始行动</b><small>OPERATION START</small></button>
+  </div>`, keys:[['Esc','返回']]}),
+  init(){ drawCarry('carryd'); },
+  note:{mmo:'进副本前的准备页：自身装备与消耗品。', prts:'照编队界面：左边一张大干员卡（职业图标、五星、底部稀有度色）、中间装备与背包（药剂占格子）、右侧部署目标栏和最醒目的蓝色“开始行动”。', data:'show_departure 的投保与带入背包；基地投保用龙门币，价格为物品价值的 100%，阵亡后必定送达（随机 1–3 份合同后）。'}};
+
+/* ----- 18. loading ----- */
+S.loading = {grp:'系统', name:'加载画面', bg:'', html:()=>`<div class="abs" style="inset:0;background:#0d0d0d"></div><div class="abs slash" style="left:0;top:0;width:100%;height:100%;opacity:.25"></div>
+  <div class="abs" style="left:0;right:0;top:250px;text-align:center">
+    <div style="font:900 56px var(--f-cn);letter-spacing:.3em">行动开始</div>
+    <div class="en mute" style="font-size:14px;letter-spacing:.6em;margin-top:6px">OPERATION START</div>
+  </div>
+  <div class="abs" style="left:60px;bottom:60px;width:620px;background:rgba(0,0,0,.6);display:flex">
+    <span class="tagc" style="background:var(--sp);display:flex;align-items:center;padding:0 12px;font:800 12px var(--f-en);letter-spacing:.2em">TIPS</span>
+    <div style="padding:12px 16px;font-size:14px;line-height:1.7">弩手组长瞄准时会先跟着你转，锁定后才出手。看到它停下不动，就是闪避的时机。</div>
+  </div>
+  <div class="abs" style="right:60px;bottom:60px;display:flex;align-items:center;gap:12px"><span class="en mute" style="font-size:11px">LOADING · LG-04 · 地形与导航 72%</span><span class="spin" style="width:34px;height:34px;color:#fff;display:block">${I.rhodes}</span></div>`,
+  note:{mmo:'MMO 加载屏：提示 + 进度。', prts:'点下“开始行动”后的过场：黑底细斜线、居中“行动开始 / OPERATION START”，左下黄色 TIPS 牌加作战提示，右下转动的舰徽和加载文字。', data:'进度对应地图生成步骤（地形、导航、敌人、装置）。'}};
+
+/* ----- 19. title ----- */
+S.title = {grp:'系统', name:'标题画面', bg:'base_hall', html:()=>`<div class="abs" style="inset:0;background:linear-gradient(0deg,rgba(6,6,6,.95),rgba(6,6,6,.45) 55%,rgba(6,6,6,.75))"></div>
+  <div class="abs" style="left:0;right:0;top:190px;text-align:center">
+    <div class="en mute" style="font-size:12px;letter-spacing:.5em">RHODES ISLAND · FIELD CONTRACTS</div>
+    <div class="en" style="font-size:92px;font-weight:900;letter-spacing:.14em;line-height:1.05">DOWNFALL</div>
+    <div style="font:900 20px var(--f-cn);letter-spacing:1em;margin-left:1em">罗德岛外勤</div>
+  </div>
+  <div class="abs" style="left:0;right:0;top:470px;display:flex;flex-direction:column;align-items:center;gap:6px">
+    <div style="width:420px;height:1px;background:linear-gradient(90deg,transparent,#fff,transparent)"></div>
+    <button style="border:0;background:none;color:#fff;cursor:pointer;padding:10px 40px;display:flex;flex-direction:column;align-items:center"><b style="font:900 22px var(--f-cn);letter-spacing:.4em">开始唤醒</b><span class="en" style="font-size:11px;letter-spacing:.5em;color:var(--mute)">START</span></button>
+    <div style="width:420px;height:1px;background:linear-gradient(90deg,transparent,#fff,transparent)"></div>
+  </div>
+  <div class="abs" style="left:24px;bottom:20px;display:flex;gap:6px">${['设置','新存档','退出'].map(t=>`<button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(0,0,0,.7)">${t}</button>`).join('')}</div>
+  <div class="abs en dimc" style="right:24px;bottom:24px;font-size:9.5px;text-align:right">SAVE · FIELD_CONTRACT_V1 · 龙门币 90,000 · R2<br>V1 · GODOT 4.7.2</div>`,
+  note:{mmo:'MMO 登录页的简化版。', prts:'方舟启动页的构图：居中拉宽英文标题、上下两条渐隐细线夹着“开始唤醒 / START”，左下小按钮、右下版本与存档摘要；背景是基地实景。', data:'读取存档摘要（龙门币、声望、时间）。'}};
+
+/* ---------------- behaviour ---------------- */
+function bindTips(first){
+  const all=[...ITEMS,...SAFE,...Object.values(EQUIP),...ITEMS.slice(9).map(t=>({...t,id:t.id+'2',stack:t.stack+7}))];
+  $$('[data-it]').forEach(el=>el.onmouseenter=()=>{const it=all.find(t=>t.id===el.dataset.it); if(it&&$('#tipbox')){$('#tipbox').innerHTML=detail(it,cmpRows(it)); $$('.it.sel').forEach(x=>x.classList.remove('sel')); el.classList.add('sel');}});
+  const f=first&&document.querySelector(`[data-it="${first}"]`); f&&f.onmouseenter();
+}
+function toggles(){ $$('.toggle').forEach(t=>t.querySelectorAll('button').forEach(b=>{ if(!b.dataset.sm) b.addEventListener('click',()=>t.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))); })); $$('[data-tabx]').forEach(b=>b.addEventListener('click',()=>b.parentNode.querySelectorAll('[data-tabx]').forEach(x=>x.classList.toggle('on',x===b)))); }
+function pickInit(cb){ $$('[data-o]').forEach(b=>b.addEventListener('click',()=>{ $$('[data-o]').forEach(x=>{x.classList.toggle('brk',x===b); x.classList.toggle('sel',x===b);}); const t=$('#takeOffer'); if(t) t.disabled=false; cb&&cb(+b.dataset.o); })); }
+
+const LOG=[['13:58:02','进入 LG-04 · 龙门 · 下城区废墟。'],['13:58:30','本层发现撤离点。'],['13:59:31','机关 2 / 4 已触发。'],['14:00:40','附近发现<span style="color:#5fd0d8">罗德岛小队</span>。']];
+function drawLog(){ const el=$('#log'); if(!el) return; el.innerHTML=LOG.map(l=>`<p><span class="t">${l[0]}</span>${l[1]}</p>`).join(''); el.scrollTop=1e4; }
+function pushLog(k,c,t){ if(k!=='PRTS') return; LOG.push([new Date().toTimeString().slice(0,8),t]); if(LOG.length>40) LOG.shift(); drawLog(); }
+function drawUnit(){
+  if(!$('#ubar')) return;
+  const low=P.hp/P.max<.3, ready=P.charge>=P.need;
+  $('#ubar').innerHTML=bar(P.hp/P.max*100,low?'var(--red)':'var(--hp)',5)+`<div class="seg" style="height:4px">${Array.from({length:P.need},(_,i)=>`<i style="background:${i<P.charge?'var(--sp)':'rgba(0,0,0,.8)'}"></i>`).join('')}</div>`;
+  $('#uready').style.display=ready?'grid':'none';
+  $('#c-wave').classList.toggle('ready',ready); $('#c-wave').classList.toggle('pulse',ready); $('#wavecost').textContent=ready?'就绪':`${P.charge}/${P.need}`;
+  $('#stav').textContent=Math.round(P.sta); $('#stab').innerHTML=bar(P.sta,'#fff',3);
+  const nb=ITEMS.filter(t=>t.pot===BOUND).length; $('#potbelt').textContent=POT[BOUND].s; $('#potbelt').style.opacity=nb?1:.3; $('#potn').textContent=nb;
+}
+function cdv(id,ms){ const c=$(id); if(!c) return; const v=document.createElement('span'); v.className='cdv'; c.appendChild(v); const t0=performance.now(); const f=t=>{const left=ms-(t-t0); if(left<=0||!document.contains(v)){v.remove();return;} v.textContent=(left/1000).toFixed(1); requestAnimationFrame(f);}; requestAnimationFrame(f); }
+let potLock=0,dodgeLock=0;
+function hudKey(k){
+  if(k==='q'&&!potLock){ const it=ITEMS.find(t=>t.pot===BOUND); if(it){ drink(it); potLock=1; cdv('#c-pot',1500); setTimeout(()=>potLock=0,1500); drawBag(); } }
+  if(k==='shift'&&!dodgeLock&&P.sta>=30){ P.sta-=30; dodgeLock=1; cdv('#c-dodge',800); setTimeout(()=>dodgeLock=0,800); }
+  if(k==='1'){ if(P.charge>=P.need){P.charge=0;pushLog('战斗','b','<b>剑气</b> 命中 弩手组长，<b>'+(600+Math.round(Math.random()*200))+'</b>。');} else {P.charge++; pushLog('战斗','','连斩命中，<b>'+(380+Math.round(Math.random()*80))+'</b>。');} }
+  drawUnit();
+}
+function hudInit(){
+  drawLog(); drawUnit();
+
+  $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+  $('#c-atk').onclick=()=>hudKey('1'); $('#c-wave').onclick=()=>hudKey('1'); $('#c-pot').onclick=()=>hudKey('q'); $('#c-dodge').onclick=()=>hudKey('shift');
+}
+setInterval(()=>{ if(cur==='hud'&&P.sta<100){P.sta=Math.min(100,P.sta+4); if($('#stav')){$('#stav').textContent=Math.round(P.sta); $('#stab').innerHTML=bar(P.sta,'#fff',3);}} },200);
+
+/* ---------------- routing ---------------- */
+let cur='hud';
+const FIELD=['hud','inv','relics','map','journal','offer','route','squad','shop','camp','settle','esc'];
+function show(id){
+  cur=id; const s=S[id];
+  stage.style.backgroundImage = s.bg?`url(${IMG(s.bg)})`:'none';
+  stage.innerHTML = s.html();
+  s.init&&s.init();
+  $$('[data-back],[data-home]').forEach(b=>b.onclick=()=>show(b.dataset.home!==undefined?(FIELD.includes(id)?'hud':'base'):(FIELD.includes(id)?'hud':'base')));
+  $$('.pick').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===id));
+  $('#notes').innerHTML = `<div class="note"><h3>MMO 骨架</h3><p>${s.note.mmo}</p></div><div class="note"><h3>方舟元素</h3><p>${s.note.prts}</p></div><div class="note"><h3>数据与规则</h3><p>${s.note.data}</p></div>`;
+  try{ history.replaceState(null,'','#'+id);}catch(e){}
+}
+function buildPicker(){
+  const g={}; Object.entries(S).forEach(([id,s])=>(g[s.grp]=g[s.grp]||[]).push([id,s.name]));
+  $('#picker').innerHTML=Object.entries(g).map(([n,l])=>`<div class="grp"><span>${n}</span><div>${l.map(([id,t])=>`<button class="pick" data-s="${id}">${t}</button>`).join('')}</div></div>`).join('');
+  $$('.pick').forEach(b=>b.onclick=()=>show(b.dataset.s));
+}
+function fit(){ const k=wrap.clientWidth/1280; stage.style.transform=`scale(${k})`; wrap.style.height=(720*k)+'px'; }
+window.addEventListener('resize',fit);
+const HOT={i:'inv',c:'inv',r:'relics',m:'map',j:'journal'};
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  const k=e.key.toLowerCase();
+  if(k==='escape'){ show(cur==='hud'?'esc':FIELD.includes(cur)?'hud':(cur==='base'?'esc':'base')); e.preventDefault(); return; }
+  if(HOT[k]&&FIELD.includes(cur)){ show(cur===HOT[k]?'hud':HOT[k]); return; }
+  if(cur==='hud'&&['q','shift','1'].includes(k)) hudKey(k);
+});
+buildPicker(); fit();
+const start=(location.hash||'').slice(1); show(S[start]?start:'hud');
+</script>

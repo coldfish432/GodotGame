@@ -1,0 +1,33 @@
+batch_R4_v1 generated icon validation
+
+PASS is4_127: {"opaque_colors": 24, "alpha_binary": true, "bbox": [6, 4, 66, 68], "bright_fraction": 0.435, "largest_interior_color_fraction": 0.08}
+PASS is3_122: {"opaque_colors": 23, "alpha_binary": true, "bbox": [4, 12, 68, 60], "bright_fraction": 0.821, "largest_interior_color_fraction": 0.073}
+PASS is3_123: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 11, 68, 60], "bright_fraction": 0.303, "largest_interior_color_fraction": 0.082}
+PASS is6_270: {"opaque_colors": 24, "alpha_binary": true, "bbox": [10, 4, 61, 68], "bright_fraction": 0.234, "largest_interior_color_fraction": 0.082}
+PASS is6_269: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 8, 68, 64], "bright_fraction": 0.246, "largest_interior_color_fraction": 0.065}
+PASS is3_125: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 10, 68, 61], "bright_fraction": 0.198, "largest_interior_color_fraction": 0.093}
+PASS is2_pcs01: {"opaque_colors": 23, "alpha_binary": true, "bbox": [7, 4, 65, 68], "bright_fraction": 0.177, "largest_interior_color_fraction": 0.111}
+PASS is5_215: {"opaque_colors": 23, "alpha_binary": true, "bbox": [8, 4, 63, 68], "bright_fraction": 0.174, "largest_interior_color_fraction": 0.098}
+PASS is2_096: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 4, 67, 68], "bright_fraction": 0.284, "largest_interior_color_fraction": 0.081}
+PASS is2_197: {"opaque_colors": 23, "alpha_binary": true, "bbox": [11, 4, 60, 68], "bright_fraction": 0.198, "largest_interior_color_fraction": 0.115}
+PASS is2_165: {"opaque_colors": 24, "alpha_binary": true, "bbox": [9, 4, 62, 68], "bright_fraction": 0.165, "largest_interior_color_fraction": 0.077}
+PASS is2_166: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 9, 68, 63], "bright_fraction": 0.238, "largest_interior_color_fraction": 0.105}
+PASS is2_167: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 4, 67, 68], "bright_fraction": 0.287, "largest_interior_color_fraction": 0.081}
+PASS is4_129: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 12, 68, 60], "bright_fraction": 0.185, "largest_interior_color_fraction": 0.071}
+PASS is2_064: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 7, 68, 65], "bright_fraction": 0.197, "largest_interior_color_fraction": 0.113}
+PASS is2_065: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 6, 68, 65], "bright_fraction": 0.164, "largest_interior_color_fraction": 0.11}
+PASS is2_066: {"opaque_colors": 24, "alpha_binary": true, "bbox": [6, 4, 66, 68], "bright_fraction": 0.316, "largest_interior_color_fraction": 0.077}
+PASS is2_073: {"opaque_colors": 24, "alpha_binary": true, "bbox": [10, 4, 61, 68], "bright_fraction": 0.16, "largest_interior_color_fraction": 0.077}
+PASS is2_074: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 13, 68, 59], "bright_fraction": 0.25, "largest_interior_color_fraction": 0.083}
+PASS is2_075: {"opaque_colors": 24, "alpha_binary": true, "bbox": [16, 4, 55, 68], "bright_fraction": 0.248, "largest_interior_color_fraction": 0.121}
+PASS is2_217: {"opaque_colors": 24, "alpha_binary": true, "bbox": [14, 4, 58, 68], "bright_fraction": 0.281, "largest_interior_color_fraction": 0.082}
+PASS is2_205: {"opaque_colors": 24, "alpha_binary": true, "bbox": [12, 4, 60, 68], "bright_fraction": 0.166, "largest_interior_color_fraction": 0.072}
+PASS is4_130: {"opaque_colors": 24, "alpha_binary": true, "bbox": [7, 4, 65, 68], "bright_fraction": 0.168, "largest_interior_color_fraction": 0.082}
+PASS is6_102: {"opaque_colors": 24, "alpha_binary": true, "bbox": [10, 4, 61, 68], "bright_fraction": 0.311, "largest_interior_color_fraction": 0.067}
+PASS is2_173: {"opaque_colors": 23, "alpha_binary": true, "bbox": [4, 14, 68, 57], "bright_fraction": 0.203, "largest_interior_color_fraction": 0.083}
+PASS is4_246: {"opaque_colors": 24, "alpha_binary": true, "bbox": [12, 4, 59, 68], "bright_fraction": 0.183, "largest_interior_color_fraction": 0.092}
+PASS is2_174: {"opaque_colors": 24, "alpha_binary": true, "bbox": [12, 4, 59, 68], "bright_fraction": 0.206, "largest_interior_color_fraction": 0.067}
+PASS is4_256: {"opaque_colors": 24, "alpha_binary": true, "bbox": [4, 6, 68, 65], "bright_fraction": 0.428, "largest_interior_color_fraction": 0.07}
+PASS is3_006: {"opaque_colors": 24, "alpha_binary": true, "bbox": [7, 4, 65, 68], "bright_fraction": 0.471, "largest_interior_color_fraction": 0.093}
+PASS is4_257: {"opaque_colors": 23, "alpha_binary": true, "bbox": [4, 10, 68, 62], "bright_fraction": 0.173, "largest_interior_color_fraction": 0.192}
+PASS is2_078: {"opaque_colors": 21, "alpha_binary": true, "bbox": [3, 17, 69, 54], "bright_fraction": 0.273, "largest_interior_color_fraction": 0.111}

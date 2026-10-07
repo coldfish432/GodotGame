@@ -27,7 +27,7 @@ func run() -> void:
 	root.add_child(rig)
 	await frames(20)
 	game = find_game(rig)
-	game.gold = 900
+	game.gold = 90000
 	game._grant(0, 60)   # R2
 	game.base.contamination = 46
 	var rng := RandomNumberGenerator.new()

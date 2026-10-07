@@ -166,6 +166,7 @@ func _build_visual() -> void:
 	_health_bar = EnemyHealthBar.new()
 	_health_bar.position.y = height + 0.02
 	add_child(_health_bar)
+	_health_bar.visible = false  # drawn by the HUD instead (界面策划案 §2.6)
 	_glint = EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * PIXEL, Color.WHITE)
 	_glint.material_override.no_depth_test = true
 	_glint.material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -657,7 +658,7 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 		remove_from_group("enemies")
 		remove_from_group("guards")
 		if is_instance_valid(game):
-			game.spawn_loot(global_position)
+			game.spawn_enemy_drops(self)
 		died.emit(self)
 		queue_free()
 	elif is_instance_valid(game) and state != State.RETURNING:

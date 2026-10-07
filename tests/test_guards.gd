@@ -46,7 +46,8 @@ func run() -> void:
 		game.player.invulnerable = true
 		await step(3)
 		var posts := get_nodes_in_group("guard_posts")
-		check(region + " all search points and devices have a guard squad", posts.size() == game.world_map.cache_positions.size() + 2 and posts.all(func(p): return p.guards.size() == 2))
+		# One device post now: gilding (and its guards) is gone (保全系统修订案); squads and 坎诺特 are unguarded.
+		check(region + " all search points and devices have a guard squad", posts.size() == game.world_map.cache_positions.size() + 1 and posts.all(func(p): return p.guards.size() == 2))
 		var reachable := true
 		for post in posts:
 			for guard in post.guards:

@@ -66,7 +66,7 @@ func run() -> void:
 	for i in range(14):
 		var loot := FieldCatalog.roll_item("snow", 4, rng, 1.5)
 		if i == 2: loot.insured = true
-		if i == 3: loot.gilded = true
+		if i == 3: loot.insured = true
 		game.inventory.try_add(loot)
 	var shield := FieldCatalog.exclusive("city")
 	game.safe_bag.try_add(FieldCatalog.exclusive("snow"))

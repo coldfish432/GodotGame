@@ -91,7 +91,7 @@ func run() -> void:
 		check("Lappland walks from arrival to " + id + " (%.1fs)" % (frames / 60.0), game.nearby_station().get("id", "") == id)
 		game.player.clear_move_target()
 
-	for kind_station in [["stash", "仓管台 / 仓库"], ["workbench", "整备台 / 装备"], ["reception", "医疗前台 / 回收报告与治疗"], ["logistics", "后勤柜台 / 出战准备"], ["store", "可露希尔的商店"]]:
+	for kind_station in [["stash", "仓管台"], ["workbench", "整备台"], ["reception", "医疗部"], ["logistics", "后勤柜台"], ["store", "可露希尔的商店"]]:
 		var station := base.station(kind_station[0])
 		game.player.teleport(station.position)
 		await step(1)
@@ -188,10 +188,22 @@ func run() -> void:
 	await step(2)
 	check("death returns to the medical recovery bed", game.in_base and flat(game.player.global_position).distance_to(flat(base.spawn_point("death"))) < 0.1)
 	game.open_station("report")
-	check("medical report lists the recovery", _has_label(game.menu, "上一份合同 / 回收明细") or _has_label(game.menu, "暂无回收记录。"))
+	check("medical report lists the recovery", _has_label(game.menu, "回收明细"))
 	game.close_modal()
 	game.player.teleport(base.spawn_point("arrival"))
 	check("camera stays inside the hall near its south edge", game.camera_target().z > base.spawn_point("arrival").z + 5.0)
+	# A dash in the hall leaves afterimages that fade, not ghosts that stay
+	# (用户 2026-10-07).
+	game.player.stamina = 100
+	game.player._dash_cooldown = 0
+	Input.action_press("dash")
+	await physics_frame
+	await physics_frame
+	Input.action_release("dash")
+	var ghosts := func(): return game.get_children().filter(func(n): return n is CombatVfx and n.kind == "ghost").size()
+	var made: int = ghosts.call()
+	for i in range(60): await process_frame
+	check("dash afterimages in the base fade (%d made)" % made, made > 0 and ghosts.call() == 0)
 	print("BASE SCENE FAILURES: %d" % failures)
 	quit(1 if failures else 0)
 

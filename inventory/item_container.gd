@@ -35,12 +35,20 @@ func try_add(item: Item) -> bool:
 				return true
 	return false
 
+## Whether `item` would fit somewhere right now (no rotation).
+func can_fit(item: Item) -> bool:
+	if item == null: return false
+	for y in range(height - item.height + 1):
+		for x in range(width - item.width + 1):
+			if can_place(item, x, y): return true
+	return false
+
 func remove(item: Item) -> void:
 	items.erase(item)
 
 func last_equipment() -> Item:
 	for i in range(items.size() - 1, -1, -1):
-		if items[i].is_equippable() and not items[i].gilded:
+		if items[i].is_equippable():
 			return items[i]
 	return null
 
@@ -52,11 +60,46 @@ func take_all() -> Array[Item]:
 func is_empty() -> bool:
 	return items.is_empty()
 
+## Moving a stack merges it into matching stacks first; if only part of it
+## fits, the rest stays here and the move counts as done.
 func transfer_to(item: Item, target: ItemContainer) -> bool:
-	if target == self or not items.has(item) or not target.try_add(item):
+	if target == self or not items.has(item): return false
+	if item.is_stackable():
+		var before := item.quantity
+		target.merge_into(item)
+		if item.quantity <= 0:
+			remove(item)
+			return true
+		items.erase(item)
+		var placed := target.try_add(item)
+		if not placed: items.append(item)
+		return placed or item.quantity < before
+	if not target.try_add(item):
 		return false
 	remove(item)
 	return true
+
+## Pours a stack into this container's matching stacks; `item` keeps what is left.
+func merge_into(item: Item) -> void:
+	if not item.is_stackable(): return
+	for other in items:
+		if item.quantity <= 0: return
+		if other.can_stack_with(item): other.absorb(item)
+
+## Picks up a stack: merges first, then takes a new cell for the rest.
+## Returns how many units are left over (0 when it all fit).
+func add_stack(item: Item) -> int:
+	if not item.is_stackable(): return 0 if try_add(item) else item.quantity
+	merge_into(item)
+	if item.quantity <= 0: return 0
+	return 0 if try_add(item) else item.quantity
+
+## Units of a material held here.
+func count_material(id: String) -> int:
+	var total := 0
+	for item in items:
+		if item.material_id == id: total += item.quantity
+	return total
 
 func occupied_cells() -> int:
 	var total := 0

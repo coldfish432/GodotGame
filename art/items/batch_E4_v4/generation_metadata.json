@@ -1,0 +1,34 @@
+{
+  "generator": "built-in image_gen",
+  "transparent_background": true,
+  "revision_brief": "../E4_revision_v4.md",
+  "edits": [
+    {
+      "id": "raw_originium",
+      "prompt": "Use case: precise-object-edit. Asset: pixel-art inventory sprite, crisp native pixel shapes, flat front view, top-left light, transparent background. No perspective, soft effects, shadow, halo, readable text, logo, emblem or decoration. Repaint this 32x72 portrait specimen completely for better readability. Replace the thin noisy many-spike pile with EXACTLY FIVE BIG BLACK ANGULAR CRYSTALS fanning broadly out from a compact grey-brown host rock base. The fan nearly touches BOTH sides of the 32px width: two large diagonal left/right shards plus a biggest upright central shard, and two secondary shards. Sparse, large, broad flat facets, each one flat charcoal #0b0c0d/#2a2d33 or warm dark #4a2a1d plane. NO small crystal splinters, NO little white dots, NO grey quartz. Exactly ONE thin CONTINUOUS WHITE EDGE LINE on each of the five crystals, #eef3f5, total about 40–60 native pixels across all lines; no white faces or scattered white glitter. Concentrate orange-red INTERNAL glow inside the largest central crystal core: a tiny hollow glowing 3x3 square with a dark center and just ONE or TWO short inner cracks. Glow #b85a12/#ee8a24/#ffb35a only inside fissures. Preserve grey-brown rock base #2a2d33/#4a5058/#5a4d3a. Tall, broad, hazardous, solid black shiny ore, simple 1px outline; designed to read at actual 32x72 pixels.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-bffed9fe-a2e4-42eb-932a-117c3cc87eb0.png",
+      "input": "../batch_E4_v3/raw_originium_8x.png",
+      "source": "sources/raw_originium_source.png",
+      "source_sha256": "a56440440efc3d9c969ff1a00b1bcf198b5e4a2f41f32e069b1f40a2b3e4fdcf",
+      "input_sha256": "daa1e97a6b6c9fc4bdbb931d65a26ed1e69340f5bb3ac0ca7944d83f39c45ba7"
+    },
+    {
+      "id": "crystal_edge",
+      "prompt": "Use case: precise-object-edit. Asset: pixel-art inventory sprite, crisp native pixel shapes, flat front view, top-left light, transparent background. No perspective, soft effects, shadow, halo, readable text, logo, emblem or decoration. Change ONLY ore coverage. Keep taped LEFT grip, iron guard/pommel, horizontal Kindjal blade, pointed RIGHT tip, visible steel spine, black angular shard style, internal orange cracks and the hollow core square. Ore must cover only 40–50% of BOTH cutting edges, not the whole blade. Place one larger fused black crust on the front half toward the tip, and just ONE or TWO SMALL SEPARATE clumps nearer the guard. RESTORE the remaining majority of both edges to CLEAN BRIGHT STEEL, with a continuous silver highlight along EACH exposed segment and broad simple steel faces. No little scattered chips between clumps. Largest tip crust retains a tiny orange hollow square, dark center, and inside orange fissures only. Black facets #0b0c0d/#2a2d33/#4a2a1d, sparse white continuous facet edges #eef3f5; steel #4a5058/#7d868e/#b4bec4/#eef3f5. No crystal club silhouette. Keep the middle steel ridge clear across most blade length. Native 72x32 landscape.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-ebaa1a8e-e628-43c8-a32e-c92d27665610.png",
+      "input": "../batch_E4_v3/crystal_edge_8x.png",
+      "source": "sources/crystal_edge_source.png",
+      "source_sha256": "4acf4d2b89a310070c037e1dd2f6a0b757bacb7b341c3b1bfcf1d0b724483e8a",
+      "input_sha256": "4737bdcaa05015e7706c5d23998ae1f9fb105e3e256ad8b27632c0edf1b0ec65"
+    },
+    {
+      "id": "spike_plate",
+      "prompt": "Use case: precise-object-edit. Asset: pixel-art inventory sprite, crisp native pixel shapes, flat front view, top-left light, transparent background. No perspective, soft effects, shadow, halo, readable text, logo, emblem or decoration. Material-local repaint only. Preserve the EXACT accepted silhouette, all spike shapes, dark iron plate planes, canvas straps and hardware. REMOVE all thin orange-brown rust LINES tracing plate boundaries. Restore plate seams/edges to STEEL edge highlights #7d868e/#b4bec4. Rust is now only a SMALL NUMBER of irregular compact 2–4 native pixel BLOTCHES at a few plate corners, rivets, and lower edge. Patch bases #4a2a1d and #7d4529, only a FEW #b06a3a rust highlight pixels. No connected warm lines, no lava-like cracks, no warm luminous seams. Preserve top-left lighting, dark iron #2a2d33/#4a5058/#7d868e and pale canvas straps. White #eef3f5 only current spike tips and few glints. Native72x72.",
+      "output": "C:\\Users\\yuan\\.codex\\generated_images\\01a1089a-e0df-7f72-b5f5-f333131ee0eb\\exec-162767ea-6940-4ae1-b2a7-482d68d78be9.png",
+      "input": "../batch_E4_v3/spike_plate_8x.png",
+      "source": "sources/spike_plate_source.png",
+      "source_sha256": "d1f1bedb2c3d13f232f5242c0cd2f69b27e4a5aa8157fda5c6a975ed815083ce",
+      "input_sha256": "2c7062912001c0a3c6b88b4e4ad58966ad04be8ef1587f0546ec429421fd2c27"
+    }
+  ]
+}

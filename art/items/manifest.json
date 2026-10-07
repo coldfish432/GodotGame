@@ -1,0 +1,879 @@
+{
+  "source": "装备策划案_v1_0.md §§3-6",
+  "batches": [
+    "E1",
+    "E2",
+    "E3",
+    "E4"
+  ],
+  "contact_sheet": "contact_sheet.png",
+  "items": [
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "modified_machete",
+      "name": "改装砍刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "modified_machete.png",
+      "preview": "modified_machete_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "wide straight steel-plate machete, weld, taped grip"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "standard_dagger",
+      "name": "制式短刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "standard_dagger.png",
+      "preview": "standard_dagger_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "narrow short blade, standard guard, filed nameplate"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "mine_issue_blade",
+      "name": "矿区制式刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "mine_issue_blade.png",
+      "preview": "mine_issue_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "plain straight blade, wood handle, iron ferrule"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "patrol_saber",
+      "name": "纠察队佩刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "patrol_saber.png",
+      "preview": "patrol_saber_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "slightly curved saber, brass half-bow guard, red root"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "pickhaft_blade",
+      "name": "镐柄战刃",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "pickhaft_blade.png",
+      "preview": "pickhaft_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "long haft, short heavy edge, hooked half-pick"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "miner_vest",
+      "name": "矿工护甲",
+      "region": "mine",
+      "kind": "armor",
+      "file": "miner_vest.png",
+      "preview": "miner_vest_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "canvas vest, leather shoulders, blank white cloth patch, unlit lamp"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "reunion_coat",
+      "name": "整合运动制式外套",
+      "region": "mine",
+      "kind": "armor",
+      "file": "reunion_coat.png",
+      "preview": "reunion_coat_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "dark hooded coat, red left armband, torn hem"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "patrol_winter_coat",
+      "name": "纠察队防寒大衣",
+      "region": "mine",
+      "kind": "armor",
+      "file": "patrol_winter_coat.png",
+      "preview": "patrol_winter_coat_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "double-breasted gray-green coat, fur collar, torn epaulette"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "heavy_mine_suit",
+      "name": "矿场重型防护服",
+      "region": "mine",
+      "kind": "armor",
+      "file": "heavy_mine_suit.png",
+      "preview": "heavy_mine_suit_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "bulky sealed suit, round filter, yellow hazard shoulder"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "dust_mask",
+      "name": "防尘面罩",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "dust_mask.png",
+      "preview": "dust_mask_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "front half-mask, two round filters, broken head strap"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "liquor_flask",
+      "name": "烈酒扁壶",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "liquor_flask.png",
+      "preview": "liquor_flask_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "curved metal flask, neck cord, dent"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "reunion_mask",
+      "name": "整合运动面具",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "reunion_mask.png",
+      "preview": "reunion_mask_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "white full-face mask, two horizontal eye slits, crack"
+    },
+    {
+      "batch": "E1",
+      "directory": "batch_E1_v1",
+      "id": "originium_meter",
+      "name": "源石感应计",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "originium_meter.png",
+      "preview": "originium_meter_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "originium_meter_emit.png",
+      "description": "small gauge box, needle at maximum, orange lamp"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "finger_blade",
+      "name": "指刃",
+      "region": "city",
+      "kind": "weapon",
+      "file": "finger_blade.png",
+      "preview": "finger_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "knuckle grip with four visible holes, short blade"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "gang_machete",
+      "name": "帮派砍刀",
+      "region": "city",
+      "kind": "weapon",
+      "file": "gang_machete.png",
+      "preview": "gang_machete_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "broad tip, narrow root, red cord on butt"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "lgd_knife",
+      "name": "近卫局警用刀",
+      "region": "city",
+      "kind": "weapon",
+      "file": "lgd_knife.png",
+      "preview": "lgd_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "straight service knife, black grip, three non-text dots"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "courier_dagger",
+      "name": "押运短刃",
+      "region": "city",
+      "kind": "weapon",
+      "file": "courier_dagger.png",
+      "preview": "courier_dagger_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "single edge short knife, nylon strap and sheath clasp"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "yan_ring_saber",
+      "name": "炎式环首刀",
+      "region": "city",
+      "kind": "weapon",
+      "file": "yan_ring_saber.png",
+      "preview": "yan_ring_saber_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "slender straight blade, ring pommel, red tassel, fuller"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "lgd_vest",
+      "name": "近卫局制式护甲",
+      "region": "city",
+      "kind": "armor",
+      "file": "lgd_vest.png",
+      "preview": "lgd_vest_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "navy vest, two reflective bars, abstract shoulder patch"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "fire_suit",
+      "name": "消防署隔热服",
+      "region": "city",
+      "kind": "armor",
+      "file": "fire_suit.png",
+      "preview": "fire_suit_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "pale foil coat, yellow sleeve and hem bands, scorched corner"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "courier_vest",
+      "name": "押运防弹背心",
+      "region": "city",
+      "kind": "armor",
+      "file": "courier_vest.png",
+      "preview": "courier_vest_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "black plate carrier, three pouches, one empty slot"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "inspector_armor",
+      "name": "特别督察组战术护甲",
+      "region": "city",
+      "kind": "armor",
+      "file": "inspector_armor.png",
+      "preview": "inspector_armor_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "full tactical chest, shoulders, neck, red ID bar"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "tactical_charm",
+      "name": "战术挂饰",
+      "region": "city",
+      "kind": "trinket",
+      "file": "tactical_charm.png",
+      "preview": "tactical_charm_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "tactical_charm_emit.png",
+      "description": "short webbing, D ring, tiny flashlight"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "lgd_radio",
+      "name": "近卫局对讲机",
+      "region": "city",
+      "kind": "trinket",
+      "file": "lgd_radio.png",
+      "preview": "lgd_radio_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "lgd_radio_emit.png",
+      "description": "upright radio, short antenna, green status lamp"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "lungmen_wallet",
+      "name": "龙门币钱夹",
+      "region": "city",
+      "kind": "trinket",
+      "file": "lungmen_wallet.png",
+      "preview": "lungmen_wallet_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "leather wallet, brass clasp, blank golden slip"
+    },
+    {
+      "batch": "E2",
+      "directory": "batch_E2_v1",
+      "id": "yan_talisman",
+      "name": "炎式平安符",
+      "region": "city",
+      "kind": "trinket",
+      "file": "yan_talisman.png",
+      "preview": "yan_talisman_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "red cloth charm, gold round motif, tassel, no glyph"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "icebreaker_knife",
+      "name": "破冰刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "icebreaker_knife.png",
+      "preview": "icebreaker_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "thick short chisel tip, white frost flecks"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "skinning_knife",
+      "name": "猎刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "skinning_knife.png",
+      "preview": "skinning_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "thin skinning blade with upswept tip, hide cord"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "antler_hunter_knife",
+      "name": "角柄猎刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "antler_hunter_knife.png",
+      "preview": "antler_hunter_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "straight edge, curved antler grip, tiny woven tape"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "expedition_machete",
+      "name": "科考队开路刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "expedition_machete.png",
+      "preview": "expedition_machete_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "modern sawback machete, orange plastic guard"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "snowpriest_blade",
+      "name": "雪祀礼刃",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "snowpriest_blade.png",
+      "preview": "snowpriest_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "snowpriest_blade_emit.png",
+      "description": "long curved blade, ivory grip, three-color tape, ice marks"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "tundra_fur_coat",
+      "name": "冰原毛皮外套",
+      "region": "snow",
+      "kind": "armor",
+      "file": "tundra_fur_coat.png",
+      "preview": "tundra_fur_coat_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "thick leather coat with jagged fur collar"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "sled_patrol_cloak",
+      "name": "雪橇巡逻队斗篷",
+      "region": "snow",
+      "kind": "armor",
+      "file": "sled_patrol_cloak.png",
+      "preview": "sled_patrol_cloak_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "white hooded cape with red and yellow hem"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "expedition_parka",
+      "name": "科考队防寒服",
+      "region": "snow",
+      "kind": "armor",
+      "file": "expedition_parka.png",
+      "preview": "expedition_parka_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "orange puffer coat with reflective bars and high zip"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "bone_lamellar",
+      "name": "骨片札甲",
+      "region": "snow",
+      "kind": "armor",
+      "file": "bone_lamellar.png",
+      "preview": "bone_lamellar_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "rows of bone armor tied with leather, scapula shoulders"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "bone_amulet",
+      "name": "骨制护符",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "bone_amulet.png",
+      "preview": "bone_amulet_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "small perforated bone on cord, three scratches"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "antler_flute",
+      "name": "角兽骨笛",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "antler_flute.png",
+      "preview": "antler_flute_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "short bone flute, three holes, colorful end tape"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "bone_drumstick",
+      "name": "兽骨鼓槌",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "bone_drumstick.png",
+      "preview": "bone_drumstick_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "wooden shaft, bone mallet head, hide strip and feather"
+    },
+    {
+      "batch": "E3",
+      "directory": "batch_E3_v1",
+      "id": "cipher_fragment",
+      "name": "密文板残片",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "cipher_fragment.png",
+      "preview": "cipher_fragment_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "cipher_fragment_emit.png",
+      "description": "jagged stone tablet with abstract blue-white grooves"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "raw_originium",
+      "name": "未封装源石原矿",
+      "region": "mine",
+      "kind": "ore",
+      "file": "raw_originium.png",
+      "preview": "raw_originium_8x.png",
+      "native_size": [
+        16,
+        36
+      ],
+      "has_emit": true,
+      "emit_file": "raw_originium_emit.png",
+      "description": "vertical dark ore rock, orange crystal prisms and chips"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "riot_shield",
+      "name": "近卫局暴动盾",
+      "region": "city",
+      "kind": "shield",
+      "file": "riot_shield.png",
+      "preview": "riot_shield_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "front rectangular riot shield, blue viewport, reflection, scratches"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "frozen_relic",
+      "name": "冻土下的旧物",
+      "region": "snow",
+      "kind": "relic",
+      "file": "frozen_relic.png",
+      "preview": "frozen_relic_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "carved bone piece half frozen in ice block"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "lord_blade",
+      "name": "领主宽刃",
+      "region": "city",
+      "kind": "weapon",
+      "file": "lord_blade.png",
+      "preview": "lord_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "extremely wide almost square blade, transverse scuffs"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "twin_fang",
+      "name": "双生狼牙",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "twin_fang.png",
+      "preview": "twin_fang_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "twin_fang_emit.png",
+      "description": "two crossed curved blades, white glints"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "ember_fang",
+      "name": "余烬之牙",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "ember_fang.png",
+      "preview": "ember_fang_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "ember_fang_emit.png",
+      "description": "single blade with dark red-orange ember ridge"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "moon_edge",
+      "name": "月下刃",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "moon_edge.png",
+      "preview": "moon_edge_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "moon_edge_emit.png",
+      "description": "fine curved blade with continuous cold-white highlight"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "crystal_edge",
+      "name": "源石结晶刃",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "crystal_edge.png",
+      "preview": "crystal_edge_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "crystal_edge_emit.png",
+      "description": "blade broken by two orange crystal clusters"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "vein_core",
+      "name": "共振矿芯",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "vein_core.png",
+      "preview": "vein_core_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "vein_core_emit.png",
+      "description": "metal frame, orange crystal core, three vibration marks"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "shadow_bracer",
+      "name": "残影护腕",
+      "region": "city",
+      "kind": "trinket",
+      "file": "shadow_bracer.png",
+      "preview": "shadow_bracer_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "front wrist guard with displaced dark afterimage"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "spike_plate",
+      "name": "尖刺重铠",
+      "region": "mine",
+      "kind": "armor",
+      "file": "spike_plate.png",
+      "preview": "spike_plate_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "heavy iron plate with shoulder and chest spikes"
+    },
+    {
+      "batch": "E4",
+      "directory": "batch_E4_v1",
+      "id": "bash_shield",
+      "name": "反击塔盾",
+      "region": "city",
+      "kind": "shield",
+      "file": "bash_shield.png",
+      "preview": "bash_shield_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "tall tower shield, protruding steel boss, red rim"
+    }
+  ]
+}

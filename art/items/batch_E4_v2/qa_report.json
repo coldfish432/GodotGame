@@ -1,0 +1,159 @@
+{
+  "result": "PASS",
+  "item_count": 12,
+  "emit_count": 6,
+  "checks": [
+    "native sizes",
+    "binary alpha",
+    "approved palette, <=24 colors",
+    ">=15% bright pixels",
+    "<=25% largest color",
+    "<=10% isolated pixels in broad interiors",
+    "exact nearest-neighbor 8x and 2x",
+    "emit pixels equal base pixels",
+    "effect continuity and mineral-only originium ramp"
+  ],
+  "thin_detail_note": "Twin fang and ember fang exceed 10% across all pixels because of thin outlines, guards and ember details; their broad interiors are below 10%.",
+  "items": [
+    {
+      "id": "raw_originium",
+      "color_count": 10,
+      "isolated_pixel_percent": 6.93,
+      "interior_isolated_pixel_percent": 3.98,
+      "bright_pixel_percent": 26.49,
+      "largest_color_percent": 24.9,
+      "emit_component_sizes": [
+        70,
+        28,
+        25,
+        8,
+        1,
+        1
+      ],
+      "sha256": "4e1420008b1c22c17783ed4d5d80b03c2812258fe4146ca02106b81b9f209731"
+    },
+    {
+      "id": "riot_shield",
+      "color_count": 11,
+      "isolated_pixel_percent": 0.3,
+      "interior_isolated_pixel_percent": 0.29,
+      "bright_pixel_percent": 19.73,
+      "largest_color_percent": 14.73,
+      "emit_component_sizes": [],
+      "sha256": "33cb52905c189ae96090000a0ec93ce802389789210af39a252bc19c07ce63db"
+    },
+    {
+      "id": "frozen_relic",
+      "color_count": 9,
+      "isolated_pixel_percent": 3.77,
+      "interior_isolated_pixel_percent": 0.95,
+      "bright_pixel_percent": 47.31,
+      "largest_color_percent": 24.42,
+      "emit_component_sizes": [],
+      "sha256": "4fcaa474a5a0ab9a1a1c3e0bb81f725acbabcf04fe9784b561271d4340cf55d5"
+    },
+    {
+      "id": "lord_blade",
+      "color_count": 12,
+      "isolated_pixel_percent": 1.8,
+      "interior_isolated_pixel_percent": 0.4,
+      "bright_pixel_percent": 32.79,
+      "largest_color_percent": 20.72,
+      "emit_component_sizes": [],
+      "sha256": "47dd0f3291daa2cbb5ffc79c48c45ec7dc8cbebd3a8ec005b9f3c7e9543f7255"
+    },
+    {
+      "id": "twin_fang",
+      "color_count": 11,
+      "isolated_pixel_percent": 11.65,
+      "interior_isolated_pixel_percent": 4.86,
+      "bright_pixel_percent": 36.39,
+      "largest_color_percent": 21.52,
+      "emit_component_sizes": [
+        3,
+        3
+      ],
+      "sha256": "dc24260d10918907d96be5a6c4e8e2ea701dc242763603642ca5a8ee6e149f1d"
+    },
+    {
+      "id": "ember_fang",
+      "color_count": 17,
+      "isolated_pixel_percent": 11.92,
+      "interior_isolated_pixel_percent": 5.58,
+      "bright_pixel_percent": 27.1,
+      "largest_color_percent": 11.67,
+      "emit_component_sizes": [
+        81
+      ],
+      "sha256": "728af9c2e0a84100d314a6cacb5f25d2976062981cc721f202a5b0b09b048c40"
+    },
+    {
+      "id": "moon_edge",
+      "color_count": 13,
+      "isolated_pixel_percent": 6.34,
+      "interior_isolated_pixel_percent": 2.88,
+      "bright_pixel_percent": 37.23,
+      "largest_color_percent": 19.41,
+      "emit_component_sizes": [
+        66
+      ],
+      "sha256": "b49bf78fd5d2f123a0d66acbcec02c844c0d4ac8b63f3d99a933bfbaa8b79747"
+    },
+    {
+      "id": "crystal_edge",
+      "color_count": 14,
+      "isolated_pixel_percent": 6.84,
+      "interior_isolated_pixel_percent": 4.38,
+      "bright_pixel_percent": 19.03,
+      "largest_color_percent": 24.88,
+      "emit_component_sizes": [
+        45,
+        27,
+        23
+      ],
+      "sha256": "86d5b61409ebb90a4df77a627852787cb914ce18bda4d458a126108c6406a00a"
+    },
+    {
+      "id": "vein_core",
+      "color_count": 14,
+      "isolated_pixel_percent": 8.52,
+      "interior_isolated_pixel_percent": 7.09,
+      "bright_pixel_percent": 25.16,
+      "largest_color_percent": 15.8,
+      "emit_component_sizes": [
+        175
+      ],
+      "sha256": "92946052001ab113fdde6869b9ebdb89ce4ff8ff72cafcfd095522b92f34f166"
+    },
+    {
+      "id": "shadow_bracer",
+      "color_count": 11,
+      "isolated_pixel_percent": 6.21,
+      "interior_isolated_pixel_percent": 2.93,
+      "bright_pixel_percent": 21.47,
+      "largest_color_percent": 19.21,
+      "emit_component_sizes": [],
+      "sha256": "3723f0a7ba22cf756baab09dc05443916be8d2afb0d850299e698ff35b93c406"
+    },
+    {
+      "id": "spike_plate",
+      "color_count": 14,
+      "isolated_pixel_percent": 7.3,
+      "interior_isolated_pixel_percent": 5.42,
+      "bright_pixel_percent": 30.95,
+      "largest_color_percent": 15.42,
+      "emit_component_sizes": [],
+      "sha256": "11ae71b37f254e064d5c8e70a1f61ee4ad02b1155945aed0c5bd69709013a38b"
+    },
+    {
+      "id": "bash_shield",
+      "color_count": 18,
+      "isolated_pixel_percent": 3.23,
+      "interior_isolated_pixel_percent": 3.1,
+      "bright_pixel_percent": 15.84,
+      "largest_color_percent": 11.73,
+      "emit_component_sizes": [],
+      "sha256": "3ff02bd30fb041d962a3f65912366e3aa65959cda9189b2a9b3de05b7fdaed52"
+    }
+  ]
+}

@@ -19,6 +19,12 @@ const DIRECTIONS: Array[String] = [
 
 ## One texel per rendered pixel at the game's 640x360 internal resolution
 ## (orthogonal camera size 24 over 360 px => 1 world unit = 15 px).
+## Rows of the walk sheet drawn facing the wrong way, shown as the mirrored
+## opposite instead: the southeast row is painted facing down-left (it is
+## nearly a copy of southwest), so moving down-right showed her looking
+## down-left (用户 2026-10-06).
+const MIRRORED := {"southeast": "southwest"}
+
 const PIXEL_SIZE := 0.06
 const CELL_TEXELS := 32.0
 ## Distance from the body's origin down to the feet — matches the player's
@@ -95,11 +101,17 @@ func _process(delta: float) -> void:
 
 	_update_facing(_screen_angle(direction), delta)
 	if walking:
-		var walk_name := "walk_" + DIRECTIONS[_facing_index]
+		var walk_name := "walk_" + _sheet_direction(_facing_index)
 		if animation != walk_name or not is_playing():
 			play(walk_name)
 	else:
 		_play_idle()
+
+## The sheet row for a facing, flipping the sprite for mirrored rows.
+func _sheet_direction(index: int) -> String:
+	var name := DIRECTIONS[index]
+	flip_h = MIRRORED.has(name)
+	return MIRRORED.get(name, name)
 
 ## World direction -> angle in the sheet's screen-space convention
 ## (x right, y down, so south == +PI/2).
@@ -142,7 +154,7 @@ func _update_facing(angle: float, delta: float) -> void:
 		_turn_timer = turn_step_seconds
 
 func _play_idle() -> void:
-	var idle_name := "idle_" + DIRECTIONS[_facing_index]
+	var idle_name := "idle_" + _sheet_direction(_facing_index)
 	if animation != idle_name:
 		play(idle_name)
 		stop()
@@ -188,7 +200,7 @@ func play_hurt() -> void:
 func start_dash(direction: Vector3) -> void:
 	cancel_action()
 	_facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
-	animation = "walk_" + DIRECTIONS[_facing_index]
+	animation = "walk_" + _sheet_direction(_facing_index)
 	stop()
 	frame = 1
 	modulate = CombatVfx.BLUE

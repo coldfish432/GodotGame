@@ -16,6 +16,16 @@ func check(label: String, passed: bool) -> void:
 func item(name: String, category: Item.Category) -> Item:
 	return Item.create(name, category, 1, 1, 1.0)
 
+
+## Puts `cost` on the shelf (one item per unit for supplies that do not stack).
+func give(game: GameManager, cost: Dictionary) -> void:
+	for id in cost:
+		var left := int(cost[id])
+		while left > 0:
+			var m := MaterialCatalog.create(id, left)
+			game.base.shelf.append(m)
+			left -= m.quantity
+
 func run() -> void:
 	rules()
 	await through_game()
@@ -24,12 +34,12 @@ func run() -> void:
 
 func rules() -> void:
 	var base := BaseState.new()
-	check("racks follow the build order's prices and ranks", BaseCatalog.RACK_PRICES == [0, 60, 90, 140, 140, 140, 200, 200, 200]
+	check("racks follow the build order's prices and ranks", BaseCatalog.RACK_PRICES == [0, 6000, 9000, 14000, 14000, 14000, 20000, 20000, 20000]
 		and BaseCatalog.RACK_RANKS == [0, 1, 1, 2, 2, 2, 3, 3, 3])
-	check("the second rack needs R1", "R1" in base.rack_refusal(Item.Category.WEAPON, 999))
+	check("the second rack needs R1", "R1" in base.rack_refusal(Item.Category.WEAPON, 99999))
 	base.add_prestige(20)
 	check("a rank-up leaves something new to look at", base.unseen_unlocks and base.rank() == 1)
-	check("at R1 with enough gold it can be built", base.rack_refusal(Item.Category.WEAPON, 60).is_empty() and "资金不足" in base.rack_refusal(Item.Category.WEAPON, 59))
+	check("at R1 with enough gold it can be built", base.rack_refusal(Item.Category.WEAPON, 6000).is_empty() and "龙门币不足" in base.rack_refusal(Item.Category.WEAPON, 5999))
 	check("building the second rack: 24 cells", base.build_rack(Item.Category.WEAPON) == 1 and base.capacity(Item.Category.WEAPON) == 24)
 	base.build_rack(Item.Category.WEAPON)
 	check("the middle row needs R2", "R2" in base.rack_refusal(Item.Category.WEAPON, 999))
@@ -89,7 +99,7 @@ func through_game() -> void:
 	game.base.injured = true
 	await step(2)
 	check("the base top bar shows gold, prestige, contamination and injury: " + game._status_bar.text,
-		game._status_bar.visible and "资金" in game._status_bar.text and "声望 R0 · 0/20" in game._status_bar.text and "污染 45 轻度" in game._status_bar.text and "重伤" in game._status_bar.text)
+		game._status_bar.visible and "龙门币" in game._status_bar.text and "声望 R0 · 0/20" in game._status_bar.text and "污染 45 轻度" in game._status_bar.text and "重伤" in game._status_bar.text)
 
 	# Departure card only when there is something to look at.
 	game.request_contract("mine")
@@ -105,7 +115,7 @@ func through_game() -> void:
 	await step(2)
 
 	# Prestige to R1: drone and front-row racks.
-	game.gold = 1000
+	game.gold = 100000
 	check("the drone needs R1", not game.buy_drone())
 	game._grant(0, 20)
 	check("rank-up message names what it opens: " + game.message, "R1" in game.message and "无人机" in game.message)
@@ -113,7 +123,9 @@ func through_game() -> void:
 	game.open_station("stash")
 	game.close_modal()
 	check("opening it clears that", not game.station_needs_attention("stash"))
-	check("build the second weapon rack for 60", game.build_rack(Item.Category.WEAPON) and game.gold == 940 and game.base.racks[Item.Category.WEAPON] == 2)
+	check("without materials the rack is refused", not game.build_rack(Item.Category.WEAPON) and "螺栓" in game.message)
+	give(game, BaseCatalog.RACK_MATERIALS[1])
+	check("build the second weapon rack for 6000 + its materials", game.build_rack(Item.Category.WEAPON) and game.gold == 94000 and game.base.racks[Item.Category.WEAPON] == 2)
 	await step(3)
 	check("the new rack joins the reveal", reveal.built_shelves().size() == 5)
 	var a: Array = view.anchors.zones.weapon
@@ -128,7 +140,8 @@ func through_game() -> void:
 	var query := PhysicsPointQueryParameters3D.new()
 	query.position = Vector3(second.sprites[0].position.x, 1.0, second.sprites[0].position.z) + BaseMap.ORIGIN
 	check("and stands in the way like the first", not space.intersect_point(query).is_empty())
-	check("buy the drone for 150", game.buy_drone() and game.gold == 790 and not game.buy_drone())
+	give(game, BaseCatalog.DRONE_MATERIALS)
+	check("buy the drone for 15000 + its materials", game.material_count("螺栓") == 0 and game.buy_drone() and game.gold == 79000 and not game.buy_drone())
 
 	# Sort everything with the drone.
 	var finds: Array[Item] = []

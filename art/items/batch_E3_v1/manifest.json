@@ -1,0 +1,204 @@
+{
+  "batch": "E3",
+  "source": "装备策划案_v1_0.md §§3-6",
+  "scale": 2,
+  "preview_scale": 8,
+  "palette": "§6.3",
+  "items": [
+    {
+      "id": "icebreaker_knife",
+      "name": "破冰刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "icebreaker_knife.png",
+      "preview": "icebreaker_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "thick short chisel tip, white frost flecks"
+    },
+    {
+      "id": "skinning_knife",
+      "name": "猎刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "skinning_knife.png",
+      "preview": "skinning_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "thin skinning blade with upswept tip, hide cord"
+    },
+    {
+      "id": "antler_hunter_knife",
+      "name": "角柄猎刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "antler_hunter_knife.png",
+      "preview": "antler_hunter_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "straight edge, curved antler grip, tiny woven tape"
+    },
+    {
+      "id": "expedition_machete",
+      "name": "科考队开路刀",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "expedition_machete.png",
+      "preview": "expedition_machete_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "modern sawback machete, orange plastic guard"
+    },
+    {
+      "id": "snowpriest_blade",
+      "name": "雪祀礼刃",
+      "region": "snow",
+      "kind": "weapon",
+      "file": "snowpriest_blade.png",
+      "preview": "snowpriest_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "snowpriest_blade_emit.png",
+      "description": "long curved blade, ivory grip, three-color tape, ice marks"
+    },
+    {
+      "id": "tundra_fur_coat",
+      "name": "冰原毛皮外套",
+      "region": "snow",
+      "kind": "armor",
+      "file": "tundra_fur_coat.png",
+      "preview": "tundra_fur_coat_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "thick leather coat with jagged fur collar"
+    },
+    {
+      "id": "sled_patrol_cloak",
+      "name": "雪橇巡逻队斗篷",
+      "region": "snow",
+      "kind": "armor",
+      "file": "sled_patrol_cloak.png",
+      "preview": "sled_patrol_cloak_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "white hooded cape with red and yellow hem"
+    },
+    {
+      "id": "expedition_parka",
+      "name": "科考队防寒服",
+      "region": "snow",
+      "kind": "armor",
+      "file": "expedition_parka.png",
+      "preview": "expedition_parka_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "orange puffer coat with reflective bars and high zip"
+    },
+    {
+      "id": "bone_lamellar",
+      "name": "骨片札甲",
+      "region": "snow",
+      "kind": "armor",
+      "file": "bone_lamellar.png",
+      "preview": "bone_lamellar_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "rows of bone armor tied with leather, scapula shoulders"
+    },
+    {
+      "id": "bone_amulet",
+      "name": "骨制护符",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "bone_amulet.png",
+      "preview": "bone_amulet_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "small perforated bone on cord, three scratches"
+    },
+    {
+      "id": "antler_flute",
+      "name": "角兽骨笛",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "antler_flute.png",
+      "preview": "antler_flute_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "short bone flute, three holes, colorful end tape"
+    },
+    {
+      "id": "bone_drumstick",
+      "name": "兽骨鼓槌",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "bone_drumstick.png",
+      "preview": "bone_drumstick_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "wooden shaft, bone mallet head, hide strip and feather"
+    },
+    {
+      "id": "cipher_fragment",
+      "name": "密文板残片",
+      "region": "snow",
+      "kind": "trinket",
+      "file": "cipher_fragment.png",
+      "preview": "cipher_fragment_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "cipher_fragment_emit.png",
+      "description": "jagged stone tablet with abstract blue-white grooves"
+    }
+  ]
+}

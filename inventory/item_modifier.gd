@@ -121,7 +121,7 @@ func describe() -> String:
 		Stat.GOLD_GAIN_PCT:
 			return "金币获取 %+.0f%%" % (amount * 100.0)
 		Stat.POTION_CAPACITY_FLAT:
-			return "药瓶上限 %+d" % int(amount)
+			return "药剂回复 %+d%%" % roundi(amount * BaseCatalog.POTION_HEAL_PER_CAP * 100.0)
 		Stat.ATTACK_SPEED_PCT:
 			return "攻速 %+.0f" % (amount * 100.0)
 		Stat.ATK_PCT:

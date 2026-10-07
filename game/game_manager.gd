@@ -10,23 +10,23 @@ const ENEMY_PICK_MASK := 4  # matches Enemy.PICK_LAYER
 @export var fixed_map_seed: int = 0
 
 var floor_number: int = 1
-## Flasks carried on this contract, by type, in the order Q uses them (§4.3).
-var potion_belt: Array[String] = ["A", "A", "A"]
-## Flasks left. Setting it trims the belt from the end or tops it up with standard flasks.
+## Flasks are pack items that take a cell (药剂进背包, 用户 2026-10-05): this is
+## how many she carries, pack and safe bag. Setting it replaces them with that
+## many 标准急救剂 in the pack (tests and debug use).
 var potions: int:
-	get: return potion_belt.size()
-	set(value):
-		while potion_belt.size() < value: potion_belt.append("A")
-		potion_belt.resize(maxi(value, 0))
+	get: return carried_potions().size()
+	set(value): _set_standard_potions(value)
+## Q drinks the first of these she carries (标准急救剂 first).
+const POTION_ORDER := ["A", "B", "C"]
 ## Contamination taken on this contract so far (§4.1); added to the base's at settlement.
 var run_contamination := 0.0
-var _run_extra_potion := false
 var _slow_heal_left := 0.0       # 缓释凝胶: health still to come
 var _slow_heal_rate := 0.0
 var _suppress_timer := 0.0       # 抑制喷剂: contamination accrues at half rate meanwhile
 var _potion_heal_factor := 1.0   # contamination tier at departure
 var _announced_tier := 0
-var gold: int = 60
+## 龙门币, the account balance (经济修订案: the only out-of-run money).
+var gold: int = Economy.STARTING_LMD
 var message: String = ""
 var message_timer: float = 5.0
 
@@ -60,6 +60,13 @@ var camera: Camera3D
 var ui_root: Node = null
 
 var _hud: Hud
+var field_panels: FieldPanels
+## The bag as it came out of the last contract, for the settlement screen.
+var settlement_view: Dictionary = {}
+var show_settlement_screen := true
+var system_screens: SystemScreens
+## The floors of this contract, for the route map: [{floor, name}].
+var route_history: Array = []
 ## Full-resolution overlay for combat numbers (DamageNumber).
 var number_layer: Control
 var _inventory_panel: InventoryPanel
@@ -68,7 +75,12 @@ var vault_opened: bool = false
 var _mechanisms_done: Dictionary = {}
 var _vault_guardians: Array[Enemy] = []
 var _buff_taken: bool = false
-var _gilding_taken: bool = false
+## Who stands at this floor's encounter spot: "" / "squad" / "trader", and
+## whether the squad's one service has been used (保全系统修订案 §2).
+var encounter := ""
+var encounter_used := false
+## This squad's price multiplier, one of FieldCatalog.SQUAD_PRICE_STEPS.
+var squad_mult := 1.0
 var _random_extraction_available: bool = false
 var _run_seed: int = 0
 @export var start_at_base := true
@@ -81,8 +93,21 @@ var transitioning := false
 var modal := ""
 var pressure := 0.0
 var route_index := 0
-var run_gold := 0
-var run_gildings := 0
+## 赤金 carried in the pack and safe bag: the in-run money (经济修订案 §1).
+## Setting it replaces the bars she carries (tests and debug use).
+var run_gold: int:
+	get: return gold_bars()
+	set(value): _set_gold_bars(value)
+## The floor this contract started on (1, or a camp later), for the contract reward.
+var start_floor := 1
+## In a camp between two floors (撤离与营地修订案): no fight, 可露希尔, extraction.
+var in_camp := false
+## The route chosen at the end of the floor before a camp, taken on leaving it.
+var _camp_route := 0
+## This block of ten already had its random extraction.
+var _block_random_found := false
+## The start point picked at the dispatch desk (0 = floor 1, else a camp).
+var _pending_start_camp := 0
 var builds: Array[String] = []
 ## The offer currently on screen. The device's offer is kept in _device_offers
 ## and each relic cache keeps its own, so reopening never rerolls.
@@ -103,6 +128,7 @@ var settlement: Array[Dictionary] = []
 var rng := RandomNumberGenerator.new()
 var _settled := true
 var sound: FieldAudio
+var music: GameMusic
 var _pointer_gate := false
 var _pointer_position := Vector2.ZERO
 var _has_pointer_position := false
@@ -117,11 +143,21 @@ func _ready() -> void:
 	rng.randomize()
 	sound = FieldAudio.new()
 	add_child(sound)
+	music = GameMusic.new()
+	music.game = self
+	add_child(music)
 	_configure_camera_and_light()
 	world_map = ContinuousWorldMap.new()
 	add_child(world_map)
 	base_map = BaseMap.new()
 	add_child(base_map)
+	# The warehouse's four reveal moments, one sound each (CHANGE-BRIEF: event sounds).
+	if base_map.warehouse_reveal:
+		var reveal := base_map.warehouse_reveal
+		reveal.bank_lit.connect(func(_bank: int): sound.play("lights_on"))
+		reveal.hatch_opening.connect(func(_shelf: int): sound.play("hatch"))
+		reveal.shelf_rising.connect(func(_shelf: int): sound.play("shelf"))
+		reveal.lights_out.connect(func(): sound.play("lights_off"))
 	_build_player()
 	base_map.player = player
 	warehouse_view = WarehouseView.new()
@@ -151,12 +187,22 @@ func _ready() -> void:
 
 func _setup_input() -> void:
 	var bindings := {"dash": KEY_SHIFT, "use_potion": KEY_Q,
-		"interact": KEY_E, "stash_item": KEY_B, "toggle_inventory": KEY_I}
+		"interact": KEY_E, "stash_item": KEY_B, "toggle_inventory": KEY_I,
+		"toggle_operator": KEY_C, "toggle_relics": KEY_R, "toggle_map": KEY_M, "toggle_journal": KEY_J, "toggle_pause": KEY_ESCAPE}
 	for action in bindings:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
 			var event := InputEventKey.new()
 			event.physical_keycode = bindings[action]
+			InputMap.action_add_event(action, event)
+	# Walking by keys (用户 2026-10-06): WASD and the arrows, beside click-to-move.
+	var walk := {"move_up": [KEY_W, KEY_UP], "move_down": [KEY_S, KEY_DOWN], "move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT]}
+	for action in walk:
+		if InputMap.has_action(action): continue
+		InputMap.add_action(action, 0.2)
+		for key in walk[action]:
+			var event := InputEventKey.new()
+			event.physical_keycode = key
 			InputMap.action_add_event(action, event)
 
 func simulation_active() -> bool:
@@ -177,18 +223,13 @@ func _process(delta: float) -> void:
 	message_timer -= delta
 	if not is_instance_valid(player):
 		return
-	if Input.is_action_just_pressed("toggle_inventory") and not in_base and not transitioning and modal in ["", "inventory"]:
-		if modal == "inventory":
-			close_modal()
-		else:
-			open_modal("inventory")
-			_inventory_panel.open()
+	if Input.is_action_just_pressed("toggle_inventory") or Input.is_action_just_pressed("toggle_operator"): toggle_panel("inventory")
+	for entry in [["toggle_relics", "relics"], ["toggle_map", "map"], ["toggle_journal", "journal"]]:
+		if Input.is_action_just_pressed(entry[0]): toggle_panel(entry[1])
+	if Input.is_action_just_pressed("toggle_pause"): go_back()
 	if simulation_active():
-		_clamp_belt()
 		var enemy := _get_enemy_under_pointer()
 		_handle_pointer_input(enemy)
-		if not _pointer_gate and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and is_instance_valid(enemy) and player.is_target_in_range(enemy):
-			player.attack(enemy)
 		if Input.is_action_just_pressed("use_potion"): _use_potion()
 		if Input.is_action_just_pressed("interact"): _interact()
 		if Input.is_action_just_pressed("stash_item"): _move_last_item_to_safe_bag()
@@ -237,6 +278,7 @@ func start_sword_shake() -> void:
 func _physics_process(delta: float) -> void:
 	if simulation_active() and is_instance_valid(player):
 		fog.reveal(player.global_position)
+		_announce_discoveries()
 		_tick_medical(delta)
 		player.hp -= count_effect("raw_ore") * FieldCatalog.RAW_ORE_DRAIN * delta
 		if player.hp <= 0: _on_player_died()
@@ -297,24 +339,29 @@ func _handle_base_pointer() -> void:
 
 func _build_base_prompt(layer: CanvasLayer) -> void:
 	_base_prompt = Label.new()
-	_base_prompt.add_theme_font_size_override("font_size", 18)
-	_base_prompt.add_theme_color_override("font_color", Color("e8edf1"))
+	_base_prompt.add_theme_font_override("font", AK.cn())
+	_base_prompt.add_theme_font_size_override("font_size", 16)
+	_base_prompt.add_theme_color_override("font_color", AK.FG)
 	_base_prompt.add_theme_color_override("font_outline_color", Color("0b0c0d"))
 	_base_prompt.add_theme_constant_override("outline_size", 6)
 	_base_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_base_prompt.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_base_prompt.offset_left = -400
 	_base_prompt.offset_right = 400
-	_base_prompt.offset_top = 18
-	_base_prompt.offset_bottom = 72
+	_base_prompt.offset_top = 560
+	_base_prompt.offset_bottom = 610
 	_base_prompt.visible = false
 	layer.add_child(_base_prompt)
+	# The base top bar (界面策划案 #12): a dark plate, white data, AK fonts.
 	_status_bar = Label.new()
-	_status_bar.add_theme_font_size_override("font_size", 16)
-	_status_bar.add_theme_color_override("font_color", Color("ebbd72"))
-	_status_bar.add_theme_color_override("font_outline_color", Color("0b0c0d"))
-	_status_bar.add_theme_constant_override("outline_size", 6)
-	_status_bar.position = Vector2(18, 14)
+	_status_bar.add_theme_font_override("font", AK.cn())
+	_status_bar.add_theme_font_size_override("font_size", 15)
+	_status_bar.add_theme_color_override("font_color", AK.FG)
+	var plate := AK.box(Color(0, 0, 0, 0.6), Color.TRANSPARENT, 0, 8)
+	plate.content_margin_left = 14
+	plate.content_margin_right = 14
+	_status_bar.add_theme_stylebox_override("normal", plate)
+	_status_bar.position = Vector2(700, 12)
 	_status_bar.visible = false
 	layer.add_child(_status_bar)
 
@@ -324,16 +371,17 @@ func _update_base_prompt() -> void:
 	if is_instance_valid(_status_bar):
 		_status_bar.visible = _base_prompt.visible
 		_status_bar.text = base_status_text()
+		_status_bar.reset_size()
+		_status_bar.position = Vector2(1268 - _status_bar.size.x, 12)
 	if not _base_prompt.visible: return
 	var station := nearby_station()
 	var lines: Array[String] = []
-	if not station.is_empty(): lines.append("[E]  " + station.label)
+	if not station.is_empty(): lines.append("E  " + station.label)
 	if message_timer > 0 and not message.is_empty(): lines.append(message)
-	if lines.is_empty(): lines.append("罗德岛 · 资金 %d    右键移动 · E 交互" % gold)
 	_base_prompt.text = "
 ".join(lines)
 
-func start_contract(region: String) -> void:
+func start_contract(region: String, start_camp: int = 0) -> void:
 	if transitioning or not in_base or not FieldCatalog.REGIONS.has(region): return
 	region_id = region
 	in_base = false
@@ -348,30 +396,42 @@ func start_contract(region: String) -> void:
 	player._recompute_stats()
 	floor_number = 1
 	pressure = 0
-	run_gold = 0
-	run_gildings = 0
 	route_index = 0
+	in_camp = false
+	_block_random_found = false
+	# From an unlocked camp the contract begins in that camp (§3); the reward
+	# counts the floors walked from the one after it.
+	var from_camp := start_camp > 0 and base.camp_unlocked(region, start_camp)
+	if from_camp: floor_number = start_camp
+	start_floor = floor_number + (1 if from_camp else 0)
 	_run_seed = fixed_map_seed if fixed_map_seed else rng.randi()
 	_apply_medical_state()
 	# Whatever she is carrying around the warehouse stays at the base.
 	if base.return_hand(): set_message("手上的物品已放回原处。")
+	_issue_free_potions()
+	prts_log.clear()
+	broadcast("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
+	route_history = [{"floor": start_floor, "name": "营地" if from_camp else "入口"}]
 	for item in carried_items():
 		item.carried_in = true
-		item.gilded = false
 	player.hp = player.max_hp
 	player.stamina = 100
 	save_base(true)
+	if from_camp:
+		transitioning = false
+		_enter_camp()
+		return
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	camera.global_position = player.global_position + CAMERA_OFFSET
 	await _await_navigation_sync()
 	_spawn_wave()
 	transitioning = false
-	set_message("合同开始：%s。第 %d 区段固定撤离。" % [FieldCatalog.REGIONS[region_id].name, FieldCatalog.FIXED_EXTRACTION_DEPTH])
+	set_message("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
 
 func _clear_field() -> void:
 	for child in get_children():
-		if child is Enemy or child is GuardPost or child is Loot or child is RelicCache or child is SwordWave or child is CombatVfx or child is EnemyAttackVfx or child is EnemyProjectile or child is MeshInstance3D:
+		if child is Enemy or child is GuardPost or child is Loot or child is LootContainer or child is RelicCache or child is SwordWave or child is CombatVfx or child is EnemyAttackVfx or child is EnemyProjectile or child is MeshInstance3D:
 			remove_child(child)
 			child.queue_free()
 	_vault_guardians.clear()
@@ -385,23 +445,49 @@ func _build_world() -> void:
 	_mechanisms_done.clear()
 	_vault_guardians.clear()
 	fog.setup(ContinuousWorldMap.SPINE_MIN, ContinuousWorldMap.SPINE_MAX)
-	_gilding_taken = false
+	_roll_encounter()
+	world_map.encounter_kind = encounter
 	build_offers.clear()
 	_device_offers.clear()
 	_active_cache = null
 	segment_threat = 0
 	_cache_spawned = false
-	_random_extraction_available = rng.randf() < FieldCatalog.RANDOM_EXTRACTION_CHANCE
+	_roll_random_extraction()
+	_seen_encounter = false
+	_seen_exit = false
+	pressure = difficulty()
 	player.reset_floor_state()
 	world_map.region_id = region_id
 	world_map.extraction_available = is_extraction_floor()
 	world_map.generate(_run_seed + floor_number * 7919, floor_number)
 
+## The fixed extraction is in the camps now; a floor only ever has a random one.
 func is_extraction_floor() -> bool:
-	return floor_number % FieldCatalog.FIXED_EXTRACTION_DEPTH == 0 or _random_extraction_available
+	return _random_extraction_available
+
+## At most one random extraction per block of ten, on floor 4, 5 or 6, each with
+## exactly 1/6 (撤离与营地修订案 §2).
+func _roll_random_extraction() -> void:
+	var place := (floor_number - 1) % FieldCatalog.CAMP_INTERVAL + 1
+	if place == 1: _block_random_found = false
+	_random_extraction_available = false
+	if _block_random_found or not FieldCatalog.RANDOM_EXTRACTION_ODDS.has(place): return
+	if rng.randf() < float(FieldCatalog.RANDOM_EXTRACTION_ODDS[place]):
+		_random_extraction_available = true
+		_block_random_found = true
 
 func is_buff_available() -> bool: return not _buff_taken
-func is_gilding_available() -> bool: return not _gilding_taken
+## Who stands at this floor's encounter spot (保全系统修订案 §2).
+func _roll_encounter() -> void:
+	var roll := rng.randf()
+	encounter = "squad" if roll < FieldCatalog.SQUAD_CHANCE else ("trader" if roll < FieldCatalog.SQUAD_CHANCE + FieldCatalog.TRADER_CHANCE else "")
+	encounter_used = false
+	trader_stock.clear()
+	trader_rerolls = 0
+	_encounter_greeted = false
+	squad_mult = FieldCatalog.SQUAD_PRICE_STEPS[rng.randi() % FieldCatalog.SQUAD_PRICE_STEPS.size()]
+
+func is_encounter_available() -> bool: return not encounter.is_empty() and not encounter_used
 
 func _interact() -> void:
 	if not simulation_active(): return
@@ -411,6 +497,15 @@ func _interact() -> void:
 		# up by walking over it, so E stays free for caches and devices.
 		if loot.game == self and loot.item != null and not loot.sealed and not loot.is_search_point and not passes_pickup_filter(loot.item) and player.global_position.distance_to(loot.global_position) < 2.0:
 			if try_collect(loot.item): loot.queue_free()
+			return
+	for node in get_tree().get_nodes_in_group("loot_containers"):
+		var box := node as LootContainer
+		if box.game != self or box.opened or player.global_position.distance_to(box.global_position) > LootContainer.REACH: continue
+		if box.sealed:
+			set_message("%s仍被封印：先击败全部守卫者。" % box.title())
+			return
+		if box.begin_open():
+			set_message("正在开启%s……（走开或受击会打断）" % box.title())
 			return
 	for node in get_tree().get_nodes_in_group("relic_caches"):
 		var cache := node as RelicCache
@@ -422,9 +517,8 @@ func _interact() -> void:
 		return
 	if near(world_map.buff_device_node) and not _buff_taken:
 		_offer_builds()
-	elif near(world_map.gilding_device_node) and not _gilding_taken:
-		open_modal("gild")
-		menu.show_gilding()
+	elif near(world_map.encounter_node) and not encounter.is_empty() and (encounter == "trader" or not encounter_used):
+		_open_encounter()
 	elif near(world_map.exit_node) and is_extraction_floor():
 		_extract()
 	elif _trigger_nearby_mechanism():
@@ -435,7 +529,7 @@ func _interact() -> void:
 				open_modal("route")
 				menu.show_routes(i)
 				return
-		set_message("靠近橙色强化、金色点金、紫色机关、蓝色深入或绿色撤离标记，按 E。")
+		pass
 
 ## The sealed-vault loop, adapted from 贪婪洞窟 2's 机关密室: every mechanism on
 ## the segment has to be triggered before the vault opens, which is what turns
@@ -450,7 +544,8 @@ func _trigger_nearby_mechanism() -> bool:
 		if _mechanisms_done.size() >= world_map.mechanism_nodes.size():
 			_open_vault()
 		else:
-			set_message("机关已触发 %d / %d。全部触发后密室开启。" % [_mechanisms_done.size(), world_map.mechanism_nodes.size()])
+			set_message("机关 %d / %d" % [_mechanisms_done.size(), world_map.mechanism_nodes.size()])
+			broadcast("机关 %d / %d。" % [_mechanisms_done.size(), world_map.mechanism_nodes.size()])
 		return true
 	return false
 
@@ -464,34 +559,45 @@ func _open_vault() -> void:
 	else:
 		_vault_guardians.append(_spawn_enemy(world_map.vault_position, true, false))
 	_spawn_relic_cache(world_map.vault_position, "vault", true)
-	var profile := FieldCatalog.depth_profile(floor_number)
+	var vault_kinds := ["vault_weapon", "vault_gear", "vault_base"]
 	for i in range(3):
-		var loot := Loot.new()
-		loot.game = self
-		loot.item = FieldCatalog.roll_item(region_id, floor_number, rng, 1.5 + float(profile.reward))
-		loot.is_search_point = true
-		loot.sealed = true
-		add_child(loot)
-		loot.global_position = world_map.vault_position + Vector3(cos(TAU * i / 3.0) * 2.6, 0.0, sin(TAU * i / 3.0) * 2.6)
-		loot.add_to_group("sealed_loot")
-	set_message("机关全部触发：密室开启，击败全部 %d 名守卫者才能开启宝箱与密室藏品。" % _vault_guardians.size())
+		var chest := LootContainer.new()
+		chest.game = self
+		chest.kind = vault_kinds[i]
+		chest.vault = true
+		chest.sealed = true
+		add_child(chest)
+		chest.global_position = world_map.vault_position + Vector3(cos(TAU * i / 3.0) * 2.6, 0.0, sin(TAU * i / 3.0) * 2.6)
+		chest.add_to_group("sealed_loot")
+	set_message("密室开启：守卫者 %d" % _vault_guardians.size())
+	broadcast("密室开启，守卫者 %d 名。" % _vault_guardians.size())
 
 func near(node: Node3D) -> bool:
 	return is_instance_valid(node) and node.visible and player.global_position.distance_to(node.global_position) < 2.8
 
 func advance(route: int) -> void:
-	if in_base or transitioning or route < 0 or route >= FieldCatalog.ROUTES.size(): return
+	if in_base or in_camp or transitioning or route < 0 or route >= FieldCatalog.ROUTES.size(): return
+	# The end of a block of ten leads into its camp first (§1).
+	if floor_number % FieldCatalog.CAMP_INTERVAL == 0:
+		close_modal()
+		_camp_route = route
+		_enter_camp()
+		return
+	await _advance_floor(route)
+
+func _advance_floor(route: int) -> void:
 	transitioning = true
 	close_modal()
 	route_index = route
 	floor_number += 1
-	pressure = minf(100, pressure + float(FieldCatalog.ROUTES[route].pressure) * pressure_multiplier())
+	route_history.append({"floor": floor_number, "name": FieldCatalog.ROUTES[route].name})
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	await _await_navigation_sync()
 	_spawn_wave()
 	transitioning = false
-	set_message("进入第 %d 区段 · %s；上一段已无法返回。" % [floor_number, FieldCatalog.ROUTES[route].name])
+	set_message("进入第 %d 层 · %s；上一层已无法返回。" % [floor_number, FieldCatalog.ROUTES[route].name])
+	broadcast("进入 %s · %s。" % [AK.floor_code(region_id, floor_number), FieldCatalog.ROUTES[route].name])
 
 func _offer_builds() -> void:
 	open_relic_offer("device")
@@ -517,18 +623,16 @@ func _roll_relics(source: String) -> Array[Dictionary]:
 	# 罗德岛战术电台: one more option.
 	return RelicCatalog.roll_offers(region_id, builds, source, rng, 3 + int(player.f("radio")))
 
-## 锈蚀的铁锤 halves it.
 func reroll_cost() -> int:
-	return roundi((RelicCatalog.REROLL_BASE + RelicCatalog.REROLL_STEP * reroll_count) * (1.0 - minf(0.9, player.f("reroll_discount"))))
+	return RelicCatalog.REROLL_BASE + RelicCatalog.REROLL_STEP * reroll_count
 
-## Pays from the contract's not-yet-banked reward (the same money extraction
-## would bring home), so a reroll is a bet against extracting.
+## Pays in 赤金 from the pack, the same money she could carry home.
 func reroll_offers() -> bool:
-	if modal != "build" or run_gold < reroll_cost(): return false
+	if modal != "build" or gold_bars() < reroll_cost(): return false
 	if offer_source == "device" and _buff_taken: return false
 	var rolled := _roll_relics(offer_source)
 	if rolled.size() < 3: return false
-	run_gold -= reroll_cost()
+	spend_gold_bars(reroll_cost())
 	reroll_count += 1
 	if is_instance_valid(_active_cache): _active_cache.offers = rolled
 	else: _device_offers = rolled
@@ -551,7 +655,6 @@ func choose_build(id: String) -> bool:
 			sound.play("build")
 			player._recompute_stats()
 			_rescale_enemy_life(enemy_hp_before, player.f("enemy_hp"))
-			_clamp_belt()
 			close_modal()
 			set_message("获得藏品 %s — %s" % [offer.name, offer.effect])
 			return true
@@ -590,22 +693,165 @@ func pressure_multiplier() -> float:
 func open_modal(kind: String) -> void:
 	modal = kind
 	player.clear_move_target()
+	player.clear_target()
 
 func close_modal() -> void:
 	modal = ""
 	_pointer_gate = true
 	if is_instance_valid(menu): menu.hide()
 	if is_instance_valid(_inventory_panel): _inventory_panel.hide()
+	if is_instance_valid(field_panels): field_panels.hide_all()
+	# In a camp nothing is underneath: back to the camp's own screen.
+	if in_camp and not transitioning and not in_base:
+		modal = "camp"
+		if is_instance_valid(menu): menu.show_camp()
 
-func gild_item(item: Item) -> bool:
-	if in_base or _gilding_taken or not near(world_map.gilding_device_node) or item == null or not carried_items().has(item) or not item.is_equippable() or item.gilded: return false
-	item.gilded = true
-	_gilding_taken = true
-	run_gildings += 1
+# --- HUD support (界面策划案 v1.1 §3) ----------------------------------------
+
+## PRTS broadcasts, newest last: [time, text]. System events only — no combat,
+## no pickups (用户 2026-10-06).
+var prts_log: Array = []
+var _seen_encounter := false
+var _seen_exit := false
+## The panels the HUD buttons and the I / C / R / M / J / Esc keys open.
+const PANELS := ["inventory", "relics", "map", "journal", "pause"]
+
+func broadcast(text: String) -> void:
+	prts_log.append([Time.get_time_string_from_system(), text])
+	if prts_log.size() > 40: prts_log.pop_front()
+
+## Opens a panel, or closes it when it is the one open. Panels replace each
+## other; anything else on screen (a shop, a choice) keeps them shut.
+func toggle_panel(kind: String) -> void:
+	if transitioning or not kind in PANELS: return
+	if kind != "pause" and in_base: return
+	if modal == kind:
+		close_modal()
+		return
+	if not (modal.is_empty() or modal in PANELS or (in_camp and modal == "camp")): return
+	if is_instance_valid(_inventory_panel): _inventory_panel.hide()
+	if is_instance_valid(field_panels): field_panels.hide_all()
+	open_modal(kind)
+	match kind:
+		"inventory": _inventory_panel.open()
+		"pause": menu.show_pause()
+		_: field_panels.open(kind)
+
+## Esc (用户 2026-10-06): back one level — a dialog, a sub-page, a window, a
+## screen — and with nothing open, the pause menu with its settings.
+func go_back() -> void:
+	if transitioning: return
+	var focus := get_tree().root.gui_get_focus_owner()
+	if focus is LineEdit:
+		focus.release_focus()
+		return
+	if is_instance_valid(system_screens) and system_screens.go_back(): return
+	if is_instance_valid(_inventory_panel) and is_instance_valid(_inventory_panel._confirm) and _inventory_panel._confirm.visible:
+		_inventory_panel._confirm.hide()
+		return
+	match modal:
+		"":
+			toggle_panel("pause")
+		"title":
+			pass
+		"camp":
+			# The camp screen is where she stands; Esc pauses over it.
+			toggle_panel("pause")
+		_:
+			if is_instance_valid(menu) and menu.back_to.is_valid():
+				var back := menu.back_to
+				menu.back_to = Callable()
+				back.call()
+			else:
+				close_modal()
+
+## Field mapping: things found get a PRTS line once (the fog decides "found").
+func _announce_discoveries() -> void:
+	if not _seen_encounter and is_instance_valid(world_map.encounter_node) and world_map.encounter_node.visible and fog.is_point_revealed(world_map.encounter_node.position):
+		_seen_encounter = true
+		broadcast("附近发现%s。" % ("坎诺特" if encounter == "trader" else "罗德岛小队"))
+	if not _seen_exit and is_extraction_floor() and is_instance_valid(world_map.exit_node) and fog.is_point_revealed(world_map.exit_node.position):
+		_seen_exit = true
+		broadcast("本层发现撤离点。")
+
+const DEPT_COLOURS := {"工程部": Color("f5c000"), "医疗部": Color("8fc31f"), "后勤部": Color("0098dc")}
+
+## The tracker's rows (orders only): open orders for this region or any, with
+## how many matching units she carries.
+func order_progress() -> Array:
+	var rows: Array = []
+	var board: OrderBoard = base.orders
+	for slot in range(board.slots.size()):
+		var order = board.slots[slot]
+		if order == null or order.state != "open": continue
+		var t: Dictionary = BaseCatalog.ORDERS[order.id]
+		var where := str(t.get("region", ""))
+		if not where.is_empty() and where != region_id: continue
+		var have := 0
+		for item in carried_items():
+			if board.matches(slot, item): have += item.quantity if item.is_stackable() else 1
+		var what := BaseCatalog.order_text(order.id).split("：")[1] if "：" in BaseCatalog.order_text(order.id) else BaseCatalog.order_text(order.id)
+		what = what.split(" ×")[0].split("（")[0]
+		rows.append({"dept": t.dept, "colour": DEPT_COLOURS.get(t.dept, Color.WHITE), "color": DEPT_COLOURS.get(t.dept, Color.WHITE), "what": what, "have": have, "need": board.remaining(slot),
+			"slot": slot, "mult": t.get("mult", 1.0), "prestige": t.get("prestige", 0)})
+	return rows
+
+## What E would do right here, for the prompt near her ("" for nothing).
+func interaction_prompt() -> String:
+	if not simulation_active(): return ""
+	for node in get_tree().get_nodes_in_group("relic_caches"):
+		var cache := node as RelicCache
+		if cache.game == self and near(cache): return "密室藏品" if cache.source == "vault" else "战斗缴获"
+	if near(world_map.buff_device_node) and not _buff_taken: return "强化装置"
+	if near(world_map.encounter_node) and not encounter.is_empty() and (encounter == "trader" or not encounter_used):
+		return "坎诺特" if encounter == "trader" else "罗德岛小队"
+	if near(world_map.exit_node) and is_extraction_floor(): return "撤离"
+	for i in range(world_map.mechanism_nodes.size()):
+		if near(world_map.mechanism_nodes[i]) and not _mechanisms_done.has(i): return "机关"
+	for node in world_map.route_nodes:
+		if near(node): return "深入"
+	return ""
+
+# --- The Rhodes squad (保全系统修订案 §2–4) -----------------------------------
+
+## Its price for `item` in 赤金: 物品价值 × this squad's multiplier ÷ 10, rounded up.
+func squad_price(item: Item) -> int:
+	return maxi(1, ceili(item.value * squad_mult / 10.0)) if item != null else 0
+
+## Why the squad will not take `item` for this service now ("" when it will).
+func squad_refusal(item: Item, service: String) -> String:
+	if in_base or encounter != "squad" or encounter_used or not near(world_map.encounter_node): return "小队不在附近"
+	if item == null or not carried_items().has(item) or not item.is_equippable(): return "只收装备"
+	if service == "insure" and item.insured: return "已投保"
+	if service == "send" and not base.staging_has_room(): return "暂存区已满"
+	if gold_bars() < squad_price(item): return "赤金不足"
+	return ""
+
+## Insures one item she carries: if she dies on this contract it comes back,
+## 1–3 contracts later. One service per squad.
+func squad_insure(item: Item) -> bool:
+	if not squad_refusal(item, "insure").is_empty(): return false
+	spend_gold_bars(squad_price(item))
+	item.insured = true
+	encounter_used = true
 	save_base(true)
-	sound.play("build")
-	close_modal()
-	set_message("点金：%s，本合同必定带回，且不可丢弃。" % item.item_name)
+	set_message("罗德岛小队：%s 已投保。" % item.item_name)
+	return true
+
+## Sends one item home now: it is gone from her and waits in staging. An
+## insured item can be sent too; its insurance lapses.
+func squad_send_home(item: Item) -> bool:
+	if not squad_refusal(item, "send").is_empty(): return false
+	spend_gold_bars(squad_price(item))
+	inventory.remove(item)
+	safe_bag.remove(item)
+	if player.equipped.get(item.category) == item: player.unequip(item.category)
+	item.insured = false
+	item.carried_in = false
+	base.receive_to_staging(item)
+	encounter_used = true
+	save_base(true)
+	set_message("罗德岛小队：%s 已送回基地暂存区。" % item.item_name)
 	return true
 
 func carried_items() -> Array[Item]:
@@ -620,11 +866,6 @@ func count_effect(effect: String) -> int:
 		if item.effect == effect: count += 1
 	return count
 
-func has_gilded() -> bool:
-	for item in carried_items():
-		if item.gilded: return true
-	return false
-
 func _extract() -> void:
 	if not in_base and not transitioning and is_extraction_floor(): settle(true)
 
@@ -635,38 +876,63 @@ func settle(extracted: bool) -> void:
 	if _settled: return
 	_settled = true
 	transitioning = true
+	var in_camp_before_settle := in_camp
+	in_camp = false
 	settlement.clear()
-	sound.play("exit")
+	music.end_run(extracted)
 	# What comes back: gear she set out with stays on her (equipped, packed or
 	# in the safe bag) — she already knows it, so it skips the crates. Anything
 	# found on this contract arrives as a sealed crate at receiving.
 	var new_finds := 0
 	var still_equipped: Array[Item] = []
+	# Insurance from earlier deaths counts down first (保全系统修订案 §3), so what
+	# is insured on this contract waits its full 1–3 contracts.
+	var returned := base.tick_insurance()
+	settlement_view = {"extracted": extracted, "region": region_id, "start": start_floor, "depth": floor_number,
+		"pack_size": Vector2i(inventory.width, inventory.height), "safe_size": Vector2i(safe_bag.width, safe_bag.height),
+		"pack": [], "safe": [], "worn": [], "reward": 0, "returned": returned.size(), "gold": 0, "orders": 0,
+		"plate": camp_label(floor_number) if in_camp_before_settle else AK.floor_code(region_id, floor_number),
+		"time": Time.get_time_string_from_system().left(5), "contamination_before": roundi(base.contamination)}
 	for item in carried_items():
+		var where := "safe" if safe_bag.items.has(item) else ("worn" if player.equipped.values().has(item) else "pack")
 		var reason := "遗失"
 		if extracted: reason = "撤离带回"
-		elif item.gilded: reason = "点金回收"
 		elif safe_bag.items.has(item): reason = "安全袋保全"
-		elif item.insured and item.carried_in:
-			reason = "保险成功" if rng.randf() < FieldCatalog.INSURANCE_CHANCE else "保险失败"
-		settlement.append({"uid": item.uid, "name": item.item_name, "reason": reason})
-		var kept := reason not in ["遗失", "保险失败"]
+		elif item.insured: reason = "投保送回"
+		var entry := {"uid": item.uid, "name": item.item_name, "reason": reason}
+		var kept := reason in ["撤离带回", "安全袋保全"]
 		var stays_on_her := kept and item.carried_in
 		if stays_on_her and player.equipped.get(item.category) == item: still_equipped.append(item)
 		if not stays_on_her:
 			inventory.remove(item)
 			safe_bag.remove(item)
+		if reason == "投保送回":
+			var wait := rng.randi_range(FieldCatalog.INSURANCE_DELAY.x, FieldCatalog.INSURANCE_DELAY.y)
+			item.insured = false
+			item.carried_in = false
+			base.queue_insured(item, wait)
+			entry["contracts"] = wait
 		if kept:
-			item.gilded = false
+			# Insurance only covers a death; extracting lets it lapse unrefunded.
 			item.insured = false
 			item.carried_in = false
 			if not stays_on_her and base.receive(item): new_finds += 1
+		settlement.append(entry)
+		var shown := {"item": item, "reason": reason, "x": item.grid_x, "y": item.grid_y, "w": item.width, "h": item.height}
+		settlement_view[where].append(shown)
+		if kept and item.material_id == Economy.GOLD_ID: settlement_view.gold += item.quantity
+		if kept:
+			for slot in range(base.orders.slots.size()):
+				if base.orders.slots[slot] != null and base.orders.slots[slot].state == "open" and base.orders.matches(slot, item):
+					settlement_view.orders += 1
+					break
 	builds.clear()
 	build_offers.clear()
 	_device_offers.clear()
 	if extracted: _grant(0, BaseCatalog.PRESTIGE_EXTRACTION)
 	base.orders.refill(rng, region_id)
 	base.settle_medical(run_contamination, not extracted)
+	settlement_view.contamination_after = roundi(base.contamination)
 	base.reroll_available = base.rank() >= BaseCatalog.REROLL_RANK
 	# The drone empties staging onto the shelves at every return (§3.4a).
 	if base.drone: base.sort_staging()
@@ -675,22 +941,262 @@ func settle(extracted: bool) -> void:
 	_suppress_timer = 0.0
 	player.condition_hp_penalty = 0.0
 	player.regen_blocked = false
-	_run_extra_potion = false
 	player.reset_stats()
 	for item in still_equipped: player.equip(item)
 	player.hp = player.max_hp
-	if extracted: gold += run_gold
-	run_gold = 0
+	# 赤金 came home as items with everything else; the contract itself pays
+	# 龙门币 for every floor travelled, and nothing on death (经济修订案 §3).
+	var reward := Economy.contract_reward(floor_number - start_floor + 1, rng) if extracted else 0
+	gold += reward
+	settlement_view.reward = reward
 	_clear_field()
 	world_map._clear_generated_map()
 	floor_number = 1
-	potions = 3
 	in_base = true
 	transitioning = false
 	save_base()
-	set_message("%s：%d 件新物品已送到仓储区收货区。" % ["合同交付" if extracted else "回收队归来", new_finds])
+	set_message("%s：%d 件新物品已送到仓储区收货区。%s%s" % ["合同交付" if extracted else "回收队归来", new_finds,
+		"合同报酬 %s 龙门币。" % Economy.format(reward) if reward > 0 else "", "投保物品送回 %d 件。" % returned.size() if not returned.is_empty() else ""])
 	base_spawn = "arrival" if extracted else "death"
 	show_base()
+	broadcast("拉普兰德已完成撤离。" if extracted else "回收队已带回拉普兰德。")
+	if new_finds > 0: broadcast("收货区货箱有 %d 件新物品待开箱。" % new_finds)
+	if show_settlement_screen:
+		open_modal("settlement")
+		menu.show_settlement()
+
+# --- 坎诺特 (坎诺特商店策划案) ---------------------------------------------------
+
+## His stock this floor: eight slots, {"kind": "relic"/"item", "relic": Dictionary,
+## "item": Item, "price": 赤金, "sold": bool}. Rolled when he is first met.
+var trader_stock: Array[Dictionary] = []
+var trader_rerolls := 0
+## 幸运硬币 / 假面舞会面具 pay once per encounter, on first meeting.
+var _encounter_greeted := false
+
+## Opens the squad or 坎诺特 at this floor's encounter spot.
+func _open_encounter() -> void:
+	if not _encounter_greeted:
+		_encounter_greeted = true
+		var bonus := roundi(player.f("node_gold"))
+		if bonus > 0:
+			_give_gold_bars(bonus)
+			set_message("遇到%s：赤金 +%d" % ["坎诺特" if encounter == "trader" else "罗德岛小队", bonus])
+	if encounter == "trader":
+		if trader_stock.is_empty(): _roll_trader_stock()
+		open_modal("trader")
+		menu.show_trader()
+	else:
+		open_modal("squad")
+		menu.show_squad()
+
+## 锈蚀的铁锤 halves what he asks (商店中购买道具所需源石锭-50%).
+func _trader_discount(price: int) -> int:
+	return maxi(1, ceili(price * (1.0 - minf(0.9, player.f("shop_discount")))))
+
+## Eight slots (§2): two relics, three of the region's gear, two flasks, one
+## special slot (25% special gear, else more gear).
+func _roll_trader_stock() -> void:
+	trader_stock.clear()
+	var relics := RelicCatalog.roll_offers(region_id, builds, "device", rng, FieldCatalog.TRADER_RELICS)
+	for relic in relics:
+		trader_stock.append({"kind": "relic", "relic": relic, "price": _trader_discount(int(FieldCatalog.TRADER_RELIC_PRICES[relic.rarity])), "sold": false})
+	for i in range(FieldCatalog.TRADER_GEAR):
+		trader_stock.append(_trader_gear_slot(_roll_trader_gear()))
+	for i in range(FieldCatalog.TRADER_POTIONS):
+		var roll := rng.randf()
+		var type := "A" if roll < 0.5 else ("B" if roll < 0.85 else "C")
+		trader_stock.append({"kind": "item", "item": BaseCatalog.create_potion(type), "price": _trader_discount(int(FieldCatalog.TRADER_POTION_PRICES[type])), "sold": false})
+	var special := SpecialGear.roll(region_id, floor_number, rng) if rng.randf() < FieldCatalog.TRADER_SPECIAL_CHANCE else _roll_trader_gear()
+	trader_stock.append(_trader_gear_slot(special))
+
+func _roll_trader_gear() -> Item:
+	for attempt in range(40):
+		var item := FieldCatalog.roll_item(region_id, floor_number, rng, 0.0)
+		if item.is_equippable() and item.exclusive_region.is_empty() and item.special.is_empty(): return item
+	return FieldCatalog.roll_item(region_id, floor_number, rng, 0.0)
+
+func _trader_gear_slot(item: Item) -> Dictionary:
+	return {"kind": "item", "item": item, "price": _trader_discount(maxi(1, ceili(item.value * FieldCatalog.TRADER_GEAR_MARKUP / 10.0))), "sold": false}
+
+func trader_reroll_cost() -> int:
+	return FieldCatalog.TRADER_REROLL_BASE + FieldCatalog.TRADER_REROLL_STEP * trader_rerolls
+
+func trader_reroll() -> bool:
+	if encounter != "trader" or gold_bars() < trader_reroll_cost(): return false
+	spend_gold_bars(trader_reroll_cost())
+	trader_rerolls += 1
+	_roll_trader_stock()
+	return true
+
+func trader_buy_refusal(slot: int) -> String:
+	if encounter != "trader" or slot < 0 or slot >= trader_stock.size(): return "没有这件"
+	var entry: Dictionary = trader_stock[slot]
+	if entry.sold: return "已售出"
+	if gold_bars() < int(entry.price): return "赤金不足"
+	if entry.kind == "relic" and builds.has(entry.relic.id): return "已拥有"
+	if entry.kind == "item" and not inventory.can_fit(entry.item): return "背包放不下"
+	return ""
+
+func trader_buy(slot: int) -> bool:
+	if not trader_buy_refusal(slot).is_empty(): return false
+	var entry: Dictionary = trader_stock[slot]
+	spend_gold_bars(int(entry.price))
+	entry.sold = true
+	if entry.kind == "relic":
+		var enemy_hp_before := player.f("enemy_hp")
+		builds.append(entry.relic.id)
+		player._recompute_stats()
+		_rescale_enemy_life(enemy_hp_before, player.f("enemy_hp"))
+		set_message("获得藏品 %s — %s" % [entry.relic.name, entry.relic.effect])
+	else:
+		inventory.try_add(entry.item)
+		set_message("买下 %s" % entry.item.display_name())
+	save_base(true)
+	return true
+
+## What he pays for `item` in 赤金 (§3: 交付价 × 50%), or 0 when he will not buy it:
+## gear and materials only — no flasks, no 原矿, nothing insured, no 赤金.
+func trader_offer(item: Item) -> int:
+	if item == null or item.is_potion() or item.insured or item.effect == "raw_ore" or item.material_id == Economy.GOLD_ID: return 0
+	return maxi(1, floori(item.value * FieldCatalog.TRADER_BUYBACK / 10.0))
+
+func trader_sell(item: Item) -> bool:
+	if encounter != "trader" or not carried_items().has(item) or trader_offer(item) <= 0: return false
+	var pay := trader_offer(item)
+	inventory.remove(item)
+	safe_bag.remove(item)
+	if player.equipped.get(item.category) == item: player.unequip(item.category)
+	_give_gold_bars(pay)
+	save_base(true)
+	set_message("卖给坎诺特：%s，赤金 +%d" % [item.display_name(), pay])
+	return true
+
+## Bars straight into the pack (no gold-gain bonus); what does not fit drops.
+func _give_gold_bars(bars: int) -> void:
+	var left := bars
+	while left > 0:
+		var stack := MaterialCatalog.create(Economy.GOLD_ID, mini(left, MaterialCatalog.stack_size(Economy.GOLD_ID)), region_id)
+		left -= stack.quantity
+		if inventory.add_stack(stack) > 0 and not in_base: _drop_at(player.global_position, [{"item": stack}], 0.8)
+
+# --- Camps (撤离与营地修订案 §1–3) ---------------------------------------------
+
+## A camp sits after every CAMP_INTERVAL floors (10|11, 20|21 …): no enemies,
+## the fixed extraction, and 可露希尔. Reaching one unlocks it for this region.
+func _enter_camp() -> void:
+	in_camp = true
+	_clear_field()
+	world_map._clear_generated_map()
+	player.clear_move_target()
+	base.unlock_camp(region_id, floor_number)
+	# 营地里污染照涨，升级后不涨: a flat dose for the time spent there.
+	if not base.camp_upgraded:
+		run_contamination += contamination_rate() * FieldCatalog.CAMP_EXPOSURE_SECONDS
+	save_base(true)
+	open_modal("camp")
+	menu.show_camp()
+	set_message("抵达营地 %d|%d。" % [floor_number, floor_number + 1])
+	broadcast("抵达营地 %d|%d。" % [floor_number, floor_number + 1])
+
+## Extract from the camp (the fixed extraction).
+func camp_extract() -> void:
+	if in_camp and not transitioning: settle(true)
+
+## On from the camp to the next floor, by the route chosen at the end of the last.
+func leave_camp() -> void:
+	if not in_camp or transitioning: return
+	in_camp = false
+	await _advance_floor(_camp_route)
+
+func camp_label(depth: int) -> String:
+	return "营地 %d|%d" % [depth, depth + 1]
+
+## 赤金 she can pay with here: what she carries in a camp, the base's storage too at home.
+func gold_available() -> int:
+	return material_count(Economy.GOLD_ID) if in_base else gold_bars()
+
+func _pay_gold(bars: int) -> bool:
+	if in_base: return consume_materials({Economy.GOLD_ID: bars}) if bars > 0 else true
+	return spend_gold_bars(bars)
+
+## 可露希尔's price for a flask in 赤金: the pharmacy's 龙门币 price, rounded up
+## to whole 赤金 (撤离与营地修订案 §0: 同价). -1 while the rank does not allow it.
+func closure_potion_price(type: String) -> int:
+	var p: Dictionary = BaseCatalog.POTIONS[type]
+	if base.rank() < int(p.rank): return -1
+	var lmd: int = BaseCatalog.POTION_A_PRICE if type == "A" else int(p.price)
+	return maxi(1, ceili(float(lmd) / Economy.GOLD_BAR_LMD))
+
+## A flask from 可露希尔, into the pack (in a camp, or at her base counter).
+func closure_buy_potion(type: String) -> bool:
+	if not (in_camp or in_base) or not BaseCatalog.POTIONS.has(type): return false
+	var price := closure_potion_price(type)
+	if price < 0 or gold_available() < price: return false
+	var flask := BaseCatalog.create_potion(type)
+	if not inventory.try_add(flask):
+		set_message("背包空间不足：药剂要占一格。")
+		return false
+	_pay_gold(price)
+	save_base(not in_base)
+	return true
+
+## 寄存 (§3): materials only, no special (regional) ones and no flasks; the fee is
+## 20% of the 交付价, in 赤金, rounded up, at least one.
+func deposit_fee(item: Item) -> int:
+	return maxi(1, ceili(Economy.price(item) * FieldCatalog.DEPOSIT_FEE / float(Economy.GOLD_BAR_LMD))) if item != null else 0
+
+func deposit_refusal(item: Item) -> String:
+	if not in_camp: return "不在营地"
+	if item == null or not (inventory.items.has(item) or safe_bag.items.has(item)): return "不在背包里"
+	if item.category != Item.Category.MATERIAL or item.is_potion(): return "只收材料"
+	if not item.exclusive_region.is_empty() or not item.effect.is_empty(): return "特殊材料不能寄存"
+	if not base.staging_has_room(): return "暂存区已满"
+	var others := gold_bars() - (item.quantity if item.material_id == Economy.GOLD_ID else 0)
+	if others < deposit_fee(item): return "赤金不足"
+	return ""
+
+func deposit_item(item: Item) -> bool:
+	if not deposit_refusal(item).is_empty(): return false
+	var fee := deposit_fee(item)
+	inventory.remove(item)
+	safe_bag.remove(item)
+	spend_gold_bars(fee)
+	item.carried_in = false
+	base.receive_to_staging(item)
+	save_base(true)
+	set_message("已寄存 %s：送到基地暂存区。" % item.display_name())
+	return true
+
+## 可露希尔 buys 赤金 for 龙门币 (经济修订案 §0).
+func sell_gold_bars(bars: int) -> bool:
+	if not (in_camp or in_base) or bars <= 0 or gold_available() < bars: return false
+	_pay_gold(bars)
+	gold += bars * Economy.GOLD_BAR_LMD
+	save_base(not in_base)
+	set_message("卖出赤金 ×%d：龙门币 +%s" % [bars, Economy.format(bars * Economy.GOLD_BAR_LMD)])
+	return true
+
+## The camp upgrade (基地建设, not per region): camps stop adding contamination.
+func camp_upgrade_refusal() -> String:
+	if base.camp_upgraded: return "已升级"
+	if gold < BaseCatalog.CAMP_UPGRADE_PRICE: return "龙门币不足"
+	return materials_refusal(BaseCatalog.CAMP_UPGRADE_MATERIALS)
+
+func buy_camp_upgrade() -> bool:
+	if not in_base or not camp_upgrade_refusal().is_empty(): return false
+	consume_materials(BaseCatalog.CAMP_UPGRADE_MATERIALS)
+	gold -= BaseCatalog.CAMP_UPGRADE_PRICE
+	base.camp_upgraded = true
+	save_base()
+	set_message("营地升级完成：在营地停留不再累积污染。")
+	return true
+
+## Hidden difficulty (§4, after 贪婪洞窟's per-floor tables): a curve by floor plus
+## the chosen route's modifier for this floor only. Never shown as a number.
+func difficulty() -> float:
+	var d := FieldCatalog.DIFFICULTY_PER_FLOOR * (floor_number - 1) + float(FieldCatalog.ROUTES[route_index].danger)
+	return maxf(0.0, d * pressure_multiplier())
 
 func passes_pickup_filter(item: Item) -> bool:
 	if item == null or not item.is_equippable() or not item.exclusive_region.is_empty(): return true
@@ -704,23 +1210,21 @@ func cycle_pickup_filter() -> void:
 ## What happens to `item` if she dies right now (策划案 §6 settlement order).
 func death_outcome(item: Item) -> String:
 	if in_base: return ""
-	if item.gilded: return "保留（点金）"
 	if safe_bag.items.has(item): return "保留（安全袋）"
-	if item.insured and item.carried_in: return "%d%% 概率返还（保险）" % roundi(FieldCatalog.INSURANCE_CHANCE * 100)
+	if item.insured: return "送回（投保）"
 	return "丢失"
 
 ## Value at stake (装备与背包界面调研 §5.9): what she carries, what is certain
 ## to come back on death, what insurance is expected to return, what is lost.
 func value_summary() -> Dictionary:
-	var summary := {"carried": 0, "safe": 0, "gilded": 0, "insured": 0, "kept": 0, "expected": 0.0, "lost": 0}
+	var summary := {"carried": 0, "safe": 0, "insured": 0, "kept": 0, "lost": 0}
 	for item in carried_items():
 		summary.carried += item.value
-		if item.gilded: summary.gilded += item.value
-		if safe_bag.items.has(item): summary.safe += item.value
-		if item.insured and item.carried_in: summary.insured += item.value
 		var outcome := death_outcome(item)
-		if outcome.begins_with("保留"): summary.kept += item.value
-		elif outcome.ends_with("（保险）"): summary.expected += item.value * FieldCatalog.INSURANCE_CHANCE
+		if outcome.begins_with("保留"):
+			summary.safe += item.value
+			summary.kept += item.value
+		elif outcome.begins_with("送回"): summary.insured += item.value
 		else: summary.lost += item.value
 	return summary
 
@@ -758,8 +1262,64 @@ func apply_container_sizes() -> void:
 	inventory.resize(pack.x, pack.y)
 	safe_bag.resize(safe.x, safe.y)
 
+## Units of a PRTS material in the warehouse, pack and safe bag (掉落物策划案 §7.1).
+func material_count(id: String) -> int:
+	var total := inventory.count_material(id) + safe_bag.count_material(id)
+	for item in stash:
+		if item.material_id == id: total += item.quantity
+	return total
+
+## "" when every material of `cost` is there, else what is missing.
+func materials_refusal(cost: Dictionary) -> String:
+	var missing: Array[String] = []
+	for id in cost:
+		var short := int(cost[id]) - material_count(id)
+		if short > 0: missing.append("%s×%d" % [id, short])
+	return "" if missing.is_empty() else "缺少 " + "、".join(missing)
+
+## Takes `cost` out, from the warehouse first, then the safe bag, then the pack.
+func consume_materials(cost: Dictionary) -> bool:
+	if not materials_refusal(cost).is_empty(): return false
+	for id in cost:
+		var need := int(cost[id])
+		for source in ["stash", "safe", "pack"]:
+			var pool: Array = stash if source == "stash" else (safe_bag.items if source == "safe" else inventory.items)
+			for item: Item in pool.duplicate():
+				if need <= 0: break
+				if item.material_id != id: continue
+				var used := mini(need, item.quantity)
+				need -= used
+				if used < item.quantity: item.set_quantity(item.quantity - used)
+				else: _hand_over(item)
+	return true
+
+func upgrade_cost(kind: String) -> Dictionary:
+	var level := (base.pack_level if kind == "pack" else base.safe_level) + 1
+	var table: Array = BaseCatalog.PACK_MATERIALS if kind == "pack" else BaseCatalog.SAFE_MATERIALS
+	return table[level] if level < table.size() else {}
+
+## Gold, rank and materials together, for the terminal buttons.
+func upgrade_refusal(kind: String) -> String:
+	var refusal := base.upgrade_refusal(kind, gold)
+	return refusal if not refusal.is_empty() else materials_refusal(upgrade_cost(kind))
+
+func rack_cost(category: int) -> Dictionary:
+	var slot := base.next_rack_slot(category)
+	return BaseCatalog.RACK_MATERIALS[slot] if slot >= 0 else {}
+
+func rack_refusal(category: int) -> String:
+	var refusal := base.rack_refusal(category, gold)
+	return refusal if not refusal.is_empty() else materials_refusal(rack_cost(category))
+
+func drone_refusal() -> String:
+	if base.drone: return "已就位"
+	if base.rank() < BaseCatalog.DRONE_RANK: return "需要声望 R%d" % BaseCatalog.DRONE_RANK
+	if gold < BaseCatalog.DRONE_PRICE: return "龙门币不足"
+	return materials_refusal(BaseCatalog.DRONE_MATERIALS)
+
 func buy_pack_upgrade() -> bool:
-	if not base.can_upgrade("pack", gold): return false
+	if not upgrade_refusal("pack").is_empty(): return false
+	consume_materials(upgrade_cost("pack"))
 	gold -= int(BaseCatalog.PACK_PRICES[base.pack_level + 1])
 	base.pack_level += 1
 	apply_container_sizes()
@@ -768,7 +1328,8 @@ func buy_pack_upgrade() -> bool:
 	return true
 
 func buy_safe_upgrade() -> bool:
-	if not base.can_upgrade("safe", gold): return false
+	if not upgrade_refusal("safe").is_empty(): return false
+	consume_materials(upgrade_cost("safe"))
 	gold -= int(BaseCatalog.SAFE_PRICES[base.safe_level + 1])
 	base.safe_level += 1
 	apply_container_sizes()
@@ -786,6 +1347,21 @@ func store_all_materials() -> int:
 	return stored
 
 func try_collect(item: Item) -> bool:
+	if item.is_stackable():
+		var before := item.quantity
+		var left := inventory.add_stack(item)
+		if left == 0:
+			save_base(true)
+			sound.play("loot")
+			set_message("拾取 %s ×%d" % [item.display_name(), before])
+			return true
+		if left < before:
+			save_base(true)
+			sound.play("loot")
+			set_message("背包只装下 %d 个 %s，剩余 %d 个留在地上。" % [before - left, item.item_name, left])
+			return false
+		set_message("背包空间不足：%s ×%d 仍留在地上。" % [item.item_name, left])
+		return false
 	if inventory.try_add(item):
 		save_base(true)
 		sound.play("loot")
@@ -827,7 +1403,7 @@ func unequip_to_pack(item: Item) -> bool:
 	return true
 
 func drop_item(item: Item, from: ItemContainer) -> bool:
-	if in_base or item == null or item.gilded or not from.items.has(item): return false
+	if in_base or item == null or not from.items.has(item): return false
 	from.remove(item)
 	save_base(true)
 	var loot := Loot.new()
@@ -948,9 +1524,13 @@ func unstage_to_pack(item: Item) -> bool:
 	save_base()
 	return true
 
+## Base insurance before leaving: the item's 交付价 in 龙门币 (保全系统修订案 §6).
+func insurance_price(item: Item) -> int:
+	return Economy.price(item)
+
 func insure(item: Item) -> bool:
-	if not in_base or not carried_items().has(item) or not item.is_equippable() or item.insured or gold < FieldCatalog.INSURANCE_COST: return false
-	gold -= FieldCatalog.INSURANCE_COST
+	if not in_base or not carried_items().has(item) or not item.is_equippable() or item.insured or gold < insurance_price(item): return false
+	gold -= insurance_price(item)
 	item.insured = true
 	save_base()
 	return true
@@ -974,19 +1554,21 @@ func _hand_over(item: Item) -> bool:
 ## Plain delivery for money, outside any order.
 func sell(item: Item) -> bool:
 	if not in_base or not deliverable_items().has(item) or not _hand_over(item): return false
-	gold += item.value
+	gold += Economy.price(item)
 	save_base()
 	return true
 
 func deliver_to_order(slot: int, item: Item) -> bool:
 	if not in_base or not deliverable_items().has(item) or not base.orders.matches(slot, item): return false
-	_hand_over(item)
 	var result := base.orders.deliver(slot, item)
+	# A stack bigger than the order needs stays where it was, smaller.
+	if item.is_stackable() and int(result.used) < item.quantity: item.set_quantity(item.quantity - int(result.used))
+	else: _hand_over(item)
 	var text := BaseCatalog.order_text(base.orders.slots[slot].id)
 	if result.done:
 		_grant(result.gold, result.prestige)
-		set_message("订单完成：%s  ·  资金 +%d  ·  声望 +%d" % [text, result.gold, result.prestige])
-	else: set_message("已交付 %s：%s 还差 %d 件" % [item.item_name, text, base.orders.remaining(slot)])
+		set_message("订单完成：%s  ·  龙门币 +%s  ·  声望 +%d" % [text, Economy.format(result.gold), result.prestige])
+	else: set_message("已交付 %s ×%d：%s 还差 %d" % [item.item_name, int(result.used), text, base.orders.remaining(slot)])
 	save_base()
 	return true
 
@@ -1012,10 +1594,11 @@ func reroll_order(slot: int) -> bool:
 
 func build_rack(category: int) -> bool:
 	if not in_base: return false
-	var refusal := base.rack_refusal(category, gold)
+	var refusal := rack_refusal(category)
 	if not refusal.is_empty():
 		set_message(refusal)
 		return false
+	consume_materials(rack_cost(category))
 	var slot := base.build_rack(category)
 	gold -= int(BaseCatalog.RACK_PRICES[slot])
 	save_base()
@@ -1023,7 +1606,8 @@ func build_rack(category: int) -> bool:
 	return true
 
 func buy_drone() -> bool:
-	if not in_base or base.drone or base.rank() < BaseCatalog.DRONE_RANK or gold < BaseCatalog.DRONE_PRICE: return false
+	if not in_base or not drone_refusal().is_empty(): return false
+	consume_materials(BaseCatalog.DRONE_MATERIALS)
 	gold -= BaseCatalog.DRONE_PRICE
 	base.drone = true
 	save_base()
@@ -1080,10 +1664,11 @@ func departure_warnings() -> Array[String]:
 
 ## What the contract buttons call: leaves at once, or shows the departure card
 ## first when there is something to look at.
-func request_contract(region: String) -> void:
+func request_contract(region: String, start_camp: int = 0) -> void:
 	if not in_base or transitioning: return
+	_pending_start_camp = start_camp
 	if departure_warnings().is_empty():
-		start_contract(region)
+		start_contract(region, start_camp)
 		return
 	open_modal("station")
 	menu.show_departure(region)
@@ -1091,24 +1676,62 @@ func request_contract(region: String) -> void:
 ## The base's top bar (§5.1): gold, prestige, and contamination and injury when present.
 func base_status_text() -> String:
 	var rank := base.rank()
-	var parts: Array[String] = ["资金 %d" % gold]
+	var parts: Array[String] = ["龙门币 %s" % Economy.format(gold)]
 	parts.append("声望 R%d · %d%s" % [rank, base.prestige, "" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else "/%d" % BaseCatalog.PRESTIGE_RANKS[rank]])
 	if base.contamination >= 1.0: parts.append("污染 %d %s" % [roundi(base.contamination), BaseCatalog.CONTAMINATION_TIER_NAMES[base.contamination_tier()]])
 	if base.injured: parts.append("重伤")
 	return "   ".join(parts)
 
+func carried_potions() -> Array[Item]:
+	var out: Array[Item] = []
+	for container in [inventory, safe_bag]:
+		for item: Item in container.items:
+			if item.is_potion(): out.append(item)
+	return out
+
+func _set_standard_potions(count: int) -> void:
+	for item in carried_potions():
+		inventory.remove(item)
+		safe_bag.remove(item)
+	for i in range(maxi(count, 0)):
+		if not inventory.try_add(BaseCatalog.create_potion("A")): break
+
+## The free 标准急救剂 for this contract go into the pack (what does not fit stays
+## issued for next time).
+func _issue_free_potions() -> void:
+	while base.free_potions > 0 and inventory.try_add(BaseCatalog.create_potion("A")):
+		base.free_potions -= 1
+
+## Q: the first flask by POTION_ORDER, from the pack before the safe bag. At
+## full health only the inhibitor is worth drinking (it also cleanses).
 func _use_potion() -> void:
-	if potion_belt.is_empty(): return
-	var type: String = potion_belt[0]
-	# Healing flasks are kept for when they help; the inhibitor also cleanses.
-	if player.hp >= player.max_hp and type != "C": return
-	potion_belt.remove_at(0)
+	var carried := carried_potions()
+	if carried.is_empty(): return
+	var pick: Item = null
+	for type in POTION_ORDER:
+		for item in carried:
+			if item.potion_type == type:
+				pick = item
+				break
+		if pick != null: break
+	if player.hp >= player.max_hp and pick.potion_type != "C":
+		var inhibitor := carried.filter(func(x): return x.potion_type == "C")
+		if inhibitor.is_empty(): return
+		pick = inhibitor[0]
+	drink(pick)
+
+## Drinks one flask she carries (Q, or right click in the pack).
+func drink(item: Item) -> bool:
+	if in_base or item == null or not item.is_potion() or not carried_items().has(item): return false
+	inventory.remove(item)
+	safe_bag.remove(item)
+	var type := item.potion_type
 	var amount: float = {"A": BaseCatalog.POTION_A_HEAL, "B": BaseCatalog.POTION_B_HEAL, "C": BaseCatalog.POTION_C_HEAL}[type]
 	if builds.has("ore_heart"): amount *= 0.5
 	if builds.has("bloodthirst"): amount *= 0.7
 	if builds.has("safe_salvage"):
-		amount *= 1.0 + 0.25 * safe_bag.items.filter(func(item): return not item.is_equippable()).size()
-	amount *= _potion_heal_factor
+		amount *= 1.0 + 0.25 * safe_bag.items.filter(func(x): return not x.is_equippable()).size()
+	amount *= _potion_heal_factor * player.potion_heal_multiplier
 	match type:
 		"B":
 			# A new gel replaces what was left of the last one.
@@ -1122,12 +1745,9 @@ func _use_potion() -> void:
 			set_message("抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])
 		_:
 			player.heal(amount, true)
-			set_message("药瓶恢复 %d 生命" % roundi(amount))
-
-## Capacity can drop mid-contract (builds): flasks go from the end of the belt.
-func _clamp_belt() -> void:
-	var cap := player.potion_capacity + (1 if _run_extra_potion else 0)
-	if potion_belt.size() > cap: potion_belt.resize(cap)
+			set_message("标准急救剂：回复 %d 生命" % roundi(amount))
+	save_base(true)
+	return true
 
 # --- Medical (§4) ------------------------------------------------------------
 
@@ -1164,13 +1784,6 @@ func _apply_medical_state() -> void:
 	_suppress_timer = 0.0
 	_slow_heal_left = 0.0
 	_announced_tier = base.contamination_tier()
-	_run_extra_potion = not base.extra_potion.is_empty()
-	var configured: Array[String] = base.potions.duplicate()
-	while configured.size() < player.potion_capacity: configured.append("A")
-	configured.resize(maxi(player.potion_capacity, 0))
-	if _run_extra_potion: configured.append(base.extra_potion)
-	configured.resize(mini(configured.size(), player.potion_capacity + (1 if _run_extra_potion else 0)))
-	potion_belt = configured
 
 func _tick_medical(delta: float) -> void:
 	if _slow_heal_left > 0.0:
@@ -1184,32 +1797,18 @@ func _tick_medical(delta: float) -> void:
 		set_message("污染升到 %d（%s）：下次出发会带减益，回基地后可在医疗部处理。" % [roundi(current_contamination()), BaseCatalog.CONTAMINATION_TIER_NAMES[tier]])
 	_announced_tier = maxi(_announced_tier, tier)
 
-## Pharmacy (§4.3): changing a slot refunds what the old flask cost and charges
-## the new one, so changing your mind before leaving costs nothing.
-func set_potion(slot: int, type: String) -> bool:
-	if not in_base or slot < 0 or slot >= base.potions.size() or not BaseCatalog.POTIONS.has(type): return false
+## Pharmacy (药剂进背包): one flask straight into the pack for the next contract.
+## 标准急救剂 are free while this contract's free issue lasts.
+func buy_potion(type: String) -> bool:
+	if not in_base or not BaseCatalog.POTIONS.has(type): return false
 	var price := base.potion_price(type)
-	if price < 0: return false
-	var cost := price - base.potion_price(base.potions[slot])
-	if gold < cost: return false
-	gold -= cost
-	base.potions[slot] = type
-	save_base()
-	return true
-
-func buy_extra_potion(type: String) -> bool:
-	if not in_base or not base.extra_potion.is_empty() or not BaseCatalog.POTIONS.has(type): return false
-	var price := base.potion_price(type)
-	if price < 0 or gold < BaseCatalog.EXTRA_POTION_PRICE + price: return false
-	gold -= BaseCatalog.EXTRA_POTION_PRICE + price
-	base.extra_potion = type
-	save_base()
-	return true
-
-func return_extra_potion() -> bool:
-	if not in_base or base.extra_potion.is_empty(): return false
-	gold += BaseCatalog.EXTRA_POTION_PRICE + base.potion_price(base.extra_potion)
-	base.extra_potion = ""
+	if price < 0 or gold < price: return false
+	var flask := BaseCatalog.create_potion(type)
+	if not inventory.try_add(flask):
+		set_message("背包空间不足：药剂要占一格。")
+		return false
+	gold -= price
+	if type == "A" and price == 0: base.free_potions -= 1
 	save_base()
 	return true
 
@@ -1258,16 +1857,17 @@ func _spawn_wave() -> void:
 			elif i % 6 == 4: type = "crossbow"
 		_spawn_enemy(Vector3(point.x, 0, point.y), elite, ranged, type)
 	_spawn_guard_post(world_map.buff_position, "强化装置", false)
-	_spawn_guard_post(world_map.gilding_position, "点金装置", route_index > 0)
 	# Every authored supply pocket pays off, including the optional loop.
+	# Each is a typed point of interest (掉落物策划案 §4.1).
+	var kinds := LootTables.plan_points(region_id, world_map.cache_positions.size(), rng)
 	for i in range(world_map.cache_positions.size()):
-		var loot := Loot.new()
-		loot.game = self
-		loot.item = _roll_item()
-		loot.is_search_point = true
-		add_child(loot)
-		loot.global_position = world_map.cache_positions[i % world_map.cache_positions.size()]
-		_spawn_guard_post(loot.global_position, "补给箱", route_index == 2 or (region_id == "snow" and i % 3 == 0))
+		var box := LootContainer.new()
+		box.game = self
+		box.kind = kinds[i]
+		box.guarded = route_index == 2 or (region_id == "snow" and i % 3 == 0)
+		add_child(box)
+		box.global_position = world_map.cache_positions[i]
+		_spawn_guard_post(box.global_position, box.title(), box.guarded)
 
 func _spawn_enemy(position: Vector3, elite: bool, ranged: bool, type: String = "") -> Enemy:
 	var enemy := Enemy.new()
@@ -1313,7 +1913,6 @@ func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false
 	return post
 
 func _on_enemy_died(_enemy: Enemy) -> void:
-	pressure = minf(100, pressure + 1.5 * pressure_multiplier())
 	player.on_kill(_enemy)
 	segment_threat += RelicCatalog.ELITE_THREAT if _enemy.elite else 1
 	if not _cache_spawned and segment_threat >= RelicCatalog.CACHE_THREAT and not in_base and not _enemy in _vault_guardians:
@@ -1325,30 +1924,97 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 		_vault_guardians.erase(_enemy)
 		if _vault_guardians.is_empty():
 			for node in get_tree().get_nodes_in_group("sealed_loot"):
-				node.set("sealed", false)
+				if node.has_method("unseal"): node.unseal()
+				else: node.set("sealed", false)
 			for node in get_tree().get_nodes_in_group("relic_caches"): node.set("sealed", false)
 			set_message("守卫者全部倒下：密室的封印解除。")
 		else: set_message("密室仍有 %d 名守卫者，宝箱尚未解封。" % _vault_guardians.size())
 		return
-	set_message("交战提高警戒。继续搜刮，或寻找深入 / 撤离标记。")
 
-func _roll_item() -> Item:
+## What the loot tables need (掉落物策划案 §3–5). The pity counters live on
+## the base so they carry across contracts.
+func loot_ctx() -> Dictionary:
 	var reward := float(FieldCatalog.ROUTES[route_index].reward) + float(FieldCatalog.depth_profile(floor_number).reward)
-	return FieldCatalog.roll_item(region_id, floor_number, rng, reward)
+	return {"region": region_id, "depth": floor_number, "reward": reward, "rng": rng, "pity": base.loot_pity}
 
 func _roll_named_item() -> Item: return FieldCatalog.exclusive(region_id)
 
-func spawn_loot(position: Vector3) -> void:
-	var loot := Loot.new()
-	loot.game = self
-	if rng.randf() < (0.45 if region_id == "snow" else 0.7): loot.item = _roll_item()
-	else: loot.gold_value = 20 if region_id == "snow" else 10
-	add_child(loot)
-	loot.global_position = position + Vector3.UP * 0.1
+func spawn_enemy_drops(enemy: Enemy) -> void:
+	_drop_at(enemy.global_position, LootTables.enemy_drops(enemy.enemy_type, enemy.elite, enemy.behavior == Enemy.Behavior.GUARD, loot_ctx()), 0.7)
 
-func add_gold(amount: int) -> void:
-	run_gold += int(amount * player.gold_gain_multiplier)
-	set_message("获得合同报酬 %d（撤离后入账）" % amount)
+func on_container_opened(box: LootContainer) -> void:
+	var drops := LootTables.container_drops(box.kind, loot_ctx(), box.guarded)
+	_drop_at(box.global_position, drops, 1.3)
+	sound.play("loot")
+	set_message("%s已开启：%d 份物资散落在周围。" % [box.title(), drops.size()])
+	save_base(true)
+
+## Scatters drops ({"item"} / {"gold"}) in a ring around `position`.
+func _drop_at(position: Vector3, drops: Array, radius: float) -> void:
+	var start := rng.randf() * TAU
+	for i in range(drops.size()):
+		var drop: Dictionary = drops[i]
+		var loot := Loot.new()
+		loot.game = self
+		if drop.has("item"): loot.item = drop.item
+		else:
+			# The loot tables still speak in old reward units; they land as 赤金.
+			var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier, rng)
+			if bars <= 0:
+				loot.free()
+				continue
+			loot.item = MaterialCatalog.create(Economy.GOLD_ID, bars, region_id)
+		loot.pickup_delay = 0.35
+		add_child(loot)
+		var offset := Vector3.ZERO
+		if drops.size() > 1 or radius > 1.0:
+			var angle := start + TAU * i / maxf(drops.size(), 1)
+			offset = Vector3(cos(angle), 0.0, sin(angle)) * radius * rng.randf_range(0.8, 1.2)
+		loot.global_position = position + offset + Vector3.UP * 0.1
+
+## Gives `bars` 赤金 (raised by gold-gain effects such as 友谊之证) into the
+## pack; what does not fit lands at her feet. Returns how many were given.
+func add_gold(bars: int) -> int:
+	var given := roundi(bars * player.gold_gain_multiplier)
+	if given <= 0: return 0
+	var left := given
+	while left > 0:
+		var stack := MaterialCatalog.create(Economy.GOLD_ID, mini(left, MaterialCatalog.stack_size(Economy.GOLD_ID)), region_id if not in_base else "")
+		left -= stack.quantity
+		var rest := inventory.add_stack(stack)
+		if rest > 0 and not in_base: _drop_at(player.global_position, [{"item": stack}], 0.8)
+	set_message("获得赤金 ×%d" % given)
+	return given
+
+## 赤金 carried, pack and safe bag together.
+func gold_bars() -> int:
+	return inventory.count_material(Economy.GOLD_ID) + safe_bag.count_material(Economy.GOLD_ID)
+
+## Takes `bars` 赤金, from the pack first, then the safe bag. False (and nothing
+## taken) when she does not carry that many.
+func spend_gold_bars(bars: int) -> bool:
+	if bars <= 0: return true
+	if gold_bars() < bars: return false
+	var need := bars
+	for container in [inventory, safe_bag]:
+		for item: Item in container.items.duplicate():
+			if need <= 0: break
+			if item.material_id != Economy.GOLD_ID: continue
+			var used := mini(need, item.quantity)
+			need -= used
+			if used < item.quantity: item.set_quantity(item.quantity - used)
+			else: container.remove(item)
+	return true
+
+func _set_gold_bars(bars: int) -> void:
+	for container in [inventory, safe_bag]:
+		for item: Item in container.items.duplicate():
+			if item.material_id == Economy.GOLD_ID: container.remove(item)
+	var left := maxi(bars, 0)
+	while left > 0:
+		var stack := MaterialCatalog.create(Economy.GOLD_ID, mini(left, MaterialCatalog.stack_size(Economy.GOLD_ID)))
+		left -= stack.quantity
+		if inventory.add_stack(stack) > 0: break
 
 func save_base(active_contract: bool = false) -> void:
 	if not save_enabled: return
@@ -1357,7 +2023,7 @@ func save_base(active_contract: bool = false) -> void:
 		var entry := item.to_data()
 		entry["place"] = "safe" if safe_bag.items.has(item) else ("equipped" if player.equipped.values().has(item) else "pack")
 		loadout.append(entry)
-	var data := {"version": 2, "gold": gold, "base": base.to_data(), "loadout": loadout,
+	var data := {"version": 3, "gold": gold, "base": base.to_data(), "loadout": loadout,
 		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter}
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
@@ -1372,14 +2038,15 @@ func save_base(active_contract: bool = false) -> void:
 func load_base() -> void:
 	if not FileAccess.file_exists(save_path): return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
-	if not parsed is Dictionary or not int(parsed.get("version", 0)) in [1, 2]:
+	if not parsed is Dictionary or not int(parsed.get("version", 0)) in [1, 2, 3]:
 		if FileAccess.file_exists(save_path + ".bak"):
 			parsed = JSON.parse_string(FileAccess.get_file_as_string(save_path + ".bak"))
-		if not parsed is Dictionary or not int(parsed.get("version", 0)) in [1, 2]:
+		if not parsed is Dictionary or not int(parsed.get("version", 0)) in [1, 2, 3]:
 			set_message("无法读取存档；原文件保留，请检查备份。")
 			save_enabled = false
 			return
-	gold = int(parsed.get("gold", 60))
+	# Before version 3 the balance was 资金; it is 龙门币 now, ×100 (经济修订案 §3).
+	gold = int(parsed.get("gold", 60)) * (1 if int(parsed.get("version", 1)) >= 3 else Economy.LMD_PER_VALUE)
 	pickup_filter = clampi(int(parsed.get("pickup_filter", 0)), 0, PICKUP_FILTER_NAMES.size() - 1)
 	var seen := {}
 	# Version 1 kept one flat warehouse list; it goes onto the shelves, overflow to staging.
@@ -1446,6 +2113,9 @@ func _build_hud() -> void:
 	_hud = Hud.new()
 	_hud.game = self
 	layer.add_child(_hud)
+	var base_hud := BaseHud.new()
+	base_hud.game = self
+	layer.add_child(base_hud)
 
 func _build_inventory_panel() -> void:
 	var layer := CanvasLayer.new()
@@ -1454,24 +2124,33 @@ func _build_inventory_panel() -> void:
 	_inventory_panel.game = self
 	_inventory_panel.visible = false
 	layer.add_child(_inventory_panel)
+	field_panels = FieldPanels.new()
+	field_panels.game = self
+	layer.add_child(field_panels)
 
 func _handle_pointer_input(pointed_enemy: Enemy) -> void:
 	if _pointer_gate:
 		_pointer_gate = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
 		return
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		player.clear_target()
 		player.set_move_target(_get_pointer_ground())
 
 	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		return
 
+	# Left on an enemy locks it: she closes to her weapon's reach and attacks it
+	# (Player._follow_target). One click is enough; holding keeps it.
 	if is_instance_valid(pointed_enemy):
-		if player.is_target_in_range(pointed_enemy):
-			player.clear_move_target()
-		else:
-			player.set_move_target(pointed_enemy.global_position)
+		player.lock_target(pointed_enemy)
 		return
 
+	# Left on the ground drops the lock. A blade swings at the air there (and
+	# lands on an enemy in reach in front); a ranged weapon walks there instead.
+	player.clear_target()
+	if player.is_ranged_weapon():
+		player.set_move_target(_get_pointer_ground())
+		return
 	player.clear_move_target()
 	player.attack_direction(_get_pointer_ground() - player.global_position)
 

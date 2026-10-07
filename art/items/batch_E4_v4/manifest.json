@@ -1,0 +1,2541 @@
+{
+  "batch": "E4",
+  "version": 4,
+  "source_brief": "../E4_brief_v1.md",
+  "revision_brief": "../E4_revision_v4.md",
+  "reference_board": "../E_reference_board.md",
+  "display_scale": 1,
+  "preview_scale": 8,
+  "palette": {
+    "outline": [
+      "#0b0c0d"
+    ],
+    "steel": [
+      "#2a2d33",
+      "#4a5058",
+      "#7d868e",
+      "#b4bec4",
+      "#eef3f5"
+    ],
+    "leather": [
+      "#2e2018",
+      "#5a3d2a",
+      "#86603f",
+      "#b48a5e"
+    ],
+    "rust": [
+      "#4a2a1d",
+      "#7d4529",
+      "#b06a3a",
+      "#d99560"
+    ],
+    "canvas": [
+      "#5a4d3a",
+      "#857555",
+      "#b3a27c",
+      "#d6c8a2"
+    ],
+    "originium": [
+      "#b85a12",
+      "#ee8a24",
+      "#ffb35a",
+      "#ffe0a8"
+    ],
+    "navy": [
+      "#141f30",
+      "#24395a",
+      "#3d6088",
+      "#6f9cc6",
+      "#b5d2ea"
+    ],
+    "vermilion": [
+      "#6e1616",
+      "#a82a22",
+      "#d9483a",
+      "#f07a62"
+    ],
+    "brass": [
+      "#6e5220",
+      "#a8822e",
+      "#dcb85a"
+    ],
+    "wood": [
+      "#3f2a1a",
+      "#6b4a2e",
+      "#9a7048"
+    ],
+    "bone": [
+      "#8e8470",
+      "#b9ae95",
+      "#e6dfcc",
+      "#fbf8ee"
+    ],
+    "ice": [
+      "#3d6a8a",
+      "#5d8fb0",
+      "#9cc8e0",
+      "#e4f4fb"
+    ]
+  },
+  "slot_backgrounds": [
+    "#2c2e30",
+    "#142538",
+    "#352710",
+    "#381b0f"
+  ],
+  "contact_sheet": "contact_sheet.png",
+  "contact_sheet_2x": "contact_sheet_2x.png",
+  "generator_metadata": "generation_metadata.json",
+  "reference_provenance": "references/provenance.json",
+  "processing_scripts": [
+    "process_sources.py",
+    "revise_native.py"
+  ],
+  "validation_script": "validate_batch.py",
+  "validation_policy": {
+    "raw_originium": "v4 40-60 white pixels in five continuous edge lines supersedes old 15% bright-pixel floor; see actual metric and qa_report rule_resolution",
+    "other_items": "original brightness and material-area gates retained"
+  },
+  "silhouette_check": "silhouette_check.png",
+  "generation_prompts": "generation_prompts.md",
+  "isolated_pixel_definition": "Opaque pixels with no equal RGBA orthogonal neighbor / all opaque pixels",
+  "interior_isolated_pixel_definition": "Same test restricted to pixels with four opaque orthogonal neighbors; checks broad areas separately from thin contours and effects",
+  "items": [
+    {
+      "id": "raw_originium",
+      "name": "未封装源石原矿",
+      "kind": "trinket",
+      "region": "mine",
+      "category": "regional_exclusive",
+      "file": "raw_originium.png",
+      "preview": "raw_originium_8x.png",
+      "native_size": [
+        32,
+        72
+      ],
+      "has_emit": true,
+      "emit_file": "raw_originium_emit.png",
+      "emit_pixel_count": 33,
+      "source": "sources/raw_originium_source.png",
+      "prototype_urls": [
+        "https://prts.wiki/w/源石碎片",
+        "https://prts.wiki/w/至纯源石"
+      ],
+      "revision": {
+        "status": "five-shard repaint",
+        "shard_count": 5,
+        "white_edge_paths": [
+          [
+            [
+              17,
+              3
+            ],
+            [
+              16,
+              4
+            ],
+            [
+              15,
+              5
+            ],
+            [
+              15,
+              6
+            ],
+            [
+              14,
+              7
+            ],
+            [
+              14,
+              8
+            ],
+            [
+              13,
+              9
+            ],
+            [
+              13,
+              10
+            ],
+            [
+              12,
+              11
+            ],
+            [
+              12,
+              12
+            ],
+            [
+              11,
+              13
+            ],
+            [
+              11,
+              14
+            ],
+            [
+              12,
+              15
+            ],
+            [
+              13,
+              16
+            ]
+          ],
+          [
+            [
+              1,
+              19
+            ],
+            [
+              1,
+              20
+            ],
+            [
+              1,
+              21
+            ],
+            [
+              1,
+              22
+            ],
+            [
+              2,
+              23
+            ],
+            [
+              2,
+              24
+            ],
+            [
+              2,
+              25
+            ],
+            [
+              3,
+              26
+            ],
+            [
+              3,
+              27
+            ],
+            [
+              4,
+              28
+            ],
+            [
+              4,
+              29
+            ],
+            [
+              5,
+              30
+            ]
+          ],
+          [
+            [
+              30,
+              24
+            ],
+            [
+              30,
+              25
+            ],
+            [
+              29,
+              26
+            ],
+            [
+              28,
+              27
+            ],
+            [
+              27,
+              28
+            ],
+            [
+              26,
+              29
+            ]
+          ],
+          [
+            [
+              1,
+              40
+            ],
+            [
+              1,
+              41
+            ],
+            [
+              2,
+              42
+            ],
+            [
+              2,
+              43
+            ],
+            [
+              2,
+              44
+            ],
+            [
+              3,
+              45
+            ],
+            [
+              3,
+              46
+            ],
+            [
+              4,
+              47
+            ],
+            [
+              4,
+              48
+            ],
+            [
+              5,
+              49
+            ],
+            [
+              6,
+              50
+            ],
+            [
+              7,
+              51
+            ]
+          ],
+          [
+            [
+              29,
+              41
+            ],
+            [
+              28,
+              42
+            ],
+            [
+              27,
+              43
+            ],
+            [
+              26,
+              44
+            ],
+            [
+              25,
+              45
+            ],
+            [
+              24,
+              46
+            ],
+            [
+              23,
+              47
+            ],
+            [
+              22,
+              48
+            ]
+          ]
+        ],
+        "white_pixel_count": 52,
+        "hollow_square": {
+          "origin": [
+            15,
+            26
+          ],
+          "size": 3
+        },
+        "crack_paths": [
+          [
+            [
+              16,
+              18
+            ],
+            [
+              16,
+              19
+            ],
+            [
+              16,
+              20
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              16,
+              22
+            ],
+            [
+              16,
+              23
+            ],
+            [
+              16,
+              24
+            ]
+          ],
+          [
+            [
+              17,
+              31
+            ],
+            [
+              17,
+              32
+            ],
+            [
+              17,
+              33
+            ],
+            [
+              17,
+              34
+            ],
+            [
+              17,
+              35
+            ],
+            [
+              17,
+              36
+            ],
+            [
+              17,
+              37
+            ]
+          ]
+        ],
+        "readability_policy": "E4_revision_v4: 40-60 white pixels in five continuous lines takes precedence over the old 15% bright-pixel floor for this dark specimen"
+      },
+      "color_count": 9,
+      "isolated_pixel_percent": 3.45,
+      "interior_isolated_pixel_percent": 2.27,
+      "bright_pixel_percent": 4.32,
+      "largest_color_percent": 24.39
+    },
+    {
+      "id": "riot_shield",
+      "name": "近卫局暴动盾",
+      "kind": "armor",
+      "region": "lungmen",
+      "category": "regional_exclusive",
+      "file": "riot_shield.png",
+      "preview": "riot_shield_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/riot_shield_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Riot_shield"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3",
+        "changed_roi": [
+          15,
+          41,
+          57,
+          65
+        ],
+        "scratch_paths": [
+          [
+            [
+              20,
+              44
+            ],
+            [
+              21,
+              45
+            ],
+            [
+              22,
+              46
+            ],
+            [
+              23,
+              47
+            ]
+          ],
+          [
+            [
+              30,
+              45
+            ],
+            [
+              31,
+              46
+            ],
+            [
+              32,
+              47
+            ],
+            [
+              33,
+              48
+            ]
+          ],
+          [
+            [
+              40,
+              49
+            ],
+            [
+              41,
+              50
+            ],
+            [
+              42,
+              51
+            ],
+            [
+              43,
+              52
+            ]
+          ],
+          [
+            [
+              23,
+              57
+            ],
+            [
+              24,
+              58
+            ],
+            [
+              25,
+              59
+            ],
+            [
+              26,
+              60
+            ]
+          ],
+          [
+            [
+              47,
+              58
+            ],
+            [
+              48,
+              59
+            ],
+            [
+              49,
+              60
+            ],
+            [
+              50,
+              61
+            ]
+          ]
+        ],
+        "outside_roi": "unchanged v2 pixels"
+      },
+      "color_count": 11,
+      "isolated_pixel_percent": 0.88,
+      "interior_isolated_pixel_percent": 0.91,
+      "bright_pixel_percent": 19.73,
+      "largest_color_percent": 17.35
+    },
+    {
+      "id": "frozen_relic",
+      "name": "冻土下的旧物",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "regional_exclusive",
+      "file": "frozen_relic.png",
+      "preview": "frozen_relic_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/frozen_relic_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Bone_carving"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3"
+      },
+      "color_count": 9,
+      "isolated_pixel_percent": 3.77,
+      "interior_isolated_pixel_percent": 0.95,
+      "bright_pixel_percent": 47.31,
+      "largest_color_percent": 24.42
+    },
+    {
+      "id": "lord_blade",
+      "name": "领主宽刃",
+      "kind": "weapon",
+      "region": "lungmen",
+      "category": "special",
+      "file": "lord_blade.png",
+      "preview": "lord_blade_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/lord_blade_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Zhanmadao",
+        "https://en.wikipedia.org/wiki/Chinese_chef%27s_knife"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3"
+      },
+      "color_count": 12,
+      "isolated_pixel_percent": 1.8,
+      "interior_isolated_pixel_percent": 0.4,
+      "bright_pixel_percent": 32.79,
+      "largest_color_percent": 20.72
+    },
+    {
+      "id": "twin_fang",
+      "name": "双生狼牙",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "special",
+      "file": "twin_fang.png",
+      "preview": "twin_fang_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "twin_fang_emit.png",
+      "emit_pixel_count": 6,
+      "source": "sources/twin_fang_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Butterfly_sword"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3"
+      },
+      "color_count": 11,
+      "isolated_pixel_percent": 11.65,
+      "interior_isolated_pixel_percent": 4.86,
+      "bright_pixel_percent": 36.39,
+      "largest_color_percent": 21.52
+    },
+    {
+      "id": "ember_fang",
+      "name": "余烬之牙",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "special",
+      "file": "ember_fang.png",
+      "preview": "ember_fang_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "ember_fang_emit.png",
+      "emit_pixel_count": 81,
+      "source": "sources/ember_fang_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Kukri"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3"
+      },
+      "color_count": 17,
+      "isolated_pixel_percent": 11.92,
+      "interior_isolated_pixel_percent": 5.58,
+      "bright_pixel_percent": 27.1,
+      "largest_color_percent": 11.67
+    },
+    {
+      "id": "moon_edge",
+      "name": "月下刃",
+      "kind": "weapon",
+      "region": "sami",
+      "category": "special",
+      "file": "moon_edge.png",
+      "preview": "moon_edge_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "moon_edge_emit.png",
+      "emit_pixel_count": 66,
+      "source": "sources/moon_edge_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Miao_dao"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3"
+      },
+      "color_count": 13,
+      "isolated_pixel_percent": 6.34,
+      "interior_isolated_pixel_percent": 2.88,
+      "bright_pixel_percent": 37.23,
+      "largest_color_percent": 19.41
+    },
+    {
+      "id": "crystal_edge",
+      "name": "源石结晶刃",
+      "kind": "weapon",
+      "region": "mine",
+      "category": "special",
+      "file": "crystal_edge.png",
+      "preview": "crystal_edge_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "crystal_edge_emit.png",
+      "emit_pixel_count": 48,
+      "source": "sources/crystal_edge_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Kindjal",
+        "https://prts.wiki/w/源石碎片",
+        "https://prts.wiki/w/至纯源石"
+      ],
+      "revision": {
+        "status": "partial edge crust repaint",
+        "hollow_square": {
+          "origin": [
+            64,
+            13
+          ],
+          "size": 3
+        },
+        "edge_span": [
+          26,
+          70
+        ],
+        "ore_columns": {
+          "upper": [
+            30,
+            31,
+            32,
+            33,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69
+          ],
+          "lower": [
+            30,
+            31,
+            32,
+            33,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69
+          ]
+        },
+        "ore_edge_coverage_percent": 46.67,
+        "ore_mask": "layers/crystal_edge_ore_mask.png",
+        "clean_highlight_paths": [
+          [
+            [
+              26,
+              10
+            ],
+            [
+              27,
+              10
+            ],
+            [
+              28,
+              10
+            ],
+            [
+              29,
+              10
+            ],
+            [
+              34,
+              9
+            ],
+            [
+              35,
+              9
+            ],
+            [
+              36,
+              9
+            ],
+            [
+              37,
+              10
+            ],
+            [
+              38,
+              10
+            ],
+            [
+              39,
+              10
+            ],
+            [
+              40,
+              10
+            ],
+            [
+              41,
+              11
+            ],
+            [
+              42,
+              11
+            ],
+            [
+              43,
+              11
+            ],
+            [
+              44,
+              12
+            ],
+            [
+              45,
+              12
+            ],
+            [
+              46,
+              12
+            ],
+            [
+              47,
+              12
+            ],
+            [
+              48,
+              13
+            ],
+            [
+              49,
+              13
+            ],
+            [
+              50,
+              13
+            ],
+            [
+              51,
+              14
+            ],
+            [
+              52,
+              14
+            ],
+            [
+              70,
+              17
+            ]
+          ],
+          [
+            [
+              26,
+              23
+            ],
+            [
+              27,
+              23
+            ],
+            [
+              28,
+              23
+            ],
+            [
+              29,
+              23
+            ],
+            [
+              34,
+              23
+            ],
+            [
+              35,
+              23
+            ],
+            [
+              36,
+              23
+            ],
+            [
+              37,
+              22
+            ],
+            [
+              38,
+              22
+            ],
+            [
+              39,
+              22
+            ],
+            [
+              40,
+              22
+            ],
+            [
+              41,
+              21
+            ],
+            [
+              42,
+              21
+            ],
+            [
+              43,
+              21
+            ],
+            [
+              44,
+              20
+            ],
+            [
+              45,
+              20
+            ],
+            [
+              46,
+              20
+            ],
+            [
+              47,
+              20
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              49,
+              19
+            ],
+            [
+              50,
+              19
+            ],
+            [
+              51,
+              18
+            ],
+            [
+              52,
+              18
+            ],
+            [
+              70,
+              17
+            ]
+          ]
+        ],
+        "preserved_hilt_columns": [
+          0,
+          25
+        ],
+        "steel_spine_columns": [
+          26,
+          61
+        ]
+      },
+      "color_count": 14,
+      "isolated_pixel_percent": 8.16,
+      "interior_isolated_pixel_percent": 5.65,
+      "bright_pixel_percent": 23.31,
+      "largest_color_percent": 17.27
+    },
+    {
+      "id": "vein_core",
+      "name": "共振矿芯",
+      "kind": "trinket",
+      "region": "mine",
+      "category": "special",
+      "file": "vein_core.png",
+      "preview": "vein_core_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "vein_core_emit.png",
+      "emit_pixel_count": 175,
+      "source": "sources/vein_core_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Crystal_habit"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3"
+      },
+      "color_count": 14,
+      "isolated_pixel_percent": 8.52,
+      "interior_isolated_pixel_percent": 7.09,
+      "bright_pixel_percent": 25.16,
+      "largest_color_percent": 15.8
+    },
+    {
+      "id": "shadow_bracer",
+      "name": "残影护腕",
+      "kind": "trinket",
+      "region": "lungmen",
+      "category": "special",
+      "file": "shadow_bracer.png",
+      "preview": "shadow_bracer_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/shadow_bracer_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Bracer"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3",
+        "main_width": 19,
+        "offset": [
+          5,
+          1
+        ],
+        "native_detail_restoration": "two-row pointed upper cuff; duplicate peaks visible in black silhouette",
+        "main_layer": "layers/shadow_bracer_main.png",
+        "echo_layer": "layers/shadow_bracer_echo.png",
+        "echo_palette": [
+          "#141f30",
+          "#24395a"
+        ]
+      },
+      "color_count": 9,
+      "isolated_pixel_percent": 3.36,
+      "interior_isolated_pixel_percent": 1.35,
+      "bright_pixel_percent": 17.01,
+      "largest_color_percent": 22.43
+    },
+    {
+      "id": "spike_plate",
+      "name": "尖刺重铠",
+      "kind": "armor",
+      "region": "mine",
+      "category": "special",
+      "file": "spike_plate.png",
+      "preview": "spike_plate_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/spike_plate_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Breastplate"
+      ],
+      "revision": {
+        "status": "rust lines replaced by compact patches",
+        "preserved_alpha": "exact v3",
+        "rust_patches": [
+          [
+            [
+              36,
+              42
+            ],
+            [
+              37,
+              41
+            ],
+            [
+              37,
+              42
+            ],
+            [
+              38,
+              42
+            ]
+          ],
+          [
+            [
+              34,
+              67
+            ],
+            [
+              34,
+              68
+            ],
+            [
+              35,
+              66
+            ]
+          ],
+          [
+            [
+              23,
+              31
+            ],
+            [
+              23,
+              32
+            ],
+            [
+              23,
+              33
+            ]
+          ],
+          [
+            [
+              40,
+              50
+            ],
+            [
+              41,
+              50
+            ],
+            [
+              41,
+              51
+            ]
+          ],
+          [
+            [
+              31,
+              17
+            ],
+            [
+              32,
+              18
+            ]
+          ],
+          [
+            [
+              47,
+              33
+            ],
+            [
+              48,
+              33
+            ]
+          ],
+          [
+            [
+              37,
+              67
+            ],
+            [
+              38,
+              66
+            ]
+          ],
+          [
+            [
+              48,
+              45
+            ],
+            [
+              49,
+              45
+            ]
+          ],
+          [
+            [
+              32,
+              26
+            ],
+            [
+              33,
+              26
+            ]
+          ],
+          [
+            [
+              63,
+              26
+            ],
+            [
+              63,
+              27
+            ]
+          ],
+          [
+            [
+              55,
+              21
+            ],
+            [
+              56,
+              20
+            ]
+          ]
+        ],
+        "rust_highlight_points": [
+          [
+            37,
+            41
+          ],
+          [
+            35,
+            66
+          ],
+          [
+            23,
+            33
+          ],
+          [
+            40,
+            50
+          ],
+          [
+            31,
+            17
+          ]
+        ],
+        "repair_mask": [
+          [
+            5,
+            27
+          ],
+          [
+            6,
+            23
+          ],
+          [
+            7,
+            19
+          ],
+          [
+            7,
+            22
+          ],
+          [
+            7,
+            23
+          ],
+          [
+            7,
+            28
+          ],
+          [
+            8,
+            19
+          ],
+          [
+            8,
+            20
+          ],
+          [
+            8,
+            21
+          ],
+          [
+            8,
+            22
+          ],
+          [
+            8,
+            23
+          ],
+          [
+            9,
+            15
+          ],
+          [
+            10,
+            15
+          ],
+          [
+            10,
+            32
+          ],
+          [
+            11,
+            14
+          ],
+          [
+            11,
+            15
+          ],
+          [
+            11,
+            25
+          ],
+          [
+            11,
+            27
+          ],
+          [
+            12,
+            11
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            12,
+            14
+          ],
+          [
+            12,
+            27
+          ],
+          [
+            13,
+            12
+          ],
+          [
+            13,
+            13
+          ],
+          [
+            14,
+            32
+          ],
+          [
+            16,
+            9
+          ],
+          [
+            16,
+            10
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            16,
+            21
+          ],
+          [
+            16,
+            23
+          ],
+          [
+            17,
+            10
+          ],
+          [
+            17,
+            23
+          ],
+          [
+            17,
+            34
+          ],
+          [
+            17,
+            37
+          ],
+          [
+            18,
+            10
+          ],
+          [
+            18,
+            22
+          ],
+          [
+            18,
+            29
+          ],
+          [
+            18,
+            30
+          ],
+          [
+            18,
+            37
+          ],
+          [
+            18,
+            38
+          ],
+          [
+            19,
+            10
+          ],
+          [
+            19,
+            11
+          ],
+          [
+            19,
+            12
+          ],
+          [
+            19,
+            13
+          ],
+          [
+            19,
+            14
+          ],
+          [
+            19,
+            38
+          ],
+          [
+            19,
+            44
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            20,
+            8
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            20,
+            12
+          ],
+          [
+            20,
+            13
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            20,
+            15
+          ],
+          [
+            20,
+            35
+          ],
+          [
+            20,
+            38
+          ],
+          [
+            20,
+            39
+          ],
+          [
+            20,
+            43
+          ],
+          [
+            20,
+            44
+          ],
+          [
+            21,
+            16
+          ],
+          [
+            21,
+            30
+          ],
+          [
+            21,
+            35
+          ],
+          [
+            21,
+            36
+          ],
+          [
+            21,
+            40
+          ],
+          [
+            21,
+            41
+          ],
+          [
+            21,
+            42
+          ],
+          [
+            21,
+            43
+          ],
+          [
+            22,
+            18
+          ],
+          [
+            22,
+            19
+          ],
+          [
+            22,
+            30
+          ],
+          [
+            22,
+            31
+          ],
+          [
+            22,
+            32
+          ],
+          [
+            22,
+            33
+          ],
+          [
+            22,
+            34
+          ],
+          [
+            22,
+            35
+          ],
+          [
+            22,
+            42
+          ],
+          [
+            22,
+            45
+          ],
+          [
+            22,
+            59
+          ],
+          [
+            23,
+            10
+          ],
+          [
+            23,
+            19
+          ],
+          [
+            23,
+            31
+          ],
+          [
+            23,
+            32
+          ],
+          [
+            23,
+            33
+          ],
+          [
+            23,
+            34
+          ],
+          [
+            23,
+            46
+          ],
+          [
+            23,
+            47
+          ],
+          [
+            25,
+            49
+          ],
+          [
+            25,
+            50
+          ],
+          [
+            25,
+            51
+          ],
+          [
+            25,
+            55
+          ],
+          [
+            25,
+            59
+          ],
+          [
+            25,
+            60
+          ],
+          [
+            25,
+            61
+          ],
+          [
+            25,
+            62
+          ],
+          [
+            26,
+            54
+          ],
+          [
+            26,
+            55
+          ],
+          [
+            26,
+            60
+          ],
+          [
+            26,
+            61
+          ],
+          [
+            29,
+            10
+          ],
+          [
+            30,
+            10
+          ],
+          [
+            30,
+            11
+          ],
+          [
+            30,
+            17
+          ],
+          [
+            31,
+            10
+          ],
+          [
+            31,
+            11
+          ],
+          [
+            31,
+            12
+          ],
+          [
+            31,
+            17
+          ],
+          [
+            31,
+            18
+          ],
+          [
+            32,
+            10
+          ],
+          [
+            32,
+            11
+          ],
+          [
+            32,
+            12
+          ],
+          [
+            32,
+            18
+          ],
+          [
+            32,
+            26
+          ],
+          [
+            33,
+            9
+          ],
+          [
+            33,
+            10
+          ],
+          [
+            33,
+            11
+          ],
+          [
+            33,
+            12
+          ],
+          [
+            33,
+            13
+          ],
+          [
+            33,
+            17
+          ],
+          [
+            33,
+            18
+          ],
+          [
+            33,
+            19
+          ],
+          [
+            33,
+            26
+          ],
+          [
+            34,
+            9
+          ],
+          [
+            34,
+            10
+          ],
+          [
+            34,
+            11
+          ],
+          [
+            34,
+            13
+          ],
+          [
+            34,
+            18
+          ],
+          [
+            34,
+            19
+          ],
+          [
+            34,
+            25
+          ],
+          [
+            34,
+            44
+          ],
+          [
+            34,
+            45
+          ],
+          [
+            34,
+            57
+          ],
+          [
+            34,
+            65
+          ],
+          [
+            34,
+            66
+          ],
+          [
+            34,
+            67
+          ],
+          [
+            34,
+            68
+          ],
+          [
+            35,
+            9
+          ],
+          [
+            35,
+            10
+          ],
+          [
+            35,
+            11
+          ],
+          [
+            35,
+            13
+          ],
+          [
+            35,
+            25
+          ],
+          [
+            35,
+            26
+          ],
+          [
+            35,
+            39
+          ],
+          [
+            35,
+            44
+          ],
+          [
+            35,
+            45
+          ],
+          [
+            35,
+            46
+          ],
+          [
+            35,
+            47
+          ],
+          [
+            35,
+            56
+          ],
+          [
+            35,
+            66
+          ],
+          [
+            36,
+            9
+          ],
+          [
+            36,
+            10
+          ],
+          [
+            36,
+            11
+          ],
+          [
+            36,
+            12
+          ],
+          [
+            36,
+            13
+          ],
+          [
+            36,
+            25
+          ],
+          [
+            36,
+            26
+          ],
+          [
+            36,
+            27
+          ],
+          [
+            36,
+            40
+          ],
+          [
+            36,
+            41
+          ],
+          [
+            36,
+            42
+          ],
+          [
+            36,
+            48
+          ],
+          [
+            36,
+            49
+          ],
+          [
+            37,
+            9
+          ],
+          [
+            37,
+            10
+          ],
+          [
+            37,
+            11
+          ],
+          [
+            37,
+            13
+          ],
+          [
+            37,
+            25
+          ],
+          [
+            37,
+            40
+          ],
+          [
+            37,
+            41
+          ],
+          [
+            37,
+            42
+          ],
+          [
+            37,
+            49
+          ],
+          [
+            37,
+            50
+          ],
+          [
+            37,
+            66
+          ],
+          [
+            37,
+            67
+          ],
+          [
+            38,
+            9
+          ],
+          [
+            38,
+            10
+          ],
+          [
+            38,
+            11
+          ],
+          [
+            38,
+            12
+          ],
+          [
+            38,
+            13
+          ],
+          [
+            38,
+            24
+          ],
+          [
+            38,
+            39
+          ],
+          [
+            38,
+            41
+          ],
+          [
+            38,
+            42
+          ],
+          [
+            38,
+            64
+          ],
+          [
+            38,
+            65
+          ],
+          [
+            38,
+            66
+          ],
+          [
+            39,
+            9
+          ],
+          [
+            39,
+            10
+          ],
+          [
+            39,
+            11
+          ],
+          [
+            39,
+            12
+          ],
+          [
+            39,
+            13
+          ],
+          [
+            39,
+            18
+          ],
+          [
+            39,
+            64
+          ],
+          [
+            39,
+            65
+          ],
+          [
+            39,
+            66
+          ],
+          [
+            40,
+            10
+          ],
+          [
+            40,
+            11
+          ],
+          [
+            40,
+            12
+          ],
+          [
+            40,
+            18
+          ],
+          [
+            40,
+            50
+          ],
+          [
+            40,
+            60
+          ],
+          [
+            40,
+            61
+          ],
+          [
+            40,
+            62
+          ],
+          [
+            40,
+            66
+          ],
+          [
+            41,
+            10
+          ],
+          [
+            41,
+            11
+          ],
+          [
+            41,
+            17
+          ],
+          [
+            41,
+            50
+          ],
+          [
+            41,
+            51
+          ],
+          [
+            41,
+            60
+          ],
+          [
+            41,
+            61
+          ],
+          [
+            42,
+            10
+          ],
+          [
+            42,
+            51
+          ],
+          [
+            43,
+            24
+          ],
+          [
+            43,
+            25
+          ],
+          [
+            44,
+            24
+          ],
+          [
+            45,
+            55
+          ],
+          [
+            45,
+            59
+          ],
+          [
+            46,
+            49
+          ],
+          [
+            46,
+            55
+          ],
+          [
+            46,
+            58
+          ],
+          [
+            46,
+            59
+          ],
+          [
+            46,
+            60
+          ],
+          [
+            46,
+            61
+          ],
+          [
+            46,
+            63
+          ],
+          [
+            47,
+            33
+          ],
+          [
+            48,
+            10
+          ],
+          [
+            48,
+            31
+          ],
+          [
+            48,
+            33
+          ],
+          [
+            48,
+            34
+          ],
+          [
+            48,
+            45
+          ],
+          [
+            48,
+            46
+          ],
+          [
+            48,
+            47
+          ],
+          [
+            49,
+            19
+          ],
+          [
+            49,
+            30
+          ],
+          [
+            49,
+            31
+          ],
+          [
+            49,
+            32
+          ],
+          [
+            49,
+            33
+          ],
+          [
+            49,
+            34
+          ],
+          [
+            49,
+            35
+          ],
+          [
+            49,
+            42
+          ],
+          [
+            49,
+            45
+          ],
+          [
+            50,
+            16
+          ],
+          [
+            50,
+            30
+          ],
+          [
+            50,
+            35
+          ],
+          [
+            50,
+            36
+          ],
+          [
+            50,
+            40
+          ],
+          [
+            50,
+            41
+          ],
+          [
+            50,
+            42
+          ],
+          [
+            50,
+            43
+          ],
+          [
+            51,
+            7
+          ],
+          [
+            51,
+            8
+          ],
+          [
+            51,
+            9
+          ],
+          [
+            51,
+            10
+          ],
+          [
+            51,
+            11
+          ],
+          [
+            51,
+            12
+          ],
+          [
+            51,
+            13
+          ],
+          [
+            51,
+            14
+          ],
+          [
+            51,
+            15
+          ],
+          [
+            51,
+            16
+          ],
+          [
+            51,
+            35
+          ],
+          [
+            51,
+            38
+          ],
+          [
+            51,
+            39
+          ],
+          [
+            51,
+            43
+          ],
+          [
+            51,
+            44
+          ],
+          [
+            52,
+            10
+          ],
+          [
+            52,
+            11
+          ],
+          [
+            52,
+            15
+          ],
+          [
+            52,
+            38
+          ],
+          [
+            52,
+            44
+          ],
+          [
+            53,
+            10
+          ],
+          [
+            53,
+            22
+          ],
+          [
+            53,
+            30
+          ],
+          [
+            53,
+            37
+          ],
+          [
+            53,
+            38
+          ],
+          [
+            54,
+            10
+          ],
+          [
+            54,
+            21
+          ],
+          [
+            54,
+            22
+          ],
+          [
+            54,
+            23
+          ],
+          [
+            54,
+            29
+          ],
+          [
+            54,
+            30
+          ],
+          [
+            54,
+            34
+          ],
+          [
+            55,
+            9
+          ],
+          [
+            55,
+            10
+          ],
+          [
+            55,
+            21
+          ],
+          [
+            55,
+            23
+          ],
+          [
+            56,
+            20
+          ],
+          [
+            57,
+            28
+          ],
+          [
+            57,
+            32
+          ],
+          [
+            58,
+            12
+          ],
+          [
+            58,
+            13
+          ],
+          [
+            58,
+            27
+          ],
+          [
+            58,
+            28
+          ],
+          [
+            59,
+            11
+          ],
+          [
+            59,
+            12
+          ],
+          [
+            59,
+            13
+          ],
+          [
+            59,
+            14
+          ],
+          [
+            59,
+            27
+          ],
+          [
+            59,
+            28
+          ],
+          [
+            60,
+            14
+          ],
+          [
+            60,
+            15
+          ],
+          [
+            61,
+            15
+          ],
+          [
+            61,
+            32
+          ],
+          [
+            62,
+            15
+          ],
+          [
+            62,
+            21
+          ],
+          [
+            63,
+            19
+          ],
+          [
+            63,
+            20
+          ],
+          [
+            63,
+            21
+          ],
+          [
+            63,
+            22
+          ],
+          [
+            63,
+            23
+          ],
+          [
+            63,
+            26
+          ],
+          [
+            63,
+            27
+          ],
+          [
+            64,
+            19
+          ],
+          [
+            64,
+            22
+          ],
+          [
+            64,
+            23
+          ],
+          [
+            65,
+            23
+          ],
+          [
+            65,
+            30
+          ]
+        ],
+        "outside_repair_mask": "exact v3 pixels"
+      },
+      "color_count": 13,
+      "isolated_pixel_percent": 8.2,
+      "interior_isolated_pixel_percent": 6.51,
+      "bright_pixel_percent": 20.31,
+      "largest_color_percent": 24.69
+    },
+    {
+      "id": "bash_shield",
+      "name": "反击塔盾",
+      "kind": "armor",
+      "region": "lungmen",
+      "category": "special",
+      "file": "bash_shield.png",
+      "preview": "bash_shield_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "emit_pixel_count": 0,
+      "source": "sources/bash_shield_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Shield_boss"
+      ],
+      "revision": {
+        "status": "copied unchanged from v3"
+      },
+      "color_count": 18,
+      "isolated_pixel_percent": 3.23,
+      "interior_isolated_pixel_percent": 3.1,
+      "bright_pixel_percent": 15.84,
+      "largest_color_percent": 11.73
+    }
+  ]
+}

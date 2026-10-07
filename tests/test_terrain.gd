@@ -44,7 +44,7 @@ func run() -> void:
 		var tolerance := TerrainSurface.CELL * 0.5
 		check(region + " path follows continuous terrain and reaches final arena (points %d, length %.0f, worst %.2f of %.2f)" % [path.size(), length, worst, tolerance],
 			path.size() > 4 and worst < tolerance and length > 120)
-		check(region + " early build leaves later encounters", map.buff_position.z < map.main_path[4].y and map.gilding_position.z < end.z - 25)
+		check(region + " early build leaves later encounters", map.buff_position.z < map.main_path[4].y and map.encounter_position.z < end.z - 25)
 		var area := 0.0
 		for face in map.minimap_faces:
 			for i in range(1, face.size() - 1): area += absf((face[i] - face[0]).cross(face[i + 1] - face[0])) * 0.5

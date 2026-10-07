@@ -19,7 +19,8 @@ func find_game(node: Node) -> GameManager:
 		if found != null: return found
 	return null
 func find_button(node: Node, text: String) -> Button:
-	if node is Button and node.text == text: return node
+	# AK confirm buttons and cards carry their Chinese label as meta.
+	if node is Button and node.is_visible_in_tree() and (node.text == text or str(node.get_meta("label", "")) == text): return node
 	for child in node.get_children():
 		var found := find_button(child, text)
 		if found != null: return found
@@ -32,6 +33,31 @@ func click_button(label: String) -> void:
 	if button == null:
 		check("button exists: " + label, false)
 		return
+	await click(button)
+
+## The pack tile showing `item` (tiles with an icon have no text).
+func find_tile(node: Node, item: Item) -> Button:
+	if node is Button and node.get("item") == item and node.get("container") != null: return node
+	for child in node.get_children():
+		var found := find_tile(child, item)
+		if found != null: return found
+	return null
+
+## A pickable row on an AK event screen showing `item`.
+func _find_meta(node: Node, item: Item) -> Button:
+	if node is Button and node.has_meta("item") and node.get_meta("item") == item and node.is_visible_in_tree(): return node
+	for child in node.get_children():
+		var found := _find_meta(child, item)
+		if found != null: return found
+	return null
+
+## Steps until `condition` holds, at most `frames` frames.
+func until(condition: Callable, frames: int) -> void:
+	for i in range(frames):
+		if condition.call(): return
+		await process_frame
+
+func click(button: Button) -> void:
 	var point := button.get_global_rect().get_center()
 	var motion := InputEventMouseMotion.new()
 	motion.position = point
@@ -59,7 +85,8 @@ func run() -> void:
 	Input.action_release("interact")
 	await step(3)
 	check("E at the dispatch console opens the contract board", game.modal == "station" and game.menu.visible)
-	await click_button("接下合同 →")
+	await click_button("开始行动")
+	await click_button("开始行动")
 	check("rendered GUI click starts a mine contract", not game.in_base and game.region_id == "mine")
 	game._clear_field()
 	await step(2)
@@ -71,6 +98,8 @@ func run() -> void:
 	check("E opens three-choice GUI", game.modal == "build" and game.build_offers.size() == 3)
 	if game.build_offers.size() == 3:
 		await click_button("选择 " + game.build_offers[0].name)
+		await click_button("获取")
+	await until(func(): return game.builds.size() == 1 and game.modal.is_empty(), 60)
 	check("actual choice button grants build and resumes gameplay", game.builds.size() == 1 and game.modal.is_empty())
 	var shield := FieldCatalog.exclusive("city")
 	game.try_collect(shield)
@@ -79,20 +108,36 @@ func run() -> void:
 	Input.action_release("toggle_inventory")
 	await step(3)
 	check("I opens inventory with clickable spatial item", game._inventory_panel.visible)
-	await click_button("近卫")
+	await step(2)
+	var tile := find_tile(rig, shield)
+	check("the shield's pack tile exists", tile != null)
+	if tile != null: await click(tile)
 	await click_button("装备")
 	check("inventory mouse equip changes stats", game.player.equipped.get(Item.Category.ARMOR) == shield and game.player.move_speed < 5)
-	await click_button("返回战斗 [ I ]")
+	await click_button("✕")
 	check("closing inventory does not click-through move", game.modal.is_empty() and not game.player._has_move_target)
-	game.player.teleport(game.world_map.gilding_position)
+	# The squad replaces gilding (保全系统修订案): meet one, insure with 赤金.
+	game.encounter = "squad"
+	game.encounter_used = false
+	game.world_map.encounter_node.visible = true
+	game.run_gold = 40
+	game.player.teleport(game.world_map.encounter_position)
 	game._interact()
 	await step(3)
-	await click_button(shield.display_name() + "  /  " + shield.details())
-	check("gilding selection button protects chosen equipped item", shield.gilded)
+	# Grids inside scroll containers lay out a frame or two later.
+	await step(3)
+	var row := _find_meta(rig, shield)
+	check("the squad lists the shield", row != null)
+	if row != null: await click(row)
+	await click_button("✓ 投保 · %d" % game.squad_price(shield))
+	check("the squad's insure button insures the chosen item", shield.insured and game.encounter_used)
 	game.player.teleport(game.world_map.route_nodes[0].position)
 	game._interact()
 	await step(3)
 	await click_button("进入 巡检支路")
+	await click_button("前进")
+	# Advancing waits for the new floor's navigation to sync.
+	await until(func(): return game.floor_number == 2 and not game.transitioning, 600)
 	check("route GUI enters another segment", game.floor_number == 2)
 	# Mouse ground projection through low-resolution SubViewport at its real screen coordinates.
 	game._clear_field()

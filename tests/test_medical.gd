@@ -29,26 +29,27 @@ func rules() -> void:
 	base.contamination = 45
 	check("injury plus light contamination: 35%", is_equal_approx(base.hp_penalty(), 0.35))
 	base.contamination = 50
-	base.potions.assign(["B", "B", "A"])
+	base.free_potions = 0
 	var report := base.settle_medical(12.0, false)
-	check("settlement: decay 5 then this run's dose (50 -> 57), injury cleared, flasks reset",
-		is_equal_approx(base.contamination, 57) and not base.injured and base.potions == ["A", "A", "A"] and report.contamination_after == 57 and base.report_unread)
+	check("settlement: decay 5 then this run's dose (50 -> 57), injury cleared, free flasks reissued",
+		is_equal_approx(base.contamination, 57) and not base.injured and base.free_potions == BaseCatalog.FREE_POTIONS and report.contamination_after == 57 and base.report_unread)
 	base.contamination = 3
 	base.settle_medical(0.0, true)
 	check("contamination never goes below 0; a death leaves an injury", base.contamination == 0 and base.injured)
 	base.contamination = 98
 	base.settle_medical(30.0, false)
 	check("and never above 100", base.contamination == 100)
-	check("decon price: 1.5 per point, at least 10", BaseCatalog.decon_price(2) == 10 and BaseCatalog.decon_price(18) == 27 and BaseCatalog.decon_price(0) == 0)
-	check("the inhibitor needs R2", base.potion_price("C") == -1 and base.potion_price("B") == 6)
+	check("decon price: 150 龙门币 per point, at least 1000", BaseCatalog.decon_price(2) == 1000 and BaseCatalog.decon_price(18) == 2700 and BaseCatalog.decon_price(0) == 0)
+	check("the inhibitor needs R2; a standard flask is free while the free issue lasts", base.potion_price("C") == -1 and base.potion_price("B") == 600 and base.potion_price("A") == 0)
+	base.free_potions = 0
+	check("after the free issue a standard flask costs 300", base.potion_price("A") == BaseCatalog.POTION_A_PRICE)
 	base.prestige = 60
-	check("at R2 it is sold", base.potion_price("C") == 10)
+	check("at R2 it is sold", base.potion_price("C") == 1000)
 	var copy := BaseState.new()
-	base.potions.assign(["C", "B", "A"])
-	base.extra_potion = "B"
+	base.free_potions = 1
 	copy.load_data(JSON.parse_string(JSON.stringify(base.to_data())), {})
-	check("save keeps contamination, injury, flasks and the report", copy.contamination == base.contamination and copy.injured == base.injured
-		and copy.potions == ["C", "B", "A"] and copy.extra_potion == "B" and copy.report_unread)
+	check("save keeps contamination, injury, the free issue left and the report", copy.contamination == base.contamination and copy.injured == base.injured
+		and copy.free_potions == 1 and copy.report_unread)
 
 func through_game() -> void:
 	var game := GameManager.new()
@@ -102,39 +103,54 @@ func through_game() -> void:
 	game.settle(true)
 	check("extraction clears the injury and the regen block", not game.base.injured and not game.player.regen_blocked)
 
-	# Pharmacy: refund on swap, a fourth bottle, the belt in order.
+	# Pharmacy (药剂进背包): flasks are pack items bought one at a time.
 	game.base.contamination = 0
-	game.gold = 100
+	game.gold = 10000
 	game.base.prestige = 0
-	check("the inhibitor is locked below R2", not game.set_potion(0, "C"))
-	check("swap to gel costs 6", game.set_potion(1, "B") and game.gold == 94)
-	check("swapping back refunds it", game.set_potion(1, "A") and game.gold == 100)
+	game.inventory.items.clear()
+	game.safe_bag.items.clear()
+	game.base.free_potions = 3
+	check("the inhibitor is locked below R2", not game.buy_potion("C"))
+	check("a free standard flask goes into the pack", game.buy_potion("A") and game.gold == 10000 and game.base.free_potions == 2 and game.potions == 1)
+	check("a gel costs 600 and takes a cell", game.buy_potion("B") and game.gold == 9400 and game.inventory.occupied_cells() == 2)
 	game.base.prestige = 60
-	check("at R2: inhibitor 10, gel 6, a fourth gel 26", game.set_potion(0, "C") and game.set_potion(1, "B") and game.buy_extra_potion("B") and game.gold == 100 - 10 - 6 - 26)
-	check("only one fourth bottle", not game.buy_extra_potion("A"))
+	check("at R2 the inhibitor costs 1000", game.buy_potion("C") and game.gold == 8400)
 	await game.start_contract("city")
-	check("the belt is what was set up, in order", game.potion_belt == ["C", "B", "A", "B"] and game.potions == 4)
+	check("departure adds the free flasks still owed (1 + 1 + 1 bought, + 2 issued)", game.potions == 5 and game.base.free_potions == 0)
+	check("orders never take a flask", not game.base.orders.slots.any(func(o): return o != null and game.carried_potions().any(func(x): return game.base.orders.matches(game.base.orders.slots.find(o), x))))
+	game.player.hp = 5
+	game.run_contamination = 10
+	for f in game.carried_potions().filter(func(x): return x.potion_type == "A"):
+		game.inventory.remove(f)
+	game._use_potion()
+	check("Q drinks a gel before the inhibitor; the gel heals nothing at once", is_equal_approx(game.player.hp, 5) and game._slow_heal_left > 0 and game.potions == 1)
+	game._tick_medical(3.0)
+	check("gel heals over 6 s (half after 3 s)", is_equal_approx(game.player.hp, 845.0))
+	game._tick_medical(10.0)
+	check("and stops at 1680 in total", is_equal_approx(game.player.hp, 1685.0))
 	game.player.hp = 5
 	game.run_contamination = 10
 	game._use_potion()
-	check("inhibitor: heals 480, cleanses 6, halves accrual for 30 s", is_equal_approx(game.player.hp, 485) and is_equal_approx(game.run_contamination, 4) and game._suppress_timer == 30.0)
+	check("inhibitor: heals 480, cleanses 6, halves accrual for 30 s", is_equal_approx(game.player.hp, 485) and is_equal_approx(game.run_contamination, 4) and game._suppress_timer == 30.0 and game.potions == 0)
 	game.region_id = "mine"
 	check("while suppressed the mine adds half (0.01/s)", is_equal_approx(game.contamination_rate(), 0.01))
 	game.region_id = "city"
-	game.player.hp = 1
 	game._use_potion()
-	check("gel heals nothing at once", is_equal_approx(game.player.hp, 1))
-	game._tick_medical(3.0)
-	check("gel heals over 6 s (half after 3 s)", is_equal_approx(game.player.hp, 841.0))
-	game._tick_medical(10.0)
-	check("and stops at 1680 in total", is_equal_approx(game.player.hp, 1681.0))
-	game.potion_belt.assign(["C", "B", "A", "B"])
+	check("no flask, nothing happens", game.potions == 0 and is_equal_approx(game.player.hp, 485))
+	var full := BaseCatalog.create_potion("A")
+	game.inventory.try_add(full)
+	game.player.hp = game.player.max_hp
+	game._use_potion()
+	check("at full health a standard flask is kept", game.potions == 1)
+	game.player.hp = 100
+	check("a flask in the pack can be drunk directly (right click)", game.drink(full) and game.potions == 0 and game.player.hp > 100)
 	game.builds.assign(["\"剑锤\""])
 	game.player._recompute_stats()
-	game._clamp_belt()
-	check("a build that costs a flask takes it from the end (3 + bought 1 -> 2 + 1)", game.potion_belt == ["C", "B", "A"])
+	check("\"剑锤\" cuts flask healing by 20%", is_equal_approx(game.player.potion_heal_multiplier, 0.8))
+	game.builds.clear()
+	game.player._recompute_stats()
 	game.settle(true)
-	check("after the contract the pharmacy is back to three standard flasks", game.base.potions == ["A", "A", "A"] and game.base.extra_potion.is_empty())
+	check("after the contract three flasks are issued free again", game.base.free_potions == BaseCatalog.FREE_POTIONS)
 
 	# Front desk, injury treatment, the gate.
 	var view := game.medical_view
@@ -145,8 +161,8 @@ func through_game() -> void:
 	game.open_station("report")
 	check("opening the report marks it read", not game.base.report_unread)
 	game.close_modal()
-	game.gold = 30
-	check("injury treatment costs 30", game.treat_injury() and game.gold == 0 and not game.base.injured)
+	game.gold = 3000
+	check("injury treatment costs 3000", game.treat_injury() and game.gold == 0 and not game.base.injured)
 	await step(2)
 	check("desk back to idle", view._reception.texture == view.tex.reception_idle)
 	game.base.contamination = 52
@@ -160,11 +176,11 @@ func through_game() -> void:
 	game.player.teleport(game.base_map.to_world(view._gate_x + 1.2, view._gate_z, BaseMap.PLAYER_Y))
 	await step(3)
 	check("walking through the gate gives the reading for free", game.message == view.reading())
-	game.gold = 100
-	check("decontaminate to 39: 13 points, 20 gold", game.decontaminate(39) and game.gold == 80 and game.base.contamination == 39)
+	game.gold = 10000
+	check("decontaminate to 39: 13 points, 1950 龙门币", game.decontaminate(39) and game.gold == 8050 and game.base.contamination == 39)
 	await step(2)
 	check("gate turns green", not view.gate_red() and view._gate.material_override.get_shader_parameter("tex") == view.tex.gate_green)
-	check("decontaminate to 0: 39 points, 59 gold", game.decontaminate(0) and game.gold == 21 and game.base.contamination == 0)
+	check("decontaminate to 0: 39 points, 5850 龙门币", game.decontaminate(0) and game.gold == 2200 and game.base.contamination == 0)
 	check("nothing to treat at 0", not game.decontaminate(0))
 	for kind in ["pharmacy", "decon", "report"]:
 		game.open_station(kind)

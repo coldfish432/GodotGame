@@ -1,8 +1,22 @@
 class_name FieldAudio
 extends Node
-## Short original synthesized UI/combat cues; no external sound assets.
+## Short original synthesized UI/combat cues, plus the generated warehouse cues
+## (audio/sfx/, cut by audio/tools/cut_audio.py). A file cue whose file does not
+## exist yet stays silent but is still counted.
+## cue -> [path, volume dB, random pitch spread]
+const FILE_CUES := {
+	"lights_on": ["res://audio/sfx/lights_on.wav", -8.0, 0.0],
+	"lights_off": ["res://audio/sfx/lights_off.wav", -8.0, 0.0],
+	"hatch": ["res://audio/sfx/hatch.wav", -14.0, 0.05],
+	"shelf": ["res://audio/sfx/shelf.wav", -16.0, 0.05],
+}
 var streams := {}
+## How many times each cue was asked for, headless included (tests count events).
+var counts := {}
 func _ready() -> void:
+	GameMusic.ensure_buses()
+	for cue in FILE_CUES:
+		if ResourceLoader.exists(FILE_CUES[cue][0]): streams[cue] = load(FILE_CUES[cue][0])
 	for cue in {"hit": 170.0, "loot": 660.0, "build": 880.0, "exit": 1040.0, "hurt": 110.0, "charge": 1760.0}:
 		var frequencies := {"hit": 170.0, "loot": 660.0, "build": 880.0, "exit": 1040.0, "hurt": 110.0, "charge": 1760.0}
 		var data := PackedByteArray()
@@ -44,11 +58,16 @@ func _ready() -> void:
 		streams[cue] = stream
 
 func play(cue: String, release: bool = false) -> void:
+	counts[cue] = int(counts.get(cue, 0)) + 1
 	if DisplayServer.get_name() == "headless": return
 	if not streams.has(cue) or get_child_count() >= 16: return
 	var voice := AudioStreamPlayer.new()
 	voice.stream = streams[cue]
+	voice.bus = "SFX"
 	voice.volume_db = -9 if release else -13
+	if FILE_CUES.has(cue):
+		voice.volume_db = FILE_CUES[cue][1]
+		voice.pitch_scale = 1.0 + randf_range(-1.0, 1.0) * float(FILE_CUES[cue][2])
 	add_child(voice)
 	voice.finished.connect(voice.queue_free)
 	voice.play()

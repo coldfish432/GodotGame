@@ -73,7 +73,8 @@ var move_speed: float = BASE_MOVE_SPEED
 var blade_cooldown: float = BASE_BLADE_COOLDOWN
 var attack_speed: float = 1.0
 var gold_gain_multiplier: float = 1.0
-var potion_capacity: int = BASE_POTION_CAPACITY
+## Flask healing from the old capacity stat (relics, affixes): ±20% a point.
+var potion_heal_multiplier: float = 1.0
 
 var _buff_max_hp_bonus: float = 0.0
 var _buff_damage_bonus: float = 0.0
@@ -166,13 +167,80 @@ func set_move_target(target: Vector3) -> void:
 func clear_move_target() -> void:
 	_has_move_target = false
 
+## The enemy a left click locked onto (用户 2026-10-07): she walks until it is
+## within her weapon's reach, stops, and attacks it until it dies or another
+## order (right click, ground click, keys, a menu) replaces it. Melee and
+## ranged alike; only this enemy is attacked.
+var attack_target: Enemy
+
+func lock_target(enemy: Enemy) -> void:
+	if not is_instance_valid(enemy) or enemy._dead: return
+	attack_target = enemy
+
+func clear_target() -> void:
+	attack_target = null
+
+func has_target() -> bool:
+	return is_instance_valid(attack_target) and not attack_target._dead and attack_target.is_inside_tree() and (not is_instance_valid(game) or attack_target.game == game)
+
+## Reach of the equipped weapon: blades BLADE_RANGE; ranged bases carry their
+## own "range" (RANGED_RANGE when unset).
+const RANGED_RANGE := 9.0
+func weapon_range() -> float:
+	if not is_ranged_weapon(): return BLADE_RANGE
+	var weapon: Item = equipped.get(Item.Category.WEAPON)
+	return float(GearCatalog.base(weapon.base_id).get("range", RANGED_RANGE))
+
+## Each physics frame with a lock: attack when in reach and in sight, else
+## walk toward it (re-pathing as it moves).
+func _follow_target() -> void:
+	if not has_target():
+		attack_target = null
+		return
+	var target := attack_target
+	var sight := not is_instance_valid(game) or game.line_of_sight(global_position, target.global_position)
+	if is_target_in_range(target) and sight:
+		_has_move_target = false
+		attack(target)
+		return
+	if not _has_move_target or _move_target.distance_to(target.global_position) > 0.4:
+		set_move_target(target.global_position)
+
+## Half-angle of the fan an air swing reaches (60° each side of the aim).
+const SWING_HALF_ANGLE := 60.0
+
+## The nearest living enemy an air swing toward `direction` reaches: within
+## blade range, inside the fan, in line of sight. Null when there is none.
+func enemy_in_swing(direction: Vector3) -> Enemy:
+	if not is_instance_valid(game): return null
+	var aim := Vector3(direction.x, 0, direction.z).normalized()
+	var best: Enemy = null
+	var best_distance := INF
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var enemy := node as Enemy
+		if enemy == null or enemy.game != game or enemy._dead or not is_target_in_range(enemy): continue
+		var offset := enemy.global_position - global_position
+		offset.y = 0
+		var distance := offset.length()
+		if distance > 0.05 and aim.dot(offset / distance) < cos(deg_to_rad(SWING_HALF_ANGLE)): continue
+		if not game.line_of_sight(global_position, enemy.global_position): continue
+		if distance < best_distance:
+			best = enemy
+			best_distance = distance
+	return best
+
+## Crossbows and guns (装备策划案 §2.4) — none drop yet.
+func is_ranged_weapon() -> bool:
+	var weapon: Item = equipped.get(Item.Category.WEAPON)
+	if weapon == null or weapon.base_id.is_empty(): return false
+	return str(GearCatalog.base(weapon.base_id).get("form", "")) in GearCatalog.RANGED_FORMS
+
 func is_target_in_range(enemy: Enemy) -> bool:
 	if not is_instance_valid(enemy):
 		return false
 	var offset := enemy.global_position - global_position
 	offset.y = 0.0
-	var attack_range := BLADE_RANGE
-	return offset.length() <= attack_range
+	return offset.length() <= weapon_range()
 
 func f(key: String) -> float:
 	return float(fx.get(key, 0.0))
@@ -200,8 +268,14 @@ func _physics_process(delta: float) -> void:
 		if hp < max_hp and not regen_blocked:
 			heal(regen_rate() * HP_REGEN_INTERVAL)
 
-	var move_vec := Vector3.ZERO
-	if _has_move_target:
+	var move_vec := _key_move_vector()
+	if move_vec != Vector3.ZERO:
+		# Keys take over from a clicked destination or a locked enemy.
+		_has_move_target = false
+		attack_target = null
+	else:
+		_follow_target()
+	if move_vec == Vector3.ZERO and _has_move_target:
 		var to_target := _move_target - global_position
 		to_target.y = 0.0
 		if to_target.length() <= ARRIVE_THRESHOLD:
@@ -235,6 +309,25 @@ func _physics_process(delta: float) -> void:
 
 	if hp <= 0.0:
 		died.emit()
+
+## WASD / arrow keys as a direction on the ground, screen-relative: W walks
+## toward the top of the screen whatever the camera yaw.
+func _key_move_vector() -> Vector3:
+	if not InputMap.has_action("move_up"): return Vector3.ZERO
+	var keys := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	if keys == Vector2.ZERO: return Vector3.ZERO
+	var right := Vector3.RIGHT
+	var down := Vector3.BACK
+	var camera := get_viewport().get_camera_3d()
+	if is_instance_valid(camera):
+		var basis := camera.global_transform.basis
+		var flat_right := Vector3(basis.x.x, 0.0, basis.x.z)
+		var flat_up := Vector3(-basis.z.x, 0.0, -basis.z.z)
+		if flat_up.length_squared() < 0.0001: flat_up = Vector3(basis.y.x, 0.0, basis.y.z)
+		if flat_right.length_squared() > 0.0001 and flat_up.length_squared() > 0.0001:
+			right = flat_right.normalized()
+			down = -flat_up.normalized()
+	return (right * keys.x + down * keys.y).normalized()
 
 func _tick_relic_timers(delta: float) -> void:
 	hurt_timer = maxf(0, hurt_timer - delta)
@@ -366,13 +459,18 @@ func attack(target: Enemy) -> void:
 	if is_instance_valid(game) and (target.game != game or not game.line_of_sight(global_position, target.global_position)): return
 	attack_direction(_get_attack_direction(target), target)
 
-## Ground clicks can whiff or release a stored wave. Whiffs never charge.
+## Ground clicks swing at the air (用户 2026-10-07): a melee swing still lands
+## on the nearest enemy within reach in front of her, or releases a stored
+## wave; one that reaches nobody is a whiff and never charges. A ranged weapon
+## cannot swing at nothing — it needs a target.
 func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	if _attack_cooldown > 0 or hitstop_remaining > 0 or dash_remaining > 0: return
 	if is_instance_valid(game) and not game.simulation_active(): return
+	if not is_instance_valid(target) and is_ranged_weapon(): return
 	direction.y = 0
 	if direction.length_squared() < 0.001: direction = -global_basis.z
 	direction = direction.normalized()
+	if not is_instance_valid(target): target = enemy_in_swing(direction)
 	var release := has_sword_wave() and sword_charge >= wave_hits_needed()
 	var stage := combo_step
 	var lands := is_instance_valid(target) and not target._dead and is_target_in_range(target) and (not is_instance_valid(game) or game.line_of_sight(global_position, target.global_position))
@@ -606,8 +704,7 @@ func reset_stats() -> void:
 	reset_combat_state()
 	_buff_max_hp_bonus = 0.0
 	_buff_damage_bonus = 0.0
-	equipped.clear()  # anything left equipped here wasn't gilded — GameManager
-	# already pulled gilded equipped items into the stash before calling this.
+	equipped.clear()  # settle() re-equips what she set out with and brought back.
 	hurt_timer = 0
 	engage_timer = 0
 	since_wave = 0
@@ -694,7 +791,7 @@ func _recompute_stats() -> void:
 	attack_speed = clampf(CombatStats.BASE.aspd + float(sheet.aspd), CombatStats.ASPD_MIN, CombatStats.ASPD_MAX) / 100.0
 	blade_cooldown = maxf(MIN_BLADE_COOLDOWN, BASE_BLADE_COOLDOWN * (1.0 + float(sheet.interval_pct)) / attack_speed)
 	gold_gain_multiplier = 1.0 + float(sheet.gold_pct)
-	potion_capacity = maxi(0, BASE_POTION_CAPACITY + int(sheet.potion_cap))
+	potion_heal_multiplier = maxf(0.2, 1.0 + BaseCatalog.POTION_HEAL_PER_CAP * float(sheet.potion_cap))
 	hp = minf(hp, max_hp)
 	stats_changed.emit()
 
@@ -789,7 +886,7 @@ func current_aspd() -> float:
 	aspd += f("low_hp_aspd") * clampf((1.0 - hp_ratio()) / 0.7, 0.0, 1.0)
 	if hp_ratio() < 0.25: aspd += f("critical_aspd")
 	if full_hp(): aspd += f("full_aspd")
-	if f("gold_aspd") > 0.0 and is_instance_valid(game): aspd += f("gold_aspd") * minf(10.0, floorf(game.run_gold / 50.0))
+	if f("gold_aspd") > 0.0 and is_instance_valid(game): aspd += f("gold_aspd") * minf(10.0, floorf(game.gold_bars() / 5.0))
 	aspd += f("elite_aspd_stack") * mini(ELITE_STACK_MAX, elite_kills)
 	if dance_timer > 0.0: aspd += 80.0
 	return clampf(aspd, CombatStats.ASPD_MIN, CombatStats.ASPD_MAX)
@@ -850,21 +947,14 @@ func teleport(position: Vector3) -> void:
 	global_position = position
 	velocity = Vector3.ZERO
 	_has_move_target = false
+	attack_target = null
 
 # --- Comparison (装备与背包界面调研 §5.1 / §5.14) ---------------------------------
 
 ## The numbers the inventory compares, as they stand now.
 func snapshot() -> Dictionary:
-	return {"rating": power_rating(), "hp": max_hp, "atk": attack_power(), "arts": arts_power(), "def": defense_value(),
+	return {"hp": max_hp, "atk": attack_power(), "arts": arts_power(), "def": defense_value(),
 		"res": resistance(), "aspd": attack_speed * 100.0, "crit": crit_rate(), "crit_dmg": crit_damage(), "move": move_speed}
-
-## 战力: one number for a first glance, like Diablo IV's item power. It is the
-## geometric mean of sustained offence and effective life, so offence and
-## defence count alike.
-func power_rating() -> int:
-	var offence := attack_power() * attack_speed * (1.0 + crit_rate() * (crit_damage() - 1.0)) + arts_power() * 0.35
-	var effective_life := max_hp * (1.0 + defense_value() / 400.0) / maxf(0.2, 1.0 - resistance() / 100.0)
-	return roundi(sqrt(maxf(offence, 0.0) * maxf(effective_life, 0.0)) / 4.0)
 
 ## What wearing `item` would do: {before, after} snapshots. Swaps the slot
 ## directly and restores it, so nothing else (life, sword charge) is touched.

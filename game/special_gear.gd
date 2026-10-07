@@ -5,7 +5,7 @@ extends RefCounted
 ## damage of its own — the attack effects that used to be relics (用户
 ## 2026-10-03: relics change numbers and rules; attack effects belong to
 ## equipment). Each also rolls one ordinary affix. Being equipment, it follows
-## every equipment rule: it takes pack cells, can be gilded, insured, carried
+## every equipment rule: it takes pack cells, can be insured, carried
 ## home and kept. One per slot, so the three slots are a real choice.
 ##
 ## How it is obtained is still open (用户：具体归宿待定). For now it drops from

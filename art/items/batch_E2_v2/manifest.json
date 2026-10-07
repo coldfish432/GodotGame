@@ -1,0 +1,250 @@
+{
+  "batch": "E2",
+  "version": 2,
+  "source_brief": "../E2_brief_v1.md",
+  "reference_board": "../E_reference_board.md",
+  "display_scale": 1,
+  "preview_scale": 8,
+  "contact_sheet": "contact_sheet.png",
+  "contact_sheet_2x": "contact_sheet_2x.png",
+  "silhouette_check": "silhouette_check.png",
+  "generation_prompts": "generation_prompts.md",
+  "isolated_pixel_definition": "Percent of opaque pixels whose RGBA value matches none of four opaque orthogonal neighbors",
+  "items": [
+    {
+      "id": "finger_blade",
+      "name": "指刃",
+      "kind": "weapon",
+      "file": "finger_blade.png",
+      "preview": "finger_blade_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/finger_blade_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Mark_I_trench_knife"
+      ],
+      "isolated_pixel_percent": 6.93
+    },
+    {
+      "id": "gang_machete",
+      "name": "帮派砍刀",
+      "kind": "weapon",
+      "file": "gang_machete.png",
+      "preview": "gang_machete_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/gang_machete_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Dadao"
+      ],
+      "isolated_pixel_percent": 1.47
+    },
+    {
+      "id": "lgd_knife",
+      "name": "近卫局警用刀",
+      "kind": "weapon",
+      "file": "lgd_knife.png",
+      "preview": "lgd_knife_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/lgd_knife_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Combat_knife"
+      ],
+      "isolated_pixel_percent": 1.21
+    },
+    {
+      "id": "courier_dagger",
+      "name": "押运短刃",
+      "kind": "weapon",
+      "file": "courier_dagger.png",
+      "preview": "courier_dagger_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/courier_dagger_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Butterfly_sword"
+      ],
+      "isolated_pixel_percent": 1.74
+    },
+    {
+      "id": "yan_ring_saber",
+      "name": "炎式环首刀",
+      "kind": "weapon",
+      "file": "yan_ring_saber.png",
+      "preview": "yan_ring_saber_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/yan_ring_saber_source.png",
+      "prototype_urls": [
+        "https://zh.wikipedia.org/wiki/環首刀"
+      ],
+      "isolated_pixel_percent": 4.1
+    },
+    {
+      "id": "lgd_vest",
+      "name": "近卫局制式护甲",
+      "kind": "armor",
+      "file": "lgd_vest.png",
+      "preview": "lgd_vest_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/lgd_vest_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Bulletproof_vest"
+      ],
+      "isolated_pixel_percent": 0.67
+    },
+    {
+      "id": "fire_suit",
+      "name": "消防署隔热服",
+      "kind": "armor",
+      "file": "fire_suit.png",
+      "preview": "fire_suit_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/fire_suit_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Fire_proximity_suit",
+        "https://en.wikipedia.org/wiki/Bunker_gear"
+      ],
+      "isolated_pixel_percent": 2.99
+    },
+    {
+      "id": "courier_vest",
+      "name": "押运防弹背心",
+      "kind": "armor",
+      "file": "courier_vest.png",
+      "preview": "courier_vest_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/courier_vest_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Plate_carrier"
+      ],
+      "isolated_pixel_percent": 0.41
+    },
+    {
+      "id": "inspector_armor",
+      "name": "特别督察组战术护甲",
+      "kind": "armor",
+      "file": "inspector_armor.png",
+      "preview": "inspector_armor_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/inspector_armor_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Plate_carrier"
+      ],
+      "isolated_pixel_percent": 0.95
+    },
+    {
+      "id": "tactical_charm",
+      "name": "战术挂饰",
+      "kind": "trinket",
+      "file": "tactical_charm.png",
+      "preview": "tactical_charm_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "tactical_charm_emit.png",
+      "source": "sources/tactical_charm_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/D-ring"
+      ],
+      "isolated_pixel_percent": 8.6
+    },
+    {
+      "id": "lgd_radio",
+      "name": "近卫局对讲机",
+      "kind": "trinket",
+      "file": "lgd_radio.png",
+      "preview": "lgd_radio_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "lgd_radio_emit.png",
+      "source": "sources/lgd_radio_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Walkie-talkie"
+      ],
+      "isolated_pixel_percent": 1.2
+    },
+    {
+      "id": "lungmen_wallet",
+      "name": "龙门币钱夹",
+      "kind": "trinket",
+      "file": "lungmen_wallet.png",
+      "preview": "lungmen_wallet_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/lungmen_wallet_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Coin_purse"
+      ],
+      "isolated_pixel_percent": 2.2
+    },
+    {
+      "id": "yan_talisman",
+      "name": "炎式平安符",
+      "kind": "trinket",
+      "file": "yan_talisman.png",
+      "preview": "yan_talisman_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "sources/yan_talisman_source.png",
+      "prototype_urls": [
+        "https://zh.wikipedia.org/wiki/香囊"
+      ],
+      "isolated_pixel_percent": 4.8
+    }
+  ]
+}

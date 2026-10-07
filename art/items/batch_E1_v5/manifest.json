@@ -1,0 +1,267 @@
+{
+  "batch": "E1",
+  "version": 5,
+  "source_brief": "../E1_revision_v5.md",
+  "reference_board": "../E_reference_board.md",
+  "display_scale": 1,
+  "preview_scale": 8,
+  "contact_sheet": "contact_sheet.png",
+  "contact_sheet_2x": "contact_sheet_2x.png",
+  "silhouette_check": "silhouette_check.png",
+  "generation_prompts": "generation_prompts.md",
+  "isolated_pixel_definition": "Percent of opaque pixels whose RGBA value matches none of four opaque orthogonal neighbors",
+  "items": [
+    {
+      "id": "modified_machete",
+      "name": "改装砍刀",
+      "kind": "weapon",
+      "file": "modified_machete.png",
+      "preview": "modified_machete_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/modified_machete_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Machete"
+      ],
+      "isolated_pixel_percent": 18.6,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "standard_dagger",
+      "name": "制式短刀",
+      "kind": "weapon",
+      "file": "standard_dagger.png",
+      "preview": "standard_dagger_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/standard_dagger_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/NR-40"
+      ],
+      "isolated_pixel_percent": 8.94,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "mine_issue_blade",
+      "name": "矿区制式刀",
+      "kind": "weapon",
+      "file": "mine_issue_blade.png",
+      "preview": "mine_issue_blade_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/mine_issue_blade_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Yakutian_knife"
+      ],
+      "isolated_pixel_percent": 6.21,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "patrol_saber",
+      "name": "纠察队佩刀",
+      "kind": "weapon",
+      "file": "patrol_saber.png",
+      "preview": "patrol_saber_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/patrol_saber_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Shashka"
+      ],
+      "isolated_pixel_percent": 6.21,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "pickhaft_blade",
+      "name": "断镐战斧",
+      "kind": "weapon",
+      "file": "pickhaft_blade.png",
+      "preview": "pickhaft_blade_8x.png",
+      "native_size": [
+        72,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/pickhaft_blade_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Ice_axe",
+        "https://en.wikipedia.org/wiki/Pickaxe"
+      ],
+      "isolated_pixel_percent": 5.43,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "miner_vest",
+      "name": "矿工护甲",
+      "kind": "armor",
+      "file": "miner_vest.png",
+      "preview": "miner_vest_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/miner_vest_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Davy_lamp"
+      ],
+      "isolated_pixel_percent": 0.9,
+      "revision": "v4 colour-remapped to rust ramp (v5)"
+    },
+    {
+      "id": "reunion_coat",
+      "name": "整合运动制式外套",
+      "kind": "armor",
+      "file": "reunion_coat.png",
+      "preview": "reunion_coat_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/reunion_coat_source.png",
+      "prototype_urls": [
+        "https://prts.wiki/w/士兵",
+        "https://prts.wiki/w/暴徒"
+      ],
+      "isolated_pixel_percent": 2.16,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "patrol_winter_coat",
+      "name": "纠察队防寒大衣",
+      "kind": "armor",
+      "file": "patrol_winter_coat.png",
+      "preview": "patrol_winter_coat_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/patrol_winter_coat_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Greatcoat"
+      ],
+      "isolated_pixel_percent": 3.23,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "heavy_mine_suit",
+      "name": "矿场重型防护服",
+      "kind": "armor",
+      "file": "heavy_mine_suit.png",
+      "preview": "heavy_mine_suit_8x.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/heavy_mine_suit_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Hazmat_suit",
+        "https://en.wikipedia.org/wiki/GP-5_gas_mask"
+      ],
+      "isolated_pixel_percent": 3.9,
+      "revision": "repainted_v4"
+    },
+    {
+      "id": "dust_mask",
+      "name": "防尘面罩",
+      "kind": "trinket",
+      "file": "dust_mask.png",
+      "preview": "dust_mask_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/dust_mask_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Respirator"
+      ],
+      "isolated_pixel_percent": 25.7,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "liquor_flask",
+      "name": "烈酒扁壶",
+      "kind": "trinket",
+      "file": "liquor_flask.png",
+      "preview": "liquor_flask_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/liquor_flask_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Hip_flask"
+      ],
+      "isolated_pixel_percent": 4.7,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "reunion_mask",
+      "name": "整合运动面具",
+      "kind": "trinket",
+      "file": "reunion_mask.png",
+      "preview": "reunion_mask_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "source": "../batch_E1_v4/sources/reunion_mask_source.png",
+      "prototype_urls": [
+        "https://prts.wiki/w/士兵",
+        "https://prts.wiki/w/暴徒"
+      ],
+      "isolated_pixel_percent": 15.8,
+      "revision": "accepted_v3_unchanged"
+    },
+    {
+      "id": "originium_meter",
+      "name": "源石感应计",
+      "kind": "trinket",
+      "file": "originium_meter.png",
+      "preview": "originium_meter_8x.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": true,
+      "emit_file": "originium_meter_emit.png",
+      "source": "../batch_E1_v4/sources/originium_meter_source.png",
+      "prototype_urls": [
+        "https://en.wikipedia.org/wiki/Geiger_counter"
+      ],
+      "isolated_pixel_percent": 2.97,
+      "revision": "accepted_v3_unchanged"
+    }
+  ],
+  "status": "accepted"
+}

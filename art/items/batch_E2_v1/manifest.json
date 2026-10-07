@@ -1,0 +1,204 @@
+{
+  "batch": "E2",
+  "source": "装备策划案_v1_0.md §§3-6",
+  "scale": 2,
+  "preview_scale": 8,
+  "palette": "§6.3",
+  "items": [
+    {
+      "id": "finger_blade",
+      "name": "指刃",
+      "region": "city",
+      "kind": "weapon",
+      "file": "finger_blade.png",
+      "preview": "finger_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "knuckle grip with four visible holes, short blade"
+    },
+    {
+      "id": "gang_machete",
+      "name": "帮派砍刀",
+      "region": "city",
+      "kind": "weapon",
+      "file": "gang_machete.png",
+      "preview": "gang_machete_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "broad tip, narrow root, red cord on butt"
+    },
+    {
+      "id": "lgd_knife",
+      "name": "近卫局警用刀",
+      "region": "city",
+      "kind": "weapon",
+      "file": "lgd_knife.png",
+      "preview": "lgd_knife_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "straight service knife, black grip, three non-text dots"
+    },
+    {
+      "id": "courier_dagger",
+      "name": "押运短刃",
+      "region": "city",
+      "kind": "weapon",
+      "file": "courier_dagger.png",
+      "preview": "courier_dagger_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "single edge short knife, nylon strap and sheath clasp"
+    },
+    {
+      "id": "yan_ring_saber",
+      "name": "炎式环首刀",
+      "region": "city",
+      "kind": "weapon",
+      "file": "yan_ring_saber.png",
+      "preview": "yan_ring_saber_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "slender straight blade, ring pommel, red tassel, fuller"
+    },
+    {
+      "id": "lgd_vest",
+      "name": "近卫局制式护甲",
+      "region": "city",
+      "kind": "armor",
+      "file": "lgd_vest.png",
+      "preview": "lgd_vest_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "navy vest, two reflective bars, abstract shoulder patch"
+    },
+    {
+      "id": "fire_suit",
+      "name": "消防署隔热服",
+      "region": "city",
+      "kind": "armor",
+      "file": "fire_suit.png",
+      "preview": "fire_suit_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "pale foil coat, yellow sleeve and hem bands, scorched corner"
+    },
+    {
+      "id": "courier_vest",
+      "name": "押运防弹背心",
+      "region": "city",
+      "kind": "armor",
+      "file": "courier_vest.png",
+      "preview": "courier_vest_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "black plate carrier, three pouches, one empty slot"
+    },
+    {
+      "id": "inspector_armor",
+      "name": "特别督察组战术护甲",
+      "region": "city",
+      "kind": "armor",
+      "file": "inspector_armor.png",
+      "preview": "inspector_armor_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "full tactical chest, shoulders, neck, red ID bar"
+    },
+    {
+      "id": "tactical_charm",
+      "name": "战术挂饰",
+      "region": "city",
+      "kind": "trinket",
+      "file": "tactical_charm.png",
+      "preview": "tactical_charm_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "tactical_charm_emit.png",
+      "description": "short webbing, D ring, tiny flashlight"
+    },
+    {
+      "id": "lgd_radio",
+      "name": "近卫局对讲机",
+      "region": "city",
+      "kind": "trinket",
+      "file": "lgd_radio.png",
+      "preview": "lgd_radio_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "lgd_radio_emit.png",
+      "description": "upright radio, short antenna, green status lamp"
+    },
+    {
+      "id": "lungmen_wallet",
+      "name": "龙门币钱夹",
+      "region": "city",
+      "kind": "trinket",
+      "file": "lungmen_wallet.png",
+      "preview": "lungmen_wallet_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "leather wallet, brass clasp, blank golden slip"
+    },
+    {
+      "id": "yan_talisman",
+      "name": "炎式平安符",
+      "region": "city",
+      "kind": "trinket",
+      "file": "yan_talisman.png",
+      "preview": "yan_talisman_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "red cloth charm, gold round motif, tassel, no glyph"
+    }
+  ]
+}

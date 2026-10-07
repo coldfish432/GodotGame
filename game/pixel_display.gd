@@ -38,3 +38,14 @@ func _ready() -> void:
 	game.save_enabled = persist_sessions
 	game.ui_root = ui_layer
 	world_viewport.add_child(game)
+	# Title, loading and settings only in the real game; tests instantiate this
+	# scene under their own SceneTree and go straight in.
+	if get_tree().current_scene == self:
+		var system_layer := CanvasLayer.new()
+		system_layer.layer = 30
+		add_child(system_layer)
+		var screens := SystemScreens.new()
+		screens.game = game
+		system_layer.add_child(screens)
+		game.system_screens = screens
+		screens.show_title()

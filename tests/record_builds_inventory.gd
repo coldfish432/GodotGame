@@ -148,7 +148,7 @@ func run() -> void:
 	rng.seed = 21
 	for i in range(12):
 		var loot := FieldCatalog.roll_item("snow", 4, rng, 1.5)
-		if i == 3: loot.gilded = true
+		if i == 3: loot.insured = true
 		game.inventory.try_add(loot)
 	var blade := Item.create("精工战刃", Item.Category.WEAPON, 2, 1, 3.2)
 	blade.rarity = 2

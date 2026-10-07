@@ -4,8 +4,9 @@ extends RefCounted
 ## Delivery orders posted by Rhodes Island departments (基地玩法策划案_v1_0.md §3.8).
 ##
 ## Each slot is empty or holds {"id": template, "state": "open"|"done",
-## "delivered": [{"uid", "name", "value"}]}. Items are handed over one at a time
-## and leave the game when they do; an order pays out when its count is met.
+## "delivered": [{"uid", "name", "value", "count"}]}. Items are handed over one
+## at a time and leave the game when they do; a material stack hands over only
+## the units still asked for. An order pays out when its count is met.
 ## Open orders never expire. After every settlement, empty and done slots are
 ## refilled under three rules:
 ##   1. at most one exclusive-item order on the board;
@@ -35,9 +36,10 @@ func open_orders() -> Array:
 ## Whether `item` is what order `slot` asks for.
 func matches(slot: int, item: Item) -> bool:
 	var order = slots[slot]
-	if order == null or order.state != "open" or item == null: return false
+	if order == null or order.state != "open" or item == null or item.is_potion(): return false
 	var t: Dictionary = BaseCatalog.ORDERS[order.id]
 	if t.has("effect"): return item.effect == t.effect
+	if t.has("material"): return item.material_id == t.material
 	if item.category != t.category or item.rarity < int(t.get("min_rarity", 0)): return false
 	if t.has("region") and item.origin_region != t.region: return false
 	return true
@@ -45,19 +47,35 @@ func matches(slot: int, item: Item) -> bool:
 func remaining(slot: int) -> int:
 	var order = slots[slot]
 	if order == null: return 0
-	return int(BaseCatalog.ORDERS[order.id].count) - order.delivered.size()
+	return int(BaseCatalog.ORDERS[order.id].count) - delivered_count(slot)
 
-## Hands `item` over. Returns {} when refused, else {"done": bool, "gold", "prestige"}
-## (gold and prestige are 0 until the order is complete). The caller removes the item.
+## Units handed over so far.
+func delivered_count(slot: int) -> int:
+	var order = slots[slot]
+	if order == null: return 0
+	return order.delivered.reduce(func(sum, d): return sum + int(d.get("count", 1)), 0)
+
+## How many units of `item` order `slot` would take (0 when it does not match).
+func takes(slot: int, item: Item) -> int:
+	if not matches(slot, item): return 0
+	return mini(remaining(slot), item.quantity if item.is_stackable() else 1)
+
+## Hands `item` over. Returns {} when refused, else {"done": bool, "gold",
+## "prestige", "used"} (gold and prestige are 0 until the order is complete).
+## `used` is how many units went; the caller removes the item when that is all
+## of it, else takes that many off the stack.
 func deliver(slot: int, item: Item) -> Dictionary:
-	if not matches(slot, item): return {}
+	var used := takes(slot, item)
+	if used <= 0: return {}
 	var order: Dictionary = slots[slot]
-	order.delivered.append({"uid": item.uid, "name": item.item_name, "value": item.value})
-	if remaining(slot) > 0: return {"done": false, "gold": 0, "prestige": 0}
+	var value := item.unit_value * used if item.is_stackable() else item.value
+	order.delivered.append({"uid": item.uid, "name": item.item_name, "value": value, "count": used})
+	if remaining(slot) > 0: return {"done": false, "gold": 0, "prestige": 0, "used": used}
 	order.state = "done"
 	var t: Dictionary = BaseCatalog.ORDERS[order.id]
-	var gold := int(t.gold) if t.has("gold") else int(round(order.delivered.reduce(func(sum, d): return sum + int(d.value), 0) * float(t.mult)))
-	return {"done": true, "gold": gold, "prestige": int(t.prestige)}
+	# Paid in 龙门币: a fixed sum, or the delivered 交付价 times the order's multiplier.
+	var gold := int(t.gold) if t.has("gold") else int(round(Economy.lmd(order.delivered.reduce(func(sum, d): return sum + int(d.value), 0)) * float(t.mult)))
+	return {"done": true, "gold": gold, "prestige": int(t.prestige), "used": used}
 
 ## Replaces an open order with a different one (the R3 free reroll). What was
 ## already handed over for it is kept by the department. Rule 2 is not checked:

@@ -18,6 +18,12 @@ func item(name: String, category: Item.Category, value: int = 10, region: String
 	x.origin_region = region
 	x.rarity = rarity
 	return x
+## A material stack: `units` units worth `unit_value` each (orders count units).
+func stack(units: int, unit_value: int, region: String = "") -> Item:
+	var x := MaterialCatalog.create("源岩", units, region)
+	x.unit_value = unit_value
+	x.set_quantity(units)
+	return x
 func board_with(ids: Array) -> OrderBoard:
 	var board := OrderBoard.new()
 	board.slots = ids.map(func(id): return null if id == null else {"id": id, "state": "open", "delivered": []})
@@ -34,7 +40,7 @@ func rules() -> void:
 	fresh.start_fresh()
 	check("a new game posts the starter order with the second slot empty", fresh.slots.size() == 2 and fresh.slots[0].id == "starter" and fresh.slots[1] == null)
 	check("order text names department, item and count: " + BaseCatalog.order_text("eng_mine_materials"),
-		BaseCatalog.order_text("eng_mine_materials") == "工程部：材料 ×2（产地：切尔诺伯格）")
+		BaseCatalog.order_text("eng_mine_materials") == "工程部：材料 ×8（产地：切尔诺伯格）")
 
 	# Matching: category, rarity, origin, exclusives.
 	var b := board_with(["eng_mine_materials", "log_fine_weapon", "eng_raw_ore"])
@@ -44,13 +50,15 @@ func rules() -> void:
 	check("exclusive orders want that exact exclusive", b.matches(2, FieldCatalog.exclusive("mine")) and not b.matches(2, FieldCatalog.exclusive("city")))
 
 	# Partial delivery, then payout on completion.
-	var first := b.deliver(0, item("矿料A", Item.Category.MATERIAL, 30, "mine"))
-	check("first of two: progress, no pay yet", not first.done and first.gold == 0 and b.remaining(0) == 1)
-	var second := b.deliver(0, item("矿料B", Item.Category.MATERIAL, 40, "mine"))
-	check("second completes: (30 + 40) x 1.4 = 98 gold, 6 prestige", second.done and second.gold == 98 and second.prestige == 6 and b.slots[0].state == "done")
-	check("a done order takes nothing more", b.deliver(0, item("矿料C", Item.Category.MATERIAL, 40, "mine")).is_empty())
+	var first := b.deliver(0, stack(3, 10, "mine"))
+	check("first 3 of 8 units: progress, no pay yet", not first.done and first.gold == 0 and b.remaining(0) == 5)
+	var big := stack(9, 8, "mine")
+	var second := b.deliver(0, big)
+	check("a 9-stack gives only the 5 still asked for", int(second.used) == 5)
+	check("completes: (30 + 5×8) ×100 x 1.4 = 9800 龙门币, 6 prestige", second.done and second.gold == 9800 and second.prestige == 6 and b.slots[0].state == "done")
+	check("a done order takes nothing more", b.deliver(0, stack(2, 10, "mine")).is_empty())
 	var ore := b.deliver(2, FieldCatalog.exclusive("mine"))
-	check("exclusive orders pay their fixed sum", ore.done and ore.gold == 160 and ore.prestige == 12)
+	check("exclusive orders pay their fixed sum", ore.done and ore.gold == 16000 and ore.prestige == 12)
 	check("abandoning empties an open slot only", b.abandon(1) and b.slots[1] == null and not b.abandon(0))
 
 	# Refill rules, over many seeds and last regions.
@@ -93,8 +101,8 @@ func through_game() -> void:
 	await step(8)
 	check("the outbound station is exported", not game.base_map.station("outbound").is_empty())
 	game.base.orders = board_with(["starter", "log_fine_weapon"])
-	var shelf_mat := item("货架材料", Item.Category.MATERIAL, 20)
-	var pack_mat := item("背包材料", Item.Category.MATERIAL, 30)
+	var shelf_mat := stack(2, 10)
+	var pack_mat := stack(2, 15)
 	var staged_mat := item("暂存材料", Item.Category.MATERIAL, 50)
 	var crate_mat := item("箱中材料", Item.Category.MATERIAL, 50)
 	var worn := item("装备着的精良刀", Item.Category.WEAPON, 40, "", 1)
@@ -117,14 +125,14 @@ func through_game() -> void:
 	check("board shows an order she can fill", game.warehouse_view.board_state() == "open" and game.warehouse_view._board.texture == game.warehouse_view.tex.board_open)
 	var gold := game.gold
 	check("deliver from the shelf", game.deliver_to_order(0, shelf_mat) and game.base.location_of(shelf_mat) == "" and game.gold == gold)
-	check("deliver from the pack completes: (20 + 30) x 1.3 = 65 gold, 5 prestige",
-		game.deliver_to_order(0, pack_mat) and not game.inventory.items.has(pack_mat) and game.gold == gold + 65 and game.base.prestige == 5)
+	check("deliver from the pack completes: (20 + 30) ×100 x 1.3 = 6500 龙门币, 5 prestige",
+		game.deliver_to_order(0, pack_mat) and not game.inventory.items.has(pack_mat) and game.gold == gold + 6500 and game.base.prestige == 5)
 	await step(2)
 	check("with nothing fillable left, a done order shows the completed board", game.warehouse_view.board_state() == "completed")
 	var sold := item("卖掉的饰品", Item.Category.TRINKET, 25)
 	game.inventory.try_add(sold)
 	gold = game.gold
-	check("plain delivery from the pack pays its value", game.sell(sold) and game.gold == gold + 25 and not game.inventory.items.has(sold))
+	check("plain delivery from the pack pays its value", game.sell(sold) and game.gold == gold + 2500 and not game.inventory.items.has(sold))
 
 	# Settlement: extraction prestige and refills.
 	game.player.unequip(Item.Category.WEAPON)
@@ -141,10 +149,10 @@ func through_game() -> void:
 	check("contract cards count the orders pointing at each region",
 		game.base.orders.pointing_at("mine") == 1 and game.base.orders.pointing_at("city") == 1 and game.base.orders.pointing_at("snow") == 0)
 	game.open_station("contracts")
-	check("the mine contract card says an order points there", _has_text(game.menu, "有 1 张订单指向此地区"))
+	check("the mine contract card says an order points there", _has_text(game.menu, "订单 1"))
 	game.close_modal()
 	game.open_station("outbound")
-	check("the outbound menu lists the orders and plain delivery", _has_text(game.menu, "直接交付 / 只换资金") and _contains_text(game.menu, "未封装源石原矿"))
+	check("the outbound menu lists the orders and plain delivery", _contains_text(game.menu, "直接交付") and _contains_text(game.menu, "未封装源石原矿"))
 	game.close_modal()
 	game.base.orders = board_with([null, null])
 	await step(2)

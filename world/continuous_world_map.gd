@@ -7,10 +7,14 @@ const SPINE_MAX := Vector2(96, 190)
 var region_id := "mine"
 var extraction_available := false
 var buff_position := Vector3.ZERO
-var gilding_position := Vector3.ZERO
+## The mid-route spot where a Rhodes squad or 坎诺特 can be met (保全系统修订案 §2,
+## 坎诺特商店策划案 §1). It used to hold the gilding device.
+var encounter_position := Vector3.ZERO
+## "" (nobody this floor), "squad" or "trader"; set before generate().
+var encounter_kind := ""
 var exit_node: Node3D
 var buff_device_node: Node3D
-var gilding_device_node: Node3D
+var encounter_node: Node3D
 var route_nodes: Array[Node3D] = []
 var seed_value := 0
 var open_pass_count := 3
@@ -386,9 +390,10 @@ func _place_content() -> void:
 	var gild_at := _safe_spot(Vector2(gild.x, gild.y), Vector2(gild.x, gild.y), gild.z)
 	var exit_at := _safe_spot(Vector2(exit_spot.x, exit_spot.y), Vector2(exit_spot.x, exit_spot.y), exit_spot.z)
 	buff_position = Vector3(buff_at.x, 0.65, buff_at.y)
-	gilding_position = Vector3(gild_at.x, 0.65, gild_at.y)
+	encounter_position = Vector3(gild_at.x, 0.65, gild_at.y)
 	buff_device_node = _marker("强化 · E", buff_position, Color("ef9b42"))
-	gilding_device_node = _marker("点金 · E", gilding_position, Color("f9d86f"))
+	encounter_node = _marker("坎诺特 · E" if encounter_kind == "trader" else "罗德岛小队 · E", encounter_position, Color("e6c25a") if encounter_kind == "trader" else Color("5fd0d8"))
+	encounter_node.visible = not encounter_kind.is_empty()
 	exit_node = _marker("撤离 · E", Vector3(exit_at.x, 0.15, exit_at.y), Color("63eca7"))
 	exit_node.visible = extraction_available
 	route_nodes.clear()
@@ -595,7 +600,7 @@ func _make_cylinder(cyl_name: String, pos: Vector3, diameter: float, height: flo
 func _clear_generated_map() -> void:
 	exit_node = null
 	buff_device_node = null
-	gilding_device_node = null
+	encounter_node = null
 	enemy_spawn_points.clear()
 	if is_instance_valid(_generated_root):
 		remove_child(_generated_root)

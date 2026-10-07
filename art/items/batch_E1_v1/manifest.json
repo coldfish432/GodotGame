@@ -1,0 +1,204 @@
+{
+  "batch": "E1",
+  "source": "装备策划案_v1_0.md §§3-6",
+  "scale": 2,
+  "preview_scale": 8,
+  "palette": "§6.3",
+  "items": [
+    {
+      "id": "modified_machete",
+      "name": "改装砍刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "modified_machete.png",
+      "preview": "modified_machete_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "wide straight steel-plate machete, weld, taped grip"
+    },
+    {
+      "id": "standard_dagger",
+      "name": "制式短刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "standard_dagger.png",
+      "preview": "standard_dagger_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "narrow short blade, standard guard, filed nameplate"
+    },
+    {
+      "id": "mine_issue_blade",
+      "name": "矿区制式刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "mine_issue_blade.png",
+      "preview": "mine_issue_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "plain straight blade, wood handle, iron ferrule"
+    },
+    {
+      "id": "patrol_saber",
+      "name": "纠察队佩刀",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "patrol_saber.png",
+      "preview": "patrol_saber_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "slightly curved saber, brass half-bow guard, red root"
+    },
+    {
+      "id": "pickhaft_blade",
+      "name": "镐柄战刃",
+      "region": "mine",
+      "kind": "weapon",
+      "file": "pickhaft_blade.png",
+      "preview": "pickhaft_blade_8x.png",
+      "native_size": [
+        36,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "long haft, short heavy edge, hooked half-pick"
+    },
+    {
+      "id": "miner_vest",
+      "name": "矿工护甲",
+      "region": "mine",
+      "kind": "armor",
+      "file": "miner_vest.png",
+      "preview": "miner_vest_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "canvas vest, leather shoulders, blank white cloth patch, unlit lamp"
+    },
+    {
+      "id": "reunion_coat",
+      "name": "整合运动制式外套",
+      "region": "mine",
+      "kind": "armor",
+      "file": "reunion_coat.png",
+      "preview": "reunion_coat_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "dark hooded coat, red left armband, torn hem"
+    },
+    {
+      "id": "patrol_winter_coat",
+      "name": "纠察队防寒大衣",
+      "region": "mine",
+      "kind": "armor",
+      "file": "patrol_winter_coat.png",
+      "preview": "patrol_winter_coat_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "double-breasted gray-green coat, fur collar, torn epaulette"
+    },
+    {
+      "id": "heavy_mine_suit",
+      "name": "矿场重型防护服",
+      "region": "mine",
+      "kind": "armor",
+      "file": "heavy_mine_suit.png",
+      "preview": "heavy_mine_suit_8x.png",
+      "native_size": [
+        36,
+        36
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "bulky sealed suit, round filter, yellow hazard shoulder"
+    },
+    {
+      "id": "dust_mask",
+      "name": "防尘面罩",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "dust_mask.png",
+      "preview": "dust_mask_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "front half-mask, two round filters, broken head strap"
+    },
+    {
+      "id": "liquor_flask",
+      "name": "烈酒扁壶",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "liquor_flask.png",
+      "preview": "liquor_flask_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "curved metal flask, neck cord, dent"
+    },
+    {
+      "id": "reunion_mask",
+      "name": "整合运动面具",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "reunion_mask.png",
+      "preview": "reunion_mask_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": false,
+      "emit_file": null,
+      "description": "white full-face mask, two horizontal eye slits, crack"
+    },
+    {
+      "id": "originium_meter",
+      "name": "源石感应计",
+      "region": "mine",
+      "kind": "trinket",
+      "file": "originium_meter.png",
+      "preview": "originium_meter_8x.png",
+      "native_size": [
+        16,
+        16
+      ],
+      "has_emit": true,
+      "emit_file": "originium_meter_emit.png",
+      "description": "small gauge box, needle at maximum, orange lamp"
+    }
+  ]
+}
