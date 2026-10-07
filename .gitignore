@@ -10,7 +10,7 @@ __pycache__/
 audio/_check/
 
 # Course rule: no MP3/MP4 in GitHub. Raw Gemini downloads stay local (hashes in audio/asset_log.json).
-music/
+/music/
 *.mp3
 *.mp4
 
@@ -28,3 +28,8 @@ art/_to_sol/
 art/relics/batch_*/sources/
 art/items/batch_*/sources/
 art/items/batch_*/references/
+
+# Design docs, assignment write-ups and the film stay local
+*.md
+design/
+youtube/
