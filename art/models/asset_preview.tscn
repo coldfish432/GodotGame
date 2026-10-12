@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://art/models/cliff_wall_segment.glb" id="1_cliff"]
+[ext_resource type="PackedScene" path="res://art/models/arched_ramp_segment.glb" id="2_ramp"]
+[ext_resource type="PackedScene" path="res://art/models/cliff_rubble_pile.glb" id="3_rubble"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(30, 30)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.38, 0.337, 0.275, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ref"]
+radius = 0.35
+height = 1.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_ref"]
+albedo_color = Color(0.25, 0.45, 0.75, 1)
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 1
+background_color = Color(0.16, 0.16, 0.18, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.55, 0.6, 1)
+ambient_light_energy = 0.6
+
+[node name="AssetPreview" type="Node3D"]
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_ground")
+surface_material_override/0 = SubResource("Mat_ground")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0, 0.5, -0.353553, -0.707107, 0.612372, 0.353553, -0.707107, -0.612372, 0, 10, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 0.529999, 0.847998, 0, 0.847998, -0.529999, 0, 16, -10)
+projection = 1
+current = true
+size = 24.0
+
+[node name="cliff_wall_segment" parent="." instance=ExtResource("1_cliff")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 0)
+
+[node name="arched_ramp_segment" parent="." instance=ExtResource("2_ramp")]
+
+[node name="cliff_rubble_pile" parent="." instance=ExtResource("3_rubble")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0, 0)
+
+[node name="ScaleReference" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0.85, 3)
+mesh = SubResource("CapsuleMesh_ref")
+surface_material_override/0 = SubResource("Mat_ref")

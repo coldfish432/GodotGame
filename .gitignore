@@ -33,3 +33,6 @@ art/items/batch_*/references/
 *.md
 design/
 youtube/
+
+# Blender save backups (Assignment 3)
+*.blend1
