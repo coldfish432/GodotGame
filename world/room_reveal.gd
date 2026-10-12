@@ -25,7 +25,7 @@ signal shelf_rising(shelf: int)
 signal lights_out
 
 const BANKS := 4                 # equal strips across the room, door side first
-const BANK_PAUSE := 0.45         # from one bank switching on to the next
+const BANK_PAUSE := 0.95         # from one bank switching on to the next (0.45 until 2026-10-08: too quick)
 const FLICKER := [0.0, 0.07, 0.14]  # on, off, on again (seconds after the bank's turn)
 const IDLE := 0.6               # the whole room before she walks in: dim, never black
 ## Strips not yet lit catch light from the lit ones: the next strip over, the

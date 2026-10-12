@@ -4,7 +4,8 @@ extends RefCounted
 ## Inventory icons for equipment (装备策划案 §6). Native 36 px per cell, drawn
 ## 1:1 and centred in the item tile. Icons come from the item's base
 ## (GearCatalog), its SpecialGear id, or its exclusive effect, else by name;
-## items without art keep their text label.
+## items without art keep their text label. Materials and potions are
+## looked up by material id and potion type.
 ## Finished art is copied from art/items/batch_*_v* into art/items/runtime/.
 
 const DIR := "res://art/items/runtime/"
@@ -25,7 +26,50 @@ const BY_NAME := {
 	"科考队开路刀": "expedition_machete", "雪祀礼刃": "snowpriest_blade",
 	"冰原毛皮外套": "tundra_fur_coat", "雪橇巡逻队斗篷": "sled_patrol_cloak", "科考队防寒服": "expedition_parka", "骨片札甲": "bone_lamellar",
 	"骨制护符": "bone_amulet", "角兽骨笛": "antler_flute", "兽骨鼓槌": "bone_drumstick", "密文板残片": "cipher_fragment",
+	# 装备扩充: the weapons (E7–E9, 37 icons) are Sol's art; armour and trinkets
+	# stay placeholder recolours until E10–E12.
+	"工兵锹": "mine_x01", "大号管钳": "mine_x02", "缠链指虎": "mine_x03", "纠察队钩刀": "mine_x04",
+	"游击队旧式刺刀": "mine_x05", "施术短刃": "mine_x06", "攻坚破门锤": "mine_x07", "帝国突击矛": "mine_x08",
+	"拼装轻甲": "mine_x09", "改装喷射背架": "mine_x10", "整合运动术师兜袍": "mine_x11", "伪装吉利服": "mine_x12",
+	"游击队旧式军大衣": "mine_x13", "复合护具": "mine_x14", "头戴矿灯": "mine_x15", "军用止血带": "mine_x16",
+	"劳役编号牌": "mine_x17", "切尔文铜币": "mine_x18", "纠察队手铐": "mine_x19", "游击队臂章": "mine_x20",
+	"高能虫囊": "mine_x21", "拆下的施术单元": "mine_x22", "拆迁大锤": "city_x01", "铜指虎": "city_x02",
+	"消防斧": "city_x03", "蝴蝶双刀": "city_x04", "护卫铁尺": "city_x05", "警用链锤": "city_x06",
+	"炎式苗刀": "city_x07", "炎式朴刀": "city_x08", "执勤反光雨衣": "city_x09", "拳馆练功服": "city_x10",
+	"染血白工装": "city_x11", "拾荒者伪装衫": "city_x12", "香主绸衫": "city_x13", "防爆重甲": "city_x14",
+	"执勤警哨": "city_x15", "防风打火机": "city_x16", "老千骰子": "city_x17", "跌打药酒瓶": "city_x18",
+	"无人机遥控器": "city_x19", "当铺铜牌": "city_x20", "琉璃护身珠": "city_x21", "染污短刀": "snow_x01",
+	"伐木斧": "snow_x02", "兽颚指虎": "snow_x03", "凿冰长刀": "snow_x04", "科考冰镐": "snow_x05",
+	"岩角战锤": "snow_x06", "裂骨拳刃": "snow_x07", "林线猎矛": "snow_x08", "角兽长毛披肩": "snow_x09",
+	"桦皮护胸": "snow_x10", "林业护具": "snow_x11", "搜救队绳索背心": "snow_x12", "科考站加热背心": "snow_x13",
+	"冬牙角盔": "snow_x14", "雪祀羽氅": "snow_x15", "族树木片": "snow_x16", "鼷兽毛团": "snow_x17",
+	"幸运晶石": "snow_x18", "骨缝雪镜": "snow_x19", "手持定位仪": "snow_x20", "角兽银铃": "snow_x21",
+	"黑雪结晶": "snow_x22", "猎首獠牙串": "snow_x23",
 }
+
+## Materials by material id (美术补全案 M1 PRTS materials, M2 common supplies);
+## stacks keep their count badge. Ids without art yet fall back to text.
+const MATERIALS := {
+	"源岩": "orirock", "固源岩": "orirock_cube", "固源岩组": "orirock_cluster", "提纯源岩": "orirock_concentration",
+	"代糖": "sugar_substitute", "糖": "sugar", "酯原料": "ester", "聚酸酯": "polyester",
+	"异铁碎片": "oriron_shard", "异铁": "oriron", "异铁组": "oriron_cluster", "双酮": "diketon",
+	"酮凝集": "polyketon", "破损装置": "damaged_device", "装置": "device", "全新装置": "integrated_device",
+	"改量装置": "optimized_device", "研磨石": "grindstone", "化合切削液": "compound_cutting_fluid", "扭转醇": "loxic_kohl",
+	"轻锰矿": "manganese_ore", "晶体元件": "crystalline_component", "褐素纤维": "fuscous_fiber", "凝胶": "coagulating_gel",
+	"D32钢": "d32_steel", "碳": "carbon_stick", "碳素": "carbon_brick", "碳素组": "carbon_pack",
+	"基础加固建材": "building_material_basic", "进阶加固建材": "building_material_adv", "家具零件": "furniture_part", "赤金": "pure_gold",
+	"源石碎片": "originium_shard", "螺栓": "bolts", "螺母": "nuts", "钉子": "nails",
+	"木板": "plank", "金属板": "metal_plate", "软管": "hose", "密封泡沫": "sealing_foam",
+	"胶带": "duct_tape", "帆布": "canvas_sheet", "电线": "wire_coil", "电源线": "power_cord",
+	"灯泡": "light_bulb", "继电器": "relay", "电路板": "circuit_board", "微型电机": "micro_motor",
+	"蓄电池": "battery", "车用蓄电池": "car_battery", "固体燃料": "solid_fuel", "燃料罐": "fuel_can",
+	"扳手": "wrench", "工具套装": "toolkit", "医用耗材包": "medical_supplies",
+	# Growth (精英化与加点策划案 §3.2), placeholders until the M batch.
+	"近卫芯片": "guard_chip", "近卫芯片组": "guard_chip_pack", "芯片助剂": "chip_catalyst", "近卫双芯片": "guard_dualchip",
+	"技巧概要·卷1": "skill_summary_1", "技巧概要·卷2": "skill_summary_2", "技巧概要·卷3": "skill_summary_3", "模组数据块": "module_data_block",
+}
+## Potions by potion type (M3).
+const POTIONS := {"A": "potion_a", "B": "potion_b", "C": "potion_c"}
 
 static var _cache := {}
 
@@ -34,7 +78,9 @@ static var _cache := {}
 const EXCLUSIVE_ICONS := {"raw_ore": "raw_originium", "riot_shield": "riot_shield", "frozen_relic": "frozen_relic"}
 
 static func icon_id(item: Item) -> String:
-	if item == null or not item.material_id.is_empty(): return ""
+	if item == null: return ""
+	if not item.material_id.is_empty(): return MATERIALS.get(item.material_id, "")
+	if item.is_potion(): return POTIONS.get(item.potion_type, "")
 	if not item.special.is_empty(): return item.special if SpecialGear.GEAR.has(item.special) else ""
 	if EXCLUSIVE_ICONS.has(item.effect): return EXCLUSIVE_ICONS[item.effect]
 	if not item.base_id.is_empty(): return str(GearCatalog.base(item.base_id).get("icon", ""))

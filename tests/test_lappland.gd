@@ -66,7 +66,7 @@ func run() -> void:
 	p.equip(weapon)
 	check("wave affix and attack speed stack", p.has_sword_wave() and is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN / 1.1))
 	var restored := Item.from_data(weapon.to_data())
-	check("affix survives save roundtrip with tooltip", restored.modifiers[0].trigger == ItemModifier.Trigger.SWORD_WAVE and "幼狼之牙" in restored.details())
+	check("affix survives save roundtrip with tooltip", restored.modifiers[0].trigger == ItemModifier.Trigger.SWORD_WAVE and "剑气强化" in restored.details())
 	var enemy := dummy(origin + Vector3(0, 0, 2))
 	for i in range(3):
 		var before := enemy.health
@@ -76,20 +76,43 @@ func run() -> void:
 	check("third hit readies without firing", waves().is_empty() and p.combo_step == 0 and is_equal_approx(p.hitstop_remaining, 0.05))
 	p._tick_combat(20)
 	check("full charge persists indefinitely", p.sword_charge == 3)
+	# The counter is a translucent three-segment ring circling her feet (LoL
+	# three-hit rings): all three purple at full charge, turning.
+	var aura: PlayerAura = null
+	for child in p.get_children():
+		if child is PlayerAura: aura = child
+	var turn_before := aura.ring.rotation.y
+	aura._process(0.1)
+	var purple := aura.segments.all(func(seg): return (seg.material_override as StandardMaterial3D).albedo_texture == PlayerAura.FANG_TEXTURES.full)
+	var see_through := aura.segments.all(func(seg): return (seg.material_override as StandardMaterial3D).albedo_color.a <= 0.7)
+	check("full: three fangs circling her feet, purple, translucent, turning", aura.ring.visible and aura.segments.size() == 3 and purple and see_through
+		and absf(aura.ring.global_position.y - 0.055) < 0.001 and see_through and Vector2(aura.ring.global_position.x - p.global_position.x, aura.ring.global_position.z - p.global_position.z).length() < 0.001
+		and not is_equal_approx(aura.ring.rotation.y, turn_before))
+	var kept := p.sword_charge
+	p.sword_charge = 1
+	aura._process(0.016)
+	var alphas: Array = aura.segments.map(func(seg): return (seg.material_override as StandardMaterial3D).albedo_color.a)
+	var textures: Array = aura.segments.map(func(seg): return (seg.material_override as StandardMaterial3D).albedo_texture)
+	check("one charge: one fang lit, two faint", is_equal_approx(alphas[0], PlayerAura.LIT_ALPHA) and is_equal_approx(alphas[1], PlayerAura.EMPTY_ALPHA) and is_equal_approx(alphas[2], PlayerAura.EMPTY_ALPHA)
+		and textures[0] == PlayerAura.FANG_TEXTURES.lit and textures[1] == PlayerAura.FANG_TEXTURES.empty and textures[2] == PlayerAura.FANG_TEXTURES.empty)
+	p.sword_charge = kept
 	swing(enemy)
 	check("fourth hit releases and does not re-charge", p.sword_charge == 0 and waves().size() == 1 and p.combo_step == 0 and p._sprite.action_name == "wave")
 	var wave := waves()[0] as SwordWave
 	wave.set_physics_process(false)
-	check("wave snapshots 150% of arts ATK as arts damage", is_equal_approx(wave.damage, 540.0) and wave.kind == "arts")
+	# 剑气强化 (the old 剑气 affix, 精英化案 §8.1) adds 25%: 360 × 1.5 × 1.25.
+	check("wave snapshots 150% of arts ATK as arts damage, +25% 剑气强化", is_equal_approx(wave.damage, 675.0) and wave.kind == "arts")
+	check("the wave decays 30% over its flight at rank 0", is_equal_approx(wave.decay, SwordWave.BASE_DECAY))
+	wave.decay = 0.0
 	var second := dummy(origin + Vector3(0, 0, 5))
 	var off_axis := dummy(origin + Vector3(1, 0, 5))
 	var past_range := dummy(origin + Vector3(0, 0, 10))
 	var first_hp := enemy.health
 	wave._physics_process(0.45)
-	check("swept wave penetrates multiple enemies at full speed", is_equal_approx(enemy.health, first_hp - 540) and second.health == 100000 - 540 and is_equal_approx(wave.travelled, 6.3))
+	check("swept wave penetrates multiple enemies at full speed", is_equal_approx(enemy.health, first_hp - 675) and second.health == 100000 - 675 and is_equal_approx(wave.travelled, 6.3))
 	check("wave width rejects off-axis targets and does not charge", off_axis.health == 100000 and p.sword_charge == 0)
 	wave._physics_process(0.3)
-	check("range capped to nine and each enemy hit once", wave.is_queued_for_deletion() and is_equal_approx(wave.travelled, 9) and second.health == 100000 - 540 and past_range.health == 100000)
+	check("range capped to nine and each enemy hit once", wave.is_queued_for_deletion() and is_equal_approx(wave.travelled, 9) and second.health == 100000 - 675 and past_range.health == 100000)
 	check("wave gives no enemy hitstop", second.hitstop_remaining == 0)
 	clear_waves()
 	swing(enemy)
@@ -125,9 +148,9 @@ func run() -> void:
 	p.sword_charge = 3
 	var other := Item.create("无词缀剑", Item.Category.WEAPON, 2, 1)
 	p.equip(other)
-	check("weapon swap clears stored charge", p.sword_charge == 0 and not p.has_sword_wave())
+	check("weapon swap clears stored charge; 剑气 stays hers", p.sword_charge == 0 and p.has_sword_wave())
 	swing(enemy)
-	check("ordinary weapons never charge", p.sword_charge == 0)
+	check("ordinary weapons charge too (剑气 is hers, 用户 2026-10-04)", p.sword_charge == 1)
 	p.equip(weapon)
 	p.sword_charge = 3
 	p.unequip(Item.Category.WEAPON)
@@ -135,7 +158,7 @@ func run() -> void:
 	var armor := Item.create("非法词缀防具", Item.Category.ARMOR, 2, 2)
 	armor.modifiers = [ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE)]
 	p.equip(armor)
-	check("non-weapon trigger cannot activate wave", not p.has_sword_wave())
+	check("剑气强化 on armour adds nothing", is_equal_approx(p.wave_multiplier(), 1.0))
 	p.equip(weapon)
 	p.sword_charge = 2
 	game.open_modal("inventory")
@@ -174,7 +197,8 @@ func run() -> void:
 	blocked_wave._physics_process(0.6)
 	check("wall stops wave before enemies behind it", blocked_wave.is_queued_for_deletion() and blocked_wave.travelled < 3.5 and second.health == second_hp)
 	wall.queue_free()
-	# A dodge pressed during a hit's freeze frames must still come out.
+	# A dodge interrupts everything, the freeze frames of a hit included
+	# (用户 2026-10-10: 闪避时打断所有动作).
 	p.teleport(origin)
 	p.stamina = 100
 	p._dash_cooldown = 0
@@ -184,12 +208,18 @@ func run() -> void:
 	Input.action_press("dash")
 	p._physics_process(0.016)
 	Input.action_release("dash")
-	check("dash pressed in hitstop waits instead of firing", not p.invulnerable and p.hitstop_remaining > 0)
-	p._physics_process(0.05)
-	p._physics_process(0.016)
-	check("dash pressed in hitstop fires once hitstop ends", p.invulnerable and p.dash_remaining > 0)
+	check("dash pressed in hitstop fires at once and ends the freeze", p.invulnerable and p.dash_remaining > 0 and p.hitstop_remaining == 0)
 	p._physics_process(0.016)
 	check("buffered dash fires only once", not p._dash_buffered and p.stamina > 70 and p.stamina < 80)
+	# Dodges have a 1.5 s cooldown on top of their stamina (用户 2026-10-10).
+	p.stamina = 100
+	p.dash_remaining = 0
+	p.invulnerable = false
+	check("a dodge starts the 1.5 s cooldown", is_equal_approx(Player.DASH_COOLDOWN, 1.5) and p._dash_cooldown > 1.4)
+	p._dash_cooldown = 1.0
+	check("no second dodge while it cools down, even with stamina", not p.can_dash())
+	p._dash_cooldown = 0.0
+	check("the next dodge is ready once it has cooled", p.can_dash())
 	p.reset_combat_state()
 	p.teleport(origin)
 	# Whiffs must not spend one-shot relic bonuses (赏善郎 after an evade).

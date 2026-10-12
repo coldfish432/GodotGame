@@ -1,0 +1,77 @@
+{
+  "sheets": [
+    {
+      "file": "amiya_guard_walk_source.png",
+      "form": "guard",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "left_step",
+        "passing_idle",
+        "right_step",
+        "passing_idle"
+      ]
+    },
+    {
+      "file": "amiya_guard_combat_source.png",
+      "form": "guard",
+      "kind": "combat",
+      "cols": 16,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "slash_1_windup",
+        "horizontal_sweep",
+        "recover",
+        "double_slash_backhand",
+        "double_slash_second_cut",
+        "follow_through",
+        "recover",
+        "thrust_windup",
+        "lunge",
+        "hold_lunge",
+        "recover",
+        "shadow_strike_dash",
+        "flurry",
+        "finisher_raised",
+        "finisher_landed",
+        "hurt"
+      ]
+    }
+  ],
+  "provenance": {
+    "method": "built-in image_gen painted sprite generations; grid segmentation, alpha cleanup, pixel scaling and baseline packing with Pillow",
+    "reference_brief": "art/_to_sol/A_amiya_guard_sprites/A_brief_v1.md",
+    "style_reference": "art/_to_sol/A_amiya_guard_sprites/refs/style/lappland_8dir_walk_4frames.png",
+    "character_references": [
+      "refs/prts/guard_art.png",
+      "refs/prts/guard_avatar.png"
+    ],
+    "generation_ids": [
+      "exec-470dddbc-2a8b-4424-9a5f-347049c7955b.png",
+      "exec-f0b28b6f-0d65-4549-8256-ea8004504da0.png",
+      "exec-fd169b39-8225-4752-b512-f02c65d531fd.png",
+      "exec-726ab691-9516-4121-92f7-5cf8ed4c24fd.png",
+      "exec-9cc1d70a-69cc-4a9a-af11-83a2855b13a9.png"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+Batch I1 v2 validation
+Source: batch_I1_v1/amiya_guard_idle_source.png
+Canvas: 512 x 2048 RGBA; 2 columns x 8 rows; 256 x 256 cells.
+Changed rows (one-based): 4 NW, 6 NE.
+
+Unchanged cells pixel-identical to v1: 12/12
+Changed cells: 4/4 (NW and NE, stand and breath)
+Pixels touching/crossing cell borders: 0
+
+row | walk foot/height | stand foot/height | breath foot/height | median x | fixed from
+NW | 241/225 | 241/225 | 241/222 | 122.0 | 203
+NE | 241/227 | 241/227 | 241/224 | 125.0 | 203
+NW/NE breath cells are pixel-identical to their stand cells from row 203 through 255.

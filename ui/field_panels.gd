@@ -224,6 +224,8 @@ func _journal() -> void:
 		info.add_child(lines)
 		plate.add_child(info)
 		_body.add_child(plate)
+		var goal := game.contract_progress()
+		if not goal.is_empty(): _objective("合同 · " + goal.goal, goal.have, goal.need, AK.GREEN if goal.done else AK.SP)
 		var block_start := (game.floor_number - 1) / FieldCatalog.CAMP_INTERVAL * FieldCatalog.CAMP_INTERVAL
 		var camp_at := block_start + FieldCatalog.CAMP_INTERVAL
 		_objective("到达" + game.camp_label(camp_at), game.floor_number - block_start, FieldCatalog.CAMP_INTERVAL, AK.GREEN)

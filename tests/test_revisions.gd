@@ -249,6 +249,8 @@ func _camps() -> void:
 	await game.advance(0)
 	check("an upgraded camp adds no contamination", game.in_camp and game.run_contamination == dose)
 	var lmd := game.gold
+	# Floors only: a random contract that happens to be done (deep +25%) would add its bonus.
+	game.contract = {}
 	game.camp_extract()
 	await step(2)
 	var reward := game.gold - lmd

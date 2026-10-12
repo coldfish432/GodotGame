@@ -1,0 +1,263 @@
+[
+  {
+    "id": "snow_x09",
+    "name": "角兽长毛披肩",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`prts_rock_hornbeast` (the fur)",
+    "description": "A waist-length shawl of long hanging fur in clumps like grass, gray-green-brown.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x10",
+    "name": "桦皮护胸",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`proto_birch_bark`",
+    "description": "A chest guard pressed from white birch bark with black marks, leather cords crossing to tie at the back.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x11",
+    "name": "林业护具",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`proto_climbing_harness` (the straps only)",
+    "description": "A canvas vest with hard shoulder pads and two reflective bands on the chest, wood shavings on the cuffs.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x12",
+    "name": "搜救队绳索背心",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`proto_climbing_harness`",
+    "description": "A felt vest crossed by two thick ropes with metal carabiners, a small bell hanging at the back.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x13",
+    "name": "科考站加热背心",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "the old `expedition_parka` (colour)",
+    "description": "An orange quilted vest with a battery box on the chest and one exposed cable; one indicator cell lit (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "snow_x14",
+    "name": "冬牙角盔",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`proto_lamellar` (the bone plates)",
+    "description": "A closed-face war helm with a pair of back-curving horns, a narrow eye slit and a row of bone studs on the brow. Heavy class. Front view; it is the only helmet in the armour set.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x15",
+    "name": "雪祀羽氅",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`prts_fallen_snowpriest`",
+    "description": "A long white cloak with a ring of long feathers at the collar; the hem hung with red-yellow-blue woven bands and small bone pendants.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_ice_warrior_19",
+    "name": "雪顶护肩",
+    "form": "armour",
+    "kind": "exclusive",
+    "prototype": "the old ice warrior, `proto_pauldron`",
+    "description": "Two rounded shoulder guards on a harness, a crust of packed white snow and ice on top, fur trim.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_taint_husk_22",
+    "name": "空壳战袍",
+    "form": "armour",
+    "kind": "exclusive",
+    "prototype": "`prts_taint_husk`",
+    "description": "The husk's blue-grey fur robe with the eared hood, empty: dark inside the hood and sleeves, torn at the edges. It should feel hollow.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_shattered_champion_24",
+    "name": "泯灭护颈",
+    "form": "armour",
+    "kind": "exclusive",
+    "prototype": "`prts_shattered_champion`",
+    "description": "A bone-and-antler gorget, a collar of plates on teal cloth with one plate cracked through.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_rock_hornbeast_27",
+    "name": "冲阵蹄铁",
+    "form": "armour",
+    "kind": "exclusive",
+    "prototype": "`prts_rock_hornbeast`",
+    "description": "A heavy fur mantle whose front is covered in overlapping iron hoof-plates (horseshoe shapes).",
+    "has_emit": false
+  },
+  {
+    "id": "set_clean_snow_1",
+    "name": "洁雪仪氅",
+    "form": "armour",
+    "kind": "set",
+    "prototype": "`prts_fallen_snowpriest`",
+    "description": "A pure-white long feather cloak with a round bone clasp at the collar. It must differ from 雪祀羽氅: shorter feathers, no bands, cleaner.",
+    "has_emit": false
+  },
+  {
+    "id": "set_fire_watch_1",
+    "name": "守望者皮甲",
+    "form": "armour",
+    "kind": "set",
+    "prototype": "no photo",
+    "description": "A leather jerkin with a fur collar and riveted chest plates; one warm-orange stitch on the chest ties it to the set's tinder box.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x16",
+    "name": "族树木片",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_birch_bark`",
+    "description": "A thin slip of wood with bark on, three vertical cuts on its face, on a leather cord.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x17",
+    "name": "鼷兽毛团",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "no photo",
+    "description": "A white fluffy pompom pendant with a short little tail sticking out.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x18",
+    "name": "幸运晶石",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "no photo: a raw clear crystal",
+    "description": "An irregular clear crystal drilled at the top for a cord, with one crack inside catching light.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x19",
+    "name": "骨缝雪镜",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_snow_goggles`",
+    "description": "A curved bone plate with one thin horizontal slit, leather cords at both ends: Inuit-style snow goggles.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x20",
+    "name": "手持定位仪",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_gps_receiver`",
+    "description": "An orange handheld terminal with a small antenna and one blinking dot on its monochrome screen (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "snow_x21",
+    "name": "角兽银铃",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_sleigh_bell`",
+    "description": "One small silver bell on a piece of braided leather, a single arc engraved on it.",
+    "has_emit": false
+  },
+  {
+    "id": "snow_x22",
+    "name": "黑雪结晶",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "no photo",
+    "description": "A cluster of black snowflake-like crystals with a 1–2 px cold-blue glow at the edges (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "snow_x23",
+    "name": "猎首獠牙串",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "no photo",
+    "description": "Five curved fangs on a leather cord, the middle one largest, a bit of woven band at the knot.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_ice_hunter_20",
+    "name": "结绳猎记",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "`proto_quipu`",
+    "description": "A knotted cord record: a leather cord with many knots and a bone toggle.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_ice_hunter_21",
+    "name": "猎人的耐心",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "no photo: a carved wooden hunting decoy",
+    "description": "A small carved wooden decoy bird on a cord, worn smooth by a hand.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_distorted_caster_23",
+    "name": "置换指骨",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "`prts_distorted_caster`",
+    "description": "A long finger bone ringed with black frost, its tip glowing faint pale violet (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "mi_shell_vine_26",
+    "name": "壳中种子",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "`prts_shell_vine`",
+    "description": "A large seed in a cracked dark shell with one green sprout coming out.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_fallen_snowpriest_28",
+    "name": "雪祀断冠",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "`prts_fallen_snowpriest`",
+    "description": "The broken half of a white antler crown with a violet glowing gem (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "mi_fallen_snowpriest_29",
+    "name": "反馈赠之铃",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "`proto_sleigh_bell`",
+    "description": "A dark bronze bell crusted with frost, a violet glow at its mouth (emit). It must differ from 角兽银铃: darker, larger, cursed-looking.",
+    "has_emit": true
+  },
+  {
+    "id": "set_clean_snow_2",
+    "name": "洁雪手鼓",
+    "form": "trinket",
+    "kind": "set",
+    "prototype": "no photo: a Sámi noaidi drum (search \"Sámi drum\")",
+    "description": "An oval Sámi drum; the drum head painted with one tree and three human figures in red-brown.",
+    "has_emit": false
+  },
+  {
+    "id": "set_fire_watch_2",
+    "name": "守望者火绒盒",
+    "form": "trinket",
+    "kind": "set",
+    "prototype": "`proto_tinderbox`",
+    "description": "A small round birch-bark box, its lid seam letting out one pixel of orange light (emit).",
+    "has_emit": true
+  }
+]

@@ -41,6 +41,9 @@ const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料"]
 ## A flask ("A" / "B" / "C", BaseCatalog.POTIONS) — flasks are pack items that take
 ## a cell (药剂进背包, 用户 2026-10-05); "" for everything else.
 @export var potion_type: String = ""
+## Equipment grade T1–T6 (精英化与加点策划案 §7): base layer + floor block. 0 for
+## materials and gear saved before grades (filled in on load).
+@export var grade: int = 0
 
 var grid_x: int = -1
 var grid_y: int = -1
@@ -62,6 +65,14 @@ static func create(p_name: String, p_category: Category, p_width: int, p_height:
 	return item
 
 const SPECIAL_COLOR := Color("ff7a45")
+## Enemy exclusives (Grim Dawn's MI) and set pieces (装备扩充策划案 §1).
+const EXCLUSIVE_COLOR := Color("ee8a24")
+const SET_COLOR := Color("4fd18b")
+
+## "special" / "exclusive" / "set" for named gear, "" for everything else.
+func named_kind() -> String:
+	if special.is_empty(): return ""
+	return str(SpecialGear.GEAR.get(special, {}).get("kind", "special"))
 
 func is_stackable() -> bool:
 	return max_stack > 1 and not material_id.is_empty()
@@ -97,11 +108,17 @@ func stack_suffix() -> String:
 
 func display_name() -> String:
 	if not material_id.is_empty(): return "★%d · %s" % [MaterialCatalog.star(material_id), item_name]
-	return ("特殊" if not special.is_empty() else RARITY_NAMES[clampi(rarity, 0, 2)]) + " · " + item_name
+	var quality: String = {"special": "特殊", "exclusive": "专属", "set": "套装"}.get(named_kind(), RARITY_NAMES[clampi(rarity, 0, 2)])
+	var mark: String = (str(Progression.GRADE_MARKS[clampi(grade, 0, Progression.GRADE_MAX)]) + " · ") if grade > 0 else ""
+	return mark + quality + " · " + item_name
 
 func rarity_color() -> Color:
 	if not material_id.is_empty(): return MaterialCatalog.color(material_id)
-	return SPECIAL_COLOR if not special.is_empty() else RARITY_COLORS[clampi(rarity, 0, 2)]
+	match named_kind():
+		"special": return SPECIAL_COLOR
+		"exclusive": return EXCLUSIVE_COLOR
+		"set": return SET_COLOR
+	return RARITY_COLORS[clampi(rarity, 0, 2)]
 
 func details() -> String:
 	var parts: Array[String] = [description]
@@ -120,7 +137,7 @@ func to_data() -> Dictionary:
 	return {"uid": uid, "name": item_name, "category": category, "width": width, "height": height,
 		"power": power, "rarity": rarity, "value": value, "region": exclusive_region, "origin": origin_region, "effect": effect,
 		"description": description, "mods": mods, "insured": insured, "carried_in": carried_in, "special": special, "base": base_id,
-		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type}
+		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type, "grade": grade}
 
 static func from_data(data: Dictionary) -> Item:
 	var item := create(str(data.get("name", "物品")), int(data.get("category", 3)) as Category,
@@ -141,6 +158,7 @@ static func from_data(data: Dictionary) -> Item:
 	item.unit_value = int(data.get("unit_value", 0))
 	item.potion_type = str(data.get("potion", ""))
 	item.quantity = clampi(int(data.get("quantity", 1)), 1, item.max_stack)
+	item.grade = clampi(int(data.get("grade", 0)), 0, Progression.GRADE_MAX)
 	for data_mod in data.get("mods", []):
 		var mod := ItemModifier.new()
 		mod.stat = int(data_mod.get("stat", 0)) as ItemModifier.Stat
@@ -155,4 +173,5 @@ static func from_data(data: Dictionary) -> Item:
 		item.modifiers.append(mod)
 	# Gear saved before bases existed, or under a renamed base (装备策划案 §2.3).
 	GearCatalog.backfill(item)
+	Progression.backfill_grade(item)
 	return item

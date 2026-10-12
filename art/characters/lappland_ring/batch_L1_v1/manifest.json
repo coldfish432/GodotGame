@@ -1,0 +1,49 @@
+{
+  "segments": [
+    {
+      "file": "lappland_ring_empty.png",
+      "state": "empty",
+      "size": [
+        28,
+        28
+      ],
+      "centre": [
+        14,
+        14
+      ],
+      "segment_centre_deg": 0,
+      "span_deg": 100,
+      "leading_end": "left"
+    },
+    {
+      "file": "lappland_ring_lit.png",
+      "state": "lit",
+      "size": [
+        28,
+        28
+      ],
+      "centre": [
+        14,
+        14
+      ],
+      "segment_centre_deg": 0,
+      "span_deg": 100,
+      "leading_end": "left"
+    },
+    {
+      "file": "lappland_ring_full.png",
+      "state": "full",
+      "size": [
+        28,
+        28
+      ],
+      "centre": [
+        14,
+        14
+      ],
+      "segment_centre_deg": 0,
+      "span_deg": 100,
+      "leading_end": "left"
+    }
+  ]
+}

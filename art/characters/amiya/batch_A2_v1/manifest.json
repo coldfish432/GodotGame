@@ -1,0 +1,142 @@
+{
+  "palette": {
+    "outline": "#15131f",
+    "dark_core": "#1a2630",
+    "deep_teal": "#1f8f86",
+    "cyan": "#33d6c6",
+    "bright_core": "#d2fff7",
+    "navy": "#24305a"
+  },
+  "effects": [
+    {
+      "id": "amiya_vfx_sweep",
+      "file": "amiya_vfx_sweep.png",
+      "size": [
+        56,
+        46
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/arcs_paint.png"
+    },
+    {
+      "id": "amiya_vfx_double_a",
+      "file": "amiya_vfx_double_a.png",
+      "size": [
+        56,
+        46
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/arcs_paint.png"
+    },
+    {
+      "id": "amiya_vfx_double_b",
+      "file": "amiya_vfx_double_b.png",
+      "size": [
+        52,
+        42
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/arcs_paint.png"
+    },
+    {
+      "id": "amiya_vfx_thrust",
+      "file": "amiya_vfx_thrust.png",
+      "size": [
+        14,
+        64
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "bottom",
+      "source_painting": "source_paintings/vertical_paint.png"
+    },
+    {
+      "id": "amiya_vfx_cut_1",
+      "file": "amiya_vfx_cut_1.png",
+      "size": [
+        28,
+        9
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/cuts_paint.png"
+    },
+    {
+      "id": "amiya_vfx_cut_2",
+      "file": "amiya_vfx_cut_2.png",
+      "size": [
+        28,
+        9
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/cuts_paint.png"
+    },
+    {
+      "id": "amiya_vfx_cut_3",
+      "file": "amiya_vfx_cut_3.png",
+      "size": [
+        28,
+        9
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/cuts_paint.png"
+    },
+    {
+      "id": "amiya_vfx_finisher",
+      "file": "amiya_vfx_finisher.png",
+      "size": [
+        48,
+        56
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/vertical_paint.png"
+    },
+    {
+      "id": "amiya_vfx_blink",
+      "file": "amiya_vfx_blink.png",
+      "size": [
+        8,
+        32
+      ],
+      "frames": 1,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/vertical_paint.png"
+    },
+    {
+      "id": "amiya_vfx_spark",
+      "file": "amiya_vfx_spark.png",
+      "size": [
+        22,
+        11
+      ],
+      "frames": 2,
+      "forward": "up",
+      "anchor": "centre",
+      "source_painting": "source_paintings/spark_paint.png",
+      "frame_size": [
+        11,
+        11
+      ]
+    }
+  ],
+  "source_paintings": [
+    "source_paintings/arcs_paint.png",
+    "source_paintings/cuts_paint.png",
+    "source_paintings/spark_paint.png",
+    "source_paintings/vertical_paint.png"
+  ]
+}

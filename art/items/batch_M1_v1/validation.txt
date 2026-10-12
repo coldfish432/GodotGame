@@ -1,0 +1,35 @@
+M1 material icon validation
+
+PASS orirock: {"opaque_colors": 23, "alpha_binary": true, "bbox": [2, 4, 30, 27], "bright_fraction": 0.327, "largest_interior_color_fraction": 0.088}
+PASS orirock_cube: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 2, 30, 29], "bright_fraction": 0.21, "largest_interior_color_fraction": 0.073}
+PASS orirock_cluster: {"opaque_colors": 23, "alpha_binary": true, "bbox": [2, 4, 30, 27], "bright_fraction": 0.222, "largest_interior_color_fraction": 0.073}
+PASS orirock_concentration: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 2, 29, 30], "bright_fraction": 0.45, "largest_interior_color_fraction": 0.081}
+PASS sugar_substitute: {"opaque_colors": 22, "alpha_binary": true, "bbox": [2, 7, 30, 24], "bright_fraction": 0.263, "largest_interior_color_fraction": 0.141}
+PASS sugar: {"opaque_colors": 23, "alpha_binary": true, "bbox": [2, 4, 30, 27], "bright_fraction": 0.375, "largest_interior_color_fraction": 0.081}
+PASS ester: {"opaque_colors": 22, "alpha_binary": true, "bbox": [6, 2, 26, 30], "bright_fraction": 0.283, "largest_interior_color_fraction": 0.113}
+PASS polyester: {"opaque_colors": 22, "alpha_binary": true, "bbox": [3, 2, 29, 30], "bright_fraction": 0.391, "largest_interior_color_fraction": 0.127}
+PASS oriron_shard: {"opaque_colors": 22, "alpha_binary": true, "bbox": [6, 2, 26, 30], "bright_fraction": 0.23, "largest_interior_color_fraction": 0.089}
+PASS oriron: {"opaque_colors": 22, "alpha_binary": true, "bbox": [4, 2, 27, 30], "bright_fraction": 0.219, "largest_interior_color_fraction": 0.096}
+PASS oriron_cluster: {"opaque_colors": 23, "alpha_binary": true, "bbox": [2, 3, 30, 29], "bright_fraction": 0.205, "largest_interior_color_fraction": 0.108}
+PASS diketon: {"opaque_colors": 15, "alpha_binary": true, "bbox": [5, 2, 27, 30], "bright_fraction": 0.181, "largest_interior_color_fraction": 0.103}
+PASS polyketon: {"opaque_colors": 21, "alpha_binary": true, "bbox": [4, 2, 28, 30], "bright_fraction": 0.3, "largest_interior_color_fraction": 0.131}
+PASS damaged_device: {"opaque_colors": 23, "alpha_binary": true, "bbox": [3, 2, 28, 30], "bright_fraction": 0.18, "largest_interior_color_fraction": 0.089}
+PASS device: {"opaque_colors": 17, "alpha_binary": true, "bbox": [4, 2, 28, 30], "bright_fraction": 0.162, "largest_interior_color_fraction": 0.208}
+PASS integrated_device: {"opaque_colors": 24, "alpha_binary": true, "bbox": [3, 2, 29, 30], "bright_fraction": 0.201, "largest_interior_color_fraction": 0.087}
+PASS optimized_device: {"opaque_colors": 18, "alpha_binary": true, "bbox": [3, 2, 29, 30], "bright_fraction": 0.219, "largest_interior_color_fraction": 0.176}
+PASS grindstone: {"opaque_colors": 23, "alpha_binary": true, "bbox": [2, 2, 30, 30], "bright_fraction": 0.3, "largest_interior_color_fraction": 0.08}
+PASS compound_cutting_fluid: {"opaque_colors": 24, "alpha_binary": true, "bbox": [3, 2, 29, 30], "bright_fraction": 0.216, "largest_interior_color_fraction": 0.073}
+PASS loxic_kohl: {"opaque_colors": 23, "alpha_binary": true, "bbox": [2, 3, 30, 29], "bright_fraction": 0.347, "largest_interior_color_fraction": 0.092}
+PASS manganese_ore: {"opaque_colors": 23, "alpha_binary": true, "bbox": [5, 2, 27, 30], "bright_fraction": 0.216, "largest_interior_color_fraction": 0.083}
+PASS crystalline_component: {"opaque_colors": 23, "alpha_binary": true, "bbox": [6, 2, 25, 30], "bright_fraction": 0.204, "largest_interior_color_fraction": 0.083}
+PASS fuscous_fiber: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 2, 29, 30], "bright_fraction": 0.172, "largest_interior_color_fraction": 0.075}
+PASS coagulating_gel: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 3, 30, 28], "bright_fraction": 0.331, "largest_interior_color_fraction": 0.114}
+PASS d32_steel: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 2, 30, 30], "bright_fraction": 0.297, "largest_interior_color_fraction": 0.078}
+PASS carbon_stick: {"opaque_colors": 20, "alpha_binary": true, "bbox": [2, 8, 30, 24], "bright_fraction": 0.189, "largest_interior_color_fraction": 0.097}
+PASS carbon_brick: {"opaque_colors": 21, "alpha_binary": true, "bbox": [2, 7, 30, 24], "bright_fraction": 0.191, "largest_interior_color_fraction": 0.172}
+PASS carbon_pack: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 3, 30, 28], "bright_fraction": 0.181, "largest_interior_color_fraction": 0.089}
+PASS building_material_basic: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 2, 29, 30], "bright_fraction": 0.285, "largest_interior_color_fraction": 0.084}
+PASS building_material_adv: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 2, 29, 30], "bright_fraction": 0.175, "largest_interior_color_fraction": 0.072}
+PASS furniture_part: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 5, 30, 26], "bright_fraction": 0.298, "largest_interior_color_fraction": 0.072}
+PASS pure_gold: {"opaque_colors": 24, "alpha_binary": true, "bbox": [2, 6, 30, 26], "bright_fraction": 0.23, "largest_interior_color_fraction": 0.09}
+PASS originium_shard: {"opaque_colors": 23, "alpha_binary": true, "bbox": [3, 2, 28, 30], "bright_fraction": 0.225, "largest_interior_color_fraction": 0.119}

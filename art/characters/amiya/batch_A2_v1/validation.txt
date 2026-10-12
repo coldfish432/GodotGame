@@ -1,0 +1,19 @@
+Batch A2 v1 static validation
+
+Native files:
+  amiya_vfx_sweep.png: 56x46, 4 colours, alpha 0/255, palette only
+  amiya_vfx_double_a.png: 56x46, 4 colours, alpha 0/255, palette only
+  amiya_vfx_double_b.png: 52x42, 4 colours, alpha 0/255, palette only
+  amiya_vfx_thrust.png: 14x64, 4 colours, alpha 0/255, palette only
+  amiya_vfx_cut_1.png: 28x9, 4 colours, alpha 0/255, palette only
+  amiya_vfx_cut_2.png: 28x9, 3 colours, alpha 0/255, palette only
+  amiya_vfx_cut_3.png: 28x9, 3 colours, alpha 0/255, palette only
+  amiya_vfx_finisher.png: 48x56, 5 colours, alpha 0/255, palette only
+  amiya_vfx_blink.png: 8x32, 3 colours, alpha 0/255, palette only
+  amiya_vfx_spark.png: 22x11, 4 colours, alpha 0/255, palette only
+
+Blink top/bottom row pixel-identical: True.
+All native pixels are fully opaque or transparent; game applies effect opacity.
+Sources: four built-in image_gen paintings; all native texture silhouettes derive from them and are cropped, downsampled and palette-mapped.
+Composites are 2x nearest-neighbour placements over supplied screenshots at 70% preview opacity; they are scale previews, not Godot runtime captures.
+No Godot runtime import or in-game animation verification was performed.

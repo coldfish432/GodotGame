@@ -1,0 +1,52 @@
+{
+  "sheets": [
+    {
+      "file": "lappland_idle_source.png",
+      "character": "Lappland",
+      "cols": 2,
+      "rows": 8,
+      "cell": [
+        222,
+        222
+      ],
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "stand",
+        "breath"
+      ]
+    },
+    {
+      "file": "amiya_guard_idle_source.png",
+      "character": "Guard Amiya",
+      "cols": 2,
+      "rows": 8,
+      "cell": [
+        256,
+        256
+      ],
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "stand",
+        "breath"
+      ]
+    }
+  ]
+}

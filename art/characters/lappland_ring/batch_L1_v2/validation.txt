@@ -1,0 +1,13 @@
+Batch L1 v2 validation
+Canvas: 42 x 42 RGBA; centre: (21, 21).
+Outer radius: 20 px; root radius: 14 px; arc span: 70 degrees; left leading tip.
+All three silhouettes: pixel-identical.
+All alpha values: binary (0 or 255).
+Opaque pixels per state: 87
+Measured pixel-centre radius range: 14.42..20.02 px
+Opaque pixels tip/middle/root thirds: 18/30/39
+Full-state blade-white tip pixels: 1
+
+empty: #1c1a24, #4d5868 (2 colours)
+lit: #1c1a24, #8a9bb0, #e8ecf2 (3 colours)
+full: #1c1a24, #8e5cff, #cdb4ff, #e8ecf2 (4 colours)

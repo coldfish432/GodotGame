@@ -73,7 +73,8 @@ func run() -> void:
 	await step(2)
 	check("one way progression destroys prior map and drops", not is_instance_valid(old_map) and not is_instance_valid(abandoned) and game.floor_number == 2)
 	check("builds persist and new devices are available", game.builds == old_builds and game.is_buff_available())
-	check("the dangerous route adds to floor 2's hidden difficulty (3.5 + 5); mine elite slots stay ordinary", is_equal_approx(game.pressure, 8.5) and get_nodes_in_group("enemies").all(func(e): return not e.elite) and get_nodes_in_group("enemies").size() >= 10)
+	# 装备扩充策划案 §2.1: mine elite slots hold 武装人员 now (no longer thugs).
+	check("the dangerous route adds to floor 2's hidden difficulty (3.5 + 5); mine elites are 武装人员", is_equal_approx(game.pressure, 8.5) and get_nodes_in_group("enemies").filter(func(e): return e.elite).all(func(e): return e.enemy_type in ["armed", "elite"]) and get_nodes_in_group("enemies").filter(func(e): return e.elite).size() >= 1 and get_nodes_in_group("enemies").size() >= 10)
 	# The fixed extraction is the camp after floor 10 (撤离与营地修订案 §1).
 	game.floor_number = 10
 	await game.advance(0)

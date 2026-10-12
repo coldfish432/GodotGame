@@ -7,6 +7,66 @@ const ATTACK_SPEED_AFFIX := 0.10 # provisional; weapon and trinket loot only
 ## Camps (撤离与营地修订案 §1): after every ten floors, a squad camp with the
 ## fixed extraction and 可露希尔.
 const CAMP_INTERVAL := 10
+## The outpost (局内节奏与目标策划案 §6 B2): the last floor of every block, the
+## one before the camp (the camp is the in-between level, 用户 2026-10-09), is
+## held by a squad whose leader must fall before the floor's route markers open.
+const OUTPOST_PLACE := 10
+const OUTPOST_BOSS_HP := 3.0
+const OUTPOST_BOSS_ATK := 1.2
+const OUTPOST_GUARDS := 2
+
+## Contract objectives (局内节奏与目标策划案 §6 B1): three offers per region at
+## the dispatch desk, refreshed after every settlement; one is chosen before
+## leaving. The bonus is paid only on extraction with the objective done.
+const CONTRACT_OFFERS := 3
+const CONTRACT_TYPES := ["deep", "recover", "hunt", "search"]
+const CONTRACT_NAMES := {"deep": "深入", "recover": "回收", "hunt": "猎杀", "search": "搜索"}
+const DEEP_STEPS := [4, 6, 9]          # floors past the start: LG-05 / 07 / 10 from LG-01
+const DEEP_BONUS := 0.5                # of the contract pay
+## Common drops of each region's own enemies, so the target always exists there.
+const RECOVER_TARGETS := {
+	"mine": [["源岩", 6], ["破损装置", 4], ["异铁碎片", 4]],
+	"city": [["代糖", 4], ["糖", 2], ["异铁", 3]],
+	"snow": [["双酮", 4], ["异铁碎片", 4]],
+}
+const RECOVER_REWARD := {"money": 6000, "prestige": 3}
+const HUNT_OFFSETS := Vector2i(3, 6)   # the bounty's floor, past the start
+const HUNT_HP := 2.5
+const SEARCH_VAULTS := 2
+const SEARCH_REWARD := {"money": 5000, "prestige": 3}
+
+## Three offers of different kinds for `region`.
+static func roll_contracts(region: String, rng: RandomNumberGenerator) -> Array:
+	var kinds: Array = CONTRACT_TYPES.duplicate()
+	var out := []
+	for i in range(CONTRACT_OFFERS):
+		var kind: String = kinds.pop_at(rng.randi() % kinds.size())
+		match kind:
+			"deep": out.append({"type": kind, "steps": DEEP_STEPS[rng.randi() % DEEP_STEPS.size()]})
+			"recover":
+				var pick: Array = RECOVER_TARGETS[region][rng.randi() % RECOVER_TARGETS[region].size()]
+				out.append({"type": kind, "material": pick[0], "count": pick[1]})
+			"hunt": out.append({"type": kind, "offset": rng.randi_range(HUNT_OFFSETS.x, HUNT_OFFSETS.y)})
+			"search": out.append({"type": kind, "vaults": SEARCH_VAULTS})
+	return out
+
+## What the objective asks, with floors counted from `start_floor`.
+static func contract_goal(contract: Dictionary, region: String, start_floor: int) -> String:
+	match str(contract.get("type", "")):
+		"deep": return "抵达 %s 后撤离" % AK.floor_code(region, start_floor + int(contract.steps))
+		"recover": return "带回 %s ×%d" % [contract.material, int(contract.count)]
+		"hunt": return "击破悬赏目标 · %s" % AK.floor_code(region, start_floor + int(contract.offset))
+		"search": return "开启密室 ×%d" % int(contract.vaults)
+	return ""
+
+## What finishing it pays, as shown on the card.
+static func contract_bonus_text(contract: Dictionary) -> String:
+	match str(contract.get("type", "")):
+		"deep": return "合同报酬 +%d%%" % roundi(DEEP_BONUS * 100)
+		"recover": return "%s 龙门币 · 声望 +%d" % [Economy.format(RECOVER_REWARD.money), RECOVER_REWARD.prestige]
+		"hunt": return "稀有装备 ×1"
+		"search": return "%s 龙门币 · 声望 +%d" % [Economy.format(SEARCH_REWARD.money), SEARCH_REWARD.prestige]
+	return ""
 ## Random extraction (§2): at most one in each block of ten, on floor 4, 5 or 6,
 ## 50% in all. Rolled floor by floor with these conditional odds, so each of the
 ## three floors carries exactly 1/6.
@@ -72,6 +132,8 @@ const TRADER_RELICS := 2
 const TRADER_GEAR := 3
 const TRADER_POTIONS := 2
 const TRADER_SPECIAL_CHANCE := 0.25
+## 坎诺特's chance per stock roll of one enemy exclusive (装备扩充策划案 §1.1).
+const TRADER_EXCLUSIVE_CHANCE := 0.10
 const TRADER_RELIC_PRICES := [8, 12, 16]
 const TRADER_GEAR_MARKUP := 1.5
 const TRADER_POTION_PRICES := {"A": 4, "B": 6, "C": 10}

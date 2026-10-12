@@ -1,0 +1,18 @@
+Batch A1 v2 combat revision static validation
+
+Grid: 16 columns x 5 rows x 256 px = 4096 x 1280 RGBA.
+Changed cells: 38 (all S and NW cells, plus dash col 12 and finisher col 15 in the remaining rows).
+Unchanged cells: 42/42 pixel-identical to batch_A1_v1.
+Opaque pixels on any cell border: 0; crossing cells: 0.
+Empty combat cells: 0. Alpha values: 0 and 255 only.
+Foot baselines of changed cells (zero-indexed pixel inside 256 cell):
+  S: c1=239, c2=239, c3=239, c4=239, c5=239, c6=239, c7=239, c8=239, c9=239, c10=239, c11=239, c12=239, c13=239, c14=239, c15=239, c16=239
+  SW: c12=239, c15=239
+  W: c12=239, c15=239
+  NW: c1=239, c2=239, c3=239, c4=239, c5=239, c6=239, c7=239, c8=239, c9=239, c10=239, c11=239, c12=239, c13=239, c14=239, c15=239, c16=239
+  N: c12=239, c15=239
+
+32 px preview uses BOX downscale, thresholded alpha, then 6x nearest display on mid-grey.
+The approved A1 v1 walk PNG is referenced, not copied or modified.
+No Godot runtime/import or full-game animation verification was performed.
+Pose and direction readability were reviewed visually at 32 px; retain A1 v1 until in-game review of v2.

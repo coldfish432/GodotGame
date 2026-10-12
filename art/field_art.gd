@@ -35,8 +35,14 @@ static func enemy(region: String, elite: bool, ranged: bool) -> AtlasTexture:
 ## Eight-direction sheets baked by art/prepare_enemy_directional.py. Columns
 ## S, SW, W, NW, N, NE, E, SE; rows idle, startup, charge, strike, recovery.
 ## Enemies without a board yet keep the side-view sheet (enemy_pose).
+## The new enemies' sheets (art/install_n2_boards.py, EnemyN2Data) play the same way.
 static func has_directional(enemy_type: String) -> bool:
-	return EnemyDirectionalData.TIPS.has(enemy_type) and ResourceLoader.exists(_directional_path(enemy_type))
+	return dir_tips(enemy_type).size() == 8 and ResourceLoader.exists(_directional_path(enemy_type))
+
+## Each column's charge-pose weapon tip, in texels from the foot-line centre.
+static func dir_tips(enemy_type: String) -> Array:
+	if EnemyDirectionalData.TIPS.has(enemy_type): return EnemyDirectionalData.TIPS[enemy_type]
+	return EnemyN2Data.TIPS.get(enemy_type, [])
 
 static func _directional_path(enemy_type: String) -> String:
 	return "res://art/field/enemy_dir_%s_64.png" % enemy_type
@@ -54,7 +60,7 @@ static func enemy_dir_pose(enemy_type: String, column: int, pose: int) -> AtlasT
 ## Eight-direction walk sheets: same columns, rows are the four walk frames
 ## (contact A, pass A, contact B, pass B). Anchored exactly like the attack sheet.
 static func has_walk(enemy_type: String) -> bool:
-	return EnemyDirectionalData.WALK.has(enemy_type) and ResourceLoader.exists(_walk_path(enemy_type))
+	return (EnemyDirectionalData.WALK.has(enemy_type) or EnemyN2Data.WALK.has(enemy_type)) and ResourceLoader.exists(_walk_path(enemy_type))
 
 static func _walk_path(enemy_type: String) -> String:
 	return "res://art/field/enemy_walk_%s_64.png" % enemy_type
@@ -150,6 +156,8 @@ void fragment() {
  // Vertex alpha carries distance into the road, not transparency: debris
  // softens the join while the walkable corridor keeps its readable value.
  ALBEDO = mix(debris * 0.70, mix(road, debris * 0.85, 0.32), COLOR.a);
+ // Terrace light from TerrainSurface: tier, cliff-foot shadow, cliff lip.
+ ALBEDO *= UV2.x;
  ROUGHNESS = 1.0;
 }
 """

@@ -1,0 +1,248 @@
+[
+  {
+    "id": "city_x01",
+    "name": "拆迁大锤",
+    "kind": "base",
+    "form": "heavy",
+    "file": "city_x01.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_sledgehammer.jpg"
+    ],
+    "isolated_pixel_percent": 2.46,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "silhouette_height": 27
+  },
+  {
+    "id": "city_x02",
+    "name": "铜指虎",
+    "kind": "base",
+    "form": "fist",
+    "file": "city_x02.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_brass_knuckles.jpg"
+    ],
+    "isolated_pixel_percent": 1.58,
+    "old_comparison": "finger_blade",
+    "old_height": 26,
+    "silhouette_height": 28
+  },
+  {
+    "id": "city_x03",
+    "name": "消防斧",
+    "kind": "base",
+    "form": "heavy",
+    "file": "city_x03.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 6.77,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "silhouette_height": 28
+  },
+  {
+    "id": "city_x04",
+    "name": "蝴蝶双刀",
+    "kind": "base",
+    "form": "blade",
+    "file": "city_x04.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_butterfly_sword.jpg"
+    ],
+    "isolated_pixel_percent": 3.09,
+    "old_comparison": "gang_machete",
+    "old_height": 28,
+    "silhouette_height": 29
+  },
+  {
+    "id": "city_x05",
+    "name": "护卫铁尺",
+    "kind": "base",
+    "form": "fist",
+    "file": "city_x05.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_sai.svg"
+    ],
+    "isolated_pixel_percent": 6.77,
+    "old_comparison": "finger_blade",
+    "old_height": 26,
+    "silhouette_height": 27
+  },
+  {
+    "id": "city_x06",
+    "name": "警用链锤",
+    "kind": "base",
+    "form": "heavy",
+    "file": "city_x06.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_flail.jpg"
+    ],
+    "isolated_pixel_percent": 3.61,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "silhouette_height": 26
+  },
+  {
+    "id": "city_x07",
+    "name": "炎式苗刀",
+    "kind": "base",
+    "form": "blade",
+    "file": "city_x07.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_miao_dao.jpg"
+    ],
+    "isolated_pixel_percent": 1.65,
+    "old_comparison": "yan_ring_saber",
+    "old_height": 24,
+    "silhouette_height": 25
+  },
+  {
+    "id": "city_x08",
+    "name": "炎式朴刀",
+    "kind": "base",
+    "form": "polearm",
+    "file": "city_x08.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_pudao.jpg"
+    ],
+    "isolated_pixel_percent": 0.46,
+    "old_comparison": "yan_ring_saber",
+    "old_height": 24,
+    "silhouette_height": 24
+  },
+  {
+    "id": "mi_greytail_lord_13",
+    "name": "香主铁骨扇",
+    "kind": "exclusive",
+    "form": "fist",
+    "file": "mi_greytail_lord_13.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_war_fan.jpg",
+      "prts_greytail_lord.png"
+    ],
+    "isolated_pixel_percent": 2.17,
+    "old_comparison": "finger_blade",
+    "old_height": 26,
+    "silhouette_height": 26
+  },
+  {
+    "id": "mi_avenger_16",
+    "name": "换手刃",
+    "kind": "exclusive",
+    "form": "blade",
+    "file": "mi_avenger_16.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "prts_avenger.png"
+    ],
+    "isolated_pixel_percent": 2.32,
+    "old_comparison": "gang_machete",
+    "old_height": 28,
+    "silhouette_height": 28
+  },
+  {
+    "id": "mi_breacher_17",
+    "name": "攻坚重锤",
+    "kind": "exclusive",
+    "form": "heavy",
+    "file": "mi_breacher_17.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "prts_breacher.png"
+    ],
+    "isolated_pixel_percent": 0.76,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "silhouette_height": 28
+  },
+  {
+    "id": "set_inspectors_0",
+    "name": "督察组定制长刀",
+    "kind": "set",
+    "form": "blade",
+    "file": "set_inspectors_0.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "lgd_knife.png"
+    ],
+    "isolated_pixel_percent": 1.53,
+    "old_comparison": "lgd_knife",
+    "old_height": 20,
+    "silhouette_height": 25
+  },
+  {
+    "id": "set_grey_order_0",
+    "name": "琉璃骨尺",
+    "kind": "set",
+    "form": "fist",
+    "file": "set_grey_order_0.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "city_x05.png"
+    ],
+    "isolated_pixel_percent": 5.99,
+    "old_comparison": "finger_blade",
+    "old_height": 26,
+    "silhouette_height": 27
+  }
+]

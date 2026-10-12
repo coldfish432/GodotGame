@@ -20,6 +20,19 @@ func item(name: String, category: Item.Category, w: int = 1, h: int = 1) -> Item
 func stand(p: Array) -> void:
 	game.player.teleport(game.base_map.to_world(p[0], p[1], BaseMap.PLAYER_Y))
 	await step(2)
+## A button whose meta "label" (AK buttons) is `label`, anywhere under `node`.
+func find_label(node: Node, label: String) -> Button:
+	if node is Button and str(node.get_meta("label", node.text)) == label: return node
+	for child in node.get_children():
+		var found := find_label(child, label)
+		if found: return found
+	return null
+## Whether some visible label or button under `node` contains `needle`.
+func find_text(node: Node, needle: String) -> bool:
+	if (node is Label or node is Button) and needle in str(node.text) and (node as CanvasItem).is_visible_in_tree(): return true
+	for child in node.get_children():
+		if find_text(child, needle): return true
+	return false
 func centre(rect: Array) -> Array: return [(rect[0] + rect[2]) * 0.5, (rect[1] + rect[3]) * 0.5]
 func walk_to(p: Array) -> bool:
 	var goal := game.base_map.to_world(p[0], p[1], BaseMap.PLAYER_Y)
@@ -39,7 +52,7 @@ func run() -> void:
 	await step(8)
 	view = game.warehouse_view
 	var a: Dictionary = view.anchors
-	check("warehouse view has its anchors and textures", view.ready() and a.bays.size() == 6 and a.overflow.size() == 6 and view.tex.size() == 22 and view.tex.has("cargo_drone")
+	check("warehouse view has its anchors and textures", view.ready() and a.bays.size() == 6 and a.overflow.size() == 6 and view.tex.size() == 26 and view.tex.has("cargo_drone")
 		and ["board_empty", "board_open", "board_completed"].all(func(k): return view.tex.has(k)))
 	check("no demo crates are drawn on an empty base", view._crates.is_empty())
 
@@ -73,17 +86,18 @@ func run() -> void:
 	await step(2)
 	check("a crate disappears once its item is out", view._crates.size() == 7)
 	check("the carried icon shows over her", view._hand_icon.visible and view._hand_icon.texture != null)
-	check("only the weapon zone is highlighted", view._zone_lights[0].all(func(d): return d.visible)
+	check("only the weapon zone is highlighted, over its built column", view._zone_lights[0][0].visible
+		and not view._zone_lights[0][1].visible and not view._zone_lights[0][2].visible
 		and [1, 2, 3].all(func(c): return view._zone_lights[c].all(func(d): return not d.visible)))
 	check("one thing at a time", not game.pick_up_item(game.base.crates[0].item) or game.base.hand == sword)
 
 	# The wrong zone refuses and keeps it in her hands; the right one shelves it.
-	await stand(centre(a.zones.armor))
+	await stand(centre(view.zone_rect(1)))
 	spot = game.nearby_station()
 	check("in the armor zone with a sword: " + str(spot.get("label", "")), spot.get("kind", "") == "zone" and spot.category == Item.Category.ARMOR and "类别不对" in spot.label)
 	game._base_interact()
 	check("wrong zone refuses, says where it goes, keeps it in hand", game.base.hand == sword and "武器区" in game.message)
-	check("the walk to the weapon zone works with real navigation", await walk_to(centre(a.zones.weapon)))
+	check("the walk to the weapon zone works with real navigation", await walk_to(centre(view.zone_rect(0))))
 	spot = game.nearby_station()
 	check("in the weapon zone: " + str(spot.get("label", "")), spot.get("kind", "") == "zone" and "上架到武器区（0/12）" == spot.label)
 	game._base_interact()
@@ -146,6 +160,52 @@ func run() -> void:
 	game.settle(true)
 	await step(2)
 	check("back at base the crates are drawn again", view._crates.size() == mini(game.base.crates.size(), 12))
+
+	# Zones grow with their racks; empty-handed in a zone opens its shelves; the
+	# 仓管台 sells upgrades until its master console is bought (用户 2026-10-07).
+	game.base.prestige = 100000
+	game.gold = 1000000
+	# The material zone is full from the checks above: the costs ride in the pack.
+	for id in ["螺栓", "金属板", "电源线", "继电器", "灯泡"]:
+		game.inventory.try_add(MaterialCatalog.create(id, 10))
+	await step(2)
+	check("one rack, one frame column", view.zone_columns(0) == 1 and view._zone_frames[0][0].visible and not view._zone_frames[0][1].visible)
+	var third_column: Array = a.zone_decals.weapon[2]
+	await stand([third_column[0], centre(a.zones.weapon)[1]])
+	check("past the built racks the zone does not answer", game.nearby_station().get("kind", "") != "shelf_zone")
+	await stand(centre(view.zone_rect(0)))
+	spot = game.nearby_station()
+	check("empty-handed in the zone offers its shelves", spot.get("kind", "") == "shelf_zone" and spot.get("category", -1) == 0)
+	game._base_interact()
+	await step(1)
+	check("E opens the weapon shelves", game.modal == "station" and game.menu._station == "shelves" and game.menu.shelf_zone == 0)
+	var build := find_label(game.menu, "扩建货架")
+	check("the shelves offer the next rack", build != null and not build.disabled)
+	if build: build.pressed.emit()
+	await step(2)
+	check("building from the zone adds a rack and a frame column", int(game.base.racks[0]) == 2 and view.zone_columns(0) == 2 and view._zone_frames[0][1].visible)
+	game.build_rack(0)
+	await step(2)
+	await stand([third_column[0], centre(a.zones.weapon)[1]])
+	check("the front row fills first: three racks reach the third column", int(game.base.racks[0]) == 3
+		and game.nearby_station().get("kind", "") == "shelf_zone")
+	game.close_modal()
+
+	game.base.console = false
+	game.open_station("stash")
+	await step(1)
+	check("without the console the 仓管台 only sells upgrades", find_text(game.menu, "仓库总控面板") and not find_text(game.menu, "背包材料全部存回"))
+	check("the console can be bought", game.buy_console() and game.base.console)
+	game.open_station("stash")
+	await step(1)
+	check("with the console the 仓管台 shows every zone", find_text(game.menu, "背包材料全部存回") or find_text(game.menu, "将带入"))
+	game.close_modal()
+	check("a new base starts without the console", not BaseState.new().console)
+	var old := game.base.to_data()
+	old.erase("console")
+	var reloaded := BaseState.new()
+	reloaded.load_data(old, {})
+	check("a save from before the console keeps the 仓管台 working", reloaded.console)
 
 	print("WAREHOUSE FAILURES: %d" % failures)
 	quit(1 if failures else 0)

@@ -533,13 +533,28 @@ static func settlement(menu: FieldMenu) -> void:
 		AK.put(stage, AK.label(cells[i][0], 11, AK.MUTE), at + Vector2(12, 10))
 		AK.put(stage, AK.label(cells[i][1], 22, cells[i][2], AK.en()), at + Vector2(12, 28))
 		stage.add_child(AK.rect(AK.LINE, at + Vector2(0, 67), Vector2(165, 1)))
+	# 作战记录 by kill count (精英化与加点策划案 §4.2), on success or failure.
+	var records: Dictionary = view.get("records", {})
+	var record_parts: Array[String] = []
+	for record in Progression.RECORDS:
+		if int(records.get(record, 0)) > 0: record_parts.append("%s ×%d" % [record.replace("作战记录", ""), int(records[record])])
+	stage.add_child(AK.rect(AK.PLATE, Vector2(48, 368), Vector2(330, 30)))
+	AK.put(stage, AK.tag("作战记录", AK.SP), Vector2(58, 375))
+	AK.put(stage, AK.label(" · ".join(record_parts) if not record_parts.is_empty() else "—", 12, AK.FG), Vector2(130, 374))
+	# The contract's objective (§6 B1): done or not, and what it paid.
+	var objective: Dictionary = view.get("contract", {})
+	if not str(objective.get("goal", "")).is_empty():
+		stage.add_child(AK.rect(AK.PLATE, Vector2(48, 318), Vector2(330, 44)))
+		AK.put(stage, AK.tag("合同目标", AK.SP), Vector2(58, 330))
+		AK.put(stage, AK.label(objective.goal, 12, AK.FG if objective.done else AK.MUTE), Vector2(130, 322))
+		AK.put(stage, AK.label(("✓ " + str(objective.bonus)) if objective.done else "未完成", 11, AK.GREEN if objective.done else AK.RED), Vector2(130, 340))
 	var sprite := TextureRect.new()
-	if ResourceLoader.exists("res://ui/art/lappland_portrait.png"): sprite.texture = load("res://ui/art/lappland_portrait.png")
+	sprite.texture = Operators.portrait(game.player.operator_id)
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	if not ok: sprite.modulate = Color(0.5, 0.5, 0.5, 0.5)
-	AK.put(stage, sprite, Vector2(129, 330), Vector2(168, 168))
+	AK.put(stage, sprite, Vector2(129, 408), Vector2(168, 168))
 	var back := AK.go_button("返回罗德岛", "RETURN")
 	AK.put(stage, back, Vector2(48, 624), Vector2(330, 60))
 	back.pressed.connect(game.close_modal)

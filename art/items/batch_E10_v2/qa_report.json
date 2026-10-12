@@ -1,0 +1,42 @@
+[
+  {
+    "id": "mine_x18",
+    "silhouette_width": 30,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 678,
+    "bright_pixel_percent": 24.63,
+    "isolated_pixel_percent": 0.17,
+    "colour_count": 7,
+    "v1_opaque": 590
+  },
+  {
+    "id": "mi_slug_volatile_7",
+    "silhouette_width": 30,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 580,
+    "bright_pixel_percent": 16.38,
+    "isolated_pixel_percent": 5.04,
+    "colour_count": 10,
+    "v1_opaque": 537
+  },
+  {
+    "id": "mi_crossbow_1",
+    "silhouette_width": 30,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 503,
+    "bright_pixel_percent": 17.3,
+    "isolated_pixel_percent": 1.63,
+    "colour_count": 10,
+    "v1_opaque": 497
+  },
+  {
+    "id": "mi_caster_5",
+    "silhouette_width": 30,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 520,
+    "bright_pixel_percent": 38.27,
+    "isolated_pixel_percent": 8.0,
+    "colour_count": 14,
+    "v1_opaque": 464
+  }
+]

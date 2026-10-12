@@ -44,7 +44,11 @@ func run() -> void:
 		var tolerance := TerrainSurface.CELL * 0.5
 		check(region + " path follows continuous terrain and reaches final arena (points %d, length %.0f, worst %.2f of %.2f)" % [path.size(), length, worst, tolerance],
 			path.size() > 4 and worst < tolerance and length > 120)
-		check(region + " early build leaves later encounters", map.buff_position.z < map.main_path[4].y and map.encounter_position.z < end.z - 25)
+		# The markers no longer stand at the trunk's end, so order is read along
+		# the walk rather than by depth: the early build comes well before them.
+		var buff_room := map._circle_at(Vector2(map.branch_centres[0].x, map.branch_centres[0].y))
+		check(region + " early build comes before the route markers (walk %.0f of %.0f)" % [map.circle_distance[buff_room], map.circle_distance[map.exit_chamber]],
+			map.circle_distance[buff_room] < map.circle_distance[map.exit_chamber] * 0.6)
 		var area := 0.0
 		for face in map.minimap_faces:
 			for i in range(1, face.size() - 1): area += absf((face[i] - face[0]).cross(face[i + 1] - face[0])) * 0.5
@@ -74,7 +78,7 @@ func run() -> void:
 			# Same sampling-cell tolerance as the path check above. The height
 			# test stays exact: falling through the floor is a real failure and
 			# has nothing to do with how finely the distance field is sampled.
-			if not map._is_open(p.x, p.z, tolerance) or p.y < 0.4: left_ground += 1
+			if not map._is_open(p.x, p.z, tolerance) or p.y < map.ground_height(Vector2(p.x, p.z)) + 0.4: left_ground += 1
 			if Vector2(p.x - end.x, p.z - end.z).length() < 0.6:
 				arrived = true
 				break

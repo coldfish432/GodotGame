@@ -1,0 +1,310 @@
+[
+  {
+    "id": "bolts",
+    "name": "螺栓",
+    "file": "bolts.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "nuts",
+    "name": "螺母",
+    "file": "nuts.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "nails",
+    "name": "钉子",
+    "file": "nails.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "plank",
+    "name": "木板",
+    "file": "plank.png",
+    "size": [
+      72,
+      32
+    ],
+    "cells": [
+      2,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "metal_plate",
+    "name": "金属板",
+    "file": "metal_plate.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "hose",
+    "name": "软管",
+    "file": "hose.png",
+    "size": [
+      72,
+      32
+    ],
+    "cells": [
+      2,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "sealing_foam",
+    "name": "密封泡沫",
+    "file": "sealing_foam.png",
+    "size": [
+      32,
+      72
+    ],
+    "cells": [
+      1,
+      2
+    ],
+    "emit": null
+  },
+  {
+    "id": "duct_tape",
+    "name": "胶带",
+    "file": "duct_tape.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "canvas_sheet",
+    "name": "帆布",
+    "file": "canvas_sheet.png",
+    "size": [
+      72,
+      32
+    ],
+    "cells": [
+      2,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "wire_coil",
+    "name": "电线",
+    "file": "wire_coil.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "power_cord",
+    "name": "电源线",
+    "file": "power_cord.png",
+    "size": [
+      72,
+      32
+    ],
+    "cells": [
+      2,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "light_bulb",
+    "name": "灯泡",
+    "file": "light_bulb.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "relay",
+    "name": "继电器",
+    "file": "relay.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "circuit_board",
+    "name": "电路板",
+    "file": "circuit_board.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "micro_motor",
+    "name": "微型电机",
+    "file": "micro_motor.png",
+    "size": [
+      72,
+      72
+    ],
+    "cells": [
+      2,
+      2
+    ],
+    "emit": null
+  },
+  {
+    "id": "battery",
+    "name": "蓄电池",
+    "file": "battery.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "car_battery",
+    "name": "车用蓄电池",
+    "file": "car_battery.png",
+    "size": [
+      108,
+      72
+    ],
+    "cells": [
+      3,
+      2
+    ],
+    "emit": null
+  },
+  {
+    "id": "solid_fuel",
+    "name": "固体燃料",
+    "file": "solid_fuel.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "fuel_can",
+    "name": "燃料罐",
+    "file": "fuel_can.png",
+    "size": [
+      72,
+      72
+    ],
+    "cells": [
+      2,
+      2
+    ],
+    "emit": null
+  },
+  {
+    "id": "wrench",
+    "name": "扳手",
+    "file": "wrench.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "toolkit",
+    "name": "工具套装",
+    "file": "toolkit.png",
+    "size": [
+      72,
+      72
+    ],
+    "cells": [
+      2,
+      2
+    ],
+    "emit": null
+  },
+  {
+    "id": "medical_supplies",
+    "name": "医用耗材包",
+    "file": "medical_supplies.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  }
+]

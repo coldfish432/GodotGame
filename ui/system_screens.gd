@@ -22,7 +22,7 @@ var _tip: Label
 var _settings: Control
 var _loading_left := 0.0
 var _was_transitioning := false
-static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true}
+static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}}
 static var _game: GameManager
 
 func _ready() -> void:
@@ -187,6 +187,7 @@ static func load_settings() -> void:
 	var config := ConfigFile.new()
 	if config.load(SETTINGS_PATH) != OK: return
 	for key in settings: settings[key] = config.get_value("game", key, settings[key])
+	Keybinds.apply()
 
 static func save_settings() -> void:
 	var config := ConfigFile.new()

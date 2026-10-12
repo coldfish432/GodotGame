@@ -41,6 +41,19 @@ func run() -> void:
 		game.player.teleport(Vector3(point.x - 2, 0.7, point.y - 4))
 		game.camera.global_position = game.player.global_position + GameManager.CAMERA_OFFSET
 		await capture(region + "-arena")
+		# Terraces (地图场景改造 2026-10-12): a ramp from its foot, and the same
+		# ramp's top looking back over the cliff it climbs beside.
+		var ramps: Array[Dictionary] = game.world_map.ramp_midpoints()
+		if not ramps.is_empty():
+			var ramp: Dictionary = ramps[0]
+			var foot: Vector2 = ramp.point - ramp.up * 6.0
+			game.player.teleport(game.world_map.nearest_walkable(Vector3(foot.x, 0.7, foot.y)))
+			game.camera.global_position = game.player.global_position + GameManager.CAMERA_OFFSET
+			await capture(region + "-ramp")
+			var top: Vector2 = ramp.point + ramp.up * 7.0
+			game.player.teleport(game.world_map.nearest_walkable(Vector3(top.x, 0.7, top.y)))
+			game.camera.global_position = game.player.global_position + GameManager.CAMERA_OFFSET
+			await capture(region + "-terrace")
 		# Art review views use the unchanged gameplay camera, with HUD hidden.
 		game._hud.set_process(false)
 		game._hud.hide()
@@ -67,6 +80,41 @@ func run() -> void:
 		game.camera.make_current()
 		game.close_modal()
 		game.settle(true)
+	# A cliff between terraces, from the normal camera, in each region.
+	var shot := {}
+	for attempt in range(18):
+		var region: String = ["mine", "city", "snow"][attempt % 3]
+		if shot.has(region): continue
+		game.fixed_map_seed = 1000 + attempt * 37
+		await game.start_contract(region)
+		game.open_modal("capture")
+		var pair := _cliff_pair(game.world_map)
+		if not pair.is_empty():
+			var middle: Vector2 = (pair[0] + pair[1]) * 0.5
+			game.player.teleport(game.world_map.nearest_walkable(Vector3(pair[1].x, 0.7, pair[1].y)))
+			game.camera.global_position = Vector3(middle.x, game.player.global_position.y, middle.y) + GameManager.CAMERA_OFFSET
+			await capture(region + "-cliff")
+			shot[region] = true
+		game.close_modal()
+		game.settle(true)
 	rig.queue_free()
 	await create_timer(0.4).timeout
 	quit()
+
+## Two level spots a few metres apart across a cliff (see test_elevation).
+func _cliff_pair(map: ContinuousWorldMap) -> Array:
+	for z in range(int(map.SPINE_MIN.y), int(map.SPINE_MAX.y), 2):
+		for x in range(int(map.SPINE_MIN.x), int(map.SPINE_MAX.x), 2):
+			var high := Vector2(x, z)
+			if not map._has_clearance(high): continue
+			var h := map.ground_height(high)
+			if h < map.TIER - 0.1: continue
+			for k in range(8):
+				var direction := Vector2.from_angle(TAU * k / 8.0)
+				var low := high + direction * 5.0
+				if not map._has_clearance(low) or map.ground_height(low) > h - map.TIER + 0.1: continue
+				var open := true
+				for t in range(1, 10):
+					if not map._is_open(high.x + direction.x * t * 0.5, high.y + direction.y * t * 0.5, 0.0): open = false
+				if open: return [high, low]
+	return []

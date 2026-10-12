@@ -1,0 +1,37 @@
+{
+  "sheets": [
+    {
+      "file": "amiya_guard_idle_source.png",
+      "character": "Guard Amiya",
+      "cols": 2,
+      "rows": 8,
+      "cell": [
+        256,
+        256
+      ],
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "stand",
+        "breath"
+      ],
+      "base": "../batch_I1_v1/amiya_guard_idle_source.png",
+      "changed_rows": [
+        "NW",
+        "NE"
+      ],
+      "painted_sources": [
+        "source_paintings/amiya_guard_nw_painting.png",
+        "source_paintings/amiya_guard_ne_painting.png"
+      ]
+    }
+  ]
+}

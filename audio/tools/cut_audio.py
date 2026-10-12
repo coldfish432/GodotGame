@@ -86,7 +86,8 @@ def write_ogg(path: Path, y: np.ndarray):
     with tempfile.TemporaryDirectory() as tmp:
         wav = Path(tmp) / "x.wav"
         sf.write(wav, y, SR, subtype="PCM_16")
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-c:a", "libvorbis", "-q:a", "6", "-map_metadata", "-1", str(path)], check=True)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-c:a", "libvorbis", "-q:a", "6", "-map_metadata", "-1",
+                        "-fflags", "+bitexact", "-flags:a", "+bitexact", str(path)], check=True)  # fixed Ogg serial: same input, same bytes
 
 def check_file(path: Path, y: np.ndarray, offset: float, repeats: int = 3):
     """Loop played `repeats` times, for listening to the seam."""
@@ -101,15 +102,36 @@ def main():
     # --- SFX ---------------------------------------------------------------
     on = decode("开灯.mp3")
     at = onset(on, 0.0, 0.5)
-    y = peak(one_shot(on, at, 0.70, 0.35), -3)
+    y = peak(one_shot(on, at, 3.00, 2.00), -3)  # long tail: each bank rings on under the next
     p = OUT / "sfx" / "lights_on.wav"; write_wav(p, y)
-    record(p, source="music/开灯.mp3", start=round(at / SR, 4), length=0.70, fade="squared from 0.35 s", gain="peak -3 dBFS")
+    record(p, source="music/开灯.mp3", start=round(at / SR, 4), length=3.00, fade="squared from 2.00 s", gain="peak -3 dBFS")
+
+    # Listening copy: the four banks as the warehouse plays them, BANK_PAUSE apart
+    # (read from world/room_reveal.gd so the two never disagree).
+    import re
+    bank_pause = float(re.search(r"const BANK_PAUSE := ([0-9.]+)", (ROOT / "world" / "room_reveal.gd").read_text(encoding="utf-8")).group(1))
+    gap = int(bank_pause * SR)
+    banks = np.zeros((len(y) + 3 * gap, 2), dtype=np.float32)
+    for k in range(4): banks[k * gap:k * gap + len(y)] += y * 10 ** (-8 / 20)  # FieldAudio plays it at -8 dB
+    write_ogg(OUT / "_check" / "lights_on_4banks.ogg", banks)
 
     off = decode("关灯.mp3")
     at = onset(off, 49.1, 49.6, -20)  # the breaker is ~20 dB over the music rumble before it
     y = peak(one_shot(off, at, 1.10, 0.50), -3)
     p = OUT / "sfx" / "lights_off.wav"; write_wav(p, y)
     record(p, source="music/关灯.mp3", start=round(at / SR, 4), length=1.10, fade="squared from 0.50 s", gain="peak -3 dBFS")
+
+    # ElevenLabs sounds come as single takes: keep the whole take, fade its tail.
+    # Peaks are normalized (the door's MP3 decodes 2.6 dB over full scale but has
+    # no flattened runs, so it was not clipped at the source).
+    for raw, out, fade_s in (("开门.mp3", "hatch.wav", 0.30), ("货架升起.wav", "shelf.wav", 0.15)):
+        x = decode(raw)
+        at = onset(x, 0.0, 0.5)
+        y = x[at:].copy()
+        y = peak(one_shot(x, at, len(y) / SR, len(y) / SR - fade_s), -3)
+        p = OUT / "sfx" / out; write_wav(p, y)
+        record(p, source="music/" + raw, start=round(at / SR, 4), length=round(len(y) / SR, 4),
+               fade=f"squared over the last {fade_s:.2f} s", gain="peak -3 dBFS")
 
     # --- Music -------------------------------------------------------------
     base = decode("基地背景音乐.mp3")
@@ -155,7 +177,21 @@ def main():
         record(p, source="music/" + raw, cut=f"{s/SR:.4f} – {e/SR:.4f} s (first take; next take starts {e/SR + 0.02:.4f} s)",
                fade="2 ms in, squared 0.5 s out", gain="RMS -18 dBFS, peak <= -1 dBFS", format="OGG Vorbis q6")
 
-    for k in ("开灯.mp3", "关灯.mp3", "基地背景音乐.mp3", "矿洞外勤音乐.mp3", "撤离.mp3", "失败.mp3"):
+    # Listening copy of the whole warehouse sequence, at the cue times the game
+    # produced (audio/tools/record_reveal_times.gd) and FieldAudio's volumes.
+    times = OUT / "_check" / "warehouse_times.json"
+    if times.exists():
+        level = {"lights_on": -8, "lights_off": -8, "hatch": -14, "shelf": -16}
+        cue = {k: sf.read(OUT / "sfx" / f"{k}.wav", dtype="float32", always_2d=True)[0] for k in level}
+        events = [e for e in json.loads(times.read_text(encoding="utf-8")) if e[0] in level]
+        end = max(int(t * SR) + len(cue[c]) for c, t in events)
+        mix = np.zeros((end, 2), dtype=np.float32)
+        for c, t in events:
+            i = int(t * SR); mix[i:i + len(cue[c])] += cue[c] * 10 ** (level[c] / 20)
+        write_ogg(OUT / "_check" / "warehouse_sequence.ogg", mix)
+        print(f"warehouse_sequence.ogg: peak {20 * np.log10(np.abs(mix).max()):.1f} dBFS")
+
+    for k in ("开灯.mp3", "关灯.mp3", "开门.mp3", "货架升起.wav", "基地背景音乐.mp3", "矿洞外勤音乐.mp3", "撤离.mp3", "失败.mp3"):
         log["music/" + k] = {"raw": True, "sha256": hashlib.sha256((RAW / k).read_bytes()).hexdigest()}
     (OUT / "asset_log.json").write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(log, ensure_ascii=False, indent=2))

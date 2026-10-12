@@ -1,0 +1,145 @@
+[
+  {
+    "id": "city_x01",
+    "silhouette_height": 27,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.6,
+    "isolated_pixel_percent": 2.46,
+    "opaque_pixel_count": 769,
+    "colour_count": 11,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28
+  },
+  {
+    "id": "city_x02",
+    "silhouette_height": 28,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.56,
+    "isolated_pixel_percent": 1.58,
+    "opaque_pixel_count": 1279,
+    "colour_count": 8,
+    "old_comparison": "finger_blade",
+    "old_height": 26
+  },
+  {
+    "id": "city_x03",
+    "silhouette_height": 28,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.66,
+    "isolated_pixel_percent": 6.77,
+    "opaque_pixel_count": 498,
+    "colour_count": 16,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28
+  },
+  {
+    "id": "city_x04",
+    "silhouette_height": 29,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.56,
+    "isolated_pixel_percent": 3.09,
+    "opaque_pixel_count": 810,
+    "colour_count": 11,
+    "old_comparison": "gang_machete",
+    "old_height": 28
+  },
+  {
+    "id": "city_x05",
+    "silhouette_height": 27,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.67,
+    "isolated_pixel_percent": 6.77,
+    "opaque_pixel_count": 517,
+    "colour_count": 9,
+    "old_comparison": "finger_blade",
+    "old_height": 26
+  },
+  {
+    "id": "city_x06",
+    "silhouette_height": 26,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.58,
+    "isolated_pixel_percent": 3.61,
+    "opaque_pixel_count": 706,
+    "colour_count": 9,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28
+  },
+  {
+    "id": "city_x07",
+    "silhouette_height": 25,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.59,
+    "isolated_pixel_percent": 1.65,
+    "opaque_pixel_count": 526,
+    "colour_count": 14,
+    "old_comparison": "yan_ring_saber",
+    "old_height": 24
+  },
+  {
+    "id": "city_x08",
+    "silhouette_height": 24,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 16.25,
+    "isolated_pixel_percent": 0.46,
+    "opaque_pixel_count": 357,
+    "colour_count": 11,
+    "old_comparison": "yan_ring_saber",
+    "old_height": 24
+  },
+  {
+    "id": "mi_greytail_lord_13",
+    "silhouette_height": 26,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.55,
+    "isolated_pixel_percent": 2.17,
+    "opaque_pixel_count": 701,
+    "colour_count": 7,
+    "old_comparison": "finger_blade",
+    "old_height": 26
+  },
+  {
+    "id": "mi_avenger_16",
+    "silhouette_height": 28,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.52,
+    "isolated_pixel_percent": 2.32,
+    "opaque_pixel_count": 825,
+    "colour_count": 9,
+    "old_comparison": "gang_machete",
+    "old_height": 28
+  },
+  {
+    "id": "mi_breacher_17",
+    "silhouette_height": 28,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.61,
+    "isolated_pixel_percent": 0.76,
+    "opaque_pixel_count": 788,
+    "colour_count": 8,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28
+  },
+  {
+    "id": "set_inspectors_0",
+    "silhouette_height": 25,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.51,
+    "isolated_pixel_percent": 1.53,
+    "opaque_pixel_count": 722,
+    "colour_count": 10,
+    "old_comparison": "lgd_knife",
+    "old_height": 20
+  },
+  {
+    "id": "set_grey_order_0",
+    "silhouette_height": 27,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.65,
+    "isolated_pixel_percent": 5.99,
+    "opaque_pixel_count": 626,
+    "colour_count": 12,
+    "old_comparison": "finger_blade",
+    "old_height": 26
+  }
+]

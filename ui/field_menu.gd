@@ -9,10 +9,19 @@ var stage: Control
 var pick: Variant = null
 var camp_tab := 0
 var region_pick := ""
+## The contract card picked at the dispatch desk (局内节奏与目标策划案 §6 B1).
+var contract_pick := 0
 var stash_tab := 0
+## The zone whose shelves are open at its floor frame (station "shelves"), or -1.
+var shelf_zone := -1
 var outbound_tab := 0
 var pause_page := 1
 var pause_confirm := false
+## The binding waiting for a key on the 按键设置 page (function index × 2 +
+## 0 primary / 1 secondary), or -1.
+var hotbar_capture := -1
+## The frame a key was taken for a binding; that press does nothing else.
+var hotbar_capture_frame := -1
 var settings_tab := 0
 ## Where Esc / ‹ goes from this page when it is a sub-page (else the menu closes).
 var back_to := Callable()
@@ -165,6 +174,7 @@ func show_station(kind: String) -> void:
 	match kind:
 		"contracts": BaseScreens.contracts(self); return
 		"stash": BaseScreens.stash(self); return
+		"shelves": BaseScreens.stash(self, shelf_zone); return
 		"outbound": BaseScreens.outbound(self); return
 		"pharmacy": BaseScreens.medical(self, 0); return
 		"report": BaseScreens.medical(self, 1); return
@@ -273,24 +283,25 @@ func _matches(item: Item) -> bool:
 		if not word in haystack: return false
 	return true
 
-## Building racks and buying the drone (§3.5, §3.6), at the warehouse terminal.
+## The 仓管台's upgrade projects (用户 2026-10-07): the master console and the
+## drone each have to be bought before they work, in either order; racks are
+## built at each zone's floor frame instead.
 func _expansion_section() -> void:
 	var base: BaseState = game.base
 	var rank := base.rank()
 	text(body, "声望 R%d · %d%s" % [rank, base.prestige, "" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else "  ·  R%d 解锁：%s" % [rank + 1, BaseCatalog.RANK_UNLOCKS[rank + 1]]], 15, GOLD)
-	var row := HBoxContainer.new()
-	body.add_child(row)
-	for category in range(Item.Category.size()):
-		var slot := base.next_rack_slot(category)
-		var name: String = BaseCatalog.CATEGORY_NAMES[category]
-		if slot < 0:
-			button(row, "%s区已满配" % name, func(): pass, true)
-			continue
-		var refusal := game.rack_refusal(category)
-		var need_rank := int(BaseCatalog.RACK_RANKS[slot])
-		var cost: Dictionary = BaseCatalog.RACK_MATERIALS[slot]
-		var label := "%s区第 %d 个货架 %d%s" % [name, slot + 1, BaseCatalog.RACK_PRICES[slot], "" if cost.is_empty() else " + " + BaseCatalog.cost_text(cost)] + ("（R%d）" % need_rank if rank < need_rank else "")
-		button(row, label, func(): game.build_rack(category); _refresh(), not refusal.is_empty())
+	var machines := HBoxContainer.new()
+	body.add_child(machines)
+	if base.console: button(machines, "仓库总控面板 · 已就位", func(): pass, true)
+	else:
+		var console_refusal := game.console_refusal()
+		button(machines, "仓库总控面板 %s + %s%s" % [Economy.format(BaseCatalog.CONSOLE_PRICE), BaseCatalog.cost_text(BaseCatalog.CONSOLE_MATERIALS), "" if console_refusal.is_empty() else "（%s）" % console_refusal],
+			func(): game.buy_console(); _refresh(), not console_refusal.is_empty())
+	if base.drone: button(machines, "搬运无人机 · 已就位", func(): pass, true)
+	else:
+		var drone_refusal := game.drone_refusal()
+		button(machines, "搬运无人机 %s + %s%s" % [Economy.format(BaseCatalog.DRONE_PRICE), BaseCatalog.cost_text(BaseCatalog.DRONE_MATERIALS), "" if drone_refusal.is_empty() else "（%s）" % drone_refusal],
+			func(): game.buy_drone(); _refresh(), not drone_refusal.is_empty())
 	var upgrades := HBoxContainer.new()
 	body.add_child(upgrades)
 	for kind in ["pack", "safe"]:
@@ -312,11 +323,6 @@ func _expansion_section() -> void:
 	var camp_refusal := game.camp_upgrade_refusal()
 	button(body, "营地升级 %s + %s%s" % [Economy.format(BaseCatalog.CAMP_UPGRADE_PRICE), BaseCatalog.cost_text(BaseCatalog.CAMP_UPGRADE_MATERIALS), "" if camp_refusal.is_empty() else "（%s）" % camp_refusal],
 		func(): game.buy_camp_upgrade(); _refresh(), not camp_refusal.is_empty())
-	if base.drone: text(body, "搬运无人机 · 已就位", 14, AK.MUTE)
-	else:
-		var drone_refusal := game.drone_refusal()
-		button(body, "购买工程部搬运无人机 %d + %s%s" % [BaseCatalog.DRONE_PRICE, BaseCatalog.cost_text(BaseCatalog.DRONE_MATERIALS), "" if drone_refusal.is_empty() else "（%s）" % drone_refusal],
-			func(): game.buy_drone(); _refresh(), not drone_refusal.is_empty())
 
 ## The drone's "open and sort everything" (§3.5): each revealed item appears in
 ## turn, rare and exclusive ones lingering; any key or the button shows the rest.
@@ -352,6 +358,13 @@ func _reveal_line(list: VBoxContainer, line: Array) -> void:
 	var item: Item = line[0]
 	var rare := item.rarity >= 2 or not item.exclusive_region.is_empty()
 	text(list, "%s  ·  %s  →  %s" % [item.display_name(), BaseCatalog.CATEGORY_NAMES[item.category], line[1]], 17 if rare else 15, GOLD if rare else INK).tooltip_text = item.details()
+
+## 干员养成 (精英化与加点策划案 §10): at the base everything; in the field only
+## the points (`in_field`).
+func show_training(in_field: bool = false) -> void:
+	_station = ""
+	_enter("training", null)
+	TrainingScreen.show(self, in_field)
 
 ## The card before leaving (§5.3), shown only when there is something to look at.
 func show_departure(region: String) -> void:

@@ -1,0 +1,464 @@
+[
+  {
+    "id": "orirock",
+    "name": "源岩",
+    "file": "orirock.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "orirock_cube",
+    "name": "固源岩",
+    "file": "orirock_cube.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "orirock_cluster",
+    "name": "固源岩组",
+    "file": "orirock_cluster.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "orirock_concentration",
+    "name": "提纯源岩",
+    "file": "orirock_concentration.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "sugar_substitute",
+    "name": "代糖",
+    "file": "sugar_substitute.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "sugar",
+    "name": "糖",
+    "file": "sugar.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "ester",
+    "name": "酯原料",
+    "file": "ester.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "polyester",
+    "name": "聚酸酯",
+    "file": "polyester.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "oriron_shard",
+    "name": "异铁碎片",
+    "file": "oriron_shard.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "oriron",
+    "name": "异铁",
+    "file": "oriron.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "oriron_cluster",
+    "name": "异铁组",
+    "file": "oriron_cluster.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "diketon",
+    "name": "双酮",
+    "file": "diketon.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "polyketon",
+    "name": "酮凝集",
+    "file": "polyketon.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "damaged_device",
+    "name": "破损装置",
+    "file": "damaged_device.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "device",
+    "name": "装置",
+    "file": "device.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "integrated_device",
+    "name": "全新装置",
+    "file": "integrated_device.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "optimized_device",
+    "name": "改量装置",
+    "file": "optimized_device.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "grindstone",
+    "name": "研磨石",
+    "file": "grindstone.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "compound_cutting_fluid",
+    "name": "化合切削液",
+    "file": "compound_cutting_fluid.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "loxic_kohl",
+    "name": "扭转醇",
+    "file": "loxic_kohl.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "manganese_ore",
+    "name": "轻锰矿",
+    "file": "manganese_ore.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "crystalline_component",
+    "name": "晶体元件",
+    "file": "crystalline_component.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "fuscous_fiber",
+    "name": "褐素纤维",
+    "file": "fuscous_fiber.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "coagulating_gel",
+    "name": "凝胶",
+    "file": "coagulating_gel.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "d32_steel",
+    "name": "D32钢",
+    "file": "d32_steel.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "carbon_stick",
+    "name": "碳",
+    "file": "carbon_stick.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "carbon_brick",
+    "name": "碳素",
+    "file": "carbon_brick.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "carbon_pack",
+    "name": "碳素组",
+    "file": "carbon_pack.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "building_material_basic",
+    "name": "基础加固建材",
+    "file": "building_material_basic.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "building_material_adv",
+    "name": "进阶加固建材",
+    "file": "building_material_adv.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "furniture_part",
+    "name": "家具零件",
+    "file": "furniture_part.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "pure_gold",
+    "name": "赤金",
+    "file": "pure_gold.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "originium_shard",
+    "name": "源石碎片",
+    "file": "originium_shard.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": "originium_shard_emit.png"
+  }
+]

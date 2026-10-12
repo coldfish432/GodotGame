@@ -16,6 +16,8 @@ var guarded := false
 var sealed := false
 var opened := false
 var vault := false
+## 巨壳藤蔓 hides in it: opening wakes the vine instead (装备扩充策划案 §2.1).
+var mimic := false
 var _progress := -1.0
 var _hp_at_start := 0.0
 var _mesh: MeshInstance3D
@@ -96,7 +98,7 @@ func cancel(reason: String) -> void:
 	if _progress < 0.0: return
 	_progress = -1.0
 	_refresh()
-	if is_instance_valid(game): game.set_message("%s的开启被打断：%s" % [title(), reason])
+	if is_instance_valid(game): game.notice("%s的开启被打断：%s" % [title(), reason])
 
 func _process(delta: float) -> void:
 	if _progress < 0.0 or not is_instance_valid(game) or not game.simulation_active(): return

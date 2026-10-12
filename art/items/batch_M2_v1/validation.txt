@@ -1,0 +1,24 @@
+M2 static icon validation
+
+PASS bolts: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 4, 30, 27], "bright_fraction": 0.165, "largest_interior_color_fraction": 0.081, "originium_ramp_pixels": 0}
+PASS nuts: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 4, 30, 27], "bright_fraction": 0.173, "largest_interior_color_fraction": 0.077, "originium_ramp_pixels": 0}
+PASS nails: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 2, 30, 29], "bright_fraction": 0.181, "largest_interior_color_fraction": 0.104, "originium_ramp_pixels": 0}
+PASS plank: {"size": [72, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 8, 70, 24], "bright_fraction": 0.219, "largest_interior_color_fraction": 0.087, "originium_ramp_pixels": 0}
+PASS metal_plate: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 4, 30, 28], "bright_fraction": 0.198, "largest_interior_color_fraction": 0.1, "originium_ramp_pixels": 0}
+PASS hose: {"size": [72, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 3, 70, 28], "bright_fraction": 0.16, "largest_interior_color_fraction": 0.08, "originium_ramp_pixels": 0}
+PASS sealing_foam: {"size": [32, 72], "binary_alpha": true, "opaque_colors": 22, "bbox": [6, 2, 26, 70], "bright_fraction": 0.449, "largest_interior_color_fraction": 0.112, "originium_ramp_pixels": 0}
+PASS duct_tape: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 3, 30, 29], "bright_fraction": 0.171, "largest_interior_color_fraction": 0.083, "originium_ramp_pixels": 0}
+PASS canvas_sheet: {"size": [72, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 4, 70, 27], "bright_fraction": 0.176, "largest_interior_color_fraction": 0.089, "originium_ramp_pixels": 0}
+PASS wire_coil: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 3, 30, 29], "bright_fraction": 0.197, "largest_interior_color_fraction": 0.093, "originium_ramp_pixels": 0}
+PASS power_cord: {"size": [72, 32], "binary_alpha": true, "opaque_colors": 21, "bbox": [2, 5, 70, 27], "bright_fraction": 0.181, "largest_interior_color_fraction": 0.082, "originium_ramp_pixels": 0}
+PASS light_bulb: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [7, 2, 25, 30], "bright_fraction": 0.388, "largest_interior_color_fraction": 0.077, "originium_ramp_pixels": 0}
+PASS relay: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [5, 2, 26, 30], "bright_fraction": 0.203, "largest_interior_color_fraction": 0.081, "originium_ramp_pixels": 0}
+PASS circuit_board: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 4, 30, 27], "bright_fraction": 0.175, "largest_interior_color_fraction": 0.118, "originium_ramp_pixels": 0}
+PASS micro_motor: {"size": [72, 72], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 13, 70, 59], "bright_fraction": 0.183, "largest_interior_color_fraction": 0.087, "originium_ramp_pixels": 0}
+PASS battery: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 21, "bbox": [2, 4, 30, 28], "bright_fraction": 0.19, "largest_interior_color_fraction": 0.091, "originium_ramp_pixels": 0}
+PASS car_battery: {"size": [108, 72], "binary_alpha": true, "opaque_colors": 24, "bbox": [8, 2, 100, 70], "bright_fraction": 0.178, "largest_interior_color_fraction": 0.105, "originium_ramp_pixels": 0}
+PASS solid_fuel: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 21, "bbox": [2, 4, 30, 27], "bright_fraction": 0.47, "largest_interior_color_fraction": 0.079, "originium_ramp_pixels": 0}
+PASS fuel_can: {"size": [72, 72], "binary_alpha": true, "opaque_colors": 22, "bbox": [10, 2, 62, 70], "bright_fraction": 0.177, "largest_interior_color_fraction": 0.083, "originium_ramp_pixels": 0}
+PASS wrench: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 21, "bbox": [2, 3, 30, 29], "bright_fraction": 0.184, "largest_interior_color_fraction": 0.107, "originium_ramp_pixels": 0}
+PASS toolkit: {"size": [72, 72], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 13, 70, 58], "bright_fraction": 0.234, "largest_interior_color_fraction": 0.13, "originium_ramp_pixels": 0}
+PASS medical_supplies: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 22, "bbox": [2, 3, 30, 29], "bright_fraction": 0.455, "largest_interior_color_fraction": 0.088, "originium_ramp_pixels": 0}

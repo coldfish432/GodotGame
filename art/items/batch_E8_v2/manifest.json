@@ -1,0 +1,25 @@
+[
+  {
+    "id": "city_x08",
+    "name": "炎式朴刀",
+    "kind": "base",
+    "form": "polearm",
+    "file": "city_x08.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_pudao.jpg"
+    ],
+    "supersedes": "batch_E8_v1/city_x08.png",
+    "previous_opaque_pixel_count": 357,
+    "silhouette_height": 29,
+    "silhouette_width": 70,
+    "bright_pixel_percent": 15.93,
+    "isolated_pixel_percent": 1.21,
+    "opaque_pixel_count": 590,
+    "colour_count": 14
+  }
+]

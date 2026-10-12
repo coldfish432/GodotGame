@@ -15,7 +15,16 @@ var shooter: Enemy
 func _ready() -> void:
 	speed = 22.0 if kind == "bullet" else 12.0
 	var pixel := Enemy.PIXEL
-	if kind == "bullet":
+	if kind == "ice_orb":
+		# 陷落雪祀: a 4×4 orb, purple rim round a pale blue core, and a 3 px
+		# snowflake trail (新敌人攻击案 §三第 17 条).
+		EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * 4 * pixel, Color("8a5ad0"))
+		EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * 2 * pixel + Vector3(0, 0, 2.2 * pixel), Color("d8f0ff"))
+		EnemyAttackVfx.part(self, Vector3.ZERO, Vector3(2 * pixel, 4.2 * pixel, 2 * pixel), Color("d8f0ff"))
+		EnemyAttackVfx.stroke(self, -direction * 5 * pixel, -direction * 2 * pixel, pixel, Color("eef6ff"))
+		EnemyAttackVfx.part(self, -direction * 4 * pixel + Vector3.UP * pixel, Vector3.ONE * pixel, Color("eef6ff"))
+		EnemyAttackVfx.part(self, -direction * 4 * pixel + Vector3.DOWN * pixel, Vector3.ONE * pixel, Color("eef6ff"))
+	elif kind == "bullet":
 		EnemyAttackVfx.stroke(self, -direction * 8 * pixel, Vector3.ZERO, pixel, Color("f4f6f4"))
 	else:
 		EnemyAttackVfx.stroke(self, -direction * 8 * pixel, -direction * 6 * pixel, pixel, Color("aaa69b"))
@@ -39,7 +48,9 @@ func _physics_process(delta: float) -> void:
 			var b := Vector2(next.x, next.z)
 			var player := Vector2(game.player.global_position.x, game.player.global_position.z)
 			if Geometry2D.get_closest_point_to_segment(player, a, b).distance_to(player) <= hit_radius:
-				game.player.take_damage(damage, "phys", shooter if is_instance_valid(shooter) else null)
+				# An arts caster's orb is arts damage; arrows and bullets physical.
+				var damage_kind := shooter.damage_kind if is_instance_valid(shooter) and kind == "ice_orb" else "phys"
+				game.player.take_damage(damage, damage_kind, shooter if is_instance_valid(shooter) else null)
 				queue_free()
 				return
 		global_position = next

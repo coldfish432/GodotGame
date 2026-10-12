@@ -1,0 +1,44 @@
+[
+  {
+    "id": "potion_a",
+    "name": "标准急救剂",
+    "file": "potion_a.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "potion_b",
+    "name": "缓释凝胶",
+    "file": "potion_b.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  },
+  {
+    "id": "potion_c",
+    "name": "抑制喷剂",
+    "file": "potion_c.png",
+    "size": [
+      32,
+      32
+    ],
+    "cells": [
+      1,
+      1
+    ],
+    "emit": null
+  }
+]

@@ -25,8 +25,19 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		kind += " · 堆叠 %d/%d" % [item.quantity, item.max_stack] if item.is_stackable() else " · 不可堆叠"
 	if FieldCatalog.REGIONS.has(item.origin_region): kind += " · 产地 " + FieldCatalog.REGIONS[item.origin_region].name.split(" · ")[0]
 	if not item.exclusive_region.is_empty(): kind += " · [color=#ee8a24]地区专属[/color]"
-	if not item.special.is_empty(): kind += " · [color=#ff7a45]特殊装备[/color]"
+	match item.named_kind():
+		"special": kind += " · [color=#ff7a45]特殊装备[/color]"
+		"exclusive": kind += " · [color=#ee8a24]◆ 敌人专属[/color]"
+		"set": kind += " · [color=#4fd18b]套装[/color]"
 	lines.append("[color=#99aab8]%s[/color]" % kind)
+	# Grade and requirement (精英化与加点策划案 §7.4): white when met, red when not.
+	var req := Progression.requirement(item)
+	if not req.is_empty():
+		var p: OperatorProgress = game.progress()
+		var parts: Array[String] = []
+		if int(req.elite) > 0: parts.append("[color=#%s]%s[/color]" % ["e9e9e9" if p.elite >= int(req.elite) else DOWN, Progression.ELITE_NAMES[int(req.elite)]])
+		if int(req.value) > 0: parts.append("[color=#%s]%s %d[/color]" % ["e9e9e9" if p.attribute(str(req.attribute)) >= int(req.value) else DOWN, Progression.ATTRIBUTE_NAMES[req.attribute], int(req.value)])
+		lines.append("等级 %s%s" % [Progression.GRADE_MARKS[int(req.grade)], ("  ·  需求 " + " · ".join(parts)) if not parts.is_empty() else ""])
 	var worn: Item = game.player.equipped.get(item.category) if item.is_equippable() else null
 	if item.is_equippable():
 		if worn == item:
@@ -47,6 +58,17 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		if not affixes.is_empty():
 			lines.append("[color=#c9d3db]── 词缀 ──[/color]")
 			for mod in affixes: lines.append("  " + mod.describe_detailed(detailed))
+		var named: Dictionary = SpecialGear.GEAR.get(item.special, {}) if not item.special.is_empty() else {}
+		if named.has("fx_text"):
+			lines.append("[color=#ee8a24]── 专属效果 ──[/color]")
+			lines.append("  [color=#f2c48a]◆ %s[/color]" % named.fx_text)
+		if item.named_kind() == "set":
+			var worn_count := 0
+			for worn_item in game.player.equipped.values():
+				if worn_item != null and not worn_item.special.is_empty() and str(SpecialGear.GEAR.get(worn_item.special, {}).get("set_id", "")) == str(named.set_id): worn_count += 1
+			var set_lines := SpecialGear.set_lines(item, worn_count)
+			lines.append("[color=#4fd18b]── %s %d/3 ──[/color]" % [set_lines[0][0], worn_count])
+			for entry in set_lines.slice(1): lines.append("  [color=#%s]%s[/color]" % ["e9e9e9" if entry[1] else "6d6d6d", entry[0]])
 		var triggers := item.modifiers.filter(func(m): return m.trigger != ItemModifier.Trigger.NONE)
 		if not triggers.is_empty():
 			lines.append("[color=#ff7a45]── 特殊效果 ──[/color]" if not item.special.is_empty() else "[color=#b48cff]── 触发 ──[/color]")

@@ -27,7 +27,7 @@ func rules() -> void:
 	base.injured = true
 	check("injury and medium contamination add up but cap at 40%%: %.2f" % base.hp_penalty(), is_equal_approx(base.hp_penalty(), 0.40))
 	base.contamination = 45
-	check("injury plus light contamination: 35%", is_equal_approx(base.hp_penalty(), 0.35))
+	check("injury plus 45 contamination: 25%% + 13.5%% (0.3%% a point)", is_equal_approx(base.hp_penalty(), 0.385))
 	base.contamination = 50
 	base.free_potions = 0
 	var report := base.settle_medical(12.0, false)
@@ -99,9 +99,37 @@ func through_game() -> void:
 	game.base.contamination = 100
 	game.base.injured = false
 	await game.start_contract("snow")
-	check("heavy contamination stops self-regeneration", game.player.regen_blocked and is_equal_approx(game.player.max_hp, plain * 0.7))
+	check("100 contamination: max HP −30%, regeneration below zero (48 − 60)", is_equal_approx(game.player.max_hp, plain * 0.7) and is_equal_approx(game.player.regen_rate(), -12.0))
+	# The drain does not wait for the end of combat, and never takes the last point.
+	game.player.hp = 30.0
+	game.player.combat_timer = 0.0
+	game.player.regen_timer = 0.01
+	await step(2)
+	check("negative regeneration drains even in combat", game.player.hp < 30.0 and game.player.hp >= 1.0)
+	game.player.hp = 10.0
+	game.player.regen_timer = 0.01
+	await step(2)
+	check("the drain stops at 1 HP", is_equal_approx(game.player.hp, 1.0))
 	game.settle(true)
-	check("extraction clears the injury and the regen block", not game.base.injured and not game.player.regen_blocked)
+	check("extraction clears the injury", not game.base.injured and not game.player.regen_blocked)
+
+	# Live contamination (局内节奏与目标策划案 §6 D) and out-of-combat regeneration (A2).
+	game.base.contamination = 0
+	await game.start_contract("mine")
+	var fresh := game.player.max_hp
+	game.run_contamination = 20.0
+	await step(2)
+	check("contamination gained in the field cuts max HP at once (20 → −6%)", absf(game.player.max_hp - fresh * 0.94) < 1.0 and absf(game.player.regen_rate() - 36.0) < 0.1)
+	game.player.hp = 500.0
+	game.player.combat_timer = 1.0
+	game.player.regen_timer = 0.01
+	await step(2)
+	check("no regeneration within 5 s of combat", is_equal_approx(game.player.hp, 500.0))
+	game.player.combat_timer = 6.0
+	game.player.regen_timer = 0.01
+	await step(2)
+	check("regeneration resumes out of combat", game.player.hp > 500.0)
+	game.settle(true)
 
 	# Pharmacy (药剂进背包): flasks are pack items bought one at a time.
 	game.base.contamination = 0

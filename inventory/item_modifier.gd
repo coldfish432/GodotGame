@@ -105,7 +105,7 @@ func describe() -> String:
 	if trigger != Trigger.NONE:
 		match trigger:
 			Trigger.SWORD_WAVE:
-				return "幼狼之牙 · 剑气：普攻命中 3 次，下一刀附带 150% 法术攻击力的穿透剑气（法术伤害）"
+				return "剑气强化：剑气伤害 +25%"
 			Trigger.LOW_HP_SHIELD_ONCE_PER_FLOOR:
 				return "血量过低时免疫一次伤害（每层限一次）"
 		return str(TRIGGER_TEXT.get(trigger, ""))

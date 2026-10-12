@@ -89,7 +89,7 @@ def warehouse(full):
                 group = f'shelf:{cat}:{slot}'        # 引擎按位号显示已建的货架，进入仓储区时从地面升起（world/room_reveal.gd）
                 built = full or slot == 0
                 if not built:
-                    s.decal('pending_build_floor_compact_28x18', x, feet - 6)
+                    # 未建货架位不再画黄色加号（用户 2026-10-07）
                     if full:
                         continue
                     # 运行时扩建用：先不画、不碰撞，建好后由引擎显示并补碰撞
@@ -119,9 +119,12 @@ def warehouse(full):
         head_plate.info['grp'] = f'shelf:{cat}:0'
         s.items.append((front + 1, 0, head_plate, int(r.fx(ux)) - 6, int(front) - 40))
         # 高亮态只在满配示意图里演示；引擎在手持对应类别物品时叠加高亮（world/warehouse_view.gd）
-        zone = 'highlight' if (cat == 'trinket' and full) else 'normal'
-        for col in range(3):
-            s.decal(f'warehouse_zone_{cat}_{zone}_90x44', r.fx(ux) + col * 86 + 42, front + 44)
+        # 区框只在满配示意图里烘进地面；运行时由引擎按已建的列数逐段显示（用户 2026-10-07：
+        # 货架横向扩展，区框同样延伸；world/warehouse_view.gd）
+        if full:
+            zone = 'highlight' if cat == 'trinket' else 'normal'
+            for col in range(3):
+                s.decal(f'warehouse_zone_{cat}_{zone}_90x44', r.fx(ux) + col * 86 + 42, front + 44)
     # 源石封存柜：材料区东侧
     cage_x = r.fx(21.8) + ZONE_W + 34
     s.light('light_pool_circle_warm_60x40', cage_x, r.u(30.0), 0.40)
@@ -198,6 +201,7 @@ def warehouse(full):
         for cat, *_ in CATS:
             r.s.textures[f'icon_{cat}'] = load(f'warehouse_category_{cat}_14x14')[0]
             r.s.textures[f'zone_{cat}_highlight'] = load(f'warehouse_zone_{cat}_highlight_90x44')[0]
+            r.s.textures[f'zone_{cat}_normal'] = load(f'warehouse_zone_{cat}_normal_90x44')[0]
         r.s.cells = [list(c) for c in CELLS]
         r.s.board_lift = (46 - board_img.height) // 2
         for state in ('empty', 'open', 'completed'):

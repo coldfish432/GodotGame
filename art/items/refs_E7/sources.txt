@@ -1,0 +1,4 @@
+ok wiki Spear https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Ranseurs_%28137936313%29.jpg/500px-Ranseurs_%28137936313%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+ok wiki Puukko https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Lapinleuku.JPG/500px-Lapinleuku.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+ok wiki Leuku https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Lapinleuku.JPG/500px-Lapinleuku.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+MISSING wiki War hammer

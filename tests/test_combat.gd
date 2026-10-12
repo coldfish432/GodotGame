@@ -39,6 +39,13 @@ func first_enemy() -> Node:
 	var enemies := get_nodes_in_group("enemies")
 	return enemies[0] if not enemies.is_empty() else null
 
+func plain_enemy() -> Node:
+	for node in get_nodes_in_group("enemies"):
+		var enemy := node as Enemy
+		if enemy == null or enemy.elite or enemy.attack_profile.has("front_guard") or enemy.attack_profile.has("barrier") or enemy.attack_profile.has("neutral"): continue
+		return enemy
+	return first_enemy()
+
 func clear_all_enemies() -> void:
 	for node in get_nodes_in_group("enemies"):
 		node.queue_free()
@@ -53,7 +60,9 @@ func run() -> void:
 	arena_anchor = ContinuousWorldMap.ENTRY_POSITION
 
 	# --- Melee attack: walk to a real spawned enemy and hit it for real damage.
-	var target := first_enemy()
+	# One without a shield or barrier (装备扩充策划案 §2.1: 机动盾兵, 灰尾), so
+	# the hit is plain ATK − DEF.
+	var target := plain_enemy()
 	check("wave-spawned", target != null, {"enemy_count": enemy_count()})
 	if target != null:
 		game.player.teleport(target.global_position + Vector3(1.0, 0.0, 0.0))
@@ -73,19 +82,25 @@ func run() -> void:
 				game.player.attack(target)
 			swings += 1
 		# Drops follow 掉落物策划案 §3.1: a kill can drop nothing (12%), gold
-		# (8–14) or items, scattered in a ring around the body. Walk over every
-		# drop, then check each was collected and something was gained unless
-		# the roll was "nothing".
+		# (8–14) or items, scattered in a ring around the body. Nothing is taken
+		# by walking over it any more (用户 2026-10-10, 恐怖黎明式): walking over
+		# leaves it; clicking its name (request_pickup) walks her there and takes it.
 		var drops := get_nodes_in_group("loot").filter(func(n): return is_instance_valid(n) and not n.is_queued_for_deletion())
 		var dropped := drops.size()
+		var walked_over_kept := true
 		for loot in drops:
 			if is_instance_valid(loot):
+				await step(12) # let it finish popping out
 				game.player.teleport(loot.global_position)
 				await step(3)
+				walked_over_kept = walked_over_kept and is_instance_valid(loot) and not loot.is_queued_for_deletion()
+				game.request_pickup(loot)
+				await step(3)
 		await step(2)
+		check("walking-over-a-drop-does-not-pick-it-up", walked_over_kept, {"dropped": dropped})
 		var left := get_nodes_in_group("loot").filter(func(n): return is_instance_valid(n) and not n.is_queued_for_deletion()).size()
 		var gained: bool = game.run_gold > gold_before_kill or inventory_units() > units_before_kill
-		check("melee-kills-enemy-and-loot-is-auto-collected", not is_instance_valid(target) and left == 0 and (gained or dropped == 0),
+		check("melee-kills-enemy-and-loot-is-picked-by-name", not is_instance_valid(target) and left == 0 and (gained or dropped == 0),
 			{"dropped": dropped, "left": left, "gold_before": gold_before_kill, "gold_after": game.run_gold, "inventory_before": inventory_count_before_kill, "inventory_after": game.inventory.items.size()})
 
 	# --- Air swings (用户 2026-10-07): a ground click still lands on an enemy in
@@ -104,6 +119,8 @@ func run() -> void:
 	check("air-swing-hits-enemy-in-reach-in-front", front.health < front_hp and is_equal_approx(behind.health, behind_hp) and is_equal_approx(far.health, far_hp),
 		{"front": [front_hp, front.health], "behind": [behind_hp, behind.health], "far": [far_hp, far.health]})
 	await step(45)
+	# Below full: at 3 charge any swing releases the wave, which is not a whiff.
+	game.player.sword_charge = 1
 	var charge_before: int = game.player.sword_charge
 	game.player.attack_direction(Vector3.FORWARD)
 	check("air-swing-at-nobody-is-a-whiff", game.player.sword_charge == charge_before and is_equal_approx(behind.health, behind_hp),

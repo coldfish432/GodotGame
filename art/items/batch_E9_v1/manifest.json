@@ -1,0 +1,252 @@
+[
+  {
+    "id": "snow_x01",
+    "name": "染污短刀",
+    "kind": "base",
+    "form": "blade",
+    "file": "snow_x01.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_leuku.jpg"
+    ],
+    "isolated_pixel_percent": 0.76,
+    "old_comparison": "skinning_knife",
+    "old_height": 20,
+    "old_opaque_pixel_count": 669,
+    "silhouette_height": 27,
+    "opaque_pixel_count": 1288
+  },
+  {
+    "id": "snow_x02",
+    "name": "伐木斧",
+    "kind": "base",
+    "form": "heavy",
+    "file": "snow_x02.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_felling_axe.jpg"
+    ],
+    "isolated_pixel_percent": 2.21,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "old_opaque_pixel_count": 663,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 723
+  },
+  {
+    "id": "snow_x03",
+    "name": "兽颚指虎",
+    "kind": "base",
+    "form": "fist",
+    "file": "snow_x03.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_tekko.jpg"
+    ],
+    "isolated_pixel_percent": 3.01,
+    "old_comparison": "finger_blade",
+    "old_height": 26,
+    "old_opaque_pixel_count": 952,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 990
+  },
+  {
+    "id": "snow_x04",
+    "name": "凿冰长刀",
+    "kind": "base",
+    "form": "blade",
+    "file": "snow_x04.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_seax.jpg"
+    ],
+    "isolated_pixel_percent": 1.26,
+    "old_comparison": "icebreaker_knife",
+    "old_height": 22,
+    "old_opaque_pixel_count": 1206,
+    "silhouette_height": 27,
+    "opaque_pixel_count": 948
+  },
+  {
+    "id": "snow_x05",
+    "name": "科考冰镐",
+    "kind": "base",
+    "form": "heavy",
+    "file": "snow_x05.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_ice_axe.jpg"
+    ],
+    "isolated_pixel_percent": 3.59,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "old_opaque_pixel_count": 663,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 488
+  },
+  {
+    "id": "snow_x06",
+    "name": "岩角战锤",
+    "kind": "base",
+    "form": "heavy",
+    "file": "snow_x06.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 1.98,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "old_opaque_pixel_count": 663,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 676
+  },
+  {
+    "id": "snow_x07",
+    "name": "裂骨拳刃",
+    "kind": "base",
+    "form": "fist",
+    "file": "snow_x07.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_katar.jpg"
+    ],
+    "isolated_pixel_percent": 4.38,
+    "old_comparison": "finger_blade",
+    "old_height": 26,
+    "old_opaque_pixel_count": 952,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 1028
+  },
+  {
+    "id": "snow_x08",
+    "name": "林线猎矛",
+    "kind": "base",
+    "form": "polearm",
+    "file": "snow_x08.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_boar_spear.jpg"
+    ],
+    "isolated_pixel_percent": 1.69,
+    "old_comparison": "yan_ring_saber",
+    "old_height": 24,
+    "old_opaque_pixel_count": 395,
+    "silhouette_height": 27,
+    "opaque_pixel_count": 774
+  },
+  {
+    "id": "mi_ice_warrior_18",
+    "name": "劈冰者",
+    "kind": "exclusive",
+    "form": "heavy",
+    "file": "mi_ice_warrior_18.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "icebreaker_knife.png"
+    ],
+    "isolated_pixel_percent": 4.21,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "old_opaque_pixel_count": 663,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 981
+  },
+  {
+    "id": "mi_shattered_champion_25",
+    "name": "折角",
+    "kind": "exclusive",
+    "form": "fist",
+    "file": "mi_shattered_champion_25.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "prts_shattered_champion.png"
+    ],
+    "isolated_pixel_percent": 3.06,
+    "old_comparison": "finger_blade",
+    "old_height": 26,
+    "old_opaque_pixel_count": 952,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 1074
+  },
+  {
+    "id": "set_clean_snow_0",
+    "name": "洁雪仪刃",
+    "kind": "set",
+    "form": "blade",
+    "file": "set_clean_snow_0.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "snowpriest_blade.png"
+    ],
+    "isolated_pixel_percent": 1.31,
+    "old_comparison": "snowpriest_blade",
+    "old_height": 19,
+    "old_opaque_pixel_count": 800,
+    "silhouette_height": 29,
+    "opaque_pixel_count": 692
+  },
+  {
+    "id": "set_fire_watch_0",
+    "name": "守望者战斧",
+    "kind": "set",
+    "form": "heavy",
+    "file": "set_fire_watch_0.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "proto_felling_axe.jpg"
+    ],
+    "isolated_pixel_percent": 2.8,
+    "old_comparison": "pickhaft_blade",
+    "old_height": 28,
+    "old_opaque_pixel_count": 663,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 866
+  }
+]

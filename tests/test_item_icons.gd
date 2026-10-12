@@ -40,7 +40,8 @@ const ICONS := {
 }
 
 func run() -> void:
-	check("all 39 E1–E3 items are mapped", ICONS.keys().all(func(n): return ItemIcons.BY_NAME.has(n)) and ItemIcons.BY_NAME.size() == 39, ItemIcons.BY_NAME.size())
+	# 装备扩充策划案 §4: the 66 new bases are mapped too (39 + 66).
+	check("all 39 E1–E3 items are mapped", ICONS.keys().all(func(n): return ItemIcons.BY_NAME.has(n)) and ItemIcons.BY_NAME.size() == 105, ItemIcons.BY_NAME.size())
 	for item_name in ICONS:
 		var category: int = ICONS[item_name]
 		var cells: Vector2i = CELLS[category]
@@ -71,7 +72,36 @@ func run() -> void:
 	check("the ore icon is 32×72", ore != null and ore.get_size() == Vector2(32, 72))
 	for id in ["raw_originium", "twin_fang", "ember_fang", "moon_edge", "crystal_edge", "vein_core"]:
 		check("%s has an emit mask" % id, ResourceLoader.exists(ItemIcons.DIR + id + "_emit.png"))
-	check("materials have no equipment icon", ItemIcons.texture_for(MaterialCatalog.create("碳", 3)) == null)
+	# M1: every PRTS material (and 赤金) has a 32×32 icon; materials and
+	# potions without art yet still fall back to text.
+	var prts_missing := []
+	for id in MaterialCatalog.MATERIALS:
+		if MaterialCatalog.MATERIALS[id].get("source", "") == "common": continue
+		var tex := ItemIcons.texture_for(MaterialCatalog.create(id, 1))
+		if tex == null or tex.get_size() != Vector2(32, 32): prts_missing.append(id)
+	check("every PRTS material has a 32×32 icon", prts_missing.is_empty(), prts_missing)
+	check("赤金 has its icon", ItemIcons.icon_id(MaterialCatalog.create(Economy.GOLD_ID, 3)) == "pure_gold")
+	var unmapped: Array = MaterialCatalog.MATERIALS.keys().filter(func(id): return not ItemIcons.MATERIALS.has(id))
+	check("every material id has an icon id", unmapped.is_empty(), unmapped)
+	check("源石碎片 has an emit mask", ResourceLoader.exists(ItemIcons.DIR + "originium_shard_emit.png"))
+	# M2: common supplies fill 36 px per cell minus the margin (1 cell = 32,
+	# 2 = 72, 3 = 108); three items wait for a redraw and stay text.
+	var held := ["医用耗材包", "固体燃料"]
+	var wrong := []
+	for id in MaterialCatalog.MATERIALS:
+		if MaterialCatalog.MATERIALS[id].get("source", "") != "common" or held.has(id): continue
+		var item := MaterialCatalog.create(id, 1)
+		var tex := ItemIcons.texture_for(item)
+		var want := Vector2(32 if item.width == 1 else item.width * 36, 32 if item.height == 1 else item.height * 36)
+		if tex == null or tex.get_size() != want: wrong.append([id, tex.get_size() if tex else null, want])
+	check("every accepted common supply has an icon sized to its cells", wrong.is_empty(), wrong)
+	for id in held: check("%s waits for its redraw (text)" % id, ItemIcons.texture_for(MaterialCatalog.create(id, 1)) == null)
+	for type in ["A", "B"]:
+		var tex := ItemIcons.texture_for(BaseCatalog.create_potion(type))
+		check("potion %s has a 32×32 icon" % type, tex != null and tex.get_size() == Vector2(32, 32))
+	# 用户 2026-10-10 (消耗品的图标改为原画): potion C uses its M3 v1 art until the
+	# M3 v2 redraw lands (M23_revision_v2.md).
+	check("potion C shows its interim M3 v1 art", ItemIcons.texture_for(BaseCatalog.create_potion("C")) != null)
 	check("items without art fall back to text", ItemIcons.texture_for(Item.create("外勤战刃", Item.Category.WEAPON, 2, 1)) == null)
 	var old := Item.create("镐柄战刃", Item.Category.WEAPON, 2, 1, 2.0)
 	var loaded := Item.from_data(old.to_data())

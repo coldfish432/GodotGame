@@ -188,10 +188,21 @@ func _operator_column() -> Control:
 	var names := VBoxContainer.new()
 	names.add_theme_constant_override("separation", -3)
 	names.add_child(AK.label("★★★★★", 11, AK.SP))
-	names.add_child(AK.label("拉普兰德", 19, AK.FG))
-	names.add_child(AK.label("GUARD · LORD", 9, AK.MUTE, AK.en()))
+	var who := Operators.info(game.player.operator_id)
+	names.add_child(AK.label(Operators.display_name(game.player.operator_id), 19, AK.FG))
+	names.add_child(AK.label(str(who.branch), 9, AK.MUTE, AK.en()))
 	head.add_child(names)
-	if _portrait == null and ResourceLoader.exists("res://ui/art/lappland_portrait.png"): _portrait = load("res://ui/art/lappland_portrait.png")
+	var p: OperatorProgress = game.progress()
+	var growth := HBoxContainer.new()
+	growth.position = Vector2(12, 246)
+	growth.add_theme_constant_override("separation", 8)
+	growth.add_child(AK.label("%s · Lv %d" % [Progression.ELITE_NAMES[p.elite], p.level], 12, AK.FG, AK.en()))
+	var points := p.attribute_points + p.skill_points
+	var train := AK.button("加点" + (" %d" % points if points > 0 else ""), "yellow" if points > 0 else "plain", 11)
+	train.pressed.connect(func(): game.open_training(func(): game.close_modal(); game.toggle_panel("inventory")))
+	growth.add_child(train)
+	doll.add_child(growth)
+	_portrait = Operators.portrait(game.player.operator_id)
 	if _portrait != null:
 		var image := TextureRect.new()
 		image.texture = _portrait
@@ -457,7 +468,7 @@ func begin_drag(item: Item, from: ItemContainer, from_equip: bool) -> void:
 func drop_on_grid(data: Dictionary, container: ItemContainer, cell: Vector2i) -> void:
 	var from: ItemContainer = data.get("from")
 	if not game.move_item(data.item, from, container, cell.x, cell.y):
-		game.set_message("放不下：位置被占用或超出边界。")
+		game.notice("放不下：位置被占用或超出边界。")
 	_drag_item = null
 	selected = null
 	_rebuild()

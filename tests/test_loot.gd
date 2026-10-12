@@ -65,6 +65,8 @@ func run() -> void:
 				var allowed := []
 				for tier in ["common", "uncommon", "rare"]:
 					for e in LootTables.ENEMY_MATERIALS.brawler[tier]: allowed.append(e[0])
+				# Growth materials (精英化案 §3.2) drop from everyone.
+				for e in LootTables.GROWTH_DROPS.normal: allowed.append(e[0])
 				if not item.material_id in allowed: own = false
 	check("a brawler drops only brawler materials", own)
 
@@ -84,8 +86,9 @@ func run() -> void:
 	var slug_gear := false
 	for i in range(500):
 		for item in items_of(LootTables.enemy_drops("slug", false, false, c)):
-			if item.is_equippable(): slug_gear = true
-	check("infected slugs never drop gear", not slug_gear)
+			# Its own exclusive (蜕下的虫壳, 装备扩充 §5.1) is the one exception.
+			if item.is_equippable() and item.named_kind() != "exclusive": slug_gear = true
+	check("infected slugs never drop gear but their exclusive", not slug_gear)
 	var guard_empty := false
 	for i in range(300):
 		if LootTables.enemy_drops("thug", false, true, c).is_empty(): guard_empty = true
@@ -146,10 +149,10 @@ func run() -> void:
 	for i in range(100):
 		if not items_of(LootTables.container_drops("construction", c)).any(func(x): return x.material_id in ["螺栓", "螺母", "钉子"]): hardware = false
 		var e := items_of(LootTables.container_drops("electronics", c))
-		if not e.any(func(x): return x.material_id == "电线") or not e.all(func(x): return MaterialCatalog.group(x.material_id) == "电子"): cabinet = false
+		if not e.any(func(x): return x.material_id == "电线") or not e.all(func(x): return MaterialCatalog.group(x.material_id) == "电子" or x.material_id in ["芯片助剂", "技巧概要·卷1"]): cabinet = false
 		if not items_of(LootTables.container_drops("medical", c)).any(func(x): return x.material_id == "医用耗材包"): medic = false
 	check("construction piles always give hardware", hardware)
-	check("electronics cabinets give only electronics, always wire", cabinet)
+	check("electronics cabinets give only electronics (and the odd 芯片助剂 / 技巧概要), always wire", cabinet)
 	check("medical cabinets always give 医用耗材包", medic)
 	var vein := items_of(LootTables.container_drops("ore_vein", c))
 	check("ore veins always give 源岩 and 固源岩", vein.any(func(x): return x.material_id == "源岩") and vein.any(func(x): return x.material_id == "固源岩"))
@@ -205,6 +208,13 @@ func run() -> void:
 	game.player.global_position += Vector3(6, 0, 0)
 	await step(2)
 	check("walking away interrupts", not box.is_channeling() and not box.opened)
+	game.player.global_position = box.global_position + Vector3(-1.0, 0, 0)
+	game._interact()
+	game.player.stamina = 100
+	game.player._dash_cooldown = 0
+	game.player._start_dash(Vector3.BACK)
+	check("a dodge interrupts the opening", not box.is_channeling() and not box.opened)
+	game.player.reset_combat_state()
 	game.player.global_position = box.global_position + Vector3(-1.0, 0, 0)
 	game._interact()
 	for i in range(80):

@@ -231,10 +231,13 @@ func run() -> void:
 	game.add_child(drop)
 	drop.global_position = p.global_position
 	await step(3)
-	check("a filtered drop is not auto-picked", is_instance_valid(drop) and not game.inventory.items.has(common))
+	check("a drop underfoot is not auto-picked", is_instance_valid(drop) and not game.inventory.items.has(common))
 	game._interact()
 	await step()
-	check("E picks up a filtered drop", game.inventory.items.has(common))
+	check("E no longer picks up ground items", not game.inventory.items.has(common))
+	game.request_pickup(drop)
+	await step(2)
+	check("clicking its name takes even a filtered drop", game.inventory.items.has(common))
 	game.cycle_pickup_filter()
 	game.cycle_pickup_filter()
 	check("the filter cycles back to 全部", game.pickup_filter == 0)
@@ -269,6 +272,7 @@ func run() -> void:
 		mats.append(Item.create("封装矿料", Item.Category.MATERIAL, 1, 1))
 		game.inventory.try_add(mats[-1])
 	check("store-all sends every carried material to the warehouse", game.store_all_materials() == 3 and mats.all(func(x): return game.stash.has(x) or game.base.staging.has(x)))
+	game.base.console = true   # search lives on the master console (用户 2026-10-07)
 	game.open_station("stash")
 	await step()
 	game.menu.stash_query = "不存在的名字"

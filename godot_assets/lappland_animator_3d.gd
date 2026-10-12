@@ -22,8 +22,10 @@ const DIRECTIONS: Array[String] = [
 ## Rows of the walk sheet drawn facing the wrong way, shown as the mirrored
 ## opposite instead: the southeast row is painted facing down-left (it is
 ## nearly a copy of southwest), so moving down-right showed her looking
-## down-left (用户 2026-10-06).
-const MIRRORED := {"southeast": "southwest"}
+## down-left (用户 2026-10-06). The northwest row turns her up-right or straight
+## up, so moving up-left looked like facing north; it shows the northeast row
+## mirrored (用户 2026-10-07). The combat sheet's northwest row is correct.
+const MIRRORED := {"southeast": "southwest", "northwest": "northeast"}
 
 const PIXEL_SIZE := 0.06
 const CELL_TEXELS := 32.0
@@ -40,6 +42,23 @@ const COMBAT_ROWS := ["south", "southwest", "west", "northwest", "north"]
 ## walk frame's centre and foot line, so switching sheets does not move her.
 const COMBAT_CELL := 64
 const ACTIONS := {"attack_1": [0, 3], "attack_2": [3, 3], "attack_3": [6, 4], "wave": [10, 3], "hurt": [13, 1]}
+## Amiya (Guard), Sol batch A1 (prepare_amiya_guard_atlas.py): combat columns
+## 3/4/4/4/1 per A_brief_v1.md. Her walk rows all face the right way, so
+## nothing is mirrored.
+const AMIYA_ACTIONS := {"attack_1": [0, 3], "attack_2": [3, 4], "attack_3": [7, 4], "shadow": [11, 4], "hurt": [15, 1]}
+## Per operator: sheets, action table, the signature's action and the rows
+## shown mirrored.
+const CHARACTERS := {
+	"lappland": {"walk": "res://godot_assets/Lappland8DirWalk32.tres", "idle": "res://godot_assets/lappland_idle_32.png",
+		"combat": "res://godot_assets/lappland_combat_64.png", "actions": ACTIONS, "signature": "wave", "mirrored": MIRRORED},
+	"amiya_guard": {"walk": "res://godot_assets/amiya_guard_walk_32.png", "idle": "res://godot_assets/amiya_guard_idle_32.png",
+		"combat": "res://godot_assets/amiya_guard_combat_64.png", "actions": AMIYA_ACTIONS, "signature": "shadow", "mirrored": {}},
+}
+const WALK_FPS := 8.0
+var character := "lappland"
+var actions: Dictionary = ACTIONS
+var mirrored: Dictionary = MIRRORED
+var signature_action := "wave"
 var action_time := 0.0
 var action_duration := 0.0
 var action_name := ""
@@ -52,8 +71,7 @@ var _forced_direction := Vector3.ZERO
 
 func _ready() -> void:
 	_body = get_node_or_null(body_path) as CharacterBody3D
-	sprite_frames = preload("res://godot_assets/Lappland8DirWalk32.tres").duplicate()
-	_build_combat_frames()
+	_load_character()
 	pixel_size = PIXEL_SIZE
 	billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
@@ -62,6 +80,48 @@ func _ready() -> void:
 	alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 	position.y = CELL_TEXELS * PIXEL_SIZE * 0.5 - FOOT_DROP
 	_play_idle()
+
+## One of an operator's sheets ("walk", "idle", "combat"), or null.
+static func sheet(id: String, kind: String) -> Resource:
+	var path := str(CHARACTERS.get(id, CHARACTERS.lappland).get(kind, ""))
+	return load(path) if ResourceLoader.exists(path) else null
+
+## Swap to another operator's sheets (picked at the base).
+func set_character(id: String) -> void:
+	if not CHARACTERS.has(id) or id == character: return
+	character = id
+	cancel_action()
+	_load_character()
+	_play_idle()
+
+func _load_character() -> void:
+	var config: Dictionary = CHARACTERS.get(character, CHARACTERS.lappland)
+	actions = config.actions
+	mirrored = config.mirrored
+	signature_action = config.signature
+	var walk := sheet(character, "walk")
+	if walk is SpriteFrames: sprite_frames = (walk as SpriteFrames).duplicate()
+	else: sprite_frames = _walk_frames_from(walk as Texture2D)
+	_build_idle_frames()
+	_build_combat_frames()
+
+## A walk sheet laid out like lappland_8dir_walk_32.png: 4 columns, rows in
+## IDLE_ROWS order, looping at 8 FPS.
+func _walk_frames_from(walk: Texture2D) -> SpriteFrames:
+	var frames := SpriteFrames.new()
+	frames.remove_animation(&"default")
+	for row in range(IDLE_ROWS.size()):
+		var animation_name: String = "walk_" + IDLE_ROWS[row]
+		frames.add_animation(animation_name)
+		frames.set_animation_speed(animation_name, WALK_FPS)
+		frames.set_animation_loop(animation_name, true)
+		frames.add_animation("idle_" + IDLE_ROWS[row])
+		for column in range(4):
+			var texture := AtlasTexture.new()
+			texture.atlas = walk
+			texture.region = Rect2(column * CELL_TEXELS, row * CELL_TEXELS, CELL_TEXELS, CELL_TEXELS)
+			frames.add_frame(animation_name, texture)
+	return frames
 
 ## Point the sprite at a world direction for one frame regardless of velocity —
 ## used when the player swings at a target they are not walking toward.
@@ -110,8 +170,8 @@ func _process(delta: float) -> void:
 ## The sheet row for a facing, flipping the sprite for mirrored rows.
 func _sheet_direction(index: int) -> String:
 	var name := DIRECTIONS[index]
-	flip_h = MIRRORED.has(name)
-	return MIRRORED.get(name, name)
+	flip_h = mirrored.has(name)
+	return mirrored.get(name, name)
 
 ## World direction -> angle in the sheet's screen-space convention
 ## (x right, y down, so south == +PI/2).
@@ -155,22 +215,38 @@ func _update_facing(angle: float, delta: float) -> void:
 
 func _play_idle() -> void:
 	var idle_name := "idle_" + _sheet_direction(_facing_index)
-	if animation != idle_name:
+	if animation != idle_name or not is_playing():
 		play(idle_name)
-		stop()
-		frame = 0
+
+## Standing pose plus a one-texel breathing bob (prepare_lappland_idle.py),
+## replacing the walk sheet's frozen mid-stride frame 0.
+const IDLE_ROWS := ["south", "southwest", "west", "northwest", "north", "northeast", "east", "southeast"]
+const IDLE_FPS := 2.0
+
+func _build_idle_frames() -> void:
+	var idle_sheet := sheet(character, "idle") as Texture2D
+	for row in range(IDLE_ROWS.size()):
+		var animation_name: String = "idle_" + IDLE_ROWS[row]
+		sprite_frames.clear(animation_name)
+		sprite_frames.set_animation_speed(animation_name, IDLE_FPS)
+		sprite_frames.set_animation_loop(animation_name, true)
+		for column in range(2):
+			var texture := AtlasTexture.new()
+			texture.atlas = idle_sheet
+			texture.region = Rect2(column * CELL_TEXELS, row * CELL_TEXELS, CELL_TEXELS, CELL_TEXELS)
+			sprite_frames.add_frame(animation_name, texture)
 
 func _build_combat_frames() -> void:
-	var sheet := preload("res://godot_assets/lappland_combat_64.png")
+	var combat_sheet := sheet(character, "combat") as Texture2D
 	for row in range(COMBAT_ROWS.size()):
-		for action in ACTIONS:
+		for action in actions:
 			var animation_name: String = action + "_" + COMBAT_ROWS[row]
 			sprite_frames.add_animation(animation_name)
 			sprite_frames.set_animation_speed(animation_name, 12)
 			sprite_frames.set_animation_loop(animation_name, false)
-			for column in range(ACTIONS[action][0], ACTIONS[action][0] + ACTIONS[action][1]):
+			for column in range(actions[action][0], actions[action][0] + actions[action][1]):
 				var texture := AtlasTexture.new()
-				texture.atlas = sheet
+				texture.atlas = combat_sheet
 				texture.region = Rect2(column * COMBAT_CELL, row * COMBAT_CELL, COMBAT_CELL, COMBAT_CELL)
 				sprite_frames.add_frame(animation_name, texture)
 
@@ -184,14 +260,19 @@ func _start_action(action: String, rate: float = 1.0) -> void:
 	action_name = action
 	action_time = 0
 	action_rate = maxf(rate, 0.01)
-	action_duration = float(ACTIONS[action][1]) / (12.0 * action_rate)
+	action_duration = float(actions[action][1]) / (12.0 * action_rate)
 	animation = action + "_" + direction_name
 	stop()
 	frame = 0
 
 func play_attack(direction: Vector3, stage: int, wave: bool, rate: float = 1.0) -> void:
 	_facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
-	_start_action("wave" if wave else "attack_" + str(stage + 1), rate)
+	_start_action(signature_action if wave else "attack_" + str(stage + 1), rate)
+
+## Hold a pose for `seconds` regardless of the action's frame count — the
+## shadow strike lasts as long as its cuts, not its three or four frames.
+func hold_action(seconds: float) -> void:
+	if action_duration > 0: action_duration = maxf(action_duration, seconds)
 
 func play_hurt() -> void:
 	if action_name == "dash": return

@@ -55,7 +55,8 @@ func run() -> void:
 	origin.y = 0.65
 	game.player.set_physics_process(false)
 	game.pressure = 0
-	check("mine wave includes ordinary slugs and no elite", get_nodes_in_group("enemies").any(func(e): return e.enemy_type == "slug") and get_nodes_in_group("enemies").all(func(e): return not e.elite))
+	# 装备扩充策划案 §2.1: the mine's elite slots hold 武装人员.
+	check("mine wave includes ordinary slugs; its elites are 武装人员", get_nodes_in_group("enemies").any(func(e): return e.enemy_type == "slug") and get_nodes_in_group("enemies").filter(func(e): return e.elite).all(func(e): return e.enemy_type == "armed"))
 	# Windups are the warning now, so each is ~0.25 s longer than the old telegraph.
 	var expected := [[0.8, 1.35, 440.0], [1.0, 1.8, 440.0], [0.8, 1.15, 344.0], [0.8, 1.0, 392.0], [1.1, 1.8, 368.0], [1.0, 1.5, 520.0], [1.5, 2.6, 560.0]]
 	for i in range(7):
@@ -82,8 +83,18 @@ func run() -> void:
 	thug._begin_telegraphed_attack()
 	var locked := thug.attack_direction
 	game.player.teleport(origin + Vector3(-1.0, 0, 0))
+	# While charging it keeps turning toward her (用户 2026-10-07), at a limited rate.
+	thug._tick_attack(0.1)
+	var windup_turn := rad_to_deg(locked.angle_to(thug.attack_direction))
+	check("thug turns toward her during windup at a limited rate", windup_turn > 1.0 and windup_turn <= Enemy.WINDUP_TURN_DEG * 0.1 + 0.5)
+	thug._tick_attack(0.71)
+	check("thug keeps turning and strikes where it faces, even behind where it started", thug.attack_direction.dot(Vector3.LEFT) > 0.99 and game.player.hp < 2400)
+	await clean()
+	thug = enemy("thug")
+	thug._begin_telegraphed_attack()
+	game.player.teleport(origin + Vector3(-5.0, 0, 0))
 	thug._tick_attack(0.81)
-	check("thug cannot turn or hit behind during windup", thug.attack_direction == locked and is_equal_approx(game.player.hp, 2400))
+	check("out of reach it turns to her but misses", thug.attack_direction.dot(Vector3.LEFT) > 0.99 and is_equal_approx(game.player.hp, 2400))
 	check("100 degree sector includes front and excludes side/outside radius", EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(2, 0, 0)) and not EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(0, 0, 1)) and not EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(2.5, 0, 0)))
 	check("miss leaves no dark red cuts", not game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == "cuts"))
 	await clean()
@@ -112,7 +123,7 @@ func run() -> void:
 		e = enemy(type)
 		game.player.teleport(origin + Vector3(0, 0, 3))
 		e._begin_telegraphed_attack()
-		game.player.teleport(origin + Vector3(0, 0, -3))
+		game.player.teleport(origin + Vector3(0, 0, -8))   # it turns to her, but she is past the lunge
 		before = e.global_position
 		e._tick_attack(0.81)
 		for frame in range(8): e._tick_attack(1.0 / 60)
@@ -156,6 +167,17 @@ func run() -> void:
 	var bullet := shots()[0] as EnemyProjectile
 	bullet.set_physics_process(false)
 	check("hunter bullet leaves the painted muzzle toward the locked point at speed 22", bullet.direction.is_equal_approx(Vector3(hunter._locked_target.x - hunter._muzzle.x, 0, hunter._locked_target.z - hunter._muzzle.z).normalized()) and bullet.global_position.is_equal_approx(hunter._muzzle) and bullet.speed == 22 and bullet.max_range == 15)
+
+	# The crossbowman turns with her while charging and shoots where it faces.
+	await clean()
+	var archer := enemy("crossbow")
+	game.player.teleport(origin + Vector3(8, 0, 0))
+	archer._begin_telegraphed_attack()
+	game.player.teleport(origin + Vector3(0, 0, 8))
+	for i in range(61): archer._tick_attack(1.0 / 60)
+	var turned_shot: EnemyProjectile = shots()[0] if not shots().is_empty() else null
+	if turned_shot: turned_shot.set_physics_process(false)
+	check("crossbow turns with her during windup and shoots where she went", turned_shot != null and archer.attack_direction.dot(Vector3(0, 0, 1)) > 0.99 and turned_shot.direction.z > 0.9)
 
 	await clean()
 	var leader := enemy("crossbow_leader")

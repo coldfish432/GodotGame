@@ -6,7 +6,8 @@ extends Node
 ##     (bays R01-R06 first, then stacked along the south wall);
 ##   - staging pallets that fill up in four steps;
 ##   - the cells on each rack's face, filled as items are shelved;
-##   - a zone's floor frame lights up while she carries something that belongs there;
+##   - a zone's floor frame, one column per built rack column, lit while she
+##     carries something that belongs there;
 ##   - the carried item's icon over Lappland's head;
 ##   - the order board's state: open, completed, or empty (§3.8).
 ## It also answers what she is standing at (target_at), for the E key.
@@ -29,6 +30,7 @@ var cells := []                 # rack-face cell positions, px in an 80x64 rack 
 var _crates: Array[Sprite3D] = []
 var _pallet_loads: Array[Sprite3D] = []
 var _zone_lights := {}          # category -> [MeshInstance3D]
+var _zone_frames := {}          # category -> [MeshInstance3D], one per rack column
 var _cell_layers := {}          # category -> [Sprite3D], built order (west to east)
 var _cell_textures: Array[Texture2D] = []  # by filled count 0..12
 var _hand_icon: Sprite3D
@@ -54,9 +56,14 @@ func setup(p_game: GameManager, p_map: BaseMap) -> void:
 	for c in range(CATEGORY_KEYS.size()):
 		var key: String = CATEGORY_KEYS[c]
 		_zone_lights[c] = []
+		_zone_frames[c] = []
+		# The zone frame is drawn one column at a time: it reaches as far as the
+		# racks do (用户 2026-10-07), and the lit version sits a hair above it.
 		for p in anchors.zone_decals[key]:
+			if tex.has("zone_%s_normal" % key):
+				_zone_frames[c].append(map.add_floor_decal(ROOM, tex["zone_%s_normal" % key], p[0], p[1]))
 			var decal := map.add_floor_decal(ROOM, tex["zone_%s_highlight" % key], p[0], p[1])
-			decal.position.y += 0.001  # over the frame baked into the floor
+			decal.position.y += 0.001
 			_zone_lights[c].append(decal)
 		var layers: Array = []
 		for group in map.room_visuals[ROOM].groups:
@@ -123,9 +130,11 @@ func refresh() -> void:
 		for r in range(_cell_layers[c].size()):
 			var filled := clampi(count - r * BaseCatalog.RACK_CELLS, 0, BaseCatalog.RACK_CELLS)
 			_cell_layers[c][r].texture = _cell_textures[filled]
-	# Zone frames light up for the category she is carrying.
+	# Zone frames cover the built columns; they light up for the category she is carrying.
 	for c in _zone_lights:
-		for decal in _zone_lights[c]: decal.visible = base.hand != null and base.hand.category == c
+		var columns := zone_columns(c)
+		for k in range(_zone_frames[c].size()): _zone_frames[c][k].visible = k < columns
+		for k in range(_zone_lights[c].size()): _zone_lights[c][k].visible = k < columns and base.hand != null and base.hand.category == c
 	if base.hand: _hand_icon.texture = _hand_texture(base.hand.category)
 
 func _sync_racks(base: BaseState) -> void:
@@ -174,6 +183,7 @@ func orders_fillable() -> bool:
 ## What Lappland is standing at, for the E key: {kind, label, ...} or {}.
 ##   crate    a crate within reach: open it, or look at what is in it
 ##   zone     a category's shelving area, while carrying something
+##   shelf_zone  the same area empty-handed: that zone's shelves (用户 2026-10-07)
 ##   staging  the staging area: put the carried item down, or take one out
 ##   putback  receiving, while carrying: put it back in a crate
 func target_at(global: Vector3) -> Dictionary:
@@ -182,7 +192,7 @@ func target_at(global: Vector3) -> Dictionary:
 	var p := _layout(global)
 	if base.hand != null:
 		for c in range(CATEGORY_KEYS.size()):
-			if _inside(p, anchors.zones[CATEGORY_KEYS[c]]):
+			if _inside(p, zone_rect(c)):
 				var refusal := base.shelve_hand_refusal(c)
 				var zone: String = BaseCatalog.CATEGORY_NAMES[c]
 				return {"kind": "zone", "category": c,
@@ -206,7 +216,24 @@ func target_at(global: Vector3) -> Dictionary:
 			"label": ("开箱（%s箱）" % BaseCatalog.CRATE_SIZE_NAMES[BaseCatalog.crate_size(item)]) if sealed else ("查看 %s" % item.item_name)}
 	if _inside(p, anchors.staging):
 		return {"kind": "staging", "label": "暂存区（%d/%d）" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]}
+	for c in range(CATEGORY_KEYS.size()):
+		if _inside(p, zone_rect(c)):
+			return {"kind": "shelf_zone", "category": c,
+				"label": "%s区货架（%d/%d）" % [BaseCatalog.CATEGORY_NAMES[c], base.shelf_count(c), base.capacity(c)]}
 	return {}
+
+## Rack columns built in a zone: the front row fills first, left to right
+## (assemble_function_rooms.py slot order), so it is the rack count up to three.
+func zone_columns(category: int) -> int:
+	return clampi(int(game.base.racks[category]), 1, 3)
+
+## The zone's floor frame, [x0, z_south, x1, z_north], cut to its built columns.
+func zone_rect(category: int) -> Array:
+	var full: Array = anchors.zones[CATEGORY_KEYS[category]]
+	var decals: Array = anchors.zone_decals[CATEGORY_KEYS[category]]
+	var last: Array = decals[zone_columns(category) - 1]
+	var half := float(full[2]) - float(decals[2][0])   # the third frame's east edge past its centre
+	return [full[0], full[1], minf(float(full[2]), float(last[0]) + half), full[3]]
 
 ## Layout position (x east, z north) of a global position.
 func _layout(global: Vector3) -> Vector2:

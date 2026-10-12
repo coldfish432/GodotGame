@@ -1,0 +1,43 @@
+{
+  "segments": [
+    {
+      "file": "lappland_fang_empty.png",
+      "state": "empty",
+      "size": 42,
+      "centre": [
+        21,
+        21
+      ],
+      "outer_radius": 20,
+      "root_radius": 14,
+      "span_deg": 70,
+      "tip": "left"
+    },
+    {
+      "file": "lappland_fang_lit.png",
+      "state": "lit",
+      "size": 42,
+      "centre": [
+        21,
+        21
+      ],
+      "outer_radius": 20,
+      "root_radius": 14,
+      "span_deg": 70,
+      "tip": "left"
+    },
+    {
+      "file": "lappland_fang_full.png",
+      "state": "full",
+      "size": 42,
+      "centre": [
+        21,
+        21
+      ],
+      "outer_radius": 20,
+      "root_radius": 14,
+      "span_deg": 70,
+      "tip": "left"
+    }
+  ]
+}

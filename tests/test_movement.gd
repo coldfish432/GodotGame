@@ -80,6 +80,51 @@ func run() -> void:
 		walked.y = 0
 		check("keys-walk-" + entry[0], walked.length() > 1.5 and walked.normalized().dot(entry[1]) > 0.9 and not game.player._has_move_target,
 			{"walked": str(walked), "dot": walked.normalized().dot(entry[1])})
+	# --- No attacking on the move (用户 2026-10-07): a swing roots her until
+	# its animation ends, held keys and new move orders wait, a dodge cancels.
+	var player: Player = game.player
+	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
+	await step(2)
+	player._attack_cooldown = 0.0
+	Input.action_press("move_right")
+	await step(3)
+	player.attack_direction(screen_right)
+	var swing: float = player.swing_remaining
+	var at_swing: Vector3 = player.global_position
+	await step(roundi(swing * 60.0) - 3)
+	var drift: float = Vector2(player.global_position.x - at_swing.x, player.global_position.z - at_swing.z).length()
+	check("swing-roots-her-while-keys-held", swing > 0.15 and drift < 0.05, {"swing": swing, "drift": drift})
+	await step(20)
+	var after: float = Vector2(player.global_position.x - at_swing.x, player.global_position.z - at_swing.z).length()
+	check("keys-walk-again-after-the-swing", player.swing_remaining == 0.0 and after > 0.5, {"after": after})
+	Input.action_release("move_right")
+
+	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
+	await step(2)
+	player._attack_cooldown = 0.0
+	player.attack_direction(screen_right)
+	var rooted_at: Vector3 = player.global_position
+	player.set_move_target(rooted_at + screen_down * 5.0)
+	await step(5)
+	var mid: float = Vector2(player.global_position.x - rooted_at.x, player.global_position.z - rooted_at.z).length()
+	await step(40)
+	var later: float = Vector2(player.global_position.x - rooted_at.x, player.global_position.z - rooted_at.z).length()
+	check("move-order-waits-for-the-swing", mid < 0.05 and later > 1.5, {"mid": mid, "later": later})
+
+	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
+	await step(2)
+	player._attack_cooldown = 0.0
+	player._dash_cooldown = 0.0
+	player.stamina = 100.0
+	player.attack_direction(screen_right)
+	var before_dodge: Vector3 = player.global_position
+	Input.action_press("dash")
+	await step(1)
+	Input.action_release("dash")
+	await step(2)
+	var dodged: float = player.global_position.distance_to(before_dodge)
+	check("dodge-cancels-the-swing", player.swing_remaining == 0.0 and dodged > 1.0, {"dodged": dodged})
+
 	# Down-right faces down-right: the sheet's southeast row is drawn facing
 	# down-left, so that facing shows the southwest row mirrored.
 	var sprite: LapplandAnimator3D = game.player._sprite
@@ -87,10 +132,25 @@ func run() -> void:
 	sprite._play_idle()
 	check("southeast-shows-mirrored-southwest", sprite.animation == &"idle_southwest" and sprite.flip_h,
 		{"animation": str(sprite.animation), "flip": sprite.flip_h})
+	sprite._facing_index = LapplandAnimator3D.DIRECTIONS.find("northwest")
+	sprite._play_idle()
+	check("northwest-shows-mirrored-northeast", sprite.animation == &"idle_northeast" and sprite.flip_h,
+		{"animation": str(sprite.animation), "flip": sprite.flip_h})
+	sprite._facing_index = LapplandAnimator3D.DIRECTIONS.find("northeast")
+	sprite._play_idle()
+	check("northeast-is-not-flipped", sprite.animation == &"idle_northeast" and not sprite.flip_h,
+		{"animation": str(sprite.animation), "flip": sprite.flip_h})
 	sprite._facing_index = LapplandAnimator3D.DIRECTIONS.find("southwest")
 	sprite._play_idle()
 	check("southwest-is-not-flipped", sprite.animation == &"idle_southwest" and not sprite.flip_h,
 		{"animation": str(sprite.animation), "flip": sprite.flip_h})
+	# Standing still loops a two-frame breathing pose, not the walk's frozen mid-stride frame.
+	var idle_frames := sprite.sprite_frames
+	var walk_first: AtlasTexture = idle_frames.get_frame_texture(&"walk_south", 0)
+	var idle_first: AtlasTexture = idle_frames.get_frame_texture(&"idle_south", 0)
+	check("idle-breathes-in-a-loop", sprite.is_playing() and idle_frames.get_frame_count(&"idle_south") == 2
+		and idle_frames.get_animation_loop(&"idle_south") and idle_first.atlas != walk_first.atlas,
+		{"playing": sprite.is_playing(), "frames": idle_frames.get_frame_count(&"idle_south")})
 
 	var report := {
 		"scope": "downfall-godot movement tests (move-to-target, arrival, pointer glue, dash)",

@@ -1,0 +1,82 @@
+{
+  "result": "PASS",
+  "action": {
+    "status": "PASS",
+    "errors": [],
+    "cells": 40,
+    "side_charge_metrics": {
+      "W": {
+        "front_edge_advance_px": 5,
+        "front_head_top_drop_px": 13,
+        "idle_bbox": [
+          13,
+          23,
+          51,
+          51
+        ],
+        "charge_bbox": [
+          8,
+          23,
+          55,
+          51
+        ]
+      },
+      "E": {
+        "front_edge_advance_px": 4,
+        "front_head_top_drop_px": 11,
+        "idle_bbox": [
+          13,
+          24,
+          52,
+          51
+        ],
+        "charge_bbox": [
+          9,
+          23,
+          56,
+          51
+        ]
+      }
+    },
+    "source_sha256": {
+      "source_sha256": "a3046cd760ddb9da10564375e5a446c9d0d2ccdedd3cbe2e3b922f9e128430ba",
+      "side_source_sha256": "12c1914348a366c3e958529c1c7e62d4200007f674d9a8c6299392f46af09176",
+      "frontback_source_sha256": "f6840a87e0e8ee8fc82e77278183b778ed9ba6fac21c679f36407da3470f1a47"
+    },
+    "visual_review": "S/N charge muzzle, horn curls and fleece separated; S/N strike tips lifted; W/E v2 strike cells preserved"
+  },
+  "fx": {
+    "status": "PASS",
+    "errors": [],
+    "frames": {
+      "barrier_shell.png": 4,
+      "barrier_cracked.png": 4,
+      "barrier_break.png": 5
+    },
+    "circle_bounds": [
+      12,
+      12,
+      52,
+      52
+    ],
+    "intact_loop_luminance": [
+      95518,
+      95518,
+      95518,
+      95518
+    ],
+    "cracked_loop_luminance": [
+      119998,
+      119998,
+      119998,
+      119998
+    ],
+    "palette": [
+      "#9aa4b0",
+      "#c4ccd6",
+      "#e6ecf2",
+      "#ffffff"
+    ]
+  },
+  "scope": "static asset checks and visual review; no Godot import or runtime playback"
+}

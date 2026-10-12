@@ -1,0 +1,27 @@
+Batch A1 v1 validation
+
+Walk grid: 4 columns x 8 rows x 256 px = 1024 x 2048 RGBA.
+Combat grid: 16 columns x 5 rows x 256 px = 4096 x 1280 RGBA.
+Walk opaque border pixels: 0; pixels crossing cell borders: 0 (independent cell packing).
+Combat opaque border pixels: 0; pixels crossing cell borders: 0 (independent cell packing).
+Walk foot baselines (S,SW,W,NW,N,NE,E,SE; columns 1-4):
+  S: 241, 241, 241, 241
+  SW: 241, 241, 241, 241
+  W: 241, 241, 241, 241
+  NW: 241, 241, 241, 241
+  N: 241, 241, 241, 241
+  NE: 241, 241, 241, 241
+  E: 241, 241, 241, 241
+  SE: 241, 241, 241, 241
+Combat foot baselines (S,SW,W,NW,N; columns 1-16):
+  S: 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239
+  SW: 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239
+  W: 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239
+  NW: 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239
+  N: 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239, 239
+
+Alpha: source cell alpha thresholded at 128 to real 0/255 transparency.
+No VFX layers or ground shadow were added. Saturated red generated pixels were remapped to neutral brown.
+Visual caveat: image generation placed some sword/ear pixels at group edges; segmentation may truncate tiny extremities. Review individual combat cells before replacing the in-game stand-in.
+This is static sheet QA; no Godot runtime import or animation test was performed.
+Independent final checks: 32/32 walk frames and 80/80 combat frames non-empty; RGBA alpha values only 0/255; vivid red pixels 0.

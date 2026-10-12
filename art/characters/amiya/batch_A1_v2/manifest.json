@@ -1,0 +1,61 @@
+{
+  "sheets": [
+    {
+      "file": "amiya_guard_combat_source.png",
+      "form": "guard",
+      "kind": "combat",
+      "cols": 16,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "slash_1_windup",
+        "horizontal_sweep",
+        "recover",
+        "double_slash_backhand",
+        "double_slash_second_cut",
+        "follow_through",
+        "recover",
+        "thrust_windup",
+        "lunge",
+        "hold_lunge",
+        "recover",
+        "shadow_strike_dash",
+        "flurry",
+        "finisher_raised",
+        "finisher_landed",
+        "hurt"
+      ]
+    }
+  ],
+  "revision_from": "../batch_A1_v1/amiya_guard_combat_source.png",
+  "approved_walk": "../batch_A1_v1/amiya_guard_walk_source.png",
+  "changed_regions": {
+    "rows": [
+      "S",
+      "NW"
+    ],
+    "columns_all_rows": [
+      12,
+      15
+    ]
+  },
+  "provenance": {
+    "method": "built-in image_gen painted source frames, cell cropping, pixel scaling, alpha cleanup and assembly",
+    "source_paintings": [
+      "source_paintings/combat_s_nw_group_1.png",
+      "source_paintings/combat_s_nw_group_2.png",
+      "source_paintings/combat_s_nw_group_3.png",
+      "source_paintings/combat_s_nw_group_4.png",
+      "source_paintings/dash_finisher_five_directions.png",
+      "source_paintings/north_finisher.png",
+      "source_paintings/south_foreshortened_lunge.png"
+    ]
+  }
+}

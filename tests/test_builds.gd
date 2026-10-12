@@ -50,10 +50,10 @@ func wear(id: String) -> Item:
 	p.equip(item)
 	return item
 
-## A plain weapon that only carries the sword wave.
+## A plain weapon: the sword wave is hers (精英化案 §8.1), so it needs no affix
+## (the old one is 剑气强化 +25% now, which would skew the relic numbers).
 func wave_weapon() -> void:
 	var item := Item.create("测试剑气刃", Item.Category.WEAPON, 2, 1, 0.0)
-	item.modifiers = [ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE)]
 	p.equip(item)
 
 func use(ids: Array) -> void:
@@ -360,7 +360,7 @@ func _tempo() -> void:
 	p._dash_cooldown = 0
 	p.stamina = 100
 	p._start_dash(Vector3.RIGHT)
-	check("钝爪-振奋: dash cooldown halved", is_equal_approx(p._dash_cooldown, 0.25))
+	check("钝爪-振奋: dash cooldown halved", is_equal_approx(p._dash_cooldown, Player.DASH_COOLDOWN * 0.5))
 	p.dash_remaining = 0
 	p.invulnerable = false
 	use(["投币玩具"])

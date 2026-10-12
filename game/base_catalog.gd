@@ -95,7 +95,14 @@ const CONTAMINATION_DEEP_ROUTE := 0.02    # on the 深部污染带 route (route 
 const CONTAMINATION_PER_ORE := 0.06       # each unsealed ore carried, pack or safe bag
 const CONTAMINATION_DECAY := 5            # off at every settlement, before this run's dose
 const CONTAMINATION_MAX := 100
-## Tiers by the value at departure: [from, max HP penalty, potion healing penalty, self-regen stops].
+## Contamination acts live, in the field (局内节奏与目标策划案 §6 D): each point
+## takes 0.3% of max HP and 0.6/s of self-regeneration, so 48/s base reaches 0
+## at 80 and drains below that; potions heal 25% less from 70.
+const CONTAMINATION_HP_PER_POINT := 0.003
+const CONTAMINATION_REGEN_PER_POINT := 0.6
+const CONTAMINATION_POTION_FROM := 70.0
+const CONTAMINATION_POTION_PENALTY := 0.25
+## Tier names and thresholds, for the status badge only: [from, (unused), (unused), (unused)].
 const CONTAMINATION_TIERS := [
 	[0, 0.0, 0.0, false],
 	[40, 0.10, 0.0, false],
@@ -108,6 +115,10 @@ const DECON_PRICE_PER_POINT := 150.0
 const DECON_MIN_PRICE := 1000
 
 const INJURY_HP_PENALTY := 0.25
+
+## Max HP cut from contamination (live) plus injury, capped.
+static func hp_penalty(contamination: float, injured: bool) -> float:
+	return minf(HP_PENALTY_CAP, contamination * CONTAMINATION_HP_PER_POINT + (INJURY_HP_PENALTY if injured else 0.0))
 const INJURY_TREATMENT := 3000
 const HP_PENALTY_CAP := 0.40              # injury and contamination add up to at most this
 
@@ -164,6 +175,11 @@ const PACK_RANKS := [0, 1, 2]
 const SAFE_SIZES := [Vector2i(2, 2), Vector2i(3, 2), Vector2i(3, 3)]
 const SAFE_PRICES := [0, 15000, 32000]
 const SAFE_RANKS := [0, 2, 3]
+## The warehouse master console (用户 2026-10-07): until it is bought the 仓管台
+## only sells upgrades, and the shelves are reached zone by zone at their floor
+## frames. Bought in any order with the drone.
+const CONSOLE_PRICE := 8000
+const CONSOLE_MATERIALS := {"电源线": 2, "继电器": 1, "灯泡": 2}
 const DRONE_PRICE := 15000
 const DRONE_RANK := 1
 ## Construction also takes base materials from points of interest: basic
@@ -193,7 +209,7 @@ const STAGING_WARNING := 0.9
 ## What each rank opens, for the rank-up message and the warehouse terminal.
 const RANK_UNLOCKS := [
 	"",
-	"仓管台可以购买一键分类无人机，以及各区前排的第 2、3 个货架；背包扩容到 10×8",
+	"仓管台可以购买一键分类无人机；各区可以扩建前排的第 2、3 个货架；背包扩容到 10×8",
 	"中排货架；药房的抑制喷剂；第 3 个订单栏；背包扩容到 12×8；安全袋扩容到 3×2",
 	"后排货架；每次结算后可以免费刷新 1 张订单；安全袋扩容到 3×3",
 	"预留：两翼走廊的清理",

@@ -1,0 +1,70 @@
+[
+  {
+    "id": "mine_x18",
+    "name": "切尔文铜币",
+    "file": "mine_x18.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "old_comparison": "vein_core",
+    "silhouette_height": 30,
+    "opaque_pixel_count": 678,
+    "v1_height": 28,
+    "v1_opaque": 590,
+    "old_height": 25,
+    "old_opaque": 481
+  },
+  {
+    "id": "mi_slug_volatile_7",
+    "name": "不稳定虫腹",
+    "file": "mi_slug_volatile_7.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "old_comparison": "vein_core",
+    "silhouette_height": 30,
+    "opaque_pixel_count": 580,
+    "v1_height": 28,
+    "v1_opaque": 537,
+    "old_height": 25,
+    "old_opaque": 481
+  },
+  {
+    "id": "mi_crossbow_1",
+    "name": "绞盘护腕",
+    "file": "mi_crossbow_1.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "old_comparison": "originium_meter",
+    "silhouette_height": 30,
+    "opaque_pixel_count": 503,
+    "v1_height": 30,
+    "v1_opaque": 497,
+    "old_height": 30,
+    "old_opaque": 740
+  },
+  {
+    "id": "mi_caster_5",
+    "name": "裸晶护腕",
+    "file": "mi_caster_5.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "old_comparison": "originium_meter",
+    "silhouette_height": 30,
+    "opaque_pixel_count": 520,
+    "v1_height": 30,
+    "v1_opaque": 464,
+    "old_height": 30,
+    "old_opaque": 740
+  }
+]

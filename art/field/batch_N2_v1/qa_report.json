@@ -1,0 +1,488 @@
+{
+  "result": "PASS",
+  "boards": 17,
+  "cells": 544,
+  "checks": [
+    {
+      "id": "armed",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 176,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "caster",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 19,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "shield",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 31,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "slug_volatile",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 39,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "picket",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 28,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "greytail",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 34,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "greytail_lord",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 73,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "thrower",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 15,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "bully",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 69,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "avenger",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 265,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "breacher",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1774,
+        887
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 44,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "taint_husk",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 50,
+      "lights_by_row_direction": [
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "distorted_caster",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 34,
+      "lights_by_row_direction": [
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "shattered_champion",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 98,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "shell_vine",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1585,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 58,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "rock_hornbeast",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1774,
+        887
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 39,
+      "lights_by_row_direction": null
+    },
+    {
+      "id": "fallen_snowpriest",
+      "status": "PASS",
+      "errors": [],
+      "source_size": [
+        1586,
+        992
+      ],
+      "board_size": [
+        2560,
+        1280
+      ],
+      "baked_size": [
+        512,
+        256
+      ],
+      "empty_cells": 0,
+      "boundary_cells": 0,
+      "min_adjacent_silhouette_change_px": 60,
+      "lights_by_row_direction": [
+        [
+          9,
+          9,
+          4,
+          5,
+          5,
+          5,
+          9,
+          9
+        ],
+        [
+          9,
+          7,
+          4,
+          5,
+          5,
+          5,
+          9,
+          9
+        ],
+        [
+          9,
+          8,
+          4,
+          5,
+          4,
+          5,
+          8,
+          8
+        ],
+        [
+          9,
+          9,
+          4,
+          5,
+          5,
+          5,
+          9,
+          9
+        ]
+      ]
+    }
+  ],
+  "scope": "static asset and baked-frame checks only; no Godot import or playback"
+}

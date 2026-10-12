@@ -7,6 +7,10 @@ const BLUE := Color("8a9bb0")
 const SHADOW := Color("1c1a24")
 const PURPLE := Color("8e5cff")
 const LIGHT := Color("cdb4ff")
+## Amiya (Guard): black blade, cyan glow (阿米娅攻击动作与特效设计案 §二).
+const CYAN := Color("33d6c6")
+const CYAN_LIGHT := Color("d2fff7")
+const NAVY := Color("24305a")
 const PIXEL := 1.0 / 15.0
 ## Painted effects baked by godot_assets/prepare_lappland_vfx.py: one texel per
 ## world pixel, attack direction pointing to the top of each texture.
@@ -16,6 +20,18 @@ const SLASH_TEXTURES := [
 	preload("res://godot_assets/lappland_vfx_slash_3.png"),
 ]
 const WAVE_TEXTURE := preload("res://godot_assets/lappland_vfx_wave.png")
+## Amiya (Guard), painted by Sol (batch A2, A2_vfx_brief_v1.md): one slim
+## one-handed blade, dark core and cyan edges; the finisher alone has a bright
+## core. Top of each texture = attack direction, like Lappland's.
+const AMIYA_SWEEP := preload("res://godot_assets/amiya_vfx_sweep.png")
+const AMIYA_DOUBLE := [preload("res://godot_assets/amiya_vfx_double_a.png"), preload("res://godot_assets/amiya_vfx_double_b.png")]
+const AMIYA_THRUST := preload("res://godot_assets/amiya_vfx_thrust.png")
+const AMIYA_CUTS := [preload("res://godot_assets/amiya_vfx_cut_1.png"), preload("res://godot_assets/amiya_vfx_cut_2.png"), preload("res://godot_assets/amiya_vfx_cut_3.png")]
+const AMIYA_FINISHER := preload("res://godot_assets/amiya_vfx_finisher.png")
+const AMIYA_BLINK := preload("res://godot_assets/amiya_vfx_blink.png")
+const AMIYA_SPARK := preload("res://godot_assets/amiya_vfx_spark.png")
+## 奔夜's return cut sits this far beyond the first (6 texels, per the brief).
+const DOUBLE_OFFSET := 0.4
 ## How far ahead of her feet each slash texture is centred (world units).
 const SLASH_CENTRES := [1.6, 1.7, 1.7]
 ## The Sundial X is thrown forward like the sword wave but never leaves as a
@@ -50,7 +66,7 @@ static func spawn(parent: Node3D, point: Vector3, direction: Vector3, type: Stri
 
 ## Faster attacks play the slash faster so it never outlives the next swing.
 func speed_up(multiplier: float) -> CombatVfx:
-	if kind == "slash" and multiplier > 0:
+	if kind in ["slash", "amiya_slash"] and multiplier > 0:
 		rate = multiplier
 		duration /= multiplier
 	return self
@@ -119,6 +135,53 @@ func _build() -> void:
 					border.rotation.y = tilt
 					var line := _box(Vector3(0.5, PIXEL, PIXEL), LIGHT if magical else WHITE, Vector3.ZERO)
 					line.rotation.y = tilt
+		"amiya_slash":
+			match stage:
+				0: _decal(AMIYA_SWEEP, SLASH_CENTRES[0], 0.04, Color.WHITE)
+				1:
+					# 奔夜: the same blade cuts and cuts back, the return a beat
+					# behind and further out (用户 2026-10-09: 符合单手剑).
+					duration = 0.16
+					_decal(AMIYA_DOUBLE[0], SLASH_CENTRES[0], 0.04, Color.WHITE)
+					_decal(AMIYA_DOUBLE[1], SLASH_CENTRES[0] + DOUBLE_OFFSET, 0.05, Color.WHITE).set_meta("late", true)
+				_:
+					# Thrust: the wedge's bottom edge sits at her feet.
+					_decal(AMIYA_THRUST, AMIYA_THRUST.get_height() * PIXEL * 0.5, 0.04, Color.WHITE)
+		"amiya_spark":
+			# Two painted frames: burst, then chips further out.
+			duration = 0.12
+			for i in range(2):
+				var frame := AtlasTexture.new()
+				frame.atlas = AMIYA_SPARK
+				frame.region = Rect2(i * 11, 0, 11, 11)
+				var part := _decal(frame, 0.0, 0.3, Color.WHITE)
+				part.set_meta("frame", i)
+		"flurry":
+			# One 绝影 cut at chest height. The caller steps five of them
+			# near-parallel across the target: one sword striking again. The
+			# painted cut runs across its texture, so turn it onto the slant.
+			duration = 0.1
+			var cut_part := _decal(AMIYA_CUTS[randi() % AMIYA_CUTS.size()], 0.0, 0.8, Color.WHITE)
+			cut_part.basis = Basis(Vector3.UP, PI * 0.5) * cut_part.basis
+		"finisher":
+			# One heavy straight cleave through the target, bright core: the
+			# only bright-cored cut she has.
+			duration = 0.18
+			_decal(AMIYA_FINISHER, 0.0, 0.05, Color.WHITE)
+		"strike_flash":
+			# A 绝影 strike while she is unseen: a burst of blade light on the
+			# enemy at chest height, there and gone in a few frames.
+			duration = 0.09
+			var frame := AtlasTexture.new()
+			frame.atlas = AMIYA_SPARK
+			frame.region = Rect2(0, 0, 11, 11)
+			_decal(frame, 0.0, 0.85, Color.WHITE).scale = Vector3.ONE * 2.0
+		"blink":
+			# Her path, tiled from her start point to where she lands; stretch()
+			# sets the length.
+			duration = 0.2
+			var trail := _decal(AMIYA_BLINK, 0.5, 0.03, Color.WHITE)
+			trail.set_meta("blink", true)
 		"wave":
 			duration = 999.0 # lifetime belongs to SwordWave
 			# Crescent at the wave's position, its painted echoes trailing behind.
@@ -141,7 +204,20 @@ func _decal(texture: Texture2D, ahead: float, height: float, tint: Color) -> Mes
 	part.position = Vector3(0, height, -ahead)
 	return part
 
-static func afterimage(parent: GameManager, sprite: AnimatedSprite3D, point: Vector3, opacity: float) -> CombatVfx:
+## Lay a "blink" trail `length` world units ahead, repeating its tile.
+func stretch(length: float) -> CombatVfx:
+	length = maxf(PIXEL, length)
+	for part in _parts:
+		if not part.has_meta("blink"): continue
+		var quad := part.mesh as QuadMesh
+		quad.size.y = length
+		part.position.z = -length * 0.5
+		var mat := part.material_override as StandardMaterial3D
+		mat.uv1_scale = Vector3(1, length / (AMIYA_BLINK.get_height() * PIXEL), 1)
+		mat.texture_repeat = true
+	return self
+
+static func afterimage(parent: GameManager, sprite: AnimatedSprite3D, point: Vector3, opacity: float, tint: Color = BLUE) -> CombatVfx:
 	var fx := CombatVfx.new()
 	fx.game = parent
 	fx.kind = "ghost"
@@ -154,7 +230,7 @@ static func afterimage(parent: GameManager, sprite: AnimatedSprite3D, point: Vec
 	fx._ghost.pixel_size = sprite.pixel_size
 	fx._ghost.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	fx._ghost.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	fx._ghost.modulate = Color(BLUE, opacity)
+	fx._ghost.modulate = Color(tint, opacity)
 	fx._ghost.set_meta("opacity", opacity)
 	fx._ghost.position.y = sprite.position.y
 	fx.add_child(fx._ghost)
@@ -173,6 +249,8 @@ func _process(delta: float) -> void:
 		var mat := part.material_override as StandardMaterial3D
 		mat.albedo_color.a = float(part.get_meta("opacity", 0.65)) * (1.0 if kind == "wave" else 1.0 - progress)
 		if part.has_meta("drift"): part.position = part.get_meta("drift") * age * 7.0
+		if part.has_meta("late"): part.visible = progress >= 0.4
+		if part.has_meta("frame"): part.visible = int(progress * 2.0) == int(part.get_meta("frame"))
 		if part.has_meta("surge"):
 			# Ease out: fast off the blades, settling as it fades.
 			var travel := 1.0 - (1.0 - progress) * (1.0 - progress)
@@ -183,9 +261,11 @@ func _process(delta: float) -> void:
 			if not part.has_meta("rest"): part.set_meta("rest", part.position)
 			part.rotation.y = lerpf(-0.7, 0.7, progress)
 			part.position = Basis(Vector3.UP, part.rotation.y) * (part.get_meta("rest") as Vector3)
-	if kind == "slash" and stage != 2:
+	if kind in ["slash", "amiya_slash"] and stage != 2:
 		# Sweeps swing around her; the Sundial X surges straight ahead instead.
 		rotation.y += delta * rate * (-4.0 if stage == 1 else 4.0)
 		scale.y = 1.0 - progress * 0.8
 	if kind == "wave": position.x = PIXEL * (1 if int(age * 12) % 2 else -1)
 	if is_instance_valid(_ghost): _ghost.modulate.a = float(_ghost.get_meta("opacity")) * (1 - progress)
+	if kind == "strike_flash": scale = Vector3.ONE * (1.0 + progress * 1.5)
+

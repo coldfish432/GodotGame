@@ -1,0 +1,5 @@
+M3 static icon validation
+
+PASS potion_a: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 21, "bbox": [2, 2, 29, 30], "bright_fraction": 0.394, "largest_interior_color_fraction": 0.119, "originium_ramp_pixels": 0}
+PASS potion_b: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 20, "bbox": [2, 7, 30, 24], "bright_fraction": 0.492, "largest_interior_color_fraction": 0.15, "originium_ramp_pixels": 0}
+PASS potion_c: {"size": [32, 32], "binary_alpha": true, "opaque_colors": 17, "bbox": [11, 2, 20, 30], "bright_fraction": 0.482, "largest_interior_color_fraction": 0.109, "originium_ramp_pixels": 0}

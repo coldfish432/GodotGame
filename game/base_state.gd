@@ -42,6 +42,11 @@ var report_unread := false
 ## The engineering drone (§3.5): bought once at R1, sorts on command and empties
 ## staging onto the shelves at every return.
 var drone := false
+## The warehouse master console (BaseCatalog.CONSOLE_PRICE): browse, search and
+## bring from every zone at the 仓管台. Saves from before it existed load with it.
+var console := false
+## Contract offers at the dispatch desk, region -> [contract] (局内节奏与目标策划案 §6 B1).
+var contract_offers := {}
 ## Expansion levels into BaseCatalog.PACK_SIZES / SAFE_SIZES.
 var pack_level := 0
 var safe_level := 0
@@ -60,6 +65,19 @@ var insurance_queue: Array[Dictionary] = []
 var camps := {}
 ## The camp upgrade, bought once for every region.
 var camp_upgraded := false
+## The operator who deploys next (Operators.ORDER), picked at the departure screen.
+var operator := Operators.LAPPLAND
+## Each operator's growth (精英化与加点策划案_v0_2.md): id -> OperatorProgress.
+var progress := {}
+## 作战记录 (§4.2): counters, never items — no shelf, no space.
+var records := {}
+
+func progress_for(id: String) -> OperatorProgress:
+	if not progress.has(id): progress[id] = OperatorProgress.create(id)
+	return progress[id]
+
+func add_records(found: Dictionary) -> void:
+	for name in found: records[name] = int(records.get(name, 0)) + int(found[name])
 
 func unlock_camp(region: String, depth: int) -> void:
 	if depth > 0 and depth % FieldCatalog.CAMP_INTERVAL == 0:
@@ -86,8 +104,7 @@ func contamination_tier() -> int:
 
 ## Max HP lost on the next contract: injury plus contamination tier, capped.
 func hp_penalty() -> float:
-	var tier: Array = BaseCatalog.CONTAMINATION_TIERS[contamination_tier()]
-	return minf(BaseCatalog.HP_PENALTY_CAP, float(tier[1]) + (BaseCatalog.INJURY_HP_PENALTY if injured else 0.0))
+	return BaseCatalog.hp_penalty(contamination, injured)
 
 ## Price of one flask (龙门币), or -1 when the rank does not allow it yet. A
 ## 标准急救剂 is free while some of this contract's free issue is left.
@@ -414,10 +431,16 @@ func to_data() -> Dictionary:
 		"staging": staging_data, "racks": rack_data, "prestige": prestige, "orders": orders.to_data(),
 		"contamination": contamination, "injured": injured, "free_potions": free_potions,
 		"medical_report": medical_report, "report_unread": report_unread,
-		"drone": drone, "reroll_available": reroll_available, "unseen_unlocks": unseen_unlocks,
+		"drone": drone, "console": console, "contract_offers": contract_offers.duplicate(true), "reroll_available": reroll_available, "unseen_unlocks": unseen_unlocks,
 		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(),
 		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "left": e.left}),
-		"camps": camps.duplicate(), "camp_upgraded": camp_upgraded}
+		"camps": camps.duplicate(), "camp_upgraded": camp_upgraded, "operator": operator,
+		"progress": _progress_data(), "records": records.duplicate()}
+
+func _progress_data() -> Dictionary:
+	var out := {}
+	for id in progress: out[id] = (progress[id] as OperatorProgress).to_data()
+	return out
 
 ## Version 2 data. `seen` holds uids already loaded elsewhere; duplicates are
 ## skipped and new uids are added to it.
@@ -434,6 +457,8 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	medical_report = data.get("medical_report", {})
 	report_unread = bool(data.get("report_unread", false))
 	drone = bool(data.get("drone", false))
+	console = bool(data.get("console", true))
+	contract_offers = (data.get("contract_offers", {}) as Dictionary).duplicate(true)
 	pack_level = clampi(int(data.get("pack_level", 0)), 0, BaseCatalog.PACK_SIZES.size() - 1)
 	safe_level = clampi(int(data.get("safe_level", 0)), 0, BaseCatalog.SAFE_SIZES.size() - 1)
 	reroll_available = bool(data.get("reroll_available", false)) and rank() >= BaseCatalog.REROLL_RANK
@@ -441,6 +466,17 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	var pity: Dictionary = data.get("loot_pity", {})
 	loot_pity = {"rare_gear": clampf(float(pity.get("rare_gear", 0.0)), 0.0, LootTables.RARE_GEAR_PITY_CAP),
 		"rare_material": clampf(float(pity.get("rare_material", 0.0)), 0.0, LootTables.RARE_MATERIAL_PITY_CAP)}
+	operator = str(data.get("operator", Operators.LAPPLAND))
+	if not Operators.valid(operator): operator = Operators.LAPPLAND
+	# Saves from before growth: every operator starts at 精英 0, level 1.
+	progress = {}
+	var saved_progress: Dictionary = data.get("progress", {})
+	for id in saved_progress:
+		if Operators.valid(str(id)): progress[str(id)] = OperatorProgress.from_data(str(id), saved_progress[id])
+	records = {}
+	var saved_records: Dictionary = data.get("records", {})
+	for name in saved_records:
+		if Progression.RECORD_EXP.has(str(name)): records[str(name)] = maxi(0, int(saved_records[name]))
 	insurance_queue.clear()
 	camps = {}
 	var saved_camps: Dictionary = data.get("camps", {})
@@ -471,6 +507,7 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 ## Version 1 had one flat warehouse list; it goes on the shelves, overflow to staging.
 func migrate_v1(stash_data: Array, seen: Dictionary) -> void:
 	prestige = 0
+	console = true
 	orders.start_fresh()
 	shelf.clear()
 	staging.clear()

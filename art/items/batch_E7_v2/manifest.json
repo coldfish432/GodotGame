@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mi_thug_0",
+    "name": "暴徒的改刃",
+    "kind": "exclusive",
+    "form": "blade",
+    "file": "mi_thug_0.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "modified_machete.png"
+    ],
+    "target_height": 27,
+    "silhouette_height": 27,
+    "isolated_pixel_percent": 2.65,
+    "supersedes": "batch_E7_v1/mi_thug_0.png"
+  },
+  {
+    "id": "mine_x05",
+    "name": "游击队旧式刺刀",
+    "kind": "base",
+    "form": "blade",
+    "file": "mine_x05.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_bayonet.jpg"
+    ],
+    "target_height": 21,
+    "silhouette_height": 21,
+    "isolated_pixel_percent": 2.0,
+    "supersedes": "batch_E7_v1/mine_x05.png"
+  },
+  {
+    "id": "set_warrant_0",
+    "name": "追缉令·钩刀",
+    "kind": "set",
+    "form": "blade",
+    "file": "set_warrant_0.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "mine_x04.png"
+    ],
+    "target_height": 23,
+    "silhouette_height": 23,
+    "isolated_pixel_percent": 0.12,
+    "supersedes": "batch_E7_v1/set_warrant_0.png"
+  },
+  {
+    "id": "mine_x06",
+    "name": "施术短刃",
+    "kind": "base",
+    "form": "blade",
+    "file": "mine_x06.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "proto_trench_knife.jpg"
+    ],
+    "target_height": 21,
+    "silhouette_height": 21,
+    "isolated_pixel_percent": 2.05,
+    "supersedes": "batch_E7_v1/mine_x06.png"
+  },
+  {
+    "id": "mine_x08",
+    "name": "帝国突击矛",
+    "kind": "base",
+    "form": "polearm",
+    "file": "mine_x08.png",
+    "native_size": [
+      72,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "target_height": 12,
+    "silhouette_height": 12,
+    "isolated_pixel_percent": 4.5,
+    "supersedes": "batch_E7_v1/mine_x08.png"
+  }
+]

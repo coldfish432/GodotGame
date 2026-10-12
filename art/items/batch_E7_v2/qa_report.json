@@ -1,0 +1,59 @@
+{
+  "result": "PASS_STATIC",
+  "revised_icons": 5,
+  "accepted_v1_icons_copied": 0,
+  "checks": [
+    "native_height",
+    "spear_head_height",
+    "binary_alpha",
+    "palette_count",
+    "brightness",
+    "isolated_pixels",
+    "emit_subset",
+    "nearest_neighbour_8x",
+    "old_weapon_comparison"
+  ],
+  "items": [
+    {
+      "id": "mi_thug_0",
+      "silhouette_height": 27,
+      "bright_pixel_percent": 15.58,
+      "isolated_pixel_percent": 2.65,
+      "colours": 19,
+      "sha256": "245ade29fdbd7f28c51fd3c4590cca292d01f39f4653d76655bdac8b38a3b2e1"
+    },
+    {
+      "id": "mine_x05",
+      "silhouette_height": 21,
+      "bright_pixel_percent": 15.51,
+      "isolated_pixel_percent": 2.0,
+      "colours": 17,
+      "sha256": "c03bd17e1b86083f0805120a92a807a3717212374672ee528b065b2f65b0b3dc"
+    },
+    {
+      "id": "set_warrant_0",
+      "silhouette_height": 23,
+      "bright_pixel_percent": 15.51,
+      "isolated_pixel_percent": 0.12,
+      "colours": 7,
+      "sha256": "13089b7f6948b869f916969d8ce0f327394bbc92f86cdf35c62ee8e55a5bccd0"
+    },
+    {
+      "id": "mine_x06",
+      "silhouette_height": 21,
+      "bright_pixel_percent": 15.58,
+      "isolated_pixel_percent": 2.05,
+      "colours": 20,
+      "sha256": "e58d4daba7e7b8f056853614653690ef1f81a04d6e37c141d2d7e88e43a97b8d"
+    },
+    {
+      "id": "mine_x08",
+      "silhouette_height": 12,
+      "bright_pixel_percent": 15.72,
+      "isolated_pixel_percent": 4.5,
+      "colours": 14,
+      "sha256": "9bd881c8faf877105f72d8965a1701db976f354d22a65cd23e321654a4f458ae"
+    }
+  ],
+  "engine_import_or_inventory": "not tested"
+}

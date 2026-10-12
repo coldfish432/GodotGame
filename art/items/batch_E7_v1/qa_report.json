@@ -1,0 +1,90 @@
+{
+  "result": "PASS_STATIC",
+  "icons": 12,
+  "checks": [
+    "native_size",
+    "binary_alpha",
+    "palette_count",
+    "bright_pixel_floor",
+    "isolated_pixel_budget",
+    "nearest_neighbour_previews",
+    "emit_overlap",
+    "contact_sheet",
+    "silhouette_sheet"
+  ],
+  "items": [
+    {
+      "id": "mine_x01",
+      "bright_pixel_percent": 15.6,
+      "isolated_pixel_percent": 1.65,
+      "opaque_colours": 17
+    },
+    {
+      "id": "mine_x02",
+      "bright_pixel_percent": 15.57,
+      "isolated_pixel_percent": 1.66,
+      "opaque_colours": 13
+    },
+    {
+      "id": "mine_x03",
+      "bright_pixel_percent": 15.57,
+      "isolated_pixel_percent": 2.75,
+      "opaque_colours": 14
+    },
+    {
+      "id": "mine_x04",
+      "bright_pixel_percent": 15.5,
+      "isolated_pixel_percent": 2.49,
+      "opaque_colours": 17
+    },
+    {
+      "id": "mine_x05",
+      "bright_pixel_percent": 15.57,
+      "isolated_pixel_percent": 8.7,
+      "opaque_colours": 14
+    },
+    {
+      "id": "mine_x06",
+      "bright_pixel_percent": 15.57,
+      "isolated_pixel_percent": 1.68,
+      "opaque_colours": 18
+    },
+    {
+      "id": "mine_x07",
+      "bright_pixel_percent": 15.52,
+      "isolated_pixel_percent": 1.48,
+      "opaque_colours": 11
+    },
+    {
+      "id": "mine_x08",
+      "bright_pixel_percent": 19.16,
+      "isolated_pixel_percent": 3.51,
+      "opaque_colours": 10
+    },
+    {
+      "id": "mi_thug_0",
+      "bright_pixel_percent": 15.54,
+      "isolated_pixel_percent": 3.54,
+      "opaque_colours": 17
+    },
+    {
+      "id": "mi_picket_8",
+      "bright_pixel_percent": 15.58,
+      "isolated_pixel_percent": 4.04,
+      "opaque_colours": 20
+    },
+    {
+      "id": "set_nameless_0",
+      "bright_pixel_percent": 19.07,
+      "isolated_pixel_percent": 0.85,
+      "opaque_colours": 17
+    },
+    {
+      "id": "set_warrant_0",
+      "bright_pixel_percent": 15.63,
+      "isolated_pixel_percent": 0.36,
+      "opaque_colours": 8
+    }
+  ],
+  "engine_import_or_playback": "not tested"
+}

@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Equipment bases (装备策划案_v1_0.md §2, §4, §7): the table itself (39 bases,
+## Equipment bases (装备策划案_v1_0.md §2, §4, §7): the table itself (105 bases,
 ## 13 per region, no relic names, no ranged bases yet), depth gating and its
 ## early unlock, enemy-carried weapons, elites' deep weapons, vault tiers,
 ## intrinsic stats that do not use an affix slot, the power factor, the
@@ -32,12 +32,14 @@ func tiers_at(category: int, region: String, depth: int, source: String) -> Arra
 
 func run() -> void:
 	var B := GearCatalog.BASES
-	check("39 bases", B.size() == 39, B.size())
+	# 装备扩充策划案 §4.4: 39 + 63 + 3 polearms.
+	check("105 bases", B.size() == 105, B.size())
 	for region in ["mine", "city", "snow"]:
 		var counts := [0, 0, 0]
 		for id in B:
 			if B[id].region == region: counts[int(B[id].category)] += 1
-		check("%s has 5 weapons, 4 armour, 4 trinkets" % region, counts == [5, 4, 4], counts)
+		var want: Array = {"mine": [13, 10, 12], "city": [13, 10, 11], "snow": [13, 11, 12]}[region]
+		check("%s has %d weapons, %d armour, %d trinkets" % [region, want[0], want[1], want[2]], counts == want, counts)
 		for category in [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET]:
 			var tiers := []
 			for id in B:
@@ -48,8 +50,8 @@ func run() -> void:
 	var names := {}
 	for id in B: names[B[id].name] = true
 	check("base names are unique", names.size() == B.size())
-	check("weapons use only the forms Lappland can wield (blade / heavy / fist)",
-		B.values().all(func(b): return int(b.category) != Item.Category.WEAPON or str(b.form) in ["blade", "heavy", "fist"]))
+	check("weapons use only the forms Lappland can wield (blade / heavy / fist / polearm)",
+		B.values().all(func(b): return int(b.category) != Item.Category.WEAPON or str(b.form) in ["blade", "heavy", "fist", "polearm"]))
 
 	# Depth gating (§2.2).
 	check("segment 1 boxes: shallow only", tiers_at(Item.Category.ARMOR, "mine", 1, "box").max() == 0)
@@ -63,8 +65,8 @@ func run() -> void:
 	var deep := 0
 	for i in range(3000):
 		if int(B[GearCatalog.pick(Item.Category.TRINKET, "city", 7, "box", "", rng)].tier) == 2: deep += 1
-	# City trinkets: two shallow, one mid, one deep → weights 1+1+1+2.
-	check("the newest tier is drawn twice as often (≈ 2/5)", absf(deep / 3000.0 - 2.0 / 5.0) < 0.03, deep / 3000.0)
+	# City trinkets: five shallow, four mid, two deep → weights 9 × 1 + 2 × 2.
+	check("the newest tier is drawn twice as often (≈ 4/13)", absf(deep / 3000.0 - 4.0 / 13.0) < 0.03, deep / 3000.0)
 
 	# Enemy weapons and elites (§2.3).
 	check("mine thugs carry 改装砍刀, city thugs 帮派砍刀", B[GearCatalog.pick(Item.Category.WEAPON, "mine", 1, "normal", "thug", rng)].name == "改装砍刀"

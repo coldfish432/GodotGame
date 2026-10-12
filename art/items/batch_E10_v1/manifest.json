@@ -1,0 +1,534 @@
+[
+  {
+    "id": "mine_x09",
+    "name": "拼装轻甲",
+    "kind": "base",
+    "form": "armour",
+    "file": "mine_x09.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_scale_armour.jpg"
+    ],
+    "isolated_pixel_percent": 1.13,
+    "old_comparison": "miner_vest",
+    "old_height": 68,
+    "old_opaque_pixel_count": 3899,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 3286
+  },
+  {
+    "id": "mine_x10",
+    "name": "改装喷射背架",
+    "kind": "base",
+    "form": "armour",
+    "file": "mine_x10.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 1.84,
+    "old_comparison": "heavy_mine_suit",
+    "old_height": 68,
+    "old_opaque_pixel_count": 3077,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 3188
+  },
+  {
+    "id": "mine_x11",
+    "name": "整合运动术师兜袍",
+    "kind": "base",
+    "form": "armour",
+    "file": "mine_x11.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "prts_caster.png"
+    ],
+    "isolated_pixel_percent": 1.38,
+    "old_comparison": "reunion_coat",
+    "old_height": 68,
+    "old_opaque_pixel_count": 2733,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 2572
+  },
+  {
+    "id": "mine_x12",
+    "name": "伪装吉利服",
+    "kind": "base",
+    "form": "armour",
+    "file": "mine_x12.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_ghillie_suit.jpg"
+    ],
+    "isolated_pixel_percent": 2.12,
+    "old_comparison": "reunion_coat",
+    "old_height": 68,
+    "old_opaque_pixel_count": 2733,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 2646
+  },
+  {
+    "id": "mine_x13",
+    "name": "游击队旧式军大衣",
+    "kind": "base",
+    "form": "armour",
+    "file": "mine_x13.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_greatcoat.jpg"
+    ],
+    "isolated_pixel_percent": 1.52,
+    "old_comparison": "patrol_winter_coat",
+    "old_height": 68,
+    "old_opaque_pixel_count": 3031,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 2979
+  },
+  {
+    "id": "mine_x14",
+    "name": "复合护具",
+    "kind": "base",
+    "form": "armour",
+    "file": "mine_x14.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "prts_armed.png",
+      "proto_gas_mask.jpg"
+    ],
+    "isolated_pixel_percent": 3.69,
+    "old_comparison": "heavy_mine_suit",
+    "old_height": 68,
+    "old_opaque_pixel_count": 3077,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 3330
+  },
+  {
+    "id": "mi_slug_2",
+    "name": "蜕下的虫壳",
+    "kind": "exclusive",
+    "form": "armour",
+    "file": "mi_slug_2.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "prts_slug_volatile.png"
+    ],
+    "isolated_pixel_percent": 1.32,
+    "old_comparison": "miner_vest",
+    "old_height": 68,
+    "old_opaque_pixel_count": 3899,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 3237
+  },
+  {
+    "id": "mi_shield_6",
+    "name": "盾面背板",
+    "kind": "exclusive",
+    "form": "armour",
+    "file": "mi_shield_6.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "prts_shield.png"
+    ],
+    "isolated_pixel_percent": 1.31,
+    "old_comparison": "heavy_mine_suit",
+    "old_height": 68,
+    "old_opaque_pixel_count": 3077,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 3505
+  },
+  {
+    "id": "set_nameless_1",
+    "name": "无名者的外套",
+    "kind": "set",
+    "form": "armour",
+    "file": "set_nameless_1.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "reunion_coat.png"
+    ],
+    "isolated_pixel_percent": 1.15,
+    "old_comparison": "reunion_coat",
+    "old_height": 68,
+    "old_opaque_pixel_count": 2733,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 2853
+  },
+  {
+    "id": "set_warrant_1",
+    "name": "追缉令·皮大衣",
+    "kind": "set",
+    "form": "armour",
+    "file": "set_warrant_1.png",
+    "native_size": [
+      72,
+      72
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 1.29,
+    "old_comparison": "reunion_coat",
+    "old_height": 68,
+    "old_opaque_pixel_count": 2733,
+    "silhouette_height": 66,
+    "opaque_pixel_count": 2968
+  },
+  {
+    "id": "mine_x15",
+    "name": "头戴矿灯",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x15.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "proto_headlamp.jpg"
+    ],
+    "isolated_pixel_percent": 1.96,
+    "old_comparison": "originium_meter",
+    "old_height": 30,
+    "old_opaque_pixel_count": 740,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 479
+  },
+  {
+    "id": "mine_x16",
+    "name": "军用止血带",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x16.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_tourniquet.jpg"
+    ],
+    "isolated_pixel_percent": 1.5,
+    "old_comparison": "liquor_flask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 723,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 510
+  },
+  {
+    "id": "mine_x17",
+    "name": "劳役编号牌",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x17.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_dog_tag.jpg"
+    ],
+    "isolated_pixel_percent": 4.49,
+    "old_comparison": "originium_meter",
+    "old_height": 30,
+    "old_opaque_pixel_count": 740,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 522
+  },
+  {
+    "id": "mine_x18",
+    "name": "切尔文铜币",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x18.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 0.57,
+    "old_comparison": "vein_core",
+    "old_height": 25,
+    "old_opaque_pixel_count": 481,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 590
+  },
+  {
+    "id": "mine_x19",
+    "name": "纠察队手铐",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x19.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 6.69,
+    "old_comparison": "dust_mask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 572,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 451
+  },
+  {
+    "id": "mine_x20",
+    "name": "游击队臂章",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x20.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 0.43,
+    "old_comparison": "reunion_mask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 709,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 555
+  },
+  {
+    "id": "mine_x21",
+    "name": "高能虫囊",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x21.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "prts_slug_volatile.png"
+    ],
+    "isolated_pixel_percent": 2.38,
+    "old_comparison": "vein_core",
+    "old_height": 25,
+    "old_opaque_pixel_count": 481,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 571
+  },
+  {
+    "id": "mine_x22",
+    "name": "拆下的施术单元",
+    "kind": "base",
+    "form": "trinket",
+    "file": "mine_x22.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "originium_meter.png"
+    ],
+    "isolated_pixel_percent": 2.41,
+    "old_comparison": "originium_meter",
+    "old_height": 30,
+    "old_opaque_pixel_count": 740,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 576
+  },
+  {
+    "id": "mi_crossbow_1",
+    "name": "绞盘护腕",
+    "kind": "exclusive",
+    "form": "trinket",
+    "file": "mi_crossbow_1.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 1.02,
+    "old_comparison": "originium_meter",
+    "old_height": 30,
+    "old_opaque_pixel_count": 740,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 497
+  },
+  {
+    "id": "mi_armed_3",
+    "name": "不明罐装呼吸器",
+    "kind": "exclusive",
+    "form": "trinket",
+    "file": "mi_armed_3.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_gas_mask.jpg",
+      "prts_armed.png"
+    ],
+    "isolated_pixel_percent": 0.45,
+    "old_comparison": "dust_mask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 572,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 538
+  },
+  {
+    "id": "mi_armed_4",
+    "name": "震荡护符",
+    "kind": "exclusive",
+    "form": "trinket",
+    "file": "mi_armed_4.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 5.83,
+    "old_comparison": "dust_mask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 572,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 441
+  },
+  {
+    "id": "mi_caster_5",
+    "name": "裸晶护腕",
+    "kind": "exclusive",
+    "form": "trinket",
+    "file": "mi_caster_5.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "prts_caster.png"
+    ],
+    "isolated_pixel_percent": 3.13,
+    "old_comparison": "originium_meter",
+    "old_height": 30,
+    "old_opaque_pixel_count": 740,
+    "silhouette_height": 30,
+    "opaque_pixel_count": 464
+  },
+  {
+    "id": "mi_slug_volatile_7",
+    "name": "不稳定虫腹",
+    "kind": "exclusive",
+    "form": "trinket",
+    "file": "mi_slug_volatile_7.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "prototype_refs": [
+      "prts_slug_volatile.png"
+    ],
+    "isolated_pixel_percent": 2.58,
+    "old_comparison": "vein_core",
+    "old_height": 25,
+    "old_opaque_pixel_count": 481,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 537
+  },
+  {
+    "id": "mi_picket_9",
+    "name": "赏金账簿",
+    "kind": "exclusive",
+    "form": "trinket",
+    "file": "mi_picket_9.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "proto_notebook.jpg"
+    ],
+    "isolated_pixel_percent": 3.99,
+    "old_comparison": "liquor_flask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 723,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 534
+  },
+  {
+    "id": "set_nameless_2",
+    "name": "无名者的面具",
+    "kind": "set",
+    "form": "trinket",
+    "file": "set_nameless_2.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [
+      "reunion_mask.png"
+    ],
+    "isolated_pixel_percent": 3.17,
+    "old_comparison": "reunion_mask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 709,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 555
+  },
+  {
+    "id": "set_warrant_2",
+    "name": "追缉令·名单",
+    "kind": "set",
+    "form": "trinket",
+    "file": "set_warrant_2.png",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "prototype_refs": [],
+    "isolated_pixel_percent": 1.4,
+    "old_comparison": "reunion_mask",
+    "old_height": 30,
+    "old_opaque_pixel_count": 709,
+    "silhouette_height": 28,
+    "opaque_pixel_count": 506
+  }
+]

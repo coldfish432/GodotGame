@@ -36,7 +36,7 @@ func run() -> void:
 			stream != null and stream.loop and is_equal_approx(stream.loop_offset, float(entry.loop_offset)))
 	check("both stings load and do not loop", music._streams.has(true) and music._streams.has(false)
 		and not music._streams[true].loop and not music._streams[false].loop)
-	check("generated light cues load", game.sound.streams.has("lights_on") and game.sound.streams.has("lights_off"))
+	check("all four warehouse cues load", ["lights_on", "lights_off", "hatch", "shelf"].all(func(c): return game.sound.streams.has(c)))
 	check("Music and SFX buses feed Master", AudioServer.get_bus_index("Music") > 0 and AudioServer.get_bus_index("SFX") > 0
 		and AudioServer.get_bus_send(AudioServer.get_bus_index("Music")) == "Master")
 

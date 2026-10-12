@@ -1,0 +1,17 @@
+{
+  "result": "PASS_STATIC",
+  "figures": 17,
+  "new_sheet": [
+    1254,
+    2508
+  ],
+  "comparison_sheet": [
+    2508,
+    2508
+  ],
+  "binary_alpha": true,
+  "old_cast_visible_pixels_preserved": true,
+  "ground_check": "all 17 on supplied mine/city/snow backgrounds",
+  "engine_import_or_animation": "not tested",
+  "stage_2": "awaiting identity approval"
+}

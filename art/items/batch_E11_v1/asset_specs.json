@@ -1,0 +1,200 @@
+[
+  {
+    "id": "city_x09",
+    "name": "执勤反光雨衣",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`proto_poncho`",
+    "description": "A long navy rain poncho with a hood and a yellow-green reflective band across the chest; two pixels of water dripping from the hem.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x10",
+    "name": "拳馆练功服",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`proto_changshan` (the cut only)",
+    "description": "A white front-opening kung-fu jacket with a row of knot buttons and a wide black sash.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x11",
+    "name": "染血白工装",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "no photo: white butcher's overalls with a rubber apron",
+    "description": "White coveralls with a rubber apron, a large rust-red stain on the chest (flat colour, not gore).",
+    "has_emit": false
+  },
+  {
+    "id": "city_x12",
+    "name": "拾荒者伪装衫",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "no photo",
+    "description": "A patched ragged jacket, its collar turned open to show the corner of a black armour plate inside.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x13",
+    "name": "香主绸衫",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "`proto_changshan`",
+    "description": "A dark-grey long gown with a standing collar and knot buttons, its cuffs turned back to show dark-red lining, with a faint glassy sheen on the silk.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x14",
+    "name": "防爆重甲",
+    "form": "armour",
+    "kind": "base",
+    "prototype": "no photo: a bomb-disposal suit",
+    "description": "A full hard-shell riot / bomb suit, heavy class: big chest plate, shoulder guards, high neck guard, gray-green, a dent across the front. It must not look like 特别督察组战术护甲 (navy) or 复合护具 (cluttered).",
+    "has_emit": false
+  },
+  {
+    "id": "mi_bully_15",
+    "name": "推土肩甲",
+    "form": "armour",
+    "kind": "exclusive",
+    "prototype": "`proto_pauldron`",
+    "description": "One oversized round iron shoulder plate with a ring of rivets and a leather strap crossing the chest; heavy class. Asymmetric on purpose.",
+    "has_emit": false
+  },
+  {
+    "id": "set_inspectors_1",
+    "name": "督察组外勤背心",
+    "form": "armour",
+    "kind": "set",
+    "prototype": "the old `inspector_armor` (lighter)",
+    "description": "A lighter field vest of the inspection squad: navy and charcoal, soft, with the set's vermilion ID band across the left chest.",
+    "has_emit": false
+  },
+  {
+    "id": "set_grey_order_1",
+    "name": "灰尾长衫",
+    "form": "armour",
+    "kind": "set",
+    "prototype": "`proto_changshan`",
+    "description": "A dark-grey long gown with dark-red lining, standing collar and pale-violet glass buttons. It must differ from 香主绸衫 by the glass buttons and a darker, plainer cut.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x15",
+    "name": "执勤警哨",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_whistle`",
+    "description": "A silver whistle on a short black cord with a small metal clip.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x16",
+    "name": "防风打火机",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_lighter` (shape: the square flip-top kind)",
+    "description": "A square flip-top lighter, lid open, with a 2-pixel orange flame (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "city_x17",
+    "name": "老千骰子",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_dice`",
+    "description": "Two bone-white dice stacked; one shows the single red pip on top.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x18",
+    "name": "跌打药酒瓶",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "no photo: a flat round glass medicine bottle",
+    "description": "A flat round glass bottle of brown liniment with a red cloth stopper.",
+    "has_emit": false
+  },
+  {
+    "id": "city_x19",
+    "name": "无人机遥控器",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "no photo: a small twin-stick RC transmitter",
+    "description": "A small twin-stick remote with a short antenna and a screen with one green pixel lit (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "city_x20",
+    "name": "当铺铜牌",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "no photo: a brass pawn tag",
+    "description": "A rectangular brass tag pierced at one end with a cord, a single round motif on its face (no characters).",
+    "has_emit": false
+  },
+  {
+    "id": "city_x21",
+    "name": "琉璃护身珠",
+    "form": "trinket",
+    "kind": "base",
+    "prototype": "`proto_prayer_beads`",
+    "description": "A string of five translucent glass beads, the middle one large, pale-violet inner glow (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "mi_brawler_10",
+    "name": "快拳绑带",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "no photo: boxing hand wraps",
+    "description": "A roll of grey-white hand wrap with dark red soaking through one end.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_crossbow_leader_11",
+    "name": "组长臂章",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "the old crossbow leader",
+    "description": "A white Reunion armband with a red stripe on a safety-pin clasp. No Reunion symbol, just the stripe.",
+    "has_emit": false
+  },
+  {
+    "id": "mi_greytail_12",
+    "name": "灰尾屏障坠",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "`prts_greytail`",
+    "description": "A hexagonal glass plate, cracked, glowing blue-white in the cracks (emit).",
+    "has_emit": true
+  },
+  {
+    "id": "mi_thrower_14",
+    "name": "燃烧瓶挂包",
+    "form": "trinket",
+    "kind": "exclusive",
+    "prototype": "`prts_thrower`",
+    "description": "A canvas satchel with the neck of a rag-stuffed glass bottle sticking out.",
+    "has_emit": false
+  },
+  {
+    "id": "set_inspectors_2",
+    "name": "督察组任期铭牌",
+    "form": "trinket",
+    "kind": "set",
+    "prototype": "`proto_dog_tag`",
+    "description": "Two stainless tags stacked on a short chain, no text, with a vermilion band on the chain.",
+    "has_emit": false
+  },
+  {
+    "id": "set_grey_order_2",
+    "name": "碎琉璃坠",
+    "form": "trinket",
+    "kind": "set",
+    "prototype": "city_x21",
+    "description": "Half of a broken glass pendant, pale violet with an inner glow (emit), the break edge sharp and bright.",
+    "has_emit": true
+  }
+]

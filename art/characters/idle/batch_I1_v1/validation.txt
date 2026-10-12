@@ -1,0 +1,30 @@
+Batch I1 v1 idle validation
+Measurements use alpha >= 128 and cell-local pixel coordinates.
+
+Lappland
+canvas: 444 x 1776
+row | walk foot/height | stand foot/height | breath foot/height | knees fixed from | body center
+S  | 210/202 | 210/202 | 210/199 | 172 | 114.0
+SW | 209/203 | 209/203 | 209/200 | 171 | 118.0
+W  | 207/204 | 207/204 | 207/201 | 169 | 124.0
+NW | 214/212 | 214/212 | 214/209 | 176 | 108.0
+N  | 215/207 | 215/207 | 215/204 | 177 | 113.0
+NE | 213/202 | 213/202 | 213/199 | 175 | 103.0
+E  | 209/207 | 209/207 | 209/204 | 171 | 101.0
+SE | 210/207 | 210/207 | 210/204 | 172 | 118.0
+pixels touching/crossing cell borders: 0
+breath versus stand: pixel-identical from stated knees-fixed row through cell bottom, all 8 rows
+
+Guard Amiya
+canvas: 512 x 2048
+row | walk foot/height | stand foot/height | breath foot/height | knees fixed from | body center
+S  | 241/220 | 241/220 | 241/217 | 203 | 127.0
+SW | 241/218 | 241/218 | 241/215 | 203 | 134.0
+W  | 241/227 | 241/227 | 241/224 | 203 | 119.0
+NW | 241/225 | 241/225 | 241/222 | 203 | 122.0
+N  | 241/231 | 241/231 | 241/228 | 203 | 149.0
+NE | 241/227 | 241/227 | 241/224 | 203 | 125.0
+E  | 241/226 | 241/226 | 241/223 | 203 | 130.0
+SE | 241/224 | 241/224 | 241/221 | 203 | 112.0
+pixels touching/crossing cell borders: 0
+breath versus stand: pixel-identical from stated knees-fixed row through cell bottom, all 8 rows
