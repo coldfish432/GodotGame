@@ -46,8 +46,9 @@ func _process(delta: float) -> void:
 
 func _text(at: Vector2, text: String, size: int, color: Color, font: Font = null) -> float:
 	var f := font if font != null else AK.cn()
+	text = I18n.t(text)
 	draw_string(f, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
-	return f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	return f.get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 
 func _draw() -> void:
 	# Top bar.
@@ -59,7 +60,7 @@ func _draw() -> void:
 	if _banner_left > 0.0:
 		var rank := game.base.rank()
 		var line := "声望提升：" + str(BaseCatalog.RANK_UNLOCKS[rank]).replace("；", " · ")
-		var w := AK.cn().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		var w := AK.cn().get_string_size(I18n.t(line), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
 		var x := 640 - (w + 60) * 0.5
 		draw_rect(Rect2(x, 66, w + 60, 30), Color(0, 0, 0, 0.85))
 		draw_rect(Rect2(x, 66, 36, 30), AK.SP)
@@ -69,13 +70,18 @@ func _draw() -> void:
 	_text(Vector2(16, 86), "站点总览", 13, AK.FG)
 	_text(Vector2(200, 86), "FACILITIES", 8, AK.DIM, AK.en())
 	var y := 94.0
+	# As wide as its longest name and status (English runs longer).
+	var width := 236.0
 	for entry in STATIONS:
-		var r := Rect2(14, y, 236, 36)
+		width = maxf(width, 16 + AK.cn().get_string_size(I18n.t(entry[0]), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 16
+			+ AK.cn().get_string_size(I18n.t(_status(entry[1])), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 10)
+	for entry in STATIONS:
+		var r := Rect2(14, y, width, 36)
 		draw_rect(r, Color(0, 0, 0, 0.8))
 		draw_rect(Rect2(r.position, Vector2(6, r.size.y)), entry[2])
 		_text(r.position + Vector2(16, 23), entry[0], 12, AK.FG)
 		var status := _status(entry[1])
-		var sw := AK.cn().get_string_size(status, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+		var sw := AK.cn().get_string_size(I18n.t(status), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 		_text(Vector2(r.end.x - sw - 10, r.position.y + 23), status, 11, AK.MUTE)
 		if _claimable(entry[1]):
 			var c := Vector2(r.end.x, r.position.y + 3)

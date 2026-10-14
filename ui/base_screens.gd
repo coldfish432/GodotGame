@@ -35,7 +35,7 @@ static func shell(menu: FieldMenu, cn_title: String, en_title: String, tabs: Arr
 	titles.add_child(AK.label(cn_title, 22, AK.FG))
 	AK.put(stage, titles, Vector2(120, 8))
 	if not tabs.is_empty():
-		AK.put(stage, AK.toggle(tabs, tab, on_tab, 13), Vector2(140 + maxf(110.0, cn_title.length() * 23.0), 12))
+		AK.put(stage, AK.toggle(tabs, tab, on_tab, 13), Vector2(140 + maxf(110.0, AK.cn().get_string_size(I18n.t(cn_title), HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 8.0), 12))
 	var pills := HBoxContainer.new()
 	pills.alignment = BoxContainer.ALIGNMENT_END
 	pills.add_theme_constant_override("separation", 6)
@@ -189,9 +189,12 @@ static func contracts(menu: FieldMenu) -> void:
 			card.add_theme_stylebox_override(s, AK.box(AK.PAPER if on else (AK.PLATE_3 if s == "hover" else AK.PLATE_2)))
 		AK.put(stage, card, Vector2(x + 18, TOP + 400 + i * 44), Vector2(360, 40))
 		var ink := AK.INK if on else AK.FG
-		AK.put(card, AK.tag(FieldCatalog.CONTRACT_NAMES[offer.type], AK.SP), Vector2(10, 10))
-		AK.put(card, AK.label(FieldCatalog.contract_goal(offer, region, start + 1), 13, ink), Vector2(64, 2))
-		AK.put(card, AK.label(FieldCatalog.contract_bonus_text(offer), 11, Color(ink, 0.7)), Vector2(64, 21))
+		var kind: String = FieldCatalog.CONTRACT_NAMES[offer.type]
+		AK.put(card, AK.tag(kind, AK.SP), Vector2(10, 10))
+		# The text starts after the tag, however long its shown name is.
+		var text_x := maxf(64.0, 10.0 + AK.cn().get_string_size(I18n.t(kind), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 12.0 + 8.0)
+		AK.put(card, AK.label(FieldCatalog.contract_goal(offer, region, start + 1), 13, ink), Vector2(text_x, 2))
+		AK.put(card, AK.label(FieldCatalog.contract_bonus_text(offer), 11, Color(ink, 0.7)), Vector2(text_x, 21))
 		for child in card.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var index := i
 		card.pressed.connect(func(): menu.contract_pick = index; contracts(menu))
@@ -740,10 +743,15 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 	var rows: Array = []
 	match tab:
 		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"]]
-		1: rows = [["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"]]
+		1: rows = [["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["language"]]
 		2: rows = [["主音量", [], "master_volume"]]
 	var y := 104.0
 	for row in rows:
+		if row[0] == "language":
+			AK.put(stage, SystemScreens.language_toggle(func(): pause(menu)), Vector2(334, y + 6), Vector2(886, 38))
+			stage.add_child(AK.rect(AK.LINE, Vector2(334, y + 49), Vector2(886, 1)))
+			y += 50
+			continue
 		AK.put(stage, AK.label(row[0], 14, AK.FG), Vector2(334, y + 12))
 		var key: String = row[2]
 		if row[1].is_empty():

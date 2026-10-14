@@ -28,14 +28,7 @@ func _ready() -> void:
 	_mesh.material_override = material
 	_mesh.position.y = 0.8
 	add_child(_mesh)
-	_label = Label3D.new()
-	_label.position.y = 1.7
-	_label.font_size = 24
-	_label.pixel_size = 0.01
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.outline_size = 6
-	add_child(_label)
-	_refresh_label()
+	# No name over it (用户 2026-10-13: 不要中文label了，只提示e即可): the HUD shows the E key when near.
 
 func _process(delta: float) -> void:
 	_age += delta

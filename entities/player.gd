@@ -17,7 +17,8 @@ signal message_requested(text: String)
 signal stats_changed
 
 
-const BASE_MOVE_SPEED := 5.0
+## 5.5 since 2026-10-13 (用户: 角色基础移速偏慢，调快10%).
+const BASE_MOVE_SPEED := 5.5
 const DASH_IMPULSE := 2.8
 const DASH_INVULN_DURATION := 0.28
 ## 1.5 s between dodges (用户 2026-10-10: 闪避添加cd), on top of the stamina cost.
@@ -203,7 +204,10 @@ var _shield_peak := 0.0
 func _ready() -> void:
 	game = get_parent() as GameManager
 	_navigation = NavigationAgent3D.new()
-	_navigation.path_desired_distance = 0.45
+	# Measured in 3D from her origin: on a ramp the navmesh lies up to half a
+	# metre off her height, and at 0.45 she could stand on a waypoint and never
+	# reach it, rocking in place.
+	_navigation.path_desired_distance = 0.8
 	_navigation.target_desired_distance = ARRIVE_THRESHOLD
 	add_child(_navigation)
 	gear_fx = GearEffects.new(self)
@@ -407,7 +411,9 @@ func _physics_process(delta: float) -> void:
 	# A dodge interrupts everything (用户 2026-10-10: 闪避时打断所有动作),
 	# including a hit's freeze frames: a press that can dodge ends the freeze
 	# at once. One that cannot yet (stamina, cooldown) is latched as before.
-	if Input.is_action_just_pressed("dash"): _dash_buffered = true
+	# At a box's window her hands are busy: no dodge, no steps, no swings.
+	var busy := is_instance_valid(game) and game.hands_busy()
+	if Input.is_action_just_pressed("dash") and not busy: _dash_buffered = true
 	if _dash_buffered and can_dash(): hitstop_remaining = 0.0
 	if hitstop_remaining > 0.0:
 		hitstop_remaining = maxf(0.0, hitstop_remaining - delta)
@@ -427,8 +433,11 @@ func _physics_process(delta: float) -> void:
 		elif hp < max_hp and not regen_blocked and combat_timer >= OUT_OF_COMBAT:
 			heal(rate * HP_REGEN_INTERVAL)
 
-	var move_vec := _key_move_vector()
-	if move_vec != Vector3.ZERO:
+	var move_vec := Vector3.ZERO if busy else _key_move_vector()
+	if busy:
+		_has_move_target = false
+		attack_target = null
+	elif move_vec != Vector3.ZERO:
 		# Keys take over from a clicked destination or a locked enemy.
 		_has_move_target = false
 		attack_target = null

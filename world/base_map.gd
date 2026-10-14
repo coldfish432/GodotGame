@@ -80,6 +80,7 @@ func _ready() -> void:
 	nav_mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN
 	_navigation.navigation_mesh = nav_mesh
 	_navigation.bake_navigation_mesh(false)
+	if rooms.has("store"): _add_closure()
 	if rooms.has("warehouse"):
 		warehouse_reveal = RoomReveal.new()
 		warehouse_reveal.setup(self, "warehouse", "shelf:")
@@ -167,6 +168,19 @@ func add_prop(room_id: String, texture: Texture2D, x: float, z: float, lift_px: 
 	visuals.sprites.append(sprite)
 	if visuals.has("bands"): _light_sprite(sprite, visuals.bands[0], visuals.bands[1])
 	return sprite
+
+## 可露希尔 behind the shop counter, left of the crate stack (NPC_brief_v3.md
+## Part B). The counter is drawn in front of her, so her legs are hidden.
+const CLOSURE_SPOT := Vector2(7.3, 7.0)
+
+func _add_closure() -> void:
+	var figure := FieldArt.npc_idle("closure")
+	figure.name = "Closure"
+	# Placed like _billboard(): pivot at SORT_PIVOT_Y, image bottom on the feet.
+	figure.position = Vector3(EAST * CLOSURE_SPOT.x, SORT_PIVOT_Y, CLOSURE_SPOT.y)
+	figure.offset.y -= PIVOT_SCREEN_PX
+	figure.double_sided = true
+	get_node("store").add_child(figure)
 
 ## Removes a prop added with add_prop().
 func remove_prop(room_id: String, sprite: Sprite3D) -> void:

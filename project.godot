@@ -24,3 +24,26 @@ window/stretch/mode="canvas_items"
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+
+[shader_globals]
+
+field_light={
+"type": "sampler2D",
+"value": "res://art/kit/textures/white_1px.png"
+}
+field_light_rect={
+"type": "vec4",
+"value": Vector4(-100000, -100000, 200000, 200000)
+}
+field_player={
+"type": "vec3",
+"value": Vector3(0, -1000, 0)
+}
+field_player_light={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_snow={
+"type": "float",
+"value": 0.0
+}

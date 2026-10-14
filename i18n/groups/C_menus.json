@@ -1,0 +1,618 @@
+{
+ "/ 下一级": {
+  "where": "ui/field_menu.gd:396",
+  "line": "var next := \"\" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else \" / 下一级 %d\" % BaseCatalog.PRESTIGE_RANKS[rank]"
+ },
+ "/ 已完成  ·": {
+  "where": "ui/field_menu.gd:410",
+  "line": "text(box, \"订单栏 %d / 已完成  ·  %s\" % [i + 1, BaseCatalog.order_text(order.id)], 16, Color(\"8fd18f\"))"
+ },
+ "/ 空，下次结算后补上": {
+  "where": "ui/field_menu.gd:404",
+  "line": "text(box, \"订单栏 %d / 空，下次结算后补上\" % (i + 1), 16, Color(\"99aab8\"))"
+ },
+ "/秒": {
+  "where": "ui/field_menu.gd:505",
+  "line": "text(parent, \"攻速 %d（间隔 %.2f 秒）   暴击 %d%% × %d%%   吸血 %d%%   闪避 %d%%   生命回复 %d/秒\" % [roundi(p.current_aspd()), p.current_cooldown(),"
+ },
+ "[已投保]": {
+  "where": "ui/field_menu.gd:241",
+  "line": "text(row, \"%s · %s %s\" % [tag, item.display_name(), \"[已投保]\" if item.insured else \"\"], 15).tooltip_text = item.details()"
+ },
+ "·    龙门币": {
+  "where": "ui/field_menu.gd:185",
+  "line": "clear(info[0], \"%s    ·    龙门币 %s\" % [info[1], Economy.format(game.gold)])"
+ },
+ "·  可交付": {
+  "where": "ui/base_screens.gd:396",
+  "line": "AK.put(stage, AK.label(\"已完成\" if done else \"已交付 %d / %d  ·  可交付 %d\" % [orders.delivered_count(slot), count, fits.size()], 12, AK.GREEN if done or not fits.is_empty() else AK.MUTE), at + Vector2(188, 40"
+ },
+ "·  阵亡，带回重伤": {
+  "where": "ui/field_menu.gd:437",
+  "line": "\"  ·  阵亡，带回重伤\" if report.injured else \"\"], 16)"
+ },
+ "· 价值": {
+  "where": "ui/base_screens.gd:578",
+  "line": "AK.put(row, AK.label(\"%s · 价值 %s\" % [Item.CATEGORY_NAMES[category], Economy.format(Economy.price(item))], 12, AK.MUTE), Vector2(74, 36))"
+ },
+ "· 空": {
+  "where": "ui/base_screens.gd:572",
+  "line": "AK.put(row, AK.label(\"%s · 空\" % Item.CATEGORY_NAMES[category], 13, AK.MUTE), Vector2(16, 22))"
+ },
+ "一键分类 / 开箱与归类": {
+  "where": "ui/field_menu.gd:331",
+  "line": "clear(\"一键分类 / 开箱与归类\", \"开出 %d 件  ·  上架 %d 件  ·  放进暂存区 %d 件  ·  未能放下 %d 件\" % ["
+ },
+ "上一份合同 / 回收明细": {
+  "where": "ui/field_menu.gd:476",
+  "line": "text(body, \"上一份合同 / 回收明细\", 18, GOLD)"
+ },
+ "上一份合同 / 污染": {
+  "where": "ui/field_menu.gd:436",
+  "line": "text(body, \"上一份合同 / 污染 %d → %d%s\" % [int(report.contamination_before), int(report.contamination_after),"
+ },
+ "上一份合同的回收明细、污染变化，以及重伤治疗": {
+  "where": "ui/field_menu.gd:151",
+  "line": "\"report\": [\"医疗前台 / 回收报告与治疗\", \"上一份合同的回收明细、污染变化，以及重伤治疗\"],"
+ },
+ "上架": {
+  "where": "ui/field_menu.gd:337",
+  "line": "var where := \"上架\" if result.shelved.has(item) else (\"暂存区\" if result.staged.has(item) else \"留在箱里\")"
+ },
+ "下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂": {
+  "where": "ui/field_menu.gd:152",
+  "line": "\"pharmacy\": [\"药房窗口 / 配药\", \"下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂\"],"
+ },
+ "专属 /": {
+  "where": "ui/field_menu.gd:227",
+  "line": "text(box, \"专属 / \" + data.exclusive, 14)"
+ },
+ "个人仓库": {
+  "where": "ui/base_screens.gd:345",
+  "line": "var row := EventScreens._item_row(item, Economy.format(Economy.price(item)), \"个人仓库\" if game.stash.has(item) else \"背包\", true, item == pick)"
+ },
+ "个人仓库 /": {
+  "where": "ui/field_menu.gd:255",
+  "line": "text(body, \"个人仓库 / %s\" % \"  ·  \".join(load_by_zone), 18)"
+ },
+ "个人仓库和背包里没有符合的物品。": {
+  "where": "ui/field_menu.gd:414",
+  "line": "if fits.is_empty(): text(box, \"个人仓库和背包里没有符合的物品。\", 14, Color(\"99aab8\"))"
+ },
+ "个货架": {
+  "where": "ui/base_screens.gd:313",
+  "line": "label = \"扩建第 %d 个货架  %s%s\" % [slot + 1, Economy.format(BaseCatalog.RACK_PRICES[slot]), \"\" if cost.is_empty() else \" + \" + BaseCatalog.cost_text(cost)]"
+ },
+ "主键": {
+  "where": "ui/base_screens.gd:778",
+  "line": "AK.put(stage, AK.label(\"主键\", 11, AK.MUTE), Vector2(334 + col * 470 + 196, 54))"
+ },
+ "主音量": {
+  "where": "ui/base_screens.gd:744",
+  "line": "2: rows = [[\"主音量\", [], \"master_volume\"]]"
+ },
+ "交付": {
+  "where": "ui/base_screens.gd:350",
+  "line": "EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, \"\", \"交付\" + (\" +%s\" % Economy.format(Economy.price(pick)) if pick != null else \"\"), Callable(), func():"
+ },
+ "交付 +": {
+  "where": "ui/field_menu.gd:429",
+  "line": "button(row, \"交付 +%s\" % Economy.format(Economy.price(item)), func(): game.sell(item); _refresh())"
+ },
+ "交付 ×": {
+  "where": "ui/base_screens.gd:417",
+  "line": "var deliver := AK.button(\"交付\" if fits.is_empty() or not fits[0].is_stackable() else \"交付 ×%d\" % orders.takes(slot, fits[0]), \"blue\" if not fits.is_empty() else \"plain\", 14)"
+ },
+ "交付价": {
+  "where": "ui/base_screens.gd:631",
+  "line": "EventScreens._info(stage, game, pick, \"交付价\", Economy.format(Economy.price(pick)), Vector2(x, TOP + 8))"
+ },
+ "从": {
+  "where": "ui/field_menu.gd:233",
+  "line": "button(box, \"从%s出发\" % game.camp_label(depth), func(): game.request_contract(region, depth))"
+ },
+ "从个人仓库带入下一份合同": {
+  "where": "ui/field_menu.gd:149",
+  "line": "\"stash\": [\"仓管台 / 仓库\", \"从个人仓库带入下一份合同\"],"
+ },
+ "仓库总控面板": {
+  "where": "ui/field_menu.gd:298",
+  "line": "button(machines, \"仓库总控面板 %s + %s%s\" % [Economy.format(BaseCatalog.CONSOLE_PRICE), BaseCatalog.cost_text(BaseCatalog.CONSOLE_MATERIALS), \"\" if console_refusal.is_empty() else \"（%s）\" % console_refusal],"
+ },
+ "仓库总控面板 · 已就位": {
+  "where": "ui/field_menu.gd:295",
+  "line": "if base.console: button(machines, \"仓库总控面板 · 已就位\", func(): pass, true)"
+ },
+ "仓管台": {
+  "where": "ui/base_screens.gd:13",
+  "line": "\"stash\": [\"仓管台\", \"DEPOT\"], \"outbound\": [\"出库区\", \"OUTBOUND\"], \"report\": [\"医疗部\", \"MEDICAL\"],"
+ },
+ "仓管台 / 仓库": {
+  "where": "ui/field_menu.gd:149",
+  "line": "\"stash\": [\"仓管台 / 仓库\", \"从个人仓库带入下一份合同\"],"
+ },
+ "件  ·  上架": {
+  "where": "ui/field_menu.gd:331",
+  "line": "clear(\"一键分类 / 开箱与归类\", \"开出 %d 件  ·  上架 %d 件  ·  放进暂存区 %d 件  ·  未能放下 %d 件\" % ["
+ },
+ "件  ·  放进暂存区": {
+  "where": "ui/field_menu.gd:331",
+  "line": "clear(\"一键分类 / 开箱与归类\", \"开出 %d 件  ·  上架 %d 件  ·  放进暂存区 %d 件  ·  未能放下 %d 件\" % ["
+ },
+ "件  ·  未能放下": {
+  "where": "ui/field_menu.gd:331",
+  "line": "clear(\"一键分类 / 开箱与归类\", \"开出 %d 件  ·  上架 %d 件  ·  放进暂存区 %d 件  ·  未能放下 %d 件\" % ["
+ },
+ "份合同后": {
+  "where": "ui/base_screens.gd:480",
+  "line": "row.add_child(AK.label(entry.reason + (\" · %d 份合同后\" % int(entry.contracts) if entry.has(\"contracts\") else \"\"), 13, colour))"
+ },
+ "伤害数字": {
+  "where": "ui/base_screens.gd:743",
+  "line": "1: rows = [[\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\"]]"
+ },
+ "先留在箱里": {
+  "where": "ui/base_screens.gd:922",
+  "line": "var later := AK.button(\"先留在箱里\", \"plain\", 14)"
+ },
+ "免费": {
+  "where": "ui/base_screens.gd:459",
+  "line": "var cost := \"R%d\" % int(potion.rank) if price < 0 else (\"免费\" if price == 0 else Economy.format(price) + \" 龙门币\")"
+ },
+ "免费刷新这张订单（R3，每次结算一次）": {
+  "where": "ui/field_menu.gd:420",
+  "line": "if base.reroll_available: button(box, \"免费刷新这张订单（R3，每次结算一次）\", func(): game.reroll_order(i); _refresh())"
+ },
+ "免费急救剂": {
+  "where": "ui/base_screens.gd:465",
+  "line": "AK.put(stage, AK.label(\"免费急救剂 %d\" % base.free_potions, 12, AK.MUTE), Vector2(16, y + 132))"
+ },
+ "全屏": {
+  "where": "ui/base_screens.gd:742",
+  "line": "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+ },
+ "全部开箱并归类": {
+  "where": "ui/base_screens.gd:919",
+  "line": "var sort := AK.button(\"全部开箱并归类\", \"plain\", 14)"
+ },
+ "全部显示": {
+  "where": "ui/field_menu.gd:341",
+  "line": "var skip := button(body, \"全部显示\", func(): pass)"
+ },
+ "关": {
+  "where": "ui/base_screens.gd:743",
+  "line": "1: rows = [[\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\"]]"
+ },
+ "关闭": {
+  "where": "ui/field_menu.gd:345",
+  "line": "button(body, \"关闭\", game.close_modal)"
+ },
+ "出发": {
+  "where": "ui/field_menu.gd:142",
+  "line": "const PRIMARY := [\"出发\", \"继续\", \"撤离\", \"返回罗德岛\", \"接下合同 →\", \"开始唤醒\"]"
+ },
+ "出发准备": {
+  "where": "ui/base_screens.gd:511",
+  "line": "var titles: Array = [\"出发准备\", \"SQUAD\"] if deploying else STATION_TITLES.get(kind, [\"整备台\", \"WORKBENCH\"])"
+ },
+ "出战准备 / 投保": {
+  "where": "ui/field_menu.gd:236",
+  "line": "text(body, \"出战准备 / 投保\", 18)"
+ },
+ "刷新": {
+  "where": "ui/base_screens.gd:410",
+  "line": "var reroll := AK.button(\"刷新\", \"plain\", 12)"
+ },
+ "副键": {
+  "where": "ui/base_screens.gd:779",
+  "line": "AK.put(stage, AK.label(\"副键\", 11, AK.MUTE), Vector2(334 + col * 470 + 342, 54))"
+ },
+ "区货架": {
+  "where": "ui/base_screens.gd:220",
+  "line": "stage = shell(menu, \"%s区货架\" % BaseCatalog.CATEGORY_NAMES[zone], \"SHELVES\", [], 0, Callable(), \"DEPOT\", currencies)"
+ },
+ "医疗前台 / 回收报告与治疗": {
+  "where": "ui/field_menu.gd:151",
+  "line": "\"report\": [\"医疗前台 / 回收报告与治疗\", \"上一份合同的回收明细、污染变化，以及重伤治疗\"],"
+ },
+ "升级": {
+  "where": "ui/base_screens.gd:208",
+  "line": "const STASH_TABS := [\"全部\", \"武器\", \"防具\", \"饰品\", \"材料\", \"升级\"]"
+ },
+ "卸下": {
+  "where": "ui/base_screens.gd:639",
+  "line": "var off := AK.button(\"卸下\", \"plain\", 14)"
+ },
+ "可交付 0": {
+  "where": "ui/field_menu.gd:424",
+  "line": "if deliverable.is_empty(): text(body, \"可交付 0\", 15, AK.MUTE)"
+ },
+ "可配药剂": {
+  "where": "ui/base_screens.gd:439",
+  "line": "_section(stage, \"可配药剂\", \"PHARMACY\", Vector2(16, y))"
+ },
+ "合同目标": {
+  "where": "ui/base_screens.gd:179",
+  "line": "_section(stage, \"合同目标\", \"OBJECTIVE\", Vector2(x + 18, TOP + 376))"
+ },
+ "吸血": {
+  "where": "ui/field_menu.gd:505",
+  "line": "text(parent, \"攻速 %d（间隔 %.2f 秒）   暴击 %d%% × %d%%   吸血 %d%%   闪避 %d%%   生命回复 %d/秒\" % [roundi(p.current_aspd()), p.current_cooldown(),"
+ },
+ "回到标题": {
+  "where": "ui/base_screens.gd:674",
+  "line": "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
+ },
+ "回收明细": {
+  "where": "ui/base_screens.gd:471",
+  "line": "holder.add_child(AK.section(\"回收明细\", \"RECOVERY\"))"
+ },
+ "固定": {
+  "where": "ui/base_screens.gd:803",
+  "line": "AK.put(stage, AK.label(\"固定\", 13, AK.SP), Vector2(804, fy + 4))"
+ },
+ "声望": {
+  "where": "ui/base_screens.gd:59",
+  "line": "row.add_child(AK.tag(\"声望\", AK.SP))"
+ },
+ "声望 +": {
+  "where": "ui/base_screens.gd:402",
+  "line": "var prestige := AK.label(\"声望 +%d\" % int(t.prestige), 12, AK.MUTE)"
+ },
+ "存回仓库": {
+  "where": "ui/base_screens.gd:642",
+  "line": "var store := AK.button(\"存回仓库\", \"plain\", 14)"
+ },
+ "将带入": {
+  "where": "ui/base_screens.gd:274",
+  "line": "_section(stage, \"将带入\", \"CARRY-IN\", Vector2(16, carry_y + 14))"
+ },
+ "将带入 · 背包": {
+  "where": "ui/base_screens.gd:436",
+  "line": "_section(stage, \"将带入 · 背包\", \"CARRY-IN\", Vector2(16, TOP + 8))"
+ },
+ "已完成": {
+  "where": "ui/base_screens.gd:396",
+  "line": "AK.put(stage, AK.label(\"已完成\" if done else \"已交付 %d / %d  ·  可交付 %d\" % [orders.delivered_count(slot), count, fits.size()], 12, AK.GREEN if done or not fits.is_empty() else AK.MUTE), at + Vector2(188, 40"
+ },
+ "已装备": {
+  "where": "ui/field_menu.gd:240",
+  "line": "var tag := \"已装备\" if game.player.equipped.values().has(item) else \"背包\""
+ },
+ "带入": {
+  "where": "ui/field_menu.gd:277",
+  "line": "button(row, \"带入\", func(): game.bring_item(item); _refresh())"
+ },
+ "带入装备": {
+  "where": "ui/base_screens.gd:562",
+  "line": "_section(stage, \"带入装备\", \"LOADOUT\", Vector2(282, TOP + 8))"
+ },
+ "常规": {
+  "where": "ui/base_screens.gd:159",
+  "line": "drops.add_child(AK.tag(\"常规\", AK.PAPER))"
+ },
+ "干员养成": {
+  "where": "ui/base_screens.gd:546",
+  "line": "var train := AK.button(\"干员养成\" + (\" ●\" if p.attribute_points + p.skill_points > 0 else \"\"), \"yellow\" if p.attribute_points + p.skill_points > 0 else \"plain\", 12)"
+ },
+ "开": {
+  "where": "ui/base_screens.gd:743",
+  "line": "1: rows = [[\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\"]]"
+ },
+ "开出": {
+  "where": "ui/field_menu.gd:331",
+  "line": "clear(\"一键分类 / 开箱与归类\", \"开出 %d 件  ·  上架 %d 件  ·  放进暂存区 %d 件  ·  未能放下 %d 件\" % ["
+ },
+ "开始唤醒": {
+  "where": "ui/field_menu.gd:142",
+  "line": "const PRIMARY := [\"出发\", \"继续\", \"撤离\", \"返回罗德岛\", \"接下合同 →\", \"开始唤醒\"]"
+ },
+ "开始行动": {
+  "where": "ui/base_screens.gd:198",
+  "line": "var go := AK.go_button(\"开始行动\", \"OPERATION START\")"
+ },
+ "开箱": {
+  "where": "ui/base_screens.gd:904",
+  "line": "AK.put(stage, AK.label(\"开箱\", 24, AK.FG), Vector2(284, 166))"
+ },
+ "恢复默认": {
+  "where": "ui/base_screens.gd:774",
+  "line": "var reset := AK.button(\"恢复默认\", \"plain\", 12)"
+ },
+ "扩容": {
+  "where": "ui/field_menu.gd:318",
+  "line": "var label := \"%s扩容 %d×%d → %d×%d  %d + %s\" % [title, now.x, now.y, next.x, next.y, int(prices[level + 1]), BaseCatalog.cost_text(game.upgrade_cost(kind))] + (\"\" if refusal.is_empty() else \"（%s）\" % ref"
+ },
+ "扩建第": {
+  "where": "ui/base_screens.gd:313",
+  "line": "label = \"扩建第 %d 个货架  %s%s\" % [slot + 1, Economy.format(BaseCatalog.RACK_PRICES[slot]), \"\" if cost.is_empty() else \" + \" + BaseCatalog.cost_text(cost)]"
+ },
+ "扩建货架": {
+  "where": "ui/base_screens.gd:316",
+  "line": "build.set_meta(\"label\", \"扩建货架\")"
+ },
+ "投保": {
+  "where": "ui/base_screens.gd:654",
+  "line": "var b := AK.button(\"投保 %s\" % Economy.format(price), \"plain\", 12)"
+ },
+ "护盾": {
+  "where": "ui/field_menu.gd:504",
+  "line": "(\"  护盾 %d\" % roundi(p.shield)) if p.shield > 0 else \"\", roundi(p.attack_power()), roundi(p.arts_power()), roundi(p.defense_value()), roundi(p.resistance())], 15)"
+ },
+ "拿到手上": {
+  "where": "ui/base_screens.gd:950",
+  "line": "var hand := AK.button(\"拿到手上\", \"blue\", 14)"
+ },
+ "拿起 ·": {
+  "where": "ui/base_screens.gd:910",
+  "line": "var take := AK.button(\"拿起 · %s %d/%d\" % [BaseCatalog.CATEGORY_NAMES[item.category], base.shelf_count(item.category), base.capacity(item.category)], \"blue\", 14)"
+ },
+ "按下按键…": {
+  "where": "ui/base_screens.gd:796",
+  "line": "var text := \"按下按键…\" if waiting else Keybinds.label(binds[f[0]][which])"
+ },
+ "按键设置": {
+  "where": "ui/base_screens.gd:674",
+  "line": "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
+ },
+ "掉落": {
+  "where": "ui/base_screens.gd:156",
+  "line": "_section(stage, \"掉落\", \"DROPS\", Vector2(x + 18, TOP + 154))"
+ },
+ "接下合同 →": {
+  "where": "ui/field_menu.gd:142",
+  "line": "const PRIMARY := [\"出发\", \"继续\", \"撤离\", \"返回罗德岛\", \"接下合同 →\", \"开始唤醒\"]"
+ },
+ "搜索": {
+  "where": "ui/base_screens.gd:235",
+  "line": "search.placeholder_text = \"搜索\""
+ },
+ "搜索仓库（名称或词缀，如“攻击力”“稀有”）": {
+  "where": "ui/field_menu.gd:258",
+  "line": "search.placeholder_text = \"搜索仓库（名称或词缀，如“攻击力”“稀有”）\""
+ },
+ "搬运无人机": {
+  "where": "ui/field_menu.gd:303",
+  "line": "button(machines, \"搬运无人机 %s + %s%s\" % [Economy.format(BaseCatalog.DRONE_PRICE), BaseCatalog.cost_text(BaseCatalog.DRONE_MATERIALS), \"\" if drone_refusal.is_empty() else \"（%s）\" % drone_refusal],"
+ },
+ "搬运无人机 · 已就位": {
+  "where": "ui/field_menu.gd:300",
+  "line": "if base.drone: button(machines, \"搬运无人机 · 已就位\", func(): pass, true)"
+ },
+ "撤离 · 可露希尔": {
+  "where": "ui/base_screens.gd:138",
+  "line": "camp.add_child(AK.label(\"撤离 · 可露希尔\", 11, AK.INK))"
+ },
+ "放入暂存区": {
+  "where": "ui/base_screens.gd:914",
+  "line": "var stage_it := AK.button(\"放入暂存区 %d/%d\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY], \"plain\", 14)"
+ },
+ "放弃": {
+  "where": "ui/base_screens.gd:413",
+  "line": "var drop := AK.button(\"放弃\", \"plain\", 12)"
+ },
+ "放弃合同": {
+  "where": "ui/base_screens.gd:674",
+  "line": "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
+ },
+ "放弃这张订单": {
+  "where": "ui/field_menu.gd:421",
+  "line": "button(box, \"放弃这张订单\", func(): game.abandon_order(i); _refresh())"
+ },
+ "放进背包": {
+  "where": "ui/base_screens.gd:954",
+  "line": "var pack := AK.button(\"放进背包\", \"plain\", 14)"
+ },
+ "整备台": {
+  "where": "ui/base_screens.gd:511",
+  "line": "var titles: Array = [\"出发准备\", \"SQUAD\"] if deploying else STATION_TITLES.get(kind, [\"整备台\", \"WORKBENCH\"])"
+ },
+ "整备台 / 装备": {
+  "where": "ui/field_menu.gd:148",
+  "line": "\"loadout\": [\"整备台 / 装备\", \"装备、卸下或存回仓库\"],"
+ },
+ "暂存区 → 上架": {
+  "where": "ui/field_menu.gd:340",
+  "line": "if not result.revealed.has(item): lines.append([item, \"暂存区 → 上架\"])"
+ },
+ "暂无回收记录": {
+  "where": "ui/base_screens.gd:472",
+  "line": "if game.settlement.is_empty(): holder.add_child(AK.label(\"暂无回收记录\", 14, AK.MUTE))"
+ },
+ "暂无回收记录。": {
+  "where": "ui/field_menu.gd:474",
+  "line": "if always: text(body, \"暂无回收记录。\", 15)"
+ },
+ "本次藏品 /": {
+  "where": "ui/field_menu.gd:491",
+  "line": "text(parent, \"本次藏品 / %d 件\" % game.builds.size(), 18, GOLD)"
+ },
+ "污染 0": {
+  "where": "ui/field_menu.gd:470",
+  "line": "if current <= 0: text(body, \"污染 0\", 15, AK.MUTE)"
+ },
+ "治疗重伤（": {
+  "where": "ui/field_menu.gd:442",
+  "line": "button(body, \"治疗重伤（%s 龙门币）\" % Economy.format(BaseCatalog.INJURY_TREATMENT), func(): game.treat_injury(); _refresh(), game.gold < BaseCatalog.INJURY_TREATMENT)"
+ },
+ "深度": {
+  "where": "ui/base_screens.gd:603",
+  "line": "[\"深度\", AK.floor_code(region, start + 1), AK.FG], [\"污染\", str(roundi(base.contamination)), AK.ORI]]"
+ },
+ "清除": {
+  "where": "ui/field_menu.gd:266",
+  "line": "if not stash_query.is_empty(): button(bar, \"清除\", func(): stash_query = \"\"; _refresh())"
+ },
+ "生命回复": {
+  "where": "ui/field_menu.gd:505",
+  "line": "text(parent, \"攻速 %d（间隔 %.2f 秒）   暴击 %d%% × %d%%   吸血 %d%%   闪避 %d%%   生命回复 %d/秒\" % [roundi(p.current_aspd()), p.current_cooldown(),"
+ },
+ "画面": {
+  "where": "ui/base_screens.gd:675",
+  "line": "const SETTING_TABS := [\"画面\", \"界面\", \"音频\"]"
+ },
+ "留在箱里": {
+  "where": "ui/field_menu.gd:337",
+  "line": "var where := \"上架\" if result.shelved.has(item) else (\"暂存区\" if result.staged.has(item) else \"留在箱里\")"
+ },
+ "直接交付": {
+  "where": "ui/base_screens.gd:331",
+  "line": "var stage := shell(menu, \"出库区\", \"OUTBOUND\", [\"订单\", \"直接交付\"], tab, func(i): menu.outbound_tab = i; menu.pick = null; outbound(menu), \"ORDERS\","
+ },
+ "直接交付 / 只换龙门币": {
+  "where": "ui/field_menu.gd:423",
+  "line": "text(body, \"直接交付 / 只换龙门币\", 18)"
+ },
+ "确认放弃": {
+  "where": "ui/base_screens.gd:691",
+  "line": "b.text = \"确认放弃\" if i == 3 and menu.pause_confirm else PAUSE_ITEMS[i]"
+ },
+ "秒）   暴击": {
+  "where": "ui/field_menu.gd:505",
+  "line": "text(parent, \"攻速 %d（间隔 %.2f 秒）   暴击 %d%% × %d%%   吸血 %d%%   闪避 %d%%   生命回复 %d/秒\" % [roundi(p.current_aspd()), p.current_cooldown(),"
+ },
+ "窗口": {
+  "where": "ui/base_screens.gd:742",
+  "line": "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+ },
+ "窗口模式": {
+  "where": "ui/base_screens.gd:742",
+  "line": "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+ },
+ "继续": {
+  "where": "ui/field_menu.gd:142",
+  "line": "const PRIMARY := [\"出发\", \"继续\", \"撤离\", \"返回罗德岛\", \"接下合同 →\", \"开始唤醒\"]"
+ },
+ "继续作业": {
+  "where": "ui/base_screens.gd:674",
+  "line": "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
+ },
+ "罗德岛": {
+  "where": "ui/field_menu.gd:184",
+  "line": "var info: Array = STATIONS.get(kind, [\"罗德岛\", \"\"])"
+ },
+ "罗德岛 / 外勤合同": {
+  "where": "ui/field_menu.gd:163",
+  "line": "clear(\"罗德岛 / 外勤合同\", \"龙门币 %s\" % Economy.format(game.gold))"
+ },
+ "背包": {
+  "where": "ui/base_screens.gd:345",
+  "line": "var row := EventScreens._item_row(item, Economy.format(Economy.price(item)), \"个人仓库\" if game.stash.has(item) else \"背包\", true, item == pick)"
+ },
+ "背包与安全袋的材料全部存回仓库": {
+  "where": "ui/base_screens.gd:626",
+  "line": "var all := AK.button(\"背包与安全袋的材料全部存回仓库\", \"plain\", 13)"
+ },
+ "背包材料全部存回": {
+  "where": "ui/base_screens.gd:241",
+  "line": "var store_all := AK.button(\"背包材料全部存回\", \"plain\", 12)"
+ },
+ "背包药剂": {
+  "where": "ui/field_menu.gd:452",
+  "line": "text(body, \"背包药剂  \" + (\"  \".join(BaseCatalog.POTIONS.keys().filter(func(t): return counts.has(t)).map(func(t): return \"%s ×%d\" % [BaseCatalog.POTIONS[t].name, counts[t]])) if not carried.is_empty() el"
+ },
+ "药剂": {
+  "where": "ui/base_screens.gd:619",
+  "line": "AK.put(stage, AK.label(\"药剂 %d\" % game.carried_potions().size(), 12, AK.MUTE), Vector2(x, BOTTOM - 120))"
+ },
+ "药剂 · 收购赤金": {
+  "where": "ui/field_menu.gd:154",
+  "line": "\"store\": [\"可露希尔的商店\", \"药剂 · 收购赤金\"],"
+ },
+ "药房窗口": {
+  "where": "ui/base_screens.gd:426",
+  "line": "const MEDICAL_TABS := [\"药房窗口\", \"回收报告\", \"污染检测门\"]"
+ },
+ "药房窗口 / 配药": {
+  "where": "ui/field_menu.gd:152",
+  "line": "\"pharmacy\": [\"药房窗口 / 配药\", \"下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂\"],"
+ },
+ "营地升级": {
+  "where": "ui/field_menu.gd:324",
+  "line": "button(body, \"营地升级 %s + %s%s\" % [Economy.format(BaseCatalog.CAMP_UPGRADE_PRICE), BaseCatalog.cost_text(BaseCatalog.CAMP_UPGRADE_MATERIALS), \"\" if camp_refusal.is_empty() else \"（%s）\" % camp_refusal],"
+ },
+ "藏品 /": {
+  "where": "ui/field_menu.gd:228",
+  "line": "text(box, \"藏品 / \" + data.build, 14)"
+ },
+ "藏品倾向": {
+  "where": "ui/base_screens.gd:169",
+  "line": "AK.put(stage, AK.label(\"藏品倾向\", 12, AK.MUTE), Vector2(x + 18, TOP + 272))"
+ },
+ "装备": {
+  "where": "ui/base_screens.gd:635",
+  "line": "var equip := AK.button(\"装备\", \"blue\", 14)"
+ },
+ "装备、卸下或存回仓库": {
+  "where": "ui/field_menu.gd:148",
+  "line": "\"loadout\": [\"整备台 / 装备\", \"装备、卸下或存回仓库\"],"
+ },
+ "解锁）": {
+  "where": "ui/field_menu.gd:458",
+  "line": "var label := \"%s %s\" % [BaseCatalog.POTIONS[type].name, (\"（R%d 解锁）\" % int(BaseCatalog.POTIONS[type].rank)) if price < 0 else (\"免费\" if price == 0 else \"%s 龙门币\" % Economy.format(price))]"
+ },
+ "解锁：": {
+  "where": "ui/base_screens.gd:362",
+  "line": "AK.put(stage, AK.label(\"R%d 解锁：%s\" % [rank + 1, BaseCatalog.RANK_UNLOCKS[rank + 1]], 12, AK.MUTE), Vector2(110, TOP + 18))"
+ },
+ "订单栏": {
+  "where": "ui/field_menu.gd:404",
+  "line": "text(box, \"订单栏 %d / 空，下次结算后补上\" % (i + 1), 16, Color(\"99aab8\"))"
+ },
+ "设置": {
+  "where": "ui/base_screens.gd:674",
+  "line": "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
+ },
+ "货架已满配": {
+  "where": "ui/base_screens.gd:308",
+  "line": "var label := \"货架已满配\""
+ },
+ "起点": {
+  "where": "ui/base_screens.gd:171",
+  "line": "_section(stage, \"起点\", \"START\", Vector2(x + 18, TOP + 310))"
+ },
+ "还没有藏品。强化装置、战斗缴获和密室都会给出藏品选择。": {
+  "where": "ui/field_menu.gd:493",
+  "line": "text(parent, \"还没有藏品。强化装置、战斗缴获和密室都会给出藏品选择。\", 14, Color(\"99aab8\"))"
+ },
+ "重伤  ·  生命上限 −": {
+  "where": "ui/field_menu.gd:441",
+  "line": "text(body, \"重伤  ·  生命上限 −%d%%\" % roundi(BaseCatalog.INJURY_HP_PENALTY * 100), 15, AK.RED)"
+ },
+ "降到": {
+  "where": "ui/field_menu.gd:469",
+  "line": "button(body, \"降到 %d（%s 龙门币）\" % [target, Economy.format(price)], func(): game.decontaminate(target); _refresh(), game.gold < price)"
+ },
+ "音频": {
+  "where": "ui/base_screens.gd:675",
+  "line": "const SETTING_TABS := [\"画面\", \"界面\", \"音频\"]"
+ },
+ "龙门币为交付价 ×": {
+  "where": "ui/field_menu.gd:407",
+  "line": "var reward := (\"龙门币 %s\" % Economy.format(int(t.gold))) if t.has(\"gold\") else (\"龙门币为交付价 ×%.1f\" % float(t.mult))"
+ },
+ "龙门币）": {
+  "where": "ui/field_menu.gd:442",
+  "line": "button(body, \"治疗重伤（%s 龙门币）\" % Economy.format(BaseCatalog.INJURY_TREATMENT), func(): game.treat_injury(); _refresh(), game.gold < BaseCatalog.INJURY_TREATMENT)"
+ },
+ "（R": {
+  "where": "ui/field_menu.gd:458",
+  "line": "var label := \"%s %s\" % [BaseCatalog.POTIONS[type].name, (\"（R%d 解锁）\" % int(BaseCatalog.POTIONS[type].rank)) if price < 0 else (\"免费\" if price == 0 else \"%s 龙门币\" % Economy.format(price))]"
+ },
+ "（已满配）": {
+  "where": "ui/field_menu.gd:314",
+  "line": "button(upgrades, \"%s %d×%d（已满配）\" % [title, now.x, now.y], func(): pass, true)"
+ },
+ "（间隔": {
+  "where": "ui/field_menu.gd:505",
+  "line": "text(parent, \"攻速 %d（间隔 %.2f 秒）   暴击 %d%% × %d%%   吸血 %d%%   闪避 %d%%   生命回复 %d/秒\" % [roundi(p.current_aspd()), p.current_cooldown(),"
+ },
+ "）  ·  生命上限 −": {
+  "where": "ui/field_menu.gd:439",
+  "line": "text(body, \"污染 %d（%s）  ·  生命上限 −%d%%\" % [roundi(base.contamination), BaseCatalog.CONTAMINATION_TIER_NAMES[tier], roundi(base.hp_penalty() * 100)], 16, GOLD)"
+ },
+ "，声望": {
+  "where": "ui/field_menu.gd:412",
+  "line": "text(box, \"订单栏 %d / %s  ·  %d/%d  ·  %s，声望 %d\" % [i + 1, BaseCatalog.order_text(order.id), orders.delivered_count(i), count, reward, int(t.prestige)], 18, GOLD)"
+ }
+}

@@ -1,0 +1,62 @@
+[
+ {
+  "zh": "坎诺特",
+  "en": "Cannot",
+  "note": "Glossary-mandated uncertain name (in 坎诺特 · E and shop tip)."
+ },
+ {
+  "zh": "时光之末",
+  "en": "End of Time",
+  "note": "IS relic name; official EN unverified."
+ },
+ {
+  "zh": "复还之手：受到致命伤时回满生命（本区段已用）",
+  "en": "Hand of Return: ...",
+  "note": "Relic name 复还之手 official EN unverified."
+ },
+ {
+  "zh": "雪牝的护手：攻速 +80、闪避 50%，持续 30 秒",
+  "en": "Snow Doe's Gauntlets: ...",
+  "note": "Relic name 雪牝的护手 official EN unverified."
+ },
+ {
+  "zh": "霜牡的肩甲：攻击力与防御 +40%，持续 30 秒",
+  "en": "Frost Stag's Pauldrons: ...",
+  "note": "Relic name 霜牡的肩甲 official EN unverified."
+ },
+ {
+  "zh": "圆石祭坛：攻击力与防御 +5",
+  "en": "Cobble Altar: ATK & DEF +5",
+  "note": "Relic name 圆石祭坛 official EN unverified."
+ },
+ {
+  "zh": "临界护盾化解了这次伤害",
+  "en": "Critical Shield negated this hit",
+  "note": "Relic name 临界护盾 official EN unverified."
+ },
+ {
+  "zh": "噤声",
+  "en": "Silence",
+  "note": "Relic name (only in a code comment); official EN unverified."
+ },
+ {
+  "zh": "绝影",
+  "en": "Shadow",
+  "note": "Amiya's custom active (hotbar/HUD); kept short."
+ },
+ {
+  "zh": "狼魂",
+  "en": "Wolf Soul",
+  "note": "Lappland passive name; custom."
+ },
+ {
+  "zh": "层）",
+  "en": " stacks)",
+  "note": "Only source is altar stacks; if reused for floors it would read wrong."
+ },
+ {
+  "zh": "抑",
+  "en": "Sup",
+  "note": "One-char HUD badges 抑/缓/染 abbreviated to 3 letters (suppression/slow heal/contamination)."
+ }
+]

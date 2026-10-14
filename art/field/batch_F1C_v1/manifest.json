@@ -1,0 +1,68 @@
+[
+  {
+    "id": "npc_squad_idle",
+    "file": "npc_squad_idle.png",
+    "size": [
+      512,
+      64
+    ],
+    "frame_size": [
+      128,
+      64
+    ],
+    "frames": 4,
+    "anchor_px": [
+      64,
+      61
+    ],
+    "fps": 3,
+    "preview": "npc_squad_idle_frame0_8x.png",
+    "gif": "npc_squad_idle.gif",
+    "source_painting": "source_paintings/squad_field_lineup.png",
+    "source_sha256": "04f726a6d806fe762ea0cf91864d0dbfde684e88c1732d6a9c8ca15319b5b7fc"
+  },
+  {
+    "id": "npc_cannot_idle",
+    "file": "npc_cannot_idle.png",
+    "size": [
+      256,
+      64
+    ],
+    "frame_size": [
+      64,
+      64
+    ],
+    "frames": 4,
+    "anchor_px": [
+      32,
+      61
+    ],
+    "fps": 3,
+    "preview": "npc_cannot_idle_frame0_8x.png",
+    "gif": "npc_cannot_idle.gif",
+    "source_painting": "portraits/batch_P1_v3/source_paintings/portrait_cannot_chibi.png",
+    "source_sha256": "f6f4011c042b50e997cec288d99d733a21f813b0c0aba1e799314a7639ab1fb3"
+  },
+  {
+    "id": "npc_closure_idle",
+    "file": "npc_closure_idle.png",
+    "size": [
+      256,
+      64
+    ],
+    "frame_size": [
+      64,
+      64
+    ],
+    "frames": 4,
+    "anchor_px": [
+      32,
+      61
+    ],
+    "fps": 3,
+    "preview": "npc_closure_idle_frame0_8x.png",
+    "gif": "npc_closure_idle.gif",
+    "source_painting": "portraits/batch_P1_v3/source_paintings/portrait_closure_chibi.png",
+    "source_sha256": "2a35934959e5afb818255572ac8693d90a3f5982311be2560bb729102cd886c3"
+  }
+]

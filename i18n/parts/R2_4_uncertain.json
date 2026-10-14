@@ -1,0 +1,112 @@
+[
+ {
+  "zh": "\"剑锤\"",
+  "en": "\"Sword Hammer\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"噤声\"",
+  "en": "\"Silence\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"复仇者\"",
+  "en": "\"Avenger\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"忠义\"",
+  "en": "\"Loyalty\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"断剑\"",
+  "en": "\"Broken Sword\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"枯木的回声\"",
+  "en": "\"Echo of Deadwood\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"永夜的窥视\"",
+  "en": "\"Gaze of Eternal Night\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"法术杀手\"",
+  "en": "\"Arts Killer\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"璀璨悲泣\"",
+  "en": "\"Dazzling Lament\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"萤灯映牍\"",
+  "en": "\"Fireflies on Scrolls\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"迷醉荷谟伊\"",
+  "en": "\"Intoxicated Hemoi\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"静音小队\"",
+  "en": "\"Silent Squad\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "\"黑夜呢喃\"",
+  "en": "\"Night Whisper\"",
+  "note": "Official IS (Phantom) relic EN name not verified; quotes kept from key"
+ },
+ {
+  "zh": "中文",
+  "en": "中文",
+  "note": "Language toggle option; kept as native name. Change to 'Chinese' if wanted"
+ },
+ {
+  "zh": "坎诺特商店的价格 −50%",
+  "en": "Cannot's shop prices −50%",
+  "note": "Cannot name uncertain per glossary"
+ },
+ {
+  "zh": "每遇到一次罗德岛小队或坎诺特，赤金 +2",
+  "en": "Each Rhodes Island Squad or Cannot encounter: Pure Gold +2",
+  "note": "Cannot name uncertain per glossary (also +3 variant)"
+ },
+ {
+  "zh": "萨米 · 冻土林线",
+  "en": "Sami · Permafrost Treeline",
+  "note": "Sami official; sub-area name is invented"
+ },
+ {
+  "zh": "切尔诺伯格 · 坍塌矿区",
+  "en": "Chernobog · Collapsed Mines",
+  "note": "sub-area name invented"
+ },
+ {
+  "zh": "龙门 · 下城区废墟",
+  "en": "Lungmen · Lower City Ruins",
+  "note": "下城区 = Lower City/Lower Ring? Lungmen Downtown is official 'Lungmen Downtown'; chose Lower City"
+ },
+ {
+  "zh": "战斗后掉落招募券时，增加一个可选项",
+  "en": "When a Recruitment Voucher drops after battle, add one more option",
+  "note": "招募券 = IS Recruitment Voucher (official term guessed)"
+ },
+ {
+  "zh": "可送回",
+  "en": "Sendable",
+  "note": "Section heading counterpart of 可投保 Insurable; alt Send Home Eligible"
+ },
+ {
+  "zh": "精良及以上",
+  "en": "Fine+ ",
+  "note": "Prefix joined with category name, trailing space intentional"
+ }
+]

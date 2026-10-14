@@ -1,0 +1,27 @@
+[
+ {
+  "zh": "从",
+  "en": "From ",
+  "note": "Used as 从%s出发; the trailing 出发 is also a key ('Depart'), so it renders 'From <camp>Depart'. Consider a whole-string key or code change ('Start at %s')."
+ },
+ {
+  "zh": "开始唤醒",
+  "en": "Wake Up",
+  "note": "Primary button meaning unclear from context (start awakening); verify."
+ },
+ {
+  "zh": "扩容",
+  "en": " Expand",
+  "note": "Used as '%s扩容 %d×%d → ...' after a title; leading space assumes title is translated."
+ },
+ {
+  "zh": "份合同后",
+  "en": "contracts later",
+  "note": "' · %d 份合同后' (insured item returns after N contracts); English order is awkward."
+ },
+ {
+  "zh": "·  阵亡，带回重伤",
+  "en": "·  Fell, Critical Injury",
+  "note": "Operator fell in the field and returned with Critical Injury."
+ }
+]

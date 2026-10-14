@@ -1,0 +1,132 @@
+[
+ {
+  "zh": "\"幼狼的牙齿\"",
+  "en": "\"Young Wolf's Teeth\"",
+  "note": "Lappland LOR-X module; official EN module name unknown (en.json has 幼狼之牙 = Young Wolf's Fang)"
+ },
+ {
+  "zh": "待调弦的怒火",
+  "en": "Untuned Fury",
+  "note": "Amiya Guard AFT-X module; official EN unknown"
+ },
+ {
+  "zh": "精神摧毁",
+  "en": "Mind Destruction",
+  "note": "Lappland talent; believed official \"Mind Destruction\""
+ },
+ {
+  "zh": "青色怒火",
+  "en": "Cyan Fury",
+  "note": "Amiya Guard talent; official EN unknown"
+ },
+ {
+  "zh": "影霄·奔夜",
+  "en": "Yingxiao·Nightrun",
+  "note": "Amiya Guard skill (official uses 赤霄 Chi Xiao); 影霄 transliterated"
+ },
+ {
+  "zh": "影霄·绝影",
+  "en": "Yingxiao·Shadowless",
+  "note": "Amiya Guard skill; official analog \"Chi Xiao - Shadowless\""
+ },
+ {
+  "zh": "奎隆佩剑",
+  "en": "Quilon Sword",
+  "note": "Quilon = sword-guard type; guessed"
+ },
+ {
+  "zh": "影落とす時針",
+  "en": "Shadowfall Hand",
+  "note": "Japanese in source; translated loosely"
+ },
+ {
+  "zh": "暴徒",
+  "en": "Rioter",
+  "note": "Official EN for 暴徒 believed to be Rioter"
+ },
+ {
+  "zh": "弩手",
+  "en": "Crossbowman",
+  "note": "Official Crossbowman"
+ },
+ {
+  "zh": "拳刃武士",
+  "en": "Fistblade Warrior",
+  "note": "No known official EN"
+ },
+ {
+  "zh": "冰原战士",
+  "en": "Tundra Warrior",
+  "note": "Not an official enemy; 冰原 = Tundra per en.json"
+ },
+ {
+  "zh": "冰原猎人",
+  "en": "Tundra Hunter",
+  "note": "Not official"
+ },
+ {
+  "zh": "武装人员",
+  "en": "Armed Militant",
+  "note": "Official EN unknown"
+ },
+ {
+  "zh": "机动盾兵",
+  "en": "Mobile Shieldguard",
+  "note": "Official EN unknown"
+ },
+ {
+  "zh": "高能源石虫",
+  "en": "Infused Originium Slug",
+  "note": "Believed official \"Infused Originium Slug\""
+ },
+ {
+  "zh": "感染者纠察官",
+  "en": "Infected Picket",
+  "note": "Official EN unknown"
+ },
+ {
+  "zh": "灰尾香主",
+  "en": "Greytail Boss",
+  "note": "香主 gang rank; official EN unknown"
+ },
+ {
+  "zh": "燃烧瓶投掷者",
+  "en": "Cocktail Thrower",
+  "note": "Believed official \"Cocktail Thrower\""
+ },
+ {
+  "zh": "欺凌者",
+  "en": "Bully",
+  "note": "Official EN unknown"
+ },
+ {
+  "zh": "寻仇者",
+  "en": "Avenger",
+  "note": "Official EN unknown"
+ },
+ {
+  "zh": "粉碎攻坚手",
+  "en": "Smashing Breacher",
+  "note": "Official EN unknown (id breacher)"
+ },
+ {
+  "zh": "木裂战士",
+  "en": "Shattered Champion",
+  "note": "Used id shattered_champion; official EN unknown"
+ },
+ {
+  "zh": "陷落雪祀",
+  "en": "Fallen Snowpriest",
+  "note": "Official EN unknown"
+ },
+ {
+  "zh": "巨壳藤蔓",
+  "en": "Giant Shell Vine",
+  "note": "Not official"
+ },
+ {
+  "zh": "一闪",
+  "en": "Issen",
+  "note": "Romanized Japanese \"Issen\" (a single flash cut); could be \"Flash\""
+ }
+]

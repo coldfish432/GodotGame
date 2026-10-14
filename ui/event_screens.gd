@@ -41,9 +41,17 @@ static func _footer(stage: Control, at: Vector2, width: float, leave: String, co
 	go.pressed.connect(on_confirm)
 	return go
 
-## A dark side panel with a tinted gradient, an outlined watermark and a figure
-## placeholder (the portraits wait for Sol's art).
-static func _side(stage: Control, width: float, tint: Color, watermark: String, figure: Color) -> Control:
+## NPC portraits (art/characters/npc/prepare_npc.py), drawn at 4x like Lappland's.
+const PORTRAITS := {
+	"squad": preload("res://art/characters/npc/npc_squad_portrait.png"),
+	"trader": preload("res://art/characters/npc/npc_cannot_portrait.png"),
+	"closure": preload("res://art/characters/npc/npc_closure_portrait.png"),
+}
+const PORTRAIT_SCALE := 4
+
+## A dark side panel with a tinted gradient, an outlined watermark and the
+## NPC's portrait standing on the panel's foot (a placeholder figure without one).
+static func _side(stage: Control, width: float, tint: Color, watermark: String, figure: Color, portrait: String = "") -> Control:
 	var side := Control.new()
 	AK.put(stage, side, Vector2.ZERO, Vector2(width, 720))
 	side.clip_contents = true
@@ -64,6 +72,17 @@ static func _side(stage: Control, width: float, tint: Color, watermark: String, 
 	var mark := AK.label(watermark, 104, Color(figure, 0.1), AK.en())
 	mark.position = Vector2(-8, 470)
 	side.add_child(mark)
+	if PORTRAITS.has(portrait):
+		var art: Texture2D = PORTRAITS[portrait]
+		var image := TextureRect.new()
+		image.texture = art
+		image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		image.stretch_mode = TextureRect.STRETCH_SCALE
+		image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var shown := art.get_size() * PORTRAIT_SCALE
+		AK.put(side, image, Vector2(roundf((width - shown.x) * 0.5), 720 - shown.y), shown)
+		return side
 	var silhouette := Silhouette.new()
 	silhouette.colour = figure
 	AK.put(side, silhouette, Vector2(width * 0.5 - 75, 200), Vector2(150, 260))
@@ -208,7 +227,7 @@ static func _node(parent: Control, centre: Vector2, code: String, name: String, 
 	var dark := state == "here"
 	var glyph := AK.rect(Color.BLACK if not dark else AK.INK, Vector2(8, 8), Vector2(40, 40))
 	b.add_child(glyph)
-	var letter := AK.label(name.left(1) if name != "—" else "·", 16, colour if state == "next" else (AK.PAPER if dark else AK.MUTE))
+	var letter := AK.label(I18n.t(name).left(1) if name != "—" else "·", 16, colour if state == "next" else (AK.PAPER if dark else AK.MUTE))
 	letter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	letter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	letter.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -227,7 +246,7 @@ static func _node(parent: Control, centre: Vector2, code: String, name: String, 
 static func squad(menu: FieldMenu) -> void:
 	var game := menu.game
 	var stage := menu.stage_begin(0.8)
-	var side := _side(stage, 430, Color("0f2a30"), "RHODES", AK.CYAN)
+	var side := _side(stage, 430, Color("0f2a30"), "RHODES", AK.CYAN, "squad")
 	_title(side, Vector2(36, 40), "ENCOUNTER", "罗德岛小队", "外勤支援 · " + AK.floor_code(game.region_id, game.floor_number), AK.CYAN)
 	var service := menu.squad_service
 	var pick: Item = menu.pick if menu.pick is Item else null
@@ -306,7 +325,7 @@ static func _item_row(item: Item, price: String, sub: String, enabled: bool, sel
 static func trader(menu: FieldMenu) -> void:
 	var game := menu.game
 	var stage := menu.stage_begin(0.82)
-	var side := _side(stage, 360, Color("3a2c12"), "TRADER", AK.TRADER)
+	var side := _side(stage, 360, Color("3a2c12"), "TRADER", AK.TRADER, "trader")
 	_title(side, Vector2(32, 36), "ROGUE TRADER", "坎诺特", "诡意行商 · " + AK.floor_code(game.region_id, game.floor_number), AK.TRADER)
 	var selling := menu.trader_tab == "sell"
 	AK.put(stage, AK.toggle(["购买", "出售"], 1 if selling else 0, func(i): menu.trader_tab = ["buy", "sell"][i]; menu.pick = null; trader(menu)), Vector2(390, 32))
@@ -404,7 +423,7 @@ static func _info(stage: Control, game: GameManager, item: Item, key: String, va
 static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 	var game := menu.game
 	var stage := menu.stage_begin(0.97)
-	var side := _side(stage, 380, Color("13321f"), "STORE" if at_base else "CAMP", AK.GREEN)
+	var side := _side(stage, 380, Color("13321f"), "STORE" if at_base else "CAMP", AK.GREEN, "closure")
 	if at_base:
 		AK.put(side, AK.label("可露希尔的商店", 26, AK.FG), Vector2(32, 40))
 		AK.put(side, AK.label("CLOSURE'S STORE · RHODES ISLAND", 10, AK.MUTE, AK.en()), Vector2(32, 78))
@@ -540,7 +559,8 @@ static func settlement(menu: FieldMenu) -> void:
 		if int(records.get(record, 0)) > 0: record_parts.append("%s ×%d" % [record.replace("作战记录", ""), int(records[record])])
 	stage.add_child(AK.rect(AK.PLATE, Vector2(48, 368), Vector2(330, 30)))
 	AK.put(stage, AK.tag("作战记录", AK.SP), Vector2(58, 375))
-	AK.put(stage, AK.label(" · ".join(record_parts) if not record_parts.is_empty() else "—", 12, AK.FG), Vector2(130, 374))
+	var after_tag := maxf(130.0, 58.0 + AK.cn().get_string_size(I18n.t("作战记录"), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 12.0 + 10.0)
+	AK.put(stage, AK.label(" · ".join(record_parts) if not record_parts.is_empty() else "—", 12, AK.FG), Vector2(after_tag, 374))
 	# The contract's objective (§6 B1): done or not, and what it paid.
 	var objective: Dictionary = view.get("contract", {})
 	if not str(objective.get("goal", "")).is_empty():

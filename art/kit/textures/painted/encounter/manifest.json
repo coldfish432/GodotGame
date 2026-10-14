@@ -1,0 +1,112 @@
+{
+  "source_sha256": "15419775cfb49d5bf5875bb2e6944dbd80c7657cca8438eebcaaa80111ab6027",
+  "assets": [
+    {
+      "id": "rhodes_case",
+      "file": "rhodes_case.png",
+      "size": [
+        256,
+        256
+      ],
+      "use": "case plastic",
+      "tile_preview": "rhodes_case_tile_3x3.png",
+      "source_crop": [
+        0,
+        0,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "rhodes_trim_glow",
+      "file": "rhodes_trim_glow.png",
+      "size": [
+        256,
+        256
+      ],
+      "use": "cyan display and latch",
+      "tile_preview": "rhodes_trim_glow_tile_3x3.png",
+      "source_crop": [
+        512,
+        0,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "rhodes_pennant",
+      "file": "rhodes_pennant.png",
+      "size": [
+        256,
+        256
+      ],
+      "use": "field cloth",
+      "tile_preview": "rhodes_pennant_tile_3x3.png",
+      "source_crop": [
+        1024,
+        0,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "rhodes_logo_decal",
+      "file": "rhodes_logo_decal.png",
+      "size": [
+        64,
+        64
+      ],
+      "use": "Rhodes pennant and case",
+      "tile_preview": "rhodes_logo_decal_tile_3x3.png",
+      "source": "art/rhodes/batch2_v2/rhodes_logo_L_gray_v2.png"
+    },
+    {
+      "id": "trader_canvas",
+      "file": "trader_canvas.png",
+      "size": [
+        256,
+        256
+      ],
+      "use": "patched canvas",
+      "tile_preview": "trader_canvas_tile_3x3.png",
+      "source_crop": [
+        0,
+        512,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "trader_rug",
+      "file": "trader_rug.png",
+      "size": [
+        256,
+        256
+      ],
+      "use": "woven rug",
+      "tile_preview": "trader_rug_tile_3x3.png",
+      "source_crop": [
+        512,
+        512,
+        512,
+        512
+      ]
+    },
+    {
+      "id": "trader_lantern_glow",
+      "file": "trader_lantern_glow.png",
+      "size": [
+        256,
+        256
+      ],
+      "use": "lantern glass",
+      "tile_preview": "trader_lantern_glow_tile_3x3.png",
+      "source_crop": [
+        1024,
+        512,
+        512,
+        512
+      ]
+    }
+  ]
+}

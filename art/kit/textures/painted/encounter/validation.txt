@@ -1,0 +1,10 @@
+NPC v3 Part C static validation
+Painted source: source_paintings/encounter_swatch_atlas.png
+PASS rhodes_case: 256x256 RGB, 32 colours including exact palette anchors, matching opposite-edge pixels, 3x3 tile preview.
+PASS rhodes_trim_glow: 256x256 RGB, 32 colours including exact palette anchors, matching opposite-edge pixels, 3x3 tile preview.
+PASS rhodes_pennant: 256x256 RGB, 32 colours including exact palette anchors, matching opposite-edge pixels, 3x3 tile preview.
+PASS trader_canvas: 256x256 RGB, 32 colours including exact palette anchors, matching opposite-edge pixels, 3x3 tile preview.
+PASS trader_rug: 256x256 RGB, 32 colours including exact palette anchors, matching opposite-edge pixels, 3x3 tile preview.
+PASS trader_lantern_glow: 256x256 RGB, 32 colours including exact palette anchors, matching opposite-edge pixels, 3x3 tile preview.
+PASS rhodes_logo_decal: 64x64 RGBA, transparent surround, derived from existing Rhodes mark.
+Static file checks only. Blender projection, AO bake, and Godot display were not tested.

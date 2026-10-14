@@ -22,7 +22,7 @@ var _tip: Label
 var _settings: Control
 var _loading_left := 0.0
 var _was_transitioning := false
-static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}}
+static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}, "language": "zh"}
 static var _game: GameManager
 
 func _ready() -> void:
@@ -166,10 +166,31 @@ func _build_settings() -> Control:
 	full.button_pressed = settings.fullscreen
 	full.toggled.connect(func(on): SystemScreens.set_setting("fullscreen", on))
 	column.add_child(full)
+	column.add_child(language_toggle(_rebuild_settings))
 	var done := AK.button("确定", "blue", 15)
 	done.pressed.connect(func(): SystemScreens.save_settings(); screen.hide())
 	column.add_child(done)
 	return screen
+
+## 语言 / Language: the two names stay in their own language whichever is shown.
+static func language_toggle(after: Callable) -> Control:
+	var row := HBoxContainer.new()
+	row.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	row.add_child(AK.label("语言 / Language", 14, AK.FG))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+	var current := 1 if str(settings.language) == "en" else 0
+	row.add_child(AK.toggle(["中文", "English"], current, func(i):
+		SystemScreens.set_setting("language", "en" if i == 1 else "zh")
+		after.call(), 13))
+	return row
+
+## After a language pick: the panel again, so the picked button is lit.
+func _rebuild_settings() -> void:
+	_settings.queue_free()
+	_settings = _build_settings()
+	_settings.show()
 
 func show_settings() -> void:
 	_settings.show()
@@ -212,6 +233,7 @@ static func apply_audio() -> void:
 static func apply_settings() -> void:
 	if is_instance_valid(_game) and is_instance_valid(_game.number_layer): _game.number_layer.visible = bool(settings.damage_numbers)
 	if _game == null: return
+	I18n.set_language(str(settings.language))
 	apply_audio()
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if settings.vsync else DisplayServer.VSYNC_DISABLED)

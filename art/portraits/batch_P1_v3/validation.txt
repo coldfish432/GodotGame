@@ -1,0 +1,8 @@
+P1 v3 static validation
+Source: generated chibi pixel drawing, processed at native canvas with nearest-neighbour sampling, binary alpha, no dithering, 1 px #0b0c0d outer outline.
+PASS portrait_squad: 105x150, binary alpha, 43 colors, top clear 17 px, 4x and panel/style previews.
+PASS portrait_cannot: 85x150, binary alpha, 42 colors, top clear 17 px, 4x and panel/style previews.
+PASS portrait_closure: 85x150, binary alpha, 42 colors, top clear 37 px, 4x and panel/style previews.
+Manual panel review: squad sniper's orange goggles read in the real encounter panel; all three reserve models are distinct.
+Manual panel review: Closure's head, hands, yellow chest device and drone remain visible above the camp buttons. Sleeveless shoulders follow the latest user direction.
+Visual acceptance pending: character model and style. Godot runtime import/display was not tested.

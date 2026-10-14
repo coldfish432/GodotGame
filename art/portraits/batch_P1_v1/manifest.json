@@ -1,0 +1,119 @@
+[
+  {
+    "id": "portrait_squad",
+    "file": "portrait_squad.png",
+    "size": [
+      200,
+      300
+    ],
+    "display_scale": 2,
+    "preview": "portrait_squad_2x.png",
+    "panel_composite": "portrait_squad_panel.png",
+    "source_painting": "source_paintings/portrait_squad_painting.png",
+    "source_sha256": "37b11dfbd3449bbebb3b75db48ab1be351b53a4087dccf264195fca7a6e44344",
+    "source_method": "OpenAI built-in imagegen painting; nearest-neighbour reduction and colour quantization",
+    "metrics": {
+      "source_size": [
+        1024,
+        1536
+      ],
+      "source_crop": [
+        27,
+        78,
+        989,
+        1536
+      ],
+      "painted_colors": 47,
+      "final_colors": 48,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "top_clear_px": 8,
+      "visible_bbox_px": [
+        3,
+        8,
+        197,
+        300
+      ]
+    }
+  },
+  {
+    "id": "portrait_cannot",
+    "file": "portrait_cannot.png",
+    "size": [
+      170,
+      300
+    ],
+    "display_scale": 2,
+    "preview": "portrait_cannot_2x.png",
+    "panel_composite": "portrait_cannot_panel.png",
+    "source_painting": "source_paintings/portrait_cannot_painting.png",
+    "source_sha256": "ca3b4b0d39c8881dd7d3dc99ebf08617a29aede1d4ab347f3c2bcd39970b20a7",
+    "source_method": "OpenAI built-in imagegen painting; nearest-neighbour reduction and colour quantization",
+    "metrics": {
+      "source_size": [
+        1024,
+        1536
+      ],
+      "source_crop": [
+        89,
+        72,
+        924,
+        1536
+      ],
+      "painted_colors": 47,
+      "final_colors": 48,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "top_clear_px": 15,
+      "visible_bbox_px": [
+        3,
+        15,
+        167,
+        300
+      ]
+    }
+  },
+  {
+    "id": "portrait_closure",
+    "file": "portrait_closure.png",
+    "size": [
+      170,
+      300
+    ],
+    "display_scale": 2,
+    "preview": "portrait_closure_2x.png",
+    "panel_composite": "portrait_closure_panel.png",
+    "source_painting": "source_paintings/portrait_closure_painting.png",
+    "source_sha256": "a2487ed19943ee5205076ae4e0c2db4348dfbfc328dc21a11cbe494b2f57cf09",
+    "source_method": "OpenAI built-in imagegen painting; nearest-neighbour reduction and colour quantization",
+    "metrics": {
+      "source_size": [
+        1024,
+        1536
+      ],
+      "source_crop": [
+        18,
+        67,
+        1007,
+        1536
+      ],
+      "painted_colors": 47,
+      "final_colors": 48,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "top_clear_px": 58,
+      "visible_bbox_px": [
+        3,
+        58,
+        167,
+        300
+      ]
+    }
+  }
+]

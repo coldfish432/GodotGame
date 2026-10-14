@@ -31,7 +31,6 @@ var statuses: Dictionary = {}
 var _burn_tick := 0.0
 ## Relics that act on the first hit against an enemy (冻土绊索).
 var hit_by_player := false
-var _health_bar: EnemyHealthBar
 var move_speed: float = 2.1
 var game: GameManager
 enum Behavior { NORMAL, GUARD }
@@ -227,10 +226,8 @@ func _build_visual() -> void:
 	_state_label.pixel_size = 0.012
 	_state_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(_state_label)
-	_health_bar = EnemyHealthBar.new()
-	_health_bar.position.y = height + 0.02
-	add_child(_health_bar)
-	_health_bar.visible = false  # drawn by the HUD instead (界面策划案 §2.6)
+	# Its life bar is the HUD's (界面策划案 §2.6). The old 3D bar it carried
+	# showed itself again on every hit, so elites wore two bars.
 	_glint = EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * PIXEL, Color.WHITE)
 	_glint.material_override.no_depth_test = true
 	_glint.material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -959,7 +956,6 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 	_flash()
 	if is_instance_valid(game) and not quiet:
 		DamageNumber.spawn(game, global_position + Vector3.UP * (0.6 if elite else 0.2), str(roundi(dealt)) + ("!" if crit else ""), "crit" if crit else kind, crit)
-	if is_instance_valid(_health_bar): _health_bar.set_ratio(health / maxf(max_health, 1.0))
 	if health <= 0.0:
 		_dead = true
 		_cancel_attack()

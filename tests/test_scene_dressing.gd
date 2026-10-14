@@ -66,8 +66,9 @@ func run() -> void:
 			if not found:
 				hovering += 1
 				if hovering <= 2: print("  no triangle under ", p, " key ", key)
-		check(region + " multiple scene compositions and visible props (%d groups / %d props)" % [dressing.get_meta("composition_count"), props], dressing.get_meta("composition_count") >= 15 and props >= 15)
-		check(region + " varied regional objects rather than one repeated prop", roles.size() >= 3)
+		# The pixel scenery is gone (SceneDressing.SPRITE_SCENERY); the group spots
+		# still get their rocks and stains.
+		check(region + " scene compositions without pixel scenery (%d groups / %d sprites)" % [dressing.get_meta("composition_count"), props], dressing.get_meta("composition_count") >= 15 and props == 0)
 		check(region + " object anchors leave the playable corridor clear", misplaced == 0)
 		check(region + " billboard feet match rendered ground triangles (worst %.5f)" % max_error, hovering == 0)
 		check(region + " scenery adds no collision bodies or navigation blockers", dressing.find_children("*", "CollisionObject3D", true, false).is_empty())

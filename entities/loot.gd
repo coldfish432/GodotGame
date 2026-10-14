@@ -68,13 +68,6 @@ func _build_search_point() -> void:
 	mat.albedo_color = Color("827357")
 	mesh.material_override = mat
 	add_child(mesh)
-	var label := Label3D.new()
-	label.text = "补给箱"
-	label.position.y = 1.1
-	label.font_size = 24
-	label.pixel_size = 0.01
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	add_child(label)
 
 ## The item's inventory icon at ground size: halved (box filter) until it is
 ## at most GROUND_ICON_TEXELS on its long side, alpha kept hard. Falls back to

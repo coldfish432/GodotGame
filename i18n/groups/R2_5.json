@@ -1,0 +1,406 @@
+{
+ "\"幼狼的牙齿\"": {
+  "where": "game/skill_trees.gd:83",
+  "line": "\"lappland\": {\"name\": \"\\\"幼狼的牙齿\\\"\", \"type\": \"LOR-X\", \"stats\": {\"hp\": 175.0, \"atk\": 40.0, \"aspd\": 6.0}},"
+ },
+ "\"时光之末\"：保留 1 点生命（本合同已用）": {
+  "where": "entities/player.gd:974",
+  "line": "message_requested.emit(\"\\\"时光之末\\\"：保留 1 点生命（本合同已用）\")"
+ },
+ "PRTS 提示": {
+  "where": "ui/base_screens.gd:743",
+  "line": "1: rows = [[\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\"], [\"language\"]]"
+ },
+ "[color=#99aab8]── 当前装备（Shift）──[/color]": {
+  "where": "ui/item_tooltip.gd:83",
+  "line": "lines.append(\"\\n[color=#99aab8]── 当前装备（Shift）──[/color]\")"
+ },
+ "一闪": {
+  "where": "game/skill_trees.gd:70",
+  "line": "\"shadow_flash\": {\"name\": \"一闪\", \"type\": \"transmuter\", \"group\": \"shadow\", \"tier\": 2, \"max\": 1,"
+ },
+ "三连扇射": {
+  "where": "game/enemy_attacks.gd:18",
+  "line": "\"crossbow_leader\": {\"name\": \"弩手组长\", \"attack\": \"三连扇射\", \"row\": 4, \"windup\": 1.1, \"interval\": 1.8, \"damage\": 1.0, \"shape\": \"projectile\", \"reach\": 12.0, \"projectile\": \"arrow\", \"shots\": 3, \"recovery\": 0.3}"
+ },
+ "乱劈": {
+  "where": "game/enemy_attacks.gd:14",
+  "line": "\"thug\": {\"name\": \"暴徒\", \"attack\": \"乱劈\", \"row\": 0, \"windup\": 0.8, \"interval\": 1.35, \"damage\": 1.0, \"shape\": \"sector\", \"reach\": 2.4, \"angle\": 100.0, \"recovery\": 0.25},"
+ },
+ "二连击": {
+  "where": "game/skill_trees.gd:66",
+  "line": "\"double_cut\": {\"name\": \"二连击\", \"type\": \"modifier\", \"tier\": 1, \"max\": 5, \"parent\": \"nightrun\","
+ },
+ "交互": {
+  "where": "game/keybinds.gd:33",
+  "line": "[\"interact\", \"交互\", \"界面\", {\"key\": KEY_E}, null],"
+ },
+ "交付个人仓库或背包里的物品：按订单换龙门币和声望，或直接换龙门币": {
+  "where": "ui/field_menu.gd:150",
+  "line": "\"outbound\": [\"出库区 / 订单与交付\", \"交付个人仓库或背包里的物品：按订单换龙门币和声望，或直接换龙门币\"],"
+ },
+ "入口": {
+  "where": "game/game_manager.gd:627",
+  "line": "route_history = [{\"floor\": start_floor, \"name\": \"营地\" if from_camp else \"入口\"}]"
+ },
+ "冰原战士": {
+  "where": "game/enemy_attacks.gd:19",
+  "line": "\"ice_warrior\": {\"name\": \"冰原战士\", \"attack\": \"劈冰\", \"row\": 5, \"windup\": 1.0, \"interval\": 1.5, \"damage\": 1.0, \"shape\": \"ice\", \"reach\": 3.0, \"width\": 1.4, \"impact_radius\": 0.8, \"recovery\": 0.35},"
+ },
+ "冰原猎人": {
+  "where": "game/enemy_attacks.gd:20",
+  "line": "\"ice_hunter\": {\"name\": \"冰原猎人\", \"attack\": \"狙击\", \"row\": 6, \"windup\": 1.5, \"interval\": 2.6, \"damage\": 1.0, \"shape\": \"projectile\", \"reach\": 15.0, \"track\": 0.9, \"projectile\": \"bullet\", \"shots\": 1, \"recover"
+ },
+ "冰弹": {
+  "where": "game/enemy_attacks.gd:49",
+  "line": "\"fallen_snowpriest\": {\"name\": \"陷落雪祀\", \"attack\": \"冰弹\", \"art\": \"ice_hunter\", \"tint\": Color(\"eef4ff\"), \"windup\": 1.2, \"interval\": 2.4, \"damage\": 1.1, \"shape\": \"projectile\", \"reach\": 11.0, \"projectile\": \""
+ },
+ "冲撞": {
+  "where": "game/enemy_attacks.gd:35",
+  "line": "\"bully\": {\"name\": \"欺凌者\", \"attack\": \"冲撞\", \"row\": -1, \"windup\": 1.2, \"interval\": 2.6, \"damage\": 1.5, \"shape\": \"charge\", \"reach\": 7.0, \"width\": 1.4, \"recovery\": 1.0, \"elite\": true, \"unstoppable\": true, \""
+ },
+ "出库区 / 订单与交付": {
+  "where": "ui/field_menu.gd:150",
+  "line": "\"outbound\": [\"出库区 / 订单与交付\", \"交付个人仓库或背包里的物品：按订单换龙门币和声望，或直接换龙门币\"],"
+ },
+ "前爪下劈": {
+  "where": "game/enemy_attacks.gd:29",
+  "line": "\"slug_volatile\": {\"name\": \"高能源石虫\", \"attack\": \"前爪下劈\", \"art\": \"slug\", \"tint\": Color(\"ff9a4a\"), \"windup\": 0.8, \"interval\": 1.2, \"damage\": 0.7, \"shape\": \"sector\", \"reach\": 1.9, \"angle\": 90.0, \"recovery\": "
+ },
+ "劈冰": {
+  "where": "game/enemy_attacks.gd:19",
+  "line": "\"ice_warrior\": {\"name\": \"冰原战士\", \"attack\": \"劈冰\", \"row\": 5, \"windup\": 1.0, \"interval\": 1.5, \"damage\": 1.0, \"shape\": \"ice\", \"reach\": 3.0, \"width\": 1.4, \"impact_radius\": 0.8, \"recovery\": 0.35},"
+ },
+ "区已满：": {
+  "where": "game/game_manager.gd:1749",
+  "line": "if base.store(item) == \"staging\": set_message(\"%s区已满：%s 放进了暂存区。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
+ },
+ "十连": {
+  "where": "game/skill_trees.gd:68",
+  "line": "\"shadow_ten\": {\"name\": \"十连\", \"type\": \"transmuter\", \"group\": \"shadow\", \"tier\": 2, \"max\": 1,"
+ },
+ "单发弩箭": {
+  "where": "game/enemy_attacks.gd:15",
+  "line": "\"crossbow\": {\"name\": \"弩手\", \"attack\": \"单发弩箭\", \"row\": 1, \"windup\": 1.0, \"interval\": 1.8, \"damage\": 1.0, \"shape\": \"projectile\", \"reach\": 12.0, \"projectile\": \"arrow\", \"shots\": 1, \"recovery\": 0.3},"
+ },
+ "后勤柜台": {
+  "where": "ui/base_screens.gd:12",
+  "line": "\"contracts\": [\"调度台\", \"DISPATCH\"], \"insurance\": [\"后勤柜台\", \"LOGISTICS\"], \"loadout\": [\"整备台\", \"WORKBENCH\"],"
+ },
+ "后勤柜台 / 出战准备": {
+  "where": "ui/field_menu.gd:147",
+  "line": "\"insurance\": [\"后勤柜台 / 出战准备\", \"带入装备可投保\"],"
+ },
+ "向下移动": {
+  "where": "game/keybinds.gd:30",
+  "line": "[\"move_down\", \"向下移动\", \"移动\", {\"key\": KEY_S}, {\"key\": KEY_DOWN}],"
+ },
+ "垂直同步": {
+  "where": "ui/base_screens.gd:742",
+  "line": "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+ },
+ "奎隆佩剑": {
+  "where": "game/skill_trees.gd:60",
+  "line": "\"quilon\": {\"name\": \"奎隆佩剑\", \"type\": \"passive\", \"tier\": 0, \"max\": 5,"
+ },
+ "寻仇者": {
+  "where": "game/enemy_attacks.gd:36",
+  "line": "\"avenger\": {\"name\": \"寻仇者\", \"attack\": \"突刺回砍\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.0, \"damage\": 0.8, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.6, \"recovery\": 0.3, \"elite\": true, \"combo\": 2, \"phas"
+ },
+ "岩角兽": {
+  "where": "game/enemy_attacks.gd:48",
+  "line": "\"rock_hornbeast\": {\"name\": \"岩角兽\", \"attack\": \"角顶\", \"art\": \"slug\", \"tint\": Color(\"a08060\"), \"scale\": 1.5, \"windup\": 1.0, \"interval\": 2.0, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.4, \"width\": 1.4, \"das"
+ },
+ "巨壳藤蔓": {
+  "where": "game/enemy_attacks.gd:45",
+  "line": "\"shell_vine\": {\"name\": \"巨壳藤蔓\", \"attack\": \"张口\", \"art\": \"slug\", \"tint\": Color(\"7aaa5a\"), \"scale\": 1.3, \"windup\": 0.7, \"interval\": 1.2, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.4, \"width\": 1.4, \"dash\":"
+ },
+ "带入装备可投保": {
+  "where": "ui/field_menu.gd:147",
+  "line": "\"insurance\": [\"后勤柜台 / 出战准备\", \"带入装备可投保\"],"
+ },
+ "张口": {
+  "where": "game/enemy_attacks.gd:45",
+  "line": "\"shell_vine\": {\"name\": \"巨壳藤蔓\", \"attack\": \"张口\", \"art\": \"slug\", \"tint\": Color(\"7aaa5a\"), \"scale\": 1.3, \"windup\": 0.7, \"interval\": 1.2, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.4, \"width\": 1.4, \"dash\":"
+ },
+ "弩手": {
+  "where": "game/enemy_attacks.gd:15",
+  "line": "\"crossbow\": {\"name\": \"弩手\", \"attack\": \"单发弩箭\", \"row\": 1, \"windup\": 1.0, \"interval\": 1.8, \"damage\": 1.0, \"shape\": \"projectile\", \"reach\": 12.0, \"projectile\": \"arrow\", \"shots\": 1, \"recovery\": 0.3},"
+ },
+ "弩手组长": {
+  "where": "game/enemy_attacks.gd:18",
+  "line": "\"crossbow_leader\": {\"name\": \"弩手组长\", \"attack\": \"三连扇射\", \"row\": 4, \"windup\": 1.1, \"interval\": 1.8, \"damage\": 1.0, \"shape\": \"projectile\", \"reach\": 12.0, \"projectile\": \"arrow\", \"shots\": 3, \"recovery\": 0.3}"
+ },
+ "影步": {
+  "where": "game/skill_trees.gd:46",
+  "line": "\"shadow_step\": {\"name\": \"影步\", \"type\": \"passive\", \"tier\": 1, \"max\": 5,"
+ },
+ "影落とす時針": {
+  "where": "game/skill_trees.gd:36",
+  "line": "\"shadow_hand\": {\"name\": \"影落とす時針\", \"type\": \"modifier\", \"tier\": 0, \"max\": 5, \"parent\": \"sundial\","
+ },
+ "影霄·奔夜": {
+  "where": "game/skill_trees.gd:58",
+  "line": "\"nightrun\": {\"name\": \"影霄·奔夜\", \"type\": \"skill\", \"tier\": 0, \"max\": 10, \"mastery\": true,"
+ },
+ "影霄·绝影": {
+  "where": "game/skill_trees.gd:56",
+  "line": "\"shadow\": {\"name\": \"影霄·绝影\", \"type\": \"signature\", \"tier\": 0, \"max\": 10, \"mastery\": true,"
+ },
+ "待调弦的怒火": {
+  "where": "game/skill_trees.gd:84",
+  "line": "\"amiya_guard\": {\"name\": \"待调弦的怒火\", \"type\": \"AFT-X\", \"stats\": {\"atk\": 45.0, \"res\": 4.0}},"
+ },
+ "感染者纠察官": {
+  "where": "game/enemy_attacks.gd:30",
+  "line": "\"picket\": {\"name\": \"感染者纠察官\", \"attack\": \"扇形挥击\", \"art\": \"thug\", \"tint\": Color(\"d08a6a\"), \"windup\": 0.8, \"interval\": 1.3, \"damage\": 1.0, \"shape\": \"sector\", \"reach\": 2.6, \"angle\": 110.0, \"recovery\": 0.3, "
+ },
+ "扇形挥击": {
+  "where": "game/enemy_attacks.gd:30",
+  "line": "\"picket\": {\"name\": \"感染者纠察官\", \"attack\": \"扇形挥击\", \"art\": \"thug\", \"tint\": Color(\"d08a6a\"), \"windup\": 0.8, \"interval\": 1.3, \"damage\": 1.0, \"shape\": \"sector\", \"reach\": 2.6, \"angle\": 110.0, \"recovery\": 0.3, "
+ },
+ "扑咬": {
+  "where": "game/enemy_attacks.gd:16",
+  "line": "\"slug\": {\"name\": \"源石虫\", \"attack\": \"扑咬\", \"row\": 2, \"windup\": 0.8, \"interval\": 1.15, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.2, \"width\": 1.2, \"dash\": 1.6, \"recoil\": 1.2, \"recovery\": 0.25},"
+ },
+ "拳刃武士": {
+  "where": "game/enemy_attacks.gd:17",
+  "line": "\"brawler\": {\"name\": \"拳刃武士\", \"attack\": \"突刺\", \"row\": 3, \"windup\": 0.8, \"interval\": 1.0, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 3.2, \"width\": 0.9, \"dash\": 1.2, \"recoil\": 0.8, \"recovery\": 0.25},"
+ },
+ "接下来的伤害类型变为真实": {
+  "where": "game/skill_trees.gd:64",
+  "line": "\"true_after_kill\": {\"name\": \"接下来的伤害类型变为真实\", \"type\": \"modifier\", \"tier\": 1, \"max\": 1, \"parent\": \"shadow\","
+ },
+ "攻击使目标的特殊能力失效": {
+  "where": "game/skill_trees.gd:79",
+  "line": "\"lappland\": {\"name\": \"精神摧毁\", \"text\": \"攻击使目标的特殊能力失效 %s 秒（精英与首领 %s 秒）%s。\"},"
+ },
+ "攻击力与防御力 +": {
+  "where": "game/skill_trees.gd:80",
+  "line": "\"amiya_guard\": {\"name\": \"青色怒火\", \"text\": \"攻击力与防御力 +%s，绝影期间及之后 3 秒效果加倍。\"},"
+ },
+ "放进了暂存区。": {
+  "where": "game/game_manager.gd:1749",
+  "line": "if base.store(item) == \"staging\": set_message(\"%s区已满：%s 放进了暂存区。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
+ },
+ "日晷": {
+  "where": "game/skill_trees.gd:34",
+  "line": "\"sundial\": {\"name\": \"日晷\", \"type\": \"skill\", \"tier\": 0, \"max\": 10, \"mastery\": true,"
+ },
+ "显示": {
+  "where": "ui/base_screens.gd:743",
+  "line": "1: rows = [[\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\"], [\"language\"]]"
+ },
+ "暴徒": {
+  "where": "game/enemy_attacks.gd:14",
+  "line": "\"thug\": {\"name\": \"暴徒\", \"attack\": \"乱劈\", \"row\": 0, \"windup\": 0.8, \"interval\": 1.35, \"damage\": 1.0, \"shape\": \"sector\", \"reach\": 2.4, \"angle\": 100.0, \"recovery\": 0.25},"
+ },
+ "木裂战士": {
+  "where": "game/enemy_attacks.gd:44",
+  "line": "\"shattered_champion\": {\"name\": \"木裂战士\", \"attack\": \"突进两段斩\", \"row\": -1, \"windup\": 0.9, \"interval\": 2.0, \"damage\": 1.0, \"shape\": \"circle\", \"reach\": 2.6, \"radius\": 1.7, \"recovery\": 0.3, \"elite\": true, \"com"
+ },
+ "术师": {
+  "where": "game/enemy_attacks.gd:26",
+  "line": "\"caster\": {\"name\": \"术师\", \"attack\": \"源石晶刺\", \"art\": \"crossbow\", \"tint\": Color(\"c49cff\"), \"windup\": 0.8, \"interval\": 2.2, \"damage\": 1.0, \"shape\": \"ground\", \"reach\": 9.0, \"radius\": 1.2, \"recovery\": 0.3},"
+ },
+ "机动盾兵": {
+  "where": "game/enemy_attacks.gd:27",
+  "line": "\"shield\": {\"name\": \"机动盾兵\", \"attack\": \"盾推\", \"art\": \"thug\", \"tint\": Color(\"9fb3c8\"), \"windup\": 0.9, \"interval\": 1.6, \"damage\": 0.8, \"shape\": \"sector\", \"reach\": 2.2, \"angle\": 90.0, \"recovery\": 0.6, \"fron"
+ },
+ "机缘": {
+  "where": "ui/ak.gd:151",
+  "line": "const KIND_NAMES := {\"attack\": \"攻击\", \"defense\": \"防守\", \"fortune\": \"机缘\", \"life\": \"生存\", \"tempo\": \"节奏\", \"wave\": \"剑气\"}"
+ },
+ "染污躯壳": {
+  "where": "game/enemy_attacks.gd:42",
+  "line": "\"taint_husk\": {\"name\": \"染污躯壳\", \"attack\": \"横扫\", \"art\": \"ice_warrior\", \"tint\": Color(\"8a7a9a\"), \"windup\": 0.9, \"interval\": 1.4, \"damage\": 1.1, \"shape\": \"sector\", \"reach\": 2.4, \"angle\": 110.0, \"recovery\""
+ },
+ "横扫": {
+  "where": "game/enemy_attacks.gd:42",
+  "line": "\"taint_husk\": {\"name\": \"染污躯壳\", \"attack\": \"横扫\", \"art\": \"ice_warrior\", \"tint\": Color(\"8a7a9a\"), \"windup\": 0.9, \"interval\": 1.4, \"damage\": 1.1, \"shape\": \"sector\", \"reach\": 2.4, \"angle\": 110.0, \"recovery\""
+ },
+ "欺凌者": {
+  "where": "game/enemy_attacks.gd:35",
+  "line": "\"bully\": {\"name\": \"欺凌者\", \"attack\": \"冲撞\", \"row\": -1, \"windup\": 1.2, \"interval\": 2.6, \"damage\": 1.5, \"shape\": \"charge\", \"reach\": 7.0, \"width\": 1.4, \"recovery\": 1.0, \"elite\": true, \"unstoppable\": true, \""
+ },
+ "武装人员": {
+  "where": "game/enemy_attacks.gd:25",
+  "line": "\"armed\": {\"name\": \"武装人员\", \"attack\": \"钝器重击\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.1, \"damage\": 1.4, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.65, \"recovery\": 0.3, \"elite\": true, \"tint\": Color(\"c0"
+ },
+ "歪曲施法者": {
+  "where": "game/enemy_attacks.gd:43",
+  "line": "\"distorted_caster\": {\"name\": \"歪曲施法者\", \"attack\": \"脚下施法\", \"art\": \"ice_hunter\", \"tint\": Color(\"9a7be0\"), \"windup\": 0.9, \"interval\": 2.2, \"damage\": 1.1, \"shape\": \"ground\", \"reach\": 8.0, \"radius\": 1.3, \"re"
+ },
+ "残月": {
+  "where": "game/skill_trees.gd:72",
+  "line": "\"shadow_moon\": {\"name\": \"残月\", \"type\": \"transmuter\", \"group\": \"shadow\", \"tier\": 2, \"max\": 1,"
+ },
+ "每击败一个敌人": {
+  "where": "game/skill_trees.gd:62",
+  "line": "\"kill_stack\": {\"name\": \"每击败一个敌人\", \"type\": \"modifier\", \"tier\": 1, \"max\": 3, \"parent\": \"shadow\","
+ },
+ "污染检测门 / 检测与处理": {
+  "where": "ui/field_menu.gd:153",
+  "line": "\"decon\": [\"污染检测门 / 检测与处理\", \"污染跨合同保留；出发时按当时的数值决定减益\"],"
+ },
+ "污染跨合同保留；出发时按当时的数值决定减益": {
+  "where": "ui/field_menu.gd:153",
+  "line": "\"decon\": [\"污染检测门 / 检测与处理\", \"污染跨合同保留；出发时按当时的数值决定减益\"],"
+ },
+ "源石晶刺": {
+  "where": "game/enemy_attacks.gd:26",
+  "line": "\"caster\": {\"name\": \"术师\", \"attack\": \"源石晶刺\", \"art\": \"crossbow\", \"tint\": Color(\"c49cff\"), \"windup\": 0.8, \"interval\": 2.2, \"damage\": 1.0, \"shape\": \"ground\", \"reach\": 9.0, \"radius\": 1.2, \"recovery\": 0.3},"
+ },
+ "源石虫": {
+  "where": "game/enemy_attacks.gd:16",
+  "line": "\"slug\": {\"name\": \"源石虫\", \"attack\": \"扑咬\", \"row\": 2, \"windup\": 0.8, \"interval\": 1.15, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.2, \"width\": 1.2, \"dash\": 1.6, \"recoil\": 1.2, \"recovery\": 0.25},"
+ },
+ "灰尾": {
+  "where": "game/enemy_attacks.gd:32",
+  "line": "\"greytail\": {\"name\": \"灰尾\", \"attack\": \"突刺\", \"art\": \"brawler\", \"tint\": Color(\"aab0b8\"), \"windup\": 0.8, \"interval\": 1.0, \"damage\": 0.8, \"shape\": \"lane\", \"reach\": 3.2, \"width\": 0.9, \"dash\": 1.2, \"recoil\":"
+ },
+ "灰尾香主": {
+  "where": "game/enemy_attacks.gd:33",
+  "line": "\"greytail_lord\": {\"name\": \"灰尾香主\", \"attack\": \"重击\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.0, \"damage\": 1.3, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.6, \"recovery\": 0.3, \"elite\": true, \"barrier\": 0"
+ },
+ "燃烧瓶": {
+  "where": "game/enemy_attacks.gd:34",
+  "line": "\"thrower\": {\"name\": \"燃烧瓶投掷者\", \"attack\": \"燃烧瓶\", \"art\": \"crossbow\", \"tint\": Color(\"ffb066\"), \"windup\": 1.0, \"interval\": 2.4, \"damage\": 0.8, \"shape\": \"lob\", \"reach\": 9.0, \"radius\": 1.3, \"fire_time\": 3.0,"
+ },
+ "燃烧瓶投掷者": {
+  "where": "game/enemy_attacks.gd:34",
+  "line": "\"thrower\": {\"name\": \"燃烧瓶投掷者\", \"attack\": \"燃烧瓶\", \"art\": \"crossbow\", \"tint\": Color(\"ffb066\"), \"windup\": 1.0, \"interval\": 2.4, \"damage\": 0.8, \"shape\": \"lob\", \"reach\": 9.0, \"radius\": 1.3, \"fire_time\": 3.0,"
+ },
+ "狂暴攻势": {
+  "where": "game/skill_trees.gd:38",
+  "line": "\"frenzy\": {\"name\": \"狂暴攻势\", \"type\": \"passive\", \"tier\": 0, \"max\": 5,"
+ },
+ "狙击": {
+  "where": "game/enemy_attacks.gd:20",
+  "line": "\"ice_hunter\": {\"name\": \"冰原猎人\", \"attack\": \"狙击\", \"row\": 6, \"windup\": 1.5, \"interval\": 2.6, \"damage\": 1.0, \"shape\": \"projectile\", \"reach\": 15.0, \"track\": 0.9, \"projectile\": \"bullet\", \"shots\": 1, \"recover"
+ },
+ "狼群": {
+  "where": "game/skill_trees.gd:48",
+  "line": "\"wave_pack\": {\"name\": \"狼群\", \"type\": \"transmuter\", \"group\": \"wave\", \"tier\": 2, \"max\": 1,"
+ },
+ "猎犬": {
+  "where": "game/skill_trees.gd:52",
+  "line": "\"wave_hound\": {\"name\": \"猎犬\", \"type\": \"transmuter\", \"group\": \"wave\", \"tier\": 2, \"max\": 1,"
+ },
+ "獠牙": {
+  "where": "game/skill_trees.gd:50",
+  "line": "\"wave_fang\": {\"name\": \"獠牙\", \"type\": \"transmuter\", \"group\": \"wave\", \"tier\": 2, \"max\": 1,"
+ },
+ "生存": {
+  "where": "ui/ak.gd:151",
+  "line": "const KIND_NAMES := {\"attack\": \"攻击\", \"defense\": \"防守\", \"fortune\": \"机缘\", \"life\": \"生存\", \"tempo\": \"节奏\", \"wave\": \"剑气\"}"
+ },
+ "盾推": {
+  "where": "game/enemy_attacks.gd:27",
+  "line": "\"shield\": {\"name\": \"机动盾兵\", \"attack\": \"盾推\", \"art\": \"thug\", \"tint\": Color(\"9fb3c8\"), \"windup\": 0.9, \"interval\": 1.6, \"damage\": 0.8, \"shape\": \"sector\", \"reach\": 2.2, \"angle\": 90.0, \"recovery\": 0.6, \"fron"
+ },
+ "秒（精英与首领": {
+  "where": "game/skill_trees.gd:79",
+  "line": "\"lappland\": {\"name\": \"精神摧毁\", \"text\": \"攻击使目标的特殊能力失效 %s 秒（精英与首领 %s 秒）%s。\"},"
+ },
+ "秒）": {
+  "where": "game/skill_trees.gd:79",
+  "line": "\"lappland\": {\"name\": \"精神摧毁\", \"text\": \"攻击使目标的特殊能力失效 %s 秒（精英与首领 %s 秒）%s。\"},"
+ },
+ "突刺": {
+  "where": "game/enemy_attacks.gd:17",
+  "line": "\"brawler\": {\"name\": \"拳刃武士\", \"attack\": \"突刺\", \"row\": 3, \"windup\": 0.8, \"interval\": 1.0, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 3.2, \"width\": 0.9, \"dash\": 1.2, \"recoil\": 0.8, \"recovery\": 0.25},"
+ },
+ "突刺回砍": {
+  "where": "game/enemy_attacks.gd:36",
+  "line": "\"avenger\": {\"name\": \"寻仇者\", \"attack\": \"突刺回砍\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.0, \"damage\": 0.8, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.6, \"recovery\": 0.3, \"elite\": true, \"combo\": 2, \"phas"
+ },
+ "突进两段斩": {
+  "where": "game/enemy_attacks.gd:44",
+  "line": "\"shattered_champion\": {\"name\": \"木裂战士\", \"attack\": \"突进两段斩\", \"row\": -1, \"windup\": 0.9, \"interval\": 2.0, \"damage\": 1.0, \"shape\": \"circle\", \"reach\": 2.6, \"radius\": 1.7, \"recovery\": 0.3, \"elite\": true, \"com"
+ },
+ "粉碎攻坚手": {
+  "where": "game/enemy_attacks.gd:40",
+  "line": "\"breacher\": {\"name\": \"粉碎攻坚手\", \"attack\": \"重锤砸地\", \"row\": -1, \"windup\": 1.1, \"interval\": 2.2, \"damage\": 1.3, \"shape\": \"circle\", \"reach\": 2.2, \"radius\": 2.0, \"recovery\": 0.4, \"elite\": true, \"front_guard\":"
+ },
+ "精神摧毁": {
+  "where": "game/skill_trees.gd:79",
+  "line": "\"lappland\": {\"name\": \"精神摧毁\", \"text\": \"攻击使目标的特殊能力失效 %s 秒（精英与首领 %s 秒）%s。\"},"
+ },
+ "精英重击": {
+  "where": "game/enemy_attacks.gd:21",
+  "line": "\"elite\": {\"name\": \"精英重击\", \"attack\": \"重击\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.1, \"damage\": 1.0, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.65, \"recovery\": 0.3, \"elite\": true},"
+ },
+ "脚下施法": {
+  "where": "game/enemy_attacks.gd:43",
+  "line": "\"distorted_caster\": {\"name\": \"歪曲施法者\", \"attack\": \"脚下施法\", \"art\": \"ice_hunter\", \"tint\": Color(\"9a7be0\"), \"windup\": 0.9, \"interval\": 2.2, \"damage\": 1.1, \"shape\": \"ground\", \"reach\": 8.0, \"radius\": 1.3, \"re"
+ },
+ "节奏": {
+  "where": "ui/ak.gd:151",
+  "line": "const KIND_NAMES := {\"attack\": \"攻击\", \"defense\": \"防守\", \"fortune\": \"机缘\", \"life\": \"生存\", \"tempo\": \"节奏\", \"wave\": \"剑气\"}"
+ },
+ "角顶": {
+  "where": "game/enemy_attacks.gd:48",
+  "line": "\"rock_hornbeast\": {\"name\": \"岩角兽\", \"attack\": \"角顶\", \"art\": \"slug\", \"tint\": Color(\"a08060\"), \"scale\": 1.5, \"windup\": 1.0, \"interval\": 2.0, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.4, \"width\": 1.4, \"das"
+ },
+ "订单追踪": {
+  "where": "ui/base_screens.gd:743",
+  "line": "1: rows = [[\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\"], [\"language\"]]"
+ },
+ "调度台 / 外勤合同": {
+  "where": "ui/field_menu.gd:146",
+  "line": "\"contracts\": [\"调度台 / 外勤合同\", \"选择地区接下合同 · 每 3 区段固定撤离\"],"
+ },
+ "货箱": {
+  "where": "game/game_manager.gd:1805",
+  "line": "set_message(\"%s 放回了%s。\" % [item.item_name, \"暂存区\" if base.location_of(item) == \"staging\" else \"货箱\"])"
+ },
+ "远程攻击不再降低攻击力": {
+  "where": "game/skill_trees.gd:44",
+  "line": "\"no_decay\": {\"name\": \"远程攻击不再降低攻击力\", \"type\": \"modifier\", \"tier\": 1, \"max\": 5, \"parent\": \"wave\","
+ },
+ "选择地区接下合同 · 每 3 区段固定撤离": {
+  "where": "ui/field_menu.gd:146",
+  "line": "\"contracts\": [\"调度台 / 外勤合同\", \"选择地区接下合同 · 每 3 区段固定撤离\"],"
+ },
+ "重击": {
+  "where": "game/enemy_attacks.gd:21",
+  "line": "\"elite\": {\"name\": \"精英重击\", \"attack\": \"重击\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.1, \"damage\": 1.0, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.65, \"recovery\": 0.3, \"elite\": true},"
+ },
+ "重锤砸地": {
+  "where": "game/enemy_attacks.gd:40",
+  "line": "\"breacher\": {\"name\": \"粉碎攻坚手\", \"attack\": \"重锤砸地\", \"row\": -1, \"windup\": 1.1, \"interval\": 2.2, \"damage\": 1.3, \"shape\": \"circle\", \"reach\": 2.2, \"radius\": 2.0, \"recovery\": 0.4, \"elite\": true, \"front_guard\":"
+ },
+ "钝器重击": {
+  "where": "game/enemy_attacks.gd:25",
+  "line": "\"armed\": {\"name\": \"武装人员\", \"attack\": \"钝器重击\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.1, \"damage\": 1.4, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.65, \"recovery\": 0.3, \"elite\": true, \"tint\": Color(\"c0"
+ },
+ "防守": {
+  "where": "ui/ak.gd:151",
+  "line": "const KIND_NAMES := {\"attack\": \"攻击\", \"defense\": \"防守\", \"fortune\": \"机缘\", \"life\": \"生存\", \"tempo\": \"节奏\", \"wave\": \"剑气\"}"
+ },
+ "陷落雪祀": {
+  "where": "game/enemy_attacks.gd:49",
+  "line": "\"fallen_snowpriest\": {\"name\": \"陷落雪祀\", \"attack\": \"冰弹\", \"art\": \"ice_hunter\", \"tint\": Color(\"eef4ff\"), \"windup\": 1.2, \"interval\": 2.4, \"damage\": 1.1, \"shape\": \"projectile\", \"reach\": 11.0, \"projectile\": \""
+ },
+ "隐藏": {
+  "where": "ui/base_screens.gd:743",
+  "line": "1: rows = [[\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\"], [\"language\"]]"
+ },
+ "青色怒火": {
+  "where": "game/skill_trees.gd:80",
+  "line": "\"amiya_guard\": {\"name\": \"青色怒火\", \"text\": \"攻击力与防御力 +%s，绝影期间及之后 3 秒效果加倍。\"},"
+ },
+ "额外攻击一个目标": {
+  "where": "game/skill_trees.gd:42",
+  "line": "\"extra_target\": {\"name\": \"额外攻击一个目标\", \"type\": \"modifier\", \"tier\": 1, \"max\": 3, \"parent\": \"wolf_spirit\","
+ },
+ "高能源石虫": {
+  "where": "game/enemy_attacks.gd:29",
+  "line": "\"slug_volatile\": {\"name\": \"高能源石虫\", \"attack\": \"前爪下劈\", \"art\": \"slug\", \"tint\": Color(\"ff9a4a\"), \"windup\": 0.8, \"interval\": 1.2, \"damage\": 0.7, \"shape\": \"sector\", \"reach\": 1.9, \"angle\": 90.0, \"recovery\": "
+ },
+ "，绝影期间及之后 3 秒效果加倍。": {
+  "where": "game/skill_trees.gd:80",
+  "line": "\"amiya_guard\": {\"name\": \"青色怒火\", \"text\": \"攻击力与防御力 +%s，绝影期间及之后 3 秒效果加倍。\"},"
+ }
+}

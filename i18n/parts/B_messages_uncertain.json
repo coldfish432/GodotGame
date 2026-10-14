@@ -1,0 +1,67 @@
+[
+ {
+  "zh": "坎诺特",
+  "en": "Cannot",
+  "note": "Glossary marks this name uncertain."
+ },
+ {
+  "zh": "卖给坎诺特：",
+  "en": "Sold to Cannot: ",
+  "note": "Contains Cannot (uncertain name)."
+ },
+ {
+  "zh": "安全袋保全",
+  "en": "Kept by Safe Bag",
+  "note": "安全袋 not in glossary; used 'Safe Bag' everywhere."
+ },
+ {
+  "zh": "保留（安全袋）",
+  "en": "Kept (Safe Bag)",
+  "note": "安全袋 not in glossary."
+ },
+ {
+  "zh": "安全袋扩容到",
+  "en": "Safe Bag expanded to",
+  "note": "安全袋 not in glossary."
+ },
+ {
+  "zh": "技巧概要·卷1",
+  "en": "Skill Summary - 1",
+  "note": "Official EN believed 'Skill Summary - 1' (卷2/卷3 likewise)."
+ },
+ {
+  "zh": "近卫双芯片",
+  "en": "Guard Dualchip",
+  "note": "Official EN believed 'Guard Dualchip'."
+ },
+ {
+  "zh": "近卫芯片组",
+  "en": "Guard Chip Pack",
+  "note": "Official EN believed 'Guard Chip Pack'."
+ },
+ {
+  "zh": "抑制喷剂：回复",
+  "en": "Suppressant Spray: heal",
+  "note": "Fan-game potion name; should match the item catalog translation."
+ },
+ {
+  "zh": "缓释凝胶：",
+  "en": "Slow-Release Gel: ",
+  "note": "Fan-game potion name; should match the item catalog translation."
+ },
+ {
+  "zh": "标准急救剂：回复",
+  "en": "Standard First Aid: heal",
+  "note": "Fan-game potion name; should match the item catalog translation."
+ },
+ {
+  "zh": "区",
+  "en": " Zone",
+  "note": "Depot category zone suffix joined after category names (e.g. 'Material Zone')."
+ },
+ {
+  "zh": "走到发光的站点旁按 E：调度台接单、后勤柜台投保、仓管台、收货区货箱、整备台、医疗前台。",
+  "en": "Press E at a glowing station: Dispatch Desk for contracts, Logistics Counter to insure, Depot Desk, Receiving Area crates, Loadout Bench, Medical Desk.",
+  "note": "后勤柜台 / 收货区 not in glossary; used Logistics Counter / Receiving Area."
+ }
+]

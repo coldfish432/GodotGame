@@ -20,8 +20,10 @@ art/relics/refs/prts_relics_contact.png
 art/items/refs_M/prts_icons/
 art/items/refs_M/prts_materials_contact.png
 art/portraits/refs/
-# Forwarding zips for the image model (contain the references above)
+# Forwarding zips for the image model (contain the references above), and the
+# delivery zips that come back
 art/_to_sol/
+art/*.zip
 
 # Full-size generation sources stay local; each batch keeps its contact sheet,
 # 8x previews and manifest, and design/evidence/ keeps thumbnail sheets of the sources.

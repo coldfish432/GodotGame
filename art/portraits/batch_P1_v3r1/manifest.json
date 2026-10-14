@@ -1,0 +1,34 @@
+[
+  {
+    "id": "portrait_squad",
+    "file": "portrait_squad.png",
+    "size": [
+      105,
+      150
+    ],
+    "display_scale": 4,
+    "preview": "portrait_squad_4x.png",
+    "panel_composite": "portrait_squad_panel.png",
+    "style_composites": [
+      "portrait_squad_vs_amiya.png",
+      "portrait_squad_vs_closure.png"
+    ],
+    "native_source": "native_art.py",
+    "concept_reference": "source_paintings/portrait_squad_chibi_r1.png",
+    "metrics": {
+      "size": [
+        105,
+        150
+      ],
+      "colors": 17,
+      "top_clear_px": 30,
+      "visible_bbox_px": [
+        5,
+        30,
+        103,
+        145
+      ],
+      "concept_source_sha256": "e9a46e575fd35f202f786d359de18d876a473c160603948f461f73c44209ef2d"
+    }
+  }
+]

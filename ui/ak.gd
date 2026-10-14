@@ -73,7 +73,39 @@ static func label(text: String, size: int = 14, color: Color = FG, font: Font = 
 	l.add_theme_font_override("font", font if font != null else cn())
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
+	fit(l, size)
 	return l
+
+## English runs wider than the Chinese a fixed box was laid out for: when the
+## shown text overflows its control, the font steps down (to 70 %). Controls
+## laid out by a container are sized to their text and never shrink (so no
+## ellipsis either: it would shrink their minimum size and feed back). Chinese
+## keeps `size` untouched.
+static func fit(control: Control, size: int) -> void:
+	control.set_meta("fit_size", size)
+	control.add_to_group("ak_fit")
+	control.resized.connect(refit.bind(control))
+
+static func refit(control: Control) -> void:
+	if not is_instance_valid(control) or not control.has_meta("fit_size"): return
+	var size: int = control.get_meta("fit_size")
+	var text: String = control.get("text")
+	var font := control.get_theme_font("font")
+	var room := control.size.x
+	if control is Button:
+		var style := control.get_theme_stylebox("normal")
+		if style != null: room -= style.content_margin_left + style.content_margin_right
+	var shown := I18n.t(text)
+	var lines := shown.split("\n")
+	var widest := func(s: int) -> float:
+		var w := 0.0
+		for line in lines: w = maxf(w, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x)
+		return w
+	var pick := size
+	if I18n.is_english() and room > 4.0:
+		var floor_size := maxi(9, roundi(size * 0.7))
+		while pick > floor_size and float(widest.call(pick)) > room + 0.5: pick -= 1
+	control.add_theme_font_size_override("font_size", pick)
 
 ## Buttons: "plain" grey, "blue" confirm, "yellow", "paper" (selected tab), "ghost".
 static func button(text: String, kind: String = "plain", size: int = 14) -> Button:
@@ -83,6 +115,7 @@ static func button(text: String, kind: String = "plain", size: int = 14) -> Butt
 	b.add_theme_font_override("font", cn())
 	b.add_theme_font_size_override("font_size", size)
 	style_button(b, kind)
+	fit(b, size)
 	return b
 
 static func style_button(b: Button, kind: String) -> void:
@@ -236,7 +269,7 @@ static func relic_icon(relic: Dictionary, side: float) -> Control:
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tile.add_child(art)
 		return tile
-	var glyph := label(str(relic.name).replace("\"", "").replace("《", "").left(1), int(side * 0.4), c)
+	var glyph := label(I18n.t(str(relic.name)).replace("\"", "").replace("《", "").replace("“", "").left(1), int(side * 0.4), c)
 	glyph.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -314,7 +347,12 @@ class ItemSquare extends Control:
 		else:
 			# No icon yet: as many characters of the name as fit.
 			var font_size := 12 if s.x < 60 else 14
-			var shown_name := item.item_name
+			var shown_name := I18n.t(item.item_name)
+			# English drops whole words from the end (then shrinks); Chinese, characters.
+			while I18n.is_english() and shown_name.contains(" ") and AK.cn().get_string_size(shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > s.x - 6:
+				shown_name = shown_name.substr(0, shown_name.rfind(" "))
+			while I18n.is_english() and font_size > 9 and AK.cn().get_string_size(shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > s.x - 6:
+				font_size -= 1
 			while shown_name.length() > 1 and AK.cn().get_string_size(shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > s.x - 6:
 				shown_name = shown_name.left(shown_name.length() - 1)
 			var w := AK.cn().get_string_size(shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x

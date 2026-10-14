@@ -1,0 +1,57 @@
+[
+ {
+  "zh": "切尔文铜币",
+  "en": "Chervonets Coin",
+  "note": "切尔文 assumed = chervonets (Ursus/Russian coin); no official EN found."
+ },
+ {
+  "zh": "源石感应计",
+  "en": "Originium Detector",
+  "note": "Not an official item name; generic rendering."
+ },
+ {
+  "zh": "拆下的施术单元",
+  "en": "Salvaged Arts Unit",
+  "note": "施术单元 has no confirmed official EN; 'Arts Unit' chosen (also used in the 施术短刃 flavor text)."
+ },
+ {
+  "zh": "施术短刃",
+  "en": "Casting Shortblade",
+  "note": "施术 rendered 'Casting'; no official name."
+ },
+ {
+  "zh": "角兽银铃",
+  "en": "Hornbeast Silver Bell",
+  "note": "角兽 (Sami horned beast) has no confirmed official EN; 'Hornbeast' used for all 角兽 keys."
+ },
+ {
+  "zh": "鼷兽毛团",
+  "en": "Mousebeast Furball",
+  "note": "鼷兽 has no known official EN; literal guess."
+ },
+ {
+  "zh": "整合运动术师兜袍",
+  "en": "Reunion Caster Hood",
+  "note": "兜袍 (hooded robe) shortened to 'Hood'."
+ },
+ {
+  "zh": "帝国突击矛",
+  "en": "Imperial Assault Spear",
+  "note": "'Imperial' assumed to mean the Ursus Empire."
+ },
+ {
+  "zh": "猎首獠牙串",
+  "en": "Head Hunter's Fang String",
+  "note": "猎首 could mean 'chief hunter' rather than 'headhunter'."
+ },
+ {
+  "zh": "厚得能挡住冻原的风，挡不住矿石病。",
+  "en": "Thick enough to stop the tundra wind, not Oripathy.",
+  "note": "矿石病 = official 'Oripathy'."
+ },
+ {
+  "zh": "族树木片",
+  "en": "Clan Tree Splinter",
+  "note": "Sami clan/sacred tree; no official term confirmed."
+ }
+]

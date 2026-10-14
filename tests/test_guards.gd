@@ -16,17 +16,23 @@ func clear() -> void:
 	await step(3)
 ## A direction in which `anchor + dir * range` survives the walkable snap at
 ## close to the range asked for, so "outside the trigger radius" really is.
+## A bearing along which every step the test takes (6, 9 and `want` out)
+## lands where it was aimed: a spot in rock or across a cliff snaps to the
+## nearest walkable ground, which can be back inside the point. Else the
+## bearing whose worst step lands closest to its aim.
 func _open_bearing(anchor: Vector3, want: float) -> Vector3:
 	var best := Vector3(0, 0, 1)
-	var best_gap := -1.0
+	var best_miss := INF
 	for i in range(24):
 		var dir := Vector3(cos(TAU * float(i) / 24.0), 0, sin(TAU * float(i) / 24.0))
-		var landed := walkable(anchor + dir * want)
-		var gap := Vector2(landed.x - anchor.x, landed.z - anchor.z).length()
-		if gap > best_gap:
-			best_gap = gap
+		var miss := 0.0
+		for reach in [6.0, 9.0, want]:
+			var landed := walkable(anchor + dir * reach)
+			miss = maxf(miss, absf(Vector2(landed.x - anchor.x, landed.z - anchor.z).length() - reach))
+		if miss < best_miss:
+			best_miss = miss
 			best = dir
-		if gap >= want - 0.5: break
+		if miss < 0.5: break
 	return best
 
 func walkable(point: Vector3) -> Vector3:
@@ -80,10 +86,18 @@ func exercise_guards(region: String) -> void:
 	# often is not, and nearest_walkable then snaps the "outside the trigger"
 	# spot to somewhere inside it, so the test failed on the fixture rather
 	# than on the behaviour.
-	var approach := _open_bearing(anchor, 9.0)
+	# Picked for the far step (16, past the release radius): a bearing that is
+	# open at 9 can still be walled at 16, and the walkable snap would then
+	# land her back inside the point.
+	var approach := _open_bearing(anchor, 16.0)
 	game.player.teleport(walkable(anchor + approach * 9))
 	await step(15)
-	check(region + " guards stay at stations outside search-point trigger", not post.active and post.guards.all(func(e): return e.state == Enemy.State.IDLE and e.position.distance_to(e.home_position) < 0.1))
+	var settled: bool = not post.active and post.guards.all(func(e): return e.state == Enemy.State.IDLE and e.position.distance_to(e.home_position) < 0.1)
+	if not settled:
+		var at: Vector3 = game.player.global_position
+		print("  %s: player %.1f m from the point (radius %.1f), active %s, guards %s" % [region, Vector2(at.x - anchor.x, at.z - anchor.z).length(), post.trigger_radius, post.active,
+			post.guards.map(func(e): return "%s %.2f m from home, %.1f m from player" % [e.state, e.position.distance_to(e.home_position), Vector2(e.position.x - at.x, e.position.z - at.z).length()])])
+	check(region + " guards stay at stations outside search-point trigger", settled)
 	game.player.teleport(walkable(anchor + approach * 6))
 	await step(3)
 	check(region + " entering the point radius alerts the whole squad", post.active and post.guards.all(func(e): return e.state == Enemy.State.CHASING))
@@ -154,8 +168,18 @@ func exercise_normal() -> void:
 	check("lost contact expires instead of tracking forever", enemy.state != Enemy.State.CHASING)
 	await clear()
 	var pillar: Vector3 = game.world_map._closed_circles[0]
-	game.player.teleport(Vector3(pillar.x - 4, 0.7, pillar.y))
-	enemy = game._spawn_enemy(Vector3(pillar.x + 4, 0.65, pillar.y), false, false)
+	var clear: float = game.world_map.pillar_reach(0) + 1.3
+	# Opposite sides of the pillar, both on open ground: pillars are irregular
+	# and sit in arenas of every shape, so the pair is searched, not assumed.
+	var across := Vector2.RIGHT
+	for k in range(16):
+		var d := Vector2.from_angle(TAU * k / 16.0)
+		var c := Vector2(pillar.x, pillar.y)
+		if game.world_map._has_clearance(c - d * clear) and game.world_map._has_clearance(c + d * clear):
+			across = d
+			break
+	game.player.teleport(Vector3(pillar.x - across.x * clear, 0.7, pillar.y - across.y * clear))
+	enemy = game._spawn_enemy(Vector3(pillar.x + across.x * clear, 0.65, pillar.y + across.y * clear), false, false)
 	await step(30)
 	check("normal perception cannot see through terrain", not game.line_of_sight(game.player.position, enemy.position) and enemy.state == Enemy.State.IDLE)
 	await clear()

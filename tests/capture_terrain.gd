@@ -70,7 +70,7 @@ func run() -> void:
 		overview.projection = Camera3D.PROJECTION_ORTHOGONAL
 		# Framed from the map's own bounds rather than a fixed number, so this
 		# shot keeps showing the whole segment when the layout is rescaled.
-		var bounds: Vector2 = ContinuousWorldMap.SPINE_MAX - ContinuousWorldMap.SPINE_MIN
+		var bounds: Vector2 = game.world_map.SPINE_MAX - game.world_map.SPINE_MIN
 		overview.size = maxf(bounds.y, bounds.x * 720.0 / 1280.0) * 1.05
 		overview.global_position = game.world_map.map_center + Vector3(0, 150, 0)
 		overview.look_at(game.world_map.map_center, Vector3.BACK)

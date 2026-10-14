@@ -1,0 +1,6 @@
+F1-C v1 static validation
+PASS npc_squad_idle: 512x64, 4 frames, binary alpha, 74 colours, anchor [64, 61], 3 fps.
+PASS npc_cannot_idle: 256x64, 4 frames, binary alpha, 21 colours, anchor [32, 61], 3 fps.
+PASS npc_closure_idle: 256x64, 4 frames, binary alpha, 22 colours, anchor [32, 61], 3 fps.
+PASS squad goggles: pinned bright orange visible in all four frames; all four frames differ, case latch on/on/off/on.
+Visual check: sprites reviewed at native 1x beside the 42px Lappland reference. Godot import and in-scene animation playback not tested.

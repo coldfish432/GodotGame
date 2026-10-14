@@ -29,9 +29,14 @@ const REGION_KIND_WEIGHT := {
 ## In 赤金 (经济修订案 §3: one 赤金 is one 源石锭).
 const REROLL_BASE := 3
 const REROLL_STEP := 3
-## Combat cache: one per segment once this much threat is defeated (normal 1, elite 3).
-const CACHE_THREAT := 8
-const ELITE_THREAT := 3
+## Combat cache, rolled on every kill (用户 2026-10-13: 藏品的掉率调低，boss必掉一个，
+## 精英5%，普通敌人0.8%): bosses (the bounty, an outpost's leader) always drop one.
+const CACHE_CHANCE := {"boss": 1.0, "elite": 0.05, "normal": 0.008}
+
+## Which CACHE_CHANCE row a kill uses.
+static func cache_kind(enemy: Enemy) -> String:
+	if enemy.boss: return "boss"
+	return "elite" if enemy.elite else "normal"
 const SOURCE_BASE := "https://prts.wiki/w/"
 
 static func all() -> Array[Dictionary]:

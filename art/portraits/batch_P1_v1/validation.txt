@@ -1,0 +1,6 @@
+P1 v1 static validation
+Pipeline: retained imagegen painting -> nearest-neighbour resize -> 47-color opaque quantize -> 1 px #0b0c0d external outline.
+PASS portrait_squad: 200x300, binary alpha, 48 colors, 8 px clear at top, 2x preview and panel composite.
+PASS portrait_cannot: 170x300, binary alpha, 48 colors, 15 px clear at top, 2x preview and panel composite.
+PASS portrait_closure: 170x300, binary alpha, 48 colors, 58 px clear at top, 2x preview and panel composite.
+Visual review required: on-model details and readability in the supplied panel captures. Godot UI/runtime import was not tested.

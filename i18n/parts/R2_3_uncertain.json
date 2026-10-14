@@ -1,0 +1,42 @@
+[
+ {
+  "zh": "剑兔",
+  "en": "Sword Bunny",
+  "note": "Fan-made form name for Amiya's Guard form; no official EN name (officially just 'Amiya (Guard)')."
+ },
+ {
+  "zh": "修饰",
+  "en": "Modifier",
+  "note": "Training-tree node kind (GD-style signature/skill/modifier/passive/transmuter)."
+ },
+ {
+  "zh": "变换",
+  "en": "Transmuter",
+  "note": "Training-tree node kind, Grim Dawn style term."
+ },
+ {
+  "zh": "养成材料",
+  "en": "Growth Material",
+  "note": "Matches 干员养成 'Operator Growth' in en.json; official Arknights uses 'Upgrade material' loosely."
+ },
+ {
+  "zh": "物资仓",
+  "en": "Supply Cache",
+  "note": "Avoided 'Depot' since 仓库 = Depot is a fixed term."
+ },
+ {
+  "zh": "建材堆",
+  "en": "Building Supply Pile",
+  "note": "Search point name; 'Building' also used for the 建材 group."
+ },
+ {
+  "zh": "日用",
+  "en": "Household",
+  "note": "Material group label (tape, canvas)."
+ },
+ {
+  "zh": "放回货箱",
+  "en": "Return to Crate",
+  "note": "Joined after '把 %s '; Chinese word order may read oddly."
+ }
+]

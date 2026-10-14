@@ -1,0 +1,4 @@
+P1 v3 revision 1 static validation
+PASS 105x150 RGBA, binary alpha, 17 colours, top clear 30 px.
+PASS exact dark/light cyan and dark/light orange accents; no isolated cyan, silver or white pixels; 4x, encounter-panel, Amiya and accepted Closure comparisons.
+Visual acceptance and Godot runtime display remain unverified.

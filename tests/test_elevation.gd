@@ -10,7 +10,8 @@ extends SceneTree
 ## walking off a terrace edge must not drop it, walking at the face must not
 ## climb it, and a ray across the cliff must be blocked.
 
-const SEEDS := 30
+## Daily runs sweep fewer floors; DOWNFALL_FULL=1 (run_all.ps1 -Full) the lot.
+var SEEDS := 30 if OS.get_environment("DOWNFALL_FULL") == "1" else 15
 
 var failures := 0
 var checks: Array[Dictionary] = []
@@ -38,6 +39,16 @@ func run() -> void:
 	var unlevel := 0
 	var cliffs := 0
 	var worst_ramp := ""
+	var total_cut := 0.0
+	var total_face := 0.0
+	var accents := {}
+	var lamp_total := 0
+	var headframes := 0
+	var darkest := INF
+	var dressed_ramps := 0
+	var dressed_rubble := 0
+	var misplaced := 0
+	var dressing_bodies := 0
 	for i in range(SEEDS):
 		map.region_id = ["mine", "city", "snow"][i % 3]
 		map.generate((i + 1) * 4421, 1)
@@ -62,6 +73,32 @@ func run() -> void:
 					if absf(here - previous) > steepest: worst_ramp = "%s seed %d link %d at %s" % [map.region_id, (i + 1) * 4421, ramp.link, p]
 					steepest = maxf(steepest, absf(here - previous))
 				previous = here
+		var dressing: TerraceDressing = map.terrace_dressing
+		dressed_ramps += dressing.ramp_count
+		dressed_rubble += dressing.rubble_count
+		for node in map._generated_root.find_children("*", "CollisionObject3D", true, false):
+			if node.get_parent() != null and node.get_parent().name.begins_with("Terrace"): dressing_bodies += 1
+		# The swept faces cover the cliff lines, and every face column turns
+		# towards the low floor.
+		var cut_length := 0.0
+		for cut in map._surface.cliff_cuts: cut_length += Vector2(cut[0], cut[1]).distance_to(Vector2(cut[2], cut[3]))
+		total_cut += cut_length
+		total_face += dressing.cliff_face.face_length
+		for path in dressing.accent_transforms: accents[String(path).get_file().get_basename()] = int(accents.get(String(path).get_file().get_basename(), 0)) + (dressing.accent_transforms[path] as Array).size()
+		for chain in dressing.cliff_face.chains:
+			if chain.bank: continue  # bank faces front open ground, not a lower floor
+			for k in range(chain.points.size()):
+				var at: Vector2 = chain.points[k]
+				var front: Vector2 = chain.front[k]
+				if chain.high[k] - chain.low[k] > 1.5 and map.ground_height(at + front * 1.2) > map.ground_height(at - front * 1.2) - 0.5: misplaced += 1
+		if map.region_id == "mine":
+			lamp_total += dressing.lamps.size()
+			headframes += dressing.headframe_points.size()
+			# Readability (恐怖黎明 was faulted for unplayably dark areas): the trunk
+			# floor must never fall below a floor of light.
+			for k in range(map.main_path.size()):
+				var light := dressing.field_light.light_at(map.main_path[k])
+				darkest = minf(darkest, (light.r + light.g + light.b) / 3.0)
 		var spots: Array[Vector3] = [map.buff_position, map.encounter_position, map.exit_node.position, map.vault_position, map.route_guard_position]
 		for node in map.route_nodes: spots.append(node.position)
 		spots.append_array(map.mechanism_positions)
@@ -73,6 +110,13 @@ func run() -> void:
 	check("ramps are dug (%d over %d floors) and stay walkable (steepest %.2f per metre)" % [ramps, SEEDS, steepest], ramps >= SEEDS and steepest < 0.45)
 	if steepest >= 0.45: print("  steepest ramp: ", worst_ramp)
 	check("cliffs are walled (%d wall pieces)" % cliffs, cliffs > 0)
+	check("the terraces are dressed (%d ramp kerbs, %d rubble piles)" % [dressed_ramps, dressed_rubble], dressed_ramps >= ramps and dressed_rubble > 0)
+	check("continuous cliff faces cover the cliff lines (%.0f m of face over %.0f m of wall)" % [total_face, total_cut], total_face >= total_cut * 0.8)
+	check("the mine sets its Blender accents along the faces (%s)" % [accents], accents.size() >= 4)
+	check("mine floors are lit by lamps and the way down has its headframe (%d lamps, %d headframes over %d mine floors)" % [lamp_total, headframes, SEEDS / 3], lamp_total >= SEEDS / 3 * 8 and headframes >= SEEDS / 3 * 0.7)
+	check("the trunk is never too dark to read (darkest %.2f)" % darkest, darkest >= 0.7)
+	check("every cliff face column fronts the low floor (%d off)" % misplaced, misplaced <= 3)
+	check("the dressing adds no collision (%d bodies)" % dressing_bodies, dressing_bodies == 0)
 	check("devices, markers and the outpost stand on level ground at ground height (%d off)" % unlevel, unlevel == 0)
 
 	# A real body at a real cliff.

@@ -1,0 +1,926 @@
+{
+ "/ 秒": {
+  "where": "ui/inventory_panel.gd:435",
+  "line": "regen.add_child(AK.label(\"%d / 秒\" % roundi(p.regen_rate()), 14, AK.FG, AK.en()))"
+ },
+ "2 件：": {
+  "where": "game/special_gear.gd:202",
+  "line": "return [[str(set_data.name), worn], [\"2 件：\" + str(set_data.two), worn >= 2], [\"3 件：\" + str(set_data.three), worn >= 3]]"
+ },
+ "3 件：": {
+  "where": "game/special_gear.gd:202",
+  "line": "return [[str(set_data.name), worn], [\"2 件：\" + str(set_data.two), worn >= 2], [\"3 件：\" + str(set_data.three), worn >= 3]]"
+ },
+ "D32钢": {
+  "where": "game/material_catalog.gd:44",
+  "line": "\"D32钢\": {\"star\": 5, \"kind\": \"craft\", \"text\": \"强度超群，能传导源石技艺，将重新订立武器材料的标准。\"},"
+ },
+ "[color=#4fd1c5]已投保[/color]": {
+  "where": "ui/item_tooltip.gd:78",
+  "line": "if item.insured: state.append(\"[color=#4fd1c5]已投保[/color]\")"
+ },
+ "[color=#99aab8]装备后（对比": {
+  "where": "ui/item_tooltip.gd:47",
+  "line": "lines.append(\"[color=#99aab8]装备后（对比%s）：[/color]\" % (\"当前 \" + worn.item_name if worn != null else \"空槽\"))"
+ },
+ "[color=#b48cff]── 触发 ──[/color]": {
+  "where": "ui/item_tooltip.gd:74",
+  "line": "lines.append(\"[color=#ff7a45]── 特殊效果 ──[/color]\" if not item.special.is_empty() else \"[color=#b48cff]── 触发 ──[/color]\")"
+ },
+ "[color=#b8c4cf]固有 ·": {
+  "where": "ui/item_tooltip.gd:56",
+  "line": "for mod in intrinsic: lines.append(\"  [color=#b8c4cf]固有 · %s[/color]\" % mod.describe())"
+ },
+ "[color=#c9d3db]── 基础 ──[/color]": {
+  "where": "ui/item_tooltip.gd:51",
+  "line": "lines.append(\"[color=#c9d3db]── 基础 ──[/color]\")"
+ },
+ "[color=#c9d3db]── 词缀 ──[/color]": {
+  "where": "ui/item_tooltip.gd:59",
+  "line": "lines.append(\"[color=#c9d3db]── 词缀 ──[/color]\")"
+ },
+ "[color=#d8c27a]交付价": {
+  "where": "ui/item_tooltip.gd:81",
+  "line": "lines.append(\"[color=#d8c27a]交付价 %s 龙门币[/color]\" % Economy.format(Economy.price(item)))"
+ },
+ "[color=#d8c27a]已装备[/color]": {
+  "where": "ui/item_tooltip.gd:44",
+  "line": "lines.append(\"[color=#d8c27a]已装备[/color]\")"
+ },
+ "[color=#ee8a24]── 专属效果 ──[/color]": {
+  "where": "ui/item_tooltip.gd:63",
+  "line": "lines.append(\"[color=#ee8a24]── 专属效果 ──[/color]\")"
+ },
+ "[color=#ff7a45]── 特殊效果 ──[/color]": {
+  "where": "ui/item_tooltip.gd:74",
+  "line": "lines.append(\"[color=#ff7a45]── 特殊效果 ──[/color]\" if not item.special.is_empty() else \"[color=#b48cff]── 触发 ──[/color]\")"
+ },
+ "·  需求": {
+  "where": "ui/item_tooltip.gd:40",
+  "line": "lines.append(\"等级 %s%s\" % [Progression.GRADE_MARKS[int(req.grade)], (\"  ·  需求 \" + \" · \".join(parts)) if not parts.is_empty() else \"\"])"
+ },
+ "· [color=#4fd18b]套装[/color]": {
+  "where": "ui/item_tooltip.gd:31",
+  "line": "\"set\": kind += \" · [color=#4fd18b]套装[/color]\""
+ },
+ "· [color=#ee8a24]◆ 敌人专属[/color]": {
+  "where": "ui/item_tooltip.gd:30",
+  "line": "\"exclusive\": kind += \" · [color=#ee8a24]◆ 敌人专属[/color]\""
+ },
+ "· [color=#ee8a24]地区专属[/color]": {
+  "where": "ui/item_tooltip.gd:27",
+  "line": "if not item.exclusive_region.is_empty(): kind += \" · [color=#ee8a24]地区专属[/color]\""
+ },
+ "· [color=#ff7a45]特殊装备[/color]": {
+  "where": "ui/item_tooltip.gd:29",
+  "line": "\"special\": kind += \" · [color=#ff7a45]特殊装备[/color]\""
+ },
+ "· 不可堆叠": {
+  "where": "ui/item_tooltip.gd:25",
+  "line": "kind += \" · 堆叠 %d/%d\" % [item.quantity, item.max_stack] if item.is_stackable() else \" · 不可堆叠\""
+ },
+ "· 产地": {
+  "where": "ui/item_tooltip.gd:26",
+  "line": "if FieldCatalog.REGIONS.has(item.origin_region): kind += \" · 产地 \" + FieldCatalog.REGIONS[item.origin_region].name.split(\" · \")[0]"
+ },
+ "· 堆叠": {
+  "where": "ui/item_tooltip.gd:25",
+  "line": "kind += \" · 堆叠 %d/%d\" % [item.quantity, item.max_stack] if item.is_stackable() else \" · 不可堆叠\""
+ },
+ "一把为了同时面对很多人而打的刀。": {
+  "where": "game/special_gear.gd:22",
+  "line": "\"text\": \"一把为了同时面对很多人而打的刀。\", \"source\": \"宽刃（原锋刃构筑物）\"},"
+ },
+ "不该给的，它都给了。": {
+  "where": "game/special_gear.gd:110",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], \"fx\": \"kill_haste\", \"fx_text\": \"击杀时：4 秒内移速 +25%、攻速 +15%\", \"req\": \"agi\", \"text\": \"不该给的，它都给了。\"},"
+ },
+ "专属": {
+  "where": "inventory/item.gd:111",
+  "line": "var quality: String = {\"special\": \"特殊\", \"exclusive\": \"专属\", \"set\": \"套装\"}.get(named_kind(), RARITY_NAMES[clampi(rarity, 0, 2)])"
+ },
+ "丢到地面": {
+  "where": "ui/inventory_panel.gd:75",
+  "line": "_confirm.ok_button_text = \"丢到地面\""
+ },
+ "丢到地面？": {
+  "where": "ui/inventory_panel.gd:504",
+  "line": "_confirm.dialog_text = \"把 %s 丢到地面？\" % item.display_name()"
+ },
+ "丢弃物品": {
+  "where": "ui/inventory_panel.gd:74",
+  "line": "_confirm.title = \"丢弃物品\""
+ },
+ "两个日期，中间一道横线。": {
+  "where": "game/special_gear.gd:128",
+  "line": "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"req\": \"phy\", \"text\": \"两个日期，中间一道横线。\"},"
+ },
+ "两柄刃，一道光分成三道。": {
+  "where": "game/special_gear.gd:25",
+  "line": "\"text\": \"两柄刃，一道光分成三道。\", \"source\": \"双生剑气（原狼魂构筑物）\"},"
+ },
+ "伐木斧": {
+  "where": "ui/item_icons.gd:42",
+  "line": "\"伐木斧\": \"snow_x02\", \"兽颚指虎\": \"snow_x03\", \"凿冰长刀\": \"snow_x04\", \"科考冰镐\": \"snow_x05\","
+ },
+ "余烬剑气（原狼魂构筑物）": {
+  "where": "game/special_gear.gd:28",
+  "line": "\"text\": \"刃脊里封着一点不肯熄的火。\", \"source\": \"余烬剑气（原狼魂构筑物）\"},"
+ },
+ "余烬：剑气使敌人灼烧 4 秒，每 0.5 秒受到 10% 法术攻击力的法术伤害": {
+  "where": "inventory/item_modifier.gd:49",
+  "line": "Trigger.EMBER: \"余烬：剑气使敌人灼烧 4 秒，每 0.5 秒受到 10% 法术攻击力的法术伤害\","
+ },
+ "全新装置": {
+  "where": "game/material_catalog.gd:35",
+  "line": "\"全新装置\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"重构后解决了主板空间问题，但能耗更高。\"},"
+ },
+ "全部拿取": {
+  "where": "ui/inventory_panel.gd:393",
+  "line": "var take := AK.button(\"全部拿取\", \"yellow\", 12)"
+ },
+ "其他": {
+  "where": "ui/inventory_panel.gd:414",
+  "line": "[\"其他\", [[\"移动速度\", \"move\"]]]]"
+ },
+ "冬牙角盔": {
+  "where": "ui/item_icons.gd:45",
+  "line": "\"冬牙角盔\": \"snow_x14\", \"雪祀羽氅\": \"snow_x15\", \"族树木片\": \"snow_x16\", \"鼷兽毛团\": \"snow_x17\","
+ },
+ "冰原毛皮外套": {
+  "where": "ui/item_icons.gd:27",
+  "line": "\"冰原毛皮外套\": \"tundra_fur_coat\", \"雪橇巡逻队斗篷\": \"sled_patrol_cloak\", \"科考队防寒服\": \"expedition_parka\", \"骨片札甲\": \"bone_lamellar\","
+ },
+ "冰原猎刀": {
+  "where": "game/gear_catalog.gd:256",
+  "line": "const RENAMED := {\"镐柄战刃\": \"断镐战斧\", \"冰原猎刀\": \"角柄猎刀\"}"
+ },
+ "凝胶": {
+  "where": "game/material_catalog.gd:43",
+  "line": "\"凝胶\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"实验室意外诞生的材料，耐高低温，强度高、重量轻。\"},"
+ },
+ "击杀时：10% 让该敌人多掉一份材料": {
+  "where": "game/special_gear.gd:104",
+  "line": "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"fx\": \"kill_extra_material\", \"fx_text\": \"击杀时：10% 让该敌人多掉一份材料\", \"req\": \"tec\", \"text\": \"它也在等你打开。\"},"
+ },
+ "击杀时：25% 让被击杀者 0.8 秒后爆炸，150% 法术攻击力": {
+  "where": "game/special_gear.gd:66",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"fx\": \"kill_explode\", \"fx_text\": \"击杀时：25% 让被击杀者 0.8 秒后爆炸，150% 法术攻击力\", \"req\": \"arts\", \"text\": \"它安静的时候最危险。\"},"
+ },
+ "击杀时：4 秒内攻速 +12%，叠 3 层": {
+  "where": "game/special_gear.gd:52",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_DMG, 0.1]], \"fx\": \"kill_aspd_stack\", \"fx_text\": \"击杀时：4 秒内攻速 +12%，叠 3 层\", \"req\": \"tec\", \"form\": \"blade\", \"text\": \"每换一个主人，就多一道焊。\"},"
+ },
+ "击杀时：4 秒内移速 +25%、攻速 +15%": {
+  "where": "game/special_gear.gd:110",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], \"fx\": \"kill_haste\", \"fx_text\": \"击杀时：4 秒内移速 +25%、攻速 +15%\", \"req\": \"agi\", \"text\": \"不该给的，它都给了。\"},"
+ },
+ "击杀时：5 秒内攻速 +20%，叠 3 层": {
+  "where": "game/special_gear.gd:102",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], \"fx\": \"kill_aspd_stack_big\", \"fx_text\": \"击杀时：5 秒内攻速 +20%，叠 3 层\", \"req\": \"agi\", \"form\": \"fist\", \"text\": \"断掉的那一半，还在别人身上。\"},"
+ },
+ "击杀时：倒下处留 3 秒火区，每 0.5 秒 15% 法术攻击力": {
+  "where": "game/special_gear.gd:80",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"fx\": \"kill_fire\", \"fx_text\": \"击杀时：倒下处留 3 秒火区，每 0.5 秒 15% 法术攻击力\", \"req\": \"arts\", \"text\": \"瓶子都空了，包还是一股味。\"},"
+ },
+ "击杀时：精英额外掉 1 赤金；普通敌人 10% 额外掉 1 赤金": {
+  "where": "game/special_gear.gd:70",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_RATE, 0.03]], \"fx\": \"kill_gold\", \"fx_text\": \"击杀时：精英额外掉 1 赤金；普通敌人 10% 额外掉 1 赤金\", \"req\": \"tec\", \"text\": \"每一页都是一个名字和一个价钱。\"},"
+ },
+ "击杀时：获得 10% 生命上限的屏障 5 秒（刷新不叠加）": {
+  "where": "game/special_gear.gd:78",
+  "line": "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"fx\": \"kill_barrier\", \"fx_text\": \"击杀时：获得 10% 生命上限的屏障 5 秒（刷新不叠加）\", \"req\": \"agi\", \"form\": \"fist\", \"text\": \"扇面是纸，扇骨不是。\"},"
+ },
+ "刀光够亮的时候，会自己飞出去。": {
+  "where": "game/special_gear.gd:31",
+  "line": "\"text\": \"刀光够亮的时候，会自己飞出去。\", \"source\": \"月下双刃（原桥梁构筑物）\"},"
+ },
+ "刀柄上刻过名字，又被刮掉了。": {
+  "where": "game/special_gear.gd:112",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATK_PCT, 0.04]], \"req\": \"tec\", \"form\": \"blade\", \"text\": \"刀柄上刻过名字，又被刮掉了。\"},"
+ },
+ "刀鞘上刻着上一任的名字，被磨掉了。": {
+  "where": "game/special_gear.gd:124",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_RATE, 0.03]], \"req\": \"tec\", \"form\": \"blade\", \"text\": \"刀鞘上刻着上一任的名字，被磨掉了。\"},"
+ },
+ "刀鞘上的格子，一格一个名字。": {
+  "where": "game/special_gear.gd:118",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_RATE, 0.03]], \"req\": \"tec\", \"form\": \"blade\", \"text\": \"刀鞘上的格子，一格一个名字。\"},"
+ },
+ "刃上长出了不该长的东西。": {
+  "where": "game/special_gear.gd:34",
+  "line": "\"text\": \"刃上长出了不该长的东西。\", \"source\": \"源石结晶刃（原源石构筑物）\"},"
+ },
+ "刃脊里封着一点不肯熄的火。": {
+  "where": "game/special_gear.gd:28",
+  "line": "\"text\": \"刃脊里封着一点不肯熄的火。\", \"source\": \"余烬剑气（原狼魂构筑物）\"},"
+ },
+ "刃面上的环纹，是一场雪落下的样子。": {
+  "where": "game/special_gear.gd:136",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05], [ItemModifier.Stat.CRIT_RATE, 0.03]], \"req\": \"tec\", \"form\": \"blade\", \"text\": \"刃面上的环纹，是一场雪落下的样子。\"},"
+ },
+ "划掉的比没划掉的多。": {
+  "where": "game/special_gear.gd:122",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_DMG, 0.1]], \"req\": \"tec\", \"text\": \"划掉的比没划掉的多。\"},"
+ },
+ "制式短刀": {
+  "where": "ui/item_icons.gd:14",
+  "line": "\"改装砍刀\": \"modified_machete\", \"制式短刀\": \"standard_dagger\", \"矿区制式刀\": \"mine_issue_blade\","
+ },
+ "剑气强化：剑气伤害 +25%": {
+  "where": "inventory/item_modifier.gd:108",
+  "line": "return \"剑气强化：剑气伤害 +25%\""
+ },
+ "加点": {
+  "where": "ui/inventory_panel.gd:234",
+  "line": "var train := AK.button(\"加点\" + (\" %d\" % points if points > 0 else \"\"), \"yellow\" if points > 0 else \"plain\", 11)"
+ },
+ "动得够快，影子也会伤人。": {
+  "where": "game/special_gear.gd:40",
+  "line": "\"text\": \"动得够快，影子也会伤人。\", \"source\": \"残影步（原迅捷构筑物）\"},"
+ },
+ "劳役编号牌": {
+  "where": "ui/item_icons.gd:35",
+  "line": "\"劳役编号牌\": \"mine_x17\", \"切尔文铜币\": \"mine_x18\", \"纠察队手铐\": \"mine_x19\", \"游击队臂章\": \"mine_x20\","
+ },
+ "化合切削液": {
+  "where": "game/material_catalog.gd:38",
+  "line": "\"化合切削液\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"金属加工中起润滑吸热作用，提高成品合格率。\"},"
+ },
+ "双剑三段连斩，每次命中回复 1 点技力；技力满后，下一次攻击放出剑气，造成法术伤害。": {
+  "where": "ui/inventory_panel.gd:277",
+  "line": "var desc := AK.label(\"双剑三段连斩，每次命中回复 1 点技力；技力满后，下一次攻击放出剑气，造成法术伤害。\", 12, AK.FG)"
+ },
+ "双生剑气（原狼魂构筑物）": {
+  "where": "game/special_gear.gd:25",
+  "line": "\"text\": \"两柄刃，一道光分成三道。\", \"source\": \"双生剑气（原狼魂构筑物）\"},"
+ },
+ "双生剑气：释放剑气时，再向 ±20° 发出两道 50% 伤害的剑气": {
+  "where": "inventory/item_modifier.gd:48",
+  "line": "Trigger.TWIN_WAVE: \"双生剑气：释放剑气时，再向 ±20° 发出两道 50% 伤害的剑气\","
+ },
+ "双酮": {
+  "where": "game/material_catalog.gd:31",
+  "line": "\"双酮\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"极少量非单酮制剂，工程干员用它粘结结构。\"},"
+ },
+ "取消": {
+  "where": "ui/inventory_panel.gd:76",
+  "line": "_confirm.cancel_button_text = \"取消\""
+ },
+ "受击时：20% 向周围 2 米迸出碎屑，60% 法术攻击力": {
+  "where": "game/special_gear.gd:56",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"hurt_shards\", \"fx_text\": \"受击时：20% 向周围 2 米迸出碎屑，60% 法术攻击力\", \"req\": \"phy\", \"text\": \"虫子长大了，壳留在原地。\"},"
+ },
+ "受击时：20% 震出半径 1.6 冲击波，60% 攻击力（冷却 3 秒）": {
+  "where": "game/special_gear.gd:60",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"hurt_shockwave\", \"fx_text\": \"受击时：20% 震出半径 1.6 冲击波，60% 攻击力（冷却 3 秒）\", \"req\": \"phy\", \"text\": \"挨打的人学会了回声。\"},"
+ },
+ "受击时：3 秒内防御 +15%，叠 3 层": {
+  "where": "game/special_gear.gd:90",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"hurt_def_stack\", \"fx_text\": \"受击时：3 秒内防御 +15%，叠 3 层\", \"req\": \"phy\", \"text\": \"越挨打，越硬。\"},"
+ },
+ "受击时：生命 ≤50% 时攻击力 +30%、攻速 +15%，6 秒（冷却 12 秒）": {
+  "where": "game/special_gear.gd:84",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATK_PCT, 0.04]], \"fx\": \"hurt_half_rage\", \"fx_text\": \"受击时：生命 ≤50% 时攻击力 +30%、攻速 +15%，6 秒（冷却 12 秒）\", \"req\": \"tec\", \"form\": \"blade\", \"text\": \"换一只手，再来一次。\"},"
+ },
+ "受击时：生命低于 35%，5 秒内防御 +50%（冷却 60 秒）": {
+  "where": "game/special_gear.gd:58",
+  "line": "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"fx\": \"low_hp_def\", \"fx_text\": \"受击时：生命低于 35%，5 秒内防御 +50%（冷却 60 秒）\", \"req\": \"phy\", \"text\": \"罐子里装的是什么，标签已经说不清。\"},"
+ },
+ "命中时：对生命低于 35% 的敌人暴击率 +25%": {
+  "where": "game/special_gear.gd:92",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_RATE, 0.03]], \"fx\": \"hit_low_crit\", \"fx_text\": \"命中时：对生命低于 35% 的敌人暴击率 +25%\", \"req\": \"tec\", \"text\": \"每打一个结，就少一只。\"},"
+ },
+ "命中时：连续命中同一目标第 4 下，追加 40% 攻击力打击": {
+  "where": "game/special_gear.gd:72",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], \"fx\": \"hit_fourth\", \"fx_text\": \"命中时：连续命中同一目标第 4 下，追加 40% 攻击力打击\", \"req\": \"agi\", \"text\": \"第四拳，才是认真的。\"},"
+ },
+ "回复": {
+  "where": "ui/item_tooltip.gd:116",
+  "line": "lines.append(\"吸血 %d%%  闪避 %d%%  回复 %d/秒\" % [roundi(p.lifesteal() * 100), roundi(p.evasion() * 100), roundi(p.regen_rate())])"
+ },
+ "坚壁 4 共鸣的荆棘": {
+  "where": "game/special_gear.gd:43",
+  "line": "\"text\": \"抱住它的人会后悔。\", \"source\": \"坚壁 4 共鸣的荆棘\"},"
+ },
+ "基建材料": {
+  "where": "game/material_catalog.gd:97",
+  "line": "return \"基建材料\" if str(data.get(\"kind\", \"\")) == \"base\" else \"养成材料\""
+ },
+ "基础": {
+  "where": "ui/inventory_panel.gd:412",
+  "line": "var groups := [[\"基础\", [[\"生命\", \"hp\"], [\"攻击\", \"atk\"], [\"法术攻击\", \"arts\"], [\"防御\", \"def\"], [\"法术抗性\", \"res\"]]],"
+ },
+ "套装": {
+  "where": "inventory/item.gd:111",
+  "line": "var quality: String = {\"special\": \"特殊\", \"exclusive\": \"专属\", \"set\": \"套装\"}.get(named_kind(), RARITY_NAMES[clampi(rarity, 0, 2)])"
+ },
+ "它也在等你打开。": {
+  "where": "game/special_gear.gd:104",
+  "line": "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"fx\": \"kill_extra_material\", \"fx_text\": \"击杀时：10% 让该敌人多掉一份材料\", \"req\": \"tec\", \"text\": \"它也在等你打开。\"},"
+ },
+ "它安静的时候最危险。": {
+  "where": "game/special_gear.gd:66",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"fx\": \"kill_explode\", \"fx_text\": \"击杀时：25% 让被击杀者 0.8 秒后爆炸，150% 法术攻击力\", \"req\": \"arts\", \"text\": \"它安静的时候最危险。\"},"
+ },
+ "它记得怎么施法，不记得为什么。": {
+  "where": "game/special_gear.gd:98",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"fx\": \"idle_strike\", \"fx_text\": \"空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力\", \"req\": \"arts\", \"text\": \"它记得怎么施法，不记得为什么。\"},"
+ },
+ "宽刃（原锋刃构筑物）": {
+  "where": "game/special_gear.gd:22",
+  "line": "\"text\": \"一把为了同时面对很多人而打的刀。\", \"source\": \"宽刃（原锋刃构筑物）\"},"
+ },
+ "尖刺：受到攻击时，对攻击者造成 80% 防御值的物理伤害": {
+  "where": "inventory/item_modifier.gd:54",
+  "line": "Trigger.THORNS: \"尖刺：受到攻击时，对攻击者造成 80% 防御值的物理伤害\","
+ },
+ "尺子量的是规矩。": {
+  "where": "game/special_gear.gd:130",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"req\": \"agi\", \"form\": \"fist\", \"text\": \"尺子量的是规矩。\"},"
+ },
+ "岩角战锤": {
+  "where": "ui/item_icons.gd:43",
+  "line": "\"岩角战锤\": \"snow_x06\", \"裂骨拳刃\": \"snow_x07\", \"林线猎矛\": \"snow_x08\", \"角兽长毛披肩\": \"snow_x09\","
+ },
+ "工兵锹": {
+  "where": "ui/item_icons.gd:31",
+  "line": "\"工兵锹\": \"mine_x01\", \"大号管钳\": \"mine_x02\", \"缠链指虎\": \"mine_x03\", \"纠察队钩刀\": \"mine_x04\","
+ },
+ "干员 · 背包": {
+  "where": "ui/inventory_panel.gd:96",
+  "line": "titles.add_child(AK.label(\"干员 · 背包\", 20, AK.FG))"
+ },
+ "幸运晶石": {
+  "where": "ui/item_icons.gd:46",
+  "line": "\"幸运晶石\": \"snow_x18\", \"骨缝雪镜\": \"snow_x19\", \"手持定位仪\": \"snow_x20\", \"角兽银铃\": \"snow_x21\","
+ },
+ "幼狼之牙": {
+  "where": "ui/inventory_panel.gd:273",
+  "line": "title.add_child(AK.label(\"幼狼之牙\", 14, AK.FG))"
+ },
+ "异铁碎片": {
+  "where": "game/material_catalog.gd:28",
+  "line": "\"异铁碎片\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"大规模金属原料加工的副产物，可塑性强、难氧化。\"},"
+ },
+ "异铁组": {
+  "where": "game/material_catalog.gd:30",
+  "line": "\"异铁组\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"偶然形成的异铁组合，硬度下降、纯度上升。\"},"
+ },
+ "当前": {
+  "where": "ui/item_tooltip.gd:47",
+  "line": "lines.append(\"[color=#99aab8]装备后（对比%s）：[/color]\" % (\"当前 \" + worn.item_name if worn != null else \"空槽\"))"
+ },
+ "当铺铜牌": {
+  "where": "ui/item_icons.gd:41",
+  "line": "\"无人机遥控器\": \"city_x19\", \"当铺铜牌\": \"city_x20\", \"琉璃护身珠\": \"city_x21\", \"染污短刀\": \"snow_x01\","
+ },
+ "战斗": {
+  "where": "ui/inventory_panel.gd:413",
+  "line": "[\"战斗\", [[\"攻击速度\", \"aspd\"], [\"暴击率\", \"crit\"], [\"暴击伤害\", \"crit_dmg\"]]],"
+ },
+ "扇面是纸，扇骨不是。": {
+  "where": "game/special_gear.gd:78",
+  "line": "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"fx\": \"kill_barrier\", \"fx_text\": \"击杀时：获得 10% 生命上限的屏障 5 秒（刷新不叠加）\", \"req\": \"agi\", \"form\": \"fist\", \"text\": \"扇面是纸，扇骨不是。\"},"
+ },
+ "执勤反光雨衣": {
+  "where": "ui/item_icons.gd:38",
+  "line": "\"炎式苗刀\": \"city_x07\", \"炎式朴刀\": \"city_x08\", \"执勤反光雨衣\": \"city_x09\", \"拳馆练功服\": \"city_x10\","
+ },
+ "执勤警哨": {
+  "where": "ui/item_icons.gd:40",
+  "line": "\"执勤警哨\": \"city_x15\", \"防风打火机\": \"city_x16\", \"老千骰子\": \"city_x17\", \"跌打药酒瓶\": \"city_x18\","
+ },
+ "扭转醇": {
+  "where": "game/material_catalog.gd:39",
+  "line": "\"扭转醇\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"化工中介体，液化后像酒精，常让整个工作间醉醺醺的。\"},"
+ },
+ "把": {
+  "where": "ui/inventory_panel.gd:504",
+  "line": "_confirm.dialog_text = \"把 %s 丢到地面？\" % item.display_name()"
+ },
+ "护卫铁尺": {
+  "where": "ui/item_icons.gd:37",
+  "line": "\"消防斧\": \"city_x03\", \"蝴蝶双刀\": \"city_x04\", \"护卫铁尺\": \"city_x05\", \"警用链锤\": \"city_x06\","
+ },
+ "抱住它的人会后悔。": {
+  "where": "game/special_gear.gd:43",
+  "line": "\"text\": \"抱住它的人会后悔。\", \"source\": \"坚壁 4 共鸣的荆棘\"},"
+ },
+ "押运防弹背心": {
+  "where": "ui/item_icons.gd:22",
+  "line": "\"近卫局制式护甲\": \"lgd_vest\", \"消防署隔热服\": \"fire_suit\", \"押运防弹背心\": \"courier_vest\", \"特别督察组战术护甲\": \"inspector_armor\","
+ },
+ "拳馆练功服": {
+  "where": "ui/item_icons.gd:38",
+  "line": "\"炎式苗刀\": \"city_x07\", \"炎式朴刀\": \"city_x08\", \"执勤反光雨衣\": \"city_x09\", \"拳馆练功服\": \"city_x10\","
+ },
+ "拼装轻甲": {
+  "where": "ui/item_icons.gd:33",
+  "line": "\"拼装轻甲\": \"mine_x09\", \"改装喷射背架\": \"mine_x10\", \"整合运动术师兜袍\": \"mine_x11\", \"伪装吉利服\": \"mine_x12\","
+ },
+ "拾荒者伪装衫": {
+  "where": "ui/item_icons.gd:39",
+  "line": "\"染血白工装\": \"city_x11\", \"拾荒者伪装衫\": \"city_x12\", \"香主绸衫\": \"city_x13\", \"防爆重甲\": \"city_x14\","
+ },
+ "指刃": {
+  "where": "ui/item_icons.gd:20",
+  "line": "\"指刃\": \"finger_blade\", \"帮派砍刀\": \"gang_machete\", \"近卫局警用刀\": \"lgd_knife\", \"押运短刃\": \"courier_dagger\","
+ },
+ "挡下来的，原样还回去。": {
+  "where": "game/special_gear.gd:46",
+  "line": "\"text\": \"挡下来的，原样还回去。\", \"source\": \"盾反（原坚壁构筑物）\"},"
+ },
+ "挨打的人学会了回声。": {
+  "where": "game/special_gear.gd:60",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"hurt_shockwave\", \"fx_text\": \"受击时：20% 震出半径 1.6 冲击波，60% 攻击力（冷却 3 秒）\", \"req\": \"phy\", \"text\": \"挨打的人学会了回声。\"},"
+ },
+ "换一只手，再来一次。": {
+  "where": "game/special_gear.gd:84",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATK_PCT, 0.04]], \"fx\": \"hurt_half_rage\", \"fx_text\": \"受击时：生命 ≤50% 时攻击力 +30%、攻速 +15%，6 秒（冷却 12 秒）\", \"req\": \"tec\", \"form\": \"blade\", \"text\": \"换一只手，再来一次。\"},"
+ },
+ "提纯源岩": {
+  "where": "game/material_catalog.gd:23",
+  "line": "\"提纯源岩\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"高度提纯，有着规则的切割面；工艺成本急剧上升。\"},"
+ },
+ "握在手里会轻轻发颤，敌人倒下时颤得更厉害。": {
+  "where": "game/special_gear.gd:37",
+  "line": "\"text\": \"握在手里会轻轻发颤，敌人倒下时颤得更厉害。\", \"source\": \"矿脉共振（原源石构筑物）\"},"
+ },
+ "摘下来也没有人认得。": {
+  "where": "game/special_gear.gd:116",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], \"req\": \"agi\", \"text\": \"摘下来也没有人认得。\"},"
+ },
+ "改装砍刀": {
+  "where": "ui/item_icons.gd:14",
+  "line": "\"改装砍刀\": \"modified_machete\", \"制式短刀\": \"standard_dagger\", \"矿区制式刀\": \"mine_issue_blade\","
+ },
+ "改量装置": {
+  "where": "game/material_catalog.gd:36",
+  "line": "\"改量装置\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"大量私自改造的装置，扩容提速但牺牲了稳定性。\"},"
+ },
+ "攻击力": {
+  "where": "inventory/item.gd:127",
+  "line": "var names := {\"atk\": \"攻击力\", \"hp\": \"生命\", \"def\": \"防御\", \"arts\": \"法术攻击力\", \"stamina_regen\": \"体力回复\"}"
+ },
+ "攻击回复": {
+  "where": "ui/inventory_panel.gd:274",
+  "line": "title.add_child(AK.tag(\"攻击回复\", AK.GREEN))"
+ },
+ "攻击速度": {
+  "where": "ui/inventory_panel.gd:413",
+  "line": "[\"战斗\", [[\"攻击速度\", \"aspd\"], [\"暴击率\", \"crit\"], [\"暴击伤害\", \"crit_dmg\"]]],"
+ },
+ "攻速": {
+  "where": "inventory/item_modifier.gd:126",
+  "line": "return \"攻速 %+.0f\" % (amount * 100.0)"
+ },
+ "放不下：位置被占用或超出边界。": {
+  "where": "ui/inventory_panel.gd:532",
+  "line": "game.notice(\"放不下：位置被占用或超出边界。\")"
+ },
+ "整合运动面具": {
+  "where": "ui/item_icons.gd:18",
+  "line": "\"防尘面罩\": \"dust_mask\", \"烈酒扁壶\": \"liquor_flask\", \"整合运动面具\": \"reunion_mask\", \"源石感应计\": \"originium_meter\","
+ },
+ "整理": {
+  "where": "ui/inventory_panel.gd:311",
+  "line": "var sort := AK.button(\"整理\", \"plain\", 11)"
+ },
+ "断掉的那一半，还在别人身上。": {
+  "where": "game/special_gear.gd:102",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], \"fx\": \"kill_aspd_stack_big\", \"fx_text\": \"击杀时：5 秒内攻速 +20%，叠 3 层\", \"req\": \"agi\", \"form\": \"fist\", \"text\": \"断掉的那一半，还在别人身上。\"},"
+ },
+ "断镐战斧": {
+  "where": "game/gear_catalog.gd:256",
+  "line": "const RENAMED := {\"镐柄战刃\": \"断镐战斧\", \"冰原猎刀\": \"角柄猎刀\"}"
+ },
+ "无人机遥控器": {
+  "where": "ui/item_icons.gd:41",
+  "line": "\"无人机遥控器\": \"city_x19\", \"当铺铜牌\": \"city_x20\", \"琉璃护身珠\": \"city_x21\", \"染污短刀\": \"snow_x01\","
+ },
+ "普通": {
+  "where": "inventory/item.gd:11",
+  "line": "const RARITY_NAMES := [\"普通\", \"精良\", \"稀有\"]"
+ },
+ "晶体元件": {
+  "where": "game/material_catalog.gd:41",
+  "line": "\"晶体元件\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"用源石晶体外壳制作的工业原材料。\"},"
+ },
+ "暴击伤害": {
+  "where": "inventory/item_modifier.gd:138",
+  "line": "return \"暴击伤害 %+.0f%%\" % (amount * 100.0)"
+ },
+ "暴击率": {
+  "where": "inventory/item_modifier.gd:136",
+  "line": "return \"暴击率 %+.0f%%\" % (amount * 100.0)"
+ },
+ "月下双刃（原桥梁构筑物）": {
+  "where": "game/special_gear.gd:31",
+  "line": "\"text\": \"刀光够亮的时候，会自己飞出去。\", \"source\": \"月下双刃（原桥梁构筑物）\"},"
+ },
+ "月下：暴击时 35% 概率射出一道 50% 伤害的剑气（不消耗充能、不自我连锁）": {
+  "where": "inventory/item_modifier.gd:55",
+  "line": "Trigger.MOON_WAVE: \"月下：暴击时 35% 概率射出一道 50% 伤害的剑气（不消耗充能、不自我连锁）\","
+ },
+ "染污短刀": {
+  "where": "ui/item_icons.gd:41",
+  "line": "\"无人机遥控器\": \"city_x19\", \"当铺铜牌\": \"city_x20\", \"琉璃护身珠\": \"city_x21\", \"染污短刀\": \"snow_x01\","
+ },
+ "染血白工装": {
+  "where": "ui/item_icons.gd:39",
+  "line": "\"染血白工装\": \"city_x11\", \"拾荒者伪装衫\": \"city_x12\", \"香主绸衫\": \"city_x13\", \"防爆重甲\": \"city_x14\","
+ },
+ "桦皮护胸": {
+  "where": "ui/item_icons.gd:44",
+  "line": "\"桦皮护胸\": \"snow_x10\", \"林业护具\": \"snow_x11\", \"搜救队绳索背心\": \"snow_x12\", \"科考站加热背心\": \"snow_x13\","
+ },
+ "横扫：普攻对目标 1.8 米内其他敌人造成 50% 伤害": {
+  "where": "inventory/item_modifier.gd:47",
+  "line": "Trigger.CLEAVE: \"横扫：普攻对目标 1.8 米内其他敌人造成 50% 伤害\","
+ },
+ "残影步（原迅捷构筑物）": {
+  "where": "game/special_gear.gd:40",
+  "line": "\"text\": \"动得够快，影子也会伤人。\", \"source\": \"残影步（原迅捷构筑物）\"},"
+ },
+ "残影：闪避穿过的敌人受到 120% 攻击力的物理伤害": {
+  "where": "inventory/item_modifier.gd:52",
+  "line": "Trigger.AFTERIMAGE: \"残影：闪避穿过的敌人受到 120% 攻击力的物理伤害\","
+ },
+ "每一页都是一个名字和一个价钱。": {
+  "where": "game/special_gear.gd:70",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_RATE, 0.03]], \"fx\": \"kill_gold\", \"fx_text\": \"击杀时：精英额外掉 1 赤金；普通敌人 10% 额外掉 1 赤金\", \"req\": \"tec\", \"text\": \"每一页都是一个名字和一个价钱。\"},"
+ },
+ "每打一个结，就少一只。": {
+  "where": "game/special_gear.gd:92",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_RATE, 0.03]], \"fx\": \"hit_low_crit\", \"fx_text\": \"命中时：对生命低于 35% 的敌人暴击率 +25%\", \"req\": \"tec\", \"text\": \"每打一个结，就少一只。\"},"
+ },
+ "每换一个主人，就多一道焊。": {
+  "where": "game/special_gear.gd:52",
+  "line": "\"implicit\": [[ItemModifier.Stat.CRIT_DMG, 0.1]], \"fx\": \"kill_aspd_stack\", \"fx_text\": \"击杀时：4 秒内攻速 +12%，叠 3 层\", \"req\": \"tec\", \"form\": \"blade\", \"text\": \"每换一个主人，就多一道焊。\"},"
+ },
+ "法抗": {
+  "where": "inventory/item_modifier.gd:134",
+  "line": "return \"法抗 %+.0f\" % amount"
+ },
+ "法术抗性": {
+  "where": "ui/inventory_panel.gd:412",
+  "line": "var groups := [[\"基础\", [[\"生命\", \"hp\"], [\"攻击\", \"atk\"], [\"法术攻击\", \"arts\"], [\"防御\", \"def\"], [\"法术抗性\", \"res\"]]],"
+ },
+ "法术攻击": {
+  "where": "ui/inventory_panel.gd:412",
+  "line": "var groups := [[\"基础\", [[\"生命\", \"hp\"], [\"攻击\", \"atk\"], [\"法术攻击\", \"arts\"], [\"防御\", \"def\"], [\"法术抗性\", \"res\"]]],"
+ },
+ "法术攻击力": {
+  "where": "inventory/item.gd:127",
+  "line": "var names := {\"atk\": \"攻击力\", \"hp\": \"生命\", \"def\": \"防御\", \"arts\": \"法术攻击力\", \"stamina_regen\": \"体力回复\"}"
+ },
+ "消防斧": {
+  "where": "ui/item_icons.gd:37",
+  "line": "\"消防斧\": \"city_x03\", \"蝴蝶双刀\": \"city_x04\", \"护卫铁尺\": \"city_x05\", \"警用链锤\": \"city_x06\","
+ },
+ "消防署隔热服": {
+  "where": "ui/item_icons.gd:22",
+  "line": "\"近卫局制式护甲\": \"lgd_vest\", \"消防署隔热服\": \"fire_suit\", \"押运防弹背心\": \"courier_vest\", \"特别督察组战术护甲\": \"inspector_armor\","
+ },
+ "游击队旧式军大衣": {
+  "where": "ui/item_icons.gd:34",
+  "line": "\"游击队旧式军大衣\": \"mine_x13\", \"复合护具\": \"mine_x14\", \"头戴矿灯\": \"mine_x15\", \"军用止血带\": \"mine_x16\","
+ },
+ "游击队旧式刺刀": {
+  "where": "ui/item_icons.gd:32",
+  "line": "\"游击队旧式刺刀\": \"mine_x05\", \"施术短刃\": \"mine_x06\", \"攻坚破门锤\": \"mine_x07\", \"帝国突击矛\": \"mine_x08\","
+ },
+ "源石刃：普攻附带 18% 法术攻击力的法术伤害": {
+  "where": "inventory/item_modifier.gd:50",
+  "line": "Trigger.ARTS_EDGE: \"源石刃：普攻附带 18% 法术攻击力的法术伤害\","
+ },
+ "源石爆裂：击杀敌人时 30% 概率爆裂，2.5 米内敌人受到 100% 法术攻击力的法术伤害（不连锁）": {
+  "where": "inventory/item_modifier.gd:51",
+  "line": "Trigger.VEIN_BURST: \"源石爆裂：击杀敌人时 30% 概率爆裂，2.5 米内敌人受到 100% 法术攻击力的法术伤害（不连锁）\","
+ },
+ "源石结晶刃（原源石构筑物）": {
+  "where": "game/special_gear.gd:34",
+  "line": "\"text\": \"刃上长出了不该长的东西。\", \"source\": \"源石结晶刃（原源石构筑物）\"},"
+ },
+ "炎式朴刀": {
+  "where": "ui/item_icons.gd:38",
+  "line": "\"炎式苗刀\": \"city_x07\", \"炎式朴刀\": \"city_x08\", \"执勤反光雨衣\": \"city_x09\", \"拳馆练功服\": \"city_x10\","
+ },
+ "炎式环首刀": {
+  "where": "ui/item_icons.gd:21",
+  "line": "\"炎式环首刀\": \"yan_ring_saber\","
+ },
+ "炎式苗刀": {
+  "where": "ui/item_icons.gd:38",
+  "line": "\"炎式苗刀\": \"city_x07\", \"炎式朴刀\": \"city_x08\", \"执勤反光雨衣\": \"city_x09\", \"拳馆练功服\": \"city_x10\","
+ },
+ "烈酒扁壶": {
+  "where": "ui/item_icons.gd:18",
+  "line": "\"防尘面罩\": \"dust_mask\", \"烈酒扁壶\": \"liquor_flask\", \"整合运动面具\": \"reunion_mask\", \"源石感应计\": \"originium_meter\","
+ },
+ "特别督察组战术护甲": {
+  "where": "ui/item_icons.gd:22",
+  "line": "\"近卫局制式护甲\": \"lgd_vest\", \"消防署隔热服\": \"fire_suit\", \"押运防弹背心\": \"courier_vest\", \"特别督察组战术护甲\": \"inspector_armor\","
+ },
+ "特殊": {
+  "where": "inventory/item.gd:111",
+  "line": "var quality: String = {\"special\": \"特殊\", \"exclusive\": \"专属\", \"set\": \"套装\"}.get(named_kind(), RARITY_NAMES[clampi(rarity, 0, 2)])"
+ },
+ "琉璃护身珠": {
+  "where": "ui/item_icons.gd:41",
+  "line": "\"无人机遥控器\": \"city_x19\", \"当铺铜牌\": \"city_x20\", \"琉璃护身珠\": \"city_x21\", \"染污短刀\": \"snow_x01\","
+ },
+ "瓶子都空了，包还是一股味。": {
+  "where": "game/special_gear.gd:80",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"fx\": \"kill_fire\", \"fx_text\": \"击杀时：倒下处留 3 秒火区，每 0.5 秒 15% 法术攻击力\", \"req\": \"arts\", \"text\": \"瓶子都空了，包还是一股味。\"},"
+ },
+ "生命上限": {
+  "where": "inventory/item_modifier.gd:116",
+  "line": "return \"生命上限 %+.0f%%\" % (amount * 100.0)"
+ },
+ "皮子是去年的，火是今晚的。": {
+  "where": "game/special_gear.gd:144",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0], [ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"req\": \"phy\", \"text\": \"皮子是去年的，火是今晚的。\"},"
+ },
+ "盖缝里透出一点光，一整夜都不会灭。": {
+  "where": "game/special_gear.gd:146",
+  "line": "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"req\": \"phy\", \"text\": \"盖缝里透出一点光，一整夜都不会灭。\"},"
+ },
+ "盾击：格挡或护盾吸收伤害后 3 秒内，下一次攻击追加 150% 防御值的物理伤害": {
+  "where": "inventory/item_modifier.gd:53",
+  "line": "Trigger.SHIELD_BASH: \"盾击：格挡或护盾吸收伤害后 3 秒内，下一次攻击追加 150% 防御值的物理伤害\","
+ },
+ "盾反（原坚壁构筑物）": {
+  "where": "game/special_gear.gd:46",
+  "line": "\"text\": \"挡下来的，原样还回去。\", \"source\": \"盾反（原坚壁构筑物）\"},"
+ },
+ "矿场重型防护服": {
+  "where": "ui/item_icons.gd:17",
+  "line": "\"矿场重型防护服\": \"heavy_mine_suit\","
+ },
+ "矿工护甲": {
+  "where": "ui/item_icons.gd:16",
+  "line": "\"矿工护甲\": \"miner_vest\", \"整合运动制式外套\": \"reunion_coat\", \"纠察队防寒大衣\": \"patrol_winter_coat\","
+ },
+ "矿脉共振（原源石构筑物）": {
+  "where": "game/special_gear.gd:37",
+  "line": "\"text\": \"握在手里会轻轻发颤，敌人倒下时颤得更厉害。\", \"source\": \"矿脉共振（原源石构筑物）\"},"
+ },
+ "研磨石": {
+  "where": "game/material_catalog.gd:37",
+  "line": "\"研磨石\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"不起爆、不粉化、不开裂，用于加工武器零件。\"},"
+ },
+ "破冰刀": {
+  "where": "ui/item_icons.gd:25",
+  "line": "\"破冰刀\": \"icebreaker_knife\", \"猎刀\": \"skinning_knife\", \"角柄猎刀\": \"antler_hunter_knife\","
+ },
+ "破损装置": {
+  "where": "game/material_catalog.gd:33",
+  "line": "\"破损装置\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"曾被拼装在敌人的武器和防具上，战损后内部元件仍有价值。\"},"
+ },
+ "碎了一半，另一半还认得主人。": {
+  "where": "game/special_gear.gd:134",
+  "line": "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"req\": \"arts\", \"text\": \"碎了一半，另一半还认得主人。\"},"
+ },
+ "碎掉的时候，人就该跑了。": {
+  "where": "game/special_gear.gd:76",
+  "line": "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"fx\": \"idle_barrier\", \"fx_text\": \"空闲 8 秒（未受伤）：获得 15% 生命上限的屏障；破碎时移速 +30% 3 秒\", \"req\": \"arts\", \"text\": \"碎掉的时候，人就该跑了。\"},"
+ },
+ "科考队开路刀": {
+  "where": "ui/item_icons.gd:26",
+  "line": "\"科考队开路刀\": \"expedition_machete\", \"雪祀礼刃\": \"snowpriest_blade\","
+ },
+ "移到安全袋": {
+  "where": "ui/inventory_panel.gd:347",
+  "line": "var move := AK.button(\"移到安全袋\" if selected_container == game.inventory else \"移回背包\", \"plain\", 12)"
+ },
+ "移动速度": {
+  "where": "inventory/item_modifier.gd:118",
+  "line": "return \"移动速度 %+.0f%%\" % (amount * 100.0)"
+ },
+ "移回背包": {
+  "where": "ui/inventory_panel.gd:347",
+  "line": "var move := AK.button(\"移到安全袋\" if selected_container == game.inventory else \"移回背包\", \"plain\", 12)"
+ },
+ "移速": {
+  "where": "ui/item_tooltip.gd:14",
+  "line": "\"aspd\": \"攻速\", \"crit\": \"暴击率\", \"crit_dmg\": \"暴击伤害\", \"move\": \"移速\"}"
+ },
+ "稀有": {
+  "where": "inventory/item.gd:11",
+  "line": "const RARITY_NAMES := [\"普通\", \"精良\", \"稀有\"]"
+ },
+ "空槽": {
+  "where": "ui/item_tooltip.gd:47",
+  "line": "lines.append(\"[color=#99aab8]装备后（对比%s）：[/color]\" % (\"当前 \" + worn.item_name if worn != null else \"空槽\"))"
+ },
+ "空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力": {
+  "where": "game/special_gear.gd:98",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"fx\": \"idle_strike\", \"fx_text\": \"空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力\", \"req\": \"arts\", \"text\": \"它记得怎么施法，不记得为什么。\"},"
+ },
+ "空闲 8 秒（未受伤）：获得 15% 生命上限的屏障；破碎时移速 +30% 3 秒": {
+  "where": "game/special_gear.gd:76",
+  "line": "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"fx\": \"idle_barrier\", \"fx_text\": \"空闲 8 秒（未受伤）：获得 15% 生命上限的屏障；破碎时移速 +30% 3 秒\", \"req\": \"arts\", \"text\": \"碎掉的时候，人就该跑了。\"},"
+ },
+ "穿上这身，就不是一个人走夜路。": {
+  "where": "game/special_gear.gd:132",
+  "line": "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"req\": \"arts\", \"text\": \"穿上这身，就不是一个人走夜路。\"},"
+ },
+ "第二年的夏天最难熬。": {
+  "where": "game/special_gear.gd:126",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"req\": \"phy\", \"text\": \"第二年的夏天最难熬。\"},"
+ },
+ "第四拳，才是认真的。": {
+  "where": "game/special_gear.gd:72",
+  "line": "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], \"fx\": \"hit_fourth\", \"fx_text\": \"命中时：连续命中同一目标第 4 下，追加 40% 攻击力打击\", \"req\": \"agi\", \"text\": \"第四拳，才是认真的。\"},"
+ },
+ "等级": {
+  "where": "ui/item_tooltip.gd:40",
+  "line": "lines.append(\"等级 %s%s\" % [Progression.GRADE_MARKS[int(req.grade)], (\"  ·  需求 \" + \" · \".join(parts)) if not parts.is_empty() else \"\"])"
+ },
+ "精良": {
+  "where": "inventory/item.gd:11",
+  "line": "const RARITY_NAMES := [\"普通\", \"精良\", \"稀有\"]"
+ },
+ "纠察队佩刀": {
+  "where": "ui/item_icons.gd:15",
+  "line": "\"纠察队佩刀\": \"patrol_saber\", \"断镐战斧\": \"pickhaft_blade\","
+ },
+ "罐子里装的是什么，标签已经说不清。": {
+  "where": "game/special_gear.gd:58",
+  "line": "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"fx\": \"low_hp_def\", \"fx_text\": \"受击时：生命低于 35%，5 秒内防御 +50%（冷却 60 秒）\", \"req\": \"phy\", \"text\": \"罐子里装的是什么，标签已经说不清。\"},"
+ },
+ "老千骰子": {
+  "where": "ui/item_icons.gd:40",
+  "line": "\"执勤警哨\": \"city_x15\", \"防风打火机\": \"city_x16\", \"老千骰子\": \"city_x17\", \"跌打药酒瓶\": \"city_x18\","
+ },
+ "聚酸酯": {
+  "where": "game/material_catalog.gd:27",
+  "line": "\"聚酸酯\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"强度略有不足，可做基础物件，也是缓释药物的常用成分。\"},"
+ },
+ "自动触发": {
+  "where": "ui/inventory_panel.gd:275",
+  "line": "title.add_child(AK.tag(\"自动触发\", AK.PAPER))"
+ },
+ "药剂回复": {
+  "where": "inventory/item_modifier.gd:124",
+  "line": "return \"药剂回复 %+d%%\" % roundi(amount * BaseCatalog.POTION_HEAL_PER_CAP * 100.0)"
+ },
+ "虫子长大了，壳留在原地。": {
+  "where": "game/special_gear.gd:56",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"hurt_shards\", \"fx_text\": \"受击时：20% 向周围 2 米迸出碎屑，60% 法术攻击力\", \"req\": \"phy\", \"text\": \"虫子长大了，壳留在原地。\"},"
+ },
+ "蝴蝶双刀": {
+  "where": "ui/item_icons.gd:37",
+  "line": "\"消防斧\": \"city_x03\", \"蝴蝶双刀\": \"city_x04\", \"护卫铁尺\": \"city_x05\", \"警用链锤\": \"city_x06\","
+ },
+ "血量过低时免疫一次伤害（每层限一次）": {
+  "where": "inventory/item_modifier.gd:110",
+  "line": "return \"血量过低时免疫一次伤害（每层限一次）\""
+ },
+ "衣服是同一批，血不是。": {
+  "where": "game/special_gear.gd:114",
+  "line": "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"req\": \"phy\", \"text\": \"衣服是同一批，血不是。\"},"
+ },
+ "装置": {
+  "where": "game/material_catalog.gd:34",
+  "line": "\"装置\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"收缴来的机械装置，相对完整，主板上塞满电子元件。\"},"
+ },
+ "褐素纤维": {
+  "where": "game/material_catalog.gd:42",
+  "line": "\"褐素纤维\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"源石工业衍生物，高强度、高模量的纤维束。\"},"
+ },
+ "角柄猎刀": {
+  "where": "game/gear_catalog.gd:256",
+  "line": "const RENAMED := {\"镐柄战刃\": \"断镐战斧\", \"冰原猎刀\": \"角柄猎刀\"}"
+ },
+ "警用链锤": {
+  "where": "ui/item_icons.gd:37",
+  "line": "\"消防斧\": \"city_x03\", \"蝴蝶双刀\": \"city_x04\", \"护卫铁尺\": \"city_x05\", \"警用链锤\": \"city_x06\","
+ },
+ "让开的不是它。": {
+  "where": "game/special_gear.gd:106",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"evade_ram\", \"fx_text\": \"闪避时：路径上的敌人受 60% 攻击力并被推开\", \"req\": \"phy\", \"text\": \"让开的不是它。\"},"
+ },
+ "越挨打，越硬。": {
+  "where": "game/special_gear.gd:90",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"hurt_def_stack\", \"fx_text\": \"受击时：3 秒内防御 +15%，叠 3 层\", \"req\": \"phy\", \"text\": \"越挨打，越硬。\"},"
+ },
+ "跌打药酒瓶": {
+  "where": "ui/item_icons.gd:40",
+  "line": "\"执勤警哨\": \"city_x15\", \"防风打火机\": \"city_x16\", \"老千骰子\": \"city_x17\", \"跌打药酒瓶\": \"city_x18\","
+ },
+ "轻锰矿": {
+  "where": "game/material_catalog.gd:40",
+  "line": "\"轻锰矿\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"用来产出工业催化剂的金属矿物，加工事故比比皆是。\"},"
+ },
+ "近卫": {
+  "where": "ui/inventory_panel.gd:216",
+  "line": "var mark := AK.label(\"近卫\", 12, AK.FG)"
+ },
+ "近卫局制式护甲": {
+  "where": "ui/item_icons.gd:22",
+  "line": "\"近卫局制式护甲\": \"lgd_vest\", \"消防署隔热服\": \"fire_suit\", \"押运防弹背心\": \"courier_vest\", \"特别督察组战术护甲\": \"inspector_armor\","
+ },
+ "近卫局对讲机": {
+  "where": "ui/item_icons.gd:23",
+  "line": "\"战术挂饰\": \"tactical_charm\", \"近卫局对讲机\": \"lgd_radio\", \"龙门币钱夹\": \"lungmen_wallet\", \"炎式平安符\": \"yan_talisman\","
+ },
+ "近战冷却": {
+  "where": "inventory/item_modifier.gd:120",
+  "line": "return \"近战冷却 %+.0f%%\" % (amount * 100.0)"
+ },
+ "通用物资": {
+  "where": "game/material_catalog.gd:114",
+  "line": "item.description = \"%s ★%d · %s\" % [\"通用物资\" if is_common(id) else \"PRTS\", int(data.star), data.text]"
+ },
+ "酮凝集": {
+  "where": "game/material_catalog.gd:32",
+  "line": "\"酮凝集\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"少量多态酮制剂，能把繁杂工艺简化成单纯的化学反应。\"},"
+ },
+ "酯原料": {
+  "where": "game/material_catalog.gd:26",
+  "line": "\"酯原料\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"近代工业的关键材料之一，但这只是原料。\"},"
+ },
+ "金币获取": {
+  "where": "inventory/item_modifier.gd:122",
+  "line": "return \"金币获取 %+.0f%%\" % (amount * 100.0)"
+ },
+ "镐柄战刃": {
+  "where": "game/gear_catalog.gd:256",
+  "line": "const RENAMED := {\"镐柄战刃\": \"断镐战斧\", \"冰原猎刀\": \"角柄猎刀\"}"
+ },
+ "闪避时：路径上的敌人受 60% 攻击力并被推开": {
+  "where": "game/special_gear.gd:106",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0]], \"fx\": \"evade_ram\", \"fx_text\": \"闪避时：路径上的敌人受 60% 攻击力并被推开\", \"req\": \"phy\", \"text\": \"让开的不是它。\"},"
+ },
+ "闪避时：闪避变冲撞，路径上敌人受 60% 攻击力并被推开": {
+  "where": "game/special_gear.gd:82",
+  "line": "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 20.0], [ItemModifier.Stat.MOVE_SPEED_PCT, -0.04]], \"fx\": \"evade_ram\", \"fx_text\": \"闪避时：闪避变冲撞，路径上敌人受 60% 攻击力并被推开\", \"req\": \"phy\", \"heavy\": true, \"req_column\": \"h"
+ },
+ "防尘面罩": {
+  "where": "ui/item_icons.gd:18",
+  "line": "\"防尘面罩\": \"dust_mask\", \"烈酒扁壶\": \"liquor_flask\", \"整合运动面具\": \"reunion_mask\", \"源石感应计\": \"originium_meter\","
+ },
+ "防御": {
+  "where": "inventory/item.gd:127",
+  "line": "var names := {\"atk\": \"攻击力\", \"hp\": \"生命\", \"def\": \"防御\", \"arts\": \"法术攻击力\", \"stamina_regen\": \"体力回复\"}"
+ },
+ "防爆重甲": {
+  "where": "ui/item_icons.gd:39",
+  "line": "\"染血白工装\": \"city_x11\", \"拾荒者伪装衫\": \"city_x12\", \"香主绸衫\": \"city_x13\", \"防爆重甲\": \"city_x14\","
+ },
+ "防风打火机": {
+  "where": "ui/item_icons.gd:40",
+  "line": "\"执勤警哨\": \"city_x15\", \"防风打火机\": \"city_x16\", \"老千骰子\": \"city_x17\", \"跌打药酒瓶\": \"city_x18\","
+ },
+ "雪地里跑起来，下摆不会绊脚。": {
+  "where": "game/special_gear.gd:120",
+  "line": "\"implicit\": [[ItemModifier.Stat.MOVE_SPEED_PCT, 0.04]], \"req\": \"agi\", \"text\": \"雪地里跑起来，下摆不会绊脚。\"},"
+ },
+ "雪祀的时候，它比雪还白。": {
+  "where": "game/special_gear.gd:138",
+  "line": "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0], [ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"req\": \"arts\", \"text\": \"雪祀的时候，它比雪还白。\"},"
+ },
+ "饮用": {
+  "where": "ui/inventory_panel.gd:344",
+  "line": "var drink := AK.button(\"饮用\", \"blue\", 12)"
+ },
+ "香主绸衫": {
+  "where": "ui/item_icons.gd:39",
+  "line": "\"染血白工装\": \"city_x11\", \"拾荒者伪装衫\": \"city_x12\", \"香主绸衫\": \"city_x13\", \"防爆重甲\": \"city_x14\","
+ },
+ "骨制护符": {
+  "where": "ui/item_icons.gd:28",
+  "line": "\"骨制护符\": \"bone_amulet\", \"角兽骨笛\": \"antler_flute\", \"兽骨鼓槌\": \"bone_drumstick\", \"密文板残片\": \"cipher_fragment\","
+ },
+ "高能虫囊": {
+  "where": "ui/item_icons.gd:36",
+  "line": "\"高能虫囊\": \"mine_x21\", \"拆下的施术单元\": \"mine_x22\", \"拆迁大锤\": \"city_x01\", \"铜指虎\": \"city_x02\","
+ },
+ "黑雪结晶": {
+  "where": "ui/item_icons.gd:47",
+  "line": "\"黑雪结晶\": \"snow_x22\", \"猎首獠牙串\": \"snow_x23\","
+ },
+ "鼓面上一棵树、三个人，鼓声替他们说话。": {
+  "where": "game/special_gear.gd:140",
+  "line": "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"req\": \"arts\", \"text\": \"鼓面上一棵树、三个人，鼓声替他们说话。\"},"
+ },
+ "龙门币[/color]": {
+  "where": "ui/item_tooltip.gd:81",
+  "line": "lines.append(\"[color=#d8c27a]交付价 %s 龙门币[/color]\" % Economy.format(Economy.price(item)))"
+ },
+ "龙门币钱夹": {
+  "where": "ui/item_icons.gd:23",
+  "line": "\"战术挂饰\": \"tactical_charm\", \"近卫局对讲机\": \"lgd_radio\", \"龙门币钱夹\": \"lungmen_wallet\", \"炎式平安符\": \"yan_talisman\","
+ },
+ "（范围": {
+  "where": "inventory/item_modifier.gd:101",
+  "line": "text += \"（范围 %s ~ %s）\" % [low.split(\" \")[-1], high.split(\" \")[-1]]"
+ },
+ "）：[/color]": {
+  "where": "ui/item_tooltip.gd:47",
+  "line": "lines.append(\"[color=#99aab8]装备后（对比%s）：[/color]\" % (\"当前 \" + worn.item_name if worn != null else \"空槽\"))"
+ }
+}

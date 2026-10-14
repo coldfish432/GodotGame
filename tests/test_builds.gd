@@ -181,15 +181,25 @@ func _sources() -> void:
 	game.reroll_count = 0
 	check("锈蚀的铁锤 no longer touches the reroll (it halves 坎诺特's prices)", game.reroll_cost() == 3 and game._trader_discount(16) == 8 and game._trader_discount(3) == 2)
 	use([])
-	game.segment_threat = 0
-	game._cache_spawned = false
-	for i in range(7):
-		dummy(Vector3(4 + i, 0, 6), false, 0, 0, 1).take_hit(10, "true")
-	check("seven ordinary kills are not enough for a combat cache", get_nodes_in_group("relic_caches").is_empty() and game.segment_threat == 7)
-	dummy(Vector3(2, 0, 2), false, 0, 0, 1).take_hit(10, "true")
+	# Drop rates (用户 2026-10-13: boss必掉一个，精英5%，普通敌人0.8%), sampled.
+	var normal := dummy(Vector3(4, 0, 6), false, 0, 0, 1)
+	var elite := dummy(Vector3(5, 0, 6), true, 0, 0, 1)
+	game.rng.seed = 7
+	var hits := {"normal": 0, "elite": 0}
+	for i in range(20000):
+		if game.rolls_relic_cache(normal): hits.normal += 1
+		if game.rolls_relic_cache(elite): hits.elite += 1
+	check("an ordinary enemy drops a cache about 0.8% of the time", absf(hits.normal / 20000.0 - 0.008) < 0.002, hits)
+	check("an elite about 5%", absf(hits.elite / 20000.0 - 0.05) < 0.006, hits)
+	normal.queue_free()
+	elite.queue_free()
+	await step()
+	var boss := dummy(Vector3(2, 0, 2), true, 0, 0, 1)
+	boss.boss = true
+	boss.take_hit(10, "true")
 	await step()
 	var caches := get_nodes_in_group("relic_caches")
-	check("the eighth threat drops one combat cache", caches.size() == 1 and (caches[0] as RelicCache).source == "cache")
+	check("a boss always drops one combat cache", caches.size() == 1 and (caches[0] as RelicCache).source == "cache")
 	var cache := caches[0] as RelicCache
 	p.teleport(cache.global_position)
 	game._interact()

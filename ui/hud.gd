@@ -53,6 +53,8 @@ func _process(delta: float) -> void:
 	if not is_instance_valid(game) or not is_instance_valid(game.player): return
 	visible = not game.in_base and not game.in_camp and game.modal not in ["build", "route", "squad", "trader", "camp", "pause", "settlement"]
 	_buttons.visible = visible and game.modal in ["", "inventory", "relics", "journal"]
+	# Right-aligned: English names make the row wider than the Chinese one.
+	_buttons.position.x = 1268.0 - _buttons.size.x
 	_pulse += delta
 	queue_redraw()
 
@@ -61,9 +63,10 @@ func _en() -> Font: return AK.en()
 
 func _text(at: Vector2, text: String, size: int, color: Color, font: Font = null, outline := true) -> float:
 	var f := font if font != null else _font()
+	text = I18n.t(text)
 	if outline: draw_string_outline(f, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 4, Color(0, 0, 0, 0.85))
 	draw_string(f, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
-	return f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	return f.get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 
 func _draw() -> void:
 	if not is_instance_valid(game) or game.in_base or game.in_camp: return
@@ -95,7 +98,7 @@ func _draw_top_bar() -> void:
 	_text(Vector2(10, 38), code, 20, AK.INK, _en(), false)
 	var region: String = FieldCatalog.REGIONS[game.region_id].name
 	_text(Vector2(100, 22), region, 14, AK.FG)
-	var x := 100.0 + _font().get_string_size(region, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 24
+	var x := 100.0 + _font().get_string_size(I18n.t(region), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 24
 	_draw_gold_icon(Vector2(x + 7, 23))
 	x += 18 + _text(Vector2(x + 18, 30), str(game.gold_bars()), 17, AK.FG, _en())
 	draw_rect(Rect2(x + 14, 16, 12, 12), AK.FG, false, 1.6)
@@ -184,7 +187,7 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 	draw_rect(Rect2(rect.position.x, rect.end.y - 18, rect.size.x, 18), Color.BLACK)
 	_text(Vector2(rect.position.x + 8, rect.end.y - 5), AK.floor_code(game.region_id, game.floor_number) if big else "FIELD MAP", 9 if not big else 11, AK.MUTE, _en(), false)
 	var explored := "已探索 %d%%" % roundi(game.fog.revealed_fraction() * 100.0)
-	var w := _font().get_string_size(explored, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	var w := _font().get_string_size(I18n.t(explored), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	_text(Vector2(rect.end.x - w - 8, rect.end.y - 5), explored, 11, AK.MUTE, null, false)
 
 func _marker_name(i: int) -> String:
@@ -200,13 +203,13 @@ func _draw_map_info() -> void:
 	var right := 1268.0
 	var top := 76.0
 	var code := AK.floor_code(game.region_id, game.floor_number)
-	var cw := _en().get_string_size(code, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x + 20
+	var cw := _en().get_string_size(I18n.t(code), HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x + 20
 	draw_rect(Rect2(right - cw, top, cw, 28), AK.PAPER)
 	_text(Vector2(right - cw + 10, top + 22), code, 20, AK.INK, _en(), false)
 	var region: String = FieldCatalog.REGIONS[game.region_id].name
-	_text(Vector2(right - _font().get_string_size(region, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x, top + 54), region, 18, AK.FG)
+	_text(Vector2(right - _font().get_string_size(I18n.t(region), HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x, top + 54), region, 18, AK.FG)
 	var explored := "已探索 %d%%" % roundi(game.fog.revealed_fraction() * 100.0)
-	_text(Vector2(right - _font().get_string_size(explored, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x, top + 74), explored, 12, AK.MUTE)
+	_text(Vector2(right - _font().get_string_size(I18n.t(explored), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x, top + 74), explored, 12, AK.MUTE)
 	var names := {}
 	for step in game.route_history: names[int(step.floor)] = step.name
 	var block := (game.floor_number - 1) / FieldCatalog.CAMP_INTERVAL * FieldCatalog.CAMP_INTERVAL
@@ -217,14 +220,26 @@ func _draw_map_info() -> void:
 		var label := game.camp_label(block + FieldCatalog.CAMP_INTERVAL) if camp else AK.floor_code(game.region_id, n)
 		var w := 84.0 if camp else 56.0
 		draw_rect(Rect2(right - w, y, w, 17), AK.PAPER if current else (AK.GREEN if camp else Color(0, 0, 0, 0.6)))
-		var lw := _en().get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var lw := _en().get_string_size(I18n.t(label), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		_text(Vector2(right - w + (w - lw) * 0.5, y + 13), label, 12, AK.INK if current or camp else (AK.DIM if n < game.floor_number else AK.FG), _en() if not camp else _font(), false)
 		var name: String = names.get(n, "")
 		if current and game.is_extraction_floor(): name += " · 撤离"
 		if not name.is_empty():
-			var nw := _font().get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+			var nw := _font().get_string_size(I18n.t(name), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 			_text(Vector2(right - w - 8 - nw, y + 13), name, 11, AK.DIM if n < game.floor_number else AK.FG)
 		y += 20
+
+## Text in at most `room` pixels: a smaller font (to 9), then cut with "…".
+func _text_within(at: Vector2, text: String, size: int, color: Color, room: float) -> void:
+	var shown := I18n.t(text)
+	while size > 9 and _font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > room: size -= 1
+	while shown.length() > 2 and _font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > room:
+		shown = shown.left(shown.length() - 2) + "…"
+	_text(at, shown, size, color, null, false)
+
+## A tag plate's width for its (shown) text: 34 for two Chinese characters.
+func _tag_width(text: String) -> float:
+	return maxf(34.0, _font().get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8)
 
 ## The tracker: the contract's objective first (局内节奏与目标策划案 §6 B1), then
 ## the orders (用户 2026-10-06): department, what, carried / needed.
@@ -234,31 +249,35 @@ func _draw_orders() -> void:
 	var goal := game.contract_progress()
 	if not goal.is_empty():
 		draw_rect(Rect2(x, y, MAP_RECT.size.x, 24), Color(0, 0, 0, 0.78))
-		draw_rect(Rect2(x + 6, y + 5, 34, 14), AK.SP)
+		var tag := _tag_width("合同")
+		draw_rect(Rect2(x + 6, y + 5, tag, 14), AK.SP)
 		_text(Vector2(x + 10, y + 17), "合同", 11, AK.INK, null, false)
-		_text(Vector2(x + 48, y + 17), FieldCatalog.CONTRACT_NAMES[game.contract.type], 12, AK.FG, null, false)
+		_text(Vector2(x + 14 + tag, y + 17), FieldCatalog.CONTRACT_NAMES[game.contract.type], 12, AK.FG, null, false)
 		y += 26
 		draw_rect(Rect2(x, y, MAP_RECT.size.x, 22), Color(0, 0, 0, 0.55))
 		draw_rect(Rect2(x, y, 4, 22), AK.SP)
-		_text(Vector2(x + 10, y + 16), goal.goal, 12, AK.FG, null, false)
 		var mark := "✓" if goal.done else "%d / %d" % [goal.have, goal.need]
-		var mw := _en().get_string_size(mark, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		var mw := _en().get_string_size(I18n.t(mark), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		_text_within(Vector2(x + 10, y + 16), goal.goal, 12, AK.FG, MAP_RECT.size.x - mw - 26)
 		_text(Vector2(x + MAP_RECT.size.x - mw - 8, y + 16), mark, 13, AK.GREEN if goal.done else AK.FG, _en(), false)
 		y += 30
 	var rows := game.order_progress()
 	if rows.is_empty(): return
 	draw_rect(Rect2(x, y, MAP_RECT.size.x, 24), Color(0, 0, 0, 0.78))
-	draw_rect(Rect2(x + 6, y + 5, 34, 14), AK.PAPER)
+	var tag := _tag_width("订单")
+	draw_rect(Rect2(x + 6, y + 5, tag, 14), AK.PAPER)
 	_text(Vector2(x + 10, y + 17), "订单", 11, AK.INK, null, false)
-	_text(Vector2(x + 48, y + 17), FieldCatalog.REGIONS[game.region_id].name.split(" · ")[0], 12, AK.FG, null, false)
+	_text(Vector2(x + 14 + tag, y + 17), FieldCatalog.REGIONS[game.region_id].name.split(" · ")[0], 12, AK.FG, null, false)
+	var dept_w := 42.0
+	for row in rows: dept_w = maxf(dept_w, _font().get_string_size(I18n.t(row.dept), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6)
 	y += 26
 	for row in rows:
 		draw_rect(Rect2(x, y, MAP_RECT.size.x, 22), Color(0, 0, 0, 0.55))
 		draw_rect(Rect2(x, y, 4, 22), row.color)
 		_text(Vector2(x + 10, y + 16), row.dept, 11, AK.MUTE, null, false)
-		_text(Vector2(x + 52, y + 16), row.what, 12, AK.FG, null, false)
+		_text_within(Vector2(x + 10 + dept_w, y + 16), row.what, 12, AK.FG, MAP_RECT.size.x - dept_w - 70)
 		var count := "%d / %d" % [row.have, row.need]
-		var w := _en().get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		var w := _en().get_string_size(I18n.t(count), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
 		_text(Vector2(x + MAP_RECT.size.x - w - 8, y + 16), count, 13, AK.GREEN if row.have >= row.need else AK.FG, _en(), false)
 		y += 24
 
@@ -280,8 +299,8 @@ func _draw_toasts() -> void:
 		var size := 14
 		var text: String = toast.text
 		var tag := "PRTS"
-		var tag_w := _en().get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 12
-		var w := _font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + tag_w + 24
+		var tag_w := _en().get_string_size(I18n.t(tag), HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 12
+		var w := _font().get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + tag_w + 24
 		var r := Rect2(640.0 - w * 0.5, y - (1.0 - minf(age / 0.15, 1.0)) * 8.0, w, TOAST_HEIGHT)
 		draw_rect(r, Color(0, 0, 0, 0.8 * alpha))
 		draw_rect(Rect2(r.position.x, r.position.y, tag_w, r.size.y), Color(AK.HP, alpha))
@@ -453,7 +472,7 @@ func _draw_actions() -> void:
 ## A labelled bar: name and value above it, the fill below.
 func _side_bar(r: Rect2, label: String, value: String, ratio: float, colour: Color, big: bool, glow := false) -> void:
 	_text(Vector2(r.position.x, r.position.y - 4), label, 11, AK.FG, null, false)
-	var vw := _en().get_string_size(value, HORIZONTAL_ALIGNMENT_LEFT, -1, 12 if big else 11).x
+	var vw := _en().get_string_size(I18n.t(value), HORIZONTAL_ALIGNMENT_LEFT, -1, 12 if big else 11).x
 	_text(Vector2(r.end.x - vw, r.position.y - 4), value, 12 if big else 11, colour.lightened(0.2) if glow else AK.FG, _en(), false)
 	AK.draw_bar(self, r, clampf(ratio, 0.0, 1.0), colour, Color(0.08, 0.08, 0.08, 0.95))
 	if glow:
@@ -477,12 +496,12 @@ func _draw_slot(r: Rect2, slot: Dictionary) -> void:
 	if not str(slot.glyph).is_empty(): _draw_glyph(r.get_center() + Vector2(0, 2), slot)
 	if slot.get("unavailable", false): draw_rect(r, Color(0, 0, 0, 0.55))
 	if not str(slot.key).is_empty():
-		var kw := _en().get_string_size(slot.key, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 6
+		var kw := _en().get_string_size(I18n.t(slot.key), HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 6
 		draw_rect(Rect2(r.position, Vector2(kw, 14)), Color(0, 0, 0, 0.8))
 		_text(r.position + Vector2(3, 11), slot.key, 10, AK.FG, _en() if slot.key != "⇧" else null, false)
 	if slot.has("cost"):
 		var cost: String = slot.cost
-		var cw := _en().get_string_size(cost, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6
+		var cw := _en().get_string_size(I18n.t(cost), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6
 		draw_rect(Rect2(r.end.x - cw, r.position.y, cw, 14), Color.BLACK)
 		_text(Vector2(r.end.x - cw + 3, r.position.y + 11), cost, 11, Color.WHITE, _en(), false)
 	var cooldown: float = slot.get("cooldown", 0.0)
@@ -490,7 +509,7 @@ func _draw_slot(r: Rect2, slot: Dictionary) -> void:
 		var share := clampf(cooldown / maxf(float(slot.get("cooldown_total", cooldown)), 0.01), 0.0, 1.0)
 		draw_rect(Rect2(r.position, Vector2(r.size.x, r.size.y * share)), Color(0, 0, 0, 0.7))
 		var text := "%.1f" % cooldown
-		var tw := _en().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+		var tw := _en().get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
 		_text(r.get_center() + Vector2(-tw * 0.5, 6), text, 15, Color.WHITE, _en(), false)
 
 func _draw_glyph(c: Vector2, card: Dictionary) -> void:
@@ -569,29 +588,38 @@ func _draw_world_marks() -> void:
 			draw_colored_polygon(PackedVector2Array([top + Vector2(0, -5), top + Vector2(5, 3), top + Vector2(-5, 3)]), AK.INK)
 	_draw_container_names()
 	_draw_ground_names()
-	var prompt := game.interaction_prompt()
-	if not prompt.is_empty():
-		var w := _font().get_string_size(prompt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		var at := game.screen_point(p.global_position) + Vector2(-w * 0.5 + 12, 48)
-		draw_rect(Rect2(at.x - 30, at.y - 16, w + 40, 24), Color(0, 0, 0, 0.8))
-		draw_rect(Rect2(at.x - 27, at.y - 13, 20, 18), AK.PAPER)
-		_text(at + Vector2(-22, 0), "E", 12, AK.INK, _en(), false)
-		_text(at, prompt, 13, AK.FG, null, false)
+	# Just the key, no name (用户 2026-10-13: 不要中文label了，只提示e即可).
+	if not game.interaction_prompt().is_empty():
+		var at := game.screen_point(p.global_position) + Vector2(0, 48)
+		draw_rect(Rect2(at.x - 13, at.y - 16, 26, 24), Color(0, 0, 0, 0.8))
+		draw_rect(Rect2(at.x - 10, at.y - 13, 20, 18), AK.PAPER)
+		_text(at + Vector2(-5, 0), "E", 12, AK.INK, _en(), false)
 
-## Names over nearby points of interest, with the opening bar. Drawn here, not
-## as Label3D, because the world renders at 640×360 where 3D text is unreadable.
+## Bars over the box being opened or searched, and nothing else: no names
+## over points of interest (用户 2026-10-12). The opening bar while the lid is
+## worked; then the current item's bar with one pip per item underneath,
+## filled for each found.
 func _draw_container_names() -> void:
 	if not game.simulation_active(): return
 	for node in get_tree().get_nodes_in_group("loot_containers"):
 		var box := node as LootContainer
 		if box.game != game or box.global_position.distance_to(game.player.global_position) > 7.0: continue
-		var point := game.screen_point(box.global_position + Vector3.UP * 1.2)
-		var label := box.status_text()
-		var width := _font().get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		draw_rect(Rect2(point.x - width * 0.5 - 6, point.y - 15, width + 12, 20), Color(0, 0, 0, 0.75))
-		_text(Vector2(point.x - width * 0.5, point.y), label, 13, Color("8a8f96") if box.opened or box.sealed else Color("f3dca0"), null, false)
-		var progress := box.progress()
-		if progress >= 0.0: AK.draw_bar(self, Rect2(point.x - 30, point.y + 8, 60, 4), progress, AK.SP)
+		var point := game.screen_point(box.global_position + Vector3.UP * 1.4)
+		var opening := box.progress()
+		if opening >= 0.0:
+			draw_rect(Rect2(point.x - 32, point.y - 2, 64, 8), Color(0, 0, 0, 0.75))
+			AK.draw_bar(self, Rect2(point.x - 30, point.y, 60, 4), opening, AK.SP)
+			continue
+		var search := box.search_state()
+		if search.is_empty(): continue
+		var total: int = search.total
+		var pip := clampf(60.0 / total - 2.0, 3.0, 8.0)
+		var row := total * (pip + 2.0) - 2.0
+		draw_rect(Rect2(point.x - maxf(row, 60.0) * 0.5 - 2, point.y - 2, maxf(row, 60.0) + 4, 15), Color(0, 0, 0, 0.75))
+		if float(search.current) >= 0.0: AK.draw_bar(self, Rect2(point.x - 30, point.y, 60, 4), float(search.current), AK.SP)
+		for i in range(total):
+			var at := Vector2(point.x - row * 0.5 + i * (pip + 2.0), point.y + 7)
+			draw_rect(Rect2(at, Vector2(pip, 4)), AK.SP if i < int(search.found) else Color(1, 1, 1, 0.22))
 
 ## Hold Alt: names of the items on the ground, in rarity colour (PoE / Grim Dawn).
 ## Name plates over ground items, the Grim Dawn way (用户 2026-10-10): always
@@ -624,7 +652,7 @@ func _draw_ground_names() -> void:
 	for entry in shown:
 		var loot: Loot = entry[0]
 		var label := loot.item.display_name() + loot.item.stack_suffix() + ("（封印）" if loot.sealed else "")
-		var width := _font().get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, PLATE_FONT).x + PLATE_PAD * 2.0
+		var width := _font().get_string_size(I18n.t(label), HORIZONTAL_ALIGNMENT_LEFT, -1, PLATE_FONT).x + PLATE_PAD * 2.0
 		var point: Vector2 = anchors[loot]
 		var rect := Rect2(point.x - width * 0.5, point.y - PLATE_HEIGHT, width, PLATE_HEIGHT)
 		for i in range(12):

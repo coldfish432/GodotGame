@@ -231,7 +231,6 @@ func _journal() -> void:
 		_objective("到达" + game.camp_label(camp_at), game.floor_number - block_start, FieldCatalog.CAMP_INTERVAL, AK.GREEN)
 		var mechanisms: int = game.world_map.mechanism_nodes.size()
 		if mechanisms > 0: _objective("开启密室", mini(game._mechanisms_done.size(), mechanisms), mechanisms, AK.SP)
-		if not game._cache_spawned: _objective("战斗缴获", mini(game.segment_threat, RelicCatalog.CACHE_THREAT), RelicCatalog.CACHE_THREAT, AK.SP)
 		if game.is_extraction_floor(): _objective("撤离点", 1, 1, AK.GREEN)
 		_body.add_child(AK.section("订单"))
 	for entry in game.order_progress(): _body.add_child(_order_card(entry))

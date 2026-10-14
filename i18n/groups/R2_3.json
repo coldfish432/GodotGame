@@ -1,0 +1,406 @@
+{
+ "[color=#101010][bgcolor=#e9e9e9] 已装备 [/bgcolor][/color]": {
+  "where": "ui/inventory_panel.gd:471",
+  "line": "if worn != null and worn != item: _float.add_child(_tip_card(\"[color=#101010][bgcolor=#e9e9e9] 已装备 [/bgcolor][/color]\\n\" + ItemTooltip.text(game, worn, _detail, false)))"
+ },
+ "一捆铜芯电线，任何电路的起点。": {
+  "where": "game/material_catalog.gd:72",
+  "line": "\"电线\": {\"star\": 1, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"text\": \"一捆铜芯电线，任何电路的起点。\"},"
+ },
+ "一整箱工具，工程部最想要的东西。": {
+  "where": "game/material_catalog.gd:83",
+  "line": "\"工具套装\": {\"star\": 4, \"kind\": \"base\", \"group\": \"工具\", \"source\": \"common\", \"stack\": 1, \"size\": Vector2i(2, 2), \"value\": 100, \"text\": \"一整箱工具，工程部最想要的东西。\"},"
+ },
+ "一盒铁钉，木结构和临时隔板的基础。": {
+  "where": "game/material_catalog.gd:65",
+  "line": "\"钉子\": {\"star\": 1, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"stack\": 30, \"text\": \"一盒铁钉，木结构和临时隔板的基础。\"},"
+ },
+ "一组碳素砖，每一块都饱含着燃烧的工业之魂。": {
+  "where": "game/material_catalog.gd:56",
+  "line": "\"碳素组\": {\"star\": 4, \"kind\": \"base\", \"text\": \"一组碳素砖，每一块都饱含着燃烧的工业之魂。\"},"
+ },
+ "一组近卫芯片，训练数据更完整。": {
+  "where": "game/material_catalog.gd:47",
+  "line": "\"近卫芯片组\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"一组近卫芯片，训练数据更完整。\"},"
+ },
+ "万能胶带，能修的都能修。": {
+  "where": "game/material_catalog.gd:70",
+  "line": "\"胶带\": {\"star\": 1, \"kind\": \"base\", \"group\": \"日用\", \"source\": \"common\", \"text\": \"万能胶带，能修的都能修。\"},"
+ },
+ "不起爆、不粉化、不开裂，用于加工武器零件。": {
+  "where": "game/material_catalog.gd:37",
+  "line": "\"研磨石\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"不起爆、不粉化、不开裂，用于加工武器零件。\"},"
+ },
+ "两组芯片与助剂合成的高阶芯片，用于近卫干员的精英 2 晋升。": {
+  "where": "game/material_catalog.gd:49",
+  "line": "\"近卫双芯片\": {\"star\": 5, \"kind\": \"craft\", \"text\": \"两组芯片与助剂合成的高阶芯片，用于近卫干员的精英 2 晋升。\"},"
+ },
+ "从设备上拆下的印刷电路板，元件基本完好。": {
+  "where": "game/material_catalog.gd:76",
+  "line": "\"电路板\": {\"star\": 3, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"text\": \"从设备上拆下的印刷电路板，元件基本完好。\"},"
+ },
+ "从重度污染地区回收，有高感染威胁，是危险物质。": {
+  "where": "game/material_catalog.gd:62",
+  "line": "\"源石碎片\": {\"star\": 5, \"kind\": \"base\", \"text\": \"从重度污染地区回收，有高感染威胁，是危险物质。\"},"
+ },
+ "保险柜": {
+  "where": "game/loot_tables.gd:53",
+  "line": "\"safe\": {\"name\": \"保险柜\", \"color\": Color(\"b59a3a\"), \"region\": {\"mine\": 0.5, \"city\": 1.5}, \"base\": true},"
+ },
+ "修饰": {
+  "where": "ui/training_screen.gd:101",
+  "line": "var kind_names := {\"signature\": \"招牌\", \"skill\": \"技能\", \"modifier\": \"修饰\", \"passive\": \"被动\", \"transmuter\": \"变换\"}"
+ },
+ "偶然形成的异铁组合，硬度下降、纯度上升。": {
+  "where": "game/material_catalog.gd:30",
+  "line": "\"异铁组\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"偶然形成的异铁组合，硬度下降、纯度上升。\"},"
+ },
+ "养成材料": {
+  "where": "game/material_catalog.gd:97",
+  "line": "return \"基建材料\" if str(data.get(\"kind\", \"\")) == \"base\" else \"养成材料\""
+ },
+ "内含密集微孔，可吸附源石气体分解物，多用于防护夹层。": {
+  "where": "game/material_catalog.gd:21",
+  "line": "\"固源岩\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"内含密集微孔，可吸附源石气体分解物，多用于防护夹层。\"},"
+ },
+ "冰原营地": {
+  "where": "game/loot_tables.gd:54",
+  "line": "\"camp\": {\"name\": \"冰原营地\", \"color\": Color(\"9fb6c2\"), \"region\": {\"snow\": 3.0}, \"base\": true},"
+ },
+ "制造芯片用的催化剂，合成双芯片的必备材料；价值高，产量小。": {
+  "where": "game/material_catalog.gd:48",
+  "line": "\"芯片助剂\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"制造芯片用的催化剂，合成双芯片的必备材料；价值高，产量小。\"},"
+ },
+ "剑兔": {
+  "where": "game/operators.gd:20",
+  "line": "\"name\": \"阿米娅\", \"form\": \"剑兔\", \"class\": \"近卫\", \"branch\": \"GUARD · ARTS FIGHTER\", \"stars\": 5,"
+ },
+ "化工中介体，液化后像酒精，常让整个工作间醉醺醺的。": {
+  "where": "game/material_catalog.gd:39",
+  "line": "\"扭转醇\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"化工中介体，液化后像酒精，常让整个工作间醉醺醺的。\"},"
+ },
+ "医疗": {
+  "where": "game/material_catalog.gd:84",
+  "line": "\"医用耗材包\": {\"star\": 3, \"kind\": \"base\", \"group\": \"医疗\", \"source\": \"common\", \"text\": \"注射器、纱布和消毒用品的打包件。\"},"
+ },
+ "医疗柜": {
+  "where": "game/loot_tables.gd:59",
+  "line": "\"medical\": {\"name\": \"医疗柜\", \"color\": Color(\"c8d4dc\"), \"region\": {\"mine\": 0.5, \"city\": 1.0, \"snow\": 1.0}, \"base\": true},"
+ },
+ "厚实的防水帆布，背包和遮蔽物的面料。": {
+  "where": "game/material_catalog.gd:71",
+  "line": "\"帆布\": {\"star\": 2, \"kind\": \"base\", \"group\": \"日用\", \"source\": \"common\", \"size\": Vector2i(2, 1), \"text\": \"厚实的防水帆布，背包和遮蔽物的面料。\"},"
+ },
+ "发泡密封剂，填缝隔热，防尘防水。": {
+  "where": "game/material_catalog.gd:69",
+  "line": "\"密封泡沫\": {\"star\": 3, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"size\": Vector2i(1, 2), \"text\": \"发泡密封剂，填缝隔热，防尘防水。\"},"
+ },
+ "变换": {
+  "where": "ui/training_screen.gd:101",
+  "line": "var kind_names := {\"signature\": \"招牌\", \"skill\": \"技能\", \"modifier\": \"修饰\", \"passive\": \"被动\", \"transmuter\": \"变换\"}"
+ },
+ "可充电电池，便携设备的电源。": {
+  "where": "game/material_catalog.gd:78",
+  "line": "\"蓄电池\": {\"star\": 2, \"kind\": \"base\", \"group\": \"能源\", \"source\": \"common\", \"text\": \"可充电电池，便携设备的电源。\"},"
+ },
+ "和螺栓配对使用，总是先找不到它。": {
+  "where": "game/material_catalog.gd:64",
+  "line": "\"螺母\": {\"star\": 1, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"stack\": 30, \"text\": \"和螺栓配对使用，总是先找不到它。\"},"
+ },
+ "固源岩压缩定型后的产物，易碎。": {
+  "where": "game/material_catalog.gd:22",
+  "line": "\"固源岩组\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"固源岩压缩定型后的产物，易碎。\"},"
+ },
+ "块状燃料，取暖和野外加热的耗材。": {
+  "where": "game/material_catalog.gd:80",
+  "line": "\"固体燃料\": {\"star\": 1, \"kind\": \"base\", \"group\": \"燃料\", \"source\": \"common\", \"text\": \"块状燃料，取暖和野外加热的耗材。\"},"
+ },
+ "大规模金属原料加工的副产物，可塑性强、难氧化。": {
+  "where": "game/material_catalog.gd:28",
+  "line": "\"异铁碎片\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"大规模金属原料加工的副产物，可塑性强、难氧化。\"},"
+ },
+ "大量私自改造的装置，扩容提速但牺牲了稳定性。": {
+  "where": "game/material_catalog.gd:36",
+  "line": "\"改量装置\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"大量私自改造的装置，扩容提速但牺牲了稳定性。\"},"
+ },
+ "实验室意外诞生的材料，耐高低温，强度高、重量轻。": {
+  "where": "game/material_catalog.gd:43",
+  "line": "\"凝胶\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"实验室意外诞生的材料，耐高低温，强度高、重量轻。\"},"
+ },
+ "密室武器箱": {
+  "where": "entities/loot_container.gd:109",
+  "line": "if vault: return {\"vault_weapon\": \"密室武器箱\", \"vault_gear\": \"密室装备箱\", \"vault_base\": \"密室物资箱\"}.get(kind, \"密室宝箱\")"
+ },
+ "密室物资箱": {
+  "where": "entities/loot_container.gd:109",
+  "line": "if vault: return {\"vault_weapon\": \"密室武器箱\", \"vault_gear\": \"密室装备箱\", \"vault_base\": \"密室物资箱\"}.get(kind, \"密室宝箱\")"
+ },
+ "密室装备箱": {
+  "where": "entities/loot_container.gd:109",
+  "line": "if vault: return {\"vault_weapon\": \"密室武器箱\", \"vault_gear\": \"密室装备箱\", \"vault_base\": \"密室物资箱\"}.get(kind, \"密室宝箱\")"
+ },
+ "小型电动机，驱动无人机和机械臂。": {
+  "where": "game/material_catalog.gd:77",
+  "line": "\"微型电机\": {\"star\": 4, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"stack\": 3, \"size\": Vector2i(2, 2), \"value\": 60, \"text\": \"小型电动机，驱动无人机和机械臂。\"},"
+ },
+ "少量多态酮制剂，能把繁杂工艺简化成单纯的化学反应。": {
+  "where": "game/material_catalog.gd:32",
+  "line": "\"酮凝集\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"少量多态酮制剂，能把繁杂工艺简化成单纯的化学反应。\"},"
+ },
+ "工具": {
+  "where": "game/material_catalog.gd:82",
+  "line": "\"扳手\": {\"star\": 3, \"kind\": \"base\", \"group\": \"工具\", \"source\": \"common\", \"stack\": 5, \"text\": \"棘轮扳手，拆装设备的常用工具。\"},"
+ },
+ "工具箱": {
+  "where": "game/loot_tables.gd:57",
+  "line": "\"tool_box\": {\"name\": \"工具箱\", \"color\": Color(\"5f7f5a\"), \"region\": {\"mine\": 1.0, \"city\": 1.0, \"snow\": 2.0}, \"base\": false},"
+ },
+ "带插头的电源线，设备接电必备。": {
+  "where": "game/material_catalog.gd:73",
+  "line": "\"电源线\": {\"star\": 2, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"stack\": 10, \"size\": Vector2i(2, 1), \"text\": \"带插头的电源线，设备接电必备。\"},"
+ },
+ "常见于源石挥发殆尽后的地区，比源石更易采集。": {
+  "where": "game/material_catalog.gd:20",
+  "line": "\"源岩\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"常见于源石挥发殆尽后的地区，比源石更易采集。\"},"
+ },
+ "建材": {
+  "where": "game/material_catalog.gd:63",
+  "line": "\"螺栓\": {\"star\": 1, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"stack\": 30, \"text\": \"最常见的紧固件，盖什么都用得上。\"},"
+ },
+ "建材堆": {
+  "where": "game/loot_tables.gd:50",
+  "line": "\"construction\": {\"name\": \"建材堆\", \"color\": Color(\"8a7a5c\"), \"region\": {\"mine\": 2.0, \"city\": 1.0, \"snow\": 1.0}, \"base\": true},"
+ },
+ "强度略有不足，可做基础物件，也是缓释药物的常用成分。": {
+  "where": "game/material_catalog.gd:27",
+  "line": "\"聚酸酯\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"强度略有不足，可做基础物件，也是缓释药物的常用成分。\"},"
+ },
+ "强度超群，能传导源石技艺，将重新订立武器材料的标准。": {
+  "where": "game/material_catalog.gd:44",
+  "line": "\"D32钢\": {\"star\": 5, \"kind\": \"craft\", \"text\": \"强度超群，能传导源石技艺，将重新订立武器材料的标准。\"},"
+ },
+ "技能": {
+  "where": "ui/training_screen.gd:101",
+  "line": "var kind_names := {\"signature\": \"招牌\", \"skill\": \"技能\", \"modifier\": \"修饰\", \"passive\": \"被动\", \"transmuter\": \"变换\"}"
+ },
+ "技能训练用的书籍，专精篇。": {
+  "where": "game/material_catalog.gd:52",
+  "line": "\"技巧概要·卷3\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"技能训练用的书籍，专精篇。\"},"
+ },
+ "技能训练用的书籍，入门篇。": {
+  "where": "game/material_catalog.gd:50",
+  "line": "\"技巧概要·卷1\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"技能训练用的书籍，入门篇。\"},"
+ },
+ "技能训练用的书籍，进阶篇。": {
+  "where": "game/material_catalog.gd:51",
+  "line": "\"技巧概要·卷2\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"技能训练用的书籍，进阶篇。\"},"
+ },
+ "护具箱": {
+  "where": "game/loot_tables.gd:56",
+  "line": "\"armor_box\": {\"name\": \"护具箱\", \"color\": Color(\"4f6f8f\"), \"region\": {\"mine\": 1.0, \"city\": 2.0, \"snow\": 1.0}, \"base\": false},"
+ },
+ "拆下来的板材，搭架子、钉隔板都行。": {
+  "where": "game/material_catalog.gd:66",
+  "line": "\"木板\": {\"star\": 1, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"size\": Vector2i(2, 1), \"text\": \"拆下来的板材，搭架子、钉隔板都行。\"},"
+ },
+ "拉普兰德": {
+  "where": "game/operators.gd:15",
+  "line": "\"name\": \"拉普兰德\", \"class\": \"近卫\", \"branch\": \"GUARD · LORD\", \"stars\": 5,"
+ },
+ "招牌": {
+  "where": "ui/training_screen.gd:101",
+  "line": "var kind_names := {\"signature\": \"招牌\", \"skill\": \"技能\", \"modifier\": \"修饰\", \"passive\": \"被动\", \"transmuter\": \"变换\"}"
+ },
+ "提纯精炼后的金条，可以换取大量龙门币。": {
+  "where": "game/material_catalog.gd:61",
+  "line": "\"赤金\": {\"star\": 3, \"kind\": \"base\", \"stack\": 10, \"value\": 10, \"text\": \"提纯精炼后的金条，可以换取大量龙门币。\"},"
+ },
+ "收缴来的机械装置，相对完整，主板上塞满电子元件。": {
+  "where": "game/material_catalog.gd:34",
+  "line": "\"装置\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"收缴来的机械装置，相对完整，主板上塞满电子元件。\"},"
+ },
+ "改造房间前用来加固承重部位的基本建筑工程材料。": {
+  "where": "game/material_catalog.gd:57",
+  "line": "\"基础加固建材\": {\"star\": 2, \"kind\": \"base\", \"text\": \"改造房间前用来加固承重部位的基本建筑工程材料。\"},"
+ },
+ "放回货箱": {
+  "where": "world/warehouse_view.gd:203",
+  "line": "return {\"kind\": \"putback\", \"label\": \"把 %s 放回货箱\" % base.hand.item_name}"
+ },
+ "放进暂存区（": {
+  "where": "world/warehouse_view.gd:201",
+  "line": "return {\"kind\": \"staging\", \"label\": \"放进暂存区（%d/%d）\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]}"
+ },
+ "日用": {
+  "where": "game/material_catalog.gd:70",
+  "line": "\"胶带\": {\"star\": 1, \"kind\": \"base\", \"group\": \"日用\", \"source\": \"common\", \"text\": \"万能胶带，能修的都能修。\"},"
+ },
+ "暂存区（": {
+  "where": "world/warehouse_view.gd:218",
+  "line": "return {\"kind\": \"staging\", \"label\": \"暂存区（%d/%d）\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]}"
+ },
+ "暴伤": {
+  "where": "ui/training_screen.gd:181",
+  "line": "var names := {\"hp\": \"生命\", \"def\": \"防御\", \"regen\": \"回复\", \"atk\": \"攻击\", \"crit\": \"暴击率\", \"crit_dmg\": \"暴伤\","
+ },
+ "曾被拼装在敌人的武器和防具上，战损后内部元件仍有价值。": {
+  "where": "game/material_catalog.gd:33",
+  "line": "\"破损装置\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"曾被拼装在敌人的武器和防具上，战损后内部元件仍有价值。\"},"
+ },
+ "最常见的紧固件，盖什么都用得上。": {
+  "where": "game/material_catalog.gd:63",
+  "line": "\"螺栓\": {\"star\": 1, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"stack\": 30, \"text\": \"最常见的紧固件，盖什么都用得上。\"},"
+ },
+ "有着微弱的甜味，也许可以吃；溶液常用于化工。": {
+  "where": "game/material_catalog.gd:24",
+  "line": "\"代糖\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"有着微弱的甜味，也许可以吃；溶液常用于化工。\"},"
+ },
+ "极少量非单酮制剂，工程干员用它粘结结构。": {
+  "where": "game/material_catalog.gd:31",
+  "line": "\"双酮\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"极少量非单酮制剂，工程干员用它粘结结构。\"},"
+ },
+ "棘轮扳手，拆装设备的常用工具。": {
+  "where": "game/material_catalog.gd:82",
+  "line": "\"扳手\": {\"star\": 3, \"kind\": \"base\", \"group\": \"工具\", \"source\": \"common\", \"stack\": 5, \"text\": \"棘轮扳手，拆装设备的常用工具。\"},"
+ },
+ "武器箱": {
+  "where": "game/loot_tables.gd:55",
+  "line": "\"weapon_box\": {\"name\": \"武器箱\", \"color\": Color(\"8c5a4a\"), \"region\": {\"mine\": 1.0, \"city\": 2.0, \"snow\": 1.5}, \"base\": false},"
+ },
+ "沉重的车用蓄电池，能给整套设施供电。": {
+  "where": "game/material_catalog.gd:79",
+  "line": "\"车用蓄电池\": {\"star\": 4, \"kind\": \"base\", \"group\": \"能源\", \"source\": \"common\", \"stack\": 1, \"size\": Vector2i(3, 2), \"value\": 120, \"text\": \"沉重的车用蓄电池，能给整套设施供电。\"},"
+ },
+ "法术伤害": {
+  "where": "ui/training_screen.gd:182",
+  "line": "\"aspd\": \"攻速\", \"stamina_regen\": \"体力回复\", \"move_pct\": \"移速\", \"arts\": \"法术攻击\", \"arts_dmg_pct\": \"法术伤害\", \"res\": \"法抗\"}"
+ },
+ "波纹软管，管线、通风和冷却都要用。": {
+  "where": "game/material_catalog.gd:68",
+  "line": "\"软管\": {\"star\": 2, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"stack\": 10, \"size\": Vector2i(2, 1), \"text\": \"波纹软管，管线、通风和冷却都要用。\"},"
+ },
+ "注射器、纱布和消毒用品的打包件。": {
+  "where": "game/material_catalog.gd:84",
+  "line": "\"医用耗材包\": {\"star\": 3, \"kind\": \"base\", \"group\": \"医疗\", \"source\": \"common\", \"text\": \"注射器、纱布和消毒用品的打包件。\"},"
+ },
+ "源石工业衍生物，高强度、高模量的纤维束。": {
+  "where": "game/material_catalog.gd:42",
+  "line": "\"褐素纤维\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"源石工业衍生物，高强度、高模量的纤维束。\"},"
+ },
+ "源石矿脉": {
+  "where": "game/loot_tables.gd:51",
+  "line": "\"ore_vein\": {\"name\": \"源石矿脉\", \"color\": Color(\"d07a2a\"), \"region\": {\"mine\": 3.0}, \"base\": true},"
+ },
+ "燃料": {
+  "where": "game/material_catalog.gd:80",
+  "line": "\"固体燃料\": {\"star\": 1, \"kind\": \"base\", \"group\": \"燃料\", \"source\": \"common\", \"text\": \"块状燃料，取暖和野外加热的耗材。\"},"
+ },
+ "物资仓": {
+  "where": "game/loot_tables.gd:52",
+  "line": "\"depot\": {\"name\": \"物资仓\", \"color\": Color(\"6c7f8f\"), \"region\": {\"city\": 3.0}, \"base\": true},"
+ },
+ "用于土木结构较脆弱区域的房间改造。": {
+  "where": "game/material_catalog.gd:58",
+  "line": "\"进阶加固建材\": {\"star\": 3, \"kind\": \"base\", \"text\": \"用于土木结构较脆弱区域的房间改造。\"},"
+ },
+ "用以合成家具的零件：桌腿、扶手、坐垫，什么都有。": {
+  "where": "game/material_catalog.gd:59",
+  "line": "\"家具零件\": {\"star\": 3, \"kind\": \"base\", \"text\": \"用以合成家具的零件：桌腿、扶手、坐垫，什么都有。\"},"
+ },
+ "用来产出工业催化剂的金属矿物，加工事故比比皆是。": {
+  "where": "game/material_catalog.gd:40",
+  "line": "\"轻锰矿\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"用来产出工业催化剂的金属矿物，加工事故比比皆是。\"},"
+ },
+ "用源石晶体外壳制作的工业原材料。": {
+  "where": "game/material_catalog.gd:41",
+  "line": "\"晶体元件\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"用源石晶体外壳制作的工业原材料。\"},"
+ },
+ "用自然原材制作的糖料，不是用来当零食吃的。": {
+  "where": "game/material_catalog.gd:25",
+  "line": "\"糖\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"用自然原材制作的糖料，不是用来当零食吃的。\"},"
+ },
+ "电子": {
+  "where": "game/material_catalog.gd:72",
+  "line": "\"电线\": {\"star\": 1, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"text\": \"一捆铜芯电线，任何电路的起点。\"},"
+ },
+ "电子柜": {
+  "where": "game/loot_tables.gd:58",
+  "line": "\"electronics\": {\"name\": \"电子柜\", \"color\": Color(\"4a8a8a\"), \"region\": {\"mine\": 1.0, \"city\": 2.0, \"snow\": 0.5}, \"base\": true},"
+ },
+ "相位控制继电器，自动化设备的开关。": {
+  "where": "game/material_catalog.gd:75",
+  "line": "\"继电器\": {\"star\": 3, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"text\": \"相位控制继电器，自动化设备的开关。\"},"
+ },
+ "矿工储物柜": {
+  "where": "entities/loot_container.gd:58",
+  "line": "const VARIANT_NAMES := {\"ore_cart\": \"翻倒的源石矿车\", \"miner_locker\": \"矿工储物柜\", \"winch_box\": \"绞车控制箱\", \"miner_pack\": \"遗留的矿工背包\"}"
+ },
+ "碎片相变聚合而成，是较稳定的形态。": {
+  "where": "game/material_catalog.gd:29",
+  "line": "\"异铁\": {\"star\": 2, \"kind\": \"craft\", \"text\": \"碎片相变聚合而成，是较稳定的形态。\"},"
+ },
+ "碳原料，用于开发罗德岛的基础设施。": {
+  "where": "game/material_catalog.gd:54",
+  "line": "\"碳\": {\"star\": 2, \"kind\": \"base\", \"text\": \"碳原料，用于开发罗德岛的基础设施。\"},"
+ },
+ "碳素砖，轻、纯度高、好加工，用于开发基础设施。": {
+  "where": "game/material_catalog.gd:55",
+  "line": "\"碳素\": {\"star\": 3, \"kind\": \"base\", \"text\": \"碳素砖，轻、纯度高、好加工，用于开发基础设施。\"},"
+ },
+ "绞车控制箱": {
+  "where": "entities/loot_container.gd:58",
+  "line": "const VARIANT_NAMES := {\"ore_cart\": \"翻倒的源石矿车\", \"miner_locker\": \"矿工储物柜\", \"winch_box\": \"绞车控制箱\", \"miner_pack\": \"遗留的矿工背包\"}"
+ },
+ "能源": {
+  "where": "game/material_catalog.gd:78",
+  "line": "\"蓄电池\": {\"star\": 2, \"kind\": \"base\", \"group\": \"能源\", \"source\": \"common\", \"text\": \"可充电电池，便携设备的电源。\"},"
+ },
+ "被动": {
+  "where": "ui/training_screen.gd:101",
+  "line": "var kind_names := {\"signature\": \"招牌\", \"skill\": \"技能\", \"modifier\": \"修饰\", \"passive\": \"被动\", \"transmuter\": \"变换\"}"
+ },
+ "裁好的薄钢板，货架和箱体的骨架材料。": {
+  "where": "game/material_catalog.gd:67",
+  "line": "\"金属板\": {\"star\": 2, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"text\": \"裁好的薄钢板，货架和箱体的骨架材料。\"},"
+ },
+ "装满的金属燃料罐，发电机的口粮。": {
+  "where": "game/material_catalog.gd:81",
+  "line": "\"燃料罐\": {\"star\": 3, \"kind\": \"base\", \"group\": \"燃料\", \"source\": \"common\", \"stack\": 1, \"size\": Vector2i(2, 2), \"value\": 50, \"text\": \"装满的金属燃料罐，发电机的口粮。\"},"
+ },
+ "解锁干员模组所需的数据。": {
+  "where": "game/material_catalog.gd:53",
+  "line": "\"模组数据块\": {\"star\": 5, \"kind\": \"craft\", \"text\": \"解锁干员模组所需的数据。\"},"
+ },
+ "记录近卫干员特殊训练数据的存储芯片，用于干员晋升。": {
+  "where": "game/material_catalog.gd:46",
+  "line": "\"近卫芯片\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"记录近卫干员特殊训练数据的存储芯片，用于干员晋升。\"},"
+ },
+ "近代工业的关键材料之一，但这只是原料。": {
+  "where": "game/material_catalog.gd:26",
+  "line": "\"酯原料\": {\"star\": 1, \"kind\": \"craft\", \"text\": \"近代工业的关键材料之一，但这只是原料。\"},"
+ },
+ "还能亮的灯泡，照明设施的耗材。": {
+  "where": "game/material_catalog.gd:74",
+  "line": "\"灯泡\": {\"star\": 2, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"text\": \"还能亮的灯泡，照明设施的耗材。\"},"
+ },
+ "遗留的矿工背包": {
+  "where": "entities/loot_container.gd:58",
+  "line": "const VARIANT_NAMES := {\"ore_cart\": \"翻倒的源石矿车\", \"miner_locker\": \"矿工储物柜\", \"winch_box\": \"绞车控制箱\", \"miner_pack\": \"遗留的矿工背包\"}"
+ },
+ "重构后解决了主板空间问题，但能耗更高。": {
+  "where": "game/material_catalog.gd:35",
+  "line": "\"全新装置\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"重构后解决了主板空间问题，但能耗更高。\"},"
+ },
+ "金属加工中起润滑吸热作用，提高成品合格率。": {
+  "where": "game/material_catalog.gd:38",
+  "line": "\"化合切削液\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"金属加工中起润滑吸热作用，提高成品合格率。\"},"
+ },
+ "阿米娅": {
+  "where": "game/operators.gd:20",
+  "line": "\"name\": \"阿米娅\", \"form\": \"剑兔\", \"class\": \"近卫\", \"branch\": \"GUARD · ARTS FIGHTER\", \"stars\": 5,"
+ },
+ "高度提纯，有着规则的切割面；工艺成本急剧上升。": {
+  "where": "game/material_catalog.gd:23",
+  "line": "\"提纯源岩\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"高度提纯，有着规则的切割面；工艺成本急剧上升。\"},"
+ }
+}

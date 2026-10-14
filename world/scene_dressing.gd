@@ -29,7 +29,7 @@ func build(world: Node3D) -> void:
 	for z in range(int(map.SPINE_MIN.y), int(map.SPINE_MAX.y), int(spacing)):
 		for x in range(int(map.SPINE_MIN.x), int(map.SPINE_MAX.x), int(spacing)):
 			var p := Vector2(x, z) + Vector2(rng.randf_range(-4, 4), rng.randf_range(-4, 4))
-			var depth: float = -map._surface.distance_at(p)
+			var depth: float = -map._surface.distance_near(p)
 			if depth < 12.0 or depth > 26.0 or rng.randf() < 0.12: continue
 			if not _reserve(p, 4.0): continue
 			match map.region_id:
@@ -54,9 +54,13 @@ func build(world: Node3D) -> void:
 					_prop(p + Vector2(2.8, 0.7), 1, 3.3)
 			break
 	# Existing collision pillars become rock/concrete cover, not empty circles.
-	for pillar in map._closed_circles:
+	# Sized and stretched with each pillar's own outline.
+	for i in range(map._closed_circles.size()):
+		var pillar: Vector3 = map._closed_circles[i]
 		var p := Vector2(pillar.x, pillar.y)
-		_rock(p, Vector3(2.7, 1.5, 2.6), Color("8d969f") if map.region_id == "city" else Color("8e887d"))
+		var stretch: float = map._pillar_shapes[i][0] if i < map._pillar_shapes.size() else 1.0
+		var r: float = pillar.z * rng.randf_range(0.75, 0.95)
+		_rock(p, Vector3(r * stretch, 1.1 + r * 0.25, r), Color("8d969f") if map.region_id == "city" else Color("8e887d"))
 	_finish_meshes()
 	root.set_meta("composition_count", occupied.size())
 
@@ -107,7 +111,13 @@ func _dress_edges() -> void:
 func _height(p: Vector2) -> float:
 	return map._surface.height_at(p)
 
+## No pixel scenery any more (user, 2026-10-12): the field is modelled, and
+## the crystal clusters, carts, ruins, trees and huts the sprites showed are
+## left out rather than replaced. Group spots keep their rocks and stains.
+const SPRITE_SCENERY := false
+
 func _prop(p: Vector2, kind: int, height: float, composition: bool = false) -> void:
+	if not SPRITE_SCENERY: return
 	var depth: float = -map._surface.distance_at(p)
 	if depth < 1.7: return
 	# On the near bank, tall sprites project over the road. Shorten those
@@ -135,7 +145,9 @@ func _prop(p: Vector2, kind: int, height: float, composition: bool = false) -> v
 
 func _mine_group(p: Vector2) -> void:
 	_patch(p, Vector2(4.5, 3.6), _stain_color())
-	_prop(p, 0 if rng.randf() < 0.6 else 1, rng.randf_range(5.0, 6.8), true)
+	# Crystal cluster or ore cart. The mine-entrance sprite (1) is gone: timber
+	# frames are modelled now and span the corridors (TerraceDressing.FRAMES).
+	_prop(p, 0 if rng.randf() < 0.6 else 2, rng.randf_range(5.0, 6.8), true)
 	_rock(p + Vector2(-2.2, -0.9), Vector3(1.2, 0.5, 1.0), Color("a09582"))
 	_scatter(p, false)
 

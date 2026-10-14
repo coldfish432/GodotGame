@@ -20,8 +20,12 @@ func run() -> void:
 	root.add_child(game)
 	await step(5)
 	for region in ["mine", "city", "snow"]:
-		game.fixed_map_seed = 1729
-		await game.start_contract(region)
+		# A floor with a cover pillar (the cover checks below need one); pillar
+		# counts are rolled per arena and can come out zero.
+		for attempt in range(6):
+			game.fixed_map_seed = 1729 + attempt
+			await game.start_contract(region)
+			if not game.world_map._closed_circles.is_empty(): break
 		game._clear_field()
 		game.player.invulnerable = true
 		await step(4)
@@ -46,7 +50,13 @@ func run() -> void:
 			path.size() > 4 and worst < tolerance and length > 120)
 		# The markers no longer stand at the trunk's end, so order is read along
 		# the walk rather than by depth: the early build comes well before them.
-		var buff_room := map._circle_at(Vector2(map.branch_centres[0].x, map.branch_centres[0].y))
+		# The room the early build stands in (nearest room to the device).
+		var buff_room := 0
+		var buff_at := Vector2(map.buff_position.x, map.buff_position.z)
+		for k in range(map._open_circles.size()):
+			var c: Vector3 = map._open_circles[k]
+			var best: Vector3 = map._open_circles[buff_room]
+			if Vector2(c.x, c.y).distance_to(buff_at) < Vector2(best.x, best.y).distance_to(buff_at): buff_room = k
 		check(region + " early build comes before the route markers (walk %.0f of %.0f)" % [map.circle_distance[buff_room], map.circle_distance[map.exit_chamber]],
 			map.circle_distance[buff_room] < map.circle_distance[map.exit_chamber] * 0.6)
 		var area := 0.0
@@ -55,7 +65,7 @@ func run() -> void:
 		# Expressed as a share of the bounding rectangle rather than as an
 		# absolute area: the claim being made is "most of the box is solid",
 		# which must keep holding whatever size the segment is scaled to.
-		var bounds: Vector2 = ContinuousWorldMap.SPINE_MAX - ContinuousWorldMap.SPINE_MIN
+		var bounds: Vector2 = map.SPINE_MAX - map.SPINE_MIN
 		var share := area / (bounds.x * bounds.y)
 		check(region + " terrain constrains space instead of an open rectangle (walkable %.0f of %.0f, %.0f%%)" % [area, bounds.x * bounds.y, share * 100.0],
 			share > 0.10 and share < 0.40)
@@ -82,13 +92,27 @@ func run() -> void:
 			if Vector2(p.x - end.x, p.z - end.z).length() < 0.6:
 				arrived = true
 				break
+		if not arrived:
+			var at := game.player.global_position
+			print("  %s walk stopped at %s, %.1f m from %s; ground %.2f, open %.2f, level %s; scale %.2f" % [region, at, Vector2(at.x - end.x, at.z - end.z).length(), end,
+				map.ground_height(Vector2(at.x, at.z)), map._surface.distance_at(Vector2(at.x, at.z)), map._surface.is_level(Vector2(at.x, at.z)), map.map_scale])
 		check(region + " player walks entry to destination without snagging or leaving terrain (arrived %s, %d/%d ticks, off-ground %d, worst %.2f)" % [arrived, used, budget, left_ground, walk_worst],
 			arrived and left_ground == 0)
 		# Opposite sides of a real cover pillar: no teleported intermediate
 		# waypoints, and the initial direct ray must be blocked.
+		# The city's layout is not being reworked yet (用户 2026-10-13: 城市地图再说):
+		# a city floor can come out with no pillar, and then there is no cover
+		# to test on it.
+		if map._closed_circles.is_empty():
+			print("SKIP %s cover checks: no pillar on this floor" % region)
+			game.settle(true)
+			await step(3)
+			continue
 		var pillar: Vector3 = map._closed_circles[0]
-		var left := Vector3(pillar.x - 4, 0.7, pillar.y)
-		var right := Vector3(pillar.x + 4, 0.65, pillar.y)
+		# Pillars are irregular and vary in size: stand clear of this one's reach.
+		var clear := map.pillar_reach(0) + 1.3
+		var left := Vector3(pillar.x - clear, 0.7, pillar.y)
+		var right := Vector3(pillar.x + clear, 0.65, pillar.y)
 		game.player.teleport(left)
 		var pursuer := game._spawn_enemy(right, false, false)
 		# A guard zone supplies the alert while the pillar hides the player.

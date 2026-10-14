@@ -33,6 +33,14 @@ var _drag_from: ItemContainer
 var _drag_from_equip := false
 var _last_pointer := Vector2.ZERO
 var _pointer_known := false
+## The open box's search bar, and what the grid showed at the last rebuild.
+var _search_view: SearchView
+var _loot_seen := -1
+## The latest notice (a refused equip, a full pack …) over the window: the
+## HUD's toasts lie under it (用户 2026-10-13).
+var _notice: Label
+var _notice_seen := 0
+var _notice_left := 0.0
 static var _portrait: Texture2D
 
 func _ready() -> void:
@@ -56,6 +64,12 @@ func _ready() -> void:
 	_float.z_index = 20
 	_float.visible = false
 	add_child(_float)
+	_notice = AK.label("", 13, AK.FG)
+	_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_notice.add_theme_stylebox_override("normal", AK.box(Color(0, 0, 0, 0.85), AK.SP, 1, 8))
+	_notice.visible = false
+	_notice.z_index = 30
+	add_child(_notice)
 	_confirm = ConfirmationDialog.new()
 	_confirm.title = "丢弃物品"
 	_confirm.ok_button_text = "丢到地面"
@@ -96,11 +110,28 @@ func game_close() -> void:
 func open() -> void:
 	selected = null
 	hovered = null
+	_notice_seen = game.notice_serial
+	_notice.visible = false
 	show()
 	_rebuild()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not visible: return
+	if game.notice_serial != _notice_seen:
+		_notice_seen = game.notice_serial
+		_notice.text = game.last_notice
+		_notice.reset_size()
+		_notice.position = Vector2(panel.position.x + (panel.size.x - _notice.size.x) * 0.5, panel.position.y - _notice.size.y - 8)
+		_notice.visible = true
+		_notice_left = GameManager.TOAST_SECONDS
+	elif _notice.visible:
+		_notice_left -= delta
+		if _notice_left <= 0.0: _notice.visible = false
+	if is_instance_valid(game.looting):
+		# A found item lands in the box's grid: show it.
+		var seen := game.looting.storage.items.size() * 1000 + int(game.looting.search_state().get("found", 0))
+		if seen != _loot_seen: _rebuild()
+		elif is_instance_valid(_search_view): _search_view.queue_redraw()
 	var detail := Input.is_key_pressed(KEY_ALT)
 	if detail != _detail:
 		_detail = detail
@@ -140,7 +171,9 @@ func _rebuild() -> void:
 	body.add_child(_divider())
 	body.add_child(_pack_column())
 	body.add_child(_divider())
-	body.add_child(_stats_column())
+	# A box open beside the pack takes the attributes' place.
+	if is_instance_valid(game.looting): body.add_child(_loot_column())
+	else: body.add_child(_stats_column())
 	_fit_window()
 	_refresh_tooltip()
 
@@ -337,6 +370,32 @@ func _grid(container: ItemContainer) -> GridView:
 		grid.add_child(tile)
 	return grid
 
+# --- Right, while a box is open: its grid and its search --------------------------------
+
+func _loot_column() -> Control:
+	var box := game.looting
+	var state := box.search_state()
+	_loot_seen = box.storage.items.size() * 1000 + int(state.get("found", 0))
+	var margin := MarginContainer.new()
+	for side in ["left", "right", "top"]: margin.add_theme_constant_override("margin_" + side, 14)
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 8)
+	margin.add_child(column)
+	var head := HBoxContainer.new()
+	column.add_child(head)
+	head.add_child(AK.section(box.title(), "%d / %d" % [int(state.found), int(state.total)] if not state.is_empty() else ""))
+	column.add_child(_grid(box.storage))
+	_search_view = SearchView.new()
+	_search_view.box = box
+	_search_view.custom_minimum_size = Vector2(box.storage.width * CELL, 22)
+	column.add_child(_search_view)
+	var take := AK.button("全部拿取", "yellow", 12)
+	take.disabled = box.storage.items.is_empty()
+	take.pressed.connect(func(): game.take_all(box); _rebuild())
+	column.add_child(take)
+	return margin
+
 # --- Right: attributes ------------------------------------------------------------------
 
 func _stats_column() -> Control:
@@ -454,7 +513,9 @@ func right_click(item: Item, container: ItemContainer) -> void:
 	_rebuild()
 
 func ctrl_click(item: Item, container: ItemContainer) -> void:
-	if container != null: game.quick_move(item, container)
+	# Out of an open box: straight into the pack.
+	if is_instance_valid(game.looting) and container == game.looting.storage: game.transfer_item(item, container, game.inventory)
+	elif container != null: game.quick_move(item, container)
 	selected = null
 	_rebuild()
 
@@ -525,6 +586,25 @@ class GridView extends Control:
 		if what in [NOTIFICATION_MOUSE_EXIT, NOTIFICATION_DRAG_END]:
 			_preview = Rect2i()
 			queue_redraw()
+
+
+## The open box's search under its grid: the bar of the item being searched,
+## and one pip per item, filled for each found (as the HUD drew it over the box).
+class SearchView extends Control:
+	var box: LootContainer
+
+	func _draw() -> void:
+		if not is_instance_valid(box): return
+		var state := box.search_state()
+		if state.is_empty(): return
+		var width := size.x
+		var current: float = state.current
+		draw_rect(Rect2(0, 0, width, 6), Color(0, 0, 0, 0.6))
+		if current >= 0.0: draw_rect(Rect2(0, 0, width * current, 6), AK.SP)
+		var total: int = state.total
+		var pip := clampf(width / total - 3.0, 4.0, 18.0)
+		for i in range(total):
+			draw_rect(Rect2(i * (pip + 3.0), 11, pip, 6), AK.SP if i < int(state.found) else Color(1, 1, 1, 0.18))
 
 
 ## An item on a grid, in the depot style (界面策划案 §2.4): the rarity glows up

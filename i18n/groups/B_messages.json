@@ -1,0 +1,702 @@
+{
+ "·  声望 +": {
+  "where": "game/game_manager.gd:1883",
+  "line": "set_message(\"订单完成：%s  ·  龙门币 +%s  ·  声望 +%d\" % [text, Economy.format(result.gold), result.prestige])"
+ },
+ "·  龙门币 +": {
+  "where": "game/game_manager.gd:1883",
+  "line": "set_message(\"订单完成：%s  ·  龙门币 +%s  ·  声望 +%d\" % [text, Economy.format(result.gold), result.prestige])"
+ },
+ "、": {
+  "where": "game/game_manager.gd:1585",
+  "line": "return \"\" if missing.is_empty() else \"缺少 \" + \"、\".join(missing)"
+ },
+ "不在背包里": {
+  "where": "game/game_manager.gd:1457",
+  "line": "if item == null or not (inventory.items.has(item) or safe_bag.items.has(item)): return \"不在背包里\""
+ },
+ "不在营地": {
+  "where": "game/game_manager.gd:1456",
+  "line": "if not in_camp: return \"不在营地\""
+ },
+ "丢失": {
+  "where": "game/game_manager.gd:1521",
+  "line": "return \"丢失\""
+ },
+ "个": {
+  "where": "game/game_manager.gd:1668",
+  "line": "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
+ },
+ "个留在地上。": {
+  "where": "game/game_manager.gd:1668",
+  "line": "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
+ },
+ "买下": {
+  "where": "game/game_manager.gd:1360",
+  "line": "set_message(\"买下 %s\" % entry.item.display_name())"
+ },
+ "仅稀有": {
+  "where": "game/game_manager.gd:142",
+  "line": "const PICKUP_FILTER_NAMES := [\"全部\", \"精良以上\", \"仅稀有\"]"
+ },
+ "仍在暂存区。": {
+  "where": "game/game_manager.gd:1835",
+  "line": "notice(\"背包空间不足：%s 仍在暂存区。\" % item.item_name)"
+ },
+ "仍在货架上。": {
+  "where": "game/game_manager.gd:1735",
+  "line": "notice(\"背包空间不足：%s 仍在货架上。\" % item.item_name)"
+ },
+ "仍留在地上。": {
+  "where": "game/game_manager.gd:1670",
+  "line": "notice(\"背包空间不足：%s ×%d 仍留在地上。\" % [item.item_name, left])"
+ },
+ "仍被封印：先击败全部守卫者。": {
+  "where": "game/game_manager.gd:720",
+  "line": "notice(\"%s仍被封印：先击败全部守卫者。\" % box.title())"
+ },
+ "仓库总控面板上线：仓管台可以查看和调取所有分区。": {
+  "where": "game/game_manager.gd:1932",
+  "line": "set_message(\"仓库总控面板上线：仓管台可以查看和调取所有分区。\")"
+ },
+ "件。": {
+  "where": "game/game_manager.gd:1257",
+  "line": "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
+ },
+ "件新物品已送到仓储区收货区。": {
+  "where": "game/game_manager.gd:1256",
+  "line": "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"回收队归来\", new_finds,"
+ },
+ "件新物品待开箱。": {
+  "where": "game/game_manager.gd:1262",
+  "line": "if new_finds > 0: broadcast(\"收货区货箱有 %d 件新物品待开箱。\" % new_finds)"
+ },
+ "件材料。": {
+  "where": "game/game_manager.gd:1653",
+  "line": "if stored > 0: set_message(\"已存回 %d 件材料。\" % stored)"
+ },
+ "件物品留在容器里。": {
+  "where": "game/game_manager.gd:936",
+  "line": "if left > 0: notice(\"背包空间不足，%d 件物品留在容器里。\" % left)"
+ },
+ "会放回原处": {
+  "where": "game/game_manager.gd:1981",
+  "line": "if base.hand: out.append(\"手上的 %s 会放回原处\" % base.hand.item_name)"
+ },
+ "保留": {
+  "where": "game/game_manager.gd:1530",
+  "line": "if outcome.begins_with(\"保留\"):"
+ },
+ "保留（安全袋）": {
+  "where": "game/game_manager.gd:1519",
+  "line": "if safe_bag.items.has(item): return \"保留（安全袋）\""
+ },
+ "先放下手上的": {
+  "where": "game/game_manager.gd:1771",
+  "line": "set_message(\"先放下手上的 %s。\" % base.hand.item_name)"
+ },
+ "全部": {
+  "where": "game/game_manager.gd:142",
+  "line": "const PICKUP_FILTER_NAMES := [\"全部\", \"精良以上\", \"仅稀有\"]"
+ },
+ "前方是整合运动据点：击破头目，入口才会开放。": {
+  "where": "game/game_manager.gd:821",
+  "line": "if is_outpost_floor(): broadcast(\"前方是整合运动据点：击破头目，入口才会开放。\")"
+ },
+ "区": {
+  "where": "game/game_manager.gd:1787",
+  "line": "set_message(\"已上架：%s（%s区 %d/%d）\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[category], base.shelf_count(category), base.capacity(category)])"
+ },
+ "区上架。": {
+  "where": "game/game_manager.gd:1775",
+  "line": "set_message(\"拿起 %s：去%s区上架。\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[item.category]])"
+ },
+ "区和暂存区都满了：": {
+  "where": "game/game_manager.gd:1744",
+  "line": "set_message(\"%s区和暂存区都满了：%s 留在身上。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
+ },
+ "区新货架已就位：容量": {
+  "where": "game/game_manager.gd:1918",
+  "line": "set_message(\"%s区新货架已就位：容量 %d。\" % [BaseCatalog.CATEGORY_NAMES[category], base.capacity(category)])"
+ },
+ "区的地面框里按 E 上架，或放进暂存区。": {
+  "where": "game/game_manager.gd:507",
+  "line": "if base.hand: set_message(\"手上拿着 %s：走到%s区的地面框里按 E 上架，或放进暂存区。\" % [base.hand.item_name, BaseCatalog.CATEGORY_NAMES[base.hand.category]])"
+ },
+ "卖出赤金 ×": {
+  "where": "game/game_manager.gd:1483",
+  "line": "set_message(\"卖出赤金 ×%d：龙门币 +%s\" % [bars, Economy.format(bars * Economy.GOLD_BAR_LMD)])"
+ },
+ "卖给坎诺特：": {
+  "where": "game/game_manager.gd:1378",
+  "line": "set_message(\"卖给坎诺特：%s，赤金 +%d\" % [item.display_name(), pay])"
+ },
+ "只收材料": {
+  "where": "game/game_manager.gd:1458",
+  "line": "if item.category != Item.Category.MATERIAL or item.is_potion(): return \"只收材料\""
+ },
+ "只收装备": {
+  "where": "game/game_manager.gd:1102",
+  "line": "if item == null or not carried_items().has(item) or not item.is_equippable(): return \"只收装备\""
+ },
+ "只未开货箱": {
+  "where": "game/game_manager.gd:1986",
+  "line": "if sealed > 0: parts.append(\"收货区仍有 %d 只未开货箱\" % sealed)"
+ },
+ "合同交付": {
+  "where": "game/game_manager.gd:1256",
+  "line": "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"回收队归来\", new_finds,"
+ },
+ "合同开始：": {
+  "where": "game/game_manager.gd:625",
+  "line": "broadcast(\"合同开始：%s。\" % FieldCatalog.REGIONS[region_id].name)"
+ },
+ "合同报酬": {
+  "where": "game/game_manager.gd:1257",
+  "line": "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
+ },
+ "合同目标完成：": {
+  "where": "game/game_manager.gd:2313",
+  "line": "set_message(\"合同目标完成：%s\" % progress.goal)"
+ },
+ "合同目标：": {
+  "where": "game/game_manager.gd:626",
+  "line": "broadcast(\"合同目标：%s。\" % FieldCatalog.contract_goal(contract, region_id, start_floor))"
+ },
+ "名。": {
+  "where": "game/game_manager.gd:793",
+  "line": "broadcast(\"密室开启，守卫者 %d 名。\" % _vault_guardians.size())"
+ },
+ "名守卫者，宝箱尚未解封。": {
+  "where": "game/game_manager.gd:2422",
+  "line": "else: set_message(\"密室仍有 %d 名守卫者，宝箱尚未解封。\" % _vault_guardians.size())"
+ },
+ "回收队已带回": {
+  "where": "game/game_manager.gd:1261",
+  "line": "broadcast(\"%s已完成撤离。\" % who if extracted else \"回收队已带回%s。\" % who)"
+ },
+ "回收队归来": {
+  "where": "game/game_manager.gd:1256",
+  "line": "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"回收队归来\", new_finds,"
+ },
+ "坎诺特": {
+  "where": "game/game_manager.gd:1050",
+  "line": "broadcast(\"附近发现%s。\" % (\"坎诺特\" if encounter == \"trader\" else \"罗德岛小队\"))"
+ },
+ "声望 R": {
+  "where": "game/game_manager.gd:2014",
+  "line": "parts.append(\"声望 R%d · %d%s\" % [rank, base.prestige, \"\" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else \"/%d\" % BaseCatalog.PRESTIGE_RANKS[rank]])"
+ },
+ "声望提升到 R": {
+  "where": "game/game_manager.gd:1897",
+  "line": "if new_rank > 0: set_message(\"声望提升到 R%d：%s。\" % [new_rank, BaseCatalog.RANK_UNLOCKS[new_rank]])"
+ },
+ "存档写入失败：当前会话仍可继续。": {
+  "where": "game/game_manager.gd:2572",
+  "line": "notice(\"存档写入失败：当前会话仍可继续。\")"
+ },
+ "存档替换失败，旧存档保留。": {
+  "where": "game/game_manager.gd:2578",
+  "line": "notice(\"存档替换失败，旧存档保留。\")"
+ },
+ "守卫者全部倒下：密室的封印解除。": {
+  "where": "game/game_manager.gd:2421",
+  "line": "set_message(\"守卫者全部倒下：密室的封印解除。\")"
+ },
+ "安全袋保全": {
+  "where": "game/game_manager.gd:1179",
+  "line": "elif safe_bag.items.has(item): reason = \"安全袋保全\""
+ },
+ "安全袋扩容到": {
+  "where": "game/game_manager.gd:1644",
+  "line": "set_message(\"安全袋扩容到 %d×%d。\" % [safe_bag.width, safe_bag.height])"
+ },
+ "密室仍有": {
+  "where": "game/game_manager.gd:2422",
+  "line": "else: set_message(\"密室仍有 %d 名守卫者，宝箱尚未解封。\" % _vault_guardians.size())"
+ },
+ "密室开启，守卫者": {
+  "where": "game/game_manager.gd:793",
+  "line": "broadcast(\"密室开启，守卫者 %d 名。\" % _vault_guardians.size())"
+ },
+ "密室开启：守卫者": {
+  "where": "game/game_manager.gd:792",
+  "line": "set_message(\"密室开启：守卫者 %d\" % _vault_guardians.size())"
+ },
+ "密室藏品": {
+  "where": "game/game_manager.gd:1082",
+  "line": "if cache.game == self and near(cache): return \"密室藏品\" if cache.source == \"vault\" else \"战斗缴获\""
+ },
+ "密室藏品仍被封印：先击败全部守卫者。": {
+  "where": "game/game_manager.gd:730",
+  "line": "notice(\"密室藏品仍被封印：先击败全部守卫者。\")"
+ },
+ "小队不在附近": {
+  "where": "game/game_manager.gd:1101",
+  "line": "if in_base or encounter != \"squad\" or encounter_used or not near(world_map.encounter_node): return \"小队不在附近\""
+ },
+ "层 ·": {
+  "where": "game/game_manager.gd:819",
+  "line": "set_message(\"进入第 %d 层 · %s；上一层已无法返回。\" % [floor_number, FieldCatalog.ROUTES[route].name])"
+ },
+ "工程部的搬运无人机到位：在货箱前可以全部开箱并归类。": {
+  "where": "game/game_manager.gd:1941",
+  "line": "set_message(\"工程部的搬运无人机到位：在货箱前可以全部开箱并归类。\")"
+ },
+ "已上架：": {
+  "where": "game/game_manager.gd:1787",
+  "line": "set_message(\"已上架：%s（%s区 %d/%d）\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[category], base.shelf_count(category), base.capacity(category)])"
+ },
+ "已交付": {
+  "where": "game/game_manager.gd:1884",
+  "line": "else: set_message(\"已交付 %s ×%d：%s 还差 %d\" % [item.item_name, int(result.used), text, base.orders.remaining(slot)])"
+ },
+ "已升级": {
+  "where": "game/game_manager.gd:1488",
+  "line": "if base.camp_upgraded: return \"已升级\""
+ },
+ "已售出": {
+  "where": "game/game_manager.gd:1341",
+  "line": "if entry.sold: return \"已售出\""
+ },
+ "已存回": {
+  "where": "game/game_manager.gd:1653",
+  "line": "if stored > 0: set_message(\"已存回 %d 件材料。\" % stored)"
+ },
+ "已完成撤离。": {
+  "where": "game/game_manager.gd:1261",
+  "line": "broadcast(\"%s已完成撤离。\" % who if extracted else \"回收队已带回%s。\" % who)"
+ },
+ "已寄存": {
+  "where": "game/game_manager.gd:1474",
+  "line": "set_message(\"已寄存 %s：送到基地暂存区。\" % item.display_name())"
+ },
+ "已就位": {
+  "where": "game/game_manager.gd:1622",
+  "line": "if base.drone: return \"已就位\""
+ },
+ "已投保": {
+  "where": "game/game_manager.gd:1103",
+  "line": "if service == \"insure\" and item.insured: return \"已投保\""
+ },
+ "已投保。": {
+  "where": "game/game_manager.gd:1116",
+  "line": "set_message(\"罗德岛小队：%s 已投保。\" % item.item_name)"
+ },
+ "已拥有": {
+  "where": "game/game_manager.gd:1343",
+  "line": "if entry.kind == \"relic\" and builds.has(entry.relic.id): return \"已拥有\""
+ },
+ "已放弃订单：下次结算后补上新订单。": {
+  "where": "game/game_manager.gd:1890",
+  "line": "set_message(\"已放弃订单：下次结算后补上新订单。\")"
+ },
+ "已转移：": {
+  "where": "game/game_manager.gd:1689",
+  "line": "set_message(\"已转移：%s\" % item.item_name)"
+ },
+ "已送回基地暂存区。": {
+  "where": "game/game_manager.gd:1132",
+  "line": "set_message(\"罗德岛小队：%s 已送回基地暂存区。\" % item.item_name)"
+ },
+ "强化装置": {
+  "where": "game/game_manager.gd:1083",
+  "line": "if near(world_map.buff_device_node) and not _buff_taken: return \"强化装置\""
+ },
+ "悬赏目标在本层。": {
+  "where": "game/game_manager.gd:822",
+  "line": "if is_bounty_floor(): broadcast(\"悬赏目标在本层。\")"
+ },
+ "战利品仍被封印：先击败全部守卫者。": {
+  "where": "game/game_manager.gd:2751",
+  "line": "notice(\"战利品仍被封印：先击败全部守卫者。\")"
+ },
+ "战斗缴获": {
+  "where": "game/game_manager.gd:1082",
+  "line": "if cache.game == self and near(cache): return \"密室藏品\" if cache.source == \"vault\" else \"战斗缴获\""
+ },
+ "战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。": {
+  "where": "game/game_manager.gd:2412",
+  "line": "set_message(\"战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。\")"
+ },
+ "手上拿着": {
+  "where": "game/game_manager.gd:507",
+  "line": "if base.hand: set_message(\"手上拿着 %s：走到%s区的地面框里按 E 上架，或放进暂存区。\" % [base.hand.item_name, BaseCatalog.CATEGORY_NAMES[base.hand.category]])"
+ },
+ "手上的": {
+  "where": "game/game_manager.gd:1981",
+  "line": "if base.hand: out.append(\"手上的 %s 会放回原处\" % base.hand.item_name)"
+ },
+ "手上的物品已放回原处。": {
+  "where": "game/game_manager.gd:621",
+  "line": "if base.return_hand(): set_message(\"手上的物品已放回原处。\")"
+ },
+ "技巧概要·卷1": {
+  "where": "game/game_manager.gd:342",
+  "line": "\"技巧概要·卷2\": {\"materials\": {\"技巧概要·卷1\": 3}},"
+ },
+ "技巧概要·卷2": {
+  "where": "game/game_manager.gd:342",
+  "line": "\"技巧概要·卷2\": {\"materials\": {\"技巧概要·卷1\": 3}},"
+ },
+ "技巧概要·卷3": {
+  "where": "game/game_manager.gd:343",
+  "line": "\"技巧概要·卷3\": {\"materials\": {\"技巧概要·卷2\": 3}},"
+ },
+ "抑制喷剂：回复": {
+  "where": "game/game_manager.gd:2087",
+  "line": "set_message(\"抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半\" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])"
+ },
+ "投保物品送回": {
+  "where": "game/game_manager.gd:1257",
+  "line": "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
+ },
+ "投保送回": {
+  "where": "game/game_manager.gd:1180",
+  "line": "elif item.insured: reason = \"投保送回\""
+ },
+ "抵达营地": {
+  "where": "game/game_manager.gd:1405",
+  "line": "set_message(\"抵达营地 %d|%d。\" % [floor_number, floor_number + 1])"
+ },
+ "拾取": {
+  "where": "game/game_manager.gd:1663",
+  "line": "set_message(\"拾取 %s ×%d\" % [item.display_name(), before])"
+ },
+ "拾取过滤：": {
+  "where": "game/game_manager.gd:1514",
+  "line": "set_message(\"拾取过滤：%s\" % PICKUP_FILTER_NAMES[pickup_filter])"
+ },
+ "拿起": {
+  "where": "game/game_manager.gd:1775",
+  "line": "set_message(\"拿起 %s：去%s区上架。\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[item.category]])"
+ },
+ "换装空间不足，物品均已保留。": {
+  "where": "game/game_manager.gd:1705",
+  "line": "notice(\"换装空间不足，物品均已保留。\")"
+ },
+ "据点头目还在：入口封锁中。": {
+  "where": "game/game_manager.gd:746",
+  "line": "notice(\"据点头目还在：入口封锁中。\")"
+ },
+ "据点已击破，深入入口解封。": {
+  "where": "game/game_manager.gd:2332",
+  "line": "broadcast(\"据点已击破，深入入口解封。\")"
+ },
+ "据点已击破：入口解封。": {
+  "where": "game/game_manager.gd:2331",
+  "line": "set_message(\"据点已击破：入口解封。\")"
+ },
+ "撤离": {
+  "where": "game/game_manager.gd:1086",
+  "line": "if near(world_map.exit_node) and is_extraction_floor(): return \"撤离\""
+ },
+ "撤离带回": {
+  "where": "game/game_manager.gd:1178",
+  "line": "if extracted: reason = \"撤离带回\""
+ },
+ "收货区仍有": {
+  "where": "game/game_manager.gd:1986",
+  "line": "if sealed > 0: parts.append(\"收货区仍有 %d 只未开货箱\" % sealed)"
+ },
+ "收货区货箱有": {
+  "where": "game/game_manager.gd:1262",
+  "line": "if new_finds > 0: broadcast(\"收货区货箱有 %d 件新物品待开箱。\" % new_finds)"
+ },
+ "放回了": {
+  "where": "game/game_manager.gd:1805",
+  "line": "set_message(\"%s 放回了%s。\" % [item.item_name, \"暂存区\" if base.location_of(item) == \"staging\" else \"货箱\"])"
+ },
+ "放进了暂存区（": {
+  "where": "game/game_manager.gd:1797",
+  "line": "set_message(\"%s 放进了暂存区（%d/%d）。\" % [item.item_name, base.staging.size(), BaseCatalog.STAGING_CAPACITY])"
+ },
+ "整理失败：当前摆放已是最紧凑，物品未移动。": {
+  "where": "game/game_manager.gd:1542",
+  "line": "else: notice(\"整理失败：当前摆放已是最紧凑，物品未移动。\")"
+ },
+ "无法读取存档；原文件保留，请检查备份。": {
+  "where": "game/game_manager.gd:2587",
+  "line": "notice(\"无法读取存档；原文件保留，请检查备份。\")"
+ },
+ "暂存区": {
+  "where": "game/game_manager.gd:1805",
+  "line": "set_message(\"%s 放回了%s。\" % [item.item_name, \"暂存区\" if base.location_of(item) == \"staging\" else \"货箱\"])"
+ },
+ "暂存区已满": {
+  "where": "game/game_manager.gd:1104",
+  "line": "if service == \"send\" and not base.staging_has_room(): return \"暂存区已满\""
+ },
+ "暂存区已满（": {
+  "where": "game/game_manager.gd:1794",
+  "line": "set_message(\"暂存区已满（%d/%d）。\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY])"
+ },
+ "本地区可选藏品不足三件：装置休眠。已有藏品跨区段保留。": {
+  "where": "game/game_manager.gd:836",
+  "line": "notice(\"本地区可选藏品不足三件：装置休眠。已有藏品跨区段保留。\")"
+ },
+ "本层发现撤离点。": {
+  "where": "game/game_manager.gd:1053",
+  "line": "broadcast(\"本层发现撤离点。\")"
+ },
+ "机关": {
+  "where": "game/game_manager.gd:766",
+  "line": "set_message(\"机关 %d / %d\" % [_mechanisms_done.size(), world_map.mechanism_nodes.size()])"
+ },
+ "标准急救剂：回复": {
+  "where": "game/game_manager.gd:2090",
+  "line": "set_message(\"标准急救剂：回复 %d 生命\" % roundi(amount))"
+ },
+ "检测到中断合同：按阵亡规则回收出发物品，保险结果不会反复重掷。": {
+  "where": "game/game_manager.gd:2615",
+  "line": "set_message(\"检测到中断合同：按阵亡规则回收出发物品，保险结果不会反复重掷。\")"
+ },
+ "污染": {
+  "where": "game/game_manager.gd:2015",
+  "line": "if base.contamination >= 1.0: parts.append(\"污染 %d %s\" % [roundi(base.contamination), BaseCatalog.CONTAMINATION_TIER_NAMES[base.contamination_tier()]])"
+ },
+ "污染 −": {
+  "where": "game/game_manager.gd:1979",
+  "line": "if base.contamination > 0.0: parts.append(\"污染 −%d%%\" % roundi(minf(BaseCatalog.HP_PENALTY_CAP, base.contamination * BaseCatalog.CONTAMINATION_HP_PER_POINT) * 100))"
+ },
+ "污染升到": {
+  "where": "game/game_manager.gd:2141",
+  "line": "set_message(\"污染升到 %d（%s）\" % [roundi(current_contamination()), BaseCatalog.CONTAMINATION_TIER_NAMES[tier]])"
+ },
+ "污染处理完成：现在": {
+  "where": "game/game_manager.gd:2175",
+  "line": "set_message(\"污染处理完成：现在 %d（%s）。\" % [maxi(target, 0), BaseCatalog.CONTAMINATION_TIER_NAMES[base.contamination_tier()]])"
+ },
+ "没有这件": {
+  "where": "game/game_manager.gd:1339",
+  "line": "if encounter != \"trader\" or slot < 0 or slot >= trader_stock.size(): return \"没有这件\""
+ },
+ "没有需要开箱或归类的物品。": {
+  "where": "game/game_manager.gd:1958",
+  "line": "else: set_message(\"没有需要开箱或归类的物品。\")"
+ },
+ "特殊材料不能寄存": {
+  "where": "game/game_manager.gd:1459",
+  "line": "if not item.exclusive_region.is_empty() or not item.effect.is_empty(): return \"特殊材料不能寄存\""
+ },
+ "生命": {
+  "where": "game/game_manager.gd:2082",
+  "line": "set_message(\"缓释凝胶：%.0f 秒内回复 %d 生命\" % [BaseCatalog.POTION_B_SECONDS, roundi(amount)])"
+ },
+ "生命上限 −": {
+  "where": "game/game_manager.gd:1980",
+  "line": "out.append(\"生命上限 −%d%%（%s，合计上限 −%d%%）\" % [roundi(base.hp_penalty() * 100), \"，\".join(parts), roundi(BaseCatalog.HP_PENALTY_CAP * 100)])"
+ },
+ "生命，污染 −": {
+  "where": "game/game_manager.gd:2087",
+  "line": "set_message(\"抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半\" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])"
+ },
+ "留在身上。": {
+  "where": "game/game_manager.gd:1744",
+  "line": "set_message(\"%s区和暂存区都满了：%s 留在身上。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
+ },
+ "秒内回复": {
+  "where": "game/game_manager.gd:2082",
+  "line": "set_message(\"缓释凝胶：%.0f 秒内回复 %d 生命\" % [BaseCatalog.POTION_B_SECONDS, roundi(amount)])"
+ },
+ "秒内累积减半": {
+  "where": "game/game_manager.gd:2087",
+  "line": "set_message(\"抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半\" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])"
+ },
+ "空间不足，物品留在原处；物品不能旋转。": {
+  "where": "game/game_manager.gd:1686",
+  "line": "notice(\"空间不足，物品留在原处；物品不能旋转。\")"
+ },
+ "精良以上": {
+  "where": "game/game_manager.gd:142",
+  "line": "const PICKUP_FILTER_NAMES := [\"全部\", \"精良以上\", \"仅稀有\"]"
+ },
+ "缓释凝胶：": {
+  "where": "game/game_manager.gd:2082",
+  "line": "set_message(\"缓释凝胶：%.0f 秒内回复 %d 生命\" % [BaseCatalog.POTION_B_SECONDS, roundi(amount)])"
+ },
+ "缺少": {
+  "where": "game/game_manager.gd:1585",
+  "line": "return \"\" if missing.is_empty() else \"缺少 \" + \"、\".join(missing)"
+ },
+ "罗德岛小队": {
+  "where": "game/game_manager.gd:1050",
+  "line": "broadcast(\"附近发现%s。\" % (\"坎诺特\" if encounter == \"trader\" else \"罗德岛小队\"))"
+ },
+ "罗德岛小队：": {
+  "where": "game/game_manager.gd:1116",
+  "line": "set_message(\"罗德岛小队：%s 已投保。\" % item.item_name)"
+ },
+ "背包只装下": {
+  "where": "game/game_manager.gd:1668",
+  "line": "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
+ },
+ "背包已整理。": {
+  "where": "game/game_manager.gd:1541",
+  "line": "if sorted: set_message(\"背包已整理。\")"
+ },
+ "背包扩容到": {
+  "where": "game/game_manager.gd:1634",
+  "line": "set_message(\"背包扩容到 %d×%d。\" % [inventory.width, inventory.height])"
+ },
+ "背包放不下": {
+  "where": "game/game_manager.gd:1344",
+  "line": "if entry.kind == \"item\" and not inventory.can_fit(entry.item): return \"背包放不下\""
+ },
+ "背包空间不足，": {
+  "where": "game/game_manager.gd:936",
+  "line": "if left > 0: notice(\"背包空间不足，%d 件物品留在容器里。\" % left)"
+ },
+ "背包空间不足：": {
+  "where": "game/game_manager.gd:1670",
+  "line": "notice(\"背包空间不足：%s ×%d 仍留在地上。\" % [item.item_name, left])"
+ },
+ "背包空间不足：药剂要占一格。": {
+  "where": "game/game_manager.gd:1444",
+  "line": "notice(\"背包空间不足：药剂要占一格。\")"
+ },
+ "芯片助剂": {
+  "where": "game/game_manager.gd:341",
+  "line": "\"近卫双芯片\": {\"materials\": {\"近卫芯片组\": 2, \"芯片助剂\": 1}},"
+ },
+ "获得藏品": {
+  "where": "game/game_manager.gd:881",
+  "line": "set_message(\"获得藏品 %s — %s\" % [offer.name, offer.effect])"
+ },
+ "获得赤金 ×": {
+  "where": "game/game_manager.gd:2528",
+  "line": "set_message(\"获得赤金 ×%d\" % given)"
+ },
+ "营地": {
+  "where": "game/game_manager.gd:1419",
+  "line": "return \"营地 %d|%d\" % [depth, depth + 1]"
+ },
+ "营地升级完成：在营地停留不再累积污染。": {
+  "where": "game/game_manager.gd:1498",
+  "line": "set_message(\"营地升级完成：在营地停留不再累积污染。\")"
+ },
+ "装备需求未达标：": {
+  "where": "game/game_manager.gd:1696",
+  "line": "notice(\"装备需求未达标：%s。\" % refusal)"
+ },
+ "订单完成：": {
+  "where": "game/game_manager.gd:1883",
+  "line": "set_message(\"订单完成：%s  ·  龙门币 +%s  ·  声望 +%d\" % [text, Economy.format(result.gold), result.prestige])"
+ },
+ "订单已刷新。": {
+  "where": "game/game_manager.gd:1902",
+  "line": "set_message(\"订单已刷新。\")"
+ },
+ "赤金不足": {
+  "where": "game/game_manager.gd:1105",
+  "line": "if gold_bars() < squad_price(item): return \"赤金不足\""
+ },
+ "走到发光的站点旁按 E：调度台接单、后勤柜台投保、仓管台、收货区货箱、整备台、医疗前台。": {
+  "where": "game/game_manager.gd:508",
+  "line": "else: set_message(\"走到发光的站点旁按 E：调度台接单、后勤柜台投保、仓管台、收货区货箱、整备台、医疗前台。\")"
+ },
+ "近卫双芯片": {
+  "where": "game/game_manager.gd:341",
+  "line": "\"近卫双芯片\": {\"materials\": {\"近卫芯片组\": 2, \"芯片助剂\": 1}},"
+ },
+ "近卫芯片组": {
+  "where": "game/game_manager.gd:341",
+  "line": "\"近卫双芯片\": {\"materials\": {\"近卫芯片组\": 2, \"芯片助剂\": 1}},"
+ },
+ "还差": {
+  "where": "game/game_manager.gd:1884",
+  "line": "else: set_message(\"已交付 %s ×%d：%s 还差 %d\" % [item.item_name, int(result.used), text, base.orders.remaining(slot)])"
+ },
+ "进入": {
+  "where": "game/game_manager.gd:820",
+  "line": "broadcast(\"进入 %s · %s。\" % [AK.floor_code(region_id, floor_number), FieldCatalog.ROUTES[route].name])"
+ },
+ "进入第": {
+  "where": "game/game_manager.gd:819",
+  "line": "set_message(\"进入第 %d 层 · %s；上一层已无法返回。\" % [floor_number, FieldCatalog.ROUTES[route].name])"
+ },
+ "送回": {
+  "where": "game/game_manager.gd:1533",
+  "line": "elif outcome.begins_with(\"送回\"): summary.insured += item.value"
+ },
+ "送回（投保）": {
+  "where": "game/game_manager.gd:1520",
+  "line": "if item.insured: return \"送回（投保）\""
+ },
+ "遇到": {
+  "where": "game/game_manager.gd:1283",
+  "line": "set_message(\"遇到%s：赤金 +%d\" % [\"坎诺特\" if encounter == \"trader\" else \"罗德岛小队\", bonus])"
+ },
+ "遗失": {
+  "where": "game/game_manager.gd:1177",
+  "line": "var reason := \"遗失\""
+ },
+ "重伤": {
+  "where": "game/game_manager.gd:2016",
+  "line": "if base.injured: parts.append(\"重伤\")"
+ },
+ "重伤 −": {
+  "where": "game/game_manager.gd:1978",
+  "line": "if base.injured: parts.append(\"重伤 −%d%%\" % roundi(BaseCatalog.INJURY_HP_PENALTY * 100))"
+ },
+ "重伤已治愈。": {
+  "where": "game/game_manager.gd:2164",
+  "line": "set_message(\"重伤已治愈。\")"
+ },
+ "附近发现": {
+  "where": "game/game_manager.gd:1050",
+  "line": "broadcast(\"附近发现%s。\" % (\"坎诺特\" if encounter == \"trader\" else \"罗德岛小队\"))"
+ },
+ "龙门币": {
+  "where": "game/game_manager.gd:2013",
+  "line": "var parts: Array[String] = [\"龙门币 %s\" % Economy.format(gold)]"
+ },
+ "龙门币。": {
+  "where": "game/game_manager.gd:1257",
+  "line": "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
+ },
+ "（不影响出发）": {
+  "where": "game/game_manager.gd:1988",
+  "line": "out.append(\"，\".join(parts) + \"（不影响出发）\")"
+ },
+ "，": {
+  "where": "game/game_manager.gd:1980",
+  "line": "out.append(\"生命上限 −%d%%（%s，合计上限 −%d%%）\" % [roundi(base.hp_penalty() * 100), \"，\".join(parts), roundi(BaseCatalog.HP_PENALTY_CAP * 100)])"
+ },
+ "，剩余": {
+  "where": "game/game_manager.gd:1668",
+  "line": "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
+ },
+ "，合计上限 −": {
+  "where": "game/game_manager.gd:1980",
+  "line": "out.append(\"生命上限 −%d%%（%s，合计上限 −%d%%）\" % [roundi(base.hp_penalty() * 100), \"，\".join(parts), roundi(BaseCatalog.HP_PENALTY_CAP * 100)])"
+ },
+ "，赤金 +": {
+  "where": "game/game_manager.gd:1378",
+  "line": "set_message(\"卖给坎诺特：%s，赤金 +%d\" % [item.display_name(), pay])"
+ },
+ "：去": {
+  "where": "game/game_manager.gd:1775",
+  "line": "set_message(\"拿起 %s：去%s区上架。\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[item.category]])"
+ },
+ "：赤金 +": {
+  "where": "game/game_manager.gd:1283",
+  "line": "set_message(\"遇到%s：赤金 +%d\" % [\"坎诺特\" if encounter == \"trader\" else \"罗德岛小队\", bonus])"
+ },
+ "：走到": {
+  "where": "game/game_manager.gd:507",
+  "line": "if base.hand: set_message(\"手上拿着 %s：走到%s区的地面框里按 E 上架，或放进暂存区。\" % [base.hand.item_name, BaseCatalog.CATEGORY_NAMES[base.hand.category]])"
+ },
+ "：送到基地暂存区。": {
+  "where": "game/game_manager.gd:1474",
+  "line": "set_message(\"已寄存 %s：送到基地暂存区。\" % item.display_name())"
+ },
+ "：龙门币 +": {
+  "where": "game/game_manager.gd:1483",
+  "line": "set_message(\"卖出赤金 ×%d：龙门币 +%s\" % [bars, Economy.format(bars * Economy.GOLD_BAR_LMD)])"
+ },
+ "；上一层已无法返回。": {
+  "where": "game/game_manager.gd:819",
+  "line": "set_message(\"进入第 %d 层 · %s；上一层已无法返回。\" % [floor_number, FieldCatalog.ROUTES[route].name])"
+ }
+}

@@ -9,7 +9,8 @@ extends SceneTree
 ## device, destination and cache the player can see is walkable to from the
 ## entry.
 
-const SEEDS := 60
+## Daily runs sweep fewer floors; DOWNFALL_FULL=1 (run_all.ps1 -Full) the lot.
+var SEEDS := 60 if OS.get_environment("DOWNFALL_FULL") == "1" else 15
 ## Small allowance for linear contour interpolation on the 1.5-unit mesh.
 const SPINE_INFLATE := 0.15
 
@@ -57,28 +58,38 @@ func run() -> void:
 			game.world_map.encounter_position,
 			game.world_map.exit_node.position,
 		]
+		var kinds := ["buff", "encounter", "exit"]
 		for node in game.world_map.route_nodes:
 			targets.append(node.position)
+			kinds.append("route")
 		for target in game.world_map.cache_positions:
 			targets.append(target)
+			kinds.append("cache")
 		# The vault and every mechanism too: a seed that walls off one mechanism
 		# makes the vault permanently unopenable, and one that walls off the
 		# vault wastes the whole errand. Neither crashes, so only this catches it.
 		targets.append(game.world_map.vault_position)
+		kinds.append("vault")
 		for target in game.world_map.mechanism_positions:
 			targets.append(target)
+			kinds.append("mechanism")
 		for target in game.world_map.enemy_spawn_points:
 			targets.append(target)
+			kinds.append("spawn point")
 		for enemy in get_nodes_in_group("enemies"):
 			targets.append(enemy.home_position)
+			kinds.append("enemy home (%s%s)" % [enemy.enemy_type, ", boss" if enemy.boss else ""])
 		for post in get_nodes_in_group("guard_posts"):
-			if post.guards.size() != 2: missing_guards += 1
-		for target in targets:
+			if post.guards.size() != 2:
+				missing_guards += 1
+				print("  seed %d post '%s' at %s has %d guards" % [map_seed, post.title, post.position, post.guards.size()])
+		for t in range(targets.size()):
+			var target: Vector3 = targets[t]
 			var path := NavigationServer3D.map_get_path(map_rid, ContinuousWorldMap.ENTRY_POSITION, target, true)
 			if path.size() <= 1 or path[path.size() - 1].distance_to(target) >= 2.0:
 				unreachable += 1
 				worst_seed = map_seed
-				print("  seed %d stranded %s" % [map_seed, target])
+				print("  seed %d stranded %s: %s" % [map_seed, kinds[t], target])
 		pillars += game.world_map._closed_circles.size()
 		caches += game.world_map.cache_positions.size()
 		chambers += game.world_map._open_circles.size()

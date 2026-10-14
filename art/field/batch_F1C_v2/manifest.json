@@ -1,0 +1,65 @@
+[
+  {
+    "id": "npc_squad_idle",
+    "file": "npc_squad_idle.png",
+    "size": [
+      512,
+      64
+    ],
+    "frame_size": [
+      128,
+      64
+    ],
+    "frames": 4,
+    "anchor_px": [
+      64,
+      61
+    ],
+    "fps": 3,
+    "preview": "npc_squad_idle_frame0_8x.png",
+    "gif": "npc_squad_idle.gif",
+    "source": "Native pixels in build_npc_idle.py"
+  },
+  {
+    "id": "npc_cannot_idle",
+    "file": "npc_cannot_idle.png",
+    "size": [
+      256,
+      64
+    ],
+    "frame_size": [
+      64,
+      64
+    ],
+    "frames": 4,
+    "anchor_px": [
+      32,
+      61
+    ],
+    "fps": 3,
+    "preview": "npc_cannot_idle_frame0_8x.png",
+    "gif": "npc_cannot_idle.gif",
+    "source": "Native pixels in build_npc_idle.py"
+  },
+  {
+    "id": "npc_closure_idle",
+    "file": "npc_closure_idle.png",
+    "size": [
+      256,
+      64
+    ],
+    "frame_size": [
+      64,
+      64
+    ],
+    "frames": 4,
+    "anchor_px": [
+      32,
+      61
+    ],
+    "fps": 3,
+    "preview": "npc_closure_idle_frame0_8x.png",
+    "gif": "npc_closure_idle.gif",
+    "source": "Native pixels in build_npc_idle.py"
+  }
+]

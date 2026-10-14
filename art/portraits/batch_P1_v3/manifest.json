@@ -1,0 +1,119 @@
+[
+  {
+    "id": "portrait_squad",
+    "file": "portrait_squad.png",
+    "size": [
+      105,
+      150
+    ],
+    "display_scale": 4,
+    "preview": "portrait_squad_4x.png",
+    "panel_composite": "portrait_squad_panel.png",
+    "style_composite": "portrait_squad_vs_amiya.png",
+    "source_painting": "source_paintings/portrait_squad_chibi.png",
+    "model_note": "Three distinct PRTS reserve operators; sniper orange goggles pinned at native scale.",
+    "metrics": {
+      "source_size": [
+        1049,
+        1499
+      ],
+      "source_crop": [
+        29,
+        111,
+        1028,
+        1437
+      ],
+      "source_sha256": "4f21c133cd7476d5d6e5852fecbe672d20e6711cd52930d41e978258a8a8f830",
+      "visible_bbox_px": [
+        2,
+        17,
+        103,
+        150
+      ],
+      "top_clear_px": 17,
+      "colors": 43,
+      "alpha_values": [
+        0,
+        255
+      ]
+    }
+  },
+  {
+    "id": "portrait_cannot",
+    "file": "portrait_cannot.png",
+    "size": [
+      85,
+      150
+    ],
+    "display_scale": 4,
+    "preview": "portrait_cannot_4x.png",
+    "panel_composite": "portrait_cannot_panel.png",
+    "style_composite": "portrait_cannot_vs_amiya.png",
+    "source_painting": "source_paintings/portrait_cannot_chibi.png",
+    "model_note": null,
+    "metrics": {
+      "source_size": [
+        1024,
+        1536
+      ],
+      "source_crop": [
+        104,
+        83,
+        939,
+        1482
+      ],
+      "source_sha256": "f6f4011c042b50e997cec288d99d733a21f813b0c0aba1e799314a7639ab1fb3",
+      "visible_bbox_px": [
+        2,
+        17,
+        83,
+        150
+      ],
+      "top_clear_px": 17,
+      "colors": 42,
+      "alpha_values": [
+        0,
+        255
+      ]
+    }
+  },
+  {
+    "id": "portrait_closure",
+    "file": "portrait_closure.png",
+    "size": [
+      85,
+      150
+    ],
+    "display_scale": 4,
+    "preview": "portrait_closure_4x.png",
+    "panel_composite": "portrait_closure_panel.png",
+    "style_composite": "portrait_closure_vs_amiya.png",
+    "source_painting": "source_paintings/portrait_closure_chibi.png",
+    "model_note": "Sleeveless white inner top per latest user direction; supersedes the v3 long-sleeve note.",
+    "metrics": {
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_crop": [
+        170,
+        82,
+        1145,
+        1196
+      ],
+      "source_sha256": "2a35934959e5afb818255572ac8693d90a3f5982311be2560bb729102cd886c3",
+      "visible_bbox_px": [
+        2,
+        37,
+        83,
+        141
+      ],
+      "top_clear_px": 37,
+      "colors": 42,
+      "alpha_values": [
+        0,
+        255
+      ]
+    }
+  }
+]

@@ -203,28 +203,66 @@ func run() -> void:
 	game.add_child(box)
 	box.global_position = game.player.global_position + Vector3(1.0, 0, 0)
 	await step(1)
+	# E opens it at once beside the pack (用户 2026-10-13: 打开容器不需要读条).
 	game._interact()
-	check("E next to a box starts opening it", box.is_channeling())
-	game.player.global_position += Vector3(6, 0, 0)
+	check("E next to a box opens it at once, with the pack and its grid", box.opened and game.looting == box and game.modal == "inventory" and game._inventory_panel.visible)
+	# The field runs on (用户 2026-10-13: 开容器时改为不是暂停的); she stands at the box.
+	var stood := game.player.global_position
+	game.player.set_move_target(stood + Vector3(4, 0, 0))
+	await step(20)
+	check("the field runs on while she searches, and she stays at the box", game.simulation_active() and game.hands_busy() and Vector2(game.player.global_position.x - stood.x, game.player.global_position.z - stood.z).length() < 0.2)
+	game.notice("测试提示")
 	await step(2)
-	check("walking away interrupts", not box.is_channeling() and not box.opened)
-	game.player.global_position = box.global_position + Vector3(-1.0, 0, 0)
-	game._interact()
-	game.player.stamina = 100
-	game.player._dash_cooldown = 0
-	game.player._start_dash(Vector3.BACK)
-	check("a dodge interrupts the opening", not box.is_channeling() and not box.opened)
-	game.player.reset_combat_state()
-	game.player.global_position = box.global_position + Vector3(-1.0, 0, 0)
-	game._interact()
-	for i in range(80):
+	check("a notice shows over the open pack", game._inventory_panel._notice.visible and game._inventory_panel._notice.text == "测试提示")
+	# Then each item is searched in turn (塔科夫's search) into the box's grid.
+	var on_ground := func() -> int: return game.get_tree().get_nodes_in_group("loot").filter(func(l): return l.game == game and l.item != null).size()
+	var state := box.search_state()
+	check("the contents are searched one item at a time (%d to find)" % int(state.get("total", 0)), not state.is_empty() and int(state.found) == 0 and box.storage.items.is_empty() and box.is_searching())
+	for i in range(900):
 		await step(1)
-		if box.opened: break
-	check("standing still opens it after the channel", box.opened)
-	var spilled := game.get_tree().get_nodes_in_group("loot").filter(func(l): return l.game == game and l.item != null)
-	check("its weapons spill on the ground", spilled.size() > 0 and spilled.any(func(l): return l.item.category == Item.Category.WEAPON))
+		if not box.storage.items.is_empty(): break
+	check("the first item lands in the box's grid when its bar fills, not on the ground", box.storage.items.size() == 1 and on_ground.call() == 0)
+	for i in range(3000):
+		await step(1)
+		if box.fully_searched(): break
+	check("searched to the end, its weapons wait in the box", box.fully_searched() and box.storage.items.any(func(it): return it.category == Item.Category.WEAPON))
+	var in_box := box.storage.items.size()
+	game.take_all(box)
+	check("taking all moves them into the pack", box.storage.items.size() < in_box and box.looted() == box.storage.items.is_empty())
+	game.close_modal()
+	check("closing the window ends the looting", game.looting == null and game.modal.is_empty())
+	box.storage.items.clear()
+	box._refresh()
 	game._interact()
-	check("an opened box does not open again", not box.is_channeling())
+	check("an emptied box does not open again", game.looting == null and game.modal.is_empty())
+	# Closing the window pauses the search: a construction heap holds several items.
+	var heap := LootContainer.new()
+	heap.game = game
+	heap.kind = "construction"
+	game.add_child(heap)
+	heap.global_position = game.player.global_position + Vector3(0, 0, 1.0)
+	await step(1)
+	game._interact()
+	for i in range(1500):
+		await step(1)
+		if int(heap.search_state().get("found", 0)) >= 1: break
+	game.close_modal()
+	await step(30)
+	var found_before: int = heap.search_state().get("found", 0)
+	check("closing the window pauses the search and keeps what was found (%d of %d)" % [found_before, int(heap.search_state().get("total", 0))], not heap.is_searching() and found_before >= 1 and not heap.fully_searched() and heap.storage.items.size() >= 1)
+	game._interact()
+	check("E takes the search up at the next item", heap.is_searching() and int(heap.search_state().found) == found_before and game.looting == heap)
+	game.player.invulnerable = false
+	game.player.take_damage(30.0)
+	await step(2)
+	check("a hit shuts the box's window so she can answer it", game.looting == null and game.modal.is_empty() and not heap.is_searching())
+	# Near a box it can still use, she sees its yellow rim; walking off clears it.
+	game.player.global_position = heap.global_position + Vector3(-1.5, 0, 0)
+	await step(2)
+	var rim_near: bool = heap._rim_on
+	game.player.global_position = heap.global_position + Vector3(-9.0, 0, 0)
+	await step(2)
+	check("a box she can use wears a yellow rim while she is near it", rim_near and not heap._rim_on)
 
 	# Enemy deaths use the enemy's table.
 	game._clear_field()

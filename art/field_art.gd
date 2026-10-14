@@ -127,6 +127,43 @@ static func _make_prop(parent: Node3D, texture: Texture2D, position: Vector3, he
 	sprite.add_to_group("field_props")
 	return sprite
 
+## NPC idles from art/characters/npc/prepare_npc.py: 4 frames side by side,
+## feet 2 px above the frame bottom, 3 fps.
+const NPC_IDLES := {
+	"melee": "res://art/characters/npc/npc_squad_melee_idle.png",
+	"sniper": "res://art/characters/npc/npc_squad_sniper_idle.png",
+	"logistics": "res://art/characters/npc/npc_squad_logistics_idle.png",
+	"trader": "res://art/characters/npc/npc_cannot_idle.png",
+	"closure": "res://art/characters/npc/npc_closure_idle.png",
+}
+const NPC_FRAMES := 4
+const NPC_FEET_PX := 2
+
+## An NPC's idle billboard at the game's sprite scale (1/15 unit a texel),
+## playing. Its origin is under the feet.
+static func npc_idle(kind: String) -> AnimatedSprite3D:
+	var sheet: Texture2D = load(NPC_IDLES[kind])
+	var w := sheet.get_width() / NPC_FRAMES
+	var frames := SpriteFrames.new()
+	frames.set_animation_speed("default", 3.0)
+	frames.set_animation_loop("default", true)
+	for i in range(NPC_FRAMES):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = sheet
+		atlas.region = Rect2(i * w, 0, w, sheet.get_height())
+		frames.add_frame("default", atlas)
+	var sprite := AnimatedSprite3D.new()
+	sprite.name = "Npc"
+	sprite.sprite_frames = frames
+	sprite.pixel_size = 1.0 / 15.0
+	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+	sprite.shaded = false
+	sprite.offset.y = sheet.get_height() * 0.5 - NPC_FEET_PX
+	sprite.play("default")
+	return sprite
+
 static func background_material(region: String) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = BACKGROUND_SHADER
@@ -145,6 +182,7 @@ uniform float world_scale = 12.0;
 uniform float region = 0.0;
 varying vec3 world_position;
 #include "res://art/terrain_sampling.gdshaderinc"
+#include "res://world/field_light.gdshaderinc"
 void vertex() { world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
 void fragment() {
  vec2 tile = fract(world_position.xz / 5.0);
@@ -158,6 +196,7 @@ void fragment() {
  ALBEDO = mix(debris * 0.70, mix(road, debris * 0.85, 0.32), COLOR.a);
  // Terrace light from TerrainSurface: tier, cliff-foot shadow, cliff lip.
  ALBEDO *= UV2.x;
+ ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
  ROUGHNESS = 1.0;
 }
 """

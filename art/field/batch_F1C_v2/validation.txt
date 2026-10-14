@@ -1,0 +1,5 @@
+F1-C v2 native-pixel static validation
+PASS npc_squad_idle: 512x64, four frames, 14 colours, binary alpha, feet with 2px clear below.
+PASS npc_cannot_idle: 256x64, four frames, 12 colours, binary alpha, feet with 2px clear below.
+PASS npc_closure_idle: 256x64, four frames, 12 colours, binary alpha, feet with 2px clear below.
+Reviewed at native 1x beside Lappland; Godot import and animation playback not tested.

@@ -1,0 +1,622 @@
+{
+ "三套甲拆成一套，扣子都对不上。": {
+  "where": "game/gear_catalog.gd:137",
+  "line": "\"icon\": \"mine_x09\", \"text\": \"三套甲拆成一套，扣子都对不上。\"},"
+ },
+ "不开刃，打在身上也不留口子。": {
+  "where": "game/gear_catalog.gd:173",
+  "line": "\"icon\": \"city_x05\", \"text\": \"不开刃，打在身上也不留口子。\"},"
+ },
+ "两把刀，一套拳理。": {
+  "where": "game/gear_catalog.gd:171",
+  "line": "\"icon\": \"city_x04\", \"text\": \"两把刀，一套拳理。\"},"
+ },
+ "从一架掉下来的无人机里拆的。": {
+  "where": "game/gear_catalog.gd:163",
+  "line": "\"icon\": \"mine_x22\", \"text\": \"从一架掉下来的无人机里拆的。\"},"
+ },
+ "伪装吉利服": {
+  "where": "game/gear_catalog.gd:142",
+  "line": "\"mine_x12\": {\"name\": \"伪装吉利服\", \"region\": \"mine\", \"category\": A, \"tier\": 1, \"factor\": 1.00, \"implicit\": [[S.CRIT_RATE, 0.03]],"
+ },
+ "先敲开冰，再敲开别的。": {
+  "where": "game/gear_catalog.gd:94",
+  "line": "\"form\": \"blade\", \"enemies\": [\"ice_warrior\"], \"icon\": \"icebreaker_knife\", \"text\": \"先敲开冰，再敲开别的。\"},"
+ },
+ "六面都是好点数的那一颗，找不到了。": {
+  "where": "game/gear_catalog.gd:197",
+  "line": "\"icon\": \"city_x17\", \"text\": \"六面都是好点数的那一颗，找不到了。\"},"
+ },
+ "兽颚指虎": {
+  "where": "game/gear_catalog.gd:210",
+  "line": "\"snow_x03\": {\"name\": \"兽颚指虎\", \"region\": \"snow\", \"category\": W, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]], \"form\": \"fist\","
+ },
+ "兽骨鼓槌": {
+  "where": "game/gear_catalog.gd:115",
+  "line": "\"snow_drumstick\": {\"name\": \"兽骨鼓槌\", \"region\": \"snow\", \"category\": T, \"tier\": 1, \"factor\": 1.00, \"implicit\": [[S.CRIT_DMG, 0.10]],"
+ },
+ "军用止血带": {
+  "where": "game/gear_catalog.gd:150",
+  "line": "\"mine_x16\": {\"name\": \"军用止血带\", \"region\": \"mine\", \"category\": T, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.MAX_HP_PCT, 0.04]],"
+ },
+ "冻住的东西，一刀就开。": {
+  "where": "game/gear_catalog.gd:213",
+  "line": "\"icon\": \"snow_x04\", \"text\": \"冻住的东西，一刀就开。\"},"
+ },
+ "出拳够快的人，刀只需要很短。": {
+  "where": "game/gear_catalog.gd:67",
+  "line": "\"form\": \"fist\", \"enemies\": [\"brawler\"], \"icon\": \"finger_blade\", \"text\": \"出拳够快的人，刀只需要很短。\"},"
+ },
+ "凿冰长刀": {
+  "where": "game/gear_catalog.gd:212",
+  "line": "\"snow_x04\": {\"name\": \"凿冰长刀\", \"region\": \"snow\", \"category\": W, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.CRIT_DMG, 0.1]], \"form\": \"blade\","
+ },
+ "刀柄上有编号，登记在册。": {
+  "where": "game/gear_catalog.gd:71",
+  "line": "\"form\": \"blade\", \"icon\": \"lgd_knife\", \"text\": \"刀柄上有编号，登记在册。\"},"
+ },
+ "刀柄缠的红绳，是哪一家的颜色？": {
+  "where": "game/gear_catalog.gd:69",
+  "line": "\"form\": \"blade\", \"enemies\": [\"thug\"], \"icon\": \"gang_machete\", \"text\": \"刀柄缠的红绳，是哪一家的颜色？\"},"
+ },
+ "刀柄里嵌着一枚拆下来的施术单元，握久了手心发烫。": {
+  "where": "game/gear_catalog.gd:131",
+  "line": "\"icon\": \"mine_x06\", \"text\": \"刀柄里嵌着一枚拆下来的施术单元，握久了手心发烫。\"},"
+ },
+ "刀法比刀老，刀也比城老。": {
+  "where": "game/gear_catalog.gd:75",
+  "line": "\"form\": \"blade\", \"icon\": \"yan_ring_saber\", \"text\": \"刀法比刀老，刀也比城老。\"},"
+ },
+ "刀背上还留着焊缝。": {
+  "where": "game/gear_catalog.gd:40",
+  "line": "\"form\": \"blade\", \"enemies\": [\"thug\"], \"icon\": \"modified_machete\", \"text\": \"刀背上还留着焊缝。\"},"
+ },
+ "刀身太长，只能用双手，也只能用一辈子。": {
+  "where": "game/gear_catalog.gd:177",
+  "line": "\"icon\": \"city_x07\", \"text\": \"刀身太长，只能用双手，也只能用一辈子。\"},"
+ },
+ "刀鞘不见了，刀还记得它是追人用的。": {
+  "where": "game/gear_catalog.gd:46",
+  "line": "\"form\": \"blade\", \"icon\": \"patrol_saber\", \"text\": \"刀鞘不见了，刀还记得它是追人用的。\"},"
+ },
+ "切尔文铜币": {
+  "where": "game/gear_catalog.gd:154",
+  "line": "\"mine_x18\": {\"name\": \"切尔文铜币\", \"region\": \"mine\", \"category\": T, \"tier\": 1, \"factor\": 1.00, \"implicit\": [[S.CRIT_RATE, 0.03]],"
+ },
+ "刻痕被很多只手摸平了。": {
+  "where": "game/gear_catalog.gd:112",
+  "line": "\"icon\": \"bone_amulet\", \"text\": \"刻痕被很多只手摸平了。\"},"
+ },
+ "南边城市造的刀，走到这里已经不像南边的了。": {
+  "where": "game/gear_catalog.gd:100",
+  "line": "\"form\": \"blade\", \"icon\": \"expedition_machete\", \"text\": \"南边城市造的刀，走到这里已经不像南边的了。\"},"
+ },
+ "厚得能挡住冻原的风，挡不住矿石病。": {
+  "where": "game/gear_catalog.gd:54",
+  "line": "\"icon\": \"patrol_winter_coat\", \"text\": \"厚得能挡住冻原的风，挡不住矿石病。\"},"
+ },
+ "吹响以后，往哪边跑都对。": {
+  "where": "game/gear_catalog.gd:193",
+  "line": "\"icon\": \"city_x15\", \"text\": \"吹响以后，往哪边跑都对。\"},"
+ },
+ "吹响时，林子会安静一下。": {
+  "where": "game/gear_catalog.gd:114",
+  "line": "\"icon\": \"antler_flute\", \"text\": \"吹响时，林子会安静一下。\"},"
+ },
+ "商贩说它挡过一刀。": {
+  "where": "game/gear_catalog.gd:241",
+  "line": "\"icon\": \"snow_x18\", \"text\": \"商贩说它挡过一刀。\"},"
+ },
+ "在矿里，它买不到任何东西。": {
+  "where": "game/gear_catalog.gd:155",
+  "line": "\"icon\": \"mine_x18\", \"text\": \"在矿里，它买不到任何东西。\"},"
+ },
+ "型号停产很多年了，刃口没停过。": {
+  "where": "game/gear_catalog.gd:129",
+  "line": "\"icon\": \"mine_x05\", \"text\": \"型号停产很多年了，刃口没停过。\"},"
+ },
+ "埋在冻土下面，刃口依然是冷的。": {
+  "where": "game/gear_catalog.gd:102",
+  "line": "\"form\": \"blade\", \"icon\": \"snowpriest_blade\", \"text\": \"埋在冻土下面，刃口依然是冷的。\"},"
+ },
+ "墙上用红漆写过一个字，后来墙没了。": {
+  "where": "game/gear_catalog.gd:165",
+  "line": "\"icon\": \"city_x01\", \"text\": \"墙上用红漆写过一个字，后来墙没了。\"},"
+ },
+ "复合护具": {
+  "where": "game/gear_catalog.gd:146",
+  "line": "\"mine_x14\": {\"name\": \"复合护具\", \"region\": \"mine\", \"category\": A, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.MAX_HP_PCT, 0.04], [S.MOVE_SPEED_PCT, -0.04]],"
+ },
+ "外面是破布，里面是钢板。": {
+  "where": "game/gear_catalog.gd:187",
+  "line": "\"icon\": \"city_x12\", \"text\": \"外面是破布，里面是钢板。\"},"
+ },
+ "大号管钳": {
+  "where": "game/gear_catalog.gd:122",
+  "line": "\"mine_x02\": {\"name\": \"大号管钳\", \"region\": \"mine\", \"category\": W, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]], \"form\": \"heavy\","
+ },
+ "头戴矿灯": {
+  "where": "game/gear_catalog.gd:148",
+  "line": "\"mine_x15\": {\"name\": \"头戴矿灯\", \"region\": \"mine\", \"category\": T, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.MOVE_SPEED_PCT, 0.04]],"
+ },
+ "它们挤在一起时，比任何皮袄都暖。": {
+  "where": "game/gear_catalog.gd:239",
+  "line": "\"icon\": \"snow_x17\", \"text\": \"它们挤在一起时，比任何皮袄都暖。\"},"
+ },
+ "密文板残片": {
+  "where": "game/gear_catalog.gd:117",
+  "line": "\"snow_cipher\": {\"name\": \"密文板残片\", \"region\": \"snow\", \"category\": T, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.ARTS_PCT, 0.05], [S.CRIT_DMG, 0.10]],"
+ },
+ "屏幕上的你一直在原地。": {
+  "where": "game/gear_catalog.gd:245",
+  "line": "\"icon\": \"snow_x20\", \"text\": \"屏幕上的你一直在原地。\"},"
+ },
+ "屏幕上还有信号，飞机不知道在哪。": {
+  "where": "game/gear_catalog.gd:201",
+  "line": "\"icon\": \"city_x19\", \"text\": \"屏幕上还有信号，飞机不知道在哪。\"},"
+ },
+ "帝国突击矛": {
+  "where": "game/gear_catalog.gd:134",
+  "line": "\"mine_x08\": {\"name\": \"帝国突击矛\", \"region\": \"mine\", \"category\": W, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.CRIT_RATE, 0.03]], \"form\": \"polearm\","
+ },
+ "帮派砍刀": {
+  "where": "game/gear_catalog.gd:68",
+  "line": "\"city_gang_chopper\": {\"name\": \"帮派砍刀\", \"region\": \"city\", \"category\": W, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.CRIT_DMG, 0.10]],"
+ },
+ "当掉的东西没赎回来，牌子倒留下了。": {
+  "where": "game/gear_catalog.gd:203",
+  "line": "\"icon\": \"city_x20\", \"text\": \"当掉的东西没赎回来，牌子倒留下了。\"},"
+ },
+ "战士们把骨头绑在前臂上，省得刀被打落。": {
+  "where": "game/gear_catalog.gd:219",
+  "line": "\"icon\": \"snow_x07\", \"text\": \"战士们把骨头绑在前臂上，省得刀被打落。\"},"
+ },
+ "手持定位仪": {
+  "where": "game/gear_catalog.gd:244",
+  "line": "\"snow_x20\": {\"name\": \"手持定位仪\", \"region\": \"snow\", \"category\": T, \"tier\": 1, \"factor\": 1.00, \"implicit\": [[S.MOVE_SPEED_PCT, 0.04]],"
+ },
+ "扣环上写着上一个人的血型。": {
+  "where": "game/gear_catalog.gd:151",
+  "line": "\"icon\": \"mine_x16\", \"text\": \"扣环上写着上一个人的血型。\"},"
+ },
+ "披上它，矿道里就少了一个人。": {
+  "where": "game/gear_catalog.gd:143",
+  "line": "\"icon\": \"mine_x12\", \"text\": \"披上它，矿道里就少了一个人。\"},"
+ },
+ "披上它，雪地里远远就能认出你是自己人。": {
+  "where": "game/gear_catalog.gd:106",
+  "line": "\"icon\": \"sled_patrol_cloak\", \"text\": \"披上它，雪地里远远就能认出你是自己人。\"},"
+ },
+ "押运短刃": {
+  "where": "game/gear_catalog.gd:72",
+  "line": "\"city_escort_blade\": {\"name\": \"押运短刃\", \"region\": \"city\", \"category\": W, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.MOVE_SPEED_PCT, 0.04]],"
+ },
+ "拆下的施术单元": {
+  "where": "game/gear_catalog.gd:162",
+  "line": "\"mine_x22\": {\"name\": \"拆下的施术单元\", \"region\": \"mine\", \"category\": T, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.RES_FLAT, 4.0]],"
+ },
+ "拆迁大锤": {
+  "where": "game/gear_catalog.gd:164",
+  "line": "\"city_x01\": {\"name\": \"拆迁大锤\", \"region\": \"city\", \"category\": W, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.CRIT_DMG, 0.1]], \"form\": \"heavy\","
+ },
+ "挂在背心上的小东西，谁都有一个。": {
+  "where": "game/gear_catalog.gd:85",
+  "line": "\"icon\": \"tactical_charm\", \"text\": \"挂在背心上的小东西，谁都有一个。\"},"
+ },
+ "指节上的磨痕，比铜还亮。": {
+  "where": "game/gear_catalog.gd:167",
+  "line": "\"icon\": \"city_x02\", \"text\": \"指节上的磨痕，比铜还亮。\"},"
+ },
+ "插板缺了一块，正好是挨过的那一块。": {
+  "where": "game/gear_catalog.gd:81",
+  "line": "\"icon\": \"courier_vest\", \"text\": \"插板缺了一块，正好是挨过的那一块。\"},"
+ },
+ "握久了，会忘记为什么握着它。": {
+  "where": "game/gear_catalog.gd:249",
+  "line": "\"icon\": \"snow_x22\", \"text\": \"握久了，会忘记为什么握着它。\"},"
+ },
+ "握柄上的手印不是现在这只手的。": {
+  "where": "game/gear_catalog.gd:207",
+  "line": "\"icon\": \"snow_x01\", \"text\": \"握柄上的手印不是现在这只手的。\"},"
+ },
+ "搜救队绳索背心": {
+  "where": "game/gear_catalog.gd:228",
+  "line": "\"snow_x12\": {\"name\": \"搜救队绳索背心\", \"region\": \"snow\", \"category\": A, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.MOVE_SPEED_PCT, 0.04]],"
+ },
+ "摇一摇，还剩一口。": {
+  "where": "game/gear_catalog.gd:60",
+  "line": "\"icon\": \"liquor_flask\", \"text\": \"摇一摇，还剩一口。\"},"
+ },
+ "摸上去是温的，最好别摸。": {
+  "where": "game/gear_catalog.gd:161",
+  "line": "\"icon\": \"mine_x21\", \"text\": \"摸上去是温的，最好别摸。\"},"
+ },
+ "改装喷射背架": {
+  "where": "game/gear_catalog.gd:138",
+  "line": "\"mine_x10\": {\"name\": \"改装喷射背架\", \"region\": \"mine\", \"category\": A, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]],"
+ },
+ "攻坚破门锤": {
+  "where": "game/gear_catalog.gd:132",
+  "line": "\"mine_x07\": {\"name\": \"攻坚破门锤\", \"region\": \"mine\", \"category\": W, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.CRIT_DMG, 0.1], [S.MOVE_SPEED_PCT, -0.04]], \"form\": \"heavy\","
+ },
+ "敲鼓的人不在了，鼓槌还记得节拍。": {
+  "where": "game/gear_catalog.gd:116",
+  "line": "\"icon\": \"bone_drumstick\", \"text\": \"敲鼓的人不在了，鼓槌还记得节拍。\"},"
+ },
+ "整合运动制式外套": {
+  "where": "game/gear_catalog.gd:51",
+  "line": "\"mine_reunion_coat\": {\"name\": \"整合运动制式外套\", \"region\": \"mine\", \"category\": A, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.MOVE_SPEED_PCT, 0.04]],"
+ },
+ "整合运动术师兜袍": {
+  "where": "game/gear_catalog.gd:140",
+  "line": "\"mine_x11\": {\"name\": \"整合运动术师兜袍\", \"region\": \"mine\", \"category\": A, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.ARTS_PCT, 0.05]],"
+ },
+ "斧刃上的漆是南边的颜色。": {
+  "where": "game/gear_catalog.gd:209",
+  "line": "\"icon\": \"snow_x02\", \"text\": \"斧刃上的漆是南边的颜色。\"},"
+ },
+ "施术短刃": {
+  "where": "game/gear_catalog.gd:130",
+  "line": "\"mine_x06\": {\"name\": \"施术短刃\", \"region\": \"mine\", \"category\": W, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.ARTS_PCT, 0.05]], \"form\": \"blade\", \"enemies\": [\"caster\"],"
+ },
+ "族树木片": {
+  "where": "game/gear_catalog.gd:236",
+  "line": "\"snow_x16\": {\"name\": \"族树木片\", \"region\": \"snow\", \"category\": T, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.MAX_HP_PCT, 0.04]],"
+ },
+ "有人用技艺烧出来的，冷了以后还在发光。": {
+  "where": "game/gear_catalog.gd:205",
+  "line": "\"icon\": \"city_x21\", \"text\": \"有人用技艺烧出来的，冷了以后还在发光。\"},"
+ },
+ "本来是拧热泵阀门的。": {
+  "where": "game/gear_catalog.gd:123",
+  "line": "\"icon\": \"mine_x02\", \"text\": \"本来是拧热泵阀门的。\"},"
+ },
+ "本来是用来挂住自己的。": {
+  "where": "game/gear_catalog.gd:215",
+  "line": "\"icon\": \"snow_x05\", \"text\": \"本来是用来挂住自己的。\"},"
+ },
+ "林业护具": {
+  "where": "game/gear_catalog.gd:226",
+  "line": "\"snow_x11\": {\"name\": \"林业护具\", \"region\": \"snow\", \"category\": A, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.DEF_FLAT, 20.0]],"
+ },
+ "林子里长出来的东西，林子里的病碰不到它。": {
+  "where": "game/gear_catalog.gd:225",
+  "line": "\"icon\": \"snow_x10\", \"text\": \"林子里长出来的东西，林子里的病碰不到它。\"},"
+ },
+ "林线猎矛": {
+  "where": "game/gear_catalog.gd:220",
+  "line": "\"snow_x08\": {\"name\": \"林线猎矛\", \"region\": \"snow\", \"category\": W, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.CRIT_RATE, 0.03]], \"form\": \"polearm\","
+ },
+ "柄是木头，刃是旧的，路是自己走的。": {
+  "where": "game/gear_catalog.gd:179",
+  "line": "\"icon\": \"city_x08\", \"text\": \"柄是木头，刃是旧的，路是自己走的。\"},"
+ },
+ "标签上写的温度，这里早就低过了。": {
+  "where": "game/gear_catalog.gd:108",
+  "line": "\"icon\": \"expedition_parka\", \"text\": \"标签上写的温度，这里早就低过了。\"},"
+ },
+ "树倒了以后，部族的人每人分了一片。": {
+  "where": "game/gear_catalog.gd:237",
+  "line": "\"icon\": \"snow_x16\", \"text\": \"树倒了以后，部族的人每人分了一片。\"},"
+ },
+ "每一根羽毛都在等一场雪。": {
+  "where": "game/gear_catalog.gd:235",
+  "line": "\"icon\": \"snow_x15\", \"text\": \"每一根羽毛都在等一场雪。\"},"
+ },
+ "每一片骨头，都来自一只认得这片林子的兽。": {
+  "where": "game/gear_catalog.gd:110",
+  "line": "\"icon\": \"bone_lamellar\", \"text\": \"每一片骨头，都来自一只认得这片林子的兽。\"},"
+ },
+ "每一颗都有过一个名字。": {
+  "where": "game/gear_catalog.gd:251",
+  "line": "\"icon\": \"snow_x23\", \"text\": \"每一颗都有过一个名字。\"},"
+ },
+ "毛朝里穿，雪就进不来。": {
+  "where": "game/gear_catalog.gd:104",
+  "line": "\"icon\": \"tundra_fur_coat\", \"text\": \"毛朝里穿，雪就进不来。\"},"
+ },
+ "求平安的人，未必平安，但符留下来了。": {
+  "where": "game/gear_catalog.gd:91",
+  "line": "\"icon\": \"yan_talisman\", \"text\": \"求平安的人，未必平安，但符留下来了。\"},"
+ },
+ "洗不掉的部分，就当是颜色。": {
+  "where": "game/gear_catalog.gd:185",
+  "line": "\"icon\": \"city_x11\", \"text\": \"洗不掉的部分，就当是颜色。\"},"
+ },
+ "游击队臂章": {
+  "where": "game/gear_catalog.gd:158",
+  "line": "\"mine_x20\": {\"name\": \"游击队臂章\", \"region\": \"mine\", \"category\": T, \"tier\": 1, \"factor\": 1.00, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]],"
+ },
+ "源石感应计": {
+  "where": "game/gear_catalog.gd:63",
+  "line": "\"mine_meter\": {\"name\": \"源石感应计\", \"region\": \"mine\", \"category\": T, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.ARTS_PCT, 0.05]],"
+ },
+ "滤芯是黑的，说明它一直在工作。": {
+  "where": "game/gear_catalog.gd:58",
+  "line": "\"icon\": \"dust_mask\", \"text\": \"滤芯是黑的，说明它一直在工作。\"},"
+ },
+ "炎式平安符": {
+  "where": "game/gear_catalog.gd:90",
+  "line": "\"city_talisman\": {\"name\": \"炎式平安符\", \"region\": \"city\", \"category\": T, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.ARTS_PCT, 0.05], [S.RES_FLAT, 4.0]],"
+ },
+ "点烟用的，也点别的。": {
+  "where": "game/gear_catalog.gd:195",
+  "line": "\"icon\": \"city_x16\", \"text\": \"点烟用的，也点别的。\"},"
+ },
+ "燃料早就烧完了，背带还结实。": {
+  "where": "game/gear_catalog.gd:139",
+  "line": "\"icon\": \"mine_x10\", \"text\": \"燃料早就烧完了，背带还结实。\"},"
+ },
+ "牙还在，咬合的力气也还在。": {
+  "where": "game/gear_catalog.gd:211",
+  "line": "\"icon\": \"snow_x03\", \"text\": \"牙还在，咬合的力气也还在。\"},"
+ },
+ "猎刀": {
+  "where": "game/gear_catalog.gd:95",
+  "line": "\"snow_skinner\": {\"name\": \"猎刀\", \"region\": \"snow\", \"category\": W, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.CRIT_RATE, 0.03]],"
+ },
+ "猎首獠牙串": {
+  "where": "game/gear_catalog.gd:250",
+  "line": "\"snow_x23\": {\"name\": \"猎首獠牙串\", \"region\": \"snow\", \"category\": T, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.ATK_PCT, 0.04], [S.CRIT_DMG, 0.1]],"
+ },
+ "电池还剩一格。": {
+  "where": "game/gear_catalog.gd:149",
+  "line": "\"icon\": \"mine_x15\", \"text\": \"电池还剩一格。\"},"
+ },
+ "皮要剥得完整，这是猎人对猎物的礼数。": {
+  "where": "game/gear_catalog.gd:96",
+  "line": "\"form\": \"blade\", \"enemies\": [\"ice_hunter\"], \"icon\": \"skinning_knife\", \"text\": \"皮要剥得完整，这是猎人对猎物的礼数。\"},"
+ },
+ "看得少，看得准。": {
+  "where": "game/gear_catalog.gd:243",
+  "line": "\"icon\": \"snow_x19\", \"text\": \"看得少，看得准。\"},"
+ },
+ "矛杆上的编号是一个营。": {
+  "where": "game/gear_catalog.gd:135",
+  "line": "\"icon\": \"mine_x08\", \"text\": \"矛杆上的编号是一个营。\"},"
+ },
+ "矿区制式刀": {
+  "where": "game/gear_catalog.gd:43",
+  "line": "\"mine_issue\": {\"name\": \"矿区制式刀\", \"region\": \"mine\", \"category\": W, \"tier\": 0, \"factor\": 1.00, \"implicit\": [],"
+ },
+ "矿场配发的开路刀，砍支架也砍人。": {
+  "where": "game/gear_catalog.gd:44",
+  "line": "\"form\": \"blade\", \"icon\": \"mine_issue_blade\", \"text\": \"矿场配发的开路刀，砍支架也砍人。\"},"
+ },
+ "矿车上拆下来的链节，一圈一圈缠紧。": {
+  "where": "game/gear_catalog.gd:125",
+  "line": "\"icon\": \"mine_x03\", \"text\": \"矿车上拆下来的链节，一圈一圈缠紧。\"},"
+ },
+ "科考冰镐": {
+  "where": "game/gear_catalog.gd:214",
+  "line": "\"snow_x05\": {\"name\": \"科考冰镐\", \"region\": \"snow\", \"category\": W, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.CRIT_RATE, 0.03]], \"form\": \"heavy\","
+ },
+ "科考站加热背心": {
+  "where": "game/gear_catalog.gd:230",
+  "line": "\"snow_x13\": {\"name\": \"科考站加热背心\", \"region\": \"snow\", \"category\": A, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.MAX_HP_PCT, 0.04]],"
+ },
+ "科考队防寒服": {
+  "where": "game/gear_catalog.gd:107",
+  "line": "\"snow_parka\": {\"name\": \"科考队防寒服\", \"region\": \"snow\", \"category\": A, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.RES_FLAT, 4.0]],"
+ },
+ "穿上它就不用跑了，反正也跑不动。": {
+  "where": "game/gear_catalog.gd:191",
+  "line": "\"icon\": \"city_x14\", \"text\": \"穿上它就不用跑了，反正也跑不动。\"},"
+ },
+ "穿上它的人不需要名字。": {
+  "where": "game/gear_catalog.gd:52",
+  "line": "\"icon\": \"reunion_coat\", \"text\": \"穿上它的人不需要名字。\"},"
+ },
+ "纠察队手铐": {
+  "where": "game/gear_catalog.gd:156",
+  "line": "\"mine_x19\": {\"name\": \"纠察队手铐\", \"region\": \"mine\", \"category\": T, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.ATK_PCT, 0.04]],"
+ },
+ "纠察队钩刀": {
+  "where": "game/gear_catalog.gd:126",
+  "line": "\"mine_x04\": {\"name\": \"纠察队钩刀\", \"region\": \"mine\", \"category\": W, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.MOVE_SPEED_PCT, 0.04]], \"form\": \"blade\", \"enemies\": [\"picket\"],"
+ },
+ "纠察队防寒大衣": {
+  "where": "game/gear_catalog.gd:53",
+  "line": "\"mine_greatcoat\": {\"name\": \"纠察队防寒大衣\", \"region\": \"mine\", \"category\": A, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.RES_FLAT, 4.0]],"
+ },
+ "线是自己缝的，针脚很密。": {
+  "where": "game/gear_catalog.gd:159",
+  "line": "\"icon\": \"mine_x20\", \"text\": \"线是自己缝的，针脚很密。\"},"
+ },
+ "线缆另一头接着的东西，早就冻住了。": {
+  "where": "game/gear_catalog.gd:231",
+  "line": "\"icon\": \"snow_x13\", \"text\": \"线缆另一头接着的东西，早就冻住了。\"},"
+ },
+ "给最深的矿道准备的，没来得及发下去。": {
+  "where": "game/gear_catalog.gd:56",
+  "line": "\"icon\": \"heavy_mine_suit\", \"text\": \"给最深的矿道准备的，没来得及发下去。\"},"
+ },
+ "绳子的另一头，通常没有人。": {
+  "where": "game/gear_catalog.gd:229",
+  "line": "\"icon\": \"snow_x12\", \"text\": \"绳子的另一头，通常没有人。\"},"
+ },
+ "绸子挡不住刀，挡刀的是别的东西。": {
+  "where": "game/gear_catalog.gd:189",
+  "line": "\"icon\": \"city_x13\", \"text\": \"绸子挡不住刀，挡刀的是别的东西。\"},"
+ },
+ "缠链指虎": {
+  "where": "game/gear_catalog.gd:124",
+  "line": "\"mine_x03\": {\"name\": \"缠链指虎\", \"region\": \"mine\", \"category\": W, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.CRIT_DMG, 0.1]], \"form\": \"fist\","
+ },
+ "缴获来的，编号被锉掉了。": {
+  "where": "game/gear_catalog.gd:42",
+  "line": "\"form\": \"blade\", \"enemies\": [\"crossbow\", \"crossbow_leader\"], \"icon\": \"standard_dagger\", \"text\": \"缴获来的，编号被锉掉了。\"},"
+ },
+ "罐子、管子、面罩，一样都不能少。": {
+  "where": "game/gear_catalog.gd:147",
+  "line": "\"icon\": \"mine_x14\", \"text\": \"罐子、管子、面罩，一样都不能少。\"},"
+ },
+ "罗德岛测绘队的仪器，指针一直贴在头上。": {
+  "where": "game/gear_catalog.gd:64",
+  "line": "\"icon\": \"originium_meter\", \"text\": \"罗德岛测绘队的仪器，指针一直贴在头上。\"},"
+ },
+ "肩上的局徽被刮过，但没刮干净。": {
+  "where": "game/gear_catalog.gd:77",
+  "line": "\"icon\": \"lgd_vest\", \"text\": \"肩上的局徽被刮过，但没刮干净。\"},"
+ },
+ "胸口缝着矿场的编号。": {
+  "where": "game/gear_catalog.gd:50",
+  "line": "\"icon\": \"miner_vest\", \"text\": \"胸口缝着矿场的编号。\"},"
+ },
+ "衣服换过三次，师父没换过。": {
+  "where": "game/gear_catalog.gd:183",
+  "line": "\"icon\": \"city_x10\", \"text\": \"衣服换过三次，师父没换过。\"},"
+ },
+ "补丁比原布多，扣子一颗不少。": {
+  "where": "game/gear_catalog.gd:145",
+  "line": "\"icon\": \"mine_x13\", \"text\": \"补丁比原布多，扣子一颗不少。\"},"
+ },
+ "袖口被烧穿过，从里面。": {
+  "where": "game/gear_catalog.gd:141",
+  "line": "\"icon\": \"mine_x11\", \"text\": \"袖口被烧穿过，从里面。\"},"
+ },
+ "裂骨拳刃": {
+  "where": "game/gear_catalog.gd:218",
+  "line": "\"snow_x07\": {\"name\": \"裂骨拳刃\", \"region\": \"snow\", \"category\": W, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05], [S.CRIT_RATE, 0.03]], \"form\": \"fist\","
+ },
+ "角兽自己脱下来的角，比砍下来的重。": {
+  "where": "game/gear_catalog.gd:217",
+  "line": "\"icon\": \"snow_x06\", \"text\": \"角兽自己脱下来的角，比砍下来的重。\"},"
+ },
+ "角兽走在前面，铃声替它认路。": {
+  "where": "game/gear_catalog.gd:247",
+  "line": "\"icon\": \"snow_x21\", \"text\": \"角兽走在前面，铃声替它认路。\"},"
+ },
+ "角兽银铃": {
+  "where": "game/gear_catalog.gd:246",
+  "line": "\"snow_x21\": {\"name\": \"角兽银铃\", \"region\": \"snow\", \"category\": T, \"tier\": 1, \"factor\": 1.00, \"implicit\": [[S.RES_FLAT, 4.0]],"
+ },
+ "角兽长毛披肩": {
+  "where": "game/gear_catalog.gd:222",
+  "line": "\"snow_x09\": {\"name\": \"角兽长毛披肩\", \"region\": \"snow\", \"category\": A, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]],"
+ },
+ "角兽骨笛": {
+  "where": "game/gear_catalog.gd:113",
+  "line": "\"snow_flute\": {\"name\": \"角兽骨笛\", \"region\": \"snow\", \"category\": T, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]],"
+ },
+ "角是向林子借的，用完要还。": {
+  "where": "game/gear_catalog.gd:98",
+  "line": "\"form\": \"blade\", \"icon\": \"antler_hunter_knife\", \"text\": \"角是向林子借的，用完要还。\"},"
+ },
+ "警员们说，最好别让它出手。": {
+  "where": "game/gear_catalog.gd:175",
+  "line": "\"icon\": \"city_x06\", \"text\": \"警员们说，最好别让它出手。\"},"
+ },
+ "设计时只想过倒下来的树。": {
+  "where": "game/gear_catalog.gd:227",
+  "line": "\"icon\": \"snow_x11\", \"text\": \"设计时只想过倒下来的树。\"},"
+ },
+ "读不懂上面的字，但它好像读得懂你。": {
+  "where": "game/gear_catalog.gd:118",
+  "line": "\"icon\": \"cipher_fragment\", \"text\": \"读不懂上面的字，但它好像读得懂你。\"},"
+ },
+ "货要准时到，人要活着到。": {
+  "where": "game/gear_catalog.gd:73",
+  "line": "\"form\": \"blade\", \"icon\": \"courier_dagger\", \"text\": \"货要准时到，人要活着到。\"},"
+ },
+ "趴在雪里时，和灌木没有分别。": {
+  "where": "game/gear_catalog.gd:223",
+  "line": "\"icon\": \"snow_x09\", \"text\": \"趴在雪里时，和灌木没有分别。\"},"
+ },
+ "近卫局警用刀": {
+  "where": "game/gear_catalog.gd:70",
+  "line": "\"city_lgd_knife\": {\"name\": \"近卫局警用刀\", \"region\": \"city\", \"category\": W, \"tier\": 0, \"factor\": 1.00, \"implicit\": [],"
+ },
+ "这身护甲的上一任主人，任期没满两年。": {
+  "where": "game/gear_catalog.gd:83",
+  "line": "\"icon\": \"inspector_armor\", \"text\": \"这身护甲的上一任主人，任期没满两年。\"},"
+ },
+ "透过它看出去的人，都没有回来。": {
+  "where": "game/gear_catalog.gd:233",
+  "line": "\"icon\": \"snow_x14\", \"text\": \"透过它看出去的人，都没有回来。\"},"
+ },
+ "那天烧得最厉害的地方，他们最先进去。": {
+  "where": "game/gear_catalog.gd:79",
+  "line": "\"icon\": \"fire_suit\", \"text\": \"那天烧得最厉害的地方，他们最先进去。\"},"
+ },
+ "酒是外用的。大部分时候。": {
+  "where": "game/gear_catalog.gd:199",
+  "line": "\"icon\": \"city_x18\", \"text\": \"酒是外用的。大部分时候。\"},"
+ },
+ "里面的钱早花完了，钱夹本身倒值钱。": {
+  "where": "game/gear_catalog.gd:89",
+  "line": "\"icon\": \"lungmen_wallet\", \"text\": \"里面的钱早花完了，钱夹本身倒值钱。\"},"
+ },
+ "钥匙不在这里。": {
+  "where": "game/gear_catalog.gd:157",
+  "line": "\"icon\": \"mine_x19\", \"text\": \"钥匙不在这里。\"},"
+ },
+ "钩背上的磨痕不是砍出来的，是拖出来的。": {
+  "where": "game/gear_catalog.gd:127",
+  "line": "\"icon\": \"mine_x04\", \"text\": \"钩背上的磨痕不是砍出来的，是拖出来的。\"},"
+ },
+ "铁皮压的，比戴它的人结实。": {
+  "where": "game/gear_catalog.gd:153",
+  "line": "\"icon\": \"mine_x17\", \"text\": \"铁皮压的，比戴它的人结实。\"},"
+ },
+ "铜指虎": {
+  "where": "game/gear_catalog.gd:166",
+  "line": "\"city_x02\": {\"name\": \"铜指虎\", \"region\": \"city\", \"category\": W, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.CRIT_RATE, 0.03]], \"form\": \"fist\","
+ },
+ "锹口磨过，柄上还沾着冻土。": {
+  "where": "game/gear_catalog.gd:121",
+  "line": "\"icon\": \"mine_x01\", \"text\": \"锹口磨过，柄上还沾着冻土。\"},"
+ },
+ "镐头断了一半，剩下那半磨成了斧。": {
+  "where": "game/gear_catalog.gd:48",
+  "line": "\"form\": \"heavy\", \"icon\": \"pickhaft_blade\", \"text\": \"镐头断了一半，剩下那半磨成了斧。\"},"
+ },
+ "门开了，门后的东西也是。": {
+  "where": "game/gear_catalog.gd:133",
+  "line": "\"icon\": \"mine_x07\", \"text\": \"门开了，门后的东西也是。\"},"
+ },
+ "门锁着的时候，它就是钥匙。": {
+  "where": "game/gear_catalog.gd:169",
+  "line": "\"icon\": \"city_x03\", \"text\": \"门锁着的时候，它就是钥匙。\"},"
+ },
+ "隔着一臂远，猎物才不会回头咬你。": {
+  "where": "game/gear_catalog.gd:221",
+  "line": "\"icon\": \"snow_x08\", \"text\": \"隔着一臂远，猎物才不会回头咬你。\"},"
+ },
+ "雨从不停，巡逻也不停。": {
+  "where": "game/gear_catalog.gd:181",
+  "line": "\"icon\": \"city_x09\", \"text\": \"雨从不停，巡逻也不停。\"},"
+ },
+ "雪橇巡逻队斗篷": {
+  "where": "game/gear_catalog.gd:105",
+  "line": "\"snow_cloak\": {\"name\": \"雪橇巡逻队斗篷\", \"region\": \"snow\", \"category\": A, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.MOVE_SPEED_PCT, 0.04]],"
+ },
+ "雪祀礼刃": {
+  "where": "game/gear_catalog.gd:101",
+  "line": "\"snow_rite_blade\": {\"name\": \"雪祀礼刃\", \"region\": \"snow\", \"category\": W, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.ATK_PCT, 0.04], [S.CRIT_RATE, 0.03]],"
+ },
+ "雪祀羽氅": {
+  "where": "game/gear_catalog.gd:234",
+  "line": "\"snow_x15\": {\"name\": \"雪祀羽氅\", \"region\": \"snow\", \"category\": A, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.ARTS_PCT, 0.05], [S.RES_FLAT, 4.0]],"
+ },
+ "面具都一样，所以没人记得谁倒下了。": {
+  "where": "game/gear_catalog.gd:62",
+  "line": "\"icon\": \"reunion_mask\", \"text\": \"面具都一样，所以没人记得谁倒下了。\"},"
+ },
+ "频道里只剩杂音，偶尔有人报位置。": {
+  "where": "game/gear_catalog.gd:87",
+  "line": "\"icon\": \"lgd_radio\", \"text\": \"频道里只剩杂音，偶尔有人报位置。\"},"
+ },
+ "骨片札甲": {
+  "where": "game/gear_catalog.gd:109",
+  "line": "\"snow_lamellar\": {\"name\": \"骨片札甲\", \"region\": \"snow\", \"category\": A, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.DEF_FLAT, 20.0], [S.MAX_HP_PCT, 0.04]],"
+ },
+ "骨缝雪镜": {
+  "where": "game/gear_catalog.gd:242",
+  "line": "\"snow_x19\": {\"name\": \"骨缝雪镜\", \"region\": \"snow\", \"category\": T, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.CRIT_RATE, 0.03]],"
+ },
+ "鼷兽毛团": {
+  "where": "game/gear_catalog.gd:238",
+  "line": "\"snow_x17\": {\"name\": \"鼷兽毛团\", \"region\": \"snow\", \"category\": T, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]],"
+ }
+}

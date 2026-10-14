@@ -1,0 +1,77 @@
+[
+ {
+  "zh": "D32钢",
+  "en": "D32 Steel",
+  "note": "Official EN material name believed to be D32 Steel"
+ },
+ {
+  "zh": "化合切削液",
+  "en": "Compound Cutting Fluid",
+  "note": "Official EN material name; verify"
+ },
+ {
+  "zh": "改量装置",
+  "en": "Optimized Device",
+  "note": "Official EN material name; verify"
+ },
+ {
+  "zh": "幼狼之牙",
+  "en": "Young Wolf's Fang",
+  "note": "Lappland basic-attack skill name; official EN unknown"
+ },
+ {
+  "zh": "余烬剑气（原狼魂构筑物）",
+  "en": "Ember Wave (formerly Wolf Spirit Construct)",
+  "note": "构筑物 rendered as Construct; 狼魂 as Wolf Spirit (official EN of Lappland S2 unverified)"
+ },
+ {
+  "zh": "双生剑气（原狼魂构筑物）",
+  "en": "Twin Wave (formerly Wolf Spirit Construct)",
+  "note": "Same as above"
+ },
+ {
+  "zh": "坚壁 4 共鸣的荆棘",
+  "en": "Bulwark 4 Resonance Thorns",
+  "note": "坚壁 = Bulwark build archetype (invented term)"
+ },
+ {
+  "zh": "等级",
+  "en": "Tier",
+  "note": "Used here before a Roman-numeral gear grade; if 等级 is shown elsewhere as character level, Lv fits better"
+ },
+ {
+  "zh": "近卫局制式护甲",
+  "en": "L.G.D. Issue Armor",
+  "note": "近卫局 = Lungmen Guard Department (L.G.D.)"
+ },
+ {
+  "zh": "近卫局对讲机",
+  "en": "L.G.D. Radio",
+  "note": "近卫局 = L.G.D."
+ },
+ {
+  "zh": "香主绸衫",
+  "en": "Incense Master's Silk Shirt",
+  "note": "香主 = triad rank; Lodge Master is an alternative"
+ },
+ {
+  "zh": "攻击回复",
+  "en": "Offensive Recovery",
+  "note": "Skill tag; official EN SP type Offensive Recovery"
+ },
+ {
+  "zh": "自动触发",
+  "en": "Auto Trigger",
+  "note": "Skill tag; official EN activation Auto Trigger"
+ },
+ {
+  "zh": "当前",
+  "en": "current",
+  "note": "Fragment before item name in the compare line, lowercase on purpose"
+ },
+ {
+  "zh": "加点",
+  "en": "Allocate",
+  "note": "Button to spend attribute points"
+ }
+]

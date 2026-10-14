@@ -1,0 +1,42 @@
+[
+ {
+  "zh": "招牌",
+  "en": "Signature",
+  "note": "招牌 (operator's signature move) has no prior term in en.json; used 'Signature' / 'On Signature:' throughout."
+ },
+ {
+  "zh": "接替",
+  "en": "Succession",
+  "note": "Stack name for the Nameless set; free coinage."
+ },
+ {
+  "zh": "雪祀断冠",
+  "en": "Snow Priest's Broken Crown",
+  "note": "雪祀 = Snow priest (fallen_snowpriest enemy); official EN enemy name may differ."
+ },
+ {
+  "zh": "灰尾屏障坠",
+  "en": "Greytail Barrier Pendant",
+  "note": "灰尾 (greytail enemy) official EN name unknown; Greytail used."
+ },
+ {
+  "zh": "反馈赠之铃",
+  "en": "Bell of Returned Gifts",
+  "note": "Source name is odd (反馈赠); literal reading 'returning gifts'."
+ },
+ {
+  "zh": "置换指骨",
+  "en": "Displaced Phalanx",
+  "note": "From distorted_caster enemy; meaning approximate."
+ },
+ {
+  "zh": "特别督察组",
+  "en": "Special Inspectors",
+  "note": "Round 1 used 'Special Inspector Tac Armor' for 特别督察组战术护甲; set name shortened."
+ },
+ {
+  "zh": "执火守望",
+  "en": "Firekeeper's Watch",
+  "note": "Set name; pieces use 'Warden's'."
+ }
+]

@@ -1,0 +1,558 @@
+{
+ "· 封印中": {
+  "where": "entities/loot_container.gd:119",
+  "line": "if sealed: text += \" · 封印中\""
+ },
+ "· 撤离": {
+  "where": "ui/hud.gd:223",
+  "line": "if current and game.is_extraction_floor(): name += \" · 撤离\""
+ },
+ "。": {
+  "where": "game/base_state.gd:186",
+  "line": "if rank() < int(BaseCatalog.RACK_RANKS[slot]): return \"需要声望 R%d。\" % BaseCatalog.RACK_RANKS[slot]"
+ },
+ "《": {
+  "where": "ui/ak.gd:239",
+  "line": "var glyph := label(str(relic.name).replace(\"\\\"\", \"\").replace(\"《\", \"\").left(1), int(side * 0.4), c)"
+ },
+ "上架到": {
+  "where": "world/warehouse_view.gd:199",
+  "line": "\"label\": (\"上架到%s区（%d/%d）\" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else (\"%s区：%s\" % [zone, \"放不下\" if c == base.hand.category else \"类别不对\"])}"
+ },
+ "中级作战记录": {
+  "where": "game/progression.gd:36",
+  "line": "const RECORDS := [\"基础作战记录\", \"初级作战记录\", \"中级作战记录\", \"高级作战记录\"]"
+ },
+ "临界护盾化解了这次伤害": {
+  "where": "entities/player.gd:950",
+  "line": "message_requested.emit(\"临界护盾化解了这次伤害\")"
+ },
+ "仓管台：仓库": {
+  "where": "art/rhodes_runtime/room_warehouse.json",
+  "line": "仓管台：仓库"
+ },
+ "体力": {
+  "where": "ui/hud.gd:434",
+  "line": "_side_bar(Rect2(right_x, bar.position.y + 6, SIDE_BAR, 10), \"体力\", str(roundi(p.stamina)), p.stamina / 100.0, Color(0.92, 0.92, 0.92), false)"
+ },
+ "体魄": {
+  "where": "game/progression.gd:64",
+  "line": "const ATTRIBUTE_NAMES := {\"phy\": \"体魄\", \"tec\": \"技巧\", \"agi\": \"敏捷\", \"arts\": \"源石技艺\"}"
+ },
+ "使用": {
+  "where": "ui/training_screen.gd:50",
+  "line": "var one := AK.button(\"使用\", \"plain\", 11)"
+ },
+ "出库区：订单与交付": {
+  "where": "art/rhodes_runtime/room_warehouse.json",
+  "line": "出库区：订单与交付"
+ },
+ "初级作战记录": {
+  "where": "game/progression.gd:36",
+  "line": "const RECORDS := [\"基础作战记录\", \"初级作战记录\", \"中级作战记录\", \"高级作战记录\"]"
+ },
+ "到达": {
+  "where": "ui/field_panels.gd:231",
+  "line": "_objective(\"到达\" + game.camp_label(camp_at), game.floor_number - block_start, FieldCatalog.CAMP_INTERVAL, AK.GREEN)"
+ },
+ "剑气": {
+  "where": "ui/hud.gd:445",
+  "line": "_text(Vector2(passive.position.x, passive.position.y - 4), \"剑气\", 11, AK.FG if has else AK.MUTE, null, false)"
+ },
+ "区。": {
+  "where": "game/base_state.gd:364",
+  "line": "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[category], hand.item_name, BaseCatalog.CATEGORY_NAMES[hand.category]]"
+ },
+ "区已满（": {
+  "where": "game/base_state.gd:287",
+  "line": "return \"%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。\" % ["
+ },
+ "区的 9 个货架位都建好了。": {
+  "where": "game/base_state.gd:185",
+  "line": "if slot < 0: return \"%s区的 9 个货架位都建好了。\" % BaseCatalog.CATEGORY_NAMES[category]"
+ },
+ "区货架（": {
+  "where": "world/warehouse_view.gd:222",
+  "line": "\"label\": \"%s区货架（%d/%d）\" % [BaseCatalog.CATEGORY_NAMES[c], base.shelf_count(c), base.capacity(c)]}"
+ },
+ "区（": {
+  "where": "world/warehouse_view.gd:199",
+  "line": "\"label\": (\"上架到%s区（%d/%d）\" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else (\"%s区：%s\" % [zone, \"放不下\" if c == base.hand.category else \"类别不对\"])}"
+ },
+ "区，已为你高亮。": {
+  "where": "game/base_state.gd:364",
+  "line": "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[category], hand.item_name, BaseCatalog.CATEGORY_NAMES[hand.category]]"
+ },
+ "区：": {
+  "where": "world/warehouse_view.gd:199",
+  "line": "\"label\": (\"上架到%s区（%d/%d）\" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else (\"%s区：%s\" % [zone, \"放不下\" if c == base.hand.category else \"类别不对\"])}"
+ },
+ "医疗前台：回收报告与治疗": {
+  "where": "art/rhodes_runtime/room_medical.json",
+  "line": "医疗前台：回收报告与治疗"
+ },
+ "受到伤害！观察敌人的蓄力姿势与武器方向，及时侧移或闪避。": {
+  "where": "entities/player.gd:958",
+  "line": "message_requested.emit(\"受到伤害！观察敌人的蓄力姿势与武器方向，及时侧移或闪避。\")"
+ },
+ "只能上架已开箱或暂存区里的物品。": {
+  "where": "game/base_state.gd:285",
+  "line": "if not location_of(item) in [\"crate_open\", \"staging\"]: return \"只能上架已开箱或暂存区里的物品。\""
+ },
+ "合同 ·": {
+  "where": "ui/field_panels.gd:228",
+  "line": "if not goal.is_empty(): _objective(\"合同 · \" + goal.goal, goal.have, goal.need, AK.GREEN if goal.done else AK.SP)"
+ },
+ "合成": {
+  "where": "ui/training_screen.gd:165",
+  "line": "AK.put(stage, AK.section(\"合成\", \"CRAFT\"), Vector2(rx, ry))"
+ },
+ "后勤柜台：投保": {
+  "where": "art/rhodes_runtime/room_hall.json",
+  "line": "后勤柜台：投保"
+ },
+ "启用": {
+  "where": "ui/training_screen.gd:110",
+  "line": "var toggle := AK.button(\"启用中\" if on else \"启用\", \"blue\" if on else \"plain\", 11)"
+ },
+ "启用中": {
+  "where": "ui/training_screen.gd:110",
+  "line": "var toggle := AK.button(\"启用中\" if on else \"启用\", \"blue\" if on else \"plain\", 11)"
+ },
+ "噤声": {
+  "where": "entities/player.gd:146",
+  "line": "var since_wave := 0.0       # \"噤声\" / 鸣脊兽: time without releasing a wave"
+ },
+ "图鉴": {
+  "where": "ui/field_panels.gd:124",
+  "line": "_clear(\"藏品\", \"COLLECTIBLES\", \"R\", [\"本次 %d\" % game.builds.size(), \"图鉴 %d\" % RelicCatalog.all().size()])"
+ },
+ "圆石祭坛：攻击力与防御 +5": {
+  "where": "entities/player.gd:1007",
+  "line": "message_requested.emit(\"圆石祭坛：攻击力与防御 +5%%（%d 层）\" % altar_stacks)"
+ },
+ "坎诺特 · E": {
+  "where": "world/continuous_world_map.gd:1688",
+  "line": "encounter_node = _set_piece(\"坎诺特 · E\" if encounter_kind == \"trader\" else \"罗德岛小队 · E\", encounter_position, Color(\"e6c25a\") if encounter_kind == \"trader\" else Color(\"5fd0d8\"), ENCOUNTER_MODELS[\"trader\" "
+ },
+ "坎诺特的货架可以刷新，也收购物品。": {
+  "where": "ui/system_screens.gd:15",
+  "line": "\"坎诺特的货架可以刷新，也收购物品。\","
+ },
+ "基础作战记录": {
+  "where": "game/progression.gd:36",
+  "line": "const RECORDS := [\"基础作战记录\", \"初级作战记录\", \"中级作战记录\", \"高级作战记录\"]"
+ },
+ "复还之手：受到致命伤时回满生命（本区段已用）": {
+  "where": "entities/player.gd:967",
+  "line": "message_requested.emit(\"复还之手：受到致命伤时回满生命（本区段已用）\")"
+ },
+ "外勤出发升降梯": {
+  "where": "art/rhodes_runtime/room_hall.json",
+  "line": "外勤出发升降梯"
+ },
+ "天赋": {
+  "where": "ui/training_screen.gd:130",
+  "line": "AK.put(stage, AK.tag(\"天赋\", AK.SP), Vector2(tx + 14, ny + 24))"
+ },
+ "失控": {
+  "where": "entities/player.gd:568",
+  "line": "interrupt_actions_for(\"失控\")"
+ },
+ "头目": {
+  "where": "ui/hud.gd:166",
+  "line": "if big: _text(at + Vector2(12, 5), \"头目\", 12, AK.FG)"
+ },
+ "守卫": {
+  "where": "entities/enemy.gd:448",
+  "line": "_state_label.text = \"守卫\" if behavior == Behavior.GUARD else \"\""
+ },
+ "守卫_": {
+  "where": "entities/enemy.gd:413",
+  "line": "name = \"守卫_\" + name"
+ },
+ "安全袋里的物品阵亡后也会保留。": {
+  "where": "ui/system_screens.gd:11",
+  "line": "\"安全袋里的物品阵亡后也会保留。\","
+ },
+ "密室": {
+  "where": "ui/hud.gd:195",
+  "line": "_: return \"密室\""
+ },
+ "密室宝箱": {
+  "where": "entities/loot_container.gd:109",
+  "line": "if vault: return {\"vault_weapon\": \"密室武器箱\", \"vault_gear\": \"密室装备箱\", \"vault_base\": \"密室物资箱\"}.get(kind, \"密室宝箱\")"
+ },
+ "密室藏品 [E]": {
+  "where": "entities/relic_cache.gd:42",
+  "line": "_label.text = (\"密室藏品 · 封印中\" if sealed else \"密室藏品 [E]\") if source == \"vault\" else \"战斗缴获 [E]\""
+ },
+ "密室藏品 · 封印中": {
+  "where": "entities/relic_cache.gd:42",
+  "line": "_label.text = (\"密室藏品 · 封印中\" if sealed else \"密室藏品 [E]\") if source == \"vault\" else \"战斗缴获 [E]\""
+ },
+ "就绪": {
+  "where": "ui/hud.gd:439",
+  "line": "_side_bar(passive, \"绝影\", \"就绪\" if ready else \"%.1f\" % cd, 1.0 - cd / float(SkillTrees.shadow(p.rank(\"shadow\"))[1]), CombatVfx.CYAN, false, ready)"
+ },
+ "层": {
+  "where": "ui/field_panels.gd:221",
+  "line": "stats.add_child(_pair(\"层\", str(game.floor_number), AK.FG))"
+ },
+ "层）": {
+  "where": "entities/player.gd:1007",
+  "line": "message_requested.emit(\"圆石祭坛：攻击力与防御 +5%%（%d 层）\" % altar_stacks)"
+ },
+ "属性点": {
+  "where": "ui/training_screen.gd:150",
+  "line": "AK.put(stage, AK.label(\"属性点 %d\" % p.attribute_points, 16, AK.SP), Vector2(rx, TOP + 8))"
+ },
+ "已探索": {
+  "where": "ui/hud.gd:186",
+  "line": "var explored := \"已探索 %d%%\" % roundi(game.fog.revealed_fraction() * 100.0)"
+ },
+ "已满": {
+  "where": "game/operator_progress.gd:109",
+  "line": "if r >= int(data.max): return \"已满\""
+ },
+ "已满配": {
+  "where": "game/base_state.gd:169",
+  "line": "if level + 1 >= prices.size(): return \"已满配\""
+ },
+ "已精英 2": {
+  "where": "game/operator_progress.gd:86",
+  "line": "if elite >= 2: return \"已精英 2\""
+ },
+ "干员": {
+  "where": "ui/hud.gd:41",
+  "line": "for entry in [[\"干员\", \"I\", \"inventory\"], [\"藏品\", \"R\", \"relics\"], [\"地图\", \"M\", \"map\"], [\"合同\", \"J\", \"journal\"]]:"
+ },
+ "开启密室": {
+  "where": "ui/field_panels.gd:233",
+  "line": "if mechanisms > 0: _objective(\"开启密室\", mini(game._mechanisms_done.size(), mechanisms), mechanisms, AK.SP)"
+ },
+ "开箱（": {
+  "where": "world/warehouse_view.gd:216",
+  "line": "\"label\": (\"开箱（%s箱）\" % BaseCatalog.CRATE_SIZE_NAMES[BaseCatalog.crate_size(item)]) if sealed else (\"查看 %s\" % item.item_name)}"
+ },
+ "强化 · E": {
+  "where": "world/continuous_world_map.gd:1687",
+  "line": "buff_device_node = _marker(\"强化 · E\", buff_position, Color(\"ef9b42\"))"
+ },
+ "归位": {
+  "where": "entities/enemy.gd:454",
+  "line": "_state_label.text = \"归位\""
+ },
+ "战斗缴获 [E]": {
+  "where": "entities/relic_cache.gd:42",
+  "line": "_label.text = (\"密室藏品 · 封印中\" if sealed else \"密室藏品 [E]\") if source == \"vault\" else \"战斗缴获 [E]\""
+ },
+ "手上没有东西。": {
+  "where": "game/base_state.gd:362",
+  "line": "if hand == null: return \"手上没有东西。\""
+ },
+ "技巧": {
+  "where": "game/progression.gd:64",
+  "line": "const ATTRIBUTE_NAMES := {\"phy\": \"体魄\", \"tec\": \"技巧\", \"agi\": \"敏捷\", \"arts\": \"源石技艺\"}"
+ },
+ "技能点": {
+  "where": "ui/training_screen.gd:78",
+  "line": "AK.put(stage, AK.label(\"技能点 %d\" % p.skill_points, 16, AK.SP), Vector2(mx, TOP + 8))"
+ },
+ "技能点不足": {
+  "where": "game/operator_progress.gd:113",
+  "line": "if skill_points < SkillTrees.rank_cost(data, r): return \"技能点不足\""
+ },
+ "抑": {
+  "where": "ui/hud.gd:112",
+  "line": "if game._suppress_timer > 0.0: badges.append([\"抑\", AK.ORI, \"%ds\" % ceili(game._suppress_timer)])"
+ },
+ "投保的物品阵亡后会在 1–3 份合同后送回。": {
+  "where": "ui/system_screens.gd:12",
+  "line": "\"投保的物品阵亡后会在 1–3 份合同后送回。\","
+ },
+ "抵挡": {
+  "where": "entities/player.gd:925",
+  "line": "if is_instance_valid(game): DamageNumber.spawn(game, global_position, \"抵挡\", \"shield\")"
+ },
+ "持有": {
+  "where": "ui/field_panels.gd:288",
+  "line": "what.add_child(AK.label(\"持有 %d / %d\" % [entry.have, entry.need], 12, AK.GREEN if entry.have >= entry.need else AK.MUTE))"
+ },
+ "撤离 · E": {
+  "where": "world/continuous_world_map.gd:1690",
+  "line": "exit_node = _marker(\"撤离 · E\", _grounded(exit_at, 0.15), Color(\"63eca7\"))"
+ },
+ "撤离信标": {
+  "where": "ui/hud.gd:194",
+  "line": "2: return \"撤离信标\""
+ },
+ "撤离点": {
+  "where": "ui/field_panels.gd:235",
+  "line": "if game.is_extraction_floor(): _objective(\"撤离点\", 1, 1, AK.GREEN)"
+ },
+ "攻击": {
+  "where": "ui/ak.gd:151",
+  "line": "const KIND_NAMES := {\"attack\": \"攻击\", \"defense\": \"防守\", \"fortune\": \"机缘\", \"life\": \"生存\", \"tempo\": \"节奏\", \"wave\": \"剑气\"}"
+ },
+ "放不下": {
+  "where": "world/warehouse_view.gd:199",
+  "line": "\"label\": (\"上架到%s区（%d/%d）\" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else (\"%s区：%s\" % [zone, \"放不下\" if c == base.hand.category else \"类别不对\"])}"
+ },
+ "敏捷": {
+  "where": "game/progression.gd:64",
+  "line": "const ATTRIBUTE_NAMES := {\"phy\": \"体魄\", \"tec\": \"技巧\", \"agi\": \"敏捷\", \"arts\": \"源石技艺\"}"
+ },
+ "整备台：装备": {
+  "where": "art/rhodes_runtime/room_armory.json",
+  "line": "整备台：装备"
+ },
+ "时光之末": {
+  "where": "entities/player.gd:162",
+  "line": "var death_cling_used := false  # \"时光之末\", this contract"
+ },
+ "晋升": {
+  "where": "ui/training_screen.gd:72",
+  "line": "var promote := AK.button(\"晋升\", \"yellow\", 14)"
+ },
+ "晋升 ·": {
+  "where": "ui/training_screen.gd:62",
+  "line": "AK.put(stage, AK.section(\"晋升 · %s\" % Progression.ELITE_NAMES[p.elite + 1], \"PROMOTION\"), Vector2(x + 10, y))"
+ },
+ "本次": {
+  "where": "ui/field_panels.gd:124",
+  "line": "_clear(\"藏品\", \"COLLECTIBLES\", \"R\", [\"本次 %d\" % game.builds.size(), \"图鉴 %d\" % RelicCatalog.all().size()])"
+ },
+ "机关 · E": {
+  "where": "world/continuous_world_map.gd:1758",
+  "line": "mechanism_nodes.append(_marker(\"机关 · E\", _grounded(spot, 0.35), Color(\"b47ae0\")))"
+ },
+ "材料不足": {
+  "where": "ui/training_screen.gd:121",
+  "line": "AK.put(b, AK.label(block if not block.is_empty() else \"材料不足\", 10, AK.DIM), Vector2(110, 36))"
+ },
+ "染": {
+  "where": "ui/hud.gd:115",
+  "line": "if tier > 0: badges.append([\"染\", AK.ORI, BaseCatalog.CONTAMINATION_TIER_NAMES[tier]])"
+ },
+ "查看": {
+  "where": "world/warehouse_view.gd:216",
+  "line": "\"label\": (\"开箱（%s箱）\" % BaseCatalog.CRATE_SIZE_NAMES[BaseCatalog.crate_size(item)]) if sealed else (\"查看 %s\" % item.item_name)}"
+ },
+ "检测门：污染": {
+  "where": "world/medical_view.gd:71",
+  "line": "return \"检测门：污染 %d · %s%s\" % [roundi(base.contamination), BaseCatalog.CONTAMINATION_TIER_NAMES[tier],"
+ },
+ "模组": {
+  "where": "ui/training_screen.gd:139",
+  "line": "AK.put(stage, AK.tag(\"模组 %s\" % str(module.get(\"type\", \"\")), AK.CYAN), Vector2(tx + 14, ny + 24))"
+ },
+ "每十层之后是营地，营地里有固定撤离点。": {
+  "where": "ui/system_screens.gd:13",
+  "line": "\"每十层之后是营地，营地里有固定撤离点。\","
+ },
+ "污染检测门：检测与处理": {
+  "where": "art/rhodes_runtime/room_medical.json",
+  "line": "污染检测门：检测与处理"
+ },
+ "洗点 ·": {
+  "where": "ui/training_screen.gd:81",
+  "line": "var respec := AK.button(\"洗点 · %s\" % Economy.format(Progression.respec_cost(refund, p.elite)), \"plain\", 11)"
+ },
+ "深入入口": {
+  "where": "ui/hud.gd:170",
+  "line": "if big: _text(map_point(node.position, rect) + Vector2(12, 5), \"深入入口\", 12, AK.FG)"
+ },
+ "源石技艺": {
+  "where": "game/progression.gd:64",
+  "line": "const ATTRIBUTE_NAMES := {\"phy\": \"体魄\", \"tec\": \"技巧\", \"agi\": \"敏捷\", \"arts\": \"源石技艺\"}"
+ },
+ "满级": {
+  "where": "ui/training_screen.gd:42",
+  "line": "AK.put(stage, AK.label(\"满级\" if p.at_cap() else \"%d / %d\" % [p.exp, p.exp_needed()], 11, AK.MUTE, AK.en()), Vector2(x + 10, TOP + 164))"
+ },
+ "狼魂": {
+  "where": "ui/hud.gd:451",
+  "line": "_text(Vector2(passive.position.x, passive.end.y + 6), \"狼魂 %.1f\" % p.wolf_timer, 11, CombatVfx.PURPLE.lightened(0.3), null, false)"
+ },
+ "目标": {
+  "where": "ui/field_panels.gd:201",
+  "line": "_clear(\"外勤合同\", \"CONTRACT\", \"J\", [\"目标\", \"订单\"])"
+ },
+ "盾": {
+  "where": "ui/hud.gd:113",
+  "line": "if game.player.shield > 0.0: badges.append([\"盾\", Color(\"bfe8ff\"), str(roundi(game.player.shield))])"
+ },
+ "确定": {
+  "where": "ui/system_screens.gd:169",
+  "line": "var done := AK.button(\"确定\", \"blue\", 15)"
+ },
+ "空": {
+  "where": "game/hotbar.gd:23",
+  "line": "const CHOICE_NAMES := {\"\": \"空\", \"dash\": \"闪避\", \"shadow\": \"绝影\", \"potion_A\": \"急救剂\", \"potion_B\": \"缓释凝胶\", \"potion_C\": \"抑制喷剂\"}"
+ },
+ "箱）": {
+  "where": "world/warehouse_view.gd:216",
+  "line": "\"label\": (\"开箱（%s箱）\" % BaseCatalog.CRATE_SIZE_NAMES[BaseCatalog.crate_size(item)]) if sealed else (\"查看 %s\" % item.item_name)}"
+ },
+ "类别不对": {
+  "where": "world/warehouse_view.gd:199",
+  "line": "\"label\": (\"上架到%s区（%d/%d）\" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else (\"%s区：%s\" % [zone, \"放不下\" if c == base.hand.category else \"类别不对\"])}"
+ },
+ "精英 0": {
+  "where": "game/progression.gd:12",
+  "line": "const ELITE_NAMES := [\"精英 0\", \"精英 1\", \"精英 2\"]"
+ },
+ "精英 1": {
+  "where": "game/progression.gd:12",
+  "line": "const ELITE_NAMES := [\"精英 0\", \"精英 1\", \"精英 2\"]"
+ },
+ "精英 2": {
+  "where": "game/progression.gd:12",
+  "line": "const ELITE_NAMES := [\"精英 0\", \"精英 1\", \"精英 2\"]"
+ },
+ "绝影": {
+  "where": "game/hotbar.gd:23",
+  "line": "const CHOICE_NAMES := {\"\": \"空\", \"dash\": \"闪避\", \"shadow\": \"绝影\", \"potion_A\": \"急救剂\", \"potion_B\": \"缓释凝胶\", \"potion_C\": \"抑制喷剂\"}"
+ },
+ "缓": {
+  "where": "ui/hud.gd:111",
+  "line": "if game._slow_heal_left > 0.0: badges.append([\"缓\", AK.HP, \"%ds\" % ceili(game._slow_heal_left / maxf(game._slow_heal_rate, 1.0))])"
+ },
+ "罗德岛 · 外勤": {
+  "where": "ui/system_screens.gd:83",
+  "line": "var name_cn := AK.label(\"罗德岛 · 外勤\", 22, AK.MUTE)"
+ },
+ "罗德岛小队 · E": {
+  "where": "world/continuous_world_map.gd:1688",
+  "line": "encounter_node = _set_piece(\"坎诺特 · E\" if encounter_kind == \"trader\" else \"罗德岛小队 · E\", encounter_position, Color(\"e6c25a\") if encounter_kind == \"trader\" else Color(\"5fd0d8\"), ENCOUNTER_MODELS[\"trader\" "
+ },
+ "罗德岛小队可以为一件装备投保，或直接送回基地。": {
+  "where": "ui/system_screens.gd:14",
+  "line": "\"罗德岛小队可以为一件装备投保，或直接送回基地。\","
+ },
+ "翻倒的源石矿车": {
+  "where": "entities/loot_container.gd:58",
+  "line": "const VARIANT_NAMES := {\"ore_cart\": \"翻倒的源石矿车\", \"miner_locker\": \"矿工储物柜\", \"winch_box\": \"绞车控制箱\", \"miner_pack\": \"遗留的矿工背包\"}"
+ },
+ "自身回血停止": {
+  "where": "world/medical_view.gd:70",
+  "line": "if bool(t[3]): effects.append(\"自身回血停止\")"
+ },
+ "药房窗口：配药": {
+  "where": "art/rhodes_runtime/room_medical.json",
+  "line": "药房窗口：配药"
+ },
+ "药瓶回复 −": {
+  "where": "world/medical_view.gd:69",
+  "line": "if float(t[2]) > 0: effects.append(\"药瓶回复 −%d%%\" % roundi(float(t[2]) * 100))"
+ },
+ "行动开始": {
+  "where": "ui/system_screens.gd:114",
+  "line": "var title := AK.label(\"行动开始\", 34, AK.FG)"
+ },
+ "补给点": {
+  "where": "entities/guard_post.gd:20",
+  "line": "var title := \"补给点\""
+ },
+ "要放到": {
+  "where": "game/base_state.gd:364",
+  "line": "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[category], hand.item_name, BaseCatalog.CATEGORY_NAMES[hand.category]]"
+ },
+ "解锁": {
+  "where": "ui/training_screen.gd:143",
+  "line": "var upgrade := AK.button(\"%s · %s\" % [\"解锁\" if p.module_level == 0 else \"升级\", Economy.format(int(cost.lmd))], \"plain\", 11)"
+ },
+ "调度台：接单": {
+  "where": "art/rhodes_runtime/room_hall.json",
+  "line": "调度台：接单"
+ },
+ "赤金占背包格子，营地里可以卖给可露希尔。": {
+  "where": "ui/system_screens.gd:10",
+  "line": "\"赤金占背包格子，营地里可以卖给可露希尔。\","
+ },
+ "这是": {
+  "where": "game/base_state.gd:364",
+  "line": "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[category], hand.item_name, BaseCatalog.CATEGORY_NAMES[hand.category]]"
+ },
+ "退出": {
+  "where": "ui/system_screens.gd:98",
+  "line": "var quit := AK.button(\"退出\", \"plain\", 15)"
+ },
+ "闪避": {
+  "where": "entities/player.gd:610",
+  "line": "interrupt_actions_for(\"闪避\")"
+ },
+ "雪牝的护手：攻速 +80、闪避 50%，持续 30 秒": {
+  "where": "entities/player.gd:541",
+  "line": "message_requested.emit(\"雪牝的护手：攻速 +80、闪避 50%，持续 30 秒\")"
+ },
+ "需要": {
+  "where": "game/operator_progress.gd:110",
+  "line": "if data.has(\"parent\") and rank(str(data.parent)) <= 0: return \"需要\" + str(SkillTrees.node(operator_id, data.parent).name)"
+ },
+ "需要声望 R": {
+  "where": "game/base_state.gd:170",
+  "line": "if rank() < int(ranks[level + 1]): return \"需要声望 R%d\" % int(ranks[level + 1])"
+ },
+ "需要等级": {
+  "where": "game/operator_progress.gd:87",
+  "line": "if not at_cap(): return \"需要等级 %d\" % level_cap()"
+ },
+ "需要精英 2": {
+  "where": "game/operator_progress.gd:164",
+  "line": "if elite < 2: return \"需要精英 2\""
+ },
+ "霜牡的肩甲：攻击力与防御 +40%，持续 30 秒": {
+  "where": "entities/player.gd:537",
+  "line": "message_requested.emit(\"霜牡的肩甲：攻击力与防御 +40%，持续 30 秒\")"
+ },
+ "静音": {
+  "where": "ui/system_screens.gd:158",
+  "line": "mute.text = \"静音\""
+ },
+ "音量": {
+  "where": "ui/system_screens.gd:147",
+  "line": "volume_row.add_child(AK.label(\"音量\", 14, AK.FG))"
+ },
+ "高级作战记录": {
+  "where": "game/progression.gd:36",
+  "line": "const RECORDS := [\"基础作战记录\", \"初级作战记录\", \"中级作战记录\", \"高级作战记录\"]"
+ },
+ "龙门币不足": {
+  "where": "game/base_state.gd:171",
+  "line": "if money < int(prices[level + 1]): return \"龙门币不足\""
+ },
+ "龙门币不足（": {
+  "where": "game/base_state.gd:187",
+  "line": "if gold < int(BaseCatalog.RACK_PRICES[slot]): return \"龙门币不足（%s）。\" % Economy.format(BaseCatalog.RACK_PRICES[slot])"
+ },
+ "（": {
+  "where": "entities/player.gd:1007",
+  "line": "message_requested.emit(\"圆石祭坛：攻击力与防御 +5%%（%d 层）\" % altar_stacks)"
+ },
+ "（封印）": {
+  "where": "ui/hud.gd:635",
+  "line": "var label := loot.item.display_name() + loot.item.stack_suffix() + (\"（封印）\" if loot.sealed else \"\")"
+ },
+ "（已搜空）": {
+  "where": "entities/loot_container.gd:120",
+  "line": "elif looted(): text += \"（已搜空）\""
+ },
+ "）。": {
+  "where": "game/base_state.gd:187",
+  "line": "if gold < int(BaseCatalog.RACK_PRICES[slot]): return \"龙门币不足（%s）。\" % Economy.format(BaseCatalog.RACK_PRICES[slot])"
+ },
+ "）：放进暂存区，或在仓管台扩建。": {
+  "where": "game/base_state.gd:287",
+  "line": "return \"%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。\" % ["
+ },
+ "，无影响": {
+  "where": "world/medical_view.gd:72",
+  "line": "(\"：\" + \"，\".join(effects)) if not effects.is_empty() else \"，无影响\"]"
+ },
+ "：保留 1 点生命（本合同已用）": {
+  "where": "entities/player.gd:974",
+  "line": "message_requested.emit(\"\\\"时光之末\\\"：保留 1 点生命（本合同已用）\")"
+ }
+}

@@ -1,0 +1,806 @@
+{
+ "Ctrl + 左键": {
+  "where": "game/keybinds.gd:42",
+  "line": "const FIXED := [[\"攻击 / 拾取 / 选择\", \"左键\"], [\"移动\", \"右键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ },
+ "https://prts.wiki/w/萨卡兹的无终奇语/想象实体图鉴": {
+  "where": "game/field_catalog.gd:143",
+  "line": "const SOURCE := \"https://prts.wiki/w/萨卡兹的无终奇语/想象实体图鉴\""
+ },
+ "、法抗 +20，最多 3 层。": {
+  "where": "game/skill_trees.gd:63",
+  "line": "\"text\": \"绝影期间每击败一个敌人攻击力 +%s、法抗 +20，最多 3 层。\"},"
+ },
+ "专用键": {
+  "where": "game/keybinds.gd:24",
+  "line": "[\"dash\", \"闪避\", \"专用键\", null, null],"
+ },
+ "专精": {
+  "where": "game/skill_trees.gd:124",
+  "line": "if rank > 7: return \"专精 %d\" % (rank - 7)"
+ },
+ "中": {
+  "where": "game/base_catalog.gd:24",
+  "line": "const CRATE_SIZE_NAMES := [\"小\", \"中\", \"大\"]"
+ },
+ "中度": {
+  "where": "game/base_catalog.gd:112",
+  "line": "const CONTAMINATION_TIER_NAMES := [\"无\", \"轻度\", \"中度\", \"重度\"]"
+ },
+ "中排货架；药房的抑制喷剂；第 3 个订单栏；背包扩容到 12×8；安全袋扩容到 3×2": {
+  "where": "game/base_catalog.gd:213",
+  "line": "\"中排货架；药房的抑制喷剂；第 3 个订单栏；背包扩容到 12×8；安全袋扩容到 3×2\","
+ },
+ "中键": {
+  "where": "game/keybinds.gd:137",
+  "line": "const MOUSE_NAMES := {MOUSE_BUTTON_MIDDLE: \"中键\", MOUSE_BUTTON_XBUTTON1: \"侧键 1\", MOUSE_BUTTON_XBUTTON2: \"侧键 2\","
+ },
+ "仓库": {
+  "where": "ui/base_hud.gd:106",
+  "line": "return \"仓库 %d/%d\" % [have, room]"
+ },
+ "仓管台可以购买一键分类无人机；各区可以扩建前排的第 2、3 个货架；背包扩容到 10×8": {
+  "where": "game/base_catalog.gd:212",
+  "line": "\"仓管台可以购买一键分类无人机；各区可以扩建前排的第 2、3 个货架；背包扩容到 10×8\","
+ },
+ "代糖": {
+  "where": "game/field_catalog.gd:29",
+  "line": "\"city\": [[\"代糖\", 4], [\"糖\", 2], [\"异铁\", 3]],"
+ },
+ "件": {
+  "where": "ui/event_screens.gd:547",
+  "line": "cells = [[\"保留\", \"%d 件\" % n[\"安全袋保全\"], AK.GREEN], [\"投保\", \"%d 件\" % n[\"投保送回\"], AK.HP],"
+ },
+ "低频高值，饰品与稀有装备": {
+  "where": "game/field_catalog.gd:152",
+  "line": "\"loot\": \"低频高值，饰品与稀有装备\", \"exclusive\": \"冻土下的旧物：强化伤害，降低体力恢复\","
+ },
+ "作战记录": {
+  "where": "ui/event_screens.gd:559",
+  "line": "if int(records.get(record, 0)) > 0: record_parts.append(\"%s ×%d\" % [record.replace(\"作战记录\", \"\"), int(records[record])])"
+ },
+ "侧键 1": {
+  "where": "game/keybinds.gd:137",
+  "line": "const MOUSE_NAMES := {MOUSE_BUTTON_MIDDLE: \"中键\", MOUSE_BUTTON_XBUTTON1: \"侧键 1\", MOUSE_BUTTON_XBUTTON2: \"侧键 2\","
+ },
+ "侧键 2": {
+  "where": "game/keybinds.gd:137",
+  "line": "const MOUSE_NAMES := {MOUSE_BUTTON_MIDDLE: \"中键\", MOUSE_BUTTON_XBUTTON1: \"侧键 1\", MOUSE_BUTTON_XBUTTON2: \"侧键 2\","
+ },
+ "冻土下的旧物": {
+  "where": "game/field_catalog.gd:181",
+  "line": "item = Item.create(\"冻土下的旧物\", Item.Category.TRINKET, 2, 1, 2.0)"
+ },
+ "冻土下的旧物：强化伤害，降低体力恢复": {
+  "where": "game/field_catalog.gd:152",
+  "line": "\"loot\": \"低频高值，饰品与稀有装备\", \"exclusive\": \"冻土下的旧物：强化伤害，降低体力恢复\","
+ },
+ "出售": {
+  "where": "ui/event_screens.gd:331",
+  "line": "AK.put(stage, AK.toggle([\"购买\", \"出售\"], 1 if selling else 0, func(i): menu.trader_tab = [\"buy\", \"sell\"][i]; menu.pick = null; trader(menu)), Vector2(390, 32))"
+ },
+ "出售赤金": {
+  "where": "ui/event_screens.gd:444",
+  "line": "var tabs := [\"商店\", \"出售赤金\"] if at_base else [\"商店\", \"寄存\", \"出售赤金\"]"
+ },
+ "出库区": {
+  "where": "ui/base_hud.gd:18",
+  "line": "[\"出库区\", \"outbound\", Color(\"f5c000\")], [\"医疗前台\", \"report\", Color(\"8fc31f\")], [\"药房窗口\", \"pharmacy\", Color(\"8fc31f\")],"
+ },
+ "击破悬赏目标 ·": {
+  "where": "game/field_catalog.gd:58",
+  "line": "\"hunt\": return \"击破悬赏目标 · %s\" % AK.floor_code(region, start_floor + int(contract.offset))"
+ },
+ "前进": {
+  "where": "ui/event_screens.gd:206",
+  "line": "var go := AK.go_button(\"前进\", \"PROCEED\")"
+ },
+ "剑气与攻击类藏品更常见（先手与爆发）": {
+  "where": "game/field_catalog.gd:153",
+  "line": "\"build\": \"剑气与攻击类藏品更常见（先手与爆发）\", \"color\": Color(\"9eafb8\"), \"weights\": [0.25, 0.18, 0.42, 0.15]}"
+ },
+ "剑气分成 3 道扇形，每道 45%。": {
+  "where": "game/skill_trees.gd:49",
+  "line": "\"text\": \"剑气分成 3 道扇形，每道 45%。\"},"
+ },
+ "剑气宽度 ×1.6、射程 +4，伤害 −20%。": {
+  "where": "game/skill_trees.gd:51",
+  "line": "\"text\": \"剑气宽度 ×1.6、射程 +4，伤害 −20%。\"},"
+ },
+ "剑气追向最近的敌人，射程 −30%。": {
+  "where": "game/skill_trees.gd:53",
+  "line": "\"text\": \"剑气追向最近的敌人，射程 −30%。\"},"
+ },
+ "剑气飞行衰减减少": {
+  "where": "game/skill_trees.gd:45",
+  "line": "\"text\": \"剑气飞行衰减减少 %s。\"},"
+ },
+ "医用耗材包": {
+  "where": "game/loot_tables.gd:272",
+  "line": "out.append(_mat(\"医用耗材包\", 1, 2, ctx))"
+ },
+ "医疗部": {
+  "where": "game/base_catalog.gd:52",
+  "line": "\"med_sugar\": {\"dept\": \"医疗部\", \"count\": 4, \"material\": \"糖\", \"mult\": 1.6, \"prestige\": 7, \"weight\": 2},"
+ },
+ "只斩 1 次，系数 ×3.5，真实伤害。": {
+  "where": "game/skill_trees.gd:71",
+  "line": "\"text\": \"只斩 1 次，系数 ×3.5，真实伤害。\"},"
+ },
+ "可投保": {
+  "where": "ui/event_screens.gd:270",
+  "line": "AK.put(stage, AK.section(\"可投保\" if service == \"insure\" else \"可送回\"), Vector2(470, 120))"
+ },
+ "可露希尔": {
+  "where": "ui/event_screens.gd:436",
+  "line": "AK.put(side, AK.label(\"可露希尔\", 30, AK.FG), Vector2(32, 62))"
+ },
+ "可露希尔的商店": {
+  "where": "ui/event_screens.gd:428",
+  "line": "AK.put(side, AK.label(\"可露希尔的商店\", 26, AK.FG), Vector2(32, 40))"
+ },
+ "右键": {
+  "where": "game/keybinds.gd:42",
+  "line": "const FIXED := [[\"攻击 / 拾取 / 选择\", \"左键\"], [\"移动\", \"右键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ },
+ "合同": {
+  "where": "ui/base_hud.gd:29",
+  "line": "for entry in [[\"合同\", \"contracts\"], [\"菜单\", \"pause\"]]:"
+ },
+ "合同报酬 +": {
+  "where": "game/field_catalog.gd:65",
+  "line": "\"deep\": return \"合同报酬 +%d%%\" % roundi(DEEP_BONUS * 100)"
+ },
+ "后勤部": {
+  "where": "game/base_catalog.gd:57",
+  "line": "\"log_fuel\": {\"dept\": \"后勤部\", \"count\": 10, \"material\": \"固体燃料\", \"mult\": 1.5, \"prestige\": 6, \"weight\": 2},"
+ },
+ "后排货架；每次结算后可以免费刷新 1 张订单；安全袋扩容到 3×3": {
+  "where": "game/base_catalog.gd:214",
+  "line": "\"后排货架；每次结算后可以免费刷新 1 张订单；安全袋扩容到 3×3\","
+ },
+ "后撤离": {
+  "where": "game/field_catalog.gd:56",
+  "line": "\"deep\": return \"抵达 %s 后撤离\" % AK.floor_code(region, start_floor + int(contract.steps))"
+ },
+ "向上移动": {
+  "where": "game/keybinds.gd:29",
+  "line": "[\"move_up\", \"向上移动\", \"移动\", {\"key\": KEY_W}, {\"key\": KEY_UP}],"
+ },
+ "向右移动": {
+  "where": "game/keybinds.gd:32",
+  "line": "[\"move_right\", \"向右移动\", \"移动\", {\"key\": KEY_D}, {\"key\": KEY_RIGHT}],"
+ },
+ "向左移动": {
+  "where": "game/keybinds.gd:31",
+  "line": "[\"move_left\", \"向左移动\", \"移动\", {\"key\": KEY_A}, {\"key\": KEY_LEFT}],"
+ },
+ "命中 3 次蓄满，下一刀放出穿透剑气。剑气系数": {
+  "where": "game/skill_trees.gd:33",
+  "line": "\"text\": \"命中 3 次蓄满，下一刀放出穿透剑气。剑气系数 %s。\"},"
+ },
+ "商店": {
+  "where": "ui/event_screens.gd:444",
+  "line": "var tabs := [\"商店\", \"出售赤金\"] if at_base else [\"商店\", \"寄存\", \"出售赤金\"]"
+ },
+ "回收": {
+  "where": "game/field_catalog.gd:23",
+  "line": "const CONTRACT_NAMES := {\"deep\": \"深入\", \"recover\": \"回收\", \"hunt\": \"猎杀\", \"search\": \"搜索\"}"
+ },
+ "回收报告": {
+  "where": "ui/base_hud.gd:110",
+  "line": "\"report\": return \"返还中 %d\" % base.insurance_queue.size() if not base.insurance_queue.is_empty() else \"回收报告\""
+ },
+ "固体燃料": {
+  "where": "game/loot_tables.gd:244",
+  "line": "out.append(_mat(\"固体燃料\", 3, 6, ctx))"
+ },
+ "固源岩": {
+  "where": "game/loot_tables.gd:218",
+  "line": "out.append(_mat(\"固源岩\", 1, 2, ctx))"
+ },
+ "固源岩组": {
+  "where": "game/loot_tables.gd:221",
+  "line": "if rng.randf() < 0.20: out.append(_mat(\"固源岩组\", 1, 1, ctx))"
+ },
+ "地图": {
+  "where": "game/keybinds.gd:36",
+  "line": "[\"toggle_map\", \"地图\", \"界面\", {\"key\": KEY_M}, null],"
+ },
+ "基础加固建材": {
+  "where": "game/base_catalog.gd:190",
+  "line": "{\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1}, {\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1}, {\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1},"
+ },
+ "声望提升：": {
+  "where": "ui/base_hud.gd:61",
+  "line": "var line := \"声望提升：\" + str(BaseCatalog.RANK_UNLOCKS[rank]).replace(\"；\", \" · \")"
+ },
+ "外勤合同": {
+  "where": "ui/base_hud.gd:98",
+  "line": "\"contracts\": return \"外勤合同\""
+ },
+ "外勤战刃": {
+  "where": "game/field_catalog.gd:214",
+  "line": "var names := [\"外勤战刃\", \"防护甲胄\", \"战术挂饰\", \"封装矿料\"]"
+ },
+ "外勤支援 ·": {
+  "where": "ui/event_screens.gd:250",
+  "line": "_title(side, Vector2(36, 40), \"ENCOUNTER\", \"罗德岛小队\", \"外勤支援 · \" + AK.floor_code(game.region_id, game.floor_number), AK.CYAN)"
+ },
+ "大": {
+  "where": "game/base_catalog.gd:24",
+  "line": "const CRATE_SIZE_NAMES := [\"小\", \"中\", \"大\"]"
+ },
+ "存入安全袋": {
+  "where": "game/keybinds.gd:38",
+  "line": "[\"stash_item\", \"存入安全袋\", \"界面\", {\"key\": KEY_B}, null],"
+ },
+ "安全袋": {
+  "where": "game/keybinds.gd:42",
+  "line": "const FIXED := [[\"攻击 / 拾取 / 选择\", \"左键\"], [\"移动\", \"右键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ },
+ "家具零件": {
+  "where": "game/base_catalog.gd:192",
+  "line": "const PACK_MATERIALS := [{}, {\"帆布\": 3, \"胶带\": 2, \"碳\": 2}, {\"帆布\": 5, \"密封泡沫\": 2, \"家具零件\": 3}]"
+ },
+ "寄存": {
+  "where": "ui/event_screens.gd:444",
+  "line": "var tabs := [\"商店\", \"出售赤金\"] if at_base else [\"商店\", \"寄存\", \"出售赤金\"]"
+ },
+ "密封泡沫": {
+  "where": "game/base_catalog.gd:192",
+  "line": "const PACK_MATERIALS := [{}, {\"帆布\": 3, \"胶带\": 2, \"碳\": 2}, {\"帆布\": 5, \"密封泡沫\": 2, \"家具零件\": 3}]"
+ },
+ "封装矿料": {
+  "where": "game/field_catalog.gd:214",
+  "line": "var names := [\"外勤战刃\", \"防护甲胄\", \"战术挂饰\", \"封装矿料\"]"
+ },
+ "小": {
+  "where": "game/base_catalog.gd:24",
+  "line": "const CRATE_SIZE_NAMES := [\"小\", \"中\", \"大\"]"
+ },
+ "工具套装": {
+  "where": "game/loot_tables.gd:260",
+  "line": "if rng.randf() < 0.03: out.append(_mat(\"工具套装\", 1, 1, ctx))"
+ },
+ "工程部": {
+  "where": "game/base_catalog.gd:47",
+  "line": "\"starter\": {\"dept\": \"工程部\", \"count\": 4, \"category\": Item.Category.MATERIAL, \"mult\": 1.3, \"prestige\": 5, \"weight\": 0},"
+ },
+ "左键": {
+  "where": "game/keybinds.gd:42",
+  "line": "const FIXED := [[\"攻击 / 拾取 / 选择\", \"左键\"], [\"移动\", \"右键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ },
+ "已习得": {
+  "where": "game/skill_trees.gd:122",
+  "line": "if str(data.get(\"type\", \"\")) == \"transmuter\": return \"已习得\" if rank > 0 else \"未习得\""
+ },
+ "帆布": {
+  "where": "game/base_catalog.gd:192",
+  "line": "const PACK_MATERIALS := [{}, {\"帆布\": 3, \"胶带\": 2, \"碳\": 2}, {\"帆布\": 5, \"密封泡沫\": 2, \"家具零件\": 3}]"
+ },
+ "带回": {
+  "where": "game/field_catalog.gd:57",
+  "line": "\"recover\": return \"带回 %s ×%d\" % [contract.material, int(contract.count)]"
+ },
+ "开启密室 ×": {
+  "where": "game/field_catalog.gd:59",
+  "line": "\"search\": return \"开启密室 ×%d\" % int(contract.vaults)"
+ },
+ "异铁": {
+  "where": "game/field_catalog.gd:29",
+  "line": "\"city\": [[\"代糖\", 4], [\"糖\", 2], [\"异铁\", 3]],"
+ },
+ "弹跳范围 4 → 6。": {
+  "where": "game/skill_trees.gd:73",
+  "line": "\"text\": \"弹跳范围 4 → 6。\"},"
+ },
+ "微型电机": {
+  "where": "game/base_catalog.gd:198",
+  "line": "const DRONE_MATERIALS := {\"微型电机\": 1, \"电路板\": 2, \"蓄电池\": 2, \"家具零件\": 2}"
+ },
+ "快捷栏": {
+  "where": "game/keybinds.gd:16",
+  "line": "[\"hotbar_1\", \"快捷栏 1\", \"快捷栏\", {\"key\": KEY_SHIFT}, null],"
+ },
+ "快捷栏 1": {
+  "where": "game/keybinds.gd:16",
+  "line": "[\"hotbar_1\", \"快捷栏 1\", \"快捷栏\", {\"key\": KEY_SHIFT}, null],"
+ },
+ "快捷栏 2": {
+  "where": "game/keybinds.gd:17",
+  "line": "[\"hotbar_2\", \"快捷栏 2\", \"快捷栏\", {\"key\": KEY_SPACE}, null],"
+ },
+ "快捷栏 3": {
+  "where": "game/keybinds.gd:18",
+  "line": "[\"hotbar_3\", \"快捷栏 3\", \"快捷栏\", {\"key\": KEY_Q}, null],"
+ },
+ "快捷栏 4": {
+  "where": "game/keybinds.gd:19",
+  "line": "[\"hotbar_4\", \"快捷栏 4\", \"快捷栏\", {\"key\": KEY_1}, null],"
+ },
+ "快捷栏 5": {
+  "where": "game/keybinds.gd:20",
+  "line": "[\"hotbar_5\", \"快捷栏 5\", \"快捷栏\", {\"key\": KEY_2}, null],"
+ },
+ "快捷栏 6": {
+  "where": "game/keybinds.gd:21",
+  "line": "[\"hotbar_6\", \"快捷栏 6\", \"快捷栏\", {\"key\": KEY_3}, null],"
+ },
+ "快捷栏 7": {
+  "where": "game/keybinds.gd:22",
+  "line": "[\"hotbar_7\", \"快捷栏 7\", \"快捷栏\", {\"key\": KEY_4}, null],"
+ },
+ "快捷栏 8": {
+  "where": "game/keybinds.gd:23",
+  "line": "[\"hotbar_8\", \"快捷栏 8\", \"快捷栏\", {\"key\": KEY_5}, null],"
+ },
+ "战术挂饰": {
+  "where": "game/field_catalog.gd:214",
+  "line": "var names := [\"外勤战刃\", \"防护甲胄\", \"战术挂饰\", \"封装矿料\"]"
+ },
+ "扳手": {
+  "where": "game/loot_tables.gd:259",
+  "line": "if rng.randf() < 0.15: out.append(_mat(\"扳手\", 1, 1, ctx))"
+ },
+ "抵达": {
+  "where": "game/field_catalog.gd:56",
+  "line": "\"deep\": return \"抵达 %s 后撤离\" % AK.floor_code(region, start_floor + int(contract.steps))"
+ },
+ "掉落加成": {
+  "where": "ui/event_screens.gd:203",
+  "line": "AK.put(stage, AK.label(\"掉落加成\", 13, AK.MUTE), Vector2(996, 300))"
+ },
+ "携带时每秒失去 60 生命；安全袋也不能隔绝污染。材料不可点金。": {
+  "where": "game/field_catalog.gd:172",
+  "line": "item.description = \"携带时每秒失去 60 生命；安全袋也不能隔绝污染。材料不可点金。\""
+ },
+ "收购价": {
+  "where": "ui/event_screens.gd:358",
+  "line": "if pick != null: _info(stage, game, pick, \"收购价\", str(game.trader_offer(pick)), Vector2(390 + game.inventory.width * 40 + 18, 84))"
+ },
+ "攻击 / 拾取 / 选择": {
+  "where": "game/keybinds.gd:42",
+  "line": "const FIXED := [[\"攻击 / 拾取 / 选择\", \"左键\"], [\"移动\", \"右键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ },
+ "攻击、防御与攻速类藏品更常见（近战与格挡）": {
+  "where": "game/field_catalog.gd:150",
+  "line": "\"build\": \"攻击、防御与攻速类藏品更常见（近战与格挡）\", \"color\": Color(\"354656\"), \"weights\": [0.18, 0.56, 0.14, 0.12]},"
+ },
+ "斩击 4 → 6 次，每次伤害 −30%。": {
+  "where": "game/skill_trees.gd:69",
+  "line": "\"text\": \"斩击 4 → 6 次，每次伤害 −30%。\"},"
+ },
+ "斩击系数": {
+  "where": "game/skill_trees.gd:57",
+  "line": "\"text\": \"斩击系数 %s，冷却 %s 秒。\"},"
+ },
+ "无": {
+  "where": "game/base_catalog.gd:112",
+  "line": "const CONTAMINATION_TIER_NAMES := [\"无\", \"轻度\", \"中度\", \"重度\"]"
+ },
+ "显示全部地面物品": {
+  "where": "game/keybinds.gd:39",
+  "line": "[\"show_items\", \"显示全部地面物品\", \"界面\", {\"key\": KEY_ALT}, null],"
+ },
+ "普攻命中让绝影冷却多减": {
+  "where": "game/skill_trees.gd:61",
+  "line": "\"text\": \"普攻命中让绝影冷却多减 %s 秒。\"},"
+ },
+ "暂停": {
+  "where": "game/keybinds.gd:42",
+  "line": "const FIXED := [[\"攻击 / 拾取 / 选择\", \"左键\"], [\"移动\", \"右键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ },
+ "木板": {
+  "where": "game/loot_tables.gd:210",
+  "line": "out.append(_mat(\"金属板\" if rng.randf() < 0.5 else \"木板\", 1, 3, ctx))"
+ },
+ "未习得": {
+  "where": "game/skill_trees.gd:122",
+  "line": "if str(data.get(\"type\", \"\")) == \"transmuter\": return \"已习得\" if rank > 0 else \"未习得\""
+ },
+ "未完成": {
+  "where": "ui/event_screens.gd:569",
+  "line": "AK.put(stage, AK.label((\"✓ \" + str(objective.bonus)) if objective.done else \"未完成\", 11, AK.GREEN if objective.done else AK.RED), Vector2(130, 340))"
+ },
+ "未封装源石原矿": {
+  "where": "game/base_catalog.gd:80",
+  "line": "what = {\"raw_ore\": \"未封装源石原矿\", \"riot_shield\": \"近卫局暴动盾\", \"frozen_relic\": \"冻土下的旧物\"}[t.effect]"
+ },
+ "未封装源石原矿：高价值，但携带持续失血": {
+  "where": "game/field_catalog.gd:146",
+  "line": "\"loot\": \"材料多，装备少\", \"exclusive\": \"未封装源石原矿：高价值，但携带持续失血\","
+ },
+ "材料": {
+  "where": "game/base_catalog.gd:22",
+  "line": "const CATEGORY_NAMES := [\"武器\", \"防具\", \"饰品\", \"材料\"]"
+ },
+ "材料多，装备少": {
+  "where": "game/field_catalog.gd:146",
+  "line": "\"loot\": \"材料多，装备少\", \"exclusive\": \"未封装源石原矿：高价值，但携带持续失血\","
+ },
+ "概率再追加一刀。": {
+  "where": "game/skill_trees.gd:67",
+  "line": "\"text\": \"第 2 段第二刀有 %s 概率再追加一刀。\"},"
+ },
+ "模组数据块": {
+  "where": "game/loot_tables.gd:150",
+  "line": "\"boss\": [[\"近卫芯片组\", 0.35], [\"模组数据块\", 0.15], [\"技巧概要·卷3\", 0.30], [\"近卫芯片\", 0.50]],"
+ },
+ "武器": {
+  "where": "game/base_catalog.gd:22",
+  "line": "const CATEGORY_NAMES := [\"武器\", \"防具\", \"饰品\", \"材料\"]"
+ },
+ "每放出": {
+  "where": "game/skill_trees.gd:41",
+  "line": "\"text\": \"每放出 %s 道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +%s，剑气蓄力降为 1 次。\"},"
+ },
+ "污染检测门": {
+  "where": "ui/base_hud.gd:19",
+  "line": "[\"污染检测门\", \"decon\", Color(\"e0782a\")], [\"可露希尔的商店\", \"store\", Color(\"8fc31f\")],"
+ },
+ "法术斩。": {
+  "where": "game/skill_trees.gd:43",
+  "line": "\"text\": \"狼魂期间，每次挥砍对 4 米内另一名敌人追加一次 %s 法术斩。\"},"
+ },
+ "深入": {
+  "where": "game/field_catalog.gd:23",
+  "line": "const CONTRACT_NAMES := {\"deep\": \"深入\", \"recover\": \"回收\", \"hunt\": \"猎杀\", \"search\": \"搜索\"}"
+ },
+ "源岩": {
+  "where": "game/loot_tables.gd:217",
+  "line": "out.append(_mat(\"源岩\", 3, 6, ctx))"
+ },
+ "源石碎片": {
+  "where": "game/loot_tables.gd:222",
+  "line": "if rng.randf() < 0.03: out.append(_mat(\"源石碎片\", 1, 1, ctx))"
+ },
+ "滚轮上": {
+  "where": "game/keybinds.gd:138",
+  "line": "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
+ },
+ "滚轮下": {
+  "where": "game/keybinds.gd:138",
+  "line": "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
+ },
+ "滚轮右": {
+  "where": "game/keybinds.gd:138",
+  "line": "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
+ },
+ "滚轮左": {
+  "where": "game/keybinds.gd:138",
+  "line": "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
+ },
+ "灯泡": {
+  "where": "game/base_catalog.gd:182",
+  "line": "const CONSOLE_MATERIALS := {\"电源线\": 2, \"继电器\": 1, \"灯泡\": 2}"
+ },
+ "燃料罐": {
+  "where": "game/loot_tables.gd:220",
+  "line": "if rng.randf() < 0.05: out.append(_mat(\"燃料罐\", 1, 1, ctx))"
+ },
+ "狼魂期间，每次挥砍对 4 米内另一名敌人追加一次": {
+  "where": "game/skill_trees.gd:43",
+  "line": "\"text\": \"狼魂期间，每次挥砍对 4 米内另一名敌人追加一次 %s 法术斩。\"},"
+ },
+ "电源线": {
+  "where": "game/base_catalog.gd:182",
+  "line": "const CONSOLE_MATERIALS := {\"电源线\": 2, \"继电器\": 1, \"灯泡\": 2}"
+ },
+ "电线": {
+  "where": "game/loot_tables.gd:258",
+  "line": "if rng.randf() < 0.30: out.append(_mat(\"电线\", 1, 3, ctx))"
+ },
+ "电路板": {
+  "where": "game/base_catalog.gd:193",
+  "line": "const SAFE_MATERIALS := [{}, {\"金属板\": 4, \"继电器\": 1, \"赤金\": 1}, {\"碳素组\": 1, \"电路板\": 2, \"赤金\": 2}]"
+ },
+ "界面": {
+  "where": "game/keybinds.gd:35",
+  "line": "[\"toggle_relics\", \"藏品\", \"界面\", {\"key\": KEY_R}, null],"
+ },
+ "碳": {
+  "where": "game/base_catalog.gd:190",
+  "line": "{\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1}, {\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1}, {\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1},"
+ },
+ "碳素": {
+  "where": "game/base_catalog.gd:191",
+  "line": "{\"碳素\": 3, \"金属板\": 4, \"进阶加固建材\": 1}, {\"碳素\": 3, \"金属板\": 4, \"进阶加固建材\": 1}, {\"碳素\": 3, \"金属板\": 4, \"进阶加固建材\": 1}]"
+ },
+ "碳素组": {
+  "where": "game/base_catalog.gd:193",
+  "line": "const SAFE_MATERIALS := [{}, {\"金属板\": 4, \"继电器\": 1, \"赤金\": 1}, {\"碳素组\": 1, \"电路板\": 2, \"赤金\": 2}]"
+ },
+ "离开": {
+  "where": "ui/event_screens.gd:291",
+  "line": "_footer(stage, Vector2(470, 622), 770, \"离开\", label + (\" · %d\" % game.squad_price(pick) if pick != null else \"\"), game.close_modal, func():"
+ },
+ "秒。": {
+  "where": "game/skill_trees.gd:57",
+  "line": "\"text\": \"斩击系数 %s，冷却 %s 秒。\"},"
+ },
+ "移动": {
+  "where": "game/keybinds.gd:29",
+  "line": "[\"move_up\", \"向上移动\", \"移动\", {\"key\": KEY_W}, {\"key\": KEY_UP}],"
+ },
+ "稀有装备 ×1": {
+  "where": "game/field_catalog.gd:67",
+  "line": "\"hunt\": return \"稀有装备 ×1\""
+ },
+ "站点总览": {
+  "where": "ui/base_hud.gd:69",
+  "line": "_text(Vector2(16, 86), \"站点总览\", 13, AK.FG)"
+ },
+ "第 2 段第二刀有": {
+  "where": "game/skill_trees.gd:67",
+  "line": "\"text\": \"第 2 段第二刀有 %s 概率再追加一刀。\"},"
+ },
+ "第 3 段扫影距离 +": {
+  "where": "game/skill_trees.gd:37",
+  "line": "\"text\": \"第 3 段扫影距离 +%s；命中的敌人减速 %s，持续 2 秒。\"},"
+ },
+ "糖": {
+  "where": "game/field_catalog.gd:29",
+  "line": "\"city\": [[\"代糖\", 4], [\"糖\", 2], [\"异铁\", 3]],"
+ },
+ "绝影击败敌人后，剩下的斩击为真实伤害。": {
+  "where": "game/skill_trees.gd:65",
+  "line": "\"text\": \"绝影击败敌人后，剩下的斩击为真实伤害。\"},"
+ },
+ "绝影期间每击败一个敌人攻击力 +": {
+  "where": "game/skill_trees.gd:63",
+  "line": "\"text\": \"绝影期间每击败一个敌人攻击力 +%s、法抗 +20，最多 3 层。\"},"
+ },
+ "继电器": {
+  "where": "game/base_catalog.gd:182",
+  "line": "const CONSOLE_MATERIALS := {\"电源线\": 2, \"继电器\": 1, \"灯泡\": 2}"
+ },
+ "继续 ·": {
+  "where": "ui/event_screens.gd:441",
+  "line": "var on := AK.button(\"继续 · %s\" % AK.floor_code(game.region_id, game.floor_number + 1), \"plain\", 15)"
+ },
+ "罗德岛 · 舰桥大厅": {
+  "where": "ui/base_hud.gd:57",
+  "line": "_text(Vector2(18, 46), \"罗德岛 · 舰桥大厅\", 20, AK.FG)"
+ },
+ "胶带": {
+  "where": "game/base_catalog.gd:192",
+  "line": "const PACK_MATERIALS := [{}, {\"帆布\": 3, \"胶带\": 2, \"碳\": 2}, {\"帆布\": 5, \"密封泡沫\": 2, \"家具零件\": 3}]"
+ },
+ "药剂 · 赤金": {
+  "where": "ui/base_hud.gd:113",
+  "line": "\"store\": return \"药剂 · 赤金\""
+ },
+ "获取": {
+  "where": "ui/event_screens.gd:139",
+  "line": "var take := AK.go_button(\"获取\", \"ACQUIRE\")"
+ },
+ "蓄电池": {
+  "where": "game/base_catalog.gd:198",
+  "line": "const DRONE_MATERIALS := {\"微型电机\": 1, \"电路板\": 2, \"蓄电池\": 2, \"家具零件\": 2}"
+ },
+ "藏品": {
+  "where": "game/keybinds.gd:35",
+  "line": "[\"toggle_relics\", \"藏品\", \"界面\", {\"key\": KEY_R}, null],"
+ },
+ "螺栓": {
+  "where": "game/base_catalog.gd:189",
+  "line": "const RACK_MATERIALS := [{}, {\"螺栓\": 4, \"金属板\": 2}, {\"螺栓\": 4, \"金属板\": 2},"
+ },
+ "螺母": {
+  "where": "game/loot_tables.gd:209",
+  "line": "out.append(_mat(_one([\"螺栓\", \"螺母\", \"钉子\"], rng), 3, 6, ctx))"
+ },
+ "行动失败": {
+  "where": "ui/event_screens.gd:538",
+  "line": "AK.put(stage, AK.label(\"行动结束\" if ok else \"行动失败\", 52, AK.FG if ok else AK.RED), Vector2(48, 76))"
+ },
+ "行动结束": {
+  "where": "ui/event_screens.gd:538",
+  "line": "AK.put(stage, AK.label(\"行动结束\" if ok else \"行动失败\", 52, AK.FG if ok else AK.RED), Vector2(48, 76))"
+ },
+ "装备 · 投保": {
+  "where": "ui/base_hud.gd:99",
+  "line": "\"loadout\": return \"装备 · 投保\""
+ },
+ "装备时伤害提高 40%，体力恢复降低 40%。": {
+  "where": "game/field_catalog.gd:183",
+  "line": "item.description = \"装备时伤害提高 40%，体力恢复降低 40%。\""
+ },
+ "装备时减伤 25%，移速降低 20%。": {
+  "where": "game/field_catalog.gd:177",
+  "line": "item.description = \"装备时减伤 25%，移速降低 20%。\""
+ },
+ "订单": {
+  "where": "ui/base_hud.gd:109",
+  "line": "return \"订单 · 可交付 %d\" % ready if ready > 0 else \"订单\""
+ },
+ "订单 · 可交付": {
+  "where": "ui/base_hud.gd:109",
+  "line": "return \"订单 · 可交付 %d\" % ready if ready > 0 else \"订单\""
+ },
+ "诡意行商 ·": {
+  "where": "ui/event_screens.gd:329",
+  "line": "_title(side, Vector2(32, 36), \"ROGUE TRADER\", \"坎诺特\", \"诡意行商 · \" + AK.floor_code(game.region_id, game.floor_number), AK.TRADER)"
+ },
+ "调度台": {
+  "where": "ui/base_hud.gd:17",
+  "line": "[\"调度台\", \"contracts\", Color(\"ffffff\")], [\"整备台\", \"loadout\", Color(\"0098dc\")], [\"仓管台\", \"stash\", Color(\"0098dc\")],"
+ },
+ "购买": {
+  "where": "ui/event_screens.gd:331",
+  "line": "AK.put(stage, AK.toggle([\"购买\", \"出售\"], 1 if selling else 0, func(i): menu.trader_tab = [\"buy\", \"sell\"][i]; menu.pick = null; trader(menu)), Vector2(390, 32))"
+ },
+ "费用": {
+  "where": "ui/event_screens.gd:496",
+  "line": "if pick != null: _info(stage, game, pick, \"费用\", str(game.deposit_fee(pick)), Vector2(410 + game.inventory.width * 40 + 18, 84))"
+ },
+ "赤金": {
+  "where": "game/base_catalog.gd:193",
+  "line": "const SAFE_MATERIALS := [{}, {\"金属板\": 4, \"继电器\": 1, \"赤金\": 1}, {\"碳素组\": 1, \"电路板\": 2, \"赤金\": 2}]"
+ },
+ "车用蓄电池": {
+  "where": "game/loot_tables.gd:231",
+  "line": "if rng.randf() < 0.04: out.append(_mat(\"车用蓄电池\", 1, 1, ctx))"
+ },
+ "软管": {
+  "where": "game/loot_tables.gd:213",
+  "line": "if rng.randf() < 0.35: out.append(_mat(\"软管\", 1, 2, ctx))"
+ },
+ "轻度": {
+  "where": "game/base_catalog.gd:112",
+  "line": "const CONTAMINATION_TIER_NAMES := [\"无\", \"轻度\", \"中度\", \"重度\"]"
+ },
+ "近卫局暴动盾": {
+  "where": "game/base_catalog.gd:80",
+  "line": "what = {\"raw_ore\": \"未封装源石原矿\", \"riot_shield\": \"近卫局暴动盾\", \"frozen_relic\": \"冻土下的旧物\"}[t.effect]"
+ },
+ "近卫局暴动盾：更能承伤，但降低移速": {
+  "where": "game/field_catalog.gd:149",
+  "line": "\"loot\": \"防具多，制式装备品质较高\", \"exclusive\": \"近卫局暴动盾：更能承伤，但降低移速\","
+ },
+ "近卫芯片": {
+  "where": "game/loot_tables.gd:148",
+  "line": "\"guard\": [[\"技巧概要·卷1\", 0.06], [\"近卫芯片\", 0.03]],"
+ },
+ "返回": {
+  "where": "ui/event_screens.gd:430",
+  "line": "var back := AK.button(\"返回\", \"plain\", 15)"
+ },
+ "返回罗德岛": {
+  "where": "ui/event_screens.gd:577",
+  "line": "var back := AK.go_button(\"返回罗德岛\", \"RETURN\")"
+ },
+ "返还中": {
+  "where": "ui/base_hud.gd:110",
+  "line": "\"report\": return \"返还中 %d\" % base.insurance_queue.size() if not base.insurance_queue.is_empty() else \"回收报告\""
+ },
+ "进阶加固建材": {
+  "where": "game/base_catalog.gd:191",
+  "line": "{\"碳素\": 3, \"金属板\": 4, \"进阶加固建材\": 1}, {\"碳素\": 3, \"金属板\": 4, \"进阶加固建材\": 1}, {\"碳素\": 3, \"金属板\": 4, \"进阶加固建材\": 1}]"
+ },
+ "连斩不中断时，第 2、3 段攻速 +": {
+  "where": "game/skill_trees.gd:39",
+  "line": "\"text\": \"连斩不中断时，第 2、3 段攻速 +%s。\"},"
+ },
+ "连斩第 2 段攻击力 +": {
+  "where": "game/skill_trees.gd:59",
+  "line": "\"text\": \"连斩第 2 段攻击力 +%s；第 2 段后 2 秒内法术闪避 +15%%。\"},"
+ },
+ "连斩第 3 段命中后 4 秒内物理闪避 +": {
+  "where": "game/skill_trees.gd:35",
+  "line": "\"text\": \"连斩第 3 段命中后 4 秒内物理闪避 +%s，第 3 段伤害 +%s。\"},"
+ },
+ "选择": {
+  "where": "ui/event_screens.gd:107",
+  "line": "card.set_meta(\"label\", \"选择 \" + offer.name)"
+ },
+ "选择去向": {
+  "where": "ui/event_screens.gd:153",
+  "line": "_title(stage, Vector2(84, 18), \"INTEGRATED ROUTE\", \"选择去向\")"
+ },
+ "选择藏品": {
+  "where": "ui/event_screens.gd:98",
+  "line": "_title(stage, Vector2(60, 40), SOURCE_EN.get(game.offer_source, \"ENHANCEMENT DEVICE\"), \"选择藏品\", FieldMenu.OFFER_TITLES.get(game.offer_source, \"强化装置\"))"
+ },
+ "道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +": {
+  "where": "game/skill_trees.gd:41",
+  "line": "\"text\": \"每放出 %s 道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +%s，剑气蓄力降为 1 次。\"},"
+ },
+ "配药": {
+  "where": "ui/base_hud.gd:111",
+  "line": "\"pharmacy\": return \"配药\""
+ },
+ "重度": {
+  "where": "game/base_catalog.gd:112",
+  "line": "const CONTAMINATION_TIER_NAMES := [\"无\", \"轻度\", \"中度\", \"重度\"]"
+ },
+ "金属板": {
+  "where": "game/base_catalog.gd:189",
+  "line": "const RACK_MATERIALS := [{}, {\"螺栓\": 4, \"金属板\": 2}, {\"螺栓\": 4, \"金属板\": 2},"
+ },
+ "钉子": {
+  "where": "game/loot_tables.gd:209",
+  "line": "out.append(_mat(_one([\"螺栓\", \"螺母\", \"钉子\"], rng), 3, 6, ctx))"
+ },
+ "闪避后 1.5 秒内的下一刀暴击率 +": {
+  "where": "game/skill_trees.gd:47",
+  "line": "\"text\": \"闪避后 1.5 秒内的下一刀暴击率 +%s。\"},"
+ },
+ "防具": {
+  "where": "game/base_catalog.gd:22",
+  "line": "const CATEGORY_NAMES := [\"武器\", \"防具\", \"饰品\", \"材料\"]"
+ },
+ "防具多，制式装备品质较高": {
+  "where": "game/field_catalog.gd:149",
+  "line": "\"loot\": \"防具多，制式装备品质较高\", \"exclusive\": \"近卫局暴动盾：更能承伤，但降低移速\","
+ },
+ "防御与生命类藏品更常见（承伤与持续作战）": {
+  "where": "game/field_catalog.gd:147",
+  "line": "\"build\": \"防御与生命类藏品更常见（承伤与持续作战）\", \"color\": Color(\"514b3b\"), \"weights\": [0.12, 0.12, 0.11, 0.65]},"
+ },
+ "防护甲胄": {
+  "where": "game/field_catalog.gd:214",
+  "line": "var names := [\"外勤战刃\", \"防护甲胄\", \"战术挂饰\", \"封装矿料\"]"
+ },
+ "预留：两翼走廊的清理": {
+  "where": "game/base_catalog.gd:215",
+  "line": "\"预留：两翼走廊的清理\","
+ },
+ "饰品": {
+  "where": "game/base_catalog.gd:22",
+  "line": "const CATEGORY_NAMES := [\"武器\", \"防具\", \"饰品\", \"材料\"]"
+ },
+ "鼠标": {
+  "where": "game/keybinds.gd:142",
+  "line": "if binding.has(\"mouse\"): return MOUSE_NAMES.get(int(binding.mouse), \"鼠标 %d\" % int(binding.mouse))"
+ },
+ "龙门币 · 声望 +": {
+  "where": "game/field_catalog.gd:66",
+  "line": "\"recover\": return \"%s 龙门币 · 声望 +%d\" % [Economy.format(RECOVER_REWARD.money), RECOVER_REWARD.prestige]"
+ },
+ "（产地：": {
+  "where": "game/base_catalog.gd:87",
+  "line": "if t.has(\"region\") and not t.has(\"effect\"): where = \"（产地：%s）\" % FieldCatalog.REGIONS[t.region].name.split(\" · \")[0]"
+ },
+ "）": {
+  "where": "game/base_catalog.gd:87",
+  "line": "if t.has(\"region\") and not t.has(\"effect\"): where = \"（产地：%s）\" % FieldCatalog.REGIONS[t.region].name.split(\" · \")[0]"
+ },
+ "，冷却": {
+  "where": "game/skill_trees.gd:57",
+  "line": "\"text\": \"斩击系数 %s，冷却 %s 秒。\"},"
+ },
+ "，剑气蓄力降为 1 次。": {
+  "where": "game/skill_trees.gd:41",
+  "line": "\"text\": \"每放出 %s 道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +%s，剑气蓄力降为 1 次。\"},"
+ },
+ "，并使其受到伤害 +": {
+  "where": "game/skill_trees.gd:216",
+  "line": "return str(data.text) % [str(roundi(m[0])), str(m[1]), \"，并使其受到伤害 +%d%%\" % roundi(m[2] * 100) if m[2] > 0 else \"\"]"
+ },
+ "，持续 2 秒。": {
+  "where": "game/skill_trees.gd:37",
+  "line": "\"text\": \"第 3 段扫影距离 +%s；命中的敌人减速 %s，持续 2 秒。\"},"
+ },
+ "，第 3 段伤害 +": {
+  "where": "game/skill_trees.gd:35",
+  "line": "\"text\": \"连斩第 3 段命中后 4 秒内物理闪避 +%s，第 3 段伤害 +%s。\"},"
+ },
+ "：": {
+  "where": "game/base_catalog.gd:88",
+  "line": "return \"%s：%s ×%d%s\" % [t.dept, what, t.count, where]"
+ },
+ "；": {
+  "where": "ui/base_hud.gd:61",
+  "line": "var line := \"声望提升：\" + str(BaseCatalog.RANK_UNLOCKS[rank]).replace(\"；\", \" · \")"
+ },
+ "；命中的敌人减速": {
+  "where": "game/skill_trees.gd:37",
+  "line": "\"text\": \"第 3 段扫影距离 +%s；命中的敌人减速 %s，持续 2 秒。\"},"
+ },
+ "；第 2 段后 2 秒内法术闪避 +15": {
+  "where": "game/skill_trees.gd:59",
+  "line": "\"text\": \"连斩第 2 段攻击力 +%s；第 2 段后 2 秒内法术闪避 +15%%。\"},"
+ }
+}

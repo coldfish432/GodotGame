@@ -133,8 +133,6 @@ var _device_offers: Array[Dictionary] = []
 var _active_cache: RelicCache
 var reroll_count := 0
 ## Threat defeated this segment and whether its combat cache has appeared (§8.2).
-var segment_threat := 0
-var _cache_spawned := false
 ## Ground pickup filter (装备与背包界面调研 §5.10, Grim Dawn style): 0 picks up
 ## everything, 1 equipment of 精良 and up, 2 only 稀有. Materials, exclusives
 ## and money are always picked up. Filtered drops stay; E picks one up.
@@ -226,8 +224,15 @@ func _skill_aim() -> Vector3:
 	var enemy := _get_enemy_under_pointer()
 	return enemy.global_position if is_instance_valid(enemy) else _get_pointer_ground()
 
+## The field runs. A box's window does not stop it (用户 2026-10-13: 开容器时改为
+## 不是暂停的): enemies keep coming while she searches, and she cannot move
+## or fight until she closes it (or a hit closes it for her).
 func simulation_active() -> bool:
-	return not in_base and not transitioning and modal.is_empty()
+	return not in_base and not transitioning and (modal.is_empty() or (modal == "inventory" and is_instance_valid(looting)))
+
+## She is at a box's window: the field runs, her hands are busy.
+func hands_busy() -> bool:
+	return is_instance_valid(looting)
 
 ## Walking around Rhodes Island between contracts: movement only, no combat.
 func base_walk_active() -> bool:
@@ -251,7 +256,10 @@ func _process(delta: float) -> void:
 	for entry in [["toggle_relics", "relics"], ["toggle_map", "map"], ["toggle_journal", "journal"]]:
 		if Input.is_action_just_pressed(entry[0]): toggle_panel(entry[1])
 	if Input.is_action_just_pressed("toggle_pause"): go_back()
-	if simulation_active():
+	# A hit while she searches shuts the box's window, so she can answer it.
+	if hands_busy() and (not looting.is_inside_tree() or player.hp < _loot_hp - 0.5): close_modal()
+	if simulation_active() and hands_busy(): _tick_toasts(delta)
+	if simulation_active() and not hands_busy():
 		var enemy := _get_enemy_under_pointer()
 		_handle_pointer_input(enemy)
 		_tick_pickup()
@@ -269,6 +277,11 @@ func _process(delta: float) -> void:
 		_handle_base_pointer()
 		if Input.is_action_just_pressed("interact"): _base_interact()
 	_update_base_prompt()
+	# The snowfall rides above her view (TerraceDressing.weather).
+	if is_instance_valid(world_map) and is_instance_valid(world_map.terrace_dressing) and is_instance_valid(world_map.terrace_dressing.weather) and world_map.terrace_dressing.weather.is_inside_tree() and is_instance_valid(player) and player.is_inside_tree():
+		world_map.terrace_dressing.weather.global_position = player.global_position + Vector3(0, 11, 4)
+	# The glow that follows her through the field (FieldLight).
+	if is_instance_valid(player): RenderingServer.global_shader_parameter_set("field_player", player.global_position + Vector3.DOWN * 0.7)
 	if is_instance_valid(camera):
 		# Anything that placed the camera directly (spawns, captures) restarts the follow from there.
 		if not camera.global_position.is_equal_approx(_camera_snapped): _camera_follow = camera.global_position
@@ -564,7 +577,7 @@ func _update_base_prompt() -> void:
 	if not _base_prompt.visible: return
 	var station := nearby_station()
 	var lines: Array[String] = []
-	if not station.is_empty(): lines.append("E  " + station.label)
+	if not station.is_empty(): lines.append("E")
 	if message_timer > 0 and not message.is_empty(): lines.append(message)
 	_base_prompt.text = "
 ".join(lines)
@@ -628,6 +641,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	set_message("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
 
 func _clear_field() -> void:
+	looting = null
 	for child in get_children():
 		if child is Enemy or child is GuardPost or child is Loot or child is LootContainer or child is RelicCache or child is SwordWave or child is CombatVfx or child is EnemyAttackVfx or child is EnemyProjectile or child is MeshInstance3D or child is GroundHazard:
 			remove_child(child)
@@ -643,14 +657,11 @@ func _build_world() -> void:
 	vault_opened = false
 	_mechanisms_done.clear()
 	_vault_guardians.clear()
-	fog.setup(ContinuousWorldMap.SPINE_MIN, ContinuousWorldMap.SPINE_MAX)
 	_roll_encounter()
 	world_map.encounter_kind = encounter
 	build_offers.clear()
 	_device_offers.clear()
 	_active_cache = null
-	segment_threat = 0
-	_cache_spawned = false
 	_roll_random_extraction()
 	_seen_encounter = false
 	_seen_exit = false
@@ -659,6 +670,8 @@ func _build_world() -> void:
 	world_map.region_id = region_id
 	world_map.extraction_available = is_extraction_floor()
 	world_map.generate(_run_seed + floor_number * 7919, floor_number)
+	# The fog covers this floor's own bounds (each floor rolls its size).
+	fog.setup(world_map.SPINE_MIN, world_map.SPINE_MAX)
 	outpost_cleared = not is_outpost_floor()
 
 ## The 10th floor of each block, just before the camp, is the outpost (§6 B2).
@@ -694,16 +707,17 @@ func _roll_encounter() -> void:
 func is_encounter_available() -> bool: return not encounter.is_empty() and not encounter_used
 
 func _interact() -> void:
-	if not simulation_active(): return
+	if not simulation_active() or hands_busy(): return
 	# Ground loot is taken by clicking its name (request_pickup), not with E.
 	for node in get_tree().get_nodes_in_group("loot_containers"):
 		var box := node as LootContainer
-		if box.game != self or box.opened or player.global_position.distance_to(box.global_position) > LootContainer.REACH: continue
+		if box.game != self or player.global_position.distance_to(box.global_position) > LootContainer.REACH: continue
 		if box.sealed:
 			notice("%s仍被封印：先击败全部守卫者。" % box.title())
 			return
+		if box.looted(): continue
 		if box.begin_open():
-			set_message("正在开启%s……（走开或受击会打断）" % box.title())
+			open_loot(box)
 			return
 	for node in get_tree().get_nodes_in_group("relic_caches"):
 		var cache := node as RelicCache
@@ -894,12 +908,42 @@ func enemy_attack_multiplier() -> float:
 func pressure_multiplier() -> float:
 	return maxf(0.1, 1.0 + float(player.stats.get("pressure_pct", 0.0)))
 
+## The box whose window is open beside the pack (LootContainer), or null,
+## and her life when it opened (a hit closes it).
+var looting: LootContainer
+var _loot_hp := 0.0
+
+## E on a box: the pack opens with the box's grid beside it, and the search
+## runs while it stays open (用户 2026-10-13).
+func open_loot(box: LootContainer) -> void:
+	if is_instance_valid(_inventory_panel): _inventory_panel.hide()
+	if is_instance_valid(field_panels): field_panels.hide_all()
+	looting = box
+	_loot_hp = player.hp
+	open_modal("inventory")
+	if is_instance_valid(_inventory_panel): _inventory_panel.open()
+
+## Everything found so far out of the box into the pack, as far as it fits.
+func take_all(box: LootContainer) -> void:
+	if not is_instance_valid(box): return
+	var left := 0
+	for item in box.storage.items.duplicate():
+		if not box.storage.transfer_to(item, inventory): left += 1
+	if left > 0: notice("背包空间不足，%d 件物品留在容器里。" % left)
+	save_base(true)
+
+func _stop_looting() -> void:
+	if is_instance_valid(looting): looting.cancel("closed")
+	looting = null
+
 func open_modal(kind: String) -> void:
+	if kind != "inventory": _stop_looting()
 	modal = kind
 	player.clear_move_target()
 	player.clear_target()
 
 func close_modal() -> void:
+	_stop_looting()
 	modal = ""
 	_pointer_gate = true
 	if is_instance_valid(menu): menu.hide()
@@ -932,8 +976,14 @@ var prts_toasts: Array = []
 const TOAST_SECONDS := 4.0
 const TOAST_MAX := 3
 
-## A necessary notice: shown as a PRTS toast in the field.
+## A necessary notice: shown as a PRTS toast in the field, and over the pack
+## while it is open (its window covers the toasts: notice_serial counts them).
+var notice_serial := 0
+var last_notice := ""
+
 func notice(text: String) -> void:
+	notice_serial += 1
+	last_notice = text
 	set_message(text)
 	if in_base: return
 	prts_toasts.append({"text": text, "age": 0.0, "life": TOAST_SECONDS})
@@ -1022,7 +1072,7 @@ func order_progress() -> Array:
 
 ## What E would do right here, for the prompt near her ("" for nothing).
 func interaction_prompt() -> String:
-	if not simulation_active(): return ""
+	if not simulation_active() or hands_busy(): return ""
 	for node in get_tree().get_nodes_in_group("relic_caches"):
 		var cache := node as RelicCache
 		if cache.game == self and near(cache): return "密室藏品" if cache.source == "vault" else "战斗缴获"
@@ -2166,12 +2216,39 @@ func _spawn_wave() -> void:
 		if region_id == "snow" and not mimic_placed and kinds[i] in ["weapon_box", "tool_box"] and rng.randf() < 0.25:
 			box.mimic = true
 			mimic_placed = true
+		box.variant = _poi_variant(kinds[i], world_map.cache_positions[i])
 		add_child(box)
 		box.global_position = world_map.cache_positions[i]
 		# 陷落雪祀 guards the tundra camps.
 		_spawn_guard_post(box.global_position, box.title(), box.guarded, "fallen_snowpriest" if region_id == "snow" and kinds[i] == "camp" else "")
+	# A work light at every search point, so the eye is drawn to them in the
+	# dark (地图表现调研 §2: light leads; 兴趣点策划案_v1.md §4).
+	if is_instance_valid(world_map.terrace_dressing):
+		var work_lights: Array[Dictionary] = []
+		for at in world_map.cache_positions:
+			work_lights.append({"at": at + Vector3.UP * 1.2, "color": Color(0.75, 0.6, 0.38), "radius": 4.5})
+		world_map.terrace_dressing.add_lamps(work_lights)
 	if is_outpost_floor(): _spawn_outpost()
 	if is_bounty_floor(): _spawn_bounty()
+
+## A mine search point dressed for where it stands (兴趣点策划案_v1.md §3): the
+## loot is the kind's own, only the look and the name follow the place.
+func _poi_variant(kind: String, at: Vector3) -> String:
+	if region_id != "mine" or not is_instance_valid(world_map.terrace_dressing): return ""
+	var dressing: TerraceDressing = world_map.terrace_dressing
+	var flat := Vector2(at.x, at.z)
+	var near := func(points: Array, reach: float) -> bool:
+		for t in points:
+			if Vector2(t.origin.x, t.origin.z).distance_to(flat) < reach: return true
+		return false
+	match kind:
+		"ore_vein": if near.call(dressing.rail_pieces, 4.0): return "ore_cart"
+		"tool_box": if near.call(dressing.frame_posts, 6.0) or near.call(dressing.post_points, 5.0): return "miner_locker"
+		"electronics": if near.call(dressing.headframe_points, 10.0): return "winch_box"
+		"medical":
+			for niche in world_map.niche_centres:
+				if niche.distance_to(flat) < 6.0: return "miner_pack"
+	return ""
 
 ## The outpost squad holds the ground just before the route markers: a leader
 ## (an elite with OUTPOST_BOSS_HP life and OUTPOST_BOSS_ATK attack) and its guards.
@@ -2186,13 +2263,7 @@ func _spawn_outpost() -> void:
 	for i in range(FieldCatalog.OUTPOST_GUARDS):
 		var side := -1.0 if i % 2 == 0 else 1.0
 		_outpost_squad.append(_spawn_enemy(Vector3(spot.x + side * 1.8, 0, spot.y + 1.2), false, i == 1 and region_id != "mine"))
-	_set_route_labels(false)
 
-## Route marker labels: shut while the outpost holds, their names otherwise.
-func _set_route_labels(open: bool) -> void:
-	for i in range(world_map.route_nodes.size()):
-		for child in world_map.route_nodes[i].get_children():
-			if child is Label3D: child.text = (FieldCatalog.ROUTES[i].name + " · E") if open else "封锁"
 
 ## The hunt contract's bounty: an elite with HUNT_HP life on its floor, marked.
 func is_bounty_floor() -> bool:
@@ -2246,7 +2317,6 @@ func _rare_gear() -> Item:
 
 func _clear_outpost(at: Vector3) -> void:
 	outpost_cleared = true
-	_set_route_labels(true)
 	var chest := LootContainer.new()
 	chest.game = self
 	chest.kind = "vault_gear"
@@ -2289,41 +2359,56 @@ func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false
 	post.position = Vector3(anchor.x, ground_y(anchor), anchor.z)
 	add_child(post)
 	var stations: Array[Vector3] = []
-	# Search a ring for two separated, reachable stations around the point.
-	for index in range(2):
-		for probe in range(32):
-			var angle := PI * index + TAU * float(probe) / 32
-			var offset := Vector2.from_angle(angle) * 2.7
-			var candidate := Vector3(anchor.x + offset.x, 0.0, anchor.z + offset.y)
-			candidate.y = ground_y(candidate) + Enemy.GROUND_LIFT
-			if not world_map._has_clearance(Vector2(candidate.x, candidate.z)): continue
-			if not stations.is_empty() and candidate.distance_to(stations[0]) < 2.0: continue
-			var closest := NavigationServer3D.map_get_closest_point(world_map.navigation_map_rid(), candidate)
-			closest.y = candidate.y
-			if closest.distance_to(candidate) > 0.5: continue
-			stations.append(candidate)
-			break
+	var rid := world_map.navigation_map_rid()
+	var from := NavigationServer3D.map_get_closest_point(rid, Vector3(anchor.x, ground_y(anchor), anchor.z))
+	# Two separated stations the guards can walk to from the point: first with
+	# room to stand, then (a crowded point) anywhere open. Reachability is read
+	# off the navmesh, so no ring can put a guard over a cliff in a pocket.
+	for strict in [true, false]:
+		for index in range(2 - stations.size()):
+			for probe in range(160):
+				var angle := PI * (index + stations.size()) + TAU * float(probe % 32) / 32
+				var ring: float = [2.7, 3.6, 2.0, 4.6, 5.6][probe / 32]
+				var offset := Vector2.from_angle(angle) * ring
+				var candidate := Vector3(anchor.x + offset.x, 0.0, anchor.z + offset.y)
+				candidate.y = ground_y(candidate) + Enemy.GROUND_LIFT
+				var flat := Vector2(candidate.x, candidate.z)
+				if strict and not world_map._has_clearance(flat): continue
+				if not strict and not world_map._is_open(flat.x, flat.y, -0.8): continue
+				if not stations.is_empty() and candidate.distance_to(stations[0]) < 2.0: continue
+				var closest := NavigationServer3D.map_get_closest_point(rid, candidate)
+				if Vector2(closest.x, closest.z).distance_to(flat) > 0.5: continue
+				var path := NavigationServer3D.map_get_path(rid, from, closest, true)
+				if path.size() < 2 or path[-1].distance_to(closest) > 0.6: continue
+				var walk := 0.0
+				for k in range(1, path.size()): walk += path[k - 1].distance_to(path[k])
+				if walk > ring * 2.2 + 1.0: continue
+				stations.append(candidate)
+				break
+		if stations.size() >= 2: break
 	for i in range(stations.size()):
 		var elite := elite_guard and i == 0
 		var ranged := not elite and i == 1 and region_id != "mine"
 		post.add_guard(_spawn_enemy(stations[i], elite, ranged, first_type if i == 0 else ""))
 	return post
 
+## Whether this kill drops a combat cache (RelicCatalog.CACHE_CHANCE).
+func rolls_relic_cache(enemy: Enemy) -> bool:
+	return rng.randf() < float(RelicCatalog.CACHE_CHANCE[RelicCatalog.cache_kind(enemy)])
+
 func _on_enemy_died(_enemy: Enemy) -> void:
 	if not in_base: award_kill(_enemy)
 	player.on_kill(_enemy)
-	segment_threat += RelicCatalog.ELITE_THREAT if _enemy.elite else 1
 	if _enemy == _bounty:
 		bounty_killed = true
 		_bounty = null
 	if _enemy in _outpost_squad:
 		_outpost_squad.erase(_enemy)
 		if _outpost_squad.is_empty() and not outpost_cleared: _clear_outpost(_enemy.global_position)
-	if not _cache_spawned and segment_threat >= RelicCatalog.CACHE_THREAT and not in_base and not _enemy in _vault_guardians:
-		_cache_spawned = true
+	# A vault guardian still counts for its vault, whether or not it dropped a cache.
+	if not in_base and rolls_relic_cache(_enemy):
 		_spawn_relic_cache(_enemy.global_position, "cache", false)
 		set_message("战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。")
-		return
 	if _enemy in _vault_guardians:
 		_vault_guardians.erase(_enemy)
 		if _vault_guardians.is_empty():
@@ -2353,6 +2438,40 @@ func spawn_enemy_drops(enemy: Enemy) -> void:
 		drops.append_array(LootTables.container_drops(enemy.mimic_kind, ctx, false))
 	_drop_at(enemy.global_position, drops, 0.7)
 
+## What an opened box holds, rolled once (the per-item search reads it), or
+## null when it was a 巨壳藤蔓 that woke instead.
+func container_contents(box: LootContainer) -> Variant:
+	if box.mimic:
+		_wake_mimic(box)
+		return null
+	sound.play("loot")
+	return LootTables.container_drops(box.kind, loot_ctx(), box.guarded)
+
+## One searched item out of `box`, into the box's grid; on the ground beside
+## it only when the grid is full.
+func drop_found(box: LootContainer, drop: Dictionary, index: int, total: int) -> void:
+	var item := _drop_item(drop)
+	if item != null and not box.storage.try_add(item):
+		var angle := TAU * float(index) / maxf(float(total), 1.0) + box.global_position.x
+		_drop_at(box.global_position + Vector3(cos(angle), 0.0, sin(angle)) * 1.2, [{"item": item}], 0.0)
+	if index == total: save_base(true)
+
+## A loot-table drop as the item it is: 赤金 for the old reward units, or null
+## when they round to nothing.
+func _drop_item(drop: Dictionary) -> Item:
+	if drop.has("item"): return drop.item
+	var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier, rng)
+	return MaterialCatalog.create(Economy.GOLD_ID, bars, region_id) if bars > 0 else null
+
+func _wake_mimic(box: LootContainer) -> void:
+	box.mimic = false
+	var vine := _spawn_enemy(box.global_position + Vector3(0.8, 0, 0.8), false, false, "shell_vine")
+	vine.mimic_kind = box.kind
+	vine.begin_chase()
+	vine.stun_timer = 0.3
+	EnemyAttackVfx.spawn(self, box.global_position + Vector3.UP * 0.4, Vector3(0.8, 0, 0.8).normalized(), "vine_burst")
+	box.queue_free()
+
 func on_container_opened(box: LootContainer) -> void:
 	if box.mimic:
 		box.mimic = false
@@ -2367,7 +2486,6 @@ func on_container_opened(box: LootContainer) -> void:
 	var drops := LootTables.container_drops(box.kind, loot_ctx(), box.guarded)
 	_drop_at(box.global_position, drops, 1.3)
 	sound.play("loot")
-	set_message("%s已开启：%d 份物资散落在周围。" % [box.title(), drops.size()])
 	save_base(true)
 
 ## Scatters drops ({"item"} / {"gold"}) in a ring around `position`.
@@ -2588,6 +2706,10 @@ func _handle_pointer_input(pointed_enemy: Enemy) -> void:
 	var plate := _hud.loot_label_at(pointer_ui()) if is_instance_valid(_hud) else null
 	if is_instance_valid(plate):
 		request_pickup(plate)
+		# That press is the pickup's alone (用户 2026-10-13: 左键选中拾取物品时
+		# 不触发攻击): held on, it would swing once the plate went from under
+		# the cursor as the item was taken.
+		_pointer_gate = true
 		return
 
 	# Left on an enemy locks it: she closes to her weapon's reach and attacks it
@@ -2675,6 +2797,14 @@ func _get_pointer_ground() -> Vector3:
 		return player.global_position
 	# Onto the terraced ground: meet the plane at the last height found, read
 	# the ground there, repeat. A steep camera settles in a few steps.
+	# A bridge's deck is picked first, unless she is on the road under it:
+	# then a click there means that road, not the deck overhead.
+	if not in_base and is_instance_valid(world_map):
+		var deck: Vector3 = world_map.deck_hit(from, dir)
+		if deck != Vector3.INF:
+			var bridge: Dictionary = world_map.bridge_at(Vector2(deck.x, deck.z))
+			var under: bool = player.global_position.y < float(bridge.top) - world_map.BRIDGE_REACH and not world_map.bridge_at(Vector2(player.global_position.x, player.global_position.z), 6.0).is_empty()
+			if not under: return deck
 	var ground := player.global_position.y - 0.7 if not in_base else 0.0
 	var hit := from
 	for i in range(5):
@@ -2689,9 +2819,10 @@ func _get_pointer_ground() -> Vector3:
 	return hit
 
 ## Ground height under x/z: the field's terraces, or the base's flat floor.
+## `at.y` tells a bridge's deck from the road under it.
 func ground_y(at: Vector3) -> float:
 	if in_base or not is_instance_valid(world_map): return 0.0
-	return world_map.ground_height(Vector2(at.x, at.z))
+	return world_map.ground_height(Vector2(at.x, at.z), at.y)
 
 func _create_relic(item_name: String, modifiers: Array[ItemModifier]) -> Item:
 	var item := Item.create(item_name, Item.Category.TRINKET, 1, 1, 0.0)

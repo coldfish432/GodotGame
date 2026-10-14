@@ -2,8 +2,18 @@ class_name ContinuousWorldMap
 extends Node3D
 
 const ENTRY_POSITION := Vector3(0, 0.7, -22)
-const SPINE_MIN := Vector2(-96, -36)
-const SPINE_MAX := Vector2(96, 190)
+## The floor's bounds at map_scale 1. Each floor rolls its own size (用户
+## 2026-10-13: 地图画大一点，大图小图也随机): the bounds and every distance the
+## layout digs over (trunk steps, branch and loop reach, the vault) are scaled
+## by map_scale, room sizes are not — a big floor is the same rooms spread
+## further apart, with longer corridors and more rock between them, which is
+## also what gives a bridge room to cross. The entry stays where it is.
+const BASE_MIN := Vector2(-96, -36)
+const BASE_MAX := Vector2(96, 190)
+const MAP_SCALE := Vector2(1.0, 1.5)
+var map_scale := 1.0
+var SPINE_MIN := BASE_MIN
+var SPINE_MAX := BASE_MAX
 var region_id := "mine"
 var extraction_available := false
 var buff_position := Vector3.ZERO
@@ -41,14 +51,23 @@ var mechanism_positions: Array[Vector3] = []
 var mechanism_nodes: Array[Node3D] = []
 var _generated_root: NavigationRegion3D
 var _rng := RandomNumberGenerator.new()
+var _shape_rng := RandomNumberGenerator.new()
 var _open_circles: Array[Vector3] = []
 var _closed_circles: Array[Vector3] = []
+## Per pillar, its irregular outline (用户 2026-10-12: the round pillars become
+## irregular rocks of random size): stretch along its own axis, the axis
+## angle, and two lobes (amplitude, phase) for frequencies 2 and 3.
+var _pillar_shapes: Array[PackedFloat32Array] = []
+const PILLAR_RADIUS := Vector2(2.0, 3.6)
+const PILLAR_MAX_REACH := 4.4
 var _open_segments: Array[PackedFloat32Array] = []
 ## Corridors that carry a worn trail (rails, road paint, packed snow). Rolled
 ## per link for trunk and branches alike, so the trail is not a guide to the
 ## trunk. The name predates that.
 var _main_segments: Array[PackedFloat32Array] = []
 var _surface: TerrainSurface
+## The Blender cliff / ramp / rubble pieces laid on this floor (counts for tests).
+var terrace_dressing: TerraceDressing
 
 ## Elevation (参考《恐怖黎明》: the walkable ground sits on terraces joined by
 ## ramps and stairs, and where two terraces meet without one there is a cliff).
@@ -56,13 +75,19 @@ var _surface: TerrainSurface
 ## tiers is a ramp, flat for RAMP_APRON beyond each room's rim so a junction
 ## never starts on a slope. Rooms of different tiers that happen to touch with
 ## no corridor between them meet at a cliff, which TerrainSurface walls off.
-## The floor stays one sheet over x/z — no bridge passes over another route —
-## so fog, the minimap and every walkability test stay two-dimensional.
+## The floor stays one sheet over x/z, so fog, the minimap and every
+## walkability test stay two-dimensional; the one exception is a rock bridge
+## (see BRIDGE_REGIONS), whose deck is a separate body over the sheet.
 const TIER := 2.2
 const MAX_TIER := 2
-## Horizontal run one tier of ramp needs: 2.2 over 6.5 is ~19°, well inside
-## the navmesh's 35° and the character's 45°.
-const RAMP_RUN := 6.5
+## Horizontal run one tier of ramp needs: 2.2 over 10 is ~12°. It was 6.5
+## (~19°), but a short ramp between rooms did not read as a climb at all (用户
+## 2026-10-13: 如果是坡道就长到能看出来): long enough that its middle stands
+## clear of the rooms at either end, where the causeway's falling sides show.
+const RAMP_RUN := 10.0
+## A bridge's stubs climb two tiers each and lead straight to the deck, which
+## shows the height on its own; they keep a steeper run so bridges still fit.
+const BRIDGE_RAMP_RUN := 7.5
 const RAMP_APRON := 2.0
 ## Rise between neighbouring terrain samples (1.5 apart) above which the ground
 ## is cliff, not slope: 0.9 over 1.5 is ~31°.
@@ -89,16 +114,86 @@ var _last_owner := 0
 ## How many tier rolls the last generate() needed (1 = the first held).
 var level_attempts := 0
 
+## Overpasses (用户 2026-10-13: 下面的路从上面的路下面穿过，形成有高度差的不连在
+## 一起的回路 — the lower road passes under the upper one, so loops cross at two
+## heights without joining). Two rooms with a bottom-tier corridor running
+## between them are joined by a straight road that climbs from each to a deck
+## two tiers over that corridor. The sheet cannot hold two floors at one x/z,
+## so that road is dug as two ramped stubs that stop at the lower corridor's
+## cliffs, and a rock arch (art/kit/snow_bridge.glb) carries it over the gap:
+## a deck body with walls along both sides, so it cannot be walked off. Off
+## the deck everything stays two-dimensional; over it, ground_height takes
+## the walker's height to tell the deck from the road below.
+const BRIDGE_REGIONS := ["snow"]
+const BRIDGE_MAX := 2
+## Tiers between the deck and the road under it.
+const BRIDGE_RISE := 2
+## Half-width of the stubs, like every corridor's.
+const BRIDGE_HALF_WIDTH := 3.2
+## Half-width of the walkable deck between its walls.
+const DECK_HALF_WIDTH := 2.45
+## How far the deck runs onto each stub past the cliff line.
+const DECK_OVERLAP := 1.4
+## Level run at the deck's height at the inner end of each stub, so the deck
+## lands on flat road however the cliff it springs from runs.
+const BRIDGE_FLAT := 3.5
+## The stubs stop this far outside the lower corridor's edge.
+const BRIDGE_STUB_GAP := 1.2
+const BRIDGE_ROOM_GAP := Vector2(20.0, 52.0)
+## Rock the stubs keep between themselves and every other shape.
+const BRIDGE_CLEAR := 1.0
+## A walker within this of a deck's top, over it, stands on it.
+const BRIDGE_REACH := 2.0
+## {link, lower, a, b, cross, dir, cut, along, top}, and once settled on the
+## sampled terrain: centre, axis (world x/z), span between the cliff lines,
+## base (the road below).
+var bridges: Array[Dictionary] = []
+var _base_links := 0
+## {p, q, lower, heading, back_p, back_q}: room pairs dug across a branch
+## corridor for a bridge, and the rooms they are tied back to.
+var _crossings: Array[Dictionary] = []
+
+## Load timing (DOWNFALL_PROFILE=1): each stage of generate() prints how long
+## it took since the last mark.
+var _profile := OS.get_environment("DOWNFALL_PROFILE") == "1"
+var _profile_at := 0
+
+func mark(stage: String) -> void:
+	if not _profile: return
+	var now := Time.get_ticks_usec()
+	if not stage.is_empty(): print("  [map %s] %-22s %7.1f ms" % [region_id, stage, (now - _profile_at) / 1000.0])
+	_profile_at = now
+
 func generate(p_seed: int, _depth: int) -> void:
+	mark("")
 	_clear_generated_map()
 	seed_value = p_seed
 	_rng.seed = p_seed
+	var size_rng := RandomNumberGenerator.new()
+	size_rng.seed = p_seed ^ 0x5ca1e
+	map_scale = size_rng.randf_range(MAP_SCALE.x, MAP_SCALE.y)
+	SPINE_MIN = Vector2(BASE_MIN.x * map_scale, BASE_MIN.y)
+	SPINE_MAX = Vector2(BASE_MAX.x * map_scale, BASE_MIN.y + (BASE_MAX.y - BASE_MIN.y) * map_scale)
+	map_center = Vector3((SPINE_MIN.x + SPINE_MAX.x) * 0.5, 0.0, (SPINE_MIN.y + SPINE_MAX.y) * 0.5)
+	map_extent = maxf(SPINE_MAX.x - SPINE_MIN.x, SPINE_MAX.y - SPINE_MIN.y) * 0.5
+	_shape_rng.seed = p_seed ^ 0x9111a7
+	_warp.seed = p_seed ^ 0xca7e
+	_warp.frequency = CAVE_WARP_FREQUENCY
+	_warp.fractal_octaves = 2
 	_generated_root = NavigationRegion3D.new()
 	add_child(_generated_root)
 	_open_circles.clear()
 	_closed_circles.clear()
+	_pillar_shapes.clear()
+	_room_shapes.clear()
+	_swell.seed = p_seed ^ 0x5e11
+	_swell.frequency = 0.07
+	_swell.fractal_octaves = 1
 	_open_segments.clear()
 	_main_segments.clear()
+	_cell_rooms.clear()
+	_cell_segments.clear()
+	_cell_pillars.clear()
 	main_path.clear()
 	branch_centres.clear()
 	loop_centres.clear()
@@ -112,8 +207,12 @@ func generate(p_seed: int, _depth: int) -> void:
 	_trunk_levels.clear()
 	_links.clear()
 	_overlap.clear()
+	_crossings.clear()
 	vault_node = null
 	_plan_terrain()
+	mark("layout")
+	_base_links = _links.size()
+	bridges.clear()
 	_surface = TerrainSurface.new()
 	# Tiers are rolled, then checked on the sampled terrain: a ramp that runs
 	# past a room of another tier can meet it at a cliff and cut the way on.
@@ -121,7 +220,12 @@ func generate(p_seed: int, _depth: int) -> void:
 	# seed ends with a floor that connects.
 	var dug := ""
 	for attempt in range(3):
+		# Bridges are planned on the tiers this attempt settled, so the ones
+		# from the last attempt go before the tiers are rolled again.
+		_links.resize(_base_links)
+		bridges.clear()
 		_assign_levels(attempt)
+		_plan_bridges()
 		level_attempts = attempt + 1
 		# The contour only changes when a different set of corridors is dug;
 		# otherwise only the heights are re-read.
@@ -134,10 +238,24 @@ func generate(p_seed: int, _depth: int) -> void:
 		else:
 			_surface.relevel()
 		if attempt == 2 or _surface.connects(_reach_targets()): break
+	mark("tiers + sampling x%d" % level_attempts)
+	# The flat fallback is not checked, but its bridges' stubs stand two tiers
+	# up and could still cut a way: if the floor does not connect with them,
+	# it goes without.
+	if level_attempts == 3 and not bridges.is_empty() and not _surface.connects(_reach_targets()):
+		for bridge in bridges: _links[bridge.link].alive = false
+		bridges.clear()
+		_build_segments()
+		_surface.sample(self)
+	_settle_bridges()
 	_surface.build(self)
+	mark("terrain mesh")
+	_build_bridges()
 	_place_content()
+	mark("bridges + content")
 	_dress_landmarks()
 	_build_navigation_mesh()
+	mark("navmesh")
 
 ## Layout generation, rebuilt in the shape of 贪婪洞窟's level_N.plist rather
 ## than as an authored skeleton. That game configures a floor as a size range
@@ -168,13 +286,45 @@ const ELEMENT_NICHES := Vector2i(0, 3)
 const ELEMENT_LOOPS := Vector2i(0, 2)
 const ELEMENT_SKIPS := Vector2i(0, 2)
 const ELEMENT_PILLARS := Vector2i(0, 2)
+## Cave-like layouts (用户 2026-10-12: 尝试做立体随机地图，类似这种 — a cave map
+## of blobby rooms, loops and rock islands): in these regions every outline is
+## domain-warped (CAVE_WARP metres of low-frequency noise shifts where the
+## field is read, so walls wander without narrowing), arenas get more rock
+## islands and the layout more loops. Tried in the snowfield first.
+const CAVE_REGIONS := ["snow"]
+## The warp squeezes where it changes fastest (by about amplitude x
+## frequency x 3): kept near 20%, and cave corridors widened to make up for it.
+const CAVE_WARP := 1.8
+const CAVE_WARP_FREQUENCY := 0.035
+const CAVE_WIDEN := 0.6
+const ELEMENT_PILLARS_CAVE := Vector2i(2, 4)
+const ELEMENT_LOOPS_CAVE := Vector2i(2, 4)
+var _warp := FastNoiseLite.new()
 ## Chance a branch digs a second room past its first.
 const SPUR_CHAIN_CHANCE := 0.4
 
 func _corridor_width() -> float:
-	return _rng.randf_range(3.4, 5.6) + (0.5 if region_id == "snow" else (0.3 if region_id == "city" else 0.0))
+	return _rng.randf_range(3.4, 5.6) + (0.5 if region_id == "snow" else (0.3 if region_id == "city" else 0.0)) + (CAVE_WIDEN if region_id in CAVE_REGIONS else 0.0)
+
+## Roads and rooms run into each other (用户 2026-10-13: 模糊道路和房间之间的区
+## 别，像恐怖黎明那样, for every region). A room is no longer a circle: its rim
+## swells and pulls in with two lobes (amplitude in ROOM_LOBES, from the shape
+## RNG so the layout does not move). A corridor is no longer a tube: it widens
+## along its run by up to CORRIDOR_SWELL of its width, in slow swells, and it
+## flares into each room it joins by up to CORRIDOR_FLARE of that room's
+## radius, so the road opens into the room instead of meeting a rim. Widths
+## only ever grow from the planned ones, so every clearance the layout was
+## checked against still holds. The city keeps its squared blocks.
+const ROOM_LOBES := Vector2(0.05, 0.14)
+const CORRIDOR_SWELL := 0.55
+const CORRIDOR_FLARE := 0.45
+## Per room: amplitude and phase of the 2- and 3-lobe terms.
+var _room_shapes: Array[PackedFloat32Array] = []
+var _swell := FastNoiseLite.new()
 
 func _add_circle(point: Vector2, radius: float, kind: String, trunk_level: int) -> int:
+	_room_shapes.append(PackedFloat32Array([_shape_rng.randf_range(ROOM_LOBES.x, ROOM_LOBES.y), _shape_rng.randf_range(0.0, TAU),
+		_shape_rng.randf_range(ROOM_LOBES.x, ROOM_LOBES.y) * 0.7, _shape_rng.randf_range(0.0, TAU)]))
 	_open_circles.append(Vector3(point.x, point.y, radius))
 	circle_kinds.append(kind)
 	_trunk_levels.append(trunk_level)
@@ -190,7 +340,7 @@ func _plan_terrain() -> void:
 	# 0.82 is the average forward component of a heading wandering inside the
 	# cone; the step is sized from it so the dig lands near the target depth
 	# whatever turn pattern the seed produces.
-	var step := clampf((target_z - entry.y) / (float(node_count) * 0.82), 9.5, 18.0)
+	var step := clampf((target_z - entry.y) / (float(node_count) * 0.82), 9.5 * map_scale, 18.0 * map_scale)
 
 	var heading := PI * 0.5
 	var straight := 0
@@ -198,6 +348,9 @@ func _plan_terrain() -> void:
 	var previous_wide := true  # the entry adit counts as wide, so node 1 necks
 	var level := 0
 	for i in range(node_count):
+		# A trunk that has reached the far edge stops there: further digs would
+		# be clamped onto the same line and pile rooms into each other.
+		if i > 0 and main_path[-1].y >= deepest - 0.5: break
 		var radius := 0.0
 		var wide := false
 		if i == 0:
@@ -242,7 +395,8 @@ func _plan_terrain() -> void:
 			levels[i] = next_level
 		level = next_level
 		if wide and i > 0:
-			for p in range(_rng.randi_range(ELEMENT_PILLARS.x, ELEMENT_PILLARS.y)):
+			var pillars := ELEMENT_PILLARS_CAVE if region_id in CAVE_REGIONS else ELEMENT_PILLARS
+			for p in range(_rng.randi_range(pillars.x, pillars.y)):
 				var angle := _rng.randf_range(0.0, TAU)
 				var offset := Vector2(cos(angle), sin(angle)) * _rng.randf_range(3.5, radius - 6.0)
 				if offset.length() < 2.0: continue
@@ -251,10 +405,26 @@ func _plan_terrain() -> void:
 				# than a couple of cells does not reliably close into wall
 				# geometry — it stops blocking line of sight, which quietly
 				# takes away the cover a fight in that arena depends on.
-				_closed_circles.append(Vector3(point.x + offset.x, point.y + offset.y, _rng.randf_range(2.4, 3.2)))
+				# The narrowest point of the outline still stays above 1.7.
+				# Size from the layout's RNG (one draw, as before); the outline from
+				# its own, so reshaping pillars never reshuffles the rest of a map.
+				var pillar_r := _rng.randf_range(PILLAR_RADIUS.x, PILLAR_RADIUS.y)
+				var shape := PackedFloat32Array([_shape_rng.randf_range(1.0, 1.4), _shape_rng.randf_range(0.0, PI),
+					_shape_rng.randf_range(0.04, 0.12), _shape_rng.randf_range(0.0, TAU), _shape_rng.randf_range(0.03, 0.09), _shape_rng.randf_range(0.0, TAU)])
+				# The whole outline stays inside the arena with a walkable ring
+				# around it, and never reaches past PILLAR_MAX_REACH: a long
+				# rock must not wall off a cache or a corridor mouth.
+				var reach := pillar_r * shape[0] * (1.0 + shape[2] + shape[4])
+				var room := maxf(PILLAR_RADIUS.x, minf(PILLAR_MAX_REACH, radius - offset.length() - 3.5))
+				if reach > room:
+					pillar_r *= room / reach
+					if pillar_r < 1.9: shape[0] = 1.0
+				_closed_circles.append(Vector3(point.x + offset.x, point.y + offset.y, pillar_r))
+				_pillar_shapes.append(shape)
 
-	_dig_spurs(node_count)
-	_dig_extras(node_count)
+	_dig_spurs(main_path.size())
+	_dig_crossings()
+	_dig_extras(main_path.size())
 
 ## Spurs are dug off random trunk nodes, with one forced into each third of the
 ## route: the device ordering downstream reads the shallowest and median spur,
@@ -281,7 +451,7 @@ func _dig_spurs(node_count: int) -> void:
 		# A fork, not a right-angle tee: anywhere from leaning forward to
 		# square off the trunk, so the trunk is not the one straight line.
 		var direction := forward.rotated(side * _rng.randf_range(0.75, 1.75))
-		var reach := _rng.randf_range(24.0, 42.0)
+		var reach := _rng.randf_range(24.0, 42.0) * map_scale
 		var end := base + direction * reach
 		end.x = clampf(end.x, SPINE_MIN.x + 9.0, SPINE_MAX.x - 9.0)
 		end.y = clampf(end.y, SPINE_MIN.y + 9.0, SPINE_MAX.y - 9.0)
@@ -294,7 +464,7 @@ func _dig_spurs(node_count: int) -> void:
 		_link(index, room, _corridor_width(), TRAIL_BRANCH)
 		if _rng.randf() >= SPUR_CHAIN_CHANCE: continue
 		var onward := direction.rotated(_rng.randf_range(-0.7, 0.7))
-		var further := end + onward * _rng.randf_range(radius + 14.0, radius + 26.0)
+		var further := end + onward * (radius + _rng.randf_range(14.0, 26.0) * map_scale)
 		further.x = clampf(further.x, SPINE_MIN.x + 9.0, SPINE_MAX.x - 9.0)
 		further.y = clampf(further.y, SPINE_MIN.y + 9.0, SPINE_MAX.y - 9.0)
 		if further.distance_to(end) < radius + 10.0 or _crowded(further, 9.0, room): continue
@@ -327,6 +497,7 @@ func _dig_extras(node_count: int) -> void:
 			if _spur_anchors[i].y != _spur_anchors[j].y: continue
 			var gap: float = absf(_spur_anchors[j].x - _spur_anchors[i].x)
 			if gap < 1.0 or gap > 3.0 or _rng.randf() > 0.55: continue
+			if not _clear_of_crossings([_spur_point(i), _spur_point(j)], 6.0): continue
 			_link(_circle_at(_spur_point(i)), _circle_at(_spur_point(j)), _corridor_width() * 0.85, TRAIL_BRANCH)
 
 	for i in range(_rng.randi_range(ELEMENT_NICHES.x, ELEMENT_NICHES.y)):
@@ -335,12 +506,13 @@ func _dig_extras(node_count: int) -> void:
 		var spur := _spur_point(pick)
 		var outward: float = _spur_anchors[pick].y
 		var niche := Vector2(
-			clampf(spur.x + outward * _rng.randf_range(11.0, 17.0), SPINE_MIN.x + 8.0, SPINE_MAX.x - 8.0),
+			clampf(spur.x + outward * _rng.randf_range(11.0, 17.0) * map_scale, SPINE_MIN.x + 8.0, SPINE_MAX.x - 8.0),
 			clampf(spur.y + _rng.randf_range(-13.0, 13.0), SPINE_MIN.y + 8.0, SPINE_MAX.y - 8.0))
 		if niche.distance_to(spur) < 9.0 or _too_near(niche, niche_centres, 12.0): continue
+		if not _clear_of_crossings([spur, niche], 6.0) or not _clear_of_crossings([niche], 6.0 + 4.0): continue
 		var spur_room := _circle_at(spur)
 		var room := _add_circle(niche, _rng.randf_range(4.5, 6.0), "niche", _trunk_levels[spur_room])
-		_link(spur_room, room, _rng.randf_range(2.8, 3.6), TRAIL_BRANCH)
+		_link(spur_room, room, _rng.randf_range(2.8, 3.6) + (CAVE_WIDEN if region_id in CAVE_REGIONS else 0.0), TRAIL_BRANCH)
 		niche_centres.append(niche)
 
 	for i in range(_rng.randi_range(ELEMENT_SKIPS.x, ELEMENT_SKIPS.y)):
@@ -348,17 +520,20 @@ func _dig_extras(node_count: int) -> void:
 		var pick := _rng.randi_range(0, _spur_anchors.size() - 1)
 		var rejoin := int(_spur_anchors[pick].x) + _rng.randi_range(3, 4)
 		if rejoin >= main_path.size(): continue
+		if not _clear_of_crossings([_spur_point(pick), main_path[rejoin]], 6.0): continue
 		_link(_circle_at(_spur_point(pick)), rejoin, _corridor_width() * 0.8, TRAIL_BRANCH)
 
-	for i in range(_rng.randi_range(ELEMENT_LOOPS.x, ELEMENT_LOOPS.y)):
+	var loops := ELEMENT_LOOPS_CAVE if region_id in CAVE_REGIONS else ELEMENT_LOOPS
+	for i in range(_rng.randi_range(loops.x, loops.y)):
 		var anchor := _rng.randi_range(1, maxi(1, node_count - 4))
 		if anchor + 2 >= main_path.size(): continue
 		var base: Vector2 = main_path[anchor]
 		var side := 1.0 if _rng.randf() < 0.5 else -1.0
-		var reach := _rng.randf_range(26.0, 44.0)
+		var reach := _rng.randf_range(26.0, 44.0) * map_scale
 		var near := Vector2(clampf(base.x + side * reach, SPINE_MIN.x + 10.0, SPINE_MAX.x - 10.0), base.y + _rng.randf_range(-4.0, 6.0))
-		var far := Vector2(clampf(near.x + side * _rng.randf_range(-6.0, 10.0), SPINE_MIN.x + 10.0, SPINE_MAX.x - 10.0), near.y + _rng.randf_range(16.0, 30.0))
+		var far := Vector2(clampf(near.x + side * _rng.randf_range(-6.0, 10.0), SPINE_MIN.x + 10.0, SPINE_MAX.x - 10.0), near.y + _rng.randf_range(16.0, 30.0) * map_scale)
 		if _too_near(near, loop_centres, 16.0): continue
+		if not _clear_of_crossings([base, near, far, main_path[anchor + 2]], 6.0) or not _clear_of_crossings([near], 7.5 + 4.0) or not _clear_of_crossings([far], 7.0 + 4.0): continue
 		var near_room := _add_circle(near, _rng.randf_range(6.0, 7.5), "loop", _trunk_levels[anchor])
 		var far_room := _add_circle(far, _rng.randf_range(5.5, 7.0), "loop", _trunk_levels[anchor])
 		loop_centres.append(near)
@@ -376,11 +551,28 @@ func _dig_extras(node_count: int) -> void:
 		if absf(anchor.x - float(vault_index)) <= 2.0: busy += anchor.y
 	var vault_side := -1.0 if busy > 0.0 else 1.0
 	var vault := Vector2(
-		clampf(vault_base.x + vault_side * _rng.randf_range(26.0, 36.0), SPINE_MIN.x + 11.0, SPINE_MAX.x - 11.0),
+		clampf(vault_base.x + vault_side * _rng.randf_range(26.0, 36.0) * map_scale, SPINE_MIN.x + 11.0, SPINE_MAX.x - 11.0),
 		clampf(vault_base.y + _rng.randf_range(4.0, 14.0), SPINE_MIN.y + 11.0, SPINE_MAX.y - 11.0))
+	# The vault always gets dug; it only keeps off a bridge's road if the
+	# other flank has room.
+	if not _clear_of_crossings([vault_base, vault], 6.0) or not _clear_of_crossings([vault], 9.0 + 4.0):
+		var mirrored := Vector2(clampf(2.0 * vault_base.x - vault.x, SPINE_MIN.x + 11.0, SPINE_MAX.x - 11.0), vault.y)
+		if _clear_of_crossings([vault_base, mirrored], 6.0) and _clear_of_crossings([mirrored], 9.0 + 4.0): vault = mirrored
 	var vault_room := _add_circle(vault, _rng.randf_range(7.5, 9.0), "vault", _trunk_levels[vault_index])
 	_link(vault_index, vault_room, _rng.randf_range(3.2, 3.8), TRAIL_BRANCH)
 	vault_centre = vault
+
+## Whether a corridor through `points` (or, for one point, a room there) keeps
+## `margin` past the stubs' width off every bridge road planned so far.
+func _clear_of_crossings(points: Array, margin: float) -> bool:
+	for crossing in _crossings:
+		var road := PackedVector2Array([_centre(crossing.p), _centre(crossing.q)])
+		if points.size() == 1:
+			if _line_gap(PackedVector2Array([points[0]]), road) < margin + BRIDGE_HALF_WIDTH: return false
+			continue
+		for k in range(points.size() - 1):
+			if _line_gap(PackedVector2Array([points[k], points[k + 1]]), road) < margin + BRIDGE_HALF_WIDTH + 2.0: return false
+	return true
 
 func _spur_point(index: int) -> Vector2:
 	return _spur_points[index]
@@ -445,6 +637,12 @@ func _assign_levels(attempt: int) -> void:
 			if other > shape: _tie(group, _shape_rooms(shape) + _shape_rooms(other))
 	for index in range(_links.size()):
 		if not _rampable(index): _tie(group, [int(_links[index].a), int(_links[index].b)])
+	# A crossing's corridor runs level under its deck, and its two rooms and
+	# the rooms they are tied back to stand at that corridor's tier, so each
+	# ramp up to the deck has the rise it was dug for: BRIDGE_RISE.
+	for crossing in _crossings:
+		var under: Dictionary = _links[crossing.lower]
+		_tie(group, [int(under.a), int(under.b), int(crossing.p), int(crossing.back_p), int(crossing.q), int(crossing.back_q)])
 	var tier_of := {}
 	tier_of[_group_of(group, 0)] = 0
 	var used := PackedByteArray()
@@ -635,16 +833,408 @@ func _build_segments() -> void:
 		var b := Vector2(_open_circles[link.b].x, _open_circles[link.b].y)
 		var middle: Vector2 = link.middle
 		var along := 0.0
-		for pair in [[a, middle], [middle, b]]:
+		var pairs := [[a, middle], [middle, b]]
+		# A bridge's road is two stubs; the gap between them is the deck's.
+		if link.has("bridge"):
+			var bridge: Dictionary = bridges[link.bridge]
+			var direction: Vector2 = bridge.dir
+			pairs = [[a, a + direction * (float(bridge.along) - float(bridge.cut))], [a + direction * (float(bridge.along) + float(bridge.cut)), b]]
+		for pair in pairs:
 			var start: Vector2 = pair[0]
 			var end: Vector2 = pair[1]
 			var length := start.distance_to(end)
 			if length < 0.1: continue
+			along = Vector2(_open_circles[link.a].x, _open_circles[link.a].y).distance_to(start) if link.has("bridge") else along
 			# x, z, x, z, half-width, link, arc length at start, at end.
 			var segment := PackedFloat32Array([start.x, start.y, end.x, end.y, link.width, index, along, along + length])
 			along += length
 			_open_segments.append(segment)
 			if link.trail: _main_segments.append(segment)
+	_build_shape_grid()
+
+## Crossings: dug right after the branches, while the rock between them is
+## still whole. Across the middle of a branch corridor (the longest straight
+## runs on the floor) a room is dug well out to either side, and each is tied
+## back to its nearest room on its own side. When the tiers allow
+## (_crossing_option) the two are joined by a road over that corridor: up a
+## ramp from one, over a bridge two tiers above it, down to the other — so the
+## loop through them passes over the branch without meeting it. From their own
+## RNG, so nothing dug before them moves.
+func _dig_crossings() -> void:
+	if not region_id in BRIDGE_REGIONS: return
+	var dig := RandomNumberGenerator.new()
+	dig.seed = seed_value ^ 0x0ee7a5
+	# Branch corridors first (shuffled), then the trunk's.
+	var order: Array[int] = []
+	var trunk: Array[int] = []
+	for index in range(_links.size()):
+		if circle_kinds[_links[index].b] == "spur": order.append(index)
+		elif circle_kinds[_links[index].a] == "trunk" and circle_kinds[_links[index].b] == "trunk": trunk.append(index)
+	for list in [order, trunk]:
+		for i in range(list.size() - 1, 0, -1):
+			var j := dig.randi_range(0, i)
+			var swap: int = list[i]
+			list[i] = list[j]
+			list[j] = swap
+	order.append_array(trunk)
+	for index in order:
+		if _crossings.size() >= BRIDGE_MAX: break
+		_try_crossing(index, dig)
+
+func _try_crossing(lower: int, dig: RandomNumberGenerator) -> void:
+	var link: Dictionary = _links[lower]
+	for other in _crossings:
+		var taken := [int(_links[other.lower].a), int(_links[other.lower].b)]
+		if taken.has(int(link.a)) or taken.has(int(link.b)): return
+	var line := _link_points(lower)
+	var total: float = link.length
+	var lo: float = _open_circles[link.a].z + 2.0
+	var hi: float = total - _open_circles[link.b].z - 2.0
+	if hi < lo: return
+	var at := lerpf(lo, hi, dig.randf_range(0.35, 0.65))
+	var cross := line[0]
+	var heading := Vector2.RIGHT
+	var walked := 0.0
+	for k in range(line.size() - 1):
+		var piece := line[k].distance_to(line[k + 1])
+		if walked + piece >= at or k == line.size() - 2:
+			heading = (line[k + 1] - line[k]).normalized()
+			cross = line[k].lerp(line[k + 1], clampf((at - walked) / maxf(piece, 0.001), 0.0, 1.0))
+			break
+		walked += piece
+	var radius := dig.randf_range(5.0, 6.5)
+	for turn in [0.0, 0.2, -0.2]:
+		var normal := heading.orthogonal().rotated(turn)
+		var sine := absf(normal.cross(heading))
+		# The corridor as dug there, swollen or flared, not as planned.
+		var cut := _link_half_width(lower, at) / sine + BRIDGE_STUB_GAP
+		# Room for each stub to ramp the whole rise from its room to the deck.
+		var reach := cut + RAMP_APRON + BRIDGE_FLAT + BRIDGE_RAMP_RUN * BRIDGE_RISE + radius + 1.0
+		# Each side on its own: the nearest of a few distances out where the
+		# room fits and the stub back to the corridor runs through rock.
+		var p := _crossing_spot(cross, -normal, cut, reach, radius, lower)
+		var q := _crossing_spot(cross, normal, cut, reach, radius, lower)
+		if p == Vector2.INF or q == Vector2.INF: continue
+		var back_p := _crossing_anchor(p, radius, -normal, cross, lower)
+		var back_q := _crossing_anchor(q, radius, normal, cross, lower)
+		if back_p < 0 or back_q < 0: continue
+		# Nor across a bridge road already planned.
+		if not _clear_of_crossings([p], radius + 2.0) or not _clear_of_crossings([q], radius + 2.0): continue
+		if not _clear_of_crossings([p, q], 2.0) or not _clear_of_crossings([p, _centre(back_p)], 6.0) or not _clear_of_crossings([q, _centre(back_q)], 6.0): continue
+		var room_p := _add_circle(p, radius, "crossing", _trunk_levels[back_p])
+		var room_q := _add_circle(q, radius, "crossing", _trunk_levels[back_q])
+		_link(back_p, room_p, _corridor_width(), TRAIL_BRANCH)
+		_link(back_q, room_q, _corridor_width(), TRAIL_BRANCH)
+		_crossings.append({"p": room_p, "q": room_q, "lower": lower, "heading": heading, "back_p": back_p, "back_q": back_q})
+		return
+
+func _crossing_spot(cross: Vector2, outward: Vector2, cut: float, reach: float, radius: float, lower: int) -> Vector2:
+	for extra in [0.0, 3.0, 6.0, 9.0]:
+		var room: Vector2 = cross + outward * (reach + extra)
+		if not _crossing_room_ok(room, radius, lower): continue
+		var s := cut
+		while s < reach + extra - radius:
+			if not _bridge_clear(cross + outward * s, -1, -1, -1, lower): return Vector2.INF
+			s += 1.5
+		return room
+	return Vector2.INF
+
+func _crossing_room_ok(point: Vector2, radius: float, lower: int) -> bool:
+	if point.x < SPINE_MIN.x + radius + 4.0 or point.x > SPINE_MAX.x - radius - 4.0: return false
+	if point.y < SPINE_MIN.y + radius + 4.0 or point.y > SPINE_MAX.y - radius - 4.0: return false
+	return _bridge_clear(point, -1, -1, -1, lower, radius + 1.0)
+
+## The nearest room on the crossing room's own side of the corridor below
+## that a straight corridor from `point` reaches through rock without
+## crossing anything; -1 if none.
+func _crossing_anchor(point: Vector2, radius: float, outward: Vector2, cross: Vector2, lower: int) -> int:
+	var best := -1
+	var best_distance := INF
+	for i in range(_open_circles.size()):
+		var centre := _centre(i)
+		# Well on this side: a corridor back to the crossed corridor's own
+		# rooms would run along beside the stub.
+		if (centre - cross).dot(outward) < _open_circles[i].z + radius: continue
+		var distance := point.distance_to(centre)
+		if distance >= best_distance or distance > 55.0: continue
+		var crossed := false
+		for index in range(_links.size()):
+			if [int(_links[index].a), int(_links[index].b)].has(i): continue
+			var line := _link_points(index)
+			for k in range(line.size() - 1):
+				if Geometry2D.segment_intersects_segment(point, centre, line[k], line[k + 1]) != null: crossed = true
+		if crossed: continue
+		var direction := (centre - point) / distance
+		var clear := true
+		var s := radius + 1.5
+		while s < distance - _open_circles[i].z - 1.0 and clear:
+			clear = _bridge_clear(point + direction * s, i, -1, -1, lower, 5.6 + CAVE_WIDEN)
+			s += 1.5
+		if not clear: continue
+		best = i
+		best_distance = distance
+	return best
+
+## The road over a crossing's corridor, on the tiers this attempt settled:
+## the corridor level, two tiers under the deck, and the run for each side's
+## ramp; {} if not (the two rooms then stay as two dead ends).
+func _crossing_option(crossing: Dictionary) -> Dictionary:
+	var a: int = crossing.p
+	var b: int = crossing.q
+	var lower: int = crossing.lower
+	var under: Dictionary = _links[lower]
+	if not under.alive or levels[under.a] != levels[under.b]: return {}
+	var deck_tier: int = levels[under.a] + BRIDGE_RISE
+	if deck_tier > MAX_TIER + 2: return {}
+	var from := _centre(a)
+	var to := _centre(b)
+	var gap := from.distance_to(to)
+	var direction := (to - from) / gap
+	var line := _link_points(lower)
+	var cross := from.lerp(to, 0.5)
+	var heading: Vector2 = crossing.heading
+	for k in range(line.size() - 1):
+		var hit: Variant = Geometry2D.segment_intersects_segment(from, to, line[k], line[k + 1])
+		if hit != null:
+			cross = hit
+			heading = (line[k + 1] - line[k]).normalized()
+	var along := from.distance_to(cross)
+	var sine := absf(direction.cross(heading))
+	var cut := _link_half_width(lower, _arc_on_link(lower, cross)) / sine + BRIDGE_STUB_GAP
+	if along - cut - _open_circles[a].z - RAMP_APRON - BRIDGE_FLAT < BRIDGE_RAMP_RUN * (deck_tier - levels[a]): return {}
+	if gap - along - cut - _open_circles[b].z - RAMP_APRON - BRIDGE_FLAT < BRIDGE_RAMP_RUN * (deck_tier - levels[b]): return {}
+	# What was dug after the crossing may have come too close.
+	var s: float = _open_circles[a].z
+	while s <= gap - _open_circles[b].z:
+		if absf(s - along) >= cut and not _bridge_clear(from + direction * s, a, b, -1, lower): return {}
+		s += 1.5
+	return {"a": a, "b": b, "lower": lower, "cross": cross, "dir": direction, "cut": cut, "along": along,
+		"top": float(deck_tier) * TIER, "under": heading}
+
+func _centre(i: int) -> Vector2:
+	return Vector2(_open_circles[i].x, _open_circles[i].y)
+
+## Picks up to BRIDGE_MAX overpasses on the tiers just assigned, from every
+## pair of rooms that could carry one, with its own RNG so the layout does not
+## move. Each becomes a link (so walk distances, the exit choice and the
+## guards see the way over) whose two stubs _build_segments digs.
+func _plan_bridges() -> void:
+	if not region_id in BRIDGE_REGIONS: return
+	# The crossings dug for bridges first, then any other pair that happens to
+	# have a corridor between them.
+	var planned: Array[Dictionary] = []
+	for crossing in _crossings:
+		var option := _crossing_option(crossing)
+		if not option.is_empty(): planned.append(option)
+	var options: Array[Dictionary] = []
+	for a in range(_open_circles.size()):
+		for b in range(a + 1, _open_circles.size()):
+			var option := _bridge_option(a, b)
+			if not option.is_empty(): options.append(option)
+	var pick_rng := RandomNumberGenerator.new()
+	pick_rng.seed = seed_value ^ 0xb81d6e
+	while bridges.size() < BRIDGE_MAX and not (planned.is_empty() and options.is_empty()):
+		var option: Dictionary = planned.pop_front() if not planned.is_empty() else options.pop_at(pick_rng.randi_range(0, options.size() - 1))
+		var apart := true
+		for other in bridges:
+			# Two bridges share no room, no lower corridor and no stretch of rock.
+			var rooms := [int(other.a), int(other.b)]
+			if rooms.has(int(option.a)) or rooms.has(int(option.b)) or (int(other.lower) >= 0 and int(other.lower) == int(option.lower)): apart = false
+			elif _segments_gap(other, option) < BRIDGE_HALF_WIDTH * 2.0 + BRIDGE_CLEAR: apart = false
+		if not apart: continue
+		option.link = _links.size()
+		_links.append({"a": option.a, "b": option.b, "middle": option.cross, "width": BRIDGE_HALF_WIDTH,
+			"trail": false, "length": _centre(option.a).distance_to(_centre(option.b)), "alive": true, "bridge": bridges.size()})
+		bridges.append(option)
+
+func _segments_gap(one: Dictionary, other: Dictionary) -> float:
+	return _line_gap(PackedVector2Array([_centre(one.a), _centre(one.b)]), PackedVector2Array([_centre(other.a), _centre(other.b)]))
+
+## A straight road from room a to room b that crosses exactly one corridor,
+## steeply enough to read as passing over it, and otherwise runs through solid
+## rock. It climbs from each room to a deck two tiers over that corridor and
+## needs the run for those ramps either side; {} when the pair cannot carry one.
+func _bridge_option(a: int, b: int) -> Dictionary:
+	var from := _centre(a)
+	var to := _centre(b)
+	var gap := from.distance_to(to)
+	if gap < BRIDGE_ROOM_GAP.x or gap > BRIDGE_ROOM_GAP.y: return {}
+	var direction := (to - from) / gap
+	var lower := -1
+	var cross := Vector2.ZERO
+	var sine := 0.0
+	for index in range(_links.size()):
+		var link: Dictionary = _links[index]
+		if not link.alive: continue
+		var ends := [int(link.a), int(link.b)]
+		if ends.has(a) and ends.has(b): return {}
+		# Its own rooms' corridors meet the road in those rooms, not across it.
+		if ends.has(a) or ends.has(b): continue
+		var line := _link_points(index)
+		for k in range(line.size() - 1):
+			var hit: Variant = Geometry2D.segment_intersects_segment(from, to, line[k], line[k + 1])
+			if hit == null: continue
+			if lower >= 0 and lower != index: return {}
+			lower = index
+			cross = hit
+			sine = absf(direction.cross((line[k + 1] - line[k]).normalized()))
+	if lower < 0 or sine < 0.55: return {}
+	var under: Dictionary = _links[lower]
+	var under_ends := [int(under.a), int(under.b)]
+	if under_ends.has(a) or under_ends.has(b): return {}
+	var deck_tier: int = levels[under.a] + BRIDGE_RISE
+	if levels[under.b] != levels[under.a] or deck_tier > MAX_TIER + 1: return {}
+	for end in under_ends:
+		if cross.distance_to(_centre(end)) < _open_circles[end].z + BRIDGE_HALF_WIDTH + 2.5: return {}
+	var along := from.distance_to(cross)
+	var cut := _link_half_width(lower, _arc_on_link(lower, cross)) / sine + BRIDGE_STUB_GAP
+	if along - cut < _open_circles[a].z + 5.0 or gap - along - cut < _open_circles[b].z + 5.0: return {}
+	# Each side climbs from its room's tier to the deck's over its own stub.
+	if along - cut - _open_circles[a].z - RAMP_APRON - BRIDGE_FLAT < BRIDGE_RAMP_RUN * (deck_tier - levels[a]): return {}
+	if gap - along - cut - _open_circles[b].z - RAMP_APRON - BRIDGE_FLAT < BRIDGE_RAMP_RUN * (deck_tier - levels[b]): return {}
+	var s: float = _open_circles[a].z
+	while s <= gap - _open_circles[b].z:
+		if absf(s - along) >= cut and not _bridge_clear(from + direction * s, a, b, lower): return {}
+		s += 1.5
+	var under_line := _link_points(lower)
+	return {"a": a, "b": b, "lower": lower, "cross": cross, "dir": direction, "cut": cut, "along": along, "top": float(deck_tier) * TIER,
+		"under": (under_line[2] - under_line[0]).normalized()}
+
+## Rock enough round `point` of a stub: no room, corridor or pillar near it
+## but the bridge's own. Under a crossing, the corridor it passes over (`soft`)
+## and that corridor's two rooms may come closer: the stub stands two tiers
+## over them, so they need only stay off its centre line.
+func _bridge_clear(point: Vector2, a: int, b: int, lower: int, soft: int = -1, own_reach: float = -1.0) -> bool:
+	var reach := (own_reach if own_reach > 0.0 else BRIDGE_HALF_WIDTH) + BRIDGE_CLEAR + (CAVE_WARP if region_id in CAVE_REGIONS else 0.0)
+	var below := own_reach + 1.0 if own_reach > 0.0 else 1.0
+	var soft_rooms := [int(_links[soft].a), int(_links[soft].b)] if soft >= 0 else []
+	for i in range(_open_circles.size()):
+		if i == a or i == b: continue
+		if point.distance_to(_centre(i)) - _room_reach(i) < (below if soft_rooms.has(i) else reach): return false
+	for index in range(_links.size()):
+		var link: Dictionary = _links[index]
+		if not link.alive or index == lower: continue
+		if index == soft:
+			if _point_line_gap(point, _link_points(index)) - float(link.width) < below: return false
+			continue
+		# Corridors out of the bridge's own rooms meet it inside those rooms.
+		var own := -1
+		if [int(link.a), int(link.b)].has(a): own = a
+		elif [int(link.a), int(link.b)].has(b): own = b
+		if own >= 0 and point.distance_to(_centre(own)) < _open_circles[own].z + reach + 2.0: continue
+		if _point_line_gap(point, _link_points(index)) - float(link.width) < reach: return false
+	for i in range(_closed_circles.size()):
+		if point.distance_to(Vector2(_closed_circles[i].x, _closed_circles[i].y)) - pillar_reach(i) < BRIDGE_HALF_WIDTH + 1.0: return false
+	return true
+
+## Where `planned` lands in the world: the inverse of the cave warp.
+func _unwarp(planned: Vector2) -> Vector2:
+	var point := planned
+	for i in range(8): point = planned - (warped(point) - point)
+	return point
+
+## Each bridge measured on the sampled terrain: the cliff lines the deck spans
+## between, and checks that the road below lies the full rise under it and
+## the stubs' floor meets it at each end. A bridge that fails is not built:
+## its stubs are filled in again and the terrain sampled once more.
+func _settle_bridges() -> void:
+	if bridges.is_empty(): return
+	var failed := false
+	for bridge in bridges:
+		if _settle_bridge(bridge): continue
+		failed = true
+		_links[bridge.link].alive = false
+	if not failed: return
+	_build_segments()
+	_surface.sample(self)
+	var kept: Array[Dictionary] = []
+	for bridge in bridges:
+		if not _links[bridge.link].alive: continue
+		_links[bridge.link].bridge = kept.size()
+		kept.append(bridge)
+	bridges = kept
+
+func _settle_bridge(bridge: Dictionary) -> bool:
+	var top: float = bridge.top
+	var cross := _unwarp(bridge.cross)
+	var axis := (_unwarp(bridge.cross + bridge.dir * 6.0) - _unwarp(bridge.cross - bridge.dir * 6.0)).normalized()
+	if _surface.ground_at(cross) > top - TIER * BRIDGE_RISE + 0.4: return false
+	var across := axis.orthogonal()
+	# The cliff lines across the deck's whole width: the far edge of each,
+	# where the crossing is oblique.
+	var near := -1.0
+	var far := -1.0
+	for side in [-1.0, 0.0, 1.0]:
+		var line: Vector2 = cross + across * side * DECK_HALF_WIDTH
+		var to_near := _cliff_along(line, -axis, top)
+		var to_far := _cliff_along(line, axis, top)
+		if to_near < 0.0 or to_far < 0.0: return false
+		near = maxf(near, to_near)
+		far = maxf(far, to_far)
+	var start := cross - axis * near
+	var end := cross + axis * far
+	var span := near + far
+	if span < 3.0 or span > 18.0: return false
+	for under in [cross, start.lerp(end, 0.3), start.lerp(end, 0.7), cross + across * (DECK_HALF_WIDTH - 0.8), cross - across * (DECK_HALF_WIDTH - 0.8)]:
+		if _surface.ground_at(under) > top - TIER * BRIDGE_RISE + 0.4: return false
+	for foot in [start - axis * (DECK_OVERLAP - 0.3), end + axis * (DECK_OVERLAP - 0.3)]:
+		for side in [-1.0, 0.0, 1.0]:
+			var on: Vector2 = foot + across * side * (DECK_HALF_WIDTH - 0.9)
+			if _surface.distance_at(on) < 0.1 or absf(_surface.ground_at(on) - top) > 0.15: return false
+	bridge.centre = (start + end) * 0.5
+	bridge.axis = axis
+	bridge.span = span
+	bridge.base = _surface.ground_at(cross)
+	return true
+
+## Distance from `origin` along `direction` to where the ground climbs to `top`.
+func _cliff_along(origin: Vector2, direction: Vector2, top: float) -> float:
+	var t := 0.0
+	while t < 14.0:
+		if _surface.ground_at(origin + direction * t) >= top - 0.3: return maxf(0.0, t - 0.125)
+		t += 0.25
+	return -1.0
+
+## The arch's cliff lines stand this far apart in the model (build_snow_bridge.py SPAN).
+const BRIDGE_MODEL_SPAN := 10.0
+
+## The arch and its deck: the Blender piece stretched to the span, a slab
+## flush with the stubs' floor to walk on, and walls along both sides.
+func _build_bridges() -> void:
+	var scene := load("res://art/kit/snow_bridge.glb") as PackedScene
+	for i in range(bridges.size()):
+		var bridge: Dictionary = bridges[i]
+		var axis: Vector2 = bridge.axis
+		var x := Vector3(axis.x, 0.0, axis.y)
+		var root := Node3D.new()
+		root.name = "Bridge%d" % i
+		_generated_root.add_child(root)
+		root.transform = Transform3D(Basis(x, Vector3.UP, x.cross(Vector3.UP)), Vector3(bridge.centre.x, bridge.top, bridge.centre.y))
+		if scene != null:
+			var arch := MeshInstance3D.new()
+			arch.name = "Arch"
+			arch.mesh = TerraceDressing.kit_mesh(scene)
+			arch.scale = Vector3(float(bridge.span) / BRIDGE_MODEL_SPAN, 1.0, 1.0)
+			root.add_child(arch)
+		var length := float(bridge.span) + 2.0 * DECK_OVERLAP
+		var deck := StaticBody3D.new()
+		deck.name = "Deck"
+		root.add_child(deck)
+		_box_shape(deck, Vector3(length, 0.6, DECK_HALF_WIDTH * 2.0 + 0.4), Vector3(0, -0.3, 0))
+		var walls := StaticBody3D.new()
+		walls.name = "DeckWalls"
+		walls.add_to_group("world_obstacle")
+		root.add_child(walls)
+		for side in [-1.0, 1.0]:
+			_box_shape(walls, Vector3(length, 3.4, 0.2), Vector3(0, 1.4, side * (DECK_HALF_WIDTH + 0.1)))
+
+func _box_shape(body: StaticBody3D, size: Vector3, at: Vector3) -> void:
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	shape.position = at
+	body.add_child(shape)
 
 ## Rooms the floor has to connect: all of them, from the entry.
 func _reach_targets() -> Array[Vector2]:
@@ -653,16 +1243,41 @@ func _reach_targets() -> Array[Vector2]:
 	return targets
 
 func _link_height(link: Dictionary, s: float) -> float:
+	# A bridge's road: up from room a to the deck, level over it, down to b.
+	if link.has("bridge"):
+		var bridge: Dictionary = bridges[link.bridge]
+		var top: float = bridge.top
+		var lo: float = float(bridge.along) - float(bridge.cut) - BRIDGE_FLAT
+		var hi: float = float(bridge.along) + float(bridge.cut) + BRIDGE_FLAT
+		if s <= lo:
+			var start: float = _open_circles[link.a].z + RAMP_APRON
+			return lerpf(float(levels[link.a]) * TIER, top, clampf((s - start) / maxf(lo - start, 0.001), 0.0, 1.0))
+		if s >= hi:
+			var end: float = float(link.length) - _open_circles[link.b].z - RAMP_APRON
+			return lerpf(top, float(levels[link.b]) * TIER, clampf((s - hi) / maxf(end - hi, 0.001), 0.0, 1.0))
+		return top
 	var ha := float(levels[link.a]) * TIER
 	var hb := float(levels[link.b]) * TIER
 	if ha == hb: return ha
 	var start: float = _open_circles[link.a].z + RAMP_APRON
 	var end: float = float(link.length) - _open_circles[link.b].z - RAMP_APRON
 	if end <= start: return ha if s < float(link.length) * 0.5 else hb
-	return lerpf(ha, hb, clampf((s - start) / (end - start), 0.0, 1.0))
+	# The climb takes its RAMP_RUN per tier in the middle of the free run and no
+	# more: spread over a long corridor it would be too gentle to read (and
+	# to dress), so the rest of the corridor stays level.
+	var run := minf(end - start, RAMP_RUN * absf(hb - ha) / TIER)
+	var middle := (start + end) * 0.5
+	return lerpf(ha, hb, clampf((s - (middle - run * 0.5)) / maxf(run, 0.001), 0.0, 1.0))
 
 ## Ground level the shape `owner` (from carved_distance) sets at `point`.
+## Where the layout's shapes are read for `point`: itself, or in a cave
+## region shifted by the warp (both components from one noise, offset).
+func warped(point: Vector2) -> Vector2:
+	if not region_id in CAVE_REGIONS: return point
+	return point + Vector2(_warp.get_noise_2dv(point), _warp.get_noise_2dv(point + Vector2(431.0, -217.0))) * CAVE_WARP
+
 func owner_height(owner: int, point: Vector2) -> float:
+	point = warped(point)
 	if owner >= 0: return float(levels[owner]) * TIER
 	var segment: PackedFloat32Array = _open_segments[-owner - 1]
 	var a := Vector2(segment[0], segment[1])
@@ -671,8 +1286,38 @@ func owner_height(owner: int, point: Vector2) -> float:
 	return _link_height(_links[int(segment[5])], lerpf(segment[6], segment[7], t))
 
 ## Height of the walkable ground (or the rock's foot) at x/z, matching the mesh.
-func ground_height(point: Vector2) -> float:
-	return _surface.ground_at(point) if _surface != null else 0.0
+## `from_y` is the height of whoever asks: over a bridge, a walker up at its
+## deck stands on the deck, anyone lower on the road beneath.
+func ground_height(point: Vector2, from_y: float = -INF) -> float:
+	var ground := _surface.ground_at(point) if _surface != null else 0.0
+	if from_y > -INF:
+		for bridge in bridges:
+			if from_y >= float(bridge.top) - BRIDGE_REACH and ground < float(bridge.top) - 0.5 and on_deck(bridge, point): return float(bridge.top)
+	return ground
+
+## Whether x/z lies on `bridge`'s deck (`margin` wider either side).
+func on_deck(bridge: Dictionary, point: Vector2, margin: float = 0.0) -> bool:
+	if not bridge.has("centre"): return false
+	var local: Vector2 = point - bridge.centre
+	var axis: Vector2 = bridge.axis
+	return absf(local.dot(axis)) <= float(bridge.span) * 0.5 + DECK_OVERLAP + margin and absf(local.dot(axis.orthogonal())) <= DECK_HALF_WIDTH + margin
+
+## The bridge whose deck, or `margin` round it, covers x/z; {} if none.
+func bridge_at(point: Vector2, margin: float = 0.0) -> Dictionary:
+	for bridge in bridges:
+		if on_deck(bridge, point, margin): return bridge
+	return {}
+
+## Where a ray from the camera meets a deck's top, if it meets one before
+## the ground: Vector3.INF when none does.
+func deck_hit(from: Vector3, direction: Vector3) -> Vector3:
+	if absf(direction.y) < 0.0001: return Vector3.INF
+	for bridge in bridges:
+		var t := (float(bridge.top) - from.y) / direction.y
+		if t < 0.0: continue
+		var hit := from + direction * t
+		if on_deck(bridge, Vector2(hit.x, hit.z)): return hit
+	return Vector3.INF
 
 ## `point` placed on the ground below or above it. A y under the local ground
 ## cannot be a real position, so it reads as a height above that ground — the
@@ -688,7 +1333,7 @@ func ramp_midpoints() -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
 	for index in range(_links.size()):
 		var link: Dictionary = _links[index]
-		if not link.alive or levels[link.a] == levels[link.b]: continue
+		if not link.alive or levels[link.a] == levels[link.b] or link.has("bridge"): continue
 		var piece: PackedVector2Array = _pieces[index * 3 + 1]
 		if piece.size() < 2: continue
 		var up := (piece[-1] - piece[0]).normalized() * (1.0 if levels[link.b] > levels[link.a] else -1.0)
@@ -711,7 +1356,7 @@ func _segment_distance(point: Vector2, segment: PackedFloat32Array) -> float:
 ## BLEND is the fillet's reach. Too large and shapes that merely pass near each
 ## other fuse into one blob, which would undo the arena/corridor contrast the
 ## layout is built on; this is tuned well under the gap between parallel routes.
-const BLEND := 3.5
+const BLEND := 4.5
 ## Pillars are free-standing rock and should still read as objects, so their
 ## subtraction is only eased enough to lose the cookie-cutter edge.
 const PILLAR_BLEND := 1.2
@@ -727,6 +1372,7 @@ static func _smooth_min(a: float, b: float, k: float) -> float:
 ## Also leaves the shape nearest the point in _last_owner: a circle's index, or
 ## -(segment index + 1). That shape sets the ground's height there.
 func carved_distance(point: Vector2) -> float:
+	point = warped(point)
 	# Only the two nearest shapes are blended, never the whole chain. Folding a
 	# smooth max over every primitive in turn would add up to k/4 per step, and
 	# the steps only stop contributing once the operands are more than k apart
@@ -738,10 +1384,18 @@ func carved_distance(point: Vector2) -> float:
 	var best := -1e9
 	var second := -1e9
 	var owner := 0
-	for i in range(_open_circles.size()):
+	# Only the shapes that can reach this part of the map (see _build_shape_grid).
+	var cell := _shape_cell(point)
+	var rooms: PackedInt32Array = _cell_rooms[cell] if cell >= 0 else _all_rooms
+	var segments: PackedInt32Array = _cell_segments[cell] if cell >= 0 else _all_segments
+	var pillars: PackedInt32Array = _cell_pillars[cell] if cell >= 0 else _all_pillars
+	for i in rooms:
 		var circle := _open_circles[i]
 		var offset := point - Vector2(circle.x, circle.y)
-		var chamber_distance := circle.z - offset.length()
+		var reach := offset.length()
+		# Its widest lobe bounds it, as for the corridors below.
+		if region_id != "city" and circle.z * (1.0 + ROOM_LOBES.y * 1.7) - reach <= second: continue
+		var chamber_distance := circle.z * _lobed(i, offset) - reach
 		if region_id == "city":
 			var q := offset.abs() - Vector2(circle.z * 0.85, circle.z * 0.7)
 			chamber_distance = -(q.max(Vector2.ZERO).length() + minf(maxf(q.x, q.y), 0.0)) + 1.0
@@ -751,9 +1405,15 @@ func carved_distance(point: Vector2) -> float:
 			owner = i
 		elif chamber_distance > second:
 			second = chamber_distance
-	for j in range(_open_segments.size()):
+	for j in segments:
 		var segment := _open_segments[j]
-		var corridor_distance: float = segment[4] - _segment_distance(point, segment)
+		var away := _segment_distance(point, segment)
+		# The widest this corridor gets anywhere bounds it: past that it cannot
+		# be either of the two nearest shapes, and the swell is not worth reading.
+		var link: Dictionary = _links[int(segment[5])]
+		var widest := maxf(segment[4] * (1.0 + CORRIDOR_SWELL), maxf(_open_circles[link.a].z, _open_circles[link.b].z) * CORRIDOR_FLARE + segment[4] * 0.5)
+		if widest - away <= second: continue
+		var corridor_distance: float = _corridor_half_width(segment, point) - away
 		if corridor_distance > best:
 			second = best
 			best = corridor_distance
@@ -762,9 +1422,143 @@ func carved_distance(point: Vector2) -> float:
 			second = corridor_distance
 	_last_owner = owner
 	var distance := best if second <= -1e8 else _smooth_max(best, second, BLEND)
-	for pillar in _closed_circles:
-		distance = _smooth_min(distance, point.distance_to(Vector2(pillar.x, pillar.y)) - pillar.z, PILLAR_BLEND)
+	for i in pillars:
+		distance = _smooth_min(distance, _pillar_distance(i, point), PILLAR_BLEND)
 	return distance
+
+## Load time (用户 2026-10-13: 优化地图加载): carved_distance is read at every
+## terrain sample and again while the mesh is built, and looping over every
+## room, corridor and pillar each time was most of a floor's load. The map is
+## cut into SHAPE_CELL squares, each listing the shapes whose field can reach
+## above -SHAPE_REACH anywhere in it; nothing further off can be one of the two
+## nearest there, and rock that deep reads the same however deep it is (the
+## deepest anything looks is the snow mountains' rise, 18 m in). A square no
+## shape reaches keeps its nearest room, so the rock there still takes a tier.
+const SHAPE_CELL := 16.0
+const SHAPE_REACH := 26.0
+var _shape_origin := Vector2.ZERO
+var _shape_columns := 0
+var _shape_rows := 0
+var _cell_rooms: Array[PackedInt32Array] = []
+var _cell_segments: Array[PackedInt32Array] = []
+var _cell_pillars: Array[PackedInt32Array] = []
+var _all_rooms := PackedInt32Array()
+var _all_segments := PackedInt32Array()
+var _all_pillars := PackedInt32Array()
+
+func _shape_cell(point: Vector2) -> int:
+	if _cell_rooms.is_empty(): return -1
+	var x := int(floor((point.x - _shape_origin.x) / SHAPE_CELL))
+	var z := int(floor((point.y - _shape_origin.y) / SHAPE_CELL))
+	if x < 0 or z < 0 or x >= _shape_columns or z >= _shape_rows: return -1
+	return z * _shape_columns + x
+
+func _build_shape_grid() -> void:
+	_all_rooms = PackedInt32Array(range(_open_circles.size()))
+	_all_segments = PackedInt32Array(range(_open_segments.size()))
+	_all_pillars = PackedInt32Array(range(_closed_circles.size()))
+	# The terrain samples the bounds and a 36 m apron, the warp shifts by up
+	# to CAVE_WARP; one cell more each side covers both.
+	_shape_origin = SPINE_MIN - Vector2(36.0 + SHAPE_CELL, 36.0 + SHAPE_CELL)
+	var far := SPINE_MAX + Vector2(36.0 + SHAPE_CELL, 36.0 + SHAPE_CELL)
+	_shape_columns = ceili((far.x - _shape_origin.x) / SHAPE_CELL)
+	_shape_rows = ceili((far.y - _shape_origin.y) / SHAPE_CELL)
+	_cell_rooms.clear()
+	_cell_segments.clear()
+	_cell_pillars.clear()
+	var half := SHAPE_CELL * 0.5 * sqrt(2.0)
+	for z in range(_shape_rows):
+		for x in range(_shape_columns):
+			var centre := _shape_origin + Vector2(x + 0.5, z + 0.5) * SHAPE_CELL
+			var rooms := PackedInt32Array()
+			var nearest := 0
+			var nearest_gap := INF
+			for i in range(_open_circles.size()):
+				var circle := _open_circles[i]
+				var gap := centre.distance_to(Vector2(circle.x, circle.y)) - _room_reach(i) * (1.0 + ROOM_LOBES.y * 1.7) - half
+				if gap <= SHAPE_REACH: rooms.append(i)
+				if gap < nearest_gap:
+					nearest_gap = gap
+					nearest = i
+			var segments := PackedInt32Array()
+			for j in range(_open_segments.size()):
+				var segment := _open_segments[j]
+				var link: Dictionary = _links[int(segment[5])]
+				var widest := maxf(segment[4] * (1.0 + CORRIDOR_SWELL), maxf(_open_circles[link.a].z, _open_circles[link.b].z) * CORRIDOR_FLARE + segment[4] * 0.5)
+				if _segment_distance(centre, segment) - widest - half <= SHAPE_REACH: segments.append(j)
+			if rooms.is_empty() and segments.is_empty(): rooms.append(nearest)
+			var pillars := PackedInt32Array()
+			for i in range(_closed_circles.size()):
+				var pillar := _closed_circles[i]
+				if centre.distance_to(Vector2(pillar.x, pillar.y)) - pillar_reach(i) - half <= SHAPE_REACH: pillars.append(i)
+			_cell_rooms.append(rooms)
+			_cell_segments.append(segments)
+			_cell_pillars.append(pillars)
+
+## Room i's rim at `offset` from its centre, as a share of its radius.
+func _lobed(i: int, offset: Vector2) -> float:
+	if region_id == "city" or i >= _room_shapes.size(): return 1.0
+	var shape := _room_shapes[i]
+	var angle := offset.angle()
+	return 1.0 + shape[0] * sin(2.0 * angle + shape[1]) + shape[2] * sin(3.0 * angle + shape[3])
+
+## A corridor's half-width where `point` projects onto it: the planned width,
+## swollen along the run, flared into the rooms at its ends.
+func _corridor_half_width(segment: PackedFloat32Array, point: Vector2) -> float:
+	var base: float = segment[4]
+	var a := Vector2(segment[0], segment[1])
+	var delta := Vector2(segment[2], segment[3]) - a
+	var t := clampf((point - a).dot(delta) / maxf(delta.length_squared(), 0.001), 0.0, 1.0)
+	return _link_half_width(int(segment[5]), lerpf(segment[6], segment[7], t))
+
+## Link `index`'s half-width `s` metres along it (see _corridor_half_width).
+func _link_half_width(index: int, s: float) -> float:
+	var link: Dictionary = _links[index]
+	var base: float = link.width
+	var swell := clampf(_swell.get_noise_2d(s, float(index) * 37.0) * 0.5 + 0.5, 0.0, 1.0)
+	var width := base * (1.0 + CORRIDOR_SWELL * swell * swell)
+	# A bridge's stubs keep their width: the deck is sized to them.
+	if link.has("bridge"): return base
+	var length: float = link.length
+	for end in [[int(link.a), s], [int(link.b), length - s]]:
+		var room: float = _open_circles[end[0]].z
+		var near: float = end[1]
+		width = maxf(width, lerpf(base, maxf(base, room * CORRIDOR_FLARE + base * 0.5), 1.0 - smoothstep(room * 0.7, room + 7.0, near)))
+	return width
+
+## How far along link `index` the point nearest `point` lies.
+func _arc_on_link(index: int, point: Vector2) -> float:
+	var line := _link_points(index)
+	var best := INF
+	var arc := 0.0
+	var along := 0.0
+	for k in range(line.size() - 1):
+		var closest := Geometry2D.get_closest_point_to_segment(point, line[k], line[k + 1])
+		if closest.distance_to(point) < best:
+			best = closest.distance_to(point)
+			arc = along + line[k].distance_to(closest)
+		along += line[k].distance_to(line[k + 1])
+	return arc
+
+## Signed distance to pillar i's irregular outline (an approximation: exact
+## along the rim, which is all the contour and the clearance tests need).
+func _pillar_distance(i: int, point: Vector2) -> float:
+	var pillar := _closed_circles[i]
+	var offset := point - Vector2(pillar.x, pillar.y)
+	if i >= _pillar_shapes.size(): return offset.length() - pillar.z
+	var shape := _pillar_shapes[i]
+	var local := offset.rotated(-shape[1])
+	local.x /= shape[0]
+	var angle := local.angle()
+	var rim := pillar.z * (1.0 + shape[2] * sin(2.0 * angle + shape[3]) + shape[4] * sin(3.0 * angle + shape[5]))
+	return (local.length() - rim) * minf(1.0, shape[0])
+
+## Furthest the pillar's outline reaches from its centre.
+func pillar_reach(i: int) -> float:
+	var r: float = _closed_circles[i].z
+	if i >= _pillar_shapes.size(): return r
+	var shape := _pillar_shapes[i]
+	return r * shape[0] * (1.0 + shape[2] + shape[4])
 
 func road_distance(point: Vector2) -> float:
 	var distance := INF
@@ -837,7 +1631,9 @@ func _place_content() -> void:
 	var spurs: Array[int] = []
 	for i in range(_open_circles.size()):
 		if circle_kinds[i] == "spur" and circle_distance[i] < INF: spurs.append(i)
-	spurs.sort_custom(func(a: int, b: int) -> bool: return _open_circles[a].y < _open_circles[b].y)
+	# By the walk from the entry, not by depth: with loops a shallow room can be
+	# a long way round, and the early build has to be early on foot.
+	spurs.sort_custom(func(a: int, b: int) -> bool: return circle_distance[a] < circle_distance[b])
 	var buff_room: int = spurs[0]
 	var encounter_room: int = spurs[spurs.size() / 2]
 	var farthest := 0.0
@@ -848,9 +1644,14 @@ func _place_content() -> void:
 	# Route markers: any dead-end room big enough for three markers, in the far
 	# part of the walk. The trunk's end is one candidate among several.
 	var candidates: Array[int] = []
-	for share in [0.5, 0.35, 0.0]:
+	# The last pass drops the "past the early build" rule rather than leave
+	# no candidate at all (the trunk's end always qualifies then).
+	for share in [0.5, 0.35, 0.0, -1.0]:
 		for i in range(_open_circles.size()):
 			if i == buff_room or i == encounter_room or circle_kinds[i] in ["vault", "niche"]: continue
+			# Well past the early build along the walk (loops can make a shallow
+			# room a long way round).
+			if share >= 0.0 and circle_distance[i] < circle_distance[buff_room] * 1.6: continue
 			if circle_distance[i] == INF or circle_distance[i] < farthest * share: continue
 			if i == trunk_end or (_degree(i) == 1 and _open_circles[i].z >= 6.5): candidates.append(i)
 		if not candidates.is_empty(): break
@@ -884,7 +1685,7 @@ func _place_content() -> void:
 	buff_position = _grounded(buff_at, 0.65)
 	encounter_position = _grounded(gild_at, 0.65)
 	buff_device_node = _marker("强化 · E", buff_position, Color("ef9b42"))
-	encounter_node = _marker("坎诺特 · E" if encounter_kind == "trader" else "罗德岛小队 · E", encounter_position, Color("e6c25a") if encounter_kind == "trader" else Color("5fd0d8"))
+	encounter_node = _set_piece("坎诺特 · E" if encounter_kind == "trader" else "罗德岛小队 · E", encounter_position, Color("e6c25a") if encounter_kind == "trader" else Color("5fd0d8"), ENCOUNTER_MODELS["trader" if encounter_kind == "trader" else "squad"], "trader" if encounter_kind == "trader" else "squad")
 	encounter_node.visible = not encounter_kind.is_empty()
 	exit_node = _marker("撤离 · E", _grounded(exit_at, 0.15), Color("63eca7"))
 	exit_node.visible = extraction_available
@@ -909,7 +1710,9 @@ func _place_content() -> void:
 	# Spread existing regional enemy budgets across the whole route first.
 	# Settled like every marker: a pillar can stand over a small room's centre.
 	for i in range(2, main_path.size(), 2):
-		enemy_spawn_points.append(_grounded(_safe_spot(main_path[i], main_path[i], _open_circles[i].z), 0.0))
+		var spawn := _safe_spot(main_path[i], main_path[i], _open_circles[i].z)
+		# A neck room wholly taken by a neighbouring pillar has no spot: skip it.
+		if _has_clearance(spawn): enemy_spawn_points.append(_grounded(spawn, 0.0))
 	for branch in branch_centres:
 		var centre := Vector2(branch.x, branch.y)
 		enemy_spawn_points.append(_grounded(_safe_spot(centre + Vector2(0, 2), centre, branch.z), 0.0))
@@ -921,9 +1724,12 @@ func _place_content() -> void:
 	for i in spurs:
 		if not used.has(i): spare.append(i)
 	for i in spare:
-		cache_positions.append(_grounded(Vector2(_open_circles[i].x, _open_circles[i].y), 0.5))
+		var centre := Vector2(_open_circles[i].x, _open_circles[i].y)
+		# Settled like every marker: a warped outline may not cover the centre.
+		cache_positions.append(_grounded(_safe_spot(centre, centre, _open_circles[i].z), 0.5))
 	# An absent extraction must not turn its room into an empty dead end.
-	cache_positions.append(_grounded(Vector2(exit_spot.x + 2.0, exit_spot.y), 0.5))
+	var exit_centre := Vector2(exit_spot.x, exit_spot.y)
+	cache_positions.append(_grounded(_safe_spot(exit_centre + Vector2(2.0, 0.0), exit_centre, exit_spot.z), 0.5))
 	# Nor the trunk's end, when the markers went elsewhere.
 	if exit_chamber != trunk_end and extraction_chamber != trunk_end:
 		cache_positions.append(_grounded(_safe_spot(main_path[trunk_end], main_path[trunk_end], 8.0), 0.5))
@@ -931,11 +1737,11 @@ func _place_content() -> void:
 		var point := _safe_spot(main_path[i] + Vector2(-3, 2), main_path[i], 10)
 		cache_positions.append(_grounded(point, 0.5))
 	for loop in loop_centres:
-		if _circle_at(loop) != exit_chamber: cache_positions.append(_grounded(loop, 0.5))
+		if _circle_at(loop) != exit_chamber: cache_positions.append(_grounded(_safe_spot(loop, loop, 6.0), 0.5))
 	# A second-order niche is the longest walk on the map for its size, so it
 	# always pays; an empty one would just teach the player to ignore forks.
 	for niche in niche_centres:
-		cache_positions.append(_grounded(niche, 0.5))
+		cache_positions.append(_grounded(_safe_spot(niche, niche, 4.5), 0.5))
 
 	# Mechanisms sit on the detours that carry no device, so clearing them all
 	# means having actually walked the branches rather than pressing on. Spurs
@@ -966,33 +1772,14 @@ func _dress_landmarks() -> void:
 		var b := Vector2(segment[2], segment[3])
 		var direction := (b - a).normalized()
 		var across := Vector2(-direction.y, direction.x)
-		if region_id == "mine":
-			for side in [-1.0, 1.0]: _strip(a + across * side * 0.85, b + across * side * 0.85, 0.08, Color("736550"))
-			for i in range(int(a.distance_to(b) / 1.5)):
-				var p := a + direction * (i * 1.5)
-				_strip(p - across * 1.2, p + across * 1.2, 0.16, Color("494139"))
-		elif region_id == "city":
+		# The mine's track is a Blender model now (TerraceDressing.RAILS).
+		if region_id == "city":
 			for i in range(int(a.distance_to(b) / 4)):
 				var p := a + direction * (i * 4 + 0.5)
 				_strip(p, p + direction * 1.6, 0.14, Color("a39769"))
-	# Stairs on every ramp in the city, timber treads in the mine: the rise
-	# has to read as a way up from above, not as a smudge in the floor.
-	if region_id == "snow": return
-	for segment in _open_segments:
-		var link: Dictionary = _links[int(segment[5])]
-		if levels[link.a] == levels[link.b]: continue
-		var a := Vector2(segment[0], segment[1])
-		var b := Vector2(segment[2], segment[3])
-		var direction := (b - a).normalized()
-		var across := Vector2(-direction.y, direction.x)
-		var half: float = segment[4] - 0.8
-		var tread := 0.7 if region_id == "city" else 1.1
-		for i in range(int(a.distance_to(b) / tread)):
-			var s: float = lerpf(segment[6], segment[7], (i * tread) / a.distance_to(b))
-			var rise := _link_height(link, s)
-			if is_equal_approx(rise, float(levels[link.a]) * TIER) or is_equal_approx(rise, float(levels[link.b]) * TIER): continue
-			var p := a + direction * (i * tread)
-			_strip(p - across * half, p + across * half, 0.12 if region_id == "city" else 0.22, Color("8d8a80") if region_id == "city" else Color("5b4a36"))
+	# Cliffs, ramps and cliff-foot rubble from the Blender kit (a3/CHANGE-BRIEF.md).
+	terrace_dressing = TerraceDressing.new()
+	terrace_dressing.build(self)
 
 func _strip(a: Vector2, b: Vector2, width: float, color: Color) -> void:
 	var pieces := maxi(1, ceili(a.distance_to(b) / 2.0))
@@ -1005,19 +1792,91 @@ func _strip(a: Vector2, b: Vector2, width: float, color: Color) -> void:
 		var mesh := _make_box("RouteTrace", middle, Vector3(width, 0.025, start.distance_to(end)), color, false)
 		if start.distance_to(end) > 0.01: mesh.basis = Basis.looking_at(end - start)
 
-func _marker(title: String, pos: Vector3, color: Color) -> Node3D:
-	var node := _make_cylinder(title, on_ground(pos), 1.6, 0.25, color, false)
-	var label := Label3D.new()
-	label.text = title
-	label.font_size = 36
-	label.pixel_size = 0.009
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.position.y = 1.3
-	label.modulate = color
-	node.add_child(label)
+## Set pieces from tools/blender/kit/build_encounter.py (NPC_brief_v3.md Part C).
+const ENCOUNTER_MODELS := {"squad": "res://art/kit/enc_squad_post.glb", "trader": "res://art/kit/enc_trader_stall.glb"}
+## Larger than life, as the search points are (LootContainer.MODEL_SCALE), so they read from the camera.
+const ENCOUNTER_SCALE := 1.5
+## Where the NPC stands, from the set piece's centre: in front of it, towards the camera (-Z).
+const ENCOUNTER_STAND := {"squad": Vector3.ZERO, "trader": Vector3(0.3, 0.0, -1.65)}
+## Half the squad post's footprint (x, z) before ENCOUNTER_SCALE (art/kit/enc_squad_post.glb).
+const SQUAD_POST_HALF := Vector2(1.12, 0.68)
+
+## An encounter's set piece standing on the ground at `pos`, front to the
+## camera. Walk-through, like the search points.
+func _set_piece(title: String, pos: Vector3, color: Color, model: String, npc: String = "") -> Node3D:
+	var node := Node3D.new()
+	node.name = title
+	node.set_meta("art_kind", title)
+	_generated_root.add_child(node)
+	node.position = on_ground(pos)
+	var mesh := MeshInstance3D.new()
+	mesh.name = "Model"
+	mesh.mesh = TerraceDressing.kit_mesh(load(model))
+	node.add_child(mesh)
+	# The node floats where the HUD and the E range read it; the model stands on the ground.
+	mesh.position.y = ground_height(Vector2(pos.x, pos.z)) - node.position.y
+	# Built front to Blender -Y (Godot +Z); the follow camera sits at -Z.
+	mesh.rotation.y = PI
+	mesh.scale = Vector3.ONE * ENCOUNTER_SCALE
+	if not npc.is_empty():
+		var stand: Vector3 = ENCOUNTER_STAND[npc]
+		# Its own generator, seeded by the spot: drawing from _rng here would
+		# move everything placed after it on a seeded map.
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(Vector2i(roundi(pos.x * 100.0), roundi(pos.z * 100.0)))
+		var spots: Array[Vector3] = [stand]
+		var who: Array = [npc]
+		if npc == "squad":
+			spots = _squad_spots(pos, rng)
+			who = ["melee", "sniper", "logistics"]
+			for i in range(who.size() - 1, 0, -1):
+				var j := rng.randi_range(0, i)
+				var swap = who[i]
+				who[i] = who[j]
+				who[j] = swap
+		for i in range(spots.size()):
+			var figure := FieldArt.npc_idle(who[i])
+			figure.position = spots[i] + Vector3(0, ground_height(Vector2(pos.x + spots[i].x, pos.z + spots[i].z)) - node.position.y, 0)
+			# Each on its own frame, so they do not breathe in step.
+			figure.frame = rng.randi_range(0, FieldArt.NPC_FRAMES - 1)
+			# Standing upright, stretched by the camera's tilt so it draws the
+			# same pixels: a camera-facing billboard leans back into the set piece
+			# behind it and loses its head there.
+			figure.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
+			figure.scale.y = GameManager.CAMERA_OFFSET.length() / absf(GameManager.CAMERA_OFFSET.z)
+			node.add_child(figure)
+	# No Label3D over it: the world renders at 640×360, where 3D text breaks
+	# into noise; the HUD's E prompt names it when the player is near.
 	return node
 
-	return node
+## The squad's three spots around its post (用户 2026-10-13: 随机三角站位,
+## 围绕在箱子周边、分散随机): on a ring just outside the post's footprint,
+## at random angles at least 70° apart, each at its own distance; a spot off
+## the walkable floor is drawn again. `pos` is the post's centre in the world.
+## Sorted back to front.
+func _squad_spots(pos: Vector3, rng: RandomNumberGenerator) -> Array[Vector3]:
+	var half := SQUAD_POST_HALF * ENCOUNTER_SCALE
+	var angles: Array[float] = []
+	var spots: Array[Vector3] = []
+	for tries in range(60):
+		if spots.size() == 3: break
+		var a := rng.randf_range(-PI, PI)
+		var apart := true
+		for b in angles:
+			if absf(wrapf(a - b, -PI, PI)) < deg_to_rad(70.0): apart = false
+		if not apart: continue
+		var reach := rng.randf_range(1.0, 1.45)
+		var spot := Vector3(cos(a) * (half.x + 0.45) * reach, 0, sin(a) * (half.y + 0.4) * reach)
+		if tries < 50 and not _has_clearance(Vector2(pos.x + spot.x, pos.z + spot.z)): continue
+		angles.append(a)
+		spots.append(spot)
+	spots.sort_custom(func(p: Vector3, q: Vector3): return p.z > q.z)
+	return spots
+
+func _marker(title: String, pos: Vector3, color: Color) -> Node3D:
+	# No Label3D: 3D text is noise at the world's 640×360, and the HUD shows
+	# only the E key when near (用户 2026-10-13: 不要中文label了).
+	return _make_cylinder(title, on_ground(pos), 1.6, 0.25, color, false)
 
 func try_sample_navigation_position(position: Vector3, max_distance: float = 4.0) -> Vector3:
 	if not is_instance_valid(_generated_root):
@@ -1141,6 +2000,7 @@ func _clear_generated_map() -> void:
 	encounter_node = null
 	enemy_spawn_points.clear()
 	_surface = null
+	FieldLight.clear()
 	if is_instance_valid(_generated_root):
 		remove_child(_generated_root)
 		_generated_root.queue_free()

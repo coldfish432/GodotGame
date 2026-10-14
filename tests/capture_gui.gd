@@ -1,6 +1,8 @@
 extends SceneTree
 ## Screenshots of the new field GUI (界面策划案 v1.1): HUD, 干员·背包, R, J, M, pause.
 ## Writes evidence/gui-*.png. Not part of run_all (no checks).
+## DOWNFALL_LANG=en: the same screens in English, as evidence/gui-en-*.png,
+## and the Chinese text left without English is printed at the end.
 var rig: Node
 var game: GameManager
 func _initialize() -> void: call_deferred("run")
@@ -15,8 +17,9 @@ func find_game(node: Node) -> GameManager:
 func capture(label: String) -> void:
 	await step(8)
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://../evidence/gui-" + label + ".png")
+	root.get_texture().get_image().save_png("res://../evidence/gui-" + ("en-" if I18n.is_english() else "") + label + ".png")
 func run() -> void:
+	if OS.get_environment("DOWNFALL_LANG") == "en": I18n.set_language("en")
 	rig = load("res://game/main.tscn").instantiate()
 	rig.persist_sessions = false
 	root.add_child(rig)
@@ -115,4 +118,6 @@ func run() -> void:
 	game.toggle_panel("pause")
 	await capture("base-settings")
 	game.close_modal()
+	if I18n.is_english():
+		for text in I18n.missing: print("I18N MISSING: ", text)
 	quit()

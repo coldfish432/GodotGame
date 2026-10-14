@@ -1,0 +1,657 @@
+{
+ "//": "Names checked against the official Arknights Global client data (Kengxxiao/ArknightsGameData_YoStar en_US, matched by item / enemy ID from PRTS and zh_CN data), 2026-10-13. Skills and modules from skill_table / uniequip_table by ID; talents and Amiya (Guard) from arknights.wiki.gg.",
+ "names": {
+  "\"剑锤\"": {
+   "kind": "relic",
+   "official": "'Blademace'"
+  },
+  "\"噤声\"": {
+   "kind": "relic",
+   "official": "'Silence'"
+  },
+  "\"复仇者\"": {
+   "kind": "relic",
+   "official": "'Avenger'"
+  },
+  "\"忠义\"": {
+   "kind": "relic",
+   "official": "'Loyality'"
+  },
+  "\"断剑\"": {
+   "kind": "relic",
+   "official": "'Brokenblade'"
+  },
+  "\"时光之末\"": {
+   "kind": "relic",
+   "official": "'End of Times'"
+  },
+  "\"枯木的回声\"": {
+   "kind": "relic",
+   "official": "'Dead Tree's Echo'"
+  },
+  "\"永夜的窥视\"": {
+   "kind": "relic",
+   "official": "'Peek into the Eternal Night'"
+  },
+  "\"法术杀手\"": {
+   "kind": "relic",
+   "official": "'Arts Killer'"
+  },
+  "\"璀璨悲泣\"": {
+   "kind": "relic",
+   "official": "'Brilliant Lament'"
+  },
+  "\"迷醉荷谟伊\"": {
+   "kind": "relic",
+   "official": "'Intoxicated Hymnoi'"
+  },
+  "\"静音小队\"": {
+   "kind": "relic",
+   "official": "'Silent Squad'"
+  },
+  "\"黑夜呢喃\"": {
+   "kind": "relic",
+   "official": "'The Whisperer in Darknight'"
+  },
+  "D32钢": {
+   "kind": "item",
+   "official": "D32 Steel"
+  },
+  "Friston.P": {
+   "kind": "relic",
+   "official": "Friston.P"
+  },
+  "《光耀卡西米尔》": {
+   "kind": "relic",
+   "official": "'Glorious Kazimierz'"
+  },
+  "《坎德之花》": {
+   "kind": "relic",
+   "official": "'Flowers of Quinde'"
+  },
+  "《大静谧》": {
+   "kind": "relic",
+   "official": "‘Profound Silence'"
+  },
+  "《归来》": {
+   "kind": "relic",
+   "official": "'The Return'"
+  },
+  "《第二经济改革法》": {
+   "kind": "relic",
+   "official": "'Second Economic Reform Act'"
+  },
+  "《麻木与庸俗》": {
+   "kind": "relic",
+   "official": "'Numbness and Obscenity'"
+  },
+  "代糖": {
+   "kind": "item",
+   "official": "Sugar Substitute"
+  },
+  "假面舞会面具": {
+   "kind": "relic",
+   "official": "Masquerade Mask"
+  },
+  "全新装置": {
+   "kind": "item",
+   "official": "Integrated Device"
+  },
+  "军团护心镜": {
+   "kind": "relic",
+   "official": "Military Mirror Armor"
+  },
+  "冰原战士": {
+   "kind": "enemy",
+   "official": "Icefield Warrior"
+  },
+  "冰原猎人": {
+   "kind": "enemy",
+   "official": "Icefield Hunter"
+  },
+  "冰结的躯壳": {
+   "kind": "relic",
+   "official": "Frozen Husk"
+  },
+  "凝胶": {
+   "kind": "item",
+   "official": "Coagulating Gel"
+  },
+  "制式防暴用具": {
+   "kind": "relic",
+   "official": "Standard Anti-Riot Instrument"
+  },
+  "化合切削液": {
+   "kind": "item",
+   "official": "Compound Cutting Fluid"
+  },
+  "友谊之证": {
+   "kind": "relic",
+   "official": "Proof of Friendship"
+  },
+  "双酮": {
+   "kind": "item",
+   "official": "Diketon"
+  },
+  "叙拉古人的愤怒": {
+   "kind": "relic",
+   "official": "Wrath of Siracusans"
+  },
+  "古乔治营养原浆": {
+   "kind": "relic",
+   "official": "Old George Nutritional Paste"
+  },
+  "古堡的子嗣": {
+   "kind": "relic",
+   "official": "Castle's Offspring"
+  },
+  "古旧的蒸汽甲胄": {
+   "kind": "relic",
+   "official": "Old Steam Armor"
+  },
+  "古高卢银币": {
+   "kind": "relic",
+   "official": "Ancient Gaulish Silver Coin"
+  },
+  "固源岩": {
+   "kind": "item",
+   "official": "Orirock Cube"
+  },
+  "固源岩组": {
+   "kind": "item",
+   "official": "Orirock Cluster"
+  },
+  "国王的新枪": {
+   "kind": "relic",
+   "official": "King's New Lance"
+  },
+  "圆石祭坛": {
+   "kind": "relic",
+   "official": "Roundstone Altar"
+  },
+  "坎诺特": {
+   "kind": "enemy",
+   "official": "Cannot"
+  },
+  "基础加固建材": {
+   "kind": "item",
+   "official": "Light Building Material"
+  },
+  "复还之手": {
+   "kind": "relic",
+   "official": "Hand of Return"
+  },
+  "奇渊面具": {
+   "kind": "relic",
+   "official": "Abyssal Wyrdmask"
+  },
+  "女皇之愿": {
+   "kind": "relic",
+   "official": "Empresses' Wish"
+  },
+  "家具零件": {
+   "kind": "item",
+   "official": "Furniture Part"
+  },
+  "寻仇者": {
+   "kind": "enemy",
+   "official": "Avenger"
+  },
+  "巨壳藤蔓": {
+   "kind": "enemy",
+   "official": "Testaceous Vinecreeps"
+  },
+  "幸运硬币": {
+   "kind": "relic",
+   "official": "Lucky Coin"
+  },
+  "开裂的束缚带": {
+   "kind": "relic",
+   "official": "Fissured Restraints"
+  },
+  "异铁": {
+   "kind": "item",
+   "official": "Oriron"
+  },
+  "异铁小圆盾": {
+   "kind": "relic",
+   "official": "Oriron Round Shield"
+  },
+  "异铁碎片": {
+   "kind": "item",
+   "official": "Oriron Shard"
+  },
+  "异铁组": {
+   "kind": "item",
+   "official": "Oriron Cluster"
+  },
+  "弩手": {
+   "kind": "enemy",
+   "official": "Crossbowman"
+  },
+  "弩手组长": {
+   "kind": "enemy",
+   "official": "Crossbowman Leader"
+  },
+  "急救药箱": {
+   "kind": "relic",
+   "official": "First Aid Kit"
+  },
+  "感染者纠察官": {
+   "kind": "enemy",
+   "official": "Infected Patrol Captain"
+  },
+  "扭转醇": {
+   "kind": "item",
+   "official": "Loxic Kohl"
+  },
+  "扼喉之手": {
+   "kind": "relic",
+   "official": "Hand of Choker"
+  },
+  "技巧概要·卷1": {
+   "kind": "item",
+   "official": "Skill Summary - 1"
+  },
+  "技巧概要·卷2": {
+   "kind": "item",
+   "official": "Skill Summary - 2"
+  },
+  "技巧概要·卷3": {
+   "kind": "item",
+   "official": "Skill Summary - 3"
+  },
+  "投币玩具": {
+   "kind": "relic",
+   "official": "Coin-Operated Toy"
+  },
+  "折戟-浴血": {
+   "kind": "relic",
+   "official": "Bend Spears - Bloodbath"
+  },
+  "折戟-破釜沉舟": {
+   "kind": "relic",
+   "official": "Bend Spears - Deathmatch"
+  },
+  "拳刃武士": {
+   "kind": "enemy",
+   "official": "Bladed Fighter"
+  },
+  "损坏的左轮弹巢": {
+   "kind": "relic",
+   "official": "Damaged Revolver Cylinder"
+  },
+  "提纯源岩": {
+   "kind": "item",
+   "official": "Orirock Concentration"
+  },
+  "撕扯之手": {
+   "kind": "relic",
+   "official": "Hand of Shredder"
+  },
+  "改量装置": {
+   "kind": "item",
+   "official": "Optimized Device"
+  },
+  "教母的信物": {
+   "kind": "relic",
+   "official": "Godmother's Token"
+  },
+  "断杖-苦难巫咒": {
+   "kind": "relic",
+   "official": "Broken Wand - Malediction"
+  },
+  "显圣吊坠": {
+   "kind": "relic",
+   "official": "Necklace of the Presence"
+  },
+  "晶体元件": {
+   "kind": "item",
+   "official": "Crystalline Component"
+  },
+  "暴徒": {
+   "kind": "enemy",
+   "official": "Rioter"
+  },
+  "木裂战士": {
+   "kind": "enemy",
+   "official": "Shattered Champion"
+  },
+  "未知仪器": {
+   "kind": "relic",
+   "official": "Unknown Instrument"
+  },
+  "术师": {
+   "kind": "enemy",
+   "official": "Caster"
+  },
+  "机动盾兵": {
+   "kind": "enemy",
+   "official": "Shielded Soldier"
+  },
+  "染污躯壳": {
+   "kind": "enemy",
+   "official": "Tainted Carcass"
+  },
+  "模组数据块": {
+   "kind": "item",
+   "official": "Module Data Block"
+  },
+  "欺凌者": {
+   "kind": "enemy",
+   "official": "Bully"
+  },
+  "武装人员": {
+   "kind": "enemy",
+   "official": "Armed Militant"
+  },
+  "歪曲施法者": {
+   "kind": "enemy",
+   "official": "Distorted Caster"
+  },
+  "死仇时代的恨意": {
+   "kind": "relic",
+   "official": "Talons of Hatred"
+  },
+  "残弩-交叉火力": {
+   "kind": "relic",
+   "official": "Fatal Bolts - Crossfire"
+  },
+  "残破合影": {
+   "kind": "relic",
+   "official": "Worn-out Group Photo"
+  },
+  "活木甲": {
+   "kind": "relic",
+   "official": "Living Woodplate"
+  },
+  "活玫瑰": {
+   "kind": "relic",
+   "official": "Live Rose"
+  },
+  "溃决之手": {
+   "kind": "relic",
+   "official": "Hand of Outburst"
+  },
+  "源岩": {
+   "kind": "item",
+   "official": "Orirock"
+  },
+  "源石碎片": {
+   "kind": "item",
+   "official": "Originium Shard"
+  },
+  "源石虫": {
+   "kind": "enemy",
+   "official": "Originium Slug"
+  },
+  "演出用香水": {
+   "kind": "relic",
+   "official": "Actor's Perfume"
+  },
+  "灰尾": {
+   "kind": "enemy",
+   "official": "Greytail"
+  },
+  "灰尾香主": {
+   "kind": "enemy",
+   "official": "Greytail Leader"
+  },
+  "燃烧瓶投掷者": {
+   "kind": "enemy",
+   "official": "Firebomb Thrower"
+  },
+  "疗养体验卡": {
+   "kind": "relic",
+   "official": "Convalescence Experience Card"
+  },
+  "疗养特供卡": {
+   "kind": "relic",
+   "official": "Convalescence Prime Membership"
+  },
+  "皇帝的恩宠": {
+   "kind": "relic",
+   "official": "Emperor's Favor"
+  },
+  "皇族金胸针": {
+   "kind": "relic",
+   "official": "Royal Brooch"
+  },
+  "皮特水果什锦": {
+   "kind": "relic",
+   "official": "Pitt's Assorted Fruits"
+  },
+  "研磨石": {
+   "kind": "item",
+   "official": "Grindstone"
+  },
+  "破损装置": {
+   "kind": "item",
+   "official": "Damaged Device"
+  },
+  "碳": {
+   "kind": "item",
+   "official": "Carbon Stick"
+  },
+  "碳素": {
+   "kind": "item",
+   "official": "Carbon Brick"
+  },
+  "碳素组": {
+   "kind": "item",
+   "official": "Carbon Pack"
+  },
+  "积攒之手": {
+   "kind": "relic",
+   "official": "Hand of Snatcher"
+  },
+  "米诺斯颂诗": {
+   "kind": "relic",
+   "official": "Minoan Ode"
+  },
+  "粉碎攻坚手": {
+   "kind": "enemy",
+   "official": "Defense Crusher"
+  },
+  "糖": {
+   "kind": "item",
+   "official": "Sugar"
+  },
+  "紧急活性剂": {
+   "kind": "relic",
+   "official": "Emergency Active Agent"
+  },
+  "统帅肖像": {
+   "kind": "relic",
+   "official": "Commander's Portrait"
+  },
+  "绿叶菜罐头": {
+   "kind": "relic",
+   "official": "Spinach Pack"
+  },
+  "罗德岛战术电台": {
+   "kind": "relic",
+   "official": "Rhodes Island Tactical Transceiver"
+  },
+  "老近卫军之锋": {
+   "kind": "relic",
+   "official": "Vieux Vanguard's Blade"
+  },
+  "聚酸酯": {
+   "kind": "item",
+   "official": "Polyester"
+  },
+  "舞者手链": {
+   "kind": "relic",
+   "official": "Dancer's Bracelets"
+  },
+  "芯片助剂": {
+   "kind": "item",
+   "official": "Chip Catalyst"
+  },
+  "苍白花冠": {
+   "kind": "relic",
+   "official": "White Flower Crown"
+  },
+  "荣耀绶带": {
+   "kind": "relic",
+   "official": "Ribbon of Honor"
+  },
+  "药枚": {
+   "kind": "relic",
+   "official": "Medicine Sticks"
+  },
+  "装置": {
+   "kind": "item",
+   "official": "Device"
+  },
+  "褐素纤维": {
+   "kind": "item",
+   "official": "Fuscous Fiber"
+  },
+  "设计师量尺": {
+   "kind": "relic",
+   "official": "Designer's Ruler"
+  },
+  "贵族刺剑": {
+   "kind": "relic",
+   "official": "Royal Rapier"
+  },
+  "赤金": {
+   "kind": "item",
+   "official": "Pure Gold"
+  },
+  "轰鸣之手": {
+   "kind": "relic",
+   "official": "Hand of Rumble"
+  },
+  "轻锰矿": {
+   "kind": "item",
+   "official": "Manganese Ore"
+  },
+  "近卫双芯片": {
+   "kind": "item",
+   "official": "Guard Dualchip"
+  },
+  "近卫芯片": {
+   "kind": "item",
+   "official": "Guard Chip"
+  },
+  "近卫芯片组": {
+   "kind": "item",
+   "official": "Guard Chip Pack"
+  },
+  "进阶加固建材": {
+   "kind": "item",
+   "official": "Concrete Building Material"
+  },
+  "迷梦香精": {
+   "kind": "relic",
+   "official": "Dreaming Essence"
+  },
+  "迷迭香之拥": {
+   "kind": "relic",
+   "official": "Rosmontis's Embrace"
+  },
+  "酮凝集": {
+   "kind": "item",
+   "official": "Polyketon"
+  },
+  "酯原料": {
+   "kind": "item",
+   "official": "Ester"
+  },
+  "金酒之杯": {
+   "kind": "relic",
+   "official": "Golden Chalice"
+  },
+  "钝爪-振奋": {
+   "kind": "relic",
+   "official": "Blunt Claws - Inspiration"
+  },
+  "银餐叉": {
+   "kind": "relic",
+   "official": "Silver Forks"
+  },
+  "锈蚀刀片": {
+   "kind": "relic",
+   "official": "Rusted Razor"
+  },
+  "锈蚀的铁锤": {
+   "kind": "relic",
+   "official": "Rusted Iron Hammer"
+  },
+  "陷落雪祀": {
+   "kind": "enemy",
+   "official": "Fallen Snowpriest"
+  },
+  "难闻的止血剂": {
+   "kind": "relic",
+   "official": "Noxious Hemostatic Agent"
+  },
+  "雪牝的护手": {
+   "kind": "relic",
+   "official": "Snow Doe's Glove"
+  },
+  "霜牡的肩甲": {
+   "kind": "relic",
+   "official": "Frost Buck's Pauldron"
+  },
+  "香草沙士汽水": {
+   "kind": "relic",
+   "official": "Vanilla Soda"
+  },
+  "骑士戒律·新编": {
+   "kind": "relic",
+   "official": "Chivalric Commandments - New Edition"
+  },
+  "高能源石虫": {
+   "kind": "enemy",
+   "official": "Infused Originium Slug"
+  },
+  "魔王的床榻": {
+   "kind": "relic",
+   "official": "Sarkaz King's Regal Rest"
+  },
+  "魔王的旗帜": {
+   "kind": "relic",
+   "official": "Sarkaz King's Torn Banner"
+  },
+  "影霄·奔夜": {
+   "kind": "skill",
+   "official": "Ying Xiao - Fleeting Night"
+  },
+  "影霄·绝影": {
+   "kind": "skill",
+   "official": "Ying Xiao - Shadowless"
+  },
+  "日晷": {
+   "kind": "skill",
+   "official": "Sundial"
+  },
+  "狼魂": {
+   "kind": "skill",
+   "official": "Wolf Spirit"
+  },
+  "\"幼狼的牙齿\"": {
+   "kind": "module",
+   "official": "'The Young Fang'"
+  },
+  "待调弦的怒火": {
+   "kind": "module",
+   "official": "Anger to be Tuned"
+  },
+  "精神摧毁": {
+   "kind": "talent",
+   "official": "Spiritual Destruction"
+  },
+  "青色怒火": {
+   "kind": "talent",
+   "official": "Wrathful Cerulean Flame"
+  },
+  "阿米娅·剑兔": {
+   "kind": "operator",
+   "official": "Amiya (Guard)"
+  }
+ }
+}

@@ -1,0 +1,57 @@
+[
+ {
+  "zh": "绝影",
+  "en": "Shadowless",
+  "note": "Amiya (Guard) skill name used inside skill-tree fragments; official EN name not verified."
+ },
+ {
+  "zh": "狼魂",
+  "en": "Wolf Spirit",
+  "note": "Lappland S2; believed official EN 'Wolf Spirit'. Used inside skill-tree fragments."
+ },
+ {
+  "zh": "安全袋",
+  "en": "Secure Pouch",
+  "note": "Not in glossary; extraction-genre secure container. Keep consistent across groups."
+ },
+ {
+  "zh": "近卫局暴动盾",
+  "en": "L.G.D. Riot Shield",
+  "note": "近卫局 = Lungmen Guard Department (L.G.D.) per official EN; item itself is original."
+ },
+ {
+  "zh": "源石碎片",
+  "en": "Originium Shard",
+  "note": "Believed official EN for the material."
+ },
+ {
+  "zh": "模组数据块",
+  "en": "Module Data Block",
+  "note": "Believed official EN."
+ },
+ {
+  "zh": "作战记录",
+  "en": "Battle Record",
+  "note": "Official EN; code strips it from record names before display."
+ },
+ {
+  "zh": "家具零件",
+  "en": "Furniture Part",
+  "note": "Official EN 'Furniture Part'."
+ },
+ {
+  "zh": "冻土下的旧物",
+  "en": "Permafrost Keepsake",
+  "note": "Original item; avoided 'Relic' since that term is reserved for 藏品."
+ },
+ {
+  "zh": "未封装源石原矿",
+  "en": "Unsealed Raw Originium",
+  "note": "Original item, no official name."
+ },
+ {
+  "zh": "https://prts.wiki/w/萨卡兹的无终奇语/想象实体图鉴",
+  "en": "(unchanged URL)",
+  "note": "Source URL constant, left untranslated."
+ }
+]
