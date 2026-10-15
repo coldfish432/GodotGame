@@ -43,9 +43,32 @@ static func slots() -> Array:
 static func input_of(index: int) -> String:
 	return "hotbar_%d" % (index + 1)
 
+## The auto-potion slot at the bar's right end (用户 2026-10-15: 快捷栏单开一个框
+## 放回血药，血量低于下限自动喝，一瓶接一瓶直到超过上限). It holds a potion
+## kind, not an action of its own, and is set through set_action(AUTO, …).
+## The two thresholds are shares of max HP in the settings.
+const AUTO := SLOTS
+const AUTO_CHOICES := ["", "potion_A", "potion_B"]
+
+static func auto_potion() -> String:
+	var action := str(SystemScreens.settings.get("auto_potion", ""))
+	return action if AUTO_CHOICES.has(action) else ""
+
+## [below this she starts drinking, at or above this she stops].
+static func auto_thresholds() -> Array:
+	var low := clampf(float(SystemScreens.settings.get("auto_potion_low", 0.4)), 0.05, 0.95)
+	var high := clampf(float(SystemScreens.settings.get("auto_potion_high", 0.9)), 0.05, 0.95)
+	return [low, maxf(low, high)]
+
 ## Put `action` in slot `index`; a slot that already held it takes this
-## slot's old action, so an action is never on the bar twice.
+## slot's old action, so an action is never on the bar twice. The auto slot
+## stands apart: what it holds can also be on the bar.
 static func set_action(index: int, action: String) -> void:
+	if index == AUTO:
+		if AUTO_CHOICES.has(action):
+			SystemScreens.settings["auto_potion"] = action
+			if SystemScreens._game != null: SystemScreens.save_settings()
+		return
 	var data := slots()
 	if index < 0 or index >= SLOTS or not (action == "" or ACTIONS.has(action)): return
 	if action != "":

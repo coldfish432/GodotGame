@@ -80,7 +80,7 @@ func run() -> void:
 			targets.append(enemy.home_position)
 			kinds.append("enemy home (%s%s)" % [enemy.enemy_type, ", boss" if enemy.boss else ""])
 		for post in get_nodes_in_group("guard_posts"):
-			if post.guards.size() != 2:
+			if post.guards.size() != post.planned:
 				missing_guards += 1
 				print("  seed %d post '%s' at %s has %d guards" % [map_seed, post.title, post.position, post.guards.size()])
 		for t in range(targets.size()):
@@ -101,7 +101,7 @@ func run() -> void:
 		await step(3)
 
 	check("devices, destinations, caches and enemies reachable across %d layouts / 3 regions" % SEEDS, unreachable == 0)
-	check("every search point has two guards across all layouts", missing_guards == 0)
+	check("every guard post gets the guards it was given across all layouts", missing_guards == 0)
 
 	# Enemies have no collider, so the only thing keeping them out of the rock
 	# is the navmesh clamp in Enemy._step_toward. Drive a real chase and watch

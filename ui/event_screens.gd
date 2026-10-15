@@ -306,8 +306,9 @@ static func _item_row(item: Item, price: String, sub: String, enabled: bool, sel
 	b.disabled = not enabled
 	if not enabled: b.modulate.a = 0.35
 	AK.put(b, AK.item_icon(item, Vector2(48, 48)), Vector2(6, 6))
-	var name := AK.label(item.display_name(), 13, item.rarity_color())
-	name.clip_text = true
+	var name := AK.item_name(item, 13)
+	name.fit_content = false
+	name.clip_contents = true
 	name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	AK.put(b, name, Vector2(62, 10), Vector2(140, 20))
 	var sub_label := AK.label(sub, 11, AK.MUTE)
@@ -393,7 +394,8 @@ static func _shelf_cell(entry: Dictionary, refusal: String, selected: bool, on_p
 	return b
 
 ## The tooltip of `item` with one price row under it.
-static func _info(stage: Control, game: GameManager, item: Item, key: String, value: String, at: Vector2) -> void:
+## `max_height` > 0 caps the text (it scrolls) so it cannot run under buttons.
+static func _info(stage: Control, game: GameManager, item: Item, key: String, value: String, at: Vector2, max_height: float = 0.0) -> void:
 	var card := PanelContainer.new()
 	card.add_theme_stylebox_override("panel", AK.box(Color("0d0d0d"), AK.LINE_2, 1, 10))
 	var column := VBoxContainer.new()
@@ -403,6 +405,10 @@ static func _info(stage: Control, game: GameManager, item: Item, key: String, va
 	text.fit_content = true
 	text.scroll_active = false
 	text.custom_minimum_size.x = 300
+	if max_height > 0.0:
+		text.fit_content = false
+		text.scroll_active = true
+		text.custom_minimum_size.y = max_height
 	text.add_theme_font_override("normal_font", AK.cn())
 	text.add_theme_font_size_override("normal_font_size", 13)
 	text.text = ItemTooltip.text(game, item, false, false)

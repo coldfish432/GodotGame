@@ -83,18 +83,12 @@ func run() -> void:
 	thug._begin_telegraphed_attack()
 	var locked := thug.attack_direction
 	game.player.teleport(origin + Vector3(-1.0, 0, 0))
-	# While charging it keeps turning toward her (用户 2026-10-07), at a limited rate.
+	# 用户 2026-10-14: 敌人不能甩枪 — the windup holds the aim it began with
+	# (it no longer turns after her, 用户 2026-10-07 overridden).
 	thug._tick_attack(0.1)
-	var windup_turn := rad_to_deg(locked.angle_to(thug.attack_direction))
-	check("thug turns toward her during windup at a limited rate", windup_turn > 1.0 and windup_turn <= Enemy.WINDUP_TURN_DEG * 0.1 + 0.5)
+	check("thug holds its aim through the windup", rad_to_deg(locked.angle_to(thug.attack_direction)) < 0.01)
 	thug._tick_attack(0.71)
-	check("thug keeps turning and strikes where it faces, even behind where it started", thug.attack_direction.dot(Vector3.LEFT) > 0.99 and game.player.hp < 2400)
-	await clean()
-	thug = enemy("thug")
-	thug._begin_telegraphed_attack()
-	game.player.teleport(origin + Vector3(-5.0, 0, 0))
-	thug._tick_attack(0.81)
-	check("out of reach it turns to her but misses", thug.attack_direction.dot(Vector3.LEFT) > 0.99 and is_equal_approx(game.player.hp, 2400))
+	check("…and strikes where it aimed: stepping behind it dodges", locked.dot(thug.attack_direction) > 0.999 and is_equal_approx(game.player.hp, 2400))
 	check("100 degree sector includes front and excludes side/outside radius", EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(2, 0, 0)) and not EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(0, 0, 1)) and not EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(2.5, 0, 0)))
 	check("miss leaves no dark red cuts", not game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == "cuts"))
 	await clean()
@@ -168,7 +162,8 @@ func run() -> void:
 	bullet.set_physics_process(false)
 	check("hunter bullet leaves the painted muzzle toward the locked point at speed 22", bullet.direction.is_equal_approx(Vector3(hunter._locked_target.x - hunter._muzzle.x, 0, hunter._locked_target.z - hunter._muzzle.z).normalized()) and bullet.global_position.is_equal_approx(hunter._muzzle) and bullet.speed == 22 and bullet.max_range == 15)
 
-	# The crossbowman turns with her while charging and shoots where it faces.
+	# 用户 2026-10-14: 敌人不能甩枪 — the crossbowman shoots where it aimed when
+	# it began to draw; stepping aside during the draw dodges.
 	await clean()
 	var archer := enemy("crossbow")
 	game.player.teleport(origin + Vector3(8, 0, 0))
@@ -177,7 +172,7 @@ func run() -> void:
 	for i in range(61): archer._tick_attack(1.0 / 60)
 	var turned_shot: EnemyProjectile = shots()[0] if not shots().is_empty() else null
 	if turned_shot: turned_shot.set_physics_process(false)
-	check("crossbow turns with her during windup and shoots where she went", turned_shot != null and archer.attack_direction.dot(Vector3(0, 0, 1)) > 0.99 and turned_shot.direction.z > 0.9)
+	check("crossbow shoots where it aimed, not where she went", turned_shot != null and archer.attack_direction.dot(Vector3(1, 0, 0)) > 0.99 and turned_shot.direction.x > 0.9)
 
 	await clean()
 	var leader := enemy("crossbow_leader")

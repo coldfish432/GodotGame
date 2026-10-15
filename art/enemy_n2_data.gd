@@ -21,8 +21,9 @@ const TIPS := {
 	"shell_vine": [Vector2(9, -29), Vector2(9, -31), Vector2(-3, -30), Vector2(3, -31), Vector2(3, -31), Vector2(2, -32), Vector2(6, -32), Vector2(1, -32)],
 	"rock_hornbeast": [Vector2(18, -10), Vector2(10, -28), Vector2(-24, -11), Vector2(8, -28), Vector2(17, -11), Vector2(-20, -15), Vector2(24, -11), Vector2(-4, -29)],
 	"fallen_snowpriest": [Vector2(0, -12), Vector2(-14, -10), Vector2(-11, -18), Vector2(-14, -9), Vector2(0, -12), Vector2(15, -9), Vector2(13, -18), Vector2(14, -18)],
+	"sentinel": [Vector2(-11, -33), Vector2(14, -33), Vector2(11, -33), Vector2(14, -33), Vector2(-13, -33), Vector2(-14, -33), Vector2(-11, -33), Vector2(-13, -33)],
 }
 ## Every one of them also has a 4-frame walk sheet.
-const WALK := ["armed", "caster", "shield", "slug_volatile", "picket", "greytail", "greytail_lord", "thrower", "bully", "avenger", "breacher", "taint_husk", "distorted_caster", "shattered_champion", "shell_vine", "rock_hornbeast", "fallen_snowpriest"]
+const WALK := ["armed", "caster", "shield", "slug_volatile", "picket", "greytail", "greytail_lord", "thrower", "bully", "avenger", "breacher", "taint_husk", "distorted_caster", "shattered_champion", "shell_vine", "rock_hornbeast", "fallen_snowpriest", "sentinel"]
 ## The sixth action row, where a board has one.
 const EXTRA_ROW := {"picket": "lasso", "distorted_caster": "glide"}

@@ -1,0 +1,205 @@
+{
+  "city_road": {
+    "source": "source_paintings\\city_road_source.png",
+    "source_sha256": "ed221c826967914e464e4d4a33d3d9d4bcccb9935e71a6d4128afb1451a0659f",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 8,
+    "palette": [
+      "#22262a",
+      "#2f3438",
+      "#454e54",
+      "#4e5154",
+      "#5c6064",
+      "#6d7073",
+      "#3e2a1c",
+      "#5a3420",
+      "#7a3e1c"
+    ],
+    "seam_exact": true
+  },
+  "city_pavement": {
+    "source": "source_paintings\\city_pavement_source.png",
+    "source_sha256": "877dcfb485ac90119b14d386488c42c4fb675a608cb528df05839f74f3ece5cb",
+    "size": [
+      128,
+      128
+    ],
+    "colors": 8,
+    "palette": [
+      "#454e54",
+      "#4e5154",
+      "#5c6064",
+      "#6d7073",
+      "#7e8184",
+      "#8d8a80",
+      "#a3a5a6",
+      "#3e2a1c",
+      "#5a3420",
+      "#3fae6a"
+    ],
+    "seam_exact": true
+  },
+  "city_wall": {
+    "source": "source_paintings\\city_wall_source.png",
+    "source_sha256": "5785b57e6200e48eba149a67e58d01c4e2bc85576bc19787fc752754052a7767",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 9,
+    "palette": [
+      "#454e54",
+      "#4e5154",
+      "#5c6064",
+      "#6d7073",
+      "#7e8184",
+      "#8d8a80",
+      "#a3a5a6",
+      "#3e2a1c",
+      "#5a3420",
+      "#7a3e1c"
+    ],
+    "seam_exact": true
+  },
+  "city_block_ground": {
+    "source": "source_paintings\\city_block_ground_source.png",
+    "source_sha256": "a75d7f7e63d15b9902eae8499358e6c2d7147fcd3d08419a75e7638735d43e55",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 10,
+    "palette": [
+      "#22262a",
+      "#2f3438",
+      "#454e54",
+      "#4e5154",
+      "#5c6064",
+      "#6d7073",
+      "#7e8184",
+      "#8d8a80",
+      "#3e2a1c",
+      "#5a3420",
+      "#3fae6a"
+    ],
+    "seam_exact": true
+  },
+  "city_roof": {
+    "source": "source_paintings\\city_roof_source.png",
+    "source_sha256": "bfe7903ade2eb6a475c3436d90229eae3f958a85315ad1a3caf71f9a42230ddb",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 9,
+    "palette": [
+      "#2f3438",
+      "#454e54",
+      "#4e5154",
+      "#5c6064",
+      "#6d7073",
+      "#7e8184",
+      "#8d8a80",
+      "#a3a5a6",
+      "#3e2a1c",
+      "#3fae6a"
+    ],
+    "seam_exact": true
+  },
+  "city_plaster": {
+    "source": "source_paintings\\city_plaster_source.png",
+    "source_sha256": "d10e3436c4373388912505557d47fbb234cfb7097b13cbfcadfc4a10408e7da2",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 9,
+    "palette": [
+      "#5c6064",
+      "#6d7073",
+      "#7e8184",
+      "#8d8a80",
+      "#a3a5a6",
+      "#b8b6b0",
+      "#d0cec8",
+      "#3e2a1c",
+      "#5a3420",
+      "#7a3e1c"
+    ],
+    "seam_exact": true
+  },
+  "city_corrugated": {
+    "source": "source_paintings\\city_corrugated_source.png",
+    "source_sha256": "9c87fa741fb9243f7578383b54b9f6a2673117fd0b20bc907a80f67e94cff671",
+    "size": [
+      128,
+      128
+    ],
+    "colors": 10,
+    "palette": [
+      "#2f3438",
+      "#454e54",
+      "#4e5154",
+      "#5c6064",
+      "#6d7073",
+      "#7e8184",
+      "#8d8a80",
+      "#3e2a1c",
+      "#5a3420",
+      "#7a3e1c"
+    ],
+    "seam_exact": true
+  },
+  "city_shutter": {
+    "source": "source_paintings\\city_shutter_source.png",
+    "source_sha256": "e253ac040adb180ec90ecbd837e91fed67cbcc1690b97b98cb07a4c8821bd496",
+    "size": [
+      128,
+      128
+    ],
+    "colors": 11,
+    "palette": [
+      "#2f3438",
+      "#454e54",
+      "#4e5154",
+      "#5c6064",
+      "#6d7073",
+      "#7e8184",
+      "#8d8a80",
+      "#3e2a1c",
+      "#5a3420",
+      "#7a3e1c",
+      "#c23b2c",
+      "#2e6fb0",
+      "#e0b030"
+    ],
+    "seam_exact": true
+  },
+  "city_signs": {
+    "source": "source_paintings\\city_signs_source.png",
+    "source_sha256": "c320e50eb13182986d51eebf3b0651e9e92e45295dea4141f308d1240b2e026b",
+    "size": [
+      512,
+      256
+    ],
+    "colors": 12,
+    "palette": [
+      "#22262a",
+      "#454e54",
+      "#5c6064",
+      "#7e8184",
+      "#b8b6b0",
+      "#d0cec8",
+      "#3e2a1c",
+      "#c23b2c",
+      "#2e6fb0",
+      "#e0b030",
+      "#d04a8a",
+      "#3fae6a"
+    ],
+    "seam_exact": true
+  }
+}

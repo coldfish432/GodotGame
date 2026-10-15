@@ -152,5 +152,8 @@
  "（已满配）": " (Maxed)",
  "（间隔": " (every",
  "）  ·  生命上限 −": ")  ·  Max HP −",
- "，声望": ", Reputation"
+ "，声望": ", Reputation",
+ "自动": "Auto",
+ "自动喝药下限": "Auto-Potion Below",
+ "自动喝药上限": "Auto-Potion Until"
 }

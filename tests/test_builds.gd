@@ -47,6 +47,7 @@ func wear(id: String) -> Item:
 	var item := SpecialGear.create(id, 0, RandomNumberGenerator.new())
 	item.power = 0
 	item.modifiers = item.modifiers.filter(func(m): return m.trigger != ItemModifier.Trigger.NONE)
+	item.prefixes = [] # named prefixes would skew the numbers
 	p.equip(item)
 	return item
 
@@ -432,7 +433,7 @@ func _life() -> void:
 	p.heal(100)
 	check("活玫瑰: healing +20%", is_equal_approx(p.hp, 220))
 	use(["演出用香水", "《坎德之花》"])
-	check("演出用香水 + 《坎德之花》: 1% of max life and 30 more a second", is_equal_approx(p.regen_rate(), 48 + 30 + 24))
+	check("演出用香水 + 《坎德之花》: 1% of max life and 30 more a second", is_equal_approx(p.regen_rate(), 2.4 + 30 + 24))
 	use(["\"萤灯映牍\""])
 	p.hp = 1000
 	dummy(Vector3(3, 0, 3), false, 0, 0, 1).take_hit(10, "true")

@@ -29,9 +29,11 @@ var vault := false
 var mimic := false
 ## What has been found and not yet taken.
 var storage := ItemContainer.new(GRID.x, GRID.y)
-## Contents still to be found (drop dictionaries), and the search on the
-## first of them: seconds done, -1 while paused or not started.
-var _pending: Array = []
+## Contents still to be found, laid out in the box's grid when the lid comes
+## up (each keeps its cell in grid_x/grid_y, -1 when it did not fit) and found
+## from the top left to the bottom right, in place (塔科夫's search); and the
+## search on the first of them: seconds done, -1 while paused or not started.
+var _pending: Array[Item] = []
 var _found := 0
 var _search := -1.0
 var _search_done := 0.0
@@ -125,7 +127,7 @@ func status_text() -> String:
 func progress() -> float:
 	return -1.0
 
-## The search, for the HUD's bars: {"current": 0..1 on the item being searched
+## The search, for tests and sims: {"current": 0..1 on the item being searched
 ## (-1 when paused), "found": items already out, "total": all of them}, or {}
 ## before the lid is open or once everything is out.
 func search_state() -> Dictionary:
@@ -186,7 +188,7 @@ func begin_open() -> bool:
 		if contents == null:
 			_refresh()
 			return false
-		_pending = contents
+		_pending = lay_out(contents)
 		_found = 0
 	if can_resume(): _begin_item()
 	_refresh()
@@ -207,9 +209,9 @@ func _process(delta: float) -> void:
 	if _search < 0.0 or game.looting != self: return
 	_search += delta
 	if _search >= _search_done:
-		var drop: Dictionary = _pending.pop_front()
+		var item: Item = _pending.pop_front()
 		_found += 1
-		game.drop_found(self, drop, _found, _found + _pending.size())
+		game.drop_found(self, item, _found, _found + _pending.size())
 		if _pending.is_empty():
 			_search = -1.0
 			_refresh()
@@ -220,11 +222,36 @@ func _begin_item() -> void:
 	_search = 0.0
 	_search_done = search_seconds(_pending[0])
 
+## The cell the search is on (the next item's top left), for the grid's
+## magnifier; (-1, -1) when nothing is being searched.
+func search_cell() -> Vector2i:
+	if _search < 0.0 or _pending.is_empty(): return Vector2i(-1, -1)
+	var next: Item = _pending[0]
+	if next.grid_x < 0: return Vector2i(-1, -1)
+	return Vector2i(next.grid_x, next.grid_y)
+
+## Gives every item a cell in the box's grid (big ones first, the way a
+## packed box holds them), then orders the search by reading order: row by
+## row from the top left. What does not fit is found last.
+static func lay_out(items: Array[Item]) -> Array[Item]:
+	var plan := ItemContainer.new(GRID.x, GRID.y)
+	var by_size := items.duplicate()
+	by_size.sort_custom(func(a: Item, b: Item) -> bool: return a.width * a.height > b.width * b.height)
+	var spilled: Array[Item] = []
+	for item: Item in by_size:
+		if not plan.try_add(item):
+			item.grid_x = -1
+			item.grid_y = -1
+			spilled.append(item)
+	var placed: Array[Item] = plan.items.duplicate()
+	placed.sort_custom(func(a: Item, b: Item) -> bool: return a.grid_y < b.grid_y or (a.grid_y == b.grid_y and a.grid_x < b.grid_x))
+	placed.append_array(spilled)
+	return placed
+
 ## How long one item takes to find: quick for 赤金 and materials, longer the
 ## rarer the equipment (塔科夫's search scales with what turns up).
-static func search_seconds(drop: Dictionary) -> float:
-	if not drop.has("item"): return 0.5
-	var item: Item = drop.item
+static func search_seconds(item: Item) -> float:
+	if item.material_id == Economy.GOLD_ID: return 0.5
 	if item.category == Item.Category.MATERIAL: return 0.7
 	return [1.0, 1.6, 2.4][clampi(item.rarity, 0, 2)]
 

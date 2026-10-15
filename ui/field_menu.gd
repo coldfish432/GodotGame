@@ -273,7 +273,10 @@ func _stash_section() -> void:
 		for item: Item in shown:
 			var row := HBoxContainer.new()
 			body.add_child(row)
-			text(row, item.display_name(), 15, item.rarity_color()).tooltip_text = item.details()
+			var name := AK.item_name(item, 15)
+			name.mouse_filter = Control.MOUSE_FILTER_PASS
+			name.tooltip_text = item.details()
+			row.add_child(name)
 			button(row, "带入", func(): game.bring_item(item); _refresh())
 
 func _matches(item: Item) -> bool:

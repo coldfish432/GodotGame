@@ -124,7 +124,9 @@ var level_attempts := 0
 ## a deck body with walls along both sides, so it cannot be walked off. Off
 ## the deck everything stays two-dimensional; over it, ground_height takes
 ## the walker's height to tell the deck from the road below.
-const BRIDGE_REGIONS := ["snow"]
+const BRIDGE_REGIONS := ["snow", "city"]
+## The span model per region; the city's is a concrete overpass (城市地图调研与方案_v1.md).
+const BRIDGE_MODELS := {"snow": "res://art/kit/snow_bridge.glb", "city": "res://art/kit/city_overpass.glb"}
 const BRIDGE_MAX := 2
 ## Tiers between the deck and the road under it.
 const BRIDGE_RISE := 2
@@ -210,6 +212,7 @@ func generate(p_seed: int, _depth: int) -> void:
 	_crossings.clear()
 	vault_node = null
 	_plan_terrain()
+	_roll_districts()
 	mark("layout")
 	_base_links = _links.size()
 	bridges.clear()
@@ -1011,6 +1014,35 @@ func _crossing_option(crossing: Dictionary) -> Dictionary:
 	return {"a": a, "b": b, "lower": lower, "cross": cross, "dir": direction, "cut": cut, "along": along,
 		"top": float(deck_tier) * TIER, "under": heading}
 
+## City districts (用户 2026-10-14: 随机结构；真实高度，区分不同区域的城景;
+## 城市地图调研与方案_v1.md): one to four district seeds over the floor, each
+## of a kind, a point belonging to its nearest seed. A floor can be one
+## district throughout (all slums, all streets) or a mix; where the slums meet
+## another district a quarantine wall stands (CityDressing).
+const DISTRICT_KINDS := ["street", "slum", "yard", "site"]
+var districts: Array[Dictionary] = []
+
+func _roll_districts() -> void:
+	districts.clear()
+	if region_id != "city": return
+	var roll := RandomNumberGenerator.new()
+	roll.seed = seed_value ^ 0xd157
+	var count := roll.randi_range(1, 4)
+	for i in range(count):
+		var room := roll.randi_range(0, _open_circles.size() - 1)
+		districts.append({"point": _centre(room), "kind": DISTRICT_KINDS[roll.randi_range(0, DISTRICT_KINDS.size() - 1)]})
+	# The entry is always a street: the floor starts at a checkpoint.
+	districts[0].point = _centre(0)
+	districts[0].kind = "street"
+
+## The district kind at x/z ("" outside the city).
+func district_at(point: Vector2) -> String:
+	if districts.is_empty(): return ""
+	var best := 0
+	for i in range(1, districts.size()):
+		if point.distance_squared_to(districts[i].point) < point.distance_squared_to(districts[best].point): best = i
+	return districts[best].kind
+
 func _centre(i: int) -> Vector2:
 	return Vector2(_open_circles[i].x, _open_circles[i].y)
 
@@ -1201,7 +1233,7 @@ const BRIDGE_MODEL_SPAN := 10.0
 ## The arch and its deck: the Blender piece stretched to the span, a slab
 ## flush with the stubs' floor to walk on, and walls along both sides.
 func _build_bridges() -> void:
-	var scene := load("res://art/kit/snow_bridge.glb") as PackedScene
+	var scene := load(BRIDGE_MODELS.get(region_id, BRIDGE_MODELS.snow)) as PackedScene
 	for i in range(bridges.size()):
 		var bridge: Dictionary = bridges[i]
 		var axis: Vector2 = bridge.axis
@@ -1343,6 +1375,15 @@ func ramp_midpoints() -> Array[Dictionary]:
 func _segment_distance(point: Vector2, segment: PackedFloat32Array) -> float:
 	var a := Vector2(segment[0], segment[1])
 	var delta := Vector2(segment[2], segment[3]) - a
+	# A city street runs along an axis and is measured square to it (the
+	# chessboard distance): its end is a square cap, and where two shapes of
+	# different tiers meet, the line between them is straight, not the curve
+	# two round fields would draw.
+	if region_id == "city" and (absf(delta.x) < 0.01 or absf(delta.y) < 0.01):
+		var low := a.min(a + delta)
+		var high := a.max(a + delta)
+		var outside := Vector2(maxf(maxf(low.x - point.x, point.x - high.x), 0.0), maxf(maxf(low.y - point.y, point.y - high.y), 0.0))
+		return maxf(outside.x, outside.y)
 	var t := clampf((point - a).dot(delta) / maxf(delta.length_squared(), 0.001), 0, 1)
 	return point.distance_to(a + delta * t)
 
@@ -1357,6 +1398,8 @@ func _segment_distance(point: Vector2, segment: PackedFloat32Array) -> float:
 ## other fuse into one blob, which would undo the arena/corridor contrast the
 ## layout is built on; this is tuned well under the gap between parallel routes.
 const BLEND := 4.5
+## Street corners in the city stay sharp, just not knife-edged.
+const CITY_BLEND := 1.2
 ## Pillars are free-standing rock and should still read as objects, so their
 ## subtraction is only eased enough to lose the cookie-cutter edge.
 const PILLAR_BLEND := 1.2
@@ -1398,7 +1441,7 @@ func carved_distance(point: Vector2) -> float:
 		var chamber_distance := circle.z * _lobed(i, offset) - reach
 		if region_id == "city":
 			var q := offset.abs() - Vector2(circle.z * 0.85, circle.z * 0.7)
-			chamber_distance = -(q.max(Vector2.ZERO).length() + minf(maxf(q.x, q.y), 0.0)) + 1.0
+			chamber_distance = -maxf(q.x, q.y) + 1.0
 		if chamber_distance > best:
 			second = best
 			best = chamber_distance
@@ -1411,7 +1454,7 @@ func carved_distance(point: Vector2) -> float:
 		# The widest this corridor gets anywhere bounds it: past that it cannot
 		# be either of the two nearest shapes, and the swell is not worth reading.
 		var link: Dictionary = _links[int(segment[5])]
-		var widest := maxf(segment[4] * (1.0 + CORRIDOR_SWELL), maxf(_open_circles[link.a].z, _open_circles[link.b].z) * CORRIDOR_FLARE + segment[4] * 0.5)
+		var widest: float = segment[4] if region_id == "city" else maxf(segment[4] * (1.0 + CORRIDOR_SWELL), maxf(_open_circles[link.a].z, _open_circles[link.b].z) * CORRIDOR_FLARE + segment[4] * 0.5)
 		if widest - away <= second: continue
 		var corridor_distance: float = _corridor_half_width(segment, point) - away
 		if corridor_distance > best:
@@ -1421,7 +1464,7 @@ func carved_distance(point: Vector2) -> float:
 		elif corridor_distance > second:
 			second = corridor_distance
 	_last_owner = owner
-	var distance := best if second <= -1e8 else _smooth_max(best, second, BLEND)
+	var distance := best if second <= -1e8 else _smooth_max(best, second, CITY_BLEND if region_id == "city" else BLEND)
 	for i in pillars:
 		distance = _smooth_min(distance, _pillar_distance(i, point), PILLAR_BLEND)
 	return distance
@@ -1515,6 +1558,9 @@ func _corridor_half_width(segment: PackedFloat32Array, point: Vector2) -> float:
 func _link_half_width(index: int, s: float) -> float:
 	var link: Dictionary = _links[index]
 	var base: float = link.width
+	# Lungmen's streets keep their width, kerb to kerb: the city is right-angled
+	# (城市地图调研与方案_v1.md §1); its rooms blur into the roads by size instead.
+	if region_id == "city": return base
 	var swell := clampf(_swell.get_noise_2d(s, float(index) * 37.0) * 0.5 + 0.5, 0.0, 1.0)
 	var width := base * (1.0 + CORRIDOR_SWELL * swell * swell)
 	# A bridge's stubs keep their width: the deck is sized to them.
@@ -1547,6 +1593,12 @@ func _pillar_distance(i: int, point: Vector2) -> float:
 	var offset := point - Vector2(pillar.x, pillar.y)
 	if i >= _pillar_shapes.size(): return offset.length() - pillar.z
 	var shape := _pillar_shapes[i]
+	# In the city a pillar is a block (a lone building, a heap of rubble),
+	# square to the streets.
+	if region_id == "city":
+		var square := offset.rotated(-snappedf(shape[1], PI * 0.5))
+		var q := square.abs() - Vector2(pillar.z * shape[0], pillar.z) * 0.85
+		return q.max(Vector2.ZERO).length() + minf(maxf(q.x, q.y), 0.0)
 	var local := offset.rotated(-shape[1])
 	local.x /= shape[0]
 	var angle := local.angle()
@@ -1572,6 +1624,19 @@ func _is_open(x: float, z: float, inflate: float = 0.0) -> bool:
 ## Room to stand: well inside the contour and not on a cliff's face.
 func _has_clearance(point: Vector2) -> bool:
 	return _is_open(point.x, point.y, -1.5) and (_surface == null or _surface.is_level(point))
+
+## 用户 2026-10-14: 兴趣点不都刷在道路、房间中央. A point of interest in the room
+## round `centre`: a quarter at the middle, the rest set back against its wall
+## or in a corner (open ground 1–3 m from the edge, room to stand round it).
+## From the layout's own RNG, so the floor stays the seed's.
+func _poi_spot(centre: Vector2, radius: float) -> Vector2:
+	if _rng.randf() < 0.25: return _safe_spot(centre, centre, radius)
+	for attempt in range(24):
+		var probe := centre + Vector2.from_angle(_rng.randf_range(0.0, TAU)) * radius * _rng.randf_range(0.45, 1.0)
+		var open := _surface.distance_near(probe) if _surface != null else carved_distance(probe)
+		if open < 1.6 or open > 3.2 or not _has_clearance(probe): continue
+		return probe
+	return _safe_spot(centre, centre, radius)
 
 func _safe_spot(preferred: Vector2, centre: Vector2, radius: float) -> Vector2:
 	if _has_clearance(preferred): return preferred
@@ -1726,7 +1791,7 @@ func _place_content() -> void:
 	for i in spare:
 		var centre := Vector2(_open_circles[i].x, _open_circles[i].y)
 		# Settled like every marker: a warped outline may not cover the centre.
-		cache_positions.append(_grounded(_safe_spot(centre, centre, _open_circles[i].z), 0.5))
+		cache_positions.append(_grounded(_poi_spot(centre, _open_circles[i].z), 0.5))
 	# An absent extraction must not turn its room into an empty dead end.
 	var exit_centre := Vector2(exit_spot.x, exit_spot.y)
 	cache_positions.append(_grounded(_safe_spot(exit_centre + Vector2(2.0, 0.0), exit_centre, exit_spot.z), 0.5))
@@ -1734,10 +1799,9 @@ func _place_content() -> void:
 	if exit_chamber != trunk_end and extraction_chamber != trunk_end:
 		cache_positions.append(_grounded(_safe_spot(main_path[trunk_end], main_path[trunk_end], 8.0), 0.5))
 	for i in range(2, main_path.size() - 1, 4):
-		var point := _safe_spot(main_path[i] + Vector2(-3, 2), main_path[i], 10)
-		cache_positions.append(_grounded(point, 0.5))
+		cache_positions.append(_grounded(_poi_spot(main_path[i], minf(_open_circles[i].z, 10.0)), 0.5))
 	for loop in loop_centres:
-		if _circle_at(loop) != exit_chamber: cache_positions.append(_grounded(_safe_spot(loop, loop, 6.0), 0.5))
+		if _circle_at(loop) != exit_chamber: cache_positions.append(_grounded(_poi_spot(loop, 6.0), 0.5))
 	# A second-order niche is the longest walk on the map for its size, so it
 	# always pays; an empty one would just teach the player to ignore forks.
 	for niche in niche_centres:
@@ -1764,19 +1828,8 @@ func _place_content() -> void:
 func _dress_landmarks() -> void:
 	# Compose grounded groups independently of progression RNG and collision.
 	SceneDressing.new().build(self)
-	# Linear remnants follow the worn corridors: curved mine rails / broken
-	# road markings. They carry no collision and cannot determine walkable
-	# topology. Laid in short pieces so they follow a ramp's slope.
-	for segment in _main_segments:
-		var a := Vector2(segment[0], segment[1])
-		var b := Vector2(segment[2], segment[3])
-		var direction := (b - a).normalized()
-		var across := Vector2(-direction.y, direction.x)
-		# The mine's track is a Blender model now (TerraceDressing.RAILS).
-		if region_id == "city":
-			for i in range(int(a.distance_to(b) / 4)):
-				var p := a + direction * (i * 4 + 0.5)
-				_strip(p, p + direction * 1.6, 0.14, Color("a39769"))
+	# The mine's track is a Blender model (TerraceDressing.RAILS); the city's
+	# road markings are CityDressing's (standard roads only).
 	# Cliffs, ramps and cliff-foot rubble from the Blender kit (a3/CHANGE-BRIEF.md).
 	terrace_dressing = TerraceDressing.new()
 	terrace_dressing.build(self)

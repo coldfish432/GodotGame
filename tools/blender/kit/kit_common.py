@@ -275,14 +275,24 @@ def baked_material(name, image):
     return mat
 
 
+def save_blend(obj, name):
+    """The piece's own .blend under art/kit/blend: only its datablocks, so a
+    live Blender's open file (other scenes, its path) is left as it was."""
+    path = os.path.join(OUT_DIR, "blend", f"{name}.blend")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    bpy.data.libraries.write(path, {obj}, fake_user=True)
+
+
 def export(obj, name):
     os.makedirs(OUT_DIR, exist_ok=True)
+    # A live Blender has other scenes, with their own selections: export the
+    # active scene only (touching another scene's selection crashes 5.4).
     bpy.ops.object.select_all(action="DESELECT")
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
     path = os.path.join(OUT_DIR, f"{name}.glb")
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_yup=True,
-                              export_apply=True, export_image_format="AUTO")
+                              export_apply=True, export_image_format="AUTO", use_active_scene=True)
     blend_dir = os.path.join(REPO, "art", "kit", "blend")
     os.makedirs(blend_dir, exist_ok=True)
     return path
@@ -308,7 +318,7 @@ def publish(obj, procedural, name, resolution=1024, preview_scale=4.2):
     report(obj, name)
     path = export(obj, name)
     render_preview(obj, name, preview_scale)
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT_DIR, "blend", f"{name}.blend"))
+    save_blend(obj, name)
     print("EXPORTED", path)
     return path
 
@@ -330,7 +340,7 @@ def publish_parts(pieces, name, preview_scale=4.2, resolution=512):
     report(whole, name)
     path = export(whole, name)
     render_preview(whole, name, preview_scale)
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT_DIR, "blend", f"{name}.blend"))
+    save_blend(whole, name)
     return path
 
 

@@ -11,7 +11,7 @@ extends RefCounted
 
 const BASE := {
 	"hp": 2400.0, "atk": 600.0, "arts": 360.0, "def": 200.0, "res": 10.0,
-	"aspd": 100.0, "crit": 0.0, "crit_dmg": 1.5, "regen": 48.0,
+	"aspd": 100.0, "crit": 0.0, "crit_dmg": 1.5, "regen_max_pct": 0.001,
 	"move": 5.0, "stamina_regen": 18.0,
 }
 ## Every key a relic or equipment affix may add to. Flat and
@@ -20,7 +20,12 @@ const BASE := {
 const KEYS := ["hp", "hp_pct", "atk", "atk_pct", "arts", "arts_pct", "def", "def_pct", "res",
 	"aspd", "interval_pct", "crit", "crit_dmg", "move_pct", "regen", "regen_pct", "regen_max_pct", "lifesteal",
 	"dmg_pct", "arts_dmg_pct", "phys_dmg_pct", "def_ignore", "taken_pct", "evasion", "evasion_arts", "heal_pct", "stamina_regen_pct", "dash_cost", "dash_cd_pct",
-	"potion_cap", "gold_pct", "elite_pct", "wave_pct", "pressure_pct", "contam_pct"]
+	"potion_cap", "gold_pct", "elite_pct", "wave_pct", "pressure_pct", "contam_pct",
+	# 装备前缀策划案 §2.4 / §2.7 / §6: reach, skill damage and cooldown, the
+	# melee / ranged dodge, overall damage reduction, dodge stamina.
+	"reach_pct", "skill_pct", "skill_cd_pct", "evasion_melee", "evasion_ranged", "dmg_reduce", "dash_cost_pct"]
+## 技能冷却 can at most halve the skill's cooldown (or charge needed).
+const SKILL_CD_CAP := 0.5
 
 ## Equipment "power" (基础效能) turns into stats per slot (§7). Matches the old
 ## mapping in proportion: +8% damage per weapon power is +48 ATK on 600.

@@ -71,7 +71,7 @@ func _physics_process(delta: float) -> void:
 func _hit_everything() -> void:
 	if lasting <= 0.0 and not _burst_done:
 		_burst_done = true
-		CombatVfx.spawn(game, Vector3(global_position.x, 0.09, global_position.z), Vector3.FORWARD, "burst", 0, true)
+		CombatVfx.spawn(game, Vector3(global_position.x, game.ground_y(global_position) + 0.09, global_position.z), Vector3.FORWARD, "burst", 0, true)
 	if is_instance_valid(game.player) and _flat(game.player.global_position) <= radius:
 		game.player.take_damage(damage, kind, source if is_instance_valid(source) else null)
 	if not hurts_enemies: return

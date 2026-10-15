@@ -27,11 +27,25 @@ const RARE_MATERIAL_PITY_STEP := 0.005
 const RARE_MATERIAL_PITY_CAP := 0.15
 
 # --- Source tables (§3.1): weights for [nothing, material, gold, equipment] ---
+## 用户 2026-10-14: 敌人掉落普通装备概率增加 — the gear share doubled for normal
+## enemies (8% → 16%), raised for guards and elites, from material and gold.
 const ENEMY_SOURCE := {
-	"normal": {"picks": 1, "weights": [12.0, 60.0, 20.0, 8.0]},
-	"guard": {"picks": 1, "weights": [0.0, 65.0, 20.0, 15.0]},
-	"elite": {"picks": 3, "weights": [0.0, 55.0, 20.0, 25.0]},
+	"normal": {"picks": 1, "weights": [12.0, 54.0, 18.0, 16.0]},
+	"guard": {"picks": 1, "weights": [0.0, 58.0, 20.0, 22.0]},
+	"elite": {"picks": 3, "weights": [0.0, 47.0, 18.0, 35.0]},
 }
+## 用户 2026-10-14: 敌人概率掉落治疗球立即回复血量，小概率掉治疗药水. Per source:
+## the chance of healing orbs (HealOrb), how many, and the share of her life
+## each gives back; and the chance of a 标准急救剂 in the drop.
+const HEAL_ORBS := {
+	"normal": {"chance": 0.22, "count": 1, "heal": 0.1},
+	"guard": {"chance": 0.3, "count": 1, "heal": 0.12},
+	"elite": {"chance": 0.75, "count": 2, "heal": 0.15},
+}
+const POTION_DROP := {"normal": 0.03, "guard": 0.05, "elite": 0.15}
+
+static func source_of(elite: bool, guard: bool) -> String:
+	return "elite" if elite else ("guard" if guard else "normal")
 ## Equipment category weights for enemy drops: weapon / armour / trinket.
 const ENEMY_GEAR_WEIGHTS := [6.0, 1.0, 1.0]
 const ENEMY_GOLD := {"normal": [8, 14], "guard": [8, 14], "elite": [25, 40]}
@@ -82,31 +96,34 @@ static func roll_quality(table: String, rare_bonus: float, rng: RandomNumberGene
 	return _pick_weighted(weights, rng)
 
 ## One piece of equipment. Affix tiers are capped by depth (§5): Ⅲ from segment 3.
+## Every number rolls inside its range (装备前缀策划案 §2.8) and the piece gets
+## its prefixes last (§2.3).
 static func roll_equipment(category: int, title: String, region: String, depth: int, rarity: int, rng: RandomNumberGenerator) -> Item:
 	var size := Vector2i(2, 1) if category == Item.Category.WEAPON else (Vector2i(2, 2) if category == Item.Category.ARMOR else Vector2i(1, 1))
-	var item := Item.create(title, category as Item.Category, size.x, size.y, 1.0 + depth * 0.3 + rng.randf())
+	var item := Item.create(title, category as Item.Category, size.x, size.y, 1.5 + depth * 0.3)
 	item.origin_region = region
 	item.rarity = rarity
 	item.power *= 1.0 + item.rarity * 0.3
 	item.value = (10 + depth * 4) * (1 + item.rarity)
 	var possible: Array = FieldCatalog.AFFIX_POOLS[category].duplicate()
 	var wave_slot := category == Item.Category.WEAPON and item.rarity >= 1 and rng.randf() < FieldCatalog.SWORD_WAVE_CHANCE
-	if wave_slot: item.modifiers.append(ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE))
+	if wave_slot: item.modifiers.append(ItemModifier.roll_skill_boost(rng))
 	var tier_cap := 2 if depth >= 3 else 1
 	for i in range(item.rarity - (1 if wave_slot else 0)):
 		var index := rng.randi_range(0, possible.size() - 1)
 		var stat: int = possible[index]
 		possible.remove_at(index)
 		var tier := mini(FieldCatalog._roll_tier(item.rarity, rng), tier_cap)
-		var mod := ItemModifier.stat_mod(stat as ItemModifier.Stat, float(FieldCatalog.AFFIX_AMOUNTS[stat]) * ItemModifier.TIER_SCALES[tier])
-		mod.tier = tier
-		item.modifiers.append(mod)
+		item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, tier, rng))
 	# A base name gets the base's factor and intrinsic stats (装备策划案 §2.1).
 	var base_id := GearCatalog.id_for_name(title)
 	if not base_id.is_empty() and int(GearCatalog.BASES[base_id].category) == category:
-		GearCatalog.apply(item, base_id)
+		GearCatalog.apply(item, base_id, rng)
 		# Grade T1–T6 (精英化与加点策划案 §7.1): its layer plus the ten-floor block.
 		item.grade = Progression.grade_for(int(GearCatalog.BASES[base_id].tier), depth)
+	item.power_mid = item.power
+	item.power *= rng.randf_range(Item.POWER_LOW, Item.POWER_HIGH)
+	PrefixCatalog.roll_onto(item, region, depth, rng)
 	return item
 
 ## Quality roll with the rare-gear pity (only on "effective" sources: elites,
@@ -183,6 +200,7 @@ static func enemy_drops(enemy_type: String, elite: bool, guard: bool, ctx: Dicti
 			3:
 				var category := _pick_weighted(ENEMY_GEAR_WEIGHTS, rng)
 				out.append({"item": _gear(category, enemy_type, source, ctx, 0.0, elite)})
+	if rng.randf() < float(POTION_DROP[source]): out.append({"item": BaseCatalog.create_potion("A")})
 	var mats: Dictionary = ENEMY_MATERIALS.get(enemy_type, {})
 	if elite:
 		if mats.has("guaranteed"): out.append({"item": MaterialCatalog.create(mats.guaranteed[0], _range(rng, mats.guaranteed[1], mats.guaranteed[2]), ctx.region)})
@@ -298,27 +316,49 @@ static func _special_of(category: int, ctx: Dictionary) -> Item:
 	item.origin_region = ctx.region
 	return item
 
+## What each Lungmen district keeps (城市地图调研与方案_v1.md §2): the yards'
+## depots and weapon crates, the sites' building stock and tools, the slums'
+## medicine and safes, the streets' electronics. A point there is this many
+## times likelier to be one of these.
+const DISTRICT_POI := {
+	"yard": {"depot": 4.0, "weapon_box": 3.0},
+	"site": {"construction": 4.0, "tool_box": 4.0},
+	"slum": {"medical": 4.0, "safe": 3.0},
+	"street": {"electronics": 4.0, "armor_box": 2.0},
+}
+
 ## The kinds of point of interest for one segment (§4.1): at least one weapon
 ## box and two base-material points, the rest by the region's weights.
-static func plan_points(region: String, count: int, rng: RandomNumberGenerator) -> Array[String]:
+## `places` (optional) is the district each point stands in, which tilts the
+## weights there (DISTRICT_POI); the weapon box goes to a yard if there is one.
+static func plan_points(region: String, count: int, rng: RandomNumberGenerator, places: Array = []) -> Array[String]:
 	var weighted: Array[String] = []
-	var weights: Array = []
 	for kind in POI:
-		var w := float(POI[kind].region.get(region, 0.0))
-		if w > 0.0:
-			weighted.append(kind)
-			weights.append(w)
+		if float(POI[kind].region.get(region, 0.0)) > 0.0: weighted.append(kind)
 	var base_kinds := weighted.filter(func(k): return POI[k].base)
-	var base_weights: Array = base_kinds.map(func(k): return float(POI[k].region[region]))
 	var plan: Array[String] = []
-	if count >= 1: plan.append("weapon_box")
-	for i in range(2):
-		if plan.size() < count: plan.append(base_kinds[_pick_weighted(base_weights, rng)])
-	while plan.size() < count: plan.append(weighted[_pick_weighted(weights, rng)])
-	# Shuffle so the guaranteed kinds are not always on the first spurs.
-	for i in range(plan.size() - 1, 0, -1):
+	plan.resize(count)
+	var order: Array[int] = []
+	for i in range(count): order.append(i)
+	for i in range(order.size() - 1, 0, -1):
 		var j := rng.randi_range(0, i)
-		var tmp := plan[i]
-		plan[i] = plan[j]
-		plan[j] = tmp
+		var tmp := order[i]
+		order[i] = order[j]
+		order[j] = tmp
+	var place_of := func(i: int) -> String: return String(places[i]) if i < places.size() else ""
+	var weights_at := func(kinds: Array, i: int) -> Array:
+		var tilt: Dictionary = DISTRICT_POI.get(place_of.call(i), {})
+		return kinds.map(func(k): return float(POI[k].region[region]) * float(tilt.get(k, 1.0)))
+	if count >= 1:
+		var slot := order[0]
+		for i in order:
+			if place_of.call(i) == "yard":
+				slot = i
+				break
+		order.erase(slot)
+		plan[slot] = "weapon_box"
+	for n in range(order.size()):
+		var i := order[n]
+		var kinds: Array = base_kinds if n < 2 else weighted
+		plan[i] = kinds[_pick_weighted(weights_at.call(kinds, i), rng)]
 	return plan

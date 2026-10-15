@@ -60,6 +60,15 @@ func build(world: Node3D) -> void:
 		var p := Vector2(pillar.x, pillar.y)
 		var stretch: float = map._pillar_shapes[i][0] if i < map._pillar_shapes.size() else 1.0
 		var r: float = pillar.z * rng.randf_range(0.75, 0.95)
+		# In the city the pillar is a square block (ContinuousWorldMap._pillar_distance):
+		# a broken concrete plinth with a smaller slab tipped on top.
+		if map.region_id == "city" and i < map._pillar_shapes.size():
+			var angle := snappedf(map._pillar_shapes[i][1], PI * 0.5)
+			var foot := Vector2(pillar.z * stretch, pillar.z) * 1.6
+			_block(p, Vector3(foot.x, rng.randf_range(1.0, 1.5), foot.y), Color("8d969f"), angle)
+			var slab := p + Vector2(rng.randf_range(-0.2, 0.2) * foot.x, rng.randf_range(-0.2, 0.2) * foot.y).rotated(angle)
+			_block(slab, Vector3(foot.x * 0.55, rng.randf_range(1.6, 2.2), foot.y * 0.6), Color("7f8790"), angle + rng.randf_range(-0.12, 0.12))
+			continue
 		_rock(p, Vector3(r * stretch, 1.1 + r * 0.25, r), Color("8d969f") if map.region_id == "city" else Color("8e887d"))
 	_finish_meshes()
 	root.set_meta("composition_count", occupied.size())

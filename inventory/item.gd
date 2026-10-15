@@ -44,6 +44,19 @@ const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料"]
 ## Equipment grade T1–T6 (精英化与加点策划案 §7): base layer + floor block. 0 for
 ## materials and gear saved before grades (filled in on load).
 @export var grade: int = 0
+## Named prefixes (装备前缀策划案): [{id, rolls: {key: 0.8–1.2}}], one or two,
+## highest grade first. Empty for materials and set pieces.
+@export var prefixes: Array = []
+## The 基础效能 its power rolled around (§2.8): power is power_mid × 0.9–1.1.
+## 0 for gear whose power does not roll (named gear, old saves).
+@export var power_mid: float = 0.0
+## The value before prefixes and roll quality (PrefixCatalog.refresh_value).
+@export var value_base: int = 0
+## How many times 精调 has been used on it (each one costs more).
+@export var tune_count: int = 0
+
+const POWER_LOW := 0.9
+const POWER_HIGH := 1.1
 
 var grid_x: int = -1
 var grid_y: int = -1
@@ -110,7 +123,26 @@ func display_name() -> String:
 	if not material_id.is_empty(): return "★%d · %s" % [MaterialCatalog.star(material_id), item_name]
 	var quality: String = {"special": "特殊", "exclusive": "专属", "set": "套装"}.get(named_kind(), RARITY_NAMES[clampi(rarity, 0, 2)])
 	var mark: String = (str(Progression.GRADE_MARKS[clampi(grade, 0, Progression.GRADE_MAX)]) + " · ") if grade > 0 else ""
-	return mark + quality + " · " + item_name
+	return mark + quality + " · " + PrefixCatalog.name_part(self) + item_name
+
+## The name as coloured runs: [text, colour] — the quality and base name in
+## the item's colour, each prefix in its grade's colour, "·" dim (§2.1).
+func name_runs() -> Array:
+	var full := display_name()
+	if prefixes.is_empty() or not material_id.is_empty(): return [[full, rarity_color()]]
+	var head := full.left(full.length() - item_name.length() - PrefixCatalog.name_part(self).length())
+	var runs: Array = [[head, rarity_color()]]
+	for entry in prefixes:
+		runs.append([str(PrefixCatalog.get_entry(str(entry.id)).get("name", "")), PrefixCatalog.color_of(entry)])
+		runs.append(["·", PrefixCatalog.DOT_COLOR])
+	runs.append([item_name, rarity_color()])
+	return runs
+
+## The name as BBCode, each run translated on its own.
+func name_bbcode() -> String:
+	var out := ""
+	for run in name_runs(): out += "[color=#%s]%s[/color]" % [run[1].to_html(false), I18n.t(run[0])]
+	return out
 
 func rarity_color() -> Color:
 	if not material_id.is_empty(): return MaterialCatalog.color(material_id)
@@ -128,16 +160,19 @@ func details() -> String:
 		for key in base: parts.append("%s +%d" % [names[key], roundi(base[key])])
 	for modifier in modifiers:
 		parts.append(modifier.describe())
+	for entry in prefixes:
+		for line in PrefixCatalog.lines_of(entry): parts.append(line[0])
 	return " / ".join(parts)
 
 func to_data() -> Dictionary:
 	var mods: Array = []
 	for mod in modifiers:
-		mods.append({"stat": mod.stat, "amount": mod.amount, "trigger": mod.trigger, "tier": mod.tier})
+		mods.append({"stat": mod.stat, "amount": mod.amount, "trigger": mod.trigger, "tier": mod.tier, "mid": mod.mid})
 	return {"uid": uid, "name": item_name, "category": category, "width": width, "height": height,
 		"power": power, "rarity": rarity, "value": value, "region": exclusive_region, "origin": origin_region, "effect": effect,
 		"description": description, "mods": mods, "insured": insured, "carried_in": carried_in, "special": special, "base": base_id,
-		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type, "grade": grade}
+		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type, "grade": grade,
+		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count}
 
 static func from_data(data: Dictionary) -> Item:
 	var item := create(str(data.get("name", "物品")), int(data.get("category", 3)) as Category,
@@ -170,8 +205,19 @@ static func from_data(data: Dictionary) -> Item:
 			mod.stat = ItemModifier.Stat.ATTACK_SPEED_PCT
 			mod.amount = 1.0 / (1.0 + mod.amount) - 1.0
 		mod.tier = int(data_mod["tier"]) if data_mod.has("tier") else ItemModifier.infer_tier(mod.stat, mod.amount)
+		mod.mid = float(data_mod.get("mid", 0.0))
 		item.modifiers.append(mod)
+	item.power_mid = float(data.get("power_mid", 0.0))
+	item.value_base = int(data.get("value_base", 0))
+	item.tune_count = int(data.get("tunes", 0))
+	for entry in data.get("prefixes", []):
+		if entry is Dictionary and PrefixCatalog.all().has(str(entry.get("id", ""))):
+			var rolls := {}
+			for key in entry.get("rolls", {}): rolls[str(key)] = float(entry.rolls[key])
+			item.prefixes.append({"id": str(entry.id), "rolls": rolls})
 	# Gear saved before bases existed, or under a renamed base (装备策划案 §2.3).
 	GearCatalog.backfill(item)
 	Progression.backfill_grade(item)
+	# Gear saved before prefixes rolls them once (装备前缀策划案 §0.2-6).
+	if not data.has("prefixes"): PrefixCatalog.backfill(item)
 	return item

@@ -131,6 +131,8 @@ const PALETTES := {
 
 var map: Node3D
 var rng := RandomNumberGenerator.new()
+## The city's buildings, walls and street furniture (city floors only).
+var city: CityDressing
 ## The continuous rock faces swept along the cliff lines.
 var cliff_face: CliffFace
 var ramp_count := 0
@@ -172,6 +174,12 @@ func build(world: Node3D) -> void:
 	var faces := cliff_face.build(map)
 	if faces != null: root.add_child(faces)
 	map.mark("cliff faces")
+	# Lungmen: the blocks off the road are built up (CityDressing).
+	if map.region_id == "city":
+		city = CityDressing.new()
+		city.build(map, root)
+		lamps.append_array(city.lamps)
+		map.mark("city blocks")
 	if ACCENTS.has(map.region_id): _place_accents(ACCENTS[map.region_id])
 	else: _place_rubble(rubble_transforms)
 	_place_ramps(ramp_transforms)
@@ -412,6 +420,15 @@ func _place_extraction(root: Node3D) -> void:
 	root.add_child(_flare_smoke(tip))
 	lamps.append({"at": at + Vector3.UP * 1.0, "color": FLARE_LIGHT, "radius": 9.5})
 	flare_position = at
+	# In Lungmen the flare burns on a helipad (城市地图调研与方案_v1.md ⑪),
+	# sunk until only its marked top shows, so nothing steps up onto it.
+	if map.region_id == "city":
+		var pad := MeshInstance3D.new()
+		pad.name = "Helipad"
+		pad.mesh = kit_mesh(load("res://art/kit/city_helipad.glb"))
+		root.add_child(pad)
+		pad.position = at + Vector3.DOWN * 0.27
+		pad.rotation.y = flare.rotation.y
 
 var flare_position := Vector3.INF
 

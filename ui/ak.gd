@@ -67,6 +67,20 @@ static func box(color: Color, border: Color = Color.TRANSPARENT, border_width: i
 	for side in ["left", "right", "top", "bottom"]: style.set("content_margin_" + side, margin)
 	return style
 
+## An item's name with each prefix in its grade's colour (装备前缀策划案 §2.1).
+static func item_name(item: Item, size: int = 14) -> RichTextLabel:
+	var r := RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.fit_content = true
+	r.scroll_active = false
+	r.autowrap_mode = TextServer.AUTOWRAP_OFF
+	r.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_font_override("normal_font", cn())
+	r.add_theme_font_size_override("normal_font_size", size)
+	r.text = item.name_bbcode()
+	return r
+
 static func label(text: String, size: int = 14, color: Color = FG, font: Font = null) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -181,7 +195,7 @@ static func star(c: Vector2, r: float) -> PackedVector2Array:
 static func diamond(c: Vector2, r: float) -> PackedVector2Array:
 	return PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])
 
-const KIND_NAMES := {"attack": "攻击", "defense": "防守", "fortune": "机缘", "life": "生存", "tempo": "节奏", "wave": "剑气"}
+const KIND_NAMES := {"attack": "攻击", "defense": "防守", "fortune": "机缘", "life": "生存", "tempo": "节奏", "wave": "技能"}
 
 ## AK's big confirm button: bold Chinese over small wide English (获取 / ACQUIRE).
 ## The Chinese is also kept as the "label" meta so tests can find it.

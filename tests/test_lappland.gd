@@ -66,7 +66,7 @@ func run() -> void:
 	p.equip(weapon)
 	check("wave affix and attack speed stack", p.has_sword_wave() and is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN / 1.1))
 	var restored := Item.from_data(weapon.to_data())
-	check("affix survives save roundtrip with tooltip", restored.modifiers[0].trigger == ItemModifier.Trigger.SWORD_WAVE and "剑气强化" in restored.details())
+	check("affix survives save roundtrip with tooltip", restored.modifiers[0].trigger == ItemModifier.Trigger.SWORD_WAVE and "技能强化" in restored.details())
 	var enemy := dummy(origin + Vector3(0, 0, 2))
 	for i in range(3):
 		var before := enemy.health

@@ -225,10 +225,9 @@ static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: boo
 		item.modifiers.append(cost)
 	var pool: Array = FieldCatalog.AFFIX_POOLS[data.category]
 	var stat: int = pool[rng.randi_range(0, pool.size() - 1)]
-	var tier := FieldCatalog._roll_tier(2, rng)
-	var mod := ItemModifier.stat_mod(stat as ItemModifier.Stat, float(FieldCatalog.AFFIX_AMOUNTS[stat]) * ItemModifier.TIER_SCALES[tier])
-	mod.tier = tier
-	item.modifiers.append(mod)
+	item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, FieldCatalog._roll_tier(2, rng), rng))
+	# Special and exclusive gear carry prefixes; set pieces do not (装备前缀策划案 §0.1-5).
+	PrefixCatalog.roll_onto(item, str(data.get("region", "")), depth, rng)
 	return item
 
 ## A region's own special gear is REGION_WEIGHT times as likely.

@@ -46,6 +46,7 @@ func wear(id: String) -> Item:
 	item.power = 0
 	item.grade = 0
 	item.modifiers = item.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER)
+	item.prefixes = [] # named prefixes would skew the numbers
 	p.equip(item)
 	return item
 

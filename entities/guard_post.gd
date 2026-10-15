@@ -12,6 +12,8 @@ extends Node3D
 ## resolves — not the question of how near a sentry will let you walk.
 var game: Node3D
 var guards: Array[Enemy] = []
+## How many guards the post was given (GameManager.POI_GUARDS).
+var planned := 2
 
 var trigger_radius := 7.0
 var release_radius := 12.0

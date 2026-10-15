@@ -71,6 +71,10 @@ static func contract_bonus_text(contract: Dictionary) -> String:
 ## 50% in all. Rolled floor by floor with these conditional odds, so each of the
 ## three floors carries exactly 1/6.
 const RANDOM_EXTRACTION_ODDS := {4: 1.0 / 6.0, 5: 1.0 / 5.0, 6: 1.0 / 4.0}
+## The random extraction is a green zone (用户 2026-10-14): standing in it runs
+## the extraction; hits do not stop it, only stepping out does.
+const EXTRACT_RADIUS := 2.2
+const EXTRACT_SECONDS := 6.0
 ## Time a camp visit counts for contamination until the camp is upgraded (§3).
 const CAMP_EXPOSURE_SECONDS := 30.0
 ## 可露希尔's 寄存 fee: this share of the 交付价, in 赤金, rounded up, at least one.
@@ -150,7 +154,7 @@ const REGIONS := {
 		"build": "攻击、防御与攻速类藏品更常见（近战与格挡）", "color": Color("354656"), "weights": [0.18, 0.56, 0.14, 0.12]},
 	"snow": {"name": "萨米 · 冻土林线", "brief": "采集极寒样本，回收冻土旧物。开阔林线 / 稀疏强敌",
 		"loot": "低频高值，饰品与稀有装备", "exclusive": "冻土下的旧物：强化伤害，降低体力恢复",
-		"build": "剑气与攻击类藏品更常见（先手与爆发）", "color": Color("9eafb8"), "weights": [0.25, 0.18, 0.42, 0.15]}
+		"build": "技能与攻击类藏品更常见（先手与爆发）", "color": Color("9eafb8"), "weights": [0.25, 0.18, 0.42, 0.15]}
 }
 const ROUTES := [
 	{"name": "巡检支路", "detail": "低危险 / 常规掉落 / 敌人较少", "danger": -3.0, "reward": 0.0},
@@ -185,6 +189,9 @@ static func exclusive(region: String) -> Item:
 	item.exclusive_region = region
 	item.origin_region = region
 	item.rarity = 2
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	PrefixCatalog.roll_onto(item, region, 1, rng)
 	return item
 
 ## Better items roll better tiers: weights for Ⅰ/Ⅱ/Ⅲ by rarity.
@@ -212,7 +219,7 @@ static func roll_item(region: String, depth: int, rng: RandomNumberGenerator, re
 			category = i
 			break
 	var names := ["外勤战刃", "防护甲胄", "战术挂饰", "封装矿料"]
-	var item := Item.create(names[category], category as Item.Category, 2 if category < 2 else 1, 2 if category == 1 else 1, 1.0 + depth * 0.3 + rng.randf())
+	var item := Item.create(names[category], category as Item.Category, 2 if category < 2 else 1, 2 if category == 1 else 1, 1.5 + depth * 0.3)
 	item.origin_region = region
 	item.rarity = 2 if rng.randf() < (0.1 + reward * 0.2 + (0.2 if region == "snow" else 0.0)) else (1 if rng.randf() < 0.45 else 0)
 	if region == "city" and category == Item.Category.ARMOR:
@@ -222,13 +229,13 @@ static func roll_item(region: String, depth: int, rng: RandomNumberGenerator, re
 	if item.is_equippable():
 		var possible: Array = AFFIX_POOLS[category].duplicate()
 		var wave_slot := category == Item.Category.WEAPON and item.rarity >= 1 and rng.randf() < SWORD_WAVE_CHANCE
-		if wave_slot: item.modifiers.append(ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE))
+		if wave_slot: item.modifiers.append(ItemModifier.roll_skill_boost(rng))
 		for i in range(item.rarity - (1 if wave_slot else 0)):
 			var index := rng.randi_range(0, possible.size() - 1)
 			var stat: int = possible[index]
 			possible.remove_at(index)
-			var tier := _roll_tier(item.rarity, rng)
-			var mod := ItemModifier.stat_mod(stat as ItemModifier.Stat, float(AFFIX_AMOUNTS[stat]) * ItemModifier.TIER_SCALES[tier])
-			mod.tier = tier
-			item.modifiers.append(mod)
+			item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, _roll_tier(item.rarity, rng), rng))
+		item.power_mid = item.power
+		item.power *= rng.randf_range(Item.POWER_LOW, Item.POWER_HIGH)
+		PrefixCatalog.roll_onto(item, region, depth, rng)
 	return item

@@ -577,7 +577,7 @@ static func departure(menu: FieldMenu, region: String, kind: String = "") -> voi
 		else:
 			row.set_meta("item", item)
 			AK.put(row, AK.item_icon(item, Vector2(60, 60)), Vector2(2, 2))
-			AK.put(row, AK.label(item.display_name(), 14, item.rarity_color()), Vector2(74, 12))
+			AK.put(row, AK.item_name(item, 14), Vector2(74, 10))
 			AK.put(row, AK.label("%s · 价值 %s" % [Item.CATEGORY_NAMES[category], Economy.format(Economy.price(item))], 12, AK.MUTE), Vector2(74, 36))
 			for child in row.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			var chosen := item
@@ -631,7 +631,6 @@ static func departure(menu: FieldMenu, region: String, kind: String = "") -> voi
 		all.pressed.connect(func(): game.store_all_materials(); _refresh(menu, region, kind))
 		AK.put(stage, all, Vector2(x, TOP + 8), Vector2(340, 44))
 		return
-	EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.price(pick)), Vector2(x, TOP + 8))
 	var actions := VBoxContainer.new()
 	actions.add_theme_constant_override("separation", 6)
 	if game.inventory.items.has(pick) and pick.is_equippable():
@@ -646,7 +645,59 @@ static func departure(menu: FieldMenu, region: String, kind: String = "") -> voi
 	store.pressed.connect(func(): game.store_item(pick); menu.pick = null; _refresh(menu, region, kind))
 	actions.add_child(store)
 	for b in actions.get_children(): b.custom_minimum_size = Vector2(340, 44)
-	AK.put(stage, actions, Vector2(x, BOTTOM - actions.get_child_count() * 50))
+	var bottom := BOTTOM
+	# 重铸 / 校准 / 精调 (装备前缀策划案 §2.5, §2.8): the workbench only.
+	if kind != "insurance" and PrefixCatalog.eligible_item(pick):
+		if _tuning == pick:
+			var listed := _tune_list(menu, stage, pick, Vector2(x, bottom), region, kind)
+			EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.price(pick)), Vector2(x, TOP + 8), bottom - listed - TOP - 8 - 66)
+			return
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 5)
+		for entry in [["reforge", "重铸"], ["calibrate", "校准"], ["tune", "精调"]]:
+			var refresh_kind: String = entry[0]
+			var cost := game.refresh_cost(refresh_kind, pick)
+			var mats: Dictionary = GameManager.REFRESH_MATERIALS[refresh_kind]
+			var text := "%s\n%s\n%s" % [entry[1], Economy.format(cost), " ".join(mats.keys().map(func(id): return "%s×%d" % [id, mats[id]]))]
+			var b := AK.button(text, "plain", 11)
+			b.custom_minimum_size = Vector2(110, 62)
+			b.clip_text = true
+			var refusal := game.refresh_refusal(refresh_kind, pick)
+			b.disabled = not refusal.is_empty()
+			if refresh_kind == "tune": b.pressed.connect(func(): _tuning = pick; _refresh(menu, region, kind))
+			else: b.pressed.connect(func(): game.refresh_gear(refresh_kind, pick); _refresh(menu, region, kind))
+			row.add_child(b)
+		bottom -= 68
+		AK.put(stage, row, Vector2(x, bottom))
+	var top := bottom - actions.get_child_count() * 50
+	AK.put(stage, actions, Vector2(x, top))
+	EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.price(pick)), Vector2(x, TOP + 8), top - TOP - 8 - 66)
+
+## The item whose lines 精调 is choosing from (null otherwise).
+static var _tuning: Item = null
+
+## 精调: one button per line that rolls, then 返回.
+## Returns the height it takes.
+static func _tune_list(menu: FieldMenu, stage: Control, item: Item, at: Vector2, region: String, kind: String) -> float:
+	var game := menu.game
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 4)
+	list.add_child(AK.label("精调 · %s · 改量装置×1" % Economy.format(game.refresh_cost("tune", item)), 12, AK.MUTE))
+	for line in PrefixCatalog.rollable_lines(item):
+		var chosen: Array = line
+		var b := AK.button(PrefixCatalog.line_label(item, line), "plain", 12)
+		b.custom_minimum_size = Vector2(340, 32)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.disabled = not game.refresh_refusal("tune", item).is_empty()
+		b.pressed.connect(func(): game.refresh_gear("tune", item, chosen); _refresh(menu, region, kind))
+		list.add_child(b)
+	var back := AK.button("返回", "plain", 13)
+	back.custom_minimum_size = Vector2(340, 36)
+	back.pressed.connect(func(): _tuning = null; _refresh(menu, region, kind))
+	list.add_child(back)
+	var height := list.get_child_count() * 36.0
+	AK.put(stage, list, Vector2(at.x, at.y - height))
+	return height
 
 static func _insure_control(menu: FieldMenu, stage: Control, item: Item, at: Vector2, region: String, kind: String) -> void:
 	var game := menu.game
@@ -743,7 +794,8 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 	var rows: Array = []
 	match tab:
 		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"]]
-		1: rows = [["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["language"]]
+		1: rows = [["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["language"],
+			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95]]
 		2: rows = [["主音量", [], "master_volume"]]
 	var y := 104.0
 	for row in rows:
@@ -755,12 +807,19 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 		AK.put(stage, AK.label(row[0], 14, AK.FG), Vector2(334, y + 12))
 		var key: String = row[2]
 		if row[1].is_empty():
+			# A ranged row ([label, [], key, min, max]) is a share shown as a percentage.
+			var ranged: bool = row.size() >= 5
 			var slider := HSlider.new()
-			slider.min_value = 0.0
-			slider.max_value = 1.0
+			slider.min_value = float(row[3]) if ranged else 0.0
+			slider.max_value = float(row[4]) if ranged else 1.0
 			slider.step = 0.05
 			slider.value = float(s.get(key, 0.8))
-			slider.value_changed.connect(func(v): SystemScreens.set_setting(key, v))
+			if ranged:
+				var shown := AK.label("%d%%" % roundi(slider.value * 100), 13, AK.FG, AK.en())
+				AK.put(stage, shown, Vector2(846, y + 14))
+				slider.value_changed.connect(func(v): SystemScreens.set_setting(key, v); shown.text = "%d%%" % roundi(v * 100))
+			else:
+				slider.value_changed.connect(func(v): SystemScreens.set_setting(key, v))
 			AK.put(stage, slider, Vector2(900, y + 12), Vector2(320, 24))
 		else:
 			var current := 1 if bool(s.get(key, false)) else 0

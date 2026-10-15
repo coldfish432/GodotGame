@@ -1,0 +1,71 @@
+# City texture generation prompts
+
+Exact image-generation prompts for the nine source paintings and the two
+targeted source edits. The final PNGs also go through
+`build_city_textures.py` for size, palette and seam processing.
+
+## C1 city_road.png
+
+```text
+Use case: stylized-concept. Asset type: hand-painted source for a seamless game terrain texture, C1 old asphalt road in ruined Lungmen lower city. Create ONE square, straight overhead orthographic, evenly lit pixel-art surface swatch. Broad worn charcoal asphalt planes with branching thin hard-edged cracks, irregular repaired asphalt patches, sparse dark oil stains, a few small pothole pools and tiny gravel clusters. No lane markings, no curb, no sidewalk, no objects, no shadow, no directional light, no highlights, no perspective. Natural nonrepeating distribution; detail must remain legible when reduced to 256x256 and tiled. Four sides should continue seamlessly. Use ONLY approximate palette #22262a #2f3438 #454e54 with restrained #3e2a1c #5a3420 for dirt and #5c6064 for sparse aggregate, roughly 8-12 discrete colors. Hard pixel-cluster edges, opaque, no blur or soft glow. This must read darker than concrete pavement.
+```
+
+## C2 city_pavement.png
+
+```text
+Use case: stylized-concept. Asset type: painted source for C2 seamless 128x128 game pavement texture. Create ONE square orthographic straight-down pixel-art swatch: precisely 6 by 6 old square concrete pavement slabs, each slab about 0.5 m across in a 3 m tile. Light neutral cool concrete clearly brighter than charcoal asphalt. Slab joins continuous across all four edges so the repeated tile forms an endless square grid. Mostly intact, with a few chipped corners, short thin cracks, one modest missing slab fragment revealing dark soil, tiny grass tufts in some seams. No large focal mark, no curb, no street markings, no lighting or cast shadow. Flat local color, hard discrete pixel clusters, no blur, no smooth photographic grain. Approximate limited palette #5c6064 #7e8184 #a3a5a6 with #4e5154 #3e2a1c #5a3420 and restrained muted green. Opaque square surface, tileable on four edges.
+```
+
+## C3 city_wall.png
+
+```text
+Use case: stylized-concept. Asset type: painted source for C3 seamless vertical retaining-wall texture in a game. Create ONE square orthographic front elevation of cast concrete wall, not ground. Image vertical axis is wall height. Hard-edged pixel art, flat local colors, 8-12 discrete tones. Wide horizontal formwork seams every 0.6 m, so about TEN evenly spaced horizontal seams across a 6 m high 256 px swatch, with subtle staggered panel joints. Small round drain holes about every 2 m horizontally, restrained rust-water streaks descending below a few holes, a couple chipped patches exposing dark rebar. The four edges continue seamlessly; no isolated landmark. Neutral old concrete palette #4e5154 #6d7073 #8d8a80 #5c6064 #7e8184 with rust #3e2a1c #5a3420 #7a3e1c. No light direction, cast shadow, glow, graffiti, windows, perspective or text. Opaque texture, broad pixel clusters, legible at 256x256.
+```
+
+## C4 city_block_ground.png
+
+```text
+Use case: stylized-concept. Asset type: painted source for C4 seamless city block ground tile, viewed straight overhead in an orthographic game. One square 6 by 6 metre abandoned patch BEHIND ruined buildings, clearly not a road: irregular broken concrete rubble, crushed stone and gravel, sparse discarded paper and scrap, tufts of weeds in cracks, a few very small dark puddles. Denser and more chaotic than neat pavement, but slightly lighter than black road asphalt in spots; no large focal debris item. Hard-edged limited-color pixel art, opaque, 8-12 colors only, flat intrinsic colors without directional light, shadow, bloom, gradients or photographic noise. Palette #2f3438 #454e54 #4e5154 #5c6064 #6d7073 #7e8184, dirt #3e2a1c #5a3420, little muted green. All four edges seamless, avoid recognizable repeated motifs. No lane lines, slab grid, objects with readable labels.
+```
+
+## C5 city_roof.png
+
+```text
+Use case: stylized-concept. Asset type: painted source for C5 seamless flat-roof game texture. Produce ONE square direct top-down orthographic pixel-art roof surface 6x6 metres: weathered neutral-gray bitumen and cement, several low-contrast roofing membrane seams, a few overlapping tar patches, one or two small drain openings, irregular dark damp areas and restrained moss along seams. Broad quiet material variation with no landmark drain at tile center, four-sided seamless repeat. Flat intrinsic colors only: no cast shadow, directional lighting, bevel highlights or volume shading. Hard pixel clusters, 8-12 colors, opacity, no blur, no photo noise, no perspective, no walls or parapet. Palette neutral #454e54 #4e5154 #5c6064 #6d7073 #7e8184 #8d8a80 with restrained dark brown #3e2a1c and muted moss. Game will tint building, so keep color neutral. Designed to read at 256x256.
+```
+
+## C6 city_plaster.png
+
+```text
+Use case: stylized-concept. Asset type: painted source for C6 seamless exterior plaster game-wall texture, one square orthographic front elevation. Light NEUTRAL gray old plaster for ruined Lungmen lower-city residences. Broad quiet cream-gray areas with descending rain streaks from implied windows ABOVE the crop, a few chipped patches exposing bricks beneath, scattered tiny worn paper ad remnants without readable text. Do not paint any windows, doors or architecture; these are modeled separately. Four-sided seamless repeat, no obvious repeated focal mark. Flat intrinsic colors, 8-12 hard-edged pixel colors, no directional light, cast shadow, glow, gradient, blur or fine photo grain. Main colors #b8b6b0 #d0cec8 with #a3a5a6 #8d8a80 #7e8184 and sparse #5a3420 #7a3e1c. Keep mostly light neutral surface because game applies building tint; legible at 256x256.
+```
+
+## C7 city_corrugated.png
+
+```text
+Use case: stylized-concept. Asset type: painted source for C7 seamless corrugated sheet-metal material texture, square orthographic front view, 3m x 3m tile. Precisely evenly spaced narrow VERTICAL corrugation ribs, pitch 0.15m, about 20 ribs across image, continuous across top and bottom with edge matching horizontally. Old neutral gray metal with 30-50% irregular rust coverage in clustered splotches, a few tiny nail holes along one subtle horizontal joint; varied but no lighting-dependent bright side of ribs. Hard pixel art color blocks, 8-12 colors, no gradients, no blur, no shadow or perspective. Palette #454e54 #5c6064 #6d7073 #7e8184 #8d8a80 with rust #3e2a1c #5a3420 #7a3e1c. No signs, text, doors or wall boundaries. Opaque, four-side seamless, designed for 128x128.
+```
+
+## C8 city_shutter.png
+
+```text
+Use case: stylized-concept. Asset type: painted source for C8 game shop metal roll-up shutter material. ONE square front-elevation orthographic swatch, 3m by 3m, with many narrow HORIZONTAL interlocking shutter slats continuing seamlessly to all four sides. Dingy neutral gray painted metal, modest red and blue faded graffiti strokes without readable text, rust clusters and muted yellow discoloration near lower part. Scuffs and chipped paint, 8-12 flat colors, hard-edged pixel art for native 128x128, opaque. No framing, door jamb, handles, window, lighting, cast shadow, gradients, blur or perspective. Palette #454e54 #5c6064 #6d7073 #7e8184 #8d8a80, rust #3e2a1c #5a3420 #7a3e1c, very sparse #c23b2c #2e6fb0 #e0b030. Keep horizontal ribs regular and repeatable.
+```
+
+## C9 city_signs.png
+
+```text
+Use case: stylized-concept. Asset type: C9 painted source atlas for eight ruined-Lungmen shop signs in a 2D game. Create ONE clean landscape 4-column by 2-row sheet of EIGHT separate square 128x128 pixel-art signboards, each inside its own equal cell with no overlap and no surrounding environment. In reading order: (1) old cha chaan teng sign with EXACT Chinese text 茶餐廳, warm red; (2) pharmacy sign EXACT text 藥房, green; (3) pawnshop sign EXACT text 當舖, muted yellow; (4) hardware sign EXACT text 五金, blue; (5) vertical pawn hanging sign EXACT single Chinese glyph 押, red; (6) herbal tea sign EXACT text 涼茶, green; (7) inn sign EXACT text 旅館, magenta; (8) electronics sign EXACT text 電器, blue. Use each phrase verbatim, legible traditional Chinese, high contrast. Each sign has its own faded paint, chipped edges and rust specks, but no cast shadows, illumination or glow. Flat 8-12-color hard-edged pixel art, no blur, no photographic texture, no perspective. Colors restricted to neutral #22262a #454e54 #5c6064 #b8b6b0 #d0cec8 and accents #c23b2c #2e6fb0 #e0b030 #d04a8a #3fae6a. Keep all text safely inside its cell with margins. Opaque sheet; no outer labels, watermark or grid lines.
+```
+
+## C2 pavement source edit
+
+```text
+Use case: precise-object-edit. Edit the supplied square pavement texture source for a seamless 3m x 3m game tile. Change ONLY the conspicuous large brown missing corner at the middle-right slab (approximately x=840-940, y=420-545): repair most of it with matching light gray weathered concrete while keeping a much smaller subtle brown chipped corner at the joint. Preserve the exact 6 by 6 slab grid, all other cracks, small chips, grass tufts, flat neutral palette, straight top-down view, overall size and painted hard-edged style. The texture must remain repeatable at all four edges. No new focal mark, shadow, lighting, blur, text or perspective.
+```
+
+## C5 roof source edit
+
+```text
+Use case: precise-object-edit. Edit the supplied flat-roof seamless texture source only to reduce obvious repeating focal details. Keep the same square top-down painted roof, all bitumen seams, patches, damp areas, moss, color, scale and four matching edges. Make the two drain grates at upper left and lower right about half their present visual size and much lower contrast: small flush dark-gray square outlets with no bright frame or rust halo. Soften the single distinctive large outlined L-shaped patch in the lower left into several less regular low-contrast tar repairs. The roof should read as quiet neutral material when repeated 3x3. No new drain, spotlight, perspective, cast shadow, windows, text, blur or illumination.
+```

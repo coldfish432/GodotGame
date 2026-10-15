@@ -22,7 +22,8 @@ var _tip: Label
 var _settings: Control
 var _loading_left := 0.0
 var _was_transitioning := false
-static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}, "language": "zh"}
+static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}, "language": "zh",
+	"auto_potion": "", "auto_potion_low": 0.4, "auto_potion_high": 0.9}
 static var _game: GameManager
 
 func _ready() -> void:

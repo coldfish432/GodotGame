@@ -15,10 +15,10 @@ $env:DOWNFALL_FULL = if ($Full) { '1' } else { '' }
 
 # Longest first, so the slow map sweeps start at once and the short suites fill in.
 $headlessSuites = @('test_layout', 'test_bridges', 'test_elevation', 'test_terrain', 'test_guards', 'test_scene_dressing',
-    'test_v1', 'test_revisions', 'test_new_enemies', 'test_run_goals', 'test_base_state', 'test_warehouse', 'test_orders',
+    'test_v1', 'test_revisions', 'test_new_enemies', 'test_run_goals', 'test_threat', 'test_base_state', 'test_warehouse', 'test_orders',
     'test_medical', 'test_progression', 'test_base_scene', 'test_movement', 'test_combat', 'test_enemy_attacks',
-    'test_lappland', 'test_amiya', 'test_prts', 'test_hotbar', 'test_relics', 'test_builds', 'test_inventory', 'test_loot',
-    'test_item_icons', 'test_relic_icons', 'test_gear', 'test_growth', 'test_gear_expansion', 'test_ai_driver', 'test_audio', 'test_a3_assets', 'test_i18n')
+    'test_lappland', 'test_amiya', 'test_pointer', 'test_prts', 'test_hotbar', 'test_relics', 'test_builds', 'test_inventory', 'test_loot',
+    'test_item_icons', 'test_relic_icons', 'test_gear', 'test_growth', 'test_gear_expansion', 'test_ai_driver', 'test_audio', 'test_a3_assets', 'test_i18n', 'test_heal_orbs', 'test_prefixes')
 $visualSuites = @('test_ui_v1', 'test_lappland_input', 'test_amiya_input', 'test_loot_input', 'test_hotbar_input',
     'capture_enemy_attacks', 'capture_lappland', 'capture_amiya', 'capture_v1', 'capture_terrain', 'capture_guards')
 

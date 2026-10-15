@@ -202,7 +202,7 @@ func run() -> void:
 	# leftover move target so a manual position edit isn't fought the moment
 	# the next physics frame ticks.
 	game.player.teleport(arena_anchor)
-	game.player.regen_timer = Player.HP_REGEN_INTERVAL  # keep passive regen out of this window
+	game.player.regen_timer = 100.0  # keep passive regen out of this window
 	await clear_all_enemies()
 	game._spawn_enemy(arena_anchor + Vector3(2.0, 0.0, 0.0), false, false)
 	await step(1)
@@ -214,7 +214,7 @@ func run() -> void:
 		{"hp_before": hp_before_dodge, "hp_after": game.player.hp})
 
 	game.player.teleport(arena_anchor)
-	game.player.regen_timer = Player.HP_REGEN_INTERVAL
+	game.player.regen_timer = 100.0
 	await clear_all_enemies()
 	game._spawn_enemy(arena_anchor + Vector3(2.0, 0.0, 0.0), false, false)
 	await step(1)
@@ -226,7 +226,7 @@ func run() -> void:
 	# --- Ranged suppressor: telegraphs, fires a projectile, and it actually
 	# hits a stationary player in its path.
 	game.player.teleport(arena_anchor)
-	game.player.regen_timer = Player.HP_REGEN_INTERVAL
+	game.player.regen_timer = 100.0
 	await clear_all_enemies()
 	game._spawn_enemy(arena_anchor + Vector3(6.0, 0.0, 0.0), false, true)
 	await step(1)
@@ -238,7 +238,7 @@ func run() -> void:
 			projectile_seen = true
 	check("ranged-enemy-launches-projectile", projectile_seen, {"projectile_seen": projectile_seen})
 
-	await step(70)  # 6 units at speed 9 (~0.67s) plus margin, comfortably inside the 5s regen window
+	await step(70)  # 6 units at speed 9 (~0.67s) plus margin, regen held off above
 	check("ranged-projectile-damages-stationary-player", game.player.hp < hp_before_ranged,
 		{"hp_before": hp_before_ranged, "hp_after": game.player.hp})
 

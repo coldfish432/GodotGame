@@ -47,6 +47,10 @@ const PROFILES := {
 	# lunge, not a charge across the room.
 	"rock_hornbeast": {"name": "岩角兽", "attack": "角顶", "art": "slug", "tint": Color("a08060"), "scale": 1.5, "windup": 1.0, "interval": 2.0, "damage": 1.0, "shape": "lane", "reach": 2.4, "width": 1.4, "dash": 1.0, "recoil": 0.6, "recovery": 0.6, "front_guard": 0.5, "neutral": true, "knockback": 2.0},
 	"fallen_snowpriest": {"name": "陷落雪祀", "attack": "冰弹", "art": "ice_hunter", "tint": Color("eef4ff"), "windup": 1.2, "interval": 2.4, "damage": 1.1, "shape": "projectile", "reach": 11.0, "projectile": "ice_orb", "shots": 1, "recovery": 0.35, "haste_bounce": true},
+	# 威胁值 (用户 2026-10-14; PRTS 萨卡兹哨兵: 负责侦查和预警, 不攻击): it never
+	# attacks; seeing her it puts up a red "!" (the meter fills faster), runs to
+	# a reachable spot and holds there, then runs again (Enemy._tick_sentinel).
+	"sentinel": {"name": "萨卡兹哨兵", "attack": "警报", "art": "crossbow", "tint": Color("e07a6a"), "windup": 1.0, "interval": 1.0, "damage": 0.0, "shape": "none", "reach": 0.0, "recovery": 0.0, "alarm": true},
 }
 
 ## 局内构筑与数值策划案 §6. Shaped after the PRTS lines for the same enemy kinds
@@ -81,6 +85,7 @@ const STATS := {
 	"shell_vine": {"hp": 2200.0, "atk": 460.0, "def": 200.0, "res": 20.0, "kind": "phys"},
 	"rock_hornbeast": {"hp": 2000.0, "atk": 420.0, "def": 250.0, "res": 0.0, "kind": "phys"},
 	"fallen_snowpriest": {"hp": 1800.0, "atk": 520.0, "def": 120.0, "res": 40.0, "kind": "arts"},
+	"sentinel": {"hp": 900.0, "atk": 0.0, "def": 60.0, "res": 20.0, "kind": "phys"},
 }
 
 ## Region pools for the new enemies (装备扩充策划案 §2.1). Ordinary slots draw
@@ -98,6 +103,7 @@ const FIGURE_HEIGHTS := {
 	"armed": 32, "caster": 26, "shield": 29, "slug_volatile": 20, "picket": 29,
 	"greytail": 28, "greytail_lord": 31, "thrower": 26, "bully": 33, "avenger": 30, "breacher": 32,
 	"taint_husk": 29, "distorted_caster": 31, "shattered_champion": 34, "shell_vine": 22, "rock_hornbeast": 28, "fallen_snowpriest": 30,
+	"sentinel": 28,
 }
 const BASE_FIGURE := 28.0
 

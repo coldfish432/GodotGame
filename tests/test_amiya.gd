@@ -216,6 +216,50 @@ func run() -> void:
 	p.add_charge(2)
 	check("charge gains refund her cooldown", is_equal_approx(p.shadow_cooldown, 3.0))
 
+	# Skill relics and gear reach 绝影 (用户 2026-10-15): 折戟-浴血's stage-3
+	# charge and 月下's extra strike.
+	p.reset_combat_state()
+	clear_enemies()
+	await step(1)
+	p.teleport(origin)
+	var e3 := dummy(origin + Vector3(0, 0, -2))
+	var drops := []
+	for bonus in [0.0, 1.0]:
+		p.fx["finisher_charge"] = bonus
+		p.shadow_cooldown = 6.0
+		p.combo_step = 2
+		swing(e3)
+		tick(0.6)
+		drops.append(6.0 - p.shadow_cooldown)
+		p.reset_combat_state()
+	p.fx.erase("finisher_charge")
+	check("折戟-浴血: stage 3 refunds one more charge for Amiya", is_equal_approx(drops[1] - drops[0], Player.SHADOW_REFUND))
+	var weapon: Item = p.equipped.get(Item.Category.WEAPON)
+	var lent := weapon == null
+	if lent:
+		weapon = Item.create("测试弩", Item.Category.WEAPON, 1, 3)
+		p.equipped[Item.Category.WEAPON] = weapon
+	if weapon != null:
+		var moon := ItemModifier.trigger_mod(ItemModifier.Trigger.MOON_WAVE)
+		weapon.modifiers.append(moon)
+		p.stats["crit"] = 5.0
+		var moon_flashes := 0
+		for i in range(30):
+			var vfx_before := game.get_children().filter(func(n): return n is CombatVfx and n.kind == "strike_flash").size()
+			p.combo_step = 0
+			swing(e3)
+			moon_flashes += game.get_children().filter(func(n): return n is CombatVfx and n.kind == "strike_flash").size() - vfx_before
+			p.reset_combat_state()
+		check("月下: crits add 绝影 strikes for Amiya", moon_flashes > 0)
+		var moon_hp := e3.health
+		p._amiya_moon_strike(e3)
+		check("月下 strike deals damage", e3.health < moon_hp)
+		weapon.modifiers.erase(moon)
+		p.stats["crit"] = -1.0
+		if lent: p.equipped.erase(Item.Category.WEAPON)
+	else:
+		check("Amiya holds a weapon for the 月下 check", false)
+
 	# Switching back restores Lappland untouched.
 	game.in_base = true
 	game.choose_operator(Operators.LAPPLAND)

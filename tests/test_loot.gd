@@ -61,7 +61,7 @@ func run() -> void:
 	var c := ctx("city", 1, 11)
 	for i in range(400):
 		for item in items_of(LootTables.enemy_drops("brawler", false, false, c)):
-			if item.is_stackable():
+			if item.is_stackable() and not item.is_potion():
 				var allowed := []
 				for tier in ["common", "uncommon", "rare"]:
 					for e in LootTables.ENEMY_MATERIALS.brawler[tier]: allowed.append(e[0])
@@ -75,14 +75,20 @@ func run() -> void:
 	c = ctx("city", 1, 12)
 	var n := 4000
 	for i in range(n):
-		var drops := LootTables.enemy_drops("thug", false, false, c)
+		# The odd 标准急救剂 (POTION_DROP) is counted on its own below.
+		var drops := LootTables.enemy_drops("thug", false, false, c).filter(func(d): return not (d.has("item") and d.item.is_potion()))
 		if drops.is_empty(): counts.none += 1
 		elif drops[0].has("gold"): counts.gold += 1
 		elif drops[0].item.is_stackable(): counts.mat += 1
 		else: counts.gear += 1
-	check("normal kills: ~12% nothing, ~60% material, ~20% gold, ~8% gear",
-		absf(counts.none / float(n) - 0.12) < 0.03 and absf(counts.mat / float(n) - 0.60) < 0.04
-		and absf(counts.gold / float(n) - 0.20) < 0.03 and absf(counts.gear / float(n) - 0.08) < 0.02, counts)
+	# 用户 2026-10-14: 敌人掉落普通装备概率增加 (8% → 16%).
+	check("normal kills: ~12% nothing, ~54% material, ~18% gold, ~16% gear",
+		absf(counts.none / float(n) - 0.12) < 0.03 and absf(counts.mat / float(n) - 0.54) < 0.04
+		and absf(counts.gold / float(n) - 0.18) < 0.03 and absf(counts.gear / float(n) - 0.16) < 0.025, counts)
+	var potions := 0
+	for i in range(3000):
+		potions += LootTables.enemy_drops("thug", false, false, c).filter(func(d): return d.has("item") and d.item.is_potion()).size()
+	check("now and then a normal enemy drops a 标准急救剂 (~3%)", absf(potions / 3000.0 - LootTables.POTION_DROP.normal) < 0.015, potions)
 	var slug_gear := false
 	for i in range(500):
 		for item in items_of(LootTables.enemy_drops("slug", false, false, c)):
@@ -164,6 +170,20 @@ func run() -> void:
 			if plan.size() != 5 or not plan.has("weapon_box") or plan.filter(func(k): return LootTables.POI[k].base).size() < 2: quota = false
 			if plan.any(func(k): return float(LootTables.POI[k].region.get(region, 0.0)) <= 0.0): quota = false
 	check("each segment: a weapon box, two base points, all native to the region", quota)
+	# Lungmen's districts tilt the kinds: the slums keep medicine and safes,
+	# and the weapon box goes to a warehouse yard when there is one.
+	var tilted := 0
+	var plain := 0
+	var yard_box := true
+	for i in range(200):
+		rng.seed = 900 + i
+		tilted += LootTables.plan_points("city", 6, rng, ["slum", "slum", "slum", "slum", "slum", "slum"]).filter(func(k): return k in ["medical", "safe"]).size()
+		rng.seed = 900 + i
+		plain += LootTables.plan_points("city", 6, rng).filter(func(k): return k in ["medical", "safe"]).size()
+		rng.seed = 900 + i
+		if LootTables.plan_points("city", 6, rng, ["street", "slum", "yard", "street", "site", "slum"])[2] != "weapon_box": yard_box = false
+	check("slum points are medicine and safes far more often", tilted > plain * 2)
+	check("the weapon box stands in the warehouse yard", yard_box)
 
 	# Bad-luck protection.
 	var pity := {"rare_gear": 0.0, "rare_material": 0.0}
@@ -218,10 +238,12 @@ func run() -> void:
 	var on_ground := func() -> int: return game.get_tree().get_nodes_in_group("loot").filter(func(l): return l.game == game and l.item != null).size()
 	var state := box.search_state()
 	check("the contents are searched one item at a time (%d to find)" % int(state.get("total", 0)), not state.is_empty() and int(state.found) == 0 and box.storage.items.is_empty() and box.is_searching())
+	var first_cell := box.search_cell()
+	check("the magnifier sits on the top-left item's cell", first_cell == box._pending.map(func(it): return Vector2i(it.grid_x, it.grid_y)).filter(func(v): return v.x >= 0).reduce(func(a, v): return v if v.y < a.y or (v.y == a.y and v.x < a.x) else a))
 	for i in range(900):
 		await step(1)
 		if not box.storage.items.is_empty(): break
-	check("the first item lands in the box's grid when its bar fills, not on the ground", box.storage.items.size() == 1 and on_ground.call() == 0)
+	check("the first item turns up in that cell of the box's grid, not on the ground", box.storage.items.size() == 1 and on_ground.call() == 0 and Vector2i(box.storage.items[0].grid_x, box.storage.items[0].grid_y) == first_cell)
 	for i in range(3000):
 		await step(1)
 		if box.fully_searched(): break

@@ -1,7 +1,7 @@
 extends SceneTree
 ## A point of interest from the follow camera: its yellow rim with Lappland
 ## beside it, then the pack and the box's grid a few seconds into the search.
-## ../evidence/loot-ui-rim.png, ../evidence/loot-ui-window.png.
+## ../evidence/loot-ui-rim.png, loot-ui-searching.png, loot-ui-window.png.
 var rig: Node
 var game: GameManager
 func _initialize() -> void: call_deferred("run")
@@ -33,7 +33,11 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://../evidence/loot-ui-rim.png")
 	game._interact()
-	await create_timer(3.0).timeout
+	# Mid-search: the magnifier circling over the next item's cell.
+	await create_timer(1.0).timeout
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png("res://../evidence/loot-ui-searching.png")
+	await create_timer(2.0).timeout
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://../evidence/loot-ui-window.png")
 	print("box %s looting %s found %s" % [box.kind, game.looting == box, box.search_state()])

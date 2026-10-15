@@ -2,7 +2,8 @@ class_name Hud
 extends Control
 
 ## The field HUD (界面策划案 v1.1 §3): MMO layout, Arknights look.
-##   top left     floor plate, region, 赤金, relics, contamination; effect badges
+##   top left     floor plate, region, 赤金, relics, contamination; effect badges;
+##                the 威胁值 bar under the strip (a bar only, no number)
 ##   top right    panel buttons (I R M J) and pause, the minimap, the order tracker
 ##   top centre   PRTS toasts: necessary notices only (no log box, no centre message)
 ##   bottom right stamina counter and the action cards
@@ -109,6 +110,7 @@ func _draw_top_bar() -> void:
 		draw_polyline(AK.diamond(Vector2(x + 22, 23), 7) + PackedVector2Array([Vector2(x + 22, 16)]), AK.ORI, 1.4)
 		var w := _text(Vector2(x + 34, 30), str(roundi(game.current_contamination())), 17, AK.ORI, _en())
 		_text(Vector2(x + 40 + w, 30), "+%.2f/s" % game.contamination_rate(), 11, AK.MUTE, _en())
+	_draw_threat_bar()
 	# Effect badges: what is ticking right now.
 	var badges: Array = []
 	if game._slow_heal_left > 0.0: badges.append(["缓", AK.HP, "%ds" % ceili(game._slow_heal_left / maxf(game._slow_heal_rate, 1.0))])
@@ -123,6 +125,15 @@ func _draw_top_bar() -> void:
 		draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), b[1])
 		_text(r.position + Vector2(7, 19), b[0], 13, b[1], null, false)
 		_text(r.position + Vector2(2, 40), b[2], 10, AK.FG, _en())
+
+## 威胁值 (用户 2026-10-14: 读条，不显示数字): a thin red bar along the bottom
+## of the strip, pulsing as it nears full.
+func _draw_threat_bar() -> void:
+	var ratio := game.threat.ratio()
+	draw_rect(Rect2(0, 44, 640, 3), Color(0, 0, 0, 0.72))
+	var colour := AK.RED
+	if ratio > 0.85: colour = colour.lerp(Color.WHITE, 0.35 + 0.35 * sin(_pulse * 9.0))
+	if ratio > 0.0: draw_rect(Rect2(0, 44, 640 * ratio, 3), colour)
 
 func _draw_gold_icon(c: Vector2) -> void:
 	draw_colored_polygon(PackedVector2Array([c + Vector2(-7, 4), c + Vector2(-4, -3), c + Vector2(4, -3), c + Vector2(7, 4)]), AK.SP)
@@ -180,6 +191,11 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 		var box := node as LootContainer
 		if box.game == game and game.fog.is_point_revealed(box.position):
 			draw_rect(Rect2(map_point(box.position, rect) - Vector2(2, 2) * k, Vector2(4, 4) * k), Color("55606a") if box.opened else box.color().lightened(0.25))
+	# Patrols in mapped ground, so she can choose to keep out of their way.
+	for node in get_tree().get_nodes_in_group("patrols"):
+		var patrol := node as Enemy
+		if patrol.game == game and not patrol._dead and game.fog.is_point_revealed(patrol.global_position):
+			draw_circle(map_point(patrol.global_position, rect), 2.5 * k, AK.RED)
 	if big:
 		draw_colored_polygon(AK.diamond(map_point(game.player.position, rect), 8), Color.WHITE)
 		return
@@ -319,8 +335,8 @@ const HOTBAR_BOTTOM := 706.0
 const SIDE_BAR := 210.0
 
 ## Left-click attack (fixed), then the player's eight Hotbar slots, then any
-## special gear (passive, shown for its state). Empty slots still show
-## their key so the bar never changes width.
+## special gear (passive, shown for its state), and last the auto-potion
+## slot. Empty slots still show their key so the bar never changes width.
 func _hotbar_slots() -> Array:
 	var p := game.player
 	var slots: Array = [{"key": "LMB", "glyph": "slash", "colour": AK.FG}]
@@ -348,18 +364,26 @@ func _hotbar_slots() -> Array:
 					slot.cooldown_total = Player.SHADOW_COOLDOWN
 				else:
 					slot.unavailable = true
-			_:
-				var type: String = info.potion
-				var count := game.carried_potions().filter(func(x): return x.potion_type == type).size()
-				slot.colour = {"A": AK.GREEN, "B": Color("4fb3f6"), "C": Color("8fd3c8")}[type]
-				slot.potion = type
-				slot.cost = str(count)
-				if count == 0: slot.unavailable = true
+			_: _potion_slot(slot, info.potion)
 		slots.append(slot)
 	for item in p.equipped.values():
 		if item != null and not item.special.is_empty():
 			slots.append({"key": "", "glyph": "special", "colour": AK.SPECIAL, "item": item})
+	var auto := Hotbar.auto_potion()
+	var auto_slot := {"key": "自动", "cjk": true, "glyph": "", "colour": Color(0.25, 0.25, 0.25), "auto": true}
+	if auto != "":
+		auto_slot.glyph = "flask"
+		auto_slot.action = auto
+		_potion_slot(auto_slot, Hotbar.ACTIONS[auto].potion)
+	slots.append(auto_slot)
 	return slots
+
+func _potion_slot(slot: Dictionary, type: String) -> void:
+	var count := game.carried_potions().filter(func(x): return x.potion_type == type).size()
+	slot.colour = {"A": AK.GREEN, "B": Color("4fb3f6"), "C": Color("8fd3c8")}[type]
+	slot.potion = type
+	slot.cost = str(count)
+	if count == 0: slot.unavailable = true
 
 ## The hotbar slot whose picker is open (-1: none). GameManager opens and
 ## closes it from clicks on the bar.
@@ -372,23 +396,36 @@ func _slot_rect(i: int) -> Rect2:
 	var bar := hotbar_rect()
 	return Rect2(bar.position.x + i * (SLOT + SLOT_GAP), bar.position.y, SLOT, SLOT)
 
-## Which configurable slot is under `point` (HUD coordinates): 0..7, -1 for
-## the bar but no slot (its frame, LMB, special gear), -2 off the bar.
+## The drawn rectangle of configurable slot `index` (Hotbar.AUTO: the last one).
+func _config_rect(index: int) -> Rect2:
+	return _slot_rect(_hotbar_slots().size() - 1 if index == Hotbar.AUTO else index + 1)
+
+## Which configurable slot is under `point` (HUD coordinates): 0..7, Hotbar.AUTO
+## for the auto-potion slot, -1 for the bar but no slot (its frame, LMB,
+## special gear), -2 off the bar.
 func hotbar_slot_at(point: Vector2) -> int:
 	if not visible or not is_instance_valid(game) or not game.simulation_active(): return -2
 	if not hotbar_rect().grow(6).has_point(point): return -2
 	for i in range(Hotbar.SLOTS):
 		if _slot_rect(i + 1).has_point(point): return i
+	if _config_rect(Hotbar.AUTO).has_point(point): return Hotbar.AUTO
 	return -1
+
+func _picker_choices() -> Array:
+	return Hotbar.AUTO_CHOICES if picker_slot == Hotbar.AUTO else Hotbar.CHOICES
+
+func _picker_current() -> String:
+	return Hotbar.auto_potion() if picker_slot == Hotbar.AUTO else Hotbar.slots()[picker_slot].action
 
 ## The picker's option rectangles, bottom-up above the open slot: [Rect2, choice].
 func _picker_rows() -> Array:
 	if picker_slot < 0: return []
-	var anchor := _slot_rect(picker_slot + 1)
+	var anchor := _config_rect(picker_slot)
+	var choices := _picker_choices()
 	var rows: Array = []
 	var y := anchor.position.y - 10 - PICKER_ROW
-	for k in range(Hotbar.CHOICES.size() - 1, -1, -1):
-		rows.append([Rect2(anchor.get_center().x - PICKER_WIDTH * 0.5, y, PICKER_WIDTH, PICKER_ROW), Hotbar.CHOICES[k]])
+	for k in range(choices.size() - 1, -1, -1):
+		rows.append([Rect2(anchor.get_center().x - PICKER_WIDTH * 0.5, y, PICKER_WIDTH, PICKER_ROW), choices[k]])
 		y -= PICKER_ROW + 2
 	return rows
 
@@ -401,7 +438,7 @@ func picker_choice_at(point: Vector2) -> Variant:
 func _draw_picker() -> void:
 	var rows := _picker_rows()
 	if rows.is_empty(): return
-	var current: String = Hotbar.slots()[picker_slot].action
+	var current := _picker_current()
 	var hover := get_local_mouse_position()
 	var frame := (rows[0][0] as Rect2)
 	for row in rows: frame = frame.merge(row[0])
@@ -413,7 +450,7 @@ func _draw_picker() -> void:
 		var usable: bool = choice == "" or not Hotbar.ACTIONS[choice].has("operator") or Hotbar.ACTIONS[choice].operator == game.player.operator_id
 		draw_rect(r, AK.PAPER if on else (Color("3a3a3a") if r.has_point(hover) else Color("262626")))
 		_text(r.position + Vector2(10, 18), Hotbar.CHOICE_NAMES[choice], 13, AK.INK if on else (AK.FG if usable else AK.MUTE), null, false)
-	var anchor := _slot_rect(picker_slot + 1)
+	var anchor := _config_rect(picker_slot)
 	draw_colored_polygon(PackedVector2Array([Vector2(anchor.get_center().x - 6, anchor.position.y - 6), Vector2(anchor.get_center().x + 6, anchor.position.y - 6), Vector2(anchor.get_center().x, anchor.position.y)]), Color(0, 0, 0, 0.88))
 
 ## The hotbar's rectangle (centred on the bottom edge).
@@ -431,7 +468,10 @@ func _draw_actions() -> void:
 	for i in range(drawn.size()):
 		var r := _slot_rect(i)
 		_draw_slot(r, drawn[i])
-		if i >= 1 and i <= Hotbar.SLOTS and (r.has_point(hover) or picker_slot == i - 1): draw_rect(r, AK.FG, false, 1.0)
+		var auto: bool = drawn[i].get("auto", false)
+		var configurable := (i >= 1 and i <= Hotbar.SLOTS) or auto
+		var open := picker_slot == (Hotbar.AUTO if auto else i - 1)
+		if configurable and (r.has_point(hover) or open): draw_rect(r, AK.FG, false, 1.0)
 	if not game.simulation_active(): picker_slot = -1
 	_draw_picker()
 	# Left of the bar: life (and any shield over it).
@@ -498,7 +538,7 @@ func _draw_slot(r: Rect2, slot: Dictionary) -> void:
 	if not str(slot.key).is_empty():
 		var kw := _en().get_string_size(I18n.t(slot.key), HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 6
 		draw_rect(Rect2(r.position, Vector2(kw, 14)), Color(0, 0, 0, 0.8))
-		_text(r.position + Vector2(3, 11), slot.key, 10, AK.FG, _en() if slot.key != "⇧" else null, false)
+		_text(r.position + Vector2(3, 11), slot.key, 10, AK.FG, _en() if slot.key != "⇧" and not slot.get("cjk", false) else null, false)
 	if slot.has("cost"):
 		var cost: String = slot.cost
 		var cw := _en().get_string_size(I18n.t(cost), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6
@@ -574,6 +614,15 @@ func _draw_world_marks() -> void:
 			draw_colored_polygon(AK.star(Vector2(r.position.x - 11, r.get_center().y), 5.5), AK.SP)
 		else:
 			AK.draw_bar(self, Rect2(head.x - 20, head.y - 1.5, 40, 3), ratio, AK.RED, Color(0, 0, 0, 0.85))
+	# A 萨卡兹哨兵 that has seen her: a red "!" over its head while it is alerted.
+	for node in get_tree().get_nodes_in_group("sentinels"):
+		var sentinel := node as Enemy
+		if sentinel.game != game or not sentinel.alerted(): continue
+		var top := game.screen_point(sentinel.global_position + Vector3.UP * 2.8)
+		draw_rect(Rect2(top.x - 3.5, top.y - 14, 7, 15), Color.BLACK)
+		draw_rect(Rect2(top.x - 3.5, top.y + 3, 7, 7), Color.BLACK)
+		draw_rect(Rect2(top.x - 2, top.y - 12.5, 4, 12), AK.RED)
+		draw_rect(Rect2(top.x - 2, top.y + 4.5, 4, 4), AK.RED)
 	# Her bars under her feet: blue life, yellow SP in segments; the ready mark.
 	var feet := game.screen_point(p.global_position) + Vector2(0, 14)
 	AK.draw_bar(self, Rect2(feet.x - 27, feet.y, 54, 5), p.hp / maxf(p.max_hp, 1.0), AK.RED if p.hp < p.max_hp * 0.3 else AK.HP, Color(0, 0, 0, 0.8))
@@ -586,7 +635,11 @@ func _draw_world_marks() -> void:
 			var top := game.screen_point(p.global_position + Vector3.UP * 2.2)
 			draw_colored_polygon(AK.diamond(top, 11), AK.SP)
 			draw_colored_polygon(PackedVector2Array([top + Vector2(0, -5), top + Vector2(5, 3), top + Vector2(-5, 3)]), AK.INK)
-	_draw_container_names()
+	# Extraction under way: a green bar under her own.
+	if game.extract_progress >= 0.0:
+		var under := feet + Vector2(0, 14)
+		draw_rect(Rect2(under.x - 32, under.y - 2, 64, 8), Color(0, 0, 0, 0.75))
+		AK.draw_bar(self, Rect2(under.x - 30, under.y, 60, 4), game.extract_progress / FieldCatalog.EXTRACT_SECONDS, AK.GREEN)
 	_draw_ground_names()
 	# Just the key, no name (用户 2026-10-13: 不要中文label了，只提示e即可).
 	if not game.interaction_prompt().is_empty():
@@ -594,32 +647,6 @@ func _draw_world_marks() -> void:
 		draw_rect(Rect2(at.x - 13, at.y - 16, 26, 24), Color(0, 0, 0, 0.8))
 		draw_rect(Rect2(at.x - 10, at.y - 13, 20, 18), AK.PAPER)
 		_text(at + Vector2(-5, 0), "E", 12, AK.INK, _en(), false)
-
-## Bars over the box being opened or searched, and nothing else: no names
-## over points of interest (用户 2026-10-12). The opening bar while the lid is
-## worked; then the current item's bar with one pip per item underneath,
-## filled for each found.
-func _draw_container_names() -> void:
-	if not game.simulation_active(): return
-	for node in get_tree().get_nodes_in_group("loot_containers"):
-		var box := node as LootContainer
-		if box.game != game or box.global_position.distance_to(game.player.global_position) > 7.0: continue
-		var point := game.screen_point(box.global_position + Vector3.UP * 1.4)
-		var opening := box.progress()
-		if opening >= 0.0:
-			draw_rect(Rect2(point.x - 32, point.y - 2, 64, 8), Color(0, 0, 0, 0.75))
-			AK.draw_bar(self, Rect2(point.x - 30, point.y, 60, 4), opening, AK.SP)
-			continue
-		var search := box.search_state()
-		if search.is_empty(): continue
-		var total: int = search.total
-		var pip := clampf(60.0 / total - 2.0, 3.0, 8.0)
-		var row := total * (pip + 2.0) - 2.0
-		draw_rect(Rect2(point.x - maxf(row, 60.0) * 0.5 - 2, point.y - 2, maxf(row, 60.0) + 4, 15), Color(0, 0, 0, 0.75))
-		if float(search.current) >= 0.0: AK.draw_bar(self, Rect2(point.x - 30, point.y, 60, 4), float(search.current), AK.SP)
-		for i in range(total):
-			var at := Vector2(point.x - row * 0.5 + i * (pip + 2.0), point.y + 7)
-			draw_rect(Rect2(at, Vector2(pip, 4)), AK.SP if i < int(search.found) else Color(1, 1, 1, 0.22))
 
 ## Hold Alt: names of the items on the ground, in rarity colour (PoE / Grim Dawn).
 ## Name plates over ground items, the Grim Dawn way (用户 2026-10-10): always
@@ -669,8 +696,13 @@ func _draw_ground_names() -> void:
 		draw_rect(rect, Color(0, 0, 0, 0.82 if entry[1] else 0.6))
 		draw_rect(Rect2(rect.position, Vector2(3, rect.size.y)), colour)
 		if lit: draw_rect(rect, colour, false, 1.0)
-		var text_colour := colour if entry[1] else colour.darkened(0.35)
-		_text(Vector2(rect.position.x + PLATE_PAD, rect.end.y - 5), label, PLATE_FONT, text_colour.lightened(0.25) if lit else text_colour, null, false)
+		var runs: Array = loot.item.name_runs()
+		runs.append([loot.item.stack_suffix() + ("（封印）" if loot.sealed else ""), colour])
+		var x := rect.position.x + PLATE_PAD
+		for run in runs:
+			if str(run[0]).is_empty(): continue
+			var run_colour: Color = run[1] if entry[1] else run[1].darkened(0.35)
+			x += _text(Vector2(x, rect.end.y - 5), run[0], PLATE_FONT, run_colour.lightened(0.25) if lit else run_colour, null, false)
 
 ## The ground item whose name plate is under `point` (HUD coordinates).
 func loot_label_at(point: Vector2) -> Loot:

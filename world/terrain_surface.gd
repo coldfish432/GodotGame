@@ -211,7 +211,7 @@ func distance_at(point: Vector2) -> float:
 		if cell.distance_squared_to(nearest) < 0.000001 and nearest.x >= 0 and nearest.y >= 0 and nearest.x <= columns and nearest.y <= rows:
 			return _distance[int(nearest.y) * (columns + 1) + int(nearest.x)]
 	# Small edge erosion only. Centre lines retain their guaranteed width.
-	return field.carved_distance(point) + noise.get_noise_2dv(point) * (0.35 if field.region_id == "city" else 0.85)
+	return field.carved_distance(point) + noise.get_noise_2dv(point) * (0.1 if field.region_id == "city" else 0.85)
 
 ## The contour distance at x/z read off the sampled grid (its triangles, as
 ## ground_at): close to distance_at and nearly free, for placing dressing,
@@ -441,6 +441,7 @@ func _height(point: Vector2, mass: bool) -> float:
 		return lerpf(ground, top, rise) + mountain_at(point) + noise.get_noise_2dv(point * 0.65) * minf(depth * 0.1, 0.25)
 	# A flat-topped bank (rock_top_at), just roughened: a little noise that
 	# fades in from the rim, so the top meets the swept face's lip flush.
+	if field.region_id == "city": return rock_top_at(point)
 	return rock_top_at(point) + noise.get_noise_2dv(point * 0.65) * minf(depth * 0.1, 0.18)
 
 ## Surface height at x/z: the floor where open, the rock mass where not.
@@ -458,29 +459,41 @@ func height_at(point: Vector2) -> float:
 	return ha * (1.0 - fraction.y) + hc * fraction.x + _height(a + Vector2(0, CELL), true) * (fraction.y - fraction.x)
 
 ## `height`: the vertex's own height when the caller has it (mass vertices).
+## How far the city's pavement runs back from the road's edge, to the fronts.
+const PAVEMENT_DEPTH := 2.6
+
 func _color(point: Vector2, kind: int, height: float = NAN) -> Color:
 	if kind == 2:
 		# Cliff face: the darker rock of a bank's foot.
 		return Color(0.7, 0.7, 0.7)
 	if kind == 1:
 		var depth := maxf(0, -distance_at(point))
-		var contact := lerpf(0.78, 1.0, smoothstep(0.0, 3.0, depth))
+		# The city's block ground lies flush with its road (用户 2026-10-14: 台子边的
+		# 阴影能去掉吗): no rim shade that would read as a raised edge.
+		var contact := 1.0 if field.region_id == "city" else lerpf(0.78, 1.0, smoothstep(0.0, 3.0, depth))
 		# Alpha: shade laid over the snow too (cliff_face.gdshader), deeper the
 		# further the rock lies below the floor beside it — a causeway's
 		# fallen-away side.
 		var drop := ground_at(point) - (height if not is_nan(height) else _height(point, true))
-		return Color(contact, contact, contact, lerpf(1.0, 0.4, smoothstep(0.15, 1.8, drop)))
+		var fade := lerpf(1.0, 0.4, smoothstep(0.15, 1.8, drop))
+		# The city's pavement, kerb to the buildings' feet (cliff_face.gdshader:
+		# city_pave reads G = 0 as pavement).
+		# The slums have no pavement: rubble and mud to the shacks' doors.
+		if field.region_id == "city": return Color(contact, 0.0 if depth < PAVEMENT_DEPTH and field.district_at(point) != "slum" else 1.0, contact, fade)
+		return Color(contact, contact, contact, fade)
 	var road := 1.0 - smoothstep(1.3, 3.6, field.road_distance(point))
 	var open := maxf(0, distance_at(point))
-	var edge := smoothstep(0.0, 2.5, open)
+	var edge := 1.0 if field.region_id == "city" else smoothstep(0.0, 2.5, open)
 	var color: Color
 	match field.region_id:
-		"city": color = Color("454e54").lerp(Color("786f5a"), road * 0.42)
+		"city": color = CityDressing.ROAD_TINTS.get(field.district_at(point), CityDressing.ROAD_TINTS.street)
 		"snow": color = Color("76919c").lerp(Color("b6c1b5"), road * 0.65)
 		_: color = Color("615646").lerp(Color("988164"), road * 0.65)
 	var mottling := 0.94 + noise.get_noise_2dv(point * 2.3) * 0.14
 	color *= mottling * lerpf(0.57, 1.0, edge)
 	color.a = smoothstep(0.0, 1.4, open)
+	# No kerbside pavement strip in the slums (FieldArt.terrain_material).
+	if field.region_id == "city" and field.district_at(point) == "slum": color.a = 1.0
 	return color
 
 ## How a terrace reads from the follow camera, which sees no slope: the
@@ -682,7 +695,8 @@ func mountain_at(point: Vector2) -> float:
 ## The rock bank's height above its base, flat (_height adds only a little noise).
 func _bank(_depth: float = 0.0) -> float:
 	match field.region_id:
-		"city": return 1.1
+		# Flush: the city's buildings, not a bank, edge its roads.
+		"city": return 0.0
 		"snow": return 1.1
 		_: return 1.6
 

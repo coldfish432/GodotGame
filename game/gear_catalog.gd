@@ -325,7 +325,8 @@ static func _carried(enemy_type: String, region: String) -> String:
 	return fallback
 
 ## Makes `item` this base: name, power factor, intrinsic stats, flavour text.
-static func apply(item: Item, id: String) -> void:
+## With `rng`, intrinsics roll within ±20% of the table (装备前缀策划案 §2.8).
+static func apply(item: Item, id: String, rng: RandomNumberGenerator = null) -> void:
 	var b: Dictionary = BASES[id]
 	item.base_id = id
 	item.item_name = b.name
@@ -334,8 +335,11 @@ static func apply(item: Item, id: String) -> void:
 	item.value = roundi(item.value * float(b.get("value", 1.0)))
 	var implicit: Array[ItemModifier] = []
 	for pair in b.implicit:
-		var mod := ItemModifier.stat_mod(pair[0], float(pair[1]))
-		mod.tier = IMPLICIT_TIER
+		var mod: ItemModifier
+		if rng != null: mod = ItemModifier.roll_intrinsic(pair[0], float(pair[1]), rng)
+		else:
+			mod = ItemModifier.stat_mod(pair[0], float(pair[1]))
+			mod.tier = IMPLICIT_TIER
 		implicit.append(mod)
 	implicit.append_array(item.modifiers)
 	item.modifiers = implicit

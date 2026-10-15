@@ -53,13 +53,36 @@ func run() -> void:
 		await step(3)
 		var posts := get_nodes_in_group("guard_posts")
 		# One device post now: gilding (and its guards) is gone (保全系统修订案); squads and 坎诺特 are unguarded.
-		check(region + " all search points and devices have a guard squad", posts.size() == game.world_map.cache_positions.size() + 1 and posts.all(func(p): return p.guards.size() == 2))
+		# 用户 2026-10-14: 兴趣点旁边随机刷新守卫 — 0–3 a point; every post gets the guards it was given.
+		check(region + " guarded points and the device get their whole squad", posts.size() >= 1 and posts.size() <= game.world_map.cache_positions.size() + 1 and posts.all(func(p): return p.guards.size() == p.planned and p.planned >= 1))
+		var wanderers := get_nodes_in_group("wanderers").filter(func(e): return e.game == game)
+		check(region + " wanderers walk the floor from the start", wanderers.size() >= 2)
+		var starts: Array = wanderers.map(func(e): return e.global_position)
+		# Wherever she is, they keep their distance from her and walk on.
+		for f in range(240): await physics_frame
+		var walked := 0
+		for k in range(wanderers.size()):
+			if is_instance_valid(wanderers[k]) and wanderers[k].global_position.distance_to(starts[k]) > 1.5: walked += 1
+		check(region + " wanderers move on their own", walked >= 1)
+		# Points of interest set back from the middle of their rooms, most of them.
+		var off := 0
+		for at in game.world_map.cache_positions:
+			var room: int = -1
+			var best := INF
+			for i in range(game.world_map._open_circles.size()):
+				var c: Vector3 = game.world_map._open_circles[i]
+				var d := Vector2(c.x, c.y).distance_to(Vector2(at.x, at.z))
+				if d < best:
+					best = d
+					room = i
+			if best > 2.5: off += 1
+		check(region + " most points of interest stand off the middle of their room", off * 2 > game.world_map.cache_positions.size())
 		var reachable := true
 		for post in posts:
 			for guard in post.guards:
 				var path := NavigationServer3D.map_get_path(game.world_map.navigation_map_rid(), ContinuousWorldMap.ENTRY_POSITION, guard.home_position, true)
 				if path.size() < 2 or path[-1].distance_to(guard.home_position) > 1: reachable = false
-		check(region + " guard stations are reachable and separated", reachable and posts.all(func(p): return p.guards.size() == 2 and p.guards[0].home_position.distance_to(p.guards[1].home_position) >= 2))
+		check(region + " guard stations are reachable and separated", reachable and posts.all(func(p): return p.guards.size() < 2 or p.guards[0].home_position.distance_to(p.guards[1].home_position) >= 2))
 		await exercise_guards(region)
 		game.settle(true)
 		await step(3)

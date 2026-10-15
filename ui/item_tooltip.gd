@@ -18,7 +18,8 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 	var lines: Array[String] = []
 	var icon := ItemIcons.path_for(item)
 	if not icon.is_empty() and ResourceLoader.exists(icon): lines.append("[img]%s[/img]" % icon)
-	lines.append("[font_size=19][color=#%s]%s[/color][/font_size]" % [item.rarity_color().to_html(false), item.display_name()])
+	# Prefixes in their grade colours, the rest in the item's (装备前缀策划案 §2.1).
+	lines.append("[font_size=19]%s[/font_size]" % item.name_bbcode())
 	var kind := "%s · %d×%d" % [Item.CATEGORY_NAMES[item.category], item.width, item.height]
 	if not item.material_id.is_empty():
 		kind = "%s · ★%d · %d×%d" % [MaterialCatalog.group(item.material_id), MaterialCatalog.star(item.material_id), item.width, item.height]
@@ -51,9 +52,17 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		lines.append("[color=#c9d3db]── 基础 ──[/color]")
 		var base := CombatStats.power_stats(item.category, item.power)
 		var names := {"atk": "攻击力", "hp": "生命", "def": "防御", "arts": "法术攻击力", "stamina_regen": "体力回复"}
-		for key in base: lines.append("  %s +%d" % [names[key], roundi(base[key])])
+		var low := CombatStats.power_stats(item.category, item.power_mid * Item.POWER_LOW)
+		var high := CombatStats.power_stats(item.category, item.power_mid * Item.POWER_HIGH)
+		for key in base:
+			var span := "（范围 %d ~ %d）" % [roundi(low[key]), roundi(high[key])] if detailed and item.power_mid > 0.0 else ""
+			lines.append("  %s +%d%s" % [names[key], roundi(base[key]), span])
 		var intrinsic := item.modifiers.filter(func(m): return m.trigger == ItemModifier.Trigger.NONE and m.tier == GearCatalog.IMPLICIT_TIER)
-		for mod in intrinsic: lines.append("  [color=#b8c4cf]固有 · %s[/color]" % mod.describe())
+		for mod in intrinsic: lines.append("  [color=#b8c4cf]固有 · %s%s[/color]" % [mod.describe(), mod.range_text() if detailed else ""])
+		for entry in item.prefixes:
+			var colour := PrefixCatalog.color_of(entry).to_html(false)
+			for line in PrefixCatalog.lines_of(entry):
+				lines.append("  [color=#%s]前缀[/color] · %s%s" % [colour, line[0], line[1] if detailed else ""])
 		var affixes := item.modifiers.filter(func(m): return m.trigger == ItemModifier.Trigger.NONE and m.tier != GearCatalog.IMPLICIT_TIER)
 		if not affixes.is_empty():
 			lines.append("[color=#c9d3db]── 词缀 ──[/color]")
@@ -72,7 +81,7 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		var triggers := item.modifiers.filter(func(m): return m.trigger != ItemModifier.Trigger.NONE)
 		if not triggers.is_empty():
 			lines.append("[color=#ff7a45]── 特殊效果 ──[/color]" if not item.special.is_empty() else "[color=#b48cff]── 触发 ──[/color]")
-			for mod in triggers: lines.append("  [color=#cdb4ff]✦ %s[/color]" % mod.describe())
+			for mod in triggers: lines.append("  [color=#cdb4ff]✦ %s%s[/color]" % [mod.describe(), mod.range_text() if detailed else ""])
 	if not item.description.is_empty(): lines.append("[color=#e0d6b8]%s[/color]" % item.description)
 	var state: Array[String] = []
 	if item.insured: state.append("[color=#4fd1c5]已投保[/color]")

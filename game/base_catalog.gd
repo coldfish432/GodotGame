@@ -96,10 +96,11 @@ const CONTAMINATION_PER_ORE := 0.06       # each unsealed ore carried, pack or s
 const CONTAMINATION_DECAY := 5            # off at every settlement, before this run's dose
 const CONTAMINATION_MAX := 100
 ## Contamination acts live, in the field (局内节奏与目标策划案 §6 D): each point
-## takes 0.3% of max HP and 0.6/s of self-regeneration, so 48/s base reaches 0
-## at 80 and drains below that; potions heal 25% less from 70.
+## takes 0.3% of max HP and 1/80 of the base self-regeneration (0.1% of max HP a
+## second), so regeneration reaches 0 at 80 and drains below that; potions heal
+## 25% less from 70.
 const CONTAMINATION_HP_PER_POINT := 0.003
-const CONTAMINATION_REGEN_PER_POINT := 0.6
+const CONTAMINATION_REGEN_PER_POINT := 0.001 / 80.0   # share of max HP a second
 const CONTAMINATION_POTION_FROM := 70.0
 const CONTAMINATION_POTION_PENALTY := 0.25
 ## Tier names and thresholds, for the status badge only: [from, (unused), (unused), (unused)].

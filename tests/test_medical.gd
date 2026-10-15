@@ -99,27 +99,27 @@ func through_game() -> void:
 	game.base.contamination = 100
 	game.base.injured = false
 	await game.start_contract("snow")
-	check("100 contamination: max HP −30%, regeneration below zero (48 − 60)", is_equal_approx(game.player.max_hp, plain * 0.7) and is_equal_approx(game.player.regen_rate(), -12.0))
+	check("100 contamination: max HP −30%, regeneration below zero (0.1% − 0.125% of max HP)", is_equal_approx(game.player.max_hp, plain * 0.7) and is_equal_approx(game.player.regen_rate(), -0.00025 * game.player.max_hp))
 	# The drain does not wait for the end of combat, and never takes the last point.
 	game.player.hp = 30.0
 	game.player.combat_timer = 0.0
 	game.player.regen_timer = 0.01
 	await step(2)
 	check("negative regeneration drains even in combat", game.player.hp < 30.0 and game.player.hp >= 1.0)
-	game.player.hp = 10.0
+	game.player.hp = 1.2   # the drain is 0.025% of max HP a second, well under 1
 	game.player.regen_timer = 0.01
 	await step(2)
 	check("the drain stops at 1 HP", is_equal_approx(game.player.hp, 1.0))
 	game.settle(true)
 	check("extraction clears the injury", not game.base.injured and not game.player.regen_blocked)
 
-	# Live contamination (局内节奏与目标策划案 §6 D) and out-of-combat regeneration (A2).
+	# Live contamination (局内节奏与目标策划案 §6 D) and per-second out-of-combat regeneration (A2, 用户 2026-10-14).
 	game.base.contamination = 0
 	await game.start_contract("mine")
 	var fresh := game.player.max_hp
 	game.run_contamination = 20.0
 	await step(2)
-	check("contamination gained in the field cuts max HP at once (20 → −6%)", absf(game.player.max_hp - fresh * 0.94) < 1.0 and absf(game.player.regen_rate() - 36.0) < 0.1)
+	check("contamination gained in the field cuts max HP at once (20 → −6%)", absf(game.player.max_hp - fresh * 0.94) < 1.0 and absf(game.player.regen_rate() - 0.00075 * game.player.max_hp) < 0.01)
 	game.player.hp = 500.0
 	game.player.combat_timer = 1.0
 	game.player.regen_timer = 0.01
@@ -128,7 +128,7 @@ func through_game() -> void:
 	game.player.combat_timer = 6.0
 	game.player.regen_timer = 0.01
 	await step(2)
-	check("regeneration resumes out of combat", game.player.hp > 500.0)
+	check("regeneration resumes out of combat, one second's worth a tick", game.player.hp > 500.0 and game.player.hp <= 500.0 + game.player.regen_rate() + 0.1)
 	game.settle(true)
 
 	# Pharmacy (药剂进背包): flasks are pack items bought one at a time.

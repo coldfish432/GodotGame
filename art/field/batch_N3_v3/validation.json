@@ -1,0 +1,39 @@
+{
+  "action": {
+    "cells": 40,
+    "max_colors": 17,
+    "min_front_gold_bbox": [
+      4,
+      3
+    ],
+    "min_lamp_bbox": [
+      3,
+      2
+    ],
+    "back_gold_pixels": 0,
+    "charge_outside_idle_by_direction": [
+      89,
+      92,
+      94,
+      102,
+      94,
+      101,
+      103,
+      60
+    ]
+  },
+  "walk": {
+    "cells": 32,
+    "max_colors": 17,
+    "min_front_gold_bbox": [
+      3,
+      3
+    ],
+    "min_lamp_bbox": [
+      4,
+      4
+    ],
+    "back_gold_pixels": 0,
+    "min_adjacent_silhouette_difference": 50
+  }
+}

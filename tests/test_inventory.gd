@@ -70,8 +70,11 @@ func run() -> void:
 		for mod in item.modifiers:
 			if not mod.is_random_affix(): continue
 			tiers[mod.tier] += 1
-			in_range = in_range and is_equal_approx(mod.amount, float(FieldCatalog.AFFIX_AMOUNTS[mod.stat]) * ItemModifier.TIER_SCALES[mod.tier])
-	check("affixes roll all three tiers at 70/100/130% of base", tiers[0] > 0 and tiers[1] > 0 and tiers[2] > 0 and in_range, tiers)
+			# Each tier rolls in its band (装备前缀策划案 §2.8): 60–80 / 90–110 / 120–140%.
+			var band: Array = ItemModifier.TIER_RANGES[mod.tier]
+			var ratio := mod.amount / float(FieldCatalog.AFFIX_AMOUNTS[mod.stat])
+			in_range = in_range and ratio >= float(band[0]) - 0.0001 and ratio <= float(band[1]) + 0.0001
+	check("affixes roll all three tiers in their 60–80/90–110/120–140% bands", tiers[0] > 0 and tiers[1] > 0 and tiers[2] > 0 and in_range, tiers)
 	var tiered := weapon(2.0)
 	var atk := ItemModifier.stat_mod(ItemModifier.Stat.ATK_PCT, 0.104)
 	atk.tier = 2

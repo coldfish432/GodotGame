@@ -172,6 +172,15 @@ static func background_material(region: String) -> ShaderMaterial:
 	material.set_shader_parameter("brightness", 0.82 if region != "snow" else 0.72)
 	return material
 
+## Hand-painted swatches from Sol (城市贴图美术需求_v1.md): the slot is in
+## place before the art is. Null until the file is delivered; every user
+## falls back to the procedural look it has now.
+const PAINTED_DIR := "res://art/kit/textures/painted/"
+
+static func painted(name: String) -> Texture2D:
+	var path := PAINTED_DIR + name + ".png"
+	return load(path) if ResourceLoader.exists(path) else null
+
 static func terrain_material(region: String) -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """shader_type spatial;
@@ -180,11 +189,32 @@ uniform sampler2D atlas : source_color, filter_nearest;
 uniform sampler2D background_tex : source_color, filter_nearest_mipmap, repeat_disable;
 uniform float world_scale = 12.0;
 uniform float region = 0.0;
+// Painted road (C1) and the pavement along the kerb (C2), when delivered.
+uniform bool painted = false;
+// Mipmapped: at the follow camera a metre is ~30 screen pixels against the
+// swatch's 43, and unfiltered the grain broke up into noise.
+uniform sampler2D road_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D kerb_tex : source_color, filter_nearest_mipmap, repeat_enable;
+// Sol's asphalt is painted darker than the road it replaces; lifted to match.
+uniform float road_gain = 1.75;
+uniform float kerb_gain = 0.92;
+uniform float road_scale = 6.0;
+uniform float kerb_scale = 3.0;
 varying vec3 world_position;
 #include "res://art/terrain_sampling.gdshaderinc"
 #include "res://world/field_light.gdshaderinc"
 void vertex() { world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
 void fragment() {
+ if (painted) {
+  // COLOR.a runs 0 at the kerb to 1 some 1.4 m into the road: that strip
+  // is the pavement, hard-edged like the rest of the pixel art.
+  // Sol's patches read as camouflage at the game's zoom: halfway to flat.
+  vec3 asphalt = mix(texture(road_tex, world_position.xz / road_scale).rgb, vec3(0.2, 0.215, 0.23), 0.45) * road_gain;
+  vec3 slabs = texture(kerb_tex, world_position.xz / kerb_scale).rgb * kerb_gain;
+  // The district's road colour (CityDressing.ROAD_TINTS) carried in COLOR.rgb.
+  ALBEDO = mix(slabs, asphalt * COLOR.rgb / 0.3, step(0.92, COLOR.a)) * UV2.x;
+  ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
+ } else {
  vec2 tile = fract(world_position.xz / 5.0);
  vec2 coord = vec2((region + mix(0.002, 0.998, tile.x)) / 3.0, mix(0.002, 0.998, tile.y));
  vec3 tex = texture(atlas, coord).rgb;
@@ -193,10 +223,14 @@ void fragment() {
  vec3 road = COLOR.rgb * mix(0.85, 1.1, grain);
  // Vertex alpha carries distance into the road, not transparency: debris
  // softens the join while the walkable corridor keeps its readable value.
- ALBEDO = mix(debris * 0.70, mix(road, debris * 0.85, 0.32), COLOR.a);
+ // The city keeps no darkened rim: its kerbs are flush (COLOR.a still marks
+ // the pavement strip for the painted road).
+ float into_road = region == 1.0 ? 1.0 : COLOR.a;
+ ALBEDO = mix(debris * 0.70, mix(road, debris * 0.85, 0.32), into_road);
  // Terrace light from TerrainSurface: tier, cliff-foot shadow, cliff lip.
  ALBEDO *= UV2.x;
  ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
+ }
  ROUGHNESS = 1.0;
 }
 """
@@ -205,6 +239,12 @@ void fragment() {
 	material.set_shader_parameter("atlas", GROUND)
 	material.set_shader_parameter("background_tex", BACKGROUNDS[region])
 	material.set_shader_parameter("region", float(["mine", "city", "snow"].find(region)))
+	var road := painted(region + "_road")
+	var kerb := painted(region + "_pavement")
+	if road != null and kerb != null:
+		material.set_shader_parameter("painted", true)
+		material.set_shader_parameter("road_tex", road)
+		material.set_shader_parameter("kerb_tex", kerb)
 	return material
 
 static func ground_material(region: String) -> ShaderMaterial:

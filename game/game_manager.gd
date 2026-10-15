@@ -24,6 +24,10 @@ var _slow_heal_left := 0.0       # 缓释凝胶: health still to come
 var _slow_heal_rate := 0.0
 var _suppress_timer := 0.0       # 抑制喷剂: contamination accrues at half rate meanwhile
 var _potion_heal_factor := 1.0   # contamination tier at departure
+## The auto-potion slot (Hotbar.AUTO): on below the low threshold, off at the high one.
+var _auto_drinking := false
+var _auto_potion_gap := 0.0
+const AUTO_POTION_GAP := 0.5     # between two flasks of one run of drinking
 var _announced_tier := 0
 ## 龙门币, the account balance (经济修订案: the only out-of-run money).
 var gold: int = Economy.STARTING_LMD
@@ -95,6 +99,8 @@ var in_base := true
 var transitioning := false
 var modal := ""
 var pressure := 0.0
+## 威胁值 (ThreatMeter): fills by itself on a floor, a full meter sends a patrol.
+var threat := ThreatMeter.new()
 var route_index := 0
 ## 赤金 carried in the pack and safe bag: the in-run money (经济修订案 §1).
 ## Setting it replaces the bars she carries (tests and debug use).
@@ -132,7 +138,6 @@ var offer_source := "device"
 var _device_offers: Array[Dictionary] = []
 var _active_cache: RelicCache
 var reroll_count := 0
-## Threat defeated this segment and whether its combat cache has appeared (§8.2).
 ## Ground pickup filter (装备与背包界面调研 §5.10, Grim Dawn style): 0 picks up
 ## everything, 1 equipment of 精良 and up, 2 only 稀有. Materials, exclusives
 ## and money are always picked up. Filtered drops stay; E picks one up.
@@ -145,6 +150,15 @@ var sound: FieldAudio
 var music: GameMusic
 var _pointer_gate := false
 var _left_was_down := false
+## A left press that began on an enemy (用户 2026-10-14: 长按敌人连续攻击):
+## held past HOLD_ATTACK_TIME, she keeps at it while it is held, with the
+## cursor on it or off it, and stops on release. A shorter click keeps the
+## lock as before.
+var _held_on_enemy := false
+var _left_held_time := 0.0
+const HOLD_ATTACK_TIME := 0.25
+## The attack arrow is showing.
+var attack_cursor_on := false
 var _pointer_position := Vector2.ZERO
 var _has_pointer_position := false
 var _sword_shake_frames := 0
@@ -251,6 +265,8 @@ func _process(delta: float) -> void:
 		return
 	# A key just taken for a hotbar slot (pause → 快捷栏) does nothing else.
 	var binding_key := is_instance_valid(menu) and (menu.hotbar_capture >= 0 or menu.hotbar_capture_frame == Engine.get_process_frames())
+	var pointed: Enemy = _get_enemy_under_pointer() if simulation_active() and not hands_busy() and not binding_key else null
+	_update_pointer_cursor(pointed)
 	if binding_key: return
 	if Input.is_action_just_pressed("toggle_inventory"): toggle_panel("inventory")
 	for entry in [["toggle_relics", "relics"], ["toggle_map", "map"], ["toggle_journal", "journal"]]:
@@ -260,8 +276,7 @@ func _process(delta: float) -> void:
 	if hands_busy() and (not looting.is_inside_tree() or player.hp < _loot_hp - 0.5): close_modal()
 	if simulation_active() and hands_busy(): _tick_toasts(delta)
 	if simulation_active() and not hands_busy():
-		var enemy := _get_enemy_under_pointer()
-		_handle_pointer_input(enemy)
+		_handle_pointer_input(pointed, delta)
 		_tick_pickup()
 		_tick_toasts(delta)
 		# The eight hotbar slots, then the dedicated keys (dash is read by Player).
@@ -477,8 +492,11 @@ func _physics_process(delta: float) -> void:
 		_announce_discoveries()
 		_tick_medical(delta)
 		_tick_contract()
+		_tick_extraction(delta)
 		player.hp -= count_effect("raw_ore") * FieldCatalog.RAW_ORE_DRAIN * delta
 		if player.hp <= 0: _on_player_died()
+		else: _tick_auto_potion(delta)
+	if threat_rising(): _tick_threat(delta)
 
 func show_base() -> void:
 	in_base = true
@@ -599,6 +617,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	player._recompute_stats()
 	floor_number = 1
 	pressure = 0
+	threat.reset()
 	route_index = 0
 	in_camp = false
 	_block_random_found = false
@@ -665,6 +684,7 @@ func _build_world() -> void:
 	_roll_random_extraction()
 	_seen_encounter = false
 	_seen_exit = false
+	extract_progress = -1.0
 	pressure = difficulty()
 	player.reset_floor_state()
 	world_map.region_id = region_id
@@ -731,8 +751,6 @@ func _interact() -> void:
 		_offer_builds()
 	elif near(world_map.encounter_node) and not encounter.is_empty() and (encounter == "trader" or not encounter_used):
 		_open_encounter()
-	elif near(world_map.exit_node) and is_extraction_floor():
-		_extract()
 	elif _trigger_nearby_mechanism():
 		return
 	else:
@@ -806,6 +824,7 @@ func _advance_floor(route: int) -> void:
 	close_modal()
 	route_index = route
 	floor_number += 1
+	threat.next_floor()
 	route_history.append({"floor": floor_number, "name": FieldCatalog.ROUTES[route].name})
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
@@ -1079,7 +1098,6 @@ func interaction_prompt() -> String:
 	if near(world_map.buff_device_node) and not _buff_taken: return "强化装置"
 	if near(world_map.encounter_node) and not encounter.is_empty() and (encounter == "trader" or not encounter_used):
 		return "坎诺特" if encounter == "trader" else "罗德岛小队"
-	if near(world_map.exit_node) and is_extraction_floor(): return "撤离"
 	for i in range(world_map.mechanism_nodes.size()):
 		if near(world_map.mechanism_nodes[i]) and not _mechanisms_done.has(i): return "机关"
 	for node in world_map.route_nodes:
@@ -1142,6 +1160,25 @@ func count_effect(effect: String) -> int:
 
 func _extract() -> void:
 	if not in_base and not transitioning and is_extraction_floor(): settle(true)
+
+## Seconds stood in the extraction zone so far, -1 while she is outside it.
+var extract_progress := -1.0
+
+func in_extraction_zone() -> bool:
+	if not is_extraction_floor() or not is_instance_valid(world_map.exit_node) or not is_instance_valid(player): return false
+	var at := world_map.exit_node.global_position
+	return Vector2(player.global_position.x - at.x, player.global_position.z - at.z).length() <= FieldCatalog.EXTRACT_RADIUS
+
+## Standing in the zone extracts after EXTRACT_SECONDS; a hit does not break it,
+## stepping out starts it over.
+func _tick_extraction(delta: float) -> void:
+	if not in_extraction_zone():
+		extract_progress = -1.0
+		return
+	extract_progress = maxf(extract_progress, 0.0) + delta
+	if extract_progress >= FieldCatalog.EXTRACT_SECONDS:
+		extract_progress = -1.0
+		_extract()
 
 func _on_player_died() -> void:
 	if not in_base and not _settled: settle(false)
@@ -1837,6 +1874,43 @@ func unstage_to_pack(item: Item) -> bool:
 func insurance_price(item: Item) -> int:
 	return Economy.price(item)
 
+## 重铸 / 校准 / 精调 at the base workbench only (装备前缀策划案 §2.5, §2.8):
+## 龙门币 a third of the delivery price (at least 100), 校准 also a 研磨石,
+## 精调 an 改量装置 and half as much again for every 精调 the piece has had.
+const REFRESH_MATERIALS := {"reforge": {}, "calibrate": {"研磨石": 1}, "tune": {"改量装置": 1}}
+const REFRESH_MIN_LMD := 100
+const TUNE_STEP := 1.5
+
+func refresh_cost(kind: String, item: Item) -> int:
+	var base_cost := maxi(REFRESH_MIN_LMD, ceili(Economy.price(item) / 3.0))
+	return roundi(base_cost * pow(TUNE_STEP, item.tune_count)) if kind == "tune" else base_cost
+
+## "" when it can be done now, else why not.
+func refresh_refusal(kind: String, item: Item) -> String:
+	if not in_base or not PrefixCatalog.eligible_item(item): return "无法改造"
+	if kind != "reforge" and PrefixCatalog.rollable_lines(item).is_empty(): return "无法改造"
+	if gold < refresh_cost(kind, item): return "龙门币不足"
+	return materials_refusal(REFRESH_MATERIALS[kind])
+
+## `line` (精调 only) is one of PrefixCatalog.rollable_lines(item).
+func refresh_gear(kind: String, item: Item, line: Array = []) -> bool:
+	if not refresh_refusal(kind, item).is_empty(): return false
+	if kind == "tune" and not PrefixCatalog.rollable_lines(item).has(line): return false
+	gold -= refresh_cost(kind, item)
+	consume_materials(REFRESH_MATERIALS[kind])
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	match kind:
+		"reforge": PrefixCatalog.reforge(item, rng)
+		"calibrate": PrefixCatalog.calibrate(item, rng)
+		"tune":
+			PrefixCatalog.reroll_line(item, line, rng)
+			item.tune_count += 1
+	player._recompute_stats()
+	player.hp = minf(player.hp, player.max_hp)
+	save_base()
+	return true
+
 func insure(item: Item) -> bool:
 	if not in_base or not carried_items().has(item) or not item.is_equippable() or item.insured or gold < insurance_price(item): return false
 	gold -= insurance_price(item)
@@ -2087,6 +2161,24 @@ func drink(item: Item) -> bool:
 	save_base(true)
 	return true
 
+## Below the low threshold she starts drinking the auto slot's kind, one flask
+## after another, until life is at or above the high one (用户 2026-10-15). A
+## gel waits for the last gel to finish, since a new one replaces it.
+func _tick_auto_potion(delta: float) -> void:
+	_auto_potion_gap = maxf(0.0, _auto_potion_gap - delta)
+	var action := Hotbar.auto_potion()
+	if action == "" or in_base:
+		_auto_drinking = false
+		return
+	var limits := Hotbar.auto_thresholds()
+	var ratio := player.hp_ratio()
+	if ratio < limits[0]: _auto_drinking = true
+	if ratio >= limits[1]: _auto_drinking = false
+	if not _auto_drinking or _auto_potion_gap > 0.0: return
+	var type: String = Hotbar.ACTIONS[action].potion
+	if type == "B" and _slow_heal_left > 0.0: return
+	if use_potion_type(type): _auto_potion_gap = AUTO_POTION_GAP
+
 # --- Medical (§4) ------------------------------------------------------------
 
 ## Contamination right now: the base's, plus this contract's dose so far.
@@ -2205,13 +2297,18 @@ func _spawn_wave() -> void:
 	_spawn_guard_post(world_map.buff_position, "强化装置", false)
 	# Every authored supply pocket pays off, including the optional loop.
 	# Each is a typed point of interest (掉落物策划案 §4.1).
-	var kinds := LootTables.plan_points(region_id, world_map.cache_positions.size(), rng)
+	var places: Array = world_map.cache_positions.map(func(at: Vector3) -> String: return world_map.district_at(Vector2(at.x, at.z)))
+	var kinds := LootTables.plan_points(region_id, world_map.cache_positions.size(), rng, places)
 	var mimic_placed := false
 	for i in range(world_map.cache_positions.size()):
 		var box := LootContainer.new()
 		box.game = self
 		box.kind = kinds[i]
-		box.guarded = route_index == 2 or (region_id == "snow" and i % 3 == 0)
+		# 用户 2026-10-14: 兴趣点旁边随机刷新守卫 — none, one, two or three, the
+		# third-of-a-squad now and then led by an elite (and paying for it).
+		var guards: int = POI_GUARDS[LootTables._pick_weighted(POI_GUARD_WEIGHTS, rng)]
+		if region_id == "snow" and kinds[i] == "camp": guards = maxi(guards, 2)
+		box.guarded = guards > 0 and (route_index == 2 or rng.randf() < (0.45 if guards == 3 else 0.12))
 		# 巨壳藤蔓 waits inside one weapon or tool box now and then (萨米).
 		if region_id == "snow" and not mimic_placed and kinds[i] in ["weapon_box", "tool_box"] and rng.randf() < 0.25:
 			box.mimic = true
@@ -2220,7 +2317,8 @@ func _spawn_wave() -> void:
 		add_child(box)
 		box.global_position = world_map.cache_positions[i]
 		# 陷落雪祀 guards the tundra camps.
-		_spawn_guard_post(box.global_position, box.title(), box.guarded, "fallen_snowpriest" if region_id == "snow" and kinds[i] == "camp" else "")
+		if guards > 0:
+			_spawn_guard_post(box.global_position, box.title(), box.guarded, "fallen_snowpriest" if region_id == "snow" and kinds[i] == "camp" else "", guards)
 	# A work light at every search point, so the eye is drawn to them in the
 	# dark (地图表现调研 §2: light leads; 兴趣点策划案_v1.md §4).
 	if is_instance_valid(world_map.terrace_dressing):
@@ -2228,8 +2326,132 @@ func _spawn_wave() -> void:
 		for at in world_map.cache_positions:
 			work_lights.append({"at": at + Vector3.UP * 1.2, "color": Color(0.75, 0.6, 0.38), "radius": 4.5})
 		world_map.terrace_dressing.add_lamps(work_lights)
+	_spawn_sentinels()
+	_spawn_wanderers()
 	if is_outpost_floor(): _spawn_outpost()
 	if is_bounty_floor(): _spawn_bounty()
+	threat.plan_floor(region_id, floor_enemies().size())
+
+## This floor's enemies still standing (not the grazing herds).
+func floor_enemies() -> Array:
+	return get_tree().get_nodes_in_group("enemies").filter(func(e): return e.game == self and not e._dead and not e.attack_profile.get("neutral", false))
+
+# --- 威胁值 (ThreatMeter, 用户 2026-10-14) ------------------------------------------
+
+## Whether the meter fills right now: on a floor while the field runs, and
+## while 坎诺特's shop is open; never in a camp or near the Rhodes squad.
+func threat_rising() -> bool:
+	if in_base or in_camp or transitioning or _settled or not is_instance_valid(player): return false
+	if not simulation_active() and modal != "trader": return false
+	return not near_squad()
+
+func near_squad() -> bool:
+	return encounter == "squad" and is_instance_valid(world_map.encounter_node) and world_map.encounter_node.visible 		and player.global_position.distance_to(world_map.encounter_node.global_position) < ThreatMeter.SQUAD_CALM_RADIUS
+
+func _tick_threat(delta: float) -> void:
+	var boost := 1.0 + ThreatMeter.SENTINEL_BOOST * alerted_sentinels()
+	if threat.add(threat.per_second() * boost * delta): _spawn_patrol()
+
+## Sentinels with their "!" up right now.
+func alerted_sentinels() -> int:
+	return get_tree().get_nodes_in_group("sentinels").filter(func(e): return e.game == self and e.alerted()).size()
+
+## A 萨卡兹哨兵 has seen her and runs.
+func on_sentinel_spotted(_sentinel: Enemy) -> void:
+	broadcast("萨卡兹哨兵发出了警报。")
+
+## The next patrol onto this floor: stronger with every wave here.
+func _spawn_patrol() -> void:
+	threat.wave += 1
+	var wave := threat.wave
+	var at := _patrol_entry()
+	var power := ThreatMeter.strength(wave)
+	var with_elite := wave >= ThreatMeter.PATROL_ELITE_FROM
+	var size := ThreatMeter.PATROL_SIZE + (1 if with_elite else 0)
+	for i in range(size):
+		var elite := with_elite and i == 0
+		var ranged := not elite and i == size - 1
+		var offset := Vector3(float(i % 2) * 1.4 - 0.7, 0.0, float(i / 2) * 1.4 - 0.7)
+		var enemy := _spawn_enemy(at + offset, elite, ranged, _pick_enemy_type(elite, ranged))
+		enemy.configure_patrol(wave)
+		enemy.max_health *= power.x
+		enemy.health = enemy.max_health
+		enemy.atk *= power.y
+	broadcast("巡逻队进入本层。")
+
+## 用户 2026-10-14: 增加游荡敌人. A few small groups on the floor from the
+## start, walking waypoint to waypoint (Enemy.configure_wander) and chasing
+## whatever they see: never the first rooms, so the entry is quiet.
+const WANDER_GROUPS := Vector2i(2, 4)
+## Guards at a point of interest and their odds: 30% none, 20% one, 30% two, 20% three.
+const POI_GUARDS := [0, 1, 2, 3]
+const POI_GUARD_WEIGHTS := [30.0, 20.0, 30.0, 20.0]
+const WANDER_CLEAR := 30.0
+
+func _spawn_wanderers() -> void:
+	var path: PackedVector2Array = world_map.main_path
+	if path.size() < 6: return
+	var spots: Array[Vector2] = []
+	for p in path:
+		if p.distance_to(Vector2(ContinuousWorldMap.ENTRY_POSITION.x, ContinuousWorldMap.ENTRY_POSITION.z)) >= WANDER_CLEAR: spots.append(p)
+	if spots.is_empty(): return
+	var rid := world_map.navigation_map_rid()
+	var groups := rng.randi_range(WANDER_GROUPS.x, WANDER_GROUPS.y)
+	while groups > 0 and not spots.is_empty():
+		var at: Vector2 = spots.pop_at(rng.randi_range(0, spots.size() - 1))
+		# Only ground she can walk to from the entry (not a deck over the road).
+		var start := world_map.nearest_walkable(Vector3(at.x, 0.0, at.y))
+		var walk := NavigationServer3D.map_get_path(rid, ContinuousWorldMap.ENTRY_POSITION, start, true)
+		if walk.size() < 2 or walk[walk.size() - 1].distance_to(start) > 1.5: continue
+		groups -= 1
+		var size := 1 if rng.randf() < 0.45 else 2
+		for k in range(size):
+			var ranged := k == 1 and region_id != "mine"
+			var point := start if k == 0 else world_map.nearest_walkable(start + Vector3(1.4, 0.0, 0.0))
+			var enemy := _spawn_enemy(point, false, ranged, _pick_enemy_type(false, ranged))
+			enemy.configure_wander()
+
+## A main-path point SPAWN_MIN–SPAWN_MAX from her, clear of the exit, the
+## encounter spot and the route markers; else the farthest clear one.
+func _patrol_entry() -> Vector3:
+	var keep_clear: Array[Node3D] = [world_map.exit_node, world_map.encounter_node]
+	keep_clear.append_array(world_map.route_nodes)
+	var fits: Array[Vector3] = []
+	var farthest := player.global_position
+	var far := -1.0
+	for p in world_map.main_path:
+		var at := Vector3(p.x, 0.0, p.y)
+		var clear := true
+		for node in keep_clear:
+			if is_instance_valid(node) and Vector2(node.global_position.x - at.x, node.global_position.z - at.z).length() < 6.0: clear = false
+		if not clear: continue
+		var d := Vector2(at.x - player.global_position.x, at.z - player.global_position.z).length()
+		if d >= ThreatMeter.SPAWN_MIN and d <= ThreatMeter.SPAWN_MAX: fits.append(at)
+		if d > far:
+			far = d
+			farthest = at
+	return fits[rng.randi() % fits.size()] if not fits.is_empty() else farthest
+
+## Where a patrol walks next: anywhere on the main path or at a search point.
+func patrol_waypoint(_from: Vector3) -> Vector3:
+	var count := world_map.main_path.size() + world_map.cache_positions.size()
+	if count == 0: return _from
+	var pick := rng.randi() % count
+	if pick < world_map.main_path.size():
+		var p: Vector2 = world_map.main_path[pick]
+		return world_map.nearest_walkable(Vector3(p.x, 0.0, p.y))
+	return world_map.nearest_walkable(world_map.cache_positions[pick - world_map.main_path.size()])
+
+## 萨卡兹哨兵 keep watch beside the main path: at most one a floor, on
+## SENTINEL_CHANCE of floors (用户 2026-10-14: 刷新少一点，每一层限定最多一个).
+## Patrols never bring one: they draw from the region pools only.
+func _spawn_sentinels() -> void:
+	var path: PackedVector2Array = world_map.main_path
+	if path.size() < 8 or rng.randf() >= ThreatMeter.SENTINEL_CHANCE: return
+	var index := clampi(int(path.size() * rng.randf_range(0.3, 0.65)), 2, path.size() - 2)
+	var along := (path[index + 1] - path[index - 1]).normalized()
+	var side := Vector2(-along.y, along.x) * 2.0
+	_spawn_enemy(Vector3(path[index].x + side.x, 0.0, path[index].y + side.y), false, true, "sentinel")
 
 ## A mine search point dressed for where it stands (兴趣点策划案_v1.md §3): the
 ## loot is the kind's own, only the look and the name follow the place.
@@ -2352,10 +2574,11 @@ func _pick_enemy_type(elite: bool, ranged: bool) -> String:
 	if pool.is_empty(): return ""
 	return str(pool[rng.randi_range(0, pool.size() - 1)])
 
-func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false, first_type: String = "") -> GuardPost:
+func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false, first_type: String = "", count: int = 2) -> GuardPost:
 	var post := GuardPost.new()
 	post.game = self
 	post.title = title
+	post.planned = count
 	post.position = Vector3(anchor.x, ground_y(anchor), anchor.z)
 	add_child(post)
 	var stations: Array[Vector3] = []
@@ -2365,9 +2588,9 @@ func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false
 	# room to stand, then (a crowded point) anywhere open. Reachability is read
 	# off the navmesh, so no ring can put a guard over a cliff in a pocket.
 	for strict in [true, false]:
-		for index in range(2 - stations.size()):
+		for index in range(count - stations.size()):
 			for probe in range(160):
-				var angle := PI * (index + stations.size()) + TAU * float(probe % 32) / 32
+				var angle := TAU * float(index + stations.size()) / float(count) + TAU * float(probe % 32) / 32
 				var ring: float = [2.7, 3.6, 2.0, 4.6, 5.6][probe / 32]
 				var offset := Vector2.from_angle(angle) * ring
 				var candidate := Vector3(anchor.x + offset.x, 0.0, anchor.z + offset.y)
@@ -2375,7 +2598,10 @@ func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false
 				var flat := Vector2(candidate.x, candidate.z)
 				if strict and not world_map._has_clearance(flat): continue
 				if not strict and not world_map._is_open(flat.x, flat.y, -0.8): continue
-				if not stations.is_empty() and candidate.distance_to(stations[0]) < 2.0: continue
+				var crowded := false
+				for other in stations:
+					if candidate.distance_to(other) < 2.0: crowded = true
+				if crowded: continue
 				var closest := NavigationServer3D.map_get_closest_point(rid, candidate)
 				if Vector2(closest.x, closest.z).distance_to(flat) > 0.5: continue
 				var path := NavigationServer3D.map_get_path(rid, from, closest, true)
@@ -2385,7 +2611,7 @@ func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false
 				if walk > ring * 2.2 + 1.0: continue
 				stations.append(candidate)
 				break
-		if stations.size() >= 2: break
+		if stations.size() >= count: break
 	for i in range(stations.size()):
 		var elite := elite_guard and i == 0
 		var ranged := not elite and i == 1 and region_id != "mine"
@@ -2406,7 +2632,8 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 		_outpost_squad.erase(_enemy)
 		if _outpost_squad.is_empty() and not outpost_cleared: _clear_outpost(_enemy.global_position)
 	# A vault guardian still counts for its vault, whether or not it dropped a cache.
-	if not in_base and rolls_relic_cache(_enemy):
+	# Patrols do not count toward combat caches (用户 2026-10-14).
+	if not in_base and _enemy.patrol_wave == 0 and rolls_relic_cache(_enemy):
 		_spawn_relic_cache(_enemy.global_position, "cache", false)
 		set_message("战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。")
 	if _enemy in _vault_guardians:
@@ -2429,6 +2656,12 @@ func loot_ctx() -> Dictionary:
 func _roll_named_item() -> Item: return FieldCatalog.exclusive(region_id)
 
 func spawn_enemy_drops(enemy: Enemy) -> void:
+	_drop_heal_orbs(enemy)
+	# A patrol carries nothing ordinary: now and then one rare piece (ThreatMeter).
+	if enemy.patrol_wave > 0:
+		if rng.randf() < ThreatMeter.rare_chance(enemy.patrol_wave, enemy.elite):
+			_drop_at(enemy.global_position, [{"item": _rare_gear()}], 0.7)
+		return
 	var ctx := loot_ctx()
 	ctx["boss"] = enemy.boss
 	var drops := LootTables.enemy_drops(enemy.enemy_type, enemy.elite, enemy.behavior == Enemy.Behavior.GUARD, ctx)
@@ -2438,20 +2671,44 @@ func spawn_enemy_drops(enemy: Enemy) -> void:
 		drops.append_array(LootTables.container_drops(enemy.mimic_kind, ctx, false))
 	_drop_at(enemy.global_position, drops, 0.7)
 
-## What an opened box holds, rolled once (the per-item search reads it), or
-## null when it was a 巨壳藤蔓 that woke instead.
+## Healing orbs out of a fallen enemy (LootTables.HEAL_ORBS); none from the
+## grazing herds.
+func _drop_heal_orbs(enemy: Enemy) -> void:
+	if in_base or enemy.attack_profile.get("neutral", false): return
+	var roll: Dictionary = LootTables.HEAL_ORBS[LootTables.source_of(enemy.elite, enemy.behavior == Enemy.Behavior.GUARD)]
+	if rng.randf() >= float(roll.chance): return
+	for i in range(int(roll.count)):
+		var orb := HealOrb.new()
+		orb.game = self
+		orb.fraction = float(roll.heal)
+		orb.from = enemy.global_position + Vector3.UP * 0.6
+		var angle := rng.randf() * TAU
+		var at := enemy.global_position + Vector3(cos(angle), 0.0, sin(angle)) * rng.randf_range(0.6, 1.2)
+		at = world_map.nearest_walkable(at) if is_instance_valid(world_map) else at
+		at.y = ground_y(at)
+		add_child(orb)
+		orb.global_position = at
+
+## What an opened box holds, rolled once as items (the per-item search lays
+## them out and reveals them), or null when it was a 巨壳藤蔓 that woke instead.
 func container_contents(box: LootContainer) -> Variant:
 	if box.mimic:
 		_wake_mimic(box)
 		return null
 	sound.play("loot")
-	return LootTables.container_drops(box.kind, loot_ctx(), box.guarded)
+	var items: Array[Item] = []
+	for drop in LootTables.container_drops(box.kind, loot_ctx(), box.guarded):
+		var item := _drop_item(drop)
+		if item != null: items.append(item)
+	return items
 
-## One searched item out of `box`, into the box's grid; on the ground beside
-## it only when the grid is full.
-func drop_found(box: LootContainer, drop: Dictionary, index: int, total: int) -> void:
-	var item := _drop_item(drop)
-	if item != null and not box.storage.try_add(item):
+## One searched item out of `box`, into the cell it was laid out in (or any
+## free one if she put something there meanwhile); on the ground beside it
+## only when the grid is full.
+func drop_found(box: LootContainer, item: Item, index: int, total: int) -> void:
+	var x := item.grid_x
+	var y := item.grid_y
+	if not (x >= 0 and box.storage.place(item, x, y)) and not box.storage.try_add(item):
 		var angle := TAU * float(index) / maxf(float(total), 1.0) + box.global_position.x
 		_drop_at(box.global_position + Vector3(cos(angle), 0.0, sin(angle)) * 1.2, [{"item": item}], 0.0)
 	if index == total: save_base(true)
@@ -2669,18 +2926,29 @@ func _build_inventory_panel() -> void:
 	field_panels.game = self
 	layer.add_child(field_panels)
 
-func _handle_pointer_input(pointed_enemy: Enemy) -> void:
+func _handle_pointer_input(pointed_enemy: Enemy, delta: float = 0.0) -> void:
+	pointer_step(Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT), Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT), pointed_enemy, delta)
+
+## One frame of the field's mouse: `left`/`right` are the buttons held now.
+func pointer_step(left: bool, right: bool, pointed_enemy: Enemy, delta: float) -> void:
 	if _pointer_gate:
-		_pointer_gate = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+		_pointer_gate = left or right
+		_held_on_enemy = false
 		return
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+	if right:
 		player.clear_target()
 		pickup_target = null
 		player.set_move_target(_get_pointer_ground())
 
-	var left := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 	var left_click := left and not _left_was_down
+	var released := _left_was_down and not left
 	_left_was_down = left
+	# Letting go of a long press on an enemy ends the attack there.
+	if released and _held_on_enemy:
+		_held_on_enemy = false
+		if _left_held_time >= HOLD_ATTACK_TIME:
+			player.clear_target()
+			player.clear_move_target()
 	# The hotbar (用户 2026-10-10: 在快捷栏上直接点格子换内容): a click on a slot
 	# opens its picker, a click in the picker sets it, any other click closes it.
 	# Clicks there never reach the field.
@@ -2703,7 +2971,7 @@ func _handle_pointer_input(pointed_enemy: Enemy) -> void:
 
 	# Left on a ground item's name plate: she walks over and takes it (恐怖黎明式,
 	# 用户 2026-10-10). Plates sit above everything else under the cursor.
-	var plate := _hud.loot_label_at(pointer_ui()) if is_instance_valid(_hud) else null
+	var plate := _hud.loot_label_at(pointer_ui()) if is_instance_valid(_hud) and (left_click or not _held_on_enemy) else null
 	if is_instance_valid(plate):
 		request_pickup(plate)
 		# That press is the pickup's alone (用户 2026-10-13: 左键选中拾取物品时
@@ -2712,13 +2980,22 @@ func _handle_pointer_input(pointed_enemy: Enemy) -> void:
 		_pointer_gate = true
 		return
 
+	if left_click:
+		_held_on_enemy = is_instance_valid(pointed_enemy)
+		_left_held_time = 0.0
+	elif _held_on_enemy:
+		_left_held_time += delta
 	# Left on an enemy locks it: she closes to her weapon's reach and attacks it
-	# (Player._follow_target). One click is enough; holding keeps it.
+	# (Player._follow_target), one swing per cooldown. One click is enough;
+	# holding keeps it, and moves it to whichever enemy is under the cursor.
 	if is_instance_valid(pointed_enemy):
 		pickup_target = null
 		player.lock_target(pointed_enemy)
 		return
 	pickup_target = null
+	# A press that began on an enemy never turns into air swings or a walk:
+	# off the enemy she keeps at the lock (none once it died) until release.
+	if _held_on_enemy: return
 
 	# Left on the ground drops the lock. A blade swings at the air there (and
 	# lands on an enemy in reach in front); a ranged weapon walks there instead.
@@ -2728,6 +3005,24 @@ func _handle_pointer_input(pointed_enemy: Enemy) -> void:
 		return
 	player.clear_move_target()
 	player.attack_direction(_get_pointer_ground() - player.global_position)
+
+## The attack arrow while the pointer is on an enemy's hit box in the running
+## field (not over the hotbar, a ground item's name plate or a drag), else
+## the default pointer.
+func _update_pointer_cursor(pointed_enemy: Enemy) -> void:
+	var on := is_instance_valid(pointed_enemy) and not pointed_enemy._dead and not get_viewport().gui_is_dragging()
+	if on and is_instance_valid(_hud):
+		var at := pointer_ui()
+		on = _hud.hotbar_slot_at(at) < -1 and _hud.picker_slot < 0 and not is_instance_valid(_hud.loot_label_at(at))
+	if on == attack_cursor_on: return
+	attack_cursor_on = on
+	if on: Input.set_custom_mouse_cursor(AttackCursor.texture(), Input.CURSOR_ARROW, AttackCursor.HOTSPOT)
+	else: Input.set_custom_mouse_cursor(null)
+
+func _exit_tree() -> void:
+	if attack_cursor_on:
+		attack_cursor_on = false
+		Input.set_custom_mouse_cursor(null)
 
 ## The pointer in HUD (UI viewport) coordinates, where the name plates are drawn.
 func pointer_ui() -> Vector2:

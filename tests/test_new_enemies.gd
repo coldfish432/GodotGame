@@ -167,7 +167,21 @@ func _mechanics() -> void:
 		var e := spawn(type, Vector3(0, 0, 6.0), false)
 		if e.directional and e.has_walk and e.sheet_type == type and e._tint == Color.WHITE: own += 1
 		e.queue_free()
-	check("all 17 new enemies draw from their own eight-direction boards, untinted", own == 17 and EnemyN2Data.TIPS.size() == 17, own)
+	check("all 17 new enemies and 萨卡兹哨兵 (N3) draw from their own eight-direction boards, untinted", own == 18 and EnemyN2Data.TIPS.size() == 18 and EnemyN2Data.TIPS.has("sentinel"), own)
+	# 用户 2026-10-14: 走路一跳一跳的 — every walk frame of a direction stands on
+	# one foot line (art/install_n2_boards.py settle_walk).
+	var hopping: Array[String] = []
+	for type in EnemyN2Data.TIPS.keys() + EnemyDirectionalData.WALK:
+		var sheet: Image = (load("res://art/field/enemy_walk_%s_64.png" % type) as Texture2D).get_image()
+		if sheet.is_compressed(): sheet.decompress()
+		for col in range(8):
+			var feet := []
+			for row in range(4):
+				feet.append(sheet.get_region(Rect2i(col * 64, row * 64, 64, 64)).get_used_rect().end.y)
+			if feet.max() != feet.min():
+				hopping.append(type)
+				break
+	check("every enemy's walk keeps its feet on one line", hopping.is_empty(), hopping)
 	var slug := spawn("slug_volatile", Vector3(0.5, 0, 0.5))
 	var mate := spawn("thug", Vector3(1.0, 0, -0.5))
 	var hp := p.hp
@@ -181,7 +195,13 @@ func _mechanics() -> void:
 	for i in range(80): await step(1)
 	check("…which hurts her and other enemies (敌我都伤)", p.hp < hp and mate.health < mate_hp)
 	await reset()
-	var picket := spawn("picket", Vector3(7.0, 0, 0), false)
+	# Wherever the floor's cover (CityDressing) leaves the rope a clear line.
+	var throw := Vector3(7.0, 0, 0)
+	for side in [Vector3(7.0, 0, 0), Vector3(-7.0, 0, 0), Vector3(0, 0, 7.0), Vector3(0, 0, -7.0)]:
+		if game.line_of_sight(origin + side, origin):
+			throw = side
+			break
+	var picket := spawn("picket", throw, false)
 	picket.begin_chase()
 	picket._lasso_cd = 0
 	picket._attack_timer = 0

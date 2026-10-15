@@ -83,7 +83,7 @@ def components(mask: np.ndarray) -> list[np.ndarray]:
     return out
 
 
-def reduce(fig: Image.Image, height: int, colours: int = 16) -> Image.Image:
+def reduce(fig: Image.Image, height: int, colours: int = 16, method: int = Image.Quantize.MEDIANCUT) -> Image.Image:
     width = max(1, round(fig.width * height / fig.height))
     small = fig.resize((width, height), Image.BOX)
     a = np.array(small)
@@ -91,7 +91,7 @@ def reduce(fig: Image.Image, height: int, colours: int = 16) -> Image.Image:
     # Drop detached crumbs (a loose chain link, a spark) under 25 px.
     for comp in components(alpha):
         if len(comp) < 25: alpha[comp[:, 0], comp[:, 1]] = False
-    rgb = np.array(Image.fromarray(a[..., :3]).quantize(colors=colours, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert("RGB"))
+    rgb = np.array(Image.fromarray(a[..., :3]).quantize(colors=colours, method=method, dither=Image.Dither.NONE).convert("RGB"))
     alpha, rgb = thicken_thin(np.pad(alpha, 1), np.pad(rgb, ((1, 1), (1, 1), (0, 0))))
     canvas = np.zeros((height + 2, width + 2, 4), np.uint8)
     canvas[..., :3] = rgb

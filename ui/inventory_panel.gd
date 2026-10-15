@@ -33,8 +33,8 @@ var _drag_from: ItemContainer
 var _drag_from_equip := false
 var _last_pointer := Vector2.ZERO
 var _pointer_known := false
-## The open box's search bar, and what the grid showed at the last rebuild.
-var _search_view: SearchView
+## The open box's grid (its search magnifier animates), and what it showed at the last rebuild.
+var _loot_grid: GridView
 var _loot_seen := -1
 ## The latest notice (a refused equip, a full pack …) over the window: the
 ## HUD's toasts lie under it (用户 2026-10-13).
@@ -131,7 +131,7 @@ func _process(delta: float) -> void:
 		# A found item lands in the box's grid: show it.
 		var seen := game.looting.storage.items.size() * 1000 + int(game.looting.search_state().get("found", 0))
 		if seen != _loot_seen: _rebuild()
-		elif is_instance_valid(_search_view): _search_view.queue_redraw()
+		elif is_instance_valid(_loot_grid): _loot_grid.queue_redraw()
 	var detail := Input.is_key_pressed(KEY_ALT)
 	if detail != _detail:
 		_detail = detail
@@ -384,12 +384,11 @@ func _loot_column() -> Control:
 	margin.add_child(column)
 	var head := HBoxContainer.new()
 	column.add_child(head)
-	head.add_child(AK.section(box.title(), "%d / %d" % [int(state.found), int(state.total)] if not state.is_empty() else ""))
-	column.add_child(_grid(box.storage))
-	_search_view = SearchView.new()
-	_search_view.box = box
-	_search_view.custom_minimum_size = Vector2(box.storage.width * CELL, 22)
-	column.add_child(_search_view)
+	# No count of what is left, no bar (塔科夫): items turn up in place, one by one.
+	head.add_child(AK.section(box.title()))
+	_loot_grid = _grid(box.storage)
+	_loot_grid.box = box
+	column.add_child(_loot_grid)
 	var take := AK.button("全部拿取", "yellow", 12)
 	take.disabled = box.storage.items.is_empty()
 	take.pressed.connect(func(): game.take_all(box); _rebuild())
@@ -548,6 +547,8 @@ func drop_on_slot(data: Dictionary, category: int) -> void:
 class GridView extends Control:
 	var panel: InventoryPanel
 	var container: ItemContainer
+	## The box being searched, when this is its grid.
+	var box: LootContainer
 	var _preview := Rect2i()
 	var _preview_ok := false
 
@@ -556,8 +557,21 @@ class GridView extends Control:
 		draw_rect(Rect2(Vector2.ZERO, Vector2(container.width * c, container.height * c)), Color(0, 0, 0, 0.55))
 		for x in range(container.width + 1): draw_line(Vector2(x * c, 0), Vector2(x * c, container.height * c), Color(1, 1, 1, 0.07))
 		for y in range(container.height + 1): draw_line(Vector2(0, y * c), Vector2(container.width * c, y * c), Color(1, 1, 1, 0.07))
+		if is_instance_valid(box): _draw_search(box.search_cell())
 		if _preview.size != Vector2i.ZERO:
 			draw_rect(Rect2(_preview.position * c, _preview.size * c), Color(0.3, 0.9, 0.45, 0.28) if _preview_ok else Color(0.95, 0.3, 0.25, 0.3))
+
+	## 塔科夫's search mark: a magnifier circling over the cell where the next
+	## item will turn up (one cell, so its size is not given away).
+	func _draw_search(cell: Vector2i) -> void:
+		if cell.x < 0: return
+		var c := float(InventoryPanel.CELL)
+		var origin := Vector2(cell) * c
+		draw_rect(Rect2(origin + Vector2.ONE, Vector2(c - 1, c - 1)), Color(1, 1, 1, 0.08))
+		var t := Time.get_ticks_msec() / 1000.0 * TAU * 0.9
+		var lens := origin + Vector2(c * 0.45, c * 0.45) + Vector2(cos(t), sin(t)) * 4.0
+		draw_line(lens + Vector2(5.0, 5.0), lens + Vector2(10.0, 10.0), AK.FG, 3.0)
+		draw_arc(lens, 7.0, 0.0, TAU, 20, AK.FG, 2.0, true)
 
 	func _local(at: Vector2) -> Vector2:
 		if panel._pointer_known: return panel._last_pointer - global_position
@@ -586,25 +600,6 @@ class GridView extends Control:
 		if what in [NOTIFICATION_MOUSE_EXIT, NOTIFICATION_DRAG_END]:
 			_preview = Rect2i()
 			queue_redraw()
-
-
-## The open box's search under its grid: the bar of the item being searched,
-## and one pip per item, filled for each found (as the HUD drew it over the box).
-class SearchView extends Control:
-	var box: LootContainer
-
-	func _draw() -> void:
-		if not is_instance_valid(box): return
-		var state := box.search_state()
-		if state.is_empty(): return
-		var width := size.x
-		var current: float = state.current
-		draw_rect(Rect2(0, 0, width, 6), Color(0, 0, 0, 0.6))
-		if current >= 0.0: draw_rect(Rect2(0, 0, width * current, 6), AK.SP)
-		var total: int = state.total
-		var pip := clampf(width / total - 3.0, 4.0, 18.0)
-		for i in range(total):
-			draw_rect(Rect2(i * (pip + 3.0), 11, pip, 6), AK.SP if i < int(state.found) else Color(1, 1, 1, 0.18))
 
 
 ## An item on a grid, in the depot style (界面策划案 §2.4): the rarity glows up

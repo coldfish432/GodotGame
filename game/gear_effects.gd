@@ -409,7 +409,7 @@ func _nearest(at: Vector3, radius: float, skip: Dictionary) -> Enemy:
 ## Damage to every enemy around `at`; `push` shoves them out, `stun` stuns.
 func _burst(at: Vector3, radius: float, damage: float, kind: String, push: bool = false, stun: float = 0.0) -> void:
 	if not is_instance_valid(player.game): return
-	CombatVfx.spawn(player.game, Vector3(at.x, 0.09, at.z), Vector3.FORWARD, "burst", 0, true)
+	CombatVfx.spawn(player.game, Vector3(at.x, player.game.ground_y(at) + 0.09, at.z), Vector3.FORWARD, "burst", 0, true)
 	for enemy in _enemies_near(at, radius):
 		player._deal(enemy, damage, kind, false, 0.0, false)
 		if not is_instance_valid(enemy) or enemy._dead: continue
@@ -436,7 +436,7 @@ func _disc(at: Vector3, radius: float, colour: Color, seconds: float) -> void:
 	material.no_depth_test = true
 	mesh.material_override = material
 	player.game.add_child(mesh)
-	mesh.global_position = Vector3(at.x, 0.06, at.z)
+	mesh.global_position = Vector3(at.x, player.game.ground_y(at) + 0.06, at.z)
 	var tween := mesh.create_tween()
 	tween.tween_interval(maxf(0.05, seconds))
 	tween.tween_callback(mesh.queue_free)

@@ -33,7 +33,7 @@ var _burn_tick := 0.0
 var hit_by_player := false
 var move_speed: float = 2.1
 var game: GameManager
-enum Behavior { NORMAL, GUARD }
+enum Behavior { NORMAL, GUARD, PATROL }
 enum State { IDLE, CHASING, RETURNING }
 var behavior := Behavior.NORMAL
 var state := State.IDLE
@@ -47,6 +47,18 @@ var _last_seen_position := Vector3.ZERO
 var _rearm_timer := 0.0
 var _warning_markers: Array[Node] = []
 var _state_label: Label3D
+## 威胁值 patrols (ThreatMeter): which wave it came with (0 = not a patrol); it
+## wanders the floor, chases what it sees, and wanders on from where it lost her.
+var patrol_wave := 0
+var _wander_target := Vector3.INF
+var _wander_time := 0.0
+## 萨卡兹哨兵 (ThreatMeter): "watch" until it sees her; then "run" to a
+## reachable spot with its "!" up; then "hold" there SENTINEL_HOLD s without
+## running; then "watch" again. It never attacks.
+var sentinel_mode := "watch"
+var _hold_left := 0.0
+var _run_time := 0.0
+var _run_target := Vector3.INF
 
 const ANIM_FRAME_TIME := 0.25
 
@@ -181,7 +193,7 @@ func setup(p_game: GameManager, p_elite: bool, p_ranged: bool, type: String = ""
 	# The tint only told borrowed sheets apart; its own art needs none.
 	_tint = Color.WHITE if own_art() else attack_profile.get("tint", Color.WHITE)
 	home_position = global_position
-	perception_radius = 17.0 if art_type == "ice_hunter" else (14.0 if keeps_distance else 10.0)
+	perception_radius = 17.0 if art_type == "ice_hunter" else (14.0 if keeps_distance or attack_profile.get("alarm", false) else 10.0)
 	name = attack_profile.name
 	var stats: Dictionary = EnemyAttacks.STATS[enemy_type]
 	max_health = float(stats.hp)
@@ -197,6 +209,7 @@ func setup(p_game: GameManager, p_elite: bool, p_ranged: bool, type: String = ""
 	_build_pick_area()
 	_build_navigation()
 	add_to_group("enemies")
+	if attack_profile.get("alarm", false): add_to_group("sentinels")
 
 func _build_visual() -> void:
 	var height := 2.2 if elite else 1.8
@@ -338,11 +351,24 @@ func _physics_process(delta: float) -> void:
 	_rearm_timer = maxf(0, _rearm_timer - delta)
 	_update_state_label()
 	var player_position: Vector3 = game.player.global_position
+	if attack_profile.get("alarm", false):
+		_tick_sentinel(delta, player_position)
+		return
 	if behavior == Behavior.GUARD:
 		if not is_instance_valid(guard_post):
 			if state == State.CHASING: begin_return()
 		elif state == State.CHASING and (not guard_post.active or _flat_distance(global_position, guard_post.global_position) > guard_post.leash_radius):
 			begin_return()
+	elif behavior == Behavior.PATROL:
+		if state == State.IDLE and _rearm_timer <= 0 and _can_perceive(player_position):
+			begin_chase()
+		elif state == State.CHASING:
+			if _can_perceive(player_position):
+				_last_seen_position = player_position
+				_lost_sight_time = 0
+			else:
+				_lost_sight_time += delta
+				if _lost_sight_time >= sight_memory: _resume_patrol()
 	else:
 		if state == State.IDLE and _rearm_timer <= 0 and (provoked or not attack_profile.get("neutral", false)) and _can_perceive(player_position):
 			begin_chase()
@@ -355,6 +381,9 @@ func _physics_process(delta: float) -> void:
 			else:
 				_lost_sight_time += delta
 				if _lost_sight_time >= sight_memory: begin_return()
+	if behavior == Behavior.PATROL and state == State.IDLE:
+		_wander(delta)
+		return
 	if state == State.RETURNING:
 		if _flat_distance(global_position, home_position) <= 0.3:
 			global_position = home_position
@@ -391,6 +420,10 @@ func _can_perceive(point: Vector3) -> bool:
 	return _flat_distance(global_position, point) <= perception_radius and _flat_distance(home_position, point) <= leash_radius and game.line_of_sight(global_position, point)
 
 func begin_chase() -> void:
+	# Seen or hit, a sentinel on watch runs; mid-run or holding, nothing changes.
+	if attack_profile.get("alarm", false):
+		if not _dead and sentinel_mode == "watch": _spot()
+		return
 	if _dead or state == State.RETURNING or _rearm_timer > 0: return
 	if attack_profile.get("neutral", false) and not provoked: return
 	state = State.CHASING
@@ -405,6 +438,99 @@ func begin_return() -> void:
 	_repath_timer = 0
 	_last_destination = Vector3.INF
 	_attack_timer = 0.6
+
+func configure_patrol(wave: int) -> void:
+	behavior = Behavior.PATROL
+	patrol_wave = wave
+	# No home to keep to: anywhere on the floor is its ground.
+	leash_radius = 1.0e6
+	add_to_group("patrols")
+
+## A wanderer (GameManager._spawn_wanderers): a patrol's walk with none of a
+## patrol's wave (its drops are an ordinary enemy's; the minimap leaves it out).
+func configure_wander() -> void:
+	behavior = Behavior.PATROL
+	leash_radius = 1.0e6
+	add_to_group("wanderers")
+
+func _resume_patrol() -> void:
+	state = State.IDLE
+	_cancel_attack()
+	home_position = global_position
+	_wander_target = Vector3.INF
+	_rearm_timer = 0.6
+	_repath_timer = 0
+
+## Walks from waypoint to waypoint (GameManager.patrol_waypoint), a new one on
+## arrival or after a while stuck.
+func _wander(delta: float) -> void:
+	_wander_time += delta
+	if _wander_target == Vector3.INF or _flat_distance(global_position, _wander_target) < 0.8 or _wander_time > 20.0:
+		_wander_target = game.patrol_waypoint(global_position)
+		_wander_time = 0.0
+	_move_toward_target(_wander_target, delta)
+
+const SIGNAL_BEAT := 0.4
+const SIGNAL_RECOVER := 0.4
+
+## Its red "!" is up (and the meter fills faster): from seeing her to the end of its hold.
+func alerted() -> bool:
+	return attack_profile.get("alarm", false) and not _dead and sentinel_mode != "watch"
+
+func _tick_sentinel(delta: float, player_position: Vector3) -> void:
+	match sentinel_mode:
+		"watch":
+			state = State.IDLE
+			if _can_perceive(player_position): _spot()
+		"run":
+			_run_time += delta
+			if _flat_distance(global_position, _run_target) < 0.8 or _run_time > 15.0:
+				sentinel_mode = "hold"
+				state = State.IDLE
+				_hold_left = ThreatMeter.SENTINEL_HOLD
+				home_position = global_position
+			elif _run_time < ThreatMeter.SENTINEL_STARTLE:
+				var to_her := player_position - global_position
+				to_her.y = 0.0
+				if to_her.length_squared() > 0.0001: _face(to_her.normalized(), delta)
+			else:
+				_move_toward_target(_run_target, delta)
+		"hold":
+			_hold_left -= delta
+			# Signalling toward her while she is about.
+			var to_her := player_position - global_position
+			to_her.y = 0.0
+			if to_her.length_squared() > 0.0001: _face(to_her.normalized(), delta)
+			if _hold_left <= 0.0: sentinel_mode = "watch"
+
+func _spot() -> void:
+	sentinel_mode = "run"
+	state = State.CHASING
+	_run_time = 0.0
+	_run_target = _run_spot(game.player.global_position)
+	_repath_timer = 0.0
+	_last_destination = Vector3.INF
+	game.on_sentinel_spotted(self)
+
+## Of 16 directions at three distances, the walkable spot the navmesh can
+## reach from here that lies farthest from her.
+func _run_spot(player_position: Vector3) -> Vector3:
+	var rid: RID = game.world_map.navigation_map_rid()
+	var from := NavigationServer3D.map_get_closest_point(rid, global_position)
+	var best := global_position
+	var best_gap := -1.0
+	for reach in [ThreatMeter.SENTINEL_RUN_MAX, (ThreatMeter.SENTINEL_RUN_MIN + ThreatMeter.SENTINEL_RUN_MAX) * 0.5, ThreatMeter.SENTINEL_RUN_MIN]:
+		for i in range(16):
+			var spot: Vector3 = game.world_map.nearest_walkable(global_position + Vector3.FORWARD.rotated(Vector3.UP, TAU * i / 16.0) * reach)
+			if _flat_distance(spot, global_position) < ThreatMeter.SENTINEL_RUN_MIN * 0.6: continue
+			var to := NavigationServer3D.map_get_closest_point(rid, spot)
+			var path := NavigationServer3D.map_get_path(rid, from, to, true)
+			if path.is_empty() or path[-1].distance_to(to) > 1.0: continue
+			var gap := _flat_distance(spot, player_position)
+			if gap > best_gap:
+				best_gap = gap
+				best = spot
+	return best
 
 func configure_guard(post: Node3D) -> void:
 	behavior = Behavior.GUARD
@@ -443,6 +569,10 @@ func _cancel_attack() -> void:
 func _update_state_label() -> void:
 	if not is_instance_valid(_state_label): return
 	_state_label.visible = _flat_distance(global_position, game.player.global_position) < 23
+	# 萨卡兹哨兵's only mark is the HUD's red "!" (用户 2026-10-14), not a second one here.
+	if attack_profile.get("alarm", false):
+		_state_label.visible = false
+		return
 	match state:
 		State.IDLE:
 			_state_label.text = "守卫" if behavior == Behavior.GUARD else ""
@@ -562,8 +692,8 @@ func _lock_direction() -> void:
 	attack_direction = attack_direction.normalized() if attack_direction.length_squared() > 0.001 else Vector3.RIGHT
 	_face(attack_direction, 1.0)
 
-## One windup step of turning toward her (WINDUP_TURN_DEG). Ranged aim follows
-## the turn at her distance; the sniper keeps its own track-then-lock.
+## One step of turning toward her (WINDUP_TURN_DEG). No longer used in a
+## windup (用户 2026-10-14: 敌人不能甩枪); kept for whatever turns between attacks.
 func _turn_toward_player(delta: float) -> void:
 	var to := game.player.global_position - global_position
 	to.y = 0
@@ -587,7 +717,10 @@ func _tick_attack(delta: float) -> void:
 				_aim_locked = true
 				# The only read on the sniper: make the lock unmissable.
 				_lock_flash = 0.20
-		elif not attack_profile.has("track") and warn_shape != "lane": _turn_toward_player(delta)
+		# 用户 2026-10-14: 敌人不能甩枪 — no turning during the windup: it strikes
+		# the way it faced when it began, and its red ground stays where it was
+		# laid. Only the sniper's track-then-lock (above) follows her, and it
+		# locks well before the shot.
 		if _windup_remaining <= 0.1 and not _cue_played:
 			_cue_played = true
 			var cue := _cue_name()
@@ -723,7 +856,7 @@ func in_warning(point: Vector3) -> bool:
 
 ## What a telegraphed strike leaves on the ground (新敌人攻击案 §四).
 func _telegraph_vfx(stunning: bool) -> void:
-	var ground := Vector3(pending_warning_position.x, 0.08, pending_warning_position.z)
+	var ground := Vector3(pending_warning_position.x, game.ground_y(pending_warning_position) + 0.08, pending_warning_position.z)
 	match enemy_type:
 		"armed": EnemyAttackVfx.spawn(game, ground, attack_direction, "ground_shock", pending_warning_radius)
 		"greytail_lord": EnemyAttackVfx.spawn(game, ground, attack_direction, "ground_shock_purple", pending_warning_radius)
@@ -859,6 +992,12 @@ func _update_attack_visual() -> void:
 	if extra == "lasso" and _special == "lasso" and attack_phase == "windup": pose_frame = 5
 	var gliding := extra == "glide" and attack_phase == "idle" and walking and gliding_now()
 	if gliding: pose_frame = 5
+	# 萨卡兹哨兵 (N3 board): START for its startle, CHARGE / STRIKE alternating
+	# through the hold (signalling), RECOVER as the hold runs out, IDLE on watch.
+	if attack_profile.get("alarm", false):
+		pose_frame = 0
+		if sentinel_mode == "run" and _run_time < ThreatMeter.SENTINEL_STARTLE: pose_frame = 1
+		elif sentinel_mode == "hold": pose_frame = 4 if _hold_left < SIGNAL_RECOVER else 2 + int(_hold_left / SIGNAL_BEAT) % 2
 	var walk_frame := posmod(int(walk_distance * WALK_FRAMES_PER_UNIT), 4)
 	if has_walk and walking and attack_phase == "idle" and not gliding: _sprite.texture = FieldArt.enemy_walk_pose(sheet_type, dir_column, walk_frame)
 	elif directional: _sprite.texture = FieldArt.enemy_dir_pose(sheet_type, dir_column, pose_frame)
@@ -1102,6 +1241,7 @@ func own_art() -> bool:
 ## Speed now: 染污躯壳 running, 歪曲施法者 gliding, haste.
 func current_speed() -> float:
 	var speed := move_speed
+	if behavior == Behavior.PATROL and state == State.IDLE: speed *= 0.7
 	if _run_timer > 0.0: speed *= 2.0
 	if gliding_now(): speed *= 3.0
 	if status_value("haste") > 0.0: speed *= 1.3

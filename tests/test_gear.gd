@@ -101,17 +101,19 @@ func run() -> void:
 	var axe := LootTables.roll_equipment(Item.Category.WEAPON, "断镐战斧", "mine", 3, 1, rng)
 	var implicit := axe.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER)
 	var random := axe.modifiers.filter(func(m): return m.tier != GearCatalog.IMPLICIT_TIER)
+	# Intrinsics roll within ±20% of the table (装备前缀策划案 §2.8).
 	check("断镐战斧 has its two intrinsic stats", implicit.size() == 2
-		and implicit.any(func(m): return m.stat == ItemModifier.Stat.ATK_PCT and is_equal_approx(m.amount, 0.04))
-		and implicit.any(func(m): return m.stat == ItemModifier.Stat.MOVE_SPEED_PCT and is_equal_approx(m.amount, -0.04)))
+		and implicit.any(func(m): return m.stat == ItemModifier.Stat.ATK_PCT and is_equal_approx(m.mid, 0.04) and m.amount >= 0.032 - 0.0001 and m.amount <= 0.048 + 0.0001)
+		and implicit.any(func(m): return m.stat == ItemModifier.Stat.MOVE_SPEED_PCT and is_equal_approx(m.mid, -0.04) and m.amount <= -0.032 + 0.0001 and m.amount >= -0.048 - 0.0001))
 	check("intrinsics do not use the rarity's affix slots", random.size() == plain.modifiers.size(), [random.size(), plain.modifiers.size()])
-	check("the power factor applies (×1.15)", is_equal_approx(axe.power, plain.power * 1.15), [axe.power, plain.power])
+	check("the power factor applies (×1.15)", is_equal_approx(axe.power_mid, plain.power_mid * 1.15), [axe.power_mid, plain.power_mid])
 	check("intrinsics are not random affixes (no tier mark)", implicit.all(func(m): return not m.is_random_affix()))
 	rng.seed = 25
 	var purse := LootTables.roll_equipment(Item.Category.TRINKET, "龙门币钱夹", "city", 3, 0, rng)
 	rng.seed = 25
 	var other := LootTables.roll_equipment(Item.Category.TRINKET, "x", "city", 3, 0, rng)
-	check("龙门币钱夹 sells for ×1.5", purse.value == roundi(other.value * 1.5), [purse.value, other.value])
+	# Before prefixes and roll quality (PrefixCatalog.refresh_value).
+	check("龙门币钱夹 sells for ×1.5", purse.value_base == roundi(other.value_base * 1.5), [purse.value_base, other.value_base])
 	check("bases carry their flavour text", axe.description == B.mine_pickaxe.text)
 
 	# Saves (§2.3).

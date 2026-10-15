@@ -18,7 +18,7 @@ const WHITE := preload("res://art/kit/textures/white_1px.png")
 ## ambient, the glow around Lappland (colour, radius).
 const REGIONS := {
 	"mine": {"ambient": Color(0.72, 0.74, 0.86), "player": Color(0.45, 0.36, 0.22), "player_radius": 8.0},
-	"city": {"ambient": Color(0.86, 0.87, 0.92), "player": Color(0.25, 0.2, 0.12), "player_radius": 7.0},
+	"city": {"ambient": Color(0.96, 0.97, 1.02), "player": Color(0.25, 0.2, 0.12), "player_radius": 7.0},
 	# Cold white-blue under an overcast sky; the warm fires are the reprieve
 	# (暗黑 IV 碎峰岭: frigid palette against warm settlements).
 	"snow": {"ambient": Color(0.8, 0.86, 1.0), "player": Color(0.28, 0.22, 0.14), "player_radius": 7.0, "snow": 1.0},

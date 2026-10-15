@@ -15,6 +15,13 @@ uniform vec3 tint = vec3(1.0);
 uniform sampler2D top_tex : source_color, filter_linear_mipmap, repeat_disable;
 uniform float top_scale = 12.0;
 uniform vec3 top_tint = vec3(1.0);
+// The city: its pavement runs on from the road to the buildings' feet. The
+// rock top there carries COLOR.g = 0 (TerrainSurface._color), and its shade
+// in COLOR.r alone.
+uniform bool city_pave = false;
+uniform sampler2D pave_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform float pave_scale = 3.0;
+uniform float pave_gain = 0.92;
 varying vec3 world_position;
 varying vec3 world_normal;
 #include "res://art/terrain_sampling.gdshaderinc"
@@ -49,9 +56,15 @@ void fragment() {
 	vec3 side = surface_texture(vec2(world_position.z, -world_position.y)) * weight.x
 		+ surface_texture(vec2(world_position.x, -world_position.y)) * weight.z;
 	vec3 top = top_texture(world_position.xz) * top_tint;
+	vec3 tone = COLOR.rgb;
+	if (city_pave) {
+		vec3 slabs = texture(pave_tex, world_position.xz / pave_scale).rgb * pave_gain;
+		top = mix(top, slabs, step(COLOR.g, 0.5));
+		tone = vec3(COLOR.r);
+	}
 	// Snow reads its relief by light alone: a wider light-to-shade range there.
 	float sun = abs(dot(world_normal, normalize(vec3(-0.4, 0.8, -0.4))));
 	float shade = field_snow > 0.0 ? 0.5 + sun * 0.55 : 0.72 + sun * 0.28;
 	// COLOR.a: shade that holds over snow (a causeway's fallen-away side).
-	ALBEDO = field_lit_px(field_snowed((side * tint + top * weight.y) * COLOR.rgb, world_normal, world_position) * shade * COLOR.a, world_position, FRAGCOORD.xy);
+	ALBEDO = field_lit_px(field_snowed((side * tint + top * weight.y) * tone, world_normal, world_position) * shade * COLOR.a, world_position, FRAGCOORD.xy);
 }

@@ -117,7 +117,10 @@ func _ensure_nav_agent(player: Player) -> NavigationAgent3D:
 	if not is_instance_valid(_nav_agent):
 		_nav_agent = NavigationAgent3D.new()
 		_nav_agent.radius = 0.45
-		_nav_agent.path_desired_distance = 0.5
+		# Like the player's own agent (Player._navigation): its origin rides about
+		# 0.5 above the navmesh, so a 0.5 reach never ticks a waypoint off on a
+		# terrace and the bot stands on the spot (probe_reach.gd, 2026-10-14).
+		_nav_agent.path_desired_distance = 0.8
 		_nav_agent.target_desired_distance = 0.5
 		player.add_child(_nav_agent)
 	return _nav_agent

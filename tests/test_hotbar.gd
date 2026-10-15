@@ -61,7 +61,7 @@ func run() -> void:
 	# The HUD: LMB + eight slots, hit-testing and the picker.
 	var hud: Hud = game._hud
 	hud.visible = true
-	check("the bar shows LMB plus eight slots", hud._hotbar_slots().filter(func(s): return not s.has("item")).size() == 1 + Hotbar.SLOTS)
+	check("the bar shows LMB, eight slots and the auto-potion slot last", hud._hotbar_slots().filter(func(s): return not s.has("item")).size() == 2 + Hotbar.SLOTS and hud._hotbar_slots()[-1].get("auto", false))
 	var slot6 := hud._slot_rect(6).get_center()
 	check("a point on slot 6 is slot index 5", hud.hotbar_slot_at(slot6) == 5 and hud.hotbar_slot_at(hud._slot_rect(0).get_center()) == -1 and hud.hotbar_slot_at(Vector2(640, 300)) == -2)
 	hud.picker_slot = 5
@@ -70,5 +70,52 @@ func run() -> void:
 	var gel_row: Rect2 = rows.filter(func(r): return r[1] == "potion_B")[0][0]
 	check("and reports the choice under the cursor", hud.picker_choice_at(gel_row.get_center()) == "potion_B")
 	hud.picker_slot = -1
+	# The auto-potion slot (用户 2026-10-15): A or B only, drinks below the low
+	# threshold and keeps going, a flask at a time, until at or above the high one.
+	var auto_at := hud._config_rect(Hotbar.AUTO).get_center()
+	check("the last slot hit-tests as the auto slot", hud.hotbar_slot_at(auto_at) == Hotbar.AUTO)
+	hud.picker_slot = Hotbar.AUTO
+	check("its picker offers empty, 急救剂 and 缓释凝胶 only", hud._picker_rows().map(func(r): return r[1]) == ["potion_B", "potion_A", ""])
+	hud.picker_slot = -1
+	Hotbar.set_action(Hotbar.AUTO, "potion_C")
+	check("抑制喷剂 cannot go in it", Hotbar.auto_potion() == "")
+	Hotbar.set_action(Hotbar.AUTO, "potion_A")
+	check("急救剂 goes in, and stays on the bar too", Hotbar.auto_potion() == "potion_A" and Hotbar.slots()[2].action == "potion_A")
+	SystemScreens.settings["auto_potion_low"] = 0.4
+	SystemScreens.settings["auto_potion_high"] = 0.9
+	for item in game.carried_potions():
+		game.inventory.remove(item)
+		game.safe_bag.remove(item)
+	for i in range(4): game.inventory.try_add(BaseCatalog.create_potion("A"))
+	game._auto_drinking = false
+	game._auto_potion_gap = 0.0
+	p.hp = p.max_hp * 0.5
+	game._tick_auto_potion(0.01)
+	check("above the low threshold she does not drink", game.carried_potions().size() == 4)
+	p.hp = 100.0
+	var heal := BaseCatalog.POTION_A_HEAL * game._potion_heal_factor * p.potion_heal_multiplier
+	var needed := ceili((p.max_hp * 0.9 - 100.0) / heal)
+	game._tick_auto_potion(0.01)
+	check("below it she drinks one", game.carried_potions().size() == 3)
+	game._tick_auto_potion(0.1)
+	check("the next waits for the gap", game.carried_potions().size() == 3)
+	for i in range(20): game._tick_auto_potion(GameManager.AUTO_POTION_GAP)
+	check("then one after another until at or above the high threshold", game.carried_potions().size() == 4 - mini(needed, 4) and (p.hp_ratio() >= 0.9 or game.carried_potions().is_empty()))
+	var left := game.carried_potions().size()
+	p.hp = p.max_hp * 0.6
+	for i in range(5): game._tick_auto_potion(GameManager.AUTO_POTION_GAP)
+	check("between the thresholds after that it stays off", game.carried_potions().size() == left)
+	Hotbar.set_action(Hotbar.AUTO, "potion_B")
+	for i in range(2): game.inventory.try_add(BaseCatalog.create_potion("B"))
+	p.hp = 100.0
+	game._slow_heal_left = 0.0
+	game._tick_auto_potion(GameManager.AUTO_POTION_GAP)
+	var gels := game.carried_potions().filter(func(x): return x.potion_type == "B").size()
+	for i in range(3): game._tick_auto_potion(GameManager.AUTO_POTION_GAP)
+	check("a gel waits for the last gel to finish", game._slow_heal_left > 0.0 and game.carried_potions().filter(func(x): return x.potion_type == "B").size() == gels)
+	Hotbar.set_action(Hotbar.AUTO, "")
+	SystemScreens.settings["auto_potion_low"] = 0.8
+	SystemScreens.settings["auto_potion_high"] = 0.3
+	check("a high threshold under the low one is read as the low one", Hotbar.auto_thresholds() == [0.8, 0.8])
 	print("TEST_HOTBAR: %d failures" % failures)
 	quit(1 if failures > 0 else 0)
