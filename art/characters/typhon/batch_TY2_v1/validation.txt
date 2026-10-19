@@ -1,0 +1,10 @@
+typhon_vfx_arrow: canvas[3, 18]; frames1; colours4 ['#120f16', '#2a2430', '#5b4d63', '#e6dfcf']; binary alphaTrue
+typhon_vfx_arrow_heavy: canvas[5, 24]; frames1; colours5 ['#120f16', '#2a2430', '#4a4038', '#5b4d63', '#e6dfcf']; binary alphaTrue
+typhon_vfx_mire: canvas[40, 20]; frames2; colours4 ['#120f16', '#2a2430', '#4a4038', '#5b4d63']; binary alphaTrue
+typhon_vfx_mark: canvas[48, 24]; frames2; colours4 ['#120f16', '#2a2430', '#5b4d63', '#e6dfcf']; binary alphaTrue
+typhon_vfx_rain_arrow: canvas[5, 18]; frames1; colours2 ['#120f16', '#e6dfcf']; binary alphaTrue
+typhon_vfx_rain_hit: canvas[27, 9]; frames3; colours4 ['#120f16', '#2a2430', '#5b4d63', '#e6dfcf']; binary alphaTrue
+typhon_vfx_pierce: canvas[45, 7]; frames5; colours4 ['#120f16', '#2a2430', '#5b4d63', '#e6dfcf']; binary alphaTrue
+typhon_vfx_spark: canvas[22, 11]; frames2; colours3 ['#120f16', '#5b4d63', '#e6dfcf']; binary alphaTrue
+No tiling textures. Multi-frame animation continuity needs engine playback review.
+Composites are static scale comparisons, not engine screenshots of these new effects.

@@ -1,0 +1,119 @@
+{
+  "character": "texas",
+  "tool": "built-in image_gen",
+  "effects": [
+    {
+      "id": "texas_vfx_cut_1",
+      "file": "texas_vfx_cut_1.png",
+      "size": [
+        50,
+        38
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\texas_vfx_cut_1.png",
+      "sha256": "2bd4ecae9b629c5bfa8758f77cfcbecabac4b63bf3b36c0ee91b7839b64837d6"
+    },
+    {
+      "id": "texas_vfx_cut_2",
+      "file": "texas_vfx_cut_2.png",
+      "size": [
+        50,
+        38
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\texas_vfx_cut_2.png",
+      "sha256": "7a8827bfe1961a133e8bb7dca6b69eb6d24f91d3c20c82e2084fdd21c5eb19d6"
+    },
+    {
+      "id": "texas_vfx_cut_3",
+      "file": "texas_vfx_cut_3.png",
+      "size": [
+        40,
+        48
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\texas_vfx_cut_3.png",
+      "sha256": "d20994472b39d038aba4486614bc1ea66e0bf45b477f91104cf16bfa9bf0f2b6"
+    },
+    {
+      "id": "texas_vfx_rain_sword",
+      "file": "texas_vfx_rain_sword.png",
+      "size": [
+        7,
+        28
+      ],
+      "frames": 3,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\texas_vfx_rain_sword.png",
+      "sha256": "382a2e2b283ede498b4af6730343e740bcceec19523bdf1be4148f8aa845e419"
+    },
+    {
+      "id": "texas_vfx_rain_ring",
+      "file": "texas_vfx_rain_ring.png",
+      "size": [
+        96,
+        96
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\texas_vfx_rain_ring.png",
+      "sha256": "d6bc525b31e0e1a88a81c9f560bdf76651fbad69ac8c9b8606613a6724950b51"
+    },
+    {
+      "id": "texas_vfx_rain_hit",
+      "file": "texas_vfx_rain_hit.png",
+      "size": [
+        13,
+        13
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\texas_vfx_rain_hit.png",
+      "sha256": "f81c622e960a744c5840141c55c70738e6a97282c2e8743aab3c6585d7286a34"
+    },
+    {
+      "id": "texas_vfx_dash",
+      "file": "texas_vfx_dash.png",
+      "size": [
+        16,
+        24
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "bottom",
+      "source": "source_paintings\\texas_vfx_dash.png",
+      "sha256": "72ba19413b8e74892d51b767d6d709c193a49e7e8a26e72e75615c8bc34f8a39"
+    },
+    {
+      "id": "texas_vfx_spark",
+      "file": "texas_vfx_spark.png",
+      "size": [
+        11,
+        11
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\texas_vfx_spark.png",
+      "sha256": "3ae8e1d5184693276b33e4832dcea53e950954d2edec41e6e920a80c968207f0"
+    }
+  ],
+  "status": "static validated; art and in-engine animation approval open"
+}

@@ -1,0 +1,19 @@
+Use case stylized-concept. Full production GAME COMBAT SPRITE SHEET for Hellagur, sixteen columns x FIVE rows, 80 full-body chibi pixel sprites. Output wide4096x1280 or same exact16:5 aspect, uniform256px cells, transparent alpha, no labels/grid/shadow/effects. Reference1 Hellagur walk is exact character identity, Reference2 Amiya combat is STYLE/GRID only. Same body scale throughout. Dark outlined chunky flat pixel artwork, two heads tall. Elderly swordsman long white hair short chin beard amber eyes two short pale owl feather tufts ochre insides, charcoal greatcoat pale gold chest grid ochre collar steelblue shoulders lavender long cape grey knee armour black boots, ONE pale steel slightly curved katana black guard black hilt. No red, no halo/bird/lightning. Character body centered each cell feet at241 top>=12 weapons wholly inside cell, use foreshortening. No energy slash strokes, sparks or painted effects.
+Rows strictly 1 S chest square facing viewer and attacking toward viewer or across body;2 SW down-left;3 W true left profile;4 NW BACK threequarter up-left NO FACE;5 N full back NO FACE. Do NOT let rear poses turn face to camera. Each row same16 action columns in this order, all visibly different using arms/katana/cape/hair including N:
+1 two hands katana raised over right shoulder windup;
+2 diagonal downward cut finishes blade left hip torso twisted;
+3 recover upright katana low;
+4 rising return cut blade high upperleft hair lifting;
+5 high blade followthrough cape swing;
+6 iai windup body LOW blade at left hip right hand gripping hilt;
+7 iai ONE HAND blade fully extended horizontal across front torso turned;
+8 recover upright low blade;
+9 heavy New Moon windup both hands blade straight overhead back arched;
+10 New Moon landed DEEP CROUCH knees fully bent body half standing height blade downward tip at ground;
+11 quick short horizontal cut elbows tight;
+12 quick RETURN horizontal cut opposite arm position;
+13 Half Moon evade strong SIDESTEP LEAN LEFT diagonal torso blade back cape flared;
+14 Full Moon coiled windup blade far behind low;
+15 Full Moon WIDE SWEEP full reach torso unwinding cape hair whipping;
+16 HURT backward recoil.
+Exactly16 columns and5 rows, no extra standalone character, no missing frames. Strong clear poses, full swords cannot cross cells. NW/N actions must differ as visibly as front.

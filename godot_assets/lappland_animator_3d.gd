@@ -53,7 +53,39 @@ const CHARACTERS := {
 		"combat": "res://godot_assets/lappland_combat_64.png", "actions": ACTIONS, "signature": "wave", "mirrored": MIRRORED},
 	"amiya_guard": {"walk": "res://godot_assets/amiya_guard_walk_32.png", "idle": "res://godot_assets/amiya_guard_idle_32.png",
 		"combat": "res://godot_assets/amiya_guard_combat_64.png", "actions": AMIYA_ACTIONS, "signature": "shadow", "mirrored": {}},
+	# The first recruits (prepare_operator_atlas.py; column tables from each
+	# batch <CODE>1 manifest). Their walk rows all face the right way. A third
+	# number loops the frames from that offset while the pose is held
+	# (hold_action): 星熊's saw grind, 林's sustain, 寒檀's channel.
+	"hellagur": {"walk": "res://godot_assets/hellagur_walk_32.png", "idle": "res://godot_assets/hellagur_idle_32.png",
+		"combat": "res://godot_assets/hellagur_combat_64.png", "signature": "", "mirrored": {},
+		"actions": {"attack_1": [0, 3], "attack_2": [3, 2], "attack_3": [5, 3], "newmoon": [8, 2], "halfmoon": [10, 3], "fullmoon": [13, 2], "hurt": [15, 1]}},
+	"rosa": {"walk": "res://godot_assets/rosa_walk_32.png", "idle": "res://godot_assets/rosa_idle_32.png",
+		"combat": "res://godot_assets/rosa_combat_64.png", "signature": "", "mirrored": {},
+		"actions": {"attack_1": [0, 3], "attack_2": [0, 3], "attack_3": [3, 3], "volley": [6, 6], "hurt": [12, 1]}},
+	"hoshiguma": {"walk": "res://godot_assets/hoshiguma_walk_32.png", "idle": "res://godot_assets/hoshiguma_idle_32.png",
+		"combat": "res://godot_assets/hoshiguma_combat_64.png", "signature": "", "mirrored": {},
+		"actions": {"attack_1": [0, 3], "attack_2": [3, 2], "attack_3": [5, 4], "saw": [9, 3, 1], "block": [13, 1], "hurt": [14, 1]}},
+	"lin": {"walk": "res://godot_assets/lin_walk_32.png", "idle": "res://godot_assets/lin_idle_32.png",
+		"combat": "res://godot_assets/lin_combat_64.png", "signature": "", "mirrored": {},
+		"actions": {"attack_1": [0, 3], "attack_2": [3, 2], "attack_3": [5, 3], "surge": [8, 4, 2], "shatter": [12, 1], "hurt": [13, 1]}},
+	"typhon": {"walk": "res://godot_assets/typhon_walk_32.png", "idle": "res://godot_assets/typhon_idle_32.png",
+		"combat": "res://godot_assets/typhon_combat_64.png", "signature": "", "mirrored": {},
+		"actions": {"attack_1": [0, 4], "attack_2": [0, 4], "attack_3": [0, 4], "hunt": [4, 5], "hurt": [9, 1]}},
+	"santalla": {"walk": "res://godot_assets/santalla_walk_32.png", "idle": "res://godot_assets/santalla_idle_32.png",
+		"combat": "res://godot_assets/santalla_combat_64.png", "signature": "", "mirrored": {},
+		"actions": {"attack_1": [0, 2], "attack_2": [2, 1], "attack_3": [3, 3], "tears": [6, 3, 1], "hurt": [11, 1]}},
+	"texas": {"walk": "res://godot_assets/texas_walk_32.png", "idle": "res://godot_assets/texas_idle_32.png",
+		"combat": "res://godot_assets/texas_combat_64.png", "signature": "", "mirrored": {},
+		"actions": {"attack_1": [0, 2], "attack_2": [2, 2], "attack_3": [4, 3], "rain": [7, 5], "hurt": [12, 1]}},
 }
+## The Doctor and the crew who walk the base (art/characters/crew/CR_brief_v1.md):
+## walk and idle sheets only, baked by prepare_crew_atlas.py into
+## godot_assets/crew/. Their rows all face the right way.
+const CREW := ["doctor", "sharp", "stormeye", "pith", "touch", "tulip", "mechanist", "misery",
+	"reserve_vanguard", "reserve_guard", "reserve_defender", "reserve_sniper", "reserve_caster",
+	"reserve_medic", "reserve_supporter", "reserve_specialist"]
+const CREW_CONFIG := {"actions": {}, "signature": "", "mirrored": {}}
 const WALK_FPS := 8.0
 var character := "lappland"
 var actions: Dictionary = ACTIONS
@@ -83,19 +115,28 @@ func _ready() -> void:
 
 ## One of an operator's sheets ("walk", "idle", "combat"), or null.
 static func sheet(id: String, kind: String) -> Resource:
-	var path := str(CHARACTERS.get(id, CHARACTERS.lappland).get(kind, ""))
+	var path := "res://godot_assets/crew/%s_%s_32.png" % [id, kind] if id in CREW 		else str(CHARACTERS.get(id, CHARACTERS.lappland).get(kind, ""))
 	return load(path) if ResourceLoader.exists(path) else null
+
+## Whether someone can be drawn: an operator, or a crew member whose walk and
+## idle sheets have arrived.
+static func has_sheets(id: String) -> bool:
+	if CHARACTERS.has(id): return true
+	return id in CREW and sheet(id, "walk") != null and sheet(id, "idle") != null
+
+static func look_config(id: String) -> Dictionary:
+	return CREW_CONFIG if id in CREW else CHARACTERS.get(id, CHARACTERS.lappland)
 
 ## Swap to another operator's sheets (picked at the base).
 func set_character(id: String) -> void:
-	if not CHARACTERS.has(id) or id == character: return
+	if not has_sheets(id) or id == character: return
 	character = id
 	cancel_action()
 	_load_character()
 	_play_idle()
 
 func _load_character() -> void:
-	var config: Dictionary = CHARACTERS.get(character, CHARACTERS.lappland)
+	var config: Dictionary = look_config(character)
 	actions = config.actions
 	mirrored = config.mirrored
 	signature_action = config.signature
@@ -143,7 +184,7 @@ func _process(delta: float) -> void:
 	if action_duration > 0:
 		action_time += delta
 		if action_time < action_duration:
-			if action_name != "dash": frame = mini(sprite_frames.get_frame_count(animation) - 1, int(action_time * 12 * action_rate))
+			if action_name != "dash": frame = _action_frame()
 			return
 		cancel_action()
 	flip_h = false
@@ -238,6 +279,7 @@ func _build_idle_frames() -> void:
 
 func _build_combat_frames() -> void:
 	var combat_sheet := sheet(character, "combat") as Texture2D
+	if combat_sheet == null: return
 	for row in range(COMBAT_ROWS.size()):
 		for action in actions:
 			var animation_name: String = action + "_" + COMBAT_ROWS[row]
@@ -269,13 +311,30 @@ func play_attack(direction: Vector3, stage: int, wave: bool, rate: float = 1.0) 
 	_facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
 	_start_action(signature_action if wave else "attack_" + str(stage + 1), rate)
 
+## The frame for the action's clock: the last one held, or, for an action with
+## a loop offset, its loop frames cycling.
+func _action_frame() -> int:
+	var count := sprite_frames.get_frame_count(animation)
+	var index := int(action_time * 12 * action_rate)
+	var entry: Array = actions.get(action_name, [])
+	if entry.size() > 2 and index >= count:
+		var from := int(entry[2])
+		return from + (index - from) % maxi(1, count - from)
+	return mini(count - 1, index)
+
+## One of her named actions (an operator kit's skill pose), facing `direction`.
+func play_action(action: String, direction: Vector3, rate: float = 1.0) -> void:
+	if not actions.has(action): return
+	if direction.length_squared() > 0.0001: _facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
+	_start_action(action, rate)
+
 ## Hold a pose for `seconds` regardless of the action's frame count — the
 ## shadow strike lasts as long as its cuts, not its three or four frames.
 func hold_action(seconds: float) -> void:
 	if action_duration > 0: action_duration = maxf(action_duration, seconds)
 
 func play_hurt() -> void:
-	if action_name == "dash": return
+	if action_name == "dash" or not actions.has("hurt"): return
 	_start_action("hurt")
 
 func start_dash(direction: Vector3) -> void:

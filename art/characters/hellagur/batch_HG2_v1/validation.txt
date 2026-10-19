@@ -1,0 +1,12 @@
+hellagur_vfx_cut_1: canvas[56, 46]; frames1; colours4 ['#15131f', '#232838', '#46607a', '#9fb4c8']; binary alphaTrue
+hellagur_vfx_cut_2: canvas[56, 46]; frames1; colours4 ['#15131f', '#232838', '#46607a', '#9fb4c8']; binary alphaTrue
+hellagur_vfx_iai: canvas[76, 14]; frames1; colours4 ['#15131f', '#232838', '#46607a', '#9fb4c8']; binary alphaTrue
+hellagur_vfx_newmoon: canvas[48, 60]; frames1; colours5 ['#15131f', '#232838', '#46607a', '#9fb4c8', '#efe6bf']; binary alphaTrue
+hellagur_vfx_halfmoon_a: canvas[44, 30]; frames1; colours5 ['#15131f', '#232838', '#46607a', '#9fb4c8', '#efe6bf']; binary alphaTrue
+hellagur_vfx_halfmoon_b: canvas[44, 30]; frames1; colours5 ['#15131f', '#232838', '#46607a', '#9fb4c8', '#efe6bf']; binary alphaTrue
+hellagur_vfx_fullmoon: canvas[104, 72]; frames1; colours6 ['#15131f', '#232838', '#46607a', '#7b83a2', '#9fb4c8', '#efe6bf']; binary alphaTrue
+hellagur_vfx_phase: canvas[27, 9]; frames3; colours3 ['#15131f', '#46607a', '#efe6bf']; binary alphaTrue
+hellagur_vfx_drain: canvas[18, 9]; frames2; colours4 ['#15131f', '#46607a', '#9fb4c8', '#efe6bf']; binary alphaTrue
+hellagur_vfx_spark: canvas[22, 11]; frames2; colours4 ['#15131f', '#232838', '#46607a', '#9fb4c8']; binary alphaTrue
+No tiling textures. Multi-frame animation continuity needs engine playback review.
+Composites are static scale comparisons, not engine screenshots of these new effects.

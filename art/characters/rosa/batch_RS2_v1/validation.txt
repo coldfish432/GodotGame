@@ -1,0 +1,9 @@
+rosa_vfx_bolt: canvas[5, 18]; frames1; colours4 ['#15131f', '#2a3040', '#2e4364', '#6f7c8c']; binary alphaTrue
+rosa_vfx_bolt_charged: canvas[7, 28]; frames1; colours5 ['#15131f', '#2a3040', '#2e4364', '#6f7c8c', '#cfe6f0']; binary alphaTrue
+rosa_vfx_harpoon: canvas[9, 28]; frames1; colours5 ['#15131f', '#2a3040', '#2e4364', '#6f7c8c', '#cfe6f0']; binary alphaTrue
+rosa_vfx_pinned: canvas[36, 18]; frames2; colours5 ['#15131f', '#2a3040', '#2e4364', '#6f7c8c', '#cfe6f0']; binary alphaTrue
+rosa_vfx_muzzle: canvas[26, 13]; frames2; colours5 ['#15131f', '#2a3040', '#2e4364', '#6f7c8c', '#cfe6f0']; binary alphaTrue
+rosa_vfx_armorbreak: canvas[30, 15]; frames2; colours5 ['#15131f', '#2a3040', '#2e4364', '#6f7c8c', '#cfe6f0']; binary alphaTrue
+rosa_vfx_spark: canvas[22, 11]; frames2; colours4 ['#15131f', '#2e4364', '#6f7c8c', '#cfe6f0']; binary alphaTrue
+No tiling textures. Multi-frame animation continuity needs engine playback review.
+Composites are static scale comparisons, not engine screenshots of these new effects.

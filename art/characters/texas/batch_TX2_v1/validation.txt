@@ -1,0 +1,10 @@
+texas_vfx_cut_1: canvas[50, 38]; frames1; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+texas_vfx_cut_2: canvas[50, 38]; frames1; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+texas_vfx_cut_3: canvas[40, 48]; frames1; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+texas_vfx_rain_sword: canvas[21, 28]; frames3; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+texas_vfx_rain_ring: canvas[192, 96]; frames2; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+texas_vfx_rain_hit: canvas[26, 13]; frames2; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+texas_vfx_dash: canvas[32, 24]; frames2; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+texas_vfx_spark: canvas[22, 11]; frames2; colours5 ['#121316', '#2b2e35', '#4a525e', '#8a94a2', '#d5dce4']; binary alphaTrue
+No tiling textures. Multi-frame animation continuity needs engine playback review.
+Composites are static scale comparisons, not engine screenshots of these new effects.

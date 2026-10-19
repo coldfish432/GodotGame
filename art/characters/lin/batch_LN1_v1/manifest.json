@@ -1,0 +1,103 @@
+{
+  "character": "lin",
+  "tool": "built-in image_gen",
+  "sheets": [
+    {
+      "file": "lin_walk_source.png",
+      "character": "lin",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "contact_A",
+        "passing_A",
+        "contact_B",
+        "passing_B"
+      ],
+      "source": "source_paintings\\walk_generated.png",
+      "sha256": "827e7c74ab7f5a584d2a9f6a1da29c8863072cd0d6c1c1cdf5f370d56da2b3ac"
+    },
+    {
+      "file": "lin_idle_source.png",
+      "character": "lin",
+      "kind": "idle",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "standing",
+        "breath"
+      ],
+      "source": "source_paintings\\idle_generated.png",
+      "sha256": "05e698a071185508bb9115862f8a5a2030307effaeda61334eeb4e3c5e290e7c"
+    },
+    {
+      "file": "lin_combat_source.png",
+      "character": "lin",
+      "kind": "combat",
+      "cols": 14,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "Cast 1 windup: wand raised to shoulder height, other hand open",
+        "Cast 1: wand pointed at the target, arm extended, ribbons lifting",
+        "Recover",
+        "Cast 2: wand swept across the body to the other side, pointing",
+        "Recover",
+        "Cast 3 windup: wand held upright in both hands in front of her, head bowed",
+        "Cast 3: wand thrust down toward the ground ahead, a strong pose, hair and ribbons flaring",
+        "Recover",
+        "Light Shatters windup: wand raised overhead, other arm out wide",
+        "Light Shatters release: both arms flung wide, chest up, ribbons and tails streaming",
+        "Sustain A: wand held forward, slight float of hair and ribbons",
+        "Sustain B: the other half of the loop (11 \u2192 12 \u2192 11)",
+        "Barrier shatter recoil: arms up shielding the face, leaning back as the glass breaks",
+        "Hurt: recoils backward"
+      ],
+      "source_blocks": [
+        {
+          "file": "source_paintings\\combat_left_generated.png",
+          "sha256": "ee3e62ab3e9a7341152980831e38dae7f8ec0d33655369e343baf0b50d4b0f0e"
+        },
+        {
+          "file": "source_paintings\\combat_right_generated.png",
+          "sha256": "ae09ad8424d0ccf5c03bf7d2e7f0e2e8492f6af6f84fa73524c7c0817f3f36a4"
+        }
+      ],
+      "rejected_source": "source_paintings\\combat_generated.png",
+      "rejected_source_sha256": "677e949b08824cc809668c196b5eb30cab369c98538093806d172a16377f9fa8",
+      "rejection_reason": "Initial source generated15columns; only the two seven-column painted blocks are used in the delivered14-column sheet."
+    }
+  ],
+  "painted_corrections": [],
+  "status": "draft; visual and in-engine approval open",
+  "processing": "connected-component extraction, nearest resampling, alpha threshold128, cell alignment; idle upper body displaced8px with lower legs retained from painted standing pose"
+}

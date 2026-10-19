@@ -1,0 +1,1282 @@
+[
+  {
+    "kind": "walk",
+    "row": 1,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 1,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 1,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 1,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 2,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 2,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 2,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 2,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 3,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 3,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 3,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 3,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 4,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 4,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 4,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 4,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 5,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 5,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 5,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 5,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 6,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 6,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 6,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 6,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 7,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 7,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 7,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 7,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 8,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 8,
+    "col": 2,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 8,
+    "col": 3,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "walk",
+    "row": 8,
+    "col": 4,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 1,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 1,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 2,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 2,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 3,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 3,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 4,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 4,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 5,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 5,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 6,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 6,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 7,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 7,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 8,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "idle",
+    "row": 8,
+    "col": 2,
+    "top": 21,
+    "lowest_opaque": 241,
+    "opaque_height": 221,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 1,
+    "top": 38,
+    "lowest_opaque": 241,
+    "opaque_height": 204,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 2,
+    "top": 79,
+    "lowest_opaque": 241,
+    "opaque_height": 163,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 3,
+    "top": 84,
+    "lowest_opaque": 241,
+    "opaque_height": 158,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 4,
+    "top": 49,
+    "lowest_opaque": 241,
+    "opaque_height": 193,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 5,
+    "top": 47,
+    "lowest_opaque": 241,
+    "opaque_height": 195,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 6,
+    "top": 83,
+    "lowest_opaque": 241,
+    "opaque_height": 159,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 7,
+    "top": 84,
+    "lowest_opaque": 241,
+    "opaque_height": 158,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 8,
+    "top": 77,
+    "lowest_opaque": 241,
+    "opaque_height": 165,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 9,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 10,
+    "top": 101,
+    "lowest_opaque": 241,
+    "opaque_height": 141,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 11,
+    "top": 79,
+    "lowest_opaque": 241,
+    "opaque_height": 163,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 12,
+    "top": 77,
+    "lowest_opaque": 241,
+    "opaque_height": 165,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 13,
+    "top": 82,
+    "lowest_opaque": 241,
+    "opaque_height": 160,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 14,
+    "top": 17,
+    "lowest_opaque": 241,
+    "opaque_height": 225,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 15,
+    "top": 63,
+    "lowest_opaque": 241,
+    "opaque_height": 179,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 1,
+    "col": 16,
+    "top": 77,
+    "lowest_opaque": 241,
+    "opaque_height": 165,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 1,
+    "top": 18,
+    "lowest_opaque": 241,
+    "opaque_height": 224,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 2,
+    "top": 54,
+    "lowest_opaque": 241,
+    "opaque_height": 188,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 3,
+    "top": 64,
+    "lowest_opaque": 241,
+    "opaque_height": 178,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 4,
+    "top": 48,
+    "lowest_opaque": 241,
+    "opaque_height": 194,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 5,
+    "top": 34,
+    "lowest_opaque": 241,
+    "opaque_height": 208,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 6,
+    "top": 64,
+    "lowest_opaque": 241,
+    "opaque_height": 178,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 7,
+    "top": 61,
+    "lowest_opaque": 241,
+    "opaque_height": 181,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 8,
+    "top": 51,
+    "lowest_opaque": 241,
+    "opaque_height": 191,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 9,
+    "top": 15,
+    "lowest_opaque": 241,
+    "opaque_height": 227,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 10,
+    "top": 78,
+    "lowest_opaque": 241,
+    "opaque_height": 164,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 11,
+    "top": 62,
+    "lowest_opaque": 241,
+    "opaque_height": 180,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 12,
+    "top": 62,
+    "lowest_opaque": 241,
+    "opaque_height": 180,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 13,
+    "top": 64,
+    "lowest_opaque": 241,
+    "opaque_height": 178,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 14,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 15,
+    "top": 59,
+    "lowest_opaque": 241,
+    "opaque_height": 183,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 2,
+    "col": 16,
+    "top": 51,
+    "lowest_opaque": 241,
+    "opaque_height": 191,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 1,
+    "top": 31,
+    "lowest_opaque": 241,
+    "opaque_height": 211,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 2,
+    "top": 47,
+    "lowest_opaque": 241,
+    "opaque_height": 195,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 3,
+    "top": 43,
+    "lowest_opaque": 241,
+    "opaque_height": 199,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 4,
+    "top": 34,
+    "lowest_opaque": 241,
+    "opaque_height": 208,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 5,
+    "top": 35,
+    "lowest_opaque": 241,
+    "opaque_height": 207,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 6,
+    "top": 40,
+    "lowest_opaque": 241,
+    "opaque_height": 202,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 7,
+    "top": 45,
+    "lowest_opaque": 241,
+    "opaque_height": 197,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 8,
+    "top": 40,
+    "lowest_opaque": 241,
+    "opaque_height": 202,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 9,
+    "top": 32,
+    "lowest_opaque": 241,
+    "opaque_height": 210,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 10,
+    "top": 82,
+    "lowest_opaque": 241,
+    "opaque_height": 160,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 11,
+    "top": 47,
+    "lowest_opaque": 241,
+    "opaque_height": 195,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 12,
+    "top": 48,
+    "lowest_opaque": 241,
+    "opaque_height": 194,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 13,
+    "top": 53,
+    "lowest_opaque": 241,
+    "opaque_height": 189,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 14,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 15,
+    "top": 104,
+    "lowest_opaque": 241,
+    "opaque_height": 138,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 3,
+    "col": 16,
+    "top": 58,
+    "lowest_opaque": 241,
+    "opaque_height": 184,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 1,
+    "top": 18,
+    "lowest_opaque": 241,
+    "opaque_height": 224,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 2,
+    "top": 44,
+    "lowest_opaque": 241,
+    "opaque_height": 198,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 3,
+    "top": 44,
+    "lowest_opaque": 241,
+    "opaque_height": 198,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 4,
+    "top": 37,
+    "lowest_opaque": 241,
+    "opaque_height": 205,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 5,
+    "top": 20,
+    "lowest_opaque": 241,
+    "opaque_height": 222,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 6,
+    "top": 47,
+    "lowest_opaque": 241,
+    "opaque_height": 195,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 7,
+    "top": 51,
+    "lowest_opaque": 241,
+    "opaque_height": 191,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 8,
+    "top": 45,
+    "lowest_opaque": 241,
+    "opaque_height": 197,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 9,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 10,
+    "top": 73,
+    "lowest_opaque": 241,
+    "opaque_height": 169,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 11,
+    "top": 49,
+    "lowest_opaque": 241,
+    "opaque_height": 193,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 12,
+    "top": 44,
+    "lowest_opaque": 241,
+    "opaque_height": 198,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 13,
+    "top": 49,
+    "lowest_opaque": 241,
+    "opaque_height": 193,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 14,
+    "top": 32,
+    "lowest_opaque": 241,
+    "opaque_height": 210,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 15,
+    "top": 35,
+    "lowest_opaque": 241,
+    "opaque_height": 207,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 4,
+    "col": 16,
+    "top": 47,
+    "lowest_opaque": 241,
+    "opaque_height": 195,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 1,
+    "top": 13,
+    "lowest_opaque": 241,
+    "opaque_height": 229,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 2,
+    "top": 44,
+    "lowest_opaque": 241,
+    "opaque_height": 198,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 3,
+    "top": 54,
+    "lowest_opaque": 241,
+    "opaque_height": 188,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 4,
+    "top": 52,
+    "lowest_opaque": 241,
+    "opaque_height": 190,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 5,
+    "top": 47,
+    "lowest_opaque": 241,
+    "opaque_height": 195,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 6,
+    "top": 54,
+    "lowest_opaque": 241,
+    "opaque_height": 188,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 7,
+    "top": 52,
+    "lowest_opaque": 241,
+    "opaque_height": 190,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 8,
+    "top": 50,
+    "lowest_opaque": 241,
+    "opaque_height": 192,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 9,
+    "top": 28,
+    "lowest_opaque": 241,
+    "opaque_height": 214,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 10,
+    "top": 88,
+    "lowest_opaque": 241,
+    "opaque_height": 154,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 11,
+    "top": 55,
+    "lowest_opaque": 241,
+    "opaque_height": 187,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 12,
+    "top": 58,
+    "lowest_opaque": 241,
+    "opaque_height": 184,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 13,
+    "top": 60,
+    "lowest_opaque": 241,
+    "opaque_height": 182,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 14,
+    "top": 52,
+    "lowest_opaque": 241,
+    "opaque_height": 190,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 15,
+    "top": 50,
+    "lowest_opaque": 241,
+    "opaque_height": 192,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  },
+  {
+    "kind": "combat",
+    "row": 5,
+    "col": 16,
+    "top": 60,
+    "lowest_opaque": 241,
+    "opaque_height": 182,
+    "border_pixels": 0,
+    "body_height": "requires visual measurement; opaque height includes hair, ears, weapon"
+  }
+]

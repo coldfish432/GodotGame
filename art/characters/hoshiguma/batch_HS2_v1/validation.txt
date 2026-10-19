@@ -1,0 +1,8 @@
+hoshiguma_vfx_bash: canvas[44, 22]; frames1; colours4 ['#101614', '#1f6b58', '#33383a', '#3fae8e']; binary alphaTrue
+hoshiguma_vfx_ram: canvas[56, 32]; frames1; colours4 ['#101614', '#1f6b58', '#33383a', '#3fae8e']; binary alphaTrue
+hoshiguma_vfx_saw: canvas[156, 40]; frames3; colours4 ['#101614', '#1f6b58', '#33383a', '#3fae8e']; binary alphaTrue
+hoshiguma_vfx_saw_spark: canvas[18, 9]; frames2; colours5 ['#101614', '#1f6b58', '#33383a', '#3fae8e', '#b8f0dc']; binary alphaTrue
+hoshiguma_vfx_block: canvas[48, 24]; frames2; colours5 ['#101614', '#1f6b58', '#33383a', '#3fae8e', '#b8f0dc']; binary alphaTrue
+hoshiguma_vfx_spark: canvas[22, 11]; frames2; colours4 ['#101614', '#1f6b58', '#33383a', '#3fae8e']; binary alphaTrue
+No tiling textures. Multi-frame animation continuity needs engine playback review.
+Composites are static scale comparisons, not engine screenshots of these new effects.

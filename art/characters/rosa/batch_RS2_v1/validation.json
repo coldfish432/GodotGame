@@ -1,0 +1,119 @@
+[
+  {
+    "id": "rosa_vfx_bolt",
+    "canvas": [
+      5,
+      18
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#2a3040",
+      "#2e4364",
+      "#6f7c8c"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "rosa_vfx_bolt_charged",
+    "canvas": [
+      7,
+      28
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#2a3040",
+      "#2e4364",
+      "#6f7c8c",
+      "#cfe6f0"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "rosa_vfx_harpoon",
+    "canvas": [
+      9,
+      28
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#2a3040",
+      "#2e4364",
+      "#6f7c8c",
+      "#cfe6f0"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "rosa_vfx_pinned",
+    "canvas": [
+      36,
+      18
+    ],
+    "frames": 2,
+    "colours": [
+      "#15131f",
+      "#2a3040",
+      "#2e4364",
+      "#6f7c8c",
+      "#cfe6f0"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "rosa_vfx_muzzle",
+    "canvas": [
+      26,
+      13
+    ],
+    "frames": 2,
+    "colours": [
+      "#15131f",
+      "#2a3040",
+      "#2e4364",
+      "#6f7c8c",
+      "#cfe6f0"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "rosa_vfx_armorbreak",
+    "canvas": [
+      30,
+      15
+    ],
+    "frames": 2,
+    "colours": [
+      "#15131f",
+      "#2a3040",
+      "#2e4364",
+      "#6f7c8c",
+      "#cfe6f0"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "rosa_vfx_spark",
+    "canvas": [
+      22,
+      11
+    ],
+    "frames": 2,
+    "colours": [
+      "#15131f",
+      "#2e4364",
+      "#6f7c8c",
+      "#cfe6f0"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  }
+]

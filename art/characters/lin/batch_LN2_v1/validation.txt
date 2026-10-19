@@ -1,0 +1,10 @@
+lin_vfx_array: canvas[120, 40]; frames3; colours6 ['#1d1a2a', '#2a2438', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+lin_vfx_array_big: canvas[168, 56]; frames3; colours6 ['#1d1a2a', '#2a2438', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+lin_vfx_shell: canvas[72, 36]; frames2; colours6 ['#1d1a2a', '#2a2438', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+lin_vfx_shatter: canvas[180, 60]; frames3; colours6 ['#1d1a2a', '#2a2438', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+lin_vfx_regen: canvas[72, 36]; frames2; colours6 ['#1d1a2a', '#2a2438', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+lin_vfx_surge: canvas[228, 76]; frames3; colours6 ['#1d1a2a', '#2a2438', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+lin_vfx_shard: canvas[21, 7]; frames3; colours5 ['#1d1a2a', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+lin_vfx_spark: canvas[22, 11]; frames2; colours6 ['#1d1a2a', '#2a2438', '#6c6488', '#bcd0f0', '#e2bcd2', '#f1ecf6']; binary alphaTrue
+No tiling textures. Multi-frame animation continuity needs engine playback review.
+Composites are static scale comparisons, not engine screenshots of these new effects.

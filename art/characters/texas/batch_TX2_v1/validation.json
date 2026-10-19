@@ -1,0 +1,138 @@
+[
+  {
+    "id": "texas_vfx_cut_1",
+    "canvas": [
+      50,
+      38
+    ],
+    "frames": 1,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "texas_vfx_cut_2",
+    "canvas": [
+      50,
+      38
+    ],
+    "frames": 1,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "texas_vfx_cut_3",
+    "canvas": [
+      40,
+      48
+    ],
+    "frames": 1,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "texas_vfx_rain_sword",
+    "canvas": [
+      21,
+      28
+    ],
+    "frames": 3,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "texas_vfx_rain_ring",
+    "canvas": [
+      192,
+      96
+    ],
+    "frames": 2,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "texas_vfx_rain_hit",
+    "canvas": [
+      26,
+      13
+    ],
+    "frames": 2,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "texas_vfx_dash",
+    "canvas": [
+      32,
+      24
+    ],
+    "frames": 2,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "texas_vfx_spark",
+    "canvas": [
+      22,
+      11
+    ],
+    "frames": 2,
+    "colours": [
+      "#121316",
+      "#2b2e35",
+      "#4a525e",
+      "#8a94a2",
+      "#d5dce4"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  }
+]

@@ -1,0 +1,138 @@
+[
+  {
+    "id": "santalla_vfx_orb",
+    "canvas": [
+      18,
+      9
+    ],
+    "frames": 2,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "santalla_vfx_orb_big",
+    "canvas": [
+      26,
+      13
+    ],
+    "frames": 2,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "santalla_vfx_splash",
+    "canvas": [
+      64,
+      32
+    ],
+    "frames": 2,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "santalla_vfx_icicle",
+    "canvas": [
+      27,
+      24
+    ],
+    "frames": 3,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "santalla_vfx_icicle_hit",
+    "canvas": [
+      84,
+      28
+    ],
+    "frames": 3,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "santalla_vfx_chill",
+    "canvas": [
+      26,
+      13
+    ],
+    "frames": 2,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "santalla_vfx_aura",
+    "canvas": [
+      88,
+      44
+    ],
+    "frames": 2,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "santalla_vfx_spark",
+    "canvas": [
+      22,
+      11
+    ],
+    "frames": 2,
+    "colours": [
+      "#0f1430",
+      "#18216b",
+      "#2f4fc0",
+      "#8fc3ff",
+      "#e4f1ff"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  }
+]

@@ -1,0 +1,132 @@
+{
+  "sheets": [
+    {
+      "id": "doctor",
+      "kind": "walk",
+      "file": "doctor_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "doctor",
+      "kind": "idle",
+      "file": "doctor_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "sharp",
+      "kind": "walk",
+      "file": "sharp_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "sharp",
+      "kind": "idle",
+      "file": "sharp_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "stormeye",
+      "kind": "walk",
+      "file": "stormeye_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "stormeye",
+      "kind": "idle",
+      "file": "stormeye_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "pith",
+      "kind": "walk",
+      "file": "pith_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "pith",
+      "kind": "idle",
+      "file": "pith_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "touch",
+      "kind": "walk",
+      "file": "touch_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "touch",
+      "kind": "idle",
+      "file": "touch_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "tulip",
+      "kind": "walk",
+      "file": "tulip_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "tulip",
+      "kind": "idle",
+      "file": "tulip_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "mechanist",
+      "kind": "walk",
+      "file": "mechanist_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "mechanist",
+      "kind": "idle",
+      "file": "mechanist_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "misery",
+      "kind": "walk",
+      "file": "misery_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "misery",
+      "kind": "idle",
+      "file": "misery_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    }
+  ]
+}

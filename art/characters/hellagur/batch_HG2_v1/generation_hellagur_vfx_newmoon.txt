@@ -1,0 +1,18 @@
+Use case stylized-concept. Production pixel-art GAME VFX texture, transparent alpha, NO CHARACTERS, no text, no grid, no shadow. One image asset hellagur_vfx_newmoon. | `hellagur_vfx_newmoon` | New Moon heavy cleave | 48×60 | ground, anchor `bottom` | **One** downward cleave from the top edge (far side) to the bottom (his feet), shaped like a **thick crescent moon**: about 12 px at its widest. Moon-cream core, pale-steel edge, outline. It must read clearly as bigger and brighter than his combo cuts. |
+Draw precisely 1 separate frame(s) in ONE HORIZONTAL ROW, uniform equal 48x60 native pixel cells, enlarged8x for source painting. Full strip aspect 48:60, use whole canvas, keep a1 native pixel transparent outer gutter per frame, do not join frames. Chunky pixel clusters, hard dark1px outer outline and hard solid opaque fills, no antialiasing, gradient or bloom. Ground mount is TOP DOWN with attack toward TOP; billboard upright as specified.
+Use only this palette and its use restrictions:
+### Hellagur palette (moonlight steel)
+
+| Name | Hex | Use |
+|---|---|---|
+| Outline | `#15131f` | 1 px outer edge on every effect |
+| Night steel | `#232838` | the dark inner edge of cuts |
+| Steel blue | `#46607a` | the main edge of combo cuts, tails |
+| Pale steel | `#9fb4c8` | the core of combo cuts (his pale blade) |
+| Moon cream | `#efe6bf` | **only** the moon-phase effects (New, Half, Full Moon, the phase pip) and the drain motes |
+| Ash lavender | `#7b83a2` | **only** the Full Moon trail (the colour of his cape) |
+
+His E2 art wraps him in yellow lightning and a giant bird. Do not draw the bird. Turn the lightning into the **moon**: crescent shapes and cool cream light, never saturated yellow or gold.
+
+
+No saturated yellow/gold, no red, no pure white, no purple. Hellagur uses ONE katana: one stroke, never paired arcs or X. Reference image is STYLE only. No extra icons or decorative panels.

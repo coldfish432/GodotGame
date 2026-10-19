@@ -1,0 +1,106 @@
+{
+  "character": "hellagur",
+  "tool": "built-in image_gen",
+  "sheets": [
+    {
+      "file": "hellagur_walk_source.png",
+      "character": "hellagur",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "contact_A",
+        "passing_A",
+        "contact_B",
+        "passing_B"
+      ],
+      "source": "source_paintings\\walk_generated.png",
+      "sha256": "0cdcb2cb46f505ce5d3f8116a2bdf06f54c83a6b8b603ed5660a09e0da145ce9"
+    },
+    {
+      "file": "hellagur_idle_source.png",
+      "character": "hellagur",
+      "kind": "idle",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "standing",
+        "breath"
+      ],
+      "source": "source_paintings\\idle_generated.png",
+      "sha256": "e5e32b45d01bc44bce5e66a9dab2e6164c695de2d1da5702c93f338c20a05245"
+    },
+    {
+      "file": "hellagur_combat_source.png",
+      "character": "hellagur",
+      "kind": "combat",
+      "cols": 16,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "Combo 1 windup: katana raised two-handed over the right shoulder",
+        "Combo 1: diagonal down cut, blade at the left hip, body twisted",
+        "Recover",
+        "Combo 2: rising return cut, blade sweeping up to the upper left, hair lifting",
+        "Combo 2 follow-through: blade high, cape swinging",
+        "Combo 3 windup (iai): body low, blade drawn back along the left hip, right hand on the hilt",
+        "Combo 3 iai: blade fully extended horizontally across the front, one hand, body turned",
+        "Recover",
+        "New Moon windup: blade raised straight overhead in both hands, back arched",
+        "New Moon landed: **deep crouch**, blade brought straight down to the ground line",
+        "Half Moon cut 1: quick short horizontal cut, elbows tight",
+        "Half Moon cut 2: the quick return cut, the other way",
+        "Half Moon evade: **a sidestep lean** to his left, blade held back, cape flaring",
+        "Full Moon windup: body coiled, blade swung far behind him, low",
+        "Full Moon sweep: blade extended to full reach in a wide arc, body unwinding, cape and hair whipping round",
+        "Hurt: recoils backward"
+      ],
+      "source": "source_paintings\\combat_generated.png",
+      "sha256": "bea38c0adbee933690677374bf98ee46f91a874ad1821116522e9f93b0b0e4be"
+    }
+  ],
+  "painted_corrections": [
+    {
+      "source": "source_paintings\\w_profile_corrections.png",
+      "sha256": "ae2908cceb3ff9f51323f49952d364ca9962aba20b06271d426d3de33c6a4453",
+      "sheet": "combat",
+      "row": "W",
+      "columns": [
+        10,
+        15,
+        16
+      ]
+    }
+  ],
+  "status": "draft; visual and in-engine approval open",
+  "processing": "connected-component extraction, nearest resampling, alpha threshold128, cell alignment; idle upper body displaced8px with lower legs retained from painted standing pose"
+}

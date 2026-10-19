@@ -1,0 +1,92 @@
+{
+  "character": "hoshiguma",
+  "tool": "built-in image_gen",
+  "sheets": [
+    {
+      "file": "hoshiguma_walk_source.png",
+      "character": "hoshiguma",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "contact_A",
+        "passing_A",
+        "contact_B",
+        "passing_B"
+      ],
+      "source": "source_paintings\\walk_generated.png",
+      "sha256": "51912546b18aad205cdf04ed7ffdd6726b292db944db057bbac9545003bbc6eb"
+    },
+    {
+      "file": "hoshiguma_idle_source.png",
+      "character": "hoshiguma",
+      "kind": "idle",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "standing",
+        "breath"
+      ],
+      "source": "source_paintings\\idle_generated.png",
+      "sha256": "7aa7918f19a1995756ad99c589ee34b9759960d34ab3dd0b392a6b66cc23cd2e"
+    },
+    {
+      "file": "hoshiguma_combat_source.png",
+      "character": "hoshiguma",
+      "kind": "combat",
+      "cols": 15,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "Bash 1 windup: shield pulled back to the right, shoulder turned",
+        "Bash 1: shield swung flat forward, weight on the front foot",
+        "Recover",
+        "Bash 2: backhand bash, the shield edge swung across the other way",
+        "Recover",
+        "Ram windup: shield squared to the front, body low behind it",
+        "Ram: **lunging forward** shoulder-first behind the shield, hair streaming back (feet still on the baseline)",
+        "Hold the ram",
+        "Recover",
+        "Saw of Strength, planted: shield set square in front, both hands braced, knees bent, leaning into it",
+        "Saw loop A: grinding the shield edge forward, upper body pushing",
+        "Saw loop B: the opposite push of the loop; 10\u201312 must loop smoothly 11 \u2192 12 \u2192 11",
+        "Saw release: shield lifted back to her side",
+        "Block: the shield snaps up to take a hit, body unmoved, grin",
+        "Hurt: recoils backward"
+      ],
+      "source": "source_paintings\\combat_generated.png",
+      "sha256": "185cbbf98007b9222564be15fa0267364d3db5f46599bc9355a9de1fed484d08"
+    }
+  ],
+  "status": "draft; visual and in-engine approval open",
+  "processing": "connected-component extraction, nearest resampling, alpha threshold128, cell alignment; idle upper body displaced8px with lower legs retained from painted standing pose"
+}

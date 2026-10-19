@@ -1,0 +1,147 @@
+{
+  "character": "hellagur",
+  "tool": "built-in image_gen",
+  "effects": [
+    {
+      "id": "hellagur_vfx_cut_1",
+      "file": "hellagur_vfx_cut_1.png",
+      "size": [
+        56,
+        46
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_cut_1.png",
+      "sha256": "1d0675c918c4aab25b17a90682de1a37ddb02e466259664e4966611033588207"
+    },
+    {
+      "id": "hellagur_vfx_cut_2",
+      "file": "hellagur_vfx_cut_2.png",
+      "size": [
+        56,
+        46
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_cut_2.png",
+      "sha256": "2f26166de6be26f366c8d1913e67c8c075cef10b09d69901c99ffb705d13801b"
+    },
+    {
+      "id": "hellagur_vfx_iai",
+      "file": "hellagur_vfx_iai.png",
+      "size": [
+        76,
+        14
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_iai.png",
+      "sha256": "06f71353bc5f87fbc0298a033034c96b80fff10ed5e9edc6707f5f29ee201300"
+    },
+    {
+      "id": "hellagur_vfx_newmoon",
+      "file": "hellagur_vfx_newmoon.png",
+      "size": [
+        48,
+        60
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "bottom",
+      "source": "source_paintings\\hellagur_vfx_newmoon.png",
+      "sha256": "cad88747229f0fd6fab488a285e780fa2f6c9ecc912cd7b391a0d255b911d8b5"
+    },
+    {
+      "id": "hellagur_vfx_halfmoon_a",
+      "file": "hellagur_vfx_halfmoon_a.png",
+      "size": [
+        44,
+        30
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_halfmoon_a.png",
+      "sha256": "e1893f3f98b4d0e069be048d8fd4301558dadf9784aa0ac7c949f8822f29c8c9"
+    },
+    {
+      "id": "hellagur_vfx_halfmoon_b",
+      "file": "hellagur_vfx_halfmoon_b.png",
+      "size": [
+        44,
+        30
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_halfmoon_b.png",
+      "sha256": "03023edb42adfd17297f1b2d69f6de037f53de0631e482e45e04fcd005bf33a5"
+    },
+    {
+      "id": "hellagur_vfx_fullmoon",
+      "file": "hellagur_vfx_fullmoon.png",
+      "size": [
+        104,
+        72
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_fullmoon.png",
+      "sha256": "92298c97d781817a3cb13be3bb71d35bf0c771e1482b1e759e32e0bcbfc0482d"
+    },
+    {
+      "id": "hellagur_vfx_phase",
+      "file": "hellagur_vfx_phase.png",
+      "size": [
+        9,
+        9
+      ],
+      "frames": 3,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_phase.png",
+      "sha256": "4ed6514cc2afbe3febba01220648d5ed08b22169349aa25b62b151f4bc083ac0"
+    },
+    {
+      "id": "hellagur_vfx_drain",
+      "file": "hellagur_vfx_drain.png",
+      "size": [
+        9,
+        9
+      ],
+      "frames": 2,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_drain.png",
+      "sha256": "0b6f2efab02ebf81c4aef543c733ea047cbddacbcda17020dae7c43546b49f87"
+    },
+    {
+      "id": "hellagur_vfx_spark",
+      "file": "hellagur_vfx_spark.png",
+      "size": [
+        11,
+        11
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\hellagur_vfx_spark.png",
+      "sha256": "0ee3d9e2e714429472aa499f7c4cba6a41aeb0323bbe300533d118642602598a"
+    }
+  ],
+  "status": "static validated; art and in-engine animation approval open"
+}

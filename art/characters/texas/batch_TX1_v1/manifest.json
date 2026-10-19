@@ -1,0 +1,142 @@
+{
+  "character": "texas",
+  "tool": "built-in image_gen",
+  "sheets": [
+    {
+      "file": "texas_walk_source.png",
+      "character": "texas",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "contact_A",
+        "passing_A",
+        "contact_B",
+        "passing_B"
+      ],
+      "source": "source_paintings\\walk_generated.png",
+      "sha256": "bb6e410279700b3e71117b1c3123fdde456cab114905d3b203c0ef49bf82a6f8",
+      "raw_row_reassignment": {
+        "from": 6,
+        "to": 7,
+        "facing": "E"
+      }
+    },
+    {
+      "file": "texas_idle_source.png",
+      "character": "texas",
+      "kind": "idle",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "standing",
+        "breath"
+      ],
+      "source": "source_paintings\\idle_generated.png",
+      "sha256": "7ff64f4212963d722b8bd2be8d78ffaad4f934d4a92fa3520f4cd7eed3c25cb1",
+      "raw_row_reassignment": {
+        "from": 6,
+        "to": 7,
+        "facing": "E"
+      }
+    },
+    {
+      "file": "texas_combat_source.png",
+      "character": "texas",
+      "kind": "combat",
+      "cols": 13,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "Cut 1 windup: sword drawn back low at the right hip",
+        "Cut 1: a fast horizontal cut across the front, arm fully extended",
+        "Cut 2: the backhand cut the other way, hair whipping",
+        "Cut 2 follow-through",
+        "Cut 3 windup: sword raised over the right shoulder",
+        "Cut 3: a sharp diagonal down-cut, knees bent, body turned into it",
+        "Recover",
+        "Sword Rain windup: sword raised straight up to the sky, left hand open at her side",
+        "Sword Rain call: sword held high, head tilted up, tail and hair lifting",
+        "Sword Rain strike 1: sword brought down hard, **deep crouch**",
+        "Sword Rain strike 2: rising out of the crouch, sword swept outward",
+        "Recover",
+        "Hurt: recoils backward"
+      ],
+      "source": "source_paintings\\combat_generated.png",
+      "sha256": "bf56cc4d6fbb343aa99a31ae7d9bd215a999685c2aa62d363a060cce34666b01",
+      "planted_boot_pixels": {
+        "columns": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "from_row": 224,
+        "x_range": [
+          80,
+          176
+        ],
+        "reference_column": 1
+      }
+    }
+  ],
+  "painted_corrections": [
+    {
+      "source": "source_paintings\\idle_NE_corrected.png",
+      "sha256": "384f6d10f89d299461715398c6fa8854216917c237285db22e2b650482632e18",
+      "sheet": "idle",
+      "row": "NE",
+      "columns": [
+        1,
+        2
+      ],
+      "active": true
+    },
+    {
+      "source": "source_paintings\\walk_NE_corrected.png",
+      "sha256": "6f17652af16416406a4b3527be6c48eb754e89a31adc96974f6a5654c91c27be",
+      "sheet": "walk",
+      "row": "NE",
+      "columns": [
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "status": "draft; visual and in-engine approval open",
+  "processing": "connected-component extraction, nearest resampling, alpha threshold128, cell alignment; idle upper body displaced8px with lower legs retained from painted standing pose"
+}

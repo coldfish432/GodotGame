@@ -1,0 +1,91 @@
+{
+  "character": "rosa",
+  "tool": "built-in image_gen",
+  "sheets": [
+    {
+      "file": "rosa_walk_source.png",
+      "character": "rosa",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "contact_A",
+        "passing_A",
+        "contact_B",
+        "passing_B"
+      ],
+      "source": "source_paintings\\walk_generated.png",
+      "sha256": "4abec21ee3b4455e2627cf4fe9d2e9d6654f345fd8e8463cef7d3aeb3cf6ce1f"
+    },
+    {
+      "file": "rosa_idle_source.png",
+      "character": "rosa",
+      "kind": "idle",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "standing",
+        "breath"
+      ],
+      "source": "source_paintings\\idle_generated.png",
+      "sha256": "d157504dba6d52d5e54f1c6ea180b5890d407fd4fb68cf45c7e5990cd8e561d8"
+    },
+    {
+      "file": "rosa_combat_source.png",
+      "character": "rosa",
+      "kind": "combat",
+      "cols": 13,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "Aim: launcher raised and levelled at the target, braced, feet apart",
+        "Fire: recoil, the launcher kicks up, shoulders pushed back, hair lifting",
+        "Reload / recover: launcher lowered, one hand on the loading slide",
+        "Charge: deeper crouch, launcher pulled tight to the shoulder, cape flaring",
+        "Charged release: heavy recoil, back foot slides back (feet stay on the baseline)",
+        "Recover",
+        "Avalanche Strike windup: launcher swung down to the hip, leaning into it",
+        "Volley 1: firing toward the left side of the fan",
+        "Volley 2: firing straight ahead",
+        "Volley 3: firing toward the right side of the fan",
+        "Hold: launcher still raised, smoke shape at the muzzle **not** drawn, hair settling",
+        "Recover",
+        "Hurt: recoils backward"
+      ],
+      "source": "source_paintings\\combat_generated.png",
+      "sha256": "f26c7afbf9e9a069d18692ec6ce614af838ee79dcf9c6bcea717bf5cab879f06"
+    }
+  ],
+  "painted_corrections": [],
+  "status": "draft; visual and in-engine approval open",
+  "processing": "connected-component extraction, nearest resampling, alpha threshold128, cell alignment; idle upper body displaced8px with lower legs retained from painted standing pose"
+}

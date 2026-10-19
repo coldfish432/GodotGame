@@ -1,0 +1,22 @@
+{
+  "avatar_order": [
+    "doctor",
+    "sharp",
+    "stormeye",
+    "pith",
+    "touch",
+    "tulip",
+    "mechanist",
+    "misery"
+  ],
+  "shuffled_sprites": {
+    "A": "sharp",
+    "B": "stormeye",
+    "C": "doctor",
+    "D": "touch",
+    "E": "mechanist",
+    "F": "tulip",
+    "G": "misery",
+    "H": "pith"
+  }
+}

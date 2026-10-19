@@ -1,0 +1,19 @@
+Use case stylized-concept. Production GAME SPRITE SHEET, freshly drawn, never a portrait. santalla from Arknights. Official PRTS image COSTUME AND COLOURS ONLY, do not trace. Amiya image STYLE AND GRID only: match two-head-tall chibi, chunky flat shading, dark outline and pixel clusters. Character sprites have NO colour-count limit. True transparent background no labels no grid no shadows no VFX or slash lines/projectiles/glows. No bright red (use replacements below), no summoned animals/background scenery. Uniform256x256 cells: body centre x128, boots lowest row241, topmost hat/horn/ears at y12 or lower; entire weapon inside each cell. All frames same body size.
+Character specification:
+## Character read (what must survive at 32 px)
+
+From her E2 art (`prts_refs.md`):
+
+- **Long silver-white hair** (`#eceaf2` light, `#b0aebd` shadow), loose, with a long fringe that hides **one eye**. Her file says her left eye is fully crystallised; in the E2 art only one **amber-yellow eye** shows (1 px, `#e0b840`).
+- Race Feline (菲林): **two white cat ears** (`#e4e0ed`) poking out under the hat, and a **thick white fur tail** (`#d7d5e3`, shadow `#8992b1`).
+- **A tall white cylindrical hat** with a **blue cross** on the front (`#2f3fa0`) and a black band at the brim (`#302c42`). It is her strongest shape. **Shorten it** so the whole head and hat stay under the row-12 limit; at 32 px it is about a 4 × 4 texel white block with a 1-texel blue cross.
+- **White sleeveless high-collar dress** (`#f2f2f6` light, `#c6c8dc` shade), long, with a deep side slit and thin **blue** piping; a **blue armband** on the upper arm (`#2f379a`); dark sheer sleeves on the arms (`#2a2a40`); a black belt with buckles.
+- **A big white fur stole** around one shoulder and arm (`#ebe5e5`), and a long white coat with **deep-blue lining** (`#18216b`) hanging from the shoulders.
+- **Black thigh-high boots** (`#292942`).
+- **Weapon:** a **long dark staff** (`#2b2b44` shaft, steel fittings `#817d9d`), longer than she is tall, with a **glowing blue core section** near the head (`#3a6ad8`, bright `#8fc3ff`) and an ornate ring-shaped head. Held in **one hand**, her right, angled down and back when walking so it stays in the cell.
+- Cold, distant, a little weary.
+
+**Height:** body (top of the head to the soles, without hat or ears) **1.00× Lappland's**. Her file says 170 cm against Lappland's 162 cm; I keep her body at Lappland's height so the hat fits.
+
+
+STANDING IDLE SHEET:2 columns x8 rows,512x2048,16 sprites. Same eight headings S,SW,W,NW,N,NE,E,SE as reference walk, rear NW N NE have NO FACE. Column1 stand calmly with straight legs, BOTH BOOTS flat close SIDE BY SIDE, no lifted leg or wide guard stance, arms relaxed and weapon as walk. Column2 quiet breath, head shoulders torso hair moveDOWN8px, from knees y200 downward EXACTLY IDENTICAL to column1. NOT walking poses. First reference establishes character identity and size; second Amiya establishes calm idle posture.

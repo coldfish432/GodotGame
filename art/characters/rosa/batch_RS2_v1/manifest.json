@@ -1,0 +1,105 @@
+{
+  "character": "rosa",
+  "tool": "built-in image_gen",
+  "effects": [
+    {
+      "id": "rosa_vfx_bolt",
+      "file": "rosa_vfx_bolt.png",
+      "size": [
+        5,
+        18
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\rosa_vfx_bolt.png",
+      "sha256": "9b2eee4d86a4999144f6a7b6db011ba328d55584511729bb2394414986390289"
+    },
+    {
+      "id": "rosa_vfx_bolt_charged",
+      "file": "rosa_vfx_bolt_charged.png",
+      "size": [
+        7,
+        28
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\rosa_vfx_bolt_charged.png",
+      "sha256": "aeaa2fccc367d31afe4f52199b6c0a861d23f20e407668ff76ae6f7520c6a000"
+    },
+    {
+      "id": "rosa_vfx_harpoon",
+      "file": "rosa_vfx_harpoon.png",
+      "size": [
+        9,
+        28
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\rosa_vfx_harpoon.png",
+      "sha256": "6e97334256708f83e4d1907dafce9394261fc88173c8a9af430cb7549a8df327"
+    },
+    {
+      "id": "rosa_vfx_pinned",
+      "file": "rosa_vfx_pinned.png",
+      "size": [
+        18,
+        18
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\rosa_vfx_pinned.png",
+      "sha256": "47c2ccb4d07e7cb0c1f3d4c30a8e016478bcbc57e27acbd0a9cf94bc57ccf3c1"
+    },
+    {
+      "id": "rosa_vfx_muzzle",
+      "file": "rosa_vfx_muzzle.png",
+      "size": [
+        13,
+        13
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "bottom",
+      "source": "source_paintings\\rosa_vfx_muzzle.png",
+      "sha256": "aad9efb8284de0518822388900ef09bc08c2aa752024b8055cb10fbb2757389a"
+    },
+    {
+      "id": "rosa_vfx_armorbreak",
+      "file": "rosa_vfx_armorbreak.png",
+      "size": [
+        15,
+        15
+      ],
+      "frames": 2,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\rosa_vfx_armorbreak.png",
+      "sha256": "8882bae969245c37d2e6ecea1903395d468c4b8717a2171ae3ae2121cdb2f40d"
+    },
+    {
+      "id": "rosa_vfx_spark",
+      "file": "rosa_vfx_spark.png",
+      "size": [
+        11,
+        11
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\rosa_vfx_spark.png",
+      "sha256": "1ec0ca63120f96562bcbc2db52c86203002bbf8aa8f6174067353984c3c3deaf"
+    }
+  ],
+  "status": "static validated; art and in-engine animation approval open"
+}

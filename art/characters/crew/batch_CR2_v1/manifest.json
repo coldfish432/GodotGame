@@ -1,0 +1,132 @@
+{
+  "sheets": [
+    {
+      "id": "reserve_vanguard",
+      "kind": "walk",
+      "file": "reserve_vanguard_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_vanguard",
+      "kind": "idle",
+      "file": "reserve_vanguard_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_guard",
+      "kind": "walk",
+      "file": "reserve_guard_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_guard",
+      "kind": "idle",
+      "file": "reserve_guard_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_defender",
+      "kind": "walk",
+      "file": "reserve_defender_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_defender",
+      "kind": "idle",
+      "file": "reserve_defender_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_sniper",
+      "kind": "walk",
+      "file": "reserve_sniper_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_sniper",
+      "kind": "idle",
+      "file": "reserve_sniper_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_caster",
+      "kind": "walk",
+      "file": "reserve_caster_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_caster",
+      "kind": "idle",
+      "file": "reserve_caster_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_medic",
+      "kind": "walk",
+      "file": "reserve_medic_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_medic",
+      "kind": "idle",
+      "file": "reserve_medic_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_supporter",
+      "kind": "walk",
+      "file": "reserve_supporter_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_supporter",
+      "kind": "idle",
+      "file": "reserve_supporter_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_specialist",
+      "kind": "walk",
+      "file": "reserve_specialist_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "reserve_specialist",
+      "kind": "idle",
+      "file": "reserve_specialist_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    }
+  ]
+}

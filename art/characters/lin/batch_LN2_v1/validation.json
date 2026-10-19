@@ -1,0 +1,145 @@
+[
+  {
+    "id": "lin_vfx_array",
+    "canvas": [
+      120,
+      40
+    ],
+    "frames": 3,
+    "colours": [
+      "#1d1a2a",
+      "#2a2438",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "lin_vfx_array_big",
+    "canvas": [
+      168,
+      56
+    ],
+    "frames": 3,
+    "colours": [
+      "#1d1a2a",
+      "#2a2438",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "lin_vfx_shell",
+    "canvas": [
+      72,
+      36
+    ],
+    "frames": 2,
+    "colours": [
+      "#1d1a2a",
+      "#2a2438",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "lin_vfx_shatter",
+    "canvas": [
+      180,
+      60
+    ],
+    "frames": 3,
+    "colours": [
+      "#1d1a2a",
+      "#2a2438",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "lin_vfx_regen",
+    "canvas": [
+      72,
+      36
+    ],
+    "frames": 2,
+    "colours": [
+      "#1d1a2a",
+      "#2a2438",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "lin_vfx_surge",
+    "canvas": [
+      228,
+      76
+    ],
+    "frames": 3,
+    "colours": [
+      "#1d1a2a",
+      "#2a2438",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "lin_vfx_shard",
+    "canvas": [
+      21,
+      7
+    ],
+    "frames": 3,
+    "colours": [
+      "#1d1a2a",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "lin_vfx_spark",
+    "canvas": [
+      22,
+      11
+    ],
+    "frames": 2,
+    "colours": [
+      "#1d1a2a",
+      "#2a2438",
+      "#6c6488",
+      "#bcd0f0",
+      "#e2bcd2",
+      "#f1ecf6"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  }
+]

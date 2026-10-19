@@ -1,0 +1,119 @@
+{
+  "character": "lin",
+  "tool": "built-in image_gen",
+  "effects": [
+    {
+      "id": "lin_vfx_array",
+      "file": "lin_vfx_array.png",
+      "size": [
+        40,
+        40
+      ],
+      "frames": 3,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_array.png",
+      "sha256": "4d07ef3a025748c2e681c7766021a261eb96f5f4cc43838c2a390070f674a408"
+    },
+    {
+      "id": "lin_vfx_array_big",
+      "file": "lin_vfx_array_big.png",
+      "size": [
+        56,
+        56
+      ],
+      "frames": 3,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_array_big.png",
+      "sha256": "1f2c2d9713219c60a3070654bb6f07717a155e7fee7bde7f140ba345454e053b"
+    },
+    {
+      "id": "lin_vfx_shell",
+      "file": "lin_vfx_shell.png",
+      "size": [
+        36,
+        36
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_shell.png",
+      "sha256": "9757c1755c5e2b97c5f44d953fdac066de5e49a1e283330ec56b95329b3ec1ec"
+    },
+    {
+      "id": "lin_vfx_shatter",
+      "file": "lin_vfx_shatter.png",
+      "size": [
+        60,
+        60
+      ],
+      "frames": 3,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_shatter.png",
+      "sha256": "d3d7b13bbd582f374cdd039831f1a47de256eefa2334fa0d2b1f22ce2ded0f07"
+    },
+    {
+      "id": "lin_vfx_regen",
+      "file": "lin_vfx_regen.png",
+      "size": [
+        36,
+        36
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_regen.png",
+      "sha256": "874157553a3aac5c1e64a652957b0bc47392e34e2e3ea5996f13615d419dd7fc"
+    },
+    {
+      "id": "lin_vfx_surge",
+      "file": "lin_vfx_surge.png",
+      "size": [
+        76,
+        76
+      ],
+      "frames": 3,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_surge.png",
+      "sha256": "d9786a13fc6b52c646bf04e2c805dd21cfd7b787db795e7bc14ed6416f301de9"
+    },
+    {
+      "id": "lin_vfx_shard",
+      "file": "lin_vfx_shard.png",
+      "size": [
+        7,
+        7
+      ],
+      "frames": 3,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_shard.png",
+      "sha256": "9c4e5b86e375a4dde8eab0d5c27a2cd68b01f717bc15a9edea4fb0afd169020d"
+    },
+    {
+      "id": "lin_vfx_spark",
+      "file": "lin_vfx_spark.png",
+      "size": [
+        11,
+        11
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\lin_vfx_spark.png",
+      "sha256": "dbd6c45b142723134fc7e6e42d2113f9a1bd79b3f100be2e8f8d3e70ef25b394"
+    }
+  ],
+  "status": "static validated; art and in-engine animation approval open"
+}

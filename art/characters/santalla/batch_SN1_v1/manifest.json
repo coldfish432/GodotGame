@@ -1,0 +1,125 @@
+{
+  "character": "santalla",
+  "tool": "built-in image_gen",
+  "sheets": [
+    {
+      "file": "santalla_walk_source.png",
+      "character": "santalla",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "contact_A",
+        "passing_A",
+        "contact_B",
+        "passing_B"
+      ],
+      "source": "source_paintings\\walk_generated.png",
+      "sha256": "2871f45f51b77e8ea93032ca93f2dd5c5dbb8f9843fab94d7b402459fcd9e4b1"
+    },
+    {
+      "file": "santalla_idle_source.png",
+      "character": "santalla",
+      "kind": "idle",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "standing",
+        "breath"
+      ],
+      "source": "source_paintings\\idle_generated.png",
+      "sha256": "af91a90b334cfcea42a537c22b1b6f39322e6e3f225ff7c4e689813e15a4fcb8"
+    },
+    {
+      "file": "santalla_combat_source.png",
+      "character": "santalla",
+      "kind": "combat",
+      "cols": 12,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "Orb 1 windup: staff raised, off hand drawn back",
+        "Orb 1: off hand thrust forward, palm open",
+        "Orb 2: staff swung across to the other side, its head pointing at the target",
+        "Orb 3 windup: staff pulled back in both hands, body turned",
+        "Orb 3: staff thrust forward two-handed, coat and stole flaring",
+        "Recover",
+        "Witch's Tears windup: staff planted upright beside her, head bowed",
+        "Channel A: staff raised overhead, hair and coat lifting as if in a cold wind",
+        "Channel B: the other half of the loop (8 \u2192 9 \u2192 8), hair and coat in a different drift",
+        "Channel end: staff lowered",
+        "Recover",
+        "Hurt: recoils backward"
+      ],
+      "source": "source_paintings\\combat_generated.png",
+      "sha256": "c66bb047366373c627924968baf7b92e15f89e1fedc8a04948f4ed7644319ef1"
+    }
+  ],
+  "painted_corrections": [
+    {
+      "source": "source_paintings\\idle_NE_corrected.png",
+      "sha256": "1a6f5474dfb33f02900b522311dc48dd993130c6449eb6181711dc207a01771f",
+      "sheet": "idle",
+      "row": "NE",
+      "columns": [
+        1,
+        2
+      ],
+      "active": false
+    },
+    {
+      "source": "source_paintings\\idle_NE_corrected_v2.png",
+      "sha256": "82aaad2b554c9d82563e4c8a4e13f87b3630d88cf82c41c4be4a92d1e7a3c859",
+      "sheet": "idle",
+      "row": "NE",
+      "columns": [
+        1,
+        2
+      ],
+      "active": true
+    },
+    {
+      "source": "source_paintings\\walk_NE_corrected.png",
+      "sha256": "439e3963a9536a996ae27c6acabec938933ff8ddc7c41c4eddaa17e030d3c85d",
+      "sheet": "walk",
+      "row": "NE",
+      "columns": [
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "status": "draft; visual and in-engine approval open",
+  "processing": "connected-component extraction, nearest resampling, alpha threshold128, cell alignment; idle upper body displaced8px with lower legs retained from painted standing pose"
+}

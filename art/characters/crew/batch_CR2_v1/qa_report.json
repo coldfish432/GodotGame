@@ -1,0 +1,4538 @@
+{
+  "complete_count": 8,
+  "expected_count": 8,
+  "static_checks": "PASS for available characters",
+  "manual_direction_review": "PENDING",
+  "blind_identity_acceptance": "PENDING; requires independent reviewer",
+  "engine_import": "NOT TESTED",
+  "records": {
+    "reserve_vanguard": {
+      "sheets": [
+        {
+          "id": "reserve_vanguard",
+          "kind": "walk",
+          "file": "reserve_vanguard_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_vanguard",
+          "kind": "idle",
+          "file": "reserve_vanguard_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            54,
+            27,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            60,
+            27,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            56,
+            28,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            62,
+            27,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            48,
+            26,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            53,
+            28,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            50,
+            28,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            53,
+            28,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            42,
+            18,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            51,
+            17,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            44,
+            17,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            51,
+            18,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            51,
+            17,
+            204,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            53,
+            16,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            54,
+            17,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            54,
+            17,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            50,
+            22,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            55,
+            22,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            50,
+            21,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            55,
+            20,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            48,
+            19,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            51,
+            18,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            53,
+            16,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            55,
+            18,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            45,
+            19,
+            210,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            53,
+            16,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            44,
+            19,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            53,
+            17,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            49,
+            19,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            49,
+            19,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            46,
+            20,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            50,
+            19,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            45,
+            17,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            45,
+            25,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            43,
+            19,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            43,
+            27,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            56,
+            16,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            56,
+            24,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            59,
+            16,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            59,
+            24,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            51,
+            20,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            51,
+            28,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            60,
+            17,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            60,
+            25,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            59,
+            16,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            59,
+            24,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            59,
+            24,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            59,
+            32,
+            196,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_vanguard_walk.png",
+          "sha256": "d9131278446a9928b01bcb83e8ff0ad8199fca0307d1cd7912e151229cfeb525"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_vanguard_idle.png",
+          "sha256": "aa6db225e428c8f448cb164e394614a596b91392c1bfa7494b6748b4696760f6"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_vanguard_rear_atlas.png",
+          "sha256": "6e22ac204aa490b48b157bcc5ea622c19c7568f3b1982df7872a9c174d893fca"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_vanguard_rear_idle.png",
+          "sha256": "f57790d07111fdd2e9b16bdf013ac82d56999677a6c42a96d0c3e28ccbf85ff3"
+        }
+      ]
+    },
+    "reserve_guard": {
+      "sheets": [
+        {
+          "id": "reserve_guard",
+          "kind": "walk",
+          "file": "reserve_guard_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_guard",
+          "kind": "idle",
+          "file": "reserve_guard_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            56,
+            34,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            56,
+            34,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            59,
+            34,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            58,
+            34,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            58,
+            34,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            56,
+            34,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            57,
+            34,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            57,
+            35,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            56,
+            27,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            56,
+            27,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            55,
+            27,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            56,
+            27,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            48,
+            26,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            47,
+            27,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            48,
+            26,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            49,
+            26,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            51,
+            26,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            53,
+            27,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            51,
+            26,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            54,
+            27,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            56,
+            20,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            55,
+            20,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            56,
+            20,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            57,
+            19,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            56,
+            27,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            56,
+            28,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            54,
+            29,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            55,
+            28,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            45,
+            17,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            45,
+            16,
+            210,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            46,
+            17,
+            210,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            45,
+            17,
+            210,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            43,
+            18,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            43,
+            26,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            48,
+            22,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            48,
+            30,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            48,
+            19,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            48,
+            27,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            53,
+            20,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            53,
+            28,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            42,
+            19,
+            214,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            42,
+            27,
+            214,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            50,
+            19,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            50,
+            27,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            48,
+            18,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            48,
+            26,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            45,
+            16,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            45,
+            24,
+            211,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_guard_walk.png",
+          "sha256": "831934adaf67c599203445ad038a0d88b3ae9182184b5218a0f010623cc5dd05"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_guard_idle.png",
+          "sha256": "3cd53ad68b6ad210f6c54fb42b93332252225ce8eed2fa4e76d29b9e7aa45c34"
+        }
+      ]
+    },
+    "reserve_defender": {
+      "sheets": [
+        {
+          "id": "reserve_defender",
+          "kind": "walk",
+          "file": "reserve_defender_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_defender",
+          "kind": "idle",
+          "file": "reserve_defender_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            53,
+            30,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            56,
+            30,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            49,
+            29,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            61,
+            31,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            44,
+            27,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            47,
+            28,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            43,
+            29,
+            212,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            48,
+            27,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            41,
+            28,
+            214,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            43,
+            27,
+            212,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            42,
+            24,
+            214,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            44,
+            27,
+            212,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            46,
+            17,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            46,
+            18,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            43,
+            18,
+            212,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            45,
+            18,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            49,
+            20,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            49,
+            22,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            49,
+            20,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            51,
+            20,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            45,
+            16,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            43,
+            19,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            41,
+            16,
+            215,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            43,
+            16,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            44,
+            26,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            44,
+            24,
+            212,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            43,
+            24,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            43,
+            24,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            48,
+            26,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            44,
+            23,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            48,
+            23,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            47,
+            24,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            30,
+            16,
+            225,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            30,
+            24,
+            225,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            23,
+            17,
+            233,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            23,
+            25,
+            233,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            30,
+            17,
+            226,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            30,
+            25,
+            226,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            42,
+            16,
+            214,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            42,
+            24,
+            214,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            33,
+            16,
+            223,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            33,
+            24,
+            223,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            42,
+            18,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            42,
+            26,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            26,
+            16,
+            229,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            26,
+            24,
+            229,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            25,
+            16,
+            230,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            25,
+            24,
+            230,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_defender_walk.png",
+          "sha256": "e9e697830a76f3ece4726bf6edf3a6f0ad8622f761fd53b1ef3ec9823cf25cef"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_defender_idle.png",
+          "sha256": "3308dfbf025dfbcd59aae0407bb69c4934649ab792d1c54410cbc9e950ffe315"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_defender_rear_atlas.png",
+          "sha256": "dd25b26a217cb4c9e85469fffd4a117d0e306efa389ce200a9173c2941621a21"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_defender_rear_idle.png",
+          "sha256": "ec43d64cfe7c6161d17341d8c2317b90de58e56a5f8c2b08d55c4e8b718b2a36"
+        }
+      ]
+    },
+    "reserve_sniper": {
+      "sheets": [
+        {
+          "id": "reserve_sniper",
+          "kind": "walk",
+          "file": "reserve_sniper_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_sniper",
+          "kind": "idle",
+          "file": "reserve_sniper_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            68,
+            18,
+            187,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            67,
+            18,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            70,
+            18,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            67,
+            19,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            60,
+            25,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            63,
+            26,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            58,
+            25,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            63,
+            26,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            55,
+            26,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            57,
+            28,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            57,
+            27,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            58,
+            29,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            61,
+            20,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            61,
+            18,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            60,
+            18,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            59,
+            19,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            62,
+            18,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            62,
+            18,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            61,
+            18,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            61,
+            17,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            58,
+            17,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            59,
+            16,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            58,
+            17,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            59,
+            18,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            57,
+            30,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            60,
+            26,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            57,
+            29,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            61,
+            26,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            61,
+            28,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            62,
+            30,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            62,
+            28,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            63,
+            30,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            55,
+            16,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            55,
+            24,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            60,
+            21,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            60,
+            29,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            66,
+            22,
+            190,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            66,
+            30,
+            190,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            66,
+            18,
+            190,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            66,
+            26,
+            190,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            56,
+            17,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            56,
+            25,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            69,
+            16,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            69,
+            24,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            66,
+            21,
+            190,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            66,
+            29,
+            190,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            63,
+            16,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            63,
+            24,
+            193,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_sniper_walk.png",
+          "sha256": "cc454719f697edbb60172d03c0dd1b7584ca12e457b283b6dafc5c34ccb2faff"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_sniper_idle.png",
+          "sha256": "6cdea56e67bf05e99402ce0e095bd6e11be287ec699f8bcaa9926b9ac90aa109"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_sniper_rear_atlas.png",
+          "sha256": "4bb86a3369a8404faa6524d5d92d96f7d2faaf38d174ab6e13d74e7534b61232"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_sniper_rear_idle.png",
+          "sha256": "95c9467bc21c4c8a2b97cbeffedf42eb1a516ccd0bdb2bcbb5e287853781bc24"
+        }
+      ]
+    },
+    "reserve_caster": {
+      "sheets": [
+        {
+          "id": "reserve_caster",
+          "kind": "walk",
+          "file": "reserve_caster_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_caster",
+          "kind": "idle",
+          "file": "reserve_caster_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            36,
+            38,
+            219,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            46,
+            35,
+            210,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            37,
+            37,
+            218,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            47,
+            38,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            30,
+            29,
+            226,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            38,
+            31,
+            218,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            30,
+            31,
+            225,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            38,
+            31,
+            218,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            25,
+            32,
+            231,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            32,
+            30,
+            223,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            25,
+            32,
+            231,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            34,
+            30,
+            222,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            24,
+            19,
+            231,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            30,
+            17,
+            225,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            27,
+            16,
+            228,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            28,
+            17,
+            228,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            37,
+            25,
+            219,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            54,
+            24,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            37,
+            24,
+            219,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            54,
+            25,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            27,
+            19,
+            229,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            27,
+            19,
+            229,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            29,
+            19,
+            227,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            26,
+            19,
+            230,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            27,
+            27,
+            228,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            35,
+            27,
+            220,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            27,
+            28,
+            228,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            35,
+            27,
+            220,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            35,
+            21,
+            220,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            37,
+            22,
+            219,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            35,
+            21,
+            221,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            38,
+            22,
+            218,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            55,
+            17,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            55,
+            25,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            54,
+            17,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            54,
+            25,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            56,
+            16,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            56,
+            24,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            49,
+            18,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            49,
+            26,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            62,
+            20,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            62,
+            28,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            48,
+            20,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            48,
+            28,
+            208,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            54,
+            17,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            54,
+            25,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            51,
+            18,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            51,
+            26,
+            205,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_caster_walk.png",
+          "sha256": "9067d16d65d246bace318c94e41c7b5c0215486055fcd2905545ca7dd6a50365"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_caster_idle.png",
+          "sha256": "c3cf6f34b68cc9cd07df8248ee2cd6c596604578ddde63d8a28bd771b218f952"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_caster_rear_atlas.png",
+          "sha256": "7adc9361c5d6f8ff27c10003b03dd5ead238ebbe0a1eb1ca55f3206c5601c7ae"
+        }
+      ]
+    },
+    "reserve_medic": {
+      "sheets": [
+        {
+          "id": "reserve_medic",
+          "kind": "walk",
+          "file": "reserve_medic_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_medic",
+          "kind": "idle",
+          "file": "reserve_medic_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            60,
+            33,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            59,
+            31,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            59,
+            31,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            59,
+            31,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            62,
+            33,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            63,
+            34,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            62,
+            33,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            62,
+            33,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            54,
+            31,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            55,
+            31,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            56,
+            31,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            54,
+            31,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            51,
+            18,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            50,
+            19,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            52,
+            20,
+            204,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            51,
+            18,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            54,
+            19,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            54,
+            19,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            54,
+            19,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            54,
+            19,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            45,
+            16,
+            211,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            46,
+            19,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            47,
+            17,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            47,
+            18,
+            209,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            49,
+            27,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            51,
+            27,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            49,
+            27,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            50,
+            29,
+            206,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            55,
+            16,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            53,
+            17,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            54,
+            17,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            55,
+            18,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            64,
+            33,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            64,
+            41,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            68,
+            16,
+            187,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            68,
+            24,
+            187,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            69,
+            24,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            69,
+            32,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            61,
+            16,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            61,
+            24,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            61,
+            21,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            61,
+            29,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            65,
+            24,
+            191,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            65,
+            32,
+            191,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            68,
+            24,
+            187,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            68,
+            32,
+            187,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            64,
+            30,
+            191,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            64,
+            38,
+            191,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_medic_walk.png",
+          "sha256": "ecbf100b47d2c0eeb91c66f9393d54dfdf441bb3a4981548b8cd3c9f367f3280"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_medic_idle.png",
+          "sha256": "5acf5ec4d64de73681ebc05e0d95313a3bc9c193e9ba59fdd0d12c3d76a5df5f"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_medic_rear_atlas.png",
+          "sha256": "3b165f09a5776ebb79027eb8ab5b41d9bacc4792b5ab5c5081de688506e6ef49"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_medic_sw_idle.png",
+          "sha256": "5c9006a232c0e2cb37c075bf974db1de3ab1b634cc9f168d0635c6eaf3443ba2"
+        }
+      ]
+    },
+    "reserve_supporter": {
+      "sheets": [
+        {
+          "id": "reserve_supporter",
+          "kind": "walk",
+          "file": "reserve_supporter_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_supporter",
+          "kind": "idle",
+          "file": "reserve_supporter_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            59,
+            20,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            59,
+            20,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            58,
+            20,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            59,
+            20,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            57,
+            27,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            57,
+            28,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            57,
+            26,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            57,
+            26,
+            198,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            54,
+            20,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            53,
+            20,
+            202,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            51,
+            19,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            54,
+            20,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            60,
+            17,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            63,
+            18,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            62,
+            18,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            62,
+            18,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            57,
+            18,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            55,
+            18,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            55,
+            18,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            56,
+            18,
+            199,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            58,
+            16,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            60,
+            16,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            58,
+            16,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            61,
+            16,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            52,
+            18,
+            204,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            53,
+            18,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            51,
+            18,
+            204,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            52,
+            18,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            56,
+            23,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            56,
+            23,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            55,
+            23,
+            201,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            56,
+            23,
+            200,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            45,
+            17,
+            210,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            45,
+            25,
+            210,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            48,
+            21,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            48,
+            29,
+            207,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            43,
+            19,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            43,
+            27,
+            213,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            59,
+            17,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            59,
+            25,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            51,
+            17,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            51,
+            25,
+            205,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            60,
+            16,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            60,
+            24,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            52,
+            25,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            52,
+            33,
+            203,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            52,
+            28,
+            204,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            52,
+            36,
+            204,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_supporter_walk.png",
+          "sha256": "20620ee8055191743ffce2d632830df4bfc9e998016050bd1d0b37b82f26bad7"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_supporter_idle.png",
+          "sha256": "ad7c2fb44a4cc053c84d7f76a464efb0dfd21699b1b51b098860e12f22473000"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_supporter_rear_atlas.png",
+          "sha256": "dc6358bcc42b5f1aaedea5fff06d730a894241f1dc7a75cdd5073f21dcbec7a6"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_supporter_rear_idle.png",
+          "sha256": "7429b35913f66d818675e20e79820b7adc3aa021649ecdcd9f6fab717483f376"
+        }
+      ]
+    },
+    "reserve_specialist": {
+      "sheets": [
+        {
+          "id": "reserve_specialist",
+          "kind": "walk",
+          "file": "reserve_specialist_walk_source.png",
+          "cols": 4,
+          "rows": 8,
+          "cell": 256
+        },
+        {
+          "id": "reserve_specialist",
+          "kind": "idle",
+          "file": "reserve_specialist_idle_source.png",
+          "cols": 2,
+          "rows": 8,
+          "cell": 256
+        }
+      ],
+      "checks": [
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            70,
+            20,
+            185,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            70,
+            20,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 2,
+          "bbox": [
+            68,
+            21,
+            187,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "S",
+          "col": 3,
+          "bbox": [
+            70,
+            20,
+            185,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            67,
+            23,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            67,
+            22,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 2,
+          "bbox": [
+            67,
+            23,
+            189,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SW",
+          "col": 3,
+          "bbox": [
+            67,
+            23,
+            189,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            64,
+            20,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            63,
+            18,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 2,
+          "bbox": [
+            65,
+            21,
+            190,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "W",
+          "col": 3,
+          "bbox": [
+            63,
+            21,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            68,
+            26,
+            187,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            67,
+            25,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 2,
+          "bbox": [
+            68,
+            25,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NW",
+          "col": 3,
+          "bbox": [
+            67,
+            27,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            64,
+            18,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            67,
+            16,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 2,
+          "bbox": [
+            64,
+            16,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "N",
+          "col": 3,
+          "bbox": [
+            67,
+            16,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            62,
+            21,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            63,
+            21,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 2,
+          "bbox": [
+            61,
+            21,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "NE",
+          "col": 3,
+          "bbox": [
+            63,
+            22,
+            193,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            62,
+            28,
+            194,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            60,
+            28,
+            195,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 2,
+          "bbox": [
+            60,
+            28,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "E",
+          "col": 3,
+          "bbox": [
+            60,
+            29,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            60,
+            16,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            58,
+            16,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 2,
+          "bbox": [
+            59,
+            17,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "walk",
+          "row": "SE",
+          "col": 3,
+          "bbox": [
+            59,
+            18,
+            197,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 0,
+          "bbox": [
+            67,
+            16,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "S",
+          "col": 1,
+          "bbox": [
+            67,
+            24,
+            188,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 0,
+          "bbox": [
+            66,
+            24,
+            189,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SW",
+          "col": 1,
+          "bbox": [
+            66,
+            32,
+            189,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 0,
+          "bbox": [
+            63,
+            30,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "W",
+          "col": 1,
+          "bbox": [
+            63,
+            38,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 0,
+          "bbox": [
+            70,
+            37,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NW",
+          "col": 1,
+          "bbox": [
+            70,
+            45,
+            186,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 0,
+          "bbox": [
+            63,
+            25,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "N",
+          "col": 1,
+          "bbox": [
+            63,
+            33,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 0,
+          "bbox": [
+            64,
+            30,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "NE",
+          "col": 1,
+          "bbox": [
+            64,
+            38,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 0,
+          "bbox": [
+            64,
+            27,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "E",
+          "col": 1,
+          "bbox": [
+            64,
+            35,
+            192,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 0,
+          "bbox": [
+            59,
+            16,
+            196,
+            240
+          ]
+        },
+        {
+          "kind": "idle",
+          "row": "SE",
+          "col": 1,
+          "bbox": [
+            59,
+            24,
+            196,
+            240
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "work_CR_v1\\raw\\reserve_specialist_walk.png",
+          "sha256": "b70aba91fcc8a877e8c6d3ba34a73f53c89c4df360c4a186f9069413157aa328"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_specialist_idle.png",
+          "sha256": "2300d1e1e6c4367aaccb895c555c402245a95257aaa229cfb3bca70b1c149c88"
+        },
+        {
+          "file": "work_CR_v1\\raw\\reserve_specialist_rear_atlas.png",
+          "sha256": "733c96144fd28db11891b7af6ee3255f8028226a1b0e9a3a72af4f6428d974a3"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-18",
+  "art_source": "built-in image_gen; PRTS costume and colour reference, fresh redraw",
+  "processing": "Segment complete painted figures; preserve real alpha and full colour; uniformly rescale per source sheet; centre foreground and set foreground bottom to y240. No palette quantization of source PNGs. Idle upper body shifted by 8 px with a taper above y192; lower legs y192..255 copied pixel-identically. Existing raw atlas standing breath columns discarded in favour of deterministic breath. Direction-specific generated repairs assembled only in selected rows.",
+  "reference_brief": "../CR_brief_v1.md",
+  "source_assets": {
+    "doctor": [
+      {
+        "file": "work_CR_v1\\raw\\doctor_walk.png",
+        "sha256": "3be0c0da5ed9a24e79a2fd6a60e51b612b419c0dc481c9631b62ece10249e56d"
+      },
+      {
+        "file": "work_CR_v1\\raw\\doctor_idle.png",
+        "sha256": "022b1f203b2ecfa758c9402d6af6cc1ba60c1f7c4fc0317b7f5ca0d25b1c5499"
+      }
+    ],
+    "sharp": [
+      {
+        "file": "work_CR_v1\\raw\\sharp_atlas.png",
+        "sha256": "f2db93cd8851154e7f3697a2ee2ef36b69379009e5ddca305513a84f6db6f9c8"
+      },
+      {
+        "file": "work_CR_v1\\raw\\sharp_idle.png",
+        "sha256": "12e41138a276151d0073cfc17e95043ebfa2e16de2f9386f4494a31910a5b449"
+      }
+    ],
+    "stormeye": [
+      {
+        "file": "work_CR_v1\\raw\\stormeye_walk.png",
+        "sha256": "cf400000e277c73d17c986765f7b079fcc38be2e116fde2a5834e49e97d81b0b"
+      },
+      {
+        "file": "work_CR_v1\\raw\\stormeye_idle.png",
+        "sha256": "99d9c2e8ff81866d5069ec6aaa61aa14863276f693aab59c4fb66e91791455ee"
+      },
+      {
+        "file": "work_CR_v1\\raw\\stormeye_n_idle.png",
+        "sha256": "e3b79c1d7d16fd0878091d55c69d8d9017589784879e5c9499251cb5c5124180"
+      }
+    ],
+    "pith": [
+      {
+        "file": "work_CR_v1\\raw\\pith_walk.png",
+        "sha256": "9c314e3bc7db0e5c51e904b9238c5272df1f39eb6ceae8a50067e6a22c6c63d9"
+      },
+      {
+        "file": "work_CR_v1\\raw\\pith_idle.png",
+        "sha256": "68bd65d6dcf98262c79ca97a4d08bbc94b497a441b4cf4d99a093e22401f991a"
+      },
+      {
+        "file": "work_CR_v1\\raw\\pith_rear_idle.png",
+        "sha256": "2ca63b4acf77d9918870a064a36e31b95d1f73dd026ba17a4cc4064a9fe7549f"
+      }
+    ],
+    "touch": [
+      {
+        "file": "work_CR_v1\\raw\\touch_atlas.png",
+        "sha256": "765bae5efb58459e9069693baeb2865882c035775a98de46fae9c7568b7af154"
+      },
+      {
+        "file": "work_CR_v1\\raw\\touch_idle.png",
+        "sha256": "f9fbffbc177f61c4ba4e6ceb694495a195edf52c8f2955bb27c37ef407c8b624"
+      }
+    ],
+    "tulip": [
+      {
+        "file": "work_CR_v1\\raw\\tulip_walk.png",
+        "sha256": "f6064007f190de0d74571d404db39eb8bef7bfbbedfa303e3c7cbdcf46253470"
+      },
+      {
+        "file": "work_CR_v1\\raw\\tulip_idle.png",
+        "sha256": "a74e42de31f30599fe55f101d9377603396bb001729b502c1dc10887cb395953"
+      },
+      {
+        "file": "work_CR_v1\\raw\\tulip_rear_walk.png",
+        "sha256": "021c34e6f586e0ab48a4aec9f1ad3e951f34469f67024decf269822c8cdbabd4"
+      },
+      {
+        "file": "work_CR_v1\\raw\\tulip_rear_idle.png",
+        "sha256": "ced199c1689f3e698a9dbb2eda8b996e34672b3f67544d88871982117b8e8e9b"
+      }
+    ],
+    "mechanist": [
+      {
+        "file": "work_CR_v1\\raw\\mechanist_walk.png",
+        "sha256": "6ad03073821dc02e7b6801a8894fb31b56f51fecd525667b014e9504a6447a51"
+      },
+      {
+        "file": "work_CR_v1\\raw\\mechanist_idle.png",
+        "sha256": "5ce70f47e98869a073277b82afce008ebabc950bce48af500ee640d6def191f1"
+      }
+    ],
+    "misery": [
+      {
+        "file": "work_CR_v1\\raw\\misery_atlas.png",
+        "sha256": "56a1d191ad3d7d3df4abd6aab84fee90b205299c3c4d3a706cd26bbb0e0530a0"
+      },
+      {
+        "file": "work_CR_v1\\raw\\misery_idle.png",
+        "sha256": "c3fd95fab1403965c22829ed07f6c3a820fe0570731cdf5cc509d8489675a17e"
+      },
+      {
+        "file": "work_CR_v1\\raw\\misery_rear_walk.png",
+        "sha256": "b392cc27f868bbb0413cce85d571d121b02738fdeefde55e63718d66bf7a1d0f"
+      },
+      {
+        "file": "work_CR_v1\\raw\\misery_rear_idle.png",
+        "sha256": "e16ddc3d28cb4166aaca9821b6c40524ccecd038cd2bc238c57359c3dd095e3c"
+      }
+    ]
+  },
+  "deduplication": {
+    "lord_sharp": "sharp",
+    "covenant_supporter": "reserve_supporter"
+  },
+  "acceptance": "Independent blind identification and in-engine playback pending. Technical validation does not establish anatomical foot registration or final artistic acceptance."
+}

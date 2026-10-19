@@ -1,0 +1,119 @@
+{
+  "character": "santalla",
+  "tool": "built-in image_gen",
+  "effects": [
+    {
+      "id": "santalla_vfx_orb",
+      "file": "santalla_vfx_orb.png",
+      "size": [
+        9,
+        9
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_orb.png",
+      "sha256": "8d32cfef1e1538a29d5319ca1a6062c925b9f0d7099bbecfc891173b7347cd2b"
+    },
+    {
+      "id": "santalla_vfx_orb_big",
+      "file": "santalla_vfx_orb_big.png",
+      "size": [
+        13,
+        13
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_orb_big.png",
+      "sha256": "e76fb3af2c8122c71f0ba3555b680c0eddeb69777c2b564bd1cd612d2347e0f9"
+    },
+    {
+      "id": "santalla_vfx_splash",
+      "file": "santalla_vfx_splash.png",
+      "size": [
+        32,
+        32
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_splash.png",
+      "sha256": "bada8bcb830b36b9ad59744ce4a90fe1c38c74fe84b9b98b7f313ec1fbd3e8da"
+    },
+    {
+      "id": "santalla_vfx_icicle",
+      "file": "santalla_vfx_icicle.png",
+      "size": [
+        9,
+        24
+      ],
+      "frames": 3,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_icicle.png",
+      "sha256": "7085fb3fee3c1801c4be0897c557c5289aff1b1731472b86065b81aaffb1878f"
+    },
+    {
+      "id": "santalla_vfx_icicle_hit",
+      "file": "santalla_vfx_icicle_hit.png",
+      "size": [
+        28,
+        28
+      ],
+      "frames": 3,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_icicle_hit.png",
+      "sha256": "0f5a550609f1f73623e2319291d4b0dbfb2e62c911493a563bba498e0556fd4e"
+    },
+    {
+      "id": "santalla_vfx_chill",
+      "file": "santalla_vfx_chill.png",
+      "size": [
+        13,
+        13
+      ],
+      "frames": 2,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_chill.png",
+      "sha256": "213b7e92774593cb2725f798397540daae5a788eb6dda11056b0cb791b07d950"
+    },
+    {
+      "id": "santalla_vfx_aura",
+      "file": "santalla_vfx_aura.png",
+      "size": [
+        44,
+        44
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_aura.png",
+      "sha256": "63e563778ad27ec2d8e99a39258951b316ace47b78904ee376b9654cd366d56d"
+    },
+    {
+      "id": "santalla_vfx_spark",
+      "file": "santalla_vfx_spark.png",
+      "size": [
+        11,
+        11
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\santalla_vfx_spark.png",
+      "sha256": "a75b11759dec025937be77afda38105982303dd6f664d34e395808759e08d085"
+    }
+  ],
+  "status": "static validated; art and in-engine animation approval open"
+}

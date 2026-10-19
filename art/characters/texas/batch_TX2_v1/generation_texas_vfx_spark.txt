@@ -1,0 +1,16 @@
+Use case stylized-concept. Production pixel-art GAME VFX texture, genuine transparent alpha. NO CHARACTERS, no text, no grid, no shadow. One asset texas_vfx_spark. | `texas_vfx_spark` | Hit spark | 2 frames, 11×11 each (22×11) | ground | Frame 1: a pale-steel core pixel with 3–4 steel chips and one short charcoal nick in the cut direction. Frame 2: further out and smaller, the nick gone. |
+Exactly2 separate frame(s) in ONE HORIZONTAL ROW, equal 11x11 nativepixel cells enlarged8x for painting. Fullstrip aspect22:11. Fill canvas with frame row, leave1nativepixel transparent gutter. Do not join frames. Binary solid opaque fills, chunky pixel clusters, hard1nativepixel darkoutline. No antialias gradients or softglow. Ground is straightTOPDOWN with attack towardTOP; billboard upright. Palette and per-colour USE RESTRICTIONS:
+### Texas palette (cold steel)
+
+| Name | Hex | Use |
+|---|---|---|
+| Outline | `#121316` | 1 px outer edge on every effect |
+| Charcoal | `#2b2e35` | the core of her cuts and swords (her dark blade) |
+| Steel | `#8a94a2` | the main edge, tails |
+| Pale steel | `#d5dce4` | the bright edge and spark centres (not pure white) |
+| Slate | `#4a525e` | inner edges, ground marks |
+
+In the PRTS art her swords and Sword Rain glow **red-orange**. Red is the enemy danger colour in this game, so her effects are **cold steel instead**: a dark core with a pale steel edge. That keeps her apart from Lappland (white core, purple wave) and Amiya (dark core, cyan edge).
+
+
+Use ONLY listed hex colours, maximum6 per file. Do not draw creatures/background scenery. Reference image only establishes chunky pixel effect style. Respect single-blade strokes where specified.

@@ -1,0 +1,22 @@
+{
+  "avatar_order": [
+    "reserve_vanguard",
+    "reserve_guard",
+    "reserve_defender",
+    "reserve_sniper",
+    "reserve_caster",
+    "reserve_medic",
+    "reserve_supporter",
+    "reserve_specialist"
+  ],
+  "shuffled_sprites": {
+    "A": "reserve_supporter",
+    "B": "reserve_specialist",
+    "C": "reserve_guard",
+    "D": "reserve_caster",
+    "E": "reserve_defender",
+    "F": "reserve_sniper",
+    "G": "reserve_vanguard",
+    "H": "reserve_medic"
+  }
+}

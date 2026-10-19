@@ -1,0 +1,11 @@
+Use case identity-preserve. Lin combat sprites: EXACT SEVEN COLUMNS x FIVE ROWS, 35 complete sprites, transparent1792x1280 canvas, uniform256pxcells. This is HALF of a14column sheet; draw only these7poses per row, NEVER add an eighth column. The attached walk sheet is character identity/style, no tracing PRTS. Lin two-heads-tall chibi pixelart darkoutline chunky flatshading, pale pink longsidetails blackheadband two round mauve mouseears blackthin curlingtail, violetgreyeyes, blackcroppedjacket blackshorts thighgarter blackboots, violetwaistsashribbons, ONE slender silver wandstaff with small ornamental cage darkgem.
+Rows1S chestsquare facesviewer;2SW downleft;3W strictLEFTPROFILE ONE EYE noseLEFT all7poses;4NW BACKUPLEFT NO FACE;5N fullBACK NO FACE. Every row same7poses exactly; maintain headings even when recoiling. Full figures bodycenter128 feetbaseline241 top>=12, keepwandandarmsinsidecells nottouchingneighbors. No shadows effects glassshardsglowslabelsgrid. Lin's ribbon/wand/arm motion must show actions from behind.
+Exactly7 columns in this order:
+1. Recover
+2. Light Shatters windup: wand raised overhead, other arm out wide
+3. Light Shatters release: both arms flung wide, chest up, ribbons and tails streaming
+4. Sustain A: wand held forward, slight float of hair and ribbons
+5. Sustain B: the other half of the loop (11 → 12 → 11)
+6. Barrier shatter recoil: arms up shielding the face, leaning back as the glass breaks
+7. Hurt: recoils backward
+At most7sprites in arow. Identical characterbody scale acrossrows/poses, standing/crouch reflect realbodymotion. No extra recover outside this list.

@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-18",
+  "art_source": "built-in image_gen; PRTS costume and colour reference, fresh redraw",
+  "processing": "Segment complete painted figures; preserve real alpha and full colour; uniformly rescale per source sheet; centre foreground and set foreground bottom to y240. No palette quantization of source PNGs. Idle upper body shifted by 8 px with a taper above y192; lower legs y192..255 copied pixel-identically. Existing raw atlas standing breath columns discarded in favour of deterministic breath. Direction-specific generated repairs assembled only in selected rows.",
+  "reference_brief": "../CR_brief_v1.md",
+  "source_assets": {
+    "reserve_vanguard": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_vanguard_walk.png",
+        "sha256": "d9131278446a9928b01bcb83e8ff0ad8199fca0307d1cd7912e151229cfeb525"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_vanguard_idle.png",
+        "sha256": "aa6db225e428c8f448cb164e394614a596b91392c1bfa7494b6748b4696760f6"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_vanguard_rear_atlas.png",
+        "sha256": "6e22ac204aa490b48b157bcc5ea622c19c7568f3b1982df7872a9c174d893fca"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_vanguard_rear_idle.png",
+        "sha256": "f57790d07111fdd2e9b16bdf013ac82d56999677a6c42a96d0c3e28ccbf85ff3"
+      }
+    ],
+    "reserve_guard": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_guard_walk.png",
+        "sha256": "831934adaf67c599203445ad038a0d88b3ae9182184b5218a0f010623cc5dd05"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_guard_idle.png",
+        "sha256": "3cd53ad68b6ad210f6c54fb42b93332252225ce8eed2fa4e76d29b9e7aa45c34"
+      }
+    ],
+    "reserve_defender": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_defender_walk.png",
+        "sha256": "e9e697830a76f3ece4726bf6edf3a6f0ad8622f761fd53b1ef3ec9823cf25cef"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_defender_idle.png",
+        "sha256": "3308dfbf025dfbcd59aae0407bb69c4934649ab792d1c54410cbc9e950ffe315"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_defender_rear_atlas.png",
+        "sha256": "dd25b26a217cb4c9e85469fffd4a117d0e306efa389ce200a9173c2941621a21"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_defender_rear_idle.png",
+        "sha256": "ec43d64cfe7c6161d17341d8c2317b90de58e56a5f8c2b08d55c4e8b718b2a36"
+      }
+    ],
+    "reserve_sniper": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_sniper_walk.png",
+        "sha256": "cc454719f697edbb60172d03c0dd1b7584ca12e457b283b6dafc5c34ccb2faff"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_sniper_idle.png",
+        "sha256": "6cdea56e67bf05e99402ce0e095bd6e11be287ec699f8bcaa9926b9ac90aa109"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_sniper_rear_atlas.png",
+        "sha256": "4bb86a3369a8404faa6524d5d92d96f7d2faaf38d174ab6e13d74e7534b61232"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_sniper_rear_idle.png",
+        "sha256": "95c9467bc21c4c8a2b97cbeffedf42eb1a516ccd0bdb2bcbb5e287853781bc24"
+      }
+    ],
+    "reserve_caster": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_caster_walk.png",
+        "sha256": "9067d16d65d246bace318c94e41c7b5c0215486055fcd2905545ca7dd6a50365"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_caster_idle.png",
+        "sha256": "c3cf6f34b68cc9cd07df8248ee2cd6c596604578ddde63d8a28bd771b218f952"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_caster_rear_atlas.png",
+        "sha256": "7adc9361c5d6f8ff27c10003b03dd5ead238ebbe0a1eb1ca55f3206c5601c7ae"
+      }
+    ],
+    "reserve_medic": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_medic_walk.png",
+        "sha256": "ecbf100b47d2c0eeb91c66f9393d54dfdf441bb3a4981548b8cd3c9f367f3280"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_medic_idle.png",
+        "sha256": "5acf5ec4d64de73681ebc05e0d95313a3bc9c193e9ba59fdd0d12c3d76a5df5f"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_medic_rear_atlas.png",
+        "sha256": "3b165f09a5776ebb79027eb8ab5b41d9bacc4792b5ab5c5081de688506e6ef49"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_medic_sw_idle.png",
+        "sha256": "5c9006a232c0e2cb37c075bf974db1de3ab1b634cc9f168d0635c6eaf3443ba2"
+      }
+    ],
+    "reserve_supporter": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_supporter_walk.png",
+        "sha256": "20620ee8055191743ffce2d632830df4bfc9e998016050bd1d0b37b82f26bad7"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_supporter_idle.png",
+        "sha256": "ad7c2fb44a4cc053c84d7f76a464efb0dfd21699b1b51b098860e12f22473000"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_supporter_rear_atlas.png",
+        "sha256": "dc6358bcc42b5f1aaedea5fff06d730a894241f1dc7a75cdd5073f21dcbec7a6"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_supporter_rear_idle.png",
+        "sha256": "7429b35913f66d818675e20e79820b7adc3aa021649ecdcd9f6fab717483f376"
+      }
+    ],
+    "reserve_specialist": [
+      {
+        "file": "work_CR_v1\\raw\\reserve_specialist_walk.png",
+        "sha256": "b70aba91fcc8a877e8c6d3ba34a73f53c89c4df360c4a186f9069413157aa328"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_specialist_idle.png",
+        "sha256": "2300d1e1e6c4367aaccb895c555c402245a95257aaa229cfb3bca70b1c149c88"
+      },
+      {
+        "file": "work_CR_v1\\raw\\reserve_specialist_rear_atlas.png",
+        "sha256": "733c96144fd28db11891b7af6ee3255f8028226a1b0e9a3a72af4f6428d974a3"
+      }
+    ]
+  },
+  "deduplication": {
+    "lord_sharp": "sharp",
+    "covenant_supporter": "reserve_supporter"
+  },
+  "acceptance": "Independent blind identification and in-engine playback pending. Technical validation does not establish anatomical foot registration or final artistic acceptance."
+}

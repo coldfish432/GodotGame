@@ -1,0 +1,32 @@
+{
+  "status": "TECHNICAL_PASS",
+  "characters": 8,
+  "sheets": 16,
+  "frames": 384,
+  "format": "walk 1024x2048; idle 512x2048; 256px cells; real RGBA",
+  "knees_and_below": "64/64 idle frame pairs pixel-identical; cutoff local y192",
+  "idle_pairs_checked": 64,
+  "head_drop_px": 8,
+  "blind_identity_test": "PENDING independent human reviewer",
+  "foot_sole_and_body_anchor_review": "PENDING visual review; automated check normalizes foreground baseline, not anatomical landmarks",
+  "animation_playback": "NOT TESTED IN ENGINE",
+  "manual_direction_review": "See review notes and direction contact sheet; technical pass is not final art acceptance",
+  "sha256": {
+    "reserve_vanguard_walk_source.png": "a7bf68dbe7c5050ef7902fe7b32e80895b83022bb44945753e5c64998d1798b8",
+    "reserve_vanguard_idle_source.png": "3bc6fa969b79f3c256eb4e092337cbd8d1b60be0a4a4e1a156a46049d047746b",
+    "reserve_guard_walk_source.png": "a1cec34c859f189f1184e3e796fda166ccfb0c7145bef7eee2aec853785d59a3",
+    "reserve_guard_idle_source.png": "dd7ddf4e3b623bc63bd481b19b1279ca463cd0f8081456fae9b3909b467424d4",
+    "reserve_defender_walk_source.png": "9b558f31d39bdce262c788cde39cc4d4299231d0ef543855849a5cc0dfdaba41",
+    "reserve_defender_idle_source.png": "08c5c523de30a8cda759b19537c9e60e0b930653b7912a1492dae0499dfa08d5",
+    "reserve_sniper_walk_source.png": "5dfdcb3a16a053281ec8a52ce7b4e31405c195689a750d5e3ffddd749582574d",
+    "reserve_sniper_idle_source.png": "d27907d086a896f03ff69931559be9adecd5a2ff8f2967ed0b48c759a3be424f",
+    "reserve_caster_walk_source.png": "ec306e8a683ce13d9d526fb6b08ae7ca53b4185c84a2d1925e02bca3e7290d92",
+    "reserve_caster_idle_source.png": "c299469688a515eba188848a71c2f338384fe76944d5f0549a3d0931547fe59b",
+    "reserve_medic_walk_source.png": "0aa76a99655c9700e4fba5b9ffd6adab5dae2c42a08d9f0a7f24e9d201de2754",
+    "reserve_medic_idle_source.png": "ebf99c13ab35491091142a5f7a59ba64c77980f1630090ab7afc974430acacc0",
+    "reserve_supporter_walk_source.png": "6600c84c76518018a01cfb97d6cc6b35bc6246cc29577029c09c47b890aae174",
+    "reserve_supporter_idle_source.png": "4a49d19807f9b51cffef3682eebc3666b272c28ea1b6db36e1fe569b28cab45b",
+    "reserve_specialist_walk_source.png": "4538104af99315b9d59f4f3e96856d97558b9f0dca8455b83d666e4bbe55ecfc",
+    "reserve_specialist_idle_source.png": "b4eab39e2d59c6ac807e5b79c301fbf2d36cba4f12904282961e4bdec6d3076c"
+  }
+}

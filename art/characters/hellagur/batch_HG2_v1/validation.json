@@ -1,0 +1,166 @@
+[
+  {
+    "id": "hellagur_vfx_cut_1",
+    "canvas": [
+      56,
+      46
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#9fb4c8"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_cut_2",
+    "canvas": [
+      56,
+      46
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#9fb4c8"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_iai",
+    "canvas": [
+      76,
+      14
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#9fb4c8"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_newmoon",
+    "canvas": [
+      48,
+      60
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#9fb4c8",
+      "#efe6bf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_halfmoon_a",
+    "canvas": [
+      44,
+      30
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#9fb4c8",
+      "#efe6bf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_halfmoon_b",
+    "canvas": [
+      44,
+      30
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#9fb4c8",
+      "#efe6bf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_fullmoon",
+    "canvas": [
+      104,
+      72
+    ],
+    "frames": 1,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#7b83a2",
+      "#9fb4c8",
+      "#efe6bf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_phase",
+    "canvas": [
+      27,
+      9
+    ],
+    "frames": 3,
+    "colours": [
+      "#15131f",
+      "#46607a",
+      "#efe6bf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_drain",
+    "canvas": [
+      18,
+      9
+    ],
+    "frames": 2,
+    "colours": [
+      "#15131f",
+      "#46607a",
+      "#9fb4c8",
+      "#efe6bf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hellagur_vfx_spark",
+    "canvas": [
+      22,
+      11
+    ],
+    "frames": 2,
+    "colours": [
+      "#15131f",
+      "#232838",
+      "#46607a",
+      "#9fb4c8"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  }
+]

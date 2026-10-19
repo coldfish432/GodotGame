@@ -1,0 +1,11 @@
+Use case identity-preserve. Lin combat sprites: EXACT SEVEN COLUMNS x FIVE ROWS, 35 complete sprites, transparent1792x1280 canvas, uniform256pxcells. This is HALF of a14column sheet; draw only these7poses per row, NEVER add an eighth column. The attached walk sheet is character identity/style, no tracing PRTS. Lin two-heads-tall chibi pixelart darkoutline chunky flatshading, pale pink longsidetails blackheadband two round mauve mouseears blackthin curlingtail, violetgreyeyes, blackcroppedjacket blackshorts thighgarter blackboots, violetwaistsashribbons, ONE slender silver wandstaff with small ornamental cage darkgem.
+Rows1S chestsquare facesviewer;2SW downleft;3W strictLEFTPROFILE ONE EYE noseLEFT all7poses;4NW BACKUPLEFT NO FACE;5N fullBACK NO FACE. Every row same7poses exactly; maintain headings even when recoiling. Full figures bodycenter128 feetbaseline241 top>=12, keepwandandarmsinsidecells nottouchingneighbors. No shadows effects glassshardsglowslabelsgrid. Lin's ribbon/wand/arm motion must show actions from behind.
+Exactly7 columns in this order:
+1. Cast 1 windup: wand raised to shoulder height, other hand open
+2. Cast 1: wand pointed at the target, arm extended, ribbons lifting
+3. Recover
+4. Cast 2: wand swept across the body to the other side, pointing
+5. Recover
+6. Cast 3 windup: wand held upright in both hands in front of her, head bowed
+7. Cast 3: wand thrust down toward the ground ahead, a strong pose, hair and ribbons flaring
+At most7sprites in arow. Identical characterbody scale acrossrows/poses, standing/crouch reflect realbodymotion. No extra recover outside this list.

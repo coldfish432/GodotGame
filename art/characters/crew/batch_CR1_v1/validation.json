@@ -1,0 +1,32 @@
+{
+  "status": "TECHNICAL_PASS",
+  "characters": 8,
+  "sheets": 16,
+  "frames": 384,
+  "format": "walk 1024x2048; idle 512x2048; 256px cells; real RGBA",
+  "knees_and_below": "64/64 idle frame pairs pixel-identical; cutoff local y192",
+  "idle_pairs_checked": 64,
+  "head_drop_px": 8,
+  "blind_identity_test": "PENDING independent human reviewer",
+  "foot_sole_and_body_anchor_review": "PENDING visual review; automated check normalizes foreground baseline, not anatomical landmarks",
+  "animation_playback": "NOT TESTED IN ENGINE",
+  "manual_direction_review": "See review notes and direction contact sheet; technical pass is not final art acceptance",
+  "sha256": {
+    "doctor_walk_source.png": "d724eaefcaa924f4b473223b0c67f7f175173b0e735936da441b290a0adf2c79",
+    "doctor_idle_source.png": "6d9b3a44fc1e3f662752f41134edf0f6311d186d9a742a365691037b1f78e442",
+    "sharp_walk_source.png": "b23f8a357755d753abf7e6b455ba3a71eb13c84bbfa7d27748b4cb828ff247b9",
+    "sharp_idle_source.png": "679f0500960f7ef051b999c3008d45080c850f1a1cbf7f644db8424daafba2ba",
+    "stormeye_walk_source.png": "4eb303d6cd6b711daa52a3efde0064a04d3e3098e40c8d03037c050c6cddc24e",
+    "stormeye_idle_source.png": "a8226470797106e136d50028e0566bcb259273e768f27529b6c55dc1a3248c04",
+    "pith_walk_source.png": "111aafca8026c3090a0f938453e2a3b51a39ebe11425852fdd1c794bc5e505d0",
+    "pith_idle_source.png": "9ce08de68db53bc199e185e3a8929732dcb186ca61734db39d452ee351d1cd79",
+    "touch_walk_source.png": "90610b47b16eaadf977d2e4633ab93e9f2c2cf36cb2ed1355e8c7227252256ad",
+    "touch_idle_source.png": "e408edd330905ee54d5ff357b71fc0d8b6fc9460bff5d289ccd888d93bdc6550",
+    "tulip_walk_source.png": "4605243fe6791c1d5b87b6686c2d60404ec5c707e108435dedcafb4ba4116775",
+    "tulip_idle_source.png": "fd3e4235e921fb2e36302c62a04c7ee0fea385e5a0461acbaa0d946a3a8b0b9c",
+    "mechanist_walk_source.png": "64030b276fbad1bb93e4883cda7930fc97ffe5f9793286822880ac40e9163ca0",
+    "mechanist_idle_source.png": "47245cbd217deb749a3fb0920a376e200bdb51504fb89e2adbfae03e4adbf495",
+    "misery_walk_source.png": "8a9f0dfc4b2cdf89d727602ec24cf0891a56b72f2bde6c85def3300af54952ea",
+    "misery_idle_source.png": "d1798885aaf05d173c9821eaee3cf02631e2900376bfcd4c5330177d50fef337"
+  }
+}

@@ -1,0 +1,19 @@
+Use case stylized-concept. Production GAME SPRITE SHEET, freshly drawn, never a portrait. hoshiguma from Arknights. Official PRTS image COSTUME AND COLOURS ONLY, do not trace. Amiya image STYLE AND GRID only: match two-head-tall chibi, chunky flat shading, dark outline and pixel clusters. Character sprites have NO colour-count limit. True transparent background no labels no grid no shadows no VFX or slash lines/projectiles/glows. No bright red (use replacements below), no summoned animals/background scenery. Uniform256x256 cells: body centre x128, boots lowest row241, topmost hat/horn/ears at y12 or lower; entire weapon inside each cell. All frames same body size.
+Character specification:
+## Character read (what must survive at 32 px)
+
+From her E2 art (`prts_refs.md`):
+
+- **A very tall, strong Oni (鬼) woman**, her file says "十分高大". Broad shoulders, confident, relaxed.
+- **Long, straight teal-green hair** to the waist (`#3a8c84` light, `#2a6867` mid, `#16332d` shadow), loose, with a few strands across the face.
+- **One horn** rising from the forehead, slightly off-centre to her right, pale ivory-tan with a darker base (`#d8c2a0` / `#9b7f62`). At 32 px, 2 texels tall. Keep it distinct from the hair.
+- Yellow-green eyes (1 px, `#9ccf6a`). An easy grin.
+- Warm light-tan skin (`#c2a191`) on the bare arms.
+- **All-black outfit:** a sleeveless black high-collar top (`#151515`), a loose black jacket worn tied or hanging at the waist, **baggy black cargo trousers** cut off below the knee (`#282829`) with **grey knee pads** (`#7a7a7b`), black fingerless-style gloves, black lace-up boots. Silver zips and buckles as 1-texel accents.
+- **Weapon: the shield 般若 ("Hannya")**, "brought from my home town". A **tall rectangular slab** almost as tall as she is from shoulder to shin, dark gunmetal (`#373737` / `#525252`), with riveted panels, two round recessed ports, and a **silver Oni / Hannya face emblem** in the middle (`#cbcbcb`). At 32 px the face shrinks to a 2–3 texel pale mark; keep it.
+- She carries the shield **in her right hand, held at her side or slung forward**, the edge resting near the ground. It covers part of her body in the S and SW rows; that is fine, but her face and horn must stay visible.
+
+**Height:** body (top of the head to the soles, no horn) **1.04× Lappland's**. Her file says 184 cm against Lappland's 162 cm; I compress it for the chibi style. With the horn she should top out near row 14–16.
+
+
+WALK SHEET: exact4 columns x8 rows, canvas1024x2048,32 complete separate sprites. Four columns contactA,passingA feet together,contactB opposite legs,passingB feet together; visible opposite leg swing not duplicated poses. Same weapon carry across walk and idle. ROWS S chest square faces viewer; SW down-left front threequarter; W strict left profile ONE EYE noseLEFT; NW back up-left NO FACE; N full back NO FACE; NE back up-right NO FACE; E true right profile ONE EYE noseRIGHT; SE down-right frontthreequarter. Every frame in row keeps heading.

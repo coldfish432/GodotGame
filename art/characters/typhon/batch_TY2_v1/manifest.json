@@ -1,0 +1,119 @@
+{
+  "character": "typhon",
+  "tool": "built-in image_gen",
+  "effects": [
+    {
+      "id": "typhon_vfx_arrow",
+      "file": "typhon_vfx_arrow.png",
+      "size": [
+        3,
+        18
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_arrow.png",
+      "sha256": "8b14afb0cf6cd56fa592b57e72cbb0e348ff289790f88b24cc1dfac0896a4448"
+    },
+    {
+      "id": "typhon_vfx_arrow_heavy",
+      "file": "typhon_vfx_arrow_heavy.png",
+      "size": [
+        5,
+        24
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_arrow_heavy.png",
+      "sha256": "d4bbd2805f913b8c16467f2193b9d30fedba0d2283fb595caa40e1a909d668a5"
+    },
+    {
+      "id": "typhon_vfx_mire",
+      "file": "typhon_vfx_mire.png",
+      "size": [
+        20,
+        20
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_mire.png",
+      "sha256": "2265a9eadb617fa737d864fdaf671833fdd98077593a4e6602c5861ed728820d"
+    },
+    {
+      "id": "typhon_vfx_mark",
+      "file": "typhon_vfx_mark.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_mark.png",
+      "sha256": "4008a2d88c969077f8d0b52e234076b2b3ab76d1982cbdbe97b9bb8400ae6aac"
+    },
+    {
+      "id": "typhon_vfx_rain_arrow",
+      "file": "typhon_vfx_rain_arrow.png",
+      "size": [
+        5,
+        18
+      ],
+      "frames": 1,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_rain_arrow.png",
+      "sha256": "66080ac6494548ebfa1d6acd5b96c7ae73c96e9d99145aeb40efdde433c73853"
+    },
+    {
+      "id": "typhon_vfx_rain_hit",
+      "file": "typhon_vfx_rain_hit.png",
+      "size": [
+        9,
+        9
+      ],
+      "frames": 3,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_rain_hit.png",
+      "sha256": "6fba099483eb4012e16ea3681912d3df6b6872e296426e24345ddc9ccb570984"
+    },
+    {
+      "id": "typhon_vfx_pierce",
+      "file": "typhon_vfx_pierce.png",
+      "size": [
+        9,
+        7
+      ],
+      "frames": 5,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_pierce.png",
+      "sha256": "501f5717edc24a7c71cb9afd1e5413ed1793327326a16d23b184cea6f05342b0"
+    },
+    {
+      "id": "typhon_vfx_spark",
+      "file": "typhon_vfx_spark.png",
+      "size": [
+        11,
+        11
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\typhon_vfx_spark.png",
+      "sha256": "2eb51f7461230eb8cd3cdbd15cd1b86e9f50c2c9bfbd73276e3a3fb02222462b"
+    }
+  ],
+  "status": "static validated; art and in-engine animation approval open"
+}

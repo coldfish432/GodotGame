@@ -1,0 +1,91 @@
+{
+  "character": "hoshiguma",
+  "tool": "built-in image_gen",
+  "effects": [
+    {
+      "id": "hoshiguma_vfx_bash",
+      "file": "hoshiguma_vfx_bash.png",
+      "size": [
+        44,
+        22
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "centre",
+      "source": "source_paintings\\hoshiguma_vfx_bash.png",
+      "sha256": "6874b3c05df087853c613f82f7251c3061ef6a248414c8cb47b93cb2aaf6c221"
+    },
+    {
+      "id": "hoshiguma_vfx_ram",
+      "file": "hoshiguma_vfx_ram.png",
+      "size": [
+        56,
+        32
+      ],
+      "frames": 1,
+      "mount": "ground",
+      "forward": "up",
+      "anchor": "bottom",
+      "source": "source_paintings\\hoshiguma_vfx_ram.png",
+      "sha256": "c098c93e3add2189408e84577a37572ad6811257a33e87a925a85db779f413d1"
+    },
+    {
+      "id": "hoshiguma_vfx_saw",
+      "file": "hoshiguma_vfx_saw.png",
+      "size": [
+        52,
+        40
+      ],
+      "frames": 3,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "bottom",
+      "source": "source_paintings\\hoshiguma_vfx_saw.png",
+      "sha256": "91428e2b6e316fe3b5d28508504630f09ce29e1566a9fb4c49ea61705015533e"
+    },
+    {
+      "id": "hoshiguma_vfx_saw_spark",
+      "file": "hoshiguma_vfx_saw_spark.png",
+      "size": [
+        9,
+        9
+      ],
+      "frames": 2,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\hoshiguma_vfx_saw_spark.png",
+      "sha256": "f8bed9021e49f9f56a34061bd339e8deef4b1374e2c845aed8d7db4624c2d98c"
+    },
+    {
+      "id": "hoshiguma_vfx_block",
+      "file": "hoshiguma_vfx_block.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 2,
+      "mount": "billboard",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\hoshiguma_vfx_block.png",
+      "sha256": "fd5325610cd027c896abe0e04cc9986300cd28e6d232e48415292b6d9b715570"
+    },
+    {
+      "id": "hoshiguma_vfx_spark",
+      "file": "hoshiguma_vfx_spark.png",
+      "size": [
+        11,
+        11
+      ],
+      "frames": 2,
+      "mount": "ground",
+      "forward": null,
+      "anchor": "centre",
+      "source": "source_paintings\\hoshiguma_vfx_spark.png",
+      "sha256": "7f8fa942e46d4976e08596ece3790efad136782f0bd7a0b9a90cf51a3b676f0e"
+    }
+  ],
+  "status": "static validated; art and in-engine animation approval open"
+}

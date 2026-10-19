@@ -1,0 +1,40 @@
+Use case stylized-concept. Production GAME SPRITE SHEET, freshly drawn, never a portrait. rosa from Arknights. Official PRTS image COSTUME AND COLOURS ONLY, do not trace. Amiya image STYLE AND GRID only: match two-head-tall chibi, chunky flat shading, dark outline and pixel clusters. Character sprites have NO colour-count limit. True transparent background no labels no grid no shadows no VFX or slash lines/projectiles/glows. No bright red (use replacements below), no summoned animals/background scenery. Uniform256x256 cells: body centre x128, boots lowest row241, topmost hat/horn/ears at y12 or lower; entire weapon inside each cell. All frames same body size.
+Character specification:
+## Character read (what must survive at 32 px)
+
+From her E2 art (`prts_refs.md`):
+
+- **Very long silver-white hair**, falling past her knees in loose waves (`#e6e8ea` light, `#98a4a2` shadow, a faint cool tint).
+- Race Ursus (乌萨斯 in her file): **two small round bear ears** on top of the head, white like the hair. At 32 px, 1–2 texels each.
+- **Small dark-navy cap** worn tilted on one side of the head, between the ears (`#374158`), with a tiny pale badge.
+- Rose-pink eyes (1 px, `#c87a8a`). Calm, composed, a little aloof.
+- **White uniform jacket**, long-sleeved, fitted (`#e4dcd2` light, `#b9b2ab` shade), with a **blue tie** at the neck (`#3e678d`) and a dark belt. A short white skirt.
+- **Navy cape** over the shoulders (`#2e4364`), with a **white fur trim** along its edge. The PRTS cape lining and ribbons are **red**; replace them with **dark wine** (`#5e1f2a`), kept to the lining only. No bright red.
+- **Black tights** (`#151b29`) and dark boots.
+- **Weapon:** a heavy black launcher (`#151b29` body, `#3a4250` metal, `#6f7c8c` highlights) with a thick barrel block, side grips and **harpoon bolts with three-pronged claw heads** loaded at the front. At walk scale it is about as long as her torso and legs together. She carries it **two-handed across the body**, muzzle pointing down and forward, or on the right shoulder; pick whichever reads better at 32 px and keep it the same across walk and idle.
+
+**Height:** body (top of the head to the soles, no ears or cap) **1.03× Lappland's**. Her file says 174 cm against Lappland's 162 cm; I compress it for the chibi style.
+
+
+COMBAT SHEET EXACT 13 columns x5 rows, 3328x1280 canvas. Each row SAME action columns. Exactly65 sprites. Rows1 S chest square toward viewer attacks toward viewer foreshortened or across front;2 SW down-left frontthreequarter;3 W TRUE LEFT PROFILE ONE EYE NOSE LEFT IN EVERY FRAME including crouch/hurt/special;4 NW BACK up-left NO FACE;5 N TRUE BACK NO FACE. Maintain directions rigorously. North arms weapons cape/hair must vary through actions, never duplicate all back frames. Long weapons foreshorten to fit not crop. Lean/crouch/lunge poses must clearly bend torso and legs. No painted effects, no arrows or projectiles in flight. Full brief combat columns follow:
+### Rosa combat columns (13 × 5, 3328 × 1280)
+
+| Col | Pose |
+|---|---|
+| 1 | Aim: launcher raised and levelled at the target, braced, feet apart |
+| 2 | Fire: recoil, the launcher kicks up, shoulders pushed back, hair lifting |
+| 3 | Reload / recover: launcher lowered, one hand on the loading slide |
+| 4 | Charge: deeper crouch, launcher pulled tight to the shoulder, cape flaring |
+| 5 | Charged release: heavy recoil, back foot slides back (feet stay on the baseline) |
+| 6 | Recover |
+| 7 | Avalanche Strike windup: launcher swung down to the hip, leaning into it |
+| 8 | Volley 1: firing toward the left side of the fan |
+| 9 | Volley 2: firing straight ahead |
+| 10 | Volley 3: firing toward the right side of the fan |
+| 11 | Hold: launcher still raised, smoke shape at the muzzle **not** drawn, hair settling |
+| 12 | Recover |
+| 13 | Hurt: recoils backward |
+
+Signature column for the preview: 9.
+
+

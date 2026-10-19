@@ -1,0 +1,37 @@
+{
+  "avatar_order": [
+    "sharp",
+    "stormeye",
+    "pith",
+    "touch",
+    "tulip",
+    "mechanist",
+    "misery",
+    "reserve_vanguard",
+    "reserve_guard",
+    "reserve_defender",
+    "reserve_sniper",
+    "reserve_caster",
+    "reserve_medic",
+    "reserve_supporter",
+    "reserve_specialist"
+  ],
+  "sprite_letters": {
+    "A": "reserve_specialist",
+    "B": "mechanist",
+    "C": "misery",
+    "D": "reserve_supporter",
+    "E": "reserve_sniper",
+    "F": "stormeye",
+    "G": "reserve_medic",
+    "H": "reserve_guard",
+    "I": "touch",
+    "J": "pith",
+    "K": "sharp",
+    "L": "reserve_defender",
+    "M": "reserve_caster",
+    "N": "reserve_vanguard",
+    "O": "tulip"
+  },
+  "doctor": "No PRTS avatar supplied; separate hood/coat/face/no-red review required"
+}

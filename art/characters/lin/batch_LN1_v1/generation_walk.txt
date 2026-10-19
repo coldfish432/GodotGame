@@ -1,0 +1,18 @@
+Use case stylized-concept. Production GAME SPRITE SHEET, freshly drawn, never a portrait. lin from Arknights. Official PRTS image COSTUME AND COLOURS ONLY, do not trace. Amiya image STYLE AND GRID only: match two-head-tall chibi, chunky flat shading, dark outline and pixel clusters. Character sprites have NO colour-count limit. True transparent background no labels no grid no shadows no VFX or slash lines/projectiles/glows. No bright red (use replacements below), no summoned animals/background scenery. Uniform256x256 cells: body centre x128, boots lowest row241, topmost hat/horn/ears at y12 or lower; entire weapon inside each cell. All frames same body size.
+Character specification:
+## Character read (what must survive at 32 px)
+
+From her E2 art (`prts_refs.md`):
+
+- **Very pale pink hair**, almost white, with mauve-pink shadow (`#f2e4ea` light, `#c9a9b6` mid, `#8a6a78` shadow), worn in **long side tails** that fall past the waist, and a **black headband**.
+- Race Zalak (札拉克, a rodent race): **two round mouse ears** on top of the head, mauve-brown (`#8a6a72`), and a **long, thin black tail** (`#1d1a22`) that curls behind her. At 32 px the ears are 2 round texel clusters, the tail a 1-texel curve.
+- A small violet hair ornament by one ear.
+- Violet-grey eyes (1 px, `#7a6a8c`). Calm, dry, faintly smiling.
+- **Black cropped jacket** with wide sleeves (`#151417`) over a black top, **black shorts**, a black thigh garter with a small violet buckle, black boots. Very pale skin (`#f6ecec`).
+- **Violet sash and ribbons** (`#6a4fb0` light, `#3c2f64` dark) that wrap her waist and stream behind her, and a long, translucent-looking dark cloak in her art. Keep the violet ribbons as her accent colour; the cloak can be left out or reduced to a short dark drape if it hides the body at 32 px.
+- **Weapon:** a **slender silver wand-staff** (`#b8bcc8` shaft, `#56545d` dark parts), about her body height, with an ornamental cage near the top and a small dark gem. Held in **one hand**, her right, upright or angled down at her side when walking.
+
+**Height:** body (top of the head to the soles, no ears) **1.00× Lappland's**. Her file says 166 cm against Lappland's 162 cm.
+
+
+WALK SHEET: exact4 columns x8 rows, canvas1024x2048,32 complete separate sprites. Four columns contactA,passingA feet together,contactB opposite legs,passingB feet together; visible opposite leg swing not duplicated poses. Same weapon carry across walk and idle. ROWS S chest square faces viewer; SW down-left front threequarter; W strict left profile ONE EYE noseLEFT; NW back up-left NO FACE; N full back NO FACE; NE back up-right NO FACE; E true right profile ONE EYE noseRIGHT; SE down-right frontthreequarter. Every frame in row keeps heading.

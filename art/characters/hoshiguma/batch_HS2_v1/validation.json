@@ -1,0 +1,100 @@
+[
+  {
+    "id": "hoshiguma_vfx_bash",
+    "canvas": [
+      44,
+      22
+    ],
+    "frames": 1,
+    "colours": [
+      "#101614",
+      "#1f6b58",
+      "#33383a",
+      "#3fae8e"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hoshiguma_vfx_ram",
+    "canvas": [
+      56,
+      32
+    ],
+    "frames": 1,
+    "colours": [
+      "#101614",
+      "#1f6b58",
+      "#33383a",
+      "#3fae8e"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hoshiguma_vfx_saw",
+    "canvas": [
+      156,
+      40
+    ],
+    "frames": 3,
+    "colours": [
+      "#101614",
+      "#1f6b58",
+      "#33383a",
+      "#3fae8e"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hoshiguma_vfx_saw_spark",
+    "canvas": [
+      18,
+      9
+    ],
+    "frames": 2,
+    "colours": [
+      "#101614",
+      "#1f6b58",
+      "#33383a",
+      "#3fae8e",
+      "#b8f0dc"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hoshiguma_vfx_block",
+    "canvas": [
+      48,
+      24
+    ],
+    "frames": 2,
+    "colours": [
+      "#101614",
+      "#1f6b58",
+      "#33383a",
+      "#3fae8e",
+      "#b8f0dc"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "hoshiguma_vfx_spark",
+    "canvas": [
+      22,
+      11
+    ],
+    "frames": 2,
+    "colours": [
+      "#101614",
+      "#1f6b58",
+      "#33383a",
+      "#3fae8e"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  }
+]

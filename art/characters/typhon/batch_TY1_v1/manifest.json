@@ -1,0 +1,111 @@
+{
+  "character": "typhon",
+  "tool": "built-in image_gen",
+  "sheets": [
+    {
+      "file": "typhon_walk_source.png",
+      "character": "typhon",
+      "kind": "walk",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "contact_A",
+        "passing_A",
+        "contact_B",
+        "passing_B"
+      ],
+      "source": "source_paintings\\walk_generated.png",
+      "sha256": "ee98d5606a3dce3c8c823d16a5ca4ffdd57aa20f11ce126937d0446655e5e7e3"
+    },
+    {
+      "file": "typhon_idle_source.png",
+      "character": "typhon",
+      "kind": "idle",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N",
+        "NE",
+        "E",
+        "SE"
+      ],
+      "columns": [
+        "standing",
+        "breath"
+      ],
+      "source": "source_paintings\\idle_generated.png",
+      "sha256": "7a9ccb59e12e089f53fee1bc28e822bfbec0dad4c357d07e60a056284bf35484"
+    },
+    {
+      "file": "typhon_combat_source.png",
+      "character": "typhon",
+      "kind": "combat",
+      "cols": 10,
+      "rows": 5,
+      "cell": 256,
+      "row_order": [
+        "S",
+        "SW",
+        "W",
+        "NW",
+        "N"
+      ],
+      "columns": [
+        "Nock: bow raised in front, an arrow set on the string",
+        "Full draw: string pulled to the cheek, body side-on to the target, hair blowing back",
+        "Release: string snapped forward, bow arm extended, drawing hand flung back",
+        "Recover",
+        "Eternal Hunt, mark: bow levelled at the target, perfectly still, eyes narrowed",
+        "High draw: bow angled about 45\u00b0 up toward the sky",
+        "High release: the arrow loosed skyward, body leaning back slightly",
+        "Follow-through: still looking at the target, drawing hand reaching for the next arrow",
+        "Recover",
+        "Hurt: recoils backward"
+      ],
+      "source": "source_paintings\\combat_generated.png",
+      "sha256": "dd2ad20ae624f63fe367ce5e6f78756166239ed1352fdee71fbd049a90761641"
+    }
+  ],
+  "painted_corrections": [
+    {
+      "source": "source_paintings\\idle_NE_corrected.png",
+      "sha256": "32ce23c1e544b820a7fd211a14831d6d82e2a0a86996cfae3cc526c821dd8a38",
+      "sheet": "idle",
+      "row": "NE",
+      "columns": [
+        1,
+        2
+      ]
+    },
+    {
+      "source": "source_paintings\\hurt_facing_corrected.png",
+      "sha256": "27f4b586ac05a57f4bc548abd1ee976a1e6034bcab79bc8b3a6837d35df057ca",
+      "sheet": "combat",
+      "rows": [
+        "W",
+        "NW"
+      ],
+      "columns": [
+        10
+      ]
+    }
+  ],
+  "status": "draft; visual and in-engine approval open",
+  "processing": "connected-component extraction, nearest resampling, alpha threshold128, cell alignment; idle upper body displaced8px with lower legs retained from painted standing pose"
+}

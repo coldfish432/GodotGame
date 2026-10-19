@@ -1,0 +1,128 @@
+[
+  {
+    "id": "typhon_vfx_arrow",
+    "canvas": [
+      3,
+      18
+    ],
+    "frames": 1,
+    "colours": [
+      "#120f16",
+      "#2a2430",
+      "#5b4d63",
+      "#e6dfcf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "typhon_vfx_arrow_heavy",
+    "canvas": [
+      5,
+      24
+    ],
+    "frames": 1,
+    "colours": [
+      "#120f16",
+      "#2a2430",
+      "#4a4038",
+      "#5b4d63",
+      "#e6dfcf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "typhon_vfx_mire",
+    "canvas": [
+      40,
+      20
+    ],
+    "frames": 2,
+    "colours": [
+      "#120f16",
+      "#2a2430",
+      "#4a4038",
+      "#5b4d63"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "typhon_vfx_mark",
+    "canvas": [
+      48,
+      24
+    ],
+    "frames": 2,
+    "colours": [
+      "#120f16",
+      "#2a2430",
+      "#5b4d63",
+      "#e6dfcf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "typhon_vfx_rain_arrow",
+    "canvas": [
+      5,
+      18
+    ],
+    "frames": 1,
+    "colours": [
+      "#120f16",
+      "#e6dfcf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "typhon_vfx_rain_hit",
+    "canvas": [
+      27,
+      9
+    ],
+    "frames": 3,
+    "colours": [
+      "#120f16",
+      "#2a2430",
+      "#5b4d63",
+      "#e6dfcf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "typhon_vfx_pierce",
+    "canvas": [
+      45,
+      7
+    ],
+    "frames": 5,
+    "colours": [
+      "#120f16",
+      "#2a2430",
+      "#5b4d63",
+      "#e6dfcf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  },
+  {
+    "id": "typhon_vfx_spark",
+    "canvas": [
+      22,
+      11
+    ],
+    "frames": 2,
+    "colours": [
+      "#120f16",
+      "#5b4d63",
+      "#e6dfcf"
+    ],
+    "alpha_binary": true,
+    "tiling": "not a tiling texture; animation seam requires playback review"
+  }
+]
