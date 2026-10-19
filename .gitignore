@@ -46,3 +46,7 @@ art/characters/*/refs_prts/
 art/**/*.zip
 art/**/*.log
 art/**/*_prts.png
+
+# Local comparison sheet
+/叙拉古城景对照_v1.png
+/叙拉古城景对照_v1.png.import
