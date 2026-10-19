@@ -32,7 +32,16 @@ from build_poi import _ramp_material, painted, cloth, _settled_publish, _publish
 
 # --- Materials ------------------------------------------------------------------------
 
+## The outer city's buildings are kept up (用户 2026-10-16: 城区里的房子不应该是
+## 斑驳的，贫民窟应该是): built with CLEAN on, their render and roofs use the
+## cleaned swatches (art/kit/textures/painted/build_city_clean.py) and their
+## concrete trims a narrow ramp. The slums' copies (WORN) are built with it off.
+CLEAN = False
+
+
 def concrete(name, seed, base="7e8184"):
+    if CLEAN:
+        return _ramp_material(name, [(0.4, _blend(base, "000000", 0.12)), (0.6, base), (0.8, _blend(base, "ffffff", 0.1))], 4.0, seed, 2.0)
     return _ramp_material(name, [(0.28, "4e5154"), (0.55, base), (0.95, "a3a5a6")], 4.0, seed, 6.0)
 
 
@@ -91,9 +100,9 @@ def plaster(name, hex_rgb, seed):
     """Painted render (C6), coloured per building; its roof the flat roof (C5)."""
     mat, nodes, links = _new(name)
     bsdf = kit.principled(nodes)
-    wall = _tinted(nodes, links, _swatch(nodes, links, "city_plaster.png", 6.0), hex_rgb, 1.8)
+    wall = _tinted(nodes, links, _swatch(nodes, links, "city_plaster_clean.png" if CLEAN else "city_plaster.png", 6.0), hex_rgb, 1.8)
     # The roof a shade of its walls, so a block of roofs is not one grey.
-    roof = _tinted(nodes, links, _swatch(nodes, links, "city_roof.png", 6.0), _blend("ffffff", hex_rgb, 0.35), 1.75)
+    roof = _tinted(nodes, links, _swatch(nodes, links, "city_roof_clean.png" if CLEAN else "city_roof.png", 6.0), _blend("ffffff", hex_rgb, 0.35), 1.75)
     # Faces looking up are roof (the parapet's top included).
     geometry = nodes.new("ShaderNodeNewGeometry")
     up = nodes.new("ShaderNodeSeparateXYZ")
@@ -1155,7 +1164,32 @@ def publish(name, parts):
 BAKE_SIZE = {"wall": 1024, "sheet": 1024, "box": 1024, "shutter": 512, "face": 256}
 
 
+## Built clean for the outer city, and the ones the slums also front their
+## lanes with built again weathered as "<name>_worn".
+CLEAN_BUILDINGS = ["city_tower", "city_shop_house", "city_tea_house", "city_row_low_a", "city_row_low_b", "city_row_mid"]
+WORN = ["city_row_low_a", "city_row_low_b"]
+
+
+def rebuild_clean(new_scene):
+    """Through the MCP: every clean building, then the worn copies."""
+    global CLEAN
+    for name in CLEAN_BUILDINGS:
+        CLEAN = True
+        new_scene(name)
+        publish(name, globals()[name]())
+    for name in WORN:
+        CLEAN = False
+        new_scene(name + "_worn")
+        publish(name + "_worn", globals()[name]())
+    CLEAN = False
+
+
 if __name__ == "__main__":
     for builder in BUILDERS:
         kit.reset_scene()
+        CLEAN = builder.__name__ in CLEAN_BUILDINGS
         publish(builder.__name__, builder())
+    CLEAN = False
+    for name in WORN:
+        kit.reset_scene()
+        publish(name + "_worn", globals()[name]())
