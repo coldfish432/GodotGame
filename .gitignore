@@ -38,3 +38,11 @@ youtube/
 
 # Blender save backups (Assignment 3)
 *.blend1
+
+# Official PRTS images used as character references (same rule as above)
+art/characters/*/refs/prts/
+art/characters/*/refs_prts/
+# Review/delivery zips and engine logs anywhere under art/
+art/**/*.zip
+art/**/*.log
+art/**/*_prts.png
