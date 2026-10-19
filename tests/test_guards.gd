@@ -143,6 +143,17 @@ func exercise_guards(region: String) -> void:
 		if post.guards.all(func(e): return e.state == Enemy.State.IDLE): break
 	check(region + " guards navigate to their separate original stations", outside == 0 and post.guards.all(func(e): return e.state == Enemy.State.IDLE and e.position.distance_to(e.home_position) < 0.31))
 	await step(50)
+	# 用户 2026-10-18: one guard up wakes them all.
+	game.player.teleport(walkable(anchor + approach * 9))
+	await step(2)
+	post.guards[0].begin_chase()
+	await step(2)
+	check(region + " one guard set chasing wakes the whole squad", post.active and post.guards.all(func(e): return e.state == Enemy.State.CHASING))
+	game.player.teleport(walkable(anchor + approach * 16))
+	for tick in range(500):
+		await step()
+		if post.guards.all(func(e): return e.state == Enemy.State.IDLE): break
+	await step(50)
 	game.player.teleport(walkable(anchor + approach * 5))
 	await step(3)
 	check(region + " a returned squad can trigger again", post.active and post.guards.all(func(e): return e.state == Enemy.State.CHASING))

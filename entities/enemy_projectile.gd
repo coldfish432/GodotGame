@@ -11,6 +11,16 @@ var travelled := 0.0
 var game: GameManager
 ## Who fired it, so retaliation (坚壁 4) knows where to answer.
 var shooter: Enemy
+## Arts damage whatever it looks like (家族弩手's bolts in the 清算时刻).
+var arts := false
+
+## 清算时刻 (叙拉古敌人设计案 §三第 3 条): the bolt is arts, tinted pale violet
+## with a 1 px trail.
+func make_arts() -> void:
+	arts = true
+	for child in get_children():
+		if child is MeshInstance3D: (child as MeshInstance3D).material_override.albedo_color = Color("c8a8f0")
+	EnemyAttackVfx.stroke(self, -direction * 14 * Enemy.PIXEL, -direction * 8 * Enemy.PIXEL, Enemy.PIXEL, Color(0.78, 0.66, 0.94, 0.6)).material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 
 func _ready() -> void:
 	speed = 22.0 if kind == "bullet" else 12.0
@@ -49,7 +59,7 @@ func _physics_process(delta: float) -> void:
 			var player := Vector2(game.player.global_position.x, game.player.global_position.z)
 			if Geometry2D.get_closest_point_to_segment(player, a, b).distance_to(player) <= hit_radius:
 				# An arts caster's orb is arts damage; arrows and bullets physical.
-				var damage_kind := shooter.damage_kind if is_instance_valid(shooter) and kind == "ice_orb" else "phys"
+				var damage_kind := "arts" if arts else (shooter.damage_kind if is_instance_valid(shooter) and kind == "ice_orb" else "phys")
 				game.player.take_damage(damage, damage_kind, shooter if is_instance_valid(shooter) else null)
 				queue_free()
 				return

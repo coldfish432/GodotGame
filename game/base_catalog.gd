@@ -61,6 +61,11 @@ const ORDERS := {
 	"eng_raw_ore": {"dept": "工程部", "count": 1, "effect": "raw_ore", "region": "mine", "gold": 16000, "prestige": 12, "weight": 1},
 	"log_riot_shield": {"dept": "后勤部", "count": 1, "effect": "riot_shield", "region": "city", "gold": 14000, "prestige": 12, "weight": 1},
 	"med_frozen_relic": {"dept": "医疗部", "count": 1, "effect": "frozen_relic", "region": "snow", "gold": 22000, "prestige": 15, "weight": 1},
+	# 加工部 (势力与交易所策划案 §2.3): what the workshop makes.
+	"proc_cube": {"dept": "加工部", "count": 2, "material": "固源岩组", "mult": 1.6, "prestige": 7, "weight": 2},
+	"proc_device": {"dept": "加工部", "count": 2, "material": "全新装置", "mult": 1.6, "prestige": 7, "weight": 2},
+	"proc_iron": {"dept": "加工部", "count": 3, "material": "异铁组", "mult": 1.5, "prestige": 6, "weight": 1},
+	"proc_crate": {"dept": "加工部", "count": 1, "material": "工业补给箱", "mult": 1.5, "prestige": 6, "weight": 1},
 }
 
 static func rank_of(prestige: int) -> int:
@@ -77,7 +82,7 @@ static func order_text(id: String) -> String:
 	var t: Dictionary = ORDERS[id]
 	var what := ""
 	if t.has("effect"):
-		what = {"raw_ore": "未封装源石原矿", "riot_shield": "近卫局暴动盾", "frozen_relic": "冻土下的旧物"}[t.effect]
+		what = {"raw_ore": "未封装源石原矿", "riot_shield": "近卫局暴动盾", "frozen_relic": "冻土下的旧物", "saluzzo_crest": "萨卢佐家族的旧徽记"}[t.effect]
 	elif t.has("material"):
 		what = "★%d %s" % [MaterialCatalog.star(t.material), t.material]
 	else:
@@ -93,33 +98,40 @@ static func order_text(id: String) -> String:
 const CONTAMINATION_MINE := 0.02          # working in the mine at all
 const CONTAMINATION_DEEP_ROUTE := 0.02    # on the 深部污染带 route (route index 2), any region
 const CONTAMINATION_PER_ORE := 0.06       # each unsealed ore carried, pack or safe bag
-const CONTAMINATION_DECAY := 5            # off at every settlement, before this run's dose
 const CONTAMINATION_MAX := 100
-## Contamination acts live, in the field (局内节奏与目标策划案 §6 D): each point
-## takes 0.3% of max HP and 1/80 of the base self-regeneration (0.1% of max HP a
-## second), so regeneration reaches 0 at 80 and drains below that; potions heal
-## 25% less from 70.
-const CONTAMINATION_HP_PER_POINT := 0.003
-const CONTAMINATION_REGEN_PER_POINT := 0.001 / 80.0   # share of max HP a second
-const CONTAMINATION_POTION_FROM := 70.0
-const CONTAMINATION_POTION_PENALTY := 0.25
-## Tier names and thresholds, for the status badge only: [from, (unused), (unused), (unused)].
+## Contamination acts live, in the field (局内节奏与目标策划案 §6 D), in steps
+## (用户 2026-10-15: 污染改为阶梯式影响，60、90 更加严重): nothing below 60; from
+## 60 max HP −15% and self-regeneration halved; from 90 max HP −30%,
+## self-regeneration stopped and 0.1% of max HP lost a second (never the last
+## point), potions heal 25% less.
+## [from, max HP cut, potion penalty, regeneration stopped, regeneration factor, drain (share of max HP a second)]
 const CONTAMINATION_TIERS := [
-	[0, 0.0, 0.0, false],
-	[40, 0.10, 0.0, false],
-	[70, 0.20, 0.25, false],
-	[100, 0.30, 0.25, true],
+	[0, 0.0, 0.0, false, 1.0, 0.0],
+	[60, 0.15, 0.0, false, 0.5, 0.0],
+	[90, 0.30, 0.25, true, 0.0, 0.001],
 ]
-const CONTAMINATION_TIER_NAMES := ["无", "轻度", "中度", "重度"]
-## Prices are 龙门币 (经济修订案 §3, the old 资金 ×100).
-const DECON_PRICE_PER_POINT := 150.0
-const DECON_MIN_PRICE := 1000
+const CONTAMINATION_TIER_NAMES := ["无", "中度", "重度"]
 
 const INJURY_HP_PENALTY := 0.25
 
 ## Max HP cut from contamination (live) plus injury, capped.
 static func hp_penalty(contamination: float, injured: bool) -> float:
-	return minf(HP_PENALTY_CAP, contamination * CONTAMINATION_HP_PER_POINT + (INJURY_HP_PENALTY if injured else 0.0))
+	return minf(HP_PENALTY_CAP, contamination_hp_cut(contamination) + (INJURY_HP_PENALTY if injured else 0.0))
+
+static func contamination_hp_cut(value: float) -> float:
+	return float(CONTAMINATION_TIERS[contamination_tier(value)][1])
+
+## Potions heal this much less at this contamination.
+static func contamination_potion_penalty(value: float) -> float:
+	return float(CONTAMINATION_TIERS[contamination_tier(value)][2])
+
+## Self-regeneration is multiplied by this at this contamination.
+static func contamination_regen_factor(value: float) -> float:
+	return float(CONTAMINATION_TIERS[contamination_tier(value)][4])
+
+## Share of max HP lost a second at this contamination.
+static func contamination_drain(value: float) -> float:
+	return float(CONTAMINATION_TIERS[contamination_tier(value)][5])
 const INJURY_TREATMENT := 3000
 const HP_PENALTY_CAP := 0.40              # injury and contamination add up to at most this
 
@@ -131,8 +143,9 @@ const POTIONS := {
 }
 ## Flasks are pack items (药剂进背包): three 标准急救剂 are issued free for every
 ## contract and go into the pack at departure; more are bought at the pharmacy
-## (or from 可露希尔), each taking a cell.
+## (or from 可露希尔). One kind stacks in a cell up to POTION_STACK (用户 2026-10-17).
 const FREE_POTIONS := 3
+const POTION_STACK := 5
 const POTION_A_PRICE := 300
 ## The old "flask capacity" stat (relics, affixes) now changes flask healing:
 ## each point is ±20%.
@@ -143,7 +156,9 @@ static func create_potion(type: String) -> Item:
 	var item := Item.create(str(p.name), Item.Category.MATERIAL, 1, 1)
 	item.potion_type = type
 	item.description = str(p.text)
-	item.value = int(p.price) / Economy.LMD_PER_VALUE if type != "A" else POTION_A_PRICE / Economy.LMD_PER_VALUE
+	item.unit_value = int(p.price) / Economy.LMD_PER_VALUE if type != "A" else POTION_A_PRICE / Economy.LMD_PER_VALUE
+	item.max_stack = POTION_STACK
+	item.set_quantity(1)
 	return item
 ## Scaled with Lappland's life (局内构筑与数值策划案 §5.5): 40% / 70% / 20% of the base 2400.
 const POTION_A_HEAL := 960.0
@@ -158,9 +173,6 @@ static func contamination_tier(value: float) -> int:
 	for i in range(CONTAMINATION_TIERS.size()):
 		if value >= CONTAMINATION_TIERS[i][0]: tier = i
 	return tier
-
-static func decon_price(points: int) -> int:
-	return 0 if points <= 0 else maxi(DECON_MIN_PRICE, ceili(points * DECON_PRICE_PER_POINT))
 
 # --- Prestige unlocks, expansion, the drone (§2.2, §3.5, §3.6) -----------------
 

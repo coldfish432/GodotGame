@@ -557,12 +557,37 @@ class GridView extends Control:
 		draw_rect(Rect2(Vector2.ZERO, Vector2(container.width * c, container.height * c)), Color(0, 0, 0, 0.55))
 		for x in range(container.width + 1): draw_line(Vector2(x * c, 0), Vector2(x * c, container.height * c), Color(1, 1, 1, 0.07))
 		for y in range(container.height + 1): draw_line(Vector2(0, y * c), Vector2(container.width * c, y * c), Color(1, 1, 1, 0.07))
-		if is_instance_valid(box): _draw_search(box.search_cell())
+		if is_instance_valid(box):
+			_draw_outlines(box.pending_rects())
+			_draw_search(box.search_cell())
 		if _preview.size != Vector2i.ZERO:
 			draw_rect(Rect2(_preview.position * c, _preview.size * c), Color(0.3, 0.9, 0.45, 0.28) if _preview_ok else Color(0.95, 0.3, 0.25, 0.3))
 
-	## 塔科夫's search mark: a magnifier circling over the cell where the next
-	## item will turn up (one cell, so its size is not given away).
+	## What is still to be found, as the outline of the cells each item takes
+	## (用户 2026-10-17): its size shows, not what it is. Dim, the way 塔科夫
+	## shows an unsearched slot: a darker well with a faint grey edge.
+	func _draw_outlines(rects: Array[Rect2i]) -> void:
+		var c := float(InventoryPanel.CELL)
+		var edge := Color(0.62, 0.64, 0.6, 0.22)
+		var hatch := Color(0.62, 0.64, 0.6, 0.1)
+		for rect in rects:
+			# On the grid lines themselves, so neighbouring outlines join.
+			var area := Rect2(Vector2(rect.position) * c, Vector2(rect.size) * c)
+			draw_rect(area, Color(0, 0, 0, 0.35))
+			# Diagonal hatching, "/" every 7 px, clipped to the outline.
+			var o := area.position
+			var w := area.size.x
+			var h := area.size.y
+			var d := 7.0
+			while d < w + h:
+				var a := o + (Vector2(d, 0.0) if d <= w else Vector2(w, d - w))
+				var b := o + (Vector2(0.0, d) if d <= h else Vector2(d - h, h))
+				draw_line(a, b, hatch, 1.0, true)
+				d += 7.0
+			draw_rect(area, edge, false, 1.0)
+
+	## 塔科夫's search mark: a magnifier circling over the top-left cell of the
+	## next item's outline.
 	func _draw_search(cell: Vector2i) -> void:
 		if cell.x < 0: return
 		var c := float(InventoryPanel.CELL)

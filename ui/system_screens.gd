@@ -8,8 +8,8 @@ extends Control
 const SETTINGS_PATH := "user://settings.cfg"
 const TIPS := [
 	"赤金占背包格子，营地里可以卖给可露希尔。",
-	"安全袋里的物品阵亡后也会保留。",
-	"投保的物品阵亡后会在 1–3 份合同后送回。",
+	"安全袋由博士随身携带，撤退时也会带回。",
+	"投保的装备没带出局就会在 2–4 小时后送回；带出来保险不失效。",
 	"每十层之后是营地，营地里有固定撤离点。",
 	"罗德岛小队可以为一件装备投保，或直接送回基地。",
 	"坎诺特的货架可以刷新，也收购物品。",
@@ -23,7 +23,10 @@ var _settings: Control
 var _loading_left := 0.0
 var _was_transitioning := false
 static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}, "language": "zh",
-	"auto_potion": "", "auto_potion_low": 0.4, "auto_potion_high": 0.9}
+	"auto_potion": "", "auto_potion_low": 0.4, "auto_potion_high": 0.9, "base_look": "",
+	# 站点总览 (用户 2026-10-18: 不常驻，快捷键开启，设置里自定义显示哪些):
+	# open or not, and the station kinds left out of it.
+	"station_panel": false, "station_hidden": []}
 static var _game: GameManager
 
 func _ready() -> void:
@@ -167,11 +170,35 @@ func _build_settings() -> Control:
 	full.button_pressed = settings.fullscreen
 	full.toggled.connect(func(on): SystemScreens.set_setting("fullscreen", on))
 	column.add_child(full)
+	column.add_child(look_toggle(_rebuild_settings))
 	column.add_child(language_toggle(_rebuild_settings))
 	var done := AK.button("确定", "blue", 15)
 	done.pressed.connect(func(): SystemScreens.save_settings(); screen.hide())
 	column.add_child(done)
 	return screen
+
+## 基地形象: who walks the base. "" follows whoever deploys; 博士 joins the
+## list once its sheets are in LapplandAnimator3D.CHARACTERS.
+static func look_toggle(after: Callable) -> Control:
+	var ids: Array = [""]
+	var names: Array = ["出战干员"]
+	if LapplandAnimator3D.has_sheets("doctor"):
+		ids.append("doctor")
+		names.append("博士")
+	for id in Operators.ORDER:
+		# Her sheets, and she has joined (干员寻访策划案 §2.3).
+		if not LapplandAnimator3D.CHARACTERS.has(id) or (is_instance_valid(_game) and not _game.base.recruited(id)): continue
+		ids.append(id)
+		names.append(Operators.display_name(id))
+	var row := HBoxContainer.new()
+	row.add_child(AK.label("基地形象", 14, AK.FG))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+	row.add_child(AK.toggle(names, maxi(ids.find(str(settings.base_look)), 0), func(i):
+		SystemScreens.set_setting("base_look", ids[i])
+		after.call(), 13))
+	return row
 
 ## 语言 / Language: the two names stay in their own language whichever is shown.
 static func language_toggle(after: Callable) -> Control:
@@ -234,6 +261,7 @@ static func apply_audio() -> void:
 static func apply_settings() -> void:
 	if is_instance_valid(_game) and is_instance_valid(_game.number_layer): _game.number_layer.visible = bool(settings.damage_numbers)
 	if _game == null: return
+	if _game.is_node_ready(): _game.refresh_look()
 	I18n.set_language(str(settings.language))
 	apply_audio()
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)

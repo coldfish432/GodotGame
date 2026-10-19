@@ -211,7 +211,17 @@ func distance_at(point: Vector2) -> float:
 		if cell.distance_squared_to(nearest) < 0.000001 and nearest.x >= 0 and nearest.y >= 0 and nearest.x <= columns and nearest.y <= rows:
 			return _distance[int(nearest.y) * (columns + 1) + int(nearest.x)]
 	# Small edge erosion only. Centre lines retain their guaranteed width.
-	return field.carved_distance(point) + noise.get_noise_2dv(point) * (0.1 if field.region_id == "city" else 0.85)
+	var carved: float = field.carved_distance(point)
+	return carved + field.edge_noise(point, noise.get_noise_2dv(point))
+
+## The shape that owns the grid vertex nearest x/z (ContinuousWorldMap's
+## owner: a room index, or -1 - a corridor segment).
+func owner_near(point: Vector2) -> int:
+	if _owner.is_empty(): return 0
+	var cell := ((point - origin) / CELL).round()
+	var x := clampi(int(cell.x), 0, columns)
+	var z := clampi(int(cell.y), 0, rows)
+	return _owner[z * (columns + 1) + x]
 
 ## The contour distance at x/z read off the sampled grid (its triangles, as
 ## ground_at): close to distance_at and nearly free, for placing dressing,
@@ -441,7 +451,7 @@ func _height(point: Vector2, mass: bool) -> float:
 		return lerpf(ground, top, rise) + mountain_at(point) + noise.get_noise_2dv(point * 0.65) * minf(depth * 0.1, 0.25)
 	# A flat-topped bank (rock_top_at), just roughened: a little noise that
 	# fades in from the rim, so the top meets the swept face's lip flush.
-	if field.region_id == "city": return rock_top_at(point)
+	if field.urban: return rock_top_at(point)
 	return rock_top_at(point) + noise.get_noise_2dv(point * 0.65) * minf(depth * 0.1, 0.18)
 
 ## Surface height at x/z: the floor where open, the rock mass where not.
@@ -470,7 +480,7 @@ func _color(point: Vector2, kind: int, height: float = NAN) -> Color:
 		var depth := maxf(0, -distance_at(point))
 		# The city's block ground lies flush with its road (用户 2026-10-14: 台子边的
 		# 阴影能去掉吗): no rim shade that would read as a raised edge.
-		var contact := 1.0 if field.region_id == "city" else lerpf(0.78, 1.0, smoothstep(0.0, 3.0, depth))
+		var contact := 1.0 if field.urban else lerpf(0.78, 1.0, smoothstep(0.0, 3.0, depth))
 		# Alpha: shade laid over the snow too (cliff_face.gdshader), deeper the
 		# further the rock lies below the floor beside it — a causeway's
 		# fallen-away side.
@@ -480,13 +490,15 @@ func _color(point: Vector2, kind: int, height: float = NAN) -> Color:
 		# city_pave reads G = 0 as pavement).
 		# The slums have no pavement: rubble and mud to the shacks' doors.
 		if field.region_id == "city": return Color(contact, 0.0 if depth < PAVEMENT_DEPTH and field.district_at(point) != "slum" else 1.0, contact, fade)
+		if field.urban: return Color(contact, 1.0, contact, fade)
 		return Color(contact, contact, contact, fade)
 	var road := 1.0 - smoothstep(1.3, 3.6, field.road_distance(point))
 	var open := maxf(0, distance_at(point))
-	var edge := 1.0 if field.region_id == "city" else smoothstep(0.0, 2.5, open)
+	var edge := 1.0 if field.urban else smoothstep(0.0, 2.5, open)
 	var color: Color
 	match field.region_id:
 		"city": color = CityDressing.ROAD_TINTS.get(field.district_at(point), CityDressing.ROAD_TINTS.street)
+		"siracusa": color = SiracusaDressing.STONE_TINTS.get(field.district_at(point), SiracusaDressing.STONE_TINTS.saluzzo)
 		"snow": color = Color("76919c").lerp(Color("b6c1b5"), road * 0.65)
 		_: color = Color("615646").lerp(Color("988164"), road * 0.65)
 	var mottling := 0.94 + noise.get_noise_2dv(point * 2.3) * 0.14
@@ -696,7 +708,7 @@ func mountain_at(point: Vector2) -> float:
 func _bank(_depth: float = 0.0) -> float:
 	match field.region_id:
 		# Flush: the city's buildings, not a bank, edge its roads.
-		"city": return 0.0
+		"city", "siracusa": return 0.0
 		"snow": return 1.1
 		_: return 1.6
 
@@ -819,5 +831,195 @@ func _build_backdrop() -> void:
 	plane.size = field.SPINE_MAX - field.SPINE_MIN + Vector2(512, 512)
 	backdrop.mesh = plane
 	backdrop.position = Vector3(field.map_center.x, -0.12, field.map_center.z)
-	backdrop.material_override = FieldArt.background_material(field.region_id)
+	backdrop.material_override = FieldArt.background_material(FieldCatalog.art_region(field.region_id))
 	field._generated_root.add_child(backdrop)
+
+# --- The vault's patch (VaultSeal) ------------------------------------------------
+
+## The floor is built as if the vault were not there (ContinuousWorldMap.
+## vault_excluded). The patch is the cells the vault would change, with a
+## margin; its dug version is built here aside, from the same grids and the
+## same triangle cutting, so it meets the floor round it with no seam. Its
+## outer ring keeps the sealed rock's heights, easing to the dug ones inside.
+const PATCH_MARGIN := 7
+const PATCH_EASE := 3
+## Cell (Vector2i) -> true.
+var patch_cells := {}
+## Vertex index -> 0..1: how far the vertex takes the dug heights (0 on the ring).
+var _patch_weight := {}
+## The grids as built (sealed) and as dug: _distance, _height_grid, _owner,
+## _top_grid, _rock_grid, _mountain_grid.
+var _sealed_grids: Array = []
+var _open_grids: Array = []
+
+class Bundle:
+	var floor_tool := MeshArrays.new()
+	var mass_tool := MeshArrays.new()
+	var wall_tool := MeshArrays.new()
+	var collision_walls := PackedVector3Array()
+	var ground_faces := PackedVector3Array()
+	var minimap_faces: Array[PackedVector2Array] = []
+	var boundaries: Array[PackedVector2Array] = []
+	var cliff_cuts: Array[PackedFloat32Array] = []
+	var contour_edges: Array[PackedFloat32Array] = []
+
+## Finds the patch: every grid vertex whose distance differs with the vault
+## carved, grown by PATCH_MARGIN; and the dug grids.
+func find_patch() -> void:
+	var width := columns + 1
+	field.vault_excluded = false
+	var changed: Array[Vector2i] = []
+	var bounds: Rect2 = field.vault_bounds().grow(4.0)
+	var x0 := clampi(int((bounds.position.x - origin.x) / CELL), 0, columns)
+	var x1 := clampi(int((bounds.end.x - origin.x) / CELL) + 1, 0, columns)
+	var z0 := clampi(int((bounds.position.y - origin.y) / CELL), 0, rows)
+	var z1 := clampi(int((bounds.end.y - origin.y) / CELL) + 1, 0, rows)
+	var dug := {}
+	for z in range(z0, z1 + 1):
+		for x in range(x0, x1 + 1):
+			var p := origin + Vector2(x, z) * CELL
+			var carved: float = field.carved_distance(p)
+			var d: float = carved + field.edge_noise(p, noise.get_noise_2dv(p))
+			var i := z * width + x
+			if absf(d - _distance[i]) > 0.0001:
+				changed.append(Vector2i(x, z))
+				dug[i] = [d, field._last_owner]
+	field.vault_excluded = true
+	# Cells within the margin of a changed vertex; each vertex's weight eases
+	# in from the ring.
+	var reach := {}
+	for c in changed:
+		for dz in range(-PATCH_MARGIN, PATCH_MARGIN + 1):
+			for dx in range(-PATCH_MARGIN, PATCH_MARGIN + 1):
+				var v := Vector2i(c.x + dx, c.y + dz)
+				if v.x < 0 or v.y < 0 or v.x > columns or v.y > rows: continue
+				var ring := PATCH_MARGIN - maxi(absi(dx), absi(dz))
+				reach[v] = maxi(int(reach.get(v, -1)), ring)
+	patch_cells.clear()
+	for v in reach:
+		if v.x < columns and v.y < rows and reach.has(v + Vector2i(1, 0)) and reach.has(v + Vector2i(0, 1)) and reach.has(v + Vector2i(1, 1)):
+			patch_cells[v] = true
+	_patch_weight.clear()
+	for v in reach:
+		_patch_weight[v.y * width + v.x] = clampf(float(reach[v]) / PATCH_EASE, 0.0, 1.0)
+	# The dug grids: the changed vertices re-read, the rock rebuilt over them,
+	# then eased back to the sealed rock towards the ring (and outside it).
+	_sealed_grids = [_distance.duplicate(), _height_grid.duplicate(), _owner.duplicate(), _top_grid.duplicate(), _rock_grid.duplicate(), _mountain_grid.duplicate()]
+	for i in dug:
+		_distance[i] = dug[i][0]
+		_owner[i] = dug[i][1]
+		var p := origin + Vector2(i % width, i / width) * CELL
+		_height_grid[i] = field.owner_height(_owner[i], p)
+	_build_top_grid()
+	var sealed_top: PackedFloat32Array = _sealed_grids[3]
+	var sealed_rock: PackedFloat32Array = _sealed_grids[4]
+	var sealed_mountain: PackedFloat32Array = _sealed_grids[5]
+	for i in range(_distance.size()):
+		var w: float = _patch_weight.get(i, 0.0)
+		if w >= 1.0: continue
+		_top_grid[i] = lerpf(sealed_top[i], _top_grid[i], w)
+		_rock_grid[i] = lerpf(sealed_rock[i], _rock_grid[i], w)
+		_mountain_grid[i] = lerpf(sealed_mountain[i], _mountain_grid[i], w)
+	_open_grids = [_distance.duplicate(), _height_grid.duplicate(), _owner.duplicate(), _top_grid.duplicate(), _rock_grid.duplicate(), _mountain_grid.duplicate()]
+	use_grids(false)
+
+## Reads the grids as sealed (false) or dug (true).
+func use_grids(dug: bool) -> void:
+	var grids: Array = _open_grids if dug else _sealed_grids
+	if grids.is_empty(): return
+	_distance = (grids[0] as PackedFloat32Array).duplicate()
+	_height_grid = (grids[1] as PackedFloat32Array).duplicate()
+	_owner = (grids[2] as PackedInt32Array).duplicate()
+	_top_grid = (grids[3] as PackedFloat32Array).duplicate()
+	_rock_grid = (grids[4] as PackedFloat32Array).duplicate()
+	_mountain_grid = (grids[5] as PackedFloat32Array).duplicate()
+	_vertex_cache.clear()
+
+## Where the vault changes what stands on the ground: the dug field differs
+## there and the dug ground is within `reach` (a building's depth). Dressing is
+## swapped only here, so a house that the vault does not touch stays the same
+## house when the wall breaks.
+func vault_changes(point: Vector2, reach: float) -> bool:
+	if _sealed_grids.is_empty() or _open_grids.is_empty(): return false
+	var cell := ((point - origin) / CELL).round()
+	var i := clampi(int(cell.y), 0, rows) * (columns + 1) + clampi(int(cell.x), 0, columns)
+	var sealed: float = _sealed_grids[0][i]
+	var dug: float = _open_grids[0][i]
+	return dug > -reach and absf(dug - sealed) > 0.01
+
+func in_patch(point: Vector2) -> bool:
+	var cell := ((point - origin) / CELL).floor()
+	return patch_cells.has(Vector2i(int(cell.x), int(cell.y)))
+
+## The patch's cells cut as dug, into their own bundle (the floor's own lists
+## are left as they were).
+func build_patch() -> Bundle:
+	use_grids(true)
+	var bundle := Bundle.new()
+	var kept := [floor_tool, mass_tool, wall_tool, collision_walls, ground_faces, minimap_faces, boundaries, cliff_cuts, contour_edges]
+	floor_tool = bundle.floor_tool
+	mass_tool = bundle.mass_tool
+	wall_tool = bundle.wall_tool
+	collision_walls = PackedVector3Array()
+	ground_faces = PackedVector3Array()
+	minimap_faces = bundle.minimap_faces
+	boundaries = bundle.boundaries
+	cliff_cuts = bundle.cliff_cuts
+	contour_edges = bundle.contour_edges
+	for cell in patch_cells:
+		_cut_cell(cell.x, cell.y)
+	bundle.collision_walls = collision_walls
+	bundle.ground_faces = ground_faces
+	floor_tool = kept[0]
+	mass_tool = kept[1]
+	wall_tool = kept[2]
+	collision_walls = kept[3]
+	ground_faces = kept[4]
+	minimap_faces = kept[5]
+	boundaries = kept[6]
+	cliff_cuts = kept[7]
+	contour_edges = kept[8]
+	use_grids(false)
+	return bundle
+
+func _cut_cell(x: int, z: int) -> void:
+	var a := origin + Vector2(x, z) * CELL
+	var b := a + Vector2(CELL, 0)
+	var c := a + Vector2(CELL, CELL)
+	var d := a + Vector2(0, CELL)
+	var ia := z * (columns + 1) + x
+	var ib := ia + 1
+	var ic := ia + columns + 2
+	var id := ia + columns + 1
+	_cut_triangle([a, b, c], [_distance[ia], _distance[ib], _distance[ic]], [_height_grid[ia], _height_grid[ib], _height_grid[ic]])
+	_cut_triangle([a, c, d], [_distance[ia], _distance[ic], _distance[id]], [_height_grid[ia], _height_grid[ic], _height_grid[id]])
+
+## A bundle's meshes and collision as nodes (not in the tree).
+func bundle_nodes(bundle: Bundle) -> Node3D:
+	var root := Node3D.new()
+	root.name = "VaultPatchDug"
+	for part in [[bundle.floor_tool, "WalkableTerrain"], [bundle.mass_tool, "RaisedTerrain"], [bundle.wall_tool, "ContourBanks"]]:
+		var node := MeshInstance3D.new()
+		node.name = part[1]
+		node.mesh = (part[0] as MeshArrays).commit()
+		node.material_override = FieldArt.terrain_material(field.region_id) if part[1] == "WalkableTerrain" else CliffFace.rock_material(field.region_id)
+		root.add_child(node)
+	var ground_body := StaticBody3D.new()
+	ground_body.name = "WalkableTerrainCollision"
+	var ground_shape := ConcavePolygonShape3D.new()
+	ground_shape.set_faces(bundle.ground_faces)
+	var ground_collision := CollisionShape3D.new()
+	ground_collision.shape = ground_shape
+	ground_body.add_child(ground_collision)
+	root.add_child(ground_body)
+	var body := StaticBody3D.new()
+	body.name = "TerrainBoundaryCollision"
+	body.add_to_group("world_obstacle")
+	var shape := ConcavePolygonShape3D.new()
+	shape.backface_collision = true
+	shape.set_faces(bundle.collision_walls)
+	var collision := CollisionShape3D.new()
+	collision.shape = shape
+	body.add_child(collision)
+	root.add_child(body)
+	return root

@@ -229,5 +229,7 @@
  "龙门币[/color]": "LMD[/color]",
  "龙门币钱夹": "LMD Wallet",
  "（范围": " (Range",
- "）：[/color]": "):[/color]"
+ "）：[/color]": "):[/color]",
+ "携带时每块每秒污染 +0.06；安全袋也不能隔绝污染。": "Each piece carried adds 0.06 contamination a second; the Secure Pouch does not shield it.",
+ "未封装源石原矿：高价值，但携带时污染上涨": "Unsealed Raw Originium: valuable, but raises Contamination while carried"
 }

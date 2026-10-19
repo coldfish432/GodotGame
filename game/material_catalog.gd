@@ -82,6 +82,14 @@ const MATERIALS := {
 	"扳手": {"star": 3, "kind": "base", "group": "工具", "source": "common", "stack": 5, "text": "棘轮扳手，拆装设备的常用工具。"},
 	"工具套装": {"star": 4, "kind": "base", "group": "工具", "source": "common", "stack": 1, "size": Vector2i(2, 2), "value": 100, "text": "一整箱工具，工程部最想要的东西。"},
 	"医用耗材包": {"star": 3, "kind": "base", "group": "医疗", "source": "common", "text": "注射器、纱布和消毒用品的打包件。"},
+	# Trade goods (势力与交易所策划案 §2.2): packed by 加工部, sold to outside factions.
+	"工业补给箱": {"star": 3, "kind": "base", "source": "trade", "stack": 1, "size": Vector2i(2, 2), "value": 120, "text": "加工部打包的螺栓、金属板和胶带，外部势力按箱收购。"},
+	"电子元件箱": {"star": 3, "kind": "base", "source": "trade", "stack": 1, "size": Vector2i(2, 2), "value": 115, "text": "电线、灯泡和继电器打成的一箱电子件。"},
+	"野外生活包": {"star": 3, "kind": "base", "source": "trade", "stack": 1, "size": Vector2i(2, 2), "value": 78, "text": "帆布、固体燃料和胶带，寒地营地的过冬物资。"},
+	"医疗补给箱": {"star": 3, "kind": "base", "source": "trade", "stack": 1, "size": Vector2i(2, 2), "value": 108, "text": "医用耗材、糖和胶带装成的一箱医疗补给。"},
+	# 萨米林地部族's goods (交易所事件表 §0.1: 萨米出口医药原材料).
+	"林地草药": {"star": 2, "kind": "base", "source": "sami", "stack": 20, "text": "萨米林地人采集晾干的草药，是医药原材料。"},
+	"鞣制兽皮": {"star": 3, "kind": "base", "source": "sami", "stack": 5, "size": Vector2i(2, 1), "text": "岩角兽的皮，鞣制后防寒耐磨。"},
 }
 
 static func star(id: String) -> int:

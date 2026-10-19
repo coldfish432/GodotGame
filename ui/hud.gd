@@ -162,16 +162,12 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 	draw_set_transform(Vector2.ZERO)
 	var k := 1.6 if big else 1.0
 	var markers: Array = [game.world_map.buff_device_node, game.world_map.encounter_node, game.world_map.exit_node, game.world_map.vault_node]
-	var colours := [Color("ef9b42"), AK.TRADER if game.encounter == "trader" else AK.CYAN, AK.GREEN, AK.TIER[2]]
+	var colours := [Color("ef9b42"), AK.TRADER if game.encounter == "trader" else (AK.SPECIAL if game.encounter == "post" else AK.CYAN), AK.GREEN, AK.TIER[2]]
 	for i in range(markers.size()):
 		if is_instance_valid(markers[i]) and markers[i].visible and game.fog.is_point_revealed(markers[i].position):
 			var at := map_point(markers[i].position, rect)
 			draw_colored_polygon(AK.diamond(at, 4.5 * k), colours[i])
 			if big: _text(at + Vector2(12, 5), _marker_name(i), 12, AK.FG)
-	for i in range(game.world_map.mechanism_nodes.size()):
-		var node: Node3D = game.world_map.mechanism_nodes[i]
-		if is_instance_valid(node) and game.fog.is_point_revealed(node.position):
-			draw_colored_polygon(AK.diamond(map_point(node.position, rect), 3 * k), Color("55627a") if game._mechanisms_done.has(i) else Color("b47ae0"))
 	for node in get_tree().get_nodes_in_group("enemies"):
 		var leader := node as Enemy
 		if leader.boss and leader.game == game and not leader._dead and game.fog.is_point_revealed(leader.global_position):
@@ -209,7 +205,9 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 func _marker_name(i: int) -> String:
 	match i:
 		0: return "强化装置"
-		1: return "坎诺特" if game.encounter == "trader" else "罗德岛小队"
+		1:
+			if game.encounter == "post": return FactionCatalog.name_of(game.post_faction)
+			return "坎诺特" if game.encounter == "trader" else "罗德岛小队"
 		2: return "撤离信标"
 		_: return "密室"
 
@@ -300,7 +298,7 @@ func _draw_orders() -> void:
 # --- Top centre: PRTS toasts ---------------------------------------------------------
 # 用户 2026-10-10: 局内 prts 只保留提示必要信息（如背包已满无法拾取），教程类
 # 不提示。GameManager.notice() feeds these: they pop in under the top bar with
-# a blue PRTS tag, stack newest at the bottom, and fade out.
+# no tag (用户 2026-10-15), stack newest at the bottom, and fade out.
 
 const TOAST_TOP := 54.0
 const TOAST_HEIGHT := 30.0
@@ -314,14 +312,11 @@ func _draw_toasts() -> void:
 		var alpha := clampf(minf(age / 0.15, (life - age) / TOAST_FADE), 0.0, 1.0)
 		var size := 14
 		var text: String = toast.text
-		var tag := "PRTS"
-		var tag_w := _en().get_string_size(I18n.t(tag), HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 12
-		var w := _font().get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + tag_w + 24
+		# No PRTS tag (用户 2026-10-15: 不要蓝色prts头).
+		var w := _font().get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 24
 		var r := Rect2(640.0 - w * 0.5, y - (1.0 - minf(age / 0.15, 1.0)) * 8.0, w, TOAST_HEIGHT)
 		draw_rect(r, Color(0, 0, 0, 0.8 * alpha))
-		draw_rect(Rect2(r.position.x, r.position.y, tag_w, r.size.y), Color(AK.HP, alpha))
-		_text(r.position + Vector2(6, 19), tag, 10, Color(1, 1, 1, alpha), _en(), false)
-		_text(r.position + Vector2(tag_w + 12, 20), text, size, Color(AK.FG, alpha), null, false)
+		_text(r.position + Vector2(12, 20), text, size, Color(AK.FG, alpha), null, false)
 		y += TOAST_HEIGHT + 4.0
 
 # --- Bottom centre: the hotbar and her bars ----------------------------------------------
@@ -357,11 +352,11 @@ func _hotbar_slots() -> Array:
 				slot.cooldown_total = Player.DASH_COOLDOWN
 			"shadow":
 				slot.colour = AK.SP
-				if p.is_amiya():
-					var cd := maxf(p.shadow_cooldown, 0.0)
-					slot.ready = cd <= 0.0
+				if p.has_skill():
+					var cd := p.skill_cooldown_left()
+					slot.ready = p.skill_ready_now()
 					slot.cooldown = cd
-					slot.cooldown_total = Player.SHADOW_COOLDOWN
+					slot.cooldown_total = p.skill_cooldown_total()
 				else:
 					slot.unavailable = true
 			_: _potion_slot(slot, info.potion)
@@ -379,7 +374,7 @@ func _hotbar_slots() -> Array:
 	return slots
 
 func _potion_slot(slot: Dictionary, type: String) -> void:
-	var count := game.carried_potions().filter(func(x): return x.potion_type == type).size()
+	var count := game.potion_count(type)
 	slot.colour = {"A": AK.GREEN, "B": Color("4fb3f6"), "C": Color("8fd3c8")}[type]
 	slot.potion = type
 	slot.cost = str(count)
@@ -447,9 +442,11 @@ func _draw_picker() -> void:
 		var r: Rect2 = row[0]
 		var choice: String = row[1]
 		var on := choice == current
-		var usable: bool = choice == "" or not Hotbar.ACTIONS[choice].has("operator") or Hotbar.ACTIONS[choice].operator == game.player.operator_id
+		var usable: bool = choice == "" or not Hotbar.ACTIONS[choice].has("skill") or game.player.has_skill()
 		draw_rect(r, AK.PAPER if on else (Color("3a3a3a") if r.has_point(hover) else Color("262626")))
-		_text(r.position + Vector2(10, 18), Hotbar.CHOICE_NAMES[choice], 13, AK.INK if on else (AK.FG if usable else AK.MUTE), null, false)
+		var choice_name: String = Hotbar.CHOICE_NAMES[choice]
+		if choice == "shadow" and game.player.kit != null: choice_name = str(Operators.info(game.player.operator_id).signature)
+		_text(r.position + Vector2(10, 18), choice_name, 13, AK.INK if on else (AK.FG if usable else AK.MUTE), null, false)
 	var anchor := _config_rect(picker_slot)
 	draw_colored_polygon(PackedVector2Array([Vector2(anchor.get_center().x - 6, anchor.position.y - 6), Vector2(anchor.get_center().x + 6, anchor.position.y - 6), Vector2(anchor.get_center().x, anchor.position.y)]), Color(0, 0, 0, 0.88))
 
@@ -477,6 +474,7 @@ func _draw_actions() -> void:
 	# Left of the bar: life (and any shield over it).
 	var left := Rect2(bar.position.x - 12 - SIDE_BAR, bar.position.y + 14, SIDE_BAR, 16)
 	_side_bar(left, "生命", "%d / %d" % [roundi(p.hp), roundi(p.max_hp)], p.hp_ratio(), AK.RED if p.hp_ratio() < 0.3 else AK.HP, true)
+	_blocked_life(left, p.life_cap_ratio())
 	if p.shield > 0.0:
 		draw_rect(Rect2(left.position.x, left.position.y - 4, left.size.x * clampf(p.shield / maxf(p.max_hp, 1.0), 0.0, 1.0), 3), Color("bfe8ff"))
 	# Under it: elite stage, level and experience (精英化与加点策划案 §4.2); a
@@ -492,10 +490,13 @@ func _draw_actions() -> void:
 	var right_x := bar.end.x + 12
 	_side_bar(Rect2(right_x, bar.position.y + 6, SIDE_BAR, 10), "体力", str(roundi(p.stamina)), p.stamina / 100.0, Color(0.92, 0.92, 0.92), false)
 	var passive := Rect2(right_x, bar.position.y + 34, SIDE_BAR, 10)
-	if p.is_amiya():
-		var cd := maxf(p.shadow_cooldown, 0.0)
-		var ready := cd <= 0.0
-		_side_bar(passive, "绝影", "就绪" if ready else "%.1f" % cd, 1.0 - cd / float(SkillTrees.shadow(p.rank("shadow"))[1]), CombatVfx.CYAN, false, ready)
+	if p.has_skill():
+		var cd := p.skill_cooldown_left()
+		var ready := p.skill_ready_now()
+		var skill_name := "绝影" if p.is_amiya() else str(Operators.info(p.operator_id).signature)
+		_side_bar(passive, skill_name, "就绪" if ready else "%.1f" % cd, 1.0 - cd / p.skill_cooldown_total(), CombatVfx.CYAN if p.is_amiya() else AK.SP, false, ready)
+		var running := p.kit.status_text() if p.kit != null else ""
+		if not running.is_empty(): _text(Vector2(passive.position.x, passive.end.y + 6), running, 11, AK.SP.lightened(0.3), null, false)
 	else:
 		var need := p.wave_hits_needed()
 		var has := p.has_sword_wave()
@@ -518,6 +519,27 @@ func _side_bar(r: Rect2, label: String, value: String, ratio: float, colour: Col
 	if glow:
 		var pulse := 0.5 + 0.5 * sin(_pulse * TAU * 1.2)
 		draw_rect(r.grow(2), Color(colour, 0.35 + 0.4 * pulse), false, 1.5)
+
+## Injury and contamination block the top of the life bar (用户 2026-10-15):
+## grey with diagonal hatching from the cap to the right end.
+func _blocked_life(r: Rect2, cap_ratio: float) -> void:
+	var from := r.position.x + r.size.x * clampf(cap_ratio, 0.0, 1.0)
+	if from >= r.end.x - 0.5: return
+	var block := Rect2(from, r.position.y, r.end.x - from, r.size.y)
+	draw_rect(block, Color(0.36, 0.36, 0.36, 0.95))
+	var h := block.size.y
+	var x := block.position.x - h
+	while x < block.end.x:
+		# A 45° stroke from (x, bottom) to (x + h, top), clipped to the block.
+		var a := Vector2(x, block.end.y)
+		var b := Vector2(x + h, block.position.y)
+		if a.x < block.position.x:
+			a = Vector2(block.position.x, block.end.y - (block.position.x - x))
+		if b.x > block.end.x:
+			b = Vector2(block.end.x, block.end.y - (block.end.x - x))
+		if b.x > a.x: draw_line(a, b, Color(0.16, 0.16, 0.16), 1.5)
+		x += 6.0
+	draw_line(Vector2(from, r.position.y), Vector2(from, r.end.y), Color(0.85, 0.85, 0.85, 0.9), 1.0)
 
 func _segments(r: Rect2, count: int, lit: int, colour: Color) -> void:
 	var seg := (r.size.x - (count - 1) * 3.0) / count
@@ -595,7 +617,7 @@ func _draw_world_marks() -> void:
 	for node in get_tree().get_nodes_in_group("enemies"):
 		var enemy := node as Enemy
 		if enemy.game != game or enemy._dead or enemy.health >= enemy.max_health: continue
-		var head := game.screen_point(enemy.global_position + Vector3.UP * 1.9)
+		var head := game.screen_point(enemy.head_point(0.12))
 		var ratio := enemy.health / maxf(enemy.max_health, 1.0)
 		if enemy.boss:
 			# Grim Dawn's boss tier is lavender: a wider bar in a lavender frame.
@@ -626,6 +648,7 @@ func _draw_world_marks() -> void:
 	# Her bars under her feet: blue life, yellow SP in segments; the ready mark.
 	var feet := game.screen_point(p.global_position) + Vector2(0, 14)
 	AK.draw_bar(self, Rect2(feet.x - 27, feet.y, 54, 5), p.hp / maxf(p.max_hp, 1.0), AK.RED if p.hp < p.max_hp * 0.3 else AK.HP, Color(0, 0, 0, 0.8))
+	_blocked_life(Rect2(feet.x - 27, feet.y, 54, 5), p.life_cap_ratio())
 	if p.has_sword_wave():
 		var need := p.wave_hits_needed()
 		var seg := (54.0 - (need - 1) * 2.0) / need
@@ -658,11 +681,19 @@ const PLATE_PAD := 6.0
 const PLATE_HEIGHT := 20.0
 ## [Rect2, Loot] pairs from the last draw, topmost last.
 var _loot_plates: Array = []
+## With an enemy this near her (用户 2026-10-15: 有敌人时只在按住 Alt 时显示
+## 变淡的可交互名牌，无敌人显示名牌), plates hide unless Alt is held, and then
+## show faded but still clickable, so they never sit over a fight.
+const PLATE_ENEMY_RADIUS := 12.0
+const PLATE_DIM := 0.45
 
 func _draw_ground_names() -> void:
 	_loot_plates.clear()
 	if not game.simulation_active(): return
 	var all := Input.is_action_pressed("show_items")
+	var threatened := is_instance_valid(game.player) and game.player.nearby_enemy_count(PLATE_ENEMY_RADIUS) > 0
+	if threatened and not all: return
+	var fade := PLATE_DIM if threatened else 1.0
 	var shown: Array = []
 	for node in get_tree().get_nodes_in_group("loot"):
 		var loot := node as Loot
@@ -692,8 +723,9 @@ func _draw_ground_names() -> void:
 		placed.append(rect)
 		_loot_plates.append([rect, loot])
 		var colour := loot.item.rarity_color()
+		colour.a = fade
 		var lit := rect.has_point(hover)
-		draw_rect(rect, Color(0, 0, 0, 0.82 if entry[1] else 0.6))
+		draw_rect(rect, Color(0, 0, 0, (0.82 if entry[1] else 0.6) * fade))
 		draw_rect(Rect2(rect.position, Vector2(3, rect.size.y)), colour)
 		if lit: draw_rect(rect, colour, false, 1.0)
 		var runs: Array = loot.item.name_runs()
@@ -702,6 +734,7 @@ func _draw_ground_names() -> void:
 		for run in runs:
 			if str(run[0]).is_empty(): continue
 			var run_colour: Color = run[1] if entry[1] else run[1].darkened(0.35)
+			run_colour.a = fade
 			x += _text(Vector2(x, rect.end.y - 5), run[0], PLATE_FONT, run_colour.lightened(0.25) if lit else run_colour, null, false)
 
 ## The ground item whose name plate is under `point` (HUD coordinates).

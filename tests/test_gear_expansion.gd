@@ -149,16 +149,17 @@ func _drops() -> void:
 	var found_exclusive := 0
 	var found_set := 0
 	var growth := 0
-	for i in range(400):
+	for i in range(4000):
 		for drop in LootTables.enemy_drops("breacher", true, false, ctx):
 			if not drop.has("item"): continue
 			var item: Item = drop.item
 			if item.named_kind() == "exclusive": found_exclusive += 1
 			elif item.named_kind() == "set": found_set += 1
 			if item.material_id in ["近卫芯片组", "模组数据块", "技巧概要·卷3"]: growth += 1
-	check("bosses drop their exclusive about 25% of the time", found_exclusive > 70 and found_exclusive < 130, found_exclusive)
-	check("bosses drop set pieces about 5%", found_set > 8 and found_set < 40, found_set)
-	check("bosses drop growth materials", growth > 200, growth)
+	# 稀有概率 ÷10 (用户 2026-10-18): 25% × 1.07 (floor 4's step) ÷ 10 ≈ 2.7%; sets ≈ 0.5%.
+	check("bosses drop their exclusive about 2.7% of the time", found_exclusive > 70 and found_exclusive < 150, found_exclusive)
+	check("bosses drop set pieces about 0.5%", found_set > 6 and found_set < 45, found_set)
+	check("bosses drop growth materials", growth > 2000, growth)
 	ctx.boss = false
 	var seen := {"inspectors": true}
 	ctx.set_seen = seen

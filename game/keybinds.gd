@@ -37,6 +37,8 @@ const FUNCTIONS := [
 	["toggle_journal", "合同", "界面", {"key": KEY_J}, null],
 	["stash_item", "存入安全袋", "界面", {"key": KEY_B}, null],
 	["show_items", "显示全部地面物品", "界面", {"key": KEY_ALT}, null],
+	["toggle_watch", "盯盘小窗（基地）", "界面", {"key": KEY_K}, null],
+	["toggle_stations", "站点总览（基地）", "界面", {"key": KEY_TAB}, null],
 ]
 ## Shown on the keys page, not changeable.
 const FIXED := [["攻击 / 拾取 / 选择", "左键"], ["移动", "右键"], ["安全袋", "Ctrl + 左键"], ["暂停", "Esc"]]

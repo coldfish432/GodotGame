@@ -167,7 +167,8 @@ func _mechanics() -> void:
 		var e := spawn(type, Vector3(0, 0, 6.0), false)
 		if e.directional and e.has_walk and e.sheet_type == type and e._tint == Color.WHITE: own += 1
 		e.queue_free()
-	check("all 17 new enemies and 萨卡兹哨兵 (N3) draw from their own eight-direction boards, untinted", own == 18 and EnemyN2Data.TIPS.size() == 18 and EnemyN2Data.TIPS.has("sentinel"), own)
+	# …and the seven of 叙拉古 (N4, 叙拉古敌人设计案 2026-10-16).
+	check("all 17 new enemies, 萨卡兹哨兵 (N3) and 叙拉古's seven (N4) draw from their own eight-direction boards, untinted", own == 25 and EnemyN2Data.TIPS.size() == 25 and EnemyN2Data.TIPS.has("sentinel") and EnemyN2Data.TIPS.has("family_car"), own)
 	# 用户 2026-10-14: 走路一跳一跳的 — every walk frame of a direction stands on
 	# one foot line (art/install_n2_boards.py settle_walk).
 	var hopping: Array[String] = []

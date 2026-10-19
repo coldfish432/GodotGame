@@ -11,13 +11,38 @@ extends RefCounted
 ## but stay out of the pool until there is a ranged operator (§2.4).
 
 ## Forms that shoot rather than swing: they cannot attack the air.
-const RANGED_FORMS := ["crossbow", "gun"]
-## How a form changes her swing (装备策划案 §2.4, 装备扩充策划案 §3):
-## [interval ×, damage ×, reach ×, swing half-angle ×].
+const RANGED_FORMS := ["crossbow", "bow", "gun"]
+## How a form changes her attack (装备策划案 §2.4, §12, 装备扩充策划案 §3):
+## [interval ×, damage ×, reach ×, swing half-angle ×]. Ranged forms and the
+## staff scale the operator's own shot or cast and its reach.
 const FORMS := {
 	"blade": [1.0, 1.0, 1.0, 1.0], "heavy": [1.3, 1.35, 1.2, 1.0], "fist": [0.75, 0.8, 0.8, 1.0],
 	"polearm": [1.15, 1.15, 1.4, 0.6],
+	"crossbow": [1.0, 1.0, 1.0, 1.0], "bow": [0.85, 0.85, 1.1, 1.0], "gun": [1.4, 1.5, 1.2, 1.0],
+	"staff": [1.0, 1.0, 1.0, 1.0],
 }
+const FORM_NAMES := {"blade": "刃", "heavy": "重", "fist": "拳", "polearm": "长柄", "crossbow": "弩", "bow": "弓", "gun": "铳", "staff": "法杖"}
+## Which forms a class can wield (§2.4: 角色装不上本职业以外的形制).
+const CLASS_FORMS := {
+	"近卫": ["blade", "heavy", "fist", "polearm"],
+	"先锋": ["blade", "fist", "polearm"],
+	"重装": ["heavy", "blade", "polearm"],
+	"狙击": ["crossbow", "bow", "gun"],
+	"术师": ["staff"],
+}
+
+## The form of a weapon item ("" for anything else).
+static func form_of(item: Item) -> String:
+	if item == null or item.category != Item.Category.WEAPON: return ""
+	var data: Dictionary = SpecialGear.GEAR.get(item.special, {}) if not item.special.is_empty() else base(item.base_id)
+	return str(data.get("form", "blade"))
+
+## Whether `operator_id` can wield `item` (true for anything not a weapon).
+static func can_wield(operator_id: String, item: Item) -> bool:
+	var form := form_of(item)
+	if form.is_empty(): return true
+	var cls := str(Operators.DATA.get(operator_id, {}).get("class", "近卫"))
+	return form in CLASS_FORMS.get(cls, CLASS_FORMS["近卫"])
 
 const S := ItemModifier.Stat
 const W := Item.Category.WEAPON
@@ -39,7 +64,7 @@ const BASES := {
 	"mine_cleaver": {"name": "改装砍刀", "region": "mine", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.10]],
 		"form": "blade", "enemies": ["thug"], "icon": "modified_machete", "text": "刀背上还留着焊缝。"},
 	"mine_shortblade": {"name": "制式短刀", "region": "mine", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
-		"form": "blade", "enemies": ["crossbow", "crossbow_leader"], "icon": "standard_dagger", "text": "缴获来的，编号被锉掉了。"},
+		"form": "blade", "icon": "standard_dagger", "text": "缴获来的，编号被锉掉了。"},
 	"mine_issue": {"name": "矿区制式刀", "region": "mine", "category": W, "tier": 0, "factor": 1.00, "implicit": [],
 		"form": "blade", "icon": "mine_issue_blade", "text": "矿场配发的开路刀，砍支架也砍人。"},
 	"mine_saber": {"name": "纠察队佩刀", "region": "mine", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]],
@@ -93,7 +118,7 @@ const BASES := {
 	"snow_icebreaker": {"name": "破冰刀", "region": "snow", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.10]],
 		"form": "blade", "enemies": ["ice_warrior"], "icon": "icebreaker_knife", "text": "先敲开冰，再敲开别的。"},
 	"snow_skinner": {"name": "猎刀", "region": "snow", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.CRIT_RATE, 0.03]],
-		"form": "blade", "enemies": ["ice_hunter"], "icon": "skinning_knife", "text": "皮要剥得完整，这是猎人对猎物的礼数。"},
+		"form": "blade", "icon": "skinning_knife", "text": "皮要剥得完整，这是猎人对猎物的礼数。"},
 	"snow_antler_knife": {"name": "角柄猎刀", "region": "snow", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
 		"form": "blade", "icon": "antler_hunter_knife", "text": "角是向林子借的，用完要还。"},
 	"snow_machete": {"name": "科考队开路刀", "region": "snow", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
@@ -249,7 +274,123 @@ const BASES := {
 		"icon": "snow_x22", "text": "握久了，会忘记为什么握着它。"},
 	"snow_x23": {"name": "猎首獠牙串", "region": "snow", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ATK_PCT, 0.04], [S.CRIT_DMG, 0.1]],
 		"icon": "snow_x23", "text": "每一颗都有过一个名字。"},
+	# --- 叙拉古 · 沃尔西尼旧城区 (§11, 用户 2026-10-18): weapons only; armour and
+	# trinkets there still come from the other three tables.
+	"sira_stiletto": {"name": "家族细匕首", "region": "siracusa", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.CRIT_RATE, 0.03]],
+		"form": "blade", "enemies": ["family_soldier"], "icon": "family_stiletto", "text": "家族发的刀，和家族一样，细长，安静。"},
+	"sira_knuckles": {"name": "黄铜拳套", "region": "siracusa", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 20.0]],
+		"form": "fist", "enemies": ["family_intimidator"], "icon": "brass_knuckles", "text": "用来讲道理的。道理通常只用讲一次。"},
+	"sira_switchblade": {"name": "弹簧折刀", "region": "siracusa", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+		"form": "blade", "icon": "switchblade", "text": "按一下就弹出来，像一句收不回去的话。"},
+	"sira_crowbar": {"name": "旧城撬棍", "region": "siracusa", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.10]],
+		"form": "heavy", "icon": "old_town_crowbar", "text": "旧城区的门都很老，撬棍比钥匙好使。"},
+	"sira_razor": {"name": "理发店剃刀", "region": "siracusa", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+		"form": "fist", "icon": "barber_razor", "text": "理发店的后门，比前门忙。"},
+	"sira_cane_sword": {"name": "手杖剑", "region": "siracusa", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATK_PCT, 0.04]],
+		"form": "blade", "icon": "cane_sword", "text": "体面人出门带手杖，手杖里带着别的。"},
+	"sira_cleaver": {"name": "肉铺剁骨刀", "region": "siracusa", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_DMG, 0.10]],
+		"form": "heavy", "icon": "butcher_cleaver", "text": "肉铺老板欠的账，用这把刀还过一次。"},
+	"sira_billhook": {"name": "葡萄园修枝镰", "region": "siracusa", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]],
+		"form": "polearm", "icon": "vineyard_billhook", "text": "城外的葡萄园也分家族，修枝的人也是。"},
+	"sira_eraser_blade": {"name": "灭迹弯刃", "region": "siracusa", "category": W, "tier": 2, "factor": 1.15, "implicit": [[S.CRIT_DMG, 0.10], [S.CRIT_RATE, 0.03]],
+		"form": "blade", "enemies": ["family_eraser"], "icon": "eraser_curved_blade", "text": "人人都知道它的主人，没人提起它的主人。"},
+	"sira_lead_cane": {"name": "角头的灌铅手杖", "region": "siracusa", "category": W, "tier": 2, "factor": 1.12, "implicit": [[S.ATK_PCT, 0.04], [S.MOVE_SPEED_PCT, -0.04]],
+		"form": "heavy", "icon": "lead_cane", "text": "他从不带武器。手杖不算。"},
+	"sira_wolf_knuckles": {"name": "狼首指虎", "region": "siracusa", "category": W, "tier": 2, "factor": 1.10, "implicit": [[S.ATTACK_SPEED_PCT, 0.05], [S.CRIT_RATE, 0.03]],
+		"form": "fist", "icon": "wolfhead_knuckles", "text": "家族的狼头铸在拳上，挨过的人都记得是哪一家。"},
+	# --- 远程与法杖 (§12, 用户 2026-10-18: 各地区补远程和法杖武器).
+	"mine_r1": {"name": "整合运动手弩", "region": "mine", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.CRIT_RATE, 0.03]],
+		"form": "crossbow", "enemies": ["crossbow"], "icon": "reunion_hand_crossbow", "text": "弩臂是旧弹簧钢，弦是新换的。"},
+	"mine_r2": {"name": "改装射钉枪", "region": "mine", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+		"form": "crossbow", "icon": "modified_nail_gun", "text": "本来是钉支架的，现在钉别的。"},
+	"mine_r3": {"name": "帝国制式重弩", "region": "mine", "category": W, "tier": 2, "factor": 1.12, "implicit": [[S.ATK_PCT, 0.04], [S.CRIT_DMG, 0.10]],
+		"form": "crossbow", "icon": "imperial_heavy_crossbow", "text": "乌萨斯军的库存，整合运动拿走了一半。"},
+	"mine_s1": {"name": "拼装施术杖", "region": "mine", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_PCT, 0.05]],
+		"form": "staff", "icon": "scrap_casting_staff", "text": "铁管里塞着拆下的施术单元，能用就行。"},
+	"mine_s2": {"name": "整合运动术师长杖", "region": "mine", "category": W, "tier": 2, "factor": 1.12, "implicit": [[S.ARTS_PCT, 0.05], [S.CRIT_RATE, 0.03]],
+		"form": "staff", "icon": "reunion_caster_staff", "text": "杖头的结晶，是从持杖人身上长出来的。"},
+	"city_r1": {"name": "近卫局警用手弩", "region": "city", "category": W, "tier": 0, "factor": 1.00, "implicit": [],
+		"form": "crossbow", "icon": "lgd_hand_crossbow", "text": "非致命弩箭的弹匣里，混了几支致命的。"},
+	"city_r2": {"name": "组长连弩", "region": "city", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+		"form": "crossbow", "enemies": ["crossbow_leader"], "icon": "leader_repeating_crossbow", "text": "一次三支，总有一支找得到人。"},
+	"city_r3": {"name": "拉特兰走私手铳", "region": "city", "category": W, "tier": 2, "factor": 1.15, "implicit": [[S.CRIT_DMG, 0.10], [S.CRIT_RATE, 0.03]],
+		"form": "gun", "icon": "laterano_smuggled_pistol", "text": "龙门的海关查得很严，所以它很贵。"},
+	"city_s1": {"name": "铜铃术杖", "region": "city", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.RES_FLAT, 4.0]],
+		"form": "staff", "icon": "bronze_bell_staff", "text": "铃声一响，街口的人就散了。"},
+	"city_s2": {"name": "炎式符杖", "region": "city", "category": W, "tier": 2, "factor": 1.12, "implicit": [[S.ARTS_PCT, 0.05], [S.RES_FLAT, 4.0]],
+		"form": "staff", "icon": "yan_talisman_staff", "text": "符纸换过很多次，杖还是那根。"},
+	"snow_r1": {"name": "萨米猎弓", "region": "snow", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+		"form": "bow", "icon": "sami_hunting_bow", "text": "弓是自己做的，弦是猎物给的。"},
+	"snow_r2": {"name": "冰原猎铳", "region": "snow", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]],
+		"form": "gun", "enemies": ["ice_hunter"], "icon": "tundra_hunting_gun", "text": "专挑最弱的那一只。"},
+	"snow_r3": {"name": "复合角弓", "region": "snow", "category": W, "tier": 2, "factor": 1.15, "implicit": [[S.ATK_PCT, 0.04], [S.CRIT_RATE, 0.03]],
+		"form": "bow", "icon": "composite_horn_bow", "text": "角来自一头老兽，它活得比射它的人久。"},
+	"snow_s1": {"name": "桦木巫杖", "region": "snow", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.RES_FLAT, 4.0]],
+		"form": "staff", "icon": "birch_shaman_staff", "text": "剥开桦树皮，里面刻着谁也读不懂的纹路。"},
+	"snow_s2": {"name": "雪祀仪杖", "region": "snow", "category": W, "tier": 2, "factor": 1.12, "implicit": [[S.ARTS_PCT, 0.05], [S.MAX_HP_PCT, 0.04]],
+		"form": "staff", "icon": "snowpriest_staff", "text": "杖指向哪里，雪就落向哪里。"},
+	"sira_r1": {"name": "家族枪弩", "region": "siracusa", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.CRIT_RATE, 0.03]],
+		"form": "crossbow", "enemies": ["family_crossbow"], "icon": "family_gun_crossbow", "text": "家族配的弩难称精良，但够用。"},
+	"sira_r2": {"name": "折叠袖弩", "region": "siracusa", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+		"form": "crossbow", "icon": "folding_sleeve_crossbow", "text": "藏在袖子里，握手的时候最方便。"},
+	"sira_r3": {"name": "猎场双管铳", "region": "siracusa", "category": W, "tier": 2, "factor": 1.15, "implicit": [[S.ATK_PCT, 0.04], [S.CRIT_DMG, 0.10]],
+		"form": "gun", "icon": "double_barrel_gun", "text": "城外的猎场也有规矩：先开枪的人说了算。"},
+	"sira_s1": {"name": "律师的施术手杖", "region": "siracusa", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ARTS_PCT, 0.05]],
+		"form": "staff", "icon": "lawyer_casting_cane", "text": "法律是叙拉古最好用的武器，其次是这根手杖。"},
+	"sira_s2": {"name": "审判庭仪杖", "region": "siracusa", "category": W, "tier": 2, "factor": 1.12, "implicit": [[S.ARTS_PCT, 0.05], [S.CRIT_DMG, 0.10]],
+		"form": "staff", "icon": "tribunal_staff", "text": "叙拉古的法庭不判对错，只判谁欠了谁。"},
+	"rhodes_crossbow": {"name": "罗德岛制式弩", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+		"form": "crossbow", "icon": "rhodes_crossbow", "text": "改装记录比它本身还厚。"},
+	"rhodes_staff": {"name": "罗德岛制式法杖", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ARTS_PCT, 0.05]],
+		"form": "staff", "icon": "rhodes_staff", "text": "医疗部和术师组吵了半年，吵出来这一根。"},
+	# --- 罗德岛制式装备 (§10, 用户 2026-10-18): never dropped. Each recruit
+	# comes with a set; 加工部 makes more; outside factions buy them.
+	"rhodes_dual_blades": {"name": "罗德岛制式双刀", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATK_PCT, 0.04]],
+		"form": "blade", "icon": "rhodes_dual_blades", "text": "训练场上教的第一套刀，就是这一套。"},
+	"rhodes_sword": {"name": "罗德岛制式剑", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]],
+		"form": "blade", "icon": "rhodes_sword", "text": "制式的剑，用的人不制式。"},
+	"rhodes_uniform": {"name": "罗德岛外勤制服", "region": "rhodes", "value": 1.5, "category": A, "tier": 1, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+		"icon": "rhodes_field_uniform", "text": "后勤部发的，尺码总是大一号。"},
+	"rhodes_vest": {"name": "罗德岛制式防护背心", "region": "rhodes", "value": 1.5, "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 20.0]],
+		"icon": "rhodes_protective_vest", "text": "工程部说它能挡住大多数东西，医疗部说别信。"},
+	"rhodes_beacon": {"name": "罗德岛制式信标", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+		"icon": "rhodes_beacon", "text": "只要它还亮着，就有人知道你在哪。"},
+	"rhodes_medkit": {"name": "罗德岛制式急救包", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+		"icon": "rhodes_medkit", "text": "绷带、止血钳，都是制式的；用的人不是。"},
+	"rhodes_badge": {"name": "罗德岛干员证章", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_DMG, 0.10]],
+		"icon": "rhodes_badge", "text": "特别颁发，以兹证明。"},
 }
+
+## Rhodes standard gear (§10): never dropped. It is made at the depth of a
+## mid tier, 精良; outside factions pay ×1.5 for the brand ("value").
+const RHODES := "rhodes"
+const RHODES_DEPTH := 4
+const RHODES_RARITY := 1
+## One set per operator on joining: a weapon she can wield, an armour, a trinket.
+const RHODES_KIT := [
+	["rhodes_dual_blades", "rhodes_sword", "rhodes_crossbow", "rhodes_staff"],
+	["rhodes_uniform", "rhodes_vest"],
+	["rhodes_beacon", "rhodes_medkit", "rhodes_badge"],
+]
+
+static func is_rhodes(id: String) -> bool:
+	return str(base(id).get("region", "")) == RHODES
+
+## One piece of Rhodes standard gear.
+static func make_rhodes(id: String, rng: RandomNumberGenerator) -> Item:
+	var b := base(id)
+	return LootTables.roll_equipment(int(b.category), str(b.name), RHODES, RHODES_DEPTH, RHODES_RARITY, rng)
+
+## The set a newly joined operator is issued; the weapon is one of her forms.
+static func rhodes_kit(rng: RandomNumberGenerator, operator_id: String = Operators.AMIYA_GUARD) -> Array[Item]:
+	var out: Array[Item] = []
+	var cls := str(Operators.DATA.get(operator_id, {}).get("class", "近卫"))
+	var forms: Array = CLASS_FORMS.get(cls, CLASS_FORMS["近卫"])
+	for choices in RHODES_KIT:
+		var fit: Array = choices.filter(func(id): return int(BASES[id].category) != W or str(BASES[id].form) in forms)
+		if fit.is_empty(): fit = choices
+		out.append(make_rhodes(str(fit[rng.randi_range(0, fit.size() - 1)]), rng))
+	return out
 
 ## Names that changed (they follow the art, §2.3), and the generic names of
 ## gear saved before bases existed, mapped by region to the shallow baseline.
@@ -279,12 +420,12 @@ static func eligible(category: int, region: String, depth: int, source: String) 
 	var out: Array = []
 	for id in BASES:
 		var b: Dictionary = BASES[id]
-		if int(b.category) != category or b.region != region: continue
+		if int(b.category) != category or not b.region in FieldCatalog.gear_regions(region, category): continue
 		if source == "vault" and int(b.tier) < 1: continue
 		if depth + early >= TIER_DEPTH[int(b.tier)]: out.append(id)
 	if out.is_empty():  # a vault at depth 1 still opens with something
 		for id in BASES:
-			if int(BASES[id].category) == category and BASES[id].region == region and int(BASES[id].tier) == 1: out.append(id)
+			if int(BASES[id].category) == category and BASES[id].region in FieldCatalog.gear_regions(region, category) and int(BASES[id].tier) == 1: out.append(id)
 	return out
 
 ## Picks a base id. Ordinary enemies drop the weapon they carry; elites their
@@ -293,8 +434,11 @@ static func eligible(category: int, region: String, depth: int, source: String) 
 static func pick(category: int, region: String, depth: int, source: String, enemy_type: String, rng: RandomNumberGenerator) -> String:
 	if category == W:
 		if source == "elite":
+			var deep: Array = []
 			for id in BASES:
-				if BASES[id].region == region and int(BASES[id].category) == W and int(BASES[id].tier) == 2: return id
+				if BASES[id].region in FieldCatalog.gear_regions(region, W) and int(BASES[id].category) == W and int(BASES[id].tier) == 2: deep.append(id)
+			if deep.size() == 1: return deep[0]
+			if deep.size() > 1: return deep[rng.randi_range(0, deep.size() - 1)]
 		var carried := _carried(enemy_type, region)
 		if not carried.is_empty(): return carried
 	var ids := eligible(category, region, depth, source)

@@ -25,6 +25,8 @@ const REGION_KIND_WEIGHT := {
 	"mine": {"defense": 2.5, "life": 2.0},
 	"city": {"attack": 2.0, "defense": 2.0, "tempo": 1.5},
 	"snow": {"wave": 2.5, "attack": 1.5},
+	# 叙拉古: high stakes, high reward (策划案 §七-5).
+	"siracusa": {"fortune": 2.0, "attack": 1.5},
 }
 ## In 赤金 (经济修订案 §3: one 赤金 is one 源石锭).
 const REROLL_BASE := 3

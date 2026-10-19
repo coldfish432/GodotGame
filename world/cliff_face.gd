@@ -59,7 +59,7 @@ func build(world: Node3D) -> MeshInstance3D:
 	var banks: Array[PackedFloat32Array] = []
 	# Not in the city (用户 2026-10-14: 这个台子不能删掉吗): the ground between
 	# its buildings lies flush with the road; the buildings are the edge.
-	for edge in (map._surface.contour_edges if map.region_id != "city" else []):
+	for edge in (map._surface.contour_edges if not map.urban else []):
 		var a := Vector2(edge[0], edge[1])
 		var b := Vector2(edge[2], edge[3])
 		var low_a: float = map.ground_height(a)
@@ -86,22 +86,28 @@ func _material() -> ShaderMaterial:
 	return rock_material(map.region_id)
 
 ## The rock look shared by the swept faces and the terrain's rock mass.
+## A region without art of its own (FieldCatalog.art_region) takes its stand-in's
+## for anything it has not got.
 static func rock_material(region: String) -> ShaderMaterial:
+	var own := region
+	region = FieldCatalog.art_region(region)
 	var material := ShaderMaterial.new()
 	material.shader = SHADER
 	var texture: Texture2D = load(SWATCHES[region]) if SWATCHES.has(region) else FieldArt.BACKGROUNDS[region]
 	# Sol's painted face (the city's kerbs and retaining walls, C3) once delivered.
-	var face := FieldArt.painted(region + "_wall")
+	var face := FieldArt.painted(own + "_wall")
+	if face == null: face = FieldArt.painted(region + "_wall")
 	material.set_shader_parameter("background_tex", face if face != null else texture)
 	material.set_shader_parameter("world_scale", 6.0 if face != null else (4.0 if SWATCHES.has(region) else 12.0))
 	var tint: Color = TINTS.get(region, Color.WHITE)
 	material.set_shader_parameter("tint", Vector3(tint.r, tint.g, tint.b))
 	# The ground between the buildings (C4), painted, once delivered.
-	var top := FieldArt.painted(region + "_block_ground")
+	var top := FieldArt.painted(own + "_block_ground")
+	if top == null: top = FieldArt.painted(region + "_block_ground")
 	material.set_shader_parameter("top_tex", top if top != null else FieldArt.BACKGROUNDS[region])
 	material.set_shader_parameter("top_scale", 6.0 if top != null else 12.0)
 	var pave := FieldArt.painted(region + "_pavement")
-	if region == "city" and pave != null:
+	if own == "city" and pave != null:
 		material.set_shader_parameter("city_pave", true)
 		material.set_shader_parameter("pave_tex", pave)
 	material.set_shader_parameter("top_tint", Vector3.ONE * (0.85 if region == "mine" else 0.95))
@@ -208,7 +214,7 @@ func _add_chain(points: PackedVector2Array, low: PackedFloat32Array, high: Packe
 	# terraces actually make. Held to DRIFT of the wall, which stays where it is.
 	var anchor := even.duplicate()
 	# The city's kerbs keep their corners: fewer passes there.
-	for pass_index in range(2 if map.region_id == "city" else SMOOTH_PASSES):
+	for pass_index in range(2 if map.urban else SMOOTH_PASSES):
 		var relaxed := even.duplicate()
 		for i in range(1, even.size() - 1):
 			var target := (even[i - 1] + even[i] * 2.0 + even[i + 1]) * 0.25

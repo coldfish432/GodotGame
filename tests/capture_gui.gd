@@ -39,8 +39,8 @@ func run() -> void:
 	game.add_gold(7)
 	for relic in RelicCatalog.all().slice(0, 5): game.builds.append(relic.id)
 	game.try_collect(FieldCatalog.exclusive("city"))
-	game.broadcast("附近发现罗德岛小队。")
-	game.broadcast("本层发现撤离点。")
+	game.broadcast("PRTS：博士，附近发现罗德岛小队。")
+	game.broadcast("PRTS：博士，本层发现撤离点。")
 	game.fog.reveal(game.player.global_position)
 	await capture("hud")
 	game.toggle_panel("inventory")
@@ -107,7 +107,7 @@ func run() -> void:
 	await capture("base-contracts")
 	game.close_modal()
 	await capture("base")
-	for station in ["stash", "outbound", "pharmacy", "report", "decon", "loadout", "store"]:
+	for station in ["stash", "outbound", "pharmacy", "report", "loadout", "store"]:
 		game.open_station(station)
 		await capture("base-" + station)
 		game.close_modal()

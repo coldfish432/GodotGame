@@ -17,13 +17,18 @@ const FULL := 100.0
 ## the floor's enemies, at SECONDS_PER_ENEMY (tests/sim_clear_time.gd, bot runs
 ## that kill everything and search every point).
 const TARGET_WAVES := 2.3
-const SECONDS_PER_ENEMY := {"mine": 11.0, "city": 12.5, "snow": 14.5}
+const SECONDS_PER_ENEMY := {"mine": 11.0, "city": 12.5, "snow": 14.5, "siracusa": 12.0}
+## 叙拉古's 血债 fills at half the rate by itself; the rest comes from its kills
+## (叙拉古敌人设计案 §四.1, 用户 2026-10-16: 血债杀人涨).
+const SLOWER := {"siracusa": 2.0}
 const FILL_MIN := 150.0
 ## 255: the snow fields as the other regions (用户 2026-10-14: 雪原也改为150–255 秒).
 const FILL_MAX := 255.0
 ## Share of the unfilled meter kept on reaching the next floor.
 const CARRY := 0.3
 const SQUAD_CALM_RADIUS := 8.0
+## PRTS says the Doctor is being tracked once the meter passes this (博士主角叙事修订案 §4).
+const TRACKED_AT := 0.75
 
 ## 萨卡兹哨兵 (用户 2026-10-14): seen her -> red "!" and the meter fills faster ->
 ## it runs to a reachable spot -> stands there SENTINEL_HOLD s, not running ->
@@ -75,6 +80,7 @@ func next_floor() -> void:
 ## Sets this floor's fill time from its enemies at the start.
 func plan_floor(region: String, enemies: int) -> void:
 	fill_seconds = clampf(enemies * float(SECONDS_PER_ENEMY.get(region, 12.0)) / TARGET_WAVES, FILL_MIN, FILL_MAX)
+	fill_seconds *= float(SLOWER.get(region, 1.0))
 
 func per_second() -> float:
 	return FULL / fill_seconds

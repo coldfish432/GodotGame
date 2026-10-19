@@ -45,6 +45,23 @@ const BY_NAME := {
 	"冬牙角盔": "snow_x14", "雪祀羽氅": "snow_x15", "族树木片": "snow_x16", "鼷兽毛团": "snow_x17",
 	"幸运晶石": "snow_x18", "骨缝雪镜": "snow_x19", "手持定位仪": "snow_x20", "角兽银铃": "snow_x21",
 	"黑雪结晶": "snow_x22", "猎首獠牙串": "snow_x23",
+	# E13 v1 (叙拉古, 2026-10-18): Sol's art; eight touched up by Claude
+	# (outline, joins, lifted darks: art/items/batch_E13_fix/).
+	"黄铜拳套": "brass_knuckles", "肉铺剁骨刀": "butcher_cleaver", "弹簧折刀": "switchblade",
+	"家族细匕首": "family_stiletto", "旧城撬棍": "old_town_crowbar", "理发店剃刀": "barber_razor",
+	"手杖剑": "cane_sword", "葡萄园修枝镰": "vineyard_billhook", "灭迹弯刃": "eraser_curved_blade",
+	"角头的灌铅手杖": "lead_cane", "狼首指虎": "wolfhead_knuckles",
+	# E6 v1 (罗德岛制式, 2026-10-18).
+	"罗德岛制式双刀": "rhodes_dual_blades", "罗德岛制式剑": "rhodes_sword", "罗德岛外勤制服": "rhodes_field_uniform",
+	"罗德岛制式防护背心": "rhodes_protective_vest", "罗德岛制式信标": "rhodes_beacon", "罗德岛制式急救包": "rhodes_medkit",
+	"罗德岛干员证章": "rhodes_badge",
+	# E14 v1 (远程与法杖, 2026-10-18).
+	"整合运动手弩": "reunion_hand_crossbow", "改装射钉枪": "modified_nail_gun", "帝国制式重弩": "imperial_heavy_crossbow", "拼装施术杖": "scrap_casting_staff",
+	"整合运动术师长杖": "reunion_caster_staff", "近卫局警用手弩": "lgd_hand_crossbow", "组长连弩": "leader_repeating_crossbow", "拉特兰走私手铳": "laterano_smuggled_pistol",
+	"铜铃术杖": "bronze_bell_staff", "炎式符杖": "yan_talisman_staff", "萨米猎弓": "sami_hunting_bow", "冰原猎铳": "tundra_hunting_gun",
+	"复合角弓": "composite_horn_bow", "桦木巫杖": "birch_shaman_staff", "雪祀仪杖": "snowpriest_staff", "家族枪弩": "family_gun_crossbow",
+	"折叠袖弩": "folding_sleeve_crossbow", "猎场双管铳": "double_barrel_gun", "律师的施术手杖": "lawyer_casting_cane", "审判庭仪杖": "tribunal_staff",
+	"罗德岛制式弩": "rhodes_crossbow", "罗德岛制式法杖": "rhodes_staff",
 }
 
 ## Materials by material id (美术补全案 M1 PRTS materials, M2 common supplies);
@@ -64,6 +81,9 @@ const MATERIALS := {
 	"灯泡": "light_bulb", "继电器": "relay", "电路板": "circuit_board", "微型电机": "micro_motor",
 	"蓄电池": "battery", "车用蓄电池": "car_battery", "固体燃料": "solid_fuel", "燃料罐": "fuel_can",
 	"扳手": "wrench", "工具套装": "toolkit", "医用耗材包": "medical_supplies",
+	# Trade goods and 萨米 goods: stand-in icons from the supplies set until drawn.
+	"工业补给箱": "toolkit", "电子元件箱": "circuit_board", "野外生活包": "canvas_sheet", "医疗补给箱": "medical_supplies",
+	"林地草药": "sugar_substitute", "鞣制兽皮": "canvas_sheet",
 	# Growth (精英化与加点策划案 §3.2), placeholders until the M batch.
 	"近卫芯片": "guard_chip", "近卫芯片组": "guard_chip_pack", "芯片助剂": "chip_catalyst", "近卫双芯片": "guard_dualchip",
 	"技巧概要·卷1": "skill_summary_1", "技巧概要·卷2": "skill_summary_2", "技巧概要·卷3": "skill_summary_3", "模组数据块": "module_data_block",
@@ -75,7 +95,7 @@ static var _cache := {}
 
 ## E4: special gear uses its SpecialGear id as the icon id; regional
 ## exclusives are keyed by their effect.
-const EXCLUSIVE_ICONS := {"raw_ore": "raw_originium", "riot_shield": "riot_shield", "frozen_relic": "frozen_relic"}
+const EXCLUSIVE_ICONS := {"raw_ore": "raw_originium", "riot_shield": "riot_shield", "frozen_relic": "frozen_relic", "saluzzo_crest": "saluzzo_crest"}
 
 static func icon_id(item: Item) -> String:
 	if item == null: return ""

@@ -1,7 +1,8 @@
 class_name WarehouseView
 extends Node
 
-## The warehouse drawn from GameManager.base (基地玩法策划案_v1_0.md §3.3–3.6):
+## The warehouse drawn from GameManager.base (基地玩法策划案_v1_0.md §3.3–3.6),
+## in models since B-M2 (基地建模改造案_v1):
 ##   - one crate per item at receiving, sealed or open, sized by the item
 ##     (bays R01-R06 first, then stacked along the south wall);
 ##   - staging pallets that fill up in four steps;
@@ -20,24 +21,28 @@ const CATEGORY_KEYS := ["weapon", "armor", "trinket", "material"]
 const CRATE_REACH := 1.8        # units from a crate's feet
 const RECEIVING_MARGIN := 1.5   # around the bays, for setting a carried item back down
 const HAND_LIFT_PX := 33.0      # icon frame's bottom edge above her feet (her head is ~29 px up)
-const PALLET_LIFT_PX := 7.0     # a crate's bottom on a pallet's deck
+const PALLET_DECK := 0.2        # a crate's bottom on a pallet's deck (m)
+## The order board's screen, by state (board_state): colour and brightness.
+const BOARD_LOOK := {"open": Color(0.35, 0.85, 1.0), "completed": Color(0.45, 1.0, 0.55), "empty": Color(0.12, 0.2, 0.24)}
+## A zone frame's depth and one rack column's width (anchors.zones / zone_decals).
+const ZONE_DEPTH := 3.46
+const ZONE_COLUMN := 5.73
 
 var game: GameManager
 var map: BaseMap
 var anchors := {}
 var tex := {}                   # runtime textures exported with the room, by name
 var cells := []                 # rack-face cell positions, px in an 80x64 rack image
-var _crates: Array[Sprite3D] = []
-var _pallet_loads: Array[Sprite3D] = []
+var _crates: Array[MeshInstance3D] = []
+var _pallet_loads: Array[MeshInstance3D] = []
 var _zone_lights := {}          # category -> [MeshInstance3D]
 var _zone_frames := {}          # category -> [MeshInstance3D], one per rack column
-var _cell_layers := {}          # category -> [Sprite3D], built order (west to east)
-var _cell_textures: Array[Texture2D] = []  # by filled count 0..12
+var _cell_layers := {}          # category -> [[MeshInstance3D] x 12], built order (west to east)
 var _hand_icon: Sprite3D
 var drone: SortDrone
 var _racks_seen := {}           # category -> racks already given colliders
-var _board: Sprite3D
-var _board_lift := 0.0
+var _board: MeshInstance3D      # the board's frame on the north wall
+var _board_screen: MeshInstance3D
 var _hand_textures := {}
 var _signature := ""
 
@@ -51,35 +56,51 @@ func setup(p_game: GameManager, p_map: BaseMap) -> void:
 		tex[name] = map.texture_at(room.textures[name])
 	if anchors.is_empty() or tex.is_empty(): return
 	for p in anchors.pallets:
-		map.add_prop(ROOM, tex.pallet, p[0], p[1])
-		_pallet_loads.append(map.add_prop(ROOM, tex.crate_medium_open, p[0], p[1] - 0.01, PALLET_LIFT_PX))  # just south: sorts over the pallet
+		map.add_model(ROOM, "pallet", p[0], p[1])
+		_pallet_loads.append(map.add_model(ROOM, "crate_medium_open", p[0], p[1], 0.0, PALLET_DECK))
+	# The receiving bays and the staging area, framed on the deck.
+	for bay in anchors.bays: map.add_model(ROOM, "floor_frame", bay[0], bay[1])
+	var staging: Array = anchors.staging
+	var frame := map.add_model(ROOM, "floor_frame", (staging[0] + staging[2]) * 0.5, (staging[1] + staging[3]) * 0.5)
+	frame.scale = Vector3(absf(staging[2] - staging[0]) / 2.4, 1.0, absf(staging[3] - staging[1]) / 2.4)
 	for c in range(CATEGORY_KEYS.size()):
 		var key: String = CATEGORY_KEYS[c]
 		_zone_lights[c] = []
 		_zone_frames[c] = []
-		# The zone frame is drawn one column at a time: it reaches as far as the
-		# racks do (用户 2026-10-07), and the lit version sits a hair above it.
+		# The zone frame is laid one column at a time: it reaches as far as the
+		# racks do (用户 2026-10-07), and the lit one sits a hair above it.
 		for p in anchors.zone_decals[key]:
-			if tex.has("zone_%s_normal" % key):
-				_zone_frames[c].append(map.add_floor_decal(ROOM, tex["zone_%s_normal" % key], p[0], p[1]))
-			var decal := map.add_floor_decal(ROOM, tex["zone_%s_highlight" % key], p[0], p[1])
-			decal.position.y += 0.001
-			_zone_lights[c].append(decal)
+			var centre_z: float = p[1] + ZONE_DEPTH * 0.5
+			var plain := map.add_model(ROOM, "zone_frame", p[0], centre_z)
+			plain.scale = Vector3(ZONE_COLUMN / 5.6, 1.0, ZONE_DEPTH / 3.2)
+			_zone_frames[c].append(plain)
+			var lit := map.add_model(ROOM, "zone_frame_glow", p[0], centre_z, 0.0, 0.004)
+			lit.scale = plain.scale
+			_zone_lights[c].append(lit)
+		# The front row's racks carry the cells, west to east.
 		var layers: Array = []
-		for group in map.room_visuals[ROOM].groups:
-			if str(group).begins_with("shelf:%s:" % key):
-				layers.append_array(map.room_visuals[ROOM].groups[group].filter(func(s): return s.get_meta("role", "") == "cells"))
-		layers.sort_custom(func(a, b): return a.position.x * BaseMap.EAST < b.position.x * BaseMap.EAST)
+		var racks: Dictionary = map.room_visuals[ROOM].racks
+		var groups: Array = racks.keys().filter(func(g): return str(g).begins_with("shelf:%s:" % key) and not racks[g].cells.is_empty())
+		groups.sort_custom(func(a, b): return racks[a].node.position.x * BaseMap.EAST < racks[b].node.position.x * BaseMap.EAST)
+		for g in groups: layers.append(racks[g].cells)
 		_cell_layers[c] = layers
-	for filled in range(BaseCatalog.RACK_CELLS + 1): _cell_textures.append(_cells_texture(filled))
-	# The board hangs on the north wall: drawn over the facade's copy, a hair south of the wall line.
-	_board_lift = float(room.get("board_lift", 0))
+	# The board hangs on the north wall, its screen drawn in the board's state.
 	if anchors.has("order_board"):
-		_board = map.add_prop(ROOM, tex.board_open, anchors.order_board[0], anchors.order_board[1] - 0.02, _board_lift)
-	if tex.has("cargo_drone"):
-		drone = SortDrone.new()
-		add_child(drone)
-		drone.setup(map, tex.cargo_drone)
+		_board = map.add_model(ROOM, "order_board", anchors.order_board[0], anchors.order_board[1] - 0.12)
+		_board_screen = MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2(3.7, 1.8)
+		_board_screen.mesh = quad
+		# Faces south, the quad's front, just proud of the frame.
+		_board_screen.position = Vector3(0, 2.5, -0.1)
+		_board_screen.rotation.y = PI
+		var screen := StandardMaterial3D.new()
+		screen.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_board_screen.material_override = screen
+		_board.add_child(_board_screen)
+	drone = SortDrone.new()
+	add_child(drone)
+	drone.setup(map)
 	if map.warehouse_reveal:
 		map.warehouse_reveal.built_check = func(category: String, slot: int) -> bool:
 			return slot < int(game.base.racks[CATEGORY_KEYS.find(category)])
@@ -107,17 +128,19 @@ func refresh() -> void:
 	if not ready(): return
 	var base: BaseState = game.base
 	_signature = _signature_of(base) + board_state()
-	if _board: _board.texture = tex["board_" + board_state()]
+	if _board:
+		_board.set_meta("state", board_state())
+		(_board_screen.material_override as StandardMaterial3D).albedo_color = BOARD_LOOK[board_state()]
 	# Receiving crates.
-	for sprite in _crates: map.remove_prop(ROOM, sprite)
+	for piece in _crates: map.remove_model(ROOM, piece)
 	_crates.clear()
 	var spots: Array = anchors.bays + anchors.overflow
 	for i in range(mini(base.crates.size(), spots.size())):
 		var crate: Dictionary = base.crates[i]
 		var look := "crate_%s_%s" % [BaseCatalog.CRATE_SIZES[BaseCatalog.crate_size(crate.item)], "open" if crate.opened else "sealed"]
-		var sprite := map.add_prop(ROOM, tex[look], spots[i][0], spots[i][1])
-		sprite.set_meta("item", crate.item)
-		_crates.append(sprite)
+		var piece := map.add_model(ROOM, look, spots[i][0], spots[i][1])
+		piece.set_meta("item", crate.item)
+		_crates.append(piece)
 	# Staging: four pallets, one more loaded per quarter of capacity in use.
 	var quarter := BaseCatalog.STAGING_CAPACITY / 4.0
 	for k in range(_pallet_loads.size()):
@@ -129,7 +152,8 @@ func refresh() -> void:
 		var count := base.shelf_count(c)
 		for r in range(_cell_layers[c].size()):
 			var filled := clampi(count - r * BaseCatalog.RACK_CELLS, 0, BaseCatalog.RACK_CELLS)
-			_cell_layers[c][r].texture = _cell_textures[filled]
+			var cells: Array = _cell_layers[c][r]
+			for k in range(cells.size()): cells[k].visible = k < filled
 	# Zone frames cover the built columns; they light up for the category she is carrying.
 	for c in _zone_lights:
 		var columns := zone_columns(c)
@@ -143,11 +167,11 @@ func _sync_racks(base: BaseState) -> void:
 		var built := int(base.racks[c])
 		var seen := int(_racks_seen.get(c, 1))   # slot 0 is exported with its collider
 		for slot in range(seen, built):
-			for sprite: Sprite3D in map.room_visuals[ROOM].groups.get("shelf:%s:%d" % [CATEGORY_KEYS[c], slot], []):
-				if sprite.get_meta("role", "") != "rack": continue
-				var x := sprite.position.x * BaseMap.EAST
-				var w := sprite.texture.get_width() / 15.0 * 0.8
-				map.add_runtime_collider(x - w * 0.5, sprite.position.z - 0.65, x + w * 0.5, sprite.position.z + 0.65)
+			var rack: Dictionary = map.room_visuals[ROOM].racks.get("shelf:%s:%d" % [CATEGORY_KEYS[c], slot], {})
+			if rack.is_empty(): continue
+			var at: Vector3 = rack.at
+			var x := at.x * BaseMap.EAST
+			map.add_runtime_collider(x - BaseMap.RACK_WIDTH * 0.5, at.z - 0.65, x + BaseMap.RACK_WIDTH * 0.5, at.z + 0.65)
 		if built != seen: changed = true
 		_racks_seen[c] = built
 	if changed and map.warehouse_reveal: map.warehouse_reveal.refresh_built()
@@ -202,13 +226,13 @@ func target_at(global: Vector3) -> Dictionary:
 		if _near_receiving(p):
 			return {"kind": "putback", "label": "把 %s 放回货箱" % base.hand.item_name}
 		return {}
-	var best: Sprite3D = null
+	var best: MeshInstance3D = null
 	var best_distance := CRATE_REACH
-	for sprite in _crates:
-		var d := Vector2(sprite.position.x * BaseMap.EAST, sprite.position.z).distance_to(p)
+	for piece in _crates:
+		var d := Vector2(piece.position.x * BaseMap.EAST, piece.position.z).distance_to(p)
 		if d < best_distance:
 			best_distance = d
-			best = sprite
+			best = piece
 	if best:
 		var item: Item = best.get_meta("item")
 		var sealed := base.location_of(item) == "crate_sealed"
@@ -255,15 +279,6 @@ static func _signature_of(base: BaseState) -> String:
 	parts.append("|%d|%s|" % [base.staging.size(), base.hand.uid if base.hand else ""])
 	for c in base.racks: parts.append("%d:%d/%d" % [c, base.shelf_count(c), base.racks[c]])
 	return ",".join(parts)
-
-func _cells_texture(filled: int) -> Texture2D:
-	var image := Image.create(80, 64, false, Image.FORMAT_RGBA8)
-	var empty := _rgba(tex.slot_empty)
-	var full := _rgba(tex.slot_filled)
-	for k in range(cells.size()):
-		var src: Image = full if k < filled else empty
-		image.blend_rect(src, Rect2i(Vector2i.ZERO, src.get_size()), Vector2i(cells[k][0], cells[k][1]))
-	return ImageTexture.create_from_image(image)
 
 func _hand_texture(category: int) -> Texture2D:
 	if _hand_textures.has(category): return _hand_textures[category]

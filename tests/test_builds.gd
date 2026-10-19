@@ -80,6 +80,8 @@ func run() -> void:
 	game.save_enabled = false
 	game.fixed_map_seed = 1729
 	root.add_child(game)
+	# A vault on every floor here: the vault checks need one (密室与陷阱修订案 §2.1).
+	game.world_map.force_vault = 1
 	await step(4)
 	await game.start_contract("city")
 	p = game.player
@@ -212,8 +214,9 @@ func _sources() -> void:
 	check("choosing from a cache claims it", game.choose_build(cache_ids[1]) and game.builds.has(cache_ids[1]))
 	await step()
 	check("a claimed cache is gone", get_nodes_in_group("relic_caches").is_empty())
-	for i in range(game.world_map.mechanism_nodes.size()): game._mechanisms_done[i] = true
+	game.force_vault_guard = 1
 	game._open_vault()
+	game.force_vault_guard = -1
 	await step()
 	var vault: RelicCache = get_nodes_in_group("relic_caches").filter(func(n): return n.source == "vault")[0]
 	p.teleport(vault.global_position)

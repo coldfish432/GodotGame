@@ -20,7 +20,7 @@ func run() -> void:
 	await game.start_contract("mine")
 	await step(2)
 	check("contract start is logged, not popped up", game.prts_toasts.is_empty() and game.prts_log.any(func(l): return "合同开始" in str(l[1])))
-	game.broadcast("本层发现撤离点。")
+	game.broadcast("PRTS：博士，本层发现撤离点。")
 	check("events do not pop up", game.prts_toasts.is_empty())
 	# Pack full: picking something up that does not fit.
 	var filler := MaterialCatalog.create(Economy.GOLD_ID, 1, "mine")

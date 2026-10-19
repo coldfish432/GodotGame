@@ -86,6 +86,15 @@ func merge_into(item: Item) -> void:
 		if item.quantity <= 0: return
 		if other.can_stack_with(item): other.absorb(item)
 
+## Whether `item` fits: in a free cell, or wholly onto stacks already here.
+func can_take(item: Item) -> bool:
+	if can_fit(item): return true
+	if item == null or not item.is_stackable(): return false
+	var room := 0
+	for other in items:
+		if other.can_stack_with(item): room += other.room()
+	return room >= item.quantity
+
 ## Picks up a stack: merges first, then takes a new cell for the rest.
 ## Returns how many units are left over (0 when it all fit).
 func add_stack(item: Item) -> int:

@@ -54,7 +54,8 @@ func build(world: Node3D) -> MeshInstance3D:
 	var links: Array[int] = []
 	for index in range(map._links.size()):
 		var link: Dictionary = map._links[index]
-		if link.alive and link.trail: links.append(index)
+		# A sealed vault's lane is not dug: no track runs into the rock.
+		if link.alive and link.trail and not (map.vault_excluded and index == map._vault_link): links.append(index)
 	if links.is_empty(): return null
 	for index in links:
 		var line := _resample(map._link_points(index), SAMPLE)

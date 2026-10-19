@@ -20,7 +20,7 @@ const OUTPOST_GUARDS := 2
 ## leaving. The bonus is paid only on extraction with the objective done.
 const CONTRACT_OFFERS := 3
 const CONTRACT_TYPES := ["deep", "recover", "hunt", "search"]
-const CONTRACT_NAMES := {"deep": "深入", "recover": "回收", "hunt": "猎杀", "search": "搜索"}
+const CONTRACT_NAMES := {"deep": "深入", "recover": "回收", "hunt": "猎杀", "search": "搜索", "recruit": "寻访"}
 const DEEP_STEPS := [4, 6, 9]          # floors past the start: LG-05 / 07 / 10 from LG-01
 const DEEP_BONUS := 0.5                # of the contract pay
 ## Common drops of each region's own enemies, so the target always exists there.
@@ -28,11 +28,13 @@ const RECOVER_TARGETS := {
 	"mine": [["源岩", 6], ["破损装置", 4], ["异铁碎片", 4]],
 	"city": [["代糖", 4], ["糖", 2], ["异铁", 3]],
 	"snow": [["双酮", 4], ["异铁碎片", 4]],
+	"siracusa": [["代糖", 4], ["异铁碎片", 4]],
 }
 const RECOVER_REWARD := {"money": 6000, "prestige": 3}
 const HUNT_OFFSETS := Vector2i(3, 6)   # the bounty's floor, past the start
 const HUNT_HP := 2.5
-const SEARCH_VAULTS := 2
+## 密室 are found on about one floor in five now (密室与陷阱修订案 §2.1): one is enough.
+const SEARCH_VAULTS := 1
 const SEARCH_REWARD := {"money": 5000, "prestige": 3}
 
 ## Three offers of different kinds for `region`.
@@ -57,6 +59,7 @@ static func contract_goal(contract: Dictionary, region: String, start_floor: int
 		"recover": return "带回 %s ×%d" % [contract.material, int(contract.count)]
 		"hunt": return "击破悬赏目标 · %s" % AK.floor_code(region, start_floor + int(contract.offset))
 		"search": return "开启密室 ×%d" % int(contract.vaults)
+		"recruit": return "寻访 %s · %s" % [Operators.display_name(str(contract.operator)), AK.floor_code(region, start_floor + int(contract.offset))]
 	return ""
 
 ## What finishing it pays, as shown on the card.
@@ -66,6 +69,7 @@ static func contract_bonus_text(contract: Dictionary) -> String:
 		"recover": return "%s 龙门币 · 声望 +%d" % [Economy.format(RECOVER_REWARD.money), RECOVER_REWARD.prestige]
 		"hunt": return "稀有装备 ×1"
 		"search": return "%s 龙门币 · 声望 +%d" % [Economy.format(SEARCH_REWARD.money), SEARCH_REWARD.prestige]
+		"recruit": return "%s 入职" % Operators.display_name(str(contract.operator))
 	return ""
 ## Random extraction (§2): at most one in each block of ten, on floor 4, 5 or 6,
 ## 50% in all. Rolled floor by floor with these conditional odds, so each of the
@@ -81,9 +85,6 @@ const CAMP_EXPOSURE_SECONDS := 30.0
 const DEPOSIT_FEE := 0.2
 ## Hidden difficulty (§4): this much per floor below the first, plus the route.
 const DIFFICULTY_PER_FLOOR := 3.5
-## Life lost per second for each unsealed ore carried (2.5% of the base 2400,
-## the same share as the old 0.25 of 10).
-const RAW_ORE_DRAIN := 60.0
 ## Affix sizes by stat (局内构筑与数值策划案 §7.2). Weapons lean offensive,
 ## armour defensive, trinkets toward arts and tempo.
 const AFFIX_AMOUNTS := {
@@ -107,25 +108,28 @@ const AFFIX_POOLS := {
 ## cycle. The cycle is the camp interval on purpose: the floor before every
 ## camp lands on the same authored entry, and so does the random-extraction
 ## window (floors 4–6 of each block).
+## Loot no longer cycles with it: LootTables.stair only climbs (掉落阶梯, 2026-10-18).
 const DEPTH_CYCLE := 10
 const DEPTH_PROFILE := {
-	1: {"enemies": 0, "elites": 0, "reward": 0.0, "note": "开局层，照地区基准"},
-	2: {"enemies": 1, "elites": 0, "reward": 0.2, "note": ""},
-	3: {"enemies": 1, "elites": 0, "reward": 0.3, "note": ""},
-	4: {"enemies": 1, "elites": 1, "reward": 0.5, "note": "随机撤离区间"},
-	5: {"enemies": 2, "elites": 0, "reward": 0.5, "note": "随机撤离区间"},
-	6: {"enemies": 2, "elites": 1, "reward": 0.6, "note": "随机撤离区间"},
-	7: {"enemies": 2, "elites": 1, "reward": 0.5, "note": ""},
-	8: {"enemies": 3, "elites": 1, "reward": 0.6, "note": ""},
-	9: {"enemies": 3, "elites": 1, "reward": 0.8, "note": ""},
-	10: {"enemies": 3, "elites": 2, "reward": 1.0, "note": "营地前一层，压力与回报同时抬高"},
+	1: {"enemies": 0, "elites": 0, "note": "开局层，照地区基准"},
+	2: {"enemies": 1, "elites": 0, "note": ""},
+	3: {"enemies": 1, "elites": 0, "note": ""},
+	4: {"enemies": 1, "elites": 1, "note": "随机撤离区间"},
+	5: {"enemies": 2, "elites": 0, "note": "随机撤离区间"},
+	6: {"enemies": 2, "elites": 1, "note": "随机撤离区间"},
+	7: {"enemies": 2, "elites": 1, "note": ""},
+	8: {"enemies": 3, "elites": 1, "note": ""},
+	9: {"enemies": 3, "elites": 1, "note": ""},
+	10: {"enemies": 3, "elites": 2, "note": "营地前一层，压力与回报同时抬高"},
 }
 
 static func depth_profile(depth: int) -> Dictionary:
 	return DEPTH_PROFILE[((maxi(depth, 1) - 1) % DEPTH_CYCLE) + 1]
-## Insurance always brings the item back, after 1–3 more contracts (保全系统修订案
-## §3); at the base it costs the item's 交付价 in 龙门币.
-const INSURANCE_DELAY := Vector2i(1, 3)
+## Insurance always brings back insured gear that did not come out of a contract
+## (a death, or dropped on a floor) 2–4 real hours later (用户 2026-10-15: 从合同
+## 计数改为时钟计时); that return uses it up, while carrying it out keeps it. At
+## the base it costs the item's 交付价 in 龙门币.
+const INSURANCE_DELAY_SECONDS := Vector2i(2 * 3600, 4 * 3600)
 ## A Rhodes squad on a floor (§2): one service, its price 物品价值 × 1.0–1.5 ÷ 10 in 赤金.
 const SQUAD_CHANCE := 0.3
 const SQUAD_PRICE_STEPS := [1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
@@ -147,15 +151,37 @@ const TRADER_REROLL_STEP := 3
 const SOURCE := "https://prts.wiki/w/萨卡兹的无终奇语/想象实体图鉴"
 const REGIONS := {
 	"mine": {"name": "切尔诺伯格 · 坍塌矿区", "brief": "回收矿料，测绘污染。狭窄矿道 / 密集追击",
-		"loot": "材料多，装备少", "exclusive": "未封装源石原矿：高价值，但携带持续失血",
+		"loot": "材料多，装备少", "exclusive": "未封装源石原矿：高价值，但携带时污染上涨",
 		"build": "防御与生命类藏品更常见（承伤与持续作战）", "color": Color("514b3b"), "weights": [0.12, 0.12, 0.11, 0.65]},
 	"city": {"name": "龙门 · 下城区废墟", "brief": "回收防务与医疗物资。曲折街区 / 近战伏击",
 		"loot": "防具多，制式装备品质较高", "exclusive": "近卫局暴动盾：更能承伤，但降低移速",
 		"build": "攻击、防御与攻速类藏品更常见（近战与格挡）", "color": Color("354656"), "weights": [0.18, 0.56, 0.14, 0.12]},
 	"snow": {"name": "萨米 · 冻土林线", "brief": "采集极寒样本，回收冻土旧物。开阔林线 / 稀疏强敌",
 		"loot": "低频高值，饰品与稀有装备", "exclusive": "冻土下的旧物：强化伤害，降低体力恢复",
-		"build": "技能与攻击类藏品更常见（先手与爆发）", "color": Color("9eafb8"), "weights": [0.25, 0.18, 0.42, 0.15]}
+		"build": "技能与攻击类藏品更常见（先手与爆发）", "color": Color("9eafb8"), "weights": [0.25, 0.18, 0.42, 0.15]},
+	# 叙拉古地图调研与方案_v1.md (用户 2026-10-16: 沃尔西尼旧城区).
+	"siracusa": {"name": "叙拉古 · 沃尔西尼旧城区", "brief": "回收家族火并后的遗留物。弯巷内院 / 埋伏精英",
+		"loot": "饰品与遗物最多，材料少", "exclusive": "萨卢佐家族的旧徽记：伤害提高，但精英更早盯上你",
+		"build": "高风险高回报的藏品更常见", "color": Color("8a4a3a"), "weights": [0.16, 0.14, 0.52, 0.18]}
 }
+## Regions laid out as a town (flush streets, buildings on every block):
+## Lungmen and Siracusa. The rest are dug ground.
+const URBAN := ["city", "siracusa"]
+
+static func urban(region: String) -> bool:
+	return region in URBAN
+
+## The region whose art a region borrows until its own exists (叙拉古 S2: the
+## models, textures and enemy sheets are Lungmen's placeholders).
+static func art_region(region: String) -> String:
+	return "city" if region == "siracusa" else region
+
+## The regions whose gear tables a region draws from. Siracusa has its own
+## weapons (装备策划案 §11); its armour and trinkets are still goods from
+## everywhere, left in a family quarter emptied by a feud.
+static func gear_regions(region: String, category: int = -1) -> Array:
+	if region != "siracusa": return [region]
+	return ["siracusa"] if category == Item.Category.WEAPON else ["mine", "city", "snow"]
 const ROUTES := [
 	{"name": "巡检支路", "detail": "低危险 / 常规掉落 / 敌人较少", "danger": -3.0, "reward": 0.0},
 	{"name": "物资作业面", "detail": "中危险 / 更多搜刮 / 更多守卫", "danger": 0.0, "reward": 0.25},
@@ -173,7 +199,7 @@ static func exclusive(region: String) -> Item:
 		"mine":
 			item = Item.create("未封装源石原矿", Item.Category.MATERIAL, 1, 2)
 			item.effect = "raw_ore"
-			item.description = "携带时每秒失去 60 生命；安全袋也不能隔绝污染。材料不可点金。"
+			item.description = "携带时每块每秒污染 +0.06；安全袋也不能隔绝污染。"
 			item.value = 100
 		"city":
 			item = Item.create("近卫局暴动盾", Item.Category.ARMOR, 2, 2, 3.5)
@@ -181,6 +207,11 @@ static func exclusive(region: String) -> Item:
 			item.description = "装备时减伤 25%，移速降低 20%。"
 			item.modifiers = [ItemModifier.stat_mod(ItemModifier.Stat.MOVE_SPEED_PCT, -0.2)]
 			item.value = 90
+		"siracusa":
+			item = Item.create("萨卢佐家族的旧徽记", Item.Category.TRINKET, 1, 1, 2.0)
+			item.effect = "saluzzo_crest"
+			item.description = "装备时伤害提高 30%，精英发现你的距离提高 50%。"
+			item.value = 150
 		_:
 			item = Item.create("冻土下的旧物", Item.Category.TRINKET, 2, 1, 2.0)
 			item.effect = "frozen_relic"

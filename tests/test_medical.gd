@@ -20,26 +20,30 @@ func run() -> void:
 	quit(1 if failures else 0)
 
 func rules() -> void:
-	check("tiers: 39 none, 40 light, 70 medium, 100 heavy", BaseCatalog.contamination_tier(39) == 0 and BaseCatalog.contamination_tier(40) == 1
-		and BaseCatalog.contamination_tier(70) == 2 and BaseCatalog.contamination_tier(100) == 3)
+	check("tiers (用户 2026-10-15): 59 none, 60 medium, 89 medium, 90 heavy", BaseCatalog.contamination_tier(59) == 0 and BaseCatalog.contamination_tier(60) == 1
+		and BaseCatalog.contamination_tier(89) == 1 and BaseCatalog.contamination_tier(90) == 2 and BaseCatalog.contamination_tier(100) == 2)
+	check("below 60 contamination does nothing", BaseCatalog.contamination_hp_cut(59) == 0.0 and BaseCatalog.contamination_regen_factor(59) == 1.0 and BaseCatalog.contamination_potion_penalty(59) == 0.0 and BaseCatalog.contamination_drain(59) == 0.0)
+	check("60: max HP −15%, regeneration halved", BaseCatalog.contamination_hp_cut(60) == 0.15 and BaseCatalog.contamination_regen_factor(60) == 0.5 and BaseCatalog.contamination_potion_penalty(60) == 0.0 and BaseCatalog.contamination_drain(60) == 0.0)
+	check("90: max HP −30%, no regeneration, 0.1% lost a second, potions −25%", BaseCatalog.contamination_hp_cut(90) == 0.30 and BaseCatalog.contamination_regen_factor(90) == 0.0 and BaseCatalog.contamination_potion_penalty(90) == 0.25 and BaseCatalog.contamination_drain(90) == 0.001)
+	check("injury and heavy contamination add up but cap at 40%", is_equal_approx(BaseCatalog.hp_penalty(95, true), 0.40))
 	var base := BaseState.new()
-	base.contamination = 75
 	base.injured = true
-	check("injury and medium contamination add up but cap at 40%%: %.2f" % base.hp_penalty(), is_equal_approx(base.hp_penalty(), 0.40))
-	base.contamination = 45
-	check("injury plus 45 contamination: 25%% + 13.5%% (0.3%% a point)", is_equal_approx(base.hp_penalty(), 0.385))
-	base.contamination = 50
+	check("at the base only the injury counts (污染不带出局外): 25%", is_equal_approx(base.hp_penalty(), 0.25))
 	base.free_potions = 0
-	var report := base.settle_medical(12.0, false)
-	check("settlement: decay 5 then this run's dose (50 -> 57), injury cleared, free flasks reissued",
-		is_equal_approx(base.contamination, 57) and not base.injured and base.free_potions == BaseCatalog.FREE_POTIONS and report.contamination_after == 57 and base.report_unread)
-	base.contamination = 3
-	base.settle_medical(0.0, true)
-	check("contamination never goes below 0; a death leaves an injury", base.contamination == 0 and base.injured)
-	base.contamination = 98
-	base.settle_medical(30.0, false)
-	check("and never above 100", base.contamination == 100)
-	check("decon price: 150 龙门币 per point, at least 1000", BaseCatalog.decon_price(2) == 1000 and BaseCatalog.decon_price(18) == 2700 and BaseCatalog.decon_price(0) == 0)
+	var report := base.settle_medical(false)
+	check("settlement: an untreated injury stays (博士主角叙事修订案 §5), free flasks reissued, report unread",
+		base.injured and base.free_potions == BaseCatalog.FREE_POTIONS and not report.injured and base.report_unread)
+	base.injured = false
+	base.settle_medical(true)
+	check("a death injures the operator who fell", base.injured and base.injured_operators() == [base.operator] and str(base.medical_report.operator) == base.operator)
+	base.operator = Operators.AMIYA_GUARD
+	check("another operator is not injured by it", not base.injured and base.any_injured() and is_equal_approx(base.hp_penalty(), 0.0))
+	base.settle_medical(true)
+	check("both can be injured at once", base.injured_operators().size() == 2 and Operators.LAPPLAND in base.injured_operators() and Operators.AMIYA_GUARD in base.injured_operators())
+	var legacy := BaseState.new()
+	legacy.load_data({"injured": true, "operator": Operators.AMIYA_GUARD}, {})
+	check("an old save's single injury goes to whoever deploys", legacy.injured_operators() == [Operators.AMIYA_GUARD])
+	check("the base keeps no contamination at all", not "contamination" in base and not base.to_data().has("contamination"))
 	check("the inhibitor needs R2; a standard flask is free while the free issue lasts", base.potion_price("C") == -1 and base.potion_price("B") == 600 and base.potion_price("A") == 0)
 	base.free_potions = 0
 	check("after the free issue a standard flask costs 300", base.potion_price("A") == BaseCatalog.POTION_A_PRICE)
@@ -48,7 +52,7 @@ func rules() -> void:
 	var copy := BaseState.new()
 	base.free_potions = 1
 	copy.load_data(JSON.parse_string(JSON.stringify(base.to_data())), {})
-	check("save keeps contamination, injury, the free issue left and the report", copy.contamination == base.contamination and copy.injured == base.injured
+	check("save keeps each injury, the free issue left and the report", copy.injured_operators() == base.injured_operators()
 		and copy.free_potions == 1 and copy.report_unread)
 
 func through_game() -> void:
@@ -57,8 +61,20 @@ func through_game() -> void:
 	game.fixed_map_seed = 1729
 	root.add_child(game)
 	await step(8)
-	for id in ["pharmacy", "decon"]:
-		check(id + " station exported", not game.base_map.station(id).is_empty())
+	check("pharmacy station exported", not game.base_map.station("pharmacy").is_empty())
+	check("no scan-gate station any more", game.base_map.station("decon").is_empty())
+
+	# 基地形象 (用户 2026-10-15): the base walker is a setting; the field is always the deployed operator.
+	SystemScreens.settings.base_look = Operators.AMIYA_GUARD
+	game.choose_operator(Operators.LAPPLAND)
+	check("the base shows the picked look while Lappland deploys", game.player._sprite.character == Operators.AMIYA_GUARD and game.player.operator_id == Operators.LAPPLAND)
+	await game.start_contract("snow")
+	check("the field shows whoever deploys", game.player._sprite.character == Operators.LAPPLAND)
+	game.settle(true)
+	check("back at the base the look returns", game.player._sprite.character == Operators.AMIYA_GUARD)
+	SystemScreens.settings.base_look = ""
+	game.refresh_look()
+	check("an empty look follows the deployed operator", game.player._sprite.character == Operators.LAPPLAND)
 
 	# Contamination in the field.
 	await game.start_contract("city")
@@ -73,53 +89,65 @@ func through_game() -> void:
 	check("the deep route adds 0.02/s", is_equal_approx(game.contamination_rate(), 0.16))
 	game._tick_medical(100.0)
 	check("a dose builds up over time (100 s -> 16)", is_equal_approx(game.run_contamination, 16.0))
-	var start := game.base.contamination
 	game.settle(true)
-	check("settlement: decay first (to no lower than 0), then the dose: %.1f" % game.base.contamination, is_equal_approx(game.base.contamination, maxf(start - 5, 0) + 16))
-	game.base.contamination = 35
+	check("settlement drops the dose: nothing is carried out (污染不带出局外)", game.run_contamination == 0.0 and game.current_contamination() == 0.0)
 	await game.start_contract("mine")
+	check("every contract starts clean", game.current_contamination() == 0.0)
+	game.run_contamination = 55.0
 	game.message = ""
 	game._tick_medical(300.0)
-	check("crossing 40 in the field is announced: " + game.message, "轻度" in game.message)
+	check("crossing 60 in the field is announced: " + game.message, "中度" in game.message)
 	game.settle(true)
 
-	# Departure applies injury and contamination for the whole contract.
-	game.base.contamination = 75
+	# Injury applies for the whole contract; contamination stacks on it live.
 	game.base.injured = true
 	await game.start_contract("snow")
 	var plain := CombatStats.BASE.hp
-	check("departure: max HP down 40%% (injury + medium, capped): %.1f" % game.player.max_hp, is_equal_approx(game.player.max_hp, plain * 0.6) and game.player.hp <= game.player.max_hp)
+	# Max HP stays; the cut blocks the top of the bar (用户 2026-10-15: 保留原生命上限).
+	check("departure with an injury: max HP kept, life capped at 75%%: %.1f" % game.player.hp, is_equal_approx(game.player.max_hp, plain) and is_equal_approx(game.player.life_cap(), plain * 0.75) and game.player.hp <= plain * 0.75 + 0.01)
+	game.player.heal(99999)
+	check("healing stops at the cap, which counts as full", is_equal_approx(game.player.hp, plain * 0.75) and game.player.full_hp())
+	game.player.hp = plain
+	check("nothing sets life above the cap", is_equal_approx(game.player.hp, plain * 0.75))
+	game.run_contamination = 92.0
+	await step(2)
+	check("plus heavy contamination: life capped at 60%% (40%% at most): %.1f" % game.player.hp, is_equal_approx(game.player.max_hp, plain) and is_equal_approx(game.player.life_cap(), plain * 0.6) and game.player.hp <= plain * 0.6 + 0.01)
 	game.player.hp = 1
 	game.potions = 1
 	game._use_potion()
-	check("medium contamination cuts potion healing by a quarter (960 -> 720)", is_equal_approx(game.player.hp, 721.0))
+	check("heavy contamination cuts potion healing by a quarter (960 -> 720)", is_equal_approx(game.player.hp, 721.0))
 	game.player.hp = -1
 	await step(2)
 	check("death: injury stays, max HP back to normal at the base", game.base.injured and is_equal_approx(game.player.max_hp, plain) and game.player.condition_hp_penalty == 0.0)
-	game.base.contamination = 100
 	game.base.injured = false
 	await game.start_contract("snow")
-	check("100 contamination: max HP −30%, regeneration below zero (0.1% − 0.125% of max HP)", is_equal_approx(game.player.max_hp, plain * 0.7) and is_equal_approx(game.player.regen_rate(), -0.00025 * game.player.max_hp))
+	game.run_contamination = 100.0
+	await step(2)
+	check("100 contamination: life capped at 70%, no regeneration, 0.1% of max HP lost a second", is_equal_approx(game.player.max_hp, plain) and is_equal_approx(game.player.life_cap(), plain * 0.7) and is_equal_approx(game.player.regen_rate(), -0.001 * game.player.max_hp))
 	# The drain does not wait for the end of combat, and never takes the last point.
 	game.player.hp = 30.0
 	game.player.combat_timer = 0.0
 	game.player.regen_timer = 0.01
 	await step(2)
 	check("negative regeneration drains even in combat", game.player.hp < 30.0 and game.player.hp >= 1.0)
-	game.player.hp = 1.2   # the drain is 0.025% of max HP a second, well under 1
+	game.player.hp = 1.5   # the drain is 0.1% of max HP a second, about 1.7
 	game.player.regen_timer = 0.01
 	await step(2)
 	check("the drain stops at 1 HP", is_equal_approx(game.player.hp, 1.0))
+	game.base.injured = true
 	game.settle(true)
-	check("extraction clears the injury", not game.base.injured and not game.player.regen_blocked)
+	check("extraction keeps an untreated injury", game.base.injured and not game.player.regen_blocked)
+	game.base.injured = false
 
 	# Live contamination (局内节奏与目标策划案 §6 D) and per-second out-of-combat regeneration (A2, 用户 2026-10-14).
-	game.base.contamination = 0
 	await game.start_contract("mine")
 	var fresh := game.player.max_hp
 	game.run_contamination = 20.0
 	await step(2)
-	check("contamination gained in the field cuts max HP at once (20 → −6%)", absf(game.player.max_hp - fresh * 0.94) < 1.0 and absf(game.player.regen_rate() - 0.00075 * game.player.max_hp) < 0.01)
+	check("20 gained in the field changes nothing yet", is_equal_approx(game.player.life_cap(), fresh))
+	game.run_contamination = 60.0
+	await step(2)
+	check("reaching 60 in the field caps life at once (85%) and halves regeneration", is_equal_approx(game.player.max_hp, fresh) and absf(game.player.life_cap() - fresh * 0.85) < 1.0 and game.player.hp <= fresh * 0.85 + 0.01 and absf(game.player.regen_rate() - 0.0005 * game.player.max_hp) < 0.01)
 	game.player.hp = 500.0
 	game.player.combat_timer = 1.0
 	game.player.regen_timer = 0.01
@@ -132,7 +160,6 @@ func through_game() -> void:
 	game.settle(true)
 
 	# Pharmacy (药剂进背包): flasks are pack items bought one at a time.
-	game.base.contamination = 0
 	game.gold = 10000
 	game.base.prestige = 0
 	game.inventory.items.clear()
@@ -145,6 +172,16 @@ func through_game() -> void:
 	check("at R2 the inhibitor costs 1000", game.buy_potion("C") and game.gold == 8400)
 	await game.start_contract("city")
 	check("departure adds the free flasks still owed (1 + 1 + 1 bought, + 2 issued)", game.potions == 5 and game.base.free_potions == 0)
+	# 用户 2026-10-17: 药剂可堆叠 — one kind shares a cell.
+	var stack_a: Array = game.carried_potions().filter(func(x): return x.potion_type == "A")
+	check("the three standard flasks are one stack in one cell", stack_a.size() == 1 and stack_a[0].quantity == 3 and stack_a[0].value == stack_a[0].unit_value * 3)
+	var hp_full := game.player.hp
+	game.player.hp = 5
+	check("drinking one takes one off the stack", game.drink(stack_a[0]) and stack_a[0].quantity == 2 and game.inventory.items.has(stack_a[0]) and game.potions == 4)
+	game.player.hp = hp_full
+	var loose := BaseCatalog.create_potion("A")
+	check("a picked-up flask joins the stack", game.inventory.add_stack(loose) == 0 and stack_a[0].quantity == 3 and game.potions == 5)
+	check("a flask saved one per cell stacks after loading", Item.from_data({"name": "标准急救剂", "potion": "A", "value": 30}).max_stack == BaseCatalog.POTION_STACK)
 	check("orders never take a flask", not game.base.orders.slots.any(func(o): return o != null and game.carried_potions().any(func(x): return game.base.orders.matches(game.base.orders.slots.find(o), x))))
 	game.player.hp = 5
 	game.run_contamination = 10
@@ -180,37 +217,22 @@ func through_game() -> void:
 	game.settle(true)
 	check("after the contract three flasks are issued free again", game.base.free_potions == BaseCatalog.FREE_POTIONS)
 
-	# Front desk, injury treatment, the gate.
+	# Front desk and injury treatment; the scan gate is scenery only.
 	var view := game.medical_view
 	game.base.injured = true
 	game.base.report_unread = true
 	await step(2)
-	check("desk shows the alert while a report is unread or an injury untreated", view._reception.texture == view.tex.reception_alert)
+	check("desk shows the alert while a report is unread or an injury untreated", view._reception.visible)
 	game.open_station("report")
 	check("opening the report marks it read", not game.base.report_unread)
 	game.close_modal()
 	game.gold = 3000
 	check("injury treatment costs 3000", game.treat_injury() and game.gold == 0 and not game.base.injured)
 	await step(2)
-	check("desk back to idle", view._reception.texture == view.tex.reception_idle)
-	game.base.contamination = 52
-	await step(2)
-	check("gate is red at 40 and above", view.gate_red() and view._gate.material_override.get_shader_parameter("tex") == view.tex.gate_red)
-	check("the reading names value, tier and effect: " + view.reading(), view.reading() == "检测门：污染 52 · 轻度：生命上限 −10%")
-	var gate: Dictionary = game.base_map.station("decon")
-	game.player.teleport(gate.position)
-	await step(3)
-	game.message = ""
-	game.player.teleport(game.base_map.to_world(view._gate_x + 1.2, view._gate_z, BaseMap.PLAYER_Y))
-	await step(3)
-	check("walking through the gate gives the reading for free", game.message == view.reading())
-	game.gold = 10000
-	check("decontaminate to 39: 13 points, 1950 龙门币", game.decontaminate(39) and game.gold == 8050 and game.base.contamination == 39)
-	await step(2)
-	check("gate turns green", not view.gate_red() and view._gate.material_override.get_shader_parameter("tex") == view.tex.gate_green)
-	check("decontaminate to 0: 39 points, 5850 龙门币", game.decontaminate(0) and game.gold == 2200 and game.base.contamination == 0)
-	check("nothing to treat at 0", not game.decontaminate(0))
-	for kind in ["pharmacy", "decon", "report"]:
+	check("desk back to idle", not view._reception.visible)
+	check("the gate stands, scenery only", view._gate != null and view._gate.visible)
+	check("and treating contamination is gone", not game.has_method("decontaminate"))
+	for kind in ["pharmacy", "report"]:
 		game.open_station(kind)
 		check(kind + " menu opens", game.modal == "station" and game.menu.visible)
 		game.close_modal()

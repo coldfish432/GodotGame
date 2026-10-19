@@ -72,6 +72,16 @@ func run() -> void:
 		check(region + " object anchors leave the playable corridor clear", misplaced == 0)
 		check(region + " billboard feet match rendered ground triangles (worst %.5f)" % max_error, hovering == 0)
 		check(region + " scenery adds no collision bodies or navigation blockers", dressing.find_children("*", "CollisionObject3D", true, false).is_empty())
+		# An enemy inside a barricade's box is out of every shot's reach.
+		var boxed := 0
+		for node in get_nodes_in_group("enemies"):
+			if map.in_prop(Vector2(node.global_position.x, node.global_position.z)): boxed += 1
+		var pulled_out := 0
+		for blocker in map.prop_blockers:
+			var at: Vector2 = blocker[0]
+			var spot := map.nearest_walkable(Vector3(at.x, 0.0, at.y))
+			if not map.in_prop(Vector2(spot.x, spot.z), 0.5): pulled_out += 1
+		check(region + " no enemy stands inside a colliding prop (%d props)" % map.prop_blockers.size(), boxed == 0 and pulled_out == map.prop_blockers.size() and (region != "city" or not map.prop_blockers.is_empty()))
 		game.close_modal()
 		game.settle(true)
 	game.queue_free()

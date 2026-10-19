@@ -97,5 +97,48 @@ func run() -> void:
 	await hold(false, null, 1)
 	check("a ground press never locks", p.attack_target == null)
 
+	# A press on a ground item's name plate (用户 2026-10-13 / 10-15): it takes
+	# the item and does not swing while the cursor stays there, even once the
+	# plate is gone; moved off the plate, the held press attacks again.
+	await hold(false, null, 2)
+	var loot := Loot.new()
+	loot.game = game
+	loot.item = Item.create("测试物品", Item.Category.MATERIAL, 1, 1)
+	loot.pickup_delay = 99.0
+	game.add_child(loot)
+	loot.global_position = origin + Vector3(6, 0, 6)
+	await step(2)
+	game._pointer_position = Vector2(400, 300)
+	game._has_pointer_position = true
+	var at := game.pointer_ui()
+	game._hud._loot_plates = [[Rect2(at - Vector2(50, 10), Vector2(100, 20)), loot]]
+	p._attack_cooldown = 0.0
+	game.pointer_step(true, false, null, 1.0 / 60.0)
+	check("a press on a plate walks to take the item", game.pickup_target == loot)
+	game._hud._loot_plates = []
+	game.pointer_step(true, false, null, 1.0 / 60.0)
+	check("held still where the plate was, it does not swing", game.pickup_target == loot and p.combo_step == 0)
+	game._pointer_position = Vector2(400, 360)
+	game.pointer_step(true, false, null, 1.0 / 60.0)
+	check("moved off the plate, the held press attacks", game.pickup_target == null and p.combo_step == 1)
+	game.pointer_step(false, false, null, 1.0 / 60.0)
+
+	# Plates with enemies about (用户 2026-10-15): hidden unless Alt is held,
+	# then faded and still clickable; with no enemy near, shown as before.
+	loot.global_position = p.global_position + Vector3(0.8, 0, 0.8)
+	game._hud.queue_redraw()
+	await step(3)
+	check("with an enemy near, no plates without Alt", game._hud._loot_plates.is_empty())
+	Input.action_press("show_items")
+	game._hud.queue_redraw()
+	await step(3)
+	check("holding Alt shows them (faded, clickable)", game._hud._loot_plates.any(func(e): return e[1] == loot))
+	Input.action_release("show_items")
+	for node in get_nodes_in_group("enemies"): node.queue_free()
+	game._hud.queue_redraw()
+	await step(3)
+	check("with no enemy near, plates show without Alt", game._hud._loot_plates.any(func(e): return e[1] == loot))
+	loot.queue_free()
+
 	print("POINTER TESTS ", "FAILED %d" % failures if failures else "PASSED")
 	quit(1 if failures > 0 else 0)

@@ -46,7 +46,6 @@ var _lost_sight_time := 0.0
 var _last_seen_position := Vector3.ZERO
 var _rearm_timer := 0.0
 var _warning_markers: Array[Node] = []
-var _state_label: Label3D
 ## 威胁值 patrols (ThreatMeter): which wave it came with (0 = not a patrol); it
 ## wanders the floor, chases what it sees, and wanders on from where it lost her.
 var patrol_wave := 0
@@ -202,7 +201,13 @@ func setup(p_game: GameManager, p_elite: bool, p_ranged: bool, type: String = ""
 	defense = float(stats.def)
 	res = float(stats.res)
 	damage_kind = str(stats.kind)
-	move_speed = 1.2 if elite else (2.4 if keeps_distance else 2.1)
+	move_speed = (1.2 if elite else (2.4 if keeps_distance else 2.1)) * float(attack_profile.get("slow", 1.0))
+	# 家族灭迹人 is quick in the dark (叙拉古敌人设计案 §三第 6 条: 1.1×).
+	if attack_profile.get("stealth", false): move_speed = 2.3
+	# 家族专用轿车 keeps to its lane's mouth: out on its charge and straight back.
+	if attack_profile.get("roadblock", false):
+		leash_radius = 0.6
+		perception_radius = 8.0
 	if attack_profile.has("barrier"): barrier_hp = max_health * float(attack_profile.barrier)
 	_base_color = Color(0.65, 0.15, 0.12) if elite else (Color(0.25, 0.45, 1.0) if ranged else Color(0.8, 0.25, 0.18))
 	_build_visual()
@@ -233,12 +238,6 @@ func _build_visual() -> void:
 	if directional or not elite: _sprite.offset = Vector2(0 if directional else 4, 19)
 	_sprite.position.y = _art_base_y
 	add_child(_sprite)
-	_state_label = Label3D.new()
-	_state_label.position.y = height + 0.15
-	_state_label.font_size = 24
-	_state_label.pixel_size = 0.012
-	_state_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	add_child(_state_label)
 	# Its life bar is the HUD's (界面策划案 §2.6). The old 3D bar it carried
 	# showed itself again on every hit, so elites wore two bars.
 	_glint = EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * PIXEL, Color.WHITE)
@@ -272,9 +271,40 @@ func _build_visual() -> void:
 	_silence_mark.position.y = height + 0.4
 	_silence_mark.visible = false
 	add_child(_silence_mark)
+	if attack_profile.has("incite"):
+		_incite_mark = Sprite3D.new()
+		_incite_mark.texture = _incite_texture()
+		_incite_mark.pixel_size = PIXEL
+		_incite_mark.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		_incite_mark.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		_incite_mark.no_depth_test = true
+		_incite_mark.render_priority = 6
+		_incite_mark.position.y = height + 0.4
+		_incite_mark.visible = false
+		add_child(_incite_mark)
+		_incite_cd = randf_range(2.0, 5.0)
+	if attack_profile.get("roadblock", false):
+		for i in range(2):
+			var lamp := EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * 3 * PIXEL, Color("fff6dc"))
+			lamp.material_override.no_depth_test = true
+			lamp.material_override.render_priority = 5
+			lamp.visible = false
+			_headlights.append(lamp)
 
 const OUTLINE_SHADER := preload("res://game/sprite_outline.gdshader")
 static var _silence_tex: ImageTexture
+static var _incite_tex: ImageTexture
+
+## 煽动's mark: a thin dark red ring, 9×9 (no words).
+static func _incite_texture() -> ImageTexture:
+	if _incite_tex == null:
+		var image := Image.create(9, 9, false, Image.FORMAT_RGBA8)
+		for x in range(9):
+			for y in range(9):
+				var d := Vector2(x - 4, y - 4).length()
+				if d > 3.0 and d <= 4.2: image.set_pixel(x, y, Color("8a1c22"))
+		_incite_tex = ImageTexture.create_from_image(image)
+	return _incite_tex
 
 ## 3×3 grey ×.
 static func _silence_texture() -> ImageTexture:
@@ -293,7 +323,8 @@ func _advance_animation(delta: float) -> void:
 	_bob_time += delta
 	# Distance stepped since the previous tick decides walking vs standing.
 	walking = _stepped > 0.0005
-	walk_distance += _stepped
+	# Backing up plays the walk board backwards.
+	walk_distance += _stepped * (-1.0 if attack_phase == "reverse" else 1.0)
 	_stepped = 0.0
 	if directional or not elite:
 		_update_attack_visual()
@@ -320,6 +351,7 @@ func _build_pick_area() -> void:
 	shape.shape = box_shape
 	area.add_child(shape)
 	add_child(area)
+	_pick_area = area
 
 func _build_navigation() -> void:
 	_nav_agent = NavigationAgent3D.new()
@@ -329,14 +361,71 @@ func _build_navigation() -> void:
 	_nav_agent.target_desired_distance = 0.5
 	add_child(_nav_agent)
 
+## 家族灭迹人's stealth (叙拉古敌人设计案 §二新增第 1 条): unseen past
+## STEALTH_FAINT, a faint outline nearer, wholly seen within STEALTH_SHOW, while
+## it attacks, and for STEALTH_HOLD after it was hit. Unseen it cannot be
+## clicked (single-target attacks have nothing to pick).
+const STEALTH_SHOW := 3.0
+const STEALTH_FAINT := 6.0
+const STEALTH_HOLD := 3.0
+var _pick_area: Area3D
+var _revealed := 0.0
+var _splash_timer := 0.0
+## Her heading as it reads it (where she last moved), for coming at her from behind.
+var her_heading := Vector3.ZERO
+var _her_last := Vector3.INF
+
+## A reckoning's 灭迹人 does not wait to see her: it knows where she is.
+func hunts() -> bool:
+	return attack_profile.get("stealth", false) and patrol_wave > 0
+
+## Behind her and to the side it is already on (§三第 6 条: 绕到玩家侧后方),
+## EnemyAttacks.ERASER_FLANK_GAP from her. With no heading yet, from where it is.
+func flank_point(player_position: Vector3) -> Vector3:
+	var from_her := global_position - player_position
+	from_her.y = 0.0
+	var back := -her_heading if her_heading.length_squared() > 0.01 else (from_her.normalized() if from_her.length_squared() > 0.01 else Vector3.BACK)
+	var side := back.cross(Vector3.UP)
+	var aim := (back + side * (1.0 if from_her.dot(side) >= 0.0 else -1.0) * 0.8).normalized()
+	return game.world_map.nearest_walkable(player_position + aim * EnemyAttacks.ERASER_FLANK_GAP)
+
+func _read_heading(player_position: Vector3) -> void:
+	if _her_last != Vector3.INF:
+		var moved := player_position - _her_last
+		moved.y = 0.0
+		if moved.length_squared() > 0.0001: her_heading = (her_heading * 0.8 + moved.normalized() * 0.2).normalized()
+	_her_last = player_position
+
+func stealthed() -> bool:
+	if not attack_profile.get("stealth", false) or _dead: return false
+	if _revealed > 0.0 or attack_phase != "idle": return false
+	return _flat_distance(global_position, game.player.global_position) > STEALTH_SHOW
+
+func _tick_stealth(delta: float) -> void:
+	if not attack_profile.get("stealth", false) or not is_instance_valid(_sprite): return
+	_revealed = maxf(0.0, _revealed - delta)
+	var hidden := stealthed()
+	var faint := hidden and _flat_distance(global_position, game.player.global_position) <= STEALTH_FAINT
+	_sprite.modulate.a = 0.15 if faint else (0.0 if hidden else 1.0)
+	_sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED if hidden else SpriteBase3D.ALPHA_CUT_DISCARD
+	if is_instance_valid(_pick_area): _pick_area.collision_layer = 0 if hidden else PICK_LAYER
+	_read_heading(game.player.global_position)
+	# Far off in the rain, all there is of it is a splash where it steps (§二新增第 1 条).
+	_splash_timer = maxf(0.0, _splash_timer - delta)
+	if hidden and not faint and walking and _splash_timer <= 0.0 and str(game.world_map.weather) == "rain":
+		_splash_timer = EnemyAttacks.ERASER_SPLASH_EVERY
+		EnemyAttackVfx.spawn(game, Vector3(global_position.x, game.ground_y(global_position) + 0.04, global_position.z), -global_basis.z, "splash")
+
 func _physics_process(delta: float) -> void:
 	if _dead or (is_instance_valid(game) and not game.simulation_active()): return
 	if not is_instance_valid(game) or not is_instance_valid(game.player): return
+	_tick_stealth(delta)
 	if hitstop_remaining > 0:
 		hitstop_remaining = maxf(0, hitstop_remaining - delta)
 		return
 	silence_timer = maxf(0.0, silence_timer - delta)
 	if is_instance_valid(_silence_mark): _silence_mark.visible = silenced()
+	if is_instance_valid(_incite_mark): _incite_mark.visible = attack_phase == "incite"
 	if stun_timer > 0.0:
 		stun_timer = maxf(0.0, stun_timer - delta)
 		_tick_statuses(delta)
@@ -349,10 +438,12 @@ func _physics_process(delta: float) -> void:
 	_sync_shell()
 	_attack_timer = maxf(0, _attack_timer - delta)
 	_rearm_timer = maxf(0, _rearm_timer - delta)
-	_update_state_label()
 	var player_position: Vector3 = game.player.global_position
 	if attack_profile.get("alarm", false):
 		_tick_sentinel(delta, player_position)
+		return
+	if attack_profile.get("roadblock", false):
+		_tick_roadblock(delta, player_position)
 		return
 	if behavior == Behavior.GUARD:
 		if not is_instance_valid(guard_post):
@@ -360,10 +451,10 @@ func _physics_process(delta: float) -> void:
 		elif state == State.CHASING and (not guard_post.active or _flat_distance(global_position, guard_post.global_position) > guard_post.leash_radius):
 			begin_return()
 	elif behavior == Behavior.PATROL:
-		if state == State.IDLE and _rearm_timer <= 0 and _can_perceive(player_position):
+		if state == State.IDLE and _rearm_timer <= 0 and (hunts() or _can_perceive(player_position)):
 			begin_chase()
 		elif state == State.CHASING:
-			if _can_perceive(player_position):
+			if hunts() or _can_perceive(player_position):
 				_last_seen_position = player_position
 				_lost_sight_time = 0
 			else:
@@ -395,15 +486,17 @@ func _physics_process(delta: float) -> void:
 		return
 	if state != State.CHASING: return
 	var visible_player := game.line_of_sight(global_position, player_position)
-	if behavior == Behavior.GUARD or _can_perceive(player_position):
+	if behavior == Behavior.GUARD or hunts() or _can_perceive(player_position):
 		_last_seen_position = player_position
 	var target := _last_seen_position
+	# Unseen, a 灭迹人 goes round to come at her from behind.
+	if stealthed() and hunts(): target = flank_point(player_position)
 	var distance := _flat_distance(global_position, player_position)
 	var desired_distance := float(attack_profile.reach) - (2.0 if keeps_distance else 0.3)
 	if attack_phase == "idle" and _try_special(distance, visible_player): return
 	if attack_phase == "idle":
 		# Ranged enemies must navigate around cover even inside firing range.
-		if distance > desired_distance or not visible_player:
+		if distance > desired_distance or not visible_player or target != _last_seen_position:
 			_move_toward_target(target, delta)
 		elif distance > 0.01:
 			_face((player_position - global_position).normalized(), delta)
@@ -416,15 +509,26 @@ func _physics_process(delta: float) -> void:
 func _flat_distance(a: Vector3, b: Vector3) -> float:
 	return Vector2(a.x - b.x, a.z - b.z).length()
 
-func _can_perceive(point: Vector3) -> bool:
-	return _flat_distance(global_position, point) <= perception_radius and _flat_distance(home_position, point) <= leash_radius and game.line_of_sight(global_position, point)
+## 萨卢佐家族的旧徽记: elites pick her out from further off.
+const CREST_SIGHT := 1.5
 
-func begin_chase() -> void:
+func _can_perceive(point: Vector3) -> bool:
+	var reach := perception_radius * (CREST_SIGHT if elite and game.player != null and game.player.equipped_effect("saluzzo_crest") else 1.0)
+	return _flat_distance(global_position, point) <= reach and _flat_distance(home_position, point) <= leash_radius and game.line_of_sight(global_position, point)
+
+## force: its post has woken, so it turns back even on the way home.
+func begin_chase(force: bool = false) -> void:
 	# Seen or hit, a sentinel on watch runs; mid-run or holding, nothing changes.
 	if attack_profile.get("alarm", false):
 		if not _dead and sentinel_mode == "watch": _spot()
 		return
-	if _dead or state == State.RETURNING or _rearm_timer > 0: return
+	if _dead: return
+	if not force and (state == State.RETURNING or _rearm_timer > 0): return
+	# One guard up wakes its whole post (用户 2026-10-18).
+	if not force and behavior == Behavior.GUARD and is_instance_valid(guard_post) and not guard_post.active:
+		guard_post._activate()
+		return
+	_rearm_timer = 0
 	if attack_profile.get("neutral", false) and not provoked: return
 	state = State.CHASING
 	_last_seen_position = game.player.global_position
@@ -503,6 +607,26 @@ func _tick_sentinel(delta: float, player_position: Vector3) -> void:
 			if to_her.length_squared() > 0.0001: _face(to_her.normalized(), delta)
 			if _hold_left <= 0.0: sentinel_mode = "watch"
 
+## 家族专用轿车 (§三第 7 条) idles in its slot, nose out, and never chases: with
+## her within CAR_SIGHT ahead of its nose it winds up, charges out along the
+## nose, and backs straight in again (the "reverse" phase).
+func _tick_roadblock(delta: float, player_position: Vector3) -> void:
+	if attack_phase != "idle":
+		_tick_attack(delta)
+		return
+	global_position = home_position
+	if nose.length_squared() > 0.01: _face(nose, delta)
+	_update_attack_visual()
+	if _attack_timer > 0.0: return
+	var ahead := nose.normalized() if nose.length_squared() > 0.01 else -global_basis.z
+	var offset := player_position - global_position
+	offset.y = 0.0
+	var along := offset.dot(ahead)
+	if along < 0.0 or along > EnemyAttacks.CAR_SIGHT or absf(offset.cross(ahead).y) > EnemyAttacks.CAR_SIGHT_WIDTH: return
+	if not game.line_of_sight(global_position, player_position): return
+	state = State.CHASING
+	_begin_telegraphed_attack()
+
 func _spot() -> void:
 	sentinel_mode = "run"
 	state = State.CHASING
@@ -566,23 +690,39 @@ func _cancel_attack() -> void:
 	_warning_markers.clear()
 	if (directional or not elite) and is_instance_valid(_sprite): _update_attack_visual()
 
-func _update_state_label() -> void:
-	if not is_instance_valid(_state_label): return
-	_state_label.visible = _flat_distance(global_position, game.player.global_position) < 23
-	# 萨卡兹哨兵's only mark is the HUD's red "!" (用户 2026-10-14), not a second one here.
-	if attack_profile.get("alarm", false):
-		_state_label.visible = false
-		return
-	match state:
-		State.IDLE:
-			_state_label.text = "守卫" if behavior == Behavior.GUARD else ""
-			_state_label.modulate = Color("ddbb70")
-		State.CHASING:
-			_state_label.text = "!"
-			_state_label.modulate = Color("ef745c")
-		State.RETURNING:
-			_state_label.text = "归位"
-			_state_label.modulate = Color("8fc6df")
+## The top of the figure as drawn, above its origin: the painted pixels of
+## its current pose, not a fixed height, so a tall one (恫吓者) wears its life
+## bar (and a sentinel its red "!") over its head, not on its face (用户 2026-10-17). Read
+## once per sheet from the first pose shown.
+static var _tops := {}
+## The point just over its head in the world: the sprite faces the camera, so
+## its top is up the camera's up axis from the sprite's centre, not straight up.
+func head_point(gap: float = 0.0) -> Vector3:
+	var up := game.camera.global_basis.y if is_instance_valid(game) and is_instance_valid(game.camera) else Vector3.UP
+	if not is_instance_valid(_sprite) or _sprite.texture == null: return global_position + Vector3.UP * (1.9 + gap)
+	return global_position + Vector3.UP * _sprite.position.y + up * (head_height() - _sprite.position.y + gap)
+
+func head_height() -> float:
+	if not is_instance_valid(_sprite) or _sprite.texture == null: return 1.9
+	var key := sheet_type + ("@d" if directional else "") + "@%.4f" % _sprite.pixel_size
+	if not _tops.has(key):
+		var image := _sprite.texture.get_image()
+		var first := 0
+		if image != null:
+			var found := false
+			for y in range(image.get_height()):
+				for x in range(image.get_width()):
+					if image.get_pixel(x, y).a > 0.5:
+						found = true
+						break
+				if found: break
+				first += 1
+			# From the cell's centre (where the sprite sits) up to the topmost
+			# painted texel.
+			_tops[key] = (image.get_height() * 0.5 - first + _sprite.offset.y) * _sprite.pixel_size
+		else:
+			_tops[key] = 2.4
+	return _sprite.position.y + float(_tops[key])
 
 func _step_toward(direction: Vector3, delta: float) -> void:
 	var candidate := global_position + direction * current_speed() * (1.0 - status_value("slow")) * delta
@@ -624,6 +764,17 @@ func _turn_to(direction: Vector3, snap: bool) -> void:
 
 var _in_combo := false
 var _windup_total := 1.0
+## 家族角头's 近身一掌 is the attack under way (EnemyAttacks profile "close").
+var close_strike := false
+## 家族专用轿车: the way its nose points out of its slot (GameManager._spawn_car).
+var nose := Vector3.ZERO
+var _reverse_from := Vector3.ZERO
+var _headlights: Array[MeshInstance3D] = []
+## 家族术师's 煽动 (attack_phase "incite"): time left, hits taken, time to the next.
+var _incite_left := 0.0
+var _incite_hits := 0
+var _incite_cd := 0.0
+var _incite_mark: Sprite3D
 
 ## Shown on the ground before it lands: elites, ground casts and lobs.
 func telegraphs() -> bool:
@@ -643,14 +794,21 @@ func _begin_telegraphed_attack() -> void:
 	_aim_locked = not attack_profile.has("track")
 	_lock_flash = 0
 	_lock_direction()
+	# 家族专用轿车 cannot turn in its slot: it charges the way its nose points.
+	if attack_profile.get("roadblock", false) and nose.length_squared() > 0.01:
+		attack_direction = nose.normalized()
+		_locked_target = global_position + attack_direction * float(attack_profile.reach)
+		_face(attack_direction, 1.0)
 	_special = ""
-	_windup_remaining = 0.45 if _in_combo else float(attack_profile.windup)
-	_windup_total = _windup_remaining
+	# 家族角头 with her close by: 近身一掌 instead of the cigar (§三第 5 条).
+	close_strike = attack_profile.has("close") and not _in_combo and _flat_distance(global_position, game.player.global_position) <= float(attack_profile.close.trigger)
 	if not _in_combo:
 		_combo_index = 0
 		if attack_profile.has("combo"): _combo_left = int(attack_profile.combo) - 1 + (1 if _phased else 0)
-	_pending_damage = atk * float(attack_profile.damage) * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR) * game.enemy_attack_multiplier()
 	var segment := current_segment()
+	_windup_remaining = 0.45 if _in_combo else float(segment.windup)
+	_windup_total = _windup_remaining
+	_pending_damage = atk * float(segment.damage) * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR) * game.enemy_attack_multiplier()
 	warn_shape = ""
 	pending_warning_position = game.player.global_position if telegraphs() else attack_origin
 	pending_warning_radius = float(segment.get("radius", 0.0))
@@ -679,6 +837,10 @@ func _begin_telegraphed_attack() -> void:
 ## The attack this windup belongs to: the profile itself, or a combo segment
 ## of it (寻仇者). A segment fills in only what differs from the profile.
 func current_segment() -> Dictionary:
+	if close_strike:
+		var palm: Dictionary = attack_profile.duplicate()
+		palm.merge(attack_profile.close, true)
+		return palm
 	var segments: Array = attack_profile.get("segments", [])
 	if segments.is_empty(): return attack_profile
 	var segment: Dictionary = attack_profile.duplicate()
@@ -752,6 +914,28 @@ func _tick_attack(delta: float) -> void:
 		if _contacted: _advance_recoil(delta)
 		if _phase_remaining <= 0:
 			attack_phase = "idle"
+			# The car backs straight into its slot, nose still out (§三第 7 条).
+			if attack_profile.get("roadblock", false) and _flat_distance(global_position, home_position) > 0.05:
+				attack_phase = "reverse"
+				_phase_remaining = EnemyAttacks.CAR_REVERSE_TIME
+				_reverse_from = global_position
+		_update_attack_visual()
+	elif attack_phase == "reverse":
+		_phase_remaining = maxf(0, _phase_remaining - delta)
+		var next := _reverse_from.lerp(home_position, 1.0 - _phase_remaining / EnemyAttacks.CAR_REVERSE_TIME)
+		_stepped += _flat_distance(next, global_position)
+		global_position = next
+		if _phase_remaining <= 0:
+			global_position = home_position
+			attack_phase = "idle"
+		_update_attack_visual()
+	elif attack_phase == "incite":
+		_incite_left -= delta
+		var to_her := game.player.global_position - global_position
+		to_her.y = 0.0
+		if to_her.length_squared() > 0.0001: _face(to_her.normalized(), delta)
+		game.add_debt(float(attack_profile.incite) * minf(delta, _incite_left + delta))
+		if _incite_left <= 0.0: _end_incite()
 		_update_attack_visual()
 
 func _resolve_attack() -> void:
@@ -780,7 +964,9 @@ func _resolve_attack() -> void:
 			# Cover between the shoulder and muzzle must also stop a shot.
 			if game.line_of_sight(global_position, _muzzle):
 				var shot := game.launch_enemy_projectile(_muzzle, _muzzle + forward, _pending_damage, str(attack_profile.projectile), float(attack_profile.reach))
-				if shot != null: shot.shooter = self
+				if shot != null:
+					shot.shooter = self
+					if attack_profile.get("reckoning_arts", false) and shot_kind() == "arts": shot.make_arts()
 			else:
 				EnemyAttackVfx.spawn(game, global_position, forward, "wood")
 		if art_type == "ice_hunter":
@@ -832,7 +1018,13 @@ func _resolve_attack() -> void:
 			var thrust := EnemyAttackVfx.spawn(game, global_position + Vector3.UP * 0.2, attack_direction, "thrust", float(attack_profile.reach) - float(attack_profile.dash))
 			thrust.owner_enemy = self
 
+## What its shots deal: 家族弩手's bolts are arts in the 清算时刻 (§三第 3 条).
+func shot_kind() -> String:
+	if attack_profile.get("reckoning_arts", false) and game.reckoning(): return "arts"
+	return damage_kind
+
 func threatens(point: Vector3) -> bool:
+	if attack_phase in ["incite", "reverse"]: return false
 	if _special == "lasso" or str(attack_profile.shape) == "charge":
 		var lane := point - attack_origin
 		lane.y = 0
@@ -863,6 +1055,7 @@ func _telegraph_vfx(stunning: bool) -> void:
 		"breacher": EnemyAttackVfx.spawn(game, ground, attack_direction, "ground_shock_big" if stunning else "ground_shock", pending_warning_radius)
 		"caster": EnemyAttackVfx.spawn(game, ground, attack_direction, "crystal_spikes", pending_warning_radius)
 		"distorted_caster": EnemyAttackVfx.spawn(game, ground, attack_direction, "rune", pending_warning_radius)
+		"family_capo": EnemyAttackVfx.spawn(game, ground, attack_direction, "ember_ring", pending_warning_radius)
 		"shattered_champion": EnemyAttackVfx.spawn(game, ground + Vector3.UP * 0.2, attack_direction if _combo_index % 2 == 0 else -attack_direction, "splinter_arc", pending_warning_radius)
 		"avenger":
 			if warn_shape == "lane": EnemyAttackVfx.spawn(game, attack_origin + Vector3.UP * 0.2, attack_direction, "slash_line", warn_length)
@@ -990,6 +1183,9 @@ func _update_attack_visual() -> void:
 	# The sixth row: 纠察官's lasso throw, 歪曲施法者's glide.
 	var extra: String = EnemyN2Data.EXTRA_ROW.get(sheet_type, "")
 	if extra == "lasso" and _special == "lasso" and attack_phase == "windup": pose_frame = 5
+	if extra == "incite" and attack_phase == "incite": pose_frame = 5
+	# 近身一掌 has no frames of its own: START to wind up, RECOVER for the backhand.
+	if close_strike and attack_phase != "idle": pose_frame = 1 if attack_phase == "windup" else 4
 	var gliding := extra == "glide" and attack_phase == "idle" and walking and gliding_now()
 	if gliding: pose_frame = 5
 	# 萨卡兹哨兵 (N3 board): START for its startle, CHARGE / STRIKE alternating
@@ -999,7 +1195,7 @@ func _update_attack_visual() -> void:
 		if sentinel_mode == "run" and _run_time < ThreatMeter.SENTINEL_STARTLE: pose_frame = 1
 		elif sentinel_mode == "hold": pose_frame = 4 if _hold_left < SIGNAL_RECOVER else 2 + int(_hold_left / SIGNAL_BEAT) % 2
 	var walk_frame := posmod(int(walk_distance * WALK_FRAMES_PER_UNIT), 4)
-	if has_walk and walking and attack_phase == "idle" and not gliding: _sprite.texture = FieldArt.enemy_walk_pose(sheet_type, dir_column, walk_frame)
+	if has_walk and walking and attack_phase in ["idle", "reverse"] and not gliding: _sprite.texture = FieldArt.enemy_walk_pose(sheet_type, dir_column, walk_frame)
 	elif directional: _sprite.texture = FieldArt.enemy_dir_pose(sheet_type, dir_column, pose_frame)
 	else: _sprite.texture = FieldArt.enemy_pose(int(EnemyAttacks.PROFILES[art_type].row), pose_frame)
 	_sprite.position.y = _art_base_y
@@ -1046,7 +1242,23 @@ func _update_attack_visual() -> void:
 			_glint.material_override.albedo_color = Color("ffd875")
 		_glint.global_position = global_position + Vector3.DOWN * 0.55 + right * tip.x * facing * PIXEL - up * tip.y * PIXEL
 	_breath.global_position = global_position + Vector3.DOWN * 0.55 + right * facing * 0.55 + up * 1.15
+	_sync_headlights(dir_tip, right, up)
 	_sync_outline()
+
+## 家族专用轿车's two round lamps (§三第 7 条: START 车头灯亮), a 3×3 white dot
+## each on the painted bumper, lit from its windup until it is back in its slot.
+## Not drawn when the nose faces away from the camera.
+func _sync_headlights(tip: Vector2, right: Vector3, up: Vector3) -> void:
+	if _headlights.is_empty(): return
+	var lit := attack_phase != "idle" and not dir_column in [3, 4, 5]
+	var apart: float = [3.0, 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5][dir_column]
+	for i in range(_headlights.size()):
+		var lamp := _headlights[i]
+		lamp.visible = lit and (i == 0 or apart > 0.0)
+		lamp.global_position = global_position + Vector3.DOWN * 0.55 + right * (tip.x + apart * (1.0 if i == 0 else -1.0)) * PIXEL - up * tip.y * PIXEL
+
+func headlights_on() -> bool:
+	return _headlights.any(func(lamp): return lamp.visible)
 
 ## The light ring round the body while an unstoppable attack winds up.
 func _sync_outline() -> void:
@@ -1075,7 +1287,11 @@ func _sync_outline() -> void:
 ## defence (破甲刃纹, 致命瞄点). `quiet` hides the number (burn ticks too small
 ## to read would only add noise).
 func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: float = 0.0, quiet: bool = false) -> float:
+	if attack_profile.get("stealth", false): _revealed = STEALTH_HOLD
 	if _dead: return 0.0
+	if attack_phase == "incite":
+		_incite_hits += 1
+		if _incite_hits >= EnemyAttacks.INCITE_BREAK_HITS: _end_incite()
 	if attack_profile.has("front_guard") and is_instance_valid(game) and is_instance_valid(game.player) and _facing_point(game.player.global_position):
 		damage *= 1.0 - float(attack_profile.front_guard)
 	var dealt := CombatStats.mitigate(damage, kind, effective_defense() * (1.0 - clampf(pierce, 0.0, 1.0)), effective_res())
@@ -1151,6 +1367,7 @@ func apply_status(status: String, seconds: float, value: float) -> void:
 ## an attack that is 不可打断 (用户 2026-10-11).
 func interrupt(seconds: float, include_elites: bool = false) -> void:
 	if _dead or unstoppable_now(): return
+	_end_incite()
 	if elite and not include_elites: return
 	if attack_phase == "windup": _cancel_attack()
 	_attack_timer = maxf(_attack_timer, seconds)
@@ -1173,11 +1390,14 @@ func _stuns_this_attack() -> bool:
 func stun(seconds: float) -> void:
 	if _dead or unstoppable_now(): return
 	stun_timer = maxf(stun_timer, seconds * (0.5 if boss else 1.0))
+	_end_incite()
 	if attack_phase == "windup": _cancel_attack()
 
 ## Shoved `distance` along `direction` (bosses only a little).
 func push(direction: Vector3, distance: float) -> void:
 	if _dead or not is_instance_valid(game) or not is_instance_valid(game.world_map): return
+	# The car is not pushed out of its slot (§三第 7.1 节第 7 条).
+	if attack_profile.get("roadblock", false): return
 	var left := distance * (0.3 if boss or unstoppable_now() else 1.0)
 	direction.y = 0
 	if direction.length_squared() < 0.0001: return
@@ -1190,6 +1410,7 @@ func push(direction: Vector3, distance: float) -> void:
 ## 精神摧毁: its special abilities stop working for `seconds`.
 func silence(seconds: float) -> void:
 	silence_timer = maxf(silence_timer, seconds)
+	_end_incite()
 	if is_instance_valid(_sprite): _sprite.modulate = _rest_tint()
 
 func silenced() -> bool:
@@ -1210,6 +1431,7 @@ const CHARGE_SPEED := 14.0
 
 func _tick_specials(delta: float) -> void:
 	_lasso_cd = maxf(0.0, _lasso_cd - delta)
+	if attack_phase != "incite": _incite_cd = maxf(0.0, _incite_cd - delta)
 	_backstep_cd = maxf(0.0, _backstep_cd - delta)
 	_run_timer = maxf(0.0, _run_timer - delta)
 	_since_attack += delta
@@ -1251,6 +1473,9 @@ func current_speed() -> float:
 ## when one started (or moved it) this tick.
 func _try_special(distance: float, visible_player: bool) -> bool:
 	if silenced() or not visible_player: return false
+	if attack_profile.has("incite") and patrol_wave == 0 and _incite_cd <= 0.0 and _attack_timer <= 0.0 and distance <= float(attack_profile.reach):
+		_begin_incite()
+		return true
 	if attack_profile.has("lasso") and _lasso_cd <= 0.0 and distance > 5.0 and distance < 9.0 and _attack_timer <= 0.0:
 		_lasso_cd = 7.0
 		preparing_attack = true
@@ -1276,6 +1501,27 @@ func _try_special(distance: float, visible_player: bool) -> bool:
 		push(away.normalized() if away.length_squared() > 0.001 else Vector3.BACK, 2.5)
 		return true
 	return false
+
+## 煽动 (§三第 4 条): it stops, one hand up and one at her, and the 血债 rises
+## while it lasts; a dark red ring over its head says to hit it first.
+func _begin_incite() -> void:
+	attack_phase = "incite"
+	_special = "incite"
+	preparing_attack = false
+	_incite_left = EnemyAttacks.INCITE_TIME
+	_incite_hits = 0
+	_incite_cd = EnemyAttacks.INCITE_TIME + EnemyAttacks.INCITE_COOLDOWN
+	_update_attack_visual()
+
+func _end_incite() -> void:
+	if attack_phase != "incite": return
+	_cancel_attack()
+	_special = ""
+	_incite_cd = EnemyAttacks.INCITE_COOLDOWN
+	_attack_timer = maxf(_attack_timer, 0.6)
+
+func inciting() -> bool:
+	return attack_phase == "incite"
 
 func _resolve_lasso() -> void:
 	preparing_attack = false

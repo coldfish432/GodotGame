@@ -81,10 +81,13 @@ func run() -> void:
 		elif drops[0].has("gold"): counts.gold += 1
 		elif drops[0].item.is_stackable(): counts.mat += 1
 		else: counts.gear += 1
-	# 用户 2026-10-14: 敌人掉落普通装备概率增加 (8% → 16%).
-	check("normal kills: ~12% nothing, ~54% material, ~18% gold, ~16% gear",
-		absf(counts.none / float(n) - 0.12) < 0.03 and absf(counts.mat / float(n) - 0.54) < 0.04
-		and absf(counts.gold / float(n) - 0.18) < 0.03 and absf(counts.gear / float(n) - 0.16) < 0.025, counts)
+	# 用户 2026-10-17: 爆率降低 — a normal enemy drops something about 37% of the time.
+	var w: Array = LootTables.ENEMY_SOURCE.normal.weights
+	var total: float = w.reduce(func(a, b): return a + b, 0.0)
+	check("normal kills follow the table: ~63% nothing, ~23% material, ~8% gold, ~7% gear",
+		# The odd 技巧概要 (3%) or exclusive (0.5%) comes on top of the table.
+		absf(counts.none / float(n) - w[0] / total * 0.965) < 0.03 and absf(counts.mat / float(n) - w[1] / total - 0.02) < 0.03
+		and absf(counts.gold / float(n) - w[2] / total) < 0.02 and absf(counts.gear / float(n) - w[3] / total) < 0.02, counts)
 	var potions := 0
 	for i in range(3000):
 		potions += LootTables.enemy_drops("thug", false, false, c).filter(func(d): return d.has("item") and d.item.is_potion()).size()
@@ -95,33 +98,43 @@ func run() -> void:
 			# Its own exclusive (蜕下的虫壳, 装备扩充 §5.1) is the one exception.
 			if item.is_equippable() and item.named_kind() != "exclusive": slug_gear = true
 	check("infected slugs never drop gear but their exclusive", not slug_gear)
-	var guard_empty := false
-	for i in range(300):
-		if LootTables.enemy_drops("thug", false, true, c).is_empty(): guard_empty = true
-	check("guards always drop something", not guard_empty)
+	var guard_empty := 0
+	for i in range(1000):
+		if LootTables.enemy_drops("thug", false, true, c).is_empty(): guard_empty += 1
+	# 62.5% from the table, a little more with chips, books and exclusives.
+	check("guards drop something about 2/3 of the time", 1.0 - guard_empty / 1000.0 > 0.6 and 1.0 - guard_empty / 1000.0 < 0.73)
 
-	# Elites: three picks plus the guaranteed 固源岩组.
-	var elite_ok := true
-	c = ctx("city", 2, 13)
-	for i in range(200):
-		var drops := LootTables.enemy_drops("elite", true, false, c)
-		if drops.size() < 4 or not items_of(drops).any(func(x): return x.material_id == "固源岩组"): elite_ok = false
-	check("elites drop at least 4 things including 固源岩组", elite_ok)
+	# 用户 2026-10-17: 一个敌人最多爆一个材料 + 一件装备，材料只会 ×1 — elites,
+	# guards, normal enemies and bosses alike (赤金 and flasks apart).
+	var capped := true
+	var elite_mat := true
+	for kind in [["elite", true, false, false], ["thug", false, true, false], ["thug", false, false, false], ["breacher", true, false, true]]:
+		c = ctx("city", 6, 13)
+		c.boss = kind[3]
+		for i in range(300):
+			var items := items_of(LootTables.enemy_drops(kind[0], kind[1], kind[2], c)).filter(func(x): return not x.is_potion())
+			var mats := items.filter(func(x): return not x.is_equippable())
+			var gear := items.filter(func(x): return x.is_equippable())
+			if mats.size() > 1 or gear.size() > 1 or mats.any(func(x): return x.quantity != 1): capped = false
+			if kind[0] == "elite" and mats.size() != 1: elite_mat = false
+	check("an enemy drops at most one material ×1 and one piece of gear", capped)
+	check("an elite always drops one material (its 固源岩组 at least)", elite_mat)
 
 	# Weapons are named after what the enemy carries.
 	var named := true
 	c = ctx("snow", 1, 14)
 	for i in range(800):
 		for item in items_of(LootTables.enemy_drops("ice_hunter", false, false, c)):
-			if item.category == Item.Category.WEAPON and item.special.is_empty() and item.item_name != "猎刀": named = false
-	check("ice hunters drop 猎刀", named)
+			if item.category == Item.Category.WEAPON and item.special.is_empty() and item.item_name != "冰原猎铳": named = false
+	check("ice hunters drop 冰原猎铳", named)
 
 	# Quality distribution for equipment boxes: 50 / 38 / 12.
 	var q := [0, 0, 0]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 15
 	for i in range(5000): q[LootTables.roll_quality("box", 0.0, rng)] += 1
-	check("box quality ≈ 50/38/12", absf(q[0] / 5000.0 - 0.5) < 0.03 and absf(q[2] / 5000.0 - 0.12) < 0.02, q)
+	# 稀有概率 ÷10 (用户 2026-10-18): 12% rare → 1.2%, common and fine keep their 50:38.
+	check("box quality ≈ 56.1/42.7/1.2", absf(q[0] / 5000.0 - 0.561) < 0.03 and absf(q[2] / 5000.0 - 0.012) < 0.006, q)
 	var vault_common := 0
 	for i in range(1000): if LootTables.roll_quality("vault", 0.0, rng) == 0: vault_common += 1
 	check("vault chests never roll common", vault_common == 0)
@@ -135,6 +148,75 @@ func run() -> void:
 		for mod in LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 4, 2, rng).modifiers:
 			max_tier_deep = maxi(max_tier_deep, mod.tier)
 	check("tier Ⅲ only from segment 3", max_tier_shallow <= 1 and max_tier_deep == 2, [max_tier_shallow, max_tier_deep])
+
+	# 掉落阶梯 (用户 2026-10-18): deeper floors drop better gear and materials.
+	var stairs := []
+	for f in range(1, 121): stairs.append(LootTables.stair(f))
+	var climbs := true
+	for f in range(1, stairs.size()): climbs = climbs and stairs[f] >= stairs[f - 1]
+	check("the stair never steps down with depth (floor 11 above floor 10)", climbs and LootTables.stair(11) > LootTables.stair(10), stairs)
+	check("steps at floors 1–3, 4–6, 7–9, 10; deep full from floor 40, the top from floor 90", LootTables.stair(3) == 0 and LootTables.stair(4) == 1 and LootTables.stair(7) == 2
+		and LootTables.stair(10) == 3 and LootTables.stair(21) == 8 and LootTables.stair(40) == 15 and LootTables.deep(40) == 1.0 and LootTables.deep(90) == 1.0
+		and LootTables.stair(90) == LootTables.STAIR_TOP and LootTables.stair(91) == LootTables.STAIR_TOP and LootTables.stair(300) == LootTables.STAIR_TOP)
+	var rare_share := func(depth: int, table: String) -> float:
+		var r := RandomNumberGenerator.new()
+		r.seed = 31
+		var hits := 0
+		for i in range(40000): if LootTables.roll_quality(table, 0.0, r, depth) == 2: hits += 1
+		return hits / 40000.0
+	var shallow_rare: float = rare_share.call(1, "normal")
+	var mid_rare: float = rare_share.call(15, "normal")
+	var deep_rare: float = rare_share.call(40, "normal")
+	# 用户 2026-10-18: 以普通敌人装备稀有 5% 为顶 — 2.5% on floor 40, 5% from floor 90.
+	var top_rare: float = rare_share.call(90, "normal")
+	var mid_top: float = rare_share.call(65, "normal")
+	check("a normal enemy's gear is rare ~0.5% on floor 1, ~2.5% on floor 40, 5% from floor 90 on", absf(shallow_rare - 0.005) < 0.0015 and absf(deep_rare - 0.0247) < 0.004
+		and mid_rare > shallow_rare and mid_rare < deep_rare and mid_top > deep_rare and mid_top < top_rare and absf(top_rare - 0.05) < 0.005
+		and absf(rare_share.call(150, "normal") - top_rare) < 0.005, [shallow_rare, mid_rare, deep_rare, mid_top, top_rare])
+	check("an elite's gear is rare ~2.5% on floor 1, ~5.3% on 40, ~7.8% from 90", absf(rare_share.call(1, "elite") - 0.025) < 0.004 and absf(rare_share.call(40, "elite") - 0.0535) < 0.006 and absf(rare_share.call(90, "elite") - 0.0777) < 0.008)
+	# Past the top, good prefixes get likelier floor by floor.
+	var good_share := func(depth: int) -> float:
+		var g := LootTables.past_top(depth)
+		var good := PrefixCatalog.grade_weight(1, g) + PrefixCatalog.grade_weight(2, g)
+		var all_w := 0.0
+		for grade in PrefixCatalog.GRADE_WEIGHTS: all_w += PrefixCatalog.grade_weight(grade, g)
+		return good / all_w
+	check("good prefixes (+1/+2) stay at 35% down to floor 90", is_equal_approx(good_share.call(1), 0.35) and is_equal_approx(good_share.call(90), 0.35))
+	check("then rise floor by floor: 91 > 90, 130 > 91, 250 > 130", good_share.call(91) > good_share.call(90) and good_share.call(130) > good_share.call(91) and good_share.call(250) > good_share.call(130),
+		[good_share.call(91), good_share.call(130), good_share.call(250)])
+	var rolled_good := func(depth: int) -> float:
+		var r := RandomNumberGenerator.new()
+		r.seed = 34
+		var good := 0
+		var seen_n := 0
+		for i in range(3000):
+			for entry in LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", depth, 1, r).prefixes:
+				seen_n += 1
+				if int(PrefixCatalog.get_entry(str(entry.id)).grade) >= 1: good += 1
+		return good / float(maxi(seen_n, 1))
+	var g90: float = rolled_good.call(90)
+	var g130: float = rolled_good.call(130)
+	check("dropped gear shows it: good prefixes ~35% on floor 90, ~55% on floor 130", absf(g90 - 0.35) < 0.04 and absf(g130 - 0.545) < 0.05, [g90, g130])
+	var mat_rare := func(depth: int) -> float:
+		var cm := ctx("city", depth, 32)
+		var hits := 0
+		for i in range(30000):
+			cm.pity = {}
+			var m := LootTables._enemy_material("thug", cm)
+			if m.material_id == "全新装置": hits += 1
+		return hits / 30000.0
+	var m1: float = mat_rare.call(1)
+	var m40: float = mat_rare.call(40)
+	check("an enemy's rare material: ~0.3% on floor 1, ~2% from floor 40", absf(m1 - 0.003) < 0.0015 and absf(m40 - 0.0205) < 0.004, [m1, m40])
+	var finds := func(depth: int) -> int:
+		var cb := ctx("mine", depth, 33)
+		var found := 0
+		for i in range(20000):
+			for d in LootTables.container_drops("ore_vein", cb): if d.has("item") and d.item.material_id == "源石碎片": found += 1
+		return found
+	var f1: int = finds.call(1)
+	var f40: int = finds.call(40)
+	check("an ore vein's 源石碎片: ~0.3% on floor 1, ~0.9% from floor 40", absf(f1 / 20000.0 - 0.003) < 0.0015 and absf(f40 / 20000.0 - 0.009) < 0.003, [f1, f40])
 
 	# Points of interest.
 	var box_ok := true
@@ -190,12 +272,14 @@ func run() -> void:
 	c = ctx("city", 1, 17, pity)
 	c.rng.seed = 17
 	var rose := false
-	for i in range(30):
+	var reset := false
+	for i in range(3000):
 		var rarity := LootTables._quality_with_pity("box", c, 0.0, true)
 		if rarity < 2 and pity.rare_gear > 0.0: rose = true
 		if rarity == 2:
-			check("rare gear resets the pity counter", pity.rare_gear == 0.0)
+			reset = pity.rare_gear == 0.0
 			break
+	check("rare gear resets the pity counter", reset)
 	check("pity rises after non-rare effective drops", rose)
 	pity.rare_gear = 5.0
 	LootTables._quality_with_pity("box", c, 0.0, true)
@@ -239,11 +323,19 @@ func run() -> void:
 	var state := box.search_state()
 	check("the contents are searched one item at a time (%d to find)" % int(state.get("total", 0)), not state.is_empty() and int(state.found) == 0 and box.storage.items.is_empty() and box.is_searching())
 	var first_cell := box.search_cell()
+	# 用户 2026-10-17: every item still to find shows as the outline of its cells.
+	var outlines := box.pending_rects()
+	var placed_pending: Array = box._pending.filter(func(it): return it.grid_x >= 0)
+	check("before anything is found, each item's cells are outlined", outlines.size() == placed_pending.size() and outlines.size() > 0
+		and placed_pending.all(func(it): return outlines.has(Rect2i(it.grid_x, it.grid_y, it.width, it.height))), [outlines.size(), placed_pending.size()])
 	check("the magnifier sits on the top-left item's cell", first_cell == box._pending.map(func(it): return Vector2i(it.grid_x, it.grid_y)).filter(func(v): return v.x >= 0).reduce(func(a, v): return v if v.y < a.y or (v.y == a.y and v.x < a.x) else a))
 	for i in range(900):
 		await step(1)
 		if not box.storage.items.is_empty(): break
 	check("the first item turns up in that cell of the box's grid, not on the ground", box.storage.items.size() == 1 and on_ground.call() == 0 and Vector2i(box.storage.items[0].grid_x, box.storage.items[0].grid_y) == first_cell)
+	var got: Item = box.storage.items[0]
+	var got_rect := Rect2i(got.grid_x, got.grid_y, got.width, got.height)
+	check("it fills its outline exactly, and that outline is gone", outlines.has(got_rect) and not box.pending_rects().has(got_rect) and box.pending_rects().size() == outlines.size() - 1)
 	for i in range(3000):
 		await step(1)
 		if box.fully_searched(): break
@@ -285,6 +377,25 @@ func run() -> void:
 	game.player.global_position = heap.global_position + Vector3(-9.0, 0, 0)
 	await step(2)
 	check("a box she can use wears a yellow rim while she is near it", rim_near and not heap._rim_on)
+
+	# 用户 2026-10-18: 兴趣点里刷的材料不堆叠，一个最多一个，可以重复.
+	var singles := true
+	var repeats := false
+	var cs := ctx("city", 12, 41)
+	for kind in ["construction", "depot", "camp", "tool_box", "electronics", "medical", "ore_vein", "vault_base", "safe"]:
+		for i in range(200):
+			var ids := {}
+			for d in LootTables.container_drops(kind, cs):
+				if d.has("gold"):
+					if not d.get("single", false): singles = false
+					continue
+				if d.item.category != Item.Category.MATERIAL or d.item.is_potion(): continue
+				if d.item.quantity != 1: singles = false
+				if ids.has(d.item.material_id): repeats = true
+				ids[d.item.material_id] = true
+	check("every material from a point of interest is a single one", singles)
+	check("the same material can turn up twice in one point of interest", repeats)
+	check("a safe's 赤金 is a single bar", game._drop_item({"gold": 600, "single": true}).quantity == 1)
 
 	# Enemy deaths use the enemy's table.
 	game._clear_field()

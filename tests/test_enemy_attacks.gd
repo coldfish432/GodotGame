@@ -50,6 +50,8 @@ func run() -> void:
 	game.save_enabled = false
 	game.fixed_map_seed = 1729
 	root.add_child(game)
+	# A vault on every floor here: the vault checks need one (密室与陷阱修订案 §2.1).
+	game.world_map.force_vault = 1
 	await step(10)
 	origin = ContinuousWorldMap.ENTRY_POSITION
 	origin.y = 0.65
@@ -262,8 +264,10 @@ func run() -> void:
 		e.begin_return()
 		await step()
 		check(region + " elite return removes warning", markers().is_empty())
+		game.force_vault_guard = 1
 		game._open_vault()
-		check(region + " vault retains one elite guardian", game._vault_guardians.size() == 1 and game._vault_guardians[0].elite)
+		game.force_vault_guard = -1
+		check(region + " vault's guard is led by one elite", game._vault_guardians.filter(func(e): return e.elite).size() == 1)
 
 	var image := FieldArt.ENEMY_ATTACKS.get_image()
 	var aligned := image.get_size() == Vector2i(320, 448)

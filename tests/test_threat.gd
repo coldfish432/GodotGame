@@ -192,7 +192,7 @@ func _sentinels() -> void:
 	game.player.teleport(beside(post))
 	await step(3)
 	check("seeing her puts up its ! and it runs", post.alerted() and post.sentinel_mode == "run" and post._run_target.distance_to(start) >= ThreatMeter.SENTINEL_RUN_MIN * 0.6)
-	check("PRTS logs the alarm", game.prts_log.any(func(l): return "警报" in str(l)))
+	check("PRTS logs the alarm", game.prts_log.any(func(l): return "萨卡兹哨兵发现了博士的踪迹" in str(l)))
 	var rid := game.world_map.navigation_map_rid()
 	var goal := NavigationServer3D.map_get_closest_point(rid, post._run_target)
 	var path := NavigationServer3D.map_get_path(rid, NavigationServer3D.map_get_closest_point(rid, start), goal, true)

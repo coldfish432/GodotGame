@@ -28,7 +28,7 @@ const TRADER := Color("e6c25a")     # 坎诺特
 const TIER := [Color("9a9a9a"), Color("16a2e8"), Color("ffc400")]
 const SPECIAL := Color("c48cff")
 ## Region codes on the floor plate (LG-04).
-const REGION_CODE := {"mine": "CH", "city": "LG", "snow": "SM"}
+const REGION_CODE := {"mine": "CH", "city": "LG", "snow": "SM", "siracusa": "SR"}
 
 static var _cn: SystemFont
 static var _en: SystemFont

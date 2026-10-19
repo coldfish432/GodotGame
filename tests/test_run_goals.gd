@@ -22,6 +22,8 @@ func run() -> void:
 	game.save_enabled = false
 	game.fixed_map_seed = 4242
 	root.add_child(game)
+	# A vault on every floor here: the vault checks need one (密室与陷阱修订案 §2.1).
+	game.world_map.force_vault = 1
 	await step(8)
 	await _outpost()
 	await _offers()
@@ -108,7 +110,7 @@ func _deep() -> void:
 	check("no contract runs at the base", game.contract.is_empty())
 
 func _search_and_recover() -> void:
-	game._pending_contract = {"type": "search", "vaults": 2}
+	game._pending_contract = {"type": "search", "vaults": 2}  # cards ask for 1 now; 2 checks the count
 	await game.start_contract("city")
 	await step(2)
 	game._open_vault()

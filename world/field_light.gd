@@ -18,11 +18,24 @@ const WHITE := preload("res://art/kit/textures/white_1px.png")
 ## ambient, the glow around Lappland (colour, radius).
 const REGIONS := {
 	"mine": {"ambient": Color(0.72, 0.74, 0.86), "player": Color(0.45, 0.36, 0.22), "player_radius": 8.0},
-	"city": {"ambient": Color(0.96, 0.97, 1.02), "player": Color(0.25, 0.2, 0.12), "player_radius": 7.0},
+	# A darker night than it was (用户 2026-10-16: 龙门加霓虹灯), so the signs
+	# and their colours carry the street.
+	"city": {"ambient": Color(0.84, 0.86, 0.94), "player": Color(0.25, 0.2, 0.12), "player_radius": 7.0},
 	# Cold white-blue under an overcast sky; the warm fires are the reprieve
 	# (暗黑 IV 碎峰岭: frigid palette against warm settlements).
 	"snow": {"ambient": Color(0.8, 0.86, 1.0), "player": Color(0.28, 0.22, 0.14), "player_radius": 7.0, "snow": 1.0},
+	# 叙拉古 (叙拉古方案 §3.4): a cool blue-grey night, the warmth all in the
+	# wall lanterns and the windows; darker still in the rain.
+	"siracusa": {"ambient": Color(0.74, 0.78, 0.9), "player": Color(0.28, 0.21, 0.13), "player_radius": 7.0},
+	"siracusa_rain": {"ambient": Color(0.62, 0.68, 0.84), "player": Color(0.28, 0.21, 0.13), "player_radius": 7.0},
+	# 罗德岛基地 (基地建模改造案_v1): a lit ship interior, cool and even, the
+	# ceiling lamps adding pools; only a faint glow round the operator.
+	"rhodes": {"ambient": Color(0.92, 0.95, 1.0), "player": Color(0.12, 0.12, 0.12), "player_radius": 5.0},
 }
+
+## The light's key for a floor: its region, and Siracusa's weather.
+static func key(map: Node3D) -> String:
+	return str(map.region_id) + ("_rain" if str(map.get("weather")) == "rain" else "")
 
 var origin := Vector2.ZERO
 var columns := 0
@@ -40,7 +53,7 @@ func build(map: Node3D, lamp_list: Array[Dictionary]) -> void:
 	var size: Vector2 = (map.SPINE_MAX + Vector2(36, 36)) - origin
 	columns = ceili(size.x / CELL)
 	rows = ceili(size.y / CELL)
-	var ambient: Color = region(map.region_id).ambient
+	var ambient: Color = region(key(map)).ambient
 	var buffer := PackedFloat32Array()
 	buffer.resize(columns * rows * 3)
 	for i in range(columns * rows):
@@ -74,7 +87,45 @@ func build(map: Node3D, lamp_list: Array[Dictionary]) -> void:
 		bytes[i] = clampi(int(buffer[i] / LIGHT_SCALE * 255.0 + 0.5), 0, 255)
 	var image := Image.create_from_data(columns, rows, false, Image.FORMAT_RGB8, bytes)
 	texture = ImageTexture.create_from_image(image)
-	apply(map.region_id)
+	apply(key(map))
+
+## The same light over a fixed rectangle (the base, which has no terrain):
+## `rect` in world x/z, lamps as in build().
+func build_area(rect: Rect2, region_id: String, lamp_list: Array[Dictionary]) -> void:
+	lights = lamp_list
+	origin = rect.position
+	columns = ceili(rect.size.x / CELL)
+	rows = ceili(rect.size.y / CELL)
+	var ambient: Color = region(region_id).ambient
+	var buffer := PackedFloat32Array()
+	buffer.resize(columns * rows * 3)
+	for i in range(columns * rows):
+		buffer[i * 3] = ambient.r
+		buffer[i * 3 + 1] = ambient.g
+		buffer[i * 3 + 2] = ambient.b
+	for lamp in lights:
+		var at: Vector3 = lamp.at
+		var colour: Color = lamp.color
+		var radius: float = lamp.radius
+		var cx := int((at.x - origin.x) / CELL)
+		var cz := int((at.z - origin.y) / CELL)
+		var span := ceili(radius / CELL)
+		for z in range(maxi(0, cz - span), mini(rows, cz + span + 1)):
+			for x in range(maxi(0, cx - span), mini(columns, cx + span + 1)):
+				var p := origin + Vector2(x + 0.5, z + 0.5) * CELL
+				var d := p.distance_to(Vector2(at.x, at.z)) / radius
+				if d >= 1.0: continue
+				var reach := (1.0 - d * d) * (1.0 - d * d)
+				var i := (z * columns + x) * 3
+				buffer[i] += colour.r * reach
+				buffer[i + 1] += colour.g * reach
+				buffer[i + 2] += colour.b * reach
+	var bytes := PackedByteArray()
+	bytes.resize(buffer.size())
+	for i in range(buffer.size()):
+		bytes[i] = clampi(int(buffer[i] / LIGHT_SCALE * 255.0 + 0.5), 0, 255)
+	texture = ImageTexture.create_from_image(Image.create_from_data(columns, rows, false, Image.FORMAT_RGB8, bytes))
+	apply(region_id)
 
 ## Light at x/z (for tests), in the shader's units.
 func light_at(point: Vector2) -> Color:

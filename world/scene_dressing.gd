@@ -10,10 +10,13 @@ var solids := SurfaceTool.new()
 var stains := SurfaceTool.new()
 var occupied: Array[Vector3] = []
 var triangle_count := 0
+## The region whose look this floor takes (FieldCatalog.art_region).
+var region := ""
 var stain_count := 0
 
 func build(world: Node3D) -> void:
 	map = world
+	region = FieldCatalog.art_region(world.region_id)
 	rng.seed = map.seed_value ^ 935713
 	root = Node3D.new()
 	root.name = "SceneDressing"
@@ -25,14 +28,14 @@ func build(world: Node3D) -> void:
 	_dress_edges()
 	# Jittered cells place complete groups, with a surface clearance budget.
 	# No dependency on triangle order, unlike decorating every Nth edge.
-	var spacing := 15.0 if map.region_id == "snow" else 18.0
+	var spacing := 15.0 if region == "snow" else 18.0
 	for z in range(int(map.SPINE_MIN.y), int(map.SPINE_MAX.y), int(spacing)):
 		for x in range(int(map.SPINE_MIN.x), int(map.SPINE_MAX.x), int(spacing)):
 			var p := Vector2(x, z) + Vector2(rng.randf_range(-4, 4), rng.randf_range(-4, 4))
 			var depth: float = -map._surface.distance_near(p)
 			if depth < 12.0 or depth > 26.0 or rng.randf() < 0.12: continue
 			if not _reserve(p, 4.0): continue
-			match map.region_id:
+			match region:
 				"mine": _mine_group(p)
 				"city": _city_group(p)
 				"snow": _snow_group(p)
@@ -44,7 +47,7 @@ func build(world: Node3D) -> void:
 			var p: Vector2 = center + Vector2.from_angle(TAU * attempt / 12.0) * (chamber.z + 4.8)
 			if not _reserve(p, 3.0): continue
 			_patch(p, Vector2(3.4, 2.5), _stain_color())
-			match map.region_id:
+			match region:
 				"mine":
 					_prop(p, 2, 3.8, true)
 				"city":
@@ -62,14 +65,14 @@ func build(world: Node3D) -> void:
 		var r: float = pillar.z * rng.randf_range(0.75, 0.95)
 		# In the city the pillar is a square block (ContinuousWorldMap._pillar_distance):
 		# a broken concrete plinth with a smaller slab tipped on top.
-		if map.region_id == "city" and i < map._pillar_shapes.size():
+		if region == "city" and i < map._pillar_shapes.size():
 			var angle := snappedf(map._pillar_shapes[i][1], PI * 0.5)
 			var foot := Vector2(pillar.z * stretch, pillar.z) * 1.6
 			_block(p, Vector3(foot.x, rng.randf_range(1.0, 1.5), foot.y), Color("8d969f"), angle)
 			var slab := p + Vector2(rng.randf_range(-0.2, 0.2) * foot.x, rng.randf_range(-0.2, 0.2) * foot.y).rotated(angle)
 			_block(slab, Vector3(foot.x * 0.55, rng.randf_range(1.6, 2.2), foot.y * 0.6), Color("7f8790"), angle + rng.randf_range(-0.12, 0.12))
 			continue
-		_rock(p, Vector3(r * stretch, 1.1 + r * 0.25, r), Color("8d969f") if map.region_id == "city" else Color("8e887d"))
+		_rock(p, Vector3(r * stretch, 1.1 + r * 0.25, r), Color("8d969f") if region == "city" else Color("8e887d"))
 	_finish_meshes()
 	root.set_meta("composition_count", occupied.size())
 
@@ -88,7 +91,7 @@ func _dress_corridors() -> void:
 				for extra in [4.5, 6.0, 8.0, 10.0, 12.0]:
 					var p: Vector2 = along + across * side * (segment[4] + extra)
 					if not _reserve(p, 4.0): continue
-					match map.region_id:
+					match region:
 						"mine": _mine_group(p)
 						"city": _city_group(p)
 						"snow": _snow_group(p)
@@ -111,7 +114,7 @@ func _dress_edges() -> void:
 			if depth < 1.9 or depth > 3.6 or rng.randf() < 0.22: continue
 			if not _reserve(p, 0.8): continue
 			_patch(p, Vector2(1.6, 1.2), _stain_color())
-			match map.region_id:
+			match region:
 				"mine": _rock(p, Vector3(2.5, rng.randf_range(0.8, 1.6), 2.1), Color("a39d94"))
 				"city":
 					_prop(p, 0, 2.6, true)
@@ -134,20 +137,20 @@ func _prop(p: Vector2, kind: int, height: float, composition: bool = false) -> v
 	var toward_road := Vector2(map._surface.distance_at(p + Vector2(0.3, 0)) - map._surface.distance_at(p - Vector2(0.3, 0)), map._surface.distance_at(p + Vector2(0, 0.3)) - map._surface.distance_at(p - Vector2(0, 0.3))).normalized()
 	if toward_road.y > 0.25:
 		var limit := maxf(1.4, (depth - 1.0) * 1.05)
-		if height > limit and map.region_id == "city" and kind == (1 if composition else 0):
+		if height > limit and region == "city" and kind == (1 if composition else 0):
 			if not composition: return
 			kind = 0
 			height = minf(limit, 3.6)
-		if height > limit and map.region_id == "mine" and kind == 1:
+		if height > limit and region == "mine" and kind == 1:
 			if not composition: return
 			kind = 0
-		if height > limit and map.region_id == "snow" and ((composition and kind == 0) or (not composition and kind in [0, 1])):
+		if height > limit and region == "snow" and ((composition and kind == 0) or (not composition and kind in [0, 1])):
 			kind = 1 if composition else 2
 			height = minf(limit, 2.0)
 		else: height = minf(height, limit)
 	var anchor := Vector3(p.x, _height(p) + 0.035, p.y)
-	var sprite := FieldArt.scene_prop(root, map.region_id, kind, anchor, height, rng.randf() < 0.5) if composition else FieldArt.prop(root, map.region_id, kind, anchor, height, rng.randf() < 0.5)
-	sprite.modulate = Color("bdc3ce") if map.region_id == "snow" else Color("b6b8bb")
+	var sprite := FieldArt.scene_prop(root, region, kind, anchor, height, rng.randf() < 0.5) if composition else FieldArt.prop(root, region, kind, anchor, height, rng.randf() < 0.5)
+	sprite.modulate = Color("bdc3ce") if region == "snow" else Color("b6b8bb")
 	sprite.set_meta("ground_anchor", anchor)
 	sprite.set_meta("scene_role", kind + (10 if composition else 0))
 	_patch(p, Vector2(height * 0.34, height * 0.19), Color(0.06, 0.075, 0.085, 0.33))
@@ -183,16 +186,20 @@ func _scatter(p: Vector2, concrete: bool) -> void:
 		else: _rock(q, Vector3(size, size * 0.6, size * 0.8), Color("969087"))
 
 func _stain_color() -> Color:
-	match map.region_id:
+	match region:
 		"city": return Color(0.12, 0.15, 0.18, 0.40)
 		"snow": return Color(0.13, 0.19, 0.21, 0.27)
 		_: return Color(0.12, 0.095, 0.065, 0.38)
 
+## A stain multiplies the ground under it (white at the rim, `color` over its
+## alpha at the centre), so it can only darken: drawn unshaded over the night's
+## lit ground it would otherwise show as a pale disc (用户 2026-10-17: 白的是什么).
 func _patch(p: Vector2, radius: Vector2, color: Color) -> void:
+	var centre := Color.WHITE.lerp(Color(color, 1.0), color.a)
 	for i in range(12):
 		var a := p + Vector2.from_angle(TAU * i / 12.0) * radius
 		var b := p + Vector2.from_angle(TAU * (i + 1) / 12.0) * radius
-		for item in [[p, color], [a, Color(color, 0.0)], [b, Color(color, 0.0)]]:
+		for item in [[p, centre], [a, Color.WHITE], [b, Color.WHITE]]:
 			var q: Vector2 = item[0]
 			stains.set_color(item[1])
 			stains.set_normal(Vector3.UP)
@@ -243,8 +250,8 @@ func _finish_meshes() -> void:
 		var mesh := MeshInstance3D.new()
 		mesh.name = "RegionalStructures"
 		mesh.mesh = solids.commit()
-		var material := FieldArt.background_material(map.region_id)
-		material.set_shader_parameter("brightness", 1.5 if map.region_id != "snow" else 1.0)
+		var material := FieldArt.background_material(region)
+		material.set_shader_parameter("brightness", 1.5 if region != "snow" else 1.0)
 		material.set_shader_parameter("world_scale", 7.0)
 		mesh.material_override = material
 		root.add_child(mesh)
@@ -255,7 +262,7 @@ func _finish_meshes() -> void:
 		var material := StandardMaterial3D.new()
 		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		material.vertex_color_use_as_albedo = true
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.blend_mode = BaseMaterial3D.BLEND_MODE_MUL
 		material.cull_mode = BaseMaterial3D.CULL_DISABLED
 		mesh.material_override = material
 		root.add_child(mesh)

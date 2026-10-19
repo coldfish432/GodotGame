@@ -229,8 +229,6 @@ func _journal() -> void:
 		var block_start := (game.floor_number - 1) / FieldCatalog.CAMP_INTERVAL * FieldCatalog.CAMP_INTERVAL
 		var camp_at := block_start + FieldCatalog.CAMP_INTERVAL
 		_objective("到达" + game.camp_label(camp_at), game.floor_number - block_start, FieldCatalog.CAMP_INTERVAL, AK.GREEN)
-		var mechanisms: int = game.world_map.mechanism_nodes.size()
-		if mechanisms > 0: _objective("开启密室", mini(game._mechanisms_done.size(), mechanisms), mechanisms, AK.SP)
 		if game.is_extraction_floor(): _objective("撤离点", 1, 1, AK.GREEN)
 		_body.add_child(AK.section("订单"))
 	for entry in game.order_progress(): _body.add_child(_order_card(entry))

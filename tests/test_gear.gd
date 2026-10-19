@@ -32,13 +32,14 @@ func tiers_at(category: int, region: String, depth: int, source: String) -> Arra
 
 func run() -> void:
 	var B := GearCatalog.BASES
-	# 装备扩充策划案 §4.4: 39 + 63 + 3 polearms.
-	check("105 bases", B.size() == 105, B.size())
+	# 装备扩充策划案 §4.4: 39 + 63 + 3 polearms; §11 Siracusa 11 weapons; §10 Rhodes 9;
+	# §12 ranged and staves 5 per region.
+	check("145 bases", B.size() == 145, B.size())
 	for region in ["mine", "city", "snow"]:
 		var counts := [0, 0, 0]
 		for id in B:
 			if B[id].region == region: counts[int(B[id].category)] += 1
-		var want: Array = {"mine": [13, 10, 12], "city": [13, 10, 11], "snow": [13, 11, 12]}[region]
+		var want: Array = {"mine": [18, 10, 12], "city": [18, 10, 11], "snow": [18, 11, 12]}[region]
 		check("%s has %d weapons, %d armour, %d trinkets" % [region, want[0], want[1], want[2]], counts == want, counts)
 		for category in [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET]:
 			var tiers := []
@@ -50,8 +51,8 @@ func run() -> void:
 	var names := {}
 	for id in B: names[B[id].name] = true
 	check("base names are unique", names.size() == B.size())
-	check("weapons use only the forms Lappland can wield (blade / heavy / fist / polearm)",
-		B.values().all(func(b): return int(b.category) != Item.Category.WEAPON or str(b.form) in ["blade", "heavy", "fist", "polearm"]))
+	check("every weapon has a known form (§12)",
+		B.values().all(func(b): return int(b.category) != Item.Category.WEAPON or GearCatalog.FORMS.has(str(b.form))))
 
 	# Depth gating (§2.2).
 	check("segment 1 boxes: shallow only", tiers_at(Item.Category.ARMOR, "mine", 1, "box").max() == 0)
@@ -71,9 +72,9 @@ func run() -> void:
 	# Enemy weapons and elites (§2.3).
 	check("mine thugs carry 改装砍刀, city thugs 帮派砍刀", B[GearCatalog.pick(Item.Category.WEAPON, "mine", 1, "normal", "thug", rng)].name == "改装砍刀"
 		and B[GearCatalog.pick(Item.Category.WEAPON, "city", 1, "normal", "thug", rng)].name == "帮派砍刀")
-	check("crossbow leaders (city) carry the captured 制式短刀", B[GearCatalog.pick(Item.Category.WEAPON, "city", 1, "normal", "crossbow_leader", rng)].name == "制式短刀")
+	check("crossbow leaders (city) carry 组长连弩", B[GearCatalog.pick(Item.Category.WEAPON, "city", 1, "normal", "crossbow_leader", rng)].name == "组长连弩")
 	check("brawlers carry 指刃", B[GearCatalog.pick(Item.Category.WEAPON, "city", 1, "normal", "brawler", rng)].name == "指刃")
-	check("ice hunters carry 猎刀", B[GearCatalog.pick(Item.Category.WEAPON, "snow", 1, "normal", "ice_hunter", rng)].name == "猎刀")
+	check("ice hunters carry 冰原猎铳", B[GearCatalog.pick(Item.Category.WEAPON, "snow", 1, "normal", "ice_hunter", rng)].name == "冰原猎铳")
 	for region in ["mine", "city", "snow"]:
 		var id := GearCatalog.pick(Item.Category.WEAPON, region, 1, "elite", "elite", rng)
 		check("%s elites drop the deep weapon「%s」" % [region, B[id].name], int(B[id].tier) == 2 and B[id].region == region)
@@ -83,9 +84,9 @@ func run() -> void:
 	for i in range(600):
 		for item in gear_of(LootTables.enemy_drops("crossbow", false, false, c)):
 			count += 1
-			if item.category == Item.Category.WEAPON and item.item_name != "制式短刀": real_drops = false
+			if item.category == Item.Category.WEAPON and item.item_name != "整合运动手弩": real_drops = false
 			if item.base_id.is_empty(): real_drops = false
-	check("dropped gear carries a base id; crossbows drop 制式短刀", real_drops and count > 0, count)
+	check("dropped gear carries a base id; crossbows drop 整合运动手弩", real_drops and count > 0, count)
 	var seen := {}
 	c = ctx("snow", 7, 23)  # deep bases open at floor 7 (ten-floor rhythm)
 	for i in range(600):
@@ -126,6 +127,54 @@ func run() -> void:
 	var g := Item.from_data(generic.to_data())
 	check("an old generic 外勤战刃 from Lungmen becomes 近卫局警用刀", g.item_name == "近卫局警用刀" and g.base_id == "city_lgd_knife")
 	check("exclusives get no base", Item.from_data(FieldCatalog.exclusive("city").to_data()).base_id.is_empty())
+
+	# 叙拉古 weapons (§11): its own table for weapons only.
+	var sira := B.keys().filter(func(id): return B[id].region == "siracusa")
+	check("Siracusa has 16 bases, all weapons", sira.size() == 16 and sira.all(func(id): return int(B[id].category) == Item.Category.WEAPON), sira.size())
+	check("Siracusa weapons come from its own table", GearCatalog.eligible(Item.Category.WEAPON, "siracusa", 9, "normal").all(func(id): return B[id].region == "siracusa"))
+	var sira_armour := GearCatalog.eligible(Item.Category.ARMOR, "siracusa", 9, "normal")
+	check("Siracusa armour still comes from the other three", not sira_armour.is_empty() and sira_armour.all(func(id): return B[id].region in ["mine", "city", "snow"]))
+	var srng := RandomNumberGenerator.new()
+	srng.seed = 7
+	check("a family soldier carries the stiletto", GearCatalog.pick(Item.Category.WEAPON, "siracusa", 1, "normal", "family_soldier", srng) == "sira_stiletto")
+	check("a Siracusa elite drops a deep Siracusa weapon", int(B[GearCatalog.pick(Item.Category.WEAPON, "siracusa", 1, "elite", "family_eraser", srng)].tier) == 2)
+	check("each Siracusa tier is open", [0, 1, 2].all(func(t): return sira.any(func(id): return int(B[id].tier) == t)))
+
+	# 罗德岛制式装备 (§10): never dropped; a set per operator; 加工部 makes them.
+	var never := true
+	for region in ["mine", "city", "snow", "siracusa"]:
+		for category in [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET]:
+			for source in ["normal", "elite", "vault"]:
+				if GearCatalog.eligible(category, region, 30, source).any(func(id): return GearCatalog.is_rhodes(id)): never = false
+	check("Rhodes gear never drops", never)
+	var kit := GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD)
+	check("a kit is a weapon, an armour and a trinket", kit.map(func(i): return i.category) == [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET])
+	check("kit pieces are 精良 Rhodes bases", kit.all(func(i): return i.rarity == 1 and GearCatalog.is_rhodes(i.base_id)))
+	srng.seed = 7
+	var badge := GearCatalog.make_rhodes("rhodes_badge", srng)
+	srng.seed = 7
+	var plain_badge := LootTables.roll_equipment(Item.Category.TRINKET, "x", "city", GearCatalog.RHODES_DEPTH, 1, srng)
+	check("Rhodes gear is worth ×1.5 to a buyer", badge.value_base == roundi(plain_badge.value_base * 1.5), [badge.value_base, plain_badge.value_base])
+	check("every Rhodes base has a 加工部 recipe", Workshop.GEAR.size() == 9 and Workshop.GEAR.values().all(func(r): return GearCatalog.is_rhodes(str(r.base))))
+	check("recipes use known materials", Workshop.GEAR.values().all(func(r): return r["in"].keys().all(func(m): return MaterialCatalog.MATERIALS.has(m))))
+
+	# 远程与法杖 (§12): each region has 3 ranged and 2 staves; classes wield their own forms.
+	for region in ["mine", "city", "snow", "siracusa"]:
+		var ranged := B.keys().filter(func(id): return B[id].region == region and str(B[id].get("form", "")) in GearCatalog.RANGED_FORMS)
+		var staves := B.keys().filter(func(id): return B[id].region == region and str(B[id].get("form", "")) == "staff")
+		check("%s has 3 ranged weapons and 2 staves" % region, ranged.size() == 3 and staves.size() == 2, [ranged.size(), staves.size()])
+	check("a crossbowman carries his crossbow", GearCatalog.pick(Item.Category.WEAPON, "mine", 1, "normal", "crossbow", srng) == "mine_r1")
+	check("an ice hunter carries the hunting gun", GearCatalog.pick(Item.Category.WEAPON, "snow", 1, "normal", "ice_hunter", srng) == "snow_r2")
+	var gun := LootTables.roll_equipment(Item.Category.WEAPON, "冰原猎铳", "snow", 4, 1, srng)
+	var staff := LootTables.roll_equipment(Item.Category.WEAPON, "雪祀仪杖", "snow", 4, 1, srng)
+	var blade := LootTables.roll_equipment(Item.Category.WEAPON, "猎刀", "snow", 4, 1, srng)
+	check("a sniper wields a gun, not a blade or a staff", GearCatalog.can_wield("rosa", gun) and not GearCatalog.can_wield("rosa", blade) and not GearCatalog.can_wield("rosa", staff))
+	check("a caster wields a staff only", GearCatalog.can_wield("lin", staff) and not GearCatalog.can_wield("lin", gun) and not GearCatalog.can_wield("lin", blade))
+	check("a guard wields a blade, not a gun", GearCatalog.can_wield(Operators.LAPPLAND, blade) and not GearCatalog.can_wield(Operators.LAPPLAND, gun))
+	check("armour fits everyone", GearCatalog.can_wield("lin", kit[1]))
+	check("a sniper's kit carries the Rhodes crossbow", GearCatalog.rhodes_kit(srng, "rosa")[0].base_id == "rhodes_crossbow")
+	check("a caster's kit carries the Rhodes staff", GearCatalog.rhodes_kit(srng, "santalla")[0].base_id == "rhodes_staff")
+	check("a guard's kit carries a blade", GearCatalog.form_of(GearCatalog.rhodes_kit(srng, "hellagur")[0]) == "blade")
 
 	print("\n%d/%d checks passed" % [checks - failures, checks])
 	quit(1 if failures > 0 else 0)

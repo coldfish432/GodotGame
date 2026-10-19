@@ -65,14 +65,14 @@ func run() -> void:
 		for target in game.world_map.cache_positions:
 			targets.append(target)
 			kinds.append("cache")
-		# The vault and every mechanism too: a seed that walls off one mechanism
-		# makes the vault permanently unopenable, and one that walls off the
-		# vault wastes the whole errand. Neither crashes, so only this catches it.
-		targets.append(game.world_map.vault_position)
-		kinds.append("vault")
-		for target in game.world_map.mechanism_positions:
-			targets.append(target)
-			kinds.append("mechanism")
+		# The vault too, when there is one, once its wall is broken: one walled
+		# off for good wastes the errand of finding it. It does not crash, so
+		# only this catches it.
+		if game.world_map.has_vault:
+			game.world_map.vault_seal.open()
+			await step(3)
+			targets.append(game.world_map.vault_position)
+			kinds.append("vault")
 		for target in game.world_map.enemy_spawn_points:
 			targets.append(target)
 			kinds.append("spawn point")

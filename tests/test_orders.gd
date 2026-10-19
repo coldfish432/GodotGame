@@ -122,7 +122,7 @@ func through_game() -> void:
 	check("an item in her hands cannot be delivered", not game.deliver_to_order(0, crate_mat) and not game.sell(crate_mat))
 	game.base.return_hand()
 	await step(2)
-	check("board shows an order she can fill", game.warehouse_view.board_state() == "open" and game.warehouse_view._board.texture == game.warehouse_view.tex.board_open)
+	check("board shows an order she can fill", game.warehouse_view.board_state() == "open" and game.warehouse_view._board.get_meta("state") == "open")
 	var gold := game.gold
 	check("deliver from the shelf", game.deliver_to_order(0, shelf_mat) and game.base.location_of(shelf_mat) == "" and game.gold == gold)
 	check("deliver from the pack completes: (20 + 30) ×100 x 1.3 = 6500 龙门币, 5 prestige",
@@ -132,7 +132,8 @@ func through_game() -> void:
 	var sold := item("卖掉的饰品", Item.Category.TRINKET, 25)
 	game.inventory.try_add(sold)
 	gold = game.gold
-	check("plain delivery from the pack pays its value", game.sell(sold) and game.gold == gold + 2500 and not game.inventory.items.has(sold))
+	# Plain delivery is Rhodes Island's internal buy-back at 80% (势力与交易所策划案 §13).
+	check("plain delivery from the pack pays 80% of its value", game.sell(sold) and game.gold == gold + 2000 and not game.inventory.items.has(sold))
 
 	# Settlement: extraction prestige and refills.
 	game.player.unequip(Item.Category.WEAPON)

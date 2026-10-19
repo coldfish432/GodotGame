@@ -1,6 +1,7 @@
 """Collect every Chinese string the game can show, for i18n/en.json.
 
-Scans the game's .gd files (not tests) for string literals with CJK text,
+Scans the game's .gd files (not tests) for string literals with CJK text
+(lines marked "# i18n: skip" are data that is never shown),
 and the base room data (art/rhodes_runtime/room_*.json) for station names.
 Format templates are split at their placeholders (%s, %d, %.1f, %+d ...), so
 "合同开始：%s。" gives the key "合同开始：" — I18n translates displayed text
@@ -45,6 +46,8 @@ def main():
             for number, line in enumerate(open(path, encoding="utf-8"), 1):
                 code = line.lstrip()
                 if code.startswith("#"): continue
+                # Match tables that never reach the screen (MarketLinks keywords).
+                if "i18n: skip" in line: continue
                 for literal in STRING.findall(line):
                     try:
                         found = list(pieces(literal))

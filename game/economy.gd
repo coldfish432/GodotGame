@@ -12,8 +12,17 @@ extends RefCounted
 const GOLD_ID := "赤金"
 ## An item's delivery price (交付价) in 龙门币 is Item.value times this.
 const LMD_PER_VALUE := 100
-## 可露希尔 pays this much 龙门币 for one 赤金.
+## The base of the 龙门币/赤金 rate: foreign base prices convert at this fixed
+## rate (势力与交易所策划案 §4), the live rate floats around it (§1.3).
 const GOLD_BAR_LMD := 1000
+## The live rate, kept by MarketState (龙门币 per 赤金).
+static var fx := 1000.0
+## 可露希尔 changes money at the live rate with this spread (§1.3); the
+## exchange terminal at EXCHANGE_FX_SPREAD.
+const CLOSURE_FX_SPREAD := 0.03
+const EXCHANGE_FX_SPREAD := 0.005
+## Plain delivery at the base is Rhodes Island's internal buy-back (§13).
+const DIRECT_DELIVERY := 0.8
 ## Old reward units per 赤金: the loot tables still speak in the old 待交付报酬
 ## amounts (enemies 8–14, chests 30–60), turned into bars when they hit the ground.
 const OLD_REWARD_PER_BAR := 10.0
@@ -28,6 +37,18 @@ const STARTING_LMD := 6000
 ## 交付价 in 龙门币: the base price of an item.
 static func price(item: Item) -> int:
 	return lmd(item.value) if item != null else 0
+
+## 可露希尔's direct delivery: the internal buy-back price.
+static func direct_price(item: Item) -> int:
+	return roundi(price(item) * DIRECT_DELIVERY)
+
+## What 可露希尔 pays in 龙门币 for one 赤金 (the live rate less her spread).
+static func closure_bar_price() -> int:
+	return roundi(fx * (1.0 - CLOSURE_FX_SPREAD))
+
+## 龙门币 per 赤金 at the live rate, for fees quoted in 赤金.
+static func bar_lmd() -> float:
+	return maxf(fx, 1.0)
 
 static func lmd(value: int) -> int:
 	return value * LMD_PER_VALUE

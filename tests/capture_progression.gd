@@ -29,7 +29,6 @@ func run() -> void:
 	game = find_game(rig)
 	game.gold = 90000
 	game._grant(0, 60)   # R2
-	game.base.contamination = 46
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 21
 	for i in range(6): game.base.receive(FieldCatalog.roll_item(["mine", "city", "snow"][i % 3], 3, rng))

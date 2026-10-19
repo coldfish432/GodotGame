@@ -55,6 +55,7 @@ const MODELS := {
 	"vault": "res://art/kit/poi_vault_chest.glb", "camp": "res://art/kit/poi_camp.glb",
 	"ore_cart": "res://art/kit/poi_ore_cart.glb", "miner_locker": "res://art/kit/poi_miner_locker.glb",
 	"winch_box": "res://art/kit/poi_winch_box.glb", "miner_pack": "res://art/kit/poi_miner_pack.glb",
+	"depot": "res://art/kit/poi_depot.glb",
 }
 const MODEL_SCALE := 1.35
 const VARIANT_NAMES := {"ore_cart": "翻倒的源石矿车", "miner_locker": "矿工储物柜", "winch_box": "绞车控制箱", "miner_pack": "遗留的矿工背包"}
@@ -229,6 +230,15 @@ func search_cell() -> Vector2i:
 	var next: Item = _pending[0]
 	if next.grid_x < 0: return Vector2i(-1, -1)
 	return Vector2i(next.grid_x, next.grid_y)
+
+## The cells each item still to be found will take (用户 2026-10-17: 搜索时先把
+## 物体所占的格子的轮廓勾勒出来); items that spilled past the grid have none.
+func pending_rects() -> Array[Rect2i]:
+	var out: Array[Rect2i] = []
+	if not opened: return out
+	for item in _pending:
+		if item.grid_x >= 0: out.append(Rect2i(item.grid_x, item.grid_y, item.width, item.height))
+	return out
 
 ## Gives every item a cell in the box's grid (big ones first, the way a
 ## packed box holds them), then orders the search by reading order: row by

@@ -199,5 +199,12 @@
  "：": ": ",
  "；": "; ",
  "；命中的敌人减速": "; enemies hit are slowed by",
- "；第 2 段后 2 秒内法术闪避 +15": "; for 2 s after hit 2, Arts Dodge +15"
+ "；第 2 段后 2 秒内法术闪避 +15": "; for 2 s after hit 2, Arts Dodge +15",
+ "自身回血 −": "Natural regen −",
+ "每秒流失": "Losing",
+ "上一份合同 / 阵亡，带回重伤": "Last contract / KIA, came back injured",
+ "上一份合同的回收明细，以及重伤治疗": "Recovery details from the last contract, and injury treatment",
+ "（重伤）": " (injury)",
+ "投保的装备没带出局就会在 2–4 小时后送回；带出来保险不失效。": "Insured gear that doesn't make it out comes back 2–4 hours later; bringing it out keeps the insurance.",
+ "件，已到收货区。": " item(s), now at Receiving."
 }

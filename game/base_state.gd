@@ -29,14 +29,21 @@ var racks := {}
 ## Cumulative, never spent (§2). Ranks unlock convenience and capacity only.
 var prestige := 0
 var orders := OrderBoard.new()
-## Medical (§4). Contamination carries across contracts; so does an untreated injury.
-var contamination := 0.0
-var injured := false
+## Medical (§4). An injury belongs to the operator who fell and stays on her
+## until it is treated (博士主角叙事修订案 §5, 用户 2026-10-15); contamination
+## does not leave the field (用户 2026-10-15: 污染不带出局外). id -> true.
+var injuries := {}
+## Whether the operator who deploys next is injured.
+var injured: bool:
+	get: return injuries.has(operator)
+	set(value):
+		if value: injuries[operator] = true
+		else: injuries.erase(operator)
 ## Free 标准急救剂 still to be issued for the next contract (药剂进背包). They go
 ## into the pack at departure; reset after every settlement.
 var free_potions := BaseCatalog.FREE_POTIONS
-## What the medical report adds to the item list: contamination before and
-## after, and whether this settlement left an injury. Unread until she opens it.
+## What the medical report adds to the item list: whether this settlement
+## left an injury. Unread until she opens it.
 var medical_report := {}
 var report_unread := false
 ## The engineering drone (§3.5): bought once at R1, sorts on command and empties
@@ -63,10 +70,22 @@ var insurance_queue: Array[Dictionary] = []
 ## Camps reached (撤离与营地修订案 §3), per region: the deepest one unlocked (0 none).
 ## Any unlocked camp is a start point for that region.
 var camps := {}
+## Where Rhodes Island is on Terra (TerraMap place): it sails to whichever
+## region a contract is run in, and the sand table shows it there.
+var ship_at := TerraMap.START
 ## The camp upgrade, bought once for every region.
 var camp_upgraded := false
 ## The operator who deploys next (Operators.ORDER), picked at the departure screen.
-var operator := Operators.LAPPLAND
+var operator := default_operator()
+## Who has joined (干员寻访策划案 §9): a new Doctor has only Amiya; the debug
+## build keeps Lappland too (用户 2026-10-16: debug版本先保留).
+var roster: Array[String] = []
+## Who has been issued her set of Rhodes standard gear (装备策划案 §10).
+var kitted: Array[String] = []
+## 踪迹 per operator (§2.1): a counter, never an item; a fall loses none.
+var recruit_clues := {}
+## id -> the trace keys of hers found so far (RecruitCatalog.TRACE_SMALL/BIG).
+var recruit_found := {}
 ## Each operator's growth (精英化与加点策划案_v0_2.md): id -> OperatorProgress.
 var progress := {}
 ## 作战记录 (§4.2): counters, never items — no shelf, no space.
@@ -92,6 +111,7 @@ func unlocked_camps(region: String) -> Array[int]:
 	return out
 
 func _init() -> void:
+	roster = starting_roster()
 	for category in range(Item.Category.size()):
 		racks[category] = BaseCatalog.STARTING_RACKS
 	orders.start_fresh()
@@ -99,12 +119,9 @@ func _init() -> void:
 func rank() -> int:
 	return BaseCatalog.rank_of(prestige)
 
-func contamination_tier() -> int:
-	return BaseCatalog.contamination_tier(contamination)
-
-## Max HP lost on the next contract: injury plus contamination tier, capped.
+## Max HP lost on the next contract: the injury's.
 func hp_penalty() -> float:
-	return BaseCatalog.hp_penalty(contamination, injured)
+	return BaseCatalog.hp_penalty(0.0, injured)
 
 ## Price of one flask (龙门币), or -1 when the rank does not allow it yet. A
 ## 标准急救剂 is free while some of this contract's free issue is left.
@@ -114,34 +131,102 @@ func potion_price(type: String) -> int:
 	if type == "A": return 0 if free_potions > 0 else BaseCatalog.POTION_A_PRICE
 	return int(p.price)
 
+## Who deploys on a new save: Lappland in the debug build, else Amiya.
+static func default_operator() -> String:
+	return Operators.LAPPLAND if OS.is_debug_build() else Operators.AMIYA_GUARD
+
+static func starting_roster() -> Array[String]:
+	var out: Array[String] = [Operators.AMIYA_GUARD]
+	if OS.is_debug_build(): out.append(Operators.LAPPLAND)
+	return out
+
+func recruited(id: String) -> bool:
+	return id in roster
+
+## Who can deploy: recruited, with her kit built (Operators.has_kit).
+func deployable() -> Array[String]:
+	var out: Array[String] = []
+	for id in Operators.ORDER:
+		if id in roster and Operators.has_kit(id): out.append(id)
+	return out
+
+func clues(id: String) -> int:
+	return int(recruit_clues.get(id, 0))
+
+## One more trace of `id`; true when it was her first.
+func add_clue(id: String) -> bool:
+	if recruited(id) or clues(id) >= RecruitCatalog.CLUES_NEEDED: return false
+	recruit_clues[id] = clues(id) + 1
+	return clues(id) == 1
+
+## Trace `key` of `id` found on the floor: what it adds (a small one found
+## before adds nothing, a big one found before half), kept within the need.
+func add_trace(id: String, key: String) -> int:
+	if recruited(id) or clues(id) >= RecruitCatalog.CLUES_NEEDED: return 0
+	var found: Array = recruit_found.get(id, [])
+	var gain := RecruitCatalog.trace_value(key, key in found)
+	if not key in found:
+		found.append(key)
+		recruit_found[id] = found
+	recruit_clues[id] = mini(RecruitCatalog.CLUES_NEEDED, clues(id) + gain)
+	return gain
+
+func found_before(id: String, key: String) -> bool:
+	return key in (recruit_found.get(id, []) as Array)
+
+## Her contract is on offer: enough traces, not yet joined.
+func recruit_ready(id: String) -> bool:
+	return not recruited(id) and clues(id) >= RecruitCatalog.CLUES_NEEDED
+
+func recruit(id: String) -> void:
+	if not Operators.valid(id) or recruited(id): return
+	roster.append(id)
+	recruit_clues.erase(id)
+	recruit_found.erase(id)
+
 func reset_potions() -> void:
 	free_potions = BaseCatalog.FREE_POTIONS
 
-## After a settlement: contamination decays then takes this run's dose; an
-## injury is whatever this settlement left. Returns the report it records.
-func settle_medical(dose: float, died: bool) -> Dictionary:
-	var before := contamination
-	# Decay first, down to 0, then the dose: a clean start keeps the whole dose.
-	contamination = clampf(maxf(contamination - BaseCatalog.CONTAMINATION_DECAY, 0.0) + dose, 0.0, BaseCatalog.CONTAMINATION_MAX)
-	injured = died
+## Any operator still carrying an injury (the reception's marker).
+func any_injured() -> bool:
+	return not injuries.is_empty()
+
+## Injured operators in Operators.ORDER.
+func injured_operators() -> Array[String]:
+	var out: Array[String] = []
+	for id in Operators.ORDER:
+		if injuries.has(id): out.append(id)
+	return out
+
+## After a settlement: a fall injures the operator who fell; an injury already
+## there stays until treated. Returns the report it records.
+func settle_medical(died: bool) -> Dictionary:
+	if died: injured = true
 	reset_potions()
-	medical_report = {"contamination_before": roundi(before), "contamination_after": roundi(contamination), "injured": died}
+	medical_report = {"injured": died, "operator": operator}
 	report_unread = true
 	return medical_report
 
-## A settlement passed: one contract less for everything insured. What reaches
-## zero arrives at receiving; returns those items.
+## The wall clock insurance runs on (unix seconds); tests move it with clock_offset.
+static var clock_offset := 0
+## Tests that need the clock to stand still between their own moves pin it here (0: live).
+static var frozen_clock := 0
+static func now() -> int:
+	return (frozen_clock if frozen_clock > 0 else int(Time.get_unix_time_from_system())) + clock_offset
+
+## Everything insured whose time has come arrives at receiving; returns those items.
 func tick_insurance() -> Array[Item]:
 	var arrived: Array[Item] = []
+	var t := now()
 	for entry in insurance_queue.duplicate():
-		entry.left = int(entry.left) - 1
-		if int(entry.left) <= 0:
+		if int(entry.due) <= t:
 			insurance_queue.erase(entry)
 			if receive(entry.item): arrived.append(entry.item)
 	return arrived
 
-func queue_insured(item: Item, contracts: int) -> void:
-	insurance_queue.append({"item": item, "left": maxi(contracts, 1)})
+## `item` comes back `seconds` from now.
+func queue_insured(item: Item, seconds: int) -> void:
+	insurance_queue.append({"item": item, "due": now() + maxi(seconds, 1)})
 
 ## Straight into staging (the squad's 送回, §4). False when staging is full.
 func receive_to_staging(item: Item) -> bool:
@@ -429,13 +514,14 @@ func to_data() -> Dictionary:
 	for category in racks: rack_data[str(category)] = racks[category]
 	return {"shelf": shelf.map(func(x): return x.to_data()), "crates": crate_data,
 		"staging": staging_data, "racks": rack_data, "prestige": prestige, "orders": orders.to_data(),
-		"contamination": contamination, "injured": injured, "free_potions": free_potions,
+		"injuries": injuries.keys(), "free_potions": free_potions,
 		"medical_report": medical_report, "report_unread": report_unread,
 		"drone": drone, "console": console, "contract_offers": contract_offers.duplicate(true), "reroll_available": reroll_available, "unseen_unlocks": unseen_unlocks,
 		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(),
-		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "left": e.left}),
-		"camps": camps.duplicate(), "camp_upgraded": camp_upgraded, "operator": operator,
-		"progress": _progress_data(), "records": records.duplicate()}
+		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "due": e.due}),
+		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "operator": operator,
+		"roster": roster.duplicate(), "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
+		"kitted": kitted.duplicate(), "progress": _progress_data(), "records": records.duplicate()}
 
 func _progress_data() -> Dictionary:
 	var out := {}
@@ -450,8 +536,9 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	crates.clear()
 	_drop_hand()
 	prestige = maxi(int(data.get("prestige", 0)), 0)
-	contamination = clampf(float(data.get("contamination", 0.0)), 0.0, BaseCatalog.CONTAMINATION_MAX)
-	injured = bool(data.get("injured", false))
+	injuries = {}
+	for id in data.get("injuries", []):
+		if Operators.valid(str(id)): injuries[str(id)] = true
 	reset_potions()
 	free_potions = clampi(int(data.get("free_potions", BaseCatalog.FREE_POTIONS)), 0, BaseCatalog.FREE_POTIONS)
 	medical_report = data.get("medical_report", {})
@@ -466,8 +553,29 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	var pity: Dictionary = data.get("loot_pity", {})
 	loot_pity = {"rare_gear": clampf(float(pity.get("rare_gear", 0.0)), 0.0, LootTables.RARE_GEAR_PITY_CAP),
 		"rare_material": clampf(float(pity.get("rare_material", 0.0)), 0.0, LootTables.RARE_MATERIAL_PITY_CAP)}
-	operator = str(data.get("operator", Operators.LAPPLAND))
-	if not Operators.valid(operator): operator = Operators.LAPPLAND
+	# Saves from before recruiting had both operators.
+	roster = starting_roster()
+	for id in data.get("roster", [Operators.AMIYA_GUARD, Operators.LAPPLAND]):
+		if Operators.valid(str(id)) and not str(id) in roster: roster.append(str(id))
+	kitted = []
+	for id in data.get("kitted", []):
+		if Operators.valid(str(id)) and not str(id) in kitted: kitted.append(str(id))
+	recruit_clues = {}
+	var saved_clues: Dictionary = data.get("recruit_clues", {})
+	for id in saved_clues:
+		if RecruitCatalog.RECRUITS.has(str(id)): recruit_clues[str(id)] = clampi(int(saved_clues[id]), 0, RecruitCatalog.CLUES_NEEDED)
+	recruit_found = {}
+	var saved_found: Dictionary = data.get("recruit_found", {})
+	for id in saved_found:
+		if not RecruitCatalog.RECRUITS.has(str(id)): continue
+		var keys: Array = []
+		for key in saved_found[id]:
+			if str(key) in RecruitCatalog.TRACE_SMALL or str(key) in RecruitCatalog.TRACE_BIG: keys.append(str(key))
+		recruit_found[str(id)] = keys
+	operator = str(data.get("operator", default_operator()))
+	if not operator in deployable(): operator = default_operator()
+	# Saves from before per-operator injuries: the one injury was whoever deploys.
+	if bool(data.get("injured", false)): injured = true
 	# Saves from before growth: every operator starts at 精英 0, level 1.
 	progress = {}
 	var saved_progress: Dictionary = data.get("progress", {})
@@ -479,13 +587,17 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 		if Progression.RECORD_EXP.has(str(name)): records[str(name)] = maxi(0, int(saved_records[name]))
 	insurance_queue.clear()
 	camps = {}
+	ship_at = str(data.get("ship_at", TerraMap.START))
+	if not TerraMap.has_place(ship_at): ship_at = TerraMap.START
 	var saved_camps: Dictionary = data.get("camps", {})
 	for region in saved_camps:
 		if FieldCatalog.REGIONS.has(str(region)): unlock_camp(str(region), int(saved_camps[region]))
 	camp_upgraded = bool(data.get("camp_upgraded", false))
 	for entry in data.get("insurance_queue", []):
 		var queued := _fresh(entry.get("item", {}), seen)
-		if queued: insurance_queue.append({"item": queued, "left": maxi(int(entry.get("left", 1)), 1)})
+		# Saves from before the clock counted contracts left: an hour each.
+		var due := int(entry.get("due", now() + maxi(int(entry.get("left", 1)), 1) * 3600))
+		if queued: insurance_queue.append({"item": queued, "due": due})
 	if data.has("orders"): orders.load_data(data.orders)
 	else: orders.start_fresh()
 	orders.resize(BaseCatalog.ORDER_SLOTS_R2 if rank() >= 2 else BaseCatalog.ORDER_SLOTS)

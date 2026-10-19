@@ -147,6 +147,18 @@ func _build() -> void:
 		"dust", "snow_puff":
 			duration = 0.30
 			part(self, Vector3.ZERO, Vector3.ONE * P * 3, Color("9a948a") if kind == "dust" else Color("e8eef2"))
+		"splash":
+			# 家族灭迹人 unseen in the rain: two 2×1 px white flecks off the wet stone.
+			duration = 0.25
+			part(self, side * 0.08, Vector3(P * 2, P * 0.5, P), Color("eef2f6"))
+			part(self, -side * 0.1 + direction * 0.05, Vector3(P * 2, P * 0.5, P), Color("eef2f6"))
+		"ember_ring":
+			# 家族角头: an orange ring of sparks where the cigar's arts lands, or round its palm.
+			duration = 0.35
+			_ring(reach, P * 1.5, Color("f08a3a"))
+			for i in range(5):
+				var ray := direction.rotated(Vector3.UP, TAU * i / 5.0 + 0.4)
+				part(self, ray * reach * 0.6 + Vector3.UP * 0.1, Vector3.ONE * P, Color("ffc070"))
 		"glide_trail":
 			duration = 0.30
 			stroke(self, Vector3.ZERO, -direction * 0.3, P, Color("a8c8f0"))
@@ -211,7 +223,7 @@ func _process(delta: float) -> void:
 			var line := get_node("Rope") as MeshInstance3D
 			(line.mesh as BoxMesh).size.z = length
 			line.position = direction * length * 0.5
-		"rune", "ground_shock", "ground_shock_purple", "ground_shock_big":
+		"rune", "ground_shock", "ground_shock_purple", "ground_shock_big", "ember_ring":
 			scale = Vector3.ONE * (1.0 + t * 0.35)
 		"dust", "snow_puff":
 			scale = Vector3.ONE * (1.0 + t)

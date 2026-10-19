@@ -447,11 +447,16 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 		var on := AK.button("继续 · %s" % AK.floor_code(game.region_id, game.floor_number + 1), "plain", 15)
 		AK.put(side, on, Vector2(24, 662), Vector2(332, 44))
 		on.pressed.connect(game.leave_camp)
-	var tabs := ["商店", "出售赤金"] if at_base else ["商店", "寄存", "出售赤金"]
+	# 换汇 at the live rate (势力与交易所策划案 §1.3); the loan at the base (§10);
+	# forward delivery in a camp (§8.3).
+	var tabs := ["商店", "出售赤金", "换汇", "贷款"] if at_base else ["商店", "寄存", "出售赤金", "换汇", "交割"]
 	var tab: int = clampi(menu.camp_tab, 0, tabs.size() - 1)
 	var redraw := func(): camp(menu, at_base)
 	AK.put(stage, AK.toggle(tabs, tab, func(i): menu.camp_tab = i; menu.pick = null; camp(menu, at_base)), Vector2(410, 32))
-	if at_base and tab == 1: tab = 2
+	tab = ([0, 2, 3, 4] if at_base else [0, 1, 2, 3, 5])[tab]
+	if tab >= 3:
+		_closure_money(menu, stage, tab, at_base)
+		return
 	AK.put(stage, AK.money("gold", str(game.gold_available())), Vector2(950, 38))
 	AK.put(stage, AK.money("lmd", Economy.format(game.gold)), Vector2(1070, 38))
 	var ok := false
@@ -488,7 +493,7 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 				x += 280
 			AK.put(stage, AK.section("背包", "%d / %d" % [game.inventory.occupied_cells(), game.inventory.cell_count()]), Vector2(410, 262))
 			AK.put(stage, AK.BagGrid.make(game.inventory), Vector2(410, 292))
-			ok = not pick.is_empty() and game.closure_potion_price(pick) >= 0 and game.gold_available() >= game.closure_potion_price(pick) and game.inventory.can_fit(BaseCatalog.create_potion(pick))
+			ok = not pick.is_empty() and game.closure_potion_price(pick) >= 0 and game.gold_available() >= game.closure_potion_price(pick) and game.inventory.can_take(BaseCatalog.create_potion(pick))
 			confirm = func():
 				game.closure_buy_potion(pick)
 				redraw.call()
@@ -517,13 +522,76 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 			flow.add_theme_constant_override("separation", 12)
 			flow.add_child(AK.money("gold", str(amount), 24))
 			flow.add_child(AK.label("→", 18, AK.MUTE))
-			flow.add_child(AK.money("lmd", Economy.format(amount * Economy.GOLD_BAR_LMD), 24))
+			flow.add_child(AK.money("lmd", Economy.format(amount * Economy.closure_bar_price()), 24))
 			AK.put(stage, flow, Vector2(560, 160))
 			ok = amount > 0
 			confirm = func():
 				game.sell_gold_bars(amount)
 				redraw.call()
 	_footer(stage, Vector2(410, 630), 834, "", ["购买", "寄存", "出售"][tab], Callable(), confirm, ok)
+
+## 可露希尔's money desk: 换汇 (3), the loan (4), forward delivery in a camp (5).
+static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: bool) -> void:
+	var game := menu.game
+	var ex := game.exchange
+	var redraw := func(): camp(menu, at_base)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	AK.put(stage, box, Vector2(410, 84), Vector2(834, 0))
+	match tab:
+		3:
+			var amount: int = int(menu.pick) if menu.pick is int else 10000
+			box.add_child(MarketWidgets.live(func(): return "龙门币 / 赤金 %.1f   ·   可露希尔价差 %d%%   ·   赤金账户 %.2f" % [Economy.fx, roundi(Economy.CLOSURE_FX_SPREAD * 100), ex.gold_account], 14))
+			box.add_child(AK.toggle(["1,000", "10,000", "50,000"], [1000, 10000, 50000].find(amount), func(i): menu.pick = [1000, 10000, 50000][i]; redraw.call(), 13))
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 10)
+			var to_gold := AK.button("龙门币 %s → 赤金账户" % Economy.format(amount), "blue", 14)
+			to_gold.pressed.connect(func(): game.closure_convert(true, amount); redraw.call())
+			row.add_child(to_gold)
+			var to_lmd := AK.button("赤金账户 → 龙门币 %s" % Economy.format(amount), "plain", 14)
+			to_lmd.pressed.connect(func(): game.closure_convert(false, amount / (Economy.fx * (1.0 - Economy.CLOSURE_FX_SPREAD))); redraw.call())
+			row.add_child(to_lmd)
+			box.add_child(row)
+		4:
+			box.add_child(AK.label("待还 %s   ·   额度 %s   ·   下次结算利率 %d%%%s" % [Economy.format(ex.loan), Economy.format(ex.loan_limit()),
+				roundi(Exchange.loan_rate(ex.loan) * 100), "   ·   逾期" if ex.loan_locked() else ""], 15, AK.RED if ex.loan_locked() else AK.FG))
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 10)
+			for n in [10000, 50000]:
+				var amount: int = n
+				var b := AK.button("借 %s" % Economy.format(amount), "blue", 14)
+				b.disabled = ex.loan_locked() or ex.loan + amount > ex.loan_limit()
+				b.pressed.connect(func():
+					if ex.borrow(amount): game.save_base()
+					redraw.call())
+				row.add_child(b)
+			for n in [10000, -1]:
+				var amount: int = ex.loan if n < 0 else n
+				var b := AK.button("还 %s" % ("全部" if n < 0 else Economy.format(amount)), "plain", 14)
+				b.disabled = ex.loan <= 0 or game.gold < mini(amount, ex.loan)
+				b.pressed.connect(func():
+					if ex.repay(amount): game.save_base()
+					redraw.call())
+				row.add_child(b)
+			box.add_child(row)
+		5:
+			var any := false
+			for f in ex.forwards:
+				if f.dir != "deliver": continue
+				any = true
+				var pos: Dictionary = f
+				var row := HBoxContainer.new()
+				row.add_theme_constant_override("separation", 10)
+				row.add_child(AK.label("交货 %s ×%d → %s  ·  背包 %d  ·  剩 %s" % [pos.material, int(pos.count), FactionCatalog.name_of(str(pos.faction)),
+					game.material_count(str(pos.material)), ExchangeScreen._left(int(pos.expires) - game.market.t)], 14, AK.FG))
+				var b := AK.button("交割", "blue", 14)
+				b.disabled = game.material_count(str(pos.material)) < int(pos.count)
+				b.pressed.connect(func():
+					if ex.deliver_forward(int(pos.id)): game.save_base(true)
+					redraw.call())
+				row.add_child(b)
+				box.add_child(row)
+			if not any: box.add_child(AK.label("交货合约 0", 14, AK.MUTE))
 
 # --- #10 行动结束 / 失败 ----------------------------------------------------------------
 
@@ -546,12 +614,12 @@ static func settlement(menu: FieldMenu) -> void:
 	var cells: Array = []
 	if ok:
 		cells = [["赤金", str(view.get("gold", 0)), AK.SP], ["合同报酬", "+" + Economy.format(view.reward), AK.FG],
-			["污染", "%d → %d" % [view.get("contamination_before", 0), view.get("contamination_after", 0)], AK.ORI], ["可交付订单", str(view.get("orders", 0)), AK.SP]]
+			["深度", AK.floor_code(view.region, view.depth), AK.FG], ["可交付订单", str(view.get("orders", 0)), AK.SP]]
 	else:
 		var n := {"安全袋保全": 0, "投保送回": 0, "遗失": 0}
 		for entry in view.pack + view.safe + view.worn: n[entry.reason] = int(n.get(entry.reason, 0)) + 1
 		cells = [["保留", "%d 件" % n["安全袋保全"], AK.GREEN], ["投保", "%d 件" % n["投保送回"], AK.HP],
-			["丢失", "%d 件" % n["遗失"], AK.RED], ["污染", "%d → %d" % [view.get("contamination_before", 0), view.get("contamination_after", 0)], AK.ORI]]
+			["丢失", "%d 件" % n["遗失"], AK.RED], ["深度", AK.floor_code(view.region, view.depth), AK.FG]]
 	stage.add_child(AK.rect(AK.PLATE, Vector2(48, 176), Vector2(330, 136)))
 	for i in range(4):
 		var at := Vector2(48 + (i % 2) * 165, 176 + (i / 2) * 68)

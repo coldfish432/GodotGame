@@ -40,8 +40,8 @@ const ICONS := {
 }
 
 func run() -> void:
-	# 装备扩充策划案 §4: the 66 new bases are mapped too (39 + 66).
-	check("all 39 E1–E3 items are mapped", ICONS.keys().all(func(n): return ItemIcons.BY_NAME.has(n)) and ItemIcons.BY_NAME.size() == 105, ItemIcons.BY_NAME.size())
+	# 装备扩充策划案 §4: the 66 new bases are mapped too (39 + 66); E13 v1 11, E6 v1 7, E14 v1 22.
+	check("all 39 E1–E3 items are mapped", ICONS.keys().all(func(n): return ItemIcons.BY_NAME.has(n)) and ItemIcons.BY_NAME.size() == 145, ItemIcons.BY_NAME.size())
 	for item_name in ICONS:
 		var category: int = ICONS[item_name]
 		var cells: Vector2i = CELLS[category]
@@ -76,7 +76,8 @@ func run() -> void:
 	# potions without art yet still fall back to text.
 	var prts_missing := []
 	for id in MaterialCatalog.MATERIALS:
-		if MaterialCatalog.MATERIALS[id].get("source", "") == "common": continue
+		# Trade goods and 萨米 goods are not PRTS items; they borrow supplies icons.
+		if MaterialCatalog.MATERIALS[id].get("source", "") in ["common", "trade", "sami"]: continue
 		var tex := ItemIcons.texture_for(MaterialCatalog.create(id, 1))
 		if tex == null or tex.get_size() != Vector2(32, 32): prts_missing.append(id)
 	check("every PRTS material has a 32×32 icon", prts_missing.is_empty(), prts_missing)

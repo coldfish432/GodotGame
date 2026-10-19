@@ -19,14 +19,16 @@ static func show(menu: FieldMenu, in_field: bool) -> void:
 	var x := 16.0
 	stage.add_child(AK.rect(AK.PLATE_2, Vector2(x, TOP + 6), Vector2(300, 636)))
 	if not in_field:
+		# One row of operator tabs in the header strip, clear of the tree.
 		var tabs := HBoxContainer.new()
 		tabs.add_theme_constant_override("separation", 4)
-		for id in Operators.ORDER:
-			var tab := AK.button(Operators.display_name(id), "blue" if id == game.player.operator_id else "plain", 12)
+		for id in game.base.deployable():
+			var tab := AK.button(Operators.display_name(id), "blue" if id == game.player.operator_id else "plain", 11)
+			tab.custom_minimum_size = Vector2(74, 28)
 			var chosen: String = id
 			tab.pressed.connect(func(): game.choose_operator(chosen); refresh.call())
 			tabs.add_child(tab)
-		AK.put(stage, tabs, Vector2(x + 10, TOP + 14))
+		AK.put(stage, tabs, Vector2(300, 16))
 	var portrait := TextureRect.new()
 	portrait.texture = Operators.portrait(game.player.operator_id)
 	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST

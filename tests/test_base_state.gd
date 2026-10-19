@@ -158,7 +158,7 @@ func through_game() -> void:
 	game.player.hp = -1
 	await step(2)
 	check("death: insured gear she carried in waits in the insurance queue (保全系统修订案 §3)", game.in_base and game.player.equipped.get(Item.Category.WEAPON) == null
-		and game.base.insurance_queue.any(func(e): return e.item == blade and int(e.left) >= 1 and int(e.left) <= 3) and not blade.insured)
+		and game.base.insurance_queue.any(func(e): return e.item == blade and int(e.due) - BaseState.now() >= 2 * 3600 - 5 and int(e.due) - BaseState.now() <= 4 * 3600) and not blade.insured)
 	check("death: a find in the safe bag arrives as a crate", game.base.location_of(safe_find) == "crate_sealed")
 	check("death: unprotected items are gone from everywhere",
 		game.base.location_of(lost_find) == "" and not game.carried_items().has(lost_find)

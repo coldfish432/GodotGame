@@ -13,9 +13,9 @@ extends Node
 ## time she walks over, their bank is lit and their hatch open, so the rise is
 ## all she sees and all she waits for.
 ##
-## Everything is quantised: a bank is either lit or dark, the hatch jumps
-## between frames, and a shelf rises a whole pixel at a time by cropping its
-## sprite at the floor line (region_rect), keeping the pixel grid.
+## A bank is either lit or dark. The racks are models (基地建模改造案_v1
+## B-M2): each waits below the deck, its hatch's two leaves swing up about
+## their outer edges, and the rack rises through the open pit.
 ##
 ## The signals mark the moments that will get sounds (not yet made).
 
@@ -32,7 +32,9 @@ const IDLE := 0.6               # the whole room before she walks in: dim, never
 ## one after, and anything further. So each bank brightens the whole room a step.
 const SPILL := [0.85, 0.75, 0.68]
 const HATCH_DELAY := 0.25        # a beat after the bank lights up
-const HATCH_OPEN := 0.5          # the hatch's frames, evenly
+const HATCH_OPEN := 0.5          # the leaves swing open over this long
+## Steps the hatch's opening is counted in (hatch_frame), for the sounds and tests.
+const HATCH_FRAMES := 6
 const SHELF_RISE := 1.2          # slow and mechanical
 const SHELF_STAGGER := 0.3       # each row further back starts this much later
 const COLUMN_STAGGER := 0.1      # and each rack along a row this much
@@ -47,9 +49,8 @@ var room_id := ""
 var t := 0.0                     # lights clock: 0 dark .. lights_time all banks on
 var lights_time := 0.0
 var inside := false
-var hatch_frames: Array[Texture2D] = []
 var bank_edges: Array[float] = []  # layout x of each bank's west edge, door side first
-## Per shelf: {sprites, hatch, height_px, east, south, bank, hold, clock}. clock
+## Per shelf: {rack, node, hatch_mesh, east, south, bank, hold, clock}. clock
 ## starts once its bank is lit: hatch from HATCH_DELAY, rise from `hold`
 ## (end of the hatch plus any stagger), but it stops at `hold` until the shelf
 ## is on screen.
@@ -71,29 +72,17 @@ func setup(map: BaseMap, room: String, group_prefix: String) -> void:
 		bank_edges.append(west + width * (1.0 - float(k + 1) / BANKS))
 	bank_edges[BANKS - 1] = -INF  # the last bank reaches past the wall
 	lights_time = BANK_PAUSE * (BANKS - 1) + FLICKER.back()
-	for path in data.get("anim", {}).get("shelf_hatch", []):
-		hatch_frames.append(map.texture_at(path))
-	var groups: Dictionary = map.room_visuals[room].groups
-	for name in groups:
+	var racks: Dictionary = map.room_visuals[room].racks
+	for name in racks:
 		if not str(name).begins_with(group_prefix): continue
-		var sprites: Array = groups[name]
-		var height := 0.0
-		var rack: Sprite3D = sprites[0]
-		for sprite: Sprite3D in sprites:
-			sprite.region_enabled = true
-			sprite.set_meta("lift_px", _lift_px(sprite))
-			height = maxf(height, sprite.texture.get_height() + sprite.get_meta("lift_px"))
-			if sprite.texture.get_width() * sprite.texture.get_height() > rack.texture.get_width() * rack.texture.get_height(): rack = sprite
-		var east := rack.position.x * BaseMap.EAST
-		var hatch_mesh: MeshInstance3D = null
-		if not hatch_frames.is_empty():
-			# The hatch's front lip lies on the rack's feet line, where the rising sprite is cropped.
-			hatch_mesh = map.add_floor_decal(room, hatch_frames[0], east, rack.position.z)
+		var rack: Dictionary = racks[name]
+		var node: MeshInstance3D = rack.node
+		var east := node.position.x * BaseMap.EAST
 		# Group names are "shelf:<category>:<slot>"; slot 0-8 in build order, 3 per row from the front.
 		var parts := str(name).split(":")
 		var slot := int(parts[2]) if parts.size() > 2 else 0
-		_shelves.append({"sprites": sprites, "hatch": hatch_mesh.material_override if hatch_mesh else null, "hatch_mesh": hatch_mesh,
-			"height_px": height, "east": east, "south": -rack.position.z, "bank": bank_of(east), "clock": 0.0, "frame": -1, "rows": -1.0,
+		_shelves.append({"rack": rack, "node": node, "hatch": rack, "hatch_mesh": rack.hatch,
+			"east": east, "south": -node.position.z, "bank": bank_of(east), "clock": 0.0, "frame": -1, "rise": -1.0,
 			"category": parts[1] if parts.size() > 1 else "", "slot": slot, "built": true,
 			"hold": HATCH_DELAY + HATCH_OPEN + SHELF_STAGGER * (slot / 3) + COLUMN_STAGGER * (slot % 3)})
 	# Nearest the door first, front row before back.
@@ -109,7 +98,7 @@ func refresh_built() -> void:
 		shelf.built = built
 		shelf.clock = 0.0
 		shelf.frame = -1
-		shelf.rows = -1.0
+		shelf.rise = -1.0
 	_apply()
 
 func built_shelves() -> Array[Dictionary]:
@@ -143,7 +132,7 @@ func reset() -> void:
 	for shelf in _shelves:
 		shelf.clock = 0.0
 		shelf.frame = -1
-		shelf.rows = -1.0
+		shelf.rise = -1.0
 	_apply()
 
 ## True once every bank is lit and every built shelf stands.
@@ -205,40 +194,26 @@ func _apply() -> void:
 		_last_lit = lit
 		base_map.set_room_bands(room_id, bank_edges.slice(0, 3), bank_levels(lit))
 	for shelf in _shelves:
-		if shelf.hatch_mesh: shelf.hatch_mesh.visible = shelf.built
+		var rack: Dictionary = shelf.rack
+		var node: MeshInstance3D = shelf.node
+		shelf.hatch_mesh.visible = shelf.built
+		for leaf: MeshInstance3D in rack.leaves: leaf.visible = shelf.built
 		if not shelf.built:
-			if shelf.rows != INF:
-				shelf.rows = INF
-				for sprite: Sprite3D in shelf.sprites: sprite.visible = false
+			node.visible = false
+			shelf.rise = INF
 			continue
-		var frame := 0
-		if not hatch_frames.is_empty():
-			var open := clampf((shelf.clock - HATCH_DELAY) / HATCH_OPEN, 0.0, 1.0)
-			frame = clampi(floori(open * (hatch_frames.size() - 1) + 0.0001), 0, hatch_frames.size() - 1)
-			if frame != shelf.frame and shelf.hatch:
-				shelf.frame = frame
-				shelf.hatch.set_shader_parameter("tex", hatch_frames[frame])
+		var open := clampf((shelf.clock - HATCH_DELAY) / HATCH_OPEN, 0.0, 1.0)
+		shelf.frame = clampi(floori(open * (HATCH_FRAMES - 1) + 0.0001), 0, HATCH_FRAMES - 1)
+		base_map.set_hatch(rack, open)
 		var p := clampf((shelf.clock - shelf.hold) / SHELF_RISE, 0.0, 1.0)
 		var eased := p * p * (3.0 - 2.0 * p)  # slow start and stop, like a lift
-		var hidden := ceilf(shelf.height_px * (1.0 - eased))
-		if hidden != shelf.rows:
-			shelf.rows = hidden
-			for sprite: Sprite3D in shelf.sprites:
-				_crop(sprite, hidden)
+		if eased != shelf.rise:
+			shelf.rise = eased
+			# Below the deck it is hidden by the floor; through the pit it shows.
+			node.visible = eased > 0.0
+			node.position.y = -BaseMap.RACK_HEIGHT * (1.0 - eased)
 
 func hatch_frame(index: int) -> int: return maxi(_shelves[index].frame, 0)
 
-## Shows the part of the sprite above the floor line once the whole shelf has
-## sunk by `hidden` pixels: the top rows, bottom edge on the floor line.
-func _crop(sprite: Sprite3D, hidden: float) -> void:
-	var size := sprite.texture.get_size()
-	var lift: float = sprite.get_meta("lift_px")
-	var rows := clampf(roundf(size.y + lift - hidden), 0.0, size.y)
-	sprite.visible = rows > 0.0
-	if not sprite.visible: return
-	sprite.region_rect = Rect2(0, 0, size.x, rows)
-	sprite.offset = Vector2(0, rows * 0.5 + maxf(lift - hidden, 0.0) - BaseMap.PIVOT_SCREEN_PX)
-
-## Inverse of BaseMap._billboard(): offset.y = height / 2 + lift - pivot.
-static func _lift_px(sprite: Sprite3D) -> float:
-	return sprite.offset.y - sprite.texture.get_height() * 0.5 + BaseMap.PIVOT_SCREEN_PX
+## How far a shelf has risen, 0 stowed .. 1 standing.
+func risen(index: int) -> float: return maxf(_shelves[index].rise, 0.0)

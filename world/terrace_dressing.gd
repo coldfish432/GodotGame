@@ -35,6 +35,11 @@ const RUBBLE := preload("res://art/models/cliff_rubble_pile.glb")
 const SHADER := preload("res://world/terrace_dressing.gdshader")
 const KIT_SHADER := preload("res://world/kit_piece.gdshader")
 const GLOW_SHADER := preload("res://world/kit_glow.gdshader")
+## The region whose kit a floor borrows (FieldCatalog.art_region: 叙拉古 uses
+## Lungmen's until its own is modelled).
+func _look() -> String:
+	return FieldCatalog.art_region(map.region_id)
+
 ## Light sources and the landmark over the way down, per region (FieldLight).
 const LIGHTING := {
 	"mine": {"lantern": "res://art/kit/mine_lantern.glb", "post": "res://art/kit/mine_lamp_post.glb", "headframe": "res://art/kit/mine_headframe.glb",
@@ -161,6 +166,10 @@ var headframe_points: Array[Transform3D] = []
 ## Every lamp baked into the light map: {"at", "color", "radius"}.
 var lamps: Array[Dictionary] = []
 var field_light: FieldLight
+## Built again over a vault's dug patch (VaultSeal): the floor-wide pieces
+## that are not dressing (the weather, the extraction, the light map) are left
+## to the first build.
+var patch_only := false
 
 func build(world: Node3D) -> void:
 	map = world
@@ -174,9 +183,10 @@ func build(world: Node3D) -> void:
 	var faces := cliff_face.build(map)
 	if faces != null: root.add_child(faces)
 	map.mark("cliff faces")
-	# Lungmen: the blocks off the road are built up (CityDressing).
-	if map.region_id == "city":
-		city = CityDressing.new()
+	# Lungmen: the blocks off the road are built up (CityDressing); Siracusa's
+	# old town the same way, in its own style (SiracusaDressing).
+	if map.urban:
+		city = SiracusaDressing.new() if map.region_id == "siracusa" else CityDressing.new()
 		city.build(map, root)
 		lamps.append_array(city.lamps)
 		map.mark("city blocks")
@@ -191,8 +201,8 @@ func build(world: Node3D) -> void:
 	root.set_meta("cliff_face_length", cliff_face.face_length)
 	root.set_meta("ramp_segments", ramp_count)
 	root.set_meta("rubble_piles", rubble_count)
-	if KERBS.has(map.region_id):
-		for path in KERBS[map.region_id].big + KERBS[map.region_id].small:
+	if KERBS.has(_look()):
+		for path in KERBS[_look()].big + KERBS[_look()].small:
 			# Less snow than other pieces: dark rock against the white is what
 			# shows the ramp's edge.
 			_add_set(root, "RampKerbs_" + String(path).get_file().get_basename(), kit_mesh(load(path), float(KIT_GAIN.get(map.region_id, 1.0)), KERB_SNOW_BIAS), kerb_transforms.get(path, [] as Array[Transform3D]))
@@ -221,13 +231,18 @@ func build(world: Node3D) -> void:
 		_place_trees(FORESTS[map.region_id])
 		for path in tree_transforms:
 			_add_set(root, "Trees_" + String(path).get_file().get_basename(), kit_mesh(load(path), 1.0, TREE_SNOW_BIAS), tree_transforms[path])
-	if SNOWFALL.has(map.region_id):
+	if patch_only: pass
+	elif SNOWFALL.has(map.region_id):
 		weather = _snowfall()
 		root.add_child(weather)
+	elif map.weather == "rain":
+		weather = _rainfall()
+		root.add_child(weather)
 	map.mark("trees + snowfall")
-	_place_extraction(root)
-	field_light = FieldLight.new()
-	field_light.build(map, lamps)
+	if not patch_only:
+		_place_extraction(root)
+		field_light = FieldLight.new()
+		field_light.build(map, lamps)
 	map.mark("extraction + light map")
 	for path in accent_transforms:
 		_add_set(root, "Accent_" + String(path).get_file().get_basename(), _kit_mesh(load(path)), accent_transforms[path])
@@ -678,6 +693,39 @@ static func _snowfall() -> CPUParticles3D:
 	snow.mesh = flake
 	return snow
 
+## 叙拉古's rain (叙拉古方案 §3.4: 东部湿润，雨季较长): thin streaks falling
+## fast and a little slanted, light enough not to hide the street.
+static func _rainfall() -> CPUParticles3D:
+	var rain := CPUParticles3D.new()
+	rain.name = "Rainfall"
+	rain.amount = 520
+	rain.lifetime = 1.1
+	rain.preprocess = 1.1
+	rain.local_coords = false
+	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	rain.emission_box_extents = Vector3(22.0, 0.5, 18.0)
+	rain.direction = Vector3(0.12, -1.0, 0.05)
+	rain.spread = 2.0
+	rain.initial_velocity_min = 11.0
+	rain.initial_velocity_max = 13.0
+	rain.gravity = Vector3(0, -2.0, 0)
+	var fade := Gradient.new()
+	fade.set_color(0, Color(0.8, 0.86, 0.95, 0.0))
+	fade.add_point(0.2, Color(0.8, 0.86, 0.95, 0.45))
+	fade.set_color(fade.get_point_count() - 1, Color(0.8, 0.86, 0.95, 0.0))
+	rain.color_ramp = fade
+	var streak := QuadMesh.new()
+	streak.size = Vector2(0.03, 0.7)
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.vertex_color_use_as_albedo = true
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
+	material.billboard_keep_scale = true
+	streak.material = material
+	rain.mesh = streak
+	return rain
+
 ## Distance from `point` along `direction` to the wall (the contour), or -1.
 func _wall(point: Vector2, direction: Vector2) -> float:
 	var d := 0.0
@@ -708,8 +756,9 @@ static func kit_mesh(scene: PackedScene, gain: float = 1.0, snow_bias: float = 0
 		var source := mesh.surface_get_material(surface) as BaseMaterial3D
 		var material := ShaderMaterial.new()
 		material.shader = KIT_SHADER
-		# A part baked as "<piece>_glow" is a lamp's glass: drawn self-lit.
-		if source != null and source.resource_name.ends_with("_glow"):
+		# A part baked as "<piece>_glow" is a lamp's glass: drawn self-lit (a
+		# rebuilt piece exports it as "<piece>_glow.001": the suffix is dropped).
+		if source != null and source.resource_name.get_slice(".", 0).ends_with("_glow"):
 			material.shader = GLOW_SHADER
 		if source != null: material.set_shader_parameter("albedo_tex", source.albedo_texture)
 		if material.shader == KIT_SHADER:
@@ -761,8 +810,8 @@ func _place_rubble(rubble: Array[Transform3D]) -> void:
 ## rooted at road level and reaches down the causeway's falling side
 ## (TerrainSurface._causeways); small stones sit on the road's edge.
 func _place_ramps(ramps: Array[Transform3D]) -> void:
-	if not KERBS.has(map.region_id): return
-	var kit: Dictionary = KERBS[map.region_id]
+	if not KERBS.has(_look()): return
+	var kit: Dictionary = KERBS[_look()]
 	var laid := 0
 	for chain in cliff_face.chains:
 		if not chain.bank: continue
@@ -804,7 +853,7 @@ func _place_ramps(ramps: Array[Transform3D]) -> void:
 func _regional_mesh(scene: PackedScene) -> Mesh:
 	var mesh := _first_mesh(scene.instantiate())
 	if mesh == null: return mesh
-	var palette: Dictionary = PALETTES.get(map.region_id, {})
+	var palette: Dictionary = PALETTES.get(_look(), {})
 	var kept := ArrayMesh.new()
 	for surface in range(mesh.get_surface_count()):
 		var source := mesh.surface_get_material(surface) as BaseMaterial3D
@@ -814,9 +863,9 @@ func _regional_mesh(scene: PackedScene) -> Mesh:
 		if palette.has(hex): colour = Color(palette[hex])
 		var material := ShaderMaterial.new()
 		material.shader = SHADER
-		material.set_shader_parameter("background_tex", FieldArt.BACKGROUNDS[map.region_id])
+		material.set_shader_parameter("background_tex", FieldArt.BACKGROUNDS[FieldCatalog.art_region(map.region_id)])
 		material.set_shader_parameter("world_scale", 12.0)
-		material.set_shader_parameter("tint", Vector3(colour.r, colour.g, colour.b) * float(TINT_GAIN.get(map.region_id, 2.0)))
+		material.set_shader_parameter("tint", Vector3(colour.r, colour.g, colour.b) * float(TINT_GAIN.get(_look(), 2.0)))
 		kept.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh.surface_get_arrays(surface))
 		kept.surface_set_material(kept.get_surface_count() - 1, material)
 	return kept

@@ -13,7 +13,9 @@ const SLOTS := 8
 
 const ACTIONS := {
 	"dash": {"name": "闪避", "input": "dash", "glyph": "dodge"},
-	"shadow": {"name": "绝影", "input": "operator_skill", "glyph": "wave", "operator": Operators.AMIYA_GUARD},
+	# Her Space skill, whoever she is (绝影 for Amiya, a recruit's own); the
+	# id stays "shadow" so saved bars keep it.
+	"shadow": {"name": "绝影", "input": "operator_skill", "glyph": "wave", "skill": true},
 	"potion_A": {"name": "标准急救剂", "input": "potion_A", "glyph": "flask", "potion": "A"},
 	"potion_B": {"name": "缓释凝胶", "input": "potion_B", "glyph": "flask", "potion": "B"},
 	"potion_C": {"name": "抑制喷剂", "input": "potion_C", "glyph": "flask", "potion": "C"},

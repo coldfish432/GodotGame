@@ -99,9 +99,9 @@ func run() -> void:
 			for k in range(map.main_path.size()):
 				var light := dressing.field_light.light_at(map.main_path[k])
 				darkest = minf(darkest, (light.r + light.g + light.b) / 3.0)
-		var spots: Array[Vector3] = [map.buff_position, map.encounter_position, map.exit_node.position, map.vault_position, map.route_guard_position]
+		var spots: Array[Vector3] = [map.buff_position, map.encounter_position, map.exit_node.position, map.route_guard_position]
+		if map.has_vault: spots.append(map.vault_position)
 		for node in map.route_nodes: spots.append(node.position)
-		spots.append_array(map.mechanism_positions)
 		for spot in spots:
 			if not map._surface.is_level(Vector2(spot.x, spot.z)) or absf(spot.y - map.ground_height(Vector2(spot.x, spot.z))) > 0.7: unlevel += 1
 	check("most floors have more than one tier (%d of %d)" % [tiered, SEEDS], tiered >= SEEDS * 0.6)

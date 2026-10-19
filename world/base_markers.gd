@@ -9,7 +9,7 @@ extends Node
 ## Pixels above the station's spot. Tall consoles get their marker higher; spots
 ## the player walks onto (no prop) get it lower.
 const LIFT_PX := 50.0
-const LIFT_BY_STATION := {"lift": 80.0, "outbound": 36.0, "pharmacy": 36.0, "decon": 36.0, "receiving_bays": 46.0}
+const LIFT_BY_STATION := {"lift": 80.0, "outbound": 36.0, "pharmacy": 36.0, "receiving_bays": 46.0}
 const BOB_PX := 2.0          # a slow two-pixel bob so the eye finds them
 const BOB_SECONDS := 1.2
 

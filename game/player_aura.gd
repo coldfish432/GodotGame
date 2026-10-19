@@ -87,9 +87,9 @@ func _process(delta: float) -> void:
 	var right := camera.global_basis.x if is_instance_valid(camera) else Vector3.RIGHT
 	var need := player.wave_hits_needed()
 	var waves := player.has_sword_wave()
-	var full := player.shadow_ready() if player.is_amiya() else waves and player.sword_charge >= need
+	var full := player.skill_ready_now() if player.has_skill() else waves and player.sword_charge >= need
 	# The three-hit ring (Lappland's sword wave).
-	ring.visible = waves and not player.is_amiya()
+	ring.visible = waves and not player.has_skill()
 	if ring.visible:
 		ring.global_position = Vector3(player.global_position.x, 0.055, player.global_position.z)
 		ring.rotation.y = wrapf(ring.rotation.y + delta * (RING_SPIN_FULL if full else RING_SPIN), 0.0, TAU)

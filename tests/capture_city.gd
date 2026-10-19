@@ -35,6 +35,7 @@ func run() -> void:
 		var map := game.world_map
 		var kinds := []
 		for d in map.districts: kinds.append(d.kind)
+		print("neon %d" % map.terrace_dressing.city.neon_count)
 		print("seed %d districts %s buildings %d gates %d barricades %d bridges %d culverts %d scaffolds %d fronts %d sides %d fences %d lights %d furniture %d wrecks %d cables %d borders %s cranes %d zebras %d" % [map_seed, kinds, map.terrace_dressing.city.building_count, map.terrace_dressing.city.gate_count, map.terrace_dressing.city.barricade_count, map.bridges.size(), map.terrace_dressing.city.culvert_count, map.terrace_dressing.city.scaffold_count, map.terrace_dressing.city.frontage_count, map.terrace_dressing.city.side_streets.size(), map.terrace_dressing.city.fence_count, map.terrace_dressing.city.traffic_light_count, map.terrace_dressing.city.furniture_count, map.terrace_dressing.city.wreck_count, map.terrace_dressing.city.cable_count, map.terrace_dressing.city.border_counts, map.terrace_dressing.city.landmark_count, map.terrace_dressing.city.zebra_count])
 		await shot(map.main_path[0] + Vector2(0, 8), "%d-entry" % map_seed)
 		await shot(map.main_path[map.main_path.size() / 2], "%d-mid" % map_seed)
@@ -54,6 +55,8 @@ func run() -> void:
 			await shot(city._gate_points[k] - Vector2(0, 3.0), "%d-gate%d" % [map_seed, k])
 		if not city._border_lines.is_empty():
 			await shot(city._border_lines[city._border_lines.size() / 2].at - Vector2(0, 3.0), "%d-border" % map_seed)
+		for k in range(mini(2, city.neon_points.size())):
+			await shot(city.neon_points[k * 7 % city.neon_points.size()], "%d-neon%d" % [map_seed, k], 30.0)
 		for k in range(city.landmark_points.size()):
 			await shot(city.landmark_points[k] - Vector2(0, 10.0), "%d-crane" % map_seed, 40.0)
 		var mouth_shots := 0

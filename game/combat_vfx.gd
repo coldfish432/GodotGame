@@ -64,6 +64,42 @@ static func spawn(parent: Node3D, point: Vector3, direction: Vector3, type: Stri
 	fx._build()
 	return fx
 
+## One of the recruits' painted effects (Sol batches <CODE>2): `frames` cells
+## laid side by side in `texture`. "ground" lies flat with its top toward
+## `direction`, centred `ahead` in front; "billboard" faces the camera at
+## `height`. Frames run once over `seconds`, or cycle at `fps` when it is
+## set (persistent effects: free them yourself, seconds can be large).
+static func painted(parent: Node3D, point: Vector3, direction: Vector3, texture: Texture2D, frames: int = 1, seconds: float = 0.15,
+		mount: String = "ground", ahead: float = 0.0, height: float = 0.05, fps: float = 0.0, fade: bool = true) -> CombatVfx:
+	var fx := CombatVfx.new()
+	fx.game = parent as GameManager
+	if fx.game == null and parent is Player: fx.game = (parent as Player).game
+	fx.kind = "painted"
+	fx.duration = seconds
+	fx.frame_fps = fps
+	fx.fades = fade
+	parent.add_child(fx)
+	fx.global_position = point
+	if direction.length_squared() > 0.001 and mount == "ground": fx.basis = Basis.looking_at(Vector3(direction.x, 0, direction.z).normalized() if Vector2(direction.x, direction.z).length_squared() > 0.0001 else Vector3.FORWARD)
+	if texture == null: return fx
+	var cell := Vector2(texture.get_width() / maxi(1, frames), texture.get_height())
+	for i in range(maxi(1, frames)):
+		var frame := AtlasTexture.new()
+		frame.atlas = texture
+		frame.region = Rect2(i * cell.x, 0, cell.x, cell.y)
+		var part := fx._decal(frame, ahead, height, Color.WHITE)
+		if mount == "billboard":
+			part.basis = Basis.IDENTITY
+			part.position = Vector3(0, height, 0)
+			(part.material_override as StandardMaterial3D).billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+		if frames > 1: part.set_meta("pframe", i)
+		fx.frame_count = maxi(1, frames)
+	return fx
+
+var frame_fps := 0.0
+var frame_count := 1
+var fades := true
+
 ## Faster attacks play the slash faster so it never outlives the next swing.
 func speed_up(multiplier: float) -> CombatVfx:
 	if kind in ["slash", "amiya_slash"] and multiplier > 0:
@@ -247,7 +283,10 @@ func _process(delta: float) -> void:
 	var progress := age / duration
 	for part in _parts:
 		var mat := part.material_override as StandardMaterial3D
-		mat.albedo_color.a = float(part.get_meta("opacity", 0.65)) * (1.0 if kind == "wave" else 1.0 - progress)
+		mat.albedo_color.a = float(part.get_meta("opacity", 0.65)) * (1.0 if kind == "wave" or not fades else 1.0 - progress)
+		if part.has_meta("pframe"):
+			var shown := (int(age * frame_fps) % frame_count) if frame_fps > 0.0 else mini(frame_count - 1, int(progress * frame_count))
+			part.visible = shown == int(part.get_meta("pframe"))
 		if part.has_meta("drift"): part.position = part.get_meta("drift") * age * 7.0
 		if part.has_meta("late"): part.visible = progress >= 0.4
 		if part.has_meta("frame"): part.visible = int(progress * 2.0) == int(part.get_meta("frame"))

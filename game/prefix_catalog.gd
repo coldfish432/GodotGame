@@ -17,6 +17,10 @@ const T := "T"
 
 ## Grade odds for every prefix rolled, −2 to +2 (§0.1-11).
 const GRADE_WEIGHTS := {-2: 15.0, -1: 20.0, 0: 30.0, 1: 30.0, 2: 5.0}
+## Past the loot stair's top floor (LootTables.past_top, 0–1) each grade's
+## weight is × (1 + shift × it): the bad ones fade, +1 doubles, +2 grows 5×
+## — at ½ (floor 130) 7.5 / 13 / 30 / 45 / 15 (用户 2026-10-18).
+const GOOD_SHIFT := {-2: -1.0, -1: -0.7, 0: 0.0, 1: 1.0, 2: 4.0}
 const DOUBLE_CHANCE := 0.2
 ## A region's own prefixes are this much likelier there (§0.1-7).
 const REGION_WEIGHT := 3.0
@@ -279,7 +283,7 @@ static func _weight(id: String, region: String) -> float:
 	return w
 
 ## One prefix id for `item`, or "" when nothing fits.
-static func roll_one(item: Item, region: String, top_open: bool, taken: Array, rng: RandomNumberGenerator) -> String:
+static func roll_one(item: Item, region: String, top_open: bool, taken: Array, rng: RandomNumberGenerator, good: float = 0.0) -> String:
 	var by_grade := {}
 	for id in all():
 		if fits(id, item, taken, top_open):
@@ -288,9 +292,13 @@ static func roll_one(item: Item, region: String, top_open: bool, taken: Array, r
 			by_grade[g].append(id)
 	if by_grade.is_empty(): return ""
 	var grades: Array = by_grade.keys()
-	var weights: Array = grades.map(func(g): return float(GRADE_WEIGHTS[g]))
+	var weights: Array = grades.map(func(g): return grade_weight(g, good))
 	var ids: Array = by_grade[grades[LootTables._pick_weighted(weights, rng)]]
 	return ids[LootTables._pick_weighted(ids.map(func(id): return _weight(id, region)), rng)]
+
+## A grade's weight, `good` (0–1) past the stair's top.
+static func grade_weight(grade: int, good: float = 0.0) -> float:
+	return float(GRADE_WEIGHTS[grade]) * maxf(0.0, 1.0 + float(GOOD_SHIFT[grade]) * clampf(good, 0.0, 1.0))
 
 ## A fresh entry {id, rolls}: one 80–120% multiplier per stat and fx line.
 static func roll_entry(id: String, rng: RandomNumberGenerator) -> Dictionary:
@@ -301,13 +309,13 @@ static func roll_entry(id: String, rng: RandomNumberGenerator) -> Dictionary:
 	return {"id": id, "rolls": rolls}
 
 ## The whole prefix set: one, and a second at DOUBLE_CHANCE; higher grade first.
-static func roll_set(item: Item, region: String, top_open: bool, rng: RandomNumberGenerator) -> Array:
+static func roll_set(item: Item, region: String, top_open: bool, rng: RandomNumberGenerator, good: float = 0.0) -> Array:
 	var ids: Array = []
-	var first := roll_one(item, region, top_open, ids, rng)
+	var first := roll_one(item, region, top_open, ids, rng, good)
 	if first.is_empty(): return []
 	ids.append(first)
 	if rng.randf() < DOUBLE_CHANCE:
-		var second := roll_one(item, region, top_open, ids, rng)
+		var second := roll_one(item, region, top_open, ids, rng, good)
 		if not second.is_empty(): ids.append(second)
 	if ids.size() == 2 and int(all()[ids[1]].grade) > int(all()[ids[0]].grade): ids.reverse()
 	return ids.map(func(id): return roll_entry(id, rng))
@@ -315,7 +323,7 @@ static func roll_set(item: Item, region: String, top_open: bool, rng: RandomNumb
 ## New gear: rolls its prefixes and settles its value (§2.3, §2.5).
 static func roll_onto(item: Item, region: String, depth: int, rng: RandomNumberGenerator) -> void:
 	if not eligible_item(item): return
-	item.prefixes = roll_set(item, region, depth >= TOP_DEPTH, rng)
+	item.prefixes = roll_set(item, region, depth >= TOP_DEPTH, rng, LootTables.past_top(depth))
 	refresh_value(item, true)
 
 ## Old saves (§0.2-6): gear without prefixes rolls them once on load.

@@ -52,8 +52,8 @@ func run() -> void:
 	await step(8)
 	view = game.warehouse_view
 	var a: Dictionary = view.anchors
-	check("warehouse view has its anchors and textures", view.ready() and a.bays.size() == 6 and a.overflow.size() == 6 and view.tex.size() == 26 and view.tex.has("cargo_drone")
-		and ["board_empty", "board_open", "board_completed"].all(func(k): return view.tex.has(k)))
+	check("warehouse view has its anchors, the board and the drone", view.ready() and a.bays.size() == 6 and a.overflow.size() == 6
+		and view._board != null and view.drone != null and view.tex.has("carried_frame"))
 	check("no demo crates are drawn on an empty base", view._crates.is_empty())
 
 	# Crates appear on the bays, then along the wall, sized by the item.
@@ -66,8 +66,8 @@ func run() -> void:
 	await step(2)
 	check("eight crates: six on the bays, two along the wall", view._crates.size() == 8
 		and is_equal_approx(view._crates[0].position.z, a.bays[0][1]) and is_equal_approx(view._crates[6].position.z, a.overflow[0][1]))
-	check("crate look follows size and state", view._crates[0].texture == view.tex.crate_medium_sealed
-		and view._crates[1].texture == view.tex.crate_large_sealed and view._crates[2].texture == view.tex.crate_small_sealed)
+	check("crate model follows size and state", view._crates[0].get_meta("model") == "crate_medium_sealed"
+		and view._crates[1].get_meta("model") == "crate_large_sealed" and view._crates[2].get_meta("model") == "crate_small_sealed")
 
 	# Open a crate where it stands.
 	await stand([a.bays[0][0], a.bays[0][1] + 1.0])
@@ -77,7 +77,7 @@ func run() -> void:
 	await step(1)
 	check("E opens it and shows the item card", game.base.location_of(sword) == "crate_open" and game.modal == "station" and game.menu.visible)
 	await step(1)
-	check("the open crate is drawn open", view._crates[0].texture == view.tex.crate_medium_open)
+	check("the open crate is drawn open", view._crates[0].get_meta("model") == "crate_medium_open")
 	game.close_modal()
 	check("the opened crate now offers to look again", game.nearby_station().get("label", "").begins_with("查看"))
 
@@ -103,7 +103,7 @@ func run() -> void:
 	game._base_interact()
 	await step(2)
 	check("shelved: off her hands, on the shelf", game.base.hand == null and game.base.location_of(sword) == "shelf" and game.stash.has(sword))
-	check("the rack face shows one filled cell", view._cell_layers[0][0].texture == view._cell_textures[1])
+	check("the rack face shows one filled cell", view._cell_layers[0][0].filter(func(c): return c.visible).size() == 1 and view._cell_layers[0][0][0].visible)
 	check("icon and highlight are gone", not view._hand_icon.visible and view._zone_lights[0].all(func(d): return not d.visible))
 
 	# Full zone: refused with the count, item stays in hand.
@@ -113,7 +113,7 @@ func run() -> void:
 	game.base.open_crate(spare)
 	game.pick_up_item(spare)
 	await step(2)
-	check("a full rack shows all twelve cells", view._cell_layers[0][0].texture == view._cell_textures[12])
+	check("a full rack shows all twelve cells", view._cell_layers[0][0].all(func(c): return c.visible))
 	check("a full zone refuses with its count", not game.shelve_carried(Item.Category.WEAPON) and "12/12" in game.message and game.base.hand == spare)
 
 	# Staging: drop it there, pallets load up, take it back out.

@@ -80,7 +80,7 @@ func through_game() -> void:
 	check("every rack slot is in the scene, only the first per zone built",
 		reveal._shelves.size() == 36 and reveal.built_shelves().size() == 4 and reveal.built_shelves().all(func(s): return s.slot == 0))
 	var unbuilt := reveal._shelves.filter(func(s): return not s.built)
-	var hidden := unbuilt.all(func(s): return not s.hatch_mesh.visible and s.sprites.all(func(x): return not x.visible))
+	var hidden := unbuilt.all(func(s): return not s.hatch_mesh.visible and not s.node.visible and s.rack.leaves.all(func(x): return not x.visible))
 	check("unbuilt racks are hidden with their hatches", unbuilt.size() == 32 and hidden)
 
 	# Markers.
@@ -89,17 +89,16 @@ func through_game() -> void:
 	await step(2)
 	check("sealed crates turn the receiving marker yellow", game.markers.marker("receiving_bays").visible and game.markers.marker("receiving_bays").texture == game.markers.yellow)
 	check("a quiet station stays cyan", game.markers.marker("dispatch").texture == game.markers.cyan)
-	game.base.contamination = 45
 	game.base.report_unread = true
 	await step(2)
-	check("contamination 40+ and an unread report turn the gate and desk yellow",
-		game.markers.marker("decon").texture == game.markers.yellow and game.markers.marker("reception").texture == game.markers.yellow)
+	check("an unread report turns the desk yellow; the scan gate has no marker (污染不带出局外)",
+		game.markers.marker("reception").texture == game.markers.yellow and game.markers.marker("decon") == null)
 
 	# Top bar.
 	game.base.injured = true
 	await step(2)
-	check("the base top bar shows gold, prestige, contamination and injury: " + game._status_bar.text,
-		game._status_bar.visible and "龙门币" in game._status_bar.text and "声望 R0 · 0/20" in game._status_bar.text and "污染 45 轻度" in game._status_bar.text and "重伤" in game._status_bar.text)
+	check("the base top bar shows gold, prestige and injury, never contamination: " + game._status_bar.text,
+		game._status_bar.visible and "龙门币" in game._status_bar.text and "声望 R0 · 0/20" in game._status_bar.text and not "污染" in game._status_bar.text and "重伤" in game._status_bar.text)
 
 	# Departure card only when there is something to look at.
 	game.request_contract("mine")
@@ -107,7 +106,6 @@ func through_game() -> void:
 		and game.departure_warnings().size() == 2)
 	game.close_modal()
 	game.base.injured = false
-	game.base.contamination = 0
 	game.base.crates.clear()
 	check("without warnings there is none", game.departure_warnings().is_empty())
 	await game.start_contract("mine")
@@ -135,10 +133,10 @@ func through_game() -> void:
 		await process_frame
 		frames += 1
 	var second: Dictionary = reveal._shelves.filter(func(s): return s.category == "weapon" and s.slot == 1)[0]
-	check("and rises with the others", reveal.settled() and second.sprites.all(func(x): return x.visible))
+	check("and rises with the others", reveal.settled() and second.node.visible and is_zero_approx(second.node.position.y))
 	var space := game.get_world_3d().direct_space_state
 	var query := PhysicsPointQueryParameters3D.new()
-	query.position = Vector3(second.sprites[0].position.x, 1.0, second.sprites[0].position.z) + BaseMap.ORIGIN
+	query.position = Vector3(second.node.position.x, 1.0, second.node.position.z) + BaseMap.ORIGIN
 	check("and stands in the way like the first", not space.intersect_point(query).is_empty())
 	give(game, BaseCatalog.DRONE_MATERIALS)
 	check("buy the drone for 15000 + its materials", game.material_count("螺栓") == 0 and game.buy_drone() and game.gold == 79000 and not game.buy_drone())

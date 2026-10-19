@@ -30,6 +30,8 @@ var rows: int
 
 var _revealed: PackedByteArray
 var _revealed_count := 0
+## Ground walking near does not map (a sealed vault: ContinuousWorldMap.vault_hidden).
+var hidden := Callable()
 
 func setup(min_bound: Vector2, max_bound: Vector2) -> void:
 	origin = min_bound
@@ -52,6 +54,7 @@ func reveal(point: Vector3, radius: float = REVEAL_RADIUS) -> void:
 			if _revealed[index] != 0: continue
 			var cell_centre := Vector2(origin.x + (column + 0.5) * CELL, origin.y + (row + 0.5) * CELL)
 			if cell_centre.distance_to(here) > radius: continue
+			if hidden.is_valid() and hidden.call(cell_centre): continue
 			_revealed[index] = 1
 			_revealed_count += 1
 

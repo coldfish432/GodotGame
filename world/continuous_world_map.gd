@@ -15,6 +15,11 @@ var map_scale := 1.0
 var SPINE_MIN := BASE_MIN
 var SPINE_MAX := BASE_MAX
 var region_id := "mine"
+## Laid out as a town (FieldCatalog.URBAN): Lungmen and Siracusa.
+var urban := false
+## Siracusa's floor weather (叙拉古方案 §3.4, 用户 2026-10-16: 随机): "rain" or
+## "overcast"; "" elsewhere.
+var weather := ""
 var extraction_available := false
 var buff_position := Vector3.ZERO
 ## The mid-route spot where a Rhodes squad or 坎诺特 can be met (保全系统修订案 §2,
@@ -33,6 +38,11 @@ var seed_value := 0
 var open_pass_count := 3
 var total_pass_count := 3
 var enemy_spawn_points: Array[Vector3] = []
+## Footprints of the props that collide (CityDressing._collider): [centre, unit
+## x axis, half size] on the ground plane. The contour does not know them, so
+## standing room is checked against them too: an enemy placed inside one is
+## hidden from every shot (line_of_sight hits the box) and cannot be killed.
+var prop_blockers: Array = []
 var cache_positions: Array[Vector3] = []
 var map_center := Vector3(0, 0, 77)
 var map_extent := 113.0  # half the larger span; depth still exceeds width
@@ -46,9 +56,36 @@ var _spur_anchors: Array[Vector2] = []
 var _spur_points: Array[Vector2] = []
 var vault_centre := Vector2.ZERO
 var vault_position := Vector3.ZERO
+## Where the vault shows on the minimap once it is open (hidden until then).
 var vault_node: Node3D
-var mechanism_positions: Array[Vector3] = []
-var mechanism_nodes: Array[Node3D] = []
+## 密室 (密室与陷阱修订案_v1 §2.1, 用户 2026-10-17): on VAULT_CHANCE of the
+## floors a dead end off the back half, sealed by a 暗墙 at its mouth and
+## covered over (VaultSeal) until the wall is broken. `force_vault` 1 / 0
+## overrides the roll (tests and captures).
+## Rolled on 28% of floors; about seven in ten find rock enough for the room
+## (_vault_clear), so about one floor in five has one (用户: 20%).
+const VAULT_CHANCE := 0.28
+## Half its size each way, the same on every floor (用户 2026-10-17: 固定大小，
+## 每张地图的密室样子一致).
+const VAULT_ROOM := Vector2(6.0, 4.5)
+## The edge's own roughness, kept off the vault room's straight walls.
+func edge_noise(point: Vector2, raw: float) -> float:
+	if _vault_room >= 0 and _last_owner == _vault_room: return raw * 0.1
+	return raw * (0.1 if urban else 0.85)
+var has_vault := false
+var force_vault := -1
+var _vault_room := -1
+var _vault_link := -1
+## The 暗墙: its centre, the way into the vault across it, and its half length.
+var vault_mouth := Vector2.ZERO
+var vault_inward := Vector2.ZERO
+var vault_half_width := 0.0
+var vault_seal: VaultSeal
+## While true the vault's room and lane are left out of the carve: the floor is
+## generated, meshed and dressed as if there were no vault (用户 2026-10-17:
+## 整体是一体的，但是能看出来). VaultSeal builds the dug version of that patch
+## aside and swaps it in when the wall breaks.
+var vault_excluded := false
 var _generated_root: NavigationRegion3D
 var _rng := RandomNumberGenerator.new()
 var _shape_rng := RandomNumberGenerator.new()
@@ -171,6 +208,10 @@ func generate(p_seed: int, _depth: int) -> void:
 	_clear_generated_map()
 	seed_value = p_seed
 	_rng.seed = p_seed
+	urban = FieldCatalog.urban(region_id)
+	var sky := RandomNumberGenerator.new()
+	sky.seed = p_seed ^ 0x5a1e
+	weather = ("rain" if sky.randf() < RAIN_SHARE else "overcast") if region_id == "siracusa" else ""
 	var size_rng := RandomNumberGenerator.new()
 	size_rng.seed = p_seed ^ 0x5ca1e
 	map_scale = size_rng.randf_range(MAP_SCALE.x, MAP_SCALE.y)
@@ -186,6 +227,7 @@ func generate(p_seed: int, _depth: int) -> void:
 	add_child(_generated_root)
 	_open_circles.clear()
 	_closed_circles.clear()
+	prop_blockers.clear()
 	_pillar_shapes.clear()
 	_room_shapes.clear()
 	_swell.seed = p_seed ^ 0x5e11
@@ -202,8 +244,6 @@ func generate(p_seed: int, _depth: int) -> void:
 	niche_centres.clear()
 	_spur_anchors.clear()
 	_spur_points.clear()
-	mechanism_nodes.clear()
-	mechanism_positions.clear()
 	levels.clear()
 	circle_kinds.clear()
 	_trunk_levels.clear()
@@ -211,7 +251,16 @@ func generate(p_seed: int, _depth: int) -> void:
 	_overlap.clear()
 	_crossings.clear()
 	vault_node = null
+	if vault_seal != null: vault_seal.release()
+	vault_seal = null
+	vault_excluded = false
+	_vault_room = -1
+	_vault_link = -1
+	var lot := RandomNumberGenerator.new()
+	lot.seed = p_seed ^ 0x7a0175
+	has_vault = lot.randf() < VAULT_CHANCE if force_vault < 0 else force_vault == 1
 	_plan_terrain()
+	_plan_old_town()
 	_roll_districts()
 	mark("layout")
 	_base_links = _links.size()
@@ -255,8 +304,16 @@ func generate(p_seed: int, _depth: int) -> void:
 	mark("terrain mesh")
 	_build_bridges()
 	_place_content()
+	_plan_roadblock()
 	mark("bridges + content")
 	_dress_landmarks()
+	if vault_seal != null:
+		var roots: Array[Node] = []
+		for name in ["SceneDressing", "TerraceDressing"]:
+			var root := _generated_root.get_node_or_null(name)
+			if root != null: roots.append(root)
+		vault_seal.prepare_dressing(roots)
+		mark("vault patch")
 	_build_navigation_mesh()
 	mark("navmesh")
 
@@ -307,6 +364,10 @@ var _warp := FastNoiseLite.new()
 const SPUR_CHAIN_CHANCE := 0.4
 
 func _corridor_width() -> float:
+	# Siracusa's lanes: 5.2–6.6 m wall to wall (叙拉古方案 §3.2 asked for 3–4.5;
+	# a lane at a slant that narrow leaves no standing ground on the terrain's
+	# 1.5 m sampling grid, and the floor fails its connection check).
+	if region_id == "siracusa": return _rng.randf_range(LANE_WIDTH.x, LANE_WIDTH.x + 0.7)
 	return _rng.randf_range(3.4, 5.6) + (0.5 if region_id == "snow" else (0.3 if region_id == "city" else 0.0)) + (CAVE_WIDEN if region_id in CAVE_REGIONS else 0.0)
 
 ## Roads and rooms run into each other (用户 2026-10-13: 模糊道路和房间之间的区
@@ -326,6 +387,9 @@ var _room_shapes: Array[PackedFloat32Array] = []
 var _swell := FastNoiseLite.new()
 
 func _add_circle(point: Vector2, radius: float, kind: String, trunk_level: int) -> int:
+	# Siracusa's squares are small piazzas (叙拉古方案 §3.2): the arenas shrink,
+	# the small rooms stay as they are.
+	if region_id == "siracusa" and radius > PIAZZA_FROM: radius = PIAZZA_FROM + (radius - PIAZZA_FROM) * PIAZZA_SHRINK
 	_room_shapes.append(PackedFloat32Array([_shape_rng.randf_range(ROOM_LOBES.x, ROOM_LOBES.y), _shape_rng.randf_range(0.0, TAU),
 		_shape_rng.randf_range(ROOM_LOBES.x, ROOM_LOBES.y) * 0.7, _shape_rng.randf_range(0.0, TAU)]))
 	_open_circles.append(Vector3(point.x, point.y, radius))
@@ -398,7 +462,7 @@ func _plan_terrain() -> void:
 			levels[i] = next_level
 		level = next_level
 		if wide and i > 0:
-			var pillars := ELEMENT_PILLARS_CAVE if region_id in CAVE_REGIONS else ELEMENT_PILLARS
+			var pillars := ELEMENT_PILLARS_CAVE if region_id in CAVE_REGIONS else (Vector2i.ZERO if region_id == "siracusa" else ELEMENT_PILLARS)
 			for p in range(_rng.randi_range(pillars.x, pillars.y)):
 				var angle := _rng.randf_range(0.0, TAU)
 				var offset := Vector2(cos(angle), sin(angle)) * _rng.randf_range(3.5, radius - 6.0)
@@ -561,9 +625,35 @@ func _dig_extras(node_count: int) -> void:
 	if not _clear_of_crossings([vault_base, vault], 6.0) or not _clear_of_crossings([vault], 9.0 + 4.0):
 		var mirrored := Vector2(clampf(2.0 * vault_base.x - vault.x, SPINE_MIN.x + 11.0, SPINE_MAX.x - 11.0), vault.y)
 		if _clear_of_crossings([vault_base, mirrored], 6.0) and _clear_of_crossings([mirrored], 9.0 + 4.0): vault = mirrored
-	var vault_room := _add_circle(vault, _rng.randf_range(7.5, 9.0), "vault", _trunk_levels[vault_index])
-	_link(vault_index, vault_room, _rng.randf_range(3.2, 3.8), TRAIL_BRANCH)
+	var vault_radius := _rng.randf_range(7.5, 9.0)
+	var vault_width := _rng.randf_range(3.2, 3.8)
+	# The room needs rock all round it: tried where it was rolled, then on the
+	# other flank and further out; with nowhere clear, no vault this floor.
+	if has_vault:
+		var tries: Array[Vector2] = [vault, Vector2(2.0 * vault_base.x - vault.x, vault.y)]
+		for push in [1.3, 1.6]:
+			for flank in [1.0, -1.0]:
+				tries.append(Vector2(vault_base.x + (vault.x - vault_base.x) * push * flank, vault.y))
+		var clear := false
+		for spot in tries:
+			spot = Vector2(clampf(spot.x, SPINE_MIN.x + 11.0, SPINE_MAX.x - 11.0), spot.y)
+			if _vault_clear(spot, vault_base):
+				vault = spot
+				clear = true
+				break
+		has_vault = clear
 	vault_centre = vault
+	if has_vault:
+		_vault_room = _add_circle(vault, vault_radius, "vault", _trunk_levels[vault_index])
+		_vault_link = _links.size()
+		_link(vault_index, _vault_room, vault_width, TRAIL_BRANCH)
+		vault_excluded = true
+	else:
+		# The same draws a dug vault takes, so the rest of the floor is the
+		# same floor either way.
+		for i in range(4): _shape_rng.randf()
+		if region_id != "city": _rng.randf()
+		_rng.randf()
 
 ## Whether a corridor through `points` (or, for one point, a room there) keeps
 ## `margin` past the stubs' width off every bridge road planned so far.
@@ -594,11 +684,20 @@ func _too_near(candidate: Vector2, others: Array[Vector2], limit: float) -> bool
 ## A corridor between two rooms. Its bend is rolled here, with the layout, so
 ## that re-rolling tiers later never moves a wall.
 func _link(a: int, b: int, width: float, trail_chance: float) -> void:
+	# Every Siracusa lane, the scaled and fixed ones too, stays in LANE_WIDTH:
+	# narrower ones leave no standing ground on the sampling grid once they kink.
+	if region_id == "siracusa": width = clampf(width, LANE_WIDTH.x, LANE_WIDTH.y)
 	var start := Vector2(_open_circles[a].x, _open_circles[a].y)
 	var end := Vector2(_open_circles[b].x, _open_circles[b].y)
 	var middle := (start + end) * 0.5
 	if region_id == "city":
 		middle = Vector2(start.x, end.y) if absf(end.x - start.x) > 8 else middle
+	elif region_id == "siracusa":
+		# A lane kinks once, well off the straight line, at no particular angle.
+		var direction := (end - start).normalized()
+		var bend := _rng.randf_range(-1.0, 1.0)
+		var length := start.distance_to(end)
+		middle += Vector2(-direction.y, direction.x) * signf(bend) * lerpf(LANE_KINK.x, LANE_KINK.y, absf(bend)) * length
 	else:
 		var direction := (end - start).normalized()
 		middle += Vector2(-direction.y, direction.x) * _rng.randf_range(-2, 2)
@@ -785,7 +884,7 @@ func _joined(a: int, b: int) -> bool:
 
 func _room_reach(i: int) -> float:
 	var r: float = _open_circles[i].z
-	return r * 1.1 + 1.0 if region_id == "city" else r
+	return r * 1.1 + 1.0 if urban else r
 
 func _link_points(index: int) -> PackedVector2Array:
 	var link: Dictionary = _links[index]
@@ -1022,8 +1121,27 @@ func _crossing_option(crossing: Dictionary) -> Dictionary:
 const DISTRICT_KINDS := ["street", "slum", "yard", "site"]
 var districts: Array[Dictionary] = []
 
+## Siracusa's districts are the families' turfs (叙拉古方案 §3.1, 用户 2026-10-16:
+## 血债不分开 — so only the look follows them): two or three per floor.
+const FAMILIES := ["saluzzo", "rossetti", "bellone"]
+
 func _roll_districts() -> void:
 	districts.clear()
+	if region_id == "siracusa":
+		var turf := RandomNumberGenerator.new()
+		turf.seed = seed_value ^ 0xfa111
+		var families: Array = FAMILIES.duplicate()
+		for i in range(families.size() - 1, 0, -1):
+			var j := turf.randi_range(0, i)
+			var swap = families[i]
+			families[i] = families[j]
+			families[j] = swap
+		var count := turf.randi_range(2, 3)
+		# Spread along the trunk: the entry's family, then deeper ones.
+		for k in range(count):
+			var at := main_path[clampi(int(float(main_path.size() - 1) * float(k) / float(maxi(1, count - 1))), 0, main_path.size() - 1)]
+			districts.append({"point": at + Vector2(turf.randf_range(-12.0, 12.0), 0.0), "kind": families[k]})
+		return
 	if region_id != "city": return
 	var roll := RandomNumberGenerator.new()
 	roll.seed = seed_value ^ 0xd157
@@ -1061,8 +1179,10 @@ func _plan_bridges() -> void:
 	var options: Array[Dictionary] = []
 	for a in range(_open_circles.size()):
 		for b in range(a + 1, _open_circles.size()):
+			# No bridge to or over the vault: it is not there until it opens.
+			if a == _vault_room or b == _vault_room: continue
 			var option := _bridge_option(a, b)
-			if not option.is_empty(): options.append(option)
+			if not option.is_empty() and (_vault_link < 0 or int(option.get("lower", -1)) != _vault_link): options.append(option)
 	var pick_rng := RandomNumberGenerator.new()
 	pick_rng.seed = seed_value ^ 0xb81d6e
 	while bridges.size() < BRIDGE_MAX and not (planned.is_empty() and options.is_empty()):
@@ -1271,7 +1391,9 @@ func _box_shape(body: StaticBody3D, size: Vector3, at: Vector3) -> void:
 ## Rooms the floor has to connect: all of them, from the entry.
 func _reach_targets() -> Array[Vector2]:
 	var targets: Array[Vector2] = []
-	for circle in _open_circles: targets.append(Vector2(circle.x, circle.y))
+	for i in range(_open_circles.size()):
+		if vault_excluded and i == _vault_room: continue
+		targets.append(Vector2(_open_circles[i].x, _open_circles[i].y))
 	return targets
 
 func _link_height(link: Dictionary, s: float) -> float:
@@ -1433,15 +1555,30 @@ func carved_distance(point: Vector2) -> float:
 	var segments: PackedInt32Array = _cell_segments[cell] if cell >= 0 else _all_segments
 	var pillars: PackedInt32Array = _cell_pillars[cell] if cell >= 0 else _all_pillars
 	for i in rooms:
+		if vault_excluded and i == _vault_room: continue
 		var circle := _open_circles[i]
 		var offset := point - Vector2(circle.x, circle.y)
 		var reach := offset.length()
 		# Its widest lobe bounds it, as for the corridors below.
-		if region_id != "city" and circle.z * (1.0 + ROOM_LOBES.y * 1.7) - reach <= second: continue
+		if not urban and circle.z * (1.0 + ROOM_LOBES.y * 1.7) - reach <= second: continue
 		var chamber_distance := circle.z * _lobed(i, offset) - reach
+		# The vault is a room (用户 2026-10-17: 密室做成房间的样子): square-walled,
+		# VAULT_ROOM of its radius each way.
+		if i == _vault_room:
+			var q := offset.abs() - VAULT_ROOM
+			chamber_distance = -maxf(q.x, q.y)
+			if chamber_distance > best:
+				second = best
+				best = chamber_distance
+				owner = i
+			elif chamber_distance > second:
+				second = chamber_distance
+			continue
 		if region_id == "city":
 			var q := offset.abs() - Vector2(circle.z * 0.85, circle.z * 0.7)
 			chamber_distance = -maxf(q.x, q.y) + 1.0
+		elif region_id == "siracusa":
+			chamber_distance = _square_distance(i, offset)
 		if chamber_distance > best:
 			second = best
 			best = chamber_distance
@@ -1450,11 +1587,12 @@ func carved_distance(point: Vector2) -> float:
 			second = chamber_distance
 	for j in segments:
 		var segment := _open_segments[j]
+		if vault_excluded and int(segment[5]) == _vault_link: continue
 		var away := _segment_distance(point, segment)
 		# The widest this corridor gets anywhere bounds it: past that it cannot
 		# be either of the two nearest shapes, and the swell is not worth reading.
 		var link: Dictionary = _links[int(segment[5])]
-		var widest: float = segment[4] if region_id == "city" else maxf(segment[4] * (1.0 + CORRIDOR_SWELL), maxf(_open_circles[link.a].z, _open_circles[link.b].z) * CORRIDOR_FLARE + segment[4] * 0.5)
+		var widest: float = segment[4] if urban else maxf(segment[4] * (1.0 + CORRIDOR_SWELL), maxf(_open_circles[link.a].z, _open_circles[link.b].z) * CORRIDOR_FLARE + segment[4] * 0.5)
 		if widest - away <= second: continue
 		var corridor_distance: float = _corridor_half_width(segment, point) - away
 		if corridor_distance > best:
@@ -1464,7 +1602,9 @@ func carved_distance(point: Vector2) -> float:
 		elif corridor_distance > second:
 			second = corridor_distance
 	_last_owner = owner
-	var distance := best if second <= -1e8 else _smooth_max(best, second, CITY_BLEND if region_id == "city" else BLEND)
+	var distance := best if second <= -1e8 else _smooth_max(best, second, CITY_BLEND if urban else BLEND)
+	# The vault room keeps its straight walls: no fillet swells it past them.
+	if owner == _vault_room and _vault_room >= 0: distance = best
 	for i in pillars:
 		distance = _smooth_min(distance, _pillar_distance(i, point), PILLAR_BLEND)
 	return distance
@@ -1540,7 +1680,7 @@ func _build_shape_grid() -> void:
 
 ## Room i's rim at `offset` from its centre, as a share of its radius.
 func _lobed(i: int, offset: Vector2) -> float:
-	if region_id == "city" or i >= _room_shapes.size(): return 1.0
+	if urban or i >= _room_shapes.size(): return 1.0
 	var shape := _room_shapes[i]
 	var angle := offset.angle()
 	return 1.0 + shape[0] * sin(2.0 * angle + shape[1]) + shape[2] * sin(3.0 * angle + shape[3])
@@ -1560,7 +1700,9 @@ func _link_half_width(index: int, s: float) -> float:
 	var base: float = link.width
 	# Lungmen's streets keep their width, kerb to kerb: the city is right-angled
 	# (城市地图调研与方案_v1.md §1); its rooms blur into the roads by size instead.
-	if region_id == "city": return base
+	if urban: return base
+	# The vault's passage keeps its width, door to door: no flare swells the room.
+	if index == _vault_link: return base
 	var swell := clampf(_swell.get_noise_2d(s, float(index) * 37.0) * 0.5 + 0.5, 0.0, 1.0)
 	var width := base * (1.0 + CORRIDOR_SWELL * swell * swell)
 	# A bridge's stubs keep their width: the deck is sized to them.
@@ -1623,7 +1765,20 @@ func _is_open(x: float, z: float, inflate: float = 0.0) -> bool:
 
 ## Room to stand: well inside the contour and not on a cliff's face.
 func _has_clearance(point: Vector2) -> bool:
-	return _is_open(point.x, point.y, -1.5) and (_surface == null or _surface.is_level(point))
+	return _is_open(point.x, point.y, -1.5) and (_surface == null or _surface.is_level(point)) and not in_prop(point, PROP_MARGIN)
+
+## Room kept round a colliding prop: an actor's body, so a shot at its middle
+## does not clip the box's corner.
+const PROP_MARGIN := 0.6
+
+func in_prop(point: Vector2, margin: float = 0.0) -> bool:
+	for blocker in prop_blockers:
+		var offset: Vector2 = point - (blocker[0] as Vector2)
+		var half: Vector2 = blocker[2]
+		if offset.length_squared() > (half.length() + margin) * (half.length() + margin): continue
+		var x_axis: Vector2 = blocker[1]
+		if absf(offset.dot(x_axis)) < half.x + margin and absf(offset.dot(x_axis.orthogonal())) < half.y + margin: return true
+	return false
 
 ## 用户 2026-10-14: 兴趣点不都刷在道路、房间中央. A point of interest in the room
 ## round `centre`: a quarter at the middle, the rest set back against its wall
@@ -1679,6 +1834,170 @@ func _walk_distances() -> PackedInt32Array:
 				parent[other] = current
 	return parent
 
+# --- Siracusa: the old town (叙拉古地图调研与方案_v1.md §3) ------------------------
+
+const RAIN_SHARE := 0.5
+## Lane half-widths: 5.2–6.6 m wall to wall (narrower leaves no standing
+## ground on the 1.5 m sampling grid where a lane runs at a slant).
+const LANE_WIDTH := Vector2(2.6, 3.3)
+## Lanes kink off the straight line by this share of their length.
+const LANE_KINK := Vector2(0.14, 0.28)
+## Rooms over PIAZZA_FROM keep only PIAZZA_SHRINK of the excess.
+const PIAZZA_FROM := 6.5
+const PIAZZA_SHRINK := 0.55
+## Family mansions (§3.2): dead-end rooms walled round, one gate.
+const MANSIONS := Vector2i(1, 2)
+const MANSION_RADIUS := Vector2(5.5, 11.0)
+## Landmark rooms: the theatre and the court, one each at most.
+const LANDMARK_KINDS := ["theatre", "court"]
+const LANDMARK_RADIUS := 7.5
+## Rooms laid out as mansions, and {"room", "kind"} landmarks.
+var mansion_rooms: Array[int] = []
+var landmarks: Array[Dictionary] = []
+
+## Picks the mansions and the landmark rooms from the layout just dug, with
+## its own RNG so nothing else moves. A mansion is a dead end (a branch room
+## with one way in); a landmark is a bigger room that is not a mansion, the
+## entry or the trunk's end.
+func _plan_old_town() -> void:
+	mansion_rooms.clear()
+	landmarks.clear()
+	if region_id != "siracusa": return
+	var roll := RandomNumberGenerator.new()
+	roll.seed = seed_value ^ 0x5112a
+	var dead_ends: Array[int] = []
+	for i in range(_open_circles.size()):
+		if circle_kinds[i] != "spur" or _degree(i) != 1: continue
+		var r: float = _open_circles[i].z
+		if r >= MANSION_RADIUS.x and r <= MANSION_RADIUS.y: dead_ends.append(i)
+	_shuffle_ints(dead_ends, roll)
+	# Spurs enough stay open for the early build, the encounter and the exits.
+	var spur_count := circle_kinds.count("spur")
+	var count := mini(roll.randi_range(MANSIONS.x, MANSIONS.y), maxi(0, spur_count - 4))
+	for k in range(mini(count, dead_ends.size())): mansion_rooms.append(dead_ends[k])
+	var big: Array[int] = []
+	for i in range(1, _open_circles.size()):
+		if i == main_path.size() - 1 or mansion_rooms.has(i) or circle_kinds[i] in ["vault", "niche"]: continue
+		if _open_circles[i].z >= LANDMARK_RADIUS and not _entered_from_north(i): big.append(i)
+	_shuffle_ints(big, roll)
+	for kind in LANDMARK_KINDS:
+		if big.is_empty() or roll.randf() < 0.25: continue
+		landmarks.append({"room": big.pop_back(), "kind": kind})
+
+## Whether a lane leaves room i through its north wall, where a landmark's
+## front would stand across it.
+func _entered_from_north(i: int) -> bool:
+	var centre := _centre(i)
+	for index in range(_links.size()):
+		var link: Dictionary = _links[index]
+		if int(link.a) != i and int(link.b) != i: continue
+		var line := _link_points(index)
+		var toward: Vector2 = line[1] if line[1].distance_to(centre) > 1.0 else (line[2] if int(link.a) == i else line[0])
+		var d := toward - centre
+		if d.y > 0.0 and absf(d.x) < d.y * (0.85 / 0.75) + 6.0: return true
+	return false
+
+static func _shuffle_ints(list: Array[int], roll: RandomNumberGenerator) -> void:
+	for i in range(list.size() - 1, 0, -1):
+		var j := roll.randi_range(0, i)
+		var swap := list[i]
+		list[i] = list[j]
+		list[j] = swap
+
+## 家族专用轿车's roadblock (叙拉古敌人设计案 §三第 7.1 节): on half the floors, a
+## trunk lane leaving a piazza deeper in, which is a cut edge (no loop round
+## it), neither the first nor the last of the trunk, clear of every marker.
+## {"at": the car's spot, "along": the lane's way deeper, "half": its half-width}.
+var roadblock := {}
+const ROADBLOCK_SHARE := 0.5
+
+func _plan_roadblock() -> void:
+	roadblock = {}
+	if region_id != "siracusa": return
+	var roll := RandomNumberGenerator.new()
+	roll.seed = seed_value ^ 0xca5
+	if roll.randf() >= ROADBLOCK_SHARE: return
+	var markers: Array = [buff_position, encounter_position, route_guard_position, vault_position]
+	markers.append_array(cache_positions)
+	if is_instance_valid(exit_node): markers.append(exit_node.position)
+	for node in route_nodes: markers.append(node.position)
+	var options: Array[int] = []
+	for index in range(_links.size()):
+		var link: Dictionary = _links[index]
+		var a := int(link.a)
+		var b := int(link.b)
+		if not link.alive or link.has("bridge") or circle_kinds[a] != "trunk" or circle_kinds[b] != "trunk": continue
+		if a == 0 or b != a + 1 or b >= main_path.size() - 1: continue
+		if _open_circles[a].z < PIAZZA_FROM or mansion_rooms.has(a) or not landmark_of(a).is_empty(): continue
+		if not _cut_edge(index): continue
+		options.append(index)
+	_shuffle_ints(options, roll)
+	for index in options:
+		var link: Dictionary = _links[index]
+		var line := _link_points(index)
+		var start: Vector2 = line[0]
+		var travel := float(_open_circles[int(link.a)].z) * 0.9 + 3.5
+		var at := start
+		var along := Vector2.ZERO
+		for k in range(line.size() - 1):
+			var leg: float = line[k].distance_to(line[k + 1])
+			if travel <= leg:
+				along = (line[k + 1] - line[k]).normalized()
+				at = line[k] + along * travel
+				break
+			travel -= leg
+		if along == Vector2.ZERO or not _has_clearance(at): continue
+		var clear := true
+		for m in markers:
+			if Vector2((m as Vector3).x, (m as Vector3).z).distance_to(at) < 6.0: clear = false
+		if not clear: continue
+		roadblock = {"at": at, "along": along, "half": float(link.width) + 0.5, "link": index}
+		return
+
+## Whether removing link `index` cuts the floor in two (no loop round it).
+func _cut_edge(index: int) -> bool:
+	var seen := {0: true}
+	var queue: Array[int] = [0]
+	while not queue.is_empty():
+		var room: int = queue.pop_back()
+		for k in range(_links.size()):
+			var link: Dictionary = _links[k]
+			if k == index or not link.alive: continue
+			var other := -1
+			if int(link.a) == room: other = int(link.b)
+			elif int(link.b) == room: other = int(link.a)
+			if other >= 0 and not seen.has(other):
+				seen[other] = true
+				queue.append(other)
+	return not seen.has(int(_links[index].b))
+
+func is_mansion(room: int) -> bool:
+	return mansion_rooms.has(room)
+
+func landmark_of(room: int) -> String:
+	for l in landmarks:
+		if int(l.room) == room: return str(l.kind)
+	return ""
+
+## The room whose floor holds `point` (within its radius of its centre), or -1.
+func room_at(point: Vector2) -> int:
+	for i in range(_open_circles.size()):
+		if point.distance_to(_centre(i)) <= _open_circles[i].z: return i
+	return -1
+
+## Room i's walls in Siracusa: a piazza is an oblong at its own angle; a
+## mansion's court and a landmark's square sit square to the axes (a façade
+## faces the camera across it; a court is walled round).
+func _square_distance(i: int, offset: Vector2) -> float:
+	var r: float = _open_circles[i].z
+	if mansion_rooms.has(i) or not landmark_of(i).is_empty():
+		var q := offset.abs() - Vector2(r * 0.85, r * 0.75)
+		return -maxf(q.x, q.y) + 1.0
+	var shape := _room_shapes[i] if i < _room_shapes.size() else PackedFloat32Array([0.1, 0.0, 0.0, 0.0])
+	var local := offset.rotated(-shape[1])
+	var q := local.abs() - Vector2(r * 0.88, r * (0.62 + shape[0] * 1.6))
+	return -maxf(q.x, q.y) + 1.0
+
 func _degree(circle: int) -> int:
 	var count := 0
 	for link in _links:
@@ -1695,7 +2014,7 @@ func _place_content() -> void:
 	var parent := _walk_distances()
 	var spurs: Array[int] = []
 	for i in range(_open_circles.size()):
-		if circle_kinds[i] == "spur" and circle_distance[i] < INF: spurs.append(i)
+		if circle_kinds[i] == "spur" and circle_distance[i] < INF and not mansion_rooms.has(i): spurs.append(i)
 	# By the walk from the entry, not by depth: with loops a shallow room can be
 	# a long way round, and the early build has to be early on foot.
 	spurs.sort_custom(func(a: int, b: int) -> bool: return circle_distance[a] < circle_distance[b])
@@ -1713,7 +2032,7 @@ func _place_content() -> void:
 	# no candidate at all (the trunk's end always qualifies then).
 	for share in [0.5, 0.35, 0.0, -1.0]:
 		for i in range(_open_circles.size()):
-			if i == buff_room or i == encounter_room or circle_kinds[i] in ["vault", "niche"]: continue
+			if i == buff_room or i == encounter_room or circle_kinds[i] in ["vault", "niche"] or mansion_rooms.has(i): continue
 			# Well past the early build along the walk (loops can make a shallow
 			# room a long way round).
 			if share >= 0.0 and circle_distance[i] < circle_distance[buff_room] * 1.6: continue
@@ -1729,7 +2048,7 @@ func _place_content() -> void:
 	# Extraction: another far dead end, well apart from the route markers.
 	var extract_options: Array[int] = []
 	for i in range(_open_circles.size()):
-		if i == exit_chamber or i == buff_room or i == encounter_room or i == 0 or circle_kinds[i] in ["vault", "niche"]: continue
+		if i == exit_chamber or i == buff_room or i == encounter_room or i == 0 or circle_kinds[i] in ["vault", "niche"] or mansion_rooms.has(i): continue
 		if circle_distance[i] == INF or circle_distance[i] < farthest * 0.45: continue
 		if i != trunk_end and _degree(i) != 1: continue
 		var centre := Vector2(_open_circles[i].x, _open_circles[i].y)
@@ -1750,7 +2069,12 @@ func _place_content() -> void:
 	buff_position = _grounded(buff_at, 0.65)
 	encounter_position = _grounded(gild_at, 0.65)
 	buff_device_node = _marker("强化 · E", buff_position, Color("ef9b42"))
-	encounter_node = _set_piece("坎诺特 · E" if encounter_kind == "trader" else "罗德岛小队 · E", encounter_position, Color("e6c25a") if encounter_kind == "trader" else Color("5fd0d8"), ENCOUNTER_MODELS["trader" if encounter_kind == "trader" else "squad"], "trader" if encounter_kind == "trader" else "squad")
+	_modelled(buff_device_node, "res://art/kit/buff_device.glb")
+	if encounter_kind == "post":
+		# A faction's post (势力与交易所策划案 §12): the stall without 坎诺特, until its NPC art.
+		encounter_node = _set_piece("据点 · E", encounter_position, Color("c48cff"), ENCOUNTER_MODELS.trader)
+	else:
+		encounter_node = _set_piece("坎诺特 · E" if encounter_kind == "trader" else "罗德岛小队 · E", encounter_position, Color("e6c25a") if encounter_kind == "trader" else Color("5fd0d8"), ENCOUNTER_MODELS["trader" if encounter_kind == "trader" else "squad"], "trader" if encounter_kind == "trader" else "squad")
 	encounter_node.visible = not encounter_kind.is_empty()
 	exit_node = _marker("撤离 · E", _grounded(exit_at, 0.15), Color("63eca7"))
 	exit_node.visible = extraction_available
@@ -1766,7 +2090,7 @@ func _place_content() -> void:
 	for i in range(3):
 		var wanted: Vector2 = route_centre + across * (i - 1) * 5.5 + arrival * 2.5
 		var spot := _safe_spot(wanted, route_centre, route_room.z)
-		route_nodes.append(_marker(FieldCatalog.ROUTES[i].name + " · E", _grounded(spot, 0.15), Color("69b7ea")))
+		route_nodes.append(_modelled(_marker(FieldCatalog.ROUTES[i].name + " · E", _grounded(spot, 0.15), Color("69b7ea")), "res://art/kit/route_marker.glb", arrival))
 	var hold := _open_circles[maxi(0, parent[exit_chamber])]
 	var hold_at := Vector2(hold.x, hold.y).lerp(route_centre, 0.35) if parent[exit_chamber] > 0 else route_centre - arrival * 8.0
 	route_guard_position = _grounded(_safe_spot(hold_at, Vector2(hold.x, hold.y), hold.z), 0.0)
@@ -1788,6 +2112,9 @@ func _place_content() -> void:
 	var spare: Array[int] = []
 	for i in spurs:
 		if not used.has(i): spare.append(i)
+	# Each mansion's court keeps the family's safe (game_manager: mansion_point).
+	for i in mansion_rooms:
+		if circle_distance[i] < INF: spare.append(i)
 	for i in spare:
 		var centre := Vector2(_open_circles[i].x, _open_circles[i].y)
 		# Settled like every marker: a warped outline may not cover the centre.
@@ -1807,23 +2134,77 @@ func _place_content() -> void:
 	for niche in niche_centres:
 		cache_positions.append(_grounded(_safe_spot(niche, niche, 4.5), 0.5))
 
-	# Mechanisms sit on the detours that carry no device, so clearing them all
-	# means having actually walked the branches rather than pressing on. Spurs
-	# first because their anchors are spread along the whole route; niches and
-	# loop rooms only top up when a seed produced few spare spurs.
-	mechanism_positions.clear()
-	var mechanism_spots: Array[Vector2] = []
-	for i in spare: mechanism_spots.append(Vector2(_open_circles[i].x, _open_circles[i].y))
-	mechanism_spots.append_array(niche_centres)
-	mechanism_spots.append_array(loop_centres)
-	for i in range(mini(4, mechanism_spots.size())):
-		var spot := _safe_spot(mechanism_spots[i] + Vector2(2.0, -2.0), mechanism_spots[i], 5.0)
-		mechanism_positions.append(_grounded(spot, 0.5))
-		mechanism_nodes.append(_marker("机关 · E", _grounded(spot, 0.35), Color("b47ae0")))
+	vault_position = Vector3(1.0e6, 0.0, 1.0e6)
+	if has_vault:
+		var vault_spot := _safe_spot(vault_centre, vault_centre, 8.0)
+		vault_position = _grounded(vault_spot, 0.5)
+		vault_node = Node3D.new()
+		vault_node.name = "VaultMark"
+		vault_node.visible = false
+		_generated_root.add_child(vault_node)
+		vault_node.position = vault_position
+		_find_vault_mouth()
+		vault_seal = VaultSeal.new()
+		vault_seal.prepare(self)
 
-	var vault_spot := _safe_spot(vault_centre, vault_centre, 8.0)
-	vault_position = _grounded(vault_spot, 0.5)
-	vault_node = _marker("密室", _grounded(vault_spot, 0.2), Color("d8b24a"))
+## The 暗墙 is the stretch of the room's edge where the vault's lane would
+## leave it: walking the lane out from the trunk, the first point where the
+## floor, carved with the vault, would run on into what is rock without it.
+func _find_vault_mouth() -> void:
+	var link: Dictionary = _links[_vault_link]
+	var points := [Vector2(_open_circles[link.a].x, _open_circles[link.a].y), link.middle as Vector2, Vector2(_open_circles[link.b].x, _open_circles[link.b].y)]
+	vault_half_width = float(link.width) + 0.8
+	for leg in range(2):
+		var from: Vector2 = points[leg]
+		var to: Vector2 = points[leg + 1]
+		var length := from.distance_to(to)
+		var t := 0.0
+		while t < length:
+			var p := from.lerp(to, t / length)
+			if _surface.distance_near(p) < 0.0:
+				vault_inward = (to - from).normalized()
+				vault_mouth = p
+				return
+			t += 0.25
+	vault_mouth = points[1]
+	vault_inward = (points[2] - points[1]).normalized()
+
+## Whether a vault room at `spot`, its lane to `base`, would stand in rock
+## (VAULT_CLEAR all round) clear of every room and corridor planned so far.
+const VAULT_CLEAR := 4.0
+func _vault_clear(spot: Vector2, base: Vector2) -> bool:
+	var rect := Rect2(spot - VAULT_ROOM, VAULT_ROOM * 2.0).grow(VAULT_CLEAR)
+	for i in range(_open_circles.size()):
+		var c := _open_circles[i]
+		var centre := Vector2(c.x, c.y)
+		var nearest := centre.clamp(rect.position, rect.end)
+		if nearest.distance_to(centre) < c.z * 1.3: return false
+	for link in _links:
+		if not link.alive: continue
+		var line := PackedVector2Array([_centre(int(link.a)), link.middle as Vector2, _centre(int(link.b))])
+		for k in range(2):
+			var leg := PackedVector2Array([line[k], line[k + 1]])
+			# Corridors the lane leaves from may meet it at the trunk; the room may meet none.
+			var corners := PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y), rect.position])
+			for e in range(4):
+				if _line_gap(PackedVector2Array([corners[e], corners[e + 1]]), leg) < float(link.width): return false
+			if rect.has_point(line[k]): return false
+	return true
+
+## The vault's room and lane, with room round them.
+func vault_bounds() -> Rect2:
+	var circle := _open_circles[_vault_room]
+	var rect := Rect2(Vector2(circle.x, circle.y), Vector2.ZERO).grow(circle.z * 1.8)
+	var link: Dictionary = _links[_vault_link]
+	for p in [Vector2(_open_circles[link.a].x, _open_circles[link.a].y), link.middle as Vector2]:
+		rect = rect.expand(p)
+	return rect.grow(float(link.width) * 2.0)
+
+## Never hidden any more: a sealed vault is plain rock (kept for the trap and
+## fog callers; true only over the vault's own dug ground while sealed).
+func vault_hidden(point: Vector2) -> bool:
+	if vault_seal == null or vault_seal.opened: return false
+	return vault_seal.in_patch(point) and (point - vault_mouth).dot(vault_inward) > 0.0
 
 func _dress_landmarks() -> void:
 	# Compose grounded groups independently of progression RNG and collision.
@@ -1925,6 +2306,17 @@ func _squad_spots(pos: Vector3, rng: RandomNumberGenerator) -> Array[Vector3]:
 		spots.append(spot)
 	spots.sort_custom(func(p: Vector3, q: Vector3): return p.z > q.z)
 	return spots
+
+## A marker's placeholder disc swapped for its model (tools/blender/kit/
+## build_trap_kit.py PROPS, 用户 2026-10-17: 几何体代替的都换成建模), standing on
+## the ground, facing `facing` (its front, Godot +Z) when given.
+func _modelled(node: Node3D, path: String, facing := Vector2.ZERO) -> Node3D:
+	var marker := node as MeshInstance3D
+	marker.mesh = TerraceDressing.kit_mesh(load(path))
+	marker.material_override = null
+	marker.position.y = ground_height(Vector2(marker.position.x, marker.position.z))
+	if facing != Vector2.ZERO: marker.rotation.y = atan2(-facing.x, -facing.y)
+	return marker
 
 func _marker(title: String, pos: Vector3, color: Color) -> Node3D:
 	# No Label3D: 3D text is noise at the world's 640×360, and the HUD shows

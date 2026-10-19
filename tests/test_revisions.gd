@@ -145,7 +145,7 @@ func _protection() -> void:
 	var staged := game.base.staging.size()
 	check("send home: the item leaves her for staging at once", game.squad_send_home(blade) and not game.carried_items().has(blade)
 		and game.base.location_of(blade) == "staging" and game.base.staging.size() == staged + 1)
-	check("an insured item can be sent; its insurance lapses", not blade.insured and game.gold_bars() == 0)
+	check("an insured item can be sent and stays insured (it was not lost)", blade.insured and game.gold_bars() == 0)
 	game.encounter_used = false
 	game.run_gold = 10
 	game.player.equip(vest)
@@ -231,10 +231,11 @@ func _camps() -> void:
 	game.inventory.try_add(blade)
 	check("寄存 takes materials only, never special ones", game.deposit_refusal(blade) == "只收材料" and game.deposit_refusal(ore) == "特殊材料不能寄存")
 	var fee := game.deposit_fee(bolts)
-	check("the fee is 20% of the 交付价 in 赤金, rounded up", fee == maxi(1, ceili(Economy.price(bolts) * 0.2 / 1000.0)))
+	check("the fee is 20% of the 交付价 in 赤金 at the live rate, rounded up", fee == maxi(1, ceili(Economy.price(bolts) * 0.2 / Economy.bar_lmd())))
 	check("deposited materials go straight to staging", game.deposit_item(bolts) and game.base.location_of(bolts) == "staging" and game.gold_bars() == 11 - fee)
 	var gold_before := game.gold
-	check("可露希尔 buys 赤金 for 1000 龙门币 each", game.sell_gold_bars(3) and game.gold == gold_before + 3000 and game.gold_bars() == 8 - fee)
+	# The live rate less her 3% (势力与交易所策划案 §1.3), no longer a fixed 1000.
+	check("可露希尔 buys 赤金 at the live rate less 3%", game.sell_gold_bars(3) and game.gold == gold_before + 3 * Economy.closure_bar_price() and game.gold_bars() == 8 - fee)
 	check("not more than she carries", not game.sell_gold_bars(99))
 	game.inventory.remove(ore)
 	game.close_modal()
@@ -279,7 +280,7 @@ func _camps() -> void:
 	game.base.shelf.append(MaterialCatalog.create(Economy.GOLD_ID, 6))
 	game.inventory.items.clear()
 	lmd = game.gold
-	check("at the base she sells 赤金 from the shelves too", game.gold_available() >= 6 and game.sell_gold_bars(2) and game.gold == lmd + 2000)
+	check("at the base she sells 赤金 from the shelves too", game.gold_available() >= 6 and game.sell_gold_bars(2) and game.gold == lmd + 2 * Economy.closure_bar_price())
 	check("and sells flasks for 赤金 into the pack", game.closure_buy_potion("A") and game.potions == 1)
 	game.open_station("store")
 	check("the store station opens", game.menu.visible)

@@ -13,28 +13,23 @@ var offers: Array[Dictionary] = []
 var _mesh: MeshInstance3D
 var _label: Label3D
 var _age := 0.0
+const MODELS := {"vault": "res://art/kit/relic_cache_vault.glb", "cache": "res://art/kit/relic_cache_field.glb"}
+const MODEL_SCALE := 1.3
 
 func _ready() -> void:
 	add_to_group("relic_caches")
+	# A reliquary, amber for the vault's, blue for a combat cache's
+	# (tools/blender/kit/build_trap_kit.py, 用户 2026-10-17: 掉落的藏品从几何体换成建模).
 	_mesh = MeshInstance3D.new()
-	var prism := PrismMesh.new()
-	prism.size = Vector3(0.7, 0.9, 0.7)
-	_mesh.mesh = prism
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color("f3b04a") if source == "vault" else Color("72b8ff")
-	material.emission_enabled = true
-	material.emission = material.albedo_color
-	material.emission_energy_multiplier = 0.6
-	_mesh.material_override = material
-	_mesh.position.y = 0.8
+	_mesh.mesh = TerraceDressing.kit_mesh(load(MODELS[source] if MODELS.has(source) else MODELS.cache))
+	_mesh.scale = Vector3.ONE * MODEL_SCALE
 	add_child(_mesh)
 	# No name over it (用户 2026-10-13: 不要中文label了，只提示e即可): the HUD shows the E key when near.
 
 func _process(delta: float) -> void:
 	_age += delta
-	if is_instance_valid(_mesh):
-		_mesh.rotation.y = _age * (0.4 if sealed else 1.6)
-		_mesh.position.y = 0.8 + 0.08 * sin(_age * 3.0)
+	# It turns slowly while it can be taken; sealed, it stands still.
+	if is_instance_valid(_mesh) and not sealed: _mesh.rotation.y = _age * 0.6
 	_refresh_label()
 
 func _refresh_label() -> void:

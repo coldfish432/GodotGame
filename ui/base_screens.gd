@@ -11,7 +11,8 @@ const BOTTOM := 690.0
 const STATION_TITLES := {
 	"contracts": ["调度台", "DISPATCH"], "insurance": ["后勤柜台", "LOGISTICS"], "loadout": ["整备台", "WORKBENCH"],
 	"stash": ["仓管台", "DEPOT"], "outbound": ["出库区", "OUTBOUND"], "report": ["医疗部", "MEDICAL"],
-	"pharmacy": ["医疗部", "MEDICAL"], "decon": ["医疗部", "MEDICAL"], "store": ["可露希尔的商店", "CLOSURE'S STORE"],
+	"pharmacy": ["医疗部", "MEDICAL"], "store": ["可露希尔的商店", "CLOSURE'S STORE"],
+	"personnel": ["人事部", "PERSONNEL"],
 }
 static var _detail: RichTextLabel
 
@@ -94,7 +95,7 @@ static func contracts(menu: FieldMenu) -> void:
 	var data: Dictionary = FieldCatalog.REGIONS[region]
 	var parts: PackedStringArray = str(data.name).split(" · ")
 	var code: String = AK.REGION_CODE.get(region, "LG")
-	var en_names := {"mine": "CHERNOBOG", "city": "LUNGMEN", "snow": "SAMI"}
+	var en_names := {"mine": "CHERNOBOG", "city": "LUNGMEN", "snow": "SAMI", "siracusa": "SIRACUSA"}
 	var stage := shell(menu, "调度台", "DISPATCH", [], 0, Callable(), en_names.get(region, ""))
 	# Regions as chapters.
 	for i in range(regions.size()):
@@ -179,6 +180,9 @@ static func contracts(menu: FieldMenu) -> void:
 	_section(stage, "合同目标", "OBJECTIVE", Vector2(x + 18, TOP + 376))
 	var offers: Array = game.contract_offers(region)
 	var chosen := clampi(menu.contract_pick, 0, offers.size() - 1)
+	# 寻访合同 come after the three: then the rows go to one line each.
+	var compact := offers.size() > FieldCatalog.CONTRACT_OFFERS
+	var row := 31 if compact else 44
 	for i in range(offers.size()):
 		var offer: Dictionary = offers[i]
 		var card := Button.new()
@@ -187,24 +191,76 @@ static func contracts(menu: FieldMenu) -> void:
 		var on := i == chosen
 		for s in ["normal", "hover", "pressed"]:
 			card.add_theme_stylebox_override(s, AK.box(AK.PAPER if on else (AK.PLATE_3 if s == "hover" else AK.PLATE_2)))
-		AK.put(stage, card, Vector2(x + 18, TOP + 400 + i * 44), Vector2(360, 40))
+		AK.put(stage, card, Vector2(x + 18, TOP + 400 + i * row), Vector2(360, row - 4))
 		var ink := AK.INK if on else AK.FG
 		var kind: String = FieldCatalog.CONTRACT_NAMES[offer.type]
-		AK.put(card, AK.tag(kind, AK.SP), Vector2(10, 10))
+		AK.put(card, AK.tag(kind, AK.SP), Vector2(10, 4 if compact else 10))
 		# The text starts after the tag, however long its shown name is.
 		var text_x := maxf(64.0, 10.0 + AK.cn().get_string_size(I18n.t(kind), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 12.0 + 8.0)
-		AK.put(card, AK.label(FieldCatalog.contract_goal(offer, region, start + 1), 13, ink), Vector2(text_x, 2))
-		AK.put(card, AK.label(FieldCatalog.contract_bonus_text(offer), 11, Color(ink, 0.7)), Vector2(text_x, 21))
+		AK.put(card, AK.label(FieldCatalog.contract_goal(offer, region, start + 1), 13, ink), Vector2(text_x, 4 if compact else 2))
+		var bonus := AK.label(FieldCatalog.contract_bonus_text(offer), 11, Color(ink, 0.7))
+		if compact:
+			bonus.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			AK.put(card, bonus, Vector2(150, 7), Vector2(200, 16))
+		else:
+			AK.put(card, bonus, Vector2(text_x, 21))
 		for child in card.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var index := i
 		card.pressed.connect(func(): menu.contract_pick = index; contracts(menu))
 	var go := AK.go_button("开始行动", "OPERATION START")
-	AK.put(stage, go, Vector2(x + 18, BOTTOM - 84), Vector2(360, 72))
+	if compact: AK.put(stage, go, Vector2(x + 18, BOTTOM - 56), Vector2(360, 50))
+	else: AK.put(stage, go, Vector2(x + 18, BOTTOM - 84), Vector2(360, 72))
 	go.pressed.connect(func():
 		game._pending_contract = (offers[chosen] as Dictionary).duplicate()
 		game._pending_start_camp = start
 		menu.show_departure(region)
 		menu.back_to = func(): game.open_station("contracts"))
+
+# --- 人事部 (干员寻访策划案 §2.3) ----------------------------------------------------
+
+## The roster: every operator, her portrait, her region, her traces and where
+## she stands. Data only (用户: 界面不写说明文字).
+static func personnel(menu: FieldMenu) -> void:
+	var game := menu.game
+	var stage := shell(menu, "人事部", "PERSONNEL", [], 0, Callable(), "ROSTER")
+	_section(stage, "干员名册", "ROSTER", Vector2(16, TOP + 8))
+	var ids: Array = Operators.ORDER
+	for i in range(ids.size()):
+		var id: String = ids[i]
+		var joined := game.base.recruited(id)
+		var at := Vector2(16 + (i % 3) * 416, TOP + 40 + (i / 3) * 196)
+		stage.add_child(AK.rect(AK.PLATE_2, at, Vector2(404, 184)))
+		# Standing to attention: her idle's first south frame, at a whole 5× so
+		# the pixels stay square (用户 2026-10-17: 改为立正状态).
+		var stand := AtlasTexture.new()
+		stand.atlas = LapplandAnimator3D.sheet(id, "idle")
+		stand.region = Rect2(0, 0, LapplandAnimator3D.CELL_TEXELS, LapplandAnimator3D.CELL_TEXELS)
+		var picture := TextureRect.new()
+		picture.texture = stand
+		picture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		# Not yet found: her silhouette only.
+		if not joined and game.base.clues(id) == 0: picture.modulate = Color(0, 0, 0, 0.85)
+		AK.put(stage, picture, at + Vector2(12, 12), Vector2(160, 160))
+		var data := Operators.info(id)
+		var known := joined or game.base.clues(id) > 0
+		AK.put(stage, AK.label(Operators.display_name(id) if known else "？？？", 18, AK.FG), at + Vector2(188, 12))
+		AK.put(stage, AK.label("%s · %s" % [data.get("class", ""), data.get("branch", "")], 11, AK.MUTE, AK.en()), at + Vector2(188, 40))
+		var region := RecruitCatalog.region_of(id)
+		if not region.is_empty():
+			AK.put(stage, AK.label(str(FieldCatalog.REGIONS[region].name).split(" · ")[0], 13, AK.FG), at + Vector2(188, 64))
+		var status := "已入职"
+		var colour := AK.GREEN
+		if not joined:
+			var have := game.base.clues(id)
+			status = "未发现" if have == 0 else ("可寻访" if game.base.recruit_ready(id) else "追踪中")
+			colour = AK.MUTE if have == 0 else (AK.SP if game.base.recruit_ready(id) else AK.BLUE)
+			AK.put(stage, AK.label("踪迹 %d/%d" % [have, RecruitCatalog.CLUES_NEEDED], 13, AK.FG), at + Vector2(188, 88))
+		elif not Operators.has_kit(id):
+			status = "整备中"
+			colour = AK.BLUE
+		AK.put(stage, AK.tag(status, colour), at + Vector2(188, 144))
 
 # --- #14 仓库 -------------------------------------------------------------------------
 
@@ -426,14 +482,13 @@ static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, slot: int
 
 # --- #16 医疗部 -----------------------------------------------------------------------
 
-const MEDICAL_TABS := ["药房窗口", "回收报告", "污染检测门"]
+const MEDICAL_TABS := ["药房窗口", "回收报告"]
 
 static func medical(menu: FieldMenu, tab: int) -> void:
 	var game := menu.game
 	var base: BaseState = game.base
 	var stage := shell(menu, "医疗部", "MEDICAL", MEDICAL_TABS, tab, func(i): medical(menu, i), "MEDICAL",
-		[["lmd", Economy.format(game.gold)], ["ori", str(roundi(base.contamination))]])
-	_contamination_card(stage, base, Vector2(924, TOP + 8))
+		[["lmd", Economy.format(game.gold)]])
 	match tab:
 		0:
 			_section(stage, "将带入 · 背包", "CARRY-IN", Vector2(16, TOP + 8))
@@ -452,7 +507,7 @@ static func medical(menu: FieldMenu, tab: int) -> void:
 					style.border_color = AK.ORI if type == "C" else AK.GREEN
 					style.border_width_bottom = 3
 					card.add_theme_stylebox_override(s, style)
-				card.disabled = price < 0 or game.gold < price or not game.inventory.can_fit(BaseCatalog.create_potion(type))
+				card.disabled = price < 0 or game.gold < price or not game.inventory.can_take(BaseCatalog.create_potion(type))
 				if price < 0: card.modulate.a = 0.4
 				AK.put(stage, card, Vector2(x, y + 30), Vector2(290, 92))
 				AK.put(card, AK.item_icon(BaseCatalog.create_potion(type), Vector2(52, 52)), Vector2(12, 12))
@@ -480,28 +535,8 @@ static func medical(menu: FieldMenu, tab: int) -> void:
 				fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				row.add_child(fill)
 				var colour: Color = {"撤离带回": AK.GREEN, "安全袋保全": AK.GREEN, "投保送回": AK.HP}.get(entry.reason, AK.RED)
-				row.add_child(AK.label(entry.reason + (" · %d 份合同后" % int(entry.contracts) if entry.has("contracts") else ""), 13, colour))
+				row.add_child(AK.label(entry.reason, 13, colour))
 				holder.add_child(row)
-		2:
-			var holder := VBoxContainer.new()
-			holder.add_theme_constant_override("separation", 10)
-			AK.put(stage, holder, Vector2(16, TOP + 8), Vector2(880, 0))
-			_list_into(menu, holder, menu._decon_section)
-
-static func _contamination_card(stage: Control, base: BaseState, at: Vector2) -> void:
-	_section(stage, "污染", "CONTAMINATION", at)
-	stage.add_child(AK.rect(AK.PLATE_2, at + Vector2(0, 30), Vector2(340, 130)))
-	var value := roundi(base.contamination)
-	AK.put(stage, AK.label(str(value), 52, AK.ORI, AK.en()), at + Vector2(16, 38))
-	AK.put(stage, AK.tag(BaseCatalog.CONTAMINATION_TIER_NAMES[base.contamination_tier()], AK.ORI), at + Vector2(120, 66))
-	var bar := FieldPanels.Bar.new()
-	bar.ratio = base.contamination / 100.0
-	bar.colour = AK.ORI
-	AK.put(stage, bar, at + Vector2(16, 112), Vector2(308, 6))
-	for tier in BaseCatalog.CONTAMINATION_TIERS:
-		var threshold := int(tier[0])
-		var name: String = BaseCatalog.CONTAMINATION_TIER_NAMES[BaseCatalog.CONTAMINATION_TIERS.find(tier)]
-		AK.put(stage, AK.label("%d %s" % [threshold, name] if threshold > 0 else "0", 10, AK.MUTE), at + Vector2(16 + 308 * threshold / 100.0 - (0 if threshold == 0 else 14), 124))
 
 # --- #17 出发准备 / 整备 ----------------------------------------------------------------
 
@@ -537,11 +572,13 @@ static func departure(menu: FieldMenu, region: String, kind: String = "") -> voi
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	AK.put(card, sprite, Vector2(-1, 90), Vector2(252, 252))
+	# Three rows of operator tabs sit above her when deploying with a full roster.
+	var tab_rows := ceili(game.base.deployable().size() / 3.0) if deploying else 0
+	AK.put(card, sprite, Vector2(-1, maxf(90.0, 44.0 + tab_rows * 30.0)), Vector2(252, 252))
 	var cls := AK.label(str(who["class"]), 13, AK.FG)
 	cls.add_theme_stylebox_override("normal", AK.box(Color.BLACK, Color.TRANSPARENT, 0, 10))
 	AK.put(card, cls, Vector2.ZERO)
-	AK.put(card, AK.label("★★★★★", 13, AK.SP), Vector2(12, card.size.y - 58))
+	AK.put(card, AK.label("★".repeat(int(who.get("stars", 5))), 13, AK.SP), Vector2(12, card.size.y - 58))
 	AK.put(card, AK.label(Operators.display_name(game.player.operator_id), 20, AK.FG), Vector2(12, card.size.y - 40))
 	card.add_child(AK.rect(AK.SP, Vector2(0, card.size.y - 4), Vector2(250, 4)))
 	var p: OperatorProgress = game.progress()
@@ -549,13 +586,23 @@ static func departure(menu: FieldMenu, region: String, kind: String = "") -> voi
 	var train := AK.button("干员养成" + (" ●" if p.attribute_points + p.skill_points > 0 else ""), "yellow" if p.attribute_points + p.skill_points > 0 else "plain", 12)
 	train.pressed.connect(func(): game.open_training(func(): _back_from_training(menu, region, kind)))
 	AK.put(card, train, Vector2(140, card.size.y - 86))
+	if kind == "loadout":
+		# 加工部 hangs off the workbench until its room is built (用户: 先挂工作台).
+		var shop := AK.button("加工站", "plain", 12)
+		shop.pressed.connect(func():
+			menu.back_to = func(): menu.show_station("loadout")
+			menu.show_station("workshop")
+			menu.back_to = func(): menu.show_station("loadout"))
+		AK.put(card, shop, Vector2(12, 40), Vector2(110, 30))
 	if deploying:
-		# Who deploys: one tab per operator along the card's top edge.
-		var tabs := HBoxContainer.new()
-		tabs.add_theme_constant_override("separation", 4)
-		for id in Operators.ORDER:
-			var tab := AK.button(Operators.display_name(id), "blue" if id == game.player.operator_id else "plain", 12)
-			tab.custom_minimum_size = Vector2(110, 30)
+		# Who deploys: one tab per operator, three to a row, along the card's top.
+		var tabs := GridContainer.new()
+		tabs.columns = 2 if game.base.deployable().size() <= 2 else 3
+		tabs.add_theme_constant_override("h_separation", 4)
+		tabs.add_theme_constant_override("v_separation", 4)
+		for id in game.base.deployable():
+			var tab := AK.button(Operators.display_name(id), "blue" if id == game.player.operator_id else "plain", 12 if tabs.columns == 2 else 11)
+			tab.custom_minimum_size = Vector2(110, 30) if tabs.columns == 2 else Vector2(72, 26)
 			var chosen_id: String = id
 			tab.pressed.connect(func(): game.choose_operator(chosen_id); _refresh(menu, region, kind))
 			tabs.add_child(tab)
@@ -603,8 +650,8 @@ static func departure(menu: FieldMenu, region: String, kind: String = "") -> voi
 		AK.put(stage, AK.label(parts[1] if parts.size() > 1 else "", 15, AK.FG), Vector2(x, TOP + 72))
 		var start: int = game._pending_start_camp
 		var cells := [["起点", game.camp_label(start) if start > 0 else AK.floor_code(region, 1), AK.GREEN if start > 0 else AK.FG],
-			["深度", AK.floor_code(region, start + 1), AK.FG], ["污染", str(roundi(base.contamination)), AK.ORI]]
-		for i in range(3):
+			["深度", AK.floor_code(region, start + 1), AK.FG]]
+		for i in range(cells.size()):
 			stage.add_child(AK.rect(AK.PLATE_2, Vector2(x + i * 114, TOP + 104), Vector2(108, 56)))
 			AK.put(stage, AK.label(cells[i][0], 11, AK.MUTE), Vector2(x + i * 114 + 8, TOP + 110))
 			AK.put(stage, AK.label(cells[i][1], 15, cells[i][2], AK.en() if i > 0 or start == 0 else AK.cn()), Vector2(x + i * 114 + 8, TOP + 130))
@@ -612,14 +659,13 @@ static func departure(menu: FieldMenu, region: String, kind: String = "") -> voi
 		tags.add_theme_constant_override("separation", 6)
 		var orders := base.orders.pointing_at(region)
 		if orders > 0: tags.add_child(AK.tag("订单 %d" % orders, AK.SP))
-		if base.contamination_tier() > 0: tags.add_child(AK.tag("污染 " + BaseCatalog.CONTAMINATION_TIER_NAMES[base.contamination_tier()], AK.ORI))
 		if base.injured: tags.add_child(AK.tag("重伤", AK.RED))
 		AK.put(stage, tags, Vector2(x, TOP + 172))
 		var warn_y := TOP + 204
 		for warning in game.departure_warnings():
 			AK.put(stage, _wrap(warning, 12, AK.SP, 340), Vector2(x, warn_y))
 			warn_y += 40
-		AK.put(stage, AK.label("药剂 %d" % game.carried_potions().size(), 12, AK.MUTE), Vector2(x, BOTTOM - 120))
+		AK.put(stage, AK.label("药剂 %d" % game.potion_count(), 12, AK.MUTE), Vector2(x, BOTTOM - 120))
 		var go := AK.go_button("开始行动", "OPERATION START")
 		AK.put(stage, go, Vector2(x, BOTTOM - 96), Vector2(340, 84))
 		go.pressed.connect(func(): game.start_contract(region, game._pending_start_camp))
@@ -726,7 +772,7 @@ static func store(menu: FieldMenu) -> void:
 # --- #11 暂停与设置 ------------------------------------------------------------------
 
 const PAUSE_ITEMS := ["继续作业", "设置", "按键设置", "放弃合同", "回到标题"]
-const SETTING_TABS := ["画面", "界面", "音频"]
+const SETTING_TABS := ["画面", "界面", "音频", "基地"]
 
 static func pause(menu: FieldMenu) -> void:
 	var game := menu.game
@@ -797,6 +843,9 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 		1: rows = [["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["language"],
 			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95]]
 		2: rows = [["主音量", [], "master_volume"]]
+		3:
+			_base_settings(menu, stage)
+			return
 	var y := 104.0
 	for row in rows:
 		if row[0] == "language":
@@ -828,6 +877,31 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 			AK.put(stage, toggle, Vector2(900, y + 6), Vector2(320, 38))
 		stage.add_child(AK.rect(AK.LINE, Vector2(334, y + 49), Vector2(886, 1)))
 		y += 50
+
+## 基地 (用户 2026-10-18): whether the station overview is open (its key
+## toggles it too), and which stations it lists.
+static func _base_settings(menu: FieldMenu, stage: Control) -> void:
+	var s := SystemScreens.settings
+	var y := 104.0
+	var rows: Array = [["站点总览", "station_panel", BaseHud.panel_open()]]
+	for entry in BaseHud.STATIONS: rows.append([entry[0], entry[1], not entry[1] in s.get("station_hidden", [])])
+	for i in range(rows.size()):
+		var row: Array = rows[i]
+		var x := 334.0 if i == 0 else 360.0
+		AK.put(stage, AK.label(row[0], 14 if i == 0 else 13, AK.FG if i == 0 else AK.MUTE), Vector2(x, y + 12))
+		var key: String = row[1]
+		var toggle := AK.toggle(["隐藏", "显示"], 1 if row[2] else 0, func(pick):
+			if key == "station_panel":
+				SystemScreens.set_setting("station_panel", pick == 1)
+			else:
+				var hidden: Array = Array(SystemScreens.settings.get("station_hidden", [])).filter(func(k): return k != key)
+				if pick == 0: hidden.append(key)
+				SystemScreens.set_setting("station_hidden", hidden)
+			pause(menu), 13)
+		toggle.alignment = BoxContainer.ALIGNMENT_END
+		AK.put(stage, toggle, Vector2(900, y + 6), Vector2(320, 38))
+		stage.add_child(AK.rect(AK.LINE, Vector2(334, y + (49 if i == 0 else 43)), Vector2(886, 1)))
+		y += 50 if i == 0 else 44
 
 ## 按键设置 (用户 2026-10-10, after Grim Dawn's Options → Keybindings): every
 ## Keybinds function with a primary and a secondary binding, keyboard or mouse

@@ -8,21 +8,37 @@ func step(n: int = 1) -> void:
 	for i in range(n):
 		await physics_frame
 		await process_frame
+		# A slow frame runs several physics ticks; keep the threat meter from
+		# sending patrols the checks below do not expect.
+		if is_instance_valid(game): game.threat.value = 0.0
 func check(label: String, passed: bool) -> void:
 	checks.append({"check": label, "passed": passed})
 	if not passed: failures += 1
 	print(("PASS " if passed else "FAIL ") + label)
+## A region's exclusive without its random prefixes (FieldCatalog.exclusive rolls
+## them unseeded): a 信使的 line skews the floor's pressure, a dear one the price.
+func plain_exclusive(region: String) -> Item:
+	var item := FieldCatalog.exclusive(region)
+	item.prefixes.clear()
+	if item.value_base > 0: item.value = item.value_base
+	return item
 func clean() -> void:
 	game._clear_field()
 	await step(2)
 func run() -> void:
+	# Pinned clock: the market (and its news) does not drift with wall time.
+	BaseState.frozen_clock = 1791972000
 	game = GameManager.new()
 	game.save_enabled = false
 	game.fixed_map_seed = 1729
 	root.add_child(game)
 	await step(8)
-	check("boot enters the walkable base with all three contracts", game.in_base and game.base_walk_active() and game.base_map.visible and FieldCatalog.REGIONS.size() == 3)
-	var armor := FieldCatalog.exclusive("city")
+	# GameManager randomizes its rng in _ready: seed it (and the global one) so
+	# build offers, wanderers and rolls are the same every run.
+	game.rng.seed = 1729
+	seed(1729)
+	check("boot enters the walkable base with all four contracts", game.in_base and game.base_walk_active() and game.base_map.visible and FieldCatalog.REGIONS.size() == 4)
+	var armor := plain_exclusive("city")
 	var weapon := Item.create("投保测试武器", Item.Category.WEAPON, 2, 1, 3)
 	game.stash.append_array([armor, weapon])
 	check("stash can supply next contract", game.bring_item(armor) and game.bring_item(weapon))
@@ -84,7 +100,7 @@ func run() -> void:
 	# Gear she set out with stays on her; finds arrive as receiving crates (基地玩法策划案 §3.2).
 	check("extraction keeps carried-in gear on her and crates the finds", game.in_base and game.player.equipped.get(Item.Category.ARMOR) == armor
 		and game.inventory.items.has(weapon) and game.safe_bag.items.has(material) and game.base.location_of(oversized) == "crate_sealed")
-	check("settlement clears all run builds and protections (insurance lapses on extraction)", game.builds.is_empty() and not armor.insured and not armor.carried_in)
+	check("settlement clears run builds; insured gear carried out stays insured (用户 2026-10-15)", game.builds.is_empty() and armor.insured and not armor.carried_in)
 	var count := game.base.all_items().size() + game.carried_items().size()
 	game.settle(true)
 	check("settlement is idempotent", game.base.all_items().size() + game.carried_items().size() == count)
@@ -101,7 +117,22 @@ func run() -> void:
 		and game.base.insurance_queue.any(func(e): return e.item == armor) and game.base.location_of(doomed) == "" and not game.carried_items().has(doomed))
 	check("each uid settles once", game.settlement.filter(func(e): return e.uid == armor.uid).size() == 1)
 	game.base.insurance_queue.clear()  # the riot shield would skew the damage checks below
-	# Insurance always comes back, 1–3 contracts later (保全系统修订案 §3).
+	# 用户 2026-10-15: whatever insured gear does not come out comes back, and only
+	# that return uses the insurance up.
+	await game.start_contract("city")
+	await clean()
+	var dropped := Item.create("丢下的投保物", Item.Category.WEAPON, 1, 1)
+	var kept_out := Item.create("带出的投保物", Item.Category.WEAPON, 1, 1)
+	for it in [dropped, kept_out]:
+		it.insured = true
+		game.inventory.try_add(it)
+	game.drop_item(dropped, game.inventory)
+	game.settle(true)
+	check("insured gear dropped on a floor comes back even on an extraction, and that uses it up",
+		game.base.insurance_queue.any(func(e): return e.item == dropped) and not dropped.insured)
+	check("insured gear carried out stays insured", kept_out.insured)
+	game.base.insurance_queue.clear()
+	# Insurance always comes back, 2–4 real hours later (用户 2026-10-15: 时钟计时).
 	await game.start_contract("city")
 	await clean()
 	var insured_items: Array[Item] = []
@@ -112,22 +143,29 @@ func run() -> void:
 		game.inventory.try_add(insured)
 		insured_items.append(insured)
 	game.rng.seed = 619
+	BaseState.clock_offset = 0
+	var queued_at := BaseState.now()
 	game.settle(false)
-	var waits := game.settlement.filter(func(e): return e.reason == "投保送回").map(func(e): return int(e.contracts))
-	check("every insured item is queued, never lost", waits.size() == 40 and game.base.insurance_queue.size() == 40)
-	check("each waits 1–3 contracts, and all three waits occur", waits.all(func(w): return w >= 1 and w <= 3) and waits.has(1) and waits.has(2) and waits.has(3))
-	var ones := waits.count(1)
+	var waits := game.base.insurance_queue.map(func(e): return int(e.due) - queued_at)
+	check("every insured item is queued, never lost", game.settlement.filter(func(e): return e.reason == "投保送回").size() == 40 and game.base.insurance_queue.size() == 40)
+	check("each waits 2–4 hours", waits.all(func(w): return w >= 2 * 3600 and w <= 4 * 3600 + 2) and waits.any(func(w): return w < 3 * 3600) and waits.any(func(w): return w > 3 * 3600))
+	await step(2)
+	game._insurance_check = 0.0
+	game._tick_insurance_clock(0.1)
+	check("nothing arrives before its time", game.base.insurance_queue.size() == 40)
+	BaseState.clock_offset = 3 * 3600
+	var due_by_three := waits.filter(func(w): return w <= 3 * 3600).size()
+	game._insurance_check = 0.0
+	game._tick_insurance_clock(0.1)
+	check("at the base, what is due arrives by the clock alone, as sealed crates", game.base.insurance_queue.size() == 40 - due_by_three
+		and insured_items.filter(func(x): return game.base.location_of(x) == "crate_sealed").size() == due_by_three)
+	BaseState.clock_offset = 4 * 3600 + 5
 	await game.start_contract("city")
 	await clean()
 	game.settle(true)
-	check("the next settlement delivers those waiting one contract, as sealed crates", game.base.insurance_queue.size() == 40 - ones
-		and insured_items.filter(func(x): return game.base.location_of(x) == "crate_sealed").size() == ones)
-	for i in range(2):
-		await game.start_contract("city")
-		await clean()
-		game.settle(true)
-	check("after three settlements everything insured is back", game.base.insurance_queue.is_empty()
+	check("after four hours everything insured is back (a settlement checks too)", game.base.insurance_queue.is_empty()
 		and insured_items.all(func(x): return game.base.location_of(x) == "crate_sealed"))
+	BaseState.clock_offset = 0
 	for x in insured_items: game.base._take(x)
 	# Regional loot distributions and exclusive provenance.
 	var counts := {}
@@ -167,17 +205,20 @@ func run() -> void:
 	await game.start_contract("mine")
 	await clean()
 	# Relics themselves are covered one by one in test_builds.gd.
-	var ore := FieldCatalog.exclusive("mine")
+	var ore := plain_exclusive("mine")
 	game.inventory.try_add(ore)
 	game.player.hp = game.player.max_hp * 0.5
 	game.player.regen_timer = 100
 	var hp := game.player.hp
+	var dose := game.run_contamination
 	game._physics_process(2)
-	check("raw ore drains 60 per second while carried", is_equal_approx(game.player.hp, hp - 120))
+	# 用户 2026-10-15: 原矿本身每秒扣血删除 — it only raises contamination.
+	check("raw ore costs no life while carried", is_equal_approx(game.player.hp, hp))
+	check("it adds 0.06 contamination a second (mine 0.02 on top)", is_equal_approx(game.run_contamination - dose, 0.16))
 	game.transfer_item(ore, game.inventory, game.safe_bag)
-	hp = game.player.hp
+	dose = game.run_contamination
 	game._physics_process(2)
-	check("safe bag protects ownership, not pollution damage", is_equal_approx(game.player.hp, hp - 120))
+	check("the safe bag does not shield its contamination", is_equal_approx(game.run_contamination - dose, 0.16))
 	var plain_hp := game.player.max_hp
 	game.builds.assign(["急救药箱"])
 	game.player._recompute_stats()
@@ -186,7 +227,7 @@ func run() -> void:
 	game.player._recompute_stats()
 	game.inventory.remove(ore)
 	game.safe_bag.remove(ore)
-	var frozen_relic := FieldCatalog.exclusive("snow")
+	var frozen_relic := plain_exclusive("snow")
 	game.player.equip(frozen_relic)
 	game.builds.clear()
 	check("frozen relic increases damage", game.player.attack_multiplier() > game.player.damage_bonus)
@@ -249,7 +290,7 @@ func run() -> void:
 			and FieldCatalog.depth_profile(5).hash() == FieldCatalog.depth_profile(15).hash() and FieldCatalog.DEPTH_CYCLE == FieldCatalog.CAMP_INTERVAL)
 	check("the floor before a camp raises pressure and payout over the opening floor",
 		int(FieldCatalog.depth_profile(10).enemies) > int(FieldCatalog.depth_profile(1).enemies)
-			and float(FieldCatalog.depth_profile(10).reward) > float(FieldCatalog.depth_profile(1).reward))
+			and LootTables.stair(10) > LootTables.stair(1))
 	check("depth 0 and negatives do not fall off the table",
 		FieldCatalog.depth_profile(0).hash() == FieldCatalog.depth_profile(1).hash())
 
@@ -288,55 +329,44 @@ func run() -> void:
 	game.settle(true)
 	await step(3)
 
-	# --- Sealed vault: mechanisms gate it, the guardian gates its spoils.
+	# --- 密室 (密室与陷阱修订案_v1 §2.1): found by eye, its 暗墙 broken by blows;
+	# a guard, when there is one, seals its spoils.
+	game.world_map.force_vault = 1
+	game.force_vault_guard = 1
 	await game.start_contract("mine")
 	await clean()
-	var total: int = game.world_map.mechanism_nodes.size()
-	check("segment lays out mechanisms and a vault away from the main path",
-		total >= 3 and is_instance_valid(game.world_map.vault_node))
-	var deep_enough := true
-	for spot in game.world_map.mechanism_positions:
-		if Vector2(spot.x, spot.z).distance_to(Vector2(game.world_map.vault_position.x, game.world_map.vault_position.z)) < 6.0:
-			deep_enough = false
-	check("mechanisms are not clustered on the vault itself", deep_enough)
-	for i in range(total - 1):
-		game.player.teleport(game.world_map.mechanism_nodes[i].global_position)
-		await step(2)
-		game._interact()
-	check("vault stays shut while any mechanism is untriggered", not game.vault_opened)
-	game.player.teleport(game.world_map.mechanism_nodes[0].global_position)
+	var map := game.world_map
+	var spoils := Vector2(map.vault_position.x, map.vault_position.z)
+	check("a sealed vault is plain rock, nothing marking it", map.has_vault and not map.vault_seal.opened and map._surface.distance_near(spoils) < 0.0 and not map.vault_node.visible)
+	check("its edge is the room's own: the patch's sealed share is set apart", map._generated_root.get_node_or_null("VaultSealed") != null)
+	var inward := Vector3(map.vault_inward.x, 0, map.vault_inward.y)
+	var front := Vector3(map.vault_mouth.x, 0, map.vault_mouth.y) - inward * 1.5
+	check("a swing facing away does not reach it", not game.strike_vault_wall(front, -inward))
+	for i in range(VaultSeal.HITS - 1): game.strike_vault_wall(front, inward)
+	check("it holds until the last blow", not game.vault_opened)
+	check("the last blow breaks it", game.strike_vault_wall(front, inward) and game.vault_opened)
 	await step(2)
-	game._interact()
-	await step(2)
-	check("re-triggering a used mechanism does not advance the count", not game.vault_opened)
-	game.player.teleport(game.world_map.mechanism_nodes[total - 1].global_position)
-	await step(2)
-	game._interact()
-	await step(2)
-	check("triggering every mechanism opens the vault", game.vault_opened)
+	check("broken, the lane and the room are dug and the vault shows on the map", map._surface.distance_near(spoils) >= 0.0 and map.vault_node.visible and map._generated_root.get_node_or_null("VaultDug") != null)
+	check("the dug ground is walkable from the room", map._surface.connects([Vector2(map.vault_mouth.x, map.vault_mouth.y) - map.vault_inward * 2.0, spoils]))
 	var sealed_loot := game.get_tree().get_nodes_in_group("sealed_loot")
-	check("mine vault holds sealed spoils and two ordinary guardians", sealed_loot.size() == 3 and game._vault_guardians.size() == 2 and game._vault_guardians.all(func(e): return not e.elite))
-	var still_sealed := true
-	for node in sealed_loot:
-		if not node.sealed: still_sealed = false
-	game.player.teleport(game.world_map.vault_position)
-	await step(20)
-	check("sealed spoils cannot be walked off before the guardian dies",
-		still_sealed and game.get_tree().get_nodes_in_group("sealed_loot").size() == 3)
-	game._vault_guardians[0].take_hit(9999.0)
-	await step(2)
-	check("first mine guardian does not unseal the spoils", game._vault_guardians.size() == 1 and sealed_loot.all(func(n): return n.sealed))
-	game._vault_guardians[0].take_hit(9999.0)
+	check("a guarded vault: one elite and two more, its spoils sealed", sealed_loot.size() == 3 and game._vault_guardians.size() == 3 and game._vault_guardians.filter(func(e): return e.elite).size() == 1 and sealed_loot.all(func(n): return n.sealed))
+	for guardian in game._vault_guardians.duplicate(): guardian.take_hit(1e9, "true")
 	await step(4)
-	var unsealed := true
-	for node in game.get_tree().get_nodes_in_group("sealed_loot"):
-		if node.sealed: unsealed = false
-	check("killing both mine guardians unseals the spoils", unsealed)
+	check("the guard down, the spoils unseal", game.get_tree().get_nodes_in_group("sealed_loot").all(func(n): return not n.sealed))
 	var chests := game.get_tree().get_nodes_in_group("sealed_loot")
 	check("the vault holds a weapon, a gear and a materials chest", chests.map(func(n): return n.kind).has("vault_weapon") and chests.map(func(n): return n.kind).has("vault_base"))
 	(chests[0] as LootContainer).open_now()
 	await step(1)
 	check("an unsealed vault chest opens and spills its contents", chests[0].opened and game.get_tree().get_nodes_in_group("loot").size() > 0)
+	game.settle(true)
+	await step(3)
+	game.force_vault_guard = 0
+	await game.start_contract("mine")
+	await clean()
+	for i in range(VaultSeal.HITS): game.strike_vault_wall(Vector3(game.world_map.vault_mouth.x, 0, game.world_map.vault_mouth.y) - Vector3(game.world_map.vault_inward.x, 0, game.world_map.vault_inward.y) * 1.5, Vector3(game.world_map.vault_inward.x, 0, game.world_map.vault_inward.y))
+	check("an unguarded vault: no one, its chests open at once", game.vault_opened and game._vault_guardians.is_empty() and game.get_tree().get_nodes_in_group("loot_containers").filter(func(c): return c.vault and not c.sealed).size() == 3)
+	game.world_map.force_vault = -1
+	game.force_vault_guard = -1
 	game.settle(true)
 	await step(3)
 	var report := {"checks": checks, "failures": failures, "engine": Engine.get_version_info().string}

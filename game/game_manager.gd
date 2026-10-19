@@ -10,11 +10,11 @@ const ENEMY_PICK_MASK := 4  # matches Enemy.PICK_LAYER
 @export var fixed_map_seed: int = 0
 
 var floor_number: int = 1
-## Flasks are pack items that take a cell (药剂进背包, 用户 2026-10-05): this is
+## Flasks are pack items that stack (药剂进背包, 用户 2026-10-05 / 10-17): this is
 ## how many she carries, pack and safe bag. Setting it replaces them with that
 ## many 标准急救剂 in the pack (tests and debug use).
 var potions: int:
-	get: return carried_potions().size()
+	get: return potion_count()
 	set(value): _set_standard_potions(value)
 ## Q drinks the first of these she carries (标准急救剂 first).
 const POTION_ORDER := ["A", "B", "C"]
@@ -38,6 +38,18 @@ var inventory := ItemContainer.new(10, 6)
 var safe_bag := ItemContainer.new(2, 2)
 ## Everything stored at the base: receiving crates, staging, the shelves.
 var base := BaseState.new()
+## The exchange (势力与交易所策划案_v0_7.md): the live market, the Doctor's
+## account and 加工部. The market keeps its own file next to the save.
+var market := MarketState.new()
+var exchange := Exchange.new()
+var workshop := Workshop.new()
+## Tests fix the market's dice; 0 rolls them.
+var fixed_market_seed := 0
+var _market_save_left := 60.0
+var _workshop_check := 0.0
+const MARKET_SAVE_SECONDS := 60.0
+## A black swan's headline, shown at the base until it is closed (§5.5: 弹窗).
+var swan_popup := ""
 ## The warehouse proper: personal storage on the shelves.
 var stash: Array[Item]:
 	get: return base.shelf
@@ -76,7 +88,6 @@ var number_layer: Control
 var _inventory_panel: InventoryPanel
 var fog := FieldFog.new()
 var vault_opened: bool = false
-var _mechanisms_done: Dictionary = {}
 var _vault_guardians: Array[Enemy] = []
 ## The outpost floor's squad (§6 B2); its routes stay shut until all of it falls.
 var _outpost_squad: Array[Enemy] = []
@@ -124,11 +135,20 @@ var _pending_contract := {}
 var contract_vaults := 0
 var bounty_killed := false
 var _bounty: Enemy
+## 寻访合同 (干员寻访策划案 §2.2): she has been reached and spoken to.
+var recruit_met := false
+## Her figure on her floor, and the guard round her.
+var recruit_node: Node3D
+var _recruit_post: GuardPost
 var _contract_announced := false
 var builds: Array[String] = []
 ## This contract's kills by kind (normal / elite / leader / boss): kill EXP is
 ## paid on the spot, 作战记录 by count at settlement (精英化案 §4.2).
 var run_kills := {}
+## Insured gear she let go of on this contract (dropped on a floor). Whatever of
+## it she does not carry out at settlement comes back like insured gear lost on
+## a death (用户 2026-10-15: 只要局内没带出的都会送回).
+var _insured_left_behind: Array[Item] = []
 ## Set ids found this contract: their other pieces drop twice as often (装备扩充 §1.1).
 var run_sets_seen := {}
 ## The offer currently on screen. The device's offer is kept in _device_offers
@@ -156,6 +176,11 @@ var _left_was_down := false
 ## lock as before.
 var _held_on_enemy := false
 var _left_held_time := 0.0
+## The name plate the held left press is on (or came from), and where the
+## cursor last was over it; off by PLATE_LEAVE_PX, the press attacks again.
+var _plate_held: Loot = null
+var _plate_from := Vector2.ZERO
+const PLATE_LEAVE_PX := 10.0
 const HOLD_ATTACK_TIME := 0.25
 ## The attack arrow is showing.
 var attack_cursor_on := false
@@ -166,6 +191,10 @@ var _sword_shake_frames := 0
 ## whole screen pixels (see _snap_to_pixels).
 var _camera_follow := Vector3.ZERO
 var _camera_snapped := Vector3.INF
+
+## Opens or closes the base's station overview (BaseHud), remembered in the settings.
+func toggle_station_panel() -> void:
+	SystemScreens.set_setting("station_panel", not bool(SystemScreens.settings.get("station_panel", false)))
 
 func _ready() -> void:
 	_setup_input()
@@ -189,6 +218,7 @@ func _ready() -> void:
 		reveal.lights_out.connect(func(): sound.play("lights_off"))
 	_build_player()
 	base_map.player = player
+	base_map.set_market(market)
 	warehouse_view = WarehouseView.new()
 	base_map.add_child(warehouse_view)
 	warehouse_view.setup(self, base_map)
@@ -207,8 +237,11 @@ func _ready() -> void:
 	menu.game = self
 	layer.add_child(menu)
 	_build_base_prompt(layer)
+	_init_market()
 	if save_enabled:
 		load_base()
+		if issue_kits() > 0: save_base()
+	_catch_up_market()
 	if start_at_base:
 		show_base()
 	else:
@@ -229,11 +262,12 @@ func _setup_input() -> void:
 func perform_hotbar_action(action: String) -> void:
 	match action:
 		"dash": player._dash_buffered = true
-		"shadow": if player.is_amiya(): player.cast_shadow(_skill_aim())
+		"shadow": if player.has_skill(): player.cast_skill(_skill_aim())
 		_:
 			if Hotbar.ACTIONS.has(action) and Hotbar.ACTIONS[action].has("potion"): use_potion_type(Hotbar.ACTIONS[action].potion)
 
-## 绝影's aim: the enemy under the cursor, else the ground point.
+## The Space skill's aim (绝影, a recruit's skill): the enemy under the
+## cursor, else the ground point.
 func _skill_aim() -> Vector3:
 	var enemy := _get_enemy_under_pointer()
 	return enemy.global_position if is_instance_valid(enemy) else _get_pointer_ground()
@@ -259,10 +293,16 @@ func _input(event: InputEvent) -> void:
 		_pointer_position = event.position
 		_has_pointer_position = true
 
+## Seconds until the base next looks for insurance that is due.
+var _insurance_check := 0.0
+const INSURANCE_CHECK_SECONDS := 5.0
+
 func _process(delta: float) -> void:
 	message_timer -= delta
 	if not is_instance_valid(player):
 		return
+	_tick_insurance_clock(delta)
+	_tick_market(delta)
 	# A key just taken for a hotbar slot (pause → 快捷栏) does nothing else.
 	var binding_key := is_instance_valid(menu) and (menu.hotbar_capture >= 0 or menu.hotbar_capture_frame == Engine.get_process_frames())
 	var pointed: Enemy = _get_enemy_under_pointer() if simulation_active() and not hands_busy() and not binding_key else null
@@ -285,12 +325,14 @@ func _process(delta: float) -> void:
 			if Input.is_action_just_pressed(Hotbar.input_of(i)): perform_hotbar_action(slots[i].action)
 		for type in POTION_ORDER:
 			if Input.is_action_just_pressed("potion_" + type): use_potion_type(type)
-		if Input.is_action_just_pressed("operator_skill") and player.is_amiya(): player.cast_shadow(_skill_aim())
+		if Input.is_action_just_pressed("operator_skill") and player.has_skill(): player.cast_skill(_skill_aim())
 		if Input.is_action_just_pressed("interact"): _interact()
 		if Input.is_action_just_pressed("stash_item"): _move_last_item_to_safe_bag()
 	elif base_walk_active():
 		_handle_base_pointer()
 		if Input.is_action_just_pressed("interact"): _base_interact()
+		if Input.is_action_just_pressed("toggle_watch") and is_instance_valid(watch_widget): watch_widget.set_meta("on", not watch_widget.get_meta("on", false))
+		if Input.is_action_just_pressed("toggle_stations"): toggle_station_panel()
 	_update_base_prompt()
 	# The snowfall rides above her view (TerraceDressing.weather).
 	if is_instance_valid(world_map) and is_instance_valid(world_map.terrace_dressing) and is_instance_valid(world_map.terrace_dressing.weather) and world_map.terrace_dressing.weather.is_inside_tree() and is_instance_valid(player) and player.is_inside_tree():
@@ -340,12 +382,47 @@ func cancel_channels(reason: String) -> void:
 
 ## Pick who deploys next (base only, 阿米娅攻击动作与特效设计案 §十).
 func choose_operator(id: String) -> void:
-	if not in_base or not Operators.valid(id): return
+	if not in_base or not id in base.deployable(): return
 	base.operator = id
 	player.set_operator(id)
+	shed_unusable_weapon()
 	player._recompute_stats()
 	player.hp = player.max_hp
+	refresh_look()
 	save_base()
+
+## Who walks the base (用户 2026-10-15: 基地里行走的人玩家可选择): the
+## 基地形象 setting when it names a character with sheets, else whoever
+## deploys next. In the field it is always the deployed operator.
+func base_look() -> String:
+	var id := str(SystemScreens.settings.get("base_look", ""))
+	return id if LapplandAnimator3D.has_sheets(id) and (id == "doctor" or base.recruited(id)) else base.operator
+
+func refresh_look() -> void:
+	if not is_instance_valid(player) or base == null: return
+	player.set_look(base_look() if in_base else player.operator_id)
+	_place_roster()
+
+## The operators who have joined stand about the hall (干员寻访策划案 §2.3), all
+## but the one walking it; the spots run along the hall's open middle.
+const ROSTER_SPOTS := [Vector2(46, -40), Vector2(82, -40), Vector2(40, -34), Vector2(88, -34), Vector2(52, -46), Vector2(76, -46), Vector2(34, -42), Vector2(94, -42)]
+var _roster_figures: Node3D
+
+func _place_roster() -> void:
+	if not is_instance_valid(base_map): return
+	if is_instance_valid(_roster_figures): _roster_figures.queue_free()
+	_roster_figures = Node3D.new()
+	_roster_figures.name = "Roster"
+	base_map.add_child(_roster_figures)
+	var walker := base_look()
+	var k := 0
+	for id in base.roster:
+		if id == walker or not LapplandAnimator3D.CHARACTERS.has(id) or k >= ROSTER_SPOTS.size(): continue
+		var figure := _operator_figure(id)
+		_roster_figures.add_child(figure)
+		figure.position = base_map.to_world(ROSTER_SPOTS[k].x, ROSTER_SPOTS[k].y, BaseMap.PLAYER_Y)
+		figure.set_meta("operator", id)
+		k += 1
 
 # --- 干员养成 (精英化与加点策划案_v0_2.md) --------------------------------------
 
@@ -493,7 +570,8 @@ func _physics_process(delta: float) -> void:
 		_tick_medical(delta)
 		_tick_contract()
 		_tick_extraction(delta)
-		player.hp -= count_effect("raw_ore") * FieldCatalog.RAW_ORE_DRAIN * delta
+		for trap in traps:
+			if is_instance_valid(trap): trap.check(player)
 		if player.hp <= 0: _on_player_died()
 		else: _tick_auto_potion(delta)
 	if threat_rising(): _tick_threat(delta)
@@ -506,6 +584,8 @@ func show_base() -> void:
 	_inventory_panel.hide()
 	menu.hide()
 	base_map.set_active(true)
+	base_map.set_ship_at(base.ship_at)
+	refresh_look()
 	player.teleport(base_map.spawn_point(base_spawn))
 	camera.global_position = camera_target() + CAMERA_OFFSET
 
@@ -583,10 +663,41 @@ func _build_base_prompt(layer: CanvasLayer) -> void:
 	_status_bar.position = Vector2(700, 12)
 	_status_bar.visible = false
 	layer.add_child(_status_bar)
+	# The base watch window (§6.4) and the black-swan popup (§5.5).
+	watch_widget = MarketWidgets.WatchWidget.new()
+	watch_widget.game = self
+	watch_widget.position = Vector2(968, 52)
+	watch_widget.size = Vector2(300, 160)
+	watch_widget.visible = false
+	layer.add_child(watch_widget)
+	_swan_panel = PanelContainer.new()
+	_swan_panel.add_theme_stylebox_override("panel", AK.box(Color(0.06, 0.04, 0.04, 0.95), AK.RED, 2, 16))
+	_swan_panel.position = Vector2(340, 250)
+	_swan_panel.custom_minimum_size = Vector2(600, 0)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 10)
+	column.add_child(AK.label("PRTS 快讯 · 黑天鹅", 14, AK.RED))
+	_swan_label = AK.label("", 20, AK.FG)
+	_swan_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(_swan_label)
+	var close := AK.button("知道了", "blue", 14)
+	close.pressed.connect(close_swan_popup)
+	column.add_child(close)
+	_swan_panel.add_child(column)
+	_swan_panel.visible = false
+	layer.add_child(_swan_panel)
+
+var watch_widget: Control
+var _swan_panel: PanelContainer
+var _swan_label: Label
 
 func _update_base_prompt() -> void:
 	if not is_instance_valid(_base_prompt): return
 	_base_prompt.visible = base_walk_active()
+	if is_instance_valid(watch_widget): watch_widget.visible = _base_prompt.visible and watch_widget.get_meta("on", false)
+	if is_instance_valid(_swan_panel):
+		_swan_panel.visible = in_base and not transitioning and not swan_popup.is_empty() and (modal.is_empty() or modal == "station")
+		_swan_label.text = swan_popup
 	if is_instance_valid(_status_bar):
 		_status_bar.visible = _base_prompt.visible
 		_status_bar.text = base_status_text()
@@ -603,7 +714,9 @@ func _update_base_prompt() -> void:
 func start_contract(region: String, start_camp: int = 0) -> void:
 	if transitioning or not in_base or not FieldCatalog.REGIONS.has(region): return
 	region_id = region
+	base.ship_at = TerraMap.place_for_region(region)
 	in_base = false
+	refresh_look()
 	_settled = false
 	transitioning = true
 	close_modal()
@@ -613,11 +726,13 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	build_offers.clear()
 	reroll_count = 0
 	run_kills = {}
+	_insured_left_behind.clear()
 	run_sets_seen = {}
 	player._recompute_stats()
 	floor_number = 1
 	pressure = 0
 	threat.reset()
+	_tracked_warned = -1
 	route_index = 0
 	in_camp = false
 	_block_random_found = false
@@ -631,6 +746,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	contract_vaults = 0
 	bounty_killed = false
 	_bounty = null
+	recruit_met = false
 	_contract_announced = false
 	_run_seed = fixed_map_seed if fixed_map_seed else rng.randi()
 	_apply_medical_state()
@@ -641,6 +757,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	prts_toasts.clear()
 	broadcast("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
 	broadcast("合同目标：%s。" % FieldCatalog.contract_goal(contract, region_id, start_floor))
+	broadcast("PRTS：博士，%s已就位。" % Operators.info(player.operator_id).name)
 	route_history = [{"floor": start_floor, "name": "营地" if from_camp else "入口"}]
 	for item in carried_items():
 		item.carried_in = true
@@ -674,8 +791,9 @@ func _build_world() -> void:
 	_clear_field()
 	_buff_taken = false
 	vault_opened = false
-	_mechanisms_done.clear()
 	_vault_guardians.clear()
+	traps.clear()
+	trace_point = null
 	_roll_encounter()
 	world_map.encounter_kind = encounter
 	build_offers.clear()
@@ -692,6 +810,7 @@ func _build_world() -> void:
 	world_map.generate(_run_seed + floor_number * 7919, floor_number)
 	# The fog covers this floor's own bounds (each floor rolls its size).
 	fog.setup(world_map.SPINE_MIN, world_map.SPINE_MAX)
+	fog.hidden = world_map.vault_hidden
 	outpost_cleared = not is_outpost_floor()
 
 ## The 10th floor of each block, just before the camp, is the outpost (§6 B2).
@@ -718,11 +837,28 @@ func is_buff_available() -> bool: return not _buff_taken
 func _roll_encounter() -> void:
 	var roll := rng.randf()
 	encounter = "squad" if roll < FieldCatalog.SQUAD_CHANCE else ("trader" if roll < FieldCatalog.SQUAD_CHANCE + FieldCatalog.TRADER_CHANCE else "")
+	# A faction's post (势力与交易所策划案 §12) takes some of the empty spots.
+	post_faction = ""
+	if encounter.is_empty():
+		var posts: Array = FactionCatalog.POSTS.get(region_id, [])
+		var chance := POST_CHANCE * (2.0 if posts.any(func(f): return market.post_boosted(f)) else 1.0)
+		if not posts.is_empty() and rng.randf() < chance:
+			encounter = "post"
+			post_faction = posts[rng.randi() % posts.size()]
+			for f in posts:
+				if market.post_boosted(f): post_faction = f
 	encounter_used = false
 	trader_stock.clear()
 	trader_rerolls = 0
 	_encounter_greeted = false
 	squad_mult = FieldCatalog.SQUAD_PRICE_STEPS[rng.randi() % FieldCatalog.SQUAD_PRICE_STEPS.size()]
+
+## Who stands at the encounter spot, by name.
+func encounter_name() -> String:
+	match encounter:
+		"trader": return "坎诺特"
+		"post": return FactionCatalog.name_of(post_faction) + "据点"
+	return "罗德岛小队"
 
 func is_encounter_available() -> bool: return not encounter.is_empty() and not encounter_used
 
@@ -747,12 +883,14 @@ func _interact() -> void:
 		else:
 			open_relic_offer(cache.source, cache)
 		return
-	if near(world_map.buff_device_node) and not _buff_taken:
+	if _recruit_nearby():
+		_meet_recruit()
+	elif is_instance_valid(trace_point) and near(trace_point):
+		_take_trace()
+	elif near(world_map.buff_device_node) and not _buff_taken:
 		_offer_builds()
-	elif near(world_map.encounter_node) and not encounter.is_empty() and (encounter == "trader" or not encounter_used):
+	elif near(world_map.encounter_node) and not encounter.is_empty() and (encounter in ["trader", "post"] or not encounter_used):
 		_open_encounter()
-	elif _trigger_nearby_mechanism():
-		return
 	else:
 		for i in range(world_map.route_nodes.size()):
 			if near(world_map.route_nodes[i]):
@@ -764,47 +902,48 @@ func _interact() -> void:
 				return
 		pass
 
-## The sealed-vault loop, adapted from 贪婪洞窟 2's 机关密室: every mechanism on
-## the segment has to be triggered before the vault opens, which is what turns
-## the detours from a string of independent "is there loot down there" gambles
-## into one goal the player is partway through. See 贪婪洞窟地图设计调研.md §3.1.
-func _trigger_nearby_mechanism() -> bool:
-	for i in range(world_map.mechanism_nodes.size()):
-		var node: Node3D = world_map.mechanism_nodes[i]
-		if not near(node) or _mechanisms_done.has(i): continue
-		_mechanisms_done[i] = true
-		(node.material_override as StandardMaterial3D).albedo_color = Color("55627a")
-		if _mechanisms_done.size() >= world_map.mechanism_nodes.size():
-			_open_vault()
-		else:
-			set_message("机关 %d / %d" % [_mechanisms_done.size(), world_map.mechanism_nodes.size()])
-			broadcast("机关 %d / %d。" % [_mechanisms_done.size(), world_map.mechanism_nodes.size()])
-		return true
-	return false
+## 密室 (密室与陷阱修订案_v1 §2.1, 用户 2026-10-17): found by eye, opened by
+## breaking its 暗墙 (VaultSeal) with blows. Inside, the rare loot; on
+## VAULT_GUARDED of them a guard of one elite and VAULT_GUARD_NORMALS more,
+## and then the chests stay sealed until it is down.
+const VAULT_GUARDED := 0.5
+const VAULT_GUARD_NORMALS := 2
+## 1 / 0 overrides the guard roll (tests).
+var force_vault_guard := -1
+
+## A melee swing from `from` toward `direction`: a sealed vault's wall in
+## reach takes the blow. True when one landed.
+func strike_vault_wall(from: Vector3, direction: Vector3) -> bool:
+	var seal: VaultSeal = world_map.vault_seal if is_instance_valid(world_map) else null
+	if seal == null or not seal.in_reach(from, direction): return false
+	CombatVfx.spawn(self, seal.wall_centre() + Vector3(0, 0.8, 0), direction, "spark")
+	if seal.strike(): _open_vault()
+	return true
 
 func _open_vault() -> void:
-	if vault_opened or not is_instance_valid(world_map.vault_node): return
+	if vault_opened or world_map.vault_seal == null: return
 	vault_opened = true
 	contract_vaults += 1
-	(world_map.vault_node.material_override as StandardMaterial3D).albedo_color = Color("ffe9a8")
-	if region_id == "mine":
-		for side in [-1, 1]:
-			_vault_guardians.append(_spawn_enemy(world_map.vault_position + Vector3(side * 1.3, 0, 0), false, false, "thug"))
-	else:
+	world_map.vault_seal.open()
+	var guarded := rng.randf() < VAULT_GUARDED if force_vault_guard < 0 else force_vault_guard == 1
+	if guarded:
 		_vault_guardians.append(_spawn_enemy(world_map.vault_position, true, false))
-	_spawn_relic_cache(world_map.vault_position, "vault", true)
+		for i in range(VAULT_GUARD_NORMALS):
+			var side := Vector3(cos(TAU * i / VAULT_GUARD_NORMALS), 0, sin(TAU * i / VAULT_GUARD_NORMALS)) * 1.6
+			_vault_guardians.append(_spawn_enemy(world_map.vault_position + side, false, false))
+	_spawn_relic_cache(world_map.vault_position, "vault", guarded)
 	var vault_kinds := ["vault_weapon", "vault_gear", "vault_base"]
 	for i in range(3):
 		var chest := LootContainer.new()
 		chest.game = self
 		chest.kind = vault_kinds[i]
 		chest.vault = true
-		chest.sealed = true
+		chest.sealed = guarded
 		add_child(chest)
 		chest.global_position = world_map.vault_position + Vector3(cos(TAU * i / 3.0) * 2.6, 0.0, sin(TAU * i / 3.0) * 2.6)
-		chest.add_to_group("sealed_loot")
-	set_message("密室开启：守卫者 %d" % _vault_guardians.size())
-	broadcast("密室开启，守卫者 %d 名。" % _vault_guardians.size())
+		if guarded: chest.add_to_group("sealed_loot")
+	set_message("密室" if not guarded else "密室：守卫者 %d" % _vault_guardians.size())
+	broadcast("PRTS：博士，墙后是一间密室。")
 
 func near(node: Node3D) -> bool:
 	return is_instance_valid(node) and node.visible and player.global_position.distance_to(node.global_position) < 2.8
@@ -825,6 +964,7 @@ func _advance_floor(route: int) -> void:
 	route_index = route
 	floor_number += 1
 	threat.next_floor()
+	_tracked_warned = -1
 	route_history.append({"floor": floor_number, "name": FieldCatalog.ROUTES[route].name})
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
@@ -1005,6 +1145,8 @@ func notice(text: String) -> void:
 	last_notice = text
 	set_message(text)
 	if in_base: return
+	# The open pack shows the notice above itself; one popup, not two.
+	if is_instance_valid(_inventory_panel) and _inventory_panel.visible: return
 	prts_toasts.append({"text": text, "age": 0.0, "life": TOAST_SECONDS})
 	while prts_toasts.size() > TOAST_MAX: prts_toasts.pop_front()
 
@@ -1062,12 +1204,12 @@ func go_back() -> void:
 func _announce_discoveries() -> void:
 	if not _seen_encounter and is_instance_valid(world_map.encounter_node) and world_map.encounter_node.visible and fog.is_point_revealed(world_map.encounter_node.position):
 		_seen_encounter = true
-		broadcast("附近发现%s。" % ("坎诺特" if encounter == "trader" else "罗德岛小队"))
+		broadcast("PRTS：博士，附近发现%s。" % encounter_name())
 	if not _seen_exit and is_extraction_floor() and is_instance_valid(world_map.exit_node) and fog.is_point_revealed(world_map.exit_node.position):
 		_seen_exit = true
-		broadcast("本层发现撤离点。")
+		broadcast("PRTS：博士，本层发现撤离点。")
 
-const DEPT_COLOURS := {"工程部": Color("f5c000"), "医疗部": Color("8fc31f"), "后勤部": Color("0098dc")}
+const DEPT_COLOURS := {"工程部": Color("f5c000"), "医疗部": Color("8fc31f"), "后勤部": Color("0098dc"), "加工部": Color("e0782a")}
 
 ## The tracker's rows (orders only): open orders for this region or any, with
 ## how many matching units she carries.
@@ -1095,11 +1237,11 @@ func interaction_prompt() -> String:
 	for node in get_tree().get_nodes_in_group("relic_caches"):
 		var cache := node as RelicCache
 		if cache.game == self and near(cache): return "密室藏品" if cache.source == "vault" else "战斗缴获"
+	if _recruit_nearby(): return Operators.display_name(str(contract.operator))
+	if is_instance_valid(trace_point) and near(trace_point): return "踪迹"
 	if near(world_map.buff_device_node) and not _buff_taken: return "强化装置"
-	if near(world_map.encounter_node) and not encounter.is_empty() and (encounter == "trader" or not encounter_used):
-		return "坎诺特" if encounter == "trader" else "罗德岛小队"
-	for i in range(world_map.mechanism_nodes.size()):
-		if near(world_map.mechanism_nodes[i]) and not _mechanisms_done.has(i): return "机关"
+	if near(world_map.encounter_node) and not encounter.is_empty() and (encounter in ["trader", "post"] or not encounter_used):
+		return encounter_name()
 	for node in world_map.route_nodes:
 		if near(node): return "深入"
 	return ""
@@ -1131,14 +1273,13 @@ func squad_insure(item: Item) -> bool:
 	return true
 
 ## Sends one item home now: it is gone from her and waits in staging. An
-## insured item can be sent too; its insurance lapses.
+## insured item keeps its insurance: it was not lost.
 func squad_send_home(item: Item) -> bool:
 	if not squad_refusal(item, "send").is_empty(): return false
 	spend_gold_bars(squad_price(item))
 	inventory.remove(item)
 	safe_bag.remove(item)
 	if player.equipped.get(item.category) == item: player.unequip(item.category)
-	item.insured = false
 	item.carried_in = false
 	base.receive_to_staging(item)
 	encounter_used = true
@@ -1196,16 +1337,16 @@ func settle(extracted: bool) -> void:
 	# found on this contract arrives as a sealed crate at receiving.
 	var new_finds := 0
 	var still_equipped: Array[Item] = []
-	# Insurance from earlier deaths counts down first (保全系统修订案 §3), so what
-	# is insured on this contract waits its full 1–3 contracts.
+	# Insurance whose time has come arrives first (保全系统修订案 §3).
 	var returned := base.tick_insurance()
 	var progress := contract_progress()
 	settlement_view = {"extracted": extracted, "region": region_id, "start": start_floor, "depth": floor_number,
 		"pack_size": Vector2i(inventory.width, inventory.height), "safe_size": Vector2i(safe_bag.width, safe_bag.height),
 		"pack": [], "safe": [], "worn": [], "reward": 0, "returned": returned.size(), "gold": 0, "orders": 0,
 		"plate": camp_label(floor_number) if in_camp_before_settle else AK.floor_code(region_id, floor_number),
-		"time": Time.get_time_string_from_system().left(5), "contamination_before": roundi(base.contamination)}
-	for item in carried_items():
+		"time": Time.get_time_string_from_system().left(5)}
+	var on_her := carried_items()
+	for item in on_her:
 		var where := "safe" if safe_bag.items.has(item) else ("worn" if player.equipped.values().has(item) else "pack")
 		var reason := "遗失"
 		if extracted: reason = "撤离带回"
@@ -1218,15 +1359,10 @@ func settle(extracted: bool) -> void:
 		if not stays_on_her:
 			inventory.remove(item)
 			safe_bag.remove(item)
-		if reason == "投保送回":
-			var wait := rng.randi_range(FieldCatalog.INSURANCE_DELAY.x, FieldCatalog.INSURANCE_DELAY.y)
-			item.insured = false
-			item.carried_in = false
-			base.queue_insured(item, wait)
-			entry["contracts"] = wait
+		if reason == "投保送回": _queue_insured(item)
 		if kept:
-			# Insurance only covers a death; extracting lets it lapse unrefunded.
-			item.insured = false
+			# Brought out: the insurance stays for the next contract (用户 2026-10-15:
+			# 投保后带出的不消保，只有被找回一次才消).
 			item.carried_in = false
 			if not stays_on_her and base.receive(item): new_finds += 1
 		settlement.append(entry)
@@ -1238,6 +1374,12 @@ func settle(extracted: bool) -> void:
 				if base.orders.slots[slot] != null and base.orders.slots[slot].state == "open" and base.orders.matches(slot, item):
 					settlement_view.orders += 1
 					break
+	# Insured gear she dropped on a floor and did not pick up again.
+	for item in _insured_left_behind:
+		if on_her.has(item) or not item.insured: continue
+		_queue_insured(item)
+		settlement.append({"uid": item.uid, "name": item.item_name, "reason": "投保送回"})
+	_insured_left_behind.clear()
 	builds.clear()
 	build_offers.clear()
 	_device_offers.clear()
@@ -1250,8 +1392,7 @@ func settle(extracted: bool) -> void:
 	run_sets_seen = {}
 	if extracted: _grant(0, BaseCatalog.PRESTIGE_EXTRACTION)
 	base.orders.refill(rng, region_id)
-	base.settle_medical(run_contamination, not extracted)
-	settlement_view.contamination_after = roundi(base.contamination)
+	base.settle_medical(not extracted)
 	base.reroll_available = base.rank() >= BaseCatalog.REROLL_RANK
 	# The drone empties staging onto the shelves at every return (§3.4a).
 	if base.drone: base.sort_staging()
@@ -1276,10 +1417,15 @@ func settle(extracted: bool) -> void:
 			"search": _grant(FieldCatalog.SEARCH_REWARD.money, FieldCatalog.SEARCH_REWARD.prestige)
 			"hunt":
 				if base.receive(_rare_gear()): new_finds += 1
+			"recruit":
+				base.recruit(str(contract.operator))
+				new_finds += issue_kits()
 	if not contract.is_empty(): base.contract_offers.erase(region_id)
 	contract = {}
 	gold += reward
 	settlement_view.reward = reward
+	# 可露希尔's loan charges once a settlement; an overdue one takes the reward first (§10).
+	var repaid := exchange.on_settlement(reward)
 	_clear_field()
 	world_map._clear_generated_map()
 	floor_number = 1
@@ -1291,11 +1437,195 @@ func settle(extracted: bool) -> void:
 	base_spawn = "arrival" if extracted else "death"
 	show_base()
 	var who := str(Operators.info(player.operator_id).name)
-	broadcast("%s已完成撤离。" % who if extracted else "回收队已带回%s。" % who)
+	broadcast("PRTS：博士与%s已完成撤离。" % who if extracted else "PRTS：回收队已接回博士与%s。" % who)
 	if new_finds > 0: broadcast("收货区货箱有 %d 件新物品待开箱。" % new_finds)
+	if repaid > 0: broadcast("贷款逾期：合同报酬先还款 %s 龙门币。" % Economy.format(repaid))
+	_tick_workshop()
 	if show_settlement_screen:
 		open_modal("settlement")
 		menu.show_settlement()
+
+# --- The exchange (势力与交易所策划案_v0_7.md) ------------------------------------
+
+## The faction at this floor's post, when the encounter is one.
+var post_faction := ""
+const POST_CHANCE := 0.4
+## 整合运动残党's goods, per carried stack (a sixth of raw ore).
+const CONTAMINATION_PER_DIRTY := 0.01
+
+func market_path() -> String:
+	return save_path + ".market"
+
+func _init_market() -> void:
+	market.on_news = _on_market_news
+	exchange.notify = _on_exchange_notice
+	var loaded := save_enabled and market.load_file(market_path())
+	if not loaded: market.start(BaseState.now(), fixed_market_seed)
+	exchange.setup(self, market)
+	Economy.fx = market.fx_rate()
+
+## After a load the market catches up on the time the game was shut (用户:
+## 不暂停，读档时模拟 k 线); PRTS sums up what happened meanwhile.
+func _catch_up_market() -> void:
+	var gap := BaseState.now() - market.t
+	var before := exchange.account_value()
+	exchange.counters.clear()
+	market.advance_to(BaseState.now())
+	_tick_workshop()
+	if gap < 600: return
+	var c := exchange.counters
+	var hours := gap / 3600.0
+	var text := "离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。" % [
+		("%.1f 小时" % hours) if hours < 48 else ("%d 天" % roundi(hours / 24)), int(c.get("fill", 0)), int(c.get("liquidation", 0)),
+		int(c.get("default", 0)), int(c.get("arrival", 0)) + int(c.get("delivery", 0)), "+" if exchange.account_value() >= before else "−",
+		Economy.format(roundi(absf(exchange.account_value() - before)))]
+	broadcast("PRTS：" + text)
+	set_message(text)
+
+func _tick_market(delta: float) -> void:
+	market.advance_to(BaseState.now())
+	_workshop_check -= delta
+	if _workshop_check <= 0.0:
+		_workshop_check = 5.0
+		if in_base: _tick_workshop()
+	if save_enabled:
+		_market_save_left -= delta
+		if _market_save_left <= 0.0:
+			_market_save_left = MARKET_SAVE_SECONDS
+			market.save_file(market_path())
+
+## News reaches the Doctor through PRTS: the log everywhere, a line at the base
+## for flash offers, and the one popup for a black swan (§5.5).
+func _on_market_news(headline: Dictionary, event: Dictionary) -> void:
+	if not event.is_empty(): exchange.on_event(event)
+	var line := "PRTS 快讯：" + str(headline.title)
+	broadcast(line)
+	if str(headline.kind) == "swan":
+		if in_base: swan_popup = str(headline.title)
+		else: swan_popup = str(headline.title)  # shown when she is back
+	elif in_base and str(headline.kind) == "flash": set_message(line)
+
+## Account events (§12): in the field PRTS reports them, at the base a line.
+## Price alerts are the Doctor's own and only show at the base.
+func _on_exchange_notice(text: String, kind: String) -> void:
+	if kind == "alert" and not in_base: return
+	broadcast("PRTS：" + text)
+	if in_base: set_message(text)
+
+func close_swan_popup() -> void:
+	swan_popup = ""
+
+## The Doctor's money changer at 可露希尔 (§1.3), base or camp.
+func closure_convert(to_gold: bool, amount: float) -> bool:
+	if not (in_base or in_camp): return false
+	if not exchange.convert(to_gold, amount, true): return false
+	save_base(not in_base)
+	return true
+
+func open_exchange() -> void:
+	if not in_base or transitioning: return
+	open_modal("station")
+	menu.show_station("exchange")
+
+# --- 加工部 (§2) -----------------------------------------------------------------
+
+func workshop_refusal(output: String, count: int) -> String:
+	if count <= 0 or Workshop.recipe(output).is_empty(): return "没有这个配方"
+	if workshop.busy() >= Workshop.slots(base.rank()): return "加工队列已满"
+	var cost := Workshop.cost_of(output, count)
+	var missing := materials_refusal(cost)
+	if not missing.is_empty(): return missing
+	if gold < int(Workshop.recipe(output).lmd) * count: return "龙门币不足"
+	return ""
+
+func workshop_start(output: String, count: int) -> bool:
+	if not in_base or not workshop_refusal(output, count).is_empty(): return false
+	consume_materials(Workshop.cost_of(output, count))
+	gold -= int(Workshop.recipe(output).lmd) * count
+	workshop.start(output, count, BaseState.now(), rng)
+	save_base()
+	set_message("加工部：%s ×%d 开始加工。" % [output, count])
+	return true
+
+## Finished jobs go to staging (the receiving bay when it is full).
+func _tick_workshop() -> void:
+	var done := workshop.finished(BaseState.now())
+	if done.is_empty(): return
+	for job in done:
+		var made := {str(job.output): int(job.count)}
+		for by in job.get("byproducts", {}): made[by] = int(made.get(by, 0)) + int(job.byproducts[by])
+		if Workshop.GEAR.has(str(job.output)):
+			made.erase(str(job.output))
+			for k in range(int(job.count)):
+				var piece := GearCatalog.make_rhodes(str(Workshop.GEAR[job.output].base), rng)
+				if not base.receive_to_staging(piece): base.receive(piece)
+		for id in made:
+			var left := int(made[id])
+			while left > 0:
+				var stack := MaterialCatalog.create(id, mini(left, MaterialCatalog.stack_size(id)))
+				left -= stack.quantity
+				if not base.receive_to_staging(stack): base.receive(stack)
+		broadcast("PRTS：加工部完成 %s ×%d%s。" % [job.output, int(job.count), "，附带副产物" if not job.get("byproducts", {}).is_empty() else ""])
+	if in_base: set_message("加工部完成 %d 项，已送到暂存区。" % done.size())
+	save_base(not in_base)
+
+# --- Field posts (§12) -----------------------------------------------------------
+
+## A post buys what its faction likes, face to face (no remote fee).
+func post_sell(item: Item) -> bool:
+	if encounter != "post" or post_faction.is_empty() or in_base: return false
+	if not (inventory.items.has(item) or safe_bag.items.has(item)): return false
+	if not exchange.sell_item(item, post_faction, false): return false
+	save_base(true)
+	return true
+
+## Buying at a post (§12): paid from the 赤金 account, straight into the pack.
+## 整合运动残党's originium is "dirty" (§3): it raises contamination while carried.
+func post_buy(material: String, count: int) -> bool:
+	if encounter != "post" or post_faction.is_empty() or in_base or count <= 0: return false
+	var q := exchange.quote_buy(post_faction, material)
+	if not q.ok: return false
+	var cost := float(Exchange.field_bars(float(q.unit) * count, true)) if str(q.currency) == "gold" else float(q.unit) * count
+	if str(q.currency) == "gold":
+		if not spend_gold_bars(int(cost)): return false
+	elif not exchange.pay(str(q.currency), cost): return false
+	var left := count
+	while left > 0:
+		var stack := MaterialCatalog.create(material, mini(left, MaterialCatalog.stack_size(material)), region_id)
+		left -= stack.quantity
+		if post_faction == "reunion":
+			stack.effect = "dirty"
+			stack.description += " 来路不明，携带时污染缓慢上升。"
+		if inventory.add_stack(stack) > 0: drop_at_feet(stack)
+	exchange.add_relation(post_faction, clampi(roundi(Exchange.lmd_eq(str(q.currency), cost) / 5000.0), 1, 10))
+	save_base(true)
+	return true
+
+## 萨米's barter: what `give` is worth at their bid, against `want` at their ask.
+func barter_count(give: Item, want: String) -> int:
+	var q := exchange.quote_sell(give, post_faction, false)
+	if not q.ok: return 0
+	var unit := float(exchange.material_spot(post_faction, want, false)) * (1.0 + 0.08 + 0.1 * sin(float(market.barter_seed + want.hash())))
+	return floori(float(q.net) / maxf(unit, 0.01))
+
+func barter(give: Item, want: String) -> bool:
+	if encounter != "post" or post_faction != "sami": return false
+	var n := barter_count(give, want)
+	if n <= 0 or not (inventory.items.has(give) or safe_bag.items.has(give)): return false
+	_hand_over(give)
+	var left := n
+	while left > 0:
+		var stack := MaterialCatalog.create(want, mini(left, MaterialCatalog.stack_size(want)), region_id)
+		left -= stack.quantity
+		if inventory.add_stack(stack) > 0:
+			drop_at_feet(stack)
+	exchange.add_relation("sami", 2)
+	save_base(true)
+	return true
+
+## Puts an item on the ground beside her (a full pack at a barter).
+func drop_at_feet(item: Item) -> void:
+	_drop_at(player.global_position, [{"item": item}], 1.2)
 
 # --- 坎诺特 (坎诺特商店策划案) ---------------------------------------------------
 
@@ -1313,11 +1643,14 @@ func _open_encounter() -> void:
 		var bonus := roundi(player.f("node_gold"))
 		if bonus > 0:
 			_give_gold_bars(bonus)
-			set_message("遇到%s：赤金 +%d" % ["坎诺特" if encounter == "trader" else "罗德岛小队", bonus])
+			set_message("遇到%s：赤金 +%d" % [encounter_name(), bonus])
 	if encounter == "trader":
 		if trader_stock.is_empty(): _roll_trader_stock()
 		open_modal("trader")
 		menu.show_trader()
+	elif encounter == "post":
+		open_modal("post")
+		menu.show_post()
 	else:
 		open_modal("squad")
 		menu.show_squad()
@@ -1374,7 +1707,7 @@ func trader_buy_refusal(slot: int) -> String:
 	if entry.sold: return "已售出"
 	if gold_bars() < int(entry.price): return "赤金不足"
 	if entry.kind == "relic" and builds.has(entry.relic.id): return "已拥有"
-	if entry.kind == "item" and not inventory.can_fit(entry.item): return "背包放不下"
+	if entry.kind == "item" and not inventory.can_take(entry.item): return "背包放不下"
 	return ""
 
 func trader_buy(slot: int) -> bool:
@@ -1389,7 +1722,7 @@ func trader_buy(slot: int) -> bool:
 		_rescale_enemy_life(enemy_hp_before, player.f("enemy_hp"))
 		set_message("获得藏品 %s — %s" % [entry.relic.name, entry.relic.effect])
 	else:
-		inventory.try_add(entry.item)
+		inventory.add_stack(entry.item)
 		set_message("买下 %s" % entry.item.display_name())
 	save_base(true)
 	return true
@@ -1425,6 +1758,7 @@ func _give_gold_bars(bars: int) -> void:
 ## the fixed extraction, and 可露希尔. Reaching one unlocks it for this region.
 func _enter_camp() -> void:
 	in_camp = true
+	broadcast("PRTS：前进据点已确认，博士。")
 	_clear_field()
 	world_map._clear_generated_map()
 	player.clear_move_target()
@@ -1465,7 +1799,7 @@ func closure_potion_price(type: String) -> int:
 	var p: Dictionary = BaseCatalog.POTIONS[type]
 	if base.rank() < int(p.rank): return -1
 	var lmd: int = BaseCatalog.POTION_A_PRICE if type == "A" else int(p.price)
-	return maxi(1, ceili(float(lmd) / Economy.GOLD_BAR_LMD))
+	return maxi(1, ceili(float(lmd) / Economy.bar_lmd()))
 
 ## A flask from 可露希尔, into the pack (in a camp, or at her base counter).
 func closure_buy_potion(type: String) -> bool:
@@ -1473,7 +1807,7 @@ func closure_buy_potion(type: String) -> bool:
 	var price := closure_potion_price(type)
 	if price < 0 or gold_available() < price: return false
 	var flask := BaseCatalog.create_potion(type)
-	if not inventory.try_add(flask):
+	if inventory.add_stack(flask) > 0:
 		notice("背包空间不足：药剂要占一格。")
 		return false
 	_pay_gold(price)
@@ -1483,7 +1817,7 @@ func closure_buy_potion(type: String) -> bool:
 ## 寄存 (§3): materials only, no special (regional) ones and no flasks; the fee is
 ## 20% of the 交付价, in 赤金, rounded up, at least one.
 func deposit_fee(item: Item) -> int:
-	return maxi(1, ceili(Economy.price(item) * FieldCatalog.DEPOSIT_FEE / float(Economy.GOLD_BAR_LMD))) if item != null else 0
+	return maxi(1, ceili(Economy.price(item) * FieldCatalog.DEPOSIT_FEE / Economy.bar_lmd())) if item != null else 0
 
 func deposit_refusal(item: Item) -> String:
 	if not in_camp: return "不在营地"
@@ -1507,13 +1841,14 @@ func deposit_item(item: Item) -> bool:
 	set_message("已寄存 %s：送到基地暂存区。" % item.display_name())
 	return true
 
-## 可露希尔 buys 赤金 for 龙门币 (经济修订案 §0).
+## 可露希尔 buys 赤金 for 龙门币 at the live rate less her spread (§1.3).
 func sell_gold_bars(bars: int) -> bool:
 	if not (in_camp or in_base) or bars <= 0 or gold_available() < bars: return false
 	_pay_gold(bars)
-	gold += bars * Economy.GOLD_BAR_LMD
+	var paid := bars * Economy.closure_bar_price()
+	gold += paid
 	save_base(not in_base)
-	set_message("卖出赤金 ×%d：龙门币 +%s" % [bars, Economy.format(bars * Economy.GOLD_BAR_LMD)])
+	set_message("卖出赤金 ×%d：龙门币 +%s" % [bars, Economy.format(paid)])
 	return true
 
 ## The camp upgrade (基地建设, not per region): camps stop adding contamination.
@@ -1750,6 +2085,7 @@ func unequip_to_pack(item: Item) -> bool:
 func drop_item(item: Item, from: ItemContainer) -> bool:
 	if in_base or item == null or not from.items.has(item): return false
 	from.remove(item)
+	if item.insured and not _insured_left_behind.has(item): _insured_left_behind.append(item)
 	save_base(true)
 	var loot := Loot.new()
 	loot.game = self
@@ -1870,6 +2206,26 @@ func unstage_to_pack(item: Item) -> bool:
 	save_base()
 	return true
 
+## At the base, insured gear arrives at receiving when its time comes, whether
+## or not a contract is running out there (用户 2026-10-15: 时钟计时).
+func _tick_insurance_clock(delta: float) -> void:
+	_insurance_check -= delta
+	if not in_base or _insurance_check > 0.0: return
+	_insurance_check = INSURANCE_CHECK_SECONDS
+	var arrived := base.tick_insurance()
+	if arrived.is_empty(): return
+	save_base()
+	set_message("投保物品送回 %d 件，已到收货区。" % arrived.size())
+
+## Insured gear that did not come out: back 2–4 hours later, and the
+## insurance is used up by that one return. Returns the wait in seconds.
+func _queue_insured(item: Item) -> int:
+	var wait := rng.randi_range(FieldCatalog.INSURANCE_DELAY_SECONDS.x, FieldCatalog.INSURANCE_DELAY_SECONDS.y)
+	item.insured = false
+	item.carried_in = false
+	base.queue_insured(item, wait)
+	return wait
+
 ## Base insurance before leaving: the item's 交付价 in 龙门币 (保全系统修订案 §6).
 func insurance_price(item: Item) -> int:
 	return Economy.price(item)
@@ -1937,7 +2293,7 @@ func _hand_over(item: Item) -> bool:
 ## Plain delivery for money, outside any order.
 func sell(item: Item) -> bool:
 	if not in_base or not deliverable_items().has(item) or not _hand_over(item): return false
-	gold += Economy.price(item)
+	gold += Economy.direct_price(item)
 	save_base()
 	return true
 
@@ -2033,9 +2389,9 @@ func station_needs_attention(id: String) -> bool:
 	match id:
 		"receiving_bays": return base.sealed_count() > 0
 		"outbound": return is_instance_valid(warehouse_view) and warehouse_view.orders_fillable()
-		"reception": return base.report_unread or base.injured
-		"decon": return base.contamination_tier() >= 1
+		"reception": return base.report_unread or base.any_injured()
 		"stash": return base.unseen_unlocks
+		"exchange": return not market.flash.is_empty() or not swan_popup.is_empty()
 	return false
 
 # --- Departure (§5.3) ----------------------------------------------------------
@@ -2043,11 +2399,7 @@ func station_needs_attention(id: String) -> bool:
 ## Reasons to stop and look before leaving; empty when there are none.
 func departure_warnings() -> Array[String]:
 	var out: Array[String] = []
-	if base.injured or base.contamination_tier() >= 1:
-		var parts: Array[String] = []
-		if base.injured: parts.append("重伤 −%d%%" % roundi(BaseCatalog.INJURY_HP_PENALTY * 100))
-		if base.contamination > 0.0: parts.append("污染 −%d%%" % roundi(minf(BaseCatalog.HP_PENALTY_CAP, base.contamination * BaseCatalog.CONTAMINATION_HP_PER_POINT) * 100))
-		out.append("生命上限 −%d%%（%s，合计上限 −%d%%）" % [roundi(base.hp_penalty() * 100), "，".join(parts), roundi(BaseCatalog.HP_PENALTY_CAP * 100)])
+	if base.injured: out.append("生命上限 −%d%%（重伤）" % roundi(base.hp_penalty() * 100))
 	if base.hand: out.append("手上的 %s 会放回原处" % base.hand.item_name)
 	var sealed := base.sealed_count()
 	var staging_full := base.staging.size() >= BaseCatalog.STAGING_CAPACITY * BaseCatalog.STAGING_WARNING
@@ -2077,13 +2429,13 @@ func request_contract(region: String, start_camp: int = 0) -> void:
 	open_modal("station")
 	menu.show_departure(region)
 
-## The base's top bar (§5.1): gold, prestige, and contamination and injury when present.
+## The base's top bar (§5.1): gold, prestige, and an injury when present.
 func base_status_text() -> String:
 	var rank := base.rank()
 	var parts: Array[String] = ["龙门币 %s" % Economy.format(gold)]
 	parts.append("声望 R%d · %d%s" % [rank, base.prestige, "" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else "/%d" % BaseCatalog.PRESTIGE_RANKS[rank]])
-	if base.contamination >= 1.0: parts.append("污染 %d %s" % [roundi(base.contamination), BaseCatalog.CONTAMINATION_TIER_NAMES[base.contamination_tier()]])
-	if base.injured: parts.append("重伤")
+	var injured := base.injured_operators()
+	if not injured.is_empty(): parts.append("重伤 " + "、".join(injured.map(func(id): return Operators.display_name(id))))
 	return "   ".join(parts)
 
 func carried_potions() -> Array[Item]:
@@ -2093,17 +2445,24 @@ func carried_potions() -> Array[Item]:
 			if item.is_potion(): out.append(item)
 	return out
 
+## Flasks carried, counting every one in a stack; "" counts all kinds.
+func potion_count(type: String = "") -> int:
+	var total := 0
+	for item in carried_potions():
+		if type == "" or item.potion_type == type: total += item.quantity
+	return total
+
 func _set_standard_potions(count: int) -> void:
 	for item in carried_potions():
 		inventory.remove(item)
 		safe_bag.remove(item)
 	for i in range(maxi(count, 0)):
-		if not inventory.try_add(BaseCatalog.create_potion("A")): break
+		if inventory.add_stack(BaseCatalog.create_potion("A")) > 0: break
 
 ## The free 标准急救剂 for this contract go into the pack (what does not fit stays
 ## issued for next time).
 func _issue_free_potions() -> void:
-	while base.free_potions > 0 and inventory.try_add(BaseCatalog.create_potion("A")):
+	while base.free_potions > 0 and inventory.add_stack(BaseCatalog.create_potion("A")) == 0:
 		base.free_potions -= 1
 
 ## The best flask to drink now (AI driver): the first by POTION_ORDER, from the pack before the safe bag. At
@@ -2118,7 +2477,7 @@ func _use_potion() -> void:
 				pick = item
 				break
 		if pick != null: break
-	if player.hp >= player.max_hp and pick.potion_type != "C":
+	if player.full_hp() and pick.potion_type != "C":
 		var inhibitor := carried.filter(func(x): return x.potion_type == "C")
 		if inhibitor.is_empty(): return
 		pick = inhibitor[0]
@@ -2135,8 +2494,10 @@ func use_potion_type(type: String) -> bool:
 func drink(item: Item) -> bool:
 	if in_base or item == null or not item.is_potion() or not carried_items().has(item): return false
 	if player.is_controlled(): return false
-	inventory.remove(item)
-	safe_bag.remove(item)
+	if item.quantity > 1: item.set_quantity(item.quantity - 1)
+	else:
+		inventory.remove(item)
+		safe_bag.remove(item)
 	var type := item.potion_type
 	var amount: float = {"A": BaseCatalog.POTION_A_HEAL, "B": BaseCatalog.POTION_B_HEAL, "C": BaseCatalog.POTION_C_HEAL}[type]
 	if builds.has("ore_heart"): amount *= 0.5
@@ -2173,7 +2534,7 @@ func _tick_auto_potion(delta: float) -> void:
 	var limits := Hotbar.auto_thresholds()
 	var ratio := player.hp_ratio()
 	if ratio < limits[0]: _auto_drinking = true
-	if ratio >= limits[1]: _auto_drinking = false
+	if ratio >= limits[1] or player.full_hp(): _auto_drinking = false   # the cap may sit below the high mark
 	if not _auto_drinking or _auto_potion_gap > 0.0: return
 	var type: String = Hotbar.ACTIONS[action].potion
 	if type == "B" and _slow_heal_left > 0.0: return
@@ -2181,9 +2542,10 @@ func _tick_auto_potion(delta: float) -> void:
 
 # --- Medical (§4) ------------------------------------------------------------
 
-## Contamination right now: the base's, plus this contract's dose so far.
+## Contamination right now: this contract's dose so far. It starts from 0 at
+## every departure and is gone at settlement (用户 2026-10-15: 污染不带出局外).
 func current_contamination() -> float:
-	return clampf(base.contamination + run_contamination, 0.0, BaseCatalog.CONTAMINATION_MAX)
+	return clampf(run_contamination, 0.0, BaseCatalog.CONTAMINATION_MAX)
 
 ## Contamination per second at this moment of a contract.
 func contamination_rate() -> float:
@@ -2192,6 +2554,7 @@ func contamination_rate() -> float:
 	if region_id == "mine": rate += BaseCatalog.CONTAMINATION_MINE
 	if route_index == 2: rate += BaseCatalog.CONTAMINATION_DEEP_ROUTE
 	rate += count_effect("raw_ore") * BaseCatalog.CONTAMINATION_PER_ORE
+	rate += count_effect("dirty") * CONTAMINATION_PER_DIRTY
 	if _suppress_timer > 0.0: rate *= 0.5
 	return rate * maxf(0.0, 1.0 + float(player.stats.get("contam_pct", 0.0)))
 
@@ -2209,10 +2572,10 @@ func _apply_medical_state() -> void:
 	run_contamination = 0.0
 	player.condition_hp_penalty = -1.0   # force the recompute
 	player.set_condition(base.injured, current_contamination())
-	_potion_heal_factor = 1.0 - (BaseCatalog.CONTAMINATION_POTION_PENALTY if current_contamination() >= BaseCatalog.CONTAMINATION_POTION_FROM else 0.0)
+	_potion_heal_factor = 1.0 - BaseCatalog.contamination_potion_penalty(current_contamination())
 	_suppress_timer = 0.0
 	_slow_heal_left = 0.0
-	_announced_tier = base.contamination_tier()
+	_announced_tier = 0
 
 func _tick_medical(delta: float) -> void:
 	if _slow_heal_left > 0.0:
@@ -2223,7 +2586,7 @@ func _tick_medical(delta: float) -> void:
 	run_contamination += contamination_rate() * delta
 	# Contamination works live (§6 D): max HP, regeneration and potion healing.
 	player.set_condition(base.injured, current_contamination())
-	_potion_heal_factor = 1.0 - (BaseCatalog.CONTAMINATION_POTION_PENALTY if current_contamination() >= BaseCatalog.CONTAMINATION_POTION_FROM else 0.0)
+	_potion_heal_factor = 1.0 - BaseCatalog.contamination_potion_penalty(current_contamination())
 	var tier := BaseCatalog.contamination_tier(current_contamination())
 	if tier > _announced_tier and tier > 0:
 		set_message("污染升到 %d（%s）" % [roundi(current_contamination()), BaseCatalog.CONTAMINATION_TIER_NAMES[tier]])
@@ -2236,7 +2599,7 @@ func buy_potion(type: String) -> bool:
 	var price := base.potion_price(type)
 	if price < 0 or gold < price: return false
 	var flask := BaseCatalog.create_potion(type)
-	if not inventory.try_add(flask):
+	if inventory.add_stack(flask) > 0:
 		notice("背包空间不足：药剂要占一格。")
 		return false
 	gold -= price
@@ -2244,23 +2607,14 @@ func buy_potion(type: String) -> bool:
 	save_base()
 	return true
 
-func treat_injury() -> bool:
-	if not in_base or not base.injured or gold < BaseCatalog.INJURY_TREATMENT: return false
+## Treats one operator's injury (the one who deploys next by default).
+func treat_injury(id: String = "") -> bool:
+	if id.is_empty(): id = base.operator
+	if not in_base or not base.injuries.has(id) or gold < BaseCatalog.INJURY_TREATMENT: return false
 	gold -= BaseCatalog.INJURY_TREATMENT
-	base.injured = false
+	base.injuries.erase(id)
 	save_base()
-	set_message("重伤已治愈。")
-	return true
-
-## Lowers contamination to `target` for 1.5 per point (at least 10).
-func decontaminate(target: int) -> bool:
-	var points := ceili(base.contamination) - maxi(target, 0)
-	var price := BaseCatalog.decon_price(points)
-	if not in_base or points <= 0 or gold < price: return false
-	gold -= price
-	base.contamination = float(maxi(target, 0))
-	save_base()
-	set_message("污染处理完成：现在 %d（%s）。" % [maxi(target, 0), BaseCatalog.CONTAMINATION_TIER_NAMES[base.contamination_tier()]])
+	set_message("%s的重伤已治愈。" % Operators.display_name(id))
 	return true
 
 func _spawn_wave() -> void:
@@ -2269,16 +2623,26 @@ func _spawn_wave() -> void:
 	# Scaled with the route: the segment is about twice the ground it used to
 	# be, so holding the old budget would have thinned encounters out rather
 	# than made the map feel bigger. Density stays roughly where it was.
+	# 用户 2026-10-17: 增加敌人数量 — 1.5× the old 6 + 2 per route step. They
+	# stand on the odd route points as before (an even one can be a bridge
+	# deck); once there are more enemies than points, they share them in
+	# groups, spread evenly along the route.
 	var profile := FieldCatalog.depth_profile(floor_number)
-	var count: int = 6 + route_index * 2 + int(profile.enemies)
+	var count: int = 9 + route_index * 3 + int(profile.enemies)
 	var extra_elites: int = int(profile.elites)
+	var slots := maxi(1, world_map.main_path.size() / 2)
+	var at_slot := {}
 	for i in range(count):
 		var elite := (i % 3 == 2 if region_id == "snow" else i == count - 1) or (route_index == 2 and i == count - 2)
 		if not elite and extra_elites > 0 and i % 3 == 1:
 			elite = true
 			extra_elites -= 1
 		var ranged := not elite and (i % 2 == 1 if region_id == "snow" else i % 4 == 2)
-		var point: Vector2 = world_map.main_path[mini(1 + i * 2, world_map.main_path.size() - 1)]
+		var slot := i if count <= slots else i * slots / count
+		var point: Vector2 = world_map.main_path[mini(1 + slot * 2, world_map.main_path.size() - 1)]
+		var shared: int = at_slot.get(slot, 0)
+		at_slot[slot] = shared + 1
+		if shared > 0: point += Vector2.from_angle(shared * 2.1) * 1.4
 		var type := ""
 		if region_id == "mine" and not elite and i % 6 in [1, 2, 3]:
 			# Three slugs share one encounter pocket.
@@ -2299,6 +2663,13 @@ func _spawn_wave() -> void:
 	# Each is a typed point of interest (掉落物策划案 §4.1).
 	var places: Array = world_map.cache_positions.map(func(at: Vector3) -> String: return world_map.district_at(Vector2(at.x, at.z)))
 	var kinds := LootTables.plan_points(region_id, world_map.cache_positions.size(), rng, places)
+	# 叙拉古: a family mansion's court keeps its safe, guarded at the gate
+	# (叙拉古方案 §3.2: 死路藏宝，门口有守卫).
+	var mansions: Array[bool] = []
+	for i in range(world_map.cache_positions.size()):
+		var at: Vector3 = world_map.cache_positions[i]
+		mansions.append(world_map.is_mansion(world_map.room_at(Vector2(at.x, at.z))))
+		if mansions[i]: kinds[i] = "safe"
 	var mimic_placed := false
 	for i in range(world_map.cache_positions.size()):
 		var box := LootContainer.new()
@@ -2308,6 +2679,7 @@ func _spawn_wave() -> void:
 		# third-of-a-squad now and then led by an elite (and paying for it).
 		var guards: int = POI_GUARDS[LootTables._pick_weighted(POI_GUARD_WEIGHTS, rng)]
 		if region_id == "snow" and kinds[i] == "camp": guards = maxi(guards, 2)
+		if mansions[i]: guards = maxi(guards, 2)
 		box.guarded = guards > 0 and (route_index == 2 or rng.randf() < (0.45 if guards == 3 else 0.12))
 		# 巨壳藤蔓 waits inside one weapon or tool box now and then (萨米).
 		if region_id == "snow" and not mimic_placed and kinds[i] in ["weapon_box", "tool_box"] and rng.randf() < 0.25:
@@ -2321,15 +2693,26 @@ func _spawn_wave() -> void:
 			_spawn_guard_post(box.global_position, box.title(), box.guarded, "fallen_snowpriest" if region_id == "snow" and kinds[i] == "camp" else "", guards)
 	# A work light at every search point, so the eye is drawn to them in the
 	# dark (地图表现调研 §2: light leads; 兴趣点策划案_v1.md §4).
-	if is_instance_valid(world_map.terrace_dressing):
-		var work_lights: Array[Dictionary] = []
-		for at in world_map.cache_positions:
-			work_lights.append({"at": at + Vector3.UP * 1.2, "color": Color(0.75, 0.6, 0.38), "radius": 4.5})
-		world_map.terrace_dressing.add_lamps(work_lights)
+	var work_lights: Array[Dictionary] = []
+	for at in world_map.cache_positions:
+		work_lights.append({"at": at + Vector3.UP * 1.2, "color": Color(0.75, 0.6, 0.38), "radius": 4.5})
 	_spawn_sentinels()
 	_spawn_wanderers()
 	if is_outpost_floor(): _spawn_outpost()
 	if is_bounty_floor(): _spawn_bounty()
+	if is_recruit_floor(): _spawn_recruit()
+	if floor_number % FieldCatalog.CAMP_INTERVAL != 0:
+		_spawn_traps()
+		_spawn_trace()
+	# The faint glow (用户 2026-10-17: 幽幽的光) of a trace and of a sealed vault's
+	# edge, baked with the work lights in one pass.
+	if is_instance_valid(trace_point):
+		var wide := 1.5 if RecruitCatalog.is_big(trace_point.key) else 1.0
+		work_lights.append({"at": trace_point.global_position + Vector3.UP * 0.8, "color": TracePoint.GLOW * TracePoint.GLOW_GAIN, "radius": TracePoint.GLOW_RADIUS * wide})
+	if world_map.vault_seal != null:
+		work_lights.append(world_map.vault_seal.glow_lamp())
+	if is_instance_valid(world_map.terrace_dressing): world_map.terrace_dressing.add_lamps(work_lights)
+	if not world_map.roadblock.is_empty() and floor_number % FieldCatalog.CAMP_INTERVAL != 0: _spawn_car()
 	threat.plan_floor(region_id, floor_enemies().size())
 
 ## This floor's enemies still standing (not the grazing herds).
@@ -2348,9 +2731,17 @@ func threat_rising() -> bool:
 func near_squad() -> bool:
 	return encounter == "squad" and is_instance_valid(world_map.encounter_node) and world_map.encounter_node.visible 		and player.global_position.distance_to(world_map.encounter_node.global_position) < ThreatMeter.SQUAD_CALM_RADIUS
 
+## The wave a "being tracked" line was given for (博士主角叙事修订案 §4).
+var _tracked_warned := -1
+
 func _tick_threat(delta: float) -> void:
-	var boost := 1.0 + ThreatMeter.SENTINEL_BOOST * alerted_sentinels()
-	if threat.add(threat.per_second() * boost * delta): _spawn_patrol()
+	var boost := (1.0 + ThreatMeter.SENTINEL_BOOST * alerted_sentinels()) * market.threat_mult(region_id)
+	if threat.add(threat.per_second() * boost * delta):
+		_spawn_patrol()
+	elif threat.ratio() >= ThreatMeter.TRACKED_AT and _tracked_warned != threat.wave:
+		_tracked_warned = threat.wave
+		# 叙拉古: the meter is the families' 血债 (叙拉古方案 §3.5, from 「叙拉古人」).
+		broadcast("PRTS：博士，血债快要清算了。" if region_id == "siracusa" else "PRTS：博士，信号正在被追踪。")
 
 ## Sentinels with their "!" up right now.
 func alerted_sentinels() -> int:
@@ -2358,7 +2749,7 @@ func alerted_sentinels() -> int:
 
 ## A 萨卡兹哨兵 has seen her and runs.
 func on_sentinel_spotted(_sentinel: Enemy) -> void:
-	broadcast("萨卡兹哨兵发出了警报。")
+	broadcast("PRTS：萨卡兹哨兵发现了博士的踪迹。")
 
 ## The next patrol onto this floor: stronger with every wave here.
 func _spawn_patrol() -> void:
@@ -2377,15 +2768,25 @@ func _spawn_patrol() -> void:
 		enemy.max_health *= power.x
 		enemy.health = enemy.max_health
 		enemy.atk *= power.y
-	broadcast("巡逻队进入本层。")
+	# 叙拉古: every reckoning brings one 家族灭迹人, who leaves the patrol and
+	# closes in on her unseen (叙拉古敌人设计案 §三第 6 条).
+	if region_id == "siracusa":
+		var eraser := _spawn_enemy(at + Vector3(1.6, 0.0, 1.6), true, false, "family_eraser")
+		eraser.configure_patrol(wave)
+		eraser.max_health *= power.x
+		eraser.health = eraser.max_health
+		eraser.atk *= power.y
+	broadcast("PRTS：博士，清算时刻。家族的人进入本层。" if region_id == "siracusa" else "PRTS：博士，搜捕巡逻队进入本层。")
 
 ## 用户 2026-10-14: 增加游荡敌人. A few small groups on the floor from the
 ## start, walking waypoint to waypoint (Enemy.configure_wander) and chasing
 ## whatever they see: never the first rooms, so the entry is quiet.
-const WANDER_GROUPS := Vector2i(2, 4)
-## Guards at a point of interest and their odds: 30% none, 20% one, 30% two, 20% three.
+## 用户 2026-10-17: 3–5 groups (was 2–4).
+const WANDER_GROUPS := Vector2i(3, 5)
+## Guards at a point of interest and their odds: 15% none, 20% one, 35% two, 30% three
+## (用户 2026-10-17, was 30/20/30/20).
 const POI_GUARDS := [0, 1, 2, 3]
-const POI_GUARD_WEIGHTS := [30.0, 20.0, 30.0, 20.0]
+const POI_GUARD_WEIGHTS := [15.0, 20.0, 35.0, 30.0]
 const WANDER_CLEAR := 30.0
 
 func _spawn_wanderers() -> void:
@@ -2404,7 +2805,7 @@ func _spawn_wanderers() -> void:
 		var walk := NavigationServer3D.map_get_path(rid, ContinuousWorldMap.ENTRY_POSITION, start, true)
 		if walk.size() < 2 or walk[walk.size() - 1].distance_to(start) > 1.5: continue
 		groups -= 1
-		var size := 1 if rng.randf() < 0.45 else 2
+		var size := 1 if rng.randf() < 0.3 else 2
 		for k in range(size):
 			var ranged := k == 1 and region_id != "mine"
 			var point := start if k == 0 else world_map.nearest_walkable(start + Vector3(1.4, 0.0, 0.0))
@@ -2499,11 +2900,266 @@ func _spawn_bounty() -> void:
 	_bounty.max_health *= FieldCatalog.HUNT_HP
 	_bounty.health = _bounty.max_health
 
-## The dispatch desk's offers for `region`, rolled when missing.
+## The dispatch desk's offers for `region`, rolled when missing, and after
+## them a 寻访合同 for each operator of the region whose traces are all in
+## (§2.2: 排在 3 张普通卡之外，完成之前一直在).
 func contract_offers(region: String) -> Array:
 	if not base.contract_offers.has(region) or (base.contract_offers[region] as Array).size() < FieldCatalog.CONTRACT_OFFERS:
 		base.contract_offers[region] = FieldCatalog.roll_contracts(region, rng)
-	return base.contract_offers[region]
+	var offers: Array = (base.contract_offers[region] as Array).duplicate()
+	for id in RecruitCatalog.in_region(region):
+		if base.recruit_ready(id): offers.append(RecruitCatalog.contract_for(id))
+	return offers
+
+# --- 叙拉古 (叙拉古敌人设计案 §三, §四.1) -----------------------------------------
+
+## 血债 from a fall (用户 2026-10-16: 血债杀人涨): its own weight, and CAPO_DEBT
+## for every 家族角头 within CAPO_DEBT_RADIUS (itself included). The
+## reckoning's own patrols add nothing, or one would call the next.
+func _siracusa_death(enemy: Enemy) -> void:
+	if enemy.attack_profile.get("roadblock", false): _wreck_car(enemy)
+	if enemy.patrol_wave > 0: return
+	var debt := float(enemy.attack_profile.get("debt", 0.0))
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var other := node as Enemy
+		if other == null or other.game != self or other.enemy_type != "family_capo": continue
+		if other._dead and other != enemy: continue
+		if other.global_position.distance_to(enemy.global_position) <= EnemyAttacks.CAPO_DEBT_RADIUS: debt += EnemyAttacks.CAPO_DEBT
+	if debt > 0.0: add_debt(debt)
+
+## 血债 from anything but the clock: a fall, a 家族术师's 煽动.
+func add_debt(amount: float) -> void:
+	if threat.add(amount): _spawn_patrol()
+
+## 清算时刻: a reckoning's patrol is still standing on this 叙拉古 floor.
+func reckoning() -> bool:
+	if region_id != "siracusa": return false
+	return get_tree().get_nodes_in_group("patrols").any(func(e): return e.game == self and not e._dead)
+
+## 家族专用轿车 in its lane's mouth (§三第 7 条), and the body that stops her
+## there; both go when it is broken.
+var _car: Enemy
+var _car_block: StaticBody3D
+
+func _spawn_car() -> void:
+	var block: Dictionary = world_map.roadblock
+	var at: Vector2 = block.at
+	var along: Vector2 = block.along
+	_car = _spawn_enemy(Vector3(at.x, 0, at.y), true, false, "family_car")
+	_car.home_position = _car.global_position
+	# Nose to the piazza it guards.
+	_car.nose = -Vector3(along.x, 0.0, along.y)
+	_car._face(_car.nose, 1.0)
+	_car_block = StaticBody3D.new()
+	_car_block.name = "CarBlock"
+	_car_block.add_to_group("world_obstacle")
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(2.4, 1.6, 4.4)
+	shape.shape = box
+	_car_block.add_child(shape)
+	world_map._generated_root.add_child(_car_block)
+	var x := Vector3(along.y, 0.0, -along.x)
+	_car_block.global_transform = Transform3D(Basis(x, Vector3.UP, x.cross(Vector3.UP)), Vector3(at.x, ground_y(Vector3(at.x, 0, at.y)) + 0.8, at.y))
+
+## Broken: the lane opens at once; broken from close by, three soldiers get out.
+func _wreck_car(car: Enemy) -> void:
+	if is_instance_valid(_car_block): _car_block.queue_free()
+	_car_block = null
+	if player.global_position.distance_to(car.global_position) > EnemyAttacks.CAR_DROP_REACH: return
+	for i in range(EnemyAttacks.CAR_SOLDIERS):
+		var offset := Vector3(cos(i * TAU / 3.0), 0.0, sin(i * TAU / 3.0)) * 1.6
+		_spawn_enemy(car.global_position + offset, false, false, "family_soldier")
+	broadcast("PRTS：车里还有人！")
+
+# --- 干员寻访 (干员寻访策划案 §2) --------------------------------------------------
+
+# --- 陷阱 (密室与陷阱修订案_v1 §2.2) ------------------------------------------------
+
+## This floor's traps (FieldTrap), each one spent when sprung.
+var traps: Array[FieldTrap] = []
+const TRAPS := Vector2i(4, 7)
+## On a floor with a vault, at least this share of them lie within VAULT_TRAP_REACH
+## of its wall, on the near side: where traps crowd, look for a wall.
+const VAULT_TRAP_SHARE := 0.5
+const VAULT_TRAP_REACH := 12.0
+
+func _spawn_traps() -> void:
+	traps.clear()
+	var count := rng.randi_range(TRAPS.x, TRAPS.y)
+	var near_vault := ceili(count * VAULT_TRAP_SHARE) if world_map.has_vault else 0
+	var placed: Array[Vector3] = []
+	var tries := 0
+	while placed.size() < count and tries < count * 30:
+		tries += 1
+		var at: Vector3
+		if placed.size() < near_vault:
+			var mouth: Vector2 = world_map.vault_mouth
+			var inward: Vector2 = world_map.vault_inward
+			var spot := mouth - inward * rng.randf_range(1.5, VAULT_TRAP_REACH) + Vector2(-inward.y, inward.x) * rng.randf_range(-5.0, 5.0)
+			at = world_map.nearest_walkable(Vector3(spot.x, 0, spot.y))
+			if Vector2(at.x, at.z).distance_to(mouth) > VAULT_TRAP_REACH: continue
+		else:
+			var path: PackedVector2Array = world_map.main_path
+			var room: Vector2 = path[rng.randi_range(1, path.size() - 1)]
+			at = world_map.nearest_walkable(Vector3(room.x + rng.randf_range(-7, 7), 0, room.y + rng.randf_range(-7, 7)))
+		if not _trap_spot_ok(at, placed): continue
+		placed.append(at)
+		var trap := FieldTrap.new()
+		trap.name = "Trap"
+		trap.setup(self, "heavy" if rng.randf() < 0.4 else "light", region_id)
+		world_map._generated_root.add_child(trap)
+		trap.global_position = Vector3(at.x, ground_y(at), at.z)
+		traps.append(trap)
+
+func _trap_spot_ok(at: Vector3, placed: Array[Vector3]) -> bool:
+	var flat := Vector2(at.x, at.z)
+	if world_map.vault_hidden(flat): return false
+	if flat.distance_to(Vector2(ContinuousWorldMap.ENTRY_POSITION.x, ContinuousWorldMap.ENTRY_POSITION.z)) < 8.0: return false
+	for other in placed:
+		if other.distance_to(at) < 3.0: return false
+	var marks: Array = [world_map.buff_position, world_map.encounter_position, world_map.route_guard_position]
+	marks.append_array(world_map.cache_positions)
+	if is_instance_valid(world_map.exit_node): marks.append(world_map.exit_node.position)
+	for node in world_map.route_nodes: marks.append(node.position)
+	if is_instance_valid(recruit_node): marks.append(recruit_node.global_position)
+	for child in get_children():
+		if child is GuardPost: marks.append((child as GuardPost).global_position)
+	for mark in marks:
+		if Vector2((mark as Vector3).x, (mark as Vector3).z).distance_to(flat) < 4.0: return false
+	return true
+
+## A trap went off under her: the 威胁值 rises (用户 2026-10-17: 挂钩).
+func trap_sprung(amount: float) -> void:
+	if threat.add(amount): _spawn_patrol()
+
+# --- 踪迹点 (干员寻访策划案 §13) --------------------------------------------------
+
+## This floor's trace, if one was left: at a dead end, for one of the region's
+## operators still being sought; fewer on floors shallow for her operator.
+var trace_point: TracePoint
+## Leave one whatever the roll (tests and captures).
+var force_trace := false
+
+func _spawn_trace() -> void:
+	trace_point = null
+	var sought := _sought_here()
+	if sought.is_empty(): return
+	var p := progress()
+	var suited := RecruitCatalog.suited_floor(p.elite, p.level) if p != null else 1
+	if not force_trace and rng.randf() >= RecruitCatalog.trace_chance(floor_number, suited): return
+	var ends: Array[Vector2] = []
+	ends.append_array(world_map.niche_centres)
+	for centre in world_map.branch_centres: ends.append(Vector2(centre.x, centre.y))
+	ends.append_array(world_map.loop_centres)
+	ends.shuffle()
+	for end in ends:
+		var at := world_map.nearest_walkable(Vector3(end.x + rng.randf_range(-2, 2), 0, end.y + rng.randf_range(-2, 2)))
+		if not _trap_spot_ok(at, []): continue
+		var keys: Array[String] = RecruitCatalog.TRACE_BIG if rng.randf() < RecruitCatalog.BIG_SHARE else RecruitCatalog.TRACE_SMALL
+		trace_point = TracePoint.new()
+		trace_point.setup(sought[rng.randi() % sought.size()], self, keys[rng.randi() % keys.size()])
+		world_map._generated_root.add_child(trace_point)
+		trace_point.global_position = Vector3(at.x, ground_y(at), at.z)
+		return
+
+func _take_trace() -> void:
+	var id := trace_point.operator
+	var key := trace_point.key
+	trace_point.queue_free()
+	trace_point = null
+	var before := base.clues(id)
+	var repeat := base.found_before(id, key)
+	var gain := base.add_trace(id, key)
+	var have := base.clues(id)
+	if gain == 0:
+		broadcast("PRTS：博士，这条踪迹之前已经记录过了。")
+	elif before == 0:
+		broadcast("PRTS：博士，%s附近有人留下了踪迹。" % RecruitCatalog.RECRUITS[id].place)
+	elif have >= RecruitCatalog.CLUES_NEEDED:
+		broadcast("PRTS：博士，%s的行踪已经确认。调度台可以接寻访合同了。" % Operators.display_name(id))
+	elif repeat:
+		broadcast("PRTS：博士，这条踪迹记录过，但又多了些细节。")
+	set_message("踪迹 · %s %d/%d" % [Operators.display_name(id), have, RecruitCatalog.CLUES_NEEDED])
+
+## The operators of this region still being sought.
+func _sought_here() -> Array[String]:
+	var sought: Array[String] = []
+	for id in RecruitCatalog.in_region(region_id):
+		if not base.recruited(id) and base.clues(id) < RecruitCatalog.CLUES_NEEDED: sought.append(id)
+	return sought
+
+## A trace of one of this region's operators still being sought (§13): PRTS
+## speaks up at the first and when they are all in.
+func _find_clue(id: String = "") -> void:
+	if id.is_empty():
+		var sought := _sought_here()
+		if sought.is_empty(): return
+		id = sought[rng.randi() % sought.size()]
+	var first := base.add_clue(id)
+	var have := base.clues(id)
+	if first: broadcast("PRTS：博士，%s附近有人留下了踪迹。" % RecruitCatalog.RECRUITS[id].place)
+	elif have >= RecruitCatalog.CLUES_NEEDED: broadcast("PRTS：博士，%s的行踪已经确认。调度台可以接寻访合同了。" % Operators.display_name(id))
+	set_message("踪迹 · %s %d/%d" % [Operators.display_name(id), have, RecruitCatalog.CLUES_NEEDED])
+
+func is_recruit_floor() -> bool:
+	return str(contract.get("type", "")) == "recruit" and not recruit_met and floor_number == start_floor + int(contract.offset)
+
+## Her 寻访点 (§2.2): she stands in her idle on the trunk two thirds of the way
+## in, with a squad round her led by an elite; she can be spoken to once it is down.
+func _spawn_recruit() -> void:
+	var id := str(contract.operator)
+	var path: Array = world_map.main_path
+	var spot: Vector2 = path[clampi(path.size() * 2 / 3, 0, path.size() - 1)]
+	var at := world_map.nearest_walkable(Vector3(spot.x, 0, spot.y))
+	recruit_node = _operator_figure(id)
+	world_map._generated_root.add_child(recruit_node)
+	recruit_node.global_position = Vector3(at.x, ground_y(at) + ContinuousWorldMap.ENTRY_POSITION.y, at.z)
+	_recruit_post = _spawn_guard_post(at, Operators.display_name(id), true, "", RecruitCatalog.GUARDS)
+
+## An operator standing in her idle, facing the camera (her S idle row).
+static func _operator_figure(id: String) -> Node3D:
+	var idle: Texture2D = LapplandAnimator3D.sheet(id, "idle")
+	var frames := SpriteFrames.new()
+	frames.set_animation_speed("default", LapplandAnimator3D.IDLE_FPS)
+	frames.set_animation_loop("default", true)
+	for column in range(2):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = idle
+		atlas.region = Rect2(column * LapplandAnimator3D.CELL_TEXELS, 0, LapplandAnimator3D.CELL_TEXELS, LapplandAnimator3D.CELL_TEXELS)
+		frames.add_frame("default", atlas)
+	var sprite := AnimatedSprite3D.new()
+	sprite.name = "Recruit_" + id
+	sprite.sprite_frames = frames
+	sprite.pixel_size = LapplandAnimator3D.PIXEL_SIZE
+	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+	sprite.position.y = LapplandAnimator3D.CELL_TEXELS * LapplandAnimator3D.PIXEL_SIZE * 0.5 - LapplandAnimator3D.FOOT_DROP
+	var holder := Node3D.new()
+	holder.name = "RecruitPoint"
+	holder.add_child(sprite)
+	sprite.play("default")
+	return holder
+
+## The squad round her is down.
+func recruit_guard_cleared() -> bool:
+	if _recruit_post == null or not is_instance_valid(_recruit_post): return true
+	for enemy in _recruit_post.guards:
+		if is_instance_valid(enemy) and not enemy._dead: return false
+	return true
+
+func _recruit_nearby() -> bool:
+	return not recruit_met and is_instance_valid(recruit_node) and near(recruit_node)
+
+func _meet_recruit() -> void:
+	if not recruit_guard_cleared():
+		notice("先击退她身边的敌人。")
+		return
+	recruit_met = true
+	var name := Operators.display_name(str(contract.operator))
+	set_message("寻访 · %s 同意随行" % name)
+	broadcast("PRTS：%s同意随博士返回罗德岛。撤离后完成入职。" % name)
 
 ## {goal, have, need, done} for the running contract, or {} without one.
 func contract_progress() -> Dictionary:
@@ -2518,6 +3174,7 @@ func contract_progress() -> Dictionary:
 			need = int(contract.count)
 			have = inventory.count_material(contract.material) + safe_bag.count_material(contract.material)
 		"hunt": have = 1 if bounty_killed else 0
+		"recruit": have = 1 if recruit_met else 0
 		"search":
 			need = int(contract.vaults)
 			have = contract_vaults
@@ -2624,6 +3281,7 @@ func rolls_relic_cache(enemy: Enemy) -> bool:
 
 func _on_enemy_died(_enemy: Enemy) -> void:
 	if not in_base: award_kill(_enemy)
+	if not in_base and region_id == "siracusa": _siracusa_death(_enemy)
 	player.on_kill(_enemy)
 	if _enemy == _bounty:
 		bounty_killed = true
@@ -2650,7 +3308,8 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 ## What the loot tables need (掉落物策划案 §3–5). The pity counters live on
 ## the base so they carry across contracts.
 func loot_ctx() -> Dictionary:
-	var reward := float(FieldCatalog.ROUTES[route_index].reward) + float(FieldCatalog.depth_profile(floor_number).reward)
+	# Depth works through LootTables.stair (掉落阶梯); the route adds its own reward.
+	var reward := float(FieldCatalog.ROUTES[route_index].reward)
 	return {"region": region_id, "depth": floor_number, "reward": reward, "rng": rng, "pity": base.loot_pity, "set_seen": run_sets_seen}
 
 func _roll_named_item() -> Item: return FieldCatalog.exclusive(region_id)
@@ -2718,6 +3377,7 @@ func drop_found(box: LootContainer, item: Item, index: int, total: int) -> void:
 func _drop_item(drop: Dictionary) -> Item:
 	if drop.has("item"): return drop.item
 	var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier, rng)
+	if drop.get("single", false): bars = mini(bars, 1)   # a point of interest's 赤金
 	return MaterialCatalog.create(Economy.GOLD_ID, bars, region_id) if bars > 0 else null
 
 func _wake_mimic(box: LootContainer) -> void:
@@ -2756,6 +3416,7 @@ func _drop_at(position: Vector3, drops: Array, radius: float) -> void:
 		else:
 			# The loot tables still speak in old reward units; they land as 赤金.
 			var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier, rng)
+			if drop.get("single", false): bars = mini(bars, 1)   # a point of interest's 赤金
 			if bars <= 0:
 				loot.free()
 				continue
@@ -2782,6 +3443,15 @@ func add_gold(bars: int) -> int:
 		if rest > 0 and not in_base: _drop_at(player.global_position, [{"item": stack}], 0.8)
 	set_message("获得赤金 ×%d" % given)
 	return given
+
+## Pays `bars` 赤金 into the pack as they are (a trade, no gold-gain effects);
+## what does not fit lands at her feet.
+func give_gold_bars(bars: int) -> void:
+	var left := bars
+	while left > 0:
+		var stack := MaterialCatalog.create(Economy.GOLD_ID, mini(left, MaterialCatalog.stack_size(Economy.GOLD_ID)), region_id)
+		left -= stack.quantity
+		if inventory.add_stack(stack) > 0: drop_at_feet(stack)
 
 ## 赤金 carried, pack and safe bag together.
 func gold_bars() -> int:
@@ -2820,8 +3490,13 @@ func save_base(active_contract: bool = false) -> void:
 		var entry := item.to_data()
 		entry["place"] = "safe" if safe_bag.items.has(item) else ("equipped" if player.equipped.values().has(item) else "pack")
 		loadout.append(entry)
-	var data := {"version": 3, "gold": gold, "base": base.to_data(), "loadout": loadout,
-		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter}
+	var left_behind: Array = []
+	for item in _insured_left_behind:
+		if not carried_items().has(item): left_behind.append(item.to_data())
+	var data := {"version": 3, "gold": gold, "base": base.to_data(), "loadout": loadout, "left_behind": left_behind,
+		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter,
+		"exchange": exchange.to_data(), "workshop": workshop.to_data()}
+	market.save_file(market_path())
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		notice("存档写入失败：当前会话仍可继续。")
@@ -2832,8 +3507,32 @@ func save_base(active_contract: bool = false) -> void:
 	if DirAccess.rename_absolute(save_path + ".tmp", save_path) != OK:
 		notice("存档替换失败，旧存档保留。")
 
+## A weapon the deployed operator cannot wield (§2.4) goes back to the
+## warehouse (staging when the shelves are full); true if one was moved.
+func shed_unusable_weapon() -> bool:
+	var weapon: Item = player.equipped.get(Item.Category.WEAPON)
+	if weapon == null or GearCatalog.can_wield(player.operator_id, weapon): return false
+	if base.store(weapon).is_empty() and not base.receive(weapon): return false
+	player.unequip(Item.Category.WEAPON)
+	notice("%s无法使用%s，已放回仓库。" % [Operators.display_name(player.operator_id), weapon.item_name])
+	return true
+
+## Rhodes standard gear (装备策划案 §10, 用户 2026-10-18): every operator on
+## the roster is issued one set, once, to the receiving bays. Returns the
+## pieces sent.
+func issue_kits() -> int:
+	var sent := 0
+	for id in base.roster:
+		if id in base.kitted: continue
+		base.kitted.append(id)
+		for piece in GearCatalog.rhodes_kit(rng, id):
+			if base.receive(piece): sent += 1
+	return sent
+
 func load_base() -> void:
 	if not FileAccess.file_exists(save_path): return
+	# An empty save (and backup) is no save: start fresh and keep saving.
+	if FileAccess.get_file_as_string(save_path).strip_edges().is_empty() and (not FileAccess.file_exists(save_path + ".bak") or FileAccess.get_file_as_string(save_path + ".bak").strip_edges().is_empty()): return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
 	if not parsed is Dictionary or not int(parsed.get("version", 0)) in [1, 2, 3]:
 		if FileAccess.file_exists(save_path + ".bak"):
@@ -2849,7 +3548,10 @@ func load_base() -> void:
 	# Version 1 kept one flat warehouse list; it goes onto the shelves, overflow to staging.
 	if int(parsed.get("version", 1)) == 1: base.migrate_v1(parsed.get("stash", []), seen)
 	else: base.load_data(parsed.get("base", {}), seen)
+	exchange.load_data(parsed.get("exchange", {}))
+	workshop.load_data(parsed.get("workshop", {}))
 	player.set_operator(base.operator)
+	refresh_look()
 	inventory.items.clear()
 	safe_bag.items.clear()
 	apply_container_sizes()
@@ -2862,12 +3564,17 @@ func load_base() -> void:
 			"equipped": player.equip(item)
 			"safe": safe_bag.try_add(item)
 			_: inventory.try_add(item)
+	shed_unusable_weapon()
 	settlement.assign(parsed.get("settlement", []))
+	_insured_left_behind.clear()
+	for data in parsed.get("left_behind", []):
+		var dropped := Item.from_data(data)
+		if not seen.has(dropped.uid) and dropped.insured: _insured_left_behind.append(dropped)
 	if bool(parsed.get("active_contract", false)):
 		rng.state = int(parsed.get("rng_state", "1"))
 		_settled = false
 		settle(false)
-		set_message("检测到中断合同：按阵亡规则回收出发物品，保险结果不会反复重掷。")
+		set_message("检测到中断合同：按撤退规则回收出发物品，保险结果不会反复重掷。")
 
 func _configure_camera_and_light() -> void:
 	camera = Camera3D.new()
@@ -2943,6 +3650,7 @@ func pointer_step(left: bool, right: bool, pointed_enemy: Enemy, delta: float) -
 	var left_click := left and not _left_was_down
 	var released := _left_was_down and not left
 	_left_was_down = left
+	if not left: _plate_held = null
 	# Letting go of a long press on an enemy ends the attack there.
 	if released and _held_on_enemy:
 		_held_on_enemy = false
@@ -2973,12 +3681,19 @@ func pointer_step(left: bool, right: bool, pointed_enemy: Enemy, delta: float) -
 	# 用户 2026-10-10). Plates sit above everything else under the cursor.
 	var plate := _hud.loot_label_at(pointer_ui()) if is_instance_valid(_hud) and (left_click or not _held_on_enemy) else null
 	if is_instance_valid(plate):
-		request_pickup(plate)
-		# That press is the pickup's alone (用户 2026-10-13: 左键选中拾取物品时
-		# 不触发攻击): held on, it would swing once the plate went from under
-		# the cursor as the item was taken.
-		_pointer_gate = true
+		if plate != _plate_held:
+			request_pickup(plate)
+			_plate_held = plate
+		_plate_from = pointer_ui()
 		return
+	# A press held from a name plate (用户 2026-10-13: 左键选中拾取物品时不触发
+	# 攻击): while the cursor stays put — the plate gone because the item was
+	# taken — nothing swings. Moved off it, the press is an attack again
+	# (用户 2026-10-15: 长按选到名牌上再移开判定为攻击).
+	if _plate_held != null:
+		if pointer_ui().distance_to(_plate_from) < PLATE_LEAVE_PX: return
+		_plate_held = null
+		left_click = true
 
 	if left_click:
 		_held_on_enemy = is_instance_valid(pointed_enemy)
@@ -3166,7 +3881,17 @@ func _await_navigation_sync() -> void:
 		await get_tree().process_frame
 	# Guard placement immediately queries the new mesh. Flush the queued
 	# region swap instead of sampling the previous map.
-	NavigationServer3D.map_force_update(world_map.navigation_map_rid())
+	var map := world_map.navigation_map_rid()
+	NavigationServer3D.map_force_update(map)
+	# On a loaded frame the new mesh can still be missing after those ticks,
+	# and then every spawn finds no walkable ground (test_guards: whole floors
+	# with no guards or wanderers). Wait until the map answers near the entry.
+	for i in range(60):
+		var near := NavigationServer3D.map_get_closest_point(map, ContinuousWorldMap.ENTRY_POSITION)
+		if near != Vector3.ZERO and near.distance_to(ContinuousWorldMap.ENTRY_POSITION) < 4.0: break
+		await get_tree().physics_frame
+		await get_tree().process_frame
+		NavigationServer3D.map_force_update(map)
 
 ## A strip `width` wide running `length` from `origin` toward `target`
 ## (新敌人攻击案 §六第 2 条: each attack gives its own size).

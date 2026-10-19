@@ -45,17 +45,29 @@ func _physics_process(delta: float) -> void:
 			if game.line_of_sight(start, start + direction * mid): lo = mid
 			else: hi = mid
 		end = start + direction * lo
+	# Nearest first along the way: a 家族恫吓者 stops a piercing attack where it
+	# stands (用户 2026-10-16: 穿透类攻击打到他就停下), so those behind it are spared.
+	var struck: Array = []
 	for node in get_tree().get_nodes_in_group("enemies"):
 		var enemy := node as Enemy
 		if enemy.game != game or enemy._dead or hit_ids.has(enemy.get_instance_id()): continue
 		var point := Vector3(enemy.global_position.x, start.y, enemy.global_position.z)
 		var nearest := Geometry3D.get_closest_point_to_segment(point, start, end)
 		if point.distance_to(nearest) <= WIDTH * width_scale * 0.5 and game.line_of_sight(start, point):
-			hit_ids[enemy.get_instance_id()] = true
-			var amount := damage * (1.0 - decay * clampf(travelled / reach, 0.0, 1.0)) * (game.player.wave_bonus_against(enemy) if is_instance_valid(game.player) else 1.0)
-			var dealt := enemy.take_hit(amount, kind, crit)
-			if is_instance_valid(game.player): game.player.on_wave_hit(enemy, dealt, self)
-			CombatVfx.spawn(game, point, direction, "spark", 0, true)
+			struck.append([start.distance_to(nearest), enemy, point, nearest])
+	struck.sort_custom(func(x: Array, y: Array) -> bool: return x[0] < y[0])
+	for entry in struck:
+		var enemy: Enemy = entry[1]
+		var point: Vector3 = entry[2]
+		hit_ids[enemy.get_instance_id()] = true
+		var amount := damage * (1.0 - decay * clampf(travelled / reach, 0.0, 1.0)) * (game.player.wave_bonus_against(enemy) if is_instance_valid(game.player) else 1.0)
+		var dealt := enemy.take_hit(amount, kind, crit)
+		if is_instance_valid(game.player): game.player.on_wave_hit(enemy, dealt, self)
+		CombatVfx.spawn(game, point, direction, "spark", 0, true)
+		if enemy.attack_profile.get("blocks_pierce", false):
+			end = entry[3]
+			blocked = true
+			break
 	global_position = end
 	travelled += start.distance_to(end)
 	if blocked or travelled >= reach - 0.0001:

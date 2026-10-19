@@ -38,8 +38,8 @@ const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料"]
 @export var quantity: int = 1
 @export var max_stack: int = 1
 @export var unit_value: int = 0
-## A flask ("A" / "B" / "C", BaseCatalog.POTIONS) — flasks are pack items that take
-## a cell (药剂进背包, 用户 2026-10-05); "" for everything else.
+## A flask ("A" / "B" / "C", BaseCatalog.POTIONS) — flasks are pack items; one kind
+## stacks in a cell up to BaseCatalog.POTION_STACK (用户 2026-10-17); "" for everything else.
 @export var potion_type: String = ""
 ## Equipment grade T1–T6 (精英化与加点策划案 §7): base layer + floor block. 0 for
 ## materials and gear saved before grades (filled in on load).
@@ -88,10 +88,10 @@ func named_kind() -> String:
 	return str(SpecialGear.GEAR.get(special, {}).get("kind", "special"))
 
 func is_stackable() -> bool:
-	return max_stack > 1 and not material_id.is_empty()
+	return max_stack > 1 and (not material_id.is_empty() or is_potion())
 
 func can_stack_with(other: Item) -> bool:
-	return other != null and other != self and is_stackable() and other.material_id == material_id
+	return other != null and other != self and is_stackable() and other.material_id == material_id 		and other.potion_type == potion_type and other.effect == effect
 
 func set_quantity(count: int) -> void:
 	quantity = maxi(count, 0)
@@ -192,6 +192,10 @@ static func from_data(data: Dictionary) -> Item:
 	item.max_stack = maxi(1, int(data.get("max_stack", 1)))
 	item.unit_value = int(data.get("unit_value", 0))
 	item.potion_type = str(data.get("potion", ""))
+	# Flasks saved one per cell stack now (用户 2026-10-17).
+	if item.is_potion() and item.max_stack < BaseCatalog.POTION_STACK:
+		item.max_stack = BaseCatalog.POTION_STACK
+		if item.unit_value <= 0: item.unit_value = item.value
 	item.quantity = clampi(int(data.get("quantity", 1)), 1, item.max_stack)
 	item.grade = clampi(int(data.get("grade", 0)), 0, Progression.GRADE_MAX)
 	for data_mod in data.get("mods", []):

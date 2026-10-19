@@ -148,9 +148,8 @@ const STATIONS := {
 	"loadout": ["整备台 / 装备", "装备、卸下或存回仓库"],
 	"stash": ["仓管台 / 仓库", "从个人仓库带入下一份合同"],
 	"outbound": ["出库区 / 订单与交付", "交付个人仓库或背包里的物品：按订单换龙门币和声望，或直接换龙门币"],
-	"report": ["医疗前台 / 回收报告与治疗", "上一份合同的回收明细、污染变化，以及重伤治疗"],
+	"report": ["医疗前台 / 回收报告与治疗", "上一份合同的回收明细，以及重伤治疗"],
 	"pharmacy": ["药房窗口 / 配药", "下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂"],
-	"decon": ["污染检测门 / 检测与处理", "污染跨合同保留；出发时按当时的数值决定减益"],
 	"store": ["可露希尔的商店", "药剂 · 收购赤金"],
 }
 var _station := ""
@@ -178,9 +177,11 @@ func show_station(kind: String) -> void:
 		"outbound": BaseScreens.outbound(self); return
 		"pharmacy": BaseScreens.medical(self, 0); return
 		"report": BaseScreens.medical(self, 1); return
-		"decon": BaseScreens.medical(self, 2); return
 		"insurance", "loadout": BaseScreens.departure(self, "", kind); return
 		"store": BaseScreens.store(self); return
+		"exchange": ExchangeScreen.build(self); return
+		"personnel": BaseScreens.personnel(self); return
+		"workshop": ExchangeScreen.workshop(self); return
 	var info: Array = STATIONS.get(kind, ["罗德岛", ""])
 	clear(info[0], "%s    ·    龙门币 %s" % [info[1], Economy.format(game.gold)])
 	match kind:
@@ -192,7 +193,6 @@ func show_station(kind: String) -> void:
 			_medical_summary()
 			_report_section(true)
 		"pharmacy": _pharmacy_section()
-		"decon": _decon_section()
 		"store": _store_section()
 	button(body, "返回", game.close_modal)
 
@@ -431,27 +431,24 @@ func _outbound_section() -> void:
 		text(row, "%s%s  ·  %s" % [item.display_name(), item.stack_suffix(), "个人仓库" if game.stash.has(item) else "背包"], 15).tooltip_text = item.details()
 		button(row, "交付 +%s" % Economy.format(Economy.price(item)), func(): game.sell(item); _refresh())
 
-## Injury and contamination, with the injury treatment (§4.2, §4.4).
+## The injury, with its treatment (§4.2, §4.4).
 func _medical_summary() -> void:
 	var base: BaseState = game.base
 	var report: Dictionary = base.medical_report
-	if not report.is_empty():
-		text(body, "上一份合同 / 污染 %d → %d%s" % [int(report.contamination_before), int(report.contamination_after),
-			"  ·  阵亡，带回重伤" if report.injured else ""], 16)
-	var tier := base.contamination_tier()
-	text(body, "污染 %d（%s）  ·  生命上限 −%d%%" % [roundi(base.contamination), BaseCatalog.CONTAMINATION_TIER_NAMES[tier], roundi(base.hp_penalty() * 100)], 16, GOLD)
-	if base.injured:
-		text(body, "重伤  ·  生命上限 −%d%%" % roundi(BaseCatalog.INJURY_HP_PENALTY * 100), 15, AK.RED)
-		button(body, "治疗重伤（%s 龙门币）" % Economy.format(BaseCatalog.INJURY_TREATMENT), func(): game.treat_injury(); _refresh(), game.gold < BaseCatalog.INJURY_TREATMENT)
+	if bool(report.get("injured", false)): text(body, "上一份合同 / 撤退，%s负伤" % Operators.display_name(str(report.get("operator", base.operator))), 16)
+	# Each injured operator keeps hers until treated (博士主角叙事修订案 §5).
+	for id in base.injured_operators():
+		text(body, "%s  ·  重伤  ·  生命上限 −%d%%" % [Operators.display_name(id), roundi(BaseCatalog.INJURY_HP_PENALTY * 100)], 15, AK.RED)
+		button(body, "治疗重伤（%s 龙门币）" % Economy.format(BaseCatalog.INJURY_TREATMENT), func(): game.treat_injury(id); _refresh(), game.gold < BaseCatalog.INJURY_TREATMENT)
 	body.add_child(HSeparator.new())
 
 ## Flasks for the next contract (药剂进背包): each one bought goes straight into
-## the pack and takes a cell. Three 标准急救剂 are issued free per contract.
+## the pack, stacking by kind. Three 标准急救剂 are issued free per contract.
 func _pharmacy_section() -> void:
 	var base: BaseState = game.base
 	var carried := game.carried_potions()
 	var counts := {}
-	for item in carried: counts[item.potion_type] = int(counts.get(item.potion_type, 0)) + 1
+	for item in carried: counts[item.potion_type] = int(counts.get(item.potion_type, 0)) + item.quantity
 	text(body, "背包药剂  " + ("  ".join(BaseCatalog.POTIONS.keys().filter(func(t): return counts.has(t)).map(func(t): return "%s ×%d" % [BaseCatalog.POTIONS[t].name, counts[t]])) if not carried.is_empty() else "无"), 18, GOLD)
 	text(body, "免费急救剂 %d" % base.free_potions, 15)
 	var row := HBoxContainer.new()
@@ -460,17 +457,6 @@ func _pharmacy_section() -> void:
 		var price := base.potion_price(type)
 		var label := "%s %s" % [BaseCatalog.POTIONS[type].name, ("（R%d 解锁）" % int(BaseCatalog.POTIONS[type].rank)) if price < 0 else ("免费" if price == 0 else "%s 龙门币" % Economy.format(price))]
 		button(row, label, func(): game.buy_potion(type); _refresh(), price < 0 or game.gold < price)
-
-## Contamination treatment at the scan gate (§4.1).
-func _decon_section() -> void:
-	var base: BaseState = game.base
-	text(body, game.medical_view.reading() if is_instance_valid(game.medical_view) else "污染 %d" % roundi(base.contamination), 18, GOLD)
-	var current := ceili(base.contamination)
-	for target in [39, 0]:
-		if current <= target: continue
-		var price := BaseCatalog.decon_price(current - target)
-		button(body, "降到 %d（%s 龙门币）" % [target, Economy.format(price)], func(): game.decontaminate(target); _refresh(), game.gold < price)
-	if current <= 0: text(body, "污染 0", 15, AK.MUTE)
 
 func _report_section(always: bool = false) -> void:
 	if game.settlement.is_empty():
@@ -519,6 +505,11 @@ func show_squad() -> void:
 ## 坎诺特 (坎诺特商店策划案 §2–3): eight slots priced in 赤金, a paid refresh, and
 ## what he will buy.
 var trader_tab := "buy"
+
+## A faction's post in the field (势力与交易所策划案 §12).
+func show_post() -> void:
+	_enter("post", null)
+	ExchangeScreen.post(self)
 
 func show_trader() -> void:
 	_enter("trader", null)

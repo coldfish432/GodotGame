@@ -57,10 +57,10 @@ func _player_distance() -> float:
 
 func alert_from_hit() -> void:
 	if _player_distance() > release_radius: return
-	if guards.any(func(enemy) -> bool: return is_instance_valid(enemy) and enemy.state == Enemy.State.RETURNING): return
 	_activate()
 
+## The whole post at once, those on their way home included.
 func _activate() -> void:
 	active = true
 	for guard in guards:
-		if is_instance_valid(guard): guard.begin_chase()
+		if is_instance_valid(guard): guard.begin_chase(true)
