@@ -1,0 +1,5 @@
+Stage1 identity only. 7 isolated painted figures, 7 uniform384px cells, transparent background.
+Native preview heights:28,27,27,33,31,31,24.
+No stage2 boards. Blind PRTS matching and user approval pending.
+Native previews are BOX downscales with alpha threshold128, not the final16-colour bake.
+Accent preservation after final bake remains untested. Game import/runtime untested.

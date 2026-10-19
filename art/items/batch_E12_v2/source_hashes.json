@@ -1,0 +1,30 @@
+[
+  {
+    "file": "sources/mi_fallen_snowpriest_29_previous.png",
+    "sha256": "9b1b3267ceb8a86c18fc40571f3d08bb5b4773721d9af383e967e73b40e02edb"
+  },
+  {
+    "file": "sources/mi_fallen_snowpriest_29_raw.png",
+    "sha256": "23b257a495fc4aa63266f107da614b09e37bb58cca5bd94306d72916ec7f6c7d"
+  },
+  {
+    "file": "sources/mi_ice_hunter_20_previous.png",
+    "sha256": "17e00857644d190c3f66f8f871c853c6403c881677fc7a06292ae710112c4ebc"
+  },
+  {
+    "file": "sources/mi_ice_hunter_20_raw.png",
+    "sha256": "b9771d66caa4ce67decc528624cee6f47a4ebe4b5aab3577d21691738faee795"
+  },
+  {
+    "file": "sources/proto_quipu.jpg",
+    "sha256": "886c512bc5ef3f1a2ff387c84ee36138e1ddf85a936f32baa5e9dfcf0ebb07e2"
+  },
+  {
+    "file": "sources/proto_sleigh_bell.jpg",
+    "sha256": "d175928f7b0cf9d553aa6985c8f44fc7aef767bea38f0573125ceba5b47d42bf"
+  },
+  {
+    "file": "sources/snow_x21_accepted_reference.png",
+    "sha256": "8460b22b0a94f0712ae6fc1e40eec0da9881076fc5a86bee11071a7ae568841a"
+  }
+]

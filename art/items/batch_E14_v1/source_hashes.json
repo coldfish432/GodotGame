@@ -1,0 +1,154 @@
+[
+  {
+    "file": "sources/accepted_cane_sword.png",
+    "sha256": "ccec6865df1e0338828d956e9fad4bf9da512dfacacef37831c1d0475b7dd0a3"
+  },
+  {
+    "file": "sources/accepted_lead_cane.png",
+    "sha256": "a8907bbb62b80605404ee1da8d13af0ec8463287731558e6626c37f6f2107ce0"
+  },
+  {
+    "file": "sources/birch_shaman_staff_raw.png",
+    "sha256": "a55ea0856dc719f500be8daa82beaafcbeb364ef325873034f26e9896b3a52fc"
+  },
+  {
+    "file": "sources/bronze_bell_staff_raw.png",
+    "sha256": "c54ed4baa45c3cce4b14600e488cdfaa36935550d938510784a80d255b62058d"
+  },
+  {
+    "file": "sources/composite_horn_bow_raw.png",
+    "sha256": "4579352015d4ef41f4297d6b95a26fd3fd2d9aa49339267e12af08a846b49e09"
+  },
+  {
+    "file": "sources/double_barrel_gun_raw.png",
+    "sha256": "f565feb06f59522e6fe20bcb7ca8ec6a4e53a791b6378dac6a6e432935188740"
+  },
+  {
+    "file": "sources/family_gun_crossbow_raw.png",
+    "sha256": "cbbae886a8b0c010a098feb8a484543b6db9b4f514ce48a946911586225b3ae8"
+  },
+  {
+    "file": "sources/folding_sleeve_crossbow_raw.png",
+    "sha256": "fbb62988e375dfa21aa66d122f6d11bce499d66fcb4e0c907f0e2aa1672ff5d5"
+  },
+  {
+    "file": "sources/identity_family_crossbow_native.png",
+    "sha256": "fc4001606e6169b571dd798ffdee2c317a35f26ee07bb4076c24b0f4362b98c9"
+  },
+  {
+    "file": "sources/imperial_heavy_crossbow_raw.png",
+    "sha256": "29876ab920af983d60ce0e02f1db34f82d9ec51623c727f5e2f4009950320a50"
+  },
+  {
+    "file": "sources/laterano_smuggled_pistol_raw.png",
+    "sha256": "de50fa40f7b44e1e26273d9d208cfecef8bf83da2061d1f7843b99782bd70d4c"
+  },
+  {
+    "file": "sources/lawyer_casting_cane_first.png",
+    "sha256": "c468f312c4f57e554fce4c3069057f2039eb4d4c063df259c5e0290a4bdbcb59"
+  },
+  {
+    "file": "sources/lawyer_casting_cane_raw.png",
+    "sha256": "ac708bb082a122d9886bf0bcab0614a0f3f317e1d9a9e8aa3c0b489bc10de86a"
+  },
+  {
+    "file": "sources/lawyer_casting_cane_revision_prompt.txt",
+    "sha256": "5bd9ecff02598ef74f2c2016970d7625d61bf3118420f8e8adcd54a2d637f11b"
+  },
+  {
+    "file": "sources/leader_repeating_crossbow_raw.png",
+    "sha256": "bed6bce586c0c5722603fd7f2efcc8feabf4afb9b382d8cd590193b51620ef86"
+  },
+  {
+    "file": "sources/lgd_hand_crossbow_raw.png",
+    "sha256": "eb853d81f8a73bd45a5dce2fd66bea239cd30b73d7591ad4cdc7c5e56435d78d"
+  },
+  {
+    "file": "sources/modified_nail_gun_raw.png",
+    "sha256": "8e5879ccb9805bd619ecd57629474da32df1c58c3751b80bfccee49ac12664b3"
+  },
+  {
+    "file": "sources/polearm_city_x08.png",
+    "sha256": "4fa6dfed36403d01c42c20a115fe985402c5b0c9d15c2eb100da72f5b7601c48"
+  },
+  {
+    "file": "sources/polearm_mine_x08.png",
+    "sha256": "9bd881c8faf877105f72d8965a1701db976f354d22a65cd23e321654a4f458ae"
+  },
+  {
+    "file": "sources/polearm_snow_x08.png",
+    "sha256": "5bf79309497a61606f688742083b72ec3bf1f4bcc3b7443cbc7b72cc9d86ac41"
+  },
+  {
+    "file": "sources/polearm_vineyard_billhook.png",
+    "sha256": "6427d3eb5c51a862b151f72904fd8e3d043771bc015a3f802deabfc1e0d70af7"
+  },
+  {
+    "file": "sources/polearms.json",
+    "sha256": "52259fbef4002e998071caaaa44135ae28852a7b7292ab78a3097dd4fd5a95ae"
+  },
+  {
+    "file": "sources/reunion_caster_staff_raw.png",
+    "sha256": "4503c25032e5a19be1bec110ea23330820e2a7df7ae6a512dc1e4c54d6bb5195"
+  },
+  {
+    "file": "sources/reunion_hand_crossbow_raw.png",
+    "sha256": "664f4a6f9c3525ff9a2a4a713b0474bc6a3b7f8ce6f2fe5252d0d24a43b3a787"
+  },
+  {
+    "file": "sources/rhodes_crossbow_first.png",
+    "sha256": "f13f51edf46f5b17b53d55da2d164354ee6d5bd58c2b389d9d9ebecad9717282"
+  },
+  {
+    "file": "sources/rhodes_crossbow_raw.png",
+    "sha256": "d467728a8e828311e4ef104b3eae59c00f7bc25b92d875d1f8842209b5c400a3"
+  },
+  {
+    "file": "sources/rhodes_crossbow_revision_prompt.txt",
+    "sha256": "cc6a2f144ef6a9f8a0e38682264110c754f4e94eefb9953ec033400251d5a880"
+  },
+  {
+    "file": "sources/rhodes_logo_S_9.png",
+    "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89"
+  },
+  {
+    "file": "sources/rhodes_staff_first.png",
+    "sha256": "ef9005032cbee5c3860d916f88ee00b422aae5cbde471880678b7d1ec2f0980a"
+  },
+  {
+    "file": "sources/rhodes_staff_raw.png",
+    "sha256": "0f41df9aefab4e3acaf2f1382d2f7da99166acdc8ddafba8773778b83b7acda5"
+  },
+  {
+    "file": "sources/rhodes_staff_revision_prompt.txt",
+    "sha256": "0c314dd77bb78ffe2331cb9e4935642eebef3838e5249ac998a72a1156cf680a"
+  },
+  {
+    "file": "sources/sami_hunting_bow_raw.png",
+    "sha256": "d070405df7109c3f2a1a282ff0989f7a232dd92eee92b635c3952a45bdb642e8"
+  },
+  {
+    "file": "sources/scrap_casting_staff_raw.png",
+    "sha256": "96326188ddd29c4d9c94a00969c0774c66e7d49982be644850738929cfd25f22"
+  },
+  {
+    "file": "sources/snowpriest_staff_raw.png",
+    "sha256": "b7119b3697baaab5bfcb387ad3a6c0a2dbfb7f9fee966263f1c05248d9aac33d"
+  },
+  {
+    "file": "sources/style_existing_weapons_4x.png",
+    "sha256": "dd14cb049f54ef8e62b4c5299e6715f31e65e3f4f276b4ea58d329d8b9905aa2"
+  },
+  {
+    "file": "sources/tribunal_staff_raw.png",
+    "sha256": "db7186119ffaf6d548ba3c7455dc9001cf8e55fc242666b8732a61823f13c83a"
+  },
+  {
+    "file": "sources/tundra_hunting_gun_raw.png",
+    "sha256": "0690f096b267e0cd67f844ec1c067cb518613617a71b6d427b41ee9e5338dfcb"
+  },
+  {
+    "file": "sources/yan_talisman_staff_raw.png",
+    "sha256": "abc325f82676025201abae36e314deba9703786ec5acd15a290c2d4daa341f7a"
+  }
+]

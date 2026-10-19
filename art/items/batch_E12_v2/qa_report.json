@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "items": [
+    {
+      "id": "mi_fallen_snowpriest_29",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true,
+        "emit_nonempty": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 496,
+        "colour_count": 8,
+        "isolated_pixel_percent": 3.02,
+        "bright_pixel_percent": 20.77,
+        "largest_flat_region_percent": 11.49,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          1,
+          29,
+          31
+        ],
+        "component_sizes": [
+          496
+        ],
+        "opaque_canvas_percent": 48.44
+      }
+    },
+    {
+      "id": "mi_ice_hunter_20",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 412,
+        "colour_count": 10,
+        "isolated_pixel_percent": 6.31,
+        "bright_pixel_percent": 16.99,
+        "largest_flat_region_percent": 4.37,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          1,
+          30,
+          31
+        ],
+        "component_sizes": [
+          412
+        ],
+        "opaque_canvas_percent": 40.23
+      }
+    }
+  ],
+  "runtime": "Godot import and backpack UI untested"
+}

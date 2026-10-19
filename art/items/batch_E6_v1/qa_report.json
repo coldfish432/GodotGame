@@ -1,0 +1,259 @@
+{
+  "status": "PASS",
+  "definitions": {
+    "isolated": "Opaque pixels sharing their RGB with none of four opaque orthogonal neighbors.",
+    "luminance": "Rec.709 weighted sRGB code values >=153/255; no linear-light conversion.",
+    "flat": "Largest four-connected region of exactly one RGB, divided by total opaque pixels.",
+    "runtime": "Godot import and backpack/UI display not tested."
+  },
+  "items": [
+    {
+      "id": "rhodes_dual_blades",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true,
+        "emit_nonempty": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 859,
+        "colour_count": 13,
+        "isolated_pixel_percent": 4.54,
+        "bright_pixel_percent": 34.23,
+        "largest_flat_region_percent": 3.49,
+        "accent_percent": {
+          "blue": 5.47,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 5.47,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          4,
+          70,
+          27
+        ]
+      }
+    },
+    {
+      "id": "rhodes_sword",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 364,
+        "colour_count": 14,
+        "isolated_pixel_percent": 3.57,
+        "bright_pixel_percent": 33.52,
+        "largest_flat_region_percent": 5.77,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 1.37,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 1.37,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          9,
+          70,
+          23
+        ]
+      }
+    },
+    {
+      "id": "rhodes_field_uniform",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 3378,
+        "colour_count": 14,
+        "isolated_pixel_percent": 2.55,
+        "bright_pixel_percent": 23.92,
+        "largest_flat_region_percent": 7.99,
+        "accent_percent": {
+          "blue": 4.09,
+          "orange": 0.06,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 4.15,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          3,
+          70,
+          68
+        ]
+      }
+    },
+    {
+      "id": "rhodes_protective_vest",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true,
+        "emit_nonempty": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 3610,
+        "colour_count": 16,
+        "isolated_pixel_percent": 2.05,
+        "bright_pixel_percent": 43.38,
+        "largest_flat_region_percent": 8.23,
+        "accent_percent": {
+          "blue": 2.24,
+          "orange": 0.0,
+          "cyan": 0.25,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 2.49,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          2,
+          70,
+          69
+        ]
+      }
+    },
+    {
+      "id": "rhodes_beacon",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true,
+        "emit_nonempty": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 435,
+        "colour_count": 16,
+        "isolated_pixel_percent": 4.37,
+        "bright_pixel_percent": 26.9,
+        "largest_flat_region_percent": 18.62,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.46,
+          "yellow": 2.76
+        },
+        "accent_total_percent": 3.22,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          5,
+          30,
+          26
+        ]
+      }
+    },
+    {
+      "id": "rhodes_medkit",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 571,
+        "colour_count": 13,
+        "isolated_pixel_percent": 3.15,
+        "bright_pixel_percent": 57.79,
+        "largest_flat_region_percent": 15.76,
+        "accent_percent": {
+          "blue": 2.8,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 2.8,
+        "binary_alpha": true,
+        "bbox": [
+          3,
+          2,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "id": "rhodes_badge",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 339,
+        "colour_count": 14,
+        "isolated_pixel_percent": 4.13,
+        "bright_pixel_percent": 38.94,
+        "largest_flat_region_percent": 12.68,
+        "accent_percent": {
+          "blue": 3.83,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 3.83,
+        "binary_alpha": true,
+        "bbox": [
+          4,
+          2,
+          28,
+          30
+        ]
+      }
+    }
+  ]
+}

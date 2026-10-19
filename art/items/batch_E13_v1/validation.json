@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "items": 12,
+  "checks": "Expected IDs and sizes; binary alpha; <=24 colours; isolated <=10%; bright >=15%; exact 8x and 2x; hashes; E6 palette/accent limits; exact native logos; localized matching nonempty emission; required artifacts; E13 19 Lungmen comparison inputs.",
+  "runtime": "Godot import and inventory UI display not tested.",
+  "results": [
+    {
+      "id": "family_stiletto",
+      "status": "PASS",
+      "isolated_pixel_percent": 6.9,
+      "bright_pixel_percent": 23.28
+    },
+    {
+      "id": "brass_knuckles",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.52,
+      "bright_pixel_percent": 36.64
+    },
+    {
+      "id": "switchblade",
+      "status": "PASS",
+      "isolated_pixel_percent": 0.74,
+      "bright_pixel_percent": 36.27
+    },
+    {
+      "id": "old_town_crowbar",
+      "status": "PASS",
+      "isolated_pixel_percent": 1.85,
+      "bright_pixel_percent": 19.44
+    },
+    {
+      "id": "barber_razor",
+      "status": "PASS",
+      "isolated_pixel_percent": 0.0,
+      "bright_pixel_percent": 38.37
+    },
+    {
+      "id": "cane_sword",
+      "status": "PASS",
+      "isolated_pixel_percent": 5.81,
+      "bright_pixel_percent": 17.23
+    },
+    {
+      "id": "butcher_cleaver",
+      "status": "PASS",
+      "isolated_pixel_percent": 1.06,
+      "bright_pixel_percent": 22.26
+    },
+    {
+      "id": "vineyard_billhook",
+      "status": "PASS",
+      "isolated_pixel_percent": 1.32,
+      "bright_pixel_percent": 23.35
+    },
+    {
+      "id": "eraser_curved_blade",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.05,
+      "bright_pixel_percent": 26.52
+    },
+    {
+      "id": "lead_cane",
+      "status": "PASS",
+      "isolated_pixel_percent": 5.76,
+      "bright_pixel_percent": 22.03
+    },
+    {
+      "id": "wolfhead_knuckles",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.69,
+      "bright_pixel_percent": 17.9
+    },
+    {
+      "id": "saluzzo_crest",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.68,
+      "bright_pixel_percent": 26.4
+    }
+  ]
+}

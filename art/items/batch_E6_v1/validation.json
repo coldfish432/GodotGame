@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "items": 7,
+  "checks": "Expected IDs and sizes; binary alpha; <=24 colours; isolated <=10%; bright >=15%; exact 8x and 2x; hashes; E6 palette/accent limits; exact native logos; localized matching nonempty emission; required artifacts; E13 19 Lungmen comparison inputs.",
+  "runtime": "Godot import and inventory UI display not tested.",
+  "results": [
+    {
+      "id": "rhodes_dual_blades",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.54,
+      "bright_pixel_percent": 34.23
+    },
+    {
+      "id": "rhodes_sword",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.57,
+      "bright_pixel_percent": 33.52
+    },
+    {
+      "id": "rhodes_field_uniform",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.55,
+      "bright_pixel_percent": 23.92
+    },
+    {
+      "id": "rhodes_protective_vest",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.05,
+      "bright_pixel_percent": 43.38
+    },
+    {
+      "id": "rhodes_beacon",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.37,
+      "bright_pixel_percent": 26.9
+    },
+    {
+      "id": "rhodes_medkit",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.15,
+      "bright_pixel_percent": 57.79
+    },
+    {
+      "id": "rhodes_badge",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.13,
+      "bright_pixel_percent": 38.94
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "status": "PASS",
+  "items": 22,
+  "results": [
+    {
+      "id": "reunion_hand_crossbow",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.73,
+      "bright_pixel_percent": 36.08
+    },
+    {
+      "id": "modified_nail_gun",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.48,
+      "bright_pixel_percent": 37.16
+    },
+    {
+      "id": "imperial_heavy_crossbow",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.53,
+      "bright_pixel_percent": 26.84
+    },
+    {
+      "id": "scrap_casting_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.58,
+      "bright_pixel_percent": 30.28
+    },
+    {
+      "id": "reunion_caster_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.69,
+      "bright_pixel_percent": 39.29
+    },
+    {
+      "id": "lgd_hand_crossbow",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.13,
+      "bright_pixel_percent": 18.29
+    },
+    {
+      "id": "leader_repeating_crossbow",
+      "status": "PASS",
+      "isolated_pixel_percent": 5.42,
+      "bright_pixel_percent": 20.12
+    },
+    {
+      "id": "laterano_smuggled_pistol",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.95,
+      "bright_pixel_percent": 35.64
+    },
+    {
+      "id": "bronze_bell_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 5.27,
+      "bright_pixel_percent": 25.12
+    },
+    {
+      "id": "yan_talisman_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.6,
+      "bright_pixel_percent": 31.63
+    },
+    {
+      "id": "sami_hunting_bow",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.91,
+      "bright_pixel_percent": 16.87
+    },
+    {
+      "id": "tundra_hunting_gun",
+      "status": "PASS",
+      "isolated_pixel_percent": 1.96,
+      "bright_pixel_percent": 21.0
+    },
+    {
+      "id": "composite_horn_bow",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.23,
+      "bright_pixel_percent": 16.06
+    },
+    {
+      "id": "birch_shaman_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.19,
+      "bright_pixel_percent": 23.97
+    },
+    {
+      "id": "snowpriest_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 2.57,
+      "bright_pixel_percent": 27.91
+    },
+    {
+      "id": "family_gun_crossbow",
+      "status": "PASS",
+      "isolated_pixel_percent": 5.2,
+      "bright_pixel_percent": 20.27
+    },
+    {
+      "id": "folding_sleeve_crossbow",
+      "status": "PASS",
+      "isolated_pixel_percent": 5.03,
+      "bright_pixel_percent": 19.81
+    },
+    {
+      "id": "double_barrel_gun",
+      "status": "PASS",
+      "isolated_pixel_percent": 1.74,
+      "bright_pixel_percent": 23.98
+    },
+    {
+      "id": "lawyer_casting_cane",
+      "status": "PASS",
+      "isolated_pixel_percent": 4.93,
+      "bright_pixel_percent": 35.2
+    },
+    {
+      "id": "tribunal_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 7.07,
+      "bright_pixel_percent": 35.56
+    },
+    {
+      "id": "rhodes_crossbow",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.72,
+      "bright_pixel_percent": 17.72
+    },
+    {
+      "id": "rhodes_staff",
+      "status": "PASS",
+      "isolated_pixel_percent": 5.1,
+      "bright_pixel_percent": 26.05
+    }
+  ],
+  "checks": "Exact IDs/sizes; binary alpha; <=24 colors; <=10% isolated; >=15% bright; exact 8x/2x; source/final hashes; true complete 1px outer outline; final geometry connected; only required localized nonempty emits; Rhodes palette and accent budgets; exact logos inside painted core; E12 bell darker/larger than accepted silver and knot/toggle native dimensions.",
+  "runtime": "Godot import and UI display remain untested for these new files."
+}

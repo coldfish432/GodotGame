@@ -1,0 +1,17 @@
+Use case stylized-concept. Production multi-direction pixel-art GAME SPRITE SHEET for family_intimidator. This character identity has been APPROVED. Reference1 is exact approved identity/costume. Reference2 accepted N1 identity, reference3 accepted overview and reference4 accepted sentinel board are STYLE ONLY; keep muted clustered chibi2.5 heads tall, thick dark outline, flat chunky colour masses, never glossy illustration. Freshly draw every directional action, never trace original PRTS. REAL transparent alpha, NO labels numbers grid lines shadows or readable logos. Uniform256px square cells. EXACT8 COLUMNS and5 ROWS,2048x1280 canvas. All sprites fully separated with generous transparent gutters, no touching neighbouring sprites. Keep same BODY SIZE across entire board, bodycenter128 feetbaseline241. No weapon clipping. Stand first cell body height33nativepixel equivalent. Directions are COLUMNS, actions are ROWS.
+COLUMN1 S front down toward viewer (chest front);2 SW downLEFT frontthreequarter;3 W trueLEFT PROFILE noseLEFT onlyoneeye;4 NW backUPLEFT NO FACE;5 N fullBACK NO FACE;6 NE backUPRIGHT NO FACE;7 E trueRIGHT PROFILE noseRIGHT oneeye;8 SE downRIGHT frontthreequarter. Every row has all eight separate rotated headings. Never swap rows and columns. Rear silhouettes must hide face/eyes/mask front.
+All five family enemies use exact wine accent#9a2a3a and#5e1620 only on identified accent pieces; no other nearwine colours. Other clothes unchanged. Eraser and car have NO wine accent. No floating projectiles, no UI marks or glow halos. Palm/cigar/headlamp bright spots specified below are hard pixels attached to the figure.
+Exact enemy brief:
+### 2. `family_intimidator` · Family Intimidator
+
+PRTS: a strongman the family trained; his build is meant to scare.
+
+- **Look:** a head taller and twice as wide as the soldier. Slicked-back silver hair (`#c2c2c2`), **grey wolf ears**, a big walrus moustache; an open pale blue-grey jacket (`#a3b2bb`), **an accent-coloured waistcoat** (the waistcoat is his family mass, so it shows on a big body), dark bow tie. **No weapon: bare hands, drawn very big.**
+- **Attack, 双拳砸 (double-fist slam):**
+  - START: fingers lock together.
+  - CHARGE: the locked fists go up over the head, he leans back, chest out. The body height must change by at least 3 baked px.
+  - STRIKE: the fists slam into the ground in front of him.
+  - RECOVER: he straightens up slowly. This is the player's window, so make it look heavy.
+- Walk: slow and heavy, shoulders rolling.
+
+ACTION BOARD: exactly5 rows. Row1IDLE calm approved standing;Row2START preparatory gesture;Row3CHARGE exaggerated windup, weapon protrudes4 nativepixels or body height differs3nativepixels;Row4STRIKE clear committed action;Row5RECOVER followthrough. No sixth row. All8columns keep strict heading even through hurt/crouch/turn. North actions distinct through arms/clothes/weapon, no duplicated idle row.

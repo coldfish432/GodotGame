@@ -1,0 +1,833 @@
+{
+  "status": "PASS",
+  "items": [
+    {
+      "id": "reunion_hand_crossbow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 740,
+        "colour_count": 13,
+        "isolated_pixel_percent": 4.73,
+        "bright_pixel_percent": 36.08,
+        "largest_flat_region_percent": 4.59,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          5,
+          2,
+          67,
+          30
+        ],
+        "component_sizes": [
+          740
+        ],
+        "opaque_canvas_percent": 32.12
+      }
+    },
+    {
+      "id": "modified_nail_gun",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 775,
+        "colour_count": 17,
+        "isolated_pixel_percent": 3.48,
+        "bright_pixel_percent": 37.16,
+        "largest_flat_region_percent": 3.1,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          7,
+          2,
+          65,
+          29
+        ],
+        "component_sizes": [
+          775
+        ],
+        "opaque_canvas_percent": 33.64
+      }
+    },
+    {
+      "id": "imperial_heavy_crossbow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 909,
+        "colour_count": 13,
+        "isolated_pixel_percent": 2.53,
+        "bright_pixel_percent": 26.84,
+        "largest_flat_region_percent": 3.52,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          3,
+          1,
+          69,
+          30
+        ],
+        "component_sizes": [
+          909
+        ],
+        "opaque_canvas_percent": 39.45
+      }
+    },
+    {
+      "id": "scrap_casting_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true,
+        "emit_nonempty": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 611,
+        "colour_count": 17,
+        "isolated_pixel_percent": 4.58,
+        "bright_pixel_percent": 30.28,
+        "largest_flat_region_percent": 4.26,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.65,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.65,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          4,
+          71,
+          27
+        ],
+        "component_sizes": [
+          611
+        ],
+        "opaque_canvas_percent": 26.52
+      }
+    },
+    {
+      "id": "reunion_caster_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true,
+        "emit_nonempty": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 677,
+        "colour_count": 15,
+        "isolated_pixel_percent": 3.69,
+        "bright_pixel_percent": 39.29,
+        "largest_flat_region_percent": 9.16,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          1,
+          70,
+          30
+        ],
+        "component_sizes": [
+          677
+        ],
+        "opaque_canvas_percent": 29.38
+      }
+    },
+    {
+      "id": "lgd_hand_crossbow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 727,
+        "colour_count": 14,
+        "isolated_pixel_percent": 4.13,
+        "bright_pixel_percent": 18.29,
+        "largest_flat_region_percent": 3.03,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          6,
+          3,
+          66,
+          29
+        ],
+        "component_sizes": [
+          727
+        ],
+        "opaque_canvas_percent": 31.55
+      }
+    },
+    {
+      "id": "leader_repeating_crossbow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 830,
+        "colour_count": 14,
+        "isolated_pixel_percent": 5.42,
+        "bright_pixel_percent": 20.12,
+        "largest_flat_region_percent": 3.13,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          1,
+          70,
+          31
+        ],
+        "component_sizes": [
+          830
+        ],
+        "opaque_canvas_percent": 36.02
+      }
+    },
+    {
+      "id": "laterano_smuggled_pistol",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 679,
+        "colour_count": 14,
+        "isolated_pixel_percent": 2.95,
+        "bright_pixel_percent": 35.64,
+        "largest_flat_region_percent": 6.92,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          3,
+          1,
+          69,
+          31
+        ],
+        "component_sizes": [
+          679
+        ],
+        "opaque_canvas_percent": 29.47
+      }
+    },
+    {
+      "id": "bronze_bell_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 645,
+        "colour_count": 15,
+        "isolated_pixel_percent": 5.27,
+        "bright_pixel_percent": 25.12,
+        "largest_flat_region_percent": 6.36,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          6,
+          71,
+          25
+        ],
+        "component_sizes": [
+          645
+        ],
+        "opaque_canvas_percent": 27.99
+      }
+    },
+    {
+      "id": "yan_talisman_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 667,
+        "colour_count": 16,
+        "isolated_pixel_percent": 3.6,
+        "bright_pixel_percent": 31.63,
+        "largest_flat_region_percent": 5.25,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          3,
+          71,
+          29
+        ],
+        "component_sizes": [
+          667
+        ],
+        "opaque_canvas_percent": 28.95
+      }
+    },
+    {
+      "id": "sami_hunting_bow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 563,
+        "colour_count": 16,
+        "isolated_pixel_percent": 3.91,
+        "bright_pixel_percent": 16.87,
+        "largest_flat_region_percent": 9.24,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          8,
+          71,
+          23
+        ],
+        "component_sizes": [
+          563
+        ],
+        "opaque_canvas_percent": 24.44
+      }
+    },
+    {
+      "id": "tundra_hunting_gun",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 662,
+        "colour_count": 18,
+        "isolated_pixel_percent": 1.96,
+        "bright_pixel_percent": 21.0,
+        "largest_flat_region_percent": 2.72,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          3,
+          1,
+          69,
+          31
+        ],
+        "component_sizes": [
+          662
+        ],
+        "opaque_canvas_percent": 28.73
+      }
+    },
+    {
+      "id": "composite_horn_bow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 710,
+        "colour_count": 20,
+        "isolated_pixel_percent": 4.23,
+        "bright_pixel_percent": 16.06,
+        "largest_flat_region_percent": 6.76,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          6,
+          71,
+          25
+        ],
+        "component_sizes": [
+          710
+        ],
+        "opaque_canvas_percent": 30.82
+      }
+    },
+    {
+      "id": "birch_shaman_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 730,
+        "colour_count": 22,
+        "isolated_pixel_percent": 2.19,
+        "bright_pixel_percent": 23.97,
+        "largest_flat_region_percent": 3.97,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          3,
+          71,
+          29
+        ],
+        "component_sizes": [
+          730
+        ],
+        "opaque_canvas_percent": 31.68
+      }
+    },
+    {
+      "id": "snowpriest_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 738,
+        "colour_count": 23,
+        "isolated_pixel_percent": 2.57,
+        "bright_pixel_percent": 27.91,
+        "largest_flat_region_percent": 2.17,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          1,
+          71,
+          30
+        ],
+        "component_sizes": [
+          738
+        ],
+        "opaque_canvas_percent": 32.03
+      }
+    },
+    {
+      "id": "family_gun_crossbow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 750,
+        "colour_count": 19,
+        "isolated_pixel_percent": 5.2,
+        "bright_pixel_percent": 20.27,
+        "largest_flat_region_percent": 12.8,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          1,
+          71,
+          31
+        ],
+        "component_sizes": [
+          750
+        ],
+        "opaque_canvas_percent": 32.55
+      }
+    },
+    {
+      "id": "folding_sleeve_crossbow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 616,
+        "colour_count": 20,
+        "isolated_pixel_percent": 5.03,
+        "bright_pixel_percent": 19.81,
+        "largest_flat_region_percent": 7.95,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          12,
+          3,
+          60,
+          29
+        ],
+        "component_sizes": [
+          616
+        ],
+        "opaque_canvas_percent": 26.74
+      }
+    },
+    {
+      "id": "double_barrel_gun",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 688,
+        "colour_count": 21,
+        "isolated_pixel_percent": 1.74,
+        "bright_pixel_percent": 23.98,
+        "largest_flat_region_percent": 6.69,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          2,
+          71,
+          30
+        ],
+        "component_sizes": [
+          688
+        ],
+        "opaque_canvas_percent": 29.86
+      }
+    },
+    {
+      "id": "lawyer_casting_cane",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true,
+        "emit_nonempty": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 446,
+        "colour_count": 16,
+        "isolated_pixel_percent": 4.93,
+        "bright_pixel_percent": 35.2,
+        "largest_flat_region_percent": 22.2,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          6,
+          71,
+          26
+        ],
+        "component_sizes": [
+          446
+        ],
+        "opaque_canvas_percent": 19.36
+      }
+    },
+    {
+      "id": "tribunal_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 509,
+        "colour_count": 18,
+        "isolated_pixel_percent": 7.07,
+        "bright_pixel_percent": 35.56,
+        "largest_flat_region_percent": 11.0,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          1,
+          2,
+          71,
+          29
+        ],
+        "component_sizes": [
+          509
+        ],
+        "opaque_canvas_percent": 22.09
+      }
+    },
+    {
+      "id": "rhodes_crossbow",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true,
+        "emit_nonempty": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 807,
+        "colour_count": 17,
+        "isolated_pixel_percent": 3.72,
+        "bright_pixel_percent": 17.72,
+        "largest_flat_region_percent": 5.33,
+        "accent_percent": {
+          "blue": 1.86,
+          "orange": 1.49,
+          "cyan": 0.0,
+          "yellow": 0.5
+        },
+        "accent_total_percent": 3.85,
+        "binary_alpha": true,
+        "bbox": [
+          5,
+          2,
+          67,
+          29
+        ],
+        "component_sizes": [
+          807
+        ],
+        "opaque_canvas_percent": 35.03
+      }
+    },
+    {
+      "id": "rhodes_staff",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true,
+        "connected": true,
+        "outline_1px": true,
+        "emit_nonempty": true,
+        "accent_total": true,
+        "accent_single": true,
+        "flat": true,
+        "palette": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 549,
+        "colour_count": 15,
+        "isolated_pixel_percent": 5.1,
+        "bright_pixel_percent": 26.05,
+        "largest_flat_region_percent": 8.01,
+        "accent_percent": {
+          "blue": 0.91,
+          "orange": 0.0,
+          "cyan": 2.73,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 3.64,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          6,
+          71,
+          26
+        ],
+        "component_sizes": [
+          549
+        ],
+        "opaque_canvas_percent": 23.83
+      }
+    }
+  ],
+  "runtime": "Godot import and backpack UI untested"
+}

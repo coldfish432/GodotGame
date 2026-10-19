@@ -1,0 +1,237 @@
+[
+  {
+    "id": "family_stiletto",
+    "name": "家族细匕首",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/identity_family_soldier_native.png",
+      "stiletto"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 家族细匕首.\nMandatory silhouette/details: A **very thin, needle-like three-edged blade** with a short cross-guard, a black grip, and one wine-red band at the pommel. It must be the thinnest blade in the whole game.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "brass_knuckles",
+    "name": "黄铜拳套",
+    "form": "fist",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/proto_brass_knuckles.jpg",
+      "sources/identity_family_intimidator_native.png",
+      "`proto_brass_knuckles`"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 黄铜拳套.\nMandatory silhouette/details: Classic **four-ring polished brass knuckles** with a palm rest, shown flat and big. It must not look like Lungmen's 铜指虎 (city_x02): this one is rounder, heavier and shinier, with a **thick bar across the knuckles**.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "switchblade",
+    "name": "弹簧折刀",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "switchblade"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 弹簧折刀.\nMandatory silhouette/details: An **open switchblade**: a narrow blade, bone-white grip scales, two brass rivets and a small button on the grip. The hinge must be visible.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "old_town_crowbar",
+    "name": "旧城撬棍",
+    "form": "heavy",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "crowbar"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 旧城撬棍.\nMandatory silhouette/details: A long **rust-red crowbar** with the curved claw end on the right, and a rag wrapped round the left end. It reads as heavy because of its length, not its bulk.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "barber_razor",
+    "name": "理发店剃刀",
+    "form": "fist",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "straight razor"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 理发店剃刀.\nMandatory silhouette/details: An **open straight razor**: an ivory handle on the left and the blade swung out to the right with a single bright edge line. It's small and elegant, so leave empty space and don't stretch it.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "cane_sword",
+    "name": "手杖剑",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sword cane"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 手杖剑.\nMandatory silhouette/details: A **black-lacquer walking cane pulled half apart**. The cane's shaft is on the left, a thin bright sword blade comes out of it to the right, and the cane has a silver knob handle. You must be able to see both the cane and the blade.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "butcher_cleaver",
+    "name": "肉铺剁骨刀",
+    "form": "heavy",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "meat cleaver"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 肉铺剁骨刀.\nMandatory silhouette/details: A **square, thick-backed cleaver** with a big rectangular blade and a hanging hole near the spine. The wooden handle has three rivets. It is shorter and blockier than every other heavy weapon.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "vineyard_billhook",
+    "name": "葡萄园修枝镰",
+    "form": "polearm",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/proto_billhook.jpg",
+      "`proto_billhook` (head)"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 葡萄园修枝镰.\nMandatory silhouette/details: A **long wooden pole** with a hooked pruning blade on the right end, and a short twist of **green vine** wrapped below the head. It must read as longer than any sword.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "eraser_curved_blade",
+    "name": "灭迹弯刃",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/identity_family_eraser_native.png",
+      "eraser sprite"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 灭迹弯刃.\nMandatory silhouette/details: A **short, strongly curved blade** of dark, almost blued steel. The grip is wrapped in olive cloth, with one violet thread or tassel. It looks quiet and deadly. Don't let it look like a kukri or a scimitar: it is a hand-length knife.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "lead_cane",
+    "name": "角头的灌铅手杖",
+    "form": "heavy",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/identity_family_capo_native.png",
+      "capo sprite"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 角头的灌铅手杖.\nMandatory silhouette/details: A **thick black cane with a heavy silver wolf-head pommel** on the right end. There is one lavender-grey band on the shaft. It is a walking stick with weight, not a club. The wolf head is the silhouette feature.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "wolfhead_knuckles",
+    "name": "狼首指虎",
+    "form": "fist",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/proto_brass_knuckles.jpg",
+      "`proto_brass_knuckles`"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 狼首指虎.\nMandatory silhouette/details: **Blackened cast-iron knuckles** with a **raised wolf head** on the striking face, its ears forward. They must be clearly different from brass_knuckles: dark metal, with the wolf as the shape.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "saluzzo_crest",
+    "name": "萨卢佐家族的旧徽记",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "exclusive",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "none"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\n1940s Italian old-town civilian or gangster equipment, dressed and maintained, not military. Palette: steel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; charcoal #1a1b1e #2e3036 #4a4d55 #767a84; wood #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0. Small accents only. No light emission. Generic wolf imagery only, never an actual emblem.\nLogical canvas 32x32; enlarged output 256x256 or same aspect ratio with transparent margins.\nSubject: 萨卢佐家族的旧徽记.\nMandatory silhouette/details: An **old enamel lapel badge or seal**: a shield shape in tarnished gilt, wine-red enamel inside, and a simple **wolf profile** in gilt (generic, no letters). One chipped corner and a pin at the back. It must read as a relic of an old family, not a police badge.",
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "mi_fallen_snowpriest_29",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-6d4e9160-af4d-43f6-8c71-9a6f27992414.png",
+    "source": "sources/mi_fallen_snowpriest_29_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "mi_ice_hunter_20",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-db0ffac5-1157-4703-9896-8ab35d600d30.png",
+    "source": "sources/mi_ice_hunter_20_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  }
+]

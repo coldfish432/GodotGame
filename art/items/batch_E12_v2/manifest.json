@@ -1,0 +1,94 @@
+[
+  {
+    "id": "mi_fallen_snowpriest_29",
+    "name": "反馈赠之铃",
+    "region": "sami",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "kind": "exclusive",
+    "prototype_refs": [
+      "source_review.md",
+      "sources/proto_sleigh_bell.jpg"
+    ],
+    "file": "mi_fallen_snowpriest_29.png",
+    "source": "sources/mi_fallen_snowpriest_29_raw.png",
+    "source_sha256": "23b257a495fc4aa63266f107da614b09e37bb58cca5bd94306d72916ec7f6c7d",
+    "file_sha256": "7a88b2aeb855471ee12ac26897284b0060539262d8026eb84ec39b2934d31b10",
+    "emit_pixels": 20,
+    "opaque_pixel_count": 496,
+    "colour_count": 8,
+    "isolated_pixel_percent": 3.02,
+    "bright_pixel_percent": 20.77,
+    "largest_flat_region_percent": 11.49,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      1,
+      29,
+      31
+    ],
+    "component_sizes": [
+      496
+    ],
+    "opaque_canvas_percent": 48.44,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "mi_ice_hunter_20",
+    "name": "结绳猎记",
+    "region": "sami",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "kind": "exclusive",
+    "prototype_refs": [
+      "source_review.md",
+      "sources/proto_quipu.jpg"
+    ],
+    "file": "mi_ice_hunter_20.png",
+    "source": "sources/mi_ice_hunter_20_raw.png",
+    "source_sha256": "b9771d66caa4ce67decc528624cee6f47a4ebe4b5aab3577d21691738faee795",
+    "file_sha256": "feff19e3447d9585fc9ff19a2d519078192be39b23bf5764b898cd28b157100d",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 412,
+    "colour_count": 10,
+    "isolated_pixel_percent": 6.31,
+    "bright_pixel_percent": 16.99,
+    "largest_flat_region_percent": 4.37,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      1,
+      30,
+      31
+    ],
+    "component_sizes": [
+      412
+    ],
+    "opaque_canvas_percent": 40.23,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  }
+]

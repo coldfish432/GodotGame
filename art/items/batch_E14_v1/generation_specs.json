@@ -1,0 +1,379 @@
+[
+  {
+    "id": "reunion_hand_crossbow",
+    "name": "整合运动手弩",
+    "region": "mine",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather #2e2018 #5a3d2a #86603f #b48a5e; rust #4a2a1d #7d4529 #b06a3a #d99560; canvas #5a4d3a #857555 #b3a27c #d6c8a2; small warning yellow #d8a520; grey-green old army paint. Originium is BLACK, only INSIDE fissures have orange #b85a12 #ee8a24 #ffb35a #ffe0a8 glow. No orange crystal surfaces.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms.\nItem: 整合运动手弩. Mandatory structure: A one-handed light crossbow: an old spring-steel prod, a fresh pale string, a grip wrapped in grey tape and a welded patch on the body. Match the crossbowman's sprite in `art/field/`.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "modified_nail_gun",
+    "name": "改装射钉枪",
+    "region": "mine",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather #2e2018 #5a3d2a #86603f #b48a5e; rust #4a2a1d #7d4529 #b06a3a #d99560; canvas #5a4d3a #857555 #b3a27c #d6c8a2; small warning yellow #d8a520; grey-green old army paint. Originium is BLACK, only INSIDE fissures have orange #b85a12 #ee8a24 #ffb35a #ffe0a8 glow. No orange crystal surfaces.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms.\nItem: 改装射钉枪. Mandatory structure: A heavy industrial **nail gun** turned weapon: a boxy yellow-grey body, a long nail magazine strip underneath and a short bow-prod bolted to the front. It is clearly a tool.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "imperial_heavy_crossbow",
+    "name": "帝国制式重弩",
+    "region": "mine",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather #2e2018 #5a3d2a #86603f #b48a5e; rust #4a2a1d #7d4529 #b06a3a #d99560; canvas #5a4d3a #857555 #b3a27c #d6c8a2; small warning yellow #d8a520; grey-green old army paint. Originium is BLACK, only INSIDE fissures have orange #b85a12 #ee8a24 #ffb35a #ffe0a8 glow. No orange crystal surfaces.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms. This is the largest crossbow: fill all68x28px with long stock and broad heavy bow arms.\nItem: 帝国制式重弩. Mandatory structure: A large military crossbow with a long stock, a steel prod, a crank winch at the back and gray-green army paint. No eagle or emblem. It must be the biggest crossbow in the game.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "scrap_casting_staff",
+    "name": "拼装施术杖",
+    "region": "mine",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather #2e2018 #5a3d2a #86603f #b48a5e; rust #4a2a1d #7d4529 #b06a3a #d99560; canvas #5a4d3a #857555 #b3a27c #d6c8a2; small warning yellow #d8a520; grey-green old army paint. Originium is BLACK, only INSIDE fissures have orange #b85a12 #ee8a24 #ffb35a #ffe0a8 glow. No orange crystal surfaces.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 拼装施术杖. Mandatory structure: An **iron pipe** staff whose head is a salvaged boxy casting unit with exposed wires, tied on with wire. One small dull-teal indicator light (emit).",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "reunion_caster_staff",
+    "name": "整合运动术师长杖",
+    "region": "mine",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather #2e2018 #5a3d2a #86603f #b48a5e; rust #4a2a1d #7d4529 #b06a3a #d99560; canvas #5a4d3a #857555 #b3a27c #d6c8a2; small warning yellow #d8a520; grey-green old army paint. Originium is BLACK, only INSIDE fissures have orange #b85a12 #ee8a24 #ffb35a #ffe0a8 glow. No orange crystal surfaces.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 整合运动术师长杖. Mandatory structure: A long dark wooden staff wrapped in grey cloth, with a cluster of **black originium crystals** growing from its head and an orange glow inside them (emit). A white Reunion-style rag is tied below the head.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "lgd_hand_crossbow",
+    "name": "近卫局警用手弩",
+    "region": "lungmen",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; navy #141f30 #24395a #3d6088 #6f9cc6 #b5d2ea; small vermilion #6e1616 #a82a22 #d9483a #f07a62 and brass #6e5220 #a8822e #dcb85a; reflective band #c8d860. Bright edges on navy. Clean issued gear or traditional Yan craft as described.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms.\nItem: 近卫局警用手弩. Mandatory structure: A compact police pistol-crossbow in navy and charcoal, with a short folding prod and a small box magazine. One reflective yellow-green band. It must look clean and issued.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "leader_repeating_crossbow",
+    "name": "组长连弩",
+    "region": "lungmen",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; navy #141f30 #24395a #3d6088 #6f9cc6 #b5d2ea; small vermilion #6e1616 #a82a22 #d9483a #f07a62 and brass #6e5220 #a8822e #dcb85a; reflective band #c8d860. Bright edges on navy. Clean issued gear or traditional Yan craft as described.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms.\nItem: 组长连弩. Mandatory structure: A heavier repeating crossbow with a **bolt magazine on top** (a 诸葛连弩 idea), olive metal fittings and a lever. Match the crossbow leader's sprite.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "laterano_smuggled_pistol",
+    "name": "拉特兰走私手铳",
+    "region": "lungmen",
+    "form": "gun",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; navy #141f30 #24395a #3d6088 #6f9cc6 #b5d2ea; small vermilion #6e1616 #a82a22 #d9483a #f07a62 and brass #6e5220 #a8822e #dcb85a; reflective band #c8d860. Bright edges on navy. Clean issued gear or traditional Yan craft as described.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Old single-shot or double barrel civilian gun, obvious stock and barrel, NO crossbow arms. No magazines, no optics, no rails, no modern automatic gun.\nItem: 拉特兰走私手铳. Mandatory structure: An ornate old single-barrel pistol: **pale steel with a gilt (brass) inlay** and a white grip, out of place in Lungmen. No halo, no religious mark.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "bronze_bell_staff",
+    "name": "铜铃术杖",
+    "region": "lungmen",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; navy #141f30 #24395a #3d6088 #6f9cc6 #b5d2ea; small vermilion #6e1616 #a82a22 #d9483a #f07a62 and brass #6e5220 #a8822e #dcb85a; reflective band #c8d860. Bright edges on navy. Clean issued gear or traditional Yan craft as described.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 铜铃术杖. Mandatory structure: A dark lacquered wood staff with a **cluster of small bronze bells** and a red cord at the head.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "yan_talisman_staff",
+    "name": "炎式符杖",
+    "region": "lungmen",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; leather browns; navy #141f30 #24395a #3d6088 #6f9cc6 #b5d2ea; small vermilion #6e1616 #a82a22 #d9483a #f07a62 and brass #6e5220 #a8822e #dcb85a; reflective band #c8d860. Bright edges on navy. Clean issued gear or traditional Yan craft as described.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 炎式符杖. Mandatory structure: A Yan-style staff with a **ring head** hung with a few paper talismans (plain pale strips, no characters) and a vermilion tassel. Dark red and brass.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "sami_hunting_bow",
+    "name": "萨米猎弓",
+    "region": "sami",
+    "form": "bow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; wood #3f2a1a #6b4a2e #9a7048; bone #8e8470 #b9ae95 #e6dfcc #fbf8ee; fur #6e5a45 #a68c6c #d8cbb5; ice #3d6a8a #5d8fb0 #9cc8e0 #e4f4fb; tiny woven bands red #b03a2e yellow #d9a43a blue #3f6fa8. No originium.\nNative72x32 canvas, horizontal bow spanning x2 to69. Bow limbs curve UP into a strong arch, string is a continuous pale line along the BOTTOM attached to both limb tips. Broad readable limbs3-4px thick before1px outline, carved grip near center. Limbs and bowstring form one joined silhouette. Do NOT draw the bow vertical or diagonally across a square. No arrow necessary.\nItem: 萨米猎弓. Mandatory structure: A simple self bow of pale birch with a sinew string and a woven-band grip.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "tundra_hunting_gun",
+    "name": "冰原猎铳",
+    "region": "sami",
+    "form": "gun",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; wood #3f2a1a #6b4a2e #9a7048; bone #8e8470 #b9ae95 #e6dfcc #fbf8ee; fur #6e5a45 #a68c6c #d8cbb5; ice #3d6a8a #5d8fb0 #9cc8e0 #e4f4fb; tiny woven bands red #b03a2e yellow #d9a43a blue #3f6fa8. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Old single-shot or double barrel civilian gun, obvious stock and barrel, NO crossbow arms. No magazines, no optics, no rails, no modern automatic gun.\nItem: 冰原猎铳. Mandatory structure: A long single-shot hunting gun: a leather-wrapped wooden stock, the barrel wrapped in white cloth camouflage, and a woven band hanging from the butt. Match the ice hunter's sprite.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "composite_horn_bow",
+    "name": "复合角弓",
+    "region": "sami",
+    "form": "bow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; wood #3f2a1a #6b4a2e #9a7048; bone #8e8470 #b9ae95 #e6dfcc #fbf8ee; fur #6e5a45 #a68c6c #d8cbb5; ice #3d6a8a #5d8fb0 #9cc8e0 #e4f4fb; tiny woven bands red #b03a2e yellow #d9a43a blue #3f6fa8. No originium.\nNative72x32 canvas, horizontal bow spanning x2 to69. Bow limbs curve UP into a strong arch, string is a continuous pale line along the BOTTOM attached to both limb tips. Broad readable limbs3-4px thick before1px outline, carved grip near center. Limbs and bowstring form one joined silhouette. Do NOT draw the bow vertical or diagonally across a square. No arrow necessary.\nItem: 复合角弓. Mandatory structure: A strongly **recurved bow** with horn tips and bone-white facings, a three-colour woven band at the grip, and frost specks.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "birch_shaman_staff",
+    "name": "桦木巫杖",
+    "region": "sami",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; wood #3f2a1a #6b4a2e #9a7048; bone #8e8470 #b9ae95 #e6dfcc #fbf8ee; fur #6e5a45 #a68c6c #d8cbb5; ice #3d6a8a #5d8fb0 #9cc8e0 #e4f4fb; tiny woven bands red #b03a2e yellow #d9a43a blue #3f6fa8. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 桦木巫杖. Mandatory structure: A crooked birch branch with peeled bark showing **carved line patterns**, and a small bundle of feathers and beads at the top.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "snowpriest_staff",
+    "name": "雪祀仪杖",
+    "region": "sami",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; wood #3f2a1a #6b4a2e #9a7048; bone #8e8470 #b9ae95 #e6dfcc #fbf8ee; fur #6e5a45 #a68c6c #d8cbb5; ice #3d6a8a #5d8fb0 #9cc8e0 #e4f4fb; tiny woven bands red #b03a2e yellow #d9a43a blue #3f6fa8. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 雪祀仪杖. Mandatory structure: A tall ritual staff of pale bone and dark wood, its head a **ring of antler points** around a pale ice-blue crystal that is not originium. Snowflake ring carvings like 洁雪仪刃.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "family_gun_crossbow",
+    "name": "家族枪弩",
+    "region": "siracusa",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; charcoal lacquer #1a1b1e #2e3036 #4a4d55 #767a84; walnut #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0; tiny wine-red #5e1620 #9a2a3a accents. 1940s Italian civilian family quarter, dressed and maintained. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms.\nItem: 家族枪弩. Mandatory structure: The PRTS **gun-shaped crossbow**: a wooden rifle stock, a black receiver and the prod at the muzzle end. Plain and slightly shabby. Match `art/field/batch_N4_v1/family_crossbow_*`.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png",
+      "sources/identity_family_crossbow_native.png"
+    ]
+  },
+  {
+    "id": "folding_sleeve_crossbow",
+    "name": "折叠袖弩",
+    "region": "siracusa",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; charcoal lacquer #1a1b1e #2e3036 #4a4d55 #767a84; walnut #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0; tiny wine-red #5e1620 #9a2a3a accents. 1940s Italian civilian family quarter, dressed and maintained. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms. Exception: compact object occupies 46x24 native pixels centered; keep empty space, do not stretch.\nItem: 折叠袖弩. Mandatory structure: A tiny **wrist crossbow**: a leather bracer strap with a small folding brass prod and one bolt. It is small, so centre it and keep empty space.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "double_barrel_gun",
+    "name": "猎场双管铳",
+    "region": "siracusa",
+    "form": "gun",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; charcoal lacquer #1a1b1e #2e3036 #4a4d55 #767a84; walnut #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0; tiny wine-red #5e1620 #9a2a3a accents. 1940s Italian civilian family quarter, dressed and maintained. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Old single-shot or double barrel civilian gun, obvious stock and barrel, NO crossbow arms. No magazines, no optics, no rails, no modern automatic gun.\nItem: 猎场双管铳. Mandatory structure: A side-by-side **double-barrel shotgun** with an engraved receiver and a dark walnut stock. Two barrels must be visible.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "lawyer_casting_cane",
+    "name": "律师的施术手杖",
+    "region": "siracusa",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; charcoal lacquer #1a1b1e #2e3036 #4a4d55 #767a84; walnut #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0; tiny wine-red #5e1620 #9a2a3a accents. 1940s Italian civilian family quarter, dressed and maintained. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 律师的施术手杖. Mandatory structure: A slim black walking cane with a **silver knob** whose top holds a small dark-violet arts gem (emit). It must not look like 手杖剑 (no blade) or 灌铅手杖 (no wolf head).",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "tribunal_staff",
+    "name": "审判庭仪杖",
+    "region": "siracusa",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSteel #2a2d33 #4a5058 #7d868e #b4bec4 #eef3f5; charcoal lacquer #1a1b1e #2e3036 #4a4d55 #767a84; walnut #3a2618 #5e3f26 #8a6440; brass #5e4418 #9a7428 #d0a848 #f0d888; ivory #8e8470 #c8bea6 #ece4d0; tiny wine-red #5e1620 #9a2a3a accents. 1940s Italian civilian family quarter, dressed and maintained. No originium.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 审判庭仪杖. Mandatory structure: A formal court **mace-staff**: a long black-and-gilt shaft whose head is a **set of scales** or a crowned finial, with a wine-red tassel.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ]
+  },
+  {
+    "id": "rhodes_crossbow",
+    "name": "罗德岛制式弩",
+    "region": "rhodes",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSTRICT Rhodes palette: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Neutral ship steel, cold grey and medical white body. Blue/orange/cyan/yellow combined under 10 percent of opaque pixels and any one family under 6 percent. Thin blue inset strips only 1 logical pixel wide. Small cyan focus is surrounded by a broad neutral metal housing. Leave ONE 9x9 logical-pixel blank neutral patch where the logo belongs, for exact native logo placement later. No letters or invented logos.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Crossbow MUST show the BOW ARMS/PROD spanning VERTICALLY across the RIGHT front end, 22-26 pixels tall, with a pale attached bowstring, while stock extends toward LEFT. Orthographic side/top view to show the arms. It must not look like a rifle without bow arms.\nItem: 罗德岛制式弩. Mandatory structure: A clean modern-industrial crossbow in ship-steel black and cold grey, with a Rhodes-blue light strip (emit) along the body and a warning-orange cocking lever. The S logo is on the stock. It is a workshop-modified piece, so add one or two visible add-on parts.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png",
+      "sources/rhodes_logo_S_9.png"
+    ]
+  },
+  {
+    "id": "rhodes_staff",
+    "name": "罗德岛制式法杖",
+    "region": "rhodes",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nSTRICT Rhodes palette: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Neutral ship steel, cold grey and medical white body. Blue/orange/cyan/yellow combined under 10 percent of opaque pixels and any one family under 6 percent. Thin blue inset strips only 1 logical pixel wide. Small cyan focus is surrounded by a broad neutral metal housing. Leave ONE 9x9 logical-pixel blank neutral patch where the logo belongs, for exact native logo placement later. No letters or invented logos.\nNative canvas72x32, enlarged8x. Overall silhouette fills width68 pixels and height24-28 pixels. Stock or foot on LEFT, head or muzzle on RIGHT. Whole long object TILTED UP toward the right by 8-10 degrees, so left foot lower and right head higher. Shaft or barrel is 4 logical pixels THICK before adding full1px outline; no hairline shaft. Enlarge the head enough for its function to read. High contrast connected construction. Head is a FOCUS or ceremonial ornament, NEVER a blade, point, spearhead, axe or cutting edge. Bulbous/round/ring/box head. Use bright material rim on dark shafts.\nItem: 罗德岛制式法杖. Mandatory structure: A medical-white and cold-grey staff whose head is a **ring housing a screen-cyan focus** (emit), with a Rhodes-blue band and the S logo below the head. It reads as Rhodes equipment, not a wizard's staff.",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png",
+      "sources/rhodes_logo_S_9.png"
+    ]
+  }
+]

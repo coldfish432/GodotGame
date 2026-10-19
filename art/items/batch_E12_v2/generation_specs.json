@@ -1,0 +1,36 @@
+[
+  {
+    "id": "mi_fallen_snowpriest_29",
+    "name": "反馈赠之铃",
+    "region": "sami",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": true,
+    "kind": "exclusive",
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nA LARGE antique DARK BRONZE HAND BELL, centered front view native 32x32. Immediately identifiable bell silhouette: small CLOSED suspension loop at the top, a rounded dome body that slopes out into a wide flared bell mouth 26 logical pixels across, with a dark hollow opening below and one visible suspended clapper hanging down. Mouth at y24, clapper reaches y29, top loop at y2. The bronze body must occupy most of the canvas, deep brown-bronze shadow with warm metallic raised edges, distinctly darker and larger than a small silver sleigh bell. Frost is ONLY 3 bold white patches on TOP of the dome, NOT on its sides, NOT all over the rim. A narrow violet inner glow inside the mouth only, no external aura. No lump of rock, no ice crystal, no diagonal object. 1px #0b0c0d outline, joined loop/body/mouth/clapper. Palette bronze #34251c #554030 #806348 #b48a5e #d6b98b, frost #c7d3dc #eef3f5, violet #3d215c #6a3a94 #ae78db.",
+    "prototype_refs": [
+      "source_review.md",
+      "sources/proto_sleigh_bell.jpg"
+    ]
+  },
+  {
+    "id": "mi_ice_hunter_20",
+    "name": "结绳猎记",
+    "region": "sami",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "has_emit": false,
+    "kind": "exclusive",
+    "prompt": "Use case: stylized-concept. Asset type: painted native pixel-art inventory icon for the established extraction ARPG. ONE isolated item only, real transparent background. No shadows, text, numbers, watermark, or glow halos. Top-left light. Crisp uniform pixel blocks, a 1-logical-pixel near-black #0b0c0d outline ALWAYS fully around the object, 4-5 tone ramps per material, at most 24 colours. Paint clear bold clusters, not dithering or noisy microtexture. At least 20 percent of object pixels should be bright highlights above 60 percent luminance. No loose disconnected parts: shafts and heads physically join, strings attach at both ends, all small decorations attach. Leave 2 logical pixels transparent canvas margin. Source should read immediately when reduced to native size. Native blocks enlarged 8x, one colour per logical block, NOT smooth painting with tiny details.\nA leather KNOTTED CORD RECORD, centered front view native32x32, laid out as ONE loose flowing S-shaped cord, one continuous connected strand at least TWO logical pixels THICK before the 1px dark outline. Six to eight distinct warm-light-brown KNOTS, each a bold 3x3 or 4x3 pixel lump, spaced apart along the S so every knot can be counted at 1x. ONE prominent white BONE TOGGLE at upper right end, six logical pixels long by three high, physically attached to cord. The S spans x4 to27 and y4 to27. Dark leather cord with lighter knots, ivory toggle with grey shadow. Few bold strands, no fringes, no hairs, no twigs, no dried plant, no tangled bundle, no bead necklace. All knots joined to the cord. Full nearblack1px outline. Palette leather #2e2018 #5a3d2a #86603f #b48a5e #d6b98b; bone #8e8470 #b9ae95 #e6dfcc #fbf8ee. No glow.",
+    "prototype_refs": [
+      "source_review.md",
+      "sources/proto_quipu.jpg"
+    ]
+  }
+]

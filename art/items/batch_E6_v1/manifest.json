@@ -1,0 +1,311 @@
+[
+  {
+    "id": "rhodes_dual_blades",
+    "name": "罗德岛制式双刀",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": true,
+    "reference_urls": [
+      "https://torappu.prts.wiki/assets/uniequip_img/uniequip_003_yato2.png"
+    ],
+    "logo_position": null,
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "rhodes_dual_blades.png",
+    "source": "sources/rhodes_dual_blades_raw.png",
+    "source_sha256": "4b3b80d395c7ea1a0b8370b715323c3c027925bda6205e3373155e76651b038e",
+    "opaque_pixel_count": 859,
+    "colour_count": 13,
+    "isolated_pixel_percent": 4.54,
+    "bright_pixel_percent": 34.23,
+    "largest_flat_region_percent": 3.49,
+    "accent_percent": {
+      "blue": 5.47,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 5.47,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      4,
+      70,
+      27
+    ],
+    "emit_pixels": 47,
+    "file_sha256": "1fa0be7111c5ceabe4aec45d8a3859611986104477f1ac1dd4ea9e2616a5f7ff"
+  },
+  {
+    "id": "rhodes_sword",
+    "name": "罗德岛制式剑",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "reference_urls": [
+      "https://torappu.prts.wiki/assets/uniequip_img/uniequip_002_chen.png"
+    ],
+    "logo_position": null,
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "rhodes_sword.png",
+    "source": "sources/rhodes_sword_raw.png",
+    "source_sha256": "f44c321aa75e37c237c4f7fca9b825ce7176107d319e762dedcb42886f84bc8a",
+    "opaque_pixel_count": 364,
+    "colour_count": 14,
+    "isolated_pixel_percent": 3.57,
+    "bright_pixel_percent": 33.52,
+    "largest_flat_region_percent": 5.77,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 1.37,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 1.37,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      9,
+      70,
+      23
+    ],
+    "file_sha256": "1360f378d8602576a58ee21f313f84c78fc436f8c1ca2f83e09a2b44982cd832"
+  },
+  {
+    "id": "rhodes_field_uniform",
+    "name": "罗德岛外勤制服",
+    "form": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "logo_position": [
+      58,
+      24
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "rhodes_field_uniform.png",
+    "source": "sources/rhodes_field_uniform_raw.png",
+    "source_sha256": "f94954fc055d8983c8fbb37541c92047531ff2e4ea22a3109edeaadcb9135a3a",
+    "opaque_pixel_count": 3378,
+    "colour_count": 14,
+    "isolated_pixel_percent": 2.55,
+    "bright_pixel_percent": 23.92,
+    "largest_flat_region_percent": 7.99,
+    "accent_percent": {
+      "blue": 4.09,
+      "orange": 0.06,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 4.15,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      3,
+      70,
+      68
+    ],
+    "file_sha256": "8d19e392b78dc255d4cb21d5f1e6c7f8087ce0f3dbaeb2d789109cf8e068504f"
+  },
+  {
+    "id": "rhodes_protective_vest",
+    "name": "罗德岛制式防护背心",
+    "form": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": true,
+    "reference_urls": [],
+    "logo_position": [
+      45,
+      27
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "rhodes_protective_vest.png",
+    "source": "sources/rhodes_protective_vest_raw.png",
+    "source_sha256": "861c97091abeb5e9adf73b09f0dcde493e2f296e1f38e1c4cdc9fb7f331bfb34",
+    "opaque_pixel_count": 3610,
+    "colour_count": 16,
+    "isolated_pixel_percent": 2.05,
+    "bright_pixel_percent": 43.38,
+    "largest_flat_region_percent": 8.23,
+    "accent_percent": {
+      "blue": 2.24,
+      "orange": 0.0,
+      "cyan": 0.25,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 2.49,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      2,
+      70,
+      69
+    ],
+    "emit_pixels": 9,
+    "file_sha256": "0902e5318a370dd7bf122e6af682ee76abee33bb269b0c3f3091b5f2b28b6953"
+  },
+  {
+    "id": "rhodes_beacon",
+    "name": "罗德岛制式信标",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": true,
+    "reference_urls": [],
+    "logo_position": [
+      12,
+      17
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "rhodes_beacon.png",
+    "source": "sources/rhodes_beacon_raw.png",
+    "source_sha256": "949d843e6af03c465e9c91ae96a210f368785f34f409377b884b69811d74ec61",
+    "opaque_pixel_count": 435,
+    "colour_count": 16,
+    "isolated_pixel_percent": 4.37,
+    "bright_pixel_percent": 26.9,
+    "largest_flat_region_percent": 18.62,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.46,
+      "yellow": 2.76
+    },
+    "accent_total_percent": 3.22,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      5,
+      30,
+      26
+    ],
+    "emit_pixels": 2,
+    "file_sha256": "119108e8dd9c58a372293c45f9c9bace27e9c07b56d697ba005232e46b04a2c5"
+  },
+  {
+    "id": "rhodes_medkit",
+    "name": "罗德岛制式急救包",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "logo_position": [
+      14,
+      14
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "rhodes_medkit.png",
+    "source": "sources/rhodes_medkit_raw.png",
+    "source_sha256": "625bf3ce6d22f5a3d22cabe04406c9198437e45f9f878c086479b68e99e791ae",
+    "opaque_pixel_count": 571,
+    "colour_count": 13,
+    "isolated_pixel_percent": 3.15,
+    "bright_pixel_percent": 57.79,
+    "largest_flat_region_percent": 15.76,
+    "accent_percent": {
+      "blue": 2.8,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 2.8,
+    "binary_alpha": true,
+    "bbox": [
+      3,
+      2,
+      29,
+      30
+    ],
+    "file_sha256": "8cf670ae834aecddcf3183628704d7f80f8629d31aee2697e768ca0b4381022a"
+  },
+  {
+    "id": "rhodes_badge",
+    "name": "罗德岛干员证章",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "logo_position": [
+      11,
+      16
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "rhodes_badge.png",
+    "source": "sources/rhodes_badge_raw.png",
+    "source_sha256": "42d82ca1aa3dd6c97581fd7734ed8b09d9ef139af11f84cd2e53cdad6e9f74dc",
+    "opaque_pixel_count": 339,
+    "colour_count": 14,
+    "isolated_pixel_percent": 4.13,
+    "bright_pixel_percent": 38.94,
+    "largest_flat_region_percent": 12.68,
+    "accent_percent": {
+      "blue": 3.83,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 3.83,
+    "binary_alpha": true,
+    "bbox": [
+      4,
+      2,
+      28,
+      30
+    ],
+    "file_sha256": "b4fe25f1c8c417f6c04aa2f930b83a7ce97e90d00da2b0b8e59a4981d97c501b"
+  }
+]

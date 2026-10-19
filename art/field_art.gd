@@ -30,7 +30,7 @@ static func frame(texture: Texture2D, columns: int, rows: int, column: int, row:
 	return atlas
 
 static func enemy(region: String, elite: bool, ranged: bool) -> AtlasTexture:
-	return frame(ENEMIES, 3, 3, 2 if elite else (1 if ranged else 0), ["mine", "city", "snow"].find(region))
+	return frame(ENEMIES, 3, 3, 2 if elite else (1 if ranged else 0), ["mine", "city", "snow"].find(FieldCatalog.art_region(region)))
 
 ## Eight-direction sheets baked by art/prepare_enemy_directional.py. Columns
 ## S, SW, W, NW, N, NE, E, SE; rows idle, startup, charge, strike, recovery.
@@ -86,10 +86,10 @@ static func enemy_pose(row: int, pose: int) -> AtlasTexture:
 	return _frames[key]
 
 static func prop(parent: Node3D, region: String, index: int, position: Vector3, height: float, flip: bool = false) -> Sprite3D:
-	return _make_prop(parent, frame(PROPS, 4, 3, index, ["mine", "city", "snow"].find(region)), position, height, flip)
+	return _make_prop(parent, frame(PROPS, 4, 3, index, ["mine", "city", "snow"].find(FieldCatalog.art_region(region))), position, height, flip)
 
 static func scene_prop(parent: Node3D, region: String, index: int, position: Vector3, height: float, flip: bool = false) -> Sprite3D:
-	var row := ["mine", "city", "snow"].find(region)
+	var row := ["mine", "city", "snow"].find(FieldCatalog.art_region(region))
 	var key := "scene_group/%d/%d" % [row, index]
 	if not _frames.has(key):
 		var image := SCENE_GROUPS.get_image()
@@ -167,6 +167,7 @@ static func npc_idle(kind: String) -> AnimatedSprite3D:
 static func background_material(region: String) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = BACKGROUND_SHADER
+	region = FieldCatalog.art_region(region)
 	material.set_shader_parameter("background_tex", BACKGROUNDS[region])
 	material.set_shader_parameter("world_scale", 12.0)
 	material.set_shader_parameter("brightness", 0.82 if region != "snow" else 0.72)
@@ -199,6 +200,9 @@ uniform sampler2D kerb_tex : source_color, filter_nearest_mipmap, repeat_enable;
 uniform float road_gain = 1.75;
 uniform float kerb_gain = 0.92;
 uniform float road_scale = 6.0;
+// How far the painted road is pulled to flat grey (Sol's asphalt patches read
+// as camouflage at the game's zoom).
+uniform float road_flat = 0.45;
 uniform float kerb_scale = 3.0;
 varying vec3 world_position;
 #include "res://art/terrain_sampling.gdshaderinc"
@@ -209,7 +213,7 @@ void fragment() {
   // COLOR.a runs 0 at the kerb to 1 some 1.4 m into the road: that strip
   // is the pavement, hard-edged like the rest of the pixel art.
   // Sol's patches read as camouflage at the game's zoom: halfway to flat.
-  vec3 asphalt = mix(texture(road_tex, world_position.xz / road_scale).rgb, vec3(0.2, 0.215, 0.23), 0.45) * road_gain;
+  vec3 asphalt = mix(texture(road_tex, world_position.xz / road_scale).rgb, vec3(0.2, 0.215, 0.23), road_flat) * road_gain;
   vec3 slabs = texture(kerb_tex, world_position.xz / kerb_scale).rgb * kerb_gain;
   // The district's road colour (CityDressing.ROAD_TINTS) carried in COLOR.rgb.
   ALBEDO = mix(slabs, asphalt * COLOR.rgb / 0.3, step(0.92, COLOR.a)) * UV2.x;
@@ -236,11 +240,27 @@ void fragment() {
 """
 	var material := ShaderMaterial.new()
 	material.shader = shader
+	# 叙拉古 lays Lungmen's paving slabs wall to wall (叙拉古方案 §2.1: 石板路，
+	# 宽街也是石板): its road is the pavement texture, tinted by family.
+	# Its own paving (叙拉古贴图美术需求_v1.md S1; a stand-in until Sol's) when
+	# there is one, else Lungmen's pavement slabs.
+	var stone := region == "siracusa"
+	var own := painted(region + "_road") if stone else null
+	region = FieldCatalog.art_region(region)
 	material.set_shader_parameter("atlas", GROUND)
 	material.set_shader_parameter("background_tex", BACKGROUNDS[region])
 	material.set_shader_parameter("region", float(["mine", "city", "snow"].find(region)))
-	var road := painted(region + "_road")
+	var road := painted(region + ("_pavement" if stone else "_road"))
 	var kerb := painted(region + "_pavement")
+	if own != null:
+		road = own
+		kerb = own
+		material.set_shader_parameter("road_scale", 6.0)
+		material.set_shader_parameter("kerb_scale", 6.0)
+		material.set_shader_parameter("road_flat", 0.0)
+	elif stone:
+		material.set_shader_parameter("road_scale", 3.0)
+		material.set_shader_parameter("road_flat", 0.15)
 	if road != null and kerb != null:
 		material.set_shader_parameter("painted", true)
 		material.set_shader_parameter("road_tex", road)
@@ -264,5 +284,5 @@ void fragment() {
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	material.set_shader_parameter("atlas", GROUND)
-	material.set_shader_parameter("region", float(["mine", "city", "snow"].find(region)))
+	material.set_shader_parameter("region", float(["mine", "city", "snow"].find(FieldCatalog.art_region(region))))
 	return material

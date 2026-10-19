@@ -1,0 +1,178 @@
+[
+  {
+    "id": "reunion_hand_crossbow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-05bbaf45-dafd-4865-a733-ccd26ea7cd8f.png",
+    "source": "sources/reunion_hand_crossbow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "modified_nail_gun",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-bfde2c1e-1a38-4d74-8292-7793f3ed8e61.png",
+    "source": "sources/modified_nail_gun_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "imperial_heavy_crossbow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-e75e377d-5d6a-4d24-858c-241542a4b397.png",
+    "source": "sources/imperial_heavy_crossbow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "scrap_casting_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-5c1b71d5-8ac6-4a2a-923a-7f9853998fb7.png",
+    "source": "sources/scrap_casting_staff_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "reunion_caster_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-8fb32342-7626-4846-bf1d-52952dad03c5.png",
+    "source": "sources/reunion_caster_staff_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "lgd_hand_crossbow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-d8db7fb9-1970-44e5-8c68-872931c55f38.png",
+    "source": "sources/lgd_hand_crossbow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "leader_repeating_crossbow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-fabba01d-890a-4ba2-b26a-049530dc296f.png",
+    "source": "sources/leader_repeating_crossbow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "laterano_smuggled_pistol",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-516eaaba-032b-4b22-b889-8a009f282360.png",
+    "source": "sources/laterano_smuggled_pistol_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "bronze_bell_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-fdaa38d0-e011-47a9-964b-79e057611945.png",
+    "source": "sources/bronze_bell_staff_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "yan_talisman_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-b8129919-e445-4e45-8f94-87ce57d80173.png",
+    "source": "sources/yan_talisman_staff_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "sami_hunting_bow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-c528ab3f-938d-4c70-b788-892c407b5aeb.png",
+    "source": "sources/sami_hunting_bow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "tundra_hunting_gun",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-81a389d6-a8e9-4925-9f2e-4ecde3a76bc5.png",
+    "source": "sources/tundra_hunting_gun_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "composite_horn_bow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-5b9110ff-9dd4-4545-8010-448b71929529.png",
+    "source": "sources/composite_horn_bow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "birch_shaman_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-400223fb-e6f3-4575-bd50-006f47186dcc.png",
+    "source": "sources/birch_shaman_staff_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "snowpriest_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-d99a8124-eff8-486c-9f72-357b2b89d432.png",
+    "source": "sources/snowpriest_staff_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "family_gun_crossbow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-1787c69b-506c-4a45-b71b-9cf69b86ca44.png",
+    "source": "sources/family_gun_crossbow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "folding_sleeve_crossbow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-28f4e93b-02bf-4c5f-b022-4d392eddb21c.png",
+    "source": "sources/folding_sleeve_crossbow_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "double_barrel_gun",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-c9219048-7dfa-4891-b120-b918a9cd4dac.png",
+    "source": "sources/double_barrel_gun_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "lawyer_casting_cane",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-544cab80-6037-49bc-8603-ab019c26be64.png",
+    "source": "sources/lawyer_casting_cane_raw.png",
+    "initial_generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-3f94ca37-3535-44c8-93ad-5f94bed1ecdf.png",
+    "revision_prompt_file": "sources/lawyer_casting_cane_revision_prompt.txt"
+  },
+  {
+    "id": "tribunal_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-4915cb15-dd5e-457e-89c9-5ac3a8ecc1b0.png",
+    "source": "sources/tribunal_staff_raw.png",
+    "initial_generator_output": null,
+    "revision_prompt_file": null
+  },
+  {
+    "id": "rhodes_crossbow",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-55b48e11-2395-4fcb-99ad-002262745c1d.png",
+    "source": "sources/rhodes_crossbow_raw.png",
+    "initial_generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-a26169eb-b9fc-48aa-8c0b-4b8b4564fd49.png",
+    "revision_prompt_file": "sources/rhodes_crossbow_revision_prompt.txt"
+  },
+  {
+    "id": "rhodes_staff",
+    "tool": "built-in imagegen",
+    "generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-8cdce957-68fd-4b2b-8bf1-4f737b21c411.png",
+    "source": "sources/rhodes_staff_raw.png",
+    "initial_generator_output": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-c3b99381-de02-44e5-9df8-b0fda3848a24.png",
+    "revision_prompt_file": "sources/rhodes_staff_revision_prompt.txt"
+  }
+]

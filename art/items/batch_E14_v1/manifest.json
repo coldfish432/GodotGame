@@ -1,0 +1,1025 @@
+[
+  {
+    "id": "reunion_hand_crossbow",
+    "name": "整合运动手弩",
+    "region": "mine",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "reunion_hand_crossbow.png",
+    "source": "sources/reunion_hand_crossbow_raw.png",
+    "source_sha256": "664f4a6f9c3525ff9a2a4a713b0474bc6a3b7f8ce6f2fe5252d0d24a43b3a787",
+    "file_sha256": "9a7e3a4b93209eb0ad203cca159104cce61dade0dc3094112dec0f65e9da8ed8",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 740,
+    "colour_count": 13,
+    "isolated_pixel_percent": 4.73,
+    "bright_pixel_percent": 36.08,
+    "largest_flat_region_percent": 4.59,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      5,
+      2,
+      67,
+      30
+    ],
+    "component_sizes": [
+      740
+    ],
+    "opaque_canvas_percent": 32.12,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "modified_nail_gun",
+    "name": "改装射钉枪",
+    "region": "mine",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "modified_nail_gun.png",
+    "source": "sources/modified_nail_gun_raw.png",
+    "source_sha256": "8e5879ccb9805bd619ecd57629474da32df1c58c3751b80bfccee49ac12664b3",
+    "file_sha256": "d04eb23989a1a16285f725a46f907b13f2f2008c41db5e7e4cbc87c9e22d7a40",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 775,
+    "colour_count": 17,
+    "isolated_pixel_percent": 3.48,
+    "bright_pixel_percent": 37.16,
+    "largest_flat_region_percent": 3.1,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      7,
+      2,
+      65,
+      29
+    ],
+    "component_sizes": [
+      775
+    ],
+    "opaque_canvas_percent": 33.64,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "imperial_heavy_crossbow",
+    "name": "帝国制式重弩",
+    "region": "mine",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "imperial_heavy_crossbow.png",
+    "source": "sources/imperial_heavy_crossbow_raw.png",
+    "source_sha256": "29876ab920af983d60ce0e02f1db34f82d9ec51623c727f5e2f4009950320a50",
+    "file_sha256": "d2faf1872048575de19c7e116e12a175a5f1a0eeeb981575b7a35ae250f7e4bb",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 909,
+    "colour_count": 13,
+    "isolated_pixel_percent": 2.53,
+    "bright_pixel_percent": 26.84,
+    "largest_flat_region_percent": 3.52,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      3,
+      1,
+      69,
+      30
+    ],
+    "component_sizes": [
+      909
+    ],
+    "opaque_canvas_percent": 39.45,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "scrap_casting_staff",
+    "name": "拼装施术杖",
+    "region": "mine",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "scrap_casting_staff.png",
+    "source": "sources/scrap_casting_staff_raw.png",
+    "source_sha256": "96326188ddd29c4d9c94a00969c0774c66e7d49982be644850738929cfd25f22",
+    "file_sha256": "b479c1ab6da1682e700e4a721cfe9e70ce6c53326138ac5da3bf08fb2dd224c6",
+    "emit_pixels": 4,
+    "opaque_pixel_count": 611,
+    "colour_count": 17,
+    "isolated_pixel_percent": 4.58,
+    "bright_pixel_percent": 30.28,
+    "largest_flat_region_percent": 4.26,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.65,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.65,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      4,
+      71,
+      27
+    ],
+    "component_sizes": [
+      611
+    ],
+    "opaque_canvas_percent": 26.52,
+    "source_shaft_angle": 12.88,
+    "source_rotation_degrees": -4.88
+  },
+  {
+    "id": "reunion_caster_staff",
+    "name": "整合运动术师长杖",
+    "region": "mine",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "reunion_caster_staff.png",
+    "source": "sources/reunion_caster_staff_raw.png",
+    "source_sha256": "4503c25032e5a19be1bec110ea23330820e2a7df7ae6a512dc1e4c54d6bb5195",
+    "file_sha256": "3688a8056f2d51cf603eea8f258ae5385854deb3ca3b6ad1444300324e1cf317",
+    "emit_pixels": 10,
+    "opaque_pixel_count": 677,
+    "colour_count": 15,
+    "isolated_pixel_percent": 3.69,
+    "bright_pixel_percent": 39.29,
+    "largest_flat_region_percent": 9.16,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      1,
+      70,
+      30
+    ],
+    "component_sizes": [
+      677
+    ],
+    "opaque_canvas_percent": 29.38,
+    "source_shaft_angle": 17.12,
+    "source_rotation_degrees": -9.12
+  },
+  {
+    "id": "lgd_hand_crossbow",
+    "name": "近卫局警用手弩",
+    "region": "lungmen",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "lgd_hand_crossbow.png",
+    "source": "sources/lgd_hand_crossbow_raw.png",
+    "source_sha256": "eb853d81f8a73bd45a5dce2fd66bea239cd30b73d7591ad4cdc7c5e56435d78d",
+    "file_sha256": "790956d3d20aa05add5be221e68891251e5d91736cf5d5868949c93fccb8fcdc",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 727,
+    "colour_count": 14,
+    "isolated_pixel_percent": 4.13,
+    "bright_pixel_percent": 18.29,
+    "largest_flat_region_percent": 3.03,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      6,
+      3,
+      66,
+      29
+    ],
+    "component_sizes": [
+      727
+    ],
+    "opaque_canvas_percent": 31.55,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "leader_repeating_crossbow",
+    "name": "组长连弩",
+    "region": "lungmen",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "leader_repeating_crossbow.png",
+    "source": "sources/leader_repeating_crossbow_raw.png",
+    "source_sha256": "bed6bce586c0c5722603fd7f2efcc8feabf4afb9b382d8cd590193b51620ef86",
+    "file_sha256": "51740b2ae2e09aaf234e2223267968dd2380b33770f09290db0673adfba0d073",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 830,
+    "colour_count": 14,
+    "isolated_pixel_percent": 5.42,
+    "bright_pixel_percent": 20.12,
+    "largest_flat_region_percent": 3.13,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      1,
+      70,
+      31
+    ],
+    "component_sizes": [
+      830
+    ],
+    "opaque_canvas_percent": 36.02,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "laterano_smuggled_pistol",
+    "name": "拉特兰走私手铳",
+    "region": "lungmen",
+    "form": "gun",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "laterano_smuggled_pistol.png",
+    "source": "sources/laterano_smuggled_pistol_raw.png",
+    "source_sha256": "de50fa40f7b44e1e26273d9d208cfecef8bf83da2061d1f7843b99782bd70d4c",
+    "file_sha256": "2c27c80b0cd69438d8d26199f4d6c3e6515ce4c2fccb13fe9af7f1a63216f6f8",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 679,
+    "colour_count": 14,
+    "isolated_pixel_percent": 2.95,
+    "bright_pixel_percent": 35.64,
+    "largest_flat_region_percent": 6.92,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      3,
+      1,
+      69,
+      31
+    ],
+    "component_sizes": [
+      679
+    ],
+    "opaque_canvas_percent": 29.47,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "bronze_bell_staff",
+    "name": "铜铃术杖",
+    "region": "lungmen",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "bronze_bell_staff.png",
+    "source": "sources/bronze_bell_staff_raw.png",
+    "source_sha256": "c54ed4baa45c3cce4b14600e488cdfaa36935550d938510784a80d255b62058d",
+    "file_sha256": "533fd3e304172d443887c2100a1ff7b3ae7685ede4bbf10bd5faaca39331b202",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 645,
+    "colour_count": 15,
+    "isolated_pixel_percent": 5.27,
+    "bright_pixel_percent": 25.12,
+    "largest_flat_region_percent": 6.36,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      6,
+      71,
+      25
+    ],
+    "component_sizes": [
+      645
+    ],
+    "opaque_canvas_percent": 27.99,
+    "source_shaft_angle": 23.71,
+    "source_rotation_degrees": -15.71
+  },
+  {
+    "id": "yan_talisman_staff",
+    "name": "炎式符杖",
+    "region": "lungmen",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "yan_talisman_staff.png",
+    "source": "sources/yan_talisman_staff_raw.png",
+    "source_sha256": "abc325f82676025201abae36e314deba9703786ec5acd15a290c2d4daa341f7a",
+    "file_sha256": "19f82ca05d54ae82ae8b140a64869b902d07ce63ba184935a7f3a48ec80d2f44",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 667,
+    "colour_count": 16,
+    "isolated_pixel_percent": 3.6,
+    "bright_pixel_percent": 31.63,
+    "largest_flat_region_percent": 5.25,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      3,
+      71,
+      29
+    ],
+    "component_sizes": [
+      667
+    ],
+    "opaque_canvas_percent": 28.95,
+    "source_shaft_angle": 16.4,
+    "source_rotation_degrees": -8.4
+  },
+  {
+    "id": "sami_hunting_bow",
+    "name": "萨米猎弓",
+    "region": "sami",
+    "form": "bow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "sami_hunting_bow.png",
+    "source": "sources/sami_hunting_bow_raw.png",
+    "source_sha256": "d070405df7109c3f2a1a282ff0989f7a232dd92eee92b635c3952a45bdb642e8",
+    "file_sha256": "85e5467c469304b1cdb201cf0e43bd298f6be31d8aae91d1cdbe0ff98f439612",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 563,
+    "colour_count": 16,
+    "isolated_pixel_percent": 3.91,
+    "bright_pixel_percent": 16.87,
+    "largest_flat_region_percent": 9.24,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      8,
+      71,
+      23
+    ],
+    "component_sizes": [
+      563
+    ],
+    "opaque_canvas_percent": 24.44,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "tundra_hunting_gun",
+    "name": "冰原猎铳",
+    "region": "sami",
+    "form": "gun",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "tundra_hunting_gun.png",
+    "source": "sources/tundra_hunting_gun_raw.png",
+    "source_sha256": "0690f096b267e0cd67f844ec1c067cb518613617a71b6d427b41ee9e5338dfcb",
+    "file_sha256": "3869638adf9e04b3f5a8319df1c871ee92065d34d2acc6c5ed5a3a17abbe1a52",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 662,
+    "colour_count": 18,
+    "isolated_pixel_percent": 1.96,
+    "bright_pixel_percent": 21.0,
+    "largest_flat_region_percent": 2.72,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      3,
+      1,
+      69,
+      31
+    ],
+    "component_sizes": [
+      662
+    ],
+    "opaque_canvas_percent": 28.73,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "composite_horn_bow",
+    "name": "复合角弓",
+    "region": "sami",
+    "form": "bow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "composite_horn_bow.png",
+    "source": "sources/composite_horn_bow_raw.png",
+    "source_sha256": "4579352015d4ef41f4297d6b95a26fd3fd2d9aa49339267e12af08a846b49e09",
+    "file_sha256": "767da60dcba73b2099f22a88941e60998f1e916c606ac1c45493b9ef0ee07c27",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 710,
+    "colour_count": 20,
+    "isolated_pixel_percent": 4.23,
+    "bright_pixel_percent": 16.06,
+    "largest_flat_region_percent": 6.76,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      6,
+      71,
+      25
+    ],
+    "component_sizes": [
+      710
+    ],
+    "opaque_canvas_percent": 30.82,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "birch_shaman_staff",
+    "name": "桦木巫杖",
+    "region": "sami",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "birch_shaman_staff.png",
+    "source": "sources/birch_shaman_staff_raw.png",
+    "source_sha256": "a55ea0856dc719f500be8daa82beaafcbeb364ef325873034f26e9896b3a52fc",
+    "file_sha256": "fae65eedadacc9a34bebe6a264c126e880208ba8ca1e364a2a00fe3c0b55cc1f",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 730,
+    "colour_count": 22,
+    "isolated_pixel_percent": 2.19,
+    "bright_pixel_percent": 23.97,
+    "largest_flat_region_percent": 3.97,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      3,
+      71,
+      29
+    ],
+    "component_sizes": [
+      730
+    ],
+    "opaque_canvas_percent": 31.68,
+    "source_shaft_angle": 14.89,
+    "source_rotation_degrees": -6.89
+  },
+  {
+    "id": "snowpriest_staff",
+    "name": "雪祀仪杖",
+    "region": "sami",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "snowpriest_staff.png",
+    "source": "sources/snowpriest_staff_raw.png",
+    "source_sha256": "b7119b3697baaab5bfcb387ad3a6c0a2dbfb7f9fee966263f1c05248d9aac33d",
+    "file_sha256": "b7f3820a0a92fa0506cf3a7f93b90c9889dcba0171b792b18cdb34e518f128a7",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 738,
+    "colour_count": 23,
+    "isolated_pixel_percent": 2.57,
+    "bright_pixel_percent": 27.91,
+    "largest_flat_region_percent": 2.17,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      1,
+      71,
+      30
+    ],
+    "component_sizes": [
+      738
+    ],
+    "opaque_canvas_percent": 32.03,
+    "source_shaft_angle": 15.65,
+    "source_rotation_degrees": -7.65
+  },
+  {
+    "id": "family_gun_crossbow",
+    "name": "家族枪弩",
+    "region": "siracusa",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png",
+      "sources/identity_family_crossbow_native.png"
+    ],
+    "file": "family_gun_crossbow.png",
+    "source": "sources/family_gun_crossbow_raw.png",
+    "source_sha256": "cbbae886a8b0c010a098feb8a484543b6db9b4f514ce48a946911586225b3ae8",
+    "file_sha256": "91fc6011d5a6e77cbbbd947b01b684680013fbbd55c2cd050ce5741fcda66c45",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 750,
+    "colour_count": 19,
+    "isolated_pixel_percent": 5.2,
+    "bright_pixel_percent": 20.27,
+    "largest_flat_region_percent": 12.8,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      1,
+      71,
+      31
+    ],
+    "component_sizes": [
+      750
+    ],
+    "opaque_canvas_percent": 32.55,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "folding_sleeve_crossbow",
+    "name": "折叠袖弩",
+    "region": "siracusa",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "folding_sleeve_crossbow.png",
+    "source": "sources/folding_sleeve_crossbow_raw.png",
+    "source_sha256": "fbb62988e375dfa21aa66d122f6d11bce499d66fcb4e0c907f0e2aa1672ff5d5",
+    "file_sha256": "18999dce1593d086395baf7e962d0f229e5908d4f43c1a4bebf0da90a60caaa4",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 616,
+    "colour_count": 20,
+    "isolated_pixel_percent": 5.03,
+    "bright_pixel_percent": 19.81,
+    "largest_flat_region_percent": 7.95,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      12,
+      3,
+      60,
+      29
+    ],
+    "component_sizes": [
+      616
+    ],
+    "opaque_canvas_percent": 26.74,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "double_barrel_gun",
+    "name": "猎场双管铳",
+    "region": "siracusa",
+    "form": "gun",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "double_barrel_gun.png",
+    "source": "sources/double_barrel_gun_raw.png",
+    "source_sha256": "f565feb06f59522e6fe20bcb7ca8ec6a4e53a791b6378dac6a6e432935188740",
+    "file_sha256": "ae4fe110e6f0d4a2fbfcf81c715acadebcb7a95ac0b516ea671f84e9e3a9e9cb",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 688,
+    "colour_count": 21,
+    "isolated_pixel_percent": 1.74,
+    "bright_pixel_percent": 23.98,
+    "largest_flat_region_percent": 6.69,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      2,
+      71,
+      30
+    ],
+    "component_sizes": [
+      688
+    ],
+    "opaque_canvas_percent": 29.86,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0
+  },
+  {
+    "id": "lawyer_casting_cane",
+    "name": "律师的施术手杖",
+    "region": "siracusa",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "lawyer_casting_cane.png",
+    "source": "sources/lawyer_casting_cane_raw.png",
+    "source_sha256": "ac708bb082a122d9886bf0bcab0614a0f3f317e1d9a9e8aa3c0b489bc10de86a",
+    "file_sha256": "5b174caea6b58d70637b626afa14b89e0efa686e5b1342373de21ff61f089eb4",
+    "emit_pixels": 2,
+    "opaque_pixel_count": 446,
+    "colour_count": 16,
+    "isolated_pixel_percent": 4.93,
+    "bright_pixel_percent": 35.2,
+    "largest_flat_region_percent": 22.2,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      6,
+      71,
+      26
+    ],
+    "component_sizes": [
+      446
+    ],
+    "opaque_canvas_percent": 19.36,
+    "source_shaft_angle": 14.33,
+    "source_rotation_degrees": -6.33
+  },
+  {
+    "id": "tribunal_staff",
+    "name": "审判庭仪杖",
+    "region": "siracusa",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": false,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png"
+    ],
+    "file": "tribunal_staff.png",
+    "source": "sources/tribunal_staff_raw.png",
+    "source_sha256": "db7186119ffaf6d548ba3c7455dc9001cf8e55fc242666b8732a61823f13c83a",
+    "file_sha256": "ea06261279c8996c06f47557470c0255faa8805ff48b2710648b1d702cc57df2",
+    "emit_pixels": 0,
+    "opaque_pixel_count": 509,
+    "colour_count": 18,
+    "isolated_pixel_percent": 7.07,
+    "bright_pixel_percent": 35.56,
+    "largest_flat_region_percent": 11.0,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      1,
+      2,
+      71,
+      29
+    ],
+    "component_sizes": [
+      509
+    ],
+    "opaque_canvas_percent": 22.09,
+    "source_shaft_angle": 15.73,
+    "source_rotation_degrees": -7.73
+  },
+  {
+    "id": "rhodes_crossbow",
+    "name": "罗德岛制式弩",
+    "region": "rhodes",
+    "form": "crossbow",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "file": "rhodes_crossbow.png",
+    "source": "sources/rhodes_crossbow_raw.png",
+    "source_sha256": "d467728a8e828311e4ef104b3eae59c00f7bc25b92d875d1f8842209b5c400a3",
+    "file_sha256": "510d5faf519460f039f5ce670fc1f409b75fa2f53c6721be81ad7da9988f8442",
+    "emit_pixels": 15,
+    "opaque_pixel_count": 807,
+    "colour_count": 17,
+    "isolated_pixel_percent": 3.72,
+    "bright_pixel_percent": 17.72,
+    "largest_flat_region_percent": 5.33,
+    "accent_percent": {
+      "blue": 1.86,
+      "orange": 1.49,
+      "cyan": 0.0,
+      "yellow": 0.5
+    },
+    "accent_total_percent": 3.85,
+    "binary_alpha": true,
+    "bbox": [
+      5,
+      2,
+      67,
+      29
+    ],
+    "component_sizes": [
+      807
+    ],
+    "opaque_canvas_percent": 35.03,
+    "source_shaft_angle": null,
+    "source_rotation_degrees": 0.0,
+    "logo_position": [
+      8,
+      16
+    ]
+  },
+  {
+    "id": "rhodes_staff",
+    "name": "罗德岛制式法杖",
+    "region": "rhodes",
+    "form": "staff",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "has_emit": true,
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/style_existing_weapons_4x.png",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "file": "rhodes_staff.png",
+    "source": "sources/rhodes_staff_raw.png",
+    "source_sha256": "0f41df9aefab4e3acaf2f1382d2f7da99166acdc8ddafba8773778b83b7acda5",
+    "file_sha256": "610e4a520623051142914bd24d74d61f70c572590f96673d6df46f38dea5a1dc",
+    "emit_pixels": 11,
+    "opaque_pixel_count": 549,
+    "colour_count": 15,
+    "isolated_pixel_percent": 5.1,
+    "bright_pixel_percent": 26.05,
+    "largest_flat_region_percent": 8.01,
+    "accent_percent": {
+      "blue": 0.91,
+      "orange": 0.0,
+      "cyan": 2.73,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 3.64,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      6,
+      71,
+      26
+    ],
+    "component_sizes": [
+      549
+    ],
+    "opaque_canvas_percent": 23.83,
+    "source_shaft_angle": 15.25,
+    "source_rotation_degrees": -7.25,
+    "logo_position": [
+      48,
+      11
+    ]
+  }
+]

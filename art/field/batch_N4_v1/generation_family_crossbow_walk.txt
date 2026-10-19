@@ -1,0 +1,17 @@
+Use case stylized-concept. Production multi-direction pixel-art GAME SPRITE SHEET for family_crossbow. This character identity has been APPROVED. Reference1 is exact approved identity/costume. Reference2 accepted N1 identity, reference3 accepted overview and reference4 accepted sentinel board are STYLE ONLY; keep muted clustered chibi2.5 heads tall, thick dark outline, flat chunky colour masses, never glossy illustration. Freshly draw every directional action, never trace original PRTS. REAL transparent alpha, NO labels numbers grid lines shadows or readable logos. Uniform256px square cells. EXACT8 COLUMNS and4 ROWS,2048x1024 canvas. All sprites fully separated with generous transparent gutters, no touching neighbouring sprites. Keep same BODY SIZE across entire board, bodycenter128 feetbaseline241. No weapon clipping. Stand first cell body height27nativepixel equivalent. Directions are COLUMNS, actions are ROWS.
+COLUMN1 S front down toward viewer (chest front);2 SW downLEFT frontthreequarter;3 W trueLEFT PROFILE noseLEFT onlyoneeye;4 NW backUPLEFT NO FACE;5 N fullBACK NO FACE;6 NE backUPRIGHT NO FACE;7 E trueRIGHT PROFILE noseRIGHT oneeye;8 SE downRIGHT frontthreequarter. Every row has all eight separate rotated headings. Never swap rows and columns. Rear silhouettes must hide face/eyes/mask front.
+All five family enemies use exact wine accent#9a2a3a and#5e1620 only on identified accent pieces; no other nearwine colours. Other clothes unchanged. Eraser and car have NO wine accent. No floating projectiles, no UI marks or glow halos. Palm/cigar/headlamp bright spots specified below are hard pixels attached to the figure.
+Exact enemy brief:
+### 3. `family_crossbow` · Family Crossbowman
+
+PRTS: the family's crossbows are poor, so in a pinch they use simple arts picked up somewhere.
+
+- **Look:** a pale taupe fedora (`#968e85`) with a **wide black band** (`#19170f`) and a thin accent band under it; long grey-brown hair; a grin; a dark brown-grey suit (`#3c3830`); accent tie. **A gun-shaped crossbow:** a walnut-brown wooden stock, a black body, a short pair of bow arms at the muzzle. Siracusa's crossbows look like tommy guns; keep it a crossbow by showing the bow arms.
+- **Attack, 枪弩连射 (two-shot burst):**
+  - START: stock to the shoulder.
+  - CHARGE: side-on, the crossbow held level and aimed along the heading, the bow arms spread. It must stick out of the silhouette by at least 4 baked px.
+  - STRIKE: a small recoil.
+  - RECOVER: the crossbow back across the chest.
+- **Draw no bolts.** The game draws them, and turns them violet during 清算时刻 (the "settling" phase), when they become arts.
+
+WALK BOARD: EXACT4 ROWS,8 columns. Row1CONTACT_A leftlegforward rightback;Row2PASS_A feet together;Row3CONTACT_B oppositelegs;Row4PASS_B feet together. A clear4frame gait for each of8headings, real alternating legs and coat/tail movement. Carry weapons as approved identity. Rearcolumns4,5,6 face away and never show face.

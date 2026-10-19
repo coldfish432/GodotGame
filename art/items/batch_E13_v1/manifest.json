@@ -1,0 +1,501 @@
+[
+  {
+    "id": "family_stiletto",
+    "name": "家族细匕首",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/identity_family_soldier_native.png",
+      "stiletto"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "family_stiletto.png",
+    "source": "sources/family_stiletto_raw.png",
+    "source_sha256": "d0deb95c8a2e33aa05fde52ca8adad2c3ce8ba0998bf2115299dd82d048e0e88",
+    "opaque_pixel_count": 232,
+    "colour_count": 8,
+    "isolated_pixel_percent": 6.9,
+    "bright_pixel_percent": 23.28,
+    "largest_flat_region_percent": 15.09,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      9,
+      69,
+      22
+    ],
+    "file_sha256": "9a81e00a95f50b96e0f8695e30bcbf1edbf092270b0ea8a3b1aef368a521baf0"
+  },
+  {
+    "id": "brass_knuckles",
+    "name": "黄铜拳套",
+    "form": "fist",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/proto_brass_knuckles.jpg",
+      "sources/identity_family_intimidator_native.png",
+      "`proto_brass_knuckles`"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "brass_knuckles.png",
+    "source": "sources/brass_knuckles_raw.png",
+    "source_sha256": "2941175b8e2eae9781af1d7b0944572a4cd36db10128a4574bb4bd16937471cb",
+    "opaque_pixel_count": 595,
+    "colour_count": 6,
+    "isolated_pixel_percent": 2.52,
+    "bright_pixel_percent": 36.64,
+    "largest_flat_region_percent": 9.24,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      12,
+      6,
+      60,
+      26
+    ],
+    "file_sha256": "beaf9561ec12958b1a9b91efd008f66bed90e68fe5492fcef951736188bf86c0"
+  },
+  {
+    "id": "switchblade",
+    "name": "弹簧折刀",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "switchblade"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "switchblade.png",
+    "source": "sources/switchblade_raw.png",
+    "source_sha256": "4474a0d7d76be44dc5baf2d9e4a5ea6dc6da60deff1bc50fe8484a0d48c8d054",
+    "opaque_pixel_count": 408,
+    "colour_count": 12,
+    "isolated_pixel_percent": 0.74,
+    "bright_pixel_percent": 36.27,
+    "largest_flat_region_percent": 7.84,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      9,
+      70,
+      22
+    ],
+    "file_sha256": "c2ea41d9c22336860c0673825df4a45666a33f4ea5fda900401fec155722b648"
+  },
+  {
+    "id": "old_town_crowbar",
+    "name": "旧城撬棍",
+    "form": "heavy",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "crowbar"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "old_town_crowbar.png",
+    "source": "sources/old_town_crowbar_raw.png",
+    "source_sha256": "415c4a7ff9f71a91853278bfc36b3ec3f2e8809ce5c338bf01e5e8dfbee632e4",
+    "opaque_pixel_count": 324,
+    "colour_count": 10,
+    "isolated_pixel_percent": 1.85,
+    "bright_pixel_percent": 19.44,
+    "largest_flat_region_percent": 6.79,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      7,
+      70,
+      25
+    ],
+    "file_sha256": "dd87f8e3b2f4166bfc6752bf99005393992915f93ac57336e5e92c32e6182f3d"
+  },
+  {
+    "id": "barber_razor",
+    "name": "理发店剃刀",
+    "form": "fist",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "straight razor"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "barber_razor.png",
+    "source": "sources/barber_razor_raw.png",
+    "source_sha256": "12f59f7ff32b826d6e347c1d8b661d88234ed89eee4ed4044680fcab8dfff4c0",
+    "opaque_pixel_count": 245,
+    "colour_count": 8,
+    "isolated_pixel_percent": 0.0,
+    "bright_pixel_percent": 38.37,
+    "largest_flat_region_percent": 14.29,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      12,
+      9,
+      59,
+      23
+    ],
+    "file_sha256": "61b3fa2c42807f6db7c844ac4bf8d13f5a35950aa3501811d6fd6cd701e1a76b"
+  },
+  {
+    "id": "cane_sword",
+    "name": "手杖剑",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sword cane"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "cane_sword.png",
+    "source": "sources/cane_sword_raw.png",
+    "source_sha256": "d6c358a625625cc4d281ac1c5d456be46f5884c8000fb37bc00f05c42187c60b",
+    "opaque_pixel_count": 499,
+    "colour_count": 8,
+    "isolated_pixel_percent": 5.81,
+    "bright_pixel_percent": 17.23,
+    "largest_flat_region_percent": 32.67,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      9,
+      70,
+      23
+    ],
+    "file_sha256": "208188e9c94e50342a76cb7e4468e00e6abb7b4034b351e56a6d9286344ef898"
+  },
+  {
+    "id": "butcher_cleaver",
+    "name": "肉铺剁骨刀",
+    "form": "heavy",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "meat cleaver"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "butcher_cleaver.png",
+    "source": "sources/butcher_cleaver_raw.png",
+    "source_sha256": "6b0fad4b05436475c5b5180f70a8d8afb20737b6d4e25938f4bd9bc725ad5817",
+    "opaque_pixel_count": 849,
+    "colour_count": 11,
+    "isolated_pixel_percent": 1.06,
+    "bright_pixel_percent": 22.26,
+    "largest_flat_region_percent": 40.28,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      7,
+      5,
+      65,
+      27
+    ],
+    "file_sha256": "b55a737a82b4212c4750dd75d050b7f35b434608a07abd2176f9e78e5b0199f7"
+  },
+  {
+    "id": "vineyard_billhook",
+    "name": "葡萄园修枝镰",
+    "form": "polearm",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/proto_billhook.jpg",
+      "`proto_billhook` (head)"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "vineyard_billhook.png",
+    "source": "sources/vineyard_billhook_raw.png",
+    "source_sha256": "7016601cbbdeb938eb4bcdd368df2129a846a384e56639dc1e35d6872a7236d4",
+    "opaque_pixel_count": 227,
+    "colour_count": 9,
+    "isolated_pixel_percent": 1.32,
+    "bright_pixel_percent": 23.35,
+    "largest_flat_region_percent": 16.3,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      10,
+      70,
+      21
+    ],
+    "file_sha256": "0c06e8e870ff761ec2741f33e20c5f0263ba9042dc204d5965fe2c5aab21c72a"
+  },
+  {
+    "id": "eraser_curved_blade",
+    "name": "灭迹弯刃",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/identity_family_eraser_native.png",
+      "eraser sprite"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "eraser_curved_blade.png",
+    "source": "sources/eraser_curved_blade_raw.png",
+    "source_sha256": "b7c1727a668139891d67d8adfeefc057c32c519041afe2c08ca3a79bc006a093",
+    "opaque_pixel_count": 328,
+    "colour_count": 9,
+    "isolated_pixel_percent": 3.05,
+    "bright_pixel_percent": 26.52,
+    "largest_flat_region_percent": 21.34,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      13,
+      8,
+      59,
+      23
+    ],
+    "file_sha256": "cf3cbc45f7bf4d26809eaeb0d2014a9ad1be549e9c39c8a15ad884f6221c078f"
+  },
+  {
+    "id": "lead_cane",
+    "name": "角头的灌铅手杖",
+    "form": "heavy",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/identity_family_capo_native.png",
+      "capo sprite"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "lead_cane.png",
+    "source": "sources/lead_cane_raw.png",
+    "source_sha256": "355f1149a00ff204c1da161637dc0a88b86314cbfcb647afe48e36862434c7a2",
+    "opaque_pixel_count": 295,
+    "colour_count": 9,
+    "isolated_pixel_percent": 5.76,
+    "bright_pixel_percent": 22.03,
+    "largest_flat_region_percent": 23.39,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      9,
+      70,
+      22
+    ],
+    "file_sha256": "5d759dc818fe9ed3268a1e1a2ccde44ceac23ac78936bc312e7cfd12f6546bff"
+  },
+  {
+    "id": "wolfhead_knuckles",
+    "name": "狼首指虎",
+    "form": "fist",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "sources/proto_brass_knuckles.jpg",
+      "`proto_brass_knuckles`"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "wolfhead_knuckles.png",
+    "source": "sources/wolfhead_knuckles_raw.png",
+    "source_sha256": "49b0e39b9fd835db7497f601b6602a8dab3e92bfe77a8713ab02b4d232692ec4",
+    "opaque_pixel_count": 704,
+    "colour_count": 5,
+    "isolated_pixel_percent": 3.69,
+    "bright_pixel_percent": 17.9,
+    "largest_flat_region_percent": 17.05,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      8,
+      4,
+      64,
+      28
+    ],
+    "file_sha256": "8eb814c90fb83f1a4ee39463fe7cb7084cf2752a34616913b40b4613ad8d3b12"
+  },
+  {
+    "id": "saluzzo_crest",
+    "name": "萨卢佐家族的旧徽记",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "exclusive",
+    "prototype_refs": [
+      "sources/style_existing_weapons_4x.png",
+      "source_brief.md",
+      "none"
+    ],
+    "has_emit": false,
+    "reference_urls": [],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks.",
+    "file": "saluzzo_crest.png",
+    "source": "sources/saluzzo_crest_raw.png",
+    "source_sha256": "20b72f0cb8ab817a1180fbdf39033ec447803f17069dd313cce8a150305a16f0",
+    "opaque_pixel_count": 447,
+    "colour_count": 9,
+    "isolated_pixel_percent": 2.68,
+    "bright_pixel_percent": 26.4,
+    "largest_flat_region_percent": 31.77,
+    "accent_percent": {
+      "blue": 0.0,
+      "orange": 0.0,
+      "cyan": 0.0,
+      "yellow": 0.0
+    },
+    "accent_total_percent": 0.0,
+    "binary_alpha": true,
+    "bbox": [
+      2,
+      2,
+      29,
+      30
+    ],
+    "file_sha256": "cc7788d5152c21bf3de2f2752da336bdf3961dd184930ecd4252535ffcb4b5bd"
+  }
+]

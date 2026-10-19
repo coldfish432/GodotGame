@@ -1,0 +1,154 @@
+[
+  {
+    "id": "rhodes_dual_blades",
+    "name": "罗德岛制式双刀",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\nClean industrial Rhodes Island ship gear. STRICT palette only: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Blue/orange/cyan/yellow accents together below 10 percent and each color family below 6 percent of opaque area. Neutral body surfaces. Leave the requested logo position as a small neutral patch; the exact 9x9 two-tone triangle/tower mark will be restored during native pixel cleanup. Do not invent lettering. No red cross.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 罗德岛制式双刀.\nMandatory silhouette/details: **Two** broad straight blades, one above the other and slightly offset, with square, angled tips. Bright steel, with a **Rhodes-blue light strip** inset along the middle of each blade (`#5888a8` / `#78b8e8`, on the emit mask). A one-piece angular guard, a short chain at the pommel, and a small plain light label patch at the blade root. It must not look like 双生狼牙 (twin_fang), which has curved blades. These are straight and squared.",
+    "reference_urls": [
+      "https://torappu.prts.wiki/assets/uniequip_img/uniequip_003_yato2.png"
+    ],
+    "logo_position": null,
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "rhodes_sword",
+    "name": "罗德岛制式剑",
+    "form": "blade",
+    "native_size": [
+      72,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\nClean industrial Rhodes Island ship gear. STRICT palette only: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Blue/orange/cyan/yellow accents together below 10 percent and each color family below 6 percent of opaque area. Neutral body surfaces. Leave the requested logo position as a small neutral patch; the exact 9x9 two-tone triangle/tower mark will be restored during native pixel cleanup. Do not invent lettering. No red cross.\nLogical canvas 72x32; enlarged output 576x256 or same aspect ratio with transparent margins.\nSubject: 罗德岛制式剑.\nMandatory silhouette/details: A long straight single-edged sword with a **chisel-cut tip** and a fuller line. Black wrapped grip with **one warning-orange band**, and an angular folded guard. Bare blade, no red scabbard.",
+    "reference_urls": [
+      "https://torappu.prts.wiki/assets/uniequip_img/uniequip_002_chen.png"
+    ],
+    "logo_position": null,
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "rhodes_field_uniform",
+    "name": "罗德岛外勤制服",
+    "form": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\nClean industrial Rhodes Island ship gear. STRICT palette only: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Blue/orange/cyan/yellow accents together below 10 percent and each color family below 6 percent of opaque area. Neutral body surfaces. Leave the requested logo position as a small neutral patch; the exact 9x9 two-tone triangle/tower mark will be restored during native pixel cleanup. Do not invent lettering. No red cross.\nLogical canvas 72x72; enlarged output 576x576 or same aspect ratio with transparent margins.\nSubject: 罗德岛外勤制服.\nMandatory silhouette/details: A field jacket in ship-steel black with cold-grey side panels and the **hood down**. Thin Rhodes-blue piping along the seams, and the **S logo on the left sleeve**. One tiny warning-orange zipper pull. It should read as an operator's jacket, not armour.",
+    "reference_urls": [],
+    "logo_position": [
+      58,
+      24
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "rhodes_protective_vest",
+    "name": "罗德岛制式防护背心",
+    "form": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\nClean industrial Rhodes Island ship gear. STRICT palette only: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Blue/orange/cyan/yellow accents together below 10 percent and each color family below 6 percent of opaque area. Neutral body surfaces. Leave the requested logo position as a small neutral patch; the exact 9x9 two-tone triangle/tower mark will be restored during native pixel cleanup. Do not invent lettering. No red cross.\nLogical canvas 72x72; enlarged output 576x576 or same aspect ratio with transparent margins.\nSubject: 罗德岛制式防护背心.\nMandatory silhouette/details: A dark under-layer with **medical-white and cold-grey hard plates** over the chest and shoulders. One Rhodes-blue band across the chest, the **S logo** on the chest plate, and a small screen-cyan status light (emit). It must not look like the Lungmen vests: lighter, cleaner and white-plated.",
+    "reference_urls": [],
+    "logo_position": [
+      45,
+      27
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "rhodes_beacon",
+    "name": "罗德岛制式信标",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": true,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\nClean industrial Rhodes Island ship gear. STRICT palette only: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Blue/orange/cyan/yellow accents together below 10 percent and each color family below 6 percent of opaque area. Neutral body surfaces. Leave the requested logo position as a small neutral patch; the exact 9x9 two-tone triangle/tower mark will be restored during native pixel cleanup. Do not invent lettering. No red cross.\nLogical canvas 32x32; enlarged output 256x256 or same aspect ratio with transparent margins.\nSubject: 罗德岛制式信标.\nMandatory silhouette/details: A squat cylindrical beacon in a ship-steel casing with a **safety-yellow ring**. A short antenna on top, one **screen-cyan light** (emit), and the S logo on the side.",
+    "reference_urls": [],
+    "logo_position": [
+      12,
+      17
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "rhodes_medkit",
+    "name": "罗德岛制式急救包",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\nClean industrial Rhodes Island ship gear. STRICT palette only: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Blue/orange/cyan/yellow accents together below 10 percent and each color family below 6 percent of opaque area. Neutral body surfaces. Leave the requested logo position as a small neutral patch; the exact 9x9 two-tone triangle/tower mark will be restored during native pixel cleanup. Do not invent lettering. No red cross.\nLogical canvas 32x32; enlarged output 256x256 or same aspect ratio with transparent margins.\nSubject: 罗德岛制式急救包.\nMandatory silhouette/details: A medical-white soft pouch with a Rhodes-blue strap and the **S logo** on the flap, with the steel tip of a **hemostat** (clamp) sticking out of the top. **No red cross.**",
+    "reference_urls": [],
+    "logo_position": [
+      14,
+      14
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  },
+  {
+    "id": "rhodes_badge",
+    "name": "罗德岛干员证章",
+    "form": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "kind": "base",
+    "prototype_refs": [
+      "source_brief.md",
+      "sources/rhodes_logo_S_9.png"
+    ],
+    "has_emit": false,
+    "prompt": "Use case: stylized-concept. Asset type: finished painted pixel-art inventory icon for an extraction ARPG. Generate ONE isolated item only on genuinely transparent background, no backdrop, no shadow, no lettering, no watermark, no glow halo. Draw as carefully clustered native pixel art enlarged exactly 8 times: each logical pixel is a crisp uniform 8x8 square. Top-left light, 1 logical pixel near-black #0b0c0d outline, 4-5 tones per material, at most 24 colors, deliberate clusters rather than dithering. Composition must respect the logical canvas. Weapons: side view, horizontal, handle left and tip right, no more than 12 degrees uphill; almost fill width except short razor and compact knuckles. Armour: centered front view. Trinkets: centered. Retain generous highlights occupying at least 15 percent of the object, bright edges and raised surfaces; no antialiasing. The established game style has chunky steel highlights, warm leather grips and very readable silhouettes. No photorealism, no floating decoration, no additional objects.\nClean industrial Rhodes Island ship gear. STRICT palette only: #0b0c0d #15181a #1f2427 #2c3236 #3d4448 #566064 #737d82 #98a2a6 #c3cacc #a9b2b3 #d4dadb #eef2f2 #385878 #5888a8 #78b8e8 #6e2f14 #b8531f #e0782a #0f3a40 #2a8a92 #5fd0d8 #b8f4f6 #6b5a1e #b89a2a #f4d73c. Blue/orange/cyan/yellow accents together below 10 percent and each color family below 6 percent of opaque area. Neutral body surfaces. Leave the requested logo position as a small neutral patch; the exact 9x9 two-tone triangle/tower mark will be restored during native pixel cleanup. Do not invent lettering. No red cross.\nLogical canvas 32x32; enlarged output 256x256 or same aspect ratio with transparent margins.\nSubject: 罗德岛干员证章.\nMandatory silhouette/details: A cold-grey metal badge whose face is the **S logo** (light triangle, dark tower). A short **Rhodes-blue ribbon** hangs above it. A pin shows at the edge. It reads as an award badge.",
+    "reference_urls": [],
+    "logo_position": [
+      11,
+      16
+    ],
+    "processing": "process.py: uniform aspect-preserving reduction; prescribed palette; native colour cluster cleanup; localized small marks."
+  }
+]

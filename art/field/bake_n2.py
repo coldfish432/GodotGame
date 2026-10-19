@@ -33,11 +33,34 @@ from reduce_n1 import FIGURES, OUTLINE, components, edge_of, thicken_thin  # noq
 # texels of the S / IDLE figure's whole box. 萨卡兹哨兵's box runs to the top
 # of its signal pole (30); its body comes out about 暴徒's height (用户 2026-10-14:
 # 再小一点, from 34; batch_N3_claude/size_options_x8.png).
-EXTRA_HEIGHTS = {"sentinel": 30}
+EXTRA_HEIGHTS = {"sentinel": 30,
+                 # N4 叙拉古 (叙拉古敌人设计案_v1 §五): the caster's box includes its hood's
+                 # wolf ears; the car's is the whole S-facing car, roof to tyres.
+                 "family_soldier": 28, "family_intimidator": 33, "family_crossbow": 27,
+                 "family_caster": 27, "family_capo": 31, "family_eraser": 31, "family_car": 24}
 # Per-enemy quantizer: median cut (the approved N1 method) folds a small warm
 # prop into the greys; octree keeps 萨卡兹哨兵's brass horn gold and its flat
 # masses clean (batch_N3_claude/quantize_compare_x8.png, 2026-10-14).
 QUANTIZE = {"sentinel": Image.Quantize.FASTOCTREE}
+# N4 叙拉古 family enemies (叙拉古敌人设计案 §1.2, 用户 2026-10-16: 只换特征色):
+# painted in the Saluzzo accent pair, the other families made by swapping those
+# two values after the bake, so the pair must come out of the bake exact. The
+# painting is snapped to the pair before quantizing (the quantizer then cannot
+# fold it into the suit) and the sheet after; octree keeps the flat masses.
+ACCENTS = [(0x9A, 0x2A, 0x3A), (0x5E, 0x16, 0x20)]
+ACCENT_ENEMIES = {"family_soldier", "family_intimidator", "family_crossbow", "family_caster", "family_capo"}
+for _id in ACCENT_ENEMIES | {"family_eraser", "family_car"}:
+    QUANTIZE[_id] = Image.Quantize.FASTOCTREE
+
+
+def snap_accents(img: Image.Image, reach: float) -> Image.Image:
+    """Every opaque pixel within `reach` of an accent becomes that accent."""
+    a = np.array(img).astype(int)
+    acc = np.array(ACCENTS)
+    d = np.sqrt(((a[..., None, :3] - acc[None, None]) ** 2).sum(-1))
+    near = (d.min(-1) < reach) & (a[..., 3] > 0)
+    a[..., :3][near] = acc[d.argmin(-1)[near]]
+    return Image.fromarray(a.astype(np.uint8))
 
 CELL = 64
 FOOT = 51
@@ -84,6 +107,7 @@ def main() -> None:
     enemy = sys.argv[2]
     rows = int(sys.argv[3])
     board = Image.open(path).convert("RGBA")
+    if enemy in ACCENT_ENEMIES: board = snap_accents(board, 34)
     side = board.width // 8
     if board.height // rows != side:
         sys.exit("board must be a uniform 8 × %d grid of square cells (got %s)" % (rows, board.size))
@@ -101,6 +125,7 @@ def main() -> None:
         for c in range(8):
             cell = board.crop((c * side, r * side, (c + 1) * side, (r + 1) * side))
             sheet.alpha_composite(bake_cell(cell, scale, QUANTIZE.get(enemy, Image.Quantize.MEDIANCUT)), (c * CELL, r * CELL))
+    if enemy in ACCENT_ENEMIES: sheet = snap_accents(sheet, 26)
     out = path.with_name(path.stem + "_64.png")
     sheet.save(out)
     sheet.resize((sheet.width * 6, sheet.height * 6), Image.NEAREST).save(path.with_name(path.stem + "_64_x6.png"))

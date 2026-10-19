@@ -1,0 +1,58 @@
+[
+  {
+    "file": "sources/rhodes_badge_raw.png",
+    "sha256": "42d82ca1aa3dd6c97581fd7734ed8b09d9ef139af11f84cd2e53cdad6e9f74dc"
+  },
+  {
+    "file": "sources/rhodes_badge_rejected_first.png",
+    "sha256": "f3942604a312f4210abfbf7e9a5a35784b9ef239904ac99322f4796438dac86f"
+  },
+  {
+    "file": "sources/rhodes_badge_revision_prompt.txt",
+    "sha256": "841b3e84e391e489add4f0eef4515e54adada519c15668eecfe691b8bf4291c2"
+  },
+  {
+    "file": "sources/rhodes_beacon_raw.png",
+    "sha256": "949d843e6af03c465e9c91ae96a210f368785f34f409377b884b69811d74ec61"
+  },
+  {
+    "file": "sources/rhodes_beacon_rejected_first.png",
+    "sha256": "50524fc08fbac2b0f4348e60462913bc1221bdf1082b95773231e2b37abc3cef"
+  },
+  {
+    "file": "sources/rhodes_beacon_revision_prompt.txt",
+    "sha256": "54d6584c1cd8aa2c0e87103f6facd48de76ee01f3f374e9d516e33735c84ed2f"
+  },
+  {
+    "file": "sources/rhodes_dual_blades_raw.png",
+    "sha256": "4b3b80d395c7ea1a0b8370b715323c3c027925bda6205e3373155e76651b038e"
+  },
+  {
+    "file": "sources/rhodes_field_uniform_raw.png",
+    "sha256": "f94954fc055d8983c8fbb37541c92047531ff2e4ea22a3109edeaadcb9135a3a"
+  },
+  {
+    "file": "sources/rhodes_logo_S_9.png",
+    "sha256": "138c5bd4407e965f7827c20bfdebb06c29d49137bfe42e3d87087a9408b7ff89"
+  },
+  {
+    "file": "sources/rhodes_medkit_raw.png",
+    "sha256": "625bf3ce6d22f5a3d22cabe04406c9198437e45f9f878c086479b68e99e791ae"
+  },
+  {
+    "file": "sources/rhodes_medkit_rejected_first.png",
+    "sha256": "3450bc48417ef2658067c0f65562511d631ce600bd430f4a8672e63fdf6a46dc"
+  },
+  {
+    "file": "sources/rhodes_medkit_revision_prompt.txt",
+    "sha256": "21c01997de236d88c72cb7736aecd238908eeb16903a807bad07d9952bed278d"
+  },
+  {
+    "file": "sources/rhodes_protective_vest_raw.png",
+    "sha256": "861c97091abeb5e9adf73b09f0dcde493e2f296e1f38e1c4cdc9fb7f331bfb34"
+  },
+  {
+    "file": "sources/rhodes_sword_raw.png",
+    "sha256": "f44c321aa75e37c237c4f7fca9b825ce7176107d319e762dedcb42886f84bc8a"
+  }
+]

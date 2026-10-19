@@ -1,0 +1,186 @@
+[
+  {
+    "file": "sources/barber_razor_raw.png",
+    "sha256": "12f59f7ff32b826d6e347c1d8b661d88234ed89eee4ed4044680fcab8dfff4c0"
+  },
+  {
+    "file": "sources/brass_knuckles_raw.png",
+    "sha256": "2941175b8e2eae9781af1d7b0944572a4cd36db10128a4574bb4bd16937471cb"
+  },
+  {
+    "file": "sources/brass_knuckles_rejected_first.png",
+    "sha256": "c4712ddacb992874f34b21ebd1cfcff19a98210e6c365a47a560d3820b22d65c"
+  },
+  {
+    "file": "sources/brass_knuckles_revision_prompt.txt",
+    "sha256": "0ff3c95c6357755f8ae138a383071bdfe116170e59d4743f14eb02e587be5bef"
+  },
+  {
+    "file": "sources/butcher_cleaver_raw.png",
+    "sha256": "6b0fad4b05436475c5b5180f70a8d8afb20737b6d4e25938f4bd9bc725ad5817"
+  },
+  {
+    "file": "sources/cane_sword_raw.png",
+    "sha256": "d6c358a625625cc4d281ac1c5d456be46f5884c8000fb37bc00f05c42187c60b"
+  },
+  {
+    "file": "sources/cane_sword_rejected_first.png",
+    "sha256": "0a3f4b41a8f215984433d0235ea4d8c4df901bc2fb7a0b8f1c206b2253fc28bb"
+  },
+  {
+    "file": "sources/cane_sword_revision_prompt.txt",
+    "sha256": "60eec8bddd8f4968004a1f0bef18ed8a1c93d4dd3dfc9482cb4e4270f6d8ae6d"
+  },
+  {
+    "file": "sources/eraser_curved_blade_raw.png",
+    "sha256": "b7c1727a668139891d67d8adfeefc057c32c519041afe2c08ca3a79bc006a093"
+  },
+  {
+    "file": "sources/eraser_curved_blade_rejected_first.png",
+    "sha256": "16bb429f77db692e4364f6ffe17f3a2c963c4ddc5811c06bab9f23c104201fa0"
+  },
+  {
+    "file": "sources/eraser_curved_blade_revision_prompt.txt",
+    "sha256": "fb068eb1cba4ab57f81373bf4546ba5500faf6d73742e8e816b0d9aaa9ca057d"
+  },
+  {
+    "file": "sources/family_stiletto_raw.png",
+    "sha256": "d0deb95c8a2e33aa05fde52ca8adad2c3ce8ba0998bf2115299dd82d048e0e88"
+  },
+  {
+    "file": "sources/identity_family_capo_native.png",
+    "sha256": "ed359636d1f4e72718402094fa7709c20596df852f702097e15b2d266eb0f347"
+  },
+  {
+    "file": "sources/identity_family_eraser_native.png",
+    "sha256": "56062ef7eb3fa5b26118b3364a88205f614377e2951bd9815984f17b9b7c161e"
+  },
+  {
+    "file": "sources/identity_family_intimidator_native.png",
+    "sha256": "9f9c0304b32284c7a3d8479d3eb60618e0f93142a05dbc4b67fe7acecb5dc723"
+  },
+  {
+    "file": "sources/identity_family_soldier_native.png",
+    "sha256": "025e5cb614d17912b79a8d27009859d03e9e3bd057bc633732e3aa878a5f9e8e"
+  },
+  {
+    "file": "sources/lead_cane_raw.png",
+    "sha256": "355f1149a00ff204c1da161637dc0a88b86314cbfcb647afe48e36862434c7a2"
+  },
+  {
+    "file": "sources/lungmen/city_x01.png",
+    "sha256": "b7d81b00b76fef90a8f5a34683faeeedfe0542c77dfeb41d02821349803d9e3b"
+  },
+  {
+    "file": "sources/lungmen/city_x02.png",
+    "sha256": "f45dd343dc8f311ef6b6bdc8c1b9a213f1278da7f113812aa25ec07e1995e16a"
+  },
+  {
+    "file": "sources/lungmen/city_x03.png",
+    "sha256": "8a0d511067310ce33e3b23c2bfdce7cf741e5e0aeaf7f883284c06e8529eeb62"
+  },
+  {
+    "file": "sources/lungmen/city_x04.png",
+    "sha256": "6612468fc1301316756e2e5f6708884845f839c6630122ab4ce80cb198f673fa"
+  },
+  {
+    "file": "sources/lungmen/city_x05.png",
+    "sha256": "855d4126786a9e76ee2347db3abcd8e683109db0f526a40b7120675260f6c1c7"
+  },
+  {
+    "file": "sources/lungmen/city_x06.png",
+    "sha256": "472356cff04e7a9c581e5047069bad731857dff8f7acb47449c4b5d63d8e1466"
+  },
+  {
+    "file": "sources/lungmen/city_x07.png",
+    "sha256": "f83715aa845c90b7bb86f79d8bc4b27cf7027d6d9f52c997767abe1f0fb70b77"
+  },
+  {
+    "file": "sources/lungmen/city_x08.png",
+    "sha256": "4fa6dfed36403d01c42c20a115fe985402c5b0c9d15c2eb100da72f5b7601c48"
+  },
+  {
+    "file": "sources/lungmen/courier_dagger.png",
+    "sha256": "a7f4ff2d5ecd92fda8ae09369e243b4a1f77feeddcf9191c5209815da2e488e0"
+  },
+  {
+    "file": "sources/lungmen/finger_blade.png",
+    "sha256": "8154f333f30ead4cd742b1632f1c382cb0a79d27f5fcd298e8df45e3baf86ca0"
+  },
+  {
+    "file": "sources/lungmen/gang_machete.png",
+    "sha256": "f565d7ad9ac85b66f854944c66ead11919e086a038e7b58eaf317692b7c889cb"
+  },
+  {
+    "file": "sources/lungmen/lgd_knife.png",
+    "sha256": "e860fb4da04e6991ff245d0df72843ddfc6c7ad9e0e4092e10954996e4595fd3"
+  },
+  {
+    "file": "sources/lungmen/lord_blade.png",
+    "sha256": "47dd0f3291daa2cbb5ffc79c48c45ec7dc8cbebd3a8ec005b9f3c7e9543f7255"
+  },
+  {
+    "file": "sources/lungmen/mi_avenger_16.png",
+    "sha256": "b9fee4209f0bbdca5213920a8e9b186fb312fdbbe733884af9d8daafd8281b28"
+  },
+  {
+    "file": "sources/lungmen/mi_breacher_17.png",
+    "sha256": "13c3604571be03c1d4b84f00adb4653ed02783153b509a00f2676b6f81a6ab16"
+  },
+  {
+    "file": "sources/lungmen/mi_greytail_lord_13.png",
+    "sha256": "2c6bcede2d49d392fd3c0d290a8a4a3cce482acbec1f25ea8616f0c7ce0d2cd0"
+  },
+  {
+    "file": "sources/lungmen/set_grey_order_0.png",
+    "sha256": "c5358f509b070a55b7cf4700ba81227fe2ad042f1e6962dac597476c2805d907"
+  },
+  {
+    "file": "sources/lungmen/set_inspectors_0.png",
+    "sha256": "0397a884d764d5cb20b53bb49ce623f50fbf3e92c58ca03dc3ab46d9aeefb33f"
+  },
+  {
+    "file": "sources/lungmen/yan_ring_saber.png",
+    "sha256": "b832928bc75f1d63f70fb5654f0ad3f3c8d3c4a6879862931656b32e279be8d8"
+  },
+  {
+    "file": "sources/lungmen_index.json",
+    "sha256": "35d1b43491353475fb4b1bf10b38ebbbfe406772f685d3e7e6f835a3e8932f4c"
+  },
+  {
+    "file": "sources/old_town_crowbar_raw.png",
+    "sha256": "415c4a7ff9f71a91853278bfc36b3ec3f2e8809ce5c338bf01e5e8dfbee632e4"
+  },
+  {
+    "file": "sources/proto_billhook.jpg",
+    "sha256": "4ffbc294aeb3311592f52073568757ed24fa1d1d28ca5d18e6b6d1962996f776"
+  },
+  {
+    "file": "sources/proto_brass_knuckles.jpg",
+    "sha256": "c7721329620c7c17180a3a21a8aeb6a2e60a8521ffb0ea2bc329fb2d2bb7aa9d"
+  },
+  {
+    "file": "sources/proto_sledgehammer.jpg",
+    "sha256": "99b6a2c892100900686cc17a1189040310ad5105a44551e6b6c64b40967a2a80"
+  },
+  {
+    "file": "sources/saluzzo_crest_raw.png",
+    "sha256": "20b72f0cb8ab817a1180fbdf39033ec447803f17069dd313cce8a150305a16f0"
+  },
+  {
+    "file": "sources/style_existing_weapons_4x.png",
+    "sha256": "dd14cb049f54ef8e62b4c5299e6715f31e65e3f4f276b4ea58d329d8b9905aa2"
+  },
+  {
+    "file": "sources/switchblade_raw.png",
+    "sha256": "4474a0d7d76be44dc5baf2d9e4a5ea6dc6da60deff1bc50fe8484a0d48c8d054"
+  },
+  {
+    "file": "sources/vineyard_billhook_raw.png",
+    "sha256": "7016601cbbdeb938eb4bcdd368df2129a846a384e56639dc1e35d6872a7236d4"
+  },
+  {
+    "file": "sources/wolfhead_knuckles_raw.png",
+    "sha256": "49b0e39b9fd835db7497f601b6602a8dab3e92bfe77a8713ab02b4d232692ec4"
+  }
+]

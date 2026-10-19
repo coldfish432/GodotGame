@@ -1,0 +1,383 @@
+{
+  "status": "PASS",
+  "definitions": {
+    "isolated": "Opaque pixels sharing their RGB with none of four opaque orthogonal neighbors.",
+    "luminance": "Rec.709 weighted sRGB code values >=153/255; no linear-light conversion.",
+    "flat": "Largest four-connected region of exactly one RGB, divided by total opaque pixels.",
+    "runtime": "Godot import and backpack/UI display not tested."
+  },
+  "items": [
+    {
+      "id": "family_stiletto",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 232,
+        "colour_count": 8,
+        "isolated_pixel_percent": 6.9,
+        "bright_pixel_percent": 23.28,
+        "largest_flat_region_percent": 15.09,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          9,
+          69,
+          22
+        ]
+      }
+    },
+    {
+      "id": "brass_knuckles",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 595,
+        "colour_count": 6,
+        "isolated_pixel_percent": 2.52,
+        "bright_pixel_percent": 36.64,
+        "largest_flat_region_percent": 9.24,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          12,
+          6,
+          60,
+          26
+        ]
+      }
+    },
+    {
+      "id": "switchblade",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 408,
+        "colour_count": 12,
+        "isolated_pixel_percent": 0.74,
+        "bright_pixel_percent": 36.27,
+        "largest_flat_region_percent": 7.84,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          9,
+          70,
+          22
+        ]
+      }
+    },
+    {
+      "id": "old_town_crowbar",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 324,
+        "colour_count": 10,
+        "isolated_pixel_percent": 1.85,
+        "bright_pixel_percent": 19.44,
+        "largest_flat_region_percent": 6.79,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          7,
+          70,
+          25
+        ]
+      }
+    },
+    {
+      "id": "barber_razor",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 245,
+        "colour_count": 8,
+        "isolated_pixel_percent": 0.0,
+        "bright_pixel_percent": 38.37,
+        "largest_flat_region_percent": 14.29,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          12,
+          9,
+          59,
+          23
+        ]
+      }
+    },
+    {
+      "id": "cane_sword",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 499,
+        "colour_count": 8,
+        "isolated_pixel_percent": 5.81,
+        "bright_pixel_percent": 17.23,
+        "largest_flat_region_percent": 32.67,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          9,
+          70,
+          23
+        ]
+      }
+    },
+    {
+      "id": "butcher_cleaver",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 849,
+        "colour_count": 11,
+        "isolated_pixel_percent": 1.06,
+        "bright_pixel_percent": 22.26,
+        "largest_flat_region_percent": 40.28,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          7,
+          5,
+          65,
+          27
+        ]
+      }
+    },
+    {
+      "id": "vineyard_billhook",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 227,
+        "colour_count": 9,
+        "isolated_pixel_percent": 1.32,
+        "bright_pixel_percent": 23.35,
+        "largest_flat_region_percent": 16.3,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          10,
+          70,
+          21
+        ]
+      }
+    },
+    {
+      "id": "eraser_curved_blade",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 328,
+        "colour_count": 9,
+        "isolated_pixel_percent": 3.05,
+        "bright_pixel_percent": 26.52,
+        "largest_flat_region_percent": 21.34,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          13,
+          8,
+          59,
+          23
+        ]
+      }
+    },
+    {
+      "id": "lead_cane",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 295,
+        "colour_count": 9,
+        "isolated_pixel_percent": 5.76,
+        "bright_pixel_percent": 22.03,
+        "largest_flat_region_percent": 23.39,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          9,
+          70,
+          22
+        ]
+      }
+    },
+    {
+      "id": "wolfhead_knuckles",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 704,
+        "colour_count": 5,
+        "isolated_pixel_percent": 3.69,
+        "bright_pixel_percent": 17.9,
+        "largest_flat_region_percent": 17.05,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          8,
+          4,
+          64,
+          28
+        ]
+      }
+    },
+    {
+      "id": "saluzzo_crest",
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colours": true,
+        "isolated": true,
+        "bright": true
+      },
+      "metrics": {
+        "opaque_pixel_count": 447,
+        "colour_count": 9,
+        "isolated_pixel_percent": 2.68,
+        "bright_pixel_percent": 26.4,
+        "largest_flat_region_percent": 31.77,
+        "accent_percent": {
+          "blue": 0.0,
+          "orange": 0.0,
+          "cyan": 0.0,
+          "yellow": 0.0
+        },
+        "accent_total_percent": 0.0,
+        "binary_alpha": true,
+        "bbox": [
+          2,
+          2,
+          29,
+          30
+        ]
+      }
+    }
+  ]
+}

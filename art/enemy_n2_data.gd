@@ -22,8 +22,15 @@ const TIPS := {
 	"rock_hornbeast": [Vector2(18, -10), Vector2(10, -28), Vector2(-24, -11), Vector2(8, -28), Vector2(17, -11), Vector2(-20, -15), Vector2(24, -11), Vector2(-4, -29)],
 	"fallen_snowpriest": [Vector2(0, -12), Vector2(-14, -10), Vector2(-11, -18), Vector2(-14, -9), Vector2(0, -12), Vector2(15, -9), Vector2(13, -18), Vector2(14, -18)],
 	"sentinel": [Vector2(-11, -33), Vector2(14, -33), Vector2(11, -33), Vector2(14, -33), Vector2(-13, -33), Vector2(-14, -33), Vector2(-11, -33), Vector2(-13, -33)],
+	"family_soldier": [Vector2(-2, -27), Vector2(9, -25), Vector2(-7, -25), Vector2(-9, -24), Vector2(-5, -26), Vector2(7, -26), Vector2(-2, -26), Vector2(8, -25)],
+	"family_intimidator": [Vector2(3, -38), Vector2(-5, -38), Vector2(4, -38), Vector2(5, -38), Vector2(-1, -37), Vector2(2, -38), Vector2(-2, -38), Vector2(-2, -36)],
+	"family_crossbow": [Vector2(0, -12), Vector2(-15, -15), Vector2(-14, -14), Vector2(-14, -14), Vector2(0, -12), Vector2(14, -15), Vector2(14, -16), Vector2(14, -14)],
+	"family_caster": [Vector2(0, -12), Vector2(-12, -13), Vector2(-11, -14), Vector2(-13, -13), Vector2(0, -12), Vector2(14, -13), Vector2(11, -14), Vector2(13, -13)],
+	"family_capo": [Vector2(1, -31), Vector2(4, -31), Vector2(3, -31), Vector2(-6, -31), Vector2(-4, -31), Vector2(2, -31), Vector2(-2, -31), Vector2(2, -31)],
+	"family_eraser": [Vector2(10, -24), Vector2(9, -27), Vector2(-10, -27), Vector2(-12, -25), Vector2(-6, -27), Vector2(17, -25), Vector2(7, -28), Vector2(11, -26)],
+	"family_car": [Vector2(-6, -25), Vector2(10, -23), Vector2(-26, -10), Vector2(-9, -23), Vector2(-8, -21), Vector2(15, -18), Vector2(26, -14), Vector2(-9, -25)],
 }
 ## Every one of them also has a 4-frame walk sheet.
-const WALK := ["armed", "caster", "shield", "slug_volatile", "picket", "greytail", "greytail_lord", "thrower", "bully", "avenger", "breacher", "taint_husk", "distorted_caster", "shattered_champion", "shell_vine", "rock_hornbeast", "fallen_snowpriest", "sentinel"]
+const WALK := ["armed", "caster", "shield", "slug_volatile", "picket", "greytail", "greytail_lord", "thrower", "bully", "avenger", "breacher", "taint_husk", "distorted_caster", "shattered_champion", "shell_vine", "rock_hornbeast", "fallen_snowpriest", "sentinel", "family_soldier", "family_intimidator", "family_crossbow", "family_caster", "family_capo", "family_eraser", "family_car"]
 ## The sixth action row, where a board has one.
-const EXTRA_ROW := {"picket": "lasso", "distorted_caster": "glide"}
+const EXTRA_ROW := {"picket": "lasso", "distorted_caster": "glide", "family_caster": "incite", "family_eraser": "throw", "family_car": "wreck"}

@@ -26,16 +26,22 @@ ROOT = Path(__file__).resolve().parent
 FIELD = ROOT / "field"
 IDS = ["armed", "caster", "shield", "slug_volatile", "picket", "greytail", "greytail_lord", "thrower", "bully",
     "avenger", "breacher", "taint_husk", "distorted_caster", "shattered_champion", "shell_vine", "rock_hornbeast",
-    "fallen_snowpriest", "sentinel"]
+    "fallen_snowpriest", "sentinel",
+    # N4 叙拉古 (叙拉古敌人设计案 §三; batch_N4_v1, baked by bake_n2.py 2026-10-16).
+    "family_soldier", "family_intimidator", "family_crossbow", "family_caster", "family_capo", "family_eraser", "family_car"]
+N4 = ["family_soldier", "family_intimidator", "family_crossbow", "family_caster", "family_capo", "family_eraser", "family_car"]
 ACTION_BATCH = {"sentinel": "batch_N3_v3", "caster": "batch_N2_v2", "distorted_caster": "batch_N2_v2", "greytail": "batch_N2_v2",
     "greytail_lord": "batch_N2_v2", "slug_volatile": "batch_N2_v2", "rock_hornbeast": "batch_N2_v3"}
+ACTION_BATCH.update({enemy: "batch_N4_v1" for enemy in N4})
 # 萨卡兹哨兵's walk is re-baked at its action board's scale (bake_n2.py
 # --scale-from; its first walk cell carries the pole tilted), 2026-10-14.
 WALK_BATCH = {"sentinel": "batch_N3_claude"}
+WALK_BATCH.update({enemy: "batch_N4_v1" for enemy in N4})
 # The sixth action row, where a board has one (N2 brief: LASSO, GLIDE).
-EXTRA_ROW = {"picket": "lasso", "distorted_caster": "glide"}
+EXTRA_ROW = {"picket": "lasso", "distorted_caster": "glide",
+    "family_caster": "incite", "family_eraser": "throw", "family_car": "wreck"}
 # Those that shoot or lob from the chest: their tip is the release point.
-RANGED = {"thrower", "fallen_snowpriest"}
+RANGED = {"thrower", "fallen_snowpriest", "family_crossbow", "family_caster"}
 DIRECTIONS = ["S", "SW", "W", "NW", "N", "NE", "E", "SE"]
 CELL = 64
 FOOT = 51
@@ -64,6 +70,21 @@ def tips_of(sheet: Image.Image, enemy: str) -> list[list[int]]:
         far = int(np.argmax((xs - CENTRE) ** 2 + (ys - FOOT) ** 2 * 0.6))
         tips.append([int(xs[far] - CENTRE), int(ys[far] - FOOT)])
     return tips
+
+
+# Walk boards drawn facing the wrong way side to side: their west-side columns
+# face east and the reverse (用户 2026-10-17: 倒着冲我来). The installed sheet
+# swaps SW/SE, W/E, NW/NE so each column faces the way it walks.
+WALK_MIRRORED = {"family_eraser"}
+
+
+def unmirror_walk(path: Path) -> None:
+    sheet = Image.open(path).convert("RGBA")
+    fixed = sheet.copy()
+    for a, b in ((1, 7), (2, 6), (3, 5)):
+        fixed.paste(sheet.crop((a * CELL, 0, (a + 1) * CELL, sheet.height)), (b * CELL, 0))
+        fixed.paste(sheet.crop((b * CELL, 0, (b + 1) * CELL, sheet.height)), (a * CELL, 0))
+    fixed.save(path)
 
 
 def settle_walk(path: Path) -> int:
@@ -103,6 +124,7 @@ def main() -> None:
         if Image.open(walk).size != (8 * CELL, 4 * CELL): raise SystemExit(f"{walk}: expected 8 × 4 cells")
         shutil.copyfile(action, FIELD / f"enemy_dir_{enemy}_64.png")
         shutil.copyfile(walk, FIELD / f"enemy_walk_{enemy}_64.png")
+        if enemy in WALK_MIRRORED: unmirror_walk(FIELD / f"enemy_walk_{enemy}_64.png")
         settle_walk(FIELD / f"enemy_walk_{enemy}_64.png")
         tips[enemy] = tips_of(sheet, enemy)
         print(f"{enemy}: {action.parent.name}, {rows} rows, tips {tips[enemy]}")

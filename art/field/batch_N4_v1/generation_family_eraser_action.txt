@@ -1,0 +1,21 @@
+Use case stylized-concept. Production multi-direction pixel-art GAME SPRITE SHEET for family_eraser. This character identity has been APPROVED. Reference1 is exact approved identity/costume. Reference2 accepted N1 identity, reference3 accepted overview and reference4 accepted sentinel board are STYLE ONLY; keep muted clustered chibi2.5 heads tall, thick dark outline, flat chunky colour masses, never glossy illustration. Freshly draw every directional action, never trace original PRTS. REAL transparent alpha, NO labels numbers grid lines shadows or readable logos. Uniform256px square cells. EXACT8 COLUMNS and6 ROWS,2048x1536 canvas. All sprites fully separated with generous transparent gutters, no touching neighbouring sprites. Keep same BODY SIZE across entire board, bodycenter128 feetbaseline241. No weapon clipping. Stand first cell body height31nativepixel equivalent. Directions are COLUMNS, actions are ROWS.
+COLUMN1 S front down toward viewer (chest front);2 SW downLEFT frontthreequarter;3 W trueLEFT PROFILE noseLEFT onlyoneeye;4 NW backUPLEFT NO FACE;5 N fullBACK NO FACE;6 NE backUPRIGHT NO FACE;7 E trueRIGHT PROFILE noseRIGHT oneeye;8 SE downRIGHT frontthreequarter. Every row has all eight separate rotated headings. Never swap rows and columns. Rear silhouettes must hide face/eyes/mask front.
+All five family enemies use exact wine accent#9a2a3a and#5e1620 only on identified accent pieces; no other nearwine colours. Other clothes unchanged. Eraser and car have NO wine accent. No floating projectiles, no UI marks or glow halos. Palm/cigar/headlamp bright spots specified below are hard pixels attached to the figure.
+Exact enemy brief:
+### 6. `family_eraser` · Family Eraser
+
+PRTS: a killer loyal to the family who comes and goes in shadow; everyone knows his title and nobody speaks of him. He is hidden whenever nobody is engaging him.
+
+- **Look:** tall and thin. **A white oval mask** (`#eeece6`) with two black eye holes and a band of 4–5 dark vertical bars across the brow (PRTS has a barcode there: plain bars, nothing readable); pointed ears; **a long dark olive trench coat** (`#45453c` / `#3f3f3a`), white shirt, **a purple tie** (`#6c4a7a`, not a family colour); a short curved blade in the right hand; two throwing blades between the fingers of the left.
+- **The mask is what the player sees first** when he appears, so it must be the brightest mass on him and readable on its own.
+- **Stealth is done in code** (transparency and a ripple shader). **Do not draw a faded or invisible version.**
+- **Rows:**
+  - IDLE: standing very still, blade low.
+  - START (appearing, 0.35 s): a sudden turn to face the heading, the coat flaring. This is the frame the game fades in from, mask first.
+  - CHARGE: very low crouch, the curved blade reversed and held behind the back, **mask turned straight along the heading**.
+  - STRIKE: a long, low lunging slash along the heading.
+  - RECOVER: rising from the lunge, blade out to the side.
+  - **6th row, THROW:** a flick of the left wrist across the body; two blades leave the fingers. Draw the hand empty after the throw; the game draws the blades in flight.
+- Walk: a quick, quiet glide, body leaning forward, coat trailing.
+
+ACTION BOARD: exactly6 rows. Row1IDLE calm approved standing;Row2START preparatory gesture;Row3CHARGE exaggerated windup, weapon protrudes4 nativepixels or body height differs3nativepixels;Row4STRIKE clear committed action;Row5RECOVER followthrough. Row6THROW exactly as brief. All8columns keep strict heading even through hurt/crouch/turn. North actions distinct through arms/clothes/weapon, no duplicated idle row.

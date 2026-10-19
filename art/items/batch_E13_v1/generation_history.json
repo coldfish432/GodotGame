@@ -1,0 +1,110 @@
+[
+  {
+    "id": "family_stiletto",
+    "tool": "built-in imagegen",
+    "source": "sources/family_stiletto_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-ef03751c-aae8-4a5e-beeb-ba4992a6a045.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-ef03751c-aae8-4a5e-beeb-ba4992a6a045.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "brass_knuckles",
+    "tool": "built-in imagegen",
+    "source": "sources/brass_knuckles_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-f87201d1-d0f8-42f3-a0cf-f02668962b2b.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-d138d6ba-f5e1-4035-abea-39cbfa3bed30.png",
+    "revision_prompt_file": "sources/brass_knuckles_revision_prompt.txt",
+    "first_painting_retained": true
+  },
+  {
+    "id": "switchblade",
+    "tool": "built-in imagegen",
+    "source": "sources/switchblade_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-72424c10-0083-488b-bfae-79f4ec38cec3.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-72424c10-0083-488b-bfae-79f4ec38cec3.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "old_town_crowbar",
+    "tool": "built-in imagegen",
+    "source": "sources/old_town_crowbar_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-4c0edf9c-376b-4cf4-ab42-2f1c8447313c.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-4c0edf9c-376b-4cf4-ab42-2f1c8447313c.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "barber_razor",
+    "tool": "built-in imagegen",
+    "source": "sources/barber_razor_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-30a6f15f-35a3-40e7-9539-741ba7fc0f43.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-30a6f15f-35a3-40e7-9539-741ba7fc0f43.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "cane_sword",
+    "tool": "built-in imagegen",
+    "source": "sources/cane_sword_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-8d1772ee-cc7d-4f4d-bc03-456606b671ff.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-016d6c9d-3115-47e5-8329-aa616153ed18.png",
+    "revision_prompt_file": "sources/cane_sword_revision_prompt.txt",
+    "first_painting_retained": true
+  },
+  {
+    "id": "butcher_cleaver",
+    "tool": "built-in imagegen",
+    "source": "sources/butcher_cleaver_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-d0fd1028-a37f-4855-9a3e-23fb5ff0bc04.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-d0fd1028-a37f-4855-9a3e-23fb5ff0bc04.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "vineyard_billhook",
+    "tool": "built-in imagegen",
+    "source": "sources/vineyard_billhook_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-20b4930c-ead3-4180-b88e-2d47e856b904.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-20b4930c-ead3-4180-b88e-2d47e856b904.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "eraser_curved_blade",
+    "tool": "built-in imagegen",
+    "source": "sources/eraser_curved_blade_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-cb71a717-63a8-4df6-adee-892c1625099a.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-3d0c78a0-0ff0-4a64-93ea-fd4606b0c93b.png",
+    "revision_prompt_file": "sources/eraser_curved_blade_revision_prompt.txt",
+    "first_painting_retained": true
+  },
+  {
+    "id": "lead_cane",
+    "tool": "built-in imagegen",
+    "source": "sources/lead_cane_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-5eaef6a1-021b-472e-9ef4-cdf88c5c3637.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-5eaef6a1-021b-472e-9ef4-cdf88c5c3637.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "wolfhead_knuckles",
+    "tool": "built-in imagegen",
+    "source": "sources/wolfhead_knuckles_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-95540b03-df60-4a90-b480-86b93d9ede28.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-95540b03-df60-4a90-b480-86b93d9ede28.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "saluzzo_crest",
+    "tool": "built-in imagegen",
+    "source": "sources/saluzzo_crest_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-a235e12b-ece4-4e71-8cca-22ea5a7998f1.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-a235e12b-ece4-4e71-8cca-22ea5a7998f1.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  }
+]

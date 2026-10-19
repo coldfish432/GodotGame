@@ -1,0 +1,65 @@
+[
+  {
+    "id": "rhodes_dual_blades",
+    "tool": "built-in imagegen",
+    "source": "sources/rhodes_dual_blades_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-a61914f0-a29c-46d7-956e-8fa1f99fd1ce.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-a61914f0-a29c-46d7-956e-8fa1f99fd1ce.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "rhodes_sword",
+    "tool": "built-in imagegen",
+    "source": "sources/rhodes_sword_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-e155887f-00fc-483e-8268-9aae6b4b794a.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-e155887f-00fc-483e-8268-9aae6b4b794a.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "rhodes_field_uniform",
+    "tool": "built-in imagegen",
+    "source": "sources/rhodes_field_uniform_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-275569ae-776a-4ce9-b357-25e9bb909d81.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-275569ae-776a-4ce9-b357-25e9bb909d81.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "rhodes_protective_vest",
+    "tool": "built-in imagegen",
+    "source": "sources/rhodes_protective_vest_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-0a40b2cf-49fc-4cea-80c1-58c3b8f606b1.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-0a40b2cf-49fc-4cea-80c1-58c3b8f606b1.png",
+    "revision_prompt_file": null,
+    "first_painting_retained": false
+  },
+  {
+    "id": "rhodes_beacon",
+    "tool": "built-in imagegen",
+    "source": "sources/rhodes_beacon_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-c041f32a-f649-4503-97f9-eea267a64426.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-bfe8c58c-d967-416b-866f-859f12272d77.png",
+    "revision_prompt_file": "sources/rhodes_beacon_revision_prompt.txt",
+    "first_painting_retained": true
+  },
+  {
+    "id": "rhodes_medkit",
+    "tool": "built-in imagegen",
+    "source": "sources/rhodes_medkit_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-6c2ceda8-1753-4d83-9455-df8fff3354fb.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-1dab3d9c-e9b8-49ac-8b61-020c0d6d8cc9.png",
+    "revision_prompt_file": "sources/rhodes_medkit_revision_prompt.txt",
+    "first_painting_retained": true
+  },
+  {
+    "id": "rhodes_badge",
+    "tool": "built-in imagegen",
+    "source": "sources/rhodes_badge_raw.png",
+    "generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-dc065135-2e97-4157-9e27-603ccca033ec.png",
+    "initial_generated_file": "C:\\Users\\yuan\\.codex\\generated_images\\01a14d55-486e-7870-a6e9-d8ac65c14d68\\exec-c09576b7-0e16-4ef4-b929-33d25b835492.png",
+    "revision_prompt_file": "sources/rhodes_badge_revision_prompt.txt",
+    "first_painting_retained": true
+  }
+]

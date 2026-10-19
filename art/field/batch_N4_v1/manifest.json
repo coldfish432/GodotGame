@@ -1,0 +1,113 @@
+{
+  "stage": 1,
+  "status": "identity approved by user; stage2 boards authorized",
+  "tool": "built-in image_gen",
+  "cell": 384,
+  "cols": 7,
+  "rows": 1,
+  "figures": [
+    {
+      "id": "family_soldier",
+      "native_size": [
+        26,
+        28
+      ],
+      "standing_height": 28,
+      "source_box": [
+        7,
+        303,
+        291,
+        613
+      ]
+    },
+    {
+      "id": "family_crossbow",
+      "native_size": [
+        22,
+        27
+      ],
+      "standing_height": 27,
+      "source_box": [
+        285,
+        290,
+        553,
+        613
+      ]
+    },
+    {
+      "id": "family_caster",
+      "native_size": [
+        17,
+        27
+      ],
+      "standing_height": 27,
+      "source_box": [
+        570,
+        290,
+        769,
+        613
+      ]
+    },
+    {
+      "id": "family_intimidator",
+      "native_size": [
+        34,
+        33
+      ],
+      "standing_height": 33,
+      "source_box": [
+        786,
+        271,
+        1134,
+        613
+      ]
+    },
+    {
+      "id": "family_capo",
+      "native_size": [
+        26,
+        31
+      ],
+      "standing_height": 31,
+      "source_box": [
+        1142,
+        294,
+        1406,
+        613
+      ]
+    },
+    {
+      "id": "family_eraser",
+      "native_size": [
+        24,
+        31
+      ],
+      "standing_height": 31,
+      "source_box": [
+        1429,
+        306,
+        1664,
+        613
+      ]
+    },
+    {
+      "id": "family_car",
+      "native_size": [
+        38,
+        24
+      ],
+      "standing_height": 24,
+      "source_box": [
+        1664,
+        361,
+        2073,
+        616
+      ]
+    }
+  ],
+  "source_sha256": "1ecd791ec581a180db0d86a058738ec6c38c6374526a53cf461b0e0e9aa85494",
+  "processing": "isolated generated figures, binary alpha128, nearest scaling, two wine accent clusters snapped to prescribed hex; BOX game-size previews",
+  "approval": "identity_approval.md",
+  "identity_approved": true,
+  "approved_identity_sha256": "c0dce35d263debe02fbd94e5a61525d46f4468a43d970d4d6a24edfa1b9b7db1"
+}

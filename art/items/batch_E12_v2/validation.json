@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "items": 2,
+  "results": [
+    {
+      "id": "mi_fallen_snowpriest_29",
+      "status": "PASS",
+      "isolated_pixel_percent": 3.02,
+      "bright_pixel_percent": 20.77
+    },
+    {
+      "id": "mi_ice_hunter_20",
+      "status": "PASS",
+      "isolated_pixel_percent": 6.31,
+      "bright_pixel_percent": 16.99
+    }
+  ],
+  "checks": "Exact IDs/sizes; binary alpha; <=24 colors; <=10% isolated; >=15% bright; exact 8x/2x; source/final hashes; true complete 1px outer outline; final geometry connected; only required localized nonempty emits; Rhodes palette and accent budgets; exact logos inside painted core; E12 bell darker/larger than accepted silver and knot/toggle native dimensions.",
+  "runtime": "Godot import and UI display remain untested for these new files.",
+  "bell_material_comparison": {
+    "bronze_body_pixels": 349,
+    "silver_metal_pixels": 197,
+    "bronze_body_mean_luminance": 98.32,
+    "silver_metal_mean_luminance": 149.45,
+    "definition": "Warm bronze material versus neutral silver material; exclude outlines, violet, frost, and the accepted leather suspension loop."
+  }
+}
