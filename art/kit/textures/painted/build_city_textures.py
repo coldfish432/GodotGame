@@ -170,6 +170,9 @@ if __name__ == "__main__":
     report = {name: build(name, *spec) for name, spec in SPECS.items()}
     contact(True)
     contact(False)
-    (HERE / "manifest.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    manifest_path = HERE / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+    manifest.update(report)
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for name, info in report.items():
         print(name, info["size"], info["colors"], "colors", "seam", info["seam_exact"])

@@ -1,0 +1,33 @@
+{
+	"floor_routes": [
+		{
+			"metres_per_tile": 6.0,
+			"room": "hall",
+			"size": [
+				256,
+				256
+			],
+			"texture": "res://art/kit/textures/painted/base_deck.png"
+		},
+		{
+			"metres_per_tile": 6.0,
+			"room": "medical",
+			"size": [
+				256,
+				256
+			],
+			"texture": "res://art/kit/textures/painted/base_deck_med.png"
+		},
+		{
+			"metres_per_tile": 6.0,
+			"room": "store",
+			"size": [
+				256,
+				256
+			],
+			"texture": "res://art/kit/textures/painted/base_deck_store.png"
+		}
+	],
+	"scope": "Five room screenshots; three direct floor routes only. Base-model material rebaking not performed.",
+	"status": "PASS"
+}

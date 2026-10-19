@@ -35,9 +35,8 @@ WORLD = {
     'medical': dict(origin=(128.0 + SEAM, 4.0), size=(45, 41), west_doors=[30.0], east_doors=[], north_doors=[],
                     interact=[('reception', 'report', '医疗前台：回收报告与治疗', 7.0, 9.0),
                               # 药房窗口在北墙（x 10–15.2），站在洗手台南侧
-                              ('pharmacy', 'pharmacy', '药房窗口：配药', 12.6, 5.0),
-                              # 检测门在 x 14 的玻璃隔断上，站点放在大厅一侧
-                              ('decon', 'decon', '污染检测门：检测与处理', 12.0, 20.5)],
+                              ('pharmacy', 'pharmacy', '药房窗口：配药', 12.6, 5.0)],
+                              # 检测门（x 14 的玻璃隔断）只剩画面：污染不带出局外（用户 2026-10-15）
                     spawns={'death': (32.5, 25.0)}),
     'store': dict(origin=(0.0, 10.0), size=(18, 10), west_doors=[], east_doors=[], north_doors=[], south_open=True,
                   interact=[('store', 'store', '可露希尔的商店', 9.0, 4.2)], spawns={}),

@@ -1,0 +1,69 @@
+{
+ "id": "workshop",
+ "origin": [
+  -40.0,
+  6.0
+ ],
+ "size": [
+  39.0,
+  13.0
+ ],
+ "ground": {
+  "tex": "",
+  "w_px": 601,
+  "h_px": 165.1,
+  "x": -40.53,
+  "z": 6.0
+ },
+ "facade": {
+  "tex": "",
+  "w_px": 601,
+  "h_px": 46,
+  "x": -40.53,
+  "z": 6.0
+ },
+ "sprites": [],
+ "colliders": [
+  [
+   -40.0,
+   6.0,
+   -1.0,
+   6.6
+  ],
+  [
+   -40.6,
+   -7.0,
+   -40.0,
+   6.0
+  ],
+  [
+   -1.0,
+   -2.5,
+   -0.4,
+   6.0
+  ],
+  [
+   -1.0,
+   -7.0,
+   -0.4,
+   -5.5
+  ],
+  [
+   -40.0,
+   -7.6,
+   -1.0,
+   -7.0
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "workshop",
+   "kind": "workshop",
+   "label": "加工站",
+   "x": -23.0,
+   "z": 1.2
+  }
+ ],
+ "spawns": {},
+ "_note": "Workshop (user 2026-10-18: the workshop goes in a room): west of the hall's north-west corner, north of the warehouse; its door is a gap in the hall's west wall. Written by hand, not exported from the pixel assemblies."
+}

@@ -1,0 +1,24 @@
+{
+  "siracusa_road": {
+    "size": [
+      256,
+      256
+    ],
+    "colors": 11,
+    "edge_pixels_match": true,
+    "mean_luminance": 157.95,
+    "source_sha256_match": true,
+    "preview_exact_3x3": true
+  },
+  "siracusa_block_ground": {
+    "size": [
+      256,
+      256
+    ],
+    "colors": 12,
+    "edge_pixels_match": true,
+    "mean_luminance": 89.77,
+    "source_sha256_match": true,
+    "preview_exact_3x3": true
+  }
+}

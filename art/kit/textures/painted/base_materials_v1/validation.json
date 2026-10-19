@@ -1,0 +1,122 @@
+{
+  "status": "PASS",
+  "textures": 10,
+  "installed": true,
+  "checks": "Exact native sizes; RGB opaque; palette membership and colour counts; x repeat for all, y repeat except R9; exact 3x3 repeated pixels; source/final hashes; broad exposure uniformity; floor brightness hierarchy; unchanged pre-existing asset hashes; installed bytes and prior manifest entries when requested.",
+  "neutral_palette_exception": "R2/R7/R8 use only the specified six neutral greys; actual used subsets have 4-5 colours. This dedicated ramp overrides the generic 8-12 minimum.",
+  "protected_assets": 381,
+  "protected_changes": [],
+  "results": [
+    {
+      "id": "R1",
+      "file": "base_deck.png",
+      "status": "PASS",
+      "size": [
+        256,
+        256
+      ],
+      "colors": 8,
+      "mean_luma": 63.95
+    },
+    {
+      "id": "R2",
+      "file": "base_steel.png",
+      "status": "PASS",
+      "size": [
+        256,
+        256
+      ],
+      "colors": 5,
+      "mean_luma": 196.6
+    },
+    {
+      "id": "R3",
+      "file": "base_deck_med.png",
+      "status": "PASS",
+      "size": [
+        256,
+        256
+      ],
+      "colors": 8,
+      "mean_luma": 199.57
+    },
+    {
+      "id": "R4",
+      "file": "base_hazard.png",
+      "status": "PASS",
+      "size": [
+        128,
+        64
+      ],
+      "colors": 9,
+      "mean_luma": 101.65
+    },
+    {
+      "id": "R5",
+      "file": "base_grating.png",
+      "status": "PASS",
+      "size": [
+        128,
+        128
+      ],
+      "colors": 8,
+      "mean_luma": 74.36
+    },
+    {
+      "id": "R6",
+      "file": "base_screen.png",
+      "status": "PASS",
+      "size": [
+        256,
+        128
+      ],
+      "colors": 8,
+      "mean_luma": 61.74
+    },
+    {
+      "id": "R7",
+      "file": "base_fabric.png",
+      "status": "PASS",
+      "size": [
+        128,
+        128
+      ],
+      "colors": 4,
+      "mean_luma": 172.07
+    },
+    {
+      "id": "R8",
+      "file": "base_container.png",
+      "status": "PASS",
+      "size": [
+        128,
+        128
+      ],
+      "colors": 5,
+      "mean_luma": 169.63
+    },
+    {
+      "id": "R9",
+      "file": "base_wasteland_view.png",
+      "status": "PASS",
+      "size": [
+        512,
+        256
+      ],
+      "colors": 10,
+      "mean_luma": 111.08
+    },
+    {
+      "id": "R10",
+      "file": "base_deck_store.png",
+      "status": "PASS",
+      "size": [
+        256,
+        256
+      ],
+      "colors": 9,
+      "mean_luma": 103.68
+    }
+  ],
+  "runtime": "See runtime_evidence.json if present; no Blender rebake of the 84 base models is performed here."
+}

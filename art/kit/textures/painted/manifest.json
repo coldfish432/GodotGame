@@ -201,5 +201,580 @@
       "#3fae6a"
     ],
     "seam_exact": true
+  },
+  "siracusa_road": {
+    "source": "source_paintings/siracusa_road_source.png",
+    "source_sha256": "b3a6c114b4364dd5e2e83c31d0a8826f0aac35b92a214c376082926a430ee0d5",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 11,
+    "palette": [
+      "#8c8272",
+      "#9e937f",
+      "#afa48c",
+      "#bfb398",
+      "#cdc1a4",
+      "#4c443a",
+      "#625a4c",
+      "#735d44",
+      "#8a7254",
+      "#55633a",
+      "#6e7f46"
+    ],
+    "seam_exact": true,
+    "mean_luma": 157.95
+  },
+  "siracusa_block_ground": {
+    "source": "source_paintings/siracusa_block_ground_source.png",
+    "source_sha256": "b2c123534a2a73fe3b486f4fbbc54de902c5a72b585d3840c718155feb2bdac9",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 12,
+    "palette": [
+      "#5e4c38",
+      "#735d44",
+      "#8a7254",
+      "#55633a",
+      "#6e7f46",
+      "#9a907e",
+      "#7c7466",
+      "#8e4a30",
+      "#ad6040",
+      "#afa48c",
+      "#bfb398",
+      "#4c443a"
+    ],
+    "seam_exact": true,
+    "mean_luma": 89.77
+  },
+  "base_deck": {
+    "id": "R1",
+    "file": "base_deck.png",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 8,
+    "palette": [
+      "#2a2f33",
+      "#3a4046",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8",
+      "#b8c0c4",
+      "#1a1e22",
+      "#3e3a34"
+    ],
+    "used_palette": [
+      "#1a1e22",
+      "#2a2f33",
+      "#3a4046",
+      "#3e3a34",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d"
+    ],
+    "world_size_m": [
+      6,
+      6
+    ],
+    "source": "base_materials_v1/sources/base_deck_raw.png",
+    "source_sha256": "703e288528232f3ddc7b9d03b3dfc31a6edaa221432686222321448f398cb9b6",
+    "file_sha256": "7bf1dbd5a75f0e15dfddec621bf7435db9e284292ed0dcef8674db2dcc9a23fc",
+    "neutral_tinted": false,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 63.95,
+    "quadrant_mean_luma": [
+      63.9,
+      63.97,
+      63.98,
+      63.96
+    ],
+    "quadrant_spread": 0.08,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_steel": {
+    "id": "R2",
+    "file": "base_steel.png",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 5,
+    "palette": [
+      "#5a5a5a",
+      "#7a7a7a",
+      "#9a9a9a",
+      "#b4b4b4",
+      "#c8c8c8",
+      "#dcdcdc"
+    ],
+    "used_palette": [
+      "#5a5a5a",
+      "#7a7a7a",
+      "#9a9a9a",
+      "#b4b4b4",
+      "#c8c8c8"
+    ],
+    "world_size_m": [
+      6,
+      6
+    ],
+    "source": "base_materials_v1/sources/base_steel_raw.png",
+    "source_sha256": "9bad82596767732c7a02ae8c757a811c68c2e73aefddaaf700e442cc781fa61b",
+    "file_sha256": "c9573a5d1cc3584409cb3ba0eb56909bf4c2082e64ef3e2640a8887ce1d12942",
+    "neutral_tinted": true,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 196.6,
+    "quadrant_mean_luma": [
+      196.64,
+      196.82,
+      196.37,
+      196.55
+    ],
+    "quadrant_spread": 0.45,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "Specialized neutral ramp has six colors, overriding generic 8–12.",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_deck_med": {
+    "id": "R3",
+    "file": "base_deck_med.png",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 8,
+    "palette": [
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8",
+      "#b8c0c4",
+      "#c8d0d4",
+      "#dfe4e6",
+      "#f0f3f4"
+    ],
+    "used_palette": [
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8",
+      "#b8c0c4",
+      "#c8d0d4",
+      "#dfe4e6",
+      "#f0f3f4"
+    ],
+    "world_size_m": [
+      6,
+      6
+    ],
+    "source": "base_materials_v1/sources/base_deck_med_raw.png",
+    "source_sha256": "3a377fc850e619b6e199d352461026c2bf63f2f9f4f0754b1cedc76e26d5bf77",
+    "file_sha256": "72ce87669b83e386e95298095f109bad90478d4ed8e547f07a06de854f195cfd",
+    "neutral_tinted": false,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 199.57,
+    "quadrant_mean_luma": [
+      200.41,
+      198.89,
+      198.81,
+      200.19
+    ],
+    "quadrant_spread": 1.61,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_hazard": {
+    "id": "R4",
+    "file": "base_hazard.png",
+    "size": [
+      128,
+      64
+    ],
+    "colors": 9,
+    "palette": [
+      "#1a1e22",
+      "#2a2f33",
+      "#3a4046",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#9aa2a8",
+      "#b8c0c4",
+      "#a87e18",
+      "#d8a520"
+    ],
+    "used_palette": [
+      "#1a1e22",
+      "#2a2f33",
+      "#3a4046",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#9aa2a8",
+      "#a87e18",
+      "#d8a520"
+    ],
+    "world_size_m": [
+      3,
+      1.5
+    ],
+    "source": "base_materials_v1/sources/base_hazard_raw.png",
+    "source_sha256": "efae41fac2177827429bf1de74b9f502a985e9476f7959d3c5146eed4600d89e",
+    "file_sha256": "dd62b912d611df9cf08fd2b9a8f7dbeb122f041451c3bf7662bb3a137fa4c0b5",
+    "neutral_tinted": false,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 101.65,
+    "quadrant_mean_luma": [
+      101.76,
+      101.51,
+      101.64,
+      101.69
+    ],
+    "quadrant_spread": 0.24,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_grating": {
+    "id": "R5",
+    "file": "base_grating.png",
+    "size": [
+      128,
+      128
+    ],
+    "colors": 8,
+    "palette": [
+      "#1a1e22",
+      "#2a2f33",
+      "#3a4046",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8"
+    ],
+    "used_palette": [
+      "#1a1e22",
+      "#2a2f33",
+      "#3a4046",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8"
+    ],
+    "world_size_m": [
+      3,
+      3
+    ],
+    "source": "base_materials_v1/sources/base_grating_raw.png",
+    "source_sha256": "f79c95f58834d453d24eb446892cedaf984e56ddf4d2245e81ce8b4d3327fe3d",
+    "file_sha256": "97af387b07f42446448e6550ab1f1f415a08e79f987f30e5f16107657febcfb6",
+    "neutral_tinted": false,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 74.36,
+    "quadrant_mean_luma": [
+      74.2,
+      74.18,
+      74.5,
+      74.55
+    ],
+    "quadrant_spread": 0.37,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_screen": {
+    "id": "R6",
+    "file": "base_screen.png",
+    "size": [
+      256,
+      128
+    ],
+    "colors": 8,
+    "palette": [
+      "#0e2a34",
+      "#1f5f70",
+      "#3fa8b8",
+      "#6fd8e4",
+      "#cff4f8",
+      "#1a1e22",
+      "#2a2f33",
+      "#3a4046",
+      "#4a5258",
+      "#5c656b"
+    ],
+    "used_palette": [
+      "#0e2a34",
+      "#1a1e22",
+      "#1f5f70",
+      "#3a4046",
+      "#3fa8b8",
+      "#4a5258",
+      "#5c656b",
+      "#6fd8e4"
+    ],
+    "world_size_m": [
+      6,
+      3
+    ],
+    "source": "base_materials_v1/sources/base_screen_raw.png",
+    "source_sha256": "9b5f8acb92d2c406b8c0304af01b2e7c8082d8fe6f5d9636449d1387edc95bec",
+    "file_sha256": "92d1b2a484731a5f7867843b4d35b9ba862ec7373ac3878520ce224c0c5b71ca",
+    "neutral_tinted": false,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 61.74,
+    "quadrant_mean_luma": [
+      64.9,
+      56.96,
+      60.64,
+      64.46
+    ],
+    "quadrant_spread": 7.95,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_fabric": {
+    "id": "R7",
+    "file": "base_fabric.png",
+    "size": [
+      128,
+      128
+    ],
+    "colors": 4,
+    "palette": [
+      "#5a5a5a",
+      "#7a7a7a",
+      "#9a9a9a",
+      "#b4b4b4",
+      "#c8c8c8",
+      "#dcdcdc"
+    ],
+    "used_palette": [
+      "#7a7a7a",
+      "#9a9a9a",
+      "#b4b4b4",
+      "#c8c8c8"
+    ],
+    "world_size_m": [
+      3,
+      3
+    ],
+    "source": "base_materials_v1/sources/base_fabric_raw.png",
+    "source_sha256": "47acb04e1f19f5e34e8b50cb363134ef0e2a485f34fa50dc658fab99999c7624",
+    "file_sha256": "2749dc30f43f433ddb9ff6b0c16c319ba488ec296ab983d99ffb2be88e419f0a",
+    "neutral_tinted": true,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 172.07,
+    "quadrant_mean_luma": [
+      172.0,
+      172.26,
+      172.28,
+      171.75
+    ],
+    "quadrant_spread": 0.53,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "Specialized neutral ramp has six colors, overriding generic 8–12.",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_container": {
+    "id": "R8",
+    "file": "base_container.png",
+    "size": [
+      128,
+      128
+    ],
+    "colors": 5,
+    "palette": [
+      "#5a5a5a",
+      "#7a7a7a",
+      "#9a9a9a",
+      "#b4b4b4",
+      "#c8c8c8",
+      "#dcdcdc"
+    ],
+    "used_palette": [
+      "#5a5a5a",
+      "#7a7a7a",
+      "#9a9a9a",
+      "#b4b4b4",
+      "#c8c8c8"
+    ],
+    "world_size_m": [
+      3,
+      3
+    ],
+    "source": "base_materials_v1/sources/base_container_raw.png",
+    "source_sha256": "78fb9772bf61dcb398badf54bbad2a9bfc6e247b8393bd2b9a0c58c2fc2e654a",
+    "file_sha256": "5fcd982039ab7b8fcfebe7e27622c3c35c6df645ed0f54254d164b4c10d3e4a7",
+    "neutral_tinted": true,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 169.63,
+    "quadrant_mean_luma": [
+      169.27,
+      169.29,
+      169.89,
+      170.08
+    ],
+    "quadrant_spread": 0.81,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "Specialized neutral ramp has six colors, overriding generic 8–12.",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_wasteland_view": {
+    "id": "R9",
+    "file": "base_wasteland_view.png",
+    "size": [
+      512,
+      256
+    ],
+    "colors": 10,
+    "palette": [
+      "#2a2f33",
+      "#3a4046",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8",
+      "#b8c0c4",
+      "#2c5880",
+      "#3a6f9e",
+      "#5a9ad0",
+      "#1a1e22",
+      "#3e3a34"
+    ],
+    "used_palette": [
+      "#1a1e22",
+      "#2a2f33",
+      "#2c5880",
+      "#3a4046",
+      "#3e3a34",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8",
+      "#b8c0c4"
+    ],
+    "world_size_m": null,
+    "source": "base_materials_v1/sources/base_wasteland_view_raw.png",
+    "source_sha256": "cc7cc19897469347c19a6311489561707729fbf8ab299b3c3e4d57155f1b4116",
+    "file_sha256": "3572a06321bce63296403384daf373a35685aa3ebd5203ecf1c2aef27b3f8049",
+    "neutral_tinted": false,
+    "seam_axes": [
+      "x"
+    ],
+    "mean_luma": 111.08,
+    "quadrant_mean_luma": [
+      109.77,
+      120.02,
+      106.82,
+      107.73
+    ],
+    "quadrant_spread": 13.19,
+    "seam_exact_x": true,
+    "seam_exact_y": false,
+    "notes": "",
+    "delivery_manifest": "base_materials_v1/manifest.json"
+  },
+  "base_deck_store": {
+    "id": "R10",
+    "file": "base_deck_store.png",
+    "size": [
+      256,
+      256
+    ],
+    "colors": 9,
+    "palette": [
+      "#2a2f33",
+      "#3a4046",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8",
+      "#b8c0c4",
+      "#3e3a34",
+      "#d0662a"
+    ],
+    "used_palette": [
+      "#2a2f33",
+      "#3a4046",
+      "#3e3a34",
+      "#4a5258",
+      "#5c656b",
+      "#6a737a",
+      "#7d868d",
+      "#9aa2a8",
+      "#d0662a"
+    ],
+    "world_size_m": [
+      6,
+      6
+    ],
+    "source": "base_materials_v1/sources/base_deck_store_raw.png",
+    "source_sha256": "6bb68e80602ec539b9aab3d71165a92df40a9621a101364939872e80cae5b2dd",
+    "file_sha256": "e52b9026eb312fb260c14392ba1051b375c9c74db1c7f69e5b5549d203f92a8f",
+    "neutral_tinted": false,
+    "seam_axes": [
+      "x",
+      "y"
+    ],
+    "mean_luma": 103.68,
+    "quadrant_mean_luma": [
+      104.76,
+      100.5,
+      105.27,
+      104.22
+    ],
+    "quadrant_spread": 4.77,
+    "seam_exact_x": true,
+    "seam_exact_y": true,
+    "notes": "",
+    "delivery_manifest": "base_materials_v1/manifest.json"
   }
 }

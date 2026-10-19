@@ -1,0 +1,11 @@
+{
+  "status": "PASS_WITH_EXIT_WARNINGS",
+  "engine": "Godot 4.7.2 stable, OpenGL Compatibility, NVIDIA RTX 4060 Laptop",
+  "import": "Completed; full log in engine_evidence/import.log",
+  "floor_probe": "PASS",
+  "floor_routes": "engine_evidence/floor_routes.json",
+  "screenshots": ["hall", "warehouse", "medical", "store", "armory"],
+  "observed": "Three new floor textures load at native 256x256 and 6 metres per tile. Five room screenshots captured. Hall, medical and store captures visually inspected.",
+  "exit_warnings": "Godot reports RID, GL buffer/texture and ObjectDB/resource leaks on shutdown. Cause not isolated; not a clean whole-project runtime pass. See engine_evidence/runtime_error.log.",
+  "scope": "No Blender rebake of 84 base models. No full-game regression. No final user art acceptance."
+}

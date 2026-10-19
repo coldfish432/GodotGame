@@ -1,0 +1,109 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "R1",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true
+      }
+    },
+    {
+      "id": "R2",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true,
+        "neutral": true
+      }
+    },
+    {
+      "id": "R3",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true
+      }
+    },
+    {
+      "id": "R4",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true
+      }
+    },
+    {
+      "id": "R5",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true
+      }
+    },
+    {
+      "id": "R6",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true
+      }
+    },
+    {
+      "id": "R7",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true,
+        "neutral": true
+      }
+    },
+    {
+      "id": "R8",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true,
+        "neutral": true
+      }
+    },
+    {
+      "id": "R9",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true
+      }
+    },
+    {
+      "id": "R10",
+      "checks": {
+        "size": true,
+        "opaque": true,
+        "color_count": true,
+        "palette": true,
+        "seams": true
+      }
+    }
+  ],
+  "semantic_review": "No baked lights/no text/detail scale and visible seams require visual review; numeric seam equality alone is insufficient."
+}
