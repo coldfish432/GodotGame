@@ -1,0 +1,21 @@
+[
+  {
+    "file": "refs/rhodes_landship_model.jpg",
+    "role": "本舰外形参考，授权模型照片；新场景重绘、不复制文字或品牌",
+    "source": "https://otakumode.com/shop/66b563dd4b01c5001e7fa895/Alloy-Heavy-Industry-Series-Arknights-Rhodes-Island-Landship-1-2500-Scale-Figure-Re-run",
+    "download": "https://resize.cdn.otakumode.com/ex/2560.1440/shop/product/4f902a7205c549f8b1cc78d9c725f463.jpg",
+    "sha256": "26f74d54992cd69d382b350b9f4df630557a77487644ef3c7369295a1bdd67ea"
+  },
+  {
+    "file": "refs/base_wasteland_view.png",
+    "role": "已验收 R9 荒原的配色与像素风参考",
+    "source": "art/kit/textures/painted/base_wasteland_view.png",
+    "sha256": "3572a06321bce63296403384daf373a35685aa3ebd5203ecf1c2aef27b3f8049"
+  },
+  {
+    "file": "refs/potion_c_source.png",
+    "role": "已验收 M3 药剂的像素与材质风格参考",
+    "source": "art/items/batch_M3_v1/sources/potion_c.png",
+    "sha256": "395043f580132ed3a081c787ebe06c5bf2a1dc52d7db3c019f0d24d2884df2b4"
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "patriot": {
+    "status": "OK",
+    "file": "prts\\enemy_patriot.png",
+    "file_title": "文件:头像 敌人 爱国者.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E7%88%B1%E5%9B%BD%E8%80%85.png",
+    "image_url": "https://media.prts.wiki/0/04/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E7%88%B1%E5%9B%BD%E8%80%85.png",
+    "sha256": "1650d5f6921e67c57d0273aa7ead191b8204fe26201611c78ee97a07d979a9b6"
+  },
+  "rat_king": {
+    "status": "OK",
+    "file": "prts\\enemy_rat_king.png",
+    "file_title": "文件:头像 敌人 “鼠王”.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E2%80%9C%E9%BC%A0%E7%8E%8B%E2%80%9D.png",
+    "image_url": "https://media.prts.wiki/f/f6/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E2%80%9C%E9%BC%A0%E7%8E%8B%E2%80%9D.png",
+    "sha256": "314be41ec241c3833961ba3b96405ae74a01f5f54cd1ef687272818a73367add"
+  },
+  "eikthyrnir": {
+    "status": "OK",
+    "file": "prts\\enemy_eikthyrnir.png",
+    "file_title": "文件:头像 敌人 “木裂”埃克提尔尼尔.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E2%80%9C%E6%9C%A8%E8%A3%82%E2%80%9D%E5%9F%83%E5%85%8B%E6%8F%90%E5%B0%94%E5%B0%BC%E5%B0%94.png",
+    "image_url": "https://media.prts.wiki/7/74/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E2%80%9C%E6%9C%A8%E8%A3%82%E2%80%9D%E5%9F%83%E5%85%8B%E6%8F%90%E5%B0%94%E5%B0%BC%E5%B0%94.png",
+    "sha256": "eef0977b88b123bf05f050e1aad275063a83275c9f983e80529d70bf8f575731"
+  },
+  "zaro": {
+    "status": "OK",
+    "file": "prts\\enemy_zaro.png",
+    "file_title": "文件:头像 敌人 扎罗，“狼之主”.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E6%89%8E%E7%BD%97%EF%BC%8C%E2%80%9C%E7%8B%BC%E4%B9%8B%E4%B8%BB%E2%80%9D.png",
+    "image_url": "https://media.prts.wiki/4/4f/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E6%89%8E%E7%BD%97%EF%BC%8C%E2%80%9C%E7%8B%BC%E4%B9%8B%E4%B8%BB%E2%80%9D.png",
+    "sha256": "774efef9d02a7cffe1027d2135d06841a25b98557ad6f772ec29aef9ac565d84"
+  },
+  "crownslayer": {
+    "status": "OK",
+    "file": "prts\\enemy_crownslayer.png",
+    "file_title": "文件:头像 敌人 弑君者.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E5%BC%91%E5%90%9B%E8%80%85.png",
+    "image_url": "https://media.prts.wiki/c/c4/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E5%BC%91%E5%90%9B%E8%80%85.png",
+    "sha256": "dd9394537d3616c179bd481147d8d287a48dae465e66b7daa79a365343553ce7"
+  },
+  "skullshatterer": {
+    "status": "OK",
+    "file": "prts\\enemy_skullshatterer.png",
+    "file_title": "文件:头像 敌人 碎骨.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E7%A2%8E%E9%AA%A8.png",
+    "image_url": "https://media.prts.wiki/5/59/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E7%A2%8E%E9%AA%A8.png",
+    "sha256": "00435c185c31cfc6805e206993985541d6d581be52e9a664dd4409906a0f364b"
+  },
+  "hollow_snowpriest": {
+    "status": "OK",
+    "file": "prts\\enemy_hollow_snowpriest.png",
+    "file_title": "文件:头像 敌人 空洞雪祀.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E7%A9%BA%E6%B4%9E%E9%9B%AA%E7%A5%80.png",
+    "image_url": "https://media.prts.wiki/1/1b/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E7%A9%BA%E6%B4%9E%E9%9B%AA%E7%A5%80.png",
+    "sha256": "a0330e7991af140b0338c84946aa685fd983a912d3746e1eaa88c1042c580637"
+  },
+  "father_agnir": {
+    "status": "OK",
+    "file": "prts\\enemy_father_agnir.png",
+    "file_title": "文件:头像 敌人 阿格尼尔神父.png",
+    "page": "https://prts.wiki/w/%E6%96%87%E4%BB%B6:%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E9%98%BF%E6%A0%BC%E5%B0%BC%E5%B0%94%E7%A5%9E%E7%88%B6.png",
+    "image_url": "https://media.prts.wiki/1/12/%E5%A4%B4%E5%83%8F_%E6%95%8C%E4%BA%BA_%E9%98%BF%E6%A0%BC%E5%B0%BC%E5%B0%94%E7%A5%9E%E7%88%B6.png",
+    "sha256": "edca174d07529d3f1a4f24d1f4e3f54a62306f53541d5936764822d91661b98c"
+  }
+}

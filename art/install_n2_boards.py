@@ -33,15 +33,35 @@ N4 = ["family_soldier", "family_intimidator", "family_crossbow", "family_caster"
 ACTION_BATCH = {"sentinel": "batch_N3_v3", "caster": "batch_N2_v2", "distorted_caster": "batch_N2_v2", "greytail": "batch_N2_v2",
     "greytail_lord": "batch_N2_v2", "slug_volatile": "batch_N2_v2", "rock_hornbeast": "batch_N2_v3"}
 ACTION_BATCH.update({enemy: "batch_N4_v1" for enemy in N4})
+# B1 region bosses and wardens (Boss与守卫者策划案 §11, accepted 2026-10-19):
+# v3 boards, with the rows Sol reworked in v4 for Patriot, Eikthyrnir and Zaro
+# (Rat King's STRIKE row was scaled up in v3 itself).
+B1 = ["patriot", "rat_king", "eikthyrnir", "zaro", "crownslayer", "skullshatterer", "hollow_snowpriest", "father_agnir"]
+IDS += B1
+ACTION_BATCH.update({enemy: "batch_B1_v3" for enemy in B1})
+ACTION_BATCH.update({enemy: "batch_B1_v4" for enemy in ["patriot", "eikthyrnir", "zaro"]})
 # 萨卡兹哨兵's walk is re-baked at its action board's scale (bake_n2.py
 # --scale-from; its first walk cell carries the pole tilted), 2026-10-14.
 WALK_BATCH = {"sentinel": "batch_N3_claude"}
 WALK_BATCH.update({enemy: "batch_N4_v1" for enemy in N4})
+WALK_BATCH.update({enemy: "batch_B1_v3" for enemy in B1})
+WALK_BATCH["patriot"] = "batch_B1_v4"
+# B1 boards have more rows (BossCatalog.POSES names them); Patriot's walk has
+# both stances (rows 1-4 marching, 5-8 destruction).
+ACTION_ROWS = {"patriot": 9, "rat_king": 8, "eikthyrnir": 9, "zaro": 9, "crownslayer": 7, "skullshatterer": 6, "hollow_snowpriest": 7, "father_agnir": 6}
+WALK_ROWS = {"patriot": 8}
+# B2 叙拉古平民 (Boss战场地策划案 §4.4): Sol's v5 boards, reduced by
+# field/reduce_b2.py --board (用户 2026-10-19: 压平色块、固定调色板、不补耳朵).
+# Rows IDLE, LOOK, FLINCH; the walk is its 4-frame run away.
+IDS.append("civilian")
+ACTION_BATCH["civilian"] = "batch_B2_claude"
+WALK_BATCH["civilian"] = "batch_B2_claude"
+ACTION_ROWS["civilian"] = 3
 # The sixth action row, where a board has one (N2 brief: LASSO, GLIDE).
 EXTRA_ROW = {"picket": "lasso", "distorted_caster": "glide",
     "family_caster": "incite", "family_eraser": "throw", "family_car": "wreck"}
 # Those that shoot or lob from the chest: their tip is the release point.
-RANGED = {"thrower", "fallen_snowpriest", "family_crossbow", "family_caster"}
+RANGED = {"thrower", "fallen_snowpriest", "family_crossbow", "family_caster", "skullshatterer", "hollow_snowpriest", "father_agnir"}
 DIRECTIONS = ["S", "SW", "W", "NW", "N", "NE", "E", "SE"]
 CELL = 64
 FOOT = 51
@@ -76,6 +96,11 @@ def tips_of(sheet: Image.Image, enemy: str) -> list[list[int]]:
 # face east and the reverse (用户 2026-10-17: 倒着冲我来). The installed sheet
 # swaps SW/SE, W/E, NW/NE so each column faces the way it walks.
 WALK_MIRRORED = {"family_eraser"}
+# Walk frames filled from another row of the same board. 爱国者's fourth
+# marching frame (row 3) was cut from a slimmer first-pass painting and plays
+# as one flat frame (未完成项检查 2026-10-19); his main walk painting has only
+# three marching frames, so the fourth repeats the passing frame (row 1).
+WALK_ROW_FROM = {"patriot": {3: 1}}
 
 
 def unmirror_walk(path: Path) -> None:
@@ -85,6 +110,13 @@ def unmirror_walk(path: Path) -> None:
         fixed.paste(sheet.crop((a * CELL, 0, (a + 1) * CELL, sheet.height)), (b * CELL, 0))
         fixed.paste(sheet.crop((b * CELL, 0, (b + 1) * CELL, sheet.height)), (a * CELL, 0))
     fixed.save(path)
+
+
+def refill_walk(path: Path, rows: dict) -> None:
+    sheet = Image.open(path).convert("RGBA")
+    for row, source in rows.items():
+        sheet.paste(sheet.crop((0, source * CELL, sheet.width, (source + 1) * CELL)), (0, row * CELL))
+    sheet.save(path)
 
 
 def settle_walk(path: Path) -> int:
@@ -119,12 +151,14 @@ def main() -> None:
         walk = FIELD / WALK_BATCH.get(enemy, "batch_N2_v1") / f"{enemy}_walk_64.png"
         sheet = Image.open(action).convert("RGBA")
         rows = sheet.height // CELL
-        want = 6 if enemy in EXTRA_ROW else 5
+        want = ACTION_ROWS.get(enemy, 6 if enemy in EXTRA_ROW else 5)
         if sheet.size != (8 * CELL, want * CELL): raise SystemExit(f"{action}: expected 8 × {want} cells, got {sheet.size}")
-        if Image.open(walk).size != (8 * CELL, 4 * CELL): raise SystemExit(f"{walk}: expected 8 × 4 cells")
+        walk_rows = WALK_ROWS.get(enemy, 4)
+        if Image.open(walk).size != (8 * CELL, walk_rows * CELL): raise SystemExit(f"{walk}: expected 8 × {walk_rows} cells")
         shutil.copyfile(action, FIELD / f"enemy_dir_{enemy}_64.png")
         shutil.copyfile(walk, FIELD / f"enemy_walk_{enemy}_64.png")
         if enemy in WALK_MIRRORED: unmirror_walk(FIELD / f"enemy_walk_{enemy}_64.png")
+        if enemy in WALK_ROW_FROM: refill_walk(FIELD / f"enemy_walk_{enemy}_64.png", WALK_ROW_FROM[enemy])
         settle_walk(FIELD / f"enemy_walk_{enemy}_64.png")
         tips[enemy] = tips_of(sheet, enemy)
         print(f"{enemy}: {action.parent.name}, {rows} rows, tips {tips[enemy]}")

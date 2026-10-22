@@ -81,7 +81,7 @@ func _catalog() -> void:
 	var counts := {}
 	for id in added:
 		var b: Dictionary = GearCatalog.BASES[id]
-		var key := "%s/%d" % [b.region, b.category]
+		var key := "%s/%d" % [b.region, Item.group_of(int(b.category))]
 		counts[key] = int(counts.get(key, 0)) + 1
 	check("矿区 8 weapons / 6 armour / 8 trinkets", counts.get("mine/0") == 8 and counts.get("mine/1") == 6 and counts.get("mine/2") == 8, counts)
 	check("龙门 8 / 6 / 7, 萨米 8 / 7 / 8", counts.get("city/0") == 8 and counts.get("city/1") == 6 and counts.get("city/2") == 7
@@ -94,7 +94,8 @@ func _catalog() -> void:
 		if names.has(GearCatalog.BASES[id].name): unique = false
 		names[GearCatalog.BASES[id].name] = true
 	check("every base name is unique", unique)
-	# Requirements by the §1 rule: the doc's counts over the 63 (polearms aside).
+	# Requirements by the §1 rule over the 63 (polearms aside), with the
+	# intrinsics of 底材固有属性表 v1.0 (the doc counted 敏捷 16 · 源石技艺 10).
 	var by := {}
 	for id in added:
 		if str(GearCatalog.BASES[id].get("form", "")) == "polearm": continue
@@ -102,7 +103,7 @@ func _catalog() -> void:
 		item.grade = 2
 		var a := str(Progression.requirement(item).attribute)
 		by[a] = int(by.get(a, 0)) + 1
-	check("requirements: 体魄 22 · 敏捷 16 · 技巧 15 · 源石技艺 10", by == {"phy": 22, "agi": 16, "tec": 15, "arts": 10}, by)
+	check("requirements: 体魄 22 · 敏捷 14 · 技巧 15 · 源石技艺 12", by == {"phy": 22, "agi": 14, "tec": 15, "arts": 12}, by)
 	var icons := true
 	for id in added:
 		if ItemIcons.BY_NAME.get(GearCatalog.BASES[id].name, "") != GearCatalog.BASES[id].icon or not ResourceLoader.exists(ItemIcons.DIR + GearCatalog.BASES[id].icon + ".png"): icons = false
@@ -129,14 +130,17 @@ func _named() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 3
 	var axe := SpecialGear.roll_exclusive("breacher", "city", 1, rng)
-	check("an exclusive: fixed 稀有, grade Ⅲ, its intrinsic, one random affix, its name colour", axe != null and axe.rarity == 2 and axe.grade == 3
+	check("an exclusive: fixed 稀有, the floor's ten-floor grade (Ⅰ on floor 1), its intrinsic, one random affix, its name colour", axe != null and axe.rarity == 2 and axe.grade == Scaling.tier_of(1) and axe.grade == 1
+		and is_equal_approx(axe.power, float(SpecialGear.GEAR[axe.special].power) * Scaling.tier_base(1))
 		and axe.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER).size() == 2 and axe.modifiers.filter(func(m): return m.tier >= 0).size() == 1
 		and axe.rarity_color() == Item.EXCLUSIVE_COLOR and axe.display_name().contains("专属"))
 	var boss_axe := SpecialGear.roll_exclusive("breacher", "city", 1, rng, true)
-	check("a boss's exclusive is one grade higher", boss_axe.grade == 4)
+	check("a boss's exclusive is one grade higher, its power one tier base up", boss_axe.grade == 2 and is_equal_approx(boss_axe.power, float(SpecialGear.GEAR[boss_axe.special].power) * Scaling.tier_base(2)))
+	var deep_axe := SpecialGear.roll_exclusive("breacher", "city", 21, rng)
+	check("on floor 21 an exclusive is grade Ⅲ", deep_axe.grade == 3 and is_equal_approx(deep_axe.power, float(SpecialGear.GEAR[deep_axe.special].power) * Scaling.tier_base(3)))
 	check("exclusive weapons keep their form", Progression.requirement(axe).attribute == "phy")
 	var copy := Item.from_data(axe.to_data())
-	check("named gear survives a save", copy.special == axe.special and copy.named_kind() == "exclusive" and copy.grade == 3)
+	check("named gear survives a save", copy.special == axe.special and copy.named_kind() == "exclusive" and copy.grade == axe.grade and is_equal_approx(copy.power, axe.power))
 	var ordinary := true
 	for i in range(40):
 		if SpecialGear.kind(SpecialGear.roll("city", 1, rng).special) != "special": ordinary = false
@@ -264,8 +268,9 @@ func _sets() -> void:
 	var def := p.defense_value()
 	wear("set_inspectors_1")
 	wear("set_inspectors_2")
-	# The vest's own 防御 +20 plus the 2-piece +40.
-	check("特别督察组 2 件: defence +40", is_equal_approx(p.defense_value() - def, 60.0), p.defense_value() - def)
+	# The vest's own 防御 +20 at the chest's affix share, plus the 2-piece +40.
+	var want := 20.0 * GearSlots.affix(Item.Category.CHEST) + 40.0
+	check("特别督察组 2 件: defence +40", is_equal_approx(p.defense_value() - def, want), [p.defense_value() - def, want])
 	p.reset_stats()
 	wear("set_nameless_0")
 	wear("set_nameless_1")

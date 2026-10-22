@@ -19,11 +19,21 @@ var game: GameManager
 var _title: Control
 var _loading: Control
 var _tip: Label
+## The region's load card (art/ui/key/load_*.png) over the loading screen, and
+## the place under the title (改造案 v1.1 §1.1: the card shows 上城 or 下城).
+var _card: TextureRect
+var _place: Label
+var _card_key := ""
+const CARDS := {"mine": "load_mine", "snow": "load_snow", "siracusa": "load_siracusa", "city_lower": "load_city", "city_upper": "load_city_upper"}
 var _settings: Control
 var _loading_left := 0.0
 var _was_transitioning := false
 static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}, "language": "zh",
 	"auto_potion": "", "auto_potion_low": 0.4, "auto_potion_high": 0.9, "base_look": "",
+	# 界面动效 (界面动态美术方案 v3 §2): the scan reveal, wipes and typing titles.
+	"ui_motion": true,
+	# Ask before a dragged buy or sale goes through (TraderScreen.ask).
+	"trade_confirm": true,
 	# 站点总览 (用户 2026-10-18: 不常驻，快捷键开启，设置里自定义显示哪些):
 	# open or not, and the station kinds left out of it.
 	"station_panel": false, "station_hidden": []}
@@ -56,13 +66,30 @@ func _process(delta: float) -> void:
 	if game.transitioning and not _was_transitioning and not _title.visible: _flash_loading()
 	_was_transitioning = game.transitioning
 	if _loading.visible:
+		_show_card()
 		_loading_left -= delta
 		if _loading_left <= 0.0 and not game.transitioning: _loading.hide()
 
 func _flash_loading() -> void:
 	_tip.text = TIPS[randi() % TIPS.size()]
 	_loading_left = 0.8
+	_show_card()
 	_loading.show()
+
+## The card of the floor being entered: the region's, Lungmen's by its upper
+## or lower city; none for the base or a camp.
+func _show_card() -> void:
+	var key := ""
+	var place := ""
+	if is_instance_valid(game) and not game.in_base and not game.in_camp and is_instance_valid(game.world_map):
+		key = game.region_id
+		if key == "city": key += "_" + (game.world_map.city_variant if not game.world_map.city_variant.is_empty() else "upper")
+		place = game.place_name()
+	if key == _card_key and _place.text == place: return
+	_card_key = key
+	_place.text = place
+	var path := "res://art/ui/key/%s.png" % CARDS.get(key, "")
+	_card.texture = load(path) if CARDS.has(key) and ResourceLoader.exists(path) else null
 
 func _backdrop() -> Control:
 	var screen := Control.new()
@@ -76,6 +103,30 @@ func _backdrop() -> Control:
 
 func _build_title() -> Control:
 	var screen := _backdrop()
+	# Sol's key art (UD title): the landship on the wasteland, darkened from the
+	# left so the name and buttons read over it.
+	var art := TextureRect.new()
+	art.texture = load("res://art/ui/key/title.png")
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	screen.add_child(art)
+	var shade := TextureRect.new()
+	var ramp := Gradient.new()
+	ramp.offsets = PackedFloat32Array([0.0, 0.32, 0.62])
+	ramp.colors = PackedColorArray([Color(AK.BG, 0.88), Color(AK.BG, 0.6), Color(AK.BG, 0.0)])
+	var fade := GradientTexture2D.new()
+	fade.gradient = ramp
+	fade.width = 256
+	fade.height = 4
+	shade.texture = fade
+	shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	shade.stretch_mode = TextureRect.STRETCH_SCALE
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	screen.add_child(shade)
 	var stripe := ColorRect.new()
 	stripe.color = AK.PAPER
 	stripe.position = Vector2(96, 236)
@@ -110,17 +161,27 @@ func _build_title() -> Control:
 
 func _build_loading() -> Control:
 	var screen := _backdrop()
+	_card = TextureRect.new()
+	_card.position = Vector2(0, 0)
+	_card.size = Vector2(1280, 360)
+	_card.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_card.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_card.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	screen.add_child(_card)
 	var bar := ColorRect.new()
 	bar.color = AK.BLUE
-	bar.position = Vector2(0, 330)
+	bar.position = Vector2(0, 360)
 	bar.size = Vector2(1280, 4)
 	screen.add_child(bar)
 	var title := AK.label("行动开始", 34, AK.FG)
-	title.position = Vector2(96, 260)
+	title.position = Vector2(96, 410)
 	screen.add_child(title)
 	var en := AK.label("OPERATION START", 12, AK.MUTE, AK.en())
-	en.position = Vector2(98, 244)
+	en.position = Vector2(98, 394)
 	screen.add_child(en)
+	_place = AK.label("", 18, AK.MUTE)
+	_place.position = Vector2(98, 462)
+	screen.add_child(_place)
 	var tag := AK.tag("TIPS", AK.PAPER)
 	tag.position = Vector2(96, 620)
 	screen.add_child(tag)
@@ -140,7 +201,7 @@ func _build_settings() -> Control:
 	var panel := PanelContainer.new()
 	panel.position = Vector2(400, 200)
 	panel.size = Vector2(480, 300)
-	panel.add_theme_stylebox_override("panel", AK.box(Color("101010"), AK.LINE_2, 1, 20))
+	panel.add_theme_stylebox_override("panel", AK.box(Color("0d1012"), AK.LINE_2, 1, 20))
 	screen.add_child(panel)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 14)

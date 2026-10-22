@@ -19,10 +19,28 @@ const ACTIONS := {
 	"potion_A": {"name": "标准急救剂", "input": "potion_A", "glyph": "flask", "potion": "A"},
 	"potion_B": {"name": "缓释凝胶", "input": "potion_B", "glyph": "flask", "potion": "B"},
 	"potion_C": {"name": "抑制喷剂", "input": "potion_C", "glyph": "flask", "potion": "C"},
+	# 可露希尔特供 and the regional flasks (药剂与商人界面策划案 §5: any flask on
+	# the bar; only A–C have dedicated keys). 应急强心针 is never drunk.
+	"potion_D": {"name": "热能饮剂", "input": "", "glyph": "flask", "potion": "D"},
+	"potion_E": {"name": "镇静合剂", "input": "", "glyph": "flask", "potion": "E"},
+	"potion_F": {"name": "战术兴奋剂", "input": "", "glyph": "flask", "potion": "F"},
+	"potion_G": {"name": "急行针剂", "input": "", "glyph": "flask", "potion": "G"},
+	"potion_H": {"name": "源石护盾凝胶", "input": "", "glyph": "flask", "potion": "H"},
+	"potion_I": {"name": "广谱解毒剂", "input": "", "glyph": "flask", "potion": "I"},
+	"potion_J": {"name": "静默喷剂", "input": "", "glyph": "flask", "potion": "J"},
+	"potion_K": {"name": "技艺增幅剂", "input": "", "glyph": "flask", "potion": "K"},
+	"potion_rat": {"name": "黑市兴奋剂", "input": "", "glyph": "flask", "potion": "rat"},
+	"potion_reunion": {"name": "自制抑制剂", "input": "", "glyph": "flask", "potion": "reunion"},
+	"potion_ursus": {"name": "矿工烈酒", "input": "", "glyph": "flask", "potion": "ursus"},
+	"potion_sami": {"name": "林地草药茶", "input": "", "glyph": "flask", "potion": "sami"},
 }
 ## The picker's order; "" is an empty slot.
-const CHOICES := ["", "dash", "shadow", "potion_A", "potion_B", "potion_C"]
-const CHOICE_NAMES := {"": "空", "dash": "闪避", "shadow": "绝影", "potion_A": "急救剂", "potion_B": "缓释凝胶", "potion_C": "抑制喷剂"}
+const CHOICES := ["", "dash", "shadow", "potion_A", "potion_B", "potion_C", "potion_D", "potion_E", "potion_F", "potion_G",
+	"potion_H", "potion_I", "potion_J", "potion_K", "potion_rat", "potion_reunion", "potion_ursus", "potion_sami"]
+const CHOICE_NAMES := {"": "空", "dash": "闪避", "shadow": "绝影", "potion_A": "急救剂", "potion_B": "缓释凝胶", "potion_C": "抑制喷剂",
+	"potion_D": "热能饮剂", "potion_E": "镇静合剂", "potion_F": "战术兴奋剂", "potion_G": "急行针剂", "potion_H": "护盾凝胶",
+	"potion_I": "解毒剂", "potion_J": "静默喷剂", "potion_K": "技艺增幅剂", "potion_rat": "黑市兴奋剂", "potion_reunion": "自制抑制剂",
+	"potion_ursus": "矿工烈酒", "potion_sami": "林地草药茶"}
 
 const DEFAULT := [
 	{"action": "dash"}, {"action": "shadow"}, {"action": "potion_A"}, {"action": "potion_B"},

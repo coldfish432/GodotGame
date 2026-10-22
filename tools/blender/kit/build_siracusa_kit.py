@@ -120,12 +120,13 @@ def tiles(name, seed, ridge_axis="x"):
     links.new(combine.outputs[0], cell.inputs["Vector"])
     ramp = nodes.new("ShaderNodeValToRGB")
     els = ramp.color_ramp.elements
-    els[0].position, els[0].color = 0.0, kit.srgb("80402a")
-    els[1].position, els[1].color = 1.0, kit.srgb("bc6e42")
+    # 改造案 v1.1 §2: faded terracotta, not the bright orange-red it was.
+    els[0].position, els[0].color = 0.0, kit.srgb("6e4a3c")
+    els[1].position, els[1].color = 1.0, kit.srgb("a8806a")
     mid = els.new(0.5)
-    mid.color = kit.srgb("a0522f")
+    mid.color = kit.srgb("8c6250")
     near = els.new(0.9)
-    near.color = kit.srgb("b06038")
+    near.color = kit.srgb("9a705a")
     links.new(cell.outputs["Value"], ramp.inputs["Fac"])
     # Shadow line at the bottom of each course and a seam between tiles.
     frac_c = nodes.new("ShaderNodeMath")
@@ -165,12 +166,12 @@ def tiles(name, seed, ridge_axis="x"):
     links.new(coord.outputs["Object"], grime.inputs["Vector"])
     grime_mix = nodes.new("ShaderNodeMix")
     grime_mix.data_type = "RGBA"
-    grime_mix.inputs["B"].default_value = kit.srgb("5a5240")
+    grime_mix.inputs["B"].default_value = kit.srgb("4a4436")
     gr = nodes.new("ShaderNodeMapRange")
-    gr.inputs["From Min"].default_value = 0.55
-    gr.inputs["From Max"].default_value = 0.75
+    gr.inputs["From Min"].default_value = 0.48
+    gr.inputs["From Max"].default_value = 0.72
     gr.inputs["To Min"].default_value = 0.0
-    gr.inputs["To Max"].default_value = 0.4
+    gr.inputs["To Max"].default_value = 0.6
     links.new(grime.outputs["Fac"], gr.inputs["Value"])
     links.new(gr.outputs[0], grime_mix.inputs["Factor"])
     links.new(tint.outputs[0], grime_mix.inputs["A"])
@@ -305,6 +306,7 @@ def _openings(prefix, width, depth, floors, floor_h, seed, door_at=0.0, sides=("
     sides), an arched door on the front. Returns the parts as lists."""
     random.seed(seed)
     panes, glow, shutters, trims, ironwork, doors = [], [], [], [], [], []
+    pots, plants = [], []
     for side in sides:
         along = width if side in ("front", "back") else depth
         count = max(1, int(along / 2.2))
@@ -333,6 +335,9 @@ def _openings(prefix, width, depth, floors, floor_h, seed, door_at=0.0, sides=("
                 # Stone surround and sill.
                 trims.append(kit.box(f"{prefix}sill{side}{f}_{k}", (ww + 0.35, 0.18, 0.1), place(u, 0.08, z - wh * 0.5 - 0.05), rot))
                 trims.append(kit.box(f"{prefix}lint{side}{f}_{k}", (ww + 0.3, 0.12, 0.16), place(u, 0.05, z + wh * 0.5 + 0.08), rot))
+                # The surround's jambs (改造案 v1.1 §2: 窗套).
+                for s in (-1, 1):
+                    trims.append(kit.box(f"{prefix}wj{side}{f}_{k}_{s}", (0.14, 0.1, wh + 0.1), place(u + s * (ww * 0.5 + 0.07), 0.05, z), rot))
                 # Shutters: open against the wall either side, or closed.
                 if random.random() < 0.3:
                     shutters.append(kit.box(f"{prefix}shc{side}{f}_{k}", (ww, 0.07, wh), place(u, 0.06, z), rot))
@@ -350,11 +355,56 @@ def _openings(prefix, width, depth, floors, floor_h, seed, door_at=0.0, sides=("
                     ironwork.append(kit.box(f"{prefix}rail{f}_{k}", (ww + 0.55, 0.05, 0.05), place(u, by - 0.02, base_z + 1.32), rot))
                     for s in (-1, 1):
                         ironwork.append(kit.box(f"{prefix}rs{f}_{k}_{s}", (0.05, by, 0.05), place(u + s * (ww + 0.5) * 0.5, by * 0.5, base_z + 1.32), rot))
-    return panes, glow, shutters, trims, ironwork, doors
+                    # Potted plants on the balcony (改造案 v1.1 §2: 阳台上摆着盆栽).
+                    for n in range(random.randint(1, 3)):
+                        pu = u + random.uniform(-ww * 0.45, ww * 0.45)
+                        _pot(f"{prefix}bp{f}_{k}_{n}", place(pu, by * 0.5, base_z + 0.4), pots, plants)
+                elif f >= 1 and random.random() < 0.18:
+                    # A pot on the sill.
+                    _pot(f"{prefix}sp{side}{f}_{k}", place(u + random.uniform(-0.2, 0.2), 0.14, z - wh * 0.5), pots, plants, 0.8)
+    return panes, glow, shutters, trims, ironwork, doors, pots, plants
+
+
+def _pot(name, at, pots, plants, size=1.0):
+    """A terracotta pot and the green over it, standing at `at`."""
+    x, y, z = at
+    pots.append(d.cyl(f"{name}p", 0.13 * size, 0.24 * size, (x, y, z + 0.12 * size), vertices=10))
+    plants.append(kit.rock(f"{name}g", 0.22 * size, (x, y, z + 0.34 * size), (1.2, 1.0, 0.8), subdivisions=1))
+
+
+def _ivy(prefix, width, depth, height, seed):
+    """Ivy up a front corner or two: leaves thick at the foot, thinning
+    upwards, spread over the front and round the side."""
+    random.seed(seed + 77)
+    leaves = []
+    for sx in (-1, 1):
+        if random.random() > 0.5: continue
+        top = random.uniform(0.35, 0.8) * height
+        spread = random.uniform(0.6, 1.3)
+        for n in range(int(top * 14)):
+            z = random.uniform(0.0, top) ** 1.0
+            reach = spread * (1.0 - 0.6 * z / top)
+            # On the front (-Y) or round the corner on the side.
+            if random.random() < 0.65:
+                at = (sx * (width * 0.5 - random.uniform(0.0, reach)), -depth * 0.5 - 0.05, z)
+                rot = (math.radians(random.uniform(-20, 20)), math.radians(random.uniform(0, 360)), 0)
+            else:
+                at = (sx * (width * 0.5 + 0.05), -depth * 0.5 + random.uniform(0.0, reach), z)
+                rot = (0, math.radians(random.uniform(0, 360)), math.pi / 2)
+            leaves.append(kit.box(f"{prefix}ivy{sx}_{n}", (0.28, 0.07, 0.22), at, rot))
+    return leaves
+
+
+def leaf(name, seed):
+    return city._ramp_material(name, [(0.3, "22341c"), (0.6, "3a5a2c"), (0.95, "5a7a3c")], 9.0, seed, 3.0)
+
+
+def terracotta(name, seed):
+    return city._ramp_material(name, [(0.3, "6a3a26"), (0.6, "9a5a3a"), (0.95, "b8744c")], 8.0, seed, 3.0)
 
 
 def _house(name, width, depth, floors, floor_h, wall_hex, shutter_hex, seed, hip=True, ridge_axis="x",
-           chimney=True, cornice=True, rise=None, lit_share=0.22):
+           chimney=True, cornice=True, rise=None, lit_share=0.3):
     random.seed(seed)
     height = floors * floor_h
     body = d.bbox("body", (width, depth, height), (0, 0, height * 0.5), width=0.03)
@@ -370,8 +420,9 @@ def _house(name, width, depth, floors, floor_h, wall_hex, shutter_hex, seed, hip
     for sx in (-1, 1):
         for q in range(int(height / 0.6)):
             trims.append(kit.box(f"quoin{sx}_{q}", (0.42 if q % 2 else 0.28, 0.06, 0.26), (sx * (width * 0.5 - (0.21 if q % 2 else 0.14)), -depth * 0.5 - 0.03, 0.55 + q * 0.6)))
-    panes, glow, shutters, open_trims, ironwork, doors = _openings("", width, depth, floors, floor_h, seed,
-                                                                    door_at=random.uniform(-width * 0.2, width * 0.2), lit_share=lit_share)
+    panes, glow, shutters, open_trims, ironwork, doors, pots, plants = _openings("", width, depth, floors, floor_h, seed,
+                                                                                  door_at=random.uniform(-width * 0.2, width * 0.2), lit_share=lit_share)
+    plants += _ivy("", width, depth, height, seed)
     trims += open_trims
     rise = rise if rise is not None else min(width, depth) * 0.32
     slab, caps, gables = roof("roof", width, depth, height + 0.12, rise, hip=hip, ridge_axis=ridge_axis)
@@ -390,6 +441,8 @@ def _house(name, width, depth, floors, floor_h, wall_hex, shutter_hex, seed, hip
     if panes: parts.append((kit.join(panes, "glass"), glass(f"{name}_glass_p", seed), "glass"))
     if glow: parts.append((kit.join(glow, "glow"), lit(f"{name}_glow_p"), "glow"))
     if ironwork: parts.append((kit.join(ironwork, "iron"), iron(f"{name}_iron_p", seed), "iron"))
+    if pots: parts.append((kit.join(pots, "pots"), terracotta(f"{name}_pots_p", seed), "pots"))
+    if plants: parts.append((kit.join(plants, "plants"), leaf(f"{name}_plants_p", seed), "plants"))
     return parts
 
 
@@ -397,27 +450,27 @@ def _house(name, width, depth, floors, floor_h, wall_hex, shutter_hex, seed, hip
 
 def siracusa_house_a(seed=901):
     """两层宅：7 m 宽，四坡屋顶，奶白抹灰、墨绿百叶。"""
-    return _house("siracusa_house_a", 7.0, 7.0, 2, 3.3, "d8c6a0", "35503a", seed)
+    return _house("siracusa_house_a", 7.0, 7.0, 2, 3.3, "d2b68a", "35503a", seed)
 
 
 def siracusa_house_b(seed=903):
     """三层窄楼：6 m 宽，双坡屋顶山墙朝街，赭黄抹灰、深褐百叶。"""
-    return _house("siracusa_house_b", 6.0, 8.0, 3, 3.2, "c99a5a", "4a3020", seed, hip=False, ridge_axis="y")
+    return _house("siracusa_house_b", 6.0, 8.0, 3, 3.2, "c4a070", "4a3020", seed, hip=False, ridge_axis="y")
 
 
 def siracusa_house_c(seed=905):
     """宽宅：10 m 宽两层，双坡屋顶屋脊顺街，淡粉抹灰、灰蓝百叶。"""
-    return _house("siracusa_house_c", 10.0, 7.5, 2, 3.4, "d6ae98", "3a4a5a", seed, hip=False, ridge_axis="x")
+    return _house("siracusa_house_c", 10.0, 7.5, 2, 3.4, "cfae8c", "3a4a5a", seed, hip=False, ridge_axis="x")
 
 
 def siracusa_house_d(seed=907):
     """三层宅：8 m 见方，四坡屋顶，沙色抹灰、墨绿百叶，楼上亮灯多。"""
-    return _house("siracusa_house_d", 8.0, 8.0, 3, 3.2, "cbb48a", "2e4632", seed, lit_share=0.3)
+    return _house("siracusa_house_d", 8.0, 8.0, 3, 3.2, "c8ac80", "2e4632", seed, lit_share=0.38)
 
 
 def siracusa_house_low(seed=909):
     """一层小屋：6 m 宽，单层，矮坡屋顶；巷子南侧用（镜头视线）。"""
-    return _house("siracusa_house_low", 6.0, 6.0, 1, 3.4, "dcc9a8", "4a3020", seed, chimney=False, rise=1.4)
+    return _house("siracusa_house_low", 6.0, 6.0, 1, 3.4, "d4bc94", "4a3020", seed, chimney=False, rise=1.4)
 
 
 def siracusa_ruin(seed=911):
@@ -732,17 +785,171 @@ def siracusa_mansion_gate(seed=939):
             (kit.join(crest, "metal"), gold("siracusa_mansion_gate_metal_p", seed), "metal")]
 
 
+# --- 钟楼 and 拱门过街楼 (改造案 v1.1 §2) -------------------------------------------
+
+def siracusa_bell_tower(seed=941):
+    """钟楼: a square sandstone tower, 4.6 m a side, the tallest piece on the
+    floor (to 19.5 m): a door and slit windows up its shaft, string courses,
+    a clock on its front (-Y), an open belfry of paired round arches on every
+    side with the bell inside and lit, a cornice, a tiled pyramid roof and a
+    finial. Origin at the bottom centre."""
+    random.seed(seed)
+    w = 4.6
+    shaft = 13.0
+    bel_h = 3.6
+    walls = [d.bbox("shaft", (w, w, shaft), (0, 0, shaft * 0.5), width=0.03)]
+    trims, glow, doors, metal, glass_parts = [], [], [], [], []
+    trims.append(kit.box("plinth", (w + 0.3, w + 0.3, 0.7), (0, 0, 0.35)))
+    for z in (4.6, 9.2, shaft):
+        trims.append(kit.box(f"course{z}", (w + 0.2, w + 0.2, 0.22), (0, 0, z)))
+    # Quoins up all four corners.
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            for q in range(int(shaft / 0.6)):
+                big = q % 2 == 0
+                trims.append(kit.box(f"q{sx}{sy}_{q}", (0.4 if big else 0.26, 0.4 if not big else 0.26, 0.28),
+                                     (sx * (w * 0.5 - (0.18 if big else 0.11)), sy * (w * 0.5 - (0.11 if big else 0.18)), 0.6 + q * 0.6)))
+    # The door under a round arch, slit windows above.
+    doors.append(kit.box("door", (1.2, 0.08, 2.3), (0, -w * 0.5 - 0.03, 1.15 + 0.35)))
+    doors.append(d.cyl("door_fan", 0.6, 0.08, (0, -w * 0.5 - 0.03, 2.8), (math.pi / 2, 0, 0), vertices=12))
+    trims.append(d.cyl("door_arch", 0.82, 0.1, (0, -w * 0.5 - 0.01, 2.8), (math.pi / 2, 0, 0), vertices=12))
+    for side, (px, py, rz) in {"f": (0, -1, 0), "b": (0, 1, 0), "l": (-1, 0, math.pi / 2), "r": (1, 0, math.pi / 2)}.items():
+        for z in (6.4, 7.6):
+            if side == "f" and z > 7: continue
+            pane = kit.box(f"slit{side}{z}", (0.3, 0.06, 1.0), (px * (w * 0.5 + 0.02), py * (w * 0.5 + 0.02), z), (0, 0, rz))
+            (glow if random.random() < 0.4 else glass_parts).append(pane)
+    # The clock: a pale face in a stone ring, iron hands.
+    trims.append(d.cyl("clock_ring", 0.95, 0.12, (0, -w * 0.5 - 0.06, 10.9), (math.pi / 2, 0, 0), vertices=20))
+    glow.append(d.cyl("clock_face", 0.78, 0.06, (0, -w * 0.5 - 0.12, 10.9), (math.pi / 2, 0, 0), vertices=20))
+    metal.append(kit.box("hand_h", (0.06, 0.05, 0.5), (0.1, -w * 0.5 - 0.17, 11.05), (0, math.radians(-35), 0)))
+    metal.append(kit.box("hand_m", (0.05, 0.05, 0.7), (-0.12, -w * 0.5 - 0.18, 11.1), (0, math.radians(20), 0)))
+    # The belfry: four corner piers, two round arches each side.
+    base = shaft + 0.11
+    pier = 0.7
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            walls.append(kit.box(f"pier{sx}{sy}", (pier, pier, bel_h), (sx * (w * 0.5 - pier * 0.5), sy * (w * 0.5 - pier * 0.5), base + bel_h * 0.5)))
+    span = (w - 2 * pier) / 2.0
+    for side, (px, py, rz) in {"f": (0, -1, 0), "b": (0, 1, 0), "l": (-1, 0, math.pi / 2), "r": (1, 0, math.pi / 2)}.items():
+        along = (1, 0) if rz == 0 else (0, 1)
+        out = (px * (w * 0.5 - 0.2), py * (w * 0.5 - 0.2))
+        # The middle mullion, the arches' heads, the wall over them, the sill.
+        walls.append(kit.box(f"mull{side}", (0.3, 0.4, bel_h) if rz == 0 else (0.4, 0.3, bel_h), (out[0], out[1], base + bel_h * 0.5)))
+        # The wall over the openings, two round arches cut out of it.
+        head = kit.box(f"head{side}", (w, 0.4, 1.6) if rz == 0 else (0.4, w, 1.6), (out[0], out[1], base + bel_h - 0.8))
+        cutters = []
+        for k in (-1, 1):
+            cx = out[0] + along[0] * k * (span * 0.5 + 0.15)
+            cy = out[1] + along[1] * k * (span * 0.5 + 0.15)
+            cutters.append(d.cyl(f"arch{side}{k}", span * 0.5 - 0.02, 1.0, (cx, cy, base + bel_h - 1.6), (math.pi / 2, 0, rz), vertices=16))
+        walls.append(_cut(head, cutters))
+        trims.append(kit.box(f"sill{side}", (w, 0.55, 0.15) if rz == 0 else (0.55, w, 0.15), (out[0], out[1], base + 0.9)))
+    # The belfry's floor and its inside, lit warm, and the bell.
+    trims.append(kit.box("bel_floor", (w - 0.2, w - 0.2, 0.2), (0, 0, base + 0.05)))
+    glow.append(kit.box("bel_light", (w - 1.6, w - 1.6, 0.06), (0, 0, base + 0.18)))
+    metal.append(d.cyl("bell", 0.55, 0.9, (0, 0, base + bel_h - 1.4), vertices=14))
+    metal.append(d.cyl("bell_lip", 0.68, 0.12, (0, 0, base + bel_h - 1.85), vertices=14))
+    metal.append(kit.box("yoke", (1.6, 0.15, 0.15), (0, 0, base + bel_h - 0.9)))
+    top = base + bel_h
+    trims.append(kit.box("cornice", (w + 0.5, w + 0.5, 0.3), (0, 0, top + 0.1)))
+    slab, caps, _g = roof("roof", w, w, top + 0.25, 2.2, overhang=0.35, hip=True)
+    metal.append(d.cyl("finial_post", 0.06, 0.9, (0, 0, top + 2.8), vertices=6))
+    metal.append(kit.box("finial_cross", (0.5, 0.06, 0.06), (0, 0, top + 3.0)))
+    trims.append(kit.rock("finial_ball", 0.16, (0, 0, top + 2.5), subdivisions=2))
+    return [(kit.join(walls, "wall"), render("siracusa_bell_tower_wall_p", "c8ac80", seed, brick_share=0.06), "wall"),
+            (kit.join(trims, "trim"), stone("siracusa_bell_tower_trim_p", seed, "b8a888"), "trim"),
+            (kit.join([slab] + caps, "roof"), tiles("siracusa_bell_tower_roof_p", seed), "roof"),
+            (kit.join(doors, "door"), wood("siracusa_bell_tower_door_p", seed), "door"),
+            (kit.join(metal, "metal"), gold("siracusa_bell_tower_metal_p", seed), "metal"),
+            (kit.join(glass_parts, "glass"), glass("siracusa_bell_tower_glass_p", seed), "glass"),
+            (kit.join(glow, "glow"), lit("siracusa_bell_tower_glow_p"), "glow")]
+
+
+def _cut(obj, cutters):
+    """obj minus the cutters (boolean difference), the cutters removed."""
+    for c in cutters:
+        bpy.ops.object.select_all(action="DESELECT")
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        mod = obj.modifiers.new("cut", "BOOLEAN")
+        mod.operation = "DIFFERENCE"
+        mod.object = c
+        mod.solver = "EXACT"
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+        bpy.data.objects.remove(c)
+    return obj
+
+
+def siracusa_arch_house(seed=943):
+    """拱门过街楼: a house over the lane, the lane through a round stone arch
+    under it. The arch is 6 m wide along x between piers that go 0.8 m into
+    the houses either side (origin on the ground at its middle; stretched
+    along x in the game), 4 m deep along y, its crown at 4 m; two storeys
+    of rendered house over it, shuttered windows on both faces (-Y, +Y), a
+    gabled tile roof along x; a stone ring of voussoirs and a keystone on
+    each face, a lamp under the crown."""
+    random.seed(seed)
+    opening, pier, depth = 6.0, 0.8, 4.0
+    length = opening + pier * 2
+    arch_top = 4.4
+    block = kit.box("block", (length, depth, arch_top), (0, 0, arch_top * 0.5))
+    vault = d.cyl("vault_cut", opening * 0.5, depth + 1.0, (0, 0, 1.0), (math.pi / 2, 0, 0), vertices=24)
+    legs = kit.box("legs_cut", (opening, depth + 1.0, 2.0), (0, 0, 0.0))
+    _cut(block, [vault, legs])
+    floors, floor_h = 2, 3.2
+    upper = d.bbox("upper", (length, depth + 0.3, floors * floor_h), (0, 0, arch_top + floors * floor_h * 0.5), width=0.03)
+    walls = [block, upper]
+    trims = [kit.box("course", (length + 0.1, depth + 0.4, 0.2), (0, 0, arch_top)),
+             kit.box("cornice", (length + 0.3, depth + 0.6, 0.22), (0, 0, arch_top + floors * floor_h - 0.05))]
+    glow, glass_parts, shutters, irons = [], [], [], []
+    for sy in (-1, 1):
+        y = sy * (depth * 0.5 + 0.02)
+        # Voussoirs round the arch, the keystone at its crown.
+        for n in range(13):
+            a = math.pi * n / 12
+            x, z = math.cos(a) * (opening * 0.5 + 0.22), 1.0 + math.sin(a) * (opening * 0.5 + 0.22)
+            trims.append(kit.box(f"vs{sy}_{n}", (0.5, 0.12, 0.3), (x, y + sy * 0.04, z), (0, -(a - math.pi / 2), 0)))
+        trims.append(kit.box(f"key{sy}", (0.45, 0.18, 0.6), (0, y + sy * 0.06, 4.15)))
+        # The upper floors' windows, three a floor, shuttered.
+        place = lambda u, o, z, sy=sy: (u, sy * (depth * 0.5 + 0.15) + sy * o, z)
+        for f in range(floors):
+            z = arch_top + f * floor_h + floor_h * 0.55
+            for k in (-1, 0, 1):
+                u = k * length * 0.3
+                pane = kit.box(f"w{sy}{f}{k}", (0.85, 0.05, 1.5), place(u, 0.02, z))
+                (glow if random.random() < 0.35 else glass_parts).append(pane)
+                trims.append(kit.box(f"sill{sy}{f}{k}", (1.2, 0.18, 0.1), place(u, 0.08, z - 0.8)))
+                trims.append(kit.box(f"lint{sy}{f}{k}", (1.15, 0.12, 0.16), place(u, 0.05, z + 0.83)))
+                for s2 in (-1, 1):
+                    shutters.append(kit.box(f"sh{sy}{f}{k}{s2}", (0.42, 0.06, 1.5), place(u + s2 * 0.64, 0.04, z)))
+        # A lamp bracket under the crown.
+        irons.append(kit.box(f"arm{sy}", (0.05, 0.5, 0.05), (0, sy * (depth * 0.5 - 0.6), 3.55)))
+    irons.append(kit.box("lamp_cap", (0.26, 0.26, 0.08), (0, 0, 3.5)))
+    glow.append(kit.box("lamp", (0.2, 0.2, 0.36), (0, 0, 3.25)))
+    slab, caps, gables = roof("roof", length, depth + 0.3, arch_top + floors * floor_h + 0.1, 1.5, overhang=0.4, hip=False, ridge_axis="x")
+    walls += gables
+    return [(kit.join(walls, "wall"), render("siracusa_arch_house_wall_p", "cfb088", seed, brick_share=0.1), "wall"),
+            (kit.join(trims, "trim"), stone("siracusa_arch_house_trim_p", seed, "b4a68a"), "trim"),
+            (kit.join([slab] + caps, "roof"), tiles("siracusa_arch_house_roof_p", seed), "roof"),
+            (kit.join(shutters, "shutters"), shutter_wood("siracusa_arch_house_shutters_p", seed, "35503a"), "shutters"),
+            (kit.join(glass_parts, "glass"), glass("siracusa_arch_house_glass_p", seed), "glass"),
+            (kit.join(irons, "iron"), iron("siracusa_arch_house_iron_p", seed), "iron"),
+            (kit.join(glow, "glow"), lit("siracusa_arch_house_glow_p"), "glow")]
+
+
 HOUSES = [siracusa_house_a, siracusa_house_b, siracusa_house_c, siracusa_house_d, siracusa_house_low, siracusa_ruin]
 PIECES = [siracusa_theatre, siracusa_court, siracusa_fountain, siracusa_lantern, siracusa_banner_saluzzo,
-          siracusa_banner_rossetti, siracusa_banner_bellone, siracusa_barrels, siracusa_garden_wall, siracusa_mansion_gate]
+          siracusa_banner_rossetti, siracusa_banner_bellone, siracusa_barrels, siracusa_garden_wall, siracusa_mansion_gate,
+          siracusa_bell_tower, siracusa_arch_house]
 BUILDERS = HOUSES + PIECES
 PREVIEW = {"siracusa_house_a": 12.0, "siracusa_house_b": 13.0, "siracusa_house_c": 14.0, "siracusa_house_d": 13.0,
            "siracusa_house_low": 9.0, "siracusa_ruin": 13.0, "siracusa_theatre": 18.0, "siracusa_court": 16.0,
            "siracusa_fountain": 5.0, "siracusa_lantern": 1.6, "siracusa_banner_saluzzo": 5.0, "siracusa_banner_rossetti": 5.0,
            "siracusa_banner_bellone": 5.0, "siracusa_barrels": 2.6, "siracusa_garden_wall": 3.0,
-           "siracusa_mansion_gate": 10.0}
+           "siracusa_mansion_gate": 10.0, "siracusa_bell_tower": 22.0, "siracusa_arch_house": 13.0}
 BAKE_SIZE = {"wall": 1024, "roof": 1024, "trim": 1024, "shutters": 512, "glow": 128, "glass": 256, "door": 256, "iron": 256,
-             "columns": 512, "metal": 256, "stone": 512, "water": 128, "cloth": 256, "fringe": 128, "wood": 256, "planks": 256}
+             "columns": 512, "metal": 256, "stone": 512, "water": 128, "cloth": 256, "fringe": 128, "wood": 256, "planks": 256,
+             "pots": 128, "plants": 256}
 
 
 def publish(name, parts):

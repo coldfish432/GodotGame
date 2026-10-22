@@ -1,18 +1,22 @@
 // The modelled base's deck (基地建模改造案_v1 §二): a plate texture tiled in
 // world space (Sol's R1 swatch replaces the stand-in), the Rhodes logo laid in
-// as a lighter inlay, lit by the base's light map like every kit piece.
+// as a lighter inlay, lit by the scene's real lights like every kit piece
+// (场景渲染统一改造案_v1 §4.2), sampled smoothly now the world renders at full
+// resolution.
 shader_type spatial;
-render_mode unshaded, cull_back;
-uniform sampler2D deck_tex : source_color, filter_nearest_mipmap, repeat_enable;
+render_mode cull_back;
+uniform sampler2D deck_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float metres_per_tile = 2.0;
-uniform sampler2D inlay_tex : source_color, filter_nearest, repeat_disable;
+uniform sampler2D inlay_tex : source_color, filter_linear_mipmap, repeat_disable;
 // x, z of the inlay's north-west corner and its size (world units).
 uniform vec4 inlay_rect = vec4(0.0, 0.0, 0.0, 0.0);
 uniform vec3 inlay_colour : source_color = vec3(0.5, 0.54, 0.57);
 // The plate's mean colour (linear), so the inlay keeps the plate's seams and rivets.
 uniform vec3 plate_mean = vec3(0.0766, 0.0927, 0.107);
 varying vec3 world_position;
-#include "res://world/field_light.gdshaderinc"
+uniform sampler2D deck_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float normal_depth = 2.0;
+uniform float roughness = 0.68;
 // The room's lights in strips (the warehouse comes on bank by bank).
 #include "res://world/base_room_light.gdshaderinc"
 void vertex() {
@@ -30,5 +34,9 @@ void fragment() {
 			base = mix(base, inlay_colour * (base / max(plate_mean, vec3(0.001))), light_part);
 		}
 	}
-	ALBEDO = field_lit_px(base, world_position, FRAGCOORD.xy) * room_light(world_position);
+	ALBEDO = base * room_light(world_position);
+	NORMAL_MAP = texture(deck_normal, world_position.xz / metres_per_tile).rgb;
+	NORMAL_MAP_DEPTH = normal_depth;
+	ROUGHNESS = roughness;
+	SPECULAR = 0.25;
 }

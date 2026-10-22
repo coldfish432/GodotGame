@@ -116,19 +116,19 @@ func run() -> void:
 		game.player.global_position = start
 		await step(2)
 	# 血债: a soldier's fall adds its weight.
-	game.threat.value = 0.0
+	game.features.values.debt = 0.0
 	var soldier: Enemy = game._spawn_enemy(game.player.global_position + Vector3(20, 0, 20), false, false, "family_soldier")
 	await step(2)
 	kill(soldier)
 	await step(2)
-	check("a family soldier's fall adds 血债 (%.1f)" % game.threat.value, absf(game.threat.value - 3.0) < 0.3)
+	check("a family soldier's fall adds 血债 at half its old weight (%.1f)" % game.features.value("debt"), absf(game.features.value("debt") - 1.5) < 0.2)
 	var capo: Enemy = game._spawn_enemy(game.player.global_position + Vector3(20, 0, 24), true, false, "family_capo")
 	var near: Enemy = game._spawn_enemy(capo.global_position + Vector3(1.0, 0, 0), false, false, "family_soldier")
 	await step(2)
-	game.threat.value = 0.0
+	game.features.values.debt = 0.0
 	kill(near)
 	await step(2)
-	check("a fall beside a 角头 adds its 6 more (%.1f)" % game.threat.value, absf(game.threat.value - 9.0) < 0.3)
+	check("a fall beside a 角头 adds its 3 more (%.1f)" % game.features.value("debt"), absf(game.features.value("debt") - 4.5) < 0.2)
 	kill(capo)
 	await step(2)
 	# Only the 血债 the enemies add from here on.
@@ -142,24 +142,24 @@ func run() -> void:
 	var began: bool = await until(func(): return caster.inciting(), 360)
 	await step(1)
 	check("a 家族术师 stops to incite, its dark red ring up", began and caster._incite_mark.visible)
-	game.threat.value = 0.0
+	game.features.values.debt = 0.0
 	var left := caster._incite_left
 	await step(60)
-	var expected := (left - caster._incite_left) * 0.75
-	check("煽动 adds 0.75 血债 a second (%.2f for %.2f)" % [game.threat.value, expected], caster.inciting() and expected > 0.3 and absf(game.threat.value - expected) < 0.05)
+	var expected := (left - caster._incite_left) * 0.75 * FeatureCatalog.DEBT_SCALE
+	check("煽动 adds 0.375 血债 a second (%.2f for %.2f)" % [game.features.value("debt"), expected], caster.inciting() and expected > 0.15 and absf(game.features.value("debt") - expected) < 0.05)
 	caster.take_hit(1.0, "true")
 	check("one hit does not break it", caster.inciting())
 	caster.take_hit(1.0, "true")
-	var held := game.threat.value
+	var held := game.features.value("debt")
 	await step(20)
-	check("two hits break it off and the 血债 stops", not caster.inciting() and not caster._incite_mark.visible and absf(game.threat.value - held) < 0.001)
+	check("two hits break it off and the 血债 stops", not caster.inciting() and not caster._incite_mark.visible and absf(game.features.value("debt") - held) < 0.001)
 	caster._incite_cd = 0.0
 	caster._attack_timer = 0.0
 	await until(func(): return caster.inciting(), 360)
-	game.threat.value = 0.0
+	game.features.values.debt = 0.0
 	caster._incite_left = 0.3
 	await step(40)
-	check("it stops by itself when its time is up (%.2f)" % game.threat.value, not caster.inciting() and game.threat.value <= 0.3 * 0.75 + 0.02 and caster._incite_cd > EnemyAttacks.INCITE_COOLDOWN - 1.0)
+	check("it stops by itself when its time is up (%.2f)" % game.features.value("debt"), not caster.inciting() and game.features.value("debt") <= 0.3 * 0.75 * FeatureCatalog.DEBT_SCALE + 0.02 and caster._incite_cd > EnemyAttacks.INCITE_COOLDOWN - 1.0)
 	caster._incite_cd = 0.0
 	caster.silence(3.0)
 	check("silenced, it cannot incite", not caster._try_special(5.0, true))
@@ -183,7 +183,7 @@ func run() -> void:
 	await step(2)
 	check("before the reckoning a 家族弩手's bolts are physical", not game.reckoning() and bow.shot_kind() == "phys")
 	# The reckoning brings an eraser, unseen.
-	game._spawn_patrol()
+	game._spawn_reckoning()
 	await step(3)
 	var erasers := game.floor_enemies().filter(func(e): return e.enemy_type == "family_eraser")
 	check("the reckoning brings one 灭迹人", erasers.size() == 1 and erasers[0].patrol_wave > 0)
@@ -227,7 +227,7 @@ func run() -> void:
 	check("and a bolt it looses deals arts", bolt[0] != null and bolt[0].arts)
 	kill(bow)
 	var patrol_caster: Enemy = game._spawn_enemy(open_spot(start, 6.0), false, true, "family_caster")
-	patrol_caster.configure_patrol(game.threat.wave)
+	patrol_caster.configure_patrol(maxi(1, game.features.reckonings))
 	patrol_caster._incite_cd = 0.0
 	check("a reckoning's own 术师 never incites", not patrol_caster._try_special(5.0, true))
 	kill(patrol_caster)

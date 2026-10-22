@@ -12,6 +12,8 @@ var region_pick := ""
 ## The contract card picked at the dispatch desk (局内节奏与目标策划案 §6 B1).
 var contract_pick := 0
 var stash_tab := 0
+## The facility picked on the 基建总控台's list.
+var build_pick := "hub"
 ## The zone whose shelves are open at its floor frame (station "shelves"), or -1.
 var shelf_zone := -1
 var outbound_tab := 0
@@ -23,6 +25,10 @@ var hotbar_capture := -1
 ## The frame a key was taken for a binding; that press does nothing else.
 var hotbar_capture_frame := -1
 var settings_tab := 0
+## The C window's page: 概览 / 属性 / 技能 (OperatorScreen).
+var operator_tab := 0
+## 整备台's page: 换装 / 改造 (LoadoutScreens).
+var workbench_tab := 0
 ## Where Esc / ‹ goes from this page when it is a sub-page (else the menu closes).
 var back_to := Callable()
 var _shade: ColorRect
@@ -64,7 +70,14 @@ func _enter(screen: String, default: Variant) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_VISIBILITY_CHANGED and not visible:
 		_screen = ""
+		_revealed = ""
 		back_to = Callable()
+
+## The screen last opened with the scan reveal (Terminal.reveal); a rebuild of
+## the same screen (a click, a tab) redraws without it.
+var _revealed := ""
+## True while the screen being built is new: titles type in, the curtain lifts.
+var reveal_pending := false
 
 ## Starts an absolute-layout screen over a shade of `alpha`.
 func stage_begin(alpha: float = 0.97) -> Control:
@@ -77,8 +90,16 @@ func stage_begin(alpha: float = 0.97) -> Control:
 	_margin.hide()
 	stage.show()
 	_shade.color.a = alpha
+	var key := "%s:%s" % [_screen, _station]
+	reveal_pending = not visible or key != _revealed
+	_revealed = key
+	if reveal_pending: _reveal_after_build.call_deferred(_station)
 	show()
 	return stage
+
+func _reveal_after_build(station: String) -> void:
+	reveal_pending = false
+	if visible and stage.visible: Terminal.reveal(stage, Terminal.dept_color(station) if _screen == "station" else AK.HOLO)
 
 func clear(title: String, subtitle: String) -> void:
 	for child in body.get_children():
@@ -147,7 +168,7 @@ const STATIONS := {
 	"insurance": ["后勤柜台 / 出战准备", "带入装备可投保"],
 	"loadout": ["整备台 / 装备", "装备、卸下或存回仓库"],
 	"stash": ["仓管台 / 仓库", "从个人仓库带入下一份合同"],
-	"outbound": ["出库区 / 订单与交付", "交付个人仓库或背包里的物品：按订单换龙门币和声望，或直接换龙门币"],
+	"outbound": ["出库区 / 订单与交付", "交付个人仓库或背包里的物品：按订单或直接换龙门币"],
 	"report": ["医疗前台 / 回收报告与治疗", "上一份合同的回收明细，以及重伤治疗"],
 	"pharmacy": ["药房窗口 / 配药", "下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂"],
 	"store": ["可露希尔的商店", "药剂 · 收购赤金"],
@@ -155,6 +176,15 @@ const STATIONS := {
 var _station := ""
 ## The stash list's search text (装备与背包界面调研 §5.13); kept while the menu redraws.
 var stash_query := ""
+
+## A facility's own construction site (基建设施修订案 v1.1 §八.2): its page alone.
+func show_build_site(facility: String) -> void:
+	if not visible: Terminal.wipe_open(self)
+	pick = null
+	back_to = Callable()
+	_station = "build_site"
+	_screen = "station"
+	BaseScreens.construction(self, BaseCatalog.facility_name(facility), facility)
 
 ## Everything on one page; kept for tools and tests that want the overview.
 func show_base() -> void:
@@ -166,6 +196,7 @@ func show_base() -> void:
 	_report_section()
 
 func show_station(kind: String) -> void:
+	if not visible: Terminal.wipe_open(self)
 	if _station != kind: pick = null
 	back_to = Callable()
 	_station = kind
@@ -173,6 +204,7 @@ func show_station(kind: String) -> void:
 	match kind:
 		"contracts": BaseScreens.contracts(self); return
 		"stash": BaseScreens.stash(self); return
+		"construction": BaseScreens.construction(self); return
 		"shelves": BaseScreens.stash(self, shelf_zone); return
 		"outbound": BaseScreens.outbound(self); return
 		"pharmacy": BaseScreens.medical(self, 0); return
@@ -182,6 +214,11 @@ func show_station(kind: String) -> void:
 		"exchange": ExchangeScreen.build(self); return
 		"personnel": BaseScreens.personnel(self); return
 		"workshop": ExchangeScreen.workshop(self); return
+		"research": ResearchScreen.build(self); return
+		"sand_table": SandTableScreen.build(self); return
+		"farm": ProvisionScreens.farm(self); return
+		"canteen": ProvisionScreens.canteen(self); return
+		"lift": ProvisionScreens.lift(self); return
 	var info: Array = STATIONS.get(kind, ["罗德岛", ""])
 	clear(info[0], "%s    ·    龙门币 %s" % [info[1], Economy.format(game.gold)])
 	match kind:
@@ -286,13 +323,22 @@ func _matches(item: Item) -> bool:
 		if not word in haystack: return false
 	return true
 
-## The 仓管台's upgrade projects (用户 2026-10-07): the master console and the
-## drone each have to be bought before they work, in either order; racks are
-## built at each zone's floor frame instead.
+## Every base upgrade in one list (用户 2026-10-21: 基建升级项整合到同一页面):
+## the facility levels, then the master console, the drone, the expansions and
+## the camp upgrade. The 基建 page (BaseScreens.construction) draws the same.
 func _expansion_section() -> void:
 	var base: BaseState = game.base
-	var rank := base.rank()
-	text(body, "声望 R%d · %d%s" % [rank, base.prestige, "" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else "  ·  R%d 解锁：%s" % [rank + 1, BaseCatalog.RANK_UNLOCKS[rank + 1]]], 15, GOLD)
+	var levels := HBoxContainer.new()
+	body.add_child(levels)
+	for id in BaseCatalog.FACILITY_ORDER:
+		var level := base.facility_level(id)
+		var step := BaseCatalog.facility_step(id, level + 1)
+		if step.is_empty():
+			button(levels, "%s Lv%d（已满级）" % [BaseCatalog.facility_name(id), level], func(): pass, true)
+			continue
+		var refusal := game.facility_refusal(id)
+		button(levels, "%s Lv%d → Lv%d  %s + %s%s" % [BaseCatalog.facility_name(id), level, level + 1, Economy.format(step.price), BaseCatalog.cost_text(step.materials), "" if refusal.is_empty() else "（%s）" % refusal],
+			func(): game.upgrade_facility(id); _refresh(), not refusal.is_empty())
 	var machines := HBoxContainer.new()
 	body.add_child(machines)
 	if base.console: button(machines, "仓库总控面板 · 已就位", func(): pass, true)
@@ -367,7 +413,7 @@ func _reveal_line(list: VBoxContainer, line: Array) -> void:
 func show_training(in_field: bool = false) -> void:
 	_station = ""
 	_enter("training", null)
-	TrainingScreen.show(self, in_field)
+	OperatorScreen.show(self, in_field)
 
 ## The card before leaving (§5.3), shown only when there is something to look at.
 func show_departure(region: String) -> void:
@@ -394,10 +440,6 @@ func show_staging() -> void:
 ## pack or safe bag can supply items; crates, staging and equipped gear cannot.
 func _outbound_section() -> void:
 	var orders: OrderBoard = game.base.orders
-	var base: BaseState = game.base
-	var rank := base.rank()
-	var next := "" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else " / 下一级 %d" % BaseCatalog.PRESTIGE_RANKS[rank]
-	text(body, "声望 R%d · %d%s" % [rank, base.prestige, next], 15, GOLD)
 	var deliverable := game.deliverable_items()
 	for i in range(orders.slots.size()):
 		var order = orders.slots[i]
@@ -412,7 +454,7 @@ func _outbound_section() -> void:
 		if order.state == "done":
 			text(box, "订单栏 %d / 已完成  ·  %s" % [i + 1, BaseCatalog.order_text(order.id)], 16, Color("8fd18f"))
 			continue
-		text(box, "订单栏 %d / %s  ·  %d/%d  ·  %s，声望 %d" % [i + 1, BaseCatalog.order_text(order.id), orders.delivered_count(i), count, reward, int(t.prestige)], 18, GOLD)
+		text(box, "订单栏 %d / %s  ·  %d/%d  ·  %s" % [i + 1, BaseCatalog.order_text(order.id), orders.delivered_count(i), count, reward], 18, GOLD)
 		var fits := deliverable.filter(func(x): return orders.matches(i, x))
 		if fits.is_empty(): text(box, "个人仓库和背包里没有符合的物品。", 14, Color("99aab8"))
 		for item: Item in fits:
@@ -420,7 +462,7 @@ func _outbound_section() -> void:
 			box.add_child(row)
 			text(row, "%s%s  ·  %s" % [item.display_name(), item.stack_suffix(), "个人仓库" if game.stash.has(item) else "背包"], 15).tooltip_text = item.details()
 			button(row, "交付" if not item.is_stackable() else "交付 ×%d" % orders.takes(i, item), func(): game.deliver_to_order(i, item); _refresh())
-		if base.reroll_available: button(box, "免费刷新这张订单（R3，每次结算一次）", func(): game.reroll_order(i); _refresh())
+		if game.base.reroll_available: button(box, "免费刷新这张订单", func(): game.reroll_order(i); _refresh())
 		button(box, "放弃这张订单", func(): game.abandon_order(i); _refresh())
 	body.add_child(HSeparator.new())
 	text(body, "直接交付 / 只换龙门币", 18)
@@ -439,7 +481,10 @@ func _medical_summary() -> void:
 	# Each injured operator keeps hers until treated (博士主角叙事修订案 §5).
 	for id in base.injured_operators():
 		text(body, "%s  ·  重伤  ·  生命上限 −%d%%" % [Operators.display_name(id), roundi(BaseCatalog.INJURY_HP_PENALTY * 100)], 15, AK.RED)
-		button(body, "治疗重伤（%s 龙门币）" % Economy.format(BaseCatalog.INJURY_TREATMENT), func(): game.treat_injury(id); _refresh(), game.gold < BaseCatalog.INJURY_TREATMENT)
+		button(body, "治疗重伤（%s 龙门币）" % Economy.format(game.injury_price(id)), func(): game.treat_injury(id); _refresh(), game.gold < game.injury_price(id))
+	# 萨米林地部族's 冰原苔 (势力特供策划案 §二): everyone cured, free.
+	if not base.injured_operators().is_empty() and game.material_count(GameManager.SPECIAL_MOSS) > 0:
+		button(body, "萨米冰原苔 ×%d：全部痊愈" % game.material_count(GameManager.SPECIAL_MOSS), func(): game.moss_cure(); _refresh(), not game.moss_refusal().is_empty())
 	body.add_child(HSeparator.new())
 
 ## Flasks for the next contract (药剂进背包): each one bought goes straight into
@@ -454,8 +499,8 @@ func _pharmacy_section() -> void:
 	var row := HBoxContainer.new()
 	body.add_child(row)
 	for type in BaseCatalog.POTIONS:
-		var price := base.potion_price(type)
-		var label := "%s %s" % [BaseCatalog.POTIONS[type].name, ("（R%d 解锁）" % int(BaseCatalog.POTIONS[type].rank)) if price < 0 else ("免费" if price == 0 else "%s 龙门币" % Economy.format(price))]
+		var price := game.potion_price(type)
+		var label := "%s %s" % [BaseCatalog.POTIONS[type].name, ("（商店 Lv%d）" % int(BaseCatalog.POTIONS[type].store)) if price < 0 else ("免费" if price == 0 else "%s 龙门币" % Economy.format(price))]
 		button(row, label, func(): game.buy_potion(type); _refresh(), price < 0 or game.gold < price)
 
 func _report_section(always: bool = false) -> void:
@@ -522,6 +567,11 @@ func show_camp() -> void:
 	_enter("camp", null)
 	EventScreens.camp(self)
 
+## 企鹅专递 from a camp (势力特供策划案 §二).
+func show_parcel() -> void:
+	_enter("parcel", [])
+	EventScreens.parcel(self)
+
 ## 可露希尔 at the base: the same counter as in the camps (用户：不区分).
 func _store_section() -> void:
 	text(body, "赤金 %d" % game.gold_available(), 18, GOLD)
@@ -533,7 +583,7 @@ func _closure_shop() -> void:
 	body.add_child(row)
 	for type in BaseCatalog.POTIONS:
 		var price := game.closure_potion_price(type)
-		button(row, "%s %s" % [BaseCatalog.POTIONS[type].name, "（R%d 解锁）" % int(BaseCatalog.POTIONS[type].rank) if price < 0 else "%d 赤金" % price],
+		button(row, "%s %s" % [BaseCatalog.POTIONS[type].name, "（商店 Lv%d）" % int(BaseCatalog.POTIONS[type].store) if price < 0 else "%d 赤金" % price],
 			func(): game.closure_buy_potion(type); _refresh_closure(), price < 0 or game.gold_available() < price)
 	var sell := HBoxContainer.new()
 	body.add_child(sell)
@@ -546,6 +596,11 @@ func _refresh_closure() -> void:
 	if game.in_camp: show_camp()
 	elif _station == "store": BaseScreens.store(self)
 	else: _refresh()
+
+## 火堆 (地图特色策划案 §5.3): which of the pack's fuels to burn.
+func show_fuel() -> void:
+	_enter("fuel", null)
+	EventScreens.fuel(self)
 
 func show_routes(index: int) -> void:
 	_enter("routes", index)

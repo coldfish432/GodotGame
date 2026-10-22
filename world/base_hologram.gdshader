@@ -3,7 +3,7 @@
 // pixel rows and a slow flicker. The map of Terra is a texture; the little
 // Rhodes Island over it is a flat colour on its model.
 shader_type spatial;
-render_mode unshaded, blend_add, cull_disabled, depth_draw_never;
+render_mode unshaded, blend_add, cull_disabled, depth_draw_never, fog_disabled;
 uniform sampler2D map_tex : source_color, filter_linear, repeat_disable;
 uniform bool use_map = false;
 uniform vec3 colour : source_color = vec3(0.35, 0.78, 1.0);

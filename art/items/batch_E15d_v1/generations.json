@@ -1,0 +1,82 @@
+[
+  {
+    "id": "rhodes_head",
+    "slot": "head",
+    "name": "罗德岛外勤头盔",
+    "layer": null,
+    "description": "A **light dark-grey helmet** with a blue-grey band and a small clear visor.",
+    "batch": "E15d",
+    "cloth": false,
+    "matchref": "rhodes_field_uniform",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Rhodes Island set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 罗德岛外勤头盔: A light dark-grey helmet with a blue-grey band and a small clear visor. SPECIFIC CONSTRUCTION: EMPTY LIGHTWEIGHT DARK GRAY HELMET, thin BLUE-GRAY BAND around shell, small CLEAR VISOR at front represented by pale cool-blue solid facets and transparent opening, no semitransparent pixels. Match Rhodes jacket steel black and blue-gray panels with LIGHT RIM. No S logo or marks. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/rhodes_field_uniform_8x.png"
+    ]
+  },
+  {
+    "id": "rhodes_hands",
+    "slot": "hands",
+    "name": "罗德岛外勤手套",
+    "layer": null,
+    "description": "**Dark grey gloves** with blue-grey knuckle pads.",
+    "batch": "E15d",
+    "cloth": true,
+    "matchref": "rhodes_field_uniform",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Rhodes Island set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 罗德岛外勤手套: Dark grey gloves with blue-grey knuckle pads. SPECIFIC CONSTRUCTION: PAIR EMPTY DARK GRAY FIELD GLOVES with BLUE-GRAY KNUCKLE PADS, slim practical cloth gloves, simple complete fingers, no flesh. Match Rhodes jacket cold gray-blue panels and steel black, broad pale gray lit pads/rim, no white armor gauntlets. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/rhodes_field_uniform_8x.png"
+    ]
+  },
+  {
+    "id": "rhodes_legs",
+    "slot": "legs",
+    "name": "罗德岛外勤长裤",
+    "layer": null,
+    "description": "**Dark grey field trousers** with blue-grey knee pads.",
+    "batch": "E15d",
+    "cloth": true,
+    "matchref": "rhodes_field_uniform",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Rhodes Island set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 罗德岛外勤长裤: Dark grey field trousers with blue-grey knee pads. SPECIFIC CONSTRUCTION: ONE PAIR SLIM DARK GRAY FIELD TROUSERS, BLUE-GRAY KNEE PADS, straight practical legs with small side cargo pocket, both legs waist-to-ankle with gap. Match Rhodes jacket cold gray-blue and steel black, broad pale cool-gray lit outer/front folds, no cream plates. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/rhodes_field_uniform_8x.png"
+    ]
+  },
+  {
+    "id": "rhodes_feet",
+    "slot": "feet",
+    "name": "罗德岛外勤战靴",
+    "layer": null,
+    "description": "**Dark grey boots** with blue-grey toe caps.",
+    "batch": "E15d",
+    "cloth": false,
+    "matchref": "rhodes_field_uniform",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Rhodes Island set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 罗德岛外勤战靴: Dark grey boots with blue-grey toe caps. SPECIFIC CONSTRUCTION: PAIR DARK GRAY FIELD COMBAT BOOTS with BLUE-GRAY TOE CAPS, medium shafts and simple laces, matte practical panels. Match Rhodes jacket steel black and blue-gray, broad pale gray-blue lit caps/rim, not metallic silver toe caps. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/rhodes_field_uniform_8x.png"
+    ]
+  },
+  {
+    "id": "rhodes_ring",
+    "slot": "ring",
+    "name": "罗德岛干员指环",
+    "layer": null,
+    "description": "A **plain dark steel ring** with one thin blue-grey line.",
+    "batch": "E15d",
+    "cloth": false,
+    "matchref": "rhodes_field_uniform",
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Rhodes Island set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 罗德岛干员指环: A plain dark steel ring with one thin blue-grey line. SPECIFIC CONSTRUCTION: ONE PLAIN DARK STEEL RING with ONE THIN BLUE-GRAY LINE around outside, smooth thick band turned obliquely, broad pale cool gray lit upper-left face and inner lower arc, remaining steel dark. No logo, no gem, no glowing core, transparent central hole. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/rhodes_field_uniform_8x.png"
+    ]
+  }
+]

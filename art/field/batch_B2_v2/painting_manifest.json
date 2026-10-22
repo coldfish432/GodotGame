@@ -1,0 +1,32 @@
+{
+  "brief": "art/_to_sol/B2_siracusa_civilian_v2.zip",
+  "brief_sha256": "1ddc2ee0e19e620075ca325ef6c8238391fcf5a2dd42c3c32137990c6657e924",
+  "generator": "built-in image_gen",
+  "status": "PENDING_USER_REVIEW",
+  "files": {
+    "civilian_painting.png": {
+      "bytes": 760046,
+      "sha256": "9352e87282f3bffe37169af31828f096ddd69850a0f6a7ba909d79e2d668f230"
+    },
+    "civilian_with_style_refs.png": {
+      "bytes": 3171187,
+      "sha256": "cf3ea9d0e531f78a659f3be09ea02fcdff6177b0e83ac1671b1a2be1df8eb925"
+    },
+    "civilian_vs_prts.png": {
+      "bytes": 1832635,
+      "sha256": "abc91aabc972d15b3c6221f8606c93c3e909a0b3e028a11d12d66d546fffb243"
+    },
+    "generation_prompts.md": {
+      "bytes": 11193,
+      "sha256": "ee6bf68e2c5bd0ad0032c7fb07ac5017098a4fcaba130bc1f66d96c450dfe5a5"
+    },
+    "source_paintings/civilian_painting_generated.png": {
+      "bytes": 791369,
+      "sha256": "ef2dde26c852c8fcf6ef3577a0d1a8df7761e7f33468fcb630e9fb3a2cca2b13"
+    },
+    "painting_qa_report.json": {
+      "bytes": 1750,
+      "sha256": "f072f6f60eaa3f9b6f3a24cf53ca5c9564c05d1723c35e2998f63c1619720e2b"
+    }
+  }
+}

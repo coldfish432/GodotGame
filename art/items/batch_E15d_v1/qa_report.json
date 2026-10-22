@@ -1,0 +1,141 @@
+{
+  "scope": "static files and review sheets; no engine acceptance",
+  "runtime_verified": false,
+  "expected_count": 5,
+  "actual_count": 5,
+  "missing": [],
+  "items": [
+    {
+      "id": "rhodes_head",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.1886,
+      "isolated_fraction": 0.1501,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        9,
+        65,
+        63
+      ]
+    },
+    {
+      "id": "rhodes_hands",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2859,
+      "isolated_fraction": 0.0723,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        11,
+        65,
+        61
+      ]
+    },
+    {
+      "id": "rhodes_legs",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2135,
+      "isolated_fraction": 0.057,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        17,
+        5,
+        54,
+        66
+      ]
+    },
+    {
+      "id": "rhodes_feet",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2102,
+      "isolated_fraction": 0.298,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        9,
+        65,
+        62
+      ]
+    },
+    {
+      "id": "rhodes_ring",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.1604,
+      "isolated_fraction": 0.1893,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        2,
+        3,
+        29,
+        29
+      ]
+    }
+  ],
+  "emit": [],
+  "pass": true
+}

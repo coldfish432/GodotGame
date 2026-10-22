@@ -1,0 +1,370 @@
+{
+  "batch": "UA_UB_v1",
+  "stage": "1_CONCEPT_REVIEW",
+  "asset_count": 17,
+  "operators": 9,
+  "npcs": 8,
+  "generator": "Built-in image_gen; 17 original paintings plus 6 targeted edit calls",
+  "style_reference": "refs/style_patriot.png",
+  "approval": "PENDING",
+  "runtime_downscaling": "Not performed; requires concept approval per brief",
+  "files": [
+    {
+      "id": "op_lappland",
+      "name": "拉普兰德",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_lappland.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "899806401df8dbfc3e76023435caab4dcbfba322de71aa19e1885dad698e96f3",
+      "source": "source_paintings/op_lappland_framing.png",
+      "source_sha256": "5a921b2beb9d4ab420e7c4a11df93080690942245183e4ae4bd5c07288009659",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_lappland.png",
+      "reference_page": "https://prts.wiki/w/拉普兰德",
+      "comparison_reference": "refs/op_lappland.png",
+      "representative_color": "#f5c000",
+      "future_runtime_target": "art/ui/portraits/op_lappland.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_amiya",
+      "name": "阿米娅（近卫）",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_amiya.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "ea07e3be955d51547a3b77bd341bac02ad65643417f0553f5dbb6eacce9300db",
+      "source": "source_paintings/op_amiya.png",
+      "source_sha256": "dd652e8c2d3506e59073a605ea3f5d4f09af6a4dd75507dc19b84150007b7eb3",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_amiya.png",
+      "reference_page": "https://prts.wiki/w/阿米娅(近卫)",
+      "comparison_reference": "refs/op_amiya_default.png",
+      "representative_color": "#3fd2f2",
+      "future_runtime_target": "art/ui/portraits/op_amiya.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_hellagur",
+      "name": "赫拉格",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_hellagur.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "38ab4aac2f1d57ea6984bb5f70c9472b1226e2414793e68041aef24725507bfc",
+      "source": "source_paintings/op_hellagur.png",
+      "source_sha256": "7151f403582017aec4ba3d2f2c67ae34e0cc1fad3d30cb8d7b12bc322c1dead7",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_hellagur.png",
+      "reference_page": "https://prts.wiki/w/赫拉格",
+      "comparison_reference": "refs/op_hellagur_default.png",
+      "representative_color": "#c9b27a",
+      "future_runtime_target": "art/ui/portraits/op_hellagur.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_rosa",
+      "name": "早露",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_rosa.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "dba681edf7e31059b2b8ab5823e4060009e6b804bede0fa4c5ef18cd67b41691",
+      "source": "source_paintings/op_rosa.png",
+      "source_sha256": "d9327578be6cb6c8896334a4635f90727e4fe0b26bcd034a951b58b866da971c",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_rosa.png",
+      "reference_page": "https://prts.wiki/w/早露",
+      "comparison_reference": "refs/op_rosa_default.png",
+      "representative_color": "#d8dde4",
+      "future_runtime_target": "art/ui/portraits/op_rosa.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_hoshiguma",
+      "name": "星熊",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_hoshiguma.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "f680289de6543726c753ab19f306fa768a9d7357fcbe5b3b0dda35a5af84c42c",
+      "source": "source_paintings/op_hoshiguma.png",
+      "source_sha256": "127d563ef454af12e527d37c17cc5d1f8f350146039159abb9c4cbc4831d5dbe",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_hoshiguma.png",
+      "reference_page": "https://prts.wiki/w/星熊",
+      "comparison_reference": "refs/op_hoshiguma_default.png",
+      "representative_color": "#3ccf8e",
+      "future_runtime_target": "art/ui/portraits/op_hoshiguma.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_lin",
+      "name": "林",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_lin.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "57ab387761995316e644340c477aae948d7536f4114c29de2a6f76141c867b42",
+      "source": "source_paintings/op_lin_costume.png",
+      "source_sha256": "97ea197287236c1fcf0d93f65de865142be0d7e1f2b993e1db77362874215d35",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_lin.png",
+      "reference_page": "https://prts.wiki/w/林",
+      "comparison_reference": "refs/op_lin_default.png",
+      "representative_color": "#c08cff",
+      "future_runtime_target": "art/ui/portraits/op_lin.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_typhon",
+      "name": "提丰",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_typhon.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "c2be5815643be787a274a81eef29e62783fb5bfad5551be95984a346d31f0501",
+      "source": "source_paintings/op_typhon_repair.png",
+      "source_sha256": "09dbc7a88f5443dad43ab454e4c5bd90ca6b344ddc810235d9d9e722c31b2d1f",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_typhon.png",
+      "reference_page": "https://prts.wiki/w/提丰",
+      "comparison_reference": "refs/op_typhon_default.png",
+      "representative_color": "#b07cd8",
+      "future_runtime_target": "art/ui/portraits/op_typhon.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_santalla",
+      "name": "寒檀",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_santalla.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "0fbddd4674a1a5592db8e768777b188c7e119e2cbb809b65367c7857388f2b3b",
+      "source": "source_paintings/op_santalla_framing.png",
+      "source_sha256": "ab1d94ea3eb87513c99e46b0ac4d29044b07200627794fb48c909ad4bdec86f1",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_santalla.png",
+      "reference_page": "https://prts.wiki/w/寒檀",
+      "comparison_reference": "refs/op_santalla_default.png",
+      "representative_color": "#8fc8ff",
+      "future_runtime_target": "art/ui/portraits/op_santalla.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "op_texas",
+      "name": "德克萨斯",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/op_texas.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "30ba92673a08ca20f30a60fa02e7bf534f68d34e901c01523c737fc250837df6",
+      "source": "source_paintings/op_texas_framing.png",
+      "source_sha256": "3e2e74b7c012ad3e22180574620e2f0031a775f59ef2089f334d2067e8b7be73",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/op_texas.png",
+      "reference_page": "https://prts.wiki/w/德克萨斯",
+      "comparison_reference": "refs/op_texas_default.png",
+      "representative_color": "#e05050",
+      "future_runtime_target": "art/ui/portraits/op_texas.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_closure",
+      "name": "可露希尔",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_closure.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "068f3ba0c506b8b1b7a9e975740aefc9863d839e9ce497aec2ef7f1095ed09c0",
+      "source": "source_paintings/npc_closure.png",
+      "source_sha256": "5c780950f9de414fa76ce81f75a8760ba52aa72f06c4a53cd379fba764b05e08",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_closure.png",
+      "reference_page": "https://prts.wiki/w/可露希尔",
+      "comparison_reference": "refs/npc_closure.png",
+      "representative_color": "#ff5fa2",
+      "future_runtime_target": "art/ui/portraits/npc_closure.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_cannot",
+      "name": "坎诺特",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_cannot.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "a92d118e89c980a103eb5e7aeee9beab2ec2ead3b7eae4783d2f8b42795633fb",
+      "source": "source_paintings/npc_cannot.png",
+      "source_sha256": "f8777ee8b723ce851e50d20d4df69c596682ead27f2742efeac64ce771e31f08",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_cannot.png",
+      "reference_page": "https://prts.wiki/w/剧情角色一览",
+      "comparison_reference": "refs/npc_cannot.png",
+      "representative_color": "#b49b70",
+      "future_runtime_target": "art/ui/portraits/npc_cannot.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_squad",
+      "name": "罗德岛预备干员",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_squad.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "a0d5fe672a29775a33ccf696d3640403a7e96f337cf4e49bb67bda13ffc67e10",
+      "source": "source_paintings/npc_squad.png",
+      "source_sha256": "f9a60e5aa327fda63cf0a10643dd8ba3ec3fb2020402e2c47728192bbb32cea1",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_squad.png",
+      "reference_page": "https://prts.wiki/w/预备干员-近战",
+      "comparison_reference": "refs/npc_squad.png",
+      "representative_color": "#3fd2f2",
+      "future_runtime_target": "art/ui/portraits/npc_squad.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_medic",
+      "name": "罗德岛医疗干员",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_medic.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "9fc97e8d936fe9fd7b8031068d354b15a93859ac0271c30be649e9ba4f746c4a",
+      "source": "source_paintings/npc_medic.png",
+      "source_sha256": "fe7c088acb3e6c4e179c4c03a263c685dc39fe89540fbd19c52b019bd53d8e33",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_medic.png",
+      "reference_page": "https://prts.wiki/w/预备干员-后勤",
+      "comparison_reference": "refs/npc_medic.png",
+      "representative_color": "#2fbfa6",
+      "future_runtime_target": "art/ui/portraits/npc_medic.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_post_rat",
+      "name": "龙门下城区商人",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_post_rat.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "b4c472b98bec307c1cf12a31e67f730fb36fe3356ad51f268948d29648a95e94",
+      "source": "source_paintings/npc_post_rat.png",
+      "source_sha256": "6002b9ef8c1e128113591ff12436b25b4952417783e7125af81deea35920cac7",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_post_rat.png",
+      "reference_page": "https://prts.wiki/w/剧情角色一览",
+      "comparison_reference": "refs/npc_post_rat.png",
+      "representative_color": "#a89472",
+      "future_runtime_target": "art/ui/portraits/npc_post_rat.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_post_reunion",
+      "name": "整合运动残党商人",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_post_reunion.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "99ad395851dc484ae6b9b0d89ac375cb554ed4980525c84b457842f0a7d95aa1",
+      "source": "source_paintings/npc_post_reunion_repair.png",
+      "source_sha256": "dbe9615deffd7522b36528e99bfe20d6ff298ba3adf4a2aa7c453342b70ff655",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_post_reunion.png",
+      "reference_page": "https://prts.wiki/w/剧情角色一览",
+      "comparison_reference": "refs/npc_post_reunion.png",
+      "representative_color": "#c8c0ad",
+      "future_runtime_target": "art/ui/portraits/npc_post_reunion.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_post_ursus",
+      "name": "乌萨斯矿场商人",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_post_ursus.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "b2600d826b097b31c701e8f7a9098a14259634d7167bfa5c675ff8df43f95b5f",
+      "source": "source_paintings/npc_post_ursus.png",
+      "source_sha256": "d8f77ff5302ee3a685b125227646439d0a8a220732c01547dd2930a3b3e986ba",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_post_ursus.png",
+      "reference_page": "https://prts.wiki/w/剧情角色一览",
+      "comparison_reference": "refs/npc_post_ursus.png",
+      "representative_color": "#a58b64",
+      "future_runtime_target": "art/ui/portraits/npc_post_ursus.png",
+      "runtime_delivered": false
+    },
+    {
+      "id": "npc_post_sami",
+      "name": "萨米林地商人",
+      "stage": "1_CONCEPT_REVIEW",
+      "approval": "PENDING",
+      "file": "paintings/npc_post_sami.png",
+      "size": [
+        887,
+        1774
+      ],
+      "sha256": "26bcd601032a241bf6665eef6e50ab47631b93b8003133f9547b4a5b23c6b03b",
+      "source": "source_paintings/npc_post_sami.png",
+      "source_sha256": "c270c61b3cb4a53d14636c766bedd88025a5c4717cf5901018f1031134d39f5f",
+      "alpha_processing": "A>=128 ->255, else 0; RGB unchanged; raw source preserved",
+      "reference": "refs/npc_post_sami.png",
+      "reference_page": "https://prts.wiki/w/剧情角色一览",
+      "comparison_reference": "refs/npc_post_sami.png",
+      "representative_color": "#8eaa86",
+      "future_runtime_target": "art/ui/portraits/npc_post_sami.png",
+      "runtime_delivered": false
+    }
+  ]
+}

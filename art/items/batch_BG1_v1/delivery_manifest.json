@@ -1,0 +1,530 @@
+{
+  "batch": "BG1_v1",
+  "count": 36,
+  "generator": "built-in image_gen.imagegen",
+  "art_acceptance": "PENDING_REVIEW",
+  "static_validation": "PASS",
+  "godot_runtime_tested": false,
+  "files": {
+    ".gdignore": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "art_preview.png": {
+      "bytes": 138861,
+      "sha256": "e7de526be5bf4de73c8007e785c2fb48db0c5ca938a1e8dc88036afc776fbbe7"
+    },
+    "bg_eikthyrnir_0.png": {
+      "bytes": 1501,
+      "sha256": "b9fbc443931b48acdeb86e5f2e5371a65a2aa325ec670cf7f1f79006f5640eb0"
+    },
+    "bg_eikthyrnir_0_8x.png": {
+      "bytes": 3269,
+      "sha256": "b23668ca24357de9ff2fd3310753b635e4e4697a94e2a2610839e1abaafb828e"
+    },
+    "bg_eikthyrnir_1.png": {
+      "bytes": 1279,
+      "sha256": "a5a2fd92d02446f93190d4177275b5cebfde1a3e681a448aa0dfff20dc704a37"
+    },
+    "bg_eikthyrnir_1_8x.png": {
+      "bytes": 2957,
+      "sha256": "807b8b7c26e04f408eed4deb7ca01ef9428adb7f3c7bbec2d0bbaa036a70e8dd"
+    },
+    "bg_eikthyrnir_2.png": {
+      "bytes": 1222,
+      "sha256": "965a25851e1dd4f5e2338ff312d070580eda694af5cfeb14fb0ef3bee80fab2c"
+    },
+    "bg_eikthyrnir_2_8x.png": {
+      "bytes": 2578,
+      "sha256": "809cd2dfcd2e3a9666b4bf7785e8bd85e248661e943523f474ab2ba1df5f3acd"
+    },
+    "bg_eikthyrnir_3.png": {
+      "bytes": 2647,
+      "sha256": "c8534bee82765b0b4dd24a600b77eb9061f3218487b2fbe4fc811e7e3a30730d"
+    },
+    "bg_eikthyrnir_3_8x.png": {
+      "bytes": 7416,
+      "sha256": "fa27dc69cb2cced76205487e5190de79a84b70ebffb623a92898e26d536053d4"
+    },
+    "bg_eikthyrnir_4.png": {
+      "bytes": 4070,
+      "sha256": "036ddaee72bf2756521ef57afb7fbb3560442f415eb1aa6a7b758a2b24b1a0c5"
+    },
+    "bg_eikthyrnir_4_8x.png": {
+      "bytes": 9872,
+      "sha256": "087857754b3a4696f1c263fa04f4d01e48cdca7fe09eb25d31adf47947f7e0bd"
+    },
+    "bg_eikthyrnir_5.png": {
+      "bytes": 2677,
+      "sha256": "011c7bfc15d6a3b390e717f79a9900d21ea154f8b7ce9407d9f81914464e811b"
+    },
+    "bg_eikthyrnir_5_8x.png": {
+      "bytes": 6606,
+      "sha256": "5f8ecf79879f0bac80c548999875ae178c9523f8ee8056ce6bd2a553bf0babfb"
+    },
+    "bg_eikthyrnir_6.png": {
+      "bytes": 525,
+      "sha256": "55de4c501d702d39c70e66c37a79ab04c08681f93bf4d4f345f5aee1ca18026f"
+    },
+    "bg_eikthyrnir_6_8x.png": {
+      "bytes": 1430,
+      "sha256": "d9e122dc95ec6d1390912d94ac8a331d7e42010527abf86f4eb369147937f938"
+    },
+    "bg_eikthyrnir_7.png": {
+      "bytes": 700,
+      "sha256": "0eea7fb5b7191796d8724afa9ec4dbb2a93674c308df1f258c418d1b7981c457"
+    },
+    "bg_eikthyrnir_7_8x.png": {
+      "bytes": 1725,
+      "sha256": "0be5b7624ccff066766ef2e8f4ba7d3ae32da9d7ff49177c792d4f89fcaae916"
+    },
+    "bg_eikthyrnir_8.png": {
+      "bytes": 948,
+      "sha256": "60c2208022198b48ffe5c7d42bd0525dda5eb055d45cc07bee8e18d1ad27eef4"
+    },
+    "bg_eikthyrnir_8_8x.png": {
+      "bytes": 2137,
+      "sha256": "0bf8a6ad408a81f3ccbf0af0bd230abab77ba7b3c4103741dcacc9d493e0d020"
+    },
+    "bg_patriot_0.png": {
+      "bytes": 647,
+      "sha256": "1d33d69d5ae8063eea00a99158cc27885ae6160c3bcc697d5533a8c8c7a5bc4c"
+    },
+    "bg_patriot_0_8x.png": {
+      "bytes": 1784,
+      "sha256": "fb043d6ccf5e19c1f2af9bc296b5a6eae1dd581b13412c9bccac3679bd4ccf36"
+    },
+    "bg_patriot_1.png": {
+      "bytes": 802,
+      "sha256": "46e67ae2b297994f5860a3c312a944e727e97562104ccd353c1b8e0780b4ef76"
+    },
+    "bg_patriot_1_8x.png": {
+      "bytes": 1915,
+      "sha256": "1929658032ee14a7ca8edc15864eab8eb72ab7765903fb14cd98ec2fe736232f"
+    },
+    "bg_patriot_2.png": {
+      "bytes": 1145,
+      "sha256": "4ee1f0e7ca3655110c5c0370befcd2daad297401c35a31d65d53bcf7b1e56a9b"
+    },
+    "bg_patriot_2_8x.png": {
+      "bytes": 2637,
+      "sha256": "33401642a574420b7c3d204642c3f0909c920a4737db8233ace4c136b431a95c"
+    },
+    "bg_patriot_3.png": {
+      "bytes": 3370,
+      "sha256": "95c5c9dab7b7f680ea1a47a3442b5b29d0ab245a783e085ad222035c529677c4"
+    },
+    "bg_patriot_3_8x.png": {
+      "bytes": 8322,
+      "sha256": "686f5cc42dbab0c8238eb2e13a59c33b4b0553826006fff9d4fae7d52263ef91"
+    },
+    "bg_patriot_4.png": {
+      "bytes": 3852,
+      "sha256": "665fe86e774679f05a368042ef425bf328cea043ea0342a1fa705c8d7cafdddc"
+    },
+    "bg_patriot_4_8x.png": {
+      "bytes": 9753,
+      "sha256": "c08e63944d8847850fcedbe348960c77096211207298708d41f1a2643220600f"
+    },
+    "bg_patriot_5.png": {
+      "bytes": 3031,
+      "sha256": "4e11e7efff3a752c78e23d9e948ab49221f94a2c3bbe56f1d57b47c2bd6249c4"
+    },
+    "bg_patriot_5_8x.png": {
+      "bytes": 7979,
+      "sha256": "7fa0fb02b93c206f353d6ef64caa0e2ae0d85a8c9e89ea81bc2e5a515bc7b2b3"
+    },
+    "bg_patriot_6.png": {
+      "bytes": 720,
+      "sha256": "159d6dd88cdf204f63a8e66903776161422cb59e65272297ae6d272575c1f81c"
+    },
+    "bg_patriot_6_8x.png": {
+      "bytes": 1807,
+      "sha256": "c7f0d7889c4670be0a1a81df552798937ea2eeaac6a5564b4cf9f2bfd5dc3cee"
+    },
+    "bg_patriot_7.png": {
+      "bytes": 930,
+      "sha256": "2cc1e30335cf95871e2fe11f7d2e5ee9030b34e1386c9ce75df69ddd4149d459"
+    },
+    "bg_patriot_7_8x.png": {
+      "bytes": 2114,
+      "sha256": "e9ea2ad19251ded13465e05b80fd05bb60d17d26db80c1bbea068a2b4c5ad2a3"
+    },
+    "bg_patriot_8.png": {
+      "bytes": 1022,
+      "sha256": "90f26c47ad86f8e9fdde57d660cbe4fe37bb74205c7e481f2948fd5018e690fa"
+    },
+    "bg_patriot_8_8x.png": {
+      "bytes": 2251,
+      "sha256": "4756dfc18b35b57fb5fb92bc94f2bae597bac4668d122fe761d8e270115a0ae9"
+    },
+    "bg_rat_king_0.png": {
+      "bytes": 527,
+      "sha256": "832c7dada5014a48d7e74080cca3079067a4f9ba61ea86967aa64577e87ef661"
+    },
+    "bg_rat_king_0_8x.png": {
+      "bytes": 1488,
+      "sha256": "1fc127b594cd61c686e8dd1e481e9e3cbadabc4200e7287840f1d4aae73f3fa8"
+    },
+    "bg_rat_king_1.png": {
+      "bytes": 971,
+      "sha256": "6a6d69480580125fb70a19a3de78769047d0167c1a64737517f41d4c250710f2"
+    },
+    "bg_rat_king_1_8x.png": {
+      "bytes": 2264,
+      "sha256": "45c60fa44509a50a869eb9f6ec523b5562b0ff904fe0f096ac80c7f6c1b0073a"
+    },
+    "bg_rat_king_2.png": {
+      "bytes": 1326,
+      "sha256": "a4aa8109a47c85359c7f1eaa758036d1f09a94f3dc79bac117e5c42c56617708"
+    },
+    "bg_rat_king_2_8x.png": {
+      "bytes": 3069,
+      "sha256": "3ca8cb7abb5b263eb20d50dd8d2cada488f9a170a8d33b9f8c06434fc78b6ecc"
+    },
+    "bg_rat_king_3.png": {
+      "bytes": 3049,
+      "sha256": "6c9d15d4e79c05d39579479116b1b35f984e49af5bff3325ddc954f329d605f2"
+    },
+    "bg_rat_king_3_8x.png": {
+      "bytes": 8045,
+      "sha256": "1925833cf7736e378dc1a565ca072eb765e888654fd23113e2c4fdcce0722077"
+    },
+    "bg_rat_king_4.png": {
+      "bytes": 4012,
+      "sha256": "ef2c42deb9051d69ee3f0341a665b9fe8392b1420de780091bbbb5b17c67b07c"
+    },
+    "bg_rat_king_4_8x.png": {
+      "bytes": 9860,
+      "sha256": "792cd32bd358364e80ae7765df5d990624386358cebeb17bce94c099914a5d5a"
+    },
+    "bg_rat_king_5.png": {
+      "bytes": 3571,
+      "sha256": "69337c6ab8b3b1bcbbea107acb4baa19ac3ce7f08fe26fd7edcbafa9ccf2223d"
+    },
+    "bg_rat_king_5_8x.png": {
+      "bytes": 9090,
+      "sha256": "6db4dfb9d86f0d845a0b39a9e1e8828e105f68cc9526afbcc6d194f6bcbf1d38"
+    },
+    "bg_rat_king_6.png": {
+      "bytes": 825,
+      "sha256": "5f9795e5f05db91dffc95af370c03021c00e9bf3a909108eb5d9bebae705f956"
+    },
+    "bg_rat_king_6_8x.png": {
+      "bytes": 1928,
+      "sha256": "00fd908dbf35baf35db66de784a95b995c3d64d0c0ee2c0d20f44e51c14fb180"
+    },
+    "bg_rat_king_7.png": {
+      "bytes": 748,
+      "sha256": "9a7aa9a24476117559062254d3357f12842734ca3bdaebfc0f791d25f0976fc6"
+    },
+    "bg_rat_king_7_8x.png": {
+      "bytes": 1818,
+      "sha256": "e3622b3ce301410f5870dd44207ce63098fce29f0e0bb374c9f6b4679f933ec0"
+    },
+    "bg_rat_king_8.png": {
+      "bytes": 1027,
+      "sha256": "d6a54b2a5a33b49fea89c715dfea31ce4f5c1cd4c308e479d1135b98dbaae2c7"
+    },
+    "bg_rat_king_8_8x.png": {
+      "bytes": 2174,
+      "sha256": "0f025f3507073d1ffb1019664dcdcc4243fc424c6145f3286e852ba6adbdff26"
+    },
+    "bg_zaro_0.png": {
+      "bytes": 1147,
+      "sha256": "dce098155eb0f29e1efa700447f2041620d74970666208f18a8a1e2a721df24b"
+    },
+    "bg_zaro_0_8x.png": {
+      "bytes": 2670,
+      "sha256": "7e3ec634dbcb9a5e32ce852df173f050f2b20c98068e22b5255b175f141d9277"
+    },
+    "bg_zaro_1.png": {
+      "bytes": 1804,
+      "sha256": "90aa2dce02fdc39002bcc418816101d7be832f20dfe25d625ad1addaacd9aa37"
+    },
+    "bg_zaro_1_8x.png": {
+      "bytes": 3934,
+      "sha256": "b3e6c79efd76288ed23300a7801a1a6469cba6c5ec6f5dd5ece81417848230e4"
+    },
+    "bg_zaro_2.png": {
+      "bytes": 463,
+      "sha256": "ab44c952b5d36a596085790f585a34f714eb57be400637ca2f8d2f77f6ee3082"
+    },
+    "bg_zaro_2_8x.png": {
+      "bytes": 1358,
+      "sha256": "f068d62404007b4e3adf58169b03e1369ec25ef365fb989cc7ec0287553f26c7"
+    },
+    "bg_zaro_3.png": {
+      "bytes": 3523,
+      "sha256": "b8efba9c7658151a27a920a8159c5ba3a3e6541ca606b8a763df9f9bd988f5a5"
+    },
+    "bg_zaro_3_8x.png": {
+      "bytes": 9244,
+      "sha256": "37cfb8b93197d5f8ee24fc1ace8ead68fa0c91b799761b8342eb2f116d81df61"
+    },
+    "bg_zaro_4.png": {
+      "bytes": 4463,
+      "sha256": "c2c90995fb41b648f89638ec48f8365d4244a32b88913270857da17ca5b8891c"
+    },
+    "bg_zaro_4_8x.png": {
+      "bytes": 10756,
+      "sha256": "d7b35e321d9b8cfc82ffeabef68425ebf1edca879bd487bea6cf016454d117f0"
+    },
+    "bg_zaro_5.png": {
+      "bytes": 3023,
+      "sha256": "6805f1b3017ea2233282c205de7efd53510e40588e1e8eada3d6adbe9987753f"
+    },
+    "bg_zaro_5_8x.png": {
+      "bytes": 7991,
+      "sha256": "95f1eddc7290023ebf31b3acd0d322b2d72d54c9192a30e2fce0268da46c4dfd"
+    },
+    "bg_zaro_6.png": {
+      "bytes": 826,
+      "sha256": "435f9e0aabc9086d33422318eae6aaf6febccb5a272101928ef870ca0548456e"
+    },
+    "bg_zaro_6_8x.png": {
+      "bytes": 1942,
+      "sha256": "4afc636e81d54b303811037ff6f7528c1a2b2666abee9939a95013d86e717e8e"
+    },
+    "bg_zaro_7.png": {
+      "bytes": 474,
+      "sha256": "a8a86891ac7992de45c55606e9d35f09beaff9b328c825165bba040defcb2776"
+    },
+    "bg_zaro_7_8x.png": {
+      "bytes": 1127,
+      "sha256": "4e6f57eda9c034ce056be9d140c573d737a61d2f40f39ed73041e59af4761d1f"
+    },
+    "bg_zaro_8.png": {
+      "bytes": 845,
+      "sha256": "b9d966f07d6b075ac02de17426989f6c6641debe6415d0ddeab3baba06f7ec0d"
+    },
+    "bg_zaro_8_8x.png": {
+      "bytes": 1951,
+      "sha256": "d0d972b17a961086af3c3258661443bf2656af47ba85a5e1579ede5b7f0083f7"
+    },
+    "contact_sheet.png": {
+      "bytes": 78448,
+      "sha256": "40e439f09849dcfcb065ce80f8db1c6eca489e5c1f3812e9453b4f8003cb5872"
+    },
+    "contact_sheet_2x.png": {
+      "bytes": 97113,
+      "sha256": "c06476d21048b9ca265262defea01ca81a6a3994a63b5ac7759e16635b54dd0c"
+    },
+    "generation_history.json": {
+      "bytes": 660,
+      "sha256": "9aa0f8b91f502632029f916811d46614e7bca001a3fcb86b8dbaa2283a7cf8b8"
+    },
+    "generation_prompts.md": {
+      "bytes": 55179,
+      "sha256": "b84343e0ccff637191034a46fefc744ad934f9864c7b93c0a53b80ac27da2b93"
+    },
+    "generation_specs.json": {
+      "bytes": 66479,
+      "sha256": "53a62c2ee10203a018e368a5155bf477de88fa1af94b851c683e53df8ad33832"
+    },
+    "manifest.json": {
+      "bytes": 32732,
+      "sha256": "50771a0fd42f0d551b175ff5240b8522e552c44149def1174319c1d7ce8b7614"
+    },
+    "package.py": {
+      "bytes": 1683,
+      "sha256": "2962f6cc971ce7b43d76c89a60f06f5fb6507a4ada0bf77ef03d32c9d42b3475"
+    },
+    "process.py": {
+      "bytes": 8309,
+      "sha256": "c12e7371edb61789a72977d3b67aed1bf1dfed43814980f88482703333014a87"
+    },
+    "rarity_backgrounds_1x.png": {
+      "bytes": 283871,
+      "sha256": "aec693cb6fac45d29328208cb970a8917399ff9c3bb3db36c18473ddd912298f"
+    },
+    "README.md": {
+      "bytes": 2146,
+      "sha256": "df1dffcf3dc95b341c3ef1848269655a2c8aaaef42ffa8b6003e4a2c3d553fd3"
+    },
+    "refs/bg_zaro_7_revision_input_8x.png": {
+      "bytes": 1707,
+      "sha256": "fb19c45a2cc6aeada648d886a49813790e132d8f993afac7f14428de17c8bc5b"
+    },
+    "refs/style_E13.png": {
+      "bytes": 16206,
+      "sha256": "c26448906e80994dcf532b1e3feb95f855fe3d53b5b8b99b3e7bd250ceee2c90"
+    },
+    "silhouette_check.png": {
+      "bytes": 16888,
+      "sha256": "bbb66a74fb7f943853b3efdb1857ce34e687665d02d9949e23a30a3953b2f2dc"
+    },
+    "source_brief.md": {
+      "bytes": 19808,
+      "sha256": "fda2cb19d0335b048fe56ca28a186b9613917161b83e1c3d2cb76073db49d446"
+    },
+    "sources/bg_eikthyrnir_0_raw.png": {
+      "bytes": 923299,
+      "sha256": "3d40e782c02232a8d36903a974360011f80c5d536abe0dade1e47b6c9c669e57"
+    },
+    "sources/bg_eikthyrnir_1_raw.png": {
+      "bytes": 1129663,
+      "sha256": "d2ee9097ba556d63e287b65aebd36d3bd68c64eeb876f30d6ba923b9c8a4b4a2"
+    },
+    "sources/bg_eikthyrnir_2_raw.png": {
+      "bytes": 653174,
+      "sha256": "1049dd5c99135b3cd1a5f0c29bb25158d9186388221f08857086586e3cddaa42"
+    },
+    "sources/bg_eikthyrnir_3_raw.png": {
+      "bytes": 1497316,
+      "sha256": "15cbf2db97d779b5955d565ef92f2105b2eb2fc5fccc018d95a92f7d6c44703d"
+    },
+    "sources/bg_eikthyrnir_4_raw.png": {
+      "bytes": 1654654,
+      "sha256": "34fdb5dfe398d7da0fe47a04b6a59345a444c66614246ee69d1cc585c0836868"
+    },
+    "sources/bg_eikthyrnir_5_raw.png": {
+      "bytes": 1909061,
+      "sha256": "02e84549028b3c30795144a444a38af0e708f82621957912e1fd44f3be2b221b"
+    },
+    "sources/bg_eikthyrnir_6_raw.png": {
+      "bytes": 538417,
+      "sha256": "770ffd48971dd26d8acfbdfc5bd07e056fa2f3f99d7b6625aea2673978a3bcf3"
+    },
+    "sources/bg_eikthyrnir_7_raw.png": {
+      "bytes": 903815,
+      "sha256": "c6f5153c48b0894654c4d5088bd3762f9afcad68633b5d71f818f107893f3e40"
+    },
+    "sources/bg_eikthyrnir_8_raw.png": {
+      "bytes": 1267223,
+      "sha256": "4d257e3f695da3817c73e5a7c035d3412440b74eed1882641f8c79a843812adf"
+    },
+    "sources/bg_patriot_0_raw.png": {
+      "bytes": 477868,
+      "sha256": "cfdd0895f527a9beaea1d8a642975df446dcfe64ce03bf81b105a6c43eeddb56"
+    },
+    "sources/bg_patriot_1_raw.png": {
+      "bytes": 490463,
+      "sha256": "b2c35fcdaac74a3fa6a957bdfe7698d86f683499f5dd9d5e525f930b94400bbb"
+    },
+    "sources/bg_patriot_2_raw.png": {
+      "bytes": 901473,
+      "sha256": "38a5782d4951def6239fa38724f938cfe15ec7b3c684f5a8c84da5088ef29c40"
+    },
+    "sources/bg_patriot_3_raw.png": {
+      "bytes": 1632490,
+      "sha256": "46e602b1553831e5b06f19620b4dcf2a027bd75e11a90735c3e61061a1d4f181"
+    },
+    "sources/bg_patriot_4_raw.png": {
+      "bytes": 1315609,
+      "sha256": "663142dca20f7d88aad850b42afcaec92ebd858cd160679347b2ca3615a27564"
+    },
+    "sources/bg_patriot_5_raw.png": {
+      "bytes": 1884726,
+      "sha256": "aa67e47185a9900da4263f7dfd409d35359b3234a7ccb1006fb2b8200d2a20b9"
+    },
+    "sources/bg_patriot_6_raw.png": {
+      "bytes": 1416730,
+      "sha256": "9ea8ba546af97b356145865c8f50cf81db6a039f273725d9e600e7806c96ac85"
+    },
+    "sources/bg_patriot_7_raw.png": {
+      "bytes": 1126038,
+      "sha256": "9836beb047da7646dcb6b4a2d4d39f31bb844c417aed469292048b86dde6d0f5"
+    },
+    "sources/bg_patriot_8_raw.png": {
+      "bytes": 1187934,
+      "sha256": "7acd6a372d63cd152a355328d53ca9ecc2f12a21d7c1d1dd062683e3d32e5b94"
+    },
+    "sources/bg_rat_king_0_raw.png": {
+      "bytes": 327957,
+      "sha256": "178aa343f46701a5fafbc5a4637b6aea0ccccfd8ec91bdf1f31d494d201c7133"
+    },
+    "sources/bg_rat_king_1_raw.png": {
+      "bytes": 737870,
+      "sha256": "7a628459d7f90882c022fd1c2f5735aec6028d6dcd3e8c6693ca1a9d01cd713a"
+    },
+    "sources/bg_rat_king_2_raw.png": {
+      "bytes": 1151165,
+      "sha256": "95325af12d7f5e68e8d7960af2deff6dc015eb7c58c00f666240616416fc7998"
+    },
+    "sources/bg_rat_king_3_raw.png": {
+      "bytes": 1531295,
+      "sha256": "818ce6ab1f22e0e3d243fe3638e2a3f8c9d4d151c0aaf5e9f1efb7eb31a76fec"
+    },
+    "sources/bg_rat_king_4_raw.png": {
+      "bytes": 1507833,
+      "sha256": "75d56bfc442f87fafc3ad9b56fe866880387987f893b3d7a1ec36409c1d8333c"
+    },
+    "sources/bg_rat_king_5_raw.png": {
+      "bytes": 1231869,
+      "sha256": "21f7d18cce4490dc9b598d2c0efd54fe862a7513b121dfe92dc214719b14efd5"
+    },
+    "sources/bg_rat_king_6_raw.png": {
+      "bytes": 959326,
+      "sha256": "cabed24b550b6750448fbb7586ba6ca1f0295b07810e0ce55b8cd4711d499e6b"
+    },
+    "sources/bg_rat_king_7_raw.png": {
+      "bytes": 1061106,
+      "sha256": "affa0db9abeac4adbdf38949a11860c5ab16b17a7c881a27810d64089a7b976a"
+    },
+    "sources/bg_rat_king_8_raw.png": {
+      "bytes": 1363268,
+      "sha256": "b8ea57bbaa02385d2c5639e1ac3dbdd3cf4698b06dc63862f0abcd0ce043b431"
+    },
+    "sources/bg_zaro_0_raw.png": {
+      "bytes": 712417,
+      "sha256": "c66db0775e8da641ac7a513b53579ccd751d5a092263550917fc3ef06fb840f3"
+    },
+    "sources/bg_zaro_1_raw.png": {
+      "bytes": 1277128,
+      "sha256": "85321b2db56b736ee49089cdb16313f12aa6bcfd25e6326cc55ba9a68d972219"
+    },
+    "sources/bg_zaro_2_raw.png": {
+      "bytes": 298080,
+      "sha256": "e438b61720266e5024ef3bf330d948e44d39fe5b7098cebedf8bf4523c4cf483"
+    },
+    "sources/bg_zaro_3_raw.png": {
+      "bytes": 1474372,
+      "sha256": "04544ee6e8da462f546b0e71ffdaef619fa8c1d84bf34d467079b36a27e9b612"
+    },
+    "sources/bg_zaro_4_raw.png": {
+      "bytes": 1707717,
+      "sha256": "5933660b1323f78ff689b4ebf6b33045830cfb6c368a99143038ae30cd6659b0"
+    },
+    "sources/bg_zaro_5_raw.png": {
+      "bytes": 1022080,
+      "sha256": "bcae9cf0ca8336aa6d55111c45b96415e6db686abb101b6a61590e7d5a6ba40d"
+    },
+    "sources/bg_zaro_6_raw.png": {
+      "bytes": 956408,
+      "sha256": "02ff2c44b6659ecc724146ff5281182de576655a6bda11a90d79369e6e6005e8"
+    },
+    "sources/bg_zaro_7_first_attempt.png": {
+      "bytes": 792012,
+      "sha256": "63892642c6d2c69a2894785f3d42eda8452a03d5c1c54edd07b5572fd05d6370"
+    },
+    "sources/bg_zaro_7_horizontal_attempt.png": {
+      "bytes": 349120,
+      "sha256": "2178f971b94e8cee06e577824167e18bf1be67c6b883834e8739227062aaf3f0"
+    },
+    "sources/bg_zaro_7_raw.png": {
+      "bytes": 481769,
+      "sha256": "603e3a995b7a2da869fdabacb7c0e1a91f3dde311c507780e5e060cb775d4017"
+    },
+    "sources/bg_zaro_7_revision_prompt.txt": {
+      "bytes": 918,
+      "sha256": "cd507dbaba14d453d3ec839c0f550c592bc13a787e4c315cfc0cddaddba2f1d2"
+    },
+    "sources/bg_zaro_7_thick_final_prompt.txt": {
+      "bytes": 1066,
+      "sha256": "3e40c51beada360b5d0563969e00a4d39d3a0b6c6f8eaa17fa558c326ab8c69a"
+    },
+    "sources/bg_zaro_8_raw.png": {
+      "bytes": 1337834,
+      "sha256": "926668bda6907970c94bbd8e9c41022166fa0bc96c86dd5c2a2f31a2b5cd97fa"
+    },
+    "validate.py": {
+      "bytes": 3772,
+      "sha256": "45d9520a1d7f659081a99c1a02d3d4ae210144c216f318e3254d58fb8583bcad"
+    },
+    "validation.json": {
+      "bytes": 7914,
+      "sha256": "611e6833e077416852468114665cae83a6632f61258577780ae1c62c78539807"
+    }
+  }
+}

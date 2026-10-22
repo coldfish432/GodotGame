@@ -20,19 +20,60 @@ static var fx := 1000.0
 ## 可露希尔 changes money at the live rate with this spread (§1.3); the
 ## exchange terminal at EXCHANGE_FX_SPREAD.
 const CLOSURE_FX_SPREAD := 0.03
+## What 可露希尔 charges now: 2% with 商务部Ⅱ (Research.apply_globals).
+static var closure_spread := CLOSURE_FX_SPREAD
 const EXCHANGE_FX_SPREAD := 0.005
 ## Plain delivery at the base is Rhodes Island's internal buy-back (§13).
 const DIRECT_DELIVERY := 0.8
 ## Old reward units per 赤金: the loot tables still speak in the old 待交付报酬
 ## amounts (enemies 8–14, chests 30–60), turned into bars when they hit the ground.
 const OLD_REWARD_PER_BAR := 10.0
-## Contract reward on a successful extraction (§3): every floor travelled pays
-## a random 800–1200 in steps of 10.
-const CONTRACT_REWARD_MIN := 800
-const CONTRACT_REWARD_MAX := 1200
-const CONTRACT_REWARD_STEP := 10
 ## A new save's balance (the old 60 资金 ×100).
 const STARTING_LMD := 6000
+
+## The yardstick for anything priced by depth (龙门币平衡与科研部策划案 v1.1 §1):
+## a tier's drop income per floor, tier Ⅰ = 1 (tools/economy_model.py). Prices
+## follow income, not the tier coefficient 1.48^(tier − 1), because item values
+## stay linear in depth (复利数值改造清单 G).
+const INCOME_INDEX := [1.0, 1.49, 1.99, 2.57, 3.28, 4.06, 4.79, 5.46, 6.10, 6.73]
+const FLOORS_PER_TIER := 10
+const ROMAN := ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"]
+
+## Floors 1–10 are tier 1, 11–20 tier 2 … capped at Ⅹ.
+static func tier_of(floor_number: int) -> int:
+	return clampi((maxi(floor_number, 1) - 1) / FLOORS_PER_TIER + 1, 1, INCOME_INDEX.size())
+
+static func income_index(tier: int) -> float:
+	return float(INCOME_INDEX[clampi(tier, 1, INCOME_INDEX.size()) - 1])
+
+## `base` at tier 1, scaled to `tier` and rounded to 100.
+static func tiered(base: int, tier: int) -> int:
+	return roundi(base * income_index(tier) / 100.0) * 100
+
+static func roman(tier: int) -> String:
+	return str(ROMAN[clampi(tier, 1, ROMAN.size()) - 1])
+
+## The contract reward (v1.1 §2.2, 用户: 合同报酬在接取时就算好，之后不改变):
+## the random share is rolled with the offer, the card shows the pay for the
+## chosen start, and taking the contract fixes it. Paid on extraction with the
+## objective done, nothing otherwise.
+const CONTRACT_BASE := 8000
+const CONTRACT_KIND := {"recover": 0.9, "search": 1.0, "hunt": 1.1}
+## Deep contracts by how many floors past the start (FieldCatalog.DEEP_STEPS).
+const CONTRACT_DEEP := {4: 0.8, 6: 1.1, 9: 1.5}
+const CONTRACT_ROLL := Vector2(0.85, 1.15)
+
+## Kinds that pay this reward (寻访 and 运送 have their own).
+static func pays_contract_reward(contract: Dictionary) -> bool:
+	var kind := str(contract.get("type", ""))
+	return kind == "deep" or CONTRACT_KIND.has(kind)
+
+static func contract_reward(contract: Dictionary, start_floor: int) -> int:
+	if not pays_contract_reward(contract): return 0
+	var kind := str(contract.type)
+	var factor: float = float(CONTRACT_DEEP.get(int(contract.get("steps", 6)), 1.0)) if kind == "deep" else float(CONTRACT_KIND[kind])
+	var roll := float(contract.get("roll", 1.0))
+	return maxi(100, roundi(CONTRACT_BASE * income_index(tier_of(start_floor)) * factor * roll / 100.0) * 100)
 
 ## 交付价 in 龙门币: the base price of an item.
 static func price(item: Item) -> int:
@@ -44,7 +85,7 @@ static func direct_price(item: Item) -> int:
 
 ## What 可露希尔 pays in 龙门币 for one 赤金 (the live rate less her spread).
 static func closure_bar_price() -> int:
-	return roundi(fx * (1.0 - CLOSURE_FX_SPREAD))
+	return roundi(fx * (1.0 - closure_spread))
 
 ## 龙门币 per 赤金 at the live rate, for fees quoted in 赤金.
 static func bar_lmd() -> float:
@@ -59,14 +100,6 @@ static func bars_from_reward(amount: float, rng: RandomNumberGenerator) -> int:
 	var exact := maxf(amount, 0.0) / OLD_REWARD_PER_BAR
 	var whole := floori(exact)
 	return whole + (1 if rng.randf() < exact - whole else 0)
-
-## The sum of `floors` random per-floor rewards.
-static func contract_reward(floors: int, rng: RandomNumberGenerator) -> int:
-	var total := 0
-	var steps := (CONTRACT_REWARD_MAX - CONTRACT_REWARD_MIN) / CONTRACT_REWARD_STEP
-	for i in range(maxi(floors, 0)):
-		total += CONTRACT_REWARD_MIN + rng.randi_range(0, steps) * CONTRACT_REWARD_STEP
-	return total
 
 ## "6,000" — thousands separated, as the base shows 龙门币.
 static func format(amount: int) -> String:

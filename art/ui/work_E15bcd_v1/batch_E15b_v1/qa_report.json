@@ -1,0 +1,531 @@
+{
+  "scope": "static files and review sheets; no engine acceptance",
+  "runtime_verified": false,
+  "expected_count": 20,
+  "actual_count": 20,
+  "missing": [],
+  "items": [
+    {
+      "id": "city_head_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.3161,
+      "isolated_fraction": 0.0386,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        16,
+        65,
+        56
+      ]
+    },
+    {
+      "id": "city_head_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2129,
+      "isolated_fraction": 0.1476,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        7,
+        65,
+        65
+      ]
+    },
+    {
+      "id": "city_head_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.1668,
+      "isolated_fraction": 0.1003,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        12,
+        65,
+        60
+      ]
+    },
+    {
+      "id": "city_head_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2023,
+      "isolated_fraction": 0.2242,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        9,
+        65,
+        63
+      ]
+    },
+    {
+      "id": "city_hands_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 8,
+      "bright_fraction": 0.5044,
+      "isolated_fraction": 0.0887,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        18,
+        65,
+        53
+      ]
+    },
+    {
+      "id": "city_hands_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2185,
+      "isolated_fraction": 0.0913,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        13,
+        65,
+        58
+      ]
+    },
+    {
+      "id": "city_hands_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.3196,
+      "isolated_fraction": 0.3293,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        12,
+        65,
+        59
+      ]
+    },
+    {
+      "id": "city_hands_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 8,
+      "bright_fraction": 0.3197,
+      "isolated_fraction": 0.0768,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        11,
+        65,
+        60
+      ]
+    },
+    {
+      "id": "city_legs_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2061,
+      "isolated_fraction": 0.038,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        5,
+        7,
+        66,
+        65
+      ]
+    },
+    {
+      "id": "city_legs_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2421,
+      "isolated_fraction": 0.0152,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        20,
+        5,
+        52,
+        66
+      ]
+    },
+    {
+      "id": "city_legs_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2228,
+      "isolated_fraction": 0.0356,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        17,
+        5,
+        54,
+        66
+      ]
+    },
+    {
+      "id": "city_legs_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 8,
+      "bright_fraction": 0.1648,
+      "isolated_fraction": 0.0473,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        8,
+        5,
+        63,
+        66
+      ]
+    },
+    {
+      "id": "city_feet_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2458,
+      "isolated_fraction": 0.034,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        18,
+        65,
+        54
+      ]
+    },
+    {
+      "id": "city_feet_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.4293,
+      "isolated_fraction": 0.2712,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        11,
+        65,
+        61
+      ]
+    },
+    {
+      "id": "city_feet_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.271,
+      "isolated_fraction": 0.2998,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        7,
+        65,
+        64
+      ]
+    },
+    {
+      "id": "city_feet_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.1565,
+      "isolated_fraction": 0.1432,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        8,
+        7,
+        64,
+        65
+      ]
+    },
+    {
+      "id": "city_ring_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2401,
+      "isolated_fraction": 0.2118,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        2,
+        2,
+        29,
+        29
+      ]
+    },
+    {
+      "id": "city_ring_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 20,
+      "bright_fraction": 0.315,
+      "isolated_fraction": 0.2704,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        29,
+        29
+      ]
+    },
+    {
+      "id": "city_ring_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 20,
+      "bright_fraction": 0.3261,
+      "isolated_fraction": 0.1756,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        29,
+        29
+      ]
+    },
+    {
+      "id": "city_ring_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2867,
+      "isolated_fraction": 0.3914,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        29,
+        29
+      ]
+    }
+  ],
+  "emit": [],
+  "pass": true
+}

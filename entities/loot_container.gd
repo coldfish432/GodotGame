@@ -57,7 +57,7 @@ const MODELS := {
 	"winch_box": "res://art/kit/poi_winch_box.glb", "miner_pack": "res://art/kit/poi_miner_pack.glb",
 	"depot": "res://art/kit/poi_depot.glb",
 }
-const MODEL_SCALE := 1.35
+const MODEL_SCALE := 1.6
 const VARIANT_NAMES := {"ore_cart": "翻倒的源石矿车", "miner_locker": "矿工储物柜", "winch_box": "绞车控制箱", "miner_pack": "遗留的矿工背包"}
 
 func _ready() -> void:

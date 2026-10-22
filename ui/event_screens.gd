@@ -57,7 +57,7 @@ static func _side(stage: Control, width: float, tint: Color, watermark: String, 
 	side.clip_contents = true
 	var gradient := Gradient.new()
 	gradient.set_color(0, tint)
-	gradient.set_color(1, Color("0b0b0b"))
+	gradient.set_color(1, Color("090b0c"))
 	var texture := GradientTexture2D.new()
 	texture.gradient = gradient
 	texture.fill_from = Vector2(0, 0)
@@ -190,7 +190,7 @@ static func routes(menu: FieldMenu, index: int) -> void:
 	var route: Dictionary = FieldCatalog.ROUTES[pick]
 	var colour: Color = ROUTE_COLORS_SAFE(pick)
 	AK.put(stage, AK.rect(Color(0.055, 0.055, 0.055, 0.96), Vector2(980, 80), Vector2(300, 640)), Vector2(980, 80))
-	AK.put(stage, AK.rect(Color("0b0b0b"), Vector2(980, 80), Vector2(300, 150)), Vector2(980, 80))
+	AK.put(stage, AK.rect(Color("090b0c"), Vector2(980, 80), Vector2(300, 150)), Vector2(980, 80))
 	AK.put(stage, AK.rect(colour, Vector2(980, 227), Vector2(300, 3)), Vector2(980, 227))
 	AK.put(stage, AK.label("0%d" % (pick + 1), 80, Color(1, 1, 1, 0.06), AK.en()), Vector2(988, 128))
 	AK.put(stage, AK.label(ROUTE_EN[pick], 10, AK.MUTE, AK.en()), Vector2(996, 96))
@@ -214,7 +214,7 @@ static func ROUTE_COLORS_SAFE(i: int) -> Color:
 static func _node(parent: Control, centre: Vector2, code: String, name: String, state: String, colour: Color = AK.FG, selected: bool = false) -> Button:
 	var b := Button.new()
 	b.focus_mode = Control.FOCUS_NONE
-	var fill: Color = {"done": Color("1c1c1c"), "here": AK.PAPER, "next": AK.PLATE_2, "far": Color("1c1c1c")}[state]
+	var fill: Color = {"done": Color("181c1f"), "here": AK.PAPER, "next": AK.PLATE_2, "far": Color("181c1f")}[state]
 	for s in ["normal", "hover", "pressed", "disabled"]:
 		var style := AK.box(fill.lightened(0.08) if s == "hover" and state == "next" else fill)
 		if state == "next":
@@ -248,25 +248,52 @@ static func squad(menu: FieldMenu) -> void:
 	var stage := menu.stage_begin(0.8)
 	var side := _side(stage, 430, Color("0f2a30"), "RHODES", AK.CYAN, "squad")
 	_title(side, Vector2(36, 40), "ENCOUNTER", "罗德岛小队", "外勤支援 · " + AK.floor_code(game.region_id, game.floor_number), AK.CYAN)
-	var service := menu.squad_service
-	var pick: Item = menu.pick if menu.pick is Item else null
+	# The paid services while it has some left; 企鹅专递 with a slip, 补给 when
+	# 企鹅物流 carried one here (势力特供策划案 §五–§六).
 	var services := [["投保", "INSURE", "insure", AK.HP], ["送回", "SEND HOME", "send", AK.GREEN]]
-	for i in range(2):
+	if game.carried_count(GameManager.SPECIAL_SLIP) > 0: services.append(["企鹅专递", "PENGUIN PARCEL", "parcel", AK.SP])
+	if not game.provisions.mailed().is_empty(): services.append(["补给", "SUPPLY", "supply", AK.CYAN])
+	var keys := services.map(func(e): return e[2])
+	if not menu.squad_service in keys:
+		menu.squad_service = keys[0]
+		menu.pick = null
+	var service := menu.squad_service
+	if not game.encounter_used and game.squad_max_uses() > 1:
+		AK.put(side, AK.label("服务 %d / %d" % [game.squad_uses_left(), game.squad_max_uses()], 14, AK.CYAN), Vector2(36, 150))
+	var width := (770.0 - 12.0 * (services.size() - 1)) / services.size()
+	for i in range(services.size()):
 		var entry: Array = services[i]
 		var on: bool = service == entry[2]
 		var b := Button.new()
 		b.focus_mode = Control.FOCUS_NONE
 		b.set_meta("label", entry[0])
-		for s in ["normal", "hover", "pressed"]:
-			var style := AK.box(AK.PAPER if on else (AK.PLATE_2.lightened(0.06) if s == "hover" else AK.PLATE_2))
+		for st in ["normal", "hover", "pressed"]:
+			var style := AK.box(AK.PAPER if on else (AK.PLATE_2.lightened(0.06) if st == "hover" else AK.PLATE_2))
 			style.border_color = entry[3]
 			style.border_width_left = 4
-			b.add_theme_stylebox_override(s, style)
-		AK.put(stage, b, Vector2(470 + i * 391, 40), Vector2(379, 62))
+			b.add_theme_stylebox_override(st, style)
+		AK.put(stage, b, Vector2(470 + i * (width + 12.0), 40), Vector2(width, 62))
 		AK.put(b, AK.label(entry[1], 9, Color(AK.INK if on else AK.FG, 0.7), AK.en()), Vector2(20, 10))
 		AK.put(b, AK.label(entry[0], 20, AK.INK if on else AK.FG), Vector2(20, 22))
 		var key: String = entry[2]
 		b.pressed.connect(func(): menu.squad_service = key; menu.pick = null; squad(menu))
+	match service:
+		"parcel":
+			_parcel_list(menu, stage, Vector2(470, 120), func(): squad(menu))
+			return
+		"supply":
+			var meal := game.provisions.mailed()
+			AK.put(stage, AK.section("企鹅物流 · 冷链", "COLD CHAIN"), Vector2(470, 120))
+			AK.put(stage, AK.item_icon(MaterialCatalog.create(meal, 1), Vector2(96, 96)), Vector2(470, 160))
+			AK.put(stage, AK.label(meal, 22, AK.FG), Vector2(590, 166))
+			AK.put(stage, AK.label(Provisions.meal_text(meal), 15, AK.GREEN), Vector2(590, 204))
+			if not Provisions.squad_text(meal).is_empty(): AK.put(stage, AK.label(Provisions.squad_text(meal), 13, AK.CYAN), Vector2(590, 230))
+			if not game.run_meal.is_empty(): AK.put(stage, AK.label("当前：%s" % game.run_meal, 13, AK.MUTE), Vector2(590, 256))
+			_footer(stage, Vector2(470, 622), 770, "离开", "补给", game.close_modal, func():
+				game.squad_supply()
+				squad(menu), game.squad_supply_refusal().is_empty())
+			return
+	var pick: Item = menu.pick if menu.pick is Item else null
 	AK.put(stage, AK.section("可投保" if service == "insure" else "可送回"), Vector2(470, 120))
 	AK.put(stage, AK.money("gold", str(game.gold_bars()), 16), Vector2(1180, 116))
 	var scroll := ScrollContainer.new()
@@ -293,7 +320,57 @@ static func squad(menu: FieldMenu) -> void:
 		menu.pick = null
 		if service == "insure": game.squad_insure(pick)
 		else: game.squad_send_home(pick)
-		game.close_modal(), ok)
+		if game.encounter_used and not game.squad_extras(): game.close_modal()
+		else: squad(menu), ok)
+
+## 企鹅专递单 (势力特供策划案 §二): pick any number of things from the pack and
+## safe bag; one slip sends them all to the warehouse. menu.pick holds the picks.
+static func _parcel_list(menu: FieldMenu, stage: Control, at: Vector2, redraw: Callable) -> void:
+	var game := menu.game
+	var picks: Array = menu.pick if menu.pick is Array else []
+	picks = picks.filter(func(i): return game.parcel_items().has(i))
+	menu.pick = picks
+	AK.put(stage, AK.section("企鹅专递", "PENGUIN PARCEL  ×%d" % game.carried_count(GameManager.SPECIAL_SLIP)), at)
+	var all := AK.button("全选", "plain", 12)
+	AK.put(stage, all, at + Vector2(650, -4), Vector2(120, 28))
+	all.pressed.connect(func(): menu.pick = game.parcel_items(); redraw.call())
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	AK.put(stage, scroll, at + Vector2(0, 30), Vector2(770, 456))
+	var list := Control.new()
+	scroll.add_child(list)
+	var index := 0
+	for item in game.parcel_items():
+		var chosen: Item = item
+		var on := picks.has(item)
+		var row := _item_row(item, "", Item.CATEGORY_NAMES[item.category], true, on)
+		row.pressed.connect(func():
+			var now: Array = menu.pick if menu.pick is Array else []
+			if now.has(chosen): now.erase(chosen)
+			else: now.append(chosen)
+			menu.pick = now
+			redraw.call())
+		AK.put(list, row, Vector2((index % 3) * 258, (index / 3) * 66), Vector2(252, 60))
+		index += 1
+	list.custom_minimum_size = Vector2(770, ceili(index / 3.0) * 66)
+	_footer(stage, Vector2(at.x, 622), 770, "离开", "专递 · %d 件" % picks.size(), menu.show_camp if game.in_camp else game.close_modal, func():
+		game.parcel_send(picks)
+		menu.pick = []
+		redraw.call(), not picks.is_empty() and game.parcel_refusal().is_empty())
+
+## 企鹅专递 from a camp (撤离与营地修订案: 可露希尔's camp).
+static func parcel(menu: FieldMenu) -> void:
+	var game := menu.game
+	var stage := menu.stage_begin(0.8)
+	var side := _side(stage, 430, Color("2c2a12"), "PENGUIN", AK.SP)
+	_title(side, Vector2(36, 40), "PENGUIN LOGISTICS", "企鹅专递", game.camp_label(game.floor_number) if game.in_camp else "", AK.SP)
+	var back := AK.button("返回", "plain", 15)
+	AK.put(side, back, Vector2(24, 662), Vector2(382, 44))
+	back.pressed.connect(func(): menu.show_camp())
+	if game.carried_count(GameManager.SPECIAL_SLIP) <= 0:
+		menu.show_camp()
+		return
+	_parcel_list(menu, stage, Vector2(470, 40), func(): parcel(menu))
 
 ## One pickable item: icon, name, a sub line, the price on the right.
 static func _item_row(item: Item, price: String, sub: String, enabled: bool, selected: bool, short: bool = false) -> Button:
@@ -302,7 +379,7 @@ static func _item_row(item: Item, price: String, sub: String, enabled: bool, sel
 	b.custom_minimum_size = Vector2(252, 60)
 	b.set_meta("item", item)
 	for s in ["normal", "hover", "pressed", "disabled"]:
-		b.add_theme_stylebox_override(s, AK.box(Color("333333") if selected or s == "hover" else AK.PLATE_2))
+		b.add_theme_stylebox_override(s, AK.box(Color("2b3339") if selected or s == "hover" else AK.PLATE_2))
 	b.disabled = not enabled
 	if not enabled: b.modulate.a = 0.35
 	AK.put(b, AK.item_icon(item, Vector2(48, 48)), Vector2(6, 6))
@@ -324,80 +401,14 @@ static func _item_row(item: Item, price: String, sub: String, enabled: bool, sel
 # --- #9b 坎诺特 -----------------------------------------------------------------------
 
 static func trader(menu: FieldMenu) -> void:
-	var game := menu.game
-	var stage := menu.stage_begin(0.82)
-	var side := _side(stage, 360, Color("3a2c12"), "TRADER", AK.TRADER, "trader")
-	_title(side, Vector2(32, 36), "ROGUE TRADER", "坎诺特", "诡意行商 · " + AK.floor_code(game.region_id, game.floor_number), AK.TRADER)
-	var selling := menu.trader_tab == "sell"
-	AK.put(stage, AK.toggle(["购买", "出售"], 1 if selling else 0, func(i): menu.trader_tab = ["buy", "sell"][i]; menu.pick = null; trader(menu)), Vector2(390, 32))
-	AK.put(stage, AK.money("gold", str(game.gold_bars())), Vector2(1170, 38))
-	var ok := false
-	var confirm := Callable()
-	if not selling:
-		var pick := int(menu.pick) if menu.pick is int else -1
-		for i in range(game.trader_stock.size()):
-			var entry: Dictionary = game.trader_stock[i]
-			var refusal := game.trader_buy_refusal(i)
-			var cell := _shelf_cell(entry, refusal, i == pick, func(): menu.pick = i; trader(menu))
-			AK.put(stage, cell, Vector2(390 + (i % 4) * 215, 84 + (i / 4) * 158), Vector2(207, 150))
-		var reroll := AK.button("刷新 %d" % game.trader_reroll_cost(), "plain", 15)
-		AK.put(stage, reroll, Vector2(390, 548), Vector2(150, 52))
-		reroll.disabled = game.gold_bars() < game.trader_reroll_cost()
-		reroll.pressed.connect(func(): menu.pick = null; game.trader_reroll(); trader(menu))
-		ok = pick >= 0 and game.trader_buy_refusal(pick).is_empty()
-		confirm = func():
-			if pick >= 0: game.trader_buy(pick)
-			menu.pick = null
-			trader(menu)
-	else:
-		var pick: Item = menu.pick if menu.pick is Item else null
-		var can_sell := func(item: Item) -> bool: return game.trader_offer(item) > 0
-		var pick_item := func(item: Item): menu.pick = item; trader(menu)
-		AK.put(stage, AK.BagGrid.make(game.inventory, can_sell, pick_item, pick), Vector2(390, 84))
-		AK.put(stage, AK.section("安全袋"), Vector2(390, 84 + game.inventory.height * 40 + 12))
-		AK.put(stage, AK.BagGrid.make(game.safe_bag, can_sell, pick_item, pick), Vector2(390, 84 + game.inventory.height * 40 + 40))
-		if pick != null: _info(stage, game, pick, "收购价", str(game.trader_offer(pick)), Vector2(390 + game.inventory.width * 40 + 18, 84))
-		ok = pick != null and game.trader_offer(pick) > 0
-		confirm = func():
-			if pick != null: game.trader_sell(pick)
-			menu.pick = null
-			trader(menu)
-	_footer(stage, Vector2(390, 630), 854, "离开", "出售" if selling else "购买", game.close_modal, confirm, ok)
+	TraderScreen.cannot(menu)
 
-static func _shelf_cell(entry: Dictionary, refusal: String, selected: bool, on_pick: Callable) -> Button:
-	var b := Button.new()
-	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(207, 150)
-	for s in ["normal", "hover", "pressed", "disabled"]:
-		b.add_theme_stylebox_override(s, AK.box(Color("333333") if selected or s == "hover" else AK.PLATE_2))
-	var enabled := refusal.is_empty()
-	b.disabled = not enabled
-	if not enabled: b.modulate.a = 0.35
-	var is_relic: bool = entry.kind == "relic"
-	var name: String = entry.relic.name if is_relic else entry.item.display_name()
-	b.set_meta("label", name)
-	var icon: Control = AK.relic_icon(entry.relic, 72) if is_relic else AK.item_icon(entry.item, Vector2(72, 72))
-	AK.put(b, icon, Vector2(67, 8))
-	var title := AK.label(name, 12, RelicCatalog.RARITY_COLORS[entry.relic.rarity] if is_relic else entry.item.rarity_color())
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	AK.put(b, title, Vector2(8, 82), Vector2(191, 34))
-	var price := AK.money("gold", "已售出" if entry.sold else str(int(entry.price)), 16)
-	price.alignment = BoxContainer.ALIGNMENT_CENTER
-	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if refusal == "赤金不足": (price.get_child(1) as Label).add_theme_color_override("font_color", AK.RED)
-	AK.put(b, price, Vector2(0, 120), Vector2(207, 20))
-	if is_relic: b.tooltip_text = entry.relic.effect
-	if selected: AK.frame(b)
-	b.pressed.connect(on_pick)
-	return b
 
 ## The tooltip of `item` with one price row under it.
 ## `max_height` > 0 caps the text (it scrolls) so it cannot run under buttons.
 static func _info(stage: Control, game: GameManager, item: Item, key: String, value: String, at: Vector2, max_height: float = 0.0) -> void:
 	var card := PanelContainer.new()
-	card.add_theme_stylebox_override("panel", AK.box(Color("0d0d0d"), AK.LINE_2, 1, 10))
+	card.add_theme_stylebox_override("panel", AK.box(Color("0b0d0f"), AK.LINE_2, 1, 10))
 	var column := VBoxContainer.new()
 	card.add_child(column)
 	var text := RichTextLabel.new()
@@ -427,6 +438,10 @@ static func _info(stage: Control, game: GameManager, item: Item, key: String, va
 ## In a camp, or (`at_base`) her counter at the base: the same shop and 赤金
 ## buying, no deposit and no way out there (用户：不区分).
 static func camp(menu: FieldMenu, at_base: bool = false) -> void:
+	# 商店 is the Tarkov-style trader screen (药剂与商人界面策划案 §4).
+	if menu.camp_tab <= 0:
+		TraderScreen.closure(menu, at_base)
+		return
 	var game := menu.game
 	var stage := menu.stage_begin(0.97)
 	var side := _side(stage, 380, Color("13321f"), "STORE" if at_base else "CAMP", AK.GREEN, "closure")
@@ -447,64 +462,52 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 		var on := AK.button("继续 · %s" % AK.floor_code(game.region_id, game.floor_number + 1), "plain", 15)
 		AK.put(side, on, Vector2(24, 662), Vector2(332, 44))
 		on.pressed.connect(game.leave_camp)
+		# 企鹅专递单 (势力特供策划案 §二) with one in the pack.
+		if game.carried_count(GameManager.SPECIAL_SLIP) > 0:
+			var parcel_button := AK.button("企鹅专递", "yellow", 15)
+			AK.put(side, parcel_button, Vector2(24, 532), Vector2(332, 44))
+			parcel_button.pressed.connect(menu.show_parcel)
 	# 换汇 at the live rate (势力与交易所策划案 §1.3); the loan at the base (§10);
 	# forward delivery in a camp (§8.3).
-	var tabs := ["商店", "出售赤金", "换汇", "贷款"] if at_base else ["商店", "寄存", "出售赤金", "换汇", "交割"]
+	# 地图特色策划案 §9: 随队物资 at the base; 补给 and 处理 in a camp.
+	var tabs := ["商店", "出售赤金", "换汇", "贷款", "随队物资"] if at_base else ["商店", "寄存", "出售赤金", "换汇", "交割", "补给", "处理"]
 	var tab: int = clampi(menu.camp_tab, 0, tabs.size() - 1)
 	var redraw := func(): camp(menu, at_base)
 	AK.put(stage, AK.toggle(tabs, tab, func(i): menu.camp_tab = i; menu.pick = null; camp(menu, at_base)), Vector2(410, 32))
-	tab = ([0, 2, 3, 4] if at_base else [0, 1, 2, 3, 5])[tab]
-	if tab >= 3:
+	tab = ([0, 2, 3, 4, 6] if at_base else [0, 1, 2, 3, 5, 7, 8])[tab]
+	if tab in [3, 4, 5]:
 		_closure_money(menu, stage, tab, at_base)
+		return
+	if tab >= 6:
+		AK.put(stage, AK.money("gold", str(game.gold_available())), Vector2(950, 38))
+		AK.put(stage, AK.money("lmd", Economy.format(game.gold)), Vector2(1070, 38))
+		_closure_features(menu, stage, tab, at_base)
 		return
 	AK.put(stage, AK.money("gold", str(game.gold_available())), Vector2(950, 38))
 	AK.put(stage, AK.money("lmd", Economy.format(game.gold)), Vector2(1070, 38))
 	var ok := false
 	var confirm := Callable()
 	match tab:
-		0:
-			var pick: String = menu.pick if menu.pick is String else ""
-			var x := 410.0
-			for type in BaseCatalog.POTIONS:
-				var price := game.closure_potion_price(type)
-				var card := Button.new()
-				card.focus_mode = Control.FOCUS_NONE
-				card.set_meta("label", BaseCatalog.POTIONS[type].name)
-				for s in ["normal", "hover", "pressed", "disabled"]:
-					var style := AK.box(Color("333333") if pick == type or s == "hover" else AK.PLATE_2)
-					style.border_color = AK.ORI if type == "C" else AK.GREEN
-					style.border_width_bottom = 3
-					card.add_theme_stylebox_override(s, style)
-				card.disabled = price < 0
-				if price < 0: card.modulate.a = 0.35
-				AK.put(stage, card, Vector2(x, 84), Vector2(270, 160))
-				AK.put(card, AK.item_icon(BaseCatalog.create_potion(type), Vector2(72, 72)), Vector2(99, 14))
-				var name := AK.label(BaseCatalog.POTIONS[type].name, 14, AK.FG)
-				name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				AK.put(card, name, Vector2(0, 94), Vector2(270, 22))
-				var cost := AK.money("gold", ("R%d" % int(BaseCatalog.POTIONS[type].rank)) if price < 0 else str(price), 16)
-				cost.alignment = BoxContainer.ALIGNMENT_CENTER
-				cost.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				AK.put(card, cost, Vector2(0, 124), Vector2(270, 22))
-				if pick == type: AK.frame(card)
-				var chosen: String = type
-				card.pressed.connect(func(): menu.pick = chosen; redraw.call())
-				x += 280
-			AK.put(stage, AK.section("背包", "%d / %d" % [game.inventory.occupied_cells(), game.inventory.cell_count()]), Vector2(410, 262))
-			AK.put(stage, AK.BagGrid.make(game.inventory), Vector2(410, 292))
-			ok = not pick.is_empty() and game.closure_potion_price(pick) >= 0 and game.gold_available() >= game.closure_potion_price(pick) and game.inventory.can_take(BaseCatalog.create_potion(pick))
-			confirm = func():
-				game.closure_buy_potion(pick)
-				redraw.call()
 		1:
 			var pick: Item = menu.pick if menu.pick is Item else null
 			var can_deposit := func(item: Item) -> bool: return game.deposit_refusal(item) in ["", "赤金不足"]
 			var pick_item := func(item: Item): menu.pick = item; camp(menu)
-			AK.put(stage, AK.BagGrid.make(game.inventory, can_deposit, pick_item, pick), Vector2(410, 84))
+			# Drag a piece from the pack onto the counter to leave it with her.
+			var counter := Vector2(410 + game.inventory.width * 40 + 18, 84)
+			var deposits := func(item: Item) -> bool: return game.deposit_refusal(item).is_empty()
+			var deposit_drop := func(item: Item): game.deposit_item(item); menu.pick = null; camp(menu)
+			ItemDrag.zone(stage, counter, Vector2(1264 - counter.x, 560), deposits, deposit_drop)
+			var no_drop := func(_item: Item) -> bool: return false
+			AK.put(stage, ItemDrag.bag(AK.BagGrid.make(game.inventory, can_deposit, pick_item, pick), no_drop, func(_item): pass), Vector2(410, 84))
 			AK.put(stage, AK.section("安全袋"), Vector2(410, 84 + game.inventory.height * 40 + 12))
-			AK.put(stage, AK.BagGrid.make(game.safe_bag, can_deposit, pick_item, pick), Vector2(410, 84 + game.inventory.height * 40 + 40))
-			if pick != null: _info(stage, game, pick, "费用", str(game.deposit_fee(pick)), Vector2(410 + game.inventory.width * 40 + 18, 84))
+			AK.put(stage, ItemDrag.bag(AK.BagGrid.make(game.safe_bag, can_deposit, pick_item, pick), no_drop, func(_item): pass), Vector2(410, 84 + game.inventory.height * 40 + 40))
+			if pick != null: _info(stage, game, pick, "费用", str(game.deposit_fee(pick)), counter)
+			else:
+				var well := Panel.new()
+				well.add_theme_stylebox_override("panel", AK.box(Color(0, 0, 0, 0.35), AK.LINE, 1))
+				well.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				AK.put(stage, well, counter, Vector2(360, 200))
+				AK.put(stage, AK.label("寄存", 16, AK.DIM), counter + Vector2(156, 88))
 			ok = pick != null and game.deposit_refusal(pick).is_empty()
 			confirm = func():
 				game.deposit_item(pick)
@@ -530,6 +533,65 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 				redraw.call()
 	_footer(stage, Vector2(410, 630), 834, "", ["购买", "寄存", "出售"][tab], Callable(), confirm, ok)
 
+## 地图特色 at 可露希尔 (地图特色策划案 §9): the base kits (6), the camp's field
+## supplies (7) and its 处理 (8). One row each, bought on the spot.
+static func _closure_features(menu: FieldMenu, stage: Control, tab: int, at_base: bool) -> void:
+	var game := menu.game
+	var redraw := func(): camp(menu, at_base)
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 8)
+	AK.put(stage, rows, Vector2(410, 84), Vector2(834, 0))
+	var row_of := func(icon: Item, title: String, detail: String, price: HBoxContainer, action: Button) -> void:
+		var row := Control.new()
+		row.custom_minimum_size = Vector2(834, 64)
+		row.add_child(AK.rect(AK.PLATE_2, Vector2.ZERO, Vector2(834, 64)))
+		if icon != null: AK.put(row, AK.item_icon(icon, Vector2(56, 56)), Vector2(4, 4))
+		AK.put(row, AK.label(title, 15, AK.FG), Vector2(72, 10))
+		AK.put(row, AK.label(detail, 12, AK.MUTE), Vector2(72, 36))
+		AK.put(row, price, Vector2(520, 20))
+		AK.put(row, action, Vector2(680, 12), Vector2(140, 40))
+		rows.add_child(row)
+	match tab:
+		6:
+			for id in FeatureCatalog.KITS:
+				var kit: Dictionary = FeatureCatalog.KITS[id]
+				var refusal := game.kit_refusal(id)
+				var buy := AK.button(refusal if refusal.begins_with("R") else "购买", "blue", 14)
+				buy.disabled = not refusal.is_empty()
+				buy.set_meta("kit", id)
+				var kit_id: String = id
+				buy.pressed.connect(func(): game.buy_kit(kit_id); redraw.call())
+				var tier := game.deepest_tier()
+				row_of.call(null, FeatureCatalog.kit_name(id, tier), "%s −%d%%  ·  ×%d" % [FeatureCatalog.NAMES[kit.feature], roundi(FeatureCatalog.kit_cut(id, tier) * 100), game.base.kit_stock(id)],
+					AK.money("lmd", Economy.format(FeatureCatalog.kit_price(id, tier)), 16), buy)
+		7:
+			for id in FeatureCatalog.CAMP_SUPPLIES:
+				var price := game.supply_price(id)
+				var buy := AK.button("购买", "blue", 14)
+				buy.disabled = game.gold_available() < price or not game.inventory.can_take(game.supply_item(id))
+				buy.set_meta("supply", id)
+				var supply_id: String = id
+				buy.pressed.connect(func(): game.closure_buy_supply(supply_id); redraw.call())
+				var detail := ("%d 秒" % int(FeatureCatalog.FUELS[id])) if FeatureCatalog.FUELS.has(id) else ("%s −%d" % [FeatureCatalog.NAMES[FeatureCatalog.SUPPLIES[id].feature], int(FeatureCatalog.SUPPLIES[id].cut)] if float(FeatureCatalog.SUPPLIES[id].cut) > 0.0 else FeatureCatalog.SEALED_ORE_NAME)
+				row_of.call(game.supply_item(id), id, detail, AK.money("gold", str(price), 16), buy)
+			AK.put(stage, AK.section("背包", "%d / %d" % [game.inventory.occupied_cells(), game.inventory.cell_count()]), Vector2(410, 84 + FeatureCatalog.CAMP_SUPPLIES.size() * 72 + 8))
+			AK.put(stage, AK.BagGrid.make(game.inventory), Vector2(410, 84 + FeatureCatalog.CAMP_SUPPLIES.size() * 72 + 38))
+		8:
+			if game.current_contamination() > 0.0:
+				var cleanse := AK.button("污染 −%d" % int(FeatureCatalog.CAMP_CLEANSE), "blue", 14)
+				var refusal := game.camp_cleanse_refusal()
+				cleanse.disabled = not refusal.is_empty()
+				if refusal == "已处理": cleanse.text = refusal
+				cleanse.set_meta("service", "cleanse")
+				cleanse.pressed.connect(func(): game.camp_cleanse(); redraw.call())
+				row_of.call(null, FeatureCatalog.NAMES.contamination, str(roundi(game.current_contamination())), AK.money("gold", str(FeatureCatalog.CAMP_CLEANSE_BARS), 16), cleanse)
+			if game.features.value("debt") > 0.0:
+				var pay := AK.button("血债 −%d" % int(FeatureCatalog.CAMP_DEBT), "blue", 14)
+				pay.disabled = not game.camp_debt_refusal().is_empty()
+				pay.set_meta("service", "debt")
+				pay.pressed.connect(func(): game.camp_pay_debt(); redraw.call())
+				row_of.call(null, FeatureCatalog.NAMES.debt, str(roundi(game.features.value("debt"))), AK.money("gold", str(game.features.camp_debt_price()), 16), pay)
+
 ## 可露希尔's money desk: 换汇 (3), the loan (4), forward delivery in a camp (5).
 static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: bool) -> void:
 	var game := menu.game
@@ -541,7 +603,7 @@ static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: b
 	match tab:
 		3:
 			var amount: int = int(menu.pick) if menu.pick is int else 10000
-			box.add_child(MarketWidgets.live(func(): return "龙门币 / 赤金 %.1f   ·   可露希尔价差 %d%%   ·   赤金账户 %.2f" % [Economy.fx, roundi(Economy.CLOSURE_FX_SPREAD * 100), ex.gold_account], 14))
+			box.add_child(MarketWidgets.live(func(): return "龙门币 / 赤金 %.1f   ·   可露希尔价差 %d%%   ·   赤金账户 %.2f" % [Economy.fx, roundi(Economy.closure_spread * 100), ex.gold_account], 14))
 			box.add_child(AK.toggle(["1,000", "10,000", "50,000"], [1000, 10000, 50000].find(amount), func(i): menu.pick = [1000, 10000, 50000][i]; redraw.call(), 13))
 			var row := HBoxContainer.new()
 			row.add_theme_constant_override("separation", 10)
@@ -549,12 +611,12 @@ static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: b
 			to_gold.pressed.connect(func(): game.closure_convert(true, amount); redraw.call())
 			row.add_child(to_gold)
 			var to_lmd := AK.button("赤金账户 → 龙门币 %s" % Economy.format(amount), "plain", 14)
-			to_lmd.pressed.connect(func(): game.closure_convert(false, amount / (Economy.fx * (1.0 - Economy.CLOSURE_FX_SPREAD))); redraw.call())
+			to_lmd.pressed.connect(func(): game.closure_convert(false, amount / (Economy.fx * (1.0 - Economy.closure_spread))); redraw.call())
 			row.add_child(to_lmd)
 			box.add_child(row)
 		4:
 			box.add_child(AK.label("待还 %s   ·   额度 %s   ·   下次结算利率 %d%%%s" % [Economy.format(ex.loan), Economy.format(ex.loan_limit()),
-				roundi(Exchange.loan_rate(ex.loan) * 100), "   ·   逾期" if ex.loan_locked() else ""], 15, AK.RED if ex.loan_locked() else AK.FG))
+				roundi(ex.loan_rate_now(ex.loan) * 100), "   ·   逾期" if ex.loan_locked() else ""], 15, AK.RED if ex.loan_locked() else AK.FG))
 			var row := HBoxContainer.new()
 			row.add_theme_constant_override("separation", 10)
 			for n in [10000, 50000]:
@@ -746,3 +808,40 @@ class Silhouette extends Control:
 		var w := size.x
 		draw_circle(Vector2(w * 0.5, 48), 30, Color(colour, 0.85))
 		draw_colored_polygon(PackedVector2Array([Vector2(w * 0.5 - 20, 84), Vector2(w * 0.5 + 20, 84), Vector2(w - 8, size.y), Vector2(8, size.y)]), Color("262a2c"))
+
+# --- 火堆 (地图特色策划案 §5.3) -------------------------------------------------
+
+## The pack's fuels, one row each: what it is, how many, how long one burns.
+## A click burns one piece and closes.
+static func fuel(menu: FieldMenu) -> void:
+	var game := menu.game
+	var stage := menu.stage_begin(0.55)
+	var fuels := game.pack_fuels()
+	var height := 60.0 + fuels.size() * 64.0
+	var top := (720.0 - height) * 0.5
+	stage.add_child(AK.rect(AK.PLATE_SOLID, Vector2(440, top), Vector2(400, height)))
+	var fire := game.fuel_fire
+	if is_instance_valid(fire):
+		AK.put(stage, AK.label("%d / %d s" % [ceili(fire.burn_left), int(FeatureCatalog.FIRE_MAX)], 13, AK.MUTE, AK.en()), Vector2(456, top + 14))
+	var y := top + 44.0
+	for id in FeatureCatalog.FUELS:
+		if not fuels.has(id): continue
+		var row := Button.new()
+		row.focus_mode = Control.FOCUS_NONE
+		row.set_meta("fuel", id)
+		for s in ["normal", "hover", "pressed", "disabled"]:
+			row.add_theme_stylebox_override(s, AK.box(Color("2b3339") if s == "hover" else AK.PLATE_2))
+		row.disabled = is_instance_valid(fire) and fire.burn_left >= FeatureCatalog.FIRE_MAX
+		AK.put(stage, row, Vector2(452, y), Vector2(376, 56))
+		AK.put(row, AK.item_icon(MaterialCatalog.create(id, 1), Vector2(48, 48)), Vector2(4, 4))
+		AK.put(row, AK.label("%s ×%d" % [id, int(fuels[id])], 15, AK.FG), Vector2(64, 16))
+		AK.put(row, AK.label("%d s" % int(FeatureCatalog.FUELS[id]), 14, AK.SP, AK.en()), Vector2(300, 18))
+		for child in row.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var fuel_id: String = id
+		row.pressed.connect(func():
+			game.burn_fuel(fuel_id)
+			game.close_modal())
+		y += 64.0
+	var back := AK.button("✕", "plain", 14)
+	AK.put(stage, back, Vector2(796, top + 8), Vector2(36, 30))
+	back.pressed.connect(game.close_modal)

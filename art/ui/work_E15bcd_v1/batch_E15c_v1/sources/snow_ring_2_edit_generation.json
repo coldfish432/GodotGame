@@ -1,0 +1,7 @@
+{
+  "id": "snow_ring_2",
+  "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-75c7a59a-5b92-4fae-b052-a07cc5265630.png",
+  "prompt": "Use case: lighting-weather. Edit this exact DARK WOODEN ring only in lighting. Broaden the existing upper-left light wood face, add a broad naturally lit lower-front inner arc, so about35% of opaque ring is PALE WARM TAN #ecd0a0 or lighter, clearly light enough at32px. Keep majority ring dark walnut brown and keep subtle wood grain, one ring, exact silhouette, thick band, transparent central hole and composition. It must remain WOOD, no silver/gray metal, no jewels, no new groove. Broad clean pixel clusters, no noise. Genuine transparent background, no halo or text.",
+  "tool": "built-in imagegen",
+  "edit_target": "sources/snow_ring_2_raw.png"
+}

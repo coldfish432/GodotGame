@@ -203,15 +203,22 @@ func exercise_normal() -> void:
 	await clear()
 	var pillar: Vector3 = game.world_map._closed_circles[0]
 	var clear: float = game.world_map.pillar_reach(0) + 1.3
-	# Opposite sides of the pillar, both on open ground: pillars are irregular
-	# and sit in arenas of every shape, so the pair is searched, not assumed.
+	# Opposite sides of a pillar, both on open ground: pillars are irregular
+	# and sit in arenas of every shape (the mine's cave walls wander), so the
+	# pillar and the pair are searched, not assumed.
 	var across := Vector2.RIGHT
-	for k in range(16):
-		var d := Vector2.from_angle(TAU * k / 16.0)
-		var c := Vector2(pillar.x, pillar.y)
-		if game.world_map._has_clearance(c - d * clear) and game.world_map._has_clearance(c + d * clear):
-			across = d
-			break
+	var found := false
+	for i in range(game.world_map._closed_circles.size()):
+		pillar = game.world_map._closed_circles[i]
+		clear = game.world_map.pillar_reach(i) + 1.3
+		for k in range(16):
+			var d := Vector2.from_angle(TAU * k / 16.0)
+			var c := Vector2(pillar.x, pillar.y)
+			if game.world_map._has_clearance(c - d * clear) and game.world_map._has_clearance(c + d * clear):
+				across = d
+				found = true
+				break
+		if found: break
 	game.player.teleport(Vector3(pillar.x - across.x * clear, 0.7, pillar.y - across.y * clear))
 	enemy = game._spawn_enemy(Vector3(pillar.x + across.x * clear, 0.65, pillar.y + across.y * clear), false, false)
 	await step(30)

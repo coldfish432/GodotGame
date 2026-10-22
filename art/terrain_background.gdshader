@@ -1,7 +1,7 @@
 shader_type spatial;
-render_mode unshaded, cull_disabled;
+render_mode cull_disabled;
 
-uniform sampler2D background_tex : source_color, filter_nearest_mipmap, repeat_disable;
+uniform sampler2D background_tex : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 uniform float world_scale = 28.0;
 uniform float brightness = 0.88;
 varying vec3 world_position;

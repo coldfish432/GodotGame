@@ -1,0 +1,62 @@
+{
+ "id": "deck2",
+ "origin": [
+  378.0,
+  0.0
+ ],
+ "size": [
+  12.0,
+  21.0
+ ],
+ "ground": {
+  "tex": "",
+  "w_px": 196.1,
+  "h_px": 266.7,
+  "x": 377.47,
+  "z": 0.0
+ },
+ "facade": {
+  "tex": "",
+  "w_px": 196.1,
+  "h_px": 46,
+  "x": 377.47,
+  "z": 0.0
+ },
+ "sprites": [],
+ "colliders": [
+  [
+   378.0,
+   0.0,
+   390.0,
+   0.6
+  ],
+  [
+   377.4,
+   -21.0,
+   378.0,
+   0.0
+  ],
+  [
+   390.0,
+   -21.0,
+   390.6,
+   0.0
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "lift2",
+   "kind": "lift",
+   "label": "升降梯",
+   "x": 384.0,
+   "z": -3.4
+  }
+ ],
+ "spawns": {
+  "deck2": [
+   384.0,
+   -6.0
+  ]
+ },
+ "_note": "Deck 2's road from the lift on the north wall south to the corridor. Written by tools/blender/base/make_deck2_rooms.py."
+}

@@ -34,14 +34,16 @@ func run() -> void:
 	var B := GearCatalog.BASES
 	# 装备扩充策划案 §4.4: 39 + 63 + 3 polearms; §11 Siracusa 11 weapons; §10 Rhodes 9;
 	# §12 ranged and staves 5 per region.
-	check("145 bases", B.size() == 145, B.size())
+	# 装备部位拆分与数值案 §7: + E15's 64 head, hands, legs, feet and ring bases.
+	check("209 bases", B.size() == 209, B.size())
 	for region in ["mine", "city", "snow"]:
 		var counts := [0, 0, 0]
 		for id in B:
-			if B[id].region == region: counts[int(B[id].category)] += 1
-		var want: Array = {"mine": [18, 10, 12], "city": [18, 10, 11], "snow": [18, 11, 12]}[region]
+			if B[id].region == region: counts[Item.group_of(int(B[id].category))] += 1
+		# Armour = chest + head + hands + legs + feet, trinkets = amulet + ring.
+		var want: Array = {"mine": [18, 26, 16], "city": [18, 26, 15], "snow": [18, 26, 16]}[region]
 		check("%s has %d weapons, %d armour, %d trinkets" % [region, want[0], want[1], want[2]], counts == want, counts)
-		for category in [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET]:
+		for category in Item.SLOTS:
 			var tiers := []
 			for id in B:
 				if B[id].region == region and int(B[id].category) == category: tiers.append(int(B[id].tier))
@@ -102,10 +104,11 @@ func run() -> void:
 	var axe := LootTables.roll_equipment(Item.Category.WEAPON, "断镐战斧", "mine", 3, 1, rng)
 	var implicit := axe.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER)
 	var random := axe.modifiers.filter(func(m): return m.tier != GearCatalog.IMPLICIT_TIER)
-	# Intrinsics roll within ±20% of the table (装备前缀策划案 §2.8).
+	# Intrinsics roll in the item's rarity band, a blue's 90–110% of the table;
+	# its cost stays fixed (底材固有属性表 v1.0).
 	check("断镐战斧 has its two intrinsic stats", implicit.size() == 2
-		and implicit.any(func(m): return m.stat == ItemModifier.Stat.ATK_PCT and is_equal_approx(m.mid, 0.04) and m.amount >= 0.032 - 0.0001 and m.amount <= 0.048 + 0.0001)
-		and implicit.any(func(m): return m.stat == ItemModifier.Stat.MOVE_SPEED_PCT and is_equal_approx(m.mid, -0.04) and m.amount <= -0.032 + 0.0001 and m.amount >= -0.048 - 0.0001))
+		and implicit.any(func(m): return m.stat == ItemModifier.Stat.ATK_PCT and is_equal_approx(m.mid, 0.04) and m.band == 1 and m.amount >= 0.036 - 0.0001 and m.amount <= 0.044 + 0.0001)
+		and implicit.any(func(m): return m.stat == ItemModifier.Stat.MOVE_SPEED_PCT and is_equal_approx(m.amount, -0.04) and not m.is_rollable()))
 	check("intrinsics do not use the rarity's affix slots", random.size() == plain.modifiers.size(), [random.size(), plain.modifiers.size()])
 	check("the power factor applies (×1.15)", is_equal_approx(axe.power_mid, plain.power_mid * 1.15), [axe.power_mid, plain.power_mid])
 	check("intrinsics are not random affixes (no tier mark)", implicit.all(func(m): return not m.is_random_affix()))
@@ -148,13 +151,46 @@ func run() -> void:
 				if GearCatalog.eligible(category, region, 30, source).any(func(id): return GearCatalog.is_rhodes(id)): never = false
 	check("Rhodes gear never drops", never)
 	var kit := GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD)
-	check("a kit is a weapon, an armour and a trinket", kit.map(func(i): return i.category) == [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET])
-	check("kit pieces are 精良 Rhodes bases", kit.all(func(i): return i.rarity == 1 and GearCatalog.is_rhodes(i.base_id)))
-	srng.seed = 7
+	check("a kit fills all eight slots", kit.map(func(i): return i.category) == Item.SLOTS, kit.map(func(i): return i.category))
+	# 装备部位拆分与数值案 (用户 2026-10-21): eight slots, the same totals.
+	var armour_share := 0.0
+	for slot in Item.ARMOR_SLOTS: armour_share += GearSlots.panel(slot)
+	var jewel_share := GearSlots.panel(Item.Category.AMULET) + GearSlots.panel(Item.Category.RING)
+	var affix_sum := 0.0
+	for slot in Item.SLOTS: if slot != Item.Category.WEAPON: affix_sum += GearSlots.affix(slot)
+	check("five armour slots share one armour's panel, amulet + ring one trinket's", is_equal_approx(armour_share, 1.0) and is_equal_approx(jewel_share, 1.0), [armour_share, jewel_share])
+	check("the seven non-weapon slots' affixes add up to the old two pieces", is_equal_approx(affix_sum, 2.0), affix_sum)
+	var hp_full := 0.0
+	for slot in Item.ARMOR_SLOTS: hp_full += float(CombatStats.power_stats(slot, 3.0).hp)
+	check("a set of armour at one power gives one old armour's life", is_equal_approx(hp_full, 3.0 * CombatStats.ARMOR_HP_PER_POWER), hp_full)
+	var old_armour := Item.create("矿工护甲", Item.Category.ARMOR, 2, 2, 3.0)
+	old_armour.modifiers = [ItemModifier.stat_mod(ItemModifier.Stat.MAX_HP_PCT, 0.08)]
+	var saved := old_armour.to_data()
+	saved.erase("slots")
+	var moved := Item.from_data(saved)
+	var moved_affix: Array = moved.modifiers.filter(func(m): return m.is_random_affix())
+	check("an old save's armour is a chest at the chest's own sizes", moved.category == Item.Category.CHEST and moved_affix.size() == 1
+		and is_equal_approx(moved_affix[0].amount, 0.08 * FieldCatalog.slot_ratio(ItemModifier.Stat.MAX_HP_PCT, Item.Category.CHEST)), [moved.category, moved.modifiers.map(func(m): return m.amount)])
+	check("…and its base's intrinsics come from the new table", moved.modifiers.any(func(m): return m.tier == GearCatalog.IMPLICIT_TIER and m.stat == ItemModifier.Stat.MAX_HP_PCT and m.amount >= 0.02 * 0.6 - 0.0001 and m.amount <= 0.02 * 0.8 + 0.0001))
+	var fx_ok := true
+	for slot in Item.SLOTS:
+		var probe := Item.create("x", slot as Item.Category, 1, 1, 1.0)
+		probe.grade = 3
+		for id in PrefixCatalog.all():
+			if (PrefixCatalog.all()[id].fx as Dictionary).is_empty(): continue
+			if PrefixCatalog.fits(id, probe, [], true) and not slot in GearSlots.FX_SLOTS: fx_ok = false
+	check("effect prefixes only roll on the weapon, chest and amulet", fx_ok)
+	var drops := {}
+	for i in range(4000):
+		var slot := GearSlots.roll(srng)
+		drops[slot] = int(drops.get(slot, 0)) + 1
+	check("drops cover every slot, the weapon about a third", drops.size() == 8 and absf(float(drops[Item.Category.WEAPON]) / 4000.0 - 3.0 / 9.2) < 0.03, drops)
+	# 复利数值改造清单 D: white until 制式换代, two tiers below the deepest camp, a fixed value.
+	check("kit pieces are white Rhodes bases of tier Ⅰ", kit.all(func(i): return i.rarity == 0 and i.grade == 1 and GearCatalog.is_rhodes(i.base_id)))
 	var badge := GearCatalog.make_rhodes("rhodes_badge", srng)
-	srng.seed = 7
-	var plain_badge := LootTables.roll_equipment(Item.Category.TRINKET, "x", "city", GearCatalog.RHODES_DEPTH, 1, srng)
-	check("Rhodes gear is worth ×1.5 to a buyer", badge.value_base == roundi(plain_badge.value_base * 1.5), [badge.value_base, plain_badge.value_base])
+	check("Rhodes gear is worth a fixed 5", badge.value == GearCatalog.RHODES_VALUE and badge.value_base == GearCatalog.RHODES_VALUE)
+	var late := GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD, GearCatalog.rhodes_tier(50), 2)
+	check("from the floor-50 camp the kit is tier Ⅳ, gold after 换代", late.all(func(i): return i.grade == 4 and i.rarity == 2))
 	check("every Rhodes base has a 加工部 recipe", Workshop.GEAR.size() == 9 and Workshop.GEAR.values().all(func(r): return GearCatalog.is_rhodes(str(r.base))))
 	check("recipes use known materials", Workshop.GEAR.values().all(func(r): return r["in"].keys().all(func(m): return MaterialCatalog.MATERIALS.has(m))))
 
@@ -175,6 +211,54 @@ func run() -> void:
 	check("a sniper's kit carries the Rhodes crossbow", GearCatalog.rhodes_kit(srng, "rosa")[0].base_id == "rhodes_crossbow")
 	check("a caster's kit carries the Rhodes staff", GearCatalog.rhodes_kit(srng, "santalla")[0].base_id == "rhodes_staff")
 	check("a guard's kit carries a blade", GearCatalog.form_of(GearCatalog.rhodes_kit(srng, "hellagur")[0]) == "blade")
+
+	# Each slot's own sizes (部位词条数值表 v1.0) and intrinsics by look
+	# (底材固有属性表 v1.0).
+	var functional := [ItemModifier.Stat.MOVE_SPEED_PCT, ItemModifier.Stat.STAMINA_REGEN_PCT, ItemModifier.Stat.DASH_COST_PCT]
+	var budget := 0.0
+	var tables_cover := true
+	for slot in FieldCatalog.SLOT_AFFIX_AMOUNTS:
+		var combat: Array = []
+		for stat in FieldCatalog.SLOT_AFFIX_AMOUNTS[slot]:
+			if not stat in functional: combat.append(FieldCatalog.slot_ratio(stat, slot))
+		var mean := 0.0
+		for r in combat: mean += r
+		budget += mean / combat.size()
+		for stat in FieldCatalog.AFFIX_POOLS[slot]:
+			if not (FieldCatalog.SLOT_AFFIX_AMOUNTS[slot] as Dictionary).has(stat): tables_cover = false
+	check("the seven non-weapon slots' combat affixes still sum to 2.00 full affixes", absf(budget - 2.0) < 0.02, budget)
+	check("every slot's pool has its own sizes", tables_cover)
+	var boots := LootTables.roll_equipment(Item.Category.FEET, "外卖员跑鞋", "city", 1, 2, srng)
+	var boot_affix := boots.modifiers.filter(func(m): return m.is_random_affix())
+	var boots_ok := boot_affix.size() == 2
+	for m in boot_affix:
+		var size := absf(float(FieldCatalog.SLOT_AFFIX_AMOUNTS[Item.Category.FEET][m.stat]))
+		if absf(m.amount) < size * 1.2 - 0.0001 or absf(m.amount) > size * 1.4 + 0.0001: boots_ok = false
+	check("feet roll their own sizes in the gold band", boots_ok, boot_affix.map(func(m): return [m.stat, m.amount]))
+	var boot_cost := boots.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER and m.stat == ItemModifier.Stat.DEF_FLAT)
+	check("外卖员跑鞋's cost is a fixed 防御 −5", boot_cost.size() == 1 and is_equal_approx(boot_cost[0].amount, -5.0) and not boot_cost[0].is_rollable())
+	var same := []
+	var seen_sig := {}
+	for id in B:
+		var cat := int(B[id].category)
+		if cat == Item.Category.WEAPON or str(B[id].region) == "rhodes": continue
+		var sig := "%s|%d|%d|%s" % [B[id].region, cat, int(B[id].tier), str(B[id].implicit)]
+		if seen_sig.has(sig): same.append([seen_sig[sig], id])
+		seen_sig[sig] = id
+	check("no two bases of one region, slot and layer share their intrinsics", same.is_empty(), same)
+	var dice := LootTables.roll_equipment(Item.Category.AMULET, "老千骰子", "city", 1, 1, srng)
+	check("老千骰子 rolls 装备掉率 in the blue band", dice.modifiers.any(func(m): return m.stat == ItemModifier.Stat.DROP_RATE_PCT and m.amount >= 0.075 * 0.9 - 0.0001 and m.amount <= 0.075 * 1.1 + 0.0001))
+	check("…and reads 装备掉率", dice.modifiers.any(func(m): return m.describe().begins_with("装备掉率")))
+	var gear_counts := {}
+	var drop_rng := RandomNumberGenerator.new()
+	for bonus in [0.0, 1.0]:
+		drop_rng.seed = 77
+		var n := 0
+		for i in range(3000):
+			var ctx := {"region": "mine", "depth": 5, "rng": drop_rng, "pity": {}, "set_seen": {}, "drop_pct": bonus}
+			n += LootTables.enemy_drops("thug", false, false, ctx).filter(func(d): return d.has("item") and d.item.is_equippable() and d.item.special.is_empty()).size()
+		gear_counts[bonus] = n
+	check("装备掉率 +100% drops clearly more gear", gear_counts[1.0] > gear_counts[0.0] * 1.4, gear_counts)
 
 	print("\n%d/%d checks passed" % [checks - failures, checks])
 	quit(1 if failures > 0 else 0)

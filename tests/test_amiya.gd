@@ -98,15 +98,16 @@ func run() -> void:
 	var atk := p.attack_power()
 	p.shadow_cooldown = Player.SHADOW_COOLDOWN
 	swing(e)
-	check("stage 1 is one arts hit of ATK (defence ignored)", is_equal_approx(100000 - e.health, atk))
-	check("a landed cut takes a second off the cooldown", is_equal_approx(p.shadow_cooldown, Player.SHADOW_COOLDOWN - 1.0))
+	var cuts := Player.AMIYA_COMBO
+	check("stage 1 is one arts hit (defence ignored)", is_equal_approx(100000 - e.health, atk * cuts[0][0]))
+	check("a landed cut takes SHADOW_REFUND off the cooldown", is_equal_approx(p.shadow_cooldown, Player.SHADOW_COOLDOWN - Player.SHADOW_REFUND))
 	swing(e)
-	check("stage 2 first cut lands at once", is_equal_approx(100000 - e.health, atk * 1.55))
+	check("stage 2 first cut lands at once", is_equal_approx(100000 - e.health, atk * (cuts[0][0] + cuts[1][0])))
 	tick(0.1)
-	check("stage 2 second cut follows and refunds again", is_equal_approx(100000 - e.health, atk * 2.1) and absf(p.shadow_cooldown - (Player.SHADOW_COOLDOWN - 3.1)) < 0.02)
+	check("stage 2 second cut follows and refunds again", is_equal_approx(100000 - e.health, atk * (cuts[0][0] + cuts[1][0] + cuts[1][1])) and absf(p.shadow_cooldown - (Player.SHADOW_COOLDOWN - 3.0 * Player.SHADOW_REFUND - 0.1)) < 0.02)
 	var before := p.global_position
 	swing(e)
-	check("stage 3 thrust hits 1.3 and does not move her", is_equal_approx(100000 - e.health, atk * 3.4) and p.global_position.distance_to(before) < 0.01)
+	check("stage 3 thrust hits and does not move her", is_equal_approx(100000 - e.health, atk * (cuts[0][0] + cuts[1][0] + cuts[1][1] + cuts[2][0])) and p.global_position.distance_to(before) < 0.01)
 	check("combo loops back to stage 1", p.combo_step == 0)
 	check("on cooldown it cannot be cast", not p.cast_shadow(e.global_position) and not p.shadow_active)
 	tick(Player.SHADOW_COOLDOWN)
@@ -214,7 +215,7 @@ func run() -> void:
 	# Relic charge gains shorten her cooldown instead.
 	p.shadow_cooldown = 5.0
 	p.add_charge(2)
-	check("charge gains refund her cooldown", is_equal_approx(p.shadow_cooldown, 3.0))
+	check("charge gains refund her cooldown", is_equal_approx(p.shadow_cooldown, 5.0 - 2.0 * Player.SHADOW_REFUND))
 
 	# Skill relics and gear reach 绝影 (用户 2026-10-15): 折戟-浴血's stage-3
 	# charge and 月下's extra strike.

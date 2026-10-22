@@ -2,18 +2,22 @@ class_name LinKit
 extends OperatorKit
 ## 林 · 阵法术师 · 源石技艺 (干员寻访策划案 §4.6).
 ## - Basic: an arts array bursts under the target, hitting everyone on it;
-##   the third of a combo is the large array.
+##   the third of a combo is the great array (用户 2026-10-20: 范围更大、特殊
+##   特效): far wider, glass pillars rising round its rim (OperatorVfx).
 ## - 琉璃璧 (计出万全): a glass barrier takes every small blow; one heavy blow
 ##   shatters it, blasting and stunning those around her, and it grows back.
 ## - 韬光: being struck may shorten her skill's cooldown.
 ## - Space 流光乍裂: a burst of power; while it runs the barrier is far harder
 ##   to break, and every enemy she brings down shatters it and it reforms.
 
-const REACH := 7.0
+const REACH := 6.0  # 用户 2026-10-20: 远程数值和攻击范围小一点
 const INTERVAL := 1.15
-const COMBO := [0.8, 0.8, 1.3]
+const COMBO := [0.65, 0.65, 1.05]  # 用户 2026-10-20: 远程数值和攻击范围小一点
 const RADIUS := 1.5
-const BIG_RADIUS := 2.2
+const BIG_RADIUS := 3.2
+## The radii Sol's painted arrays were drawn for.
+const ART_RADIUS := 1.5
+const ART_BIG_RADIUS := 2.2
 const THRESHOLD := 0.10
 const REGROW := 8.0
 const SHATTER_SCALE := 1.2
@@ -61,8 +65,10 @@ func swing(direction: Vector3, target: Enemy, stage: int, lands: bool, multiplie
 	var big := stage == 2
 	var radius := (BIG_RADIUS if big else RADIUS) * (1.0 + (value("surge_reach") if surge_timer > 0.0 else 0.0))
 	var centre := target.global_position
-	fx(foot(centre), Vector3.FORWARD, "array_big" if big else "array", 3, 0.25, "ground", 0.0, 0.05).scale = Vector3.ONE * (radius / (BIG_RADIUS if big else RADIUS))
-	var raw := player.attack_power() * float(COMBO[stage]) * (1.0 + value("array")) * multiplier * crit_factor * player.form_factor(1)
+	var art := fx(foot(centre), Vector3.FORWARD, "array_big" if big else "array", 3, 0.4 if big else 0.25, "ground", 0.0, 0.05)
+	if art != null: art.scale = Vector3.ONE * (radius / (ART_BIG_RADIUS if big else ART_RADIUS))
+	if big: OperatorVfx.great_array(player, centre, radius)
+	var raw := player.arts_power() * float(COMBO[stage]) * (1.0 + value("array")) * multiplier * crit_factor * player.form_factor(1)
 	var struck := enemies_near(centre, radius, Vector3.ZERO, 180.0, false)
 	if not target in struck: struck.push_front(target)
 	for enemy in struck:
@@ -107,7 +113,7 @@ func _shatter() -> void:
 		game().sound.play("barrier_break")
 	var scale := value("shatter_power") if rank("shatter_power") > 0 else SHATTER_SCALE
 	for enemy in enemies_near(player.global_position, SHATTER_RADIUS, Vector3.ZERO, 180.0, false):
-		skill_hit(enemy, player.attack_power() * scale * player.wave_multiplier(), "arts")
+		skill_hit(enemy, player.arts_power() * scale * player.wave_multiplier(), "arts")
 		if alive(enemy): enemy.stun(SHATTER_STUN)
 	player.stats_changed.emit()
 

@@ -1,0 +1,75 @@
+{
+ "id": "mess",
+ "origin": [
+  320.0,
+  0.0
+ ],
+ "size": [
+  57.0,
+  21.0
+ ],
+ "ground": {
+  "tex": "",
+  "w_px": 871.0,
+  "h_px": 266.7,
+  "x": 319.47,
+  "z": 0.0
+ },
+ "facade": {
+  "tex": "",
+  "w_px": 871.0,
+  "h_px": 46,
+  "x": 319.47,
+  "z": 0.0
+ },
+ "sprites": [],
+ "colliders": [
+  [
+   320.0,
+   0.0,
+   325.97,
+   0.6
+  ],
+  [
+   328.97,
+   0.0,
+   377.0,
+   0.6
+  ],
+  [
+   320.0,
+   -21.6,
+   346.5,
+   -21.0
+  ],
+  [
+   349.5,
+   -21.6,
+   377.0,
+   -21.0
+  ],
+  [
+   319.4,
+   -21.0,
+   320.0,
+   0.0
+  ],
+  [
+   377.0,
+   -21.0,
+   377.6,
+   0.0
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "canteen",
+   "kind": "canteen",
+   "label": "食堂终端",
+   "x": 349.0,
+   "z": -4.9
+  }
+ ],
+ "spawns": {},
+ "_note": "食堂: the serving counter and long tables; the kitchen north-west, a door south to the corridor. Written by tools/blender/base/make_deck2_rooms.py."
+}

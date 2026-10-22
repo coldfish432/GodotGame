@@ -1,0 +1,318 @@
+{
+  "batch": "E15a_v1",
+  "status": "style_review_pending",
+  "tool": "built-in imagegen",
+  "normalization": "alpha threshold128; crop; nearest fit; cloth6 colors or5+2 red; other20 colors; originium2 reserved orange colors; median cut without dithering; exact native inner silhouette outline",
+  "items": [
+    {
+      "id": "mine_head_1",
+      "name": "矿工安全帽",
+      "slot": "head",
+      "layer": 0,
+      "file": "mine_head_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_head_1_raw.png",
+      "source_sha256": "fa92551e677885c234298cfa3deabe438abb38f76975e23297a476d8406a30c8",
+      "sha256": "884d63a88d0649c6f02ee6b1bd94a2f7f4b93d565a8254424d7e9128693aba16",
+      "emit": false
+    },
+    {
+      "id": "mine_head_2",
+      "name": "整合运动兜帽",
+      "slot": "head",
+      "layer": 0,
+      "file": "mine_head_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_head_2_raw.png",
+      "source_sha256": "dcd2641eb4adcd4a0547192d53e35a8b2fc8399be714cdf2311028e65fad41c7",
+      "sha256": "e917f445a8269ce9fa84f18bce5ead03b9b9125d5f8d268141321f8d1f2833ec",
+      "emit": false
+    },
+    {
+      "id": "mine_head_3",
+      "name": "纠察队毛皮帽",
+      "slot": "head",
+      "layer": 1,
+      "file": "mine_head_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_head_3_raw.png",
+      "source_sha256": "a5b88d2ecec5c55cd662984bc2781779312f6df5313a91c11c308912996ff7fd",
+      "sha256": "d3d701b5b02f9608f916ae913f38aceb24b8ffc2a4c2dba60fe33bb9a6a59ab6",
+      "emit": false
+    },
+    {
+      "id": "mine_head_4",
+      "name": "重装防爆头盔",
+      "slot": "head",
+      "layer": 2,
+      "file": "mine_head_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_head_4_raw.png",
+      "source_sha256": "045eda41906671586d009f26e23b082102847b7f4bc48edd021bf2b949de6545",
+      "sha256": "d70ee9ce9df421226cb33829dbbd7ba9e5696077cbf12b9ece22a07a8d5dcde5",
+      "emit": false
+    },
+    {
+      "id": "mine_hands_1",
+      "name": "帆布劳保手套",
+      "slot": "hands",
+      "layer": 0,
+      "file": "mine_hands_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_hands_1_raw.png",
+      "source_sha256": "19b88147f4fe84f837f865803a7b1ce11fc69e84edf1277f0379a48c3de8761f",
+      "sha256": "1e9687fae6ed339ec20ddfa1f43ae4ab8a82a913a8be0f2cf861eacc25068510",
+      "emit": false
+    },
+    {
+      "id": "mine_hands_2",
+      "name": "整合运动缠手布",
+      "slot": "hands",
+      "layer": 0,
+      "file": "mine_hands_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_hands_2_raw.png",
+      "source_sha256": "a8b1e03658b287b30137131ce64c7f7d5402f9fc24a24a477790e2b970c4282e",
+      "sha256": "6630c6fe96cbbc59148eed3112cfcda37fab8af5d46e78ecd83bc6c3a248de40",
+      "emit": false
+    },
+    {
+      "id": "mine_hands_3",
+      "name": "矿镐护腕",
+      "slot": "hands",
+      "layer": 1,
+      "file": "mine_hands_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_hands_3_edited.png",
+      "source_sha256": "57617fda6d06b639428e5a3c3f9dac3e8725e1ac2438e448afa2b9d89de8d6db",
+      "sha256": "25dc4fd11914cd605d78095d5cf924cc16453b28a485917deb42d073a7e989c9",
+      "emit": false
+    },
+    {
+      "id": "mine_hands_4",
+      "name": "纠察队铁指护手",
+      "slot": "hands",
+      "layer": 2,
+      "file": "mine_hands_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_hands_4_raw.png",
+      "source_sha256": "fb15a56bbc1b4b9257c6aaadb490df063640ae11484e4398d9d67c3673d3f9a2",
+      "sha256": "0d68b3193d07d4764d022903a23863a7c40d4bacf8571f698c2ce5810d78512f",
+      "emit": false
+    },
+    {
+      "id": "mine_legs_1",
+      "name": "矿工工装裤",
+      "slot": "legs",
+      "layer": 0,
+      "file": "mine_legs_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_legs_1_raw.png",
+      "source_sha256": "30da535471969825e3809e34f56a806870fec1e1887b6040e1d71e68e659ce35",
+      "sha256": "b59b557eb6a16743269423a4d33664b792bf50b772e821801bdcbb5b9cbccf92",
+      "emit": false
+    },
+    {
+      "id": "mine_legs_2",
+      "name": "整合运动束腿裤",
+      "slot": "legs",
+      "layer": 0,
+      "file": "mine_legs_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_legs_2_raw.png",
+      "source_sha256": "3a5f767cd0f22a74bd640bc2b506b9b47906124d4b80e8fafe51a21343b942e3",
+      "sha256": "c45ec28cd3e75e377e42f303c00b9232e5ab1b7f7ffcdad28c8355ccade4c6c2",
+      "emit": false
+    },
+    {
+      "id": "mine_legs_3",
+      "name": "游击队绑腿",
+      "slot": "legs",
+      "layer": 1,
+      "file": "mine_legs_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_legs_3_raw.png",
+      "source_sha256": "bf2ee9939a346170c65fbeed1690f724a3696a0dd9b9b7de13e257b7a8a49381",
+      "sha256": "59ed68acb4cf6b3f084a538280f099837f24f382f2b45d735e0aec45d0664b6c",
+      "emit": false
+    },
+    {
+      "id": "mine_legs_4",
+      "name": "复合护腿",
+      "slot": "legs",
+      "layer": 2,
+      "file": "mine_legs_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_legs_4_edited.png",
+      "source_sha256": "f2d4134a9e07ab31b1aea9dc0f54e0dcffd6b76537f62711d298349a90b7c27b",
+      "sha256": "a6f630cbf6a345d3a098c2c3d9f7ad1435a872915d584d6c7b1d055ed4c951c8",
+      "emit": false
+    },
+    {
+      "id": "mine_feet_1",
+      "name": "钢头劳保靴",
+      "slot": "feet",
+      "layer": 0,
+      "file": "mine_feet_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_feet_1_edited.png",
+      "source_sha256": "b9bee87858fa249461445b0a501bc674f13b6159cd9941557379558bc62468d3",
+      "sha256": "7215ed12c82fe3b16db44d51ecf2397729d10a4cbab75ca7e5d656f0eca28dd9",
+      "emit": false
+    },
+    {
+      "id": "mine_feet_2",
+      "name": "整合运动帆布鞋",
+      "slot": "feet",
+      "layer": 0,
+      "file": "mine_feet_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_feet_2_raw.png",
+      "source_sha256": "28d1fe6727740f693b09d788da59584df9e307819624d5054b77cf1b86866de8",
+      "sha256": "2bc6acd682ad7e145a68a9c96f62f9eabffc0bf2e1bb65961a94c38b401507d1",
+      "emit": false
+    },
+    {
+      "id": "mine_feet_3",
+      "name": "游击队行军靴",
+      "slot": "feet",
+      "layer": 1,
+      "file": "mine_feet_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_feet_3_edited.png",
+      "source_sha256": "5cca0642df8068522ca10f99220f3998b65beb6b1325b7412eb43de4b9769c7d",
+      "sha256": "58c60a8117c0a2ff28d07865c8592a4b5e975d8e93c3be5bbb0610d490e8db0f",
+      "emit": false
+    },
+    {
+      "id": "mine_feet_4",
+      "name": "纠察队毛毡靴",
+      "slot": "feet",
+      "layer": 2,
+      "file": "mine_feet_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "source": "sources/mine_feet_4_raw.png",
+      "source_sha256": "d89e9ead1a53227c6225f77ff804e6eb510615e2b914e13a7bf00b4dc7f8d54c",
+      "sha256": "bf2f9770964217550a7f4e0c42370c7a71a7e42ff38c404fdf7c80cccc388c13",
+      "emit": false
+    },
+    {
+      "id": "mine_ring_1",
+      "name": "铁丝绕成的指环",
+      "slot": "ring",
+      "layer": 0,
+      "file": "mine_ring_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "sources/mine_ring_1_edited.png",
+      "source_sha256": "2de16b5f9c3d7a5b6fd191a523444eaf58c00d0dd310916fdaafd1fe542cc655",
+      "sha256": "90aa13b8f6cc9c643118ddb3ce8832aa6e8df8cbe4dda10672cf8227c2c0c9f4",
+      "emit": false
+    },
+    {
+      "id": "mine_ring_2",
+      "name": "源石碎粒戒",
+      "slot": "ring",
+      "layer": 0,
+      "file": "mine_ring_2.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "sources/mine_ring_2_edited.png",
+      "source_sha256": "24326d39d1a52087b3fae7b0214a4dc2b41ca260e848470672314ac4f638635a",
+      "sha256": "28d3059a1e0ceb4d0c3a8070b5be06303abf464edda9a8b47094c2b6afb79477",
+      "emit": true
+    },
+    {
+      "id": "mine_ring_3",
+      "name": "矿车铆钉戒",
+      "slot": "ring",
+      "layer": 1,
+      "file": "mine_ring_3.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "sources/mine_ring_3_raw.png",
+      "source_sha256": "b333c566c2125fb2e6d1b1aa9383cd29edee0d4cbc22cf028337b357da5afb9b",
+      "sha256": "8a527e234c9aff36b9faa34d70cb9c447bbe30eccb6dff8ceff57b6878226a86",
+      "emit": false
+    },
+    {
+      "id": "mine_ring_4",
+      "name": "整合运动誓约环",
+      "slot": "ring",
+      "layer": 2,
+      "file": "mine_ring_4.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "sources/mine_ring_4_edited.png",
+      "source_sha256": "1f4c3f3cc0f2785635fe91abc3e901fdadb6dd9e6c4bcc199aeda7817f1acf0f",
+      "sha256": "b238349c560ec7cb6ba4efca0c631b53510d1fff8ea8bd4757b26020391718d6",
+      "emit": false
+    }
+  ],
+  "emission_files": [
+    "mine_ring_2_emit.png"
+  ],
+  "backgrounds": [
+    "#2c2e30",
+    "#142538",
+    "#352710"
+  ],
+  "approval_gate": "E15a style acceptance before E15b/c/d",
+  "runtime_verified": false
+}

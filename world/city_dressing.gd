@@ -58,7 +58,8 @@ const SIGHT_HEIGHT := {
 const KERB_HIDE := 2.7
 ## The buildings tinted one by one (kit_piece.gdshader use_tint), and the
 ## tints: pale concrete, sun-bleached, tar, terracotta, mossed, blue-grey.
-const TINTED := ["city_tower", "city_shop_house", "city_row_mid", "city_tea_house", "city_ruin", "city_row_low_a", "city_row_low_b", "city_row_low_a_worn", "city_row_low_b_worn", "city_shack_a", "city_shack_b", "city_shack_c"]
+const TINTED := ["city_tower", "city_shop_house", "city_row_mid", "city_tea_house", "city_ruin", "city_row_low_a", "city_row_low_b", "city_row_low_a_worn", "city_row_low_b_worn", "city_shack_a", "city_shack_b", "city_shack_c",
+	"city_tower_lower", "city_shop_house_lower", "city_row_mid_lower", "city_tea_house_lower", "city_row_low_a_lower", "city_row_low_b_lower"]
 const ROOF_TINTS := [Color(1.22, 1.18, 1.1), Color(1.12, 1.04, 0.92), Color(0.78, 0.78, 0.82), Color(1.18, 0.9, 0.78), Color(0.92, 1.04, 0.9), Color(0.9, 0.98, 1.12), Color(1.0, 1.0, 1.0)]
 
 ## Per district: the street's pale concrete and terracotta, the yards' blue-
@@ -69,6 +70,29 @@ const DISTRICT_TINTS := {
 	"site": [Color(1.16, 1.04, 0.84), Color(1.1, 0.98, 0.82), Color(1.0, 0.94, 0.84)],
 	"slum": [Color(1.06, 0.82, 0.68), Color(0.78, 0.76, 0.74), Color(0.92, 0.98, 0.84), Color(1.0, 0.88, 0.76)],
 }
+
+## 龙门城区 · 下城 (龙门城区与叙拉古地图改造案 v1.1 §1.3, 用户 2026-10-21: 换地图内
+## 大小组件和光影、滤镜、材质): the same streets and the same plan, laid with
+## the outer city's buildings rebuilt for the lower city (build_city_kit.py
+## LOWER: old concrete and tile streaked with damp, rows of windows a third
+## lit, more air conditioners and laundry poles), darker colder tints, a third
+## of the street lamps, neon that lights only its sign, warm window and red
+## lantern light at the doors, laundry under the cables, and 1–2 牌楼连廊
+## across her trunk road. Everything the lower city adds draws on look_rng,
+## so the plan (and all that collides) is the upper city's to the metre.
+var lower := false
+var look_rng := RandomNumberGenerator.new()
+const LOWER_PIECES := {"city_tower": "city_tower_lower", "city_shop_house": "city_shop_house_lower", "city_row_mid": "city_row_mid_lower",
+	"city_tea_house": "city_tea_house_lower", "city_row_low_a": "city_row_low_a_lower", "city_row_low_b": "city_row_low_b_lower"}
+## Damp concrete and old tile, colder than the upper city's.
+const LOWER_TINTS := {
+	"street": [Color(0.82, 0.86, 0.94), Color(0.9, 0.88, 0.86), Color(0.74, 0.78, 0.86), Color(0.86, 0.8, 0.76)],
+	"yard": [Color(0.74, 0.82, 0.94), Color(0.8, 0.84, 0.92), Color(0.7, 0.74, 0.84)],
+	"site": [Color(0.9, 0.84, 0.74), Color(0.84, 0.8, 0.74), Color(0.8, 0.78, 0.74)],
+	"slum": [Color(0.88, 0.72, 0.62), Color(0.68, 0.68, 0.7), Color(0.76, 0.82, 0.74), Color(0.84, 0.76, 0.68)],
+}
+## Street lamps kept: one in this many.
+const LOWER_LAMP_EVERY := 3
 
 ## Stacks of containers: up to this many high.
 const STACK := 3
@@ -123,6 +147,8 @@ var side_streets: Array[Dictionary] = []
 func build(world: Node3D, parent: Node3D) -> void:
 	map = world
 	rng.seed = map.seed_value ^ 0xc17e
+	lower = map.city_variant == "lower"
+	look_rng.seed = map.seed_value ^ 0x10e7
 	root = Node3D.new()
 	root.name = "CityDressing"
 	parent.add_child(root)
@@ -147,17 +173,23 @@ func build(world: Node3D, parent: Node3D) -> void:
 	_place_cables()
 	_place_neon()
 	map.mark("  city: street furniture + cables")
+	if lower:
+		_place_front_lights()
+		_place_skybridges()
+		_place_front_laundry()
+		map.mark("  city: lower city lights + skybridges")
 	for path in transforms:
 		_add_set(String(path).get_file().get_basename(), TerraceDressing.kit_mesh(load(path)), transforms[path])
 	map.mark("  city: multimeshes")
 
 ## The tints a district's buildings draw from (SiracusaDressing has its own).
 func _palette(kind: String) -> Array:
+	if lower: return LOWER_TINTS.get(kind, LOWER_TINTS.street)
 	return DISTRICT_TINTS.get(kind, ROOF_TINTS)
 
 ## How tall a piece stands where it hides the ground behind it.
 func _sight_height(name: String, box: AABB) -> float:
-	return float(SIGHT_HEIGHT.get(name, box.size.y))
+	return float(SIGHT_HEIGHT.get(name, box.size.y)) * rise_of(name)
 
 ## The pieces that line a district's roads, tallest first.
 func _frontage_pieces(kind: String) -> Array:
@@ -175,7 +207,39 @@ func _front_axis(normal: Vector2) -> Vector2:
 func _axis_key(axis: Vector2) -> Vector2:
 	return axis
 
-func _add(name: String, placed: Transform3D) -> void:
+## Pieces against the figures (用户 2026-10-20: 地图里的场景物件都调大，和人物的
+## 相对比例要对). A figure is a camera-facing billboard, its full height on
+## screen; a model shows cos(58°) = 0.53 of its height, so a 1.7 m prop read
+## half her size. Street furniture is drawn PROP_SCALE larger all round
+## (its collider too); fences and walls only taller (they run along a line);
+## buildings BUILDING_RISE taller, their footprint kept to the street plan.
+## Across a barricade a piece keeps its length so the gap stays one person wide.
+const PROP_SCALE := 1.6
+const PROP_PIECES := ["city_bin", "city_bollards", "city_bus_stop", "city_car_wreck", "city_cones", "city_hydrant", "city_kiosk",
+	"city_phone_booth", "city_postbox", "city_street_lamp", "city_traffic_light", "city_vending", "city_sandbags", "city_water_barrier", "city_hedgehog"]
+const RISE_PIECES := ["city_fence", "city_hoarding", "city_yard_fence", "city_gate", "city_site_gate", "city_yard_gate", "city_wall"]
+const LINE_RISE := 1.4
+const BUILDING_RISE := 1.45
+const RISEN_BUILDINGS := ["city_tower", "city_shop_house", "city_row_mid", "city_tea_house", "city_row_low_a", "city_row_low_b", "city_row_low_a_worn", "city_row_low_b_worn",
+	"city_shack_a", "city_shack_b", "city_shack_c", "siracusa_house_a", "siracusa_house_b", "siracusa_house_c", "siracusa_house_d", "siracusa_house_low"]
+
+## How much taller than modelled a piece is drawn.
+static func rise_of(name: String) -> float:
+	if name in RISEN_BUILDINGS: return BUILDING_RISE
+	if name in RISE_PIECES: return LINE_RISE
+	if name in PROP_PIECES: return PROP_SCALE
+	return 1.0
+
+## A block building's size (BUILDINGS) as drawn, BUILDING_RISE and all.
+func _size_of(name: String) -> Vector3:
+	var size: Vector3 = BUILDINGS[name]
+	return Vector3(size.x, size.y * rise_of(name), size.z)
+
+func _add(name: String, placed: Transform3D, barricade := false) -> void:
+	if name in PROP_PIECES: placed.basis = placed.basis * Basis.from_scale(Vector3(1.0 if barricade else PROP_SCALE, PROP_SCALE, PROP_SCALE))
+	elif name in RISE_PIECES or name in RISEN_BUILDINGS: placed.basis = placed.basis * Basis.from_scale(Vector3(1.0, rise_of(name), 1.0))
+	# 下城: the same footprint, its lower-city model.
+	if lower and LOWER_PIECES.has(name): name = LOWER_PIECES[name]
 	var path := KIT + name + ".glb"
 	if not transforms.has(path): transforms[path] = [] as Array[Transform3D]
 	(transforms[path] as Array[Transform3D]).append(placed)
@@ -209,6 +273,128 @@ func _add_set(label: String, mesh: Mesh, list: Array[Transform3D]) -> void:
 			if material != null and material.shader == TerraceDressing.GLOW_SHADER: material.set_shader_parameter("use_tint", true)
 	instance.multimesh = multimesh
 	root.add_child(instance)
+
+# --- 下城: door lights and 牌楼连廊 ----------------------------------------------------
+
+## The lower city's light (改造案 §1.3: 以窗光和红灯笼为主): at some building
+## fronts a small warm pool from the lit windows and doorway; at some shops a
+## pair of red lanterns (art/kit/city_lc_lantern.glb) either side of the door,
+## each with its small red-warm pool.
+const WINDOW_LIGHT := Color(1.0, 0.7, 0.38) * 0.7
+const WINDOW_SHARE := 0.45
+const LANTERN_LIGHT_RED := Color(1.0, 0.34, 0.2) * 0.85
+const LANTERN_SHARE := 0.35
+const LANTERN_FRONTS := ["city_tower", "city_shop_house", "city_row_mid", "city_tea_house", "city_row_low_a", "city_row_low_b"]
+var red_lantern_count := 0
+var window_light_count := 0
+
+func _place_front_lights() -> void:
+	for f in fronts:
+		var kerb: Vector2 = f.kerb
+		var axis: Vector2 = f.axis
+		var along: Vector2 = f.along
+		var floor_y: float = f.floor
+		var ground: float = map.ground_height(kerb + axis * 1.0)
+		if look_rng.randf() < WINDOW_SHARE:
+			var at := kerb + along * look_rng.randf_range(-f.width * 0.3, f.width * 0.3) + axis * 1.2
+			lamps.append({"at": Vector3(at.x, ground + 2.6, at.y), "color": WINDOW_LIGHT, "radius": 4.5})
+			window_light_count += 1
+		if f.name in LANTERN_FRONTS and look_rng.randf() < LANTERN_SHARE:
+			var yaw := Basis(Vector3.UP, atan2(axis.x, axis.y))
+			var door := kerb + along * look_rng.randf_range(-f.width * 0.2, f.width * 0.2)
+			for side in [-1.0, 1.0]:
+				var at: Vector2 = door + along * side * 0.9 - axis * 0.05
+				_add("city_lc_lantern", Transform3D(yaw, Vector3(at.x, floor_y + 3.4, at.y)))
+				red_lantern_count += 1
+			var pool := door + axis * 0.9
+			lamps.append({"at": Vector3(pool.x, ground + 2.2, pool.y), "color": LANTERN_LIGHT_RED, "radius": 4.0})
+
+## 牌楼连廊 (改造案 §1.3, §3): a covered bridge with a 歇山 roof between the
+## buildings either side of her trunk road, high over her head, two red
+## lanterns under it; 1–2 a floor, on a straight stretch of the trunk with
+## buildings on both kerbs, well clear of the way down. It stops nothing:
+## the road under it is walkable, and she is hidden while she is under it.
+## The model (art/kit/city_lc_skybridge.glb) spans SKYBRIDGE_SPAN kerb to
+## kerb along its x and is stretched to the street.
+const SKYBRIDGE_SPAN := 10.0
+const SKYBRIDGE_COUNT := Vector2i(1, 2)
+const SKYBRIDGE_WIDTH := Vector2(6.0, 16.0)
+const SKYBRIDGE_CLEAR := 36.0
+## How near her trunk it must be.
+const SKYBRIDGE_TRUNK := 10.0
+var skybridge_count := 0
+var skybridge_points: Array[Vector2] = []
+
+## Places across the streets she walks with a building behind both kerbs:
+## sampled every `step` along each corridor, the kerbs `span` apart (at most
+## `max_span`) along `across`, `at` the street's middle, `along` its run.
+func _street_spans(step: float, max_span: float) -> Array[Dictionary]:
+	var spans: Array[Dictionary] = []
+	for segment in map._open_segments:
+		var a := Vector2(segment[0], segment[1])
+		var b := Vector2(segment[2], segment[3])
+		var length := a.distance_to(b)
+		if length < 6.0: continue
+		var along := (b - a) / length
+		var across := along.orthogonal()
+		var t := step * 0.5
+		while t < length - 2.0:
+			var centre := a + along * t
+			t += step
+			var walls: Array[float] = []
+			for side in [-1.0, 1.0]:
+				var reach := 0.0
+				while reach < max_span and map._surface.distance_near(centre + across * side * reach) >= 0.0: reach += 0.25
+				var wall: Vector2 = centre + across * side * (reach + 1.5)
+				if reach >= max_span or not _taken(Rect2(wall - Vector2(0.4, 0.4), Vector2(0.8, 0.8))): break
+				walls.append(reach)
+			if walls.size() < 2 or walls[0] + walls[1] > max_span: continue
+			spans.append({"at": centre + across * (walls[1] - walls[0]) * 0.5, "across": across, "along": along, "span": walls[0] + walls[1]})
+	return spans
+
+## How far `p` is from her trunk (the main path's rooms and the roads between).
+func _trunk_distance(p: Vector2) -> float:
+	var best := INF
+	for i in range(map.main_path.size() - 1):
+		var a: Vector2 = map.main_path[i]
+		var b: Vector2 = map.main_path[i + 1]
+		var t := clampf((p - a).dot(b - a) / maxf((b - a).length_squared(), 0.01), 0.0, 1.0)
+		best = minf(best, p.distance_to(a.lerp(b, t)))
+	return best
+
+func _place_skybridges() -> void:
+	var exit := Vector2.INF
+	if is_instance_valid(map.exit_node): exit = Vector2(map.exit_node.position.x, map.exit_node.position.z)
+	var entry := Vector2(ContinuousWorldMap.ENTRY_POSITION.x, ContinuousWorldMap.ENTRY_POSITION.z)
+	var found: Array[Dictionary] = []
+	var off_trunk: Array[Dictionary] = []
+	for spot in _street_spans(2.0, SKYBRIDGE_WIDTH.y):
+		var centre: Vector2 = spot.at
+		if float(spot.span) < SKYBRIDGE_WIDTH.x: continue
+		if exit != Vector2.INF and centre.distance_to(exit) < SKYBRIDGE_CLEAR: continue
+		if centre.distance_to(entry) < 20.0 or not map.bridge_at(centre, 6.0).is_empty(): continue
+		if _near_any(zebra_points, centre, 9.0): continue
+		(found if _trunk_distance(centre) <= SKYBRIDGE_TRUNK else off_trunk).append(spot)
+	# On her trunk first, then by any other road she walks.
+	_shuffle_with(found, look_rng)
+	_shuffle_with(off_trunk, look_rng)
+	found.append_array(off_trunk)
+	var want := look_rng.randi_range(SKYBRIDGE_COUNT.x, SKYBRIDGE_COUNT.y)
+	for spot in found:
+		if skybridge_count >= want: break
+		var at: Vector2 = spot.at
+		if _near_any(skybridge_points, at, 30.0): continue
+		var across: Vector2 = spot.across
+		var along: Vector2 = spot.along
+		var ground: float = map.ground_height(at)
+		# Model x along `across`, stretched so its ends go 0.6 m into the walls.
+		var turn := Basis(Vector3.UP, atan2(-across.y, across.x)) * Basis.from_scale(Vector3((float(spot.span) + 1.2) / SKYBRIDGE_SPAN, 1.0, 1.0))
+		_add("city_lc_skybridge", Transform3D(turn, Vector3(at.x, ground - 0.02, at.y)))
+		for side in [-1.0, 1.0]:
+			var pool: Vector2 = at + along * side * 1.9
+			lamps.append({"at": Vector3(pool.x, ground + 3.6, pool.y), "color": LANTERN_LIGHT_RED * 1.1, "radius": 5.5})
+		skybridge_points.append(at)
+		skybridge_count += 1
 
 # --- Side streets ----------------------------------------------------------------------
 
@@ -347,7 +533,7 @@ func _build_side_streets() -> void:
 	var instance := MeshInstance3D.new()
 	instance.name = "SideStreets"
 	instance.mesh = tool.commit()
-	instance.material_override = FieldArt.terrain_material("city")
+	instance.material_override = FieldArt.terrain_material("city", FieldLight.key(map))
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(instance)
 
@@ -363,7 +549,7 @@ func _barricade_mouths(street: Dictionary) -> void:
 		while s <= float(street.width) * 0.5 - 0.8:
 			var p: Vector2 = at + side * s
 			var name: String = ["city_water_barrier", "city_hedgehog", "city_sandbags"][piece % 3]
-			_add(name, Transform3D(yaw * Basis(Vector3.UP, rng.randf_range(-0.12, 0.12)), Vector3(p.x, map._surface.top_at(p) - 0.02, p.y)))
+			_add(name, Transform3D(yaw * Basis(Vector3.UP, rng.randf_range(-0.12, 0.12)), Vector3(p.x, map._surface.top_at(p) - 0.02, p.y)), true)
 			s += 2.0
 			piece += 1
 
@@ -411,9 +597,11 @@ const DISTRICT_LIGHT := {
 	"site": Color(1.0, 0.58, 0.2) * 0.9, "slum": Color(0.62, 0.85, 0.7) * 0.6,
 }
 var lamps: Array[Dictionary] = []
+var street_lamp_count := 0
 
 func _place_lamps() -> void:
 	var placed := {}
+	var seen := 0
 	for edge in map._surface.contour_edges:
 		var a := Vector2(edge[0], edge[1])
 		var b := Vector2(edge[2], edge[3])
@@ -432,13 +620,16 @@ func _place_lamps() -> void:
 			if (other as Vector2).distance_to(m) < LAMP_GAP * 0.7: near = true
 		if near: continue
 		placed[key] = m
+		_kerb_points.append(m)
+		seen += 1
+		if lower and seen % LOWER_LAMP_EVERY != 1: continue
 		var foot := m - normal * 0.35
 		var ground: float = map.ground_height(m + normal * 1.0)
 		_add("city_street_lamp", Transform3D(Basis(Vector3.UP, atan2(normal.x, normal.y)), Vector3(foot.x, ground - 0.02, foot.y)))
 		var pool := m + normal * 1.3
 		var district: String = map.district_at(m)
 		lamps.append({"at": Vector3(pool.x, ground + 1.5, pool.y), "color": DISTRICT_LIGHT.get(district, LAMP_LIGHT), "radius": 7.5})
-		_kerb_points.append(m)
+		street_lamp_count += 1
 
 # --- Neon ------------------------------------------------------------------------------
 
@@ -447,20 +638,27 @@ func _place_lamps() -> void:
 ## street, boards on the facades, frames on the roofs, each its own colour,
 ## each laying a pool of that colour on the street. Thickest in the outer
 ## city's streets, a few at the building sites; none in the slums (用户
-## 2026-10-16: 贫民窟不做霓虹) or the yards.
+## 2026-10-16: 贫民窟不做霓虹), a few in the yards.
 const NEON_COLOURS := [Color(1.0, 0.3, 0.68), Color(0.25, 0.9, 1.0), Color(1.0, 0.2, 0.24), Color(0.3, 1.0, 0.55),
 	Color(1.0, 0.74, 0.22), Color(0.7, 0.38, 1.0)]
 ## Per district: the chance a building front gets a blade, a board, a roof frame.
 const NEON_SHARE := {
-	"street": {"blade": 0.8, "board": 0.45, "roof": 0.35},
-	"site": {"blade": 0.05, "board": 0.0, "roof": 0.0},
+	"street": {"blade": 1.0, "board": 0.7, "roof": 0.6},
+	"yard": {"blade": 0.35, "board": 0.2, "roof": 0.1},
+	"site": {"blade": 0.15, "board": 0.05, "roof": 0.0},
 }
 ## Building fronts that carry signs (not containers, ruins or scaffolds).
 const NEON_FRONTS := ["city_tower", "city_shop_house", "city_row_mid", "city_tea_house", "city_row_low_a", "city_row_low_b", "city_row_low_a_worn", "city_row_low_b_worn",
 	"city_shack_a", "city_shack_b", "city_shack_c"]
-## How strongly a sign lights the street, and how far.
-const NEON_LIGHT := 1.2
-const NEON_RADIUS := 6.0
+## How strongly a sign lights the street, and how far (用户 2026-10-20:
+## 龙门需要更大范围的霓虹).
+const NEON_LIGHT := 1.5
+const NEON_RADIUS := 11.0
+## 下城's signs: pink and violet turned red and amber, and a pool no wider
+## than the pavement under them.
+const LOWER_NEON := {Color(1.0, 0.3, 0.68): Color(1.0, 0.2, 0.24), Color(0.7, 0.38, 1.0): Color(1.0, 0.74, 0.22)}
+const LOWER_NEON_LIGHT := 0.55
+const LOWER_NEON_RADIUS := 3.2
 ## The street fronts placed (_front_piece): where signs can go.
 var fronts: Array[Dictionary] = []
 var neon_count := 0
@@ -500,11 +698,14 @@ func _place_neon() -> void:
 ## One sign: its model, a colour, and the pool of that colour on the street.
 func _add_neon(name: String, placed: Transform3D, pool: Vector2, ground: float, strength: float = 1.0) -> void:
 	var colour: Color = NEON_COLOURS[rng.randi_range(0, NEON_COLOURS.size() - 1)]
+	# 下城: no pink or violet; the sign lights itself and the kerb under it.
+	if lower: colour = LOWER_NEON.get(colour, colour)
 	_add(name, placed)
 	var path := KIT + name + ".glb"
 	if not _neon_colours.has(path): _neon_colours[path] = []
 	(_neon_colours[path] as Array).append(colour)
-	lamps.append({"at": Vector3(pool.x, ground + 2.4, pool.y), "color": colour * NEON_LIGHT * strength, "radius": NEON_RADIUS * strength})
+	if lower: lamps.append({"at": Vector3(pool.x, ground + 2.4, pool.y), "color": colour * LOWER_NEON_LIGHT, "radius": LOWER_NEON_RADIUS})
+	else: lamps.append({"at": Vector3(pool.x, ground + 2.4, pool.y), "color": colour * NEON_LIGHT * strength, "radius": NEON_RADIUS * strength})
 	neon_count += 1
 	neon_points.append(pool)
 	neon_districts.append(_neon_district)
@@ -547,7 +748,7 @@ func _place_furniture() -> void:
 	instance.name = "RoadMarkings"
 	instance.mesh = tool.commit()
 	if instance.mesh != null:
-		instance.material_override = FieldArt.terrain_material("city")
+		instance.material_override = FieldArt.terrain_material("city", FieldLight.key(map))
 		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(instance)
 
@@ -560,6 +761,8 @@ var cable_count := 0
 func _place_cables() -> void:
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var laundry := SurfaceTool.new()
+	laundry.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for segment in map._open_segments:
 		var a := Vector2(segment[0], segment[1])
 		var b := Vector2(segment[2], segment[3])
@@ -587,6 +790,14 @@ func _place_cables() -> void:
 				var h1 := h0 + rng.randf_range(-0.6, 0.6)
 				_cable(tool, ends[0] + shift, h0, ends[1] + shift + along * rng.randf_range(-0.8, 0.8), h1, rng.randf_range(0.4, 0.9))
 			cable_count += 1
+			# 下城: a laundry line strung alongside every other bundle.
+			if lower and look_rng.randf() < LOWER_LAUNDRY_SHARE:
+				var shift := along * look_rng.randf_range(1.0, 1.6) * (1.0 if look_rng.randf() < 0.5 else -1.0)
+				var h := ground + look_rng.randf_range(4.6, 5.6)
+				_cable(tool, ends[0] + shift, h, ends[1] + shift, h, 0.35)
+				_laundry(laundry, ends[0] + shift, ends[1] + shift, h, 0.35)
+				laundry_count += 1
+	if laundry_count > 0: _add_laundry_mesh(laundry, "Laundry")
 	var mesh := tool.commit()
 	if mesh == null: return
 	var instance := MeshInstance3D.new()
@@ -597,7 +808,82 @@ func _place_cables() -> void:
 	material.albedo_color = CABLE_COLOUR
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	instance.material_override = material
-	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Overhead, so in the lower city they cast their shadows (改造案 §1.3:
+	# 只投阴影，不挡角色).
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if lower else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(instance)
+
+## Laundry pegged along a line from `from` to `to` at height `h`: cloths of
+## faded colours hanging straight down, a gap now and then.
+const LOWER_LAUNDRY_SHARE := 0.5
+const LAUNDRY_COLOURS := [Color(0.62, 0.16, 0.13), Color(0.16, 0.32, 0.52), Color(0.7, 0.56, 0.2), Color(0.72, 0.7, 0.66), Color(0.2, 0.42, 0.3), Color(0.52, 0.22, 0.4), Color(0.4, 0.32, 0.24)]
+var laundry_count := 0
+
+func _laundry(tool: SurfaceTool, from: Vector2, to: Vector2, h: float, sag: float) -> void:
+	var length := from.distance_to(to)
+	var along := (to - from) / maxf(length, 0.01)
+	var u := look_rng.randf_range(0.6, 1.2)
+	while u < length - 0.6:
+		var w := look_rng.randf_range(0.35, 0.7)
+		var drop := look_rng.randf_range(0.45, 0.85)
+		var f := (u + w * 0.5) / length
+		var top := h - sag * 4.0 * f * (1.0 - f) - 0.03
+		var colour: Color = LAUNDRY_COLOURS[look_rng.randi_range(0, LAUNDRY_COLOURS.size() - 1)]
+		var a := from + along * u
+		var b := from + along * (u + w)
+		tool.set_color(colour)
+		for v in [Vector3(a.x, top, a.y), Vector3(b.x, top, b.y), Vector3(b.x, top - drop, b.y), Vector3(a.x, top, a.y), Vector3(b.x, top - drop, b.y), Vector3(a.x, top - drop, a.y)]:
+			tool.add_vertex(v)
+		u += w + (look_rng.randf_range(0.6, 1.6) if look_rng.randf() < 0.3 else look_rng.randf_range(0.05, 0.2))
+
+## 下城: laundry lines from window to window across her streets, where
+## there are buildings on both kerbs, every few metres; clear of the 连廊.
+const FRONT_LAUNDRY_SHARE := 0.5
+
+func _place_front_laundry() -> void:
+	var line := SurfaceTool.new()
+	line.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var cloth := SurfaceTool.new()
+	cloth.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var placed: Array[Vector2] = []
+	var before := laundry_count
+	for spot in _street_spans(3.0, 12.0):
+		var at: Vector2 = spot.at
+		if look_rng.randf() > FRONT_LAUNDRY_SHARE or _near_any(placed, at, 7.0) or _near_any(skybridge_points, at, 6.0): continue
+		var across: Vector2 = spot.across
+		var half: float = float(spot.span) * 0.5 + 0.3
+		var h: float = map.ground_height(at) + look_rng.randf_range(4.6, 6.0)
+		var from := at - across * half
+		var to := at + across * half
+		_cable(line, from, h, to, h, 0.3)
+		_laundry(cloth, from, to, h, 0.3)
+		placed.append(at)
+		laundry_count += 1
+	if laundry_count == before: return
+	_add_laundry_mesh(cloth, "FrontLaundry")
+	var instance := MeshInstance3D.new()
+	instance.name = "LaundryLines"
+	instance.mesh = line.commit()
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = CABLE_COLOUR
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	instance.material_override = material
+	root.add_child(instance)
+
+## The cloths as one lit, two-sided mesh that casts its shadow.
+func _add_laundry_mesh(tool: SurfaceTool, label: String) -> void:
+	tool.generate_normals()
+	var mesh := tool.commit()
+	if mesh == null or mesh.get_surface_count() == 0: return
+	var instance := MeshInstance3D.new()
+	instance.name = label
+	instance.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.roughness = 1.0
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	instance.material_override = material
 	root.add_child(instance)
 
 ## A sagging cable as a flat ribbon facing up (the camera looks down on it).
@@ -779,11 +1065,12 @@ func _place_kerbside() -> void:
 		var kind: String = map.district_at(m)
 		var yaw := Basis(Vector3.UP, atan2(normal.x, normal.y))
 		# A wreck by the kerb where the road is wide enough to drive past it.
-		if rng.randf() < WRECK_SHARE and map._surface.distance_near(m + normal * 7.0) > 2.5:
-			var at := m + normal * 1.6
+		# Sized for the wreck as drawn (PROP_SCALE): the road past it stays open.
+		if rng.randf() < WRECK_SHARE and map._surface.distance_near(m + normal * 7.0 * PROP_SCALE) > 2.5 and map._has_clearance(m + normal * 1.6 * PROP_SCALE + normal * 3.0):
+			var at := m + normal * 1.6 * PROP_SCALE
 			var heading := Basis(Vector3.UP, atan2(tangent.x, tangent.y) + rng.randf_range(-0.25, 0.25))
 			_add("city_car_wreck", Transform3D(heading * Basis(Vector3.UP, -PI * 0.5), Vector3(at.x, map.ground_height(at) - 0.03, at.y)))
-			_collider(at, tangent, Vector3(FURNITURE_BOXES.city_car_wreck.x, FURNITURE_BOXES.city_car_wreck.y, FURNITURE_BOXES.city_car_wreck.z))
+			_collider(at, tangent, FURNITURE_BOXES.city_car_wreck * PROP_SCALE)
 			_furniture_points.append(m)
 			wreck_count += 1
 			continue
@@ -793,7 +1080,7 @@ func _place_kerbside() -> void:
 		if FURNITURE_BOXES.has(name):
 			# The road beside it stays wide enough to pass.
 			if map._surface.distance_near(m + normal * 5.0) < 2.0: continue
-			var box: Vector3 = FURNITURE_BOXES[name]
+			var box: Vector3 = FURNITURE_BOXES[name] * PROP_SCALE
 			at = m + normal * (box.z * 0.5 + 0.1)
 			_collider(at, tangent, box)
 		_add(name, Transform3D(yaw * Basis(Vector3.UP, rng.randf_range(-0.08, 0.08)), Vector3(at.x, map.ground_height(at) - 0.02, at.y)))
@@ -909,6 +1196,13 @@ func _line_run(run: Dictionary) -> void:
 			u += placed + (rng.randf_range(1.4, 2.4) if rng.randf() < 0.15 else rng.randf_range(0.0, 0.35))
 		else: u += 1.5
 
+func _shuffle_with(list: Array, roll: RandomNumberGenerator) -> void:
+	for i in range(list.size() - 1, 0, -1):
+		var j := roll.randi_range(0, i)
+		var swap = list[i]
+		list[i] = list[j]
+		list[j] = swap
+
 func _shuffle(list: Array) -> void:
 	for i in range(list.size() - 1, 0, -1):
 		var j := rng.randi_range(0, i)
@@ -924,7 +1218,7 @@ const ROOF_HUT_SHARE := 0.55
 func _roof_huts(name: String, rect: Rect2, roof: float, spare: float) -> void:
 	if map.region_id != "city" or not name in ["city_tower", "city_shop_house", "city_row_mid", "city_tea_house", "city_row_low_a", "city_row_low_b", "city_row_low_a_worn", "city_row_low_b_worn"]: return
 	if rng.randf() > ROOF_HUT_SHARE: return
-	var hut: Vector3 = BUILDINGS["city_shack_a"]
+	var hut: Vector3 = _size_of("city_shack_a")
 	for k in range(rng.randi_range(1, 2)):
 		var scale := rng.randf_range(0.7, 1.0)
 		if hut.y * scale * SIGHT > spare: return
@@ -983,7 +1277,7 @@ func _front_piece(name: String, base: Vector2, along: Vector2, axis: Vector2, u:
 	var floor_y: float = map._surface.top_at(origin) - 0.25
 	for c in corners: floor_y = minf(floor_y, map._surface.top_at(c) - 0.25)
 	for level in range(stack):
-		_add(name, Transform3D(yaw * Basis(Vector3.UP, PI if level == 1 else 0.0), Vector3(origin.x, floor_y + level * box.size.y, origin.y)))
+		_add(name, Transform3D(yaw * Basis(Vector3.UP, PI if level == 1 else 0.0), Vector3(origin.x, floor_y + level * box.size.y * rise_of(name), origin.y)))
 	_roof_huts(name, rect, floor_y + height - 0.7, north - height * SIGHT)
 	fronts.append({"name": name, "kerb": base + along * (u + width * 0.5), "along": along, "axis": axis, "width": width,
 		"height": height, "floor": floor_y, "spare": north - height * SIGHT, "district": map.district_at(base + along * (u + width * 0.5) - axis * 3.0)})
@@ -1025,7 +1319,7 @@ func _try_building(p: Vector2, pieces: Array) -> void:
 			pieces[i] = pieces[j]
 			pieces[j] = swap
 	for name in pieces:
-		var size: Vector3 = BUILDINGS[name]
+		var size: Vector3 = _size_of(name)
 		var half := Vector2(size.x, size.z) * 0.5
 		if absf(facing.x) > 0.5: half = Vector2(half.y, half.x)
 		var rect := Rect2(p - half, half * 2.0)
@@ -1061,7 +1355,7 @@ func _add_shack(name: String, p: Vector2, yaw: Basis, base: float, size: Vector3
 	_add(name, Transform3D(turn.scaled(Vector3(1.0, tall, 1.0)), Vector3(p.x, base + sunk, p.y)))
 	var top := size.y * tall + sunk
 	if name == "city_shack_c" or rng.randf() > 0.4: return
-	var upper: Vector3 = BUILDINGS["city_shack_a"]
+	var upper: Vector3 = _size_of("city_shack_a")
 	if (top + upper.y * 0.75) * SIGHT > sight: return
 	var shift := Vector2(rng.randf_range(-0.2, 0.2) * size.x, rng.randf_range(-0.2, 0.2) * size.z)
 	var room := turn * Basis(Vector3.UP, PI * 0.5 * rng.randi_range(0, 3) + rng.randf_range(-0.2, 0.2))
@@ -1264,7 +1558,7 @@ func _place_border_lines() -> void:
 				posts.append(mid)
 				var name: String = BORDERS[kind].post
 				_add(name, Transform3D(Basis(Vector3.UP, -along.angle()), Vector3(mid.x, map.ground_height(mid) - 0.02, mid.y)))
-				if name != "city_cones": _collider(mid, along, Vector3(2.1, 0.9, 0.5))
+				if name != "city_cones": _collider(mid, along, Vector3(2.1, 0.9, 0.5) * PROP_SCALE)
 		z += step
 
 func _draw_border_lines(tool: SurfaceTool) -> void:
@@ -1371,8 +1665,8 @@ func _place_barricades() -> void:
 				if map._surface.distance_near(p) > 0.2:
 					var name := _barricade_piece(piece)
 					var yaw := Basis(Vector3.UP, -across.angle())
-					_add(name, Transform3D(yaw, Vector3(p.x, map.ground_height(p), p.y)))
-					_collider(p, across, Vector3(2.0, 1.0, 0.6))
+					_add(name, Transform3D(yaw, Vector3(p.x, map.ground_height(p), p.y)), true)
+					_collider(p, across, Vector3(2.0, PROP_SCALE, 0.6 * PROP_SCALE))
 				s += side * 2.0
 				piece += 1
 		barricade_count += 1
@@ -1388,8 +1682,17 @@ func _place_cover() -> void:
 			if not map._has_clearance(p): continue
 			var name := "city_kiosk" if k == 0 and map.district_at(p) == "street" else "city_sandbags"
 			var yaw := Basis(Vector3.UP, rng.randi_range(0, 3) * PI * 0.5)
+			# Room to walk round it at both ends and both sides, now it is
+			# drawn PROP_SCALE large: a wall against a kerb or another piece
+			# shut a pocket of the room off.
+			var run := Vector2.RIGHT.rotated(-yaw.get_euler().y)
+			var reach := (2.2 if name == "city_kiosk" else 2.4) * PROP_SCALE * 0.5 + 1.4
+			var walled := false
+			for probe in [p + run * reach, p - run * reach, p + run.orthogonal() * 2.2, p - run.orthogonal() * 2.2]:
+				if not map._has_clearance(probe): walled = true
+			if walled: continue
 			_add(name, Transform3D(yaw, Vector3(p.x, map.ground_height(p), p.y)))
-			_collider(p, Vector2.RIGHT.rotated(-yaw.get_euler().y), Vector3(2.2, 1.0, 1.6) if name == "city_kiosk" else Vector3(2.4, 0.9, 0.5))
+			_collider(p, Vector2.RIGHT.rotated(-yaw.get_euler().y), (Vector3(2.2, 1.0, 1.6) if name == "city_kiosk" else Vector3(2.4, 0.9, 0.5)) * PROP_SCALE)
 
 ## A gantry crane over each big warehouse-yard room, legs at its sides.
 func _place_gantries() -> void:

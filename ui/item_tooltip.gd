@@ -1,6 +1,9 @@
 class_name ItemTooltip
 extends RefCounted
 
+## 情报部Ⅱ (龙门币平衡与科研部策划案): show where a piece sits in its rarity's band.
+static var show_band := false
+
 ## Tooltip text for an item, top to bottom (装备与背包界面调研 §4.3): name in its
 ## rarity colour, kind and size, what wearing it changes stat by stat, base
 ## stats, random affixes with tiers (Alt adds their ranges), the trigger affix
@@ -30,6 +33,7 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		"special": kind += " · [color=#ff7a45]特殊装备[/color]"
 		"exclusive": kind += " · [color=#ee8a24]◆ 敌人专属[/color]"
 		"set": kind += " · [color=#4fd18b]套装[/color]"
+		"boss": kind += " · [color=#b49ae8]◆ 首领专属[/color]"
 	lines.append("[color=#99aab8]%s[/color]" % kind)
 	# Grade and requirement (精英化与加点策划案 §7.4): white when met, red when not.
 	var req := Progression.requirement(item)
@@ -50,19 +54,31 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 				if not is_equal_approx(float(preview.before[key]), float(preview.after[key])):
 					lines.append("  " + _diff_line(key, preview.before[key], preview.after[key], false))
 		lines.append("[color=#c9d3db]── 基础 ──[/color]")
-		var base := CombatStats.power_stats(item.category, item.power)
+		var base := CombatStats.item_stats(item)
 		var names := {"atk": "攻击力", "hp": "生命", "def": "防御", "arts": "法术攻击力", "stamina_regen": "体力回复"}
-		var low := CombatStats.power_stats(item.category, item.power_mid * Item.POWER_LOW)
-		var high := CombatStats.power_stats(item.category, item.power_mid * Item.POWER_HIGH)
+		var r := item.power_range()
+		var low := CombatStats.power_stats(item.category, float(r[0]), item.atk_share, item.grade) if not r.is_empty() else {}
+		var high := CombatStats.power_stats(item.category, float(r[1]), item.atk_share, item.grade) if not r.is_empty() else {}
 		for key in base:
-			var span := "（范围 %d ~ %d）" % [roundi(low[key]), roundi(high[key])] if detailed and item.power_mid > 0.0 else ""
+			var span := "（范围 %d ~ %d）" % [roundi(low[key]), roundi(high[key])] if detailed and low.has(key) else ""
 			lines.append("  %s +%d%s" % [names[key], roundi(base[key]), span])
+		if show_band and not r.is_empty(): lines.append("  范围 %d%%" % roundi(Scaling.band_position(item) * 100.0))
 		var intrinsic := item.modifiers.filter(func(m): return m.trigger == ItemModifier.Trigger.NONE and m.tier == GearCatalog.IMPLICIT_TIER)
 		for mod in intrinsic: lines.append("  [color=#b8c4cf]固有 · %s%s[/color]" % [mod.describe(), mod.range_text() if detailed else ""])
 		for entry in item.prefixes:
 			var colour := PrefixCatalog.color_of(entry).to_html(false)
-			for line in PrefixCatalog.lines_of(entry):
+			for line in PrefixCatalog.lines_of(entry, item):
 				lines.append("  [color=#%s]前缀[/color] · %s%s" % [colour, line[0], line[1] if detailed else ""])
+		# Effect families: 阶等 is how many worn pieces carry it (前缀放大与特效阶等案 §4).
+		for entry in item.prefixes:
+			var fam := PrefixFamilies.family_of(str(entry.id))
+			if fam.is_empty(): continue
+			var families: PrefixFamilies = game.player.families if is_instance_valid(game) and is_instance_valid(game.player) else null
+			var pieces := int(families.worn.get(fam, 0)) if families != null else 0
+			var working := families != null and families.tiers.has(fam)
+			var tier := maxi(pieces, 1)
+			lines.append("[color=#%s]── %s%s ──[/color]" % ["b48cff" if working or pieces == 0 else "6d6d6d", PrefixFamilies.label(fam, tier), "" if working or pieces == 0 else " · 未生效"])
+			for line in PrefixFamilies.lines(fam, tier): lines.append("  [color=#%s]%s[/color]" % ["e9e9e9" if line[1] else "6d6d6d", line[0]])
 		var affixes := item.modifiers.filter(func(m): return m.trigger == ItemModifier.Trigger.NONE and m.tier != GearCatalog.IMPLICIT_TIER)
 		if not affixes.is_empty():
 			lines.append("[color=#c9d3db]── 词缀 ──[/color]")

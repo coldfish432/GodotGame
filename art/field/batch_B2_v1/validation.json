@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "stage": 1,
+  "visible_native_height": 26,
+  "native_cell": [
+    64,
+    64
+  ],
+  "source_canvas": [
+    256,
+    256
+  ],
+  "pipeline_modified": false,
+  "native_replay": "EXACT",
+  "clipped_native_pixels": 0,
+  "x6": "EXACT_NEAREST",
+  "required_identity_deliverables": 4,
+  "boards_started": false,
+  "art_acceptance": "PENDING_USER_REVIEW",
+  "runtime_verified": false,
+  "ground": "Offline screenshot composite; assumed1.5x and native1x overlays, not verified camera projection."
+}

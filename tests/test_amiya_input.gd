@@ -120,9 +120,9 @@ func run() -> void:
 	check("arts damage goes through heavy armour", 1000000 - enemy.health > 600.0 * 4)
 	check("hitting brings 绝影 off cooldown well before 8 s", p.shadow_ready())
 	check("绝影 never fires by itself", not poses.has("shadow"))
-	# A right click on open ground ends the left-click lock.
-	await click_at(hover(origin + Vector3(-2, 0, 0)), MOUSE_BUTTON_RIGHT)
-	check("right click on the ground drops the lock", not p.has_target())
+	# A left click on open ground ends the lock (and walks there).
+	await click_at(hover(origin + Vector3(-2, 0, 0)), MOUSE_BUTTON_LEFT)
+	check("a click on the ground drops the lock", not p.has_target())
 	await step(20)
 	# Space with the cursor on a pack: four strikes bouncing across it.
 	enemy.queue_free()
@@ -156,12 +156,12 @@ func run() -> void:
 	await step(1)
 	Input.action_release("operator_skill")
 	check("Space again on cooldown does nothing", not p.shadow_active)
-	await click_at(hover(origin + Vector3(-2, 0, 0)), MOUSE_BUTTON_RIGHT)
+	await click_at(hover(origin + Vector3(-2, 0, 0)), MOUSE_BUTTON_LEFT)
 	await step(10)
 	Input.action_press("dash")
 	await step(2)
 	Input.action_release("dash")
-	check("Shift dodges with her sheet", p.invulnerable and p._sprite.action_name == "dash")
+	check("the dodge plays her sheet", p.invulnerable and p._sprite.action_name == "dash")
 	await step(20)
 	check("dash ends and she walks again", not p.invulnerable and p._sprite.action_name != "dash")
 	game.settle(true)

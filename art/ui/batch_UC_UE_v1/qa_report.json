@@ -1,0 +1,444 @@
+{
+  "result": "PASS",
+  "assets": 36,
+  "checks": [
+    {
+      "file": "kit\\panel_plate.png",
+      "result": "PASS",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\panel_glass.png",
+      "result": "PASS",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        204,
+        255
+      ]
+    },
+    {
+      "file": "kit\\header_strip.png",
+      "result": "PASS",
+      "size": [
+        256,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\btn_go.png",
+      "result": "PASS",
+      "size": [
+        96,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\btn_go_stripes.png",
+      "result": "PASS",
+      "size": [
+        32,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\slot_frame.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        255
+      ]
+    },
+    {
+      "file": "kit\\tip_frame.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\btn_normal.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\btn_hover.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\btn_press.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\btn_disabled.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\holo_ring_ticks.png",
+      "result": "PASS",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\holo_ring_dash.png",
+      "result": "PASS",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\holo_ring_arc.png",
+      "result": "PASS",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_head.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_chest.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_hands.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_legs.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_feet.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_amulet.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_ring.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\sil_weapon.png",
+      "result": "PASS",
+      "size": [
+        48,
+        48
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\dept_bridge.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\dept_warehouse.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\dept_logistics.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\dept_medical.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\dept_research.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit\\dept_store.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\equipment.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\operator.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\relic.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\map.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\contract.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\lmd.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\gold.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons\\pollution.png",
+      "result": "PASS",
+      "size": [
+        24,
+        24
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    }
+  ],
+  "reviewed_delivery_preserved": 36,
+  "limits": [
+    "No Godot import/runtime integration tested.",
+    "No automatic test proves absence of lettering."
+  ],
+  "visual_review": "Accepted by Claude with six touchups per feedback/review_claude.md; regenerated contact sheet inspected separately."
+}

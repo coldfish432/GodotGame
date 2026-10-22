@@ -1,0 +1,208 @@
+{
+  "technical_status": "PASS",
+  "characters": 8,
+  "poses": 9,
+  "references": 8,
+  "cell_borders": "PASS: at least 2px transparent at every 64px cell edge",
+  "native_heights": "PASS for seven humanoids; Zaro uses 38px shoulder calibration, both poses <=60px wide",
+  "alpha": "native binary; transparent identity sheet; original imagegen alpha retained in sources",
+  "preview_scaling": "native x6 nearest-neighbour",
+  "blind_panel": "8 PRTS portraits in brief order; 8 shuffled native identity figures; no added text or labels",
+  "feature_colour_presence": {
+    "patriot_red_pixels": 19,
+    "zaro_standing_red_pixels": 3,
+    "zaro_lying_red_pixels": 1,
+    "skullshatterer_orange_pixels": 27,
+    "hollow_purple_pixels": 22,
+    "hollow_blue_pixels": 75
+  },
+  "blind_identification": "PENDING independent reviewer, then user approval",
+  "visual_identity_and_size_acceptance": "PENDING user review",
+  "ground_checks": {
+    "mine": {
+      "kind": "static project surface composite, not engine screenshot",
+      "source": "D:\\CSYE 7370\\downfall-godot\\art\\field\\surface_mine_v2.png",
+      "sha256": "b3e604a14dea4852f1f98a4f53040a397307a3d22aa87b1e48bd7e7719c06d45"
+    },
+    "city": {
+      "kind": "static project surface composite, not engine screenshot",
+      "source": "D:\\CSYE 7370\\downfall-godot\\art\\field\\surface_city_v2.png",
+      "sha256": "0c241cf5aee4f38ef7303c7ef976c634212f58830c74b337f9b41c40f0aeee26"
+    },
+    "snow": {
+      "kind": "static project surface composite, not engine screenshot",
+      "source": "D:\\CSYE 7370\\downfall-godot\\art\\field\\surface_snow_v2.png",
+      "sha256": "82394b19d2385c61b61b4ff10686ab46931e41986b05c1c20193509d91a7f07b"
+    },
+    "siracusa": {
+      "kind": "static composite on a prior engine screenshot; new sprites not runtime rendered or relit",
+      "source": "D:\\CSYE 7370\\downfall-godot\\art\\_to_sol\\recruit_N4_work_v1\\N4_siracusa_enemies\\refs_N4\\siracusa_ingame_rain.png",
+      "sha256": "dbea20339df643087fed4521cdec5bc33073cabbe865dafc7f271c7c15dd2794",
+      "sprite_scale": 2
+    }
+  },
+  "engine_integration": "NOT PERFORMED; stage 1 static art review only",
+  "future_bake": "Stage-2 16-colour bake, dynamic poses, anatomical registration and all eight S/profile/rear directions remain untested.",
+  "palette_only_diagnostic": {
+    "results": "qa/quantizer_counts.json",
+    "preview": "qa/quantizer_comparison.png",
+    "rows": [
+      "full-colour BOX",
+      "16-colour median cut",
+      "16-colour fast octree"
+    ],
+    "counts": {
+      "None": {
+        "patriot": {
+          "red": 19,
+          "orange": 23,
+          "purple": 0,
+          "blue": 0
+        },
+        "rat_king": {
+          "red": 1,
+          "orange": 2,
+          "purple": 2,
+          "blue": 8
+        },
+        "eikthyrnir": {
+          "red": 0,
+          "orange": 1,
+          "purple": 0,
+          "blue": 0
+        },
+        "zaro": {
+          "red": 1,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        },
+        "crownslayer": {
+          "red": 73,
+          "orange": 42,
+          "purple": 0,
+          "blue": 0
+        },
+        "skullshatterer": {
+          "red": 54,
+          "orange": 27,
+          "purple": 0,
+          "blue": 0
+        },
+        "hollow_snowpriest": {
+          "red": 0,
+          "orange": 19,
+          "purple": 22,
+          "blue": 75
+        },
+        "father_agnir": {
+          "red": 0,
+          "orange": 3,
+          "purple": 0,
+          "blue": 0
+        }
+      },
+      "0": {
+        "patriot": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        },
+        "rat_king": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        },
+        "eikthyrnir": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        },
+        "zaro": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        },
+        "crownslayer": {
+          "red": 86,
+          "orange": 66,
+          "purple": 0,
+          "blue": 0
+        },
+        "skullshatterer": {
+          "red": 47,
+          "orange": 17,
+          "purple": 0,
+          "blue": 0
+        },
+        "hollow_snowpriest": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 65
+        },
+        "father_agnir": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        }
+      },
+      "2": {
+        "patriot": {
+          "red": 17,
+          "orange": 17,
+          "purple": 0,
+          "blue": 0
+        },
+        "rat_king": {
+          "red": 0,
+          "orange": 0,
+          "purple": 3,
+          "blue": 3
+        },
+        "eikthyrnir": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        },
+        "zaro": {
+          "red": 1,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        },
+        "crownslayer": {
+          "red": 60,
+          "orange": 45,
+          "purple": 0,
+          "blue": 0
+        },
+        "skullshatterer": {
+          "red": 42,
+          "orange": 30,
+          "purple": 0,
+          "blue": 0
+        },
+        "hollow_snowpriest": {
+          "red": 0,
+          "orange": 18,
+          "purple": 14,
+          "blue": 58
+        },
+        "father_agnir": {
+          "red": 0,
+          "orange": 0,
+          "purple": 0,
+          "blue": 0
+        }
+      }
+    },
+    "finding": "Median cut loses Patriot red/orange, Zaro lying red and Hollow face purple. Fast octree preserves those colour categories in this diagnostic. Full-colour stage-1 previews retained; complete stage-2 bake remains untested."
+  }
+}

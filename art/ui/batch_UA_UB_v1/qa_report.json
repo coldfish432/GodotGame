@@ -1,0 +1,422 @@
+{
+  "result": "STATIC_CHECKS_PASS",
+  "files": 17,
+  "checks": [
+    {
+      "id": "op_lappland",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        31,
+        58,
+        875,
+        1713
+      ],
+      "clear_margins": [
+        31,
+        58,
+        12,
+        61
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_amiya",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        75,
+        8,
+        860,
+        1761
+      ],
+      "clear_margins": [
+        75,
+        8,
+        27,
+        13
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_hellagur",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        1,
+        10,
+        885,
+        1765
+      ],
+      "clear_margins": [
+        1,
+        10,
+        2,
+        9
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_rosa",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        10,
+        52,
+        874,
+        1743
+      ],
+      "clear_margins": [
+        10,
+        52,
+        13,
+        31
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_hoshiguma",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        12,
+        12,
+        877,
+        1766
+      ],
+      "clear_margins": [
+        12,
+        12,
+        10,
+        8
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_lin",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        77,
+        16,
+        880,
+        1754
+      ],
+      "clear_margins": [
+        77,
+        16,
+        7,
+        20
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_typhon",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        6,
+        11,
+        881,
+        1757
+      ],
+      "clear_margins": [
+        6,
+        11,
+        6,
+        17
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_santalla",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        32,
+        37,
+        876,
+        1768
+      ],
+      "clear_margins": [
+        32,
+        37,
+        11,
+        6
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "op_texas",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        14,
+        15,
+        885,
+        1757
+      ],
+      "clear_margins": [
+        14,
+        15,
+        2,
+        17
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_closure",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        51,
+        45,
+        865,
+        1753
+      ],
+      "clear_margins": [
+        51,
+        45,
+        22,
+        21
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_cannot",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        4,
+        4,
+        884,
+        1770
+      ],
+      "clear_margins": [
+        4,
+        4,
+        3,
+        4
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_squad",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        91,
+        27,
+        817,
+        1759
+      ],
+      "clear_margins": [
+        91,
+        27,
+        70,
+        15
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_medic",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        93,
+        37,
+        806,
+        1748
+      ],
+      "clear_margins": [
+        93,
+        37,
+        81,
+        26
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_post_rat",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        46,
+        25,
+        824,
+        1750
+      ],
+      "clear_margins": [
+        46,
+        25,
+        63,
+        24
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_post_reunion",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        89,
+        22,
+        872,
+        1764
+      ],
+      "clear_margins": [
+        89,
+        22,
+        15,
+        10
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_post_ursus",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        88,
+        29,
+        829,
+        1752
+      ],
+      "clear_margins": [
+        88,
+        29,
+        58,
+        22
+      ],
+      "edge_clear": true
+    },
+    {
+      "id": "npc_post_sami",
+      "rgba": true,
+      "binary_alpha": true,
+      "original_rgb_preserved": true,
+      "reference_hash": "PASS",
+      "size": [
+        887,
+        1774
+      ],
+      "opaque_bbox": [
+        14,
+        55,
+        876,
+        1744
+      ],
+      "clear_margins": [
+        14,
+        55,
+        11,
+        30
+      ],
+      "edge_clear": true
+    }
+  ],
+  "source_paintings_preserved": true,
+  "visual_review": "Generated outputs and contact sheets inspected. Six targeted edits: horn count, lettering, three framing corrections, Lin costume correction against default official art.",
+  "limits": [
+    "User concept approval pending.",
+    "No runtime PNGs produced.",
+    "No Godot import or runtime test.",
+    "Static alpha/hash/dimension checks do not establish character identity or costume acceptance."
+  ]
+}

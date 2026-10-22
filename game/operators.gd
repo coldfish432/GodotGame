@@ -19,7 +19,7 @@ const DATA := {
 	LAPPLAND: {
 		"name": "拉普兰德", "class": "近卫", "branch": "GUARD · LORD", "stars": 5,
 		"portrait": "res://ui/art/lappland_portrait.png",
-		"signature": "剑气", "damage": "phys",
+		"signature": "剑气", "skill": "日晷", "skill_key": "SPC", "damage": "phys",
 	},
 	AMIYA_GUARD: {
 		"name": "阿米娅", "form": "剑兔", "class": "近卫", "branch": "GUARD · ARTS FIGHTER", "stars": 5,
@@ -42,6 +42,35 @@ const DATA := {
 	"texas": {"name": "德克萨斯", "class": "先锋", "branch": "VANGUARD · CHARGER", "stars": 5,
 		"portrait": "res://ui/art/texas_portrait.png", "signature": "剑雨", "damage": "arts"},
 }
+
+## What her weapon's panel gives (复利数值改造清单 F): ATK for those whose own
+## attacks are physical, arts for the arts fighters. Physical hits use ATK and
+## arts hits arts power whatever her main stat is.
+const MAIN_STAT := {
+	LAPPLAND: "atk", AMIYA_GUARD: "arts", "hellagur": "atk", "rosa": "atk", "hoshiguma": "atk",
+	"lin": "arts", "typhon": "atk", "santalla": "arts", "texas": "atk",
+}
+
+static func main_stat(id: String) -> String:
+	return str(MAIN_STAT.get(id, "atk"))
+
+## Her own build (清单 I, PRTS 精英 2 满级 pulled 40% toward 拉普兰德's): life and
+## defence multiply the final numbers, so the gap holds at every depth; RES adds.
+## ATK has none: her intervals and combo already carry PRTS's ATK gaps.
+const STAT_MULT := {
+	LAPPLAND: {"hp": 1.00, "def": 1.00, "res": 15.0},
+	AMIYA_GUARD: {"hp": 1.07, "def": 1.02, "res": 20.0},
+	"hellagur": {"hp": 1.38, "def": 0.95, "res": 0.0},
+	"hoshiguma": {"hp": 1.38, "def": 1.59, "res": 0.0},
+	"texas": {"hp": 0.90, "def": 0.96, "res": 0.0},
+	"rosa": {"hp": 0.85, "def": 0.60, "res": 0.0},
+	"typhon": {"hp": 0.83, "def": 0.59, "res": 0.0},
+	"lin": {"hp": 0.92, "def": 0.80, "res": 15.0},
+	"santalla": {"hp": 0.82, "def": 0.60, "res": 20.0},
+}
+
+static func stat_mult(id: String, key: String) -> float:
+	return float((STAT_MULT.get(id, STAT_MULT[LAPPLAND]) as Dictionary).get(key, 1.0 if key != "res" else 0.0))
 
 ## Whether her fighting is built, so she can deploy.
 static func has_kit(id: String) -> bool:

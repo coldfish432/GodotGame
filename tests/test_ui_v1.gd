@@ -85,7 +85,7 @@ func run() -> void:
 	Input.action_release("interact")
 	await step(3)
 	check("E at the dispatch console opens the contract board", game.modal == "station" and game.menu.visible)
-	await click_button("开始行动")
+	await click_button("最终准备")
 	await click_button("开始行动")
 	check("rendered GUI click starts a mine contract", not game.in_base and game.region_id == "mine")
 	game._clear_field()
@@ -154,7 +154,7 @@ func run() -> void:
 	event.position = point
 	Input.parse_input_event(event)
 	var press := InputEventMouseButton.new()
-	press.button_index = MOUSE_BUTTON_RIGHT
+	press.button_index = MOUSE_BUTTON_LEFT
 	press.position = point
 	press.global_position = point
 	press.pressed = true
@@ -164,7 +164,19 @@ func run() -> void:
 	press.pressed = false
 	Input.parse_input_event(press)
 	await step(45)
-	check("right-click projected through pixel viewport moves player", game.player.position.distance_to(start) > 1)
+	check("left-click on the ground projected through pixel viewport moves player", game.player.position.distance_to(start) > 1)
+	# Right mouse is slot 1, the dodge (用户 2026-10-20), not a move.
+	var dodge := press.duplicate()
+	dodge.button_index = MOUSE_BUTTON_RIGHT
+	dodge.pressed = true
+	Input.parse_input_event(dodge)
+	await step(3)
+	var dodged := game.player.invulnerable or game.player._sprite.action_name == "dash"
+	dodge = dodge.duplicate()
+	dodge.pressed = false
+	Input.parse_input_event(dodge)
+	check("right-click dodges", dodged)
+	await step(30)
 	game.settle(true)
 	await step(20)
 	var report := {"checks": checks, "failures": failures, "scope": "Rendered Godot input-event integration, not Windows physical mouse automation"}

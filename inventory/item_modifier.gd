@@ -24,7 +24,26 @@ enum Stat {
 	RES_FLAT,
 	CRIT_RATE,
 	CRIT_DMG,
+	## Flat affixes (复利数值改造清单 C), appended for the same reason. With
+	## DEF_FLAT they grow ×1.30 a tier (Scaling.flat_scale).
+	ATK_FLAT,
+	ARTS_FLAT,
+	HP_FLAT,
+	## Slot leanings (装备部位拆分与数值案 §4): legs, head, amulet, feet.
+	EVASION,
+	SKILL_CD_PCT,
+	SKILL_PCT,
+	STAMINA_REGEN_PCT,
+	DASH_COST_PCT,
+	## Intrinsics only (底材固有属性表 v1.0): operator experience and the
+	## chance a drop is gear.
+	EXP_GAIN_PCT,
+	DROP_RATE_PCT,
 }
+
+## Flat stats whose size follows the item's tier (清单 C). RES_FLAT is a
+## resistance share already and stays the same at every depth.
+const FLAT_STATS := [Stat.DEF_FLAT, Stat.ATK_FLAT, Stat.ARTS_FLAT, Stat.HP_FLAT]
 
 enum Trigger {
 	NONE,
@@ -58,16 +77,16 @@ const TRIGGER_TEXT := {
 @export var stat: Stat = Stat.MAX_HP_PCT
 @export var amount: float = 0.0
 @export var trigger: Trigger = Trigger.NONE
-## Roll quality of a random affix: 0/1/2 shown as Ⅰ/Ⅱ/Ⅲ, at 70% / 100% / 130%
-## of the stat's base size (装备与背包界面调研 §5.7, after PoE/Last Epoch tiers).
-## −1 marks a fixed modifier (a special item's built-in cost), which has no tier.
+## The band a random affix rolls in: its item's rarity, white / blue / gold, at
+## 60–80% / 90–110% / 120–140% of the stat's base size (复利数值改造清单 B;
+## Scaling.BANDS). −1 marks a fixed modifier (a special item's built-in cost).
 @export var tier: int = 1
+## What the base size is multiplied by: the item tier's flat growth for flat
+## stats (Scaling.flat_scale), 1 for everything else.
+@export var scale: float = 1.0
 
 const TIER_SCALES := [0.7, 1.0, 1.3]
-const TIER_MARKS := ["Ⅰ", "Ⅱ", "Ⅲ"]
-## Each tier rolls inside its own band of the stat's base size (装备前缀策划案
-## §2.8): the averages stay TIER_SCALES.
-const TIER_RANGES := [[0.6, 0.8], [0.9, 1.1], [1.2, 1.4]]
+const TIER_RANGES := Scaling.BANDS
 ## Intrinsic stats and 技能强化 roll within ±20% of their midpoint (§2.8).
 const SPREAD := 0.2
 const SKILL_BOOST := 0.25
@@ -75,20 +94,41 @@ const SKILL_BOOST := 0.25
 ## The midpoint an intrinsic was rolled around; 0 for anything saved before
 ## values rolled (it then counts as fixed).
 @export var mid: float = 0.0
+## The rarity band an intrinsic rolls in (底材固有属性表 v1.0: intrinsics
+## fluctuate like affixes); −1 for intrinsics rolled ±SPREAD before that.
+@export var band: int = -1
 
-## A random affix of `tier`, its size rolled inside the tier's band.
-static func roll_affix(p_stat: Stat, p_tier: int, rng: RandomNumberGenerator) -> ItemModifier:
-	var band: Array = TIER_RANGES[clampi(p_tier, 0, 2)]
-	var mod := stat_mod(p_stat, float(FieldCatalog.AFFIX_AMOUNTS[p_stat]) * rng.randf_range(band[0], band[1]))
-	mod.tier = p_tier
+## A random affix on an item of `rarity` and `item_tier`, rolled in the
+## rarity's band at `position` (Scaling.roll_position; −1 rolls evenly);
+## `slot` picks the slot's own size (FieldCatalog.SLOT_AFFIX_AMOUNTS), kept in
+## `scale` as a share of the base size.
+static func roll_affix(p_stat: Stat, rarity: int, rng: RandomNumberGenerator, position: float = -1.0, item_tier: int = 1, slot: int = Item.Category.WEAPON) -> ItemModifier:
+	var at := rng.randf() if position < 0.0 else position
+	var mod := stat_mod(p_stat, 0.0)
+	mod.tier = clampi(rarity, 0, 2)
+	mod.scale = (Scaling.flat_scale(item_tier) if p_stat in FLAT_STATS else 1.0) * FieldCatalog.slot_ratio(p_stat, slot)
+	mod.amount = float(FieldCatalog.AFFIX_AMOUNTS[p_stat]) * mod.scale * Scaling.band_value(rarity, at)
 	return mod
 
-## An intrinsic stat rolled within ±SPREAD of `p_mid`.
-static func roll_intrinsic(p_stat: Stat, p_mid: float, rng: RandomNumberGenerator) -> ItemModifier:
-	var mod := stat_mod(p_stat, p_mid * rng.randf_range(1.0 - SPREAD, 1.0 + SPREAD))
-	mod.mid = p_mid
+## An intrinsic stat around `p_mid` (the blue middle): in the item's rarity
+## band at `position` (−1 rolls evenly) when `rarity` ≥ 0, else ±SPREAD.
+## A cost (a drawback) does not roll (底材固有属性表 v1.0).
+static func roll_intrinsic(p_stat: Stat, p_mid: float, rng: RandomNumberGenerator, rarity: int = -1, position: float = -1.0) -> ItemModifier:
+	var mod := stat_mod(p_stat, p_mid)
 	mod.tier = GearCatalog.IMPLICIT_TIER
+	if is_cost(p_stat, p_mid): return mod
+	mod.mid = p_mid
+	if rarity >= 0:
+		mod.band = clampi(rarity, 0, 2)
+		mod.amount = p_mid * Scaling.band_value(mod.band, rng.randf() if position < 0.0 else position)
+	else:
+		mod.amount = p_mid * rng.randf_range(1.0 - SPREAD, 1.0 + SPREAD)
 	return mod
+
+## Whether `value` of `stat` is a drawback: against the direction its affix
+## rolls (技能冷却 and 闪避体力消耗 are better negative).
+static func is_cost(p_stat: Stat, value: float) -> bool:
+	return value * signf(float(FieldCatalog.AFFIX_AMOUNTS.get(p_stat, 1.0))) < 0.0
 
 ## 技能强化 (was 剑气强化): skill damage, rolled within ±SPREAD of 25%.
 static func roll_skill_boost(rng: RandomNumberGenerator) -> ItemModifier:
@@ -107,12 +147,14 @@ func roll_range() -> Array:
 	if trigger == Trigger.SWORD_WAVE: return [SKILL_BOOST * (1.0 - SPREAD), SKILL_BOOST * (1.0 + SPREAD)]
 	if trigger != Trigger.NONE: return []
 	if is_random_affix():
-		var base := float(FieldCatalog.AFFIX_AMOUNTS[stat])
+		var base := float(FieldCatalog.AFFIX_AMOUNTS[stat]) * scale
 		var band: Array = TIER_RANGES[clampi(tier, 0, 2)]
 		return [base * band[0], base * band[1]]
 	if tier == GearCatalog.IMPLICIT_TIER and not is_zero_approx(mid):
-		var a := mid * (1.0 - SPREAD)
-		var b := mid * (1.0 + SPREAD)
+		var low: float = float(Scaling.band(band)[0]) if band >= 0 else 1.0 - SPREAD
+		var high: float = float(Scaling.band(band)[1]) if band >= 0 else 1.0 + SPREAD
+		var a := mid * low
+		var b := mid * high
 		return [minf(a, b), maxf(a, b)]
 	return []
 
@@ -166,7 +208,6 @@ func is_random_affix() -> bool:
 func describe_detailed(detailed: bool) -> String:
 	var text := describe()
 	if text.is_empty() or not is_random_affix(): return text
-	text += "  " + TIER_MARKS[clampi(tier, 0, 2)]
 	if detailed: text += range_text()
 	return text
 
@@ -198,7 +239,7 @@ func describe() -> String:
 		Stat.BLADE_COOLDOWN_PCT:
 			return "近战冷却 " + pct(amount)
 		Stat.GOLD_GAIN_PCT:
-			return "金币获取 " + pct(amount)
+			return "赤金获取 " + pct(amount)
 		Stat.POTION_CAPACITY_FLAT:
 			return "药剂回复 %+d%%" % roundi(amount * BaseCatalog.POTION_HEAL_PER_CAP * 100.0)
 		Stat.ATTACK_SPEED_PCT:
@@ -215,4 +256,24 @@ func describe() -> String:
 			return "暴击率 " + pct(amount)
 		Stat.CRIT_DMG:
 			return "暴击伤害 " + pct(amount)
+		Stat.ATK_FLAT:
+			return "攻击力 %+.0f" % amount
+		Stat.ARTS_FLAT:
+			return "法术攻击力 %+.0f" % amount
+		Stat.HP_FLAT:
+			return "生命 %+.0f" % amount
+		Stat.EVASION:
+			return "物理闪避 " + pct(amount)
+		Stat.SKILL_CD_PCT:
+			return "技能冷却 " + pct(amount)
+		Stat.SKILL_PCT:
+			return "技能伤害 " + pct(amount)
+		Stat.STAMINA_REGEN_PCT:
+			return "体力回复 " + pct(amount)
+		Stat.DASH_COST_PCT:
+			return "闪避体力消耗 " + pct(amount)
+		Stat.EXP_GAIN_PCT:
+			return "经验获取 " + pct(amount)
+		Stat.DROP_RATE_PCT:
+			return "装备掉率 " + pct(amount)
 	return ""

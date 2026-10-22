@@ -7,8 +7,8 @@ extends OperatorKit
 ## - Space 女巫之泪: for a while icicles keep falling near the cursor, each
 ##   hurting and chilling whoever it lands on. She can fight on meanwhile.
 
-const REACH := 8.0
-const COMBO := [0.9, 0.9, 1.2]
+const REACH := 6.5  # 用户 2026-10-20: 远程数值和攻击范围小一点
+const COMBO := [0.75, 0.75, 1.0]  # 用户 2026-10-20: 远程数值和攻击范围小一点
 const SPLASH := 0.5
 const SPLASH_RADIUS := 1.8
 const CHILL := 0.2
@@ -67,14 +67,14 @@ func swing(direction: Vector3, target: Enemy, stage: int, lands: bool, multiplie
 	var hit := func(enemy: Enemy, _shot: OperatorShot) -> void:
 		if not alive(enemy): return
 		var centre := enemy.global_position
-		basic_hit(enemy, player.attack_power() * raw_scale * player.target_multiplier(enemy), "arts", crit, 0.0, "spark")
+		basic_hit(enemy, player.arts_power() * raw_scale * player.target_multiplier(enemy), "arts", crit, 0.0, "spark")
 		chill(enemy)
 		if not big: return
 		fx(foot(centre), Vector3.FORWARD, "splash", 2, 0.2, "ground", 0.0, 0.05)
 		var splash := value("orb") if rank("orb") > 0 else SPLASH
 		for other in enemies_near(centre, SPLASH_RADIUS, Vector3.ZERO, 180.0, false):
 			if other == enemy: continue
-			player.land_hit(other, player.attack_power() * raw_scale * splash * player.target_multiplier(other), "arts", false)
+			player.land_hit(other, player.arts_power() * raw_scale * splash * player.target_multiplier(other), "arts", false)
 			chill(other)
 	var from := player.global_position
 	var shot := OperatorShot.fire(game(), from, target.global_position - from, REACH + 2.0, tex("orb_big") if big else tex("orb"), hit, target)
@@ -143,7 +143,7 @@ func _land(spot: Vector3) -> void:
 	fx(foot(spot), Vector3.FORWARD, "icicle_hit", 3, 0.24, "ground", 0.0, 0.05)
 	var scale := value("tears") if rank("tears") > 0 else 0.6
 	for enemy in enemies_near(spot, TEARS_RADIUS, Vector3.ZERO, 180.0, false):
-		skill_hit(enemy, skill_power() * scale, "arts")
+		skill_hit(enemy, skill_power("arts") * scale, "arts")
 		chill(enemy)
 
 func reset() -> void:

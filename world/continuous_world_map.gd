@@ -20,6 +20,12 @@ var urban := false
 ## Siracusa's floor weather (叙拉古方案 §3.4, 用户 2026-10-16: 随机): "rain" or
 ## "overcast"; "" elsewhere.
 var weather := ""
+## 龙门城区 (龙门城区与叙拉古地图改造案 v1.1 §1.1, 用户 2026-10-21: 每进一层随机):
+## "upper" (上城, the streets as they were) or "lower" (下城: the same plan in
+## other pieces, light and materials), rolled from the floor's seed; "" elsewhere.
+var city_variant := ""
+## Tests and captures: "upper" / "lower" overrides the roll.
+static var force_city_variant := ""
 var extraction_available := false
 var buff_position := Vector3.ZERO
 ## The mid-route spot where a Rhodes squad or 坎诺特 can be met (保全系统修订案 §2,
@@ -34,6 +40,15 @@ var route_nodes: Array[Node3D] = []
 ## Where the outpost squad holds: the room the way to the route markers leads
 ## through. The markers are no longer always at the end of the trunk.
 var route_guard_position := Vector3.ZERO
+## Boss战场地策划案 (用户 2026-10-19): a boss floor is its arena and nothing
+## else — the entry, a neck with two empty alcoves, the arena, the exit room.
+## Set by GameManager before generate().
+var boss_layout := false
+var arena_centre := Vector3.INF
+var arena_radius := 0.0
+## Where the arena opens onto the neck (the way in) and onto the exit room.
+var arena_entry := Vector3.ZERO
+var arena_exit := Vector3.ZERO
 var seed_value := 0
 var open_pass_count := 3
 var total_pass_count := 3
@@ -65,6 +80,8 @@ var vault_node: Node3D
 ## Rolled on 28% of floors; about seven in ten find rock enough for the room
 ## (_vault_clear), so about one floor in five has one (用户: 20%).
 const VAULT_CHANCE := 0.28
+## 科研部 project 密室测绘 (Research.apply_run): × this on the contract under way.
+static var vault_chance_mult := 1.0
 ## Half its size each way, the same on every floor (用户 2026-10-17: 固定大小，
 ## 每张地图的密室样子一致).
 const VAULT_ROOM := Vector2(6.0, 4.5)
@@ -203,6 +220,15 @@ func mark(stage: String) -> void:
 	if not stage.is_empty(): print("  [map %s] %-22s %7.1f ms" % [region_id, stage, (now - _profile_at) / 1000.0])
 	_profile_at = now
 
+## Upper or lower city for a floor seed, half and half, the same every time
+## (the load card shows it before the floor is built).
+const LOWER_CITY_SHARE := 0.5
+static func city_variant_of(p_seed: int) -> String:
+	if not force_city_variant.is_empty(): return force_city_variant
+	var roll := RandomNumberGenerator.new()
+	roll.seed = p_seed ^ 0x10c17
+	return "lower" if roll.randf() < LOWER_CITY_SHARE else "upper"
+
 func generate(p_seed: int, _depth: int) -> void:
 	mark("")
 	_clear_generated_map()
@@ -212,6 +238,7 @@ func generate(p_seed: int, _depth: int) -> void:
 	var sky := RandomNumberGenerator.new()
 	sky.seed = p_seed ^ 0x5a1e
 	weather = ("rain" if sky.randf() < RAIN_SHARE else "overcast") if region_id == "siracusa" else ""
+	city_variant = city_variant_of(p_seed) if region_id == "city" else ""
 	var size_rng := RandomNumberGenerator.new()
 	size_rng.seed = p_seed ^ 0x5ca1e
 	map_scale = size_rng.randf_range(MAP_SCALE.x, MAP_SCALE.y)
@@ -258,7 +285,10 @@ func generate(p_seed: int, _depth: int) -> void:
 	_vault_link = -1
 	var lot := RandomNumberGenerator.new()
 	lot.seed = p_seed ^ 0x7a0175
-	has_vault = lot.randf() < VAULT_CHANCE if force_vault < 0 else force_vault == 1
+	has_vault = lot.randf() < VAULT_CHANCE * vault_chance_mult if force_vault < 0 else force_vault == 1
+	arena_centre = Vector3.INF
+	arena_radius = 0.0
+	if boss_layout: has_vault = false
 	_plan_terrain()
 	_plan_old_town()
 	_roll_districts()
@@ -350,8 +380,9 @@ const ELEMENT_PILLARS := Vector2i(0, 2)
 ## of blobby rooms, loops and rock islands): in these regions every outline is
 ## domain-warped (CAVE_WARP metres of low-frequency noise shifts where the
 ## field is read, so walls wander without narrowing), arenas get more rock
-## islands and the layout more loops. Tried in the snowfield first.
-const CAVE_REGIONS := ["snow"]
+## islands and the layout more loops. Tried in the snowfield first; the mine
+## is a cave too (用户 2026-10-20: 矿洞应该有遮挡视线的岩壁和通天的石柱).
+const CAVE_REGIONS := ["snow", "mine"]
 ## The warp squeezes where it changes fastest (by about amplitude x
 ## frequency x 3): kept near 20%, and cave corridors widened to make up for it.
 const CAVE_WARP := 1.8
@@ -389,7 +420,7 @@ var _swell := FastNoiseLite.new()
 func _add_circle(point: Vector2, radius: float, kind: String, trunk_level: int) -> int:
 	# Siracusa's squares are small piazzas (叙拉古方案 §3.2): the arenas shrink,
 	# the small rooms stay as they are.
-	if region_id == "siracusa" and radius > PIAZZA_FROM: radius = PIAZZA_FROM + (radius - PIAZZA_FROM) * PIAZZA_SHRINK
+	if region_id == "siracusa" and radius > PIAZZA_FROM and kind != "arena": radius = PIAZZA_FROM + (radius - PIAZZA_FROM) * PIAZZA_SHRINK
 	_room_shapes.append(PackedFloat32Array([_shape_rng.randf_range(ROOM_LOBES.x, ROOM_LOBES.y), _shape_rng.randf_range(0.0, TAU),
 		_shape_rng.randf_range(ROOM_LOBES.x, ROOM_LOBES.y) * 0.7, _shape_rng.randf_range(0.0, TAU)]))
 	_open_circles.append(Vector3(point.x, point.y, radius))
@@ -399,6 +430,9 @@ func _add_circle(point: Vector2, radius: float, kind: String, trunk_level: int) 
 	return _open_circles.size() - 1
 
 func _plan_terrain() -> void:
+	if boss_layout:
+		_plan_boss_arena()
+		return
 	var entry := Vector2(ENTRY_POSITION.x, ENTRY_POSITION.z)
 	var half_x: float = (SPINE_MAX.x - 14.0) * _rng.randf_range(MAP_WIDTH_RANGE.x, MAP_WIDTH_RANGE.y)
 	var deepest: float = SPINE_MAX.y - 16.0
@@ -492,6 +526,34 @@ func _plan_terrain() -> void:
 	_dig_spurs(main_path.size())
 	_dig_crossings()
 	_dig_extras(main_path.size())
+
+## The boss floor (Boss战场地策划案 §3.1): entry, a neck with an empty alcove
+## either side (the content placement reads spurs), the round arena on the
+## same tier, and the exit room behind it. No pillars, ramps or bridges.
+const ARENA_NECK := 16.0
+const ARENA_GAP := 9.0
+const ARENA_EXIT_ROOM := 10.0
+const ARENA_ALCOVE := Vector2(13.0, 4.5)
+
+func _plan_boss_arena() -> void:
+	var entry := Vector2(ENTRY_POSITION.x, ENTRY_POSITION.z)
+	var neck := entry + Vector2(0.0, ARENA_NECK)
+	var radius := BossCatalog.ARENA_RADIUS
+	var arena := neck + Vector2(0.0, 5.0 + ARENA_GAP + radius)
+	var exit := arena + Vector2(0.0, radius + ARENA_GAP + ARENA_EXIT_ROOM)
+	for point in [entry, neck, arena, exit]: main_path.append(point)
+	_add_circle(entry, 9.0, "trunk", 0)
+	_add_circle(neck, 5.0, "trunk", 0)
+	_add_circle(arena, radius, "arena", 0)
+	_add_circle(exit, ARENA_EXIT_ROOM, "trunk", 0)
+	for i in range(1, 4): _link(i - 1, i, _corridor_width(), TRAIL_TRUNK)
+	for side in [-1.0, 1.0]:
+		var alcove := _add_circle(neck + Vector2(side * ARENA_ALCOVE.x, 1.0), ARENA_ALCOVE.y, "spur", 0)
+		_link(1, alcove, _corridor_width(), TRAIL_BRANCH)
+	arena_radius = radius
+	arena_centre = Vector3(arena.x, 0.0, arena.y)
+	arena_entry = Vector3(arena.x, 0.0, arena.y - radius)
+	arena_exit = Vector3(arena.x, 0.0, arena.y + radius)
 
 ## Spurs are dug off random trunk nodes, with one forced into each third of the
 ## route: the device ordering downstream reads the shallowest and median spur,
@@ -590,7 +652,9 @@ func _dig_extras(node_count: int) -> void:
 		if not _clear_of_crossings([_spur_point(pick), main_path[rejoin]], 6.0): continue
 		_link(_circle_at(_spur_point(pick)), rejoin, _corridor_width() * 0.8, TRAIL_BRANCH)
 
-	var loops := ELEMENT_LOOPS_CAVE if region_id in CAVE_REGIONS else ELEMENT_LOOPS
+	# The mine takes the cave's walls and rock islands, not its extra loops:
+	# its floors stay a run of chambers with room off the back for the vault.
+	var loops := ELEMENT_LOOPS_CAVE if region_id in CAVE_REGIONS and region_id != "mine" else ELEMENT_LOOPS
 	for i in range(_rng.randi_range(loops.x, loops.y)):
 		var anchor := _rng.randi_range(1, maxi(1, node_count - 4))
 		if anchor + 2 >= main_path.size(): continue
@@ -634,6 +698,12 @@ func _dig_extras(node_count: int) -> void:
 		for push in [1.3, 1.6]:
 			for flank in [1.0, -1.0]:
 				tries.append(Vector2(vault_base.x + (vault.x - vault_base.x) * push * flank, vault.y))
+		# A forced vault (tests, debug) looks further: up and down the flank too.
+		if force_vault == 1:
+			for push in [1.0, 1.3, 1.6, 1.9]:
+				for flank in [1.0, -1.0]:
+					for rise in [-10.0, 10.0, -18.0, 18.0]:
+						tries.append(Vector2(vault_base.x + (vault.x - vault_base.x) * push * flank, clampf(vault.y + rise, SPINE_MIN.y + 11.0, SPINE_MAX.y - 11.0)))
 		var clear := false
 		for spot in tries:
 			spot = Vector2(clampf(spot.x, SPINE_MIN.x + 11.0, SPINE_MAX.x - 11.0), spot.y)
@@ -727,7 +797,7 @@ func _assign_levels(attempt: int) -> void:
 	if _overlap.is_empty(): _measure_overlaps()
 	for link in _links: link.alive = true
 	for i in range(levels.size()): levels[i] = 0
-	if attempt >= 2: return
+	if attempt >= 2 or boss_layout: return
 	var tier_rng := RandomNumberGenerator.new()
 	tier_rng.seed = seed_value ^ (0x5f3759df + attempt * 104729)
 	var rooms := _open_circles.size()
@@ -1169,7 +1239,7 @@ func _centre(i: int) -> Vector2:
 ## move. Each becomes a link (so walk distances, the exit choice and the
 ## guards see the way over) whose two stubs _build_segments digs.
 func _plan_bridges() -> void:
-	if not region_id in BRIDGE_REGIONS: return
+	if not region_id in BRIDGE_REGIONS or boss_layout: return
 	# The crossings dug for bridges first, then any other pair that happens to
 	# have a corridor between them.
 	var planned: Array[Dictionary] = []
@@ -1862,7 +1932,7 @@ var landmarks: Array[Dictionary] = []
 func _plan_old_town() -> void:
 	mansion_rooms.clear()
 	landmarks.clear()
-	if region_id != "siracusa": return
+	if region_id != "siracusa" or boss_layout: return
 	var roll := RandomNumberGenerator.new()
 	roll.seed = seed_value ^ 0x5112a
 	var dead_ends: Array[int] = []
@@ -1913,7 +1983,7 @@ const ROADBLOCK_SHARE := 0.5
 
 func _plan_roadblock() -> void:
 	roadblock = {}
-	if region_id != "siracusa": return
+	if region_id != "siracusa" or boss_layout: return
 	var roll := RandomNumberGenerator.new()
 	roll.seed = seed_value ^ 0xca5
 	if roll.randf() >= ROADBLOCK_SHARE: return
@@ -2094,6 +2164,11 @@ func _place_content() -> void:
 	var hold := _open_circles[maxi(0, parent[exit_chamber])]
 	var hold_at := Vector2(hold.x, hold.y).lerp(route_centre, 0.35) if parent[exit_chamber] > 0 else route_centre - arrival * 8.0
 	route_guard_position = _grounded(_safe_spot(hold_at, Vector2(hold.x, hold.y), hold.z), 0.0)
+	# The boss stands just off the arena's middle, its back to the way out.
+	if boss_layout and arena_centre != Vector3.INF:
+		var off := Vector2(arena_centre.x, arena_centre.z + 4.0)
+		route_guard_position = _grounded(_safe_spot(off, Vector2(arena_centre.x, arena_centre.z), arena_radius), 0.0)
+		arena_centre = _grounded(Vector2(arena_centre.x, arena_centre.z), 0.0)
 
 	enemy_spawn_points.clear()
 	# Spread existing regional enemy budgets across the whole route first.
@@ -2277,7 +2352,9 @@ func _set_piece(title: String, pos: Vector3, color: Color, model: String, npc: S
 			# same pixels: a camera-facing billboard leans back into the set piece
 			# behind it and loses its head there.
 			figure.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
+			# (GameManager._keep_sprites_upright stretches it again at another tilt.)
 			figure.scale.y = GameManager.CAMERA_OFFSET.length() / absf(GameManager.CAMERA_OFFSET.z)
+			figure.add_to_group("upright_figures")
 			node.add_child(figure)
 	# No Label3D over it: the world renders at 640×360, where 3D text breaks
 	# into noise; the HUD's E prompt names it when the player is near.
@@ -2316,6 +2393,8 @@ func _modelled(node: Node3D, path: String, facing := Vector2.ZERO) -> Node3D:
 	marker.material_override = null
 	marker.position.y = ground_height(Vector2(marker.position.x, marker.position.z))
 	if facing != Vector2.ZERO: marker.rotation.y = atan2(-facing.x, -facing.y)
+	# Against the figures (TerraceDressing.PROP_SCALE).
+	marker.scale = Vector3.ONE * TerraceDressing.PROP_SCALE
 	return marker
 
 func _marker(title: String, pos: Vector3, color: Color) -> Node3D:

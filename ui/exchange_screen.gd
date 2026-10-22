@@ -31,7 +31,7 @@ static var fwd_term := 1
 static var lev := 1
 static var cfd_dir := 1
 static var cfd_margin := 5000.0
-static var fx_amount := 10000
+static var fx_amount := 10000.0
 static var bars := 1
 static var ship_pick := 0
 static var ship_to := 0
@@ -163,11 +163,22 @@ static func _news_row(game: GameManager, n: Dictionary, width: float) -> Control
 	if not arrows.is_empty(): title += "  ·  " + "  ".join(arrows)
 	if not str(n.get("cred", "")).is_empty(): title += "  ·  可信度 " + str(n.cred)
 	if not str(n.get("status", "")).is_empty(): title += "  ·  " + str(n.status)
+	if n.has("peek") and str(n.get("status", "")) == "待证实": title += "  ·  耳目：" + str(n.peek)
 	if not str(n.get("cause", "")).is_empty(): title += "  ·  ← " + str(n.cause)
 	var l := AK.label(title, 12, AK.FG if n.get("unread", false) else AK.MUTE)
 	l.clip_text = true
 	l.custom_minimum_size.x = width - 150
 	row.add_child(l)
+	# 鼠王's 下城区耳目 (势力特供策划案 §二): learn a rumor's truth before it settles.
+	if str(n.get("status", "")) == "待证实" and not n.has("peek") and game.material_count(GameManager.SPECIAL_EARS) > 0:
+		l.custom_minimum_size.x = width - 210
+		var b := AK.button("耳目", "yellow", 11)
+		b.disabled = not game.peek_refusal(n).is_empty()
+		b.pressed.connect(func():
+			game.peek_rumor(n)
+			var menu := game.menu
+			if is_instance_valid(menu) and menu.visible: menu._refresh())
+		row.add_child(b)
 	return row
 
 # --- The order panel ----------------------------------------------------------------------
@@ -204,13 +215,76 @@ static func _faction() -> String:
 static func _category() -> String:
 	return "" if selected == FactionCatalog.FX or selected.begins_with("comp:") else FactionCatalog.split(selected)[1]
 
-static func _stepper(parent: Node, caption: String, value: String, on_minus: Callable, on_plus: Callable) -> void:
+## A choice among things (商品, 物品, 货物, 送往): ◀ the name ▶ (用户 2026-10-21).
+static func _picker(parent: Node, caption: String, value: String, on_prev: Callable, on_next: Callable) -> void:
+	_stepper(parent, caption, value, on_prev, on_next, true)
+
+## An amount she can type (用户 2026-10-21: 改为能输入数字，赤金、龙门币都可以小数后二位):
+## − [value] +, `decimals` places, at least `lo`; − and + move by `step`.
+## Enter or leaving the field sets it through on_set(value). `suffix` follows.
+## With `all` (用户 2026-10-21: 添加全部选项) a 全部 button sets it to all.call().
+static func _number(parent: Node, caption: String, value: float, decimals: int, step: float, lo: float, on_set: Callable, suffix: String = "", all: Callable = Callable()) -> LineEdit:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	var c := AK.label(caption, 12, AK.MUTE)
 	c.custom_minimum_size.x = 64
 	row.add_child(c)
+	var put := func(v: float): on_set.call(maxf(lo, snappedf(v, pow(10.0, -decimals))))
 	var minus := AK.button("−", "plain", 13)
+	minus.custom_minimum_size = Vector2(30, 26)
+	minus.pressed.connect(func(): put.call(value - step))
+	row.add_child(minus)
+	var field := LineEdit.new()
+	field.text = number_text(value, decimals)
+	field.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	field.custom_minimum_size = Vector2(120, 26)
+	field.add_theme_font_override("font", AK.en())
+	field.add_theme_font_size_override("font_size", 13)
+	field.add_theme_color_override("font_color", AK.FG)
+	field.add_theme_stylebox_override("normal", AK.box(Color(0, 0, 0, 0.45), AK.LINE, 1))
+	field.add_theme_stylebox_override("focus", AK.box(Color(0, 0, 0, 0.6), AK.HOLO, 1))
+	field.select_all_on_focus = true
+	var commit := func(_t = ""):
+		var v := parse_number(field.text)
+		if is_nan(v) or is_equal_approx(v, value):
+			field.text = number_text(value, decimals)
+			return
+		put.call(v)
+	field.text_submitted.connect(commit)
+	field.focus_exited.connect(commit)
+	row.add_child(field)
+	var plus := AK.button("+", "plain", 13)
+	plus.custom_minimum_size = Vector2(30, 26)
+	plus.pressed.connect(func(): put.call(value + step))
+	row.add_child(plus)
+	if all.is_valid():
+		var whole := AK.button("全部", "plain", 12)
+		whole.custom_minimum_size = Vector2(44, 26)
+		whole.pressed.connect(func(): put.call(floorf(float(all.call()) * pow(10.0, decimals)) / pow(10.0, decimals)))
+		row.add_child(whole)
+	if not suffix.is_empty(): row.add_child(AK.label(suffix, 12, AK.MUTE))
+	parent.add_child(row)
+	return field
+
+## "1,234.50" with `decimals` places (none for counts).
+static func number_text(v: float, decimals: int) -> String:
+	if decimals <= 0: return Economy.format(roundi(v))
+	var whole := Economy.format(int(floor(absf(v) + 0.0000001)))
+	var cents := ("%.*f" % [decimals, absf(v)]).split(".")[1]
+	return ("-" if v < 0 else "") + whole + "." + cents
+
+## What she typed as a number (commas and spaces allowed); NAN if not one.
+static func parse_number(text: String) -> float:
+	var s := text.replace(",", "").replace(" ", "").strip_edges()
+	return s.to_float() if s.is_valid_float() else NAN
+
+static func _stepper(parent: Node, caption: String, value: String, on_minus: Callable, on_plus: Callable, arrows: bool = false) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var c := AK.label(caption, 12, AK.MUTE)
+	c.custom_minimum_size.x = 64
+	row.add_child(c)
+	var minus := AK.button("◀" if arrows else "−", "plain", 13)
 	minus.custom_minimum_size = Vector2(30, 26)
 	minus.pressed.connect(on_minus)
 	row.add_child(minus)
@@ -218,7 +292,7 @@ static func _stepper(parent: Node, caption: String, value: String, on_minus: Cal
 	v.custom_minimum_size.x = 120
 	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	row.add_child(v)
-	var plus := AK.button("+", "plain", 13)
+	var plus := AK.button("▶" if arrows else "+", "plain", 13)
 	plus.custom_minimum_size = Vector2(30, 26)
 	plus.pressed.connect(on_plus)
 	row.add_child(plus)
@@ -261,9 +335,13 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	body.add_child(AK.section("买入", "BUY"))
 	var shelf: Array = FactionCatalog.info(faction).get("sells", [])
 	for material in shelf:
-		if FactionCatalog.material_category(material) != category and shelf.size() > 3: continue
+		var special := FactionSpecials.is_special(material)
+		if not special and FactionCatalog.material_category(material) != category and shelf.size() > 3: continue
 		var q := ex.quote_buy(faction, material)
-		if not q.ok: continue
+		if not q.ok:
+			# 势力特供 below their rank show what they wait for (势力特供策划案 §二).
+			if special: body.add_child(AK.label("%s  %s" % [material, q.why], 11, AK.MUTE))
+			continue
 		var row := HBoxContainer.new()
 		var l := AK.label("%s  %s" % [material, Exchange.format_money(str(q.currency), float(q.unit))], 11, AK.FG)
 		l.custom_minimum_size.x = 170
@@ -306,7 +384,7 @@ static func _order_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	body.add_child(_seg(["限价卖", "止损卖", "限价买", "条件卖"], order_kind, func(i): order_kind = i; build(menu), 11, 288.0))
 	var now := game.market.price(selected)
 	var price := now * (1.0 + order_offset / 100.0)
-	_stepper(body, "价格", "%.2f (%+.0f%%)" % [price, order_offset], func(): order_offset -= 1.0; build(menu), func(): order_offset += 1.0; build(menu))
+	_number(body, "价格", price, 2, now * 0.01, 0.01, func(v): order_offset = (v / maxf(now, 0.01) - 1.0) * 100.0; build(menu), "%+.0f%%" % order_offset)
 	body.add_child(_seg(["当日", "1日", "3日", "7日", "结算"], order_term, func(i): order_term = i; build(menu), 10, 288.0))
 	var term: String = ["session", "1d", "3d", "7d", "settle"][order_term]
 	if order_kind == 2:
@@ -315,8 +393,8 @@ static func _order_form(menu: FieldMenu, body: VBoxContainer) -> void:
 			body.add_child(AK.label("不出售", 12, AK.MUTE))
 			return
 		var material: String = shelf[posmod(pick, shelf.size())]
-		_stepper(body, "商品", material, func(): pick -= 1; build(menu), func(): pick += 1; build(menu))
-		_stepper(body, "数量", str(qty), func(): qty = maxi(1, qty - 1); build(menu), func(): qty += 1; build(menu))
+		_picker(body, "商品", material, func(): pick -= 1; build(menu), func(): pick += 1; build(menu))
+		_number(body, "数量", qty, 0, 1, 1, func(v): qty = int(v); build(menu))
 		_go(body, "挂单", true, func():
 			if ex.place_buy_order(faction, material, qty, price, term): game.save_base()
 			build(menu))
@@ -326,7 +404,7 @@ static func _order_form(menu: FieldMenu, body: VBoxContainer) -> void:
 		body.add_child(AK.label("可卖 0", 12, AK.MUTE))
 		return
 	var item: Item = items[posmod(pick, items.size())]
-	_stepper(body, "物品", item.display_name() + item.stack_suffix(), func(): pick -= 1; build(menu), func(): pick += 1; build(menu))
+	_picker(body, "物品", item.display_name() + item.stack_suffix(), func(): pick -= 1; build(menu), func(): pick += 1; build(menu))
 	if order_kind == 3:
 		var watched: Array = ex.watch.filter(func(w): return game.market.books.has(w))
 		if watched.is_empty():
@@ -355,11 +433,11 @@ static func _forward_form(menu: FieldMenu, body: VBoxContainer) -> void:
 		body.add_child(AK.label("不签合约", 12, AK.MUTE))
 		return
 	var material: String = materials[posmod(fwd_material, materials.size())]
-	_stepper(body, "商品", material, func(): fwd_material -= 1; build(menu), func(): fwd_material += 1; build(menu))
+	_picker(body, "商品", material, func(): fwd_material -= 1; build(menu), func(): fwd_material += 1; build(menu))
 	body.add_child(_seg(["交货合约", "收货合约"], 0 if fwd_deliver else 1, func(i): fwd_deliver = i == 0; build(menu), 11, 288.0))
 	body.add_child(_seg(Exchange.TERM_NAMES, fwd_term, func(i): fwd_term = i; build(menu), 10, 288.0))
 	body.add_child(_seg(["1×", "2×", "3×"], lev - 1, func(i): lev = i + 1; build(menu), 11, 288.0))
-	_stepper(body, "数量", str(qty), func(): qty = maxi(1, qty - 1); build(menu), func(): qty += 1; build(menu))
+	_number(body, "数量", qty, 0, 1, 1, func(v): qty = int(v); build(menu), "", func(): return maxi(1, game.material_count(material)))
 	var currency := FactionCatalog.currency(faction)
 	var k := ex.forward_price(faction, material, fwd_term, fwd_deliver)
 	var notional := k * qty
@@ -385,7 +463,8 @@ static func _cfd_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	body.add_child(AK.label(Exchange.cfd_name(underlying) + " · " + FactionCatalog.name_of(Exchange.cfd_issuer(underlying)), 12, AK.FG))
 	body.add_child(_seg(["做多", "做空"], 0 if cfd_dir > 0 else 1, func(i): cfd_dir = 1 if i == 0 else -1; build(menu), 12, 288.0))
 	body.add_child(_seg(["1×", "2×", "3×"], lev - 1, func(i): lev = i + 1; build(menu), 11, 288.0))
-	_stepper(body, "保证金", Exchange.format_money(currency, cfd_margin), func(): cfd_margin = maxf(unit, cfd_margin - unit); build(menu), func(): cfd_margin += unit; build(menu))
+	_number(body, "保证金", cfd_margin, 2, unit, 0.01, func(v): cfd_margin = v; build(menu), "赤金" if currency == "gold" else "龙门币",
+		func(): return ex.gold_account if currency == "gold" else float(game.gold))
 	var issuer := Exchange.cfd_issuer(underlying)
 	body.add_child(AK.label("名义 %s   持仓 %s / %s" % [Exchange.format_money(currency, cfd_margin * lev), Economy.format(roundi(ex.cfd_notional_used(issuer))), Economy.format(roundi(ex.cfd_notional_cap(issuer)))], 11, AK.MUTE))
 	body.add_child(MarketWidgets.live(func(): return "今日额度 %s / %s   待入账 %s" % [Economy.format(roundi(ex.cfd_day.used)), Economy.format(roundi(ex.cfd_cap())), Economy.format(roundi(ex.cfd_pending()))], 11, AK.MUTE))
@@ -558,7 +637,7 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	col.add_theme_constant_override("separation", 8)
 	AK.put(stage, col, Vector2(16, TOP + 44), Vector2(600, 0))
 	col.add_child(AK.section("换汇", "FX  %.1f" % Economy.fx))
-	_stepper(col, "龙门币", Economy.format(fx_amount), func(): fx_amount = maxi(1000, fx_amount - 1000); build(menu), func(): fx_amount += 1000; build(menu))
+	_number(col, "龙门币", fx_amount, 2, 1000.0, 0.01, func(v): fx_amount = v; build(menu), "", func(): return game.gold)
 	col.add_child(MarketWidgets.live(func(): return "→ 赤金 %.2f   ·   ← 需要赤金 %.2f" % [fx_amount / (Economy.fx * (1.0 + Economy.EXCHANGE_FX_SPREAD)), fx_amount / (Economy.fx * (1.0 - Economy.EXCHANGE_FX_SPREAD))], 12, AK.MUTE))
 	var fx_row := HBoxContainer.new()
 	var buy := AK.button("龙门币换赤金", "blue", 13)
@@ -573,7 +652,8 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	fx_row.add_child(sell)
 	col.add_child(fx_row)
 	col.add_child(AK.section("赤金账户", "GOLD ACCOUNT  %.2f" % ex.gold_account))
-	_stepper(col, "赤金", "%d 块  ·  库存 %d" % [bars, game.material_count(Economy.GOLD_ID)], func(): bars = maxi(1, bars - 1); build(menu), func(): bars += 1; build(menu))
+	# Bars are the item: whole ones only.
+	_number(col, "赤金", bars, 0, 1, 1, func(v): bars = int(v); build(menu), "块  ·  库存 %d" % game.material_count(Economy.GOLD_ID), func(): return game.material_count(Economy.GOLD_ID))
 	var bar_row := HBoxContainer.new()
 	var dep := AK.button("存入", "blue", 13)
 	dep.pressed.connect(func():
@@ -588,22 +668,28 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	col.add_child(bar_row)
 	col.add_child(AK.section("势力关系", "RELATIONS"))
 	for f in FactionCatalog.ORDER:
-		col.add_child(AK.label("%s  R%d  ·  %d / %d%s" % [FactionCatalog.name_of(f), ex.rank(f), ex.relation(f), Exchange.RELATION_MAX,
+		col.add_child(AK.label("%s  R%d  ·  %d / %d%s%s" % [FactionCatalog.name_of(f), ex.rank(f), ex.relation(f), Exchange.next_rank_at(ex.relation(f)),
+			("  ·  修正 −%d/日" % ex.relation_drift(f)) if ex.relation_drift(f) > 0 else "",
 			("  ·  违约冷却 " + _left(int(ex.forward_cooldown.get(f, 0)) - game.market.t)) if int(ex.forward_cooldown.get(f, 0)) > game.market.t else ""], 12, AK.FG))
 	# 企鹅物流.
 	var right := VBoxContainer.new()
 	right.add_theme_constant_override("separation", 8)
 	AK.put(stage, right, Vector2(660, TOP + 44), Vector2(600, 0))
 	right.add_child(AK.section("企鹅物流", "PENGUIN LOGISTICS  R%d" % ex.rank("penguin")))
+	# 企鹅专递单 (势力特供策划案 §二): from R2, for 龙门币, to the receiving bay.
+	var slip := game.slip_refusal()
+	_go(right, "企鹅专递单  %s" % (Economy.format(FactionSpecials.SLIP_PRICE) if slip.is_empty() else slip), slip.is_empty(), func():
+		if game.buy_slip(): game.save_base()
+		build(menu))
 	var items: Array[Item] = game.deliverable_items().filter(func(i): return not FactionCatalog.category_of(i).is_empty())
 	if items.is_empty():
 		right.add_child(AK.label("可运 0", 12, AK.MUTE))
 		return
 	var item: Item = items[posmod(ship_pick, items.size())]
-	_stepper(right, "货物", item.display_name() + item.stack_suffix(), func(): ship_pick -= 1; build(menu), func(): ship_pick += 1; build(menu))
+	_picker(right, "货物", item.display_name() + item.stack_suffix(), func(): ship_pick -= 1; build(menu), func(): ship_pick += 1; build(menu))
 	var buyers := FactionCatalog.buyers(FactionCatalog.category_of(item))
 	var to: String = buyers[posmod(ship_to, buyers.size())]
-	_stepper(right, "送往", FactionCatalog.name_of(to), func(): ship_to -= 1; build(menu), func(): ship_to += 1; build(menu))
+	_picker(right, "送往", FactionCatalog.name_of(to), func(): ship_to -= 1; build(menu), func(): ship_to += 1; build(menu))
 	var q := ex.quote_sell(item, to, false)
 	right.add_child(AK.label("现价 %s   运费 %s" % [Exchange.format_money(str(q.currency), float(q.net)) if q.ok else str(q.why), Economy.format(ex.ship_fee(item))], 12, AK.MUTE))
 	_go(right, "托运", q.ok, func():
@@ -618,7 +704,7 @@ static var workshop_pick := ""
 static func workshop(menu: FieldMenu) -> void:
 	var game := menu.game
 	var stage := BaseScreens.shell(menu, "加工站", "WORKSHOP · PROCESSING DEPT", [], 0, Callable(), "PROCESS",
-		[["lmd", Economy.format(game.gold)], ["rank", "R%d" % game.base.rank()]])
+		[["lmd", Economy.format(game.gold)]])
 	var names: Array = Workshop.RECIPES.keys() + Workshop.PACKS.keys() + Workshop.GEAR.keys()
 	if workshop_pick.is_empty(): workshop_pick = names[0]
 	var list := VBoxContainer.new()
@@ -649,7 +735,7 @@ static func workshop(menu: FieldMenu) -> void:
 		icon.custom_minimum_size = Vector2(72, 72)
 		holder.add_child(icon)
 		right.add_child(holder)
-	_stepper(right, "数量", str(workshop_count), func(): workshop_count = maxi(1, workshop_count - 1); workshop(menu), func(): workshop_count += 1; workshop(menu))
+	_number(right, "数量", workshop_count, 0, 1, 1, func(v): workshop_count = int(v); workshop(menu))
 	var r := Workshop.recipe(workshop_pick)
 	right.add_child(AK.label("耗时 %d 分   ·   %s 龙门币" % [int(r.minutes) * workshop_count, Economy.format(int(r.lmd) * workshop_count)], 12, AK.MUTE))
 	var refusal := game.workshop_refusal(workshop_pick, workshop_count)
@@ -659,88 +745,24 @@ static func workshop(menu: FieldMenu) -> void:
 	go.disabled = not refusal.is_empty()
 	go.pressed.connect(func(): game.workshop_start(workshop_pick, workshop_count); workshop(menu))
 	right.add_child(go)
-	right.add_child(AK.section("队列", "QUEUE  %d / %d" % [game.workshop.busy(), Workshop.slots(game.base.rank())]))
+	right.add_child(AK.section("队列", "QUEUE  %d / %d" % [game.workshop.busy(), game.workshop_slots()]))
 	for j in game.workshop.jobs:
 		var job: Dictionary = j
-		right.add_child(MarketWidgets.live(func(): return "%s ×%d  ·  %s" % [job.output, int(job.count), "完成" if int(job.due) <= BaseState.now() else "进行中"], 13))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var line := MarketWidgets.live(func(): return "%s ×%d  ·  %s" % [job.output, int(job.count), "完成" if int(job.due) <= BaseState.now() else ExchangeScreen._left(int(job.due) - BaseState.now())], 13)
+		line.custom_minimum_size.x = 360
+		row.add_child(line)
+		# 乌萨斯西北矿场's 助熔剂 (势力特供策划案 §二), once a job.
+		if game.material_count(GameManager.SPECIAL_FLUX) > 0 or job.get("flux", false):
+			var flux := game.flux_refusal(job)
+			var b := AK.button("助熔剂" if flux.is_empty() else flux, "yellow" if flux.is_empty() else "plain", 11)
+			b.disabled = not flux.is_empty()
+			b.pressed.connect(func(): game.use_flux(job); workshop(menu))
+			row.add_child(b)
+		right.add_child(row)
 
 # --- A faction's post in the field (§12) ---------------------------------------------------
 
 static func post(menu: FieldMenu) -> void:
-	var game := menu.game
-	var ex := game.exchange
-	var faction := game.post_faction
-	var stage := menu.stage_begin(0.97)
-	var side := EventScreens._side(stage, 380, Color("2a1838"), "POST", AK.SPECIAL)
-	AK.put(side, AK.label(FactionCatalog.name_of(faction), 26, AK.FG), Vector2(32, 40))
-	AK.put(side, AK.label(str(FactionCatalog.info(faction).region).to_upper() + " · FIELD POST", 10, AK.MUTE, AK.en()), Vector2(32, 78))
-	AK.put(side, AK.label("关系 R%d" % ex.rank(faction), 14, AK.FG), Vector2(32, 110))
-	var leave := AK.button("离开", "plain", 15)
-	AK.put(side, leave, Vector2(24, 662), Vector2(332, 44))
-	leave.pressed.connect(game.close_modal)
-	AK.put(stage, AK.money("gold", str(game.gold_bars()), 18), Vector2(410, 32))
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	AK.put(stage, scroll, Vector2(410, 80), Vector2(850, 620))
-	scroll.add_child(box)
-	box.add_child(AK.section("收购", "SELL"))
-	var carried: Array[Item] = []
-	carried.append_array(game.inventory.items)
-	carried.append_array(game.safe_bag.items)
-	var any := false
-	for item in carried:
-		var q := ex.quote_sell(item, faction, false)
-		if not q.ok: continue
-		any = true
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		row.add_child(AK.item_icon(item, Vector2(40, 40)))
-		var l := AK.label("%s  →  %s" % [item.display_name() + item.stack_suffix(), Exchange.format_field(str(q.currency), float(q.net))], 13, AK.FG)
-		l.custom_minimum_size.x = 360
-		row.add_child(l)
-		var chosen: Item = item
-		var sell := AK.button("卖出", "blue", 12)
-		sell.disabled = str(q.currency) == "gold" and Exchange.field_bars(float(q.net)) <= 0
-		sell.pressed.connect(func(): game.post_sell(chosen); post(menu))
-		row.add_child(sell)
-		if FactionCatalog.info(faction).get("barter", false):
-			for want in FactionCatalog.info(faction).get("sells", []):
-				var n := game.barter_count(item, want)
-				if n <= 0: continue
-				var want_id: String = want
-				var swap := AK.button("换 %s ×%d" % [want, n], "plain", 12)
-				swap.pressed.connect(func(): game.barter(chosen, want_id); post(menu))
-				row.add_child(swap)
-		box.add_child(row)
-	if not any: box.add_child(AK.label("可卖 0", 12, AK.MUTE))
-	box.add_child(AK.section("出售", "BUY"))
-	for material in FactionCatalog.info(faction).get("sells", []):
-		var bq := ex.quote_buy(faction, material)
-		if not bq.ok: continue
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		var l := AK.label(material, 13, AK.FG)
-		l.custom_minimum_size.x = 360
-		row.add_child(l)
-		for n in [1, 5]:
-			var count: int = n
-			var chosen_material: String = material
-			var b := AK.button("×%d  %s" % [n, Exchange.format_field(str(bq.currency), float(bq.unit) * n, true)], "plain", 12)
-			b.disabled = str(bq.currency) == "gold" and game.gold_bars() < Exchange.field_bars(float(bq.unit) * n, true)
-			b.pressed.connect(func(): game.post_buy(chosen_material, count); post(menu))
-			row.add_child(b)
-		box.add_child(row)
-	for offer in game.market.flash:
-		if offer.faction != faction or offer.kind != "buy": continue
-		box.add_child(AK.label("限时收购 %s ×%.2f" % [FactionCatalog.CATEGORIES.get(str(offer.category), ""), float(offer.mult)], 13, AK.GREEN))
-		for item in carried:
-			if FactionCatalog.category_of(item) != str(offer.category): continue
-			var chosen: Item = item
-			var id := int(offer.id)
-			var b := AK.button("卖出 %s" % item.display_name(), "yellow", 12)
-			b.pressed.connect(func():
-				if ex.sell_to_flash(id, chosen, true): game.save_base(true)
-				post(menu))
-			box.add_child(b)
+	TraderScreen.post(menu)

@@ -1,0 +1,7 @@
+{
+  "id": "rhodes_legs",
+  "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-732dda86-99c7-4d1c-981d-f69212ef6e3a.png",
+  "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Broaden pale cool gray-blue lit faces on BOTH KNEE PADS and add a broad naturally lit gray cloth fold on upper-left front of BOTH legs. Keep dark steel-gray field trousers over majority area, blue-gray pads, pockets and straight leg silhouette. No cream/beige armor. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+  "tool": "built-in imagegen",
+  "edit_target": "sources/rhodes_legs_raw.png"
+}

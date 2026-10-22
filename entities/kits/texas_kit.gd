@@ -84,7 +84,7 @@ func _wave() -> void:
 	waves_left -= 1
 	var hit_any := false
 	for enemy in enemies_near(player.global_position, radius(), Vector3.ZERO, 180.0, false):
-		skill_hit(enemy, skill_power() * skill_scale(), "arts", randf() < player.crit_rate())
+		skill_hit(enemy, skill_power("arts") * skill_scale(), "arts", randf() < player.crit_rate())
 		hit_any = true
 		if is_instance_valid(enemy): fx(enemy.global_position, Vector3.FORWARD, "rain_hit", 2, 0.15, "ground", 0.0, 0.3)
 		if _first_wave and alive(enemy): enemy.stun(STUN + value("rain_stun"))
@@ -92,7 +92,6 @@ func _wave() -> void:
 	_first_wave = false
 	if is_instance_valid(game()):
 		game().sound.play("hit")
-		game().start_sword_shake()
 	if hit_any:
 		express_timer = EXPRESS_SECONDS
 		if not is_instance_valid(_dash_art): _dash_art = fx_on_her("dash", 2, INF, "ground", 0.05, 8.0)
@@ -107,7 +106,7 @@ func _storm() -> void:
 	for i in range(mini(STORM_TARGETS, near.size())):
 		var enemy: Enemy = near[i]
 		if is_instance_valid(game()): CombatVfx.painted(game(), enemy.global_position + Vector3.UP * 0.6, Vector3.FORWARD, frame_of("rain_sword", 3, i % 3), 1, 0.15, "billboard", 0.0, 0.0)
-		skill_hit(enemy, skill_power() * skill_scale() * STORM_SCALE, "arts")
+		skill_hit(enemy, skill_power("arts") * skill_scale() * STORM_SCALE, "arts")
 		if alive(enemy): enemy.stun(STORM_STUN)
 
 func tick(delta: float) -> void:

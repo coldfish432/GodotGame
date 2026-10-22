@@ -35,7 +35,7 @@ func _day(who: String, seed_value: int) -> float:
 	game.market = market
 	game.exchange = ex
 	ex.setup(game, market)
-	ex.relations = {"karlan": 300, "kazimierz": 300}
+	ex.relations = {"karlan": Exchange.RANK_AT[3], "kazimierz": Exchange.RANK_AT[3]}
 	ex.cfd_day.used = -1e12        # no cap while measuring
 	game.gold = 1000000
 	var start_gold := float(game.gold)

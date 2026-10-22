@@ -1,0 +1,330 @@
+{
+  "batch": "E15c",
+  "status": "art_review_pending",
+  "tool": "built-in imagegen",
+  "normalization": "alpha128; nearest fit; median-cut without dithering, highlights and shadows quantized separately without brightening: cloth5 plus2 red or expedition4 gray+4 orange; other20 plus3 ice; exact1px inner outline",
+  "items": [
+    {
+      "id": "snow_head_1",
+      "name": "冰原毛皮兜帽",
+      "slot": "head",
+      "layer": 0,
+      "file": "snow_head_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_head_1_raw.png",
+      "source_sha256": "294615ef4eff15c84336832aa68f9993c091b27ef4810db66bd64be98475d3d2",
+      "sha256": "3758dfc6ceddaabc601a8cd45086d8d06a18f338bda4143db23c1b63ceb8bd1e",
+      "emit": false
+    },
+    {
+      "id": "snow_head_2",
+      "name": "科考队防风帽",
+      "slot": "head",
+      "layer": 1,
+      "file": "snow_head_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/snow_head_2_raw.png",
+      "source_sha256": "4c9887c999169c42bb05b368e4eb18dcb386c174ca5f5e9c5ec3d26a2733ab57",
+      "sha256": "dac378bbba288287da491163f26bc0effe170665fc8db41cbae3c582fe8aaa22",
+      "emit": false
+    },
+    {
+      "id": "snow_head_3",
+      "name": "雪祀羽冠",
+      "slot": "head",
+      "layer": 2,
+      "file": "snow_head_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_head_3_raw.png",
+      "source_sha256": "2e3ca73835fb2623ce7d08166e6afc16408c77e3f6d886ae5b241d38ebf114f2",
+      "sha256": "d29dfdacf860e795e9ad3febe317ee99f94640aea0331c5ec89386dd502ebc90",
+      "emit": false
+    },
+    {
+      "id": "snow_hands_1",
+      "name": "冰原兽皮手套",
+      "slot": "hands",
+      "layer": 0,
+      "file": "snow_hands_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_hands_1_raw.png",
+      "source_sha256": "2930ce3875d04c16f81638286a090d873514a3805ad866bef3d30cacd727f9d9",
+      "sha256": "10b793f44f88a3f1fd7d7dfe800ec8fc8af8265315412ccff79232240579a131",
+      "emit": false
+    },
+    {
+      "id": "snow_hands_2",
+      "name": "猎人绑带护手",
+      "slot": "hands",
+      "layer": 0,
+      "file": "snow_hands_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/snow_hands_2_raw.png",
+      "source_sha256": "766e6eb9d0788c14cea69c06a46249ab7445ceee681449f6f30f2d7ca49d6f27",
+      "sha256": "ad77a147671faa5f9a04e8e543f8d4469d7f100ec07196a5ba2e950e0b833545",
+      "emit": false
+    },
+    {
+      "id": "snow_hands_3",
+      "name": "科考队加热手套",
+      "slot": "hands",
+      "layer": 1,
+      "file": "snow_hands_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/snow_hands_3_raw.png",
+      "source_sha256": "5fb0651e9b588879fa53380255eeedccc20021be77d3a9b511228e90d6297060",
+      "sha256": "bc0dfc8838cc0fd68eef7372eeec05bf78e2e78eaedbb81db6068548910efc2f",
+      "emit": false
+    },
+    {
+      "id": "snow_hands_4",
+      "name": "雪祀骨片护腕",
+      "slot": "hands",
+      "layer": 2,
+      "file": "snow_hands_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_hands_4_raw.png",
+      "source_sha256": "9df970b52080ffdf5333fcbaa460fb02899323a1e1109ba766d19a37aaded61d",
+      "sha256": "4089d62a44f704f06226108c0a4116906a327ee647c40c0f906c702c010e5704",
+      "emit": false
+    },
+    {
+      "id": "snow_legs_1",
+      "name": "兽皮护腿",
+      "slot": "legs",
+      "layer": 0,
+      "file": "snow_legs_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/snow_legs_1_raw.png",
+      "source_sha256": "6eee41baed46ef109abb532ef92495ce437fe23a53332919a7f80e31184cfbd5",
+      "sha256": "d8e6b27db28955b9b6789c50ba703bf59c3bf1224f2ceec6a618d603ae5fa8cf",
+      "emit": false
+    },
+    {
+      "id": "snow_legs_2",
+      "name": "雪橇队绑腿",
+      "slot": "legs",
+      "layer": 0,
+      "file": "snow_legs_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/snow_legs_2_raw.png",
+      "source_sha256": "dc6616acc345239b234a4ad956dc53d293084bb11507449267e7b58991cf1df7",
+      "sha256": "ea8aa3049eb3cdef42aae7c36fc69ca40fcd4cdc8503aebf097dba86961288be",
+      "emit": false
+    },
+    {
+      "id": "snow_legs_3",
+      "name": "科考队防寒裤",
+      "slot": "legs",
+      "layer": 1,
+      "file": "snow_legs_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/snow_legs_3_raw.png",
+      "source_sha256": "42e09a70d78dc99f9e6b9c68d8b3fd1da8820aa686065a8f096ef5a77c2c21d5",
+      "sha256": "dc0aac3ee2b8959c33b0fa12eadb7cab31472be931fea5167511a2fabdfec84b",
+      "emit": false
+    },
+    {
+      "id": "snow_legs_4",
+      "name": "骨片札裙",
+      "slot": "legs",
+      "layer": 2,
+      "file": "snow_legs_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/snow_legs_4_raw.png",
+      "source_sha256": "e1892c6229f12dcda6c21a44f9588bb8a49de25d1c9b227adea67778920d45fe",
+      "sha256": "2cb68ddc516119c8b7ed88ff1cb0ce639b6c832bf5fa81ed58f90783ba11abee",
+      "emit": false
+    },
+    {
+      "id": "snow_feet_1",
+      "name": "驯鹿皮靴",
+      "slot": "feet",
+      "layer": 0,
+      "file": "snow_feet_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_feet_1_edited.png",
+      "source_sha256": "dbe3270747dc3013f302ba0965994edfe7b15ef6ada2f25809281c9a931bcd5f",
+      "sha256": "f8a46da30d4e2a2024c004cd812b7336060d53f6836fca39325c16b698a8894e",
+      "emit": false
+    },
+    {
+      "id": "snow_feet_2",
+      "name": "雪鞋",
+      "slot": "feet",
+      "layer": 0,
+      "file": "snow_feet_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_feet_2_raw.png",
+      "source_sha256": "b16243ca3c36ebc8a8ca40d64b0b8349ebfa62da61b33737ea0368ed6e22e157",
+      "sha256": "c94bb44ffe378068996f6e0b6331b6ed0083d9e81ccd3a99d528c8d77f4926cc",
+      "emit": false
+    },
+    {
+      "id": "snow_feet_3",
+      "name": "科考队防滑靴",
+      "slot": "feet",
+      "layer": 1,
+      "file": "snow_feet_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_feet_3_raw.png",
+      "source_sha256": "7feda5234563916bf4dd0346ea6717b72b6afef366c32ac4a9b0ec12bd76d2b0",
+      "sha256": "e163b29c2be7e4fdddaa8a117b53471a01d1f1d71e8c3a62b496a3d531a30633",
+      "emit": false
+    },
+    {
+      "id": "snow_feet_4",
+      "name": "冰爪战靴",
+      "slot": "feet",
+      "layer": 2,
+      "file": "snow_feet_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/snow_feet_4_raw.png",
+      "source_sha256": "aab27ea8690f19ebff9ea59ae90f8255283a4a95328fcf45231ee86de6b4e411",
+      "sha256": "5aa7261d74287761cdf2905a870a36abd5be06fb6c102a10710dd3c70c4d0f13",
+      "emit": false
+    },
+    {
+      "id": "snow_ring_1",
+      "name": "角兽骨戒",
+      "slot": "ring",
+      "layer": 0,
+      "file": "snow_ring_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/snow_ring_1_raw.png",
+      "source_sha256": "8deeef781ea12fcbeb89398ef13d296d3a6486d32a18f92942b7b8e322592d38",
+      "sha256": "76c7da6d8bc7dff99097a22ed433b9ed73afac4a99ff6d3221e4f58383231cb0",
+      "emit": false
+    },
+    {
+      "id": "snow_ring_2",
+      "name": "族树木戒",
+      "slot": "ring",
+      "layer": 0,
+      "file": "snow_ring_2.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/snow_ring_2_edited.png",
+      "source_sha256": "58ac041d7fc1c928f40148aaeecf9a71a71371506a375ff3a4c7e7e7e679bca8",
+      "sha256": "d576d910cd083dd86d6addedf3260e327f552a86d5aa945d0a07e4f1632db4e0",
+      "emit": false
+    },
+    {
+      "id": "snow_ring_3",
+      "name": "冰晶指环",
+      "slot": "ring",
+      "layer": 1,
+      "file": "snow_ring_3.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/snow_ring_3_raw.png",
+      "source_sha256": "0d966c935e8dbc6bc0c952defa40e783831abdce2b7762ed23c6470677aca16a",
+      "sha256": "65dfe9a7820801c466b4293f348b60a78dfe75407a261abd178cc99b4efea9a2",
+      "emit": true
+    },
+    {
+      "id": "snow_ring_4",
+      "name": "雪祀银环",
+      "slot": "ring",
+      "layer": 2,
+      "file": "snow_ring_4.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/snow_ring_4_raw.png",
+      "source_sha256": "1c2ca15b15390c35d5afa4fbbd6d91278fdb9064b85754fcc419a779b35fe2be",
+      "sha256": "feef7ae883547f288b039cb0e0eef880dbcb0b89a3c444446641dca99a88be86",
+      "emit": false
+    }
+  ],
+  "expected_count": 19,
+  "missing": [],
+  "backgrounds": [
+    "#2c2e30",
+    "#142538",
+    "#352710"
+  ],
+  "emission_files": [
+    "snow_ring_3_emit.png"
+  ],
+  "reused_assets": [
+    {
+      "id": "snow_x14",
+      "reference": "refs/snow_x14.png",
+      "reason": "Existing accepted winter helmet preserved; not a newly delivered icon"
+    }
+  ],
+  "runtime_verified": false
+}

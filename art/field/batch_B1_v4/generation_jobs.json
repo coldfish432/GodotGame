@@ -1,0 +1,102 @@
+[
+  {
+    "key": "patriot_action_r09",
+    "id": "patriot",
+    "kind": "action",
+    "row": 9,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\patriot_action_r01_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\B1_stage2_revision_inputs\\refs_B1\\prts\\patriot_model\\stance_change_kneel.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is approved standing IDLE grid: EDIT its pose only. Input2 is original combat model kneel POSE reference only (ignore its text/UI). Make ALL8 figures KNEEL ON ONE KNEE, the bent rear knee ON ground, other heavy boot planted forward, hips deeply lowered. HEAD BOWED DOWN BEHIND PLANTED TOWER SHIELD, skull mask/antler base lowered to roughly TWO THIRDS the IDLE head height above ground, not standing with head tilted. The shield remains planted upright on ground in front-left and orange X remains visible. One hand holds halberd UPRIGHT beside him, same weapon physical length, banner under blade. Keep antlers full same physical size as IDLE, one red eye, hose, broad shoulders pale ragged cloak. Do NOT shrink the whole figure/head to imply kneeling: bend hips/knee and lower torso; helmet remains same size. In N see lowered shoulders and back of kneeling armour, cloak bunched over bent thigh, planted shield visible to left. Every single cell must read instantly as one-knee kneeling, never upright standing."
+  },
+  {
+    "key": "patriot_action_r08",
+    "id": "patriot",
+    "kind": "action",
+    "row": 8,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\patriot_action_r08_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\B1_stage2_revision_inputs\\refs_B1\\prts\\patriot_model\\stance2_destruction_idle.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is EDIT TARGET: preserve the existing post-throw pose, character size and headings. Input2 is shield-position reference (ignore UI): he RETAINS THE TOWER SHIELD SLUNG BACK ON HIS ANATOMICAL LEFT SIDE. Correct shield visibility in ALL8 cells: add a substantial dark CHARCOAL tower-shield mass hanging on his left flank/hip/back, body-high, with broad bright ORANGE X. It must visibly project beyond torso/cloak silhouette (at least4 final baked pixels across), including rear views where shield back/outer face peeks from left. Reposition/part pale cloak slightly if needed so shield is NEVER completely hidden. Do not replace shield with small shoulder patch. Throwing arm stays fully extended EMPTY hand after release, NO halberd or airborne projectile. No orphan flag without halberd: remove only loose banner in this post-release pose. Keep skullmask one red eye/tree antlers/hose/armour/cloak, the same build and pose. Only add/clarify shield and its carry straps, remove detached flag. No other changes."
+  },
+  {
+    "key": "patriot_walk_r05",
+    "id": "patriot",
+    "kind": "walk",
+    "row": 5,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\patriot_walk_r05_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\B1_stage2_revision_inputs\\refs_B1\\prts\\patriot_model\\stance2_destruction_idle.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is EDIT TARGET. Preserve every existing body pose, leg placement/walk phase, size and heading. Input2 is shield-position reference. Keep SECOND stance halberd LEVELLED forward exactly as target.  In ALL8 cells add/clarify a BIG dark tower shield SLUNG on ANATOMICAL LEFT side/back/hip, ORANGE X on outer face, held close but protruding from body/cloak silhouette. At least4 baked pixels width visible, no hidden shield, rear views show shield too. It stays body-high relative to the same large knight. Do not put shield in front; side/back only. Cloak parts around shield. One red eye, full branching antlers, hose, orange-red banner attached to halberd, ragged grey cloak stay. This is walk frame 1 of4 in SECOND stance: CONTACT A left foot forward. No independent per-cell size changes."
+  },
+  {
+    "key": "patriot_walk_r06",
+    "id": "patriot",
+    "kind": "walk",
+    "row": 6,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\patriot_walk_r06_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\B1_stage2_revision_inputs\\refs_B1\\prts\\patriot_model\\stance2_destruction_idle.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is EDIT TARGET. Preserve every existing body pose, leg placement/walk phase, size and heading. Input2 is shield-position reference. Keep SECOND stance halberd LEVELLED forward exactly as target.  In ALL8 cells add/clarify a BIG dark tower shield SLUNG on ANATOMICAL LEFT side/back/hip, ORANGE X on outer face, held close but protruding from body/cloak silhouette. At least4 baked pixels width visible, no hidden shield, rear views show shield too. It stays body-high relative to the same large knight. Do not put shield in front; side/back only. Cloak parts around shield. One red eye, full branching antlers, hose, orange-red banner attached to halberd, ragged grey cloak stay. This is walk frame 2 of4 in SECOND stance: PASS A left supports right passes. No independent per-cell size changes."
+  },
+  {
+    "key": "patriot_walk_r07",
+    "id": "patriot",
+    "kind": "walk",
+    "row": 7,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\patriot_walk_r07_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\B1_stage2_revision_inputs\\refs_B1\\prts\\patriot_model\\stance2_destruction_idle.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is EDIT TARGET. Preserve every existing body pose, leg placement/walk phase, size and heading. Input2 is shield-position reference. Keep SECOND stance halberd LEVELLED forward exactly as target.  In ALL8 cells add/clarify a BIG dark tower shield SLUNG on ANATOMICAL LEFT side/back/hip, ORANGE X on outer face, held close but protruding from body/cloak silhouette. At least4 baked pixels width visible, no hidden shield, rear views show shield too. It stays body-high relative to the same large knight. Do not put shield in front; side/back only. Cloak parts around shield. One red eye, full branching antlers, hose, orange-red banner attached to halberd, ragged grey cloak stay. This is walk frame 3 of4 in SECOND stance: CONTACT B right foot forward. No independent per-cell size changes."
+  },
+  {
+    "key": "patriot_walk_r08",
+    "id": "patriot",
+    "kind": "walk",
+    "row": 8,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\patriot_walk_r04_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\patriot_walk_r08_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\B1_stage2_revision_inputs\\refs_B1\\prts\\patriot_model\\stance2_destruction_idle.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 full-size first-stance PASS B is primary BODY SIZE/LEG PHASE reference and EDIT TARGET. Input2 is old second-stance PASS B, which is TOO SMALL: use its stance idea but do NOT copy its small body. Input3 shows shield at left side. Transform input1 into SECOND STANCE PASS B: preserve same FULL-size helmet, antlers, broad shoulders and leg phase, right supporting foot and LEFT knee passing forward. Move shield from front to SLUNG AT LEFT HIP/BACK, halberd held LEVEL FORWARD along heading, banner hangs under blade. Do not reduce body/head to fit, use fore-shortened halberd. Match row5-7 full body size (about40-46 nativepx, not34px). In ALL8 cells add/clarify a BIG dark tower shield SLUNG on ANATOMICAL LEFT side/back/hip, ORANGE X on outer face, held close but protruding from body/cloak silhouette. At least4 baked pixels width visible, no hidden shield, rear views show shield too. It stays body-high relative to the same large knight. Do not put shield in front; side/back only. Cloak parts around shield. One red eye, full branching antlers, hose, orange-red banner attached to halberd, ragged grey cloak stay. This is walk frame 4 of4 in SECOND stance: PASS B right supports left passes. No independent per-cell size changes."
+  },
+  {
+    "key": "eikthyrnir_action_r09",
+    "id": "eikthyrnir",
+    "kind": "action",
+    "row": 9,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\eikthyrnir_action_r01_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\eikthyrnir_action_r09_4x2.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is EDIT TARGET: approved broad IDLE body at correct size. Input2 is the old ROAR pose only; its THIN body and tiny antlers are WRONG. Transform input1 into ROAR with both hands raising blocky hammer high overhead in front of antlers, mouth open, head thrown back. Keep exact SAME WIDE BODY BUILD as input1: broad full white fur mantle puffy on both shoulders, wide dark cyan-patterned coat, same waist/thigh/boot width, large full-size branching antlers, same head size. Do not narrow or elongate torso. Dark grey-green hair covers one eye, warm skin face (not skull), big dark hammer head ONE cyan band. Keep hammer/hand pose compact: lift hammer tilted diagonally, not so high that frame becomes vertically stretched; antlers tilt back while staying SAME size. Keep full figure/equipment within cell. Physically the same stocky chibi as IDLE in each view; no skinny long-legged variant."
+  },
+  {
+    "key": "zaro_action_r07",
+    "id": "zaro",
+    "kind": "action",
+    "row": 7,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\zaro_action_r01_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\zaro_action_r07_4x2.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is EDIT TARGET: approved full-size giant wolf lying IDLE. Input2 is old DOWN row: it is too small and belly-crouched, do not copy its size/pose. Roll each full-size input1 wolf ONTO ITS SIDE as a knocked-down collapsed wolf, not belly down watching. Keep same HEAD size, same ruff girth, torso length, tail volume and paws as input1. Spine horizontal on ground, shoulder and hip rolled sideways, belly partially visible, all four legs OUT to side relaxed, upper foreleg rests across lower foreleg, head lying sideways on ground, muzzle tilted sideways not facing upright. In FRONT view see body rolled90degrees with legs to one side, one visible red eye dim/partly closed. In W/E see long sideways body with paws loose in front and hind legs out. In N see side-lying haunch and outstretched legs, no face. Large full-body volume remains, roughly same36-38nativepx envelope with splayed legs/ruff, NOT tiny27px crouch. Do not shrink head/body or compress girth to fit. All four paws visible where perspective allows. No airborne pose, no crouch, no sitting, no ground shadow."
+  },
+  {
+    "key": "zaro_action_r08",
+    "id": "zaro",
+    "kind": "action",
+    "row": 8,
+    "refs": [
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\zaro_action_r01_4x2.png",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\edit_inputs\\zaro_action_r08_4x2.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Game sprite revision. Keep an EXACT FOUR-column TWO-row grid of8 square cells, canvas2048x1024 (same2:1 aspect as input1024x512). This is EIGHT VIEWS OF ONE SAME POSE. Copy the existing heading in EACH target cell exactly: row1 S, SW, W, NW; row2 N, NE, E, SE. TRUE BACK remains back, side views keep noses left/right. Preserve the approved physical head/body/antler dimensions relative to cell (input is256px cells; output512px cells means all physical sizes double in source pixels). Preserve thick outline, chunky flat cel/pixel masses, character colours. Fully transparent alpha, no grid/labels/numbers/text/shadows/background/VFX. Entire figures and equipment inside their cells with clear transparent margin. Do not crop or move a figure into a neighboring cell. No global zoom or bigger canvas padding that changes figure size. Input1 is EDIT TARGET: full-size approved giant wolf at correct scale. Input2 is old POUNCE only for phase idea: it is too small/not clearly airborne, do NOT copy its size. Make every wolf MID-LEAP in an unmistakable forward POUNCE along its existing heading, jaws OPEN fangs shown. SAME head/ruff size and body girth/length as input1. Body LONG and LEVEL, spine almost HORIZONTAL, forelegs stretched FORWARD and hindlegs stretched BACK, all four paws off ground, no planted/supporting foot, no standing/walking/sitting/crouch pose. In S foreshorten spine into viewer with both reaching forepaws separated and hindpaws visible behind body; in N see hindpaws stretched back toward viewer with paw pads; W/E show true airborne horizontal stretched wolf. To fit profile without shrinking, curl tail against hip and aim15 degrees off exact profile if necessary; legs may bend at elbow a little but must unmistakably reach front/back. All body/paws/tail fit inside cell with margin. Never crop muzzle/paws/tail. Do not make a smaller wolf to fit. Red eyes bright, shaggy darkgrey coat/pale ruff same as input1. No ground/shadow/effects."
+  }
+]

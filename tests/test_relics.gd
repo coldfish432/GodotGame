@@ -69,13 +69,13 @@ func run() -> void:
 		{"gold_before": gold_before, "gold_after": game.run_gold})
 	game.player.unequip(Item.Category.TRINKET)
 
-	# --- The old flask-capacity stat now scales flask healing (药剂进背包: flasks
-	# are pack items, there is no belt to shrink). Each point is ±20%.
+	# --- Flasks heal their fixed amount (复利数值改造清单 E): the old
+	# flask-capacity stat no longer changes it; only an operator's trait does.
 	check("flask-healing-starts-at-100%", is_equal_approx(game.player.potion_heal_multiplier, 1.0), {"multiplier": game.player.potion_heal_multiplier})
 	var capacity_drain := make_relic("测试负重", [ModScript.stat_mod(ModScript.Stat.POTION_CAPACITY_FLAT, -1.0)])
 	game.player.equip(capacity_drain)
 	await step(2)
-	check("flask-stat-minus-one-cuts-healing-20%", is_equal_approx(game.player.potion_heal_multiplier, 0.8), {"multiplier": game.player.potion_heal_multiplier})
+	check("flask-stat-minus-one-no-longer-cuts-flask-healing", is_equal_approx(game.player.potion_heal_multiplier, 1.0), {"multiplier": game.player.potion_heal_multiplier})
 	game.player.unequip(Item.Category.TRINKET)
 	await step(2)
 	check("flask-healing-reverts-on-unequip", is_equal_approx(game.player.potion_heal_multiplier, 1.0), {"multiplier": game.player.potion_heal_multiplier})

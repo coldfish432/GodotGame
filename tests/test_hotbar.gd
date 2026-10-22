@@ -22,7 +22,7 @@ func run() -> void:
 	game.fixed_map_seed = 1729
 	root.add_child(game)
 	check("eight slots: dodge, 绝影, three flasks, three empty", Hotbar.SLOTS == 8 and Hotbar.slots().map(func(s): return s.action) == ["dash", "shadow", "potion_A", "potion_B", "potion_C", "", "", ""])
-	check("slot keys default to Shift, Space, Q, 1–5", ["hotbar_1", "hotbar_2", "hotbar_3", "hotbar_4", "hotbar_8"].map(func(id): return codes(id)) == [[KEY_SHIFT], [KEY_SPACE], [KEY_Q], [KEY_1], [KEY_5]])
+	check("slot keys default to right mouse, Space, Q, 1–5 (用户 2026-10-20)", ["hotbar_1", "hotbar_2", "hotbar_3", "hotbar_4", "hotbar_8"].map(func(id): return codes(id)) == [[-MOUSE_BUTTON_RIGHT], [KEY_SPACE], [KEY_Q], [KEY_1], [KEY_5]])
 	check("every function is rebindable with a primary and a secondary", Keybinds.FUNCTIONS.size() >= 24 and Keybinds.all().values().all(func(p): return p.size() == 2))
 	check("movement keeps WASD plus the arrows", codes("move_up") == [KEY_W, KEY_UP] and codes("move_right") == [KEY_D, KEY_RIGHT])
 	check("dedicated skill and flask keys start unbound", codes("potion_A").is_empty() and codes("operator_skill").is_empty() and codes("dash").is_empty())
@@ -32,7 +32,7 @@ func run() -> void:
 	# Taking a key another function has takes it from that function.
 	Keybinds.bind("toggle_map", 1, {"key": KEY_Q})
 	check("a binding moves, never shared", codes("toggle_map") == [KEY_M, KEY_Q] and codes("hotbar_3").is_empty())
-	check("Esc and left/right mouse cannot be bound", not Keybinds.bind("interact", 0, {"key": KEY_ESCAPE}) and not Keybinds.bind("interact", 0, {"mouse": MOUSE_BUTTON_LEFT}) and codes("interact") == [KEY_E])
+	check("Esc and left mouse cannot be bound", not Keybinds.bind("interact", 0, {"key": KEY_ESCAPE}) and not Keybinds.bind("interact", 0, {"mouse": MOUSE_BUTTON_LEFT}) and codes("interact") == [KEY_E])
 	Keybinds.bind("interact", 1, null)
 	check("clearing leaves the other binding", codes("interact") == [KEY_E])
 	SystemScreens.settings["keybinds"] = {"interact": [{"key": KEY_ESCAPE}, "junk"], "nonsense": [{"key": KEY_K}]}

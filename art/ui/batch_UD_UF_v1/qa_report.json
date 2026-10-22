@@ -1,0 +1,319 @@
+{
+  "result": "PASS",
+  "assets": 18,
+  "UD": 5,
+  "UF": 13,
+  "checks": [
+    {
+      "id": "potion_d",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 23,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        9,
+        2,
+        22,
+        30
+      ],
+      "shared_label_pixels": 71
+    },
+    {
+      "id": "potion_e",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 24,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "shared_label_pixels": 141
+    },
+    {
+      "id": "potion_f",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 21,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "shared_label_pixels": 12
+    },
+    {
+      "id": "potion_g",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 22,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        3,
+        2,
+        29,
+        30
+      ],
+      "shared_label_pixels": 15
+    },
+    {
+      "id": "potion_h",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 24,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "shared_label_pixels": 43
+    },
+    {
+      "id": "potion_i",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 22,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        12,
+        2,
+        20,
+        30
+      ],
+      "shared_label_pixels": 8
+    },
+    {
+      "id": "potion_j",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 24,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        10,
+        2,
+        21,
+        30
+      ],
+      "shared_label_pixels": 31
+    },
+    {
+      "id": "potion_k",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 24,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        7,
+        2,
+        24,
+        30
+      ],
+      "shared_label_pixels": 19
+    },
+    {
+      "id": "potion_l",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 23,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "shared_label_pixels": 30
+    },
+    {
+      "id": "potion_rat",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 24,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        7,
+        2,
+        25,
+        30
+      ]
+    },
+    {
+      "id": "potion_reunion",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 23,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        11,
+        2,
+        21,
+        30
+      ]
+    },
+    {
+      "id": "potion_ursus",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 24,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        4,
+        2,
+        28,
+        30
+      ]
+    },
+    {
+      "id": "potion_sami",
+      "result": "PASS",
+      "size": [
+        32,
+        32
+      ],
+      "visible_colors": 24,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "alpha": "BINARY",
+      "opaque_bbox": [
+        5,
+        2,
+        26,
+        30
+      ]
+    },
+    {
+      "id": "title",
+      "result": "PASS",
+      "size": [
+        1280,
+        720
+      ],
+      "visible_colors": 128,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "mean_luma_0_255": 68.44,
+      "title_left_luma": 49.88,
+      "holo_right_luma": 104.94
+    },
+    {
+      "id": "load_mine",
+      "result": "PASS",
+      "size": [
+        1280,
+        360
+      ],
+      "visible_colors": 128,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "mean_luma_0_255": 63.3
+    },
+    {
+      "id": "load_city",
+      "result": "PASS",
+      "size": [
+        1280,
+        360
+      ],
+      "visible_colors": 128,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "mean_luma_0_255": 36.09
+    },
+    {
+      "id": "load_snow",
+      "result": "PASS",
+      "size": [
+        1280,
+        360
+      ],
+      "visible_colors": 128,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "mean_luma_0_255": 64.64
+    },
+    {
+      "id": "load_siracusa",
+      "result": "PASS",
+      "size": [
+        1280,
+        360
+      ],
+      "visible_colors": 128,
+      "delivery_copy": "MATCH",
+      "source_hash": "PASS",
+      "mean_luma_0_255": 55.75
+    }
+  ],
+  "visual_review": "Native and enlarged potion previews, dark/blue/brown slots with stack badge, title safe areas and all four cropped loading landmarks inspected.",
+  "limits": [
+    "No Godot import or runtime integration tested.",
+    "Final art acceptance remains pending.",
+    "Automatic checks do not prove absence of lettering or exact lore fidelity."
+  ]
+}

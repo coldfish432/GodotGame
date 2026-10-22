@@ -1,0 +1,912 @@
+{
+  "action_left_r0_c0": {
+    "source": "action_left.png",
+    "bbox": [
+      102,
+      15,
+      341,
+      392
+    ],
+    "size": [
+      239,
+      377
+    ]
+  },
+  "action_left_r0_c1": {
+    "source": "action_left.png",
+    "bbox": [
+      442,
+      15,
+      686,
+      392
+    ],
+    "size": [
+      244,
+      377
+    ]
+  },
+  "action_left_r0_c2": {
+    "source": "action_left.png",
+    "bbox": [
+      771,
+      20,
+      1005,
+      391
+    ],
+    "size": [
+      234,
+      371
+    ]
+  },
+  "action_left_r0_c3": {
+    "source": "action_left.png",
+    "bbox": [
+      1112,
+      15,
+      1342,
+      390
+    ],
+    "size": [
+      230,
+      375
+    ]
+  },
+  "action_left_r1_c0": {
+    "source": "action_left.png",
+    "bbox": [
+      97,
+      399,
+      340,
+      772
+    ],
+    "size": [
+      243,
+      373
+    ]
+  },
+  "action_left_r1_c1": {
+    "source": "action_left.png",
+    "bbox": [
+      445,
+      398,
+      690,
+      772
+    ],
+    "size": [
+      245,
+      374
+    ]
+  },
+  "action_left_r1_c2": {
+    "source": "action_left.png",
+    "bbox": [
+      779,
+      400,
+      1001,
+      771
+    ],
+    "size": [
+      222,
+      371
+    ]
+  },
+  "action_left_r1_c3": {
+    "source": "action_left.png",
+    "bbox": [
+      1123,
+      401,
+      1343,
+      770
+    ],
+    "size": [
+      220,
+      369
+    ]
+  },
+  "action_left_r2_c0": {
+    "source": "action_left.png",
+    "bbox": [
+      88,
+      782,
+      356,
+      1067
+    ],
+    "size": [
+      268,
+      285
+    ]
+  },
+  "action_left_r2_c1": {
+    "source": "action_left.png",
+    "bbox": [
+      435,
+      783,
+      706,
+      1067
+    ],
+    "size": [
+      271,
+      284
+    ]
+  },
+  "action_left_r2_c2": {
+    "source": "action_left.png",
+    "bbox": [
+      759,
+      783,
+      1033,
+      1067
+    ],
+    "size": [
+      274,
+      284
+    ]
+  },
+  "action_left_r2_c3": {
+    "source": "action_left.png",
+    "bbox": [
+      1117,
+      781,
+      1374,
+      1067
+    ],
+    "size": [
+      257,
+      286
+    ]
+  },
+  "action_right_r0_c0": {
+    "source": "action_right.png",
+    "bbox": [
+      106,
+      24,
+      334,
+      396
+    ],
+    "size": [
+      228,
+      372
+    ]
+  },
+  "action_right_r0_c1": {
+    "source": "action_right.png",
+    "bbox": [
+      462,
+      21,
+      693,
+      397
+    ],
+    "size": [
+      231,
+      376
+    ]
+  },
+  "action_right_r0_c2": {
+    "source": "action_right.png",
+    "bbox": [
+      793,
+      20,
+      1036,
+      399
+    ],
+    "size": [
+      243,
+      379
+    ]
+  },
+  "action_right_r0_c3": {
+    "source": "action_right.png",
+    "bbox": [
+      1133,
+      17,
+      1380,
+      401
+    ],
+    "size": [
+      247,
+      384
+    ]
+  },
+  "action_right_r1_c0": {
+    "source": "action_right.png",
+    "bbox": [
+      110,
+      407,
+      334,
+      774
+    ],
+    "size": [
+      224,
+      367
+    ]
+  },
+  "action_right_r1_c1": {
+    "source": "action_right.png",
+    "bbox": [
+      463,
+      406,
+      701,
+      775
+    ],
+    "size": [
+      238,
+      369
+    ]
+  },
+  "action_right_r1_c2": {
+    "source": "action_right.png",
+    "bbox": [
+      794,
+      409,
+      1035,
+      778
+    ],
+    "size": [
+      241,
+      369
+    ]
+  },
+  "action_right_r1_c3": {
+    "source": "action_right.png",
+    "bbox": [
+      1139,
+      409,
+      1387,
+      780
+    ],
+    "size": [
+      248,
+      371
+    ]
+  },
+  "action_right_r2_c0": {
+    "source": "action_right.png",
+    "bbox": [
+      84,
+      785,
+      356,
+      1070
+    ],
+    "size": [
+      272,
+      285
+    ]
+  },
+  "action_right_r2_c1": {
+    "source": "action_right.png",
+    "bbox": [
+      437,
+      785,
+      708,
+      1071
+    ],
+    "size": [
+      271,
+      286
+    ]
+  },
+  "action_right_r2_c2": {
+    "source": "action_right.png",
+    "bbox": [
+      771,
+      787,
+      1034,
+      1071
+    ],
+    "size": [
+      263,
+      284
+    ]
+  },
+  "action_right_r2_c3": {
+    "source": "action_right.png",
+    "bbox": [
+      1140,
+      789,
+      1409,
+      1071
+    ],
+    "size": [
+      269,
+      282
+    ]
+  },
+  "walk_left_r0_c0": {
+    "source": "walk_left.png",
+    "bbox": [
+      83,
+      16,
+      313,
+      317
+    ],
+    "size": [
+      230,
+      301
+    ]
+  },
+  "walk_left_r0_c1": {
+    "source": "walk_left.png",
+    "bbox": [
+      374,
+      15,
+      604,
+      317
+    ],
+    "size": [
+      230,
+      302
+    ]
+  },
+  "walk_left_r0_c2": {
+    "source": "walk_left.png",
+    "bbox": [
+      666,
+      16,
+      917,
+      317
+    ],
+    "size": [
+      251,
+      301
+    ]
+  },
+  "walk_left_r0_c3": {
+    "source": "walk_left.png",
+    "bbox": [
+      977,
+      19,
+      1217,
+      317
+    ],
+    "size": [
+      240,
+      298
+    ]
+  },
+  "walk_left_r1_c0": {
+    "source": "walk_left.png",
+    "bbox": [
+      71,
+      323,
+      311,
+      624
+    ],
+    "size": [
+      240,
+      301
+    ]
+  },
+  "walk_left_r1_c1": {
+    "source": "walk_left.png",
+    "bbox": [
+      371,
+      328,
+      605,
+      617
+    ],
+    "size": [
+      234,
+      289
+    ]
+  },
+  "walk_left_r1_c2": {
+    "source": "walk_left.png",
+    "bbox": [
+      654,
+      328,
+      903,
+      621
+    ],
+    "size": [
+      249,
+      293
+    ]
+  },
+  "walk_left_r1_c3": {
+    "source": "walk_left.png",
+    "bbox": [
+      981,
+      326,
+      1221,
+      625
+    ],
+    "size": [
+      240,
+      299
+    ]
+  },
+  "walk_left_r2_c0": {
+    "source": "walk_left.png",
+    "bbox": [
+      53,
+      633,
+      308,
+      934
+    ],
+    "size": [
+      255,
+      301
+    ]
+  },
+  "walk_left_r2_c1": {
+    "source": "walk_left.png",
+    "bbox": [
+      360,
+      631,
+      600,
+      935
+    ],
+    "size": [
+      240,
+      304
+    ]
+  },
+  "walk_left_r2_c2": {
+    "source": "walk_left.png",
+    "bbox": [
+      663,
+      638,
+      922,
+      932
+    ],
+    "size": [
+      259,
+      294
+    ]
+  },
+  "walk_left_r2_c3": {
+    "source": "walk_left.png",
+    "bbox": [
+      981,
+      634,
+      1220,
+      934
+    ],
+    "size": [
+      239,
+      300
+    ]
+  },
+  "walk_left_r3_c0": {
+    "source": "walk_left.png",
+    "bbox": [
+      53,
+      939,
+      308,
+      1232
+    ],
+    "size": [
+      255,
+      293
+    ]
+  },
+  "walk_left_r3_c1": {
+    "source": "walk_left.png",
+    "bbox": [
+      353,
+      941,
+      603,
+      1240
+    ],
+    "size": [
+      250,
+      299
+    ]
+  },
+  "walk_left_r3_c2": {
+    "source": "walk_left.png",
+    "bbox": [
+      659,
+      946,
+      919,
+      1243
+    ],
+    "size": [
+      260,
+      297
+    ]
+  },
+  "walk_left_r3_c3": {
+    "source": "walk_left.png",
+    "bbox": [
+      991,
+      941,
+      1217,
+      1243
+    ],
+    "size": [
+      226,
+      302
+    ]
+  },
+  "walk_right_r0_c0": {
+    "source": "walk_right.png",
+    "bbox": [
+      61,
+      21,
+      291,
+      324
+    ],
+    "size": [
+      230,
+      303
+    ]
+  },
+  "walk_right_r0_c1": {
+    "source": "walk_right.png",
+    "bbox": [
+      372,
+      22,
+      597,
+      322
+    ],
+    "size": [
+      225,
+      300
+    ]
+  },
+  "walk_right_r0_c2": {
+    "source": "walk_right.png",
+    "bbox": [
+      658,
+      23,
+      905,
+      323
+    ],
+    "size": [
+      247,
+      300
+    ]
+  },
+  "walk_right_r0_c3": {
+    "source": "walk_right.png",
+    "bbox": [
+      991,
+      21,
+      1244,
+      324
+    ],
+    "size": [
+      253,
+      303
+    ]
+  },
+  "walk_right_r1_c0": {
+    "source": "walk_right.png",
+    "bbox": [
+      66,
+      331,
+      291,
+      624
+    ],
+    "size": [
+      225,
+      293
+    ]
+  },
+  "walk_right_r1_c1": {
+    "source": "walk_right.png",
+    "bbox": [
+      380,
+      330,
+      604,
+      621
+    ],
+    "size": [
+      224,
+      291
+    ]
+  },
+  "walk_right_r1_c2": {
+    "source": "walk_right.png",
+    "bbox": [
+      682,
+      332,
+      905,
+      626
+    ],
+    "size": [
+      223,
+      294
+    ]
+  },
+  "walk_right_r1_c3": {
+    "source": "walk_right.png",
+    "bbox": [
+      1002,
+      330,
+      1244,
+      610
+    ],
+    "size": [
+      242,
+      280
+    ]
+  },
+  "walk_right_r2_c0": {
+    "source": "walk_right.png",
+    "bbox": [
+      47,
+      635,
+      291,
+      932
+    ],
+    "size": [
+      244,
+      297
+    ]
+  },
+  "walk_right_r2_c1": {
+    "source": "walk_right.png",
+    "bbox": [
+      377,
+      633,
+      603,
+      925
+    ],
+    "size": [
+      226,
+      292
+    ]
+  },
+  "walk_right_r2_c2": {
+    "source": "walk_right.png",
+    "bbox": [
+      669,
+      637,
+      914,
+      928
+    ],
+    "size": [
+      245,
+      291
+    ]
+  },
+  "walk_right_r2_c3": {
+    "source": "walk_right.png",
+    "bbox": [
+      1016,
+      633,
+      1246,
+      929
+    ],
+    "size": [
+      230,
+      296
+    ]
+  },
+  "walk_right_r3_c0": {
+    "source": "walk_right.png",
+    "bbox": [
+      57,
+      940,
+      291,
+      1234
+    ],
+    "size": [
+      234,
+      294
+    ]
+  },
+  "walk_right_r3_c1": {
+    "source": "walk_right.png",
+    "bbox": [
+      376,
+      937,
+      603,
+      1235
+    ],
+    "size": [
+      227,
+      298
+    ]
+  },
+  "walk_right_r3_c2": {
+    "source": "walk_right.png",
+    "bbox": [
+      686,
+      940,
+      910,
+      1230
+    ],
+    "size": [
+      224,
+      290
+    ]
+  },
+  "walk_right_r3_c3": {
+    "source": "walk_right.png",
+    "bbox": [
+      1005,
+      937,
+      1244,
+      1232
+    ],
+    "size": [
+      239,
+      295
+    ]
+  },
+  "action_SW_repair_r0_c0": {
+    "source": "action_SW_repair.png",
+    "bbox": [
+      195,
+      4,
+      656,
+      705
+    ],
+    "size": [
+      461,
+      701
+    ]
+  },
+  "action_SW_repair_r0_c1": {
+    "source": "action_SW_repair.png",
+    "bbox": [
+      859,
+      4,
+      1320,
+      705
+    ],
+    "size": [
+      461,
+      701
+    ]
+  },
+  "action_SW_repair_r0_c2": {
+    "source": "action_SW_repair.png",
+    "bbox": [
+      1533,
+      126,
+      2025,
+      705
+    ],
+    "size": [
+      492,
+      579
+    ]
+  },
+  "action_NE_E_flinch_r0_c0": {
+    "source": "action_NE_E_flinch.png",
+    "bbox": [
+      255,
+      127,
+      792,
+      838
+    ],
+    "size": [
+      537,
+      711
+    ]
+  },
+  "action_NE_E_flinch_r0_c1": {
+    "source": "action_NE_E_flinch.png",
+    "bbox": [
+      1014,
+      130,
+      1651,
+      846
+    ],
+    "size": [
+      637,
+      716
+    ]
+  },
+  "walk_SW_W_repair_r0_c0": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      74,
+      9,
+      455,
+      459
+    ],
+    "size": [
+      381,
+      450
+    ]
+  },
+  "walk_SW_W_repair_r0_c1": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      487,
+      23,
+      815,
+      459
+    ],
+    "size": [
+      328,
+      436
+    ]
+  },
+  "walk_SW_W_repair_r1_c0": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      89,
+      439,
+      435,
+      901
+    ],
+    "size": [
+      346,
+      462
+    ]
+  },
+  "walk_SW_W_repair_r1_c1": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      490,
+      458,
+      812,
+      901
+    ],
+    "size": [
+      322,
+      443
+    ]
+  },
+  "walk_SW_W_repair_r2_c0": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      69,
+      898,
+      446,
+      1321
+    ],
+    "size": [
+      377,
+      423
+    ]
+  },
+  "walk_SW_W_repair_r2_c1": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      472,
+      903,
+      826,
+      1320
+    ],
+    "size": [
+      354,
+      417
+    ]
+  },
+  "walk_SW_W_repair_r3_c0": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      91,
+      1304,
+      437,
+      1767
+    ],
+    "size": [
+      346,
+      463
+    ]
+  },
+  "walk_SW_W_repair_r3_c1": {
+    "source": "walk_SW_W_repair.png",
+    "bbox": [
+      490,
+      1322,
+      793,
+      1767
+    ],
+    "size": [
+      303,
+      445
+    ]
+  },
+  "action_W_flinch_r0_c0": {
+    "source": "action_W_flinch.png",
+    "bbox": [
+      167,
+      62,
+      1052,
+      1158
+    ],
+    "size": [
+      885,
+      1096
+    ]
+  }
+}

@@ -13,18 +13,51 @@ extends RefCounted
 
 const SKILL_CAP_E0 := 4
 const MASTERY_POINTS := 2
-const TRANSMUTER_POINTS := 2
+## 用户 2026-10-20: a transmuter costs 10 now that points come every level.
+const TRANSMUTER_POINTS := 10
+
+# --- Fine ranks (复利数值改造清单 J, 用户 2026-10-20: 花费不变，给的更少) -----
+## Every node with more than one rank has RANK_SCALE times as many, each worth
+## a fifth: rank 1 is the old rank 1, the top is the old top, in between it
+## moves evenly. The values below stay written on the old ranks ("effect
+## ranks", effect_rank()); the tree stores the fine ones.
+const RANK_SCALE := 5
+## Fine ranks past this need 精英 1 (old 4), past MASTERY_RANK 精英 2 (old 7);
+## 专精's materials are paid on reaching MASTERY_STEPS (old 8 / 9 / 10).
+const E1_RANK := 20
+const MASTERY_RANK := 35
+const MASTERY_STEPS := [40, 45, 50]
+
+static func scales(data: Dictionary) -> bool:
+	return str(data.get("type", "")) != "transmuter" and int(data.get("max", 1)) > 1
+
+## The highest fine rank of a node.
+static func max_rank(data: Dictionary) -> int:
+	return int(data.get("max", 1)) * (RANK_SCALE if scales(data) else 1)
+
+## A fine rank as the old rank it is worth (a float between two old ranks).
+static func effect_rank(data: Dictionary, rank: int) -> float:
+	if rank <= 0: return 0.0
+	if not scales(data): return float(rank)
+	var top := float(data.max)
+	return 1.0 + float(rank - 1) * (top - 1.0) / (float(max_rank(data)) - 1.0)
+
+## An old rank (saves before fine ranks) as a fine one.
+static func fine_rank(data: Dictionary, old_rank: int) -> int:
+	if old_rank <= 0 or not scales(data): return maxi(old_rank, 0)
+	var top := float(data.max)
+	return clampi(roundi(1.0 + float(old_rank - 1) * (float(max_rank(data)) - 1.0) / (top - 1.0)), 1, max_rank(data))
 ## 专精 1–3 (PRTS 技能1 专精 recipe, mapped onto materials the game has).
 const MASTERY := [
 	{"技巧概要·卷3": 5, "提纯源岩": 3, "研磨石": 4},
 	{"技巧概要·卷3": 6, "提纯源岩": 6, "化合切削液": 3},
 	{"技巧概要·卷3": 10, "D32钢": 4, "改量装置": 4},
 ]
-## Modules (模组, §8): 模组数据块 ×2 each level plus 龙门币 (PRTS 4/5/6 万 × 0.3).
+## Modules (模组, §8): 模组数据块 ×2 each level plus 龙门币 (v1.1 §4.2: 2/3/4 万).
 const MODULE_COST := [
-	{"lmd": 12000, "materials": {"模组数据块": 2}},
-	{"lmd": 15000, "materials": {"模组数据块": 2}},
-	{"lmd": 18000, "materials": {"模组数据块": 2}},
+	{"lmd": 20000, "materials": {"模组数据块": 2}},
+	{"lmd": 30000, "materials": {"模组数据块": 2}},
+	{"lmd": 40000, "materials": {"模组数据块": 2}},
 ]
 
 const TREES := {
@@ -32,9 +65,9 @@ const TREES := {
 		"wave": {"name": "剑气", "type": "signature", "tier": 0, "max": 7,
 			"text": "命中 3 次蓄满，下一刀放出穿透剑气。剑气系数 %s。"},
 		"sundial": {"name": "日晷", "type": "skill", "tier": 0, "max": 10, "mastery": true,
-			"text": "连斩第 3 段命中后 4 秒内物理闪避 +%s，第 3 段伤害 +%s。"},
+			"text": "空格开启日晷 8 秒：攻击力 +%s，物理闪避 +%s；期间闪避物理攻击立即蓄满剑气。脚下日晷的时针走完一圈即结束。冷却 %s 秒。"},
 		"shadow_hand": {"name": "影落とす時針", "type": "modifier", "tier": 0, "max": 5, "parent": "sundial",
-			"text": "第 3 段扫影距离 +%s；命中的敌人减速 %s，持续 2 秒。"},
+			"text": "日晷持续 +%s 秒；日晷期间普攻命中的敌人减速 %s，持续 2 秒。"},
 		"frenzy": {"name": "狂暴攻势", "type": "passive", "tier": 0, "max": 5,
 			"text": "连斩不中断时，第 2、3 段攻速 +%s。"},
 		"wolf_spirit": {"name": "狼魂", "type": "skill", "tier": 1, "max": 10, "mastery": true,
@@ -85,9 +118,9 @@ const TREES := {
 		"half_guard": {"name": "弦月", "type": "passive", "tier": 0, "max": 5,
 			"values": [[0.30, 0.06]], "fmt": ["pct"],
 			"text": "弦月期间物理闪避 +%s。"},
-		"iai": {"name": "居合", "type": "skill", "tier": 1, "max": 10, "mastery": true,
+		"iai": {"name": "贯刺", "type": "skill", "tier": 1, "max": 10, "mastery": true,
 			"values": [[0.10, 0.05]], "fmt": ["pct"],
-			"text": "连斩第 3 段居合伤害 +%s。"},
+			"text": "连刺第 3 段贯刺伤害 +%s。"},
 		"full_reach": {"name": "满月范围扩大", "type": "modifier", "tier": 1, "max": 3, "parent": "moon",
 			"values": [[4.0, 1.0]], "fmt": ["int"],
 			"text": "满月横扫最多命中 %s 名敌人。"},
@@ -261,7 +294,7 @@ const TREES := {
 
 ## Talents (天赋): no points; elite stage and module level raise them.
 const TALENTS := {
-	"lappland": {"name": "精神摧毁", "text": "攻击使目标的特殊能力失效 %s 秒（精英与首领 %s 秒）%s。"},
+	"lappland": {"name": "精神摧毁", "text": "剑气命中使目标的特殊能力失效 %s 秒（精英与首领 %s 秒）%s。"},
 	"amiya_guard": {"name": "青色怒火", "text": "攻击力与防御力 +%s，绝影期间及之后 3 秒效果加倍。"},
 	# Recruits: "values" are [精英 1, 精英 2, 模组 2 级, 模组 3 级] per %s.
 	"hellagur": {"name": "月盈星亏", "values": [[40.0, 60.0, 70.0, 80.0]], "fmt": ["num"],
@@ -280,15 +313,17 @@ const TALENTS := {
 		"text": "技能伤害 +%s。"},
 }
 const MODULES := {
-	"lappland": {"name": "\"幼狼的牙齿\"", "type": "LOR-X", "stats": {"hp": 175.0, "atk": 40.0, "aspd": 6.0}},
-	"amiya_guard": {"name": "待调弦的怒火", "type": "AFT-X", "stats": {"atk": 45.0, "res": 4.0}},
-	"hellagur": {"name": "月下刀锋", "type": "DRE-X", "stats": {"hp": 200.0, "atk": 40.0}},
-	"hoshiguma": {"name": "般若之盾", "type": "PRO-X", "stats": {"hp": 250.0, "def": 60.0}},
-	"typhon": {"name": "猎人的弓弦", "type": "BES-X", "stats": {"atk": 50.0, "aspd": 4.0}},
-	"rosa": {"name": "攻城器械", "type": "BES-Y", "stats": {"atk": 45.0, "hp": 150.0}},
-	"lin": {"name": "玉门的茶", "type": "PRI-X", "stats": {"atk": 40.0, "res": 5.0}},
-	"santalla": {"name": "冻土的巫术", "type": "SPC-X", "stats": {"atk": 40.0, "res": 4.0}},
-	"texas": {"name": "企鹅物流的剑", "type": "CHG-X", "stats": {"atk": 35.0, "aspd": 5.0}},
+	# 复利数值改造清单 D: the old flat figures over the old base (ATK 600, HP 2400,
+	# DEF 200) as shares; the arts fighters' ATK is arts power.
+	"lappland": {"name": "\"幼狼的牙齿\"", "type": "LOR-X", "stats": {"hp_pct": 0.073, "atk_pct": 0.067, "aspd": 6.0}},
+	"amiya_guard": {"name": "待调弦的怒火", "type": "AFT-X", "stats": {"arts_pct": 0.075, "res": 4.0}},
+	"hellagur": {"name": "月下刀锋", "type": "DRE-X", "stats": {"hp_pct": 0.083, "atk_pct": 0.067}},
+	"hoshiguma": {"name": "般若之盾", "type": "PRO-X", "stats": {"hp_pct": 0.104, "def_pct": 0.30}},
+	"typhon": {"name": "猎人的弓弦", "type": "BES-X", "stats": {"atk_pct": 0.083, "aspd": 4.0}},
+	"rosa": {"name": "攻城器械", "type": "BES-Y", "stats": {"atk_pct": 0.075, "hp_pct": 0.063}},
+	"lin": {"name": "玉门的茶", "type": "PRI-X", "stats": {"arts_pct": 0.067, "res": 5.0}},
+	"santalla": {"name": "冻土的巫术", "type": "SPC-X", "stats": {"arts_pct": 0.067, "res": 4.0}},
+	"texas": {"name": "企鹅物流的剑", "type": "CHG-X", "stats": {"atk_pct": 0.058, "aspd": 5.0}},
 }
 
 static func tree(operator_id: String) -> Dictionary:
@@ -300,20 +335,20 @@ static func node(operator_id: String, id: String) -> Dictionary:
 ## Points the next rank of a node costs (rank is the current one).
 static func rank_cost(data: Dictionary, rank: int) -> int:
 	if str(data.get("type", "")) == "transmuter": return TRANSMUTER_POINTS
-	if rank >= 7: return MASTERY_POINTS
+	if rank >= MASTERY_RANK: return MASTERY_POINTS
 	return 1
 
 ## The elite stage the next rank needs.
 static func rank_elite(data: Dictionary, rank: int) -> int:
 	var need := int(data.get("tier", 0))
 	if str(data.get("type", "")) in ["skill", "signature"]:
-		if rank >= 7: need = maxi(need, 2)
-		elif rank >= SKILL_CAP_E0: need = maxi(need, 1)
+		if rank >= MASTERY_RANK: need = maxi(need, 2)
+		elif rank >= E1_RANK: need = maxi(need, 1)
 	return need
 
 ## Materials the next rank needs: 专精 only.
 static func rank_materials(data: Dictionary, rank: int) -> Dictionary:
-	if bool(data.get("mastery", false)) and rank >= 7 and rank < 10: return MASTERY[rank - 7]
+	if bool(data.get("mastery", false)) and (rank + 1) in MASTERY_STEPS: return MASTERY[MASTERY_STEPS.find(rank + 1)]
 	return {}
 
 ## Total points spent to reach `rank` (for refunds).
@@ -324,36 +359,59 @@ static func spent(data: Dictionary, rank: int) -> int:
 		total += rank_cost(data, r)
 	return total
 
-## Rank label: "3/7", "专精 2".
+## Rank label: "17/35", "专精 6/15".
 static func rank_label(data: Dictionary, rank: int) -> String:
 	if str(data.get("type", "")) == "transmuter": return "已习得" if rank > 0 else "未习得"
-	var top := mini(7, int(data.max))
-	if rank > 7: return "专精 %d" % (rank - 7)
+	var top := mini(MASTERY_RANK, max_rank(data))
+	if rank > MASTERY_RANK: return "专精 %d/%d" % [rank - MASTERY_RANK, max_rank(data) - MASTERY_RANK]
 	return "%d/%d" % [rank, top]
 
 # --- Values each rank gives (read by Player) ----------------------------------
 
-## 剑气系数: 1.5 + 0.1 per rank above 1.
-static func wave_scale(rank: int) -> float:
-	return 1.5 + 0.1 * maxi(0, rank - 1)
+## Values read on effect ranks (floats between old ranks, effect_rank()): the
+## table functions are written on whole old ranks and blended between them.
+static func _blend(rank: float, fn: Callable) -> Variant:
+	var low := floori(rank)
+	var t := rank - float(low)
+	var a: Variant = fn.call(low)
+	if t <= 0.0001: return a
+	var b: Variant = fn.call(low + 1)
+	if a is Array:
+		var out: Array = []
+		for i in range(a.size()): out.append(lerpf(float(a[i]), float(b[i]), t) if a[i] is float else a[i])
+		return out
+	return lerpf(float(a), float(b), t)
 
-## 日晷: [evasion after stage 3, stage-3 bonus].
-static func sundial(rank: int) -> Array:
-	if rank <= 0: return [0.0, 0.0]
-	if rank > 7: return [[0.24, 0.28, 0.32][rank - 8], 0.35]
-	return [0.08 + 0.02 * (rank - 1), 0.05 * rank]
+## 剑气系数: 1.5 + 0.1 per rank above 1.
+static func wave_scale(rank: float) -> float:
+	return 1.5 + 0.1 * maxf(0.0, rank - 1.0)
+
+## 日晷 on Space (用户 2026-10-20): [ATK bonus, physical evasion, cooldown].
+## Rank 0 still casts it; 专精 3 reaches PRTS's +70% / 40%.
+static func sundial(rank: float) -> Array:
+	return _blend(rank, _sundial)
+
+static func _sundial(rank: int) -> Array:
+	if rank > 7: return [[0.62, 0.66, 0.70][rank - 8], [0.36, 0.38, 0.40][rank - 8], [15.0, 14.5, 14.0][rank - 8]]
+	return [0.30 + 0.04 * rank, 0.20 + 0.02 * rank, 16.0]
 
 ## 狼魂: [waves to trigger, ATK bonus].
-static func wolf_spirit(rank: int) -> Array:
+static func wolf_spirit(rank: float) -> Array:
+	return _blend(rank, _wolf_spirit)
+
+static func _wolf_spirit(rank: int) -> Array:
 	if rank <= 0: return [0, 0.0]
 	if rank > 7: return [3 if rank == 10 else 4, [0.60, 0.70, 0.80][rank - 8]]
 	return [4, 0.20 + 0.05 * (rank - 1)]
 
-static func extra_target(rank: int) -> float:
-	return [0.0, 0.40, 0.55, 0.70][clampi(rank, 0, 3)]
+static func extra_target(rank: float) -> float:
+	return _blend(rank, func(r: int) -> float: return [0.0, 0.40, 0.55, 0.70][clampi(r, 0, 3)])
 
 ## 绝影: [strike scale, cooldown].
-static func shadow(rank: int) -> Array:
+static func shadow(rank: float) -> Array:
+	return _blend(rank, _shadow)
+
+static func _shadow(rank: int) -> Array:
 	var scale := 1.0 + 0.06 * maxi(0, mini(rank, 7) - 1)
 	var cooldown := 8.0 - (1.5 if rank >= 7 else 0.0)
 	if rank > 7:
@@ -362,21 +420,25 @@ static func shadow(rank: int) -> Array:
 	return [scale, cooldown]
 
 ## 奔夜: stage-2 ATK bonus.
-static func nightrun(rank: int) -> float:
+static func nightrun(rank: float) -> float:
+	return _blend(rank, _nightrun)
+
+static func _nightrun(rank: int) -> float:
 	if rank <= 0: return 0.0
 	if rank > 7: return [0.36, 0.44, 0.52][rank - 8]
 	return 0.04 * rank
 
-static func kill_stack(rank: int) -> float:
-	return [0.0, 0.10, 0.15, 0.20][clampi(rank, 0, 3)]
+static func kill_stack(rank: float) -> float:
+	return _blend(rank, func(r: int) -> float: return [0.0, 0.10, 0.15, 0.20][clampi(r, 0, 3)])
 
 ## 精神摧毁 by elite and module level: [seconds, seconds on elites, fragile].
 static func mind_break(elite: int, module_level: int) -> Array:
-	if elite <= 0: return [0.0, 0.0, 0.0]
+	# On her wave since 用户 2026-10-20, so from 精英 0 and a little longer.
+	if elite <= 0: return [1.0, 0.5, 0.0]
 	var fragile := 0.0
 	if module_level >= 3: fragile = 0.08
 	elif module_level >= 2: fragile = 0.04
-	if elite == 1: return [1.0, 0.5, 0.0]
+	if elite == 1: return [3.0, 1.0, 0.0]
 	return [6.0 if module_level >= 2 else 5.0, 2.0, fragile]
 
 ## 青色怒火 by elite and module level: ATK / DEF bonus.
@@ -389,8 +451,8 @@ static func cyan_fury(elite: int, module_level: int) -> float:
 
 ## A recruit's node value at `rank`: rank 1's plus the step per rank above
 ## it (专精 continues the same line); 0 without a rank.
-static func value(operator_id: String, id: String, rank: int, index: int = 0) -> float:
-	if rank <= 0: return 0.0
+static func value(operator_id: String, id: String, rank: float, index: int = 0) -> float:
+	if rank <= 0.0: return 0.0
 	var values: Array = node(operator_id, id).get("values", [])
 	if index >= values.size(): return 0.0
 	return float(values[index][0]) + float(values[index][1]) * (rank - 1)
@@ -415,7 +477,7 @@ static func _format(fmt: String, v: float) -> String:
 static func describe(operator_id: String, id: String, rank: int) -> String:
 	var data := node(operator_id, id)
 	if data.is_empty(): return ""
-	var r := maxi(1, rank)
+	var r := effect_rank(data, maxi(1, rank))
 	var text := str(data.text)
 	if data.has("values"):
 		var shown: Array = []
@@ -426,9 +488,9 @@ static func describe(operator_id: String, id: String, rank: int) -> String:
 		"wave": return text % ("%d%%" % roundi(wave_scale(r) * 100))
 		"sundial":
 			var v := sundial(r)
-			return text % ["%d%%" % roundi(v[0] * 100), "%d%%" % roundi(v[1] * 100)]
-		"shadow_hand": return text % ["%d%%" % (8 * r), "%d%%" % (6 * r)]
-		"frenzy": return text % str(4 * r)
+			return text % ["%d%%" % roundi(v[0] * 100), "%d%%" % roundi(v[1] * 100), "%.1f" % v[2]]
+		"shadow_hand": return text % ["%.1f" % (0.5 * r), "%d%%" % (6 * r)]
+		"frenzy": return text % ("%.1f" % (4 * r))
 		"wolf_spirit":
 			var w := wolf_spirit(r)
 			return text % [str(w[0]), "%d%%" % roundi(w[1] * 100)]
@@ -452,6 +514,6 @@ static func talent_text(operator_id: String, elite: int, module_level: int) -> S
 		for i in range(data.values.size()): shown.append(_format(str(data.fmt[i]), talent_value(operator_id, maxi(1, elite), module_level, i)))
 		return str(data.text) % shown
 	if operator_id == "lappland":
-		var m := mind_break(maxi(1, elite), module_level)
+		var m := mind_break(elite, module_level)
 		return str(data.text) % [str(roundi(m[0])), str(m[1]), "，并使其受到伤害 +%d%%" % roundi(m[2] * 100) if m[2] > 0 else ""]
 	return str(data.text) % ("%d%%" % roundi(cyan_fury(maxi(1, elite), module_level) * 100))

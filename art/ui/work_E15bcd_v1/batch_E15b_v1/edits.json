@@ -1,0 +1,65 @@
+[
+  {
+    "id": "city_feet_3",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-b475bee3-9f25-4145-ad1e-b154bf069aa7.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Broaden polished PALE SILVER-GRAY toe reflections to cover the TOP HALF of BOTH toes, and add large PALE GRAY lit forward shaft planes on BOTH boots. Keep sides/back black leather, laces and shape unchanged. No steel toe caps. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_feet_3_raw.png"
+  },
+  {
+    "id": "city_hands_2",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-c2641132-46de-440a-b866-f70b7e369884.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Light BOTH large KNUCKLE PADS in PALE gray-blue #c6ced8 with large smooth connected top faces, plus upper-left outer glove fabric rim. Fingerless black gloves remain black elsewhere. Finger holes stay empty. No grain or speckle, flat broad cloth shapes. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_hands_2_raw.png"
+  },
+  {
+    "id": "city_head_1",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-a14a9091-b46f-44dc-8117-e4d18fb2c53d.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Broaden the SUN-FADED BRIM light surface: nearly entire top plane of brim and upper-left crown crease should be pale cool blue-gray, while crown remains navy over most of it. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_head_1_raw.png"
+  },
+  {
+    "id": "city_head_2",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-408756e5-5d0d-440c-a43d-f125e1a9901f.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Broaden the raised clear visor's pale silver-blue reflection and upper-left helmet-shell reflection, so the light occupies a full broad quadrant of the helmet rather than thin strips; keep raised visor. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_head_2_raw.png"
+  },
+  {
+    "id": "city_head_4",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-b6fba0ca-c359-4090-a075-44c6d6edc986.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Broaden upper-left shell plane and TOPPED GOGGLE lens reflection in pale cold blue-gray matching chest highlights; keep rest helmet charcoal/navy, side rail and goggles in original position. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_head_4_raw.png"
+  },
+  {
+    "id": "city_legs_1",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-2d5beaa3-6261-4965-86d6-90707433d1b0.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Light a BROAD front-left FOLD FACE on EACH black balloon trouser leg in PALE COOL GRAY #c6ced8. Expand existing light fold to about one third of EACH leg's width. Keep rounded wide balloon silhouette and tight ankle cuffs, black remaining cloth. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_legs_1_raw.png"
+  },
+  {
+    "id": "city_legs_2",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-f34bb295-3d2b-46d8-b991-8980627db4a4.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Broaden the PALE SIDE STRIPE on each leg slightly and add large PALE BLUE-GRAY front-facing CREASE PLANE on BOTH navy straight legs. Keep majority navy, slim straight silhouette. Pale highlights must be large and light, not desaturated medium-blue. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_legs_2_raw.png"
+  },
+  {
+    "id": "city_legs_3",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-d6c3952c-5410-4125-abf4-655ebd3e7b4b.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Change the UPPER/LEFT HALF OF EACH GRAY THIGH AND SHIN PANEL to pale gray #c6ced8, large contiguous faces. Keep the panel shadow half gray, cloth charcoal, fastenings and leg shapes unchanged. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_legs_3_raw.png"
+  },
+  {
+    "id": "city_legs_4",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-1e94f71f-95fb-4197-b5aa-d405d96c4c3d.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Paint a broad PALE SILVER-GRAY SILK REFLECTION sweeping vertically along the upper-left-facing fold of BOTH charcoal silk legs, occupying around35% garment, with clean smooth connected shapes. Keep remainder dark charcoal silk, subtle2-tone cloud curves and brass clasp. No added white or beige armor, just a strong silk reflection. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/city_legs_4_raw.png"
+  }
+]

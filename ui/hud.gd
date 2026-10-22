@@ -39,7 +39,7 @@ func _ready() -> void:
 	_buttons.position = Vector2(1012, 12)
 	_buttons.add_theme_constant_override("separation", 4)
 	add_child(_buttons)
-	for entry in [["干员", "I", "inventory"], ["藏品", "R", "relics"], ["地图", "M", "map"], ["合同", "J", "journal"]]:
+	for entry in [["装备", "I", "inventory"], ["干员", "C", "training"], ["藏品", "R", "relics"], ["地图", "M", "map"], ["合同", "J", "journal"]]:
 		var b := AK.button("%s\n%s" % [entry[0], entry[1]], "ghost", 11)
 		b.custom_minimum_size = Vector2(46, 40)
 		var kind: String = entry[2]
@@ -53,7 +53,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not is_instance_valid(game) or not is_instance_valid(game.player): return
 	visible = not game.in_base and not game.in_camp and game.modal not in ["build", "route", "squad", "trader", "camp", "pause", "settlement"]
-	_buttons.visible = visible and game.modal in ["", "inventory", "relics", "journal"]
+	_buttons.visible = visible and game.modal in ["", "inventory", "training", "relics", "journal"]
 	# Right-aligned: English names make the row wider than the Chinese one.
 	_buttons.position.x = 1268.0 - _buttons.size.x
 	_pulse += delta
@@ -84,6 +84,7 @@ func _draw() -> void:
 		_draw_map_info()
 		return
 	_draw_top_bar()
+	_draw_boss_bar()
 	_draw_map(MAP_RECT, false)
 	if SystemScreens.settings.get("tracker", true): _draw_orders()
 	if SystemScreens.settings.get("broadcasts", true): _draw_toasts()
@@ -97,7 +98,7 @@ func _draw_top_bar() -> void:
 	draw_rect(Rect2(0, 0, 88, 44), AK.PAPER)
 	_text(Vector2(10, 14), "FLOOR", 9, AK.INK, _en(), false)
 	_text(Vector2(10, 38), code, 20, AK.INK, _en(), false)
-	var region: String = FieldCatalog.REGIONS[game.region_id].name
+	var region: String = game.place_name()
 	_text(Vector2(100, 22), region, 14, AK.FG)
 	var x := 100.0 + _font().get_string_size(I18n.t(region), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 24
 	_draw_gold_icon(Vector2(x + 7, 23))
@@ -105,11 +106,15 @@ func _draw_top_bar() -> void:
 	draw_rect(Rect2(x + 14, 16, 12, 12), AK.FG, false, 1.6)
 	draw_rect(Rect2(x + 17, 19, 6, 6), AK.FG)
 	x += 32 + _text(Vector2(x + 32, 30), str(game.builds.size()), 17, AK.FG, _en())
-	if game.contamination_visible():
-		draw_colored_polygon(AK.diamond(Vector2(x + 22, 23), 7), Color("111111"))
-		draw_polyline(AK.diamond(Vector2(x + 22, 23), 7) + PackedVector2Array([Vector2(x + 22, 16)]), AK.ORI, 1.4)
-		var w := _text(Vector2(x + 34, 30), str(roundi(game.current_contamination())), 17, AK.ORI, _en())
-		_text(Vector2(x + 40 + w, 30), "+%.2f/s" % game.contamination_rate(), 11, AK.MUTE, _en())
+	# 地图特色 (地图特色策划案 §9): icon, value, rate a second, each that moves here.
+	for kind in game.shown_features():
+		var colour: Color = FEATURE_COLOURS[kind]
+		_draw_feature_icon(kind, Vector2(x + 22, 23), colour)
+		var w := _text(Vector2(x + 34, 30), str(roundi(game.feature_value(kind))), 17, colour, _en())
+		var rate := game.feature_rate(kind)
+		var rate_w := 0.0
+		if kind != "debt": rate_w = _text(Vector2(x + 40 + w, 30), ("+%.2f/s" if rate >= 0.0 else "%.2f/s") % rate, 11, AK.MUTE, _en())
+		x += 40 + w + rate_w + 8
 	_draw_threat_bar()
 	# Effect badges: what is ticking right now.
 	var badges: Array = []
@@ -118,6 +123,11 @@ func _draw_top_bar() -> void:
 	if game.player.shield > 0.0: badges.append(["盾", Color("bfe8ff"), str(roundi(game.player.shield))])
 	var tier := BaseCatalog.contamination_tier(game.current_contamination())
 	if tier > 0: badges.append(["染", AK.ORI, BaseCatalog.CONTAMINATION_TIER_NAMES[tier]])
+	for kind in ["debt", "cold"]:
+		var step := game.features.tier(kind)
+		if step > 0 and not game.in_base: badges.append([FeatureCatalog.BADGES[kind], FEATURE_COLOURS[kind], FeatureCatalog.TIER_NAMES[kind][step]])
+	var fire := game.warm_fire() if not game.in_base else null
+	if fire != null: badges.append(["火", FIRE_COLOUR, "%ds" % ceili(fire.burn_left)])
 	for i in range(badges.size()):
 		var b: Array = badges[i]
 		var r := Rect2(12 + i * 34, 54, 28, 28)
@@ -125,6 +135,54 @@ func _draw_top_bar() -> void:
 		draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), b[1])
 		_text(r.position + Vector2(7, 19), b[0], 13, b[1], null, false)
 		_text(r.position + Vector2(2, 40), b[2], 10, AK.FG, _en())
+
+## A region boss in a fight (Boss与守卫者策划案 §9, Q7): one wide bar at the
+## top, no name; ticks where its next phases begin, a diamond per life, and
+## under it the dark red bar of 溶血骇惧 while that curse is on her.
+const BOSS_BAR := Rect2(440, 58, 400, 12)
+const BOSS_LAVENDER := Color("b49ae8")
+
+func _draw_boss_bar() -> void:
+	var figure := game.outpost_boss
+	if not is_instance_valid(figure) or not figure.in_fight(): return
+	var r := BOSS_BAR
+	draw_rect(r.grow(3), Color.BLACK)
+	draw_rect(r.grow(2), BOSS_LAVENDER)
+	draw_rect(r.grow(1), Color.BLACK)
+	AK.draw_bar(self, r, figure.health / maxf(figure.max_health, 1.0), Color("e8463a"), Color("1a0606"))
+	if figure.barrier_up():
+		draw_rect(Rect2(r.position.x, r.position.y, r.size.x * clampf(figure.barrier_hp / maxf(figure.max_health, 1.0), 0.0, 1.0), 3), Color("cfe8ff"))
+	var marks: Array = BossCatalog.phase_marks(figure.tier) if figure.lives == 1 else ([0.25] if figure.tier >= 3 and figure.life >= 2 else [])
+	for share in marks:
+		var x: float = r.position.x + r.size.x * float(share)
+		draw_rect(Rect2(x - 1, r.position.y - 2, 2, r.size.y + 4), AK.FG)
+	for i in range(figure.lives):
+		var at := Vector2(r.position.x - 14 - i * 14, r.get_center().y)
+		draw_colored_polygon(AK.diamond(at, 6.5), Color.BLACK)
+		draw_colored_polygon(AK.diamond(at, 5.0), BOSS_LAVENDER if i >= figure.life - 1 else Color(0.3, 0.3, 0.32))
+	var curse := figure.curse_left()
+	if curse > 0.0:
+		var c := Rect2(r.position.x, r.end.y + 5, r.size.x, 4)
+		draw_rect(c.grow(1), Color.BLACK)
+		draw_rect(Rect2(c.position, Vector2(c.size.x * curse, c.size.y)), Color("8a1c22"))
+
+const FEATURE_COLOURS := {"contamination": AK.ORI, "debt": Color("c0392b"), "cold": Color("9fd8ff")}
+const FIRE_COLOUR := Color("ff9a3c")
+
+## 源石 diamond, a dagger for 血债, a snowflake for 寒冷.
+func _draw_feature_icon(kind: String, c: Vector2, colour: Color) -> void:
+	match kind:
+		"contamination":
+			draw_colored_polygon(AK.diamond(c, 7), Color("0e1113"))
+			draw_polyline(AK.diamond(c, 7) + PackedVector2Array([c + Vector2(0, -7)]), colour, 1.4)
+		"debt":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(0, -8), c + Vector2(2.5, 2), c + Vector2(-2.5, 2)]), colour)
+			draw_line(c + Vector2(-5, 3), c + Vector2(5, 3), colour, 1.6)
+			draw_line(c + Vector2(0, 3), c + Vector2(0, 8), colour, 2.0)
+		"cold":
+			for i in range(3):
+				var d := Vector2.from_angle(PI * i / 3.0) * 7.0
+				draw_line(c - d, c + d, colour, 1.4)
 
 ## 威胁值 (用户 2026-10-14: 读条，不显示数字): a thin red bar along the bottom
 ## of the strip, pulsing as it nears full.
@@ -149,6 +207,13 @@ func map_point(position: Vector3, rect: Rect2 = MAP_RECT) -> Vector2:
 	var centre: Vector3 = game.world_map.map_center
 	return rect.get_center() - Vector2((position.x - centre.x) * scale, (position.z - centre.z) * scale)
 
+## The map stays north up; a wedge from her marker shows which way is up the
+## screen, the way the camera looks (GameManager.camera_yaw).
+func _draw_view_pointer(at: Vector2, reach: float) -> void:
+	var up := Vector2(-sin(game.camera_yaw), -cos(game.camera_yaw))
+	var side := Vector2(-up.y, up.x)
+	draw_colored_polygon(PackedVector2Array([at + up * reach, at + up * reach * 0.4 + side * reach * 0.35, at + up * reach * 0.4 - side * reach * 0.35]), Color(1, 1, 1, 0.55))
+
 func _draw_map(rect: Rect2, big: bool) -> void:
 	if not big: draw_rect(rect, Color(0, 0, 0, 0.78))
 	if _map_source != game.world_map._generated_root: _cache_minimap()
@@ -157,14 +222,32 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 	var scale := _map_scale(rect)
 	var centre: Vector3 = game.world_map.map_center
 	draw_set_transform(rect.get_center() + Vector2(centre.x, centre.z) * scale, 0.0, Vector2(-scale, -scale))
-	if _map_mesh.get_surface_count() > 0: draw_mesh(_map_mesh, null, Transform2D.IDENTITY, Color(0.745, 0.902, 1.0, 0.07) if big else Color("2f2f2f"))
+	if _map_mesh.get_surface_count() > 0: draw_mesh(_map_mesh, null, Transform2D.IDENTITY, Color(0.745, 0.902, 1.0, 0.07) if big else Color("272f35"))
 	if _map_outline.size() >= 2: draw_multiline(_map_outline, MAP_LINE if big else Color("8a8a8a"), 2.0 / scale if big else -1.0)
 	draw_set_transform(Vector2.ZERO)
 	var k := 1.6 if big else 1.0
 	var markers: Array = [game.world_map.buff_device_node, game.world_map.encounter_node, game.world_map.exit_node, game.world_map.vault_node]
 	var colours := [Color("ef9b42"), AK.TRADER if game.encounter == "trader" else (AK.SPECIAL if game.encounter == "post" else AK.CYAN), AK.GREEN, AK.TIER[2]]
+	# 情报部Ⅵ: a sealed vault's ground as a ring of VAULT_HINT metres before it is found.
+	if game.base.researched("vault_map") and game.world_map.has_vault and not (is_instance_valid(game.world_map.vault_node) and game.world_map.vault_node.visible):
+		# Off-centre by a fixed amount per floor, so the ring narrows it down without pointing at it.
+		var spin := game.world_map.vault_position.x * 0.37 + game.world_map.vault_position.z * 0.11
+		var hint: Vector3 = game.world_map.vault_position + Vector3(cos(spin), 0.0, sin(spin)) * VAULT_HINT * 0.5
+		draw_arc(map_point(hint, rect), VAULT_HINT * _map_scale(rect), 0.0, TAU, 40, Color(AK.TIER[2], 0.8), 1.5 * k)
+	# 残党向导 (势力特供策划案 §二): this floor's vault and trace, fog or not.
+	if game.guide_active():
+		if game.world_map.has_vault:
+			var vault_at := map_point(game.world_map.vault_position, rect)
+			draw_colored_polygon(AK.diamond(vault_at, 4.5 * k), AK.TIER[2])
+			if big: _text(vault_at + Vector2(12, 5), "密室", 12, AK.FG)
+		if is_instance_valid(game.trace_point):
+			var trace_at := map_point(game.trace_point.global_position, rect)
+			draw_colored_polygon(AK.diamond(trace_at, 4.0 * k), AK.SPECIAL)
+			if big: _text(trace_at + Vector2(12, 5), "踪迹", 12, AK.FG)
+	# 情报部Ⅴ: the extraction beacon shows through the fog.
+	var exits_known: bool = game.base.researched("exit_map")
 	for i in range(markers.size()):
-		if is_instance_valid(markers[i]) and markers[i].visible and game.fog.is_point_revealed(markers[i].position):
+		if is_instance_valid(markers[i]) and markers[i].visible and (game.fog.is_point_revealed(markers[i].position) or (i == 2 and exits_known)):
 			var at := map_point(markers[i].position, rect)
 			draw_colored_polygon(AK.diamond(at, 4.5 * k), colours[i])
 			if big: _text(at + Vector2(12, 5), _marker_name(i), 12, AK.FG)
@@ -192,6 +275,7 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 		var patrol := node as Enemy
 		if patrol.game == game and not patrol._dead and game.fog.is_point_revealed(patrol.global_position):
 			draw_circle(map_point(patrol.global_position, rect), 2.5 * k, AK.RED)
+	_draw_view_pointer(map_point(game.player.position, rect), 20.0 if big else 12.0)
 	if big:
 		draw_colored_polygon(AK.diamond(map_point(game.player.position, rect), 8), Color.WHITE)
 		return
@@ -201,6 +285,8 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 	var explored := "已探索 %d%%" % roundi(game.fog.revealed_fraction() * 100.0)
 	var w := _font().get_string_size(I18n.t(explored), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	_text(Vector2(rect.end.x - w - 8, rect.end.y - 5), explored, 11, AK.MUTE, null, false)
+
+const VAULT_HINT := 20.0
 
 func _marker_name(i: int) -> String:
 	match i:
@@ -220,7 +306,7 @@ func _draw_map_info() -> void:
 	var cw := _en().get_string_size(I18n.t(code), HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x + 20
 	draw_rect(Rect2(right - cw, top, cw, 28), AK.PAPER)
 	_text(Vector2(right - cw + 10, top + 22), code, 20, AK.INK, _en(), false)
-	var region: String = FieldCatalog.REGIONS[game.region_id].name
+	var region: String = game.place_name()
 	_text(Vector2(right - _font().get_string_size(I18n.t(region), HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x, top + 54), region, 18, AK.FG)
 	var explored := "已探索 %d%%" % roundi(game.fog.revealed_fraction() * 100.0)
 	_text(Vector2(right - _font().get_string_size(I18n.t(explored), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x, top + 74), explored, 12, AK.MUTE)
@@ -443,9 +529,9 @@ func _draw_picker() -> void:
 		var choice: String = row[1]
 		var on := choice == current
 		var usable: bool = choice == "" or not Hotbar.ACTIONS[choice].has("skill") or game.player.has_skill()
-		draw_rect(r, AK.PAPER if on else (Color("3a3a3a") if r.has_point(hover) else Color("262626")))
+		draw_rect(r, AK.PAPER if on else (Color("313a41") if r.has_point(hover) else Color("20262b")))
 		var choice_name: String = Hotbar.CHOICE_NAMES[choice]
-		if choice == "shadow" and game.player.kit != null: choice_name = str(Operators.info(game.player.operator_id).signature)
+		if choice == "shadow" and game.player.kit != null: choice_name = str(Operators.info(game.player.operator_id).get("skill", Operators.info(game.player.operator_id).signature))
 		_text(r.position + Vector2(10, 18), choice_name, 13, AK.INK if on else (AK.FG if usable else AK.MUTE), null, false)
 	var anchor := _config_rect(picker_slot)
 	draw_colored_polygon(PackedVector2Array([Vector2(anchor.get_center().x - 6, anchor.position.y - 6), Vector2(anchor.get_center().x + 6, anchor.position.y - 6), Vector2(anchor.get_center().x, anchor.position.y)]), Color(0, 0, 0, 0.88))
@@ -490,7 +576,7 @@ func _draw_actions() -> void:
 	var right_x := bar.end.x + 12
 	_side_bar(Rect2(right_x, bar.position.y + 6, SIDE_BAR, 10), "体力", str(roundi(p.stamina)), p.stamina / 100.0, Color(0.92, 0.92, 0.92), false)
 	var passive := Rect2(right_x, bar.position.y + 34, SIDE_BAR, 10)
-	if p.has_skill():
+	if p.has_skill() and not p.has_sword_wave():
 		var cd := p.skill_cooldown_left()
 		var ready := p.skill_ready_now()
 		var skill_name := "绝影" if p.is_amiya() else str(Operators.info(p.operator_id).signature)
@@ -507,8 +593,13 @@ func _draw_actions() -> void:
 		if full:
 			var glow := 0.5 + 0.5 * sin(_pulse * TAU * 1.2)
 			draw_rect(passive.grow(2), Color(CombatVfx.PURPLE, 0.35 + 0.4 * glow), false, 1.5)
+		# 狼魂 and 日晷 (her Space) running show under the bar, one line each.
+		var line_y := passive.end.y + 6
 		if p.wolf_timer > 0.0:
-			_text(Vector2(passive.position.x, passive.end.y + 6), "狼魂 %.1f" % p.wolf_timer, 11, CombatVfx.PURPLE.lightened(0.3), null, false)
+			_text(Vector2(passive.position.x, line_y), "狼魂 %.1f" % p.wolf_timer, 11, CombatVfx.PURPLE.lightened(0.3), null, false)
+			line_y += 14
+		var running := p.kit.status_text() if p.kit != null else ""
+		if not running.is_empty(): _text(Vector2(passive.position.x, line_y), running, 11, AK.SP.lightened(0.3), null, false)
 
 ## A labelled bar: name and value above it, the fill below.
 func _side_bar(r: Rect2, label: String, value: String, ratio: float, colour: Color, big: bool, glow := false) -> void:
@@ -549,8 +640,8 @@ func _segments(r: Rect2, count: int, lit: int, colour: Color) -> void:
 ## One hotbar slot: glyph, key in the corner, a cost or count badge, and the
 ## cooldown as a dark curtain that lifts as it recharges.
 func _draw_slot(r: Rect2, slot: Dictionary) -> void:
-	draw_rect(r, Color("262626"))
-	draw_rect(Rect2(r.position, Vector2(r.size.x, r.size.y * 0.5)), Color("303030"))
+	draw_rect(r, Color("20262b"))
+	draw_rect(Rect2(r.position, Vector2(r.size.x, r.size.y * 0.5)), Color("283036"))
 	draw_rect(Rect2(r.position.x, r.end.y - 3, r.size.x, 3), slot.colour)
 	if slot.get("ready", false):
 		var glow := 0.5 + 0.5 * sin(_pulse * TAU * 1.2)
@@ -619,6 +710,8 @@ func _draw_world_marks() -> void:
 		if enemy.game != game or enemy._dead or enemy.health >= enemy.max_health: continue
 		var head := game.screen_point(enemy.head_point(0.12))
 		var ratio := enemy.health / maxf(enemy.max_health, 1.0)
+		# A region boss's bar is the wide one at the top (_draw_boss_bar).
+		if enemy is Boss and (enemy as Boss).rank == "boss": continue
 		if enemy.boss:
 			# Grim Dawn's boss tier is lavender: a wider bar in a lavender frame.
 			var b := Rect2(head.x - 48, head.y - 4, 96, 8)
@@ -663,6 +756,11 @@ func _draw_world_marks() -> void:
 		var under := feet + Vector2(0, 14)
 		draw_rect(Rect2(under.x - 32, under.y - 2, 64, 8), Color(0, 0, 0, 0.75))
 		AK.draw_bar(self, Rect2(under.x - 30, under.y, 60, 4), game.extract_progress / FieldCatalog.EXTRACT_SECONDS, AK.GREEN)
+	# 净化喷淋 under way: the same bar in the shower's cyan.
+	if game.shower_progress >= 0.0:
+		var under := feet + Vector2(0, 14)
+		draw_rect(Rect2(under.x - 32, under.y - 2, 64, 8), Color(0, 0, 0, 0.75))
+		AK.draw_bar(self, Rect2(under.x - 30, under.y, 60, 4), game.shower_progress / FeatureCatalog.SHOWER_SECONDS, ShowerPoint.LAMP)
 	_draw_ground_names()
 	# Just the key, no name (用户 2026-10-13: 不要中文label了，只提示e即可).
 	if not game.interaction_prompt().is_empty():
@@ -690,6 +788,7 @@ const PLATE_DIM := 0.45
 func _draw_ground_names() -> void:
 	_loot_plates.clear()
 	if not game.simulation_active(): return
+	var marks_tiers: bool = game.base.researched("tier_mark")
 	var all := Input.is_action_pressed("show_items")
 	var threatened := is_instance_valid(game.player) and game.player.nearby_enemy_count(PLATE_ENEMY_RADIUS) > 0
 	if threatened and not all: return
@@ -728,6 +827,9 @@ func _draw_ground_names() -> void:
 		draw_rect(rect, Color(0, 0, 0, (0.82 if entry[1] else 0.6) * fade))
 		draw_rect(Rect2(rect.position, Vector2(3, rect.size.y)), colour)
 		if lit: draw_rect(rect, colour, false, 1.0)
+		# 情报部Ⅳ: a lower-tier gold piece that reaches the next tier's blue gets a mark.
+		if marks_tiers and Scaling.crosses_tier(loot.item):
+			draw_colored_polygon(AK.diamond(Vector2(rect.end.x + 6, rect.get_center().y), 4.0), Color(AK.TIER[2], fade))
 		var runs: Array = loot.item.name_runs()
 		runs.append([loot.item.stack_suffix() + ("（封印）" if loot.sealed else ""), colour])
 		var x := rect.position.x + PLATE_PAD

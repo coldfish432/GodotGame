@@ -157,7 +157,7 @@ func run() -> void:
 	# --- 提丰 ------------------------------------------------------------------
 	await deploy("typhon")
 	await fresh()
-	check("提丰: reach is a ranged one", p.weapon_range() >= 10.0)
+	check("提丰: reach is a ranged one", p.weapon_range() >= 7.5)
 	p._attack_cooldown = 0
 	p.attack_direction(Vector3.FORWARD)
 	check("提丰: no target, no arrow", game.get_children().filter(func(n): return n is OperatorShot).is_empty())
@@ -165,11 +165,11 @@ func run() -> void:
 	atk = p.attack_power()
 	swing(e)
 	await step(30)
-	check("提丰: the first arrow hits 1.6 × 1.4 (重如沼泥) and mires", near(lost(e), atk * 1.6 * 1.4) and e.status_value("slow") >= 0.8)
+	check("提丰: the first arrow hits 1.0 × 1.4 (重如沼泥) and mires", near(lost(e), atk * 1.0 * 1.4) and e.status_value("slow") >= 0.8)
 	var after_first := lost(e)
 	swing(e)
 	await step(30)
-	check("提丰: the next arrow on it is plain 1.6, 锐如兽牙 stacking", near(lost(e) - after_first, atk * 1.6) and p.kit.fang_stacks == 2)
+	check("提丰: the next arrow on it is plain 1.0, 锐如兽牙 stacking", near(lost(e) - after_first, atk * 1.0) and p.kit.fang_stacks == 2)
 	await fresh()
 	var mark := dummy(origin + Vector3(0, 0, -6))
 	check("提丰: 永恒狩猎 marks the enemy at the cursor", cast(mark.global_position + Vector3(0.5, 0, 0)) and p.kit.hunt_target == mark and p.kit.hunt_left == 5)
@@ -185,20 +185,32 @@ func run() -> void:
 	atk = p.attack_power()
 	swing(e)
 	await step(30)
-	check("早露: a bolt hits 1.4", near(lost(e), atk * 1.4))
+	check("早露: a bolt hits 0.8", near(lost(e), atk * 0.8))
 	await fresh()
 	var heavy := dummy(origin + Vector3(0, 0, -6))
 	heavy.elite = true
 	swing(heavy)
 	await step(30)
-	check("早露: 深入骨髓 hits the heavy ones harder", near(lost(heavy), atk * 1.4 * 1.2))
+	check("早露: 深入骨髓 hits the heavy ones harder", near(lost(heavy), atk * 0.8 * 1.2))
 	await fresh()
 	var first := dummy(origin + Vector3(0, 0, -4))
 	var second := dummy(origin + Vector3(0, 0, -7))
 	p.combo_step = 2
 	swing(first)
-	await step(30)
-	check("早露: the charged third bolt goes through both", near(lost(first), atk * 2.2) and near(lost(second), atk * 2.2))
+	await step(10)
+	check("早露: the charged bolt winds up before it flies", lost(first) == 0.0)
+	await step(50)
+	check("早露: the charged third bolt goes through both", near(lost(first), atk * 1.3) and near(lost(second), atk * 1.3))
+	# 分裂射击 jumps only to one standing close (用户 2026-10-20: 约半个身位).
+	await fresh()
+	p.progress().transmuters["avalanche"] = "rosa_split"
+	var struck_one := dummy(origin + Vector3(0, 0, -5))
+	var close_by := dummy(origin + Vector3(1.2, 0, -5))
+	var far_off := dummy(origin + Vector3(-2.5, 0, -5))
+	swing(struck_one)
+	await step(40)
+	check("早露: 分裂射击 hits the one beside, not the one further off", lost(close_by) > 0.0 and lost(far_off) == 0.0)
+	p.progress().transmuters.erase("avalanche")
 	await fresh()
 	var fan: Array[Enemy] = []
 	for angle in [-20.0, 20.0]:
@@ -216,24 +228,33 @@ func run() -> void:
 	e = dummy(origin + Vector3(0, 0, -4))
 	var beside := dummy(origin + Vector3(1.0, 0, -4))
 	var apart := dummy(origin + Vector3(4.0, 0, -4))
-	atk = p.attack_power()
+	atk = p.arts_power()  # arts hits come off arts power
 	swing(e)
-	check("林: the array bursts on the target and those beside it", near(lost(e), atk * 0.8) and near(lost(beside), atk * 0.8) and lost(apart) == 0.0)
+	check("林: the array bursts on the target and those beside it", near(lost(e), atk * 0.65) and near(lost(beside), atk * 0.65) and lost(apart) == 0.0)
 	check("林: 琉璃璧 is up", p.kit.glass_up)
+	# The third is the great array (用户 2026-10-20): 3.2 across reaches the one 3 away.
+	var wide := dummy(origin + Vector3(3.0, 0, -4))
+	p.combo_step = 2
+	swing(e)
+	check("林: the third array is far wider", near(lost(wide), atk * 1.05) and near(lost(apart), 0.0))
+	wide.queue_free()
+	p.combo_step = 0
 	hp0 = p.hp
-	p.take_damage(100, "arts")
+	p.take_damage(p.kit.threshold() * 0.5, "arts")  # the barrier's line is a share of her max HP
 	check("林: a small blow is taken by the glass", p.hp == hp0 and p.kit.glass_up)
 	await fresh()
 	var close := dummy(origin + Vector3(0, 0, -2))
 	hp0 = p.hp
-	p.take_damage(1200, "arts")
+	p.take_damage(p.max_hp * 0.4, "arts")  # well past the line, but one she survives
 	check("林: a heavy blow shatters it, blasting and stunning those near", not p.kit.glass_up and p.hp < hp0 and lost(close) > 0.0 and close.stun_timer > 0.0)
 	tick(8.1)
 	check("林: it grows back", p.kit.glass_up)
 	await fresh()
 	var plain := p.attack_power()
+	var plain_arts := p.arts_power()
 	var ok_cast := cast(origin)
-	check("林: 流光乍裂 lifts her attack", ok_cast and p.attack_power() > plain * 1.4)
+	# Her arrays come off arts power (复利数值改造清单 F), which the buff lifts too.
+	check("林: 流光乍裂 lifts her attack and her arts power", ok_cast and p.attack_power() > plain * 1.4 and p.arts_power() > plain_arts * 1.4)
 	p.kit._shatter()
 	var weak := dummy(origin + Vector3(0, 0, -3), 10)
 	swing(weak)
@@ -245,15 +266,15 @@ func run() -> void:
 	await fresh()
 	e = dummy(origin + Vector3(0, 0, -5))
 	var by := dummy(origin + Vector3(1.0, 0, -5))
-	atk = p.attack_power()
+	atk = p.arts_power()  # arts hits come off arts power
 	swing(e)
 	await step(30)
-	check("寒檀: an ice orb hits 0.9 and chills", near(lost(e), atk * 0.9) and e.status_value("slow") > 0.0 and lost(by) == 0.0)
+	check("寒檀: an ice orb hits 0.75 and chills", near(lost(e), atk * 0.75) and e.status_value("slow") > 0.0 and lost(by) == 0.0)
 	p.combo_step = 2
 	var before_big := lost(e)
 	swing(e)
 	await step(40)
-	check("寒檀: the third orb splashes the one beside", near(lost(e) - before_big, atk * 1.2) and near(lost(by), atk * 1.2 * 0.5))
+	check("寒檀: the third orb splashes the one beside", near(lost(e) - before_big, atk * 1.0) and near(lost(by), atk * 1.0 * 0.5))
 	await fresh()
 	p.kit.follow_pointer = false
 	var cluster: Array[Enemy] = [dummy(origin + Vector3(0, 0, -6)), dummy(origin + Vector3(0.6, 0, -6.4))]
@@ -278,7 +299,7 @@ func run() -> void:
 	await fresh()
 	var inside := dummy(origin + Vector3(0, 0, -2))
 	var outside := dummy(origin + Vector3(0, 0, -6))
-	atk = p.attack_power()
+	atk = p.arts_power()  # arts hits come off arts power
 	check("德克萨斯: 剑雨 falls round her", cast(origin) and p.kit.rooted())
 	tick(0.6)
 	check("德克萨斯: two waves of arts on those inside, the first stunning", near(lost(inside), atk * 1.4 * 1.1 * 2) and inside.stun_timer > 0.0 and lost(outside) == 0.0)

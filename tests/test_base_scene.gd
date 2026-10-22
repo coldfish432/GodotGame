@@ -22,8 +22,8 @@ func run() -> void:
 	root.add_child(game)
 	await step(8)
 	var base := game.base_map
-	check("all six rooms load (加工部 a room of its own)", base.rooms.size() == 6)
-	check("twelve stations: the exported ones (no scan gate), the exchange, 人事部 and 加工站", base.interactables.size() == 12 and not base.station("exchange").is_empty()
+	check("all nineteen rooms load (加工部 and 科研部 rooms of their own; the second deck's twelve)", base.rooms.size() == 19 and base.rooms.has("lab") and base.rooms.has("farm"))
+	check("eighteen stations: the exported ones (no scan gate), the exchange, 人事部, 加工站, the sand table and 科研终端, the second deck's terminals and both lifts, plus the construction sites", base.interactables.size() == 18 + BaseWorks.POSTS.size() and not base.station("exchange").is_empty()
 		and not base.station("personnel").is_empty() and not base.station("workshop").is_empty())
 	check("the departure cluster: 整备台 and 后勤柜台 either side of the lift, arrival at it (基地布局调研_v2)",
 		flat(base.station("workbench").position).distance_to(flat(base.station("lift").position)) < 18.0
@@ -46,7 +46,9 @@ func run() -> void:
 	NavigationServer3D.map_force_update(rid)
 	var start := game.player.global_position
 	for station in base.interactables:
-		var path := NavigationServer3D.map_get_path(rid, start, station.position, true)
+		# The second deck is reached by the lift, so its walks start at its lift.
+		var from := base.spawn_point("deck2") if str(station.room) in BaseMap.DECK2_ROOMS else start
+		var path := NavigationServer3D.map_get_path(rid, from, station.position, true)
 		var reach := path.size() > 0 and flat(path[path.size() - 1]).distance_to(flat(station.position)) < BaseMap.INTERACT_RANGE - 0.5
 		check("path from arrival reaches " + station.id, reach)
 	var death_path := NavigationServer3D.map_get_path(rid, base.spawn_point("death"), base.station("reception").position, true)
@@ -57,7 +59,7 @@ func run() -> void:
 	# south, and walking on north stops at the ring's north console.
 	var space := game.get_world_3d().direct_space_state
 	for station in base.interactables:
-		if station.id in ["lift", "outbound", "pharmacy", "exchange", "personnel", "dispatch", "workshop"]: continue  # walk-up spots (the terminals until their art), not props
+		if station.id in ["lift", "outbound", "pharmacy", "exchange", "personnel", "dispatch", "workshop", "sand_table", "research", "deck_lift", "lift2", "farm", "canteen"] or str(station.id).begins_with("site_"): continue  # walk-up spots (the terminals until their art), not props
 		var query := PhysicsPointQueryParameters3D.new()
 		query.position = Vector3(station.position.x, 1.0, station.position.z)
 		query.collision_mask = 1
@@ -79,7 +81,7 @@ func run() -> void:
 	for id in base.rooms:
 		billboards += base.get_node(id).find_children("*", "Sprite3D", true, false).filter(func(s): return not s.no_depth_test and s.name != "Closure").size()
 	var kit_rooms: Array = base.rooms.keys().filter(func(id): return base.get_node(id).get_children().any(func(c): return str(c.get_meta("model", "")).begins_with("wall_panel")))
-	check("all six rooms are modelled, no pixel billboards left (%d)" % billboards, kit_rooms.size() == 6 and billboards == 0)
+	check("all nineteen rooms are modelled, no pixel billboards left (%d)" % billboards, kit_rooms.size() == 19 and billboards == 0)
 	var hall := base.get_node("hall")
 	var models := {}
 	for c in hall.get_children(): if c.has_meta("model"): models[c.get_meta("model")] = int(models.get(c.get_meta("model"), 0)) + 1

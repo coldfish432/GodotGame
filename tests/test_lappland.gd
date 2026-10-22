@@ -71,7 +71,7 @@ func run() -> void:
 	for i in range(3):
 		var before := enemy.health
 		swing(enemy)
-		check("melee hit %d deals ATK x combo scale and adds exactly one charge" % (i + 1), is_equal_approx(before - enemy.health, 600.0 * Player.COMBO_SCALES[i]) and p.sword_charge == i + 1)
+		check("melee hit %d deals ATK x combo scale and adds exactly one charge" % (i + 1), is_equal_approx(before - enemy.health, p.attack_power() * Player.COMBO_SCALES[i]) and p.sword_charge == i + 1)
 		check("combo pose %d selected" % (i + 1), p._sprite.action_name == "attack_" + str(i + 1))
 	check("third hit readies without firing", waves().is_empty() and p.combo_step == 0 and is_equal_approx(p.hitstop_remaining, 0.05))
 	p._tick_combat(20)
@@ -100,8 +100,9 @@ func run() -> void:
 	check("fourth hit releases and does not re-charge", p.sword_charge == 0 and waves().size() == 1 and p.combo_step == 0 and p._sprite.action_name == "wave")
 	var wave := waves()[0] as SwordWave
 	wave.set_physics_process(false)
-	# 剑气强化 (the old 剑气 affix, 精英化案 §8.1) adds 25%: 360 × 1.5 × 1.25.
-	check("wave snapshots 150% of arts ATK as arts damage, +25% 剑气强化", is_equal_approx(wave.damage, 675.0) and wave.kind == "arts")
+	# 剑气强化 (the old 剑气 affix, 精英化案 §8.1) adds 25%: arts power × 1.5 × 1.25.
+	var wave_hit := p.arts_power() * 1.5 * 1.25
+	check("wave snapshots 150% of arts ATK as arts damage, +25% 剑气强化", is_equal_approx(wave.damage, wave_hit) and wave.kind == "arts")
 	check("the wave decays 30% over its flight at rank 0", is_equal_approx(wave.decay, SwordWave.BASE_DECAY))
 	wave.decay = 0.0
 	var second := dummy(origin + Vector3(0, 0, 5))
@@ -109,10 +110,10 @@ func run() -> void:
 	var past_range := dummy(origin + Vector3(0, 0, 10))
 	var first_hp := enemy.health
 	wave._physics_process(0.45)
-	check("swept wave penetrates multiple enemies at full speed", is_equal_approx(enemy.health, first_hp - 675) and second.health == 100000 - 675 and is_equal_approx(wave.travelled, 6.3))
+	check("swept wave penetrates multiple enemies at full speed", is_equal_approx(enemy.health, first_hp - wave_hit) and is_equal_approx(second.health, 100000 - wave_hit) and is_equal_approx(wave.travelled, 6.3))
 	check("wave width rejects off-axis targets and does not charge", off_axis.health == 100000 and p.sword_charge == 0)
 	wave._physics_process(0.3)
-	check("range capped to nine and each enemy hit once", wave.is_queued_for_deletion() and is_equal_approx(wave.travelled, 9) and second.health == 100000 - 675 and past_range.health == 100000)
+	check("range capped to nine and each enemy hit once", wave.is_queued_for_deletion() and is_equal_approx(wave.travelled, 9) and is_equal_approx(second.health, 100000 - wave_hit) and past_range.health == 100000)
 	check("wave gives no enemy hitstop", second.hitstop_remaining == 0)
 	clear_waves()
 	swing(enemy)
@@ -232,7 +233,7 @@ func run() -> void:
 	var counter_hp := enemy.health
 	p.teleport(origin)
 	swing(enemy)
-	check("next landed hit spends 赏善郎 for double damage", not p.avenge_ready and is_equal_approx(counter_hp - enemy.health, 1200.0))
+	check("next landed hit spends 赏善郎 for double damage", not p.avenge_ready and is_equal_approx(counter_hp - enemy.health, 2.0 * p.attack_power()))
 	game.builds.erase("赏善郎")
 	p._recompute_stats()
 	p.combat_timer = 6.0
@@ -251,16 +252,19 @@ func run() -> void:
 		var item := FieldCatalog.roll_item(["mine", "city", "snow"][i % 3], 2, rng)
 		if not item.special.is_empty(): continue  # special gear carries fixed effects of its own
 		var count := 0
-		for mod in item.modifiers:
+		var rolled_mods := item.modifiers.filter(func(mod: ItemModifier) -> bool: return mod.tier != GearCatalog.IMPLICIT_TIER)  # a base's intrinsic stats are not affixes
+		for mod in rolled_mods:
 			if mod.trigger == ItemModifier.Trigger.SWORD_WAVE: count += 1
 			if mod.stat == ItemModifier.Stat.BLADE_COOLDOWN_PCT and mod.trigger == ItemModifier.Trigger.NONE: cooldown_rolls += 1
 			if mod.stat == ItemModifier.Stat.ATTACK_SPEED_PCT and mod.trigger == ItemModifier.Trigger.NONE:
 				speed_rolls[item.category] = int(speed_rolls.get(item.category, 0)) + 1
 		if item.category == Item.Category.WEAPON and item.rarity > 0: eligible += 1
 		if count > 0: rolled += 1
-		valid = valid and count <= 1 and item.modifiers.size() <= item.rarity and (count == 0 or (item.category == Item.Category.WEAPON and item.rarity >= 1))
+		valid = valid and count <= 1 and rolled_mods.size() <= item.rarity and (count == 0 or (item.category == Item.Category.WEAPON and item.rarity >= 1))
 	check("loot only rolls one wave on eligible weapons within affix budget", valid and rolled > 0)
-	check("attack speed rolls on weapons and trinkets only, cooldown affix retired", cooldown_rolls == 0 and speed_rolls.has(Item.Category.WEAPON) and speed_rolls.has(Item.Category.TRINKET) and not speed_rolls.has(Item.Category.ARMOR))
+	# 装备部位拆分与数值案 §4: attack speed leans to the weapon and the hands.
+	check("attack speed rolls on the weapon and the hands only, cooldown affix retired", cooldown_rolls == 0 and speed_rolls.has(Item.Category.WEAPON)
+		and speed_rolls.keys().all(func(c): return c in [Item.Category.WEAPON, Item.Category.HANDS]))
 	check("provisional chance produces expected distribution", float(rolled) / eligible > 0.15 and float(rolled) / eligible < 0.35)
 	var sprite := p._sprite
 	var total := 0
@@ -345,6 +349,38 @@ func run() -> void:
 	p.equip(converted)
 	check("saved cooldown affix loads as equivalent attack speed", converted.modifiers[0].stat == ItemModifier.Stat.ATTACK_SPEED_PCT and is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN * 0.92) and "攻速 +9" in converted.details())
 	p.equip(weapon)
+
+	# 重新设计 (用户 2026-10-20): 日晷 on Space, the cross cut, 精神摧毁 on the wave.
+	for node in get_nodes_in_group("enemies"):
+		node.remove_from_group("enemies")
+		node.queue_free()
+	clear_waves()
+	await step(1)
+	p.clear_charge()
+	p.combo_step = 2
+	var crossed := dummy(origin + Vector3(0, 0, -2))
+	var beside := dummy(origin + Vector3(1.0, 0, -2.2))
+	var far := dummy(origin + Vector3(-4.5, 0, -2))
+	swing(crossed)
+	check("the third cut crosses both blades: one beside takes 60%", is_equal_approx(100000 - beside.health, (100000 - crossed.health) * Player.CROSS_SCALE) and far.health == 100000)
+	check("a blade hit no longer silences", not crossed.silenced())
+	var kit := p.kit as LapplandKit
+	check("日晷 is on Space: her kit, 16 s cooldown at rank 0", kit != null and p.has_skill() and p.has_sword_wave() and is_equal_approx(p.skill_cooldown_total(), 16.0))
+	var atk0 := p.attack_power()
+	p.hitstop_remaining = 0
+	check("日晷 opens: ATK +30% and evasion +20% at rank 0", p.cast_skill(crossed.global_position) and absf(p.attack_power() / atk0 - 1.3) < 0.01 and is_equal_approx(kit.evasion_bonus(), 0.2))
+	var hand_before := [crossed.health, beside.health]
+	for i in range(240): kit.tick(1.0 / 60.0)
+	check("the shadow hand only counts down: no damage, half a turn at 4 s", crossed.health == hand_before[0] and beside.health == hand_before[1] and is_equal_approx(kit.spent(), 0.5)
+		and is_equal_approx(kit._hand_pivot.rotation.y, -PI))
+	p.clear_charge()
+	kit.on_evade(null)
+	check("a blow evaded under 日晷 fills 剑气", p.sword_charge == p.wave_hits_needed())
+	for i in range(int(LapplandKit.SECONDS * 30.0) + 2): kit.tick(1.0 / 60.0)
+	check("日晷 ends after 8 s and its dial goes", kit.timer == 0.0 and not is_instance_valid(kit._dial) and is_equal_approx(p.attack_power(), atk0))
+	p.on_wave_hit(crossed, 1.0, null)
+	check("精神摧毁: her wave silences what it hits", crossed.silenced())
+	p.clear_charge()
 	# Switching from walk to an attack must not resize or lift her: compare
 	# the body's foot line and height against the idle frame per direction.
 	var aligned := true

@@ -61,22 +61,27 @@ func run() -> void:
 
 	# --- Melee attack: walk to a real spawned enemy and hit it for real damage.
 	# One without a shield or barrier (装备扩充策划案 §2.1: 机动盾兵, 灰尾), so
-	# the hit is plain ATK − DEF.
+	# the hit is plain ATK × K / (K + DEF) (复利数值改造清单).
 	var target := plain_enemy()
 	check("wave-spawned", target != null, {"enemy_count": enemy_count()})
 	if target != null:
 		game.player.teleport(target.global_position + Vector3(1.0, 0.0, 0.0))
 		await step(2)
 		var hp_before: float = target.health
+		var expected_hit := CombatStats.physical(game.player.attack_power(), target.defense)
 		game.player.attack(target)
-		check("melee-attack-deals-ATK-minus-DEF", is_equal_approx(target.health, hp_before - CombatStats.physical(600.0, target.defense)),
+		check("melee-attack-deals-physical-after-DEF", is_equal_approx(target.health, hp_before - expected_hit),
 			{"before": hp_before, "after": target.health})
 
 		var swings := 0
 		var gold_before_kill: int = game.run_gold
 		var inventory_count_before_kill: int = game.inventory.items.size()
 		var units_before_kill: int = inventory_units()
-		while is_instance_valid(target) and swings < 10:
+		# Ungeared she hits for ~150 ATK now (复利数值改造清单), so a floor-1
+		# enemy takes up to a dozen swings; the wave around her (600 HP) would
+		# kill her first, so she is held invulnerable meanwhile.
+		game.player.invulnerable = true
+		while is_instance_valid(target) and swings < 30:
 			await step(45)  # clear the blade cooldown (0.7s) between swings
 			if is_instance_valid(target):
 				game.player.attack(target)
@@ -102,6 +107,7 @@ func run() -> void:
 		var gained: bool = game.run_gold > gold_before_kill or inventory_units() > units_before_kill
 		check("melee-kills-enemy-and-loot-is-picked-by-name", not is_instance_valid(target) and left == 0 and (gained or dropped == 0),
 			{"dropped": dropped, "left": left, "gold_before": gold_before_kill, "gold_after": game.run_gold, "inventory_before": inventory_count_before_kill, "inventory_after": game.inventory.items.size()})
+		game.player.invulnerable = false
 
 	# --- Air swings (用户 2026-10-07): a ground click still lands on an enemy in
 	# reach in front of her; one behind her, or out of reach, is untouched.
@@ -111,6 +117,8 @@ func run() -> void:
 	var behind: Enemy = game._spawn_enemy(arena_anchor + Vector3(-2.0, 0.0, 0.0), false, false)
 	var far: Enemy = game._spawn_enemy(arena_anchor + Vector3(8.0, 0.0, 0.5), false, false)
 	await step(2)
+	# Three enemies at arm's length outlast her 600 ungeared HP (复利数值改造清单).
+	game.player.invulnerable = true
 	var front_hp: float = front.health
 	var behind_hp: float = behind.health
 	var far_hp: float = far.health
@@ -139,6 +147,7 @@ func run() -> void:
 	game.player.equipped.erase(Item.Category.WEAPON)
 	GearCatalog.extra_bases.erase("_test_crossbow")
 	await clear_all_enemies()
+	game.player.invulnerable = false
 
 	# --- Target lock (用户 2026-10-07): one click locks an enemy; she closes to
 	# her weapon's reach, stops there and attacks only it.
@@ -229,6 +238,7 @@ func run() -> void:
 	game.player.regen_timer = 100.0
 	await clear_all_enemies()
 	game._spawn_enemy(arena_anchor + Vector3(6.0, 0.0, 0.0), false, true)
+	game.player.hp = game.player.max_hp  # the melee hit above left her low on 600 HP
 	await step(1)
 	var hp_before_ranged: float = game.player.hp
 	await step(67)  # 1.0s windup (the windup is the warning now); arrow still in flight

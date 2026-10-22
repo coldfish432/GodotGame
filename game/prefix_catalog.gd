@@ -22,12 +22,21 @@ const GRADE_WEIGHTS := {-2: 15.0, -1: 20.0, 0: 30.0, 1: 30.0, 2: 5.0}
 ## — at ½ (floor 130) 7.5 / 13 / 30 / 45 / 15 (用户 2026-10-18).
 const GOOD_SHIFT := {-2: -1.0, -1: -0.7, 0: 0.0, 1: 1.0, 2: 4.0}
 const DOUBLE_CHANCE := 0.2
+## The share of prefix rolls that are an effect family's (前缀放大与特效阶等案 §3).
+const FAMILY_SHARE := 0.15
+## Stat prefixes as players see them (前缀放大与特效阶等案 §2, 用户 2026-10-21):
+## the table is the small pieces' size; weapons and the big pieces more.
+const WEAPON_SCALE := 1.6
+const BIG_SCALE := 1.5
+const BIG_SLOTS := [Item.Category.CHEST, Item.Category.AMULET]
 ## A region's own prefixes are this much likelier there (§0.1-7).
 const REGION_WEIGHT := 3.0
 ## The top prefixes count as +2 but are rarer and open later (§2.2).
 const TOP_WEIGHT := 0.25
 const TOP_DEPTH := 3
-const TOP_GRADE := 3 # reforging: an item of grade T3+ may roll them
+## Reforging may roll them on any tier now (grades are ten-floor tiers, 清单 B;
+## a drop opens them from TOP_DEPTH).
+const TOP_GRADE := 1
 const ROLL_LOW := 0.8
 const ROLL_HIGH := 1.2
 
@@ -48,21 +57,10 @@ const LABELS := {
 	"stamina_regen_pct": "体力回复", "heal_pct": "受到治疗", "gold_pct": "赤金获取", "pressure_pct": "威胁累积",
 	"contam_pct": "污染累积", "taken_pct": "受到伤害",
 }
-## Conditional effects. crowd_atk: per enemy within 6 m, at most CROWD_MAX.
-const CROWD_MAX := 5
-const CROWD_RADIUS := 6.0
-const HIGH_HP := 0.9
-const DASH_ATK_SECONDS := 1.5
-const IDLE_SECONDS := 3.0
-## 诡意的: one of these, chosen afresh on every floor (1.5 budget units each).
+## 诡意: what its stats are drawn from (PrefixFamilies scales them by 阶等).
 const FICKLE := {"atk_pct": 0.12, "aspd": 15.0, "crit": 0.075, "arts_pct": 0.15, "move_pct": 0.12}
-const FX_TEXT := {
-	"crowd_atk": "6 米内每有 1 名敌人，攻击力 %s（至多 5 名）",
-	"high_hp_atk": "生命高于 90%% 时攻击力 %s",
-	"dash_atk": "闪避后 1.5 秒内攻击力 %s",
-	"idle_regen": "空闲 3 秒后，每秒回复生命上限的 %s",
-	"fickle": "每进入新一层，随机一项属性提升",
-}
+## Effect lines a prefix's fx would print; the old ones moved into families.
+const FX_TEXT := {}
 
 static var _table: Dictionary = {}
 
@@ -78,7 +76,7 @@ static func _p(id: String, grade: int, slots: String, name: String, en: String, 
 	var entry := {"name": name, "en": en, "grade": grade, "slots": slots, "stats": stats,
 		"fx": extra.get("fx", {}), "form": extra.get("form", ""), "region": extra.get("region", ""),
 		"group": extra.get("group", "reach" if stats.has("reach_pct") else ""),
-		"value": float(extra.get("value", 1.0)), "top": bool(extra.get("top", false))}
+		"value": float(extra.get("value", 1.0)), "top": bool(extra.get("top", false)), "family": extra.get("family", "")}
 	_table[id] = entry
 
 static func _build() -> void:
@@ -189,7 +187,6 @@ static func _build() -> void:
 	_p("messenger", 2, A, "信使的", "Messenger's", {"pressure_pct": -0.15, "move_pct": 0.03}, {"group": "threat"})
 	_p("originium", 1, W, "源石化的", "Originium-Laced", {"arts_pct": 0.20, "contam_pct": 0.20}, {"group": "contam"})
 	_p("crystal", 1, A, "结晶的", "Crystallized", {"res": 10.0, "hp_pct": -0.04})
-	_p("inhibited", 1, A + T, "抑制的", "Inhibited", {"contam_pct": -0.25}, {"group": "contam"})
 	_p("active", 0, T, "活性的", "Active", {"arts_pct": 0.15, "contam_pct": 0.20}, {"group": "contam"})
 	_p("infected", 0, W, "感染者的", "Infected's", {"atk_pct": 0.10, "heal_pct": -0.20})
 	_p("catastrophe", 0, W, "天灾的", "Catastrophic", {"atk_pct": 0.16, "taken_pct": 0.08})
@@ -197,7 +194,6 @@ static func _build() -> void:
 	_p("inert", -1, T, "失活的", "Inert", {"arts_pct": -0.08})
 	# --- §4.2 切尔诺伯格（矿）----------------------------------------------------
 	_p("ursus", 1, A, "乌萨斯的", "Ursine", {"def": 50.0, "move_pct": -0.04}, {"region": "mine"})
-	_p("riot", 1, W, "暴动的", "Rioting", {}, {"region": "mine", "fx": {"crowd_atk": 0.02}})
 	_p("tunneling", 1, W, "掘进的", "Tunneling", {"def_ignore": 0.10}, {"region": "mine"})
 	_p("cover", 1, A, "掩体的", "Covered", {"evasion_ranged": 0.08}, {"region": "mine"})
 	_p("abandoned", -2, W, "废弃的", "Abandoned", {"atk_pct": -0.10, "crit": -0.02}, {"region": "mine"})
@@ -212,7 +208,6 @@ static func _build() -> void:
 	_p("snowpriest", 2, T, "雪祀的", "Snowpriest's", {"skill_pct": 0.20, "arts_pct": 0.05}, {"region": "snow"})
 	_p("mountain", 2, A, "雪山的", "Mountaineer's", {"stamina_regen_pct": 0.20, "hp_pct": 0.03}, {"region": "snow"})
 	_p("tundra", 1, A, "冰原的", "Tundra", {"res": 10.0, "move_pct": -0.03}, {"region": "snow"})
-	_p("forestdweller", 1, A + T, "林栖的", "Forest-Dwelling", {}, {"region": "snow", "fx": {"idle_regen": 0.01}})
 	_p("witchkin", 0, W, "邪魔的", "Witchkin-Touched", {"atk_pct": 0.14, "heal_pct": -0.30}, {"region": "snow"})
 	_p("snowveil", 1, A, "雪隐的", "Snow-Veiled", {"evasion_ranged": 0.06, "move_pct": 0.02}, {"region": "snow"})
 	_p("frostcracked", -1, A, "冻裂的", "Frost-Cracked", {"res": -4.0, "move_pct": -0.03}, {"region": "snow"})
@@ -221,28 +216,28 @@ static func _build() -> void:
 	_p("laterano", 1, A, "拉特兰的", "Lateran", {"heal_pct": 0.15})
 	_p("mercenary", 1, W, "佣兵的", "Mercenary", {"atk_pct": 0.04, "gold_pct": 0.10})
 	_p("victorian", 1, A, "维多利亚的", "Victorian", {"def": 20.0, "aspd": 5.0})
-	_p("knightly", 1, W, "骑士的", "Knightly", {"elite_pct": 0.15})
-	_p("familial", 1, W, "家族的", "Familial", {}, {"fx": {"high_hp_atk": 0.12}})
 	_p("chanting", 1, T, "咏唱的", "Chanting", {"arts_pct": 0.12, "aspd": -4.0})
 	_p("formula", 1, T, "术式的", "Formulaic", {"skill_pct": 0.15, "skill_cd_pct": -0.06})
 	_p("higashi", 1, W, "东国的", "Higashi", {"crit_dmg": 0.25, "crit": -0.01}, {"form": "blade"})
-	_p("guerrilla", 1, T, "游击的", "Guerrilla", {}, {"fx": {"dash_atk": 0.15}})
 	_p("blacksteel", 1, A, "黑钢的", "Blacksteel", {"def": 35.0, "hp_pct": 0.03})
 	_p("experimental", 1, T, "实验的", "Experimental", {"arts_pct": 0.10, "crit_dmg": 0.10, "taken_pct": 0.03})
 	_p("spellguard", 1, T, "咒护的", "Spellguarded", {"evasion_arts": 0.04, "res": 2.0})
 	_p("heavyknight", 1, A, "重骑的", "Heavy-Knight", {"dmg_reduce": 0.06, "def": 20.0, "move_pct": -0.03})
-	_p("abyssal", 0, W, "深海的", "Abyssal", {"lifesteal": 0.03, "res": -6.0})
 	_p("scaled", 0, A, "鳞甲的", "Scaled", {"dmg_reduce": 0.08, "heal_pct": -0.20})
 	_p("cursed", -2, T, "诅咒的", "Cursed", {"taken_pct": 0.05, "hp_pct": -0.03})
 	# --- §4.6 行动与行商 ---------------------------------------------------------
-	_p("fickle", 2, T, "诡意的", "Fickle", {}, {"fx": {"fickle": 1.0}, "group": "fickle"})
-	_p("stealthy", 1, W, "潜伏的", "Stealthy", {"pressure_pct": -0.25, "atk_pct": -0.05}, {"group": "threat"})
 	_p("tactical", 1, T, "战术的", "Tactical", {"dash_cd_pct": -0.08, "aspd": 4.0})
 	_p("smuggled", 0, W + A + T, "走私的", "Smuggled", {}, {"value": 2.0, "group": "value"})
 	_p("derelict", -1, A, "失修的", "Derelict", {"def": -25.0, "res": -3.0})
 	_p("collapsed", -2, A, "坍缩的", "Collapsed", {"def": -30.0, "res": -5.0})
 	# --- §4.7 顶级 --------------------------------------------------------------
 	_p("court", 2, W, "王庭的", "Royal Court", {"atk_pct": 0.10, "crit": 0.03, "crit_dmg": 0.15}, {"top": true})
+	# --- Effect families (前缀放大与特效阶等案 §3): a W, an A and a T name each,
+	# grade +1, no stats of their own; PrefixFamilies counts and runs them.
+	for fam in PrefixFamilies.FAMILIES:
+		var data: Dictionary = PrefixFamilies.FAMILIES[fam]
+		for p in data.prefixes:
+			_p(p[0], 1, p[3], p[1], p[2], {}, {"family": fam, "region": data.region, "group": "fam_" + fam})
 
 # --- Rolling ----------------------------------------------------------------------
 
@@ -250,11 +245,17 @@ static func _build() -> void:
 static func eligible_item(item: Item) -> bool:
 	return item != null and item.is_equippable() and item.material_id.is_empty() and item.named_kind() != "set"
 
+## The prefix table's three kinds: the five armour slots take armour
+## prefixes, the amulet and the ring trinket ones (装备部位拆分与数值案 §5).
 static func _slot(item: Item) -> String:
-	match item.category:
+	match Item.group_of(item.category):
 		Item.Category.WEAPON: return W
 		Item.Category.ARMOR: return A
 	return T
+
+## "W", "A" or "T" for `item`.
+static func slot_kind(item: Item) -> String:
+	return _slot(item)
 
 static func _form(item: Item) -> String:
 	if item.category != Item.Category.WEAPON: return ""
@@ -272,7 +273,6 @@ static func fits(id: String, item: Item, taken: Array, top_open: bool) -> bool:
 		var o: Dictionary = all()[other_id]
 		if bool(o.top) and bool(e.top): return false
 		if not str(o.region).is_empty() and not str(e.region).is_empty(): return false
-		if str(o.group) == "fickle" or str(e.group) == "fickle": return false
 		if not str(e.group).is_empty() and str(e.group) == str(o.group): return false
 	return true
 
@@ -282,14 +282,21 @@ static func _weight(id: String, region: String) -> float:
 	if not str(e.region).is_empty() and str(e.region) == region: w *= REGION_WEIGHT
 	return w
 
-## One prefix id for `item`, or "" when nothing fits.
+## One prefix id for `item`, or "" when nothing fits. FAMILY_SHARE of the
+## rolls are an effect family's prefix (前缀放大与特效阶等案 §3).
 static func roll_one(item: Item, region: String, top_open: bool, taken: Array, rng: RandomNumberGenerator, good: float = 0.0) -> String:
 	var by_grade := {}
+	var family_ids: Array = []
 	for id in all():
+		if not str(all()[id].family).is_empty():
+			if fits(id, item, taken, top_open): family_ids.append(id)
+			continue
 		if fits(id, item, taken, top_open):
 			var g := int(all()[id].grade)
 			if not by_grade.has(g): by_grade[g] = []
 			by_grade[g].append(id)
+	if not family_ids.is_empty() and (by_grade.is_empty() or rng.randf() < FAMILY_SHARE):
+		return family_ids[LootTables._pick_weighted(family_ids.map(func(id): return _weight(id, region)), rng)]
 	if by_grade.is_empty(): return ""
 	var grades: Array = by_grade.keys()
 	var weights: Array = grades.map(func(g): return grade_weight(g, good))
@@ -335,9 +342,17 @@ static func backfill(item: Item) -> void:
 	refresh_value(item, true)
 
 ## 重铸: the whole set again, the same odds as a drop (§2.5).
-static func reforge(item: Item, rng: RandomNumberGenerator) -> void:
+## `keep` ≥ 0 keeps that prefix and rolls only the other slot (工程部Ⅴ,
+## 龙门币平衡与科研部策划案).
+static func reforge(item: Item, rng: RandomNumberGenerator, keep: int = -1) -> void:
 	if not eligible_item(item): return
-	item.prefixes = roll_set(item, item.origin_region, item.grade >= TOP_GRADE, rng)
+	if keep < 0 or keep >= item.prefixes.size():
+		item.prefixes = roll_set(item, item.origin_region, item.grade >= TOP_GRADE, rng)
+	else:
+		var kept: Dictionary = item.prefixes[keep]
+		var other := roll_one(item, item.origin_region, item.grade >= TOP_GRADE, [str(kept.id)], rng)
+		item.prefixes = [kept] if other.is_empty() else [kept, roll_entry(other, rng)]
+		if item.prefixes.size() == 2 and int(all()[str(item.prefixes[1].id)].grade) > int(all()[str(kept.id)].grade): item.prefixes.reverse()
 	refresh_value(item)
 
 # --- Reading ----------------------------------------------------------------------
@@ -347,13 +362,25 @@ static func value_of(entry: Dictionary, key: String) -> float:
 	var base := float(e.stats.get(key, e.fx.get(key, 0.0)))
 	return base * float(entry.rolls.get(key, 1.0))
 
+## What a prefix's stat line is multiplied by on `item`: weapon 1.6, chest
+## and amulet 1.5, the small pieces the table (前缀放大与特效阶等案 §2), and
+## for flat DEF the tier's flat growth. Aspd and RES are shares already.
+static func stat_scale(item: Item, key: String) -> float:
+	var scale := 1.0
+	if item.category == Item.Category.WEAPON: scale = WEAPON_SCALE
+	elif item.category in BIG_SLOTS: scale = BIG_SCALE
+	if key == "def": scale *= Scaling.flat_scale(item.grade)
+	return scale
+
 ## Everything an item's prefixes add to the sheet.
 static func stats_of(item: Item) -> Dictionary:
 	var sheet := {}
 	for entry in item.prefixes:
 		var e := get_entry(str(entry.id))
 		if e.is_empty(): continue
-		for key in e.stats: sheet[key] = float(sheet.get(key, 0.0)) + value_of(entry, key)
+		# Flat DEF grows with the item's tier like every flat affix (复利数值改造清单 C);
+		# the slot sets the size (前缀放大与特效阶等案 §2).
+		for key in e.stats: sheet[key] = float(sheet.get(key, 0.0)) + value_of(entry, key) * stat_scale(item, key)
 	return sheet
 
 static func fx_of(item: Item) -> Dictionary:
@@ -385,24 +412,23 @@ static func format_value(key: String, value: float) -> String:
 
 ## One line, "攻击力 +6%" or an fx sentence.
 static func line_text(key: String, value: float) -> String:
-	if FX_TEXT.has(key):
-		var text: String = FX_TEXT[key]
-		if key == "fickle": return text
-		var shown := format_value(key, value).trim_prefix("+")
-		return text % shown if key == "idle_regen" else text % format_value(key, value)
+	if FX_TEXT.has(key): return str(FX_TEXT[key]) % format_value(key, value)
 	return "%s %s" % [LABELS.get(key, key), format_value(key, value)]
 
 ## Every line of one prefix: [text, range text] pairs (range for Alt).
-static func lines_of(entry: Dictionary) -> Array:
+## With `item`, flat DEF shows at its tier's size (清单 C).
+static func lines_of(entry: Dictionary, item: Item = null) -> Array:
 	var e := get_entry(str(entry.id))
 	var out: Array = []
+	# A family prefix reads as its family; the tooltip lists its 阶等 below.
+	if not str(e.get("family", "")).is_empty():
+		out.append([str(PrefixFamilies.FAMILIES[e.family].name), ""])
+		return out
 	for key in e.stats:
-		var base := float(e.stats[key])
-		out.append([line_text(key, value_of(entry, key)), "（范围 %s ~ %s）" % _ends(key, base)])
+		var scale := stat_scale(item, key) if item != null else 1.0
+		var base := float(e.stats[key]) * scale
+		out.append([line_text(key, value_of(entry, key) * scale), "（范围 %s ~ %s）" % _ends(key, base)])
 	for key in e.fx:
-		if key == "fickle":
-			out.append([line_text(key, 0.0), ""])
-			continue
 		var base := float(e.fx[key])
 		out.append([line_text(key, value_of(entry, key)), "（范围 %s ~ %s）" % _ends(key, base)])
 	return out
@@ -428,7 +454,7 @@ static func roll_quality(item: Item) -> float:
 	var total := 0.0
 	var count := 0
 	if item.power_mid > 0.0:
-		total += clampf((item.power / item.power_mid - Item.POWER_LOW) / (Item.POWER_HIGH - Item.POWER_LOW), 0.0, 1.0)
+		total += item.power_position()
 		count += 1
 	for mod in item.modifiers:
 		if mod.is_rollable():
@@ -469,7 +495,7 @@ static func line_label(item: Item, line: Array) -> String:
 		"power":
 			var parts: Array[String] = []
 			var names := {"atk": "攻击力", "hp": "生命", "def": "防御", "arts": "法术攻击力", "stamina_regen": "体力回复"}
-			var base := CombatStats.power_stats(item.category, item.power)
+			var base := CombatStats.item_stats(item)
 			for key in base: parts.append("%s +%d" % [names[key], roundi(base[key])])
 			return " / ".join(parts)
 		"mod": return item.modifiers[int(line[1])].describe()
@@ -478,7 +504,9 @@ static func line_label(item: Item, line: Array) -> String:
 
 static func reroll_line(item: Item, line: Array, rng: RandomNumberGenerator) -> void:
 	match str(line[0]):
-		"power": item.power = item.power_mid * rng.randf_range(Item.POWER_LOW, Item.POWER_HIGH)
+		"power":
+			var r := item.power_range()
+			item.power = rng.randf_range(float(r[0]), float(r[1]))
 		"mod": item.modifiers[int(line[1])].reroll(rng)
 		"prefix": item.prefixes[int(line[1])].rolls[str(line[2])] = rng.randf_range(ROLL_LOW, ROLL_HIGH)
 	refresh_value(item)

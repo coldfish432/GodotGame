@@ -42,10 +42,12 @@ const HOUSE_SIGHT := {
 }
 ## Warm plaster under the night (§2.1.4: 暖为主): cream and terracotta for
 ## the Saluzzo, sand and ochre for the Rossetti, the Bellone's faded grey.
+## 改造案 v1.1 §2: nearer neutral, so the faded roofs stay faded and the
+## sandstone stays sand.
 const FAMILY_TINTS := {
-	"saluzzo": [Color(1.3, 1.02, 0.82), Color(1.24, 0.92, 0.76), Color(1.34, 1.14, 0.92)],
-	"rossetti": [Color(1.28, 1.14, 0.84), Color(1.2, 1.06, 0.8), Color(1.34, 1.22, 0.96)],
-	"bellone": [Color(1.02, 0.96, 0.86), Color(0.94, 0.9, 0.84), Color(1.08, 0.98, 0.86)],
+	"saluzzo": [Color(1.14, 1.02, 0.92), Color(1.1, 0.98, 0.9), Color(1.16, 1.08, 0.98)],
+	"rossetti": [Color(1.12, 1.06, 0.92), Color(1.08, 1.02, 0.9), Color(1.16, 1.1, 1.0)],
+	"bellone": [Color(1.0, 0.96, 0.9), Color(0.94, 0.92, 0.88), Color(1.04, 0.98, 0.9)],
 }
 ## The paving per turf (TerrainSurface reads it; FieldArt divides by 0.3):
 ## a tint over the paving texture (0.3 is neutral), a little warmer or
@@ -77,12 +79,14 @@ var gate_points: Array[Vector2] = []
 func build(world: Node3D, parent: Node3D) -> void:
 	map = world
 	rng.seed = map.seed_value ^ 0x51ac
+	look_rng.seed = map.seed_value ^ 0x10e7
 	root = Node3D.new()
 	root.name = "SiracusaDressing"
 	parent.add_child(root)
 	_place_landmark_fronts()
 	_place_mansion_gates()
-	map.mark("  siracusa: landmarks + mansions")
+	_place_bell_tower()
+	map.mark("  siracusa: landmarks + mansions + bell tower")
 	_place_frontage()
 	map.mark("  siracusa: lane fronts")
 	_place_buildings()
@@ -93,6 +97,9 @@ func build(world: Node3D, parent: Node3D) -> void:
 	_place_banners()
 	_place_lanterns()
 	map.mark("  siracusa: barricades, fountains, banners, lanterns")
+	_place_arch_houses()
+	_place_lines()
+	map.mark("  siracusa: arches, string lights, laundry")
 	for path in transforms:
 		_add_set(String(path).get_file().get_basename(), TerraceDressing.kit_mesh(load(path)), transforms[path])
 	map.mark("  siracusa: multimeshes")
@@ -132,7 +139,7 @@ func _front_piece(name: String, base: Vector2, along: Vector2, axis: Vector2, u:
 func _barricade_piece(_piece: int) -> String:
 	return ""
 
-func _add(name: String, placed: Transform3D) -> void:
+func _add(name: String, placed: Transform3D, _barricade := false) -> void:
 	if name.is_empty():
 		_barrels(Vector2(placed.origin.x, placed.origin.z), placed.origin.y)
 		return
@@ -397,3 +404,246 @@ func _place_lanterns() -> void:
 		var path := LANTERN
 		if not transforms.has(path): transforms[path] = [] as Array[Transform3D]
 		(transforms[path] as Array[Transform3D]).append_array(mesh_points)
+
+# --- Dusk dressing (龙门城区与叙拉古地图改造案 v1.1 §2) ----------------------------
+# The plan stays as it was: the bell tower and the arched houses take slots the
+# landmarks, gateways and houses already use, and everything here draws on
+# look_rng, so what collides is placed as before.
+
+## 钟楼: one a floor, a square tower with an arched belfry, the tallest piece
+## on the floor (art/kit/siracusa_bell_tower.glb), on the rock behind a
+## piazza's north edge, facing the camera across it. Placed before the house
+## fronts, which keep off it; well away from the way down so it does not point
+## there. Where the camera's sight over it cannot be had it is still placed,
+## at the spot that hides least: a landmark may hide her (改造案 §3).
+const BELL_TOWER := "siracusa_bell_tower"
+const BELL_TOWER_CLEAR := 35.0
+const BELL_LIGHT := Color(1.0, 0.78, 0.5) * 0.8
+var bell_tower_count := 0
+var bell_tower_point := Vector2.INF
+
+func _place_bell_tower() -> void:
+	var exit := Vector2.INF
+	if is_instance_valid(map.exit_node): exit = Vector2(map.exit_node.position.x, map.exit_node.position.z)
+	var rooms: Array[int] = []
+	for i in range(1, map._open_circles.size()):
+		var room: Vector3 = map._open_circles[i]
+		if room.z < 6.0 or map.is_mansion(i) or not map.landmark_of(i).is_empty(): continue
+		if exit != Vector2.INF and Vector2(room.x, room.y).distance_to(exit) < BELL_TOWER_CLEAR: continue
+		rooms.append(i)
+	for i in range(rooms.size() - 1, 0, -1):
+		var j := look_rng.randi_range(0, i)
+		var swap := rooms[i]
+		rooms[i] = rooms[j]
+		rooms[j] = swap
+	var box := _bounds_of(BELL_TOWER)
+	var half := box.size.x * 0.5
+	var best := {}
+	for room_index in rooms:
+		var room: Vector3 = map._open_circles[room_index]
+		var centre := Vector2(room.x, room.y)
+		for fx in [-0.55, 0.55, -0.25, 0.25]:
+			# North from the piazza to its edge, then the tower behind it.
+			var p := centre + Vector2(room.z * fx, 0.0)
+			var t := 0.0
+			while t < room.z * 1.6 and map._surface.distance_near(p + Vector2(0, t)) >= -0.3: t += 0.25
+			if t >= room.z * 1.6: continue
+			var rect := Rect2(Vector2(p.x - half, p.y + t + 0.3), Vector2(half * 2.0, box.size.z))
+			if _taken(rect.grow(0.4)) or _marker_in(rect.grow(1.0)): continue
+			var on_rock := true
+			for c in [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y), rect.get_center()]:
+				if map._surface.distance_near(c) > -0.2: on_rock = false
+			if not on_rock: continue
+			var north := 99.0
+			for f in [0.1, 0.5, 0.9]:
+				north = minf(north, _open_north(Vector2(lerpf(rect.position.x, rect.end.x, f), rect.end.y + 0.05), 30.0))
+			var hidden := box.size.y * SIGHT - north
+			if best.is_empty() or hidden < float(best.hidden): best = {"rect": rect, "hidden": hidden}
+			if hidden <= 0.0: break
+		if not best.is_empty() and float(best.hidden) <= 0.0: break
+	if best.is_empty(): return
+	var rect: Rect2 = best.rect
+	_occupy(rect)
+	var at := rect.get_center()
+	var base: float = map._surface.top_at(at) - 0.25
+	for c in [rect.position, rect.end]: base = minf(base, map._surface.top_at(c) - 0.25)
+	# The model's footprint centred on `at`, its front (+Z) turned south.
+	var yaw := Basis(Vector3.UP, PI)
+	var centre: Vector3 = yaw * Vector3(box.position.x + box.size.x * 0.5, 0.0, box.position.z + box.size.z * 0.5)
+	_add(BELL_TOWER, Transform3D(yaw, Vector3(at.x - centre.x, base, at.y - centre.z)))
+	# Its belfry lit, and a lantern at its door.
+	lamps.append({"at": Vector3(at.x, base + box.size.y * 0.78, rect.position.y - 0.6), "color": BELL_LIGHT, "radius": 7.0})
+	lamps.append({"at": Vector3(at.x, map.ground_height(Vector2(at.x, rect.position.y - 1.0)) + 2.6, rect.position.y - 1.2), "color": LANTERN_LIGHT, "radius": 5.0})
+	bell_tower_point = at
+	bell_tower_count += 1
+	landmark_count += 1
+	landmark_points.append(at)
+
+## 拱门过街楼: a house built over her lane, the lane through a stone arch under
+## it with a wall lamp inside (art/kit/siracusa_arch_house.glb, its arch
+## ARCH_OPENING wide along x, stretched to the lane). 1–2 a floor, where the
+## lane runs between houses on both sides; not by a gateway, a marker or the
+## way down. The arch is no longer than the houses beside it.
+const ARCH_HOUSE := "siracusa_arch_house"
+const ARCH_OPENING := 6.0
+const ARCH_COUNT := Vector2i(1, 2)
+const ARCH_REACH := 5.0
+var arch_count := 0
+var arch_points: Array[Vector2] = []
+
+func _place_arch_houses() -> void:
+	var exit := Vector2.INF
+	if is_instance_valid(map.exit_node): exit = Vector2(map.exit_node.position.x, map.exit_node.position.z)
+	var found: Array[Dictionary] = []
+	var loose: Array[Dictionary] = []
+	for index in range(map._links.size()):
+		var link: Dictionary = map._links[index]
+		if not link.alive: continue
+		var line: PackedVector2Array = map._link_points(index)
+		for k in range(line.size() - 1):
+			var a := line[k]
+			var b := line[k + 1]
+			var length := a.distance_to(b)
+			if length < 6.0: continue
+			var heading := (b - a) / length
+			var across := heading.orthogonal()
+			for f in [0.25, 0.4, 0.55, 0.7]:
+				var mid := a.lerp(b, f)
+				if map._surface.distance_near(mid) < 1.0: continue
+				if _near_marker(mid, 7.0) or _near_any(gate_points, mid, 10.0) or _near_any(landmark_points, mid, 12.0): continue
+				if exit != Vector2.INF and mid.distance_to(exit) < 25.0: continue
+				if mid.distance_to(Vector2(ContinuousWorldMap.ENTRY_POSITION.x, ContinuousWorldMap.ENTRY_POSITION.z)) < 20.0: continue
+				# Houses either side of it first; failing those, any walls.
+				var walls := _walls_across(mid, across, ARCH_REACH, heading, 0.8)
+				var into := found
+				if walls.is_empty():
+					walls = _walls_across(mid, across, ARCH_REACH, heading, 0.0, false)
+					into = loose
+				if walls.is_empty(): continue
+				into.append({"at": mid + across * (walls[1] - walls[0]) * 0.5, "across": across, "heading": heading, "span": walls[0] + walls[1]})
+	_shuffle_with(found, look_rng)
+	_shuffle_with(loose, look_rng)
+	found.append_array(loose)
+	var want := look_rng.randi_range(ARCH_COUNT.x, ARCH_COUNT.y)
+	for spot in found:
+		if arch_count >= want: break
+		var at: Vector2 = spot.at
+		if _near_any(arch_points, at, 30.0): continue
+		var across: Vector2 = spot.across
+		var ground: float = map.ground_height(at)
+		var turn := Basis(Vector3.UP, atan2(-across.y, across.x)) * Basis.from_scale(Vector3(float(spot.span) / ARCH_OPENING, 1.0, 1.0))
+		_add(ARCH_HOUSE, Transform3D(turn, Vector3(at.x, ground - 0.02, at.y)))
+		lamps.append({"at": Vector3(at.x, ground + 3.0, at.y), "color": LANTERN_LIGHT, "radius": 4.5})
+		arch_points.append(at)
+		arch_count += 1
+
+## How far from `at` the lane's walls are either way along `across` (each
+## within `reach`), with a house behind each (unless not `housed`), `depth`
+## along `heading` either side of the line; empty when not.
+func _walls_across(at: Vector2, across: Vector2, reach_limit: float, heading: Vector2, depth: float, housed := true) -> Array[float]:
+	var walls: Array[float] = []
+	for side in [-1.0, 1.0]:
+		var reach := 0.0
+		while reach < reach_limit and map._surface.distance_near(at + across * side * reach) >= 0.0: reach += 0.25
+		var wall: Vector2 = at + across * side * (reach + 0.8)
+		if reach >= reach_limit: return [] as Array[float]
+		if housed and (not _covered(wall + heading * depth) or not _covered(wall - heading * depth)): return [] as Array[float]
+		walls.append(reach)
+	return walls
+
+## Over her lanes, between the houses either side (改造案 §2): strings of warm
+## bulbs (every other bulb a small light) and laundry lines.
+const STRING_GAP := Vector2(9.0, 13.0)
+const STRING_SHARE := 0.6
+const LAUNDRY_LINE_SHARE := 0.45
+const BULB_LIGHT := Color(1.0, 0.76, 0.42) * 0.5
+const BULB_COLOUR := Color(1.0, 0.8, 0.5)
+var string_count := 0
+var bulb_count := 0
+var line_count := 0
+
+func _place_lines() -> void:
+	var wire := SurfaceTool.new()
+	wire.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var bulbs := SurfaceTool.new()
+	bulbs.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var laundry := SurfaceTool.new()
+	laundry.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var taken: Array[Vector2] = []
+	for index in range(map._links.size()):
+		var link: Dictionary = map._links[index]
+		if not link.alive: continue
+		var line: PackedVector2Array = map._link_points(index)
+		for k in range(line.size() - 1):
+			var a := line[k]
+			var b := line[k + 1]
+			var length := a.distance_to(b)
+			if length < 4.0: continue
+			var heading := (b - a) / length
+			var across := heading.orthogonal()
+			var t := look_rng.randf_range(2.0, 6.0)
+			while t < length - 1.5:
+				var centre := a + heading * t
+				t += look_rng.randf_range(STRING_GAP.x, STRING_GAP.y)
+				if _near_any(taken, centre, 6.0) or _near_any(arch_points, centre, 6.0) or _near_any(gate_points, centre, 4.0): continue
+				var walls := _walls_across(centre, across, 8.0, heading, 0.0, false)
+				if walls.is_empty(): continue
+				var from := centre - across * (walls[0] + 0.3)
+				var to := centre + across * (walls[1] + 0.3)
+				var ground: float = map.ground_height(centre)
+				var roll := look_rng.randf()
+				if roll < STRING_SHARE:
+					var h := ground + look_rng.randf_range(4.8, 5.6)
+					var sag := look_rng.randf_range(0.4, 0.7)
+					_cable(wire, from, h, to, h, sag)
+					var count := look_rng.randi_range(5, 8)
+					for n in range(count):
+						var f := (n + 0.5) / count
+						var p := from.lerp(to, f)
+						var y := h - sag * 4.0 * f * (1.0 - f) - 0.12
+						_bulb(bulbs, Vector3(p.x, y, p.y), 0.09)
+						if n % 2 == 1: lamps.append({"at": Vector3(p.x, y - 0.2, p.y), "color": BULB_LIGHT, "radius": 3.0})
+						bulb_count += 1
+					string_count += 1
+				elif roll < STRING_SHARE + (1.0 - STRING_SHARE) * LAUNDRY_LINE_SHARE:
+					var h := ground + look_rng.randf_range(4.2, 5.0)
+					_cable(wire, from, h, to, h, 0.3)
+					_laundry(laundry, from, to, h, 0.3)
+					line_count += 1
+				else: continue
+				taken.append(centre)
+	if line_count > 0: _add_laundry_mesh(laundry, "Laundry")
+	var mesh := wire.commit()
+	if mesh != null and mesh.get_surface_count() > 0:
+		var instance := MeshInstance3D.new()
+		instance.name = "Lines"
+		instance.mesh = mesh
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.albedo_color = CABLE_COLOUR
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		instance.material_override = material
+		root.add_child(instance)
+	bulbs.generate_normals()
+	var lit := bulbs.commit()
+	if lit != null and lit.get_surface_count() > 0:
+		var instance := MeshInstance3D.new()
+		instance.name = "StringLights"
+		instance.mesh = lit
+		var material := StandardMaterial3D.new()
+		material.albedo_color = BULB_COLOUR
+		material.emission_enabled = true
+		material.emission = BULB_COLOUR
+		material.emission_energy_multiplier = 3.0
+		instance.material_override = material
+		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(instance)
+
+## A small bulb: a diamond of eight faces round `p`.
+func _bulb(tool: SurfaceTool, p: Vector3, r: float) -> void:
+	var tips := [Vector3(r, 0, 0), Vector3(0, 0, r), Vector3(-r, 0, 0), Vector3(0, 0, -r)]
+	for i in range(4):
+		var a: Vector3 = p + tips[i]
+		var b: Vector3 = p + tips[(i + 1) % 4]
+		for v in [p + Vector3(0, r * 1.3, 0), b, a, p - Vector3(0, r * 1.3, 0), a, b]:
+			tool.add_vertex(v)

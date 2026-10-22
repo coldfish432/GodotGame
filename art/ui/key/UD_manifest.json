@@ -1,0 +1,110 @@
+{
+  "batch": "UD_v1",
+  "files": [
+    {
+      "id": "title",
+      "name": "标题：罗德岛陆行舰",
+      "kind": "UD",
+      "file": "art/ui/key/title.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7d4f963b836dd51519c6f809c9d1676829621495888cfba05660b062af8e8044",
+      "source": "source_paintings/title.png",
+      "source_sha256": "4b9b23db43032ff6faecfbddadc8d9d4b4919302cc33fe68ef007471c91e8eb7",
+      "source_crop": [
+        0,
+        0,
+        1672,
+        940
+      ],
+      "brightness_multiplier": 1.0,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_mine",
+      "name": "切尔诺伯格矿区",
+      "kind": "UD",
+      "file": "art/ui/key/load_mine.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "cfc14c777f089fa49e1749cb8946439a8a82b3ab6735bfdf7587a9af229ee331",
+      "source": "source_paintings/load_mine.png",
+      "source_sha256": "0e53689078385d109d5e678b04c440680db249a5141a77ef06882e0e26dd2203",
+      "source_crop": [
+        0,
+        96,
+        2048,
+        672
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_city",
+      "name": "龙门下城区",
+      "kind": "UD",
+      "file": "art/ui/key/load_city.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "25f38f492cb245b97f574d42284ffc6afc6ed6ce32c8851980d7eebfd792ff2a",
+      "source": "source_paintings/load_city.png",
+      "source_sha256": "2289a8c2febd7c609a489342892fa9bb9e75a449f5c2f3893dfb4cfe4826e909",
+      "source_crop": [
+        0,
+        117,
+        1983,
+        675
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_snow",
+      "name": "萨米雪原",
+      "kind": "UD",
+      "file": "art/ui/key/load_snow.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "687190791106cd62d2f838f193291a05a461bd3b00667aab80da237038e574b4",
+      "source": "source_paintings/load_snow.png",
+      "source_sha256": "015628e97aa65839e175aaecd83a206c849d15547b8f371ad2184cb4bcf25176",
+      "source_crop": [
+        0,
+        0,
+        2048,
+        576
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_siracusa",
+      "name": "叙拉古旧城区",
+      "kind": "UD",
+      "file": "art/ui/key/load_siracusa.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "de4d657aa1ceb586a31cac530ad51d0c0723da8237d5ba0e5be94e763b82d342",
+      "source": "source_paintings/load_siracusa.png",
+      "source_sha256": "7842033f81f7f0fb004a8d5273929aad08cce7df21085fbe9d7c4924b1af49a5",
+      "source_crop": [
+        0,
+        0,
+        1983,
+        558
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    }
+  ]
+}

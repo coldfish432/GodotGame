@@ -34,6 +34,14 @@ func _ready() -> void:
 		EnemyAttackVfx.stroke(self, -direction * 5 * pixel, -direction * 2 * pixel, pixel, Color("eef6ff"))
 		EnemyAttackVfx.part(self, -direction * 4 * pixel + Vector3.UP * pixel, Vector3.ONE * pixel, Color("eef6ff"))
 		EnemyAttackVfx.part(self, -direction * 4 * pixel + Vector3.DOWN * pixel, Vector3.ONE * pixel, Color("eef6ff"))
+	elif kind == "sand_orb":
+		# “鼠王”'s 沙弹 (用户 2026-10-20): a ball of sand, darker rim round a pale
+		# core, shedding grains behind it.
+		EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * 5 * pixel, Color("a8843c"))
+		EnemyAttackVfx.part(self, Vector3.UP * 0.5 * pixel, Vector3.ONE * 3 * pixel + Vector3(0, 0, 2.2 * pixel), Color("f0dc98"))
+		for i in range(4):
+			var back := -direction * (4 + i * 2) * pixel + Vector3.UP * (pixel if i % 2 else -pixel)
+			EnemyAttackVfx.part(self, back, Vector3.ONE * (2 - i * 0.4) * pixel, Color("d8b060"))
 	elif kind == "bullet":
 		EnemyAttackVfx.stroke(self, -direction * 8 * pixel, Vector3.ZERO, pixel, Color("f4f6f4"))
 	else:
@@ -59,8 +67,11 @@ func _physics_process(delta: float) -> void:
 			var player := Vector2(game.player.global_position.x, game.player.global_position.z)
 			if Geometry2D.get_closest_point_to_segment(player, a, b).distance_to(player) <= hit_radius:
 				# An arts caster's orb is arts damage; arrows and bullets physical.
-				var damage_kind := "arts" if arts else (shooter.damage_kind if is_instance_valid(shooter) and kind == "ice_orb" else "phys")
+				var damage_kind := "arts" if arts else (shooter.damage_kind if is_instance_valid(shooter) and kind in ["ice_orb", "sand_orb"] else "phys")
+				var before: float = game.player.hp
 				game.player.take_damage(damage, damage_kind, shooter if is_instance_valid(shooter) else null)
+				# A boss's shot carries its own after-effect (cold, 特种弹's armour cut).
+				if is_instance_valid(shooter) and shooter.has_method("on_shot_hit"): shooter.on_shot_hit(self, game.player.hp < before)
 				queue_free()
 				return
 		global_position = next

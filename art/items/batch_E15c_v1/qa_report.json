@@ -1,0 +1,514 @@
+{
+  "scope": "static files and review sheets; no engine acceptance",
+  "runtime_verified": false,
+  "expected_count": 19,
+  "actual_count": 19,
+  "missing": [],
+  "items": [
+    {
+      "id": "snow_head_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.5897,
+      "isolated_fraction": 0.123,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        8,
+        7,
+        64,
+        65
+      ]
+    },
+    {
+      "id": "snow_head_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 9,
+      "bright_fraction": 0.1527,
+      "isolated_fraction": 0.0532,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        12,
+        7,
+        59,
+        65
+      ]
+    },
+    {
+      "id": "snow_head_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.4374,
+      "isolated_fraction": 0.2339,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        8,
+        7,
+        63,
+        65
+      ]
+    },
+    {
+      "id": "snow_hands_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2919,
+      "isolated_fraction": 0.2176,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        13,
+        65,
+        58
+      ]
+    },
+    {
+      "id": "snow_hands_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.2114,
+      "isolated_fraction": 0.0762,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        13,
+        65,
+        58
+      ]
+    },
+    {
+      "id": "snow_hands_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 9,
+      "bright_fraction": 0.1721,
+      "isolated_fraction": 0.0885,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        8,
+        65,
+        63
+      ]
+    },
+    {
+      "id": "snow_hands_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.3264,
+      "isolated_fraction": 0.3145,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        16,
+        65,
+        55
+      ]
+    },
+    {
+      "id": "snow_legs_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.3115,
+      "isolated_fraction": 0.0494,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        12,
+        5,
+        60,
+        66
+      ]
+    },
+    {
+      "id": "snow_legs_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 6,
+      "bright_fraction": 0.29,
+      "isolated_fraction": 0.0823,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        17,
+        5,
+        54,
+        66
+      ]
+    },
+    {
+      "id": "snow_legs_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 9,
+      "bright_fraction": 0.1851,
+      "isolated_fraction": 0.0612,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        15,
+        5,
+        57,
+        66
+      ]
+    },
+    {
+      "id": "snow_legs_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 8,
+      "bright_fraction": 0.2046,
+      "isolated_fraction": 0.0745,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        14,
+        5,
+        58,
+        66
+      ]
+    },
+    {
+      "id": "snow_feet_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.361,
+      "isolated_fraction": 0.1719,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        13,
+        65,
+        59
+      ]
+    },
+    {
+      "id": "snow_feet_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2886,
+      "isolated_fraction": 0.39,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        14,
+        65,
+        57
+      ]
+    },
+    {
+      "id": "snow_feet_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.161,
+      "isolated_fraction": 0.2121,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        8,
+        65,
+        63
+      ]
+    },
+    {
+      "id": "snow_feet_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2128,
+      "isolated_fraction": 0.3485,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        11,
+        65,
+        61
+      ]
+    },
+    {
+      "id": "snow_ring_1",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.3851,
+      "isolated_fraction": 0.1713,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        29,
+        29
+      ]
+    },
+    {
+      "id": "snow_ring_2",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2692,
+      "isolated_fraction": 0.2849,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        29,
+        29
+      ]
+    },
+    {
+      "id": "snow_ring_3",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 23,
+      "bright_fraction": 0.3397,
+      "isolated_fraction": 0.2803,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        28,
+        29
+      ]
+    },
+    {
+      "id": "snow_ring_4",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "bright_ge15pct": true,
+        "outline": true,
+        "padding": true,
+        "cloth_noise_le10pct": true,
+        "source_hash": true,
+        "output_hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.3648,
+      "isolated_fraction": 0.3118,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        2,
+        2,
+        29,
+        29
+      ]
+    }
+  ],
+  "emit": [
+    {
+      "id": "snow_ring_3",
+      "pixels": 16,
+      "nonempty": true,
+      "same_rgb_as_base": true,
+      "localized": true,
+      "binary_alpha": true
+    }
+  ],
+  "pass": true
+}

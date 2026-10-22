@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "default_function_comparisons": 256,
+  "methods": [
+    "MEDIANCUT",
+    "FASTOCTREE"
+  ],
+  "oversized_B1_pose_rejected": true,
+  "scope": "default/non-B1 bake_cell is pixel-identical on256 samples; B1 explicitly enables transparent-border crop and translation clamp; no sprite resizing"
+}

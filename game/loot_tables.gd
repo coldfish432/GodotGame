@@ -38,21 +38,23 @@ const ENEMY_SOURCE := {
 	"elite": {"picks": 2, "weights": [15.0, 47.0, 18.0, 35.0]},
 }
 ## 用户 2026-10-14: 敌人概率掉落治疗球立即回复血量，小概率掉治疗药水. Per source:
-## the chance of healing orbs (HealOrb), how many, and the share of her life
-## each gives back; and the chance of a 标准急救剂 in the drop.
+## the chance of healing orbs (HealOrb), how many, and what each gives back; and the chance of a 标准急救剂 in the drop.
 ## 用户 2026-10-17: 治疗球让压力降得太多 — with 1.5× the enemies, about 3/4 of
 ## the old orbs per floor (elites half), and about as many flasks as before.
+## 复利数值改造清单 E: each orb heals a fixed amount × the floor's 档位系数 (the
+## old shares of a 2400 life), no longer a share of her life.
 const HEAL_ORBS := {
-	"normal": {"chance": 0.12, "count": 1, "heal": 0.1},
-	"guard": {"chance": 0.18, "count": 1, "heal": 0.12},
-	"elite": {"chance": 0.5, "count": 1, "heal": 0.15},
+	"normal": {"chance": 0.12, "count": 1, "heal": 240.0},
+	"guard": {"chance": 0.18, "count": 1, "heal": 290.0},
+	"elite": {"chance": 0.5, "count": 1, "heal": 360.0},
 }
 const POTION_DROP := {"normal": 0.02, "guard": 0.035, "elite": 0.1}
 
 static func source_of(elite: bool, guard: bool) -> String:
 	return "elite" if elite else ("guard" if guard else "normal")
 ## Equipment category weights for enemy drops: weapon / armour / trinket.
-const ENEMY_GEAR_WEIGHTS := [6.0, 1.0, 1.0]
+## Which slot an enemy's gear is: GearSlots.DROP_WEIGHTS (装备部位拆分与数值案 §6);
+## the old weapon : armour : trinket = 6 : 1 : 1 is gone with the three slots.
 const ENEMY_GOLD := {"normal": [8, 14], "guard": [8, 14], "elite": [25, 40]}
 
 # --- Equipment quality (§3.2, §4.1): common / fine / rare weights ------------
@@ -139,13 +141,16 @@ static func past_top(depth: int) -> float:
 	var beyond := float(maxi(0, depth - top_floor()))
 	return beyond / (beyond + GOOD_PREFIX_HALF)
 
+## Research hook (课题"深层勘测"): extra steps on the stair, 0 otherwise.
+static var stair_bonus := 0
+
 static func stair(depth: int) -> int:
 	if Progression.block(depth) >= STAIR_BLOCKS: return STAIR_TOP
 	var block := Progression.block(depth)
 	var place := (maxi(depth, 1) - 1) % FieldCatalog.DEPTH_CYCLE + 1
 	var step := 0
 	while place > int(STAIR_STEP_ENDS[step]): step += 1
-	return mini(block * STAIR_STEP_ENDS.size() + step, STAIR_TOP)
+	return mini(block * STAIR_STEP_ENDS.size() + step + stair_bonus, STAIR_TOP)
 
 ## 0 on floors 1–3, 1 from floor 40 on.
 static func deep(depth: int) -> float:
@@ -181,41 +186,44 @@ static func _scale_rare(weights: Array, scale: float) -> Array:
 ## Quality on floor `depth`: the table's weights moved along the stair, then
 ## the rare weight gets `rare_bonus` × 100 points (route reward, guards, pity).
 static func roll_quality(table: String, rare_bonus: float, rng: RandomNumberGenerator, depth: int = 1) -> int:
+	# White / blue / gold move along the shared S curve (复利数值改造清单 B):
+	# slow to floor 30, steep around 35–60, flat from 70; same end as before.
 	var weights: Array = QUALITY[table].duplicate()
-	var d := deep(depth)
-	for i in range(3): weights[i] = float(weights[i]) * lerpf(1.0, float(DEEP_QUALITY[i]), d)
-	weights[2] = float(weights[2]) * lerpf(1.0, RARE_TOP_QUALITY / float(DEEP_QUALITY[2]), rare_reach(depth))
+	var s := Scaling.s_curve(depth)
+	for i in range(2): weights[i] = float(weights[i]) * lerpf(1.0, float(DEEP_QUALITY[i]), s)
+	weights[2] = float(weights[2]) * lerpf(1.0, RARE_TOP_QUALITY, s)
 	weights[2] = float(weights[2]) + maxf(rare_bonus, 0.0) * 100.0
 	return _pick_weighted(_scale_rare(weights, RARE_SCALE), rng)
 
-## One piece of equipment. Affix tiers are capped by depth (§5): Ⅲ from segment 3.
-## Every number rolls inside its range (装备前缀策划案 §2.8) and the piece gets
-## its prefixes last (§2.3).
+## One piece of equipment. Its panel and every affix roll inside its rarity's
+## band on the floor's tier (复利数值改造清单 B), and it gets its prefixes last
+## (装备前缀策划案 §2.3).
 static func roll_equipment(category: int, title: String, region: String, depth: int, rarity: int, rng: RandomNumberGenerator) -> Item:
-	var size := Vector2i(2, 1) if category == Item.Category.WEAPON else (Vector2i(2, 2) if category == Item.Category.ARMOR else Vector2i(1, 1))
-	var item := Item.create(title, category as Item.Category, size.x, size.y, 1.5 + depth * 0.3)
+	category = Item.slot_of(category)
+	var size := GearSlots.size(category)
+	# The floor's ten-floor tier fixes the range; the rarity's band and the
+	# floor's roll exponent place it inside (复利数值改造清单 B).
+	var tier := Scaling.tier_of(depth)
+	var item := Item.create(title, category as Item.Category, size.x, size.y, Scaling.gear_power(tier, rarity, Scaling.roll_position(depth, rng)))
 	item.origin_region = region
 	item.rarity = rarity
-	item.power *= 1.0 + item.rarity * 0.3
+	item.grade = tier
 	item.value = (10 + depth * 4) * (1 + item.rarity)
+	if Item.is_jewel_slot(category): item.atk_share = Item.roll_atk_share(rng)
 	var possible: Array = FieldCatalog.AFFIX_POOLS[category].duplicate()
 	var wave_slot := category == Item.Category.WEAPON and item.rarity >= 1 and rng.randf() < FieldCatalog.SWORD_WAVE_CHANCE
 	if wave_slot: item.modifiers.append(ItemModifier.roll_skill_boost(rng))
-	var tier_cap := 2 if depth >= 3 else 1
 	for i in range(item.rarity - (1 if wave_slot else 0)):
 		var index := rng.randi_range(0, possible.size() - 1)
 		var stat: int = possible[index]
 		possible.remove_at(index)
-		var tier := mini(FieldCatalog._roll_tier(item.rarity, rng), tier_cap)
-		item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, tier, rng))
+		item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, item.rarity, rng, Scaling.roll_position(depth, rng), tier, category))
+	item.power_mid = Scaling.gear_power(tier, rarity, 0.5)
 	# A base name gets the base's factor and intrinsic stats (装备策划案 §2.1).
 	var base_id := GearCatalog.id_for_name(title)
 	if not base_id.is_empty() and int(GearCatalog.BASES[base_id].category) == category:
 		GearCatalog.apply(item, base_id, rng)
-		# Grade T1–T6 (精英化与加点策划案 §7.1): its layer plus the ten-floor block.
-		item.grade = Progression.grade_for(int(GearCatalog.BASES[base_id].tier), depth)
-	item.power_mid = item.power
-	item.power *= rng.randf_range(Item.POWER_LOW, Item.POWER_HIGH)
+		item.power_mid *= float(GearCatalog.BASES[base_id].factor)
 	PrefixCatalog.roll_onto(item, region, depth, rng)
 	return item
 
@@ -232,7 +240,9 @@ static func _quality_with_pity(table: String, ctx: Dictionary, extra_bonus: floa
 
 ## One piece of ordinary gear from `table` (normal / guard / elite / box /
 ## vault); the base comes from GearCatalog (装备策划案 §2.3).
+## `category` may be a group (ARMOR / TRINKET), which picks one of its slots.
 static func _gear(category: int, enemy_type: String, table: String, ctx: Dictionary, extra_bonus: float, effective: bool) -> Item:
+	if category == Item.Category.ARMOR or category == Item.Category.TRINKET: category = GearSlots.roll(ctx.rng, category)
 	var rarity := _quality_with_pity(table, ctx, extra_bonus, effective)
 	var id := GearCatalog.pick(category, ctx.region, int(ctx.depth), table, enemy_type, ctx.rng)
 	return roll_equipment(category, GearCatalog.BASES[id].name, ctx.region, int(ctx.depth), rarity, ctx.rng)
@@ -297,10 +307,11 @@ static func _enemy_drops_rolled(enemy_type: String, elite: bool, guard: bool, ct
 	for entry in GROWTH_DROPS[growth_source]:
 		if rng.randf() < deeper(ctx, float(entry[1]), DEEP_GROWTH): out.append({"item": MaterialCatalog.create(entry[0], 1, ctx.region)})
 	# Enemy exclusives and set pieces (装备扩充策划案 §1.1).
-	if _rare(ctx, float(SpecialGear.EXCLUSIVE_CHANCE["boss" if boss else source]), DEEP_NAMED):
+	# A region boss's own chance by tier, a warden none (BossCatalog, GameManager.spawn_enemy_drops).
+	if _rare(ctx, float(ctx.get("exclusive_chance", SpecialGear.EXCLUSIVE_CHANCE["boss" if boss else source])), DEEP_NAMED):
 		var exclusive := SpecialGear.roll_exclusive(enemy_type, ctx.region, int(ctx.depth), rng, boss)
 		if exclusive != null: out.append({"item": exclusive})
-	var set_chance := deeper(ctx, float(SpecialGear.SET_CHANCE.get("boss" if boss else source, 0.0)), DEEP_NAMED) * RARE_SCALE
+	var set_chance := deeper(ctx, float(ctx.get("set_chance", SpecialGear.SET_CHANCE.get("boss" if boss else source, 0.0))), DEEP_NAMED) * RARE_SCALE
 	if set_chance > 0.0 and rng.randf() < set_chance:
 		var piece := SpecialGear.roll_set_piece(ctx.region, int(ctx.depth), rng, ctx.get("set_seen", {}), boss)
 		if piece != null: out.append({"item": piece})
@@ -310,6 +321,8 @@ static func _enemy_drops_rolled(enemy_type: String, elite: bool, guard: bool, ct
 		# Unarmed infected creatures carry no gear (掉落机制调研 §5.13).
 		weights[1] = float(weights[1]) + float(weights[3])
 		weights[3] = 0.0
+	# 装备掉率 (底材固有属性表 v1.0) raises the gear pick's weight only.
+	weights[3] = float(weights[3]) * (1.0 + float(ctx.get("drop_pct", 0.0)))
 	for pick in range(int(table.picks)):
 		match _pick_weighted(weights, rng):
 			1: out.append({"item": _enemy_material(enemy_type, ctx)})
@@ -317,16 +330,18 @@ static func _enemy_drops_rolled(enemy_type: String, elite: bool, guard: bool, ct
 				var gold: Array = ENEMY_GOLD[source]
 				out.append({"gold": roundi(_range(rng, gold[0], gold[1]) * (1.5 if ctx.region == "snow" else 1.0))})
 			3:
-				var category := _pick_weighted(ENEMY_GEAR_WEIGHTS, rng)
+				var category := GearSlots.roll(rng)
 				out.append({"item": _gear(category, enemy_type, source, ctx, 0.0, elite)})
-	if rng.randf() < float(POTION_DROP[source]): out.append({"item": BaseCatalog.create_potion("A")})
+	if rng.randf() < float(POTION_DROP[source]): out.append({"item": BaseCatalog.create_potion("A", Scaling.tier_of(int(ctx.depth)))})
 	var mats: Dictionary = ENEMY_MATERIALS.get(enemy_type, {})
 	if elite:
 		if mats.has("guaranteed"): out.append({"item": MaterialCatalog.create(mats.guaranteed[0], _range(rng, mats.guaranteed[1], mats.guaranteed[2]), ctx.region)})
 		if mats.has("ultra") and _rare(ctx, float(mats.ultra[1]), DEEP_ULTRA): out.append({"item": MaterialCatalog.create(mats.ultra[0], 1, ctx.region)})
 		if _rare(ctx, SPECIAL_FROM_ELITE, DEEP_NAMED): out.append({"item": SpecialGear.roll(ctx.region, int(ctx.depth), rng)})
-		if ctx.region in ["city", "snow", "siracusa"] and rng.randf() < 0.05: out.append({"item": FieldCatalog.exclusive(ctx.region)})
-	if enemy_type == "slug" and ctx.region == "mine" and rng.randf() < 0.02: out.append({"item": FieldCatalog.exclusive("mine")})
+		if ctx.region in ["city", "snow", "siracusa"] and rng.randf() < 0.05: out.append({"item": FieldCatalog.exclusive(ctx.region, int(ctx.depth))})
+	if enemy_type == "slug" and ctx.region == "mine" and rng.randf() < 0.02: out.append({"item": FieldCatalog.exclusive("mine", int(ctx.depth))})
+	# 萨米's ordinary enemies now and then carry a plank for the fires (地图特色策划案 §5.3).
+	if ctx.region == "snow" and source == "normal" and rng.randf() < FeatureCatalog.SNOW_PLANK: out.append({"item": MaterialCatalog.create("木板", 1, ctx.region)})
 	return out
 
 # --- Points of interest -------------------------------------------------------
@@ -367,7 +382,7 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			if _rare_find(ctx, 0.05): out.append(_mat("燃料罐", 1, 1, ctx))
 			if rng.randf() < 0.20: out.append(_mat("固源岩组", 1, 1, ctx))
 			if _rare_find(ctx, 0.03): out.append(_mat("源石碎片", 1, 1, ctx))
-			if rng.randf() < 0.25: out.append({"item": FieldCatalog.exclusive("mine")})
+			if rng.randf() < 0.25: out.append({"item": FieldCatalog.exclusive("mine", int(ctx.depth))})
 		"depot":
 			out.append(_mat("家具零件", 1, 2, ctx))
 			out.append(_mat("胶带", 2, 4, ctx))
@@ -386,7 +401,7 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			if rng.randf() < 0.35: out.append(_mat("赤金", 1, 1, ctx))
 			if rng.randf() < 0.25: out.append(_mat("电路板", 1, 1, ctx))
 			# The family vaults of the old Volsini quarter keep the crest.
-			if ctx.region == "siracusa" and rng.randf() < 0.2: out.append({"item": FieldCatalog.exclusive("siracusa")})
+			if ctx.region == "siracusa" and rng.randf() < 0.2: out.append({"item": FieldCatalog.exclusive("siracusa", int(ctx.depth))})
 		"camp":
 			out.append(_mat("碳", 2, 3, ctx))
 			out.append(_mat("木板", 2, 4, ctx))
@@ -395,12 +410,12 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			if rng.randf() < 0.40: out.append(_mat("帆布", 1, 2, ctx))
 			if rng.randf() < 0.25: out.append(_mat("蓄电池", 1, 2, ctx))
 			if rng.randf() < 0.20: out.append(_mat("碳素组", 1, 1, ctx))
-			if rng.randf() < 0.15: out.append({"item": FieldCatalog.exclusive("snow")})
+			if rng.randf() < 0.15: out.append({"item": FieldCatalog.exclusive("snow", int(ctx.depth))})
 		"weapon_box", "armor_box", "tool_box":
 			var category: int = {"weapon_box": Item.Category.WEAPON, "armor_box": Item.Category.ARMOR, "tool_box": Item.Category.TRINKET}[kind]
 			out.append({"item": _gear(category, "", "box", ctx, bonus, true)})
-			if kind == "weapon_box" and rng.randf() < 0.30: out.append({"item": _gear(category, "", "box", ctx, bonus, true)})
-			if kind == "armor_box" and ctx.region == "city" and rng.randf() < 0.15: out.append({"item": FieldCatalog.exclusive("city")})
+			if kind == "weapon_box" and rng.randf() < 0.30 * (1.0 + float(ctx.get("drop_pct", 0.0))): out.append({"item": _gear(category, "", "box", ctx, bonus, true)})
+			if kind == "armor_box" and ctx.region == "city" and rng.randf() < 0.15: out.append({"item": FieldCatalog.exclusive("city", int(ctx.depth))})
 			if kind == "tool_box":
 				# Tarkov's toolbox: hardware, tools and a little electronics.
 				if rng.randf() < 0.60: out.append(_mat(_one(["螺栓", "螺母", "钉子", "胶带"], rng), 2, 5, ctx))
@@ -433,6 +448,9 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			out.append(_mat("碳素组", 1, 2, ctx))
 			out.append(_mat("赤金", 1, 2, ctx))
 			if _rare_find(ctx, 0.10): out.append(_mat("源石碎片", 1, 1, ctx))
+	# 地图特色's field supplies (地图特色策划案 §3.3, §4.5, §5.4), in their own region.
+	for entry in FeatureCatalog.SUPPLY_DROPS.get(kind, []):
+		if ctx.region == entry[2] and rng.randf() < float(entry[1]): out.append({"item": FeatureCatalog.create_supply(entry[0])})
 	return out
 
 static func _one(ids: Array, rng: RandomNumberGenerator) -> String:
@@ -440,7 +458,8 @@ static func _one(ids: Array, rng: RandomNumberGenerator) -> String:
 
 ## Special gear of a slot, the region's own pieces more likely.
 static func _special_of(category: int, ctx: Dictionary) -> Item:
-	var ids := SpecialGear.GEAR.keys().filter(func(id): return SpecialGear.kind(id) == "special" and int(SpecialGear.GEAR[id].category) == category)
+	# By group: a box's ARMOR / TRINKET takes the chest and amulet specials (8 slots).
+	var ids := SpecialGear.GEAR.keys().filter(func(id): return SpecialGear.kind(id) == "special" and Item.group_of(int(SpecialGear.GEAR[id].category)) == Item.group_of(category))
 	if ids.is_empty(): return SpecialGear.roll(ctx.region, int(ctx.depth), ctx.rng)
 	var weights: Array = ids.map(func(id): return SpecialGear.REGION_WEIGHT if SpecialGear.GEAR[id].region == ctx.region else 1.0)
 	var item := SpecialGear.create(ids[_pick_weighted(weights, ctx.rng)], int(ctx.depth), ctx.rng)

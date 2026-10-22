@@ -58,6 +58,15 @@ func set_pieces(set_id: String) -> int:
 func set_bonus(set_id: String, pieces: int) -> bool:
 	return set_pieces(set_id) >= pieces
 
+## The lowest tier among the worn pieces of a set: its flat bonuses grow with
+## that tier like any flat affix (复利数值改造清单 C).
+func set_tier(set_id: String) -> int:
+	var tier := Scaling.TIER_MAX
+	for item in player.equipped.values():
+		if item == null or item.special.is_empty(): continue
+		if str(SpecialGear.GEAR.get(item.special, {}).get("set_id", "")) == set_id: tier = mini(tier, maxi(item.grade, 1))
+	return tier
+
 func active(name: String) -> bool:
 	return float(timers.get(name, 0.0)) > 0.0
 
@@ -96,11 +105,11 @@ func reset_segment() -> void:
 
 func static_sheet() -> Dictionary:
 	var sheet := {}
-	if set_bonus("inspectors", 2): sheet["def"] = float(sheet.get("def", 0.0)) + 40.0
+	if set_bonus("inspectors", 2): sheet["def"] = float(sheet.get("def", 0.0)) + 40.0 * Scaling.flat_scale(set_tier("inspectors"))
 	if set_bonus("grey_order", 2): sheet["res"] = float(sheet.get("res", 0.0)) + 8.0
 	if set_bonus("clean_snow", 2): sheet["arts_pct"] = float(sheet.get("arts_pct", 0.0)) + 0.15
 	if set_bonus("fire_watch", 2):
-		sheet["def"] = float(sheet.get("def", 0.0)) + 40.0
+		sheet["def"] = float(sheet.get("def", 0.0)) + 40.0 * Scaling.flat_scale(set_tier("fire_watch"))
 		sheet["hp_pct"] = float(sheet.get("hp_pct", 0.0)) + 0.08
 	return sheet
 

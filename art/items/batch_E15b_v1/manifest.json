@@ -1,0 +1,338 @@
+{
+  "batch": "E15b",
+  "status": "art_review_pending",
+  "tool": "built-in imagegen",
+  "normalization": "alpha128; nearest fit; median-cut without dithering, highlights and shadows quantized separately without brightening: cloth5 plus2 red or expedition4 gray+4 orange; other20 plus3 ice; exact1px inner outline",
+  "items": [
+    {
+      "id": "city_head_1",
+      "name": "街头鸭舌帽",
+      "slot": "head",
+      "layer": 0,
+      "file": "city_head_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_head_1_edited.png",
+      "source_sha256": "a53706a1b65a3e32bd0705b1cbdc60df045310c66707e7e9b5f6e388405a98ff",
+      "sha256": "d0207d8ddfe28c82d036c5414849bf3b4618f0831574ec2db628f25a6afb5e40",
+      "emit": false
+    },
+    {
+      "id": "city_head_2",
+      "name": "近卫局制式头盔",
+      "slot": "head",
+      "layer": 0,
+      "file": "city_head_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/city_head_2_edited.png",
+      "source_sha256": "ca9c2dd99964454ff3f93657ba27b2a852b0fe1ecc02b5b966a9860b1dc59cd5",
+      "sha256": "674de12d9cb8f9b1733a3e5a4a735ea88953adc122fb75bf707d371365493196",
+      "emit": false
+    },
+    {
+      "id": "city_head_3",
+      "name": "消防署防烟头盔",
+      "slot": "head",
+      "layer": 1,
+      "file": "city_head_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/city_head_3_raw.png",
+      "source_sha256": "3d44ff81d1a8120e521519a730eb000f32f9384e4408222428e1d8d2c3ea2b0d",
+      "sha256": "5f34dadcd975bb3c3dba0dd1c82a9bc24d833e67c4a341d30177eaa8f227ddd1",
+      "emit": false
+    },
+    {
+      "id": "city_head_4",
+      "name": "特别督察组战术头盔",
+      "slot": "head",
+      "layer": 2,
+      "file": "city_head_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/city_head_4_edited.png",
+      "source_sha256": "3a2c1df433f681a93d8a6d2ede2ed553e86986d6c0e94da5b4c0498908919002",
+      "sha256": "e64d60d08cf8bc312f56d5192da6a719aa798713a71799049793c25d3ffdcd4b",
+      "emit": false
+    },
+    {
+      "id": "city_hands_1",
+      "name": "拳馆缠手带",
+      "slot": "hands",
+      "layer": 0,
+      "file": "city_hands_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_hands_1_raw.png",
+      "source_sha256": "cefc4636a2bb79e50c64fe62419b0fe28f6ac9a921a2a1d286c8840e0cdf52ce",
+      "sha256": "7f8889c067cf7a3439675465467731db69cf325bcf3f6d5deead6d2073f6354c",
+      "emit": false
+    },
+    {
+      "id": "city_hands_2",
+      "name": "近卫局战术手套",
+      "slot": "hands",
+      "layer": 0,
+      "file": "city_hands_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_hands_2_edited.png",
+      "source_sha256": "ab14c5b95aee8ae818b6d0c19de560ad7bc8b14497a2202ad57b794d15f429a4",
+      "sha256": "35f42c654c7e7b9392f065a90479694b3f7504031da52165265cb6f2c8434e22",
+      "emit": false
+    },
+    {
+      "id": "city_hands_3",
+      "name": "押运员护腕",
+      "slot": "hands",
+      "layer": 1,
+      "file": "city_hands_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/city_hands_3_raw.png",
+      "source_sha256": "a7f4737e197ae60cc021cd52d66b510e91b1e3ad1df0dbc40c82708bb4277cd1",
+      "sha256": "492b14b8d370001e5fd4bd0ab5d4c8bfc37a1ee2bd10d2e7c755a1d655f1a505",
+      "emit": false
+    },
+    {
+      "id": "city_hands_4",
+      "name": "消防隔热手套",
+      "slot": "hands",
+      "layer": 2,
+      "file": "city_hands_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_hands_4_raw.png",
+      "source_sha256": "8d24d31cb545f04a05dbc89b9baccc1c3a1f9443b273714b565e11fa3caf5a26",
+      "sha256": "9bb6624d633058a42efb48a9897119e6329729fc7fbabc64abc232fe1fa0c169",
+      "emit": false
+    },
+    {
+      "id": "city_legs_1",
+      "name": "拳馆灯笼裤",
+      "slot": "legs",
+      "layer": 0,
+      "file": "city_legs_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_legs_1_edited.png",
+      "source_sha256": "ca6dc84f95a0cc0b175021e5d37bd38994a4f9b5aa9801997d1b56105401d2c5",
+      "sha256": "df575679ff96b08aae2235f10fb671080bb62488c610b5b42e67b25a49e48396",
+      "emit": false
+    },
+    {
+      "id": "city_legs_2",
+      "name": "近卫局制式长裤",
+      "slot": "legs",
+      "layer": 0,
+      "file": "city_legs_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_legs_2_edited.png",
+      "source_sha256": "02042f3efd9ccc2689d50f340265f3187bcd8b8435c3acbda6ee30848086eef7",
+      "sha256": "addf11edcb65efec1c1dea9a2ba81625281272b3d8c4a07e32c7f598380102da",
+      "emit": false
+    },
+    {
+      "id": "city_legs_3",
+      "name": "押运防刺护腿",
+      "slot": "legs",
+      "layer": 1,
+      "file": "city_legs_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_legs_3_edited.png",
+      "source_sha256": "f0a0bece7916f837860f7bbc4e7113b2dd7e3ae35a1cca590c15b544ae05a868",
+      "sha256": "e1cc1b286287abd05fe7a680c6320eb3be3e08870fed2277cbf40a1e8b82d7ab",
+      "emit": false
+    },
+    {
+      "id": "city_legs_4",
+      "name": "香主绸裤",
+      "slot": "legs",
+      "layer": 2,
+      "file": "city_legs_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_legs_4_edited.png",
+      "source_sha256": "9329947c60570bbb4b4260840606a9072f05352bf5795199fe8ad4f2ea1620f7",
+      "sha256": "447a0a6b6d34eae52306648a1366458e7cc2aa1494908571263fb4ceb13bc751",
+      "emit": false
+    },
+    {
+      "id": "city_feet_1",
+      "name": "功夫布鞋",
+      "slot": "feet",
+      "layer": 0,
+      "file": "city_feet_1.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/city_feet_1_raw.png",
+      "source_sha256": "983f08d5fb4504f9fd8f814f718e8d1787034572a9254ed07772fe840169dfe0",
+      "sha256": "65cdcef7d64a2b731d89d80a9a492576d62c780cb3470d3c930ffdde72277126",
+      "emit": false
+    },
+    {
+      "id": "city_feet_2",
+      "name": "外卖员跑鞋",
+      "slot": "feet",
+      "layer": 0,
+      "file": "city_feet_2.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/city_feet_2_raw.png",
+      "source_sha256": "523fbe9d8015dac4a06671c2f872f402308373cd536bd8e63964469f59241d94",
+      "sha256": "f6f22909aea238650c90450964a7c85e937a97d8e25e4db33f74fad1a1690b90",
+      "emit": false
+    },
+    {
+      "id": "city_feet_3",
+      "name": "近卫局作战靴",
+      "slot": "feet",
+      "layer": 1,
+      "file": "city_feet_3.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/city_feet_3_edited.png",
+      "source_sha256": "19e1c01bf95c162e1044eac35a6add40f5a9703f9e2b72430c0f694d2a327f59",
+      "sha256": "f5f84be5bdf3b8d225c47b3653c03e141ef4ccd882f4d508fbf68df6a53a6bf6",
+      "emit": false
+    },
+    {
+      "id": "city_feet_4",
+      "name": "消防署隔热靴",
+      "slot": "feet",
+      "layer": 2,
+      "file": "city_feet_4.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/city_feet_4_raw.png",
+      "source_sha256": "4fdfe0621edaff7735d88b76b13808e3b2565e8db908def260c14b44e364f81e",
+      "sha256": "071bbdcdbf018d2a8ec1bac0a69a8d01bdb73b79536bbcb24bf9a7bcd6ee1407",
+      "emit": false
+    },
+    {
+      "id": "city_ring_1",
+      "name": "炎式玉扳指",
+      "slot": "ring",
+      "layer": 0,
+      "file": "city_ring_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/city_ring_1_raw.png",
+      "source_sha256": "b4a6890a9a3db741c5752cc80cb9e533f6fb74c3bc905071081bf880496dcde1",
+      "sha256": "0795a288d6bd3de1f2aaa494c8f0b7814fc3e9ea869a2a4b28c4ba5172360f7c",
+      "emit": false
+    },
+    {
+      "id": "city_ring_2",
+      "name": "当铺金戒",
+      "slot": "ring",
+      "layer": 0,
+      "file": "city_ring_2.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/city_ring_2_raw.png",
+      "source_sha256": "40d1cebd55df4bbab33424fcd1841244857228721bd2bf34ff17846d282cef2d",
+      "sha256": "1685ecc0c9bdaaed3b86e86981e1bcb626d3fab83dea6b4925a602289da19daf",
+      "emit": false
+    },
+    {
+      "id": "city_ring_3",
+      "name": "近卫局纪念戒",
+      "slot": "ring",
+      "layer": 1,
+      "file": "city_ring_3.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/city_ring_3_raw.png",
+      "source_sha256": "bb678c0faaa91a509245222f28f7d40ec5a2158d0d5540232db4d3f47472d101",
+      "sha256": "a59d988c16ee27bf122f5f0d1dcfdf8459e7a39b08ba5bd3a6c6e75f8b09041e",
+      "emit": false
+    },
+    {
+      "id": "city_ring_4",
+      "name": "龙门老字号金戒",
+      "slot": "ring",
+      "layer": 2,
+      "file": "city_ring_4.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/city_ring_4_raw.png",
+      "source_sha256": "454e18a3edf191eefd78c58c21ffb27d9bdf97334ec0688d14ad4ca56662e507",
+      "sha256": "d05242e4e05e6abdfaee23b876356bbdab274480bf251844a2f448c3e874e832",
+      "emit": false
+    }
+  ],
+  "expected_count": 20,
+  "missing": [],
+  "backgrounds": [
+    "#2c2e30",
+    "#142538",
+    "#352710"
+  ],
+  "emission_files": [],
+  "reused_assets": [],
+  "runtime_verified": false
+}

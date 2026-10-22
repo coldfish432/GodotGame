@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 		sprite.visible = attention or id != "receiving_bays"
 		sprite.texture = yellow if attention else cyan
 		sprite.modulate = Color.WHITE  # markers ignore the room lights
-		sprite.offset.y = sprite.texture.get_height() * 0.5 + _lift(id) + bob - BaseMap.PIVOT_SCREEN_PX
+		sprite.offset.y = sprite.texture.get_height() * 0.5 + _lift(id) + bob - BaseMap.pivot_screen_px
 
 func marker(id: String) -> Sprite3D:
 	return _markers.get(id)

@@ -1,0 +1,23 @@
+{
+  "mine": {
+    "kind": "static project surface composite, not engine screenshot",
+    "source": "D:\\CSYE 7370\\downfall-godot\\art\\field\\surface_mine_v2.png",
+    "sha256": "b3e604a14dea4852f1f98a4f53040a397307a3d22aa87b1e48bd7e7719c06d45"
+  },
+  "city": {
+    "kind": "static project surface composite, not engine screenshot",
+    "source": "D:\\CSYE 7370\\downfall-godot\\art\\field\\surface_city_v2.png",
+    "sha256": "0c241cf5aee4f38ef7303c7ef976c634212f58830c74b337f9b41c40f0aeee26"
+  },
+  "snow": {
+    "kind": "static project surface composite, not engine screenshot",
+    "source": "D:\\CSYE 7370\\downfall-godot\\art\\field\\surface_snow_v2.png",
+    "sha256": "82394b19d2385c61b61b4ff10686ab46931e41986b05c1c20193509d91a7f07b"
+  },
+  "siracusa": {
+    "kind": "static composite on a prior engine screenshot; new sprites not runtime rendered or relit",
+    "source": "D:\\CSYE 7370\\downfall-godot\\art\\_to_sol\\recruit_N4_work_v1\\N4_siracusa_enemies\\refs_N4\\siracusa_ingame_rain.png",
+    "sha256": "dbea20339df643087fed4521cdec5bc33073cabbe865dafc7f271c7c15dd2794",
+    "sprite_scale": 2
+  }
+}

@@ -12,9 +12,18 @@ extends RefCounted
 ## converts at the fixed 1000 (§4). Leverage is 1–3× and losses stop at the
 ## margin: the balance never goes negative (用户: 不做穿仓负余额).
 
-const RANK_STEP := 100
-const RELATION_MAX := 500
-const START_RELATIONS := {"karlan": 100}
+## Relation ranks climb like Grim Dawn's reputation (沙盘航行策划案 §1, 用户
+## 2026-10-19): each rank needs more than the last. RANK_AT[r] is where Rr starts.
+const RANK_AT := [0, 150, 500, 1000, 2500, 5000]
+const RELATION_MAX := 5000
+const START_RELATIONS := {"karlan": 150}
+## Above its expected value a relation is corrected every trading day by
+## E × (DRIFT_BASE + DRIFT_PER_1000 × E / 1000), E the excess (用户 2026-10-19).
+const DRIFT_BASE := 0.01
+const DRIFT_PER_1000 := 0.01
+## Saves before the ladder had 100 a rank up to 500.
+const OLD_RANK_STEP := 100
+const RELATION_SCALE := 2
 const REMOTE_FEE := 0.04
 const FEE_STEP := 0.005
 const FEE_MIN := 0.01
@@ -108,7 +117,35 @@ func relation(faction: String) -> int:
 	return int(relations.get(faction, 0))
 
 func rank(faction: String) -> int:
-	return clampi(relation(faction) / RANK_STEP, 0, 5)
+	return rank_of(relation(faction))
+
+static func rank_of(value: int) -> int:
+	var r := 0
+	for i in range(RANK_AT.size()):
+		if value >= int(RANK_AT[i]): r = i
+	return r
+
+## The day's correction for a relation of `value` against `expected` (0 at or below it).
+static func drift(value: int, expected: int) -> int:
+	var excess := value - expected
+	if excess <= 0: return 0
+	return mini(excess, ceili(excess * (DRIFT_BASE + DRIFT_PER_1000 * excess / 1000.0)))
+
+func relation_drift(faction: String) -> int:
+	var d := drift(relation(faction), int(FactionCatalog.RELATION_EXPECTED.get(faction, RELATION_MAX)))
+	return roundi(d * 0.7) if game.base.researched("relation_drift") else d   # 商务部Ⅲ
+
+## Where the next rank starts (RELATION_MAX at R5).
+static func next_rank_at(value: int) -> int:
+	var r := rank_of(value)
+	return int(RANK_AT[mini(r + 1, RANK_AT.size() - 1)])
+
+## A pre-ladder value (100 a rank) at the same rank and progress on the ladder.
+static func migrate_relation(old: int) -> int:
+	var r := clampi(old / OLD_RANK_STEP, 0, RANK_AT.size() - 1)
+	if r >= RANK_AT.size() - 1: return RELATION_MAX
+	var f := float(old - r * OLD_RANK_STEP) / OLD_RANK_STEP
+	return int(RANK_AT[r]) + roundi(f * (int(RANK_AT[r + 1]) - int(RANK_AT[r])))
 
 func add_relation(faction: String, delta: int) -> void:
 	if faction.is_empty() or not FactionCatalog.FACTIONS.has(faction): return
@@ -116,7 +153,8 @@ func add_relation(faction: String, delta: int) -> void:
 
 ## The remote fee (§5.4): 4%, −0.5% a rank, at least 1%, plus the market's own.
 func remote_fee(faction: String, market_id: String = "") -> float:
-	var fee := maxf(FEE_MIN, REMOTE_FEE - FEE_STEP * rank(faction)) + float(FactionCatalog.info(faction).get("fee_extra", 0.0))
+	var base_fee := REMOTE_FEE - FEE_STEP * rank(faction) - (0.01 if game.base.researched("remote_fee") else 0.0)   # 商务部Ⅰ
+	var fee := maxf(FEE_MIN, base_fee) + float(FactionCatalog.info(faction).get("fee_extra", 0.0))
 	return fee + (market.fee_extra(market_id) if not market_id.is_empty() else 0.0)
 
 func quota_cap(faction: String) -> float:
@@ -125,8 +163,9 @@ func quota_cap(faction: String) -> float:
 func quota_left(faction: String) -> float:
 	return maxf(0.0, quota_cap(faction) - float(quota_used.get(faction, 0.0)))
 
+## Built at the base (基建设施修订案 v1.1 §三.7; its building waits for 喀兰贸易 R2).
 func unlocked() -> bool:
-	return rank("karlan") >= 1
+	return game.base.facility_level("exchange") >= 1
 
 # --- Money --------------------------------------------------------------------------------
 
@@ -262,6 +301,10 @@ func quote_buy(faction: String, material: String) -> Dictionary:
 	if not material in FactionCatalog.info(faction).get("sells", []):
 		out.why = "不出售"
 		return out
+	# 势力特供 (势力特供策划案_v0_2 §二): only from their relation rank.
+	if rank(faction) < FactionSpecials.rank_needed(material):
+		out.why = "需要关系 R%d" % FactionSpecials.rank_needed(material)
+		return out
 	var category := FactionCatalog.material_category(material)
 	var m := "%s:%s" % [faction, category]
 	if not market.books.has(m):
@@ -290,8 +333,13 @@ func buy_material(faction: String, material: String, count: int, remote: bool = 
 	quota_used[faction] = float(quota_used.get(faction, 0.0)) + eq
 	_deliver_goods(material, count)
 	add_relation(faction, clampi(roundi(eq / 5000.0), 1, 10))
+	special_bought(material)
 	_log({"kind": "buy", "what": "%s ×%d" % [material, count], "faction": faction, "amount": cost, "currency": q.currency})
 	return true
+
+## 下城区耳目 is the rat king's: 龙门商会 hears of every one bought (§二).
+func special_bought(material: String) -> void:
+	if material == "下城区耳目": add_relation(FactionSpecials.RAT_RIVAL, -FactionSpecials.RAT_RIVAL_COST)
 
 ## Bought goods arrive at the receiving bay, one sealed crate per stack.
 func _deliver_goods(material: String, count: int) -> void:
@@ -299,7 +347,8 @@ func _deliver_goods(material: String, count: int) -> void:
 	while left > 0:
 		var stack := MaterialCatalog.create(material, mini(left, MaterialCatalog.stack_size(material)))
 		left -= stack.quantity
-		game.base.receive(stack)
+		# 商务部Ⅵ: straight onto the shelves when there is room.
+		if not (game.base.researched("forward_dock") and not game.base.store(stack).is_empty()): game.base.receive(stack)
 
 # --- Flash offers (§6.1) ---------------------------------------------------------------
 
@@ -443,7 +492,7 @@ func _fill_buy(o: Dictionary) -> void:
 ## Materials `faction` writes forwards on: its shelf and what it likes buying.
 func forward_materials(faction: String) -> Array[String]:
 	var out: Array[String] = []
-	for id in FactionCatalog.info(faction).get("sells", []):
+	for id in FactionSpecials.plain_shelf(faction):
 		if MaterialCatalog.MATERIALS.has(id) and not out.has(id): out.append(id)
 	for id in MaterialCatalog.MATERIALS:
 		if out.size() >= 8: break
@@ -753,13 +802,29 @@ func note_contract_reward(lmd: int) -> void:
 func _roll_day() -> void:
 	var day := MarketState.day_key(market.t)
 	if day != _day:
+		# The market only replays the last seven days of a long absence; the
+		# relation correction counts every trading day that passed.
+		_correct_relations(clampi(day - _day, 1, 3650))
 		_day = day
 		_new_day()
 
+## The daily correction above each faction's expected value, `days` times.
+func _correct_relations(days: int) -> void:
+	for f in relations.keys():
+		for i in range(days):
+			var d := relation_drift(f)
+			if d <= 0: break
+			relations[f] = relation(f) - d
+
 # --- Loans (§10) --------------------------------------------------------------------------
 
+## LOAN_STEP per 交易所 level; 商务部Ⅴ: ×1.5 and a point off the rate.
 func loan_limit() -> int:
-	return mini(LOAN_CAP, LOAN_STEP * (game.base.rank() + 1))
+	var limit := mini(LOAN_CAP, LOAN_STEP * maxi(1, game.base.facility_level("exchange")))
+	return roundi(limit * 1.5) if game.base.researched("loan_terms") else limit
+
+func loan_rate_now(debt: int) -> float:
+	return maxf(0.0, loan_rate(debt) - (0.01 if game.base.researched("loan_terms") else 0.0))
 
 func loan_locked() -> bool:
 	return loan > roundi(loan_limit() * LOAN_OVERDUE)
@@ -787,7 +852,7 @@ static func loan_rate(debt: int) -> float:
 func on_settlement(reward: int) -> int:
 	var taken := 0
 	if loan > 0:
-		loan = ceili(loan * (1.0 + loan_rate(loan)))
+		loan = ceili(loan * (1.0 + loan_rate_now(loan)))
 		if loan_locked() and reward > 0:
 			taken = mini(reward, loan)
 			loan -= taken
@@ -804,7 +869,7 @@ func on_settlement(reward: int) -> int:
 func convert(to_gold: bool, amount: float, closure: bool = false) -> bool:
 	if amount <= 0.0: return false
 	if not closure and not unlocked(): return false
-	var spread := Economy.CLOSURE_FX_SPREAD if closure else Economy.EXCHANGE_FX_SPREAD
+	var spread := Economy.closure_spread if closure else Economy.EXCHANGE_FX_SPREAD
 	if to_gold:
 		var lmd := ceili(amount)
 		if not pay("lmd", lmd): return false
@@ -832,6 +897,7 @@ func withdraw_bars(count: int) -> bool:
 # --- 企鹅物流 (§11) -------------------------------------------------------------------------
 
 func ship_fee(item: Item) -> int:
+	if game.base.researched("forward_dock"): return 0   # 商务部Ⅵ
 	var rate := maxf(SHIP_FEE_MIN, SHIP_FEE - 0.01 * rank("penguin")) * market.penguin_fee()
 	return ceili(Economy.price(item) * rate)
 
@@ -917,11 +983,13 @@ func on_event(ev: Dictionary) -> void:
 func to_data() -> Dictionary:
 	return {"gold_account": gold_account, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
 		"cfds": cfds, "forward_cooldown": forward_cooldown, "loan": loan, "shipments": shipments, "history": history,
-		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id}
+		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE}
 
 func load_data(d: Dictionary) -> void:
 	gold_account = float(d.get("gold_account", 0.0))
-	relations = d.get("relations", START_RELATIONS.duplicate())
+	relations = (d.get("relations", START_RELATIONS) as Dictionary).duplicate()
+	if not d.is_empty() and int(d.get("relation_scale", 1)) < RELATION_SCALE:
+		for f in relations: relations[f] = migrate_relation(int(relations[f]))
 	quota_used = d.get("quota_used", {})
 	orders = d.get("orders", [])
 	forwards = d.get("forwards", [])

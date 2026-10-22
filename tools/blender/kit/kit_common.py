@@ -258,7 +258,41 @@ def bake_texture(obj, material, name, resolution=1024):
     os.makedirs(os.path.dirname(final.filepath_raw), exist_ok=True)
     final.save()
     tree.nodes.remove(node)
+    # 场景渲染统一改造案_v1 S2: a normal map from the colour's own relief, so
+    # seams sink and rivets stand under the base's real lights. Lamps' glass
+    # (parts named "glow") stays flat.
+    if "glow" not in name:
+        height_normal(colour, resolution, f"{name}_normal")
     return final
+
+
+## How steep the relief from colour is: dark seams sink, light rims rise.
+NORMAL_STRENGTH = 3.0
+
+
+def height_normal(colour, resolution, name, strength=None):
+    """A tangent-space normal map (OpenGL, green up, as glTF wants) from the
+    baked colour's luminance treated as height, saved next to the colour."""
+    import numpy as np
+    s = NORMAL_STRENGTH if strength is None else strength
+    px = np.asarray(colour, dtype=np.float32).reshape(resolution, resolution, 4)
+    lum = px[..., 0] * 0.299 + px[..., 1] * 0.587 + px[..., 2] * 0.114
+    # A light blur so single noisy texels do not read as pits.
+    lum = (lum + np.roll(lum, 1, 0) + np.roll(lum, -1, 0) + np.roll(lum, 1, 1) + np.roll(lum, -1, 1)) / 5.0
+    dx = (np.roll(lum, -1, 1) - np.roll(lum, 1, 1)) * 0.5 * s
+    dy = (np.roll(lum, -1, 0) - np.roll(lum, 1, 0)) * 0.5 * s   # rows run bottom to top
+    n = np.stack([-dx, -dy, np.ones_like(lum)], axis=-1)
+    n /= np.linalg.norm(n, axis=-1, keepdims=True)
+    rgba = np.concatenate([n * 0.5 + 0.5, np.ones((resolution, resolution, 1), np.float32)], axis=-1)
+    stale = bpy.data.images.get(name)   # a rebuild in the same session
+    if stale is not None: bpy.data.images.remove(stale)
+    image = bpy.data.images.new(name, resolution, resolution, float_buffer=False)
+    image.colorspace_settings.name = "Non-Color"
+    image.pixels = rgba.ravel().tolist()
+    image.filepath_raw = os.path.join(OUT_DIR, "textures", f"{name}.png")
+    image.file_format = "PNG"
+    image.save()
+    return image
 
 
 def baked_material(name, image):
@@ -272,6 +306,14 @@ def baked_material(name, image):
     tex.interpolation = "Closest"
     tree.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 1.0
+    normal = bpy.data.images.get(f"{name}_normal")
+    if normal is not None:
+        ntex = tree.nodes.new("ShaderNodeTexImage")
+        ntex.image = normal
+        ntex.interpolation = "Linear"
+        nmap = tree.nodes.new("ShaderNodeNormalMap")
+        tree.links.new(ntex.outputs["Color"], nmap.inputs["Color"])
+        tree.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
     return mat
 
 

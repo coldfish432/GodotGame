@@ -1,0 +1,120 @@
+{
+  "status": "STATIC_PASS_USER_APPROVAL_PENDING",
+  "checks": {
+    "v4_matches_supplied_reducer": true,
+    "v3_matches_supplied_reducer": true,
+    "pipeline_byte_identical_to_zip": true,
+    "silhouette_ratio_0_65_to_0_75": true
+  },
+  "painting_alpha_bbox": [
+    243,
+    47,
+    1041,
+    1249
+  ],
+  "silhouette_width_height_ratio": 0.6638935108153078,
+  "reduction_parameter_height": 26,
+  "reduction_canvas": [
+    19,
+    28
+  ],
+  "visual_review": "Final direct ground preview reviewed: exposed light human face, broad torso, shorter legs and broad boots; subjective recognisability and style approval remain with user.",
+  "images": {
+    "before_after.png": {
+      "size": [
+        1254,
+        950
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_26.png": {
+      "size": [
+        19,
+        28
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_26_on_ground_x6.png": {
+      "size": [
+        600,
+        300
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_painting.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_vs_prts.png": {
+      "size": [
+        2508,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_with_style_refs.png": {
+      "size": [
+        3762,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "v3_civilian_26.png": {
+      "size": [
+        15,
+        28
+      ],
+      "mode": "RGBA"
+    },
+    "v3_civilian_26_on_ground_x6.png": {
+      "size": [
+        600,
+        300
+      ],
+      "mode": "RGBA"
+    },
+    "reduction_pipeline/enemy_dir_family_soldier_64.png": {
+      "size": [
+        512,
+        320
+      ],
+      "mode": "RGBA"
+    },
+    "source_paintings/attempt1_painting.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "source_paintings/attempt2_painting.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "source_paintings/v3_civilian_painting.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "reduction_pipeline/refs_B2/siracusa_arena_ingame.png": {
+      "size": [
+        1280,
+        720
+      ],
+      "mode": "RGB"
+    }
+  },
+  "limitations": [
+    "Static ground composite; no runtime verification.",
+    "Head proportion and limb thickness are visual assessments, not automated acceptance measurements.",
+    "Animation boards remain pending painting approval."
+  ]
+}

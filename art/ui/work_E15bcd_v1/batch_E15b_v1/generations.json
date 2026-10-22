@@ -1,0 +1,304 @@
+[
+  {
+    "id": "city_head_1",
+    "slot": "head",
+    "name": "街头鸭舌帽",
+    "layer": 0,
+    "description": "A **navy flat cap / baseball cap**, sun-faded brim.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 街头鸭舌帽: A navy flat cap / baseball cap, sun-faded brim. SPECIFIC CONSTRUCTION: LOW NAVY BASEBALL CAP, shallow round crown, long sun-faded curved brim, unstructured cloth. No helmet shell. Large cool pale-gray-blue sun-lit brim face.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_head_2",
+    "slot": "head",
+    "name": "近卫局制式头盔",
+    "layer": 0,
+    "description": "A **dark blue police helmet** with a clear half visor raised.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 近卫局制式头盔: A dark blue police helmet with a clear half visor raised. SPECIFIC CONSTRUCTION: Rounded DARK BLUE POLICE HELMET, CLEAR HALF VISOR RAISED above empty face opening; visor rendered as opaque pale-blue edge facets with transparent opening, no semitransparent alpha. No badges.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_head_3",
+    "slot": "head",
+    "name": "消防署防烟头盔",
+    "layer": 1,
+    "description": "A **red fire helmet** with a long rear brim and a yellow reflective band.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 消防署防烟头盔: A red fire helmet with a long rear brim and a yellow reflective band. SPECIFIC CONSTRUCTION: RED FIRE HELMET, low rounded crown and prominent LONG REAR BRIM extending back; YELLOW REFLECTIVE BAND. Large light warm red/cream lit shell planes. No front badge.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_head_4",
+    "slot": "head",
+    "name": "特别督察组战术头盔",
+    "layer": 2,
+    "description": "A **black tactical helmet** with a rail, goggles strapped on top. Same black and grey as 特别督察组战术护甲.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": "inspector_armor",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 特别督察组战术头盔: A black tactical helmet with a rail, goggles strapped on top. Same black and grey as 特别督察组战术护甲. SPECIFIC CONSTRUCTION: BLACK/CHARCOAL TACTICAL HELMET, short squared rear neckguard, SIDE ACCESSORY RAIL and GOGGLES STRAPPED ON TOP. Use chest reference black/navy shadows and cold pale BLUE-GRAY lit planes. No full visor, no mouthguard, no insignia.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/inspector_armor_8x.png"
+    ]
+  },
+  {
+    "id": "city_hands_1",
+    "slot": "hands",
+    "name": "拳馆缠手带",
+    "layer": 0,
+    "description": "**White boxing hand wraps**, a little blood-brown at the knuckles.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 拳馆缠手带: White boxing hand wraps, a little blood-brown at the knuckles. SPECIFIC CONSTRUCTION: Two EMPTY WHITE BOXING WRAPS forming two compact fists, wrapped thumbs, wrist openings, loose tails; one SMALL DULL BLOOD-BROWN stain at knuckles. No red ornament.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_hands_2",
+    "slot": "hands",
+    "name": "近卫局战术手套",
+    "layer": 0,
+    "description": "**Black fingerless tactical gloves** with knuckle pads.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 近卫局战术手套: Black fingerless tactical gloves with knuckle pads. SPECIFIC CONSTRUCTION: Two EMPTY BLACK FINGERLESS TACTICAL GLOVES, five short cut-off finger tubes, EMPTY DARK finger openings, rectangular BLUE-GRAY KNUCKLE PADS. No flesh or fingers. Broad pale gray lit pads and fabric rims.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_hands_3",
+    "slot": "hands",
+    "name": "押运员护腕",
+    "layer": 1,
+    "description": "**Grey padded bracers** with a steel plate on the back of the hand.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 押运员护腕: Grey padded bracers with a steel plate on the back of the hand. SPECIFIC CONSTRUCTION: Two EMPTY GRAY PADDED BRACERS with an extended flat STEEL PLATE covering back-of-hand area; short soft cuff and projecting rectangular metal tongue, no fingers. Pale gray tops.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_hands_4",
+    "slot": "hands",
+    "name": "消防隔热手套",
+    "layer": 2,
+    "description": "Bulky **silver heat-proof gauntlets** with red cuffs.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 消防隔热手套: Bulky silver heat-proof gauntlets with red cuffs. SPECIFIC CONSTRUCTION: Two bulky SILVER HEATPROOF GAUNTLETS, thick mitt-like fingers, long RED WRIST CUFFS as small accent. Broad pale silver-gray heatproof fabric planes.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_legs_1",
+    "slot": "legs",
+    "name": "拳馆灯笼裤",
+    "layer": 0,
+    "description": "Loose **black kung-fu trousers**, gathered at the ankle.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 拳馆灯笼裤: Loose black kung-fu trousers, gathered at the ankle. SPECIFIC CONSTRUCTION: EXTREMELY WIDE BAGGY BLACK KUNG-FU TROUSERS, exaggerated rounded balloon thighs tapering to TIGHT GATHERED ANKLE CUFFS. Both legs separated by clear gap. Broad cool light-gray upper-left fold faces over charcoal-black shadows. Waist at top. Distinct balloon silhouette. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_legs_2",
+    "slot": "legs",
+    "name": "近卫局制式长裤",
+    "layer": 0,
+    "description": "**Navy uniform trousers** with a pale side stripe.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 近卫局制式长裤: Navy uniform trousers with a pale side stripe. SPECIFIC CONSTRUCTION: SLIM STRAIGHT NAVY UNIFORM TROUSERS, narrow straight legs with PALE SIDE STRIPE down outer seam of each. Clean pressed crease, no cargo pockets, no shin binding. Broad pale blue-gray lit crease faces, dark navy remaining. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_legs_3",
+    "slot": "legs",
+    "name": "押运防刺护腿",
+    "layer": 1,
+    "description": "Trousers with **grey stab-proof shin and thigh panels**.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 押运防刺护腿: Trousers with grey stab-proof shin and thigh panels. SPECIFIC CONSTRUCTION: MEDIUM WIDTH dark trousers with GRAY STABPROOF THIGH AND SHIN PANELS, clearly outlined flat rectangular fabric plates, both legs. Top faces pale cool gray, no green plates. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_legs_4",
+    "slot": "legs",
+    "name": "香主绸裤",
+    "layer": 2,
+    "description": "**Dark silk trousers** with a subtle cloud pattern in two tones, a brass belt clasp. Same silk as 香主绸衫.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": "city_x13",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 香主绸裤: Dark silk trousers with a subtle cloud pattern in two tones, a brass belt clasp. Same silk as 香主绸衫. SPECIFIC CONSTRUCTION: DARK CHARCOAL SILK TROUSERS matching silk reference, softly draped moderately wide legs, restrained TWO-TONE CLOUD-CURVE motif woven in silk, only a few large subtle curving patches, no glyphs. Small BRASS BELT CLASP. Black/charcoal base with broad SILVERY GRAY silk reflection planes making 22% item light; no white fabric, no pale beige. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/city_x13_8x.png"
+    ]
+  },
+  {
+    "id": "city_feet_1",
+    "slot": "feet",
+    "name": "功夫布鞋",
+    "layer": 0,
+    "description": "**Black cloth kung-fu shoes**, white soles.",
+    "batch": "E15b",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 功夫布鞋: Black cloth kung-fu shoes, white soles. SPECIFIC CONSTRUCTION: PAIR BLACK CLOTH KUNG-FU SLIP-ON SHOES, VERY LOW rounded toes, no laces, no high shafts, thick WHITE SOLES with large visible pale edge. Upper-left cloth toe planes light gray, rest charcoal. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_feet_2",
+    "slot": "feet",
+    "name": "外卖员跑鞋",
+    "layer": 0,
+    "description": "**Bright running shoes** in Penguin-Logistics-like yellow and black. No logo.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 外卖员跑鞋: Bright running shoes in Penguin-Logistics-like yellow and black. No logo. SPECIFIC CONSTRUCTION: PAIR bright YELLOW AND BLACK RUNNING SHOES, streamlined sneaker silhouette, layered yellow panels, pale cream-yellow lit toes, thick athletic soles. Absolutely NO logo, arrows or brand. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_feet_3",
+    "slot": "feet",
+    "name": "近卫局作战靴",
+    "layer": 1,
+    "description": "**Black lace-up combat boots**, polished toes.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 近卫局作战靴: Black lace-up combat boots, polished toes. SPECIFIC CONSTRUCTION: PAIR BLACK LACE-UP COMBAT BOOTS, medium-high straight shafts, polished toes with broad SILVER-GRAY reflection, matte black sides with pale upper-left rim. No steel toe caps, no fur. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_feet_4",
+    "slot": "feet",
+    "name": "消防署隔热靴",
+    "layer": 2,
+    "description": "**Tall red-and-black fire boots** with reflective bands.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 消防署隔热靴: Tall red-and-black fire boots with reflective bands. SPECIFIC CONSTRUCTION: PAIR TALL RED-AND-BLACK FIRE BOOTS, thick rubber toes, RED shafts, black soles/feet, broad PALE YELLOW REFLECTIVE BANDS around upper shafts and ankles. Empty openings. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_ring_1",
+    "slot": "ring",
+    "name": "炎式玉扳指",
+    "layer": 0,
+    "description": "A **green jade thumb ring**, wide and smooth.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 炎式玉扳指: A green jade thumb ring, wide and smooth. SPECIFIC CONSTRUCTION: ONE WIDE SMOOTH GREEN JADE THUMB RING, thick jade cylinder band, turned obliquely, transparent central hole. Dark forest green shadow, broad pale mint-white lit upper-left curved face. NO gemstone setting, no gold. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_ring_2",
+    "slot": "ring",
+    "name": "当铺金戒",
+    "layer": 0,
+    "description": "A **thin gold band** with a tiny square setting, a little worn.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 当铺金戒: A thin gold band with a tiny square setting, a little worn. SPECIFIC CONSTRUCTION: ONE THIN WORN GOLD BAND with TINY SQUARE GOLD SETTING on top, plain empty square top, NO huge gemstone. Thick enough to read at32px, central hole transparent, clearly lit pale gold upper-left arc. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_ring_3",
+    "slot": "ring",
+    "name": "近卫局纪念戒",
+    "layer": 1,
+    "description": "A **silver signet ring** with a plain shield-shaped face (no emblem).",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 近卫局纪念戒: A silver signet ring with a plain shield-shaped face (no emblem). SPECIFIC CONSTRUCTION: ONE SILVER SIGNET RING with PLAIN SHIELD-SHAPED FACE, no engraving or emblem. Broad lit pale silver shield face clearly distinct from darker band, central hole transparent. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "city_ring_4",
+    "slot": "ring",
+    "name": "龙门老字号金戒",
+    "layer": 2,
+    "description": "A **heavy gold ring** with a red stone and a carved cloud rim.",
+    "batch": "E15b",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 龙门老字号金戒: A heavy gold ring with a red stone and a carved cloud rim. SPECIFIC CONSTRUCTION: ONE HEAVY GOLD RING holding a RED STONE, CARVED CLOUD-CURVE RIM around stone as simple large curves (no tiny glyphs). Bright pale-gold lit upper-left face, ruby small red accent, central hole transparent. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  }
+]

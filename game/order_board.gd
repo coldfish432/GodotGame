@@ -38,9 +38,10 @@ func matches(slot: int, item: Item) -> bool:
 	var order = slots[slot]
 	if order == null or order.state != "open" or item == null or item.is_potion(): return false
 	var t: Dictionary = BaseCatalog.ORDERS[order.id]
-	if t.has("effect"): return item.effect == t.effect
+	# A sealed ore is still the ore (地图特色策划案 §3.3).
+	if t.has("effect"): return item.effect == t.effect or (t.effect == "raw_ore" and item.effect == GameManager.SEALED_ORE)
 	if t.has("material"): return item.material_id == t.material
-	if item.category != t.category or item.rarity < int(t.get("min_rarity", 0)): return false
+	if Item.group_of(item.category) != Item.group_of(int(t.category)) or item.rarity < int(t.get("min_rarity", 0)): return false
 	if t.has("region") and item.origin_region != t.region: return false
 	return true
 
@@ -61,7 +62,7 @@ func takes(slot: int, item: Item) -> int:
 	return mini(remaining(slot), item.quantity if item.is_stackable() else 1)
 
 ## Hands `item` over. Returns {} when refused, else {"done": bool, "gold",
-## "prestige", "used"} (gold and prestige are 0 until the order is complete).
+## "used"} (gold is 0 until the order is complete).
 ## `used` is how many units went; the caller removes the item when that is all
 ## of it, else takes that many off the stack.
 func deliver(slot: int, item: Item) -> Dictionary:
@@ -70,14 +71,14 @@ func deliver(slot: int, item: Item) -> Dictionary:
 	var order: Dictionary = slots[slot]
 	var value := item.unit_value * used if item.is_stackable() else item.value
 	order.delivered.append({"uid": item.uid, "name": item.item_name, "value": value, "count": used})
-	if remaining(slot) > 0: return {"done": false, "gold": 0, "prestige": 0, "used": used}
+	if remaining(slot) > 0: return {"done": false, "gold": 0, "used": used}
 	order.state = "done"
 	var t: Dictionary = BaseCatalog.ORDERS[order.id]
 	# Paid in 龙门币: a fixed sum, or the delivered 交付价 times the order's multiplier.
 	var gold := int(t.gold) if t.has("gold") else int(round(Economy.lmd(order.delivered.reduce(func(sum, d): return sum + int(d.value), 0)) * float(t.mult)))
-	return {"done": true, "gold": gold, "prestige": int(t.prestige), "used": used}
+	return {"done": true, "gold": gold, "used": used}
 
-## Replaces an open order with a different one (the R3 free reroll). What was
+## Replaces an open order with a different one (仓储部 Lv4's free reroll). What was
 ## already handed over for it is kept by the department. Rule 2 is not checked:
 ## the player chose to reroll.
 func reroll(slot: int, rng: RandomNumberGenerator) -> bool:

@@ -36,6 +36,11 @@ func swing(enemy: Enemy) -> void:
 	p._attack_cooldown = 0
 	p.hitstop_remaining = 0
 	p.attack(enemy)
+	# A thrust lands when the raised blade comes down.
+	var guard := 0
+	while p.kit.winding() and guard < 60:
+		p.kit.tick(1.0 / 60.0)
+		guard += 1
 func tick(seconds: float) -> void:
 	var t := 0.0
 	while t < seconds:
@@ -69,21 +74,58 @@ func run() -> void:
 	p.stats["crit"] = -1.0
 	check("no sword charge: 月相 is on Space", not p.has_sword_wave() and p.has_skill() and p.skill_ready_now())
 
-	# Combo: 1.0 / 1.0 / 1.3 physical, every landed hit heals 1.5% max HP.
+	# Combo: three heavy thrusts (HellagurKit.COMBO), slower than the rest, every landed hit heals 1.5% max HP.
 	var e := dummy(origin + Vector3(0, 0, -2))
 	var atk := p.attack_power()
 	p.hp = p.max_hp * 0.5
 	var hp0 := p.hp
 	swing(e)
-	check("stage 1 cuts for ATK", is_equal_approx(lost(e), atk))
+	check("stage 1 thrusts for its COMBO share of ATK", is_equal_approx(lost(e), atk * HellagurKit.COMBO[0]))
+	check("a heavy blade: he swings 35% slower", is_equal_approx(p.kit.interval_factor(), 1.35))
 	check("the hit heals him 1.5% max HP", is_equal_approx(p.hp - hp0, p.max_hp * HellagurKit.HIT_HEAL))
 	swing(e)
 	swing(e)
-	check("stages 2 and 3: 1.0 and the 1.3 iai", is_equal_approx(lost(e), atk * 3.3))
+	check("stages 2 and 3: the second thrust and the piercing third", is_equal_approx(lost(e), atk * (HellagurKit.COMBO[0] + HellagurKit.COMBO[1] + HellagurKit.COMBO[2])))
 	check("the combo loops", p.combo_step == 0)
 
-	# 饮刃: flasks and self-regeneration at half; the talent's attack speed.
-	check("flask healing halved", is_equal_approx(p.potion_heal_multiplier, 0.5 * maxf(0.2, 1.0 + BaseCatalog.POTION_HEAL_PER_CAP * float(p.stats.potion_cap))))
+	# 一次攻击抬一次手: the blade goes up first; the thrust lands as it comes
+	# down, and a dodge in between drops it.
+	var raised := lost(e)
+	p._attack_cooldown = 0
+	p.hitstop_remaining = 0
+	p.attack(e)
+	check("a thrust raises the blade first: nothing lands at once", lost(e) == raised and p.kit.winding() and p._sprite.action_name == "thrust")
+	tick(0.15)
+	check("…and lands as it comes down", lost(e) > raised and not p.kit.winding())
+	p.combo_step = 0
+	raised = lost(e)
+	p._attack_cooldown = 0
+	p.attack(e)
+	p.kit.interrupt()
+	tick(0.3)
+	check("a dodge while it is raised drops the thrust", lost(e) == raised)
+	p.combo_step = 0
+
+	# 三段前刺 (用户 2026-10-20): the third thrust runs through at most 4 in a line.
+	clear_enemies()
+	await step(1)
+	var row: Array[Enemy] = []
+	for i in range(5): row.append(dummy(origin + Vector3(0.2 * (i % 2), 0, -1.2 - 0.8 * i)))
+	var aside := dummy(origin + Vector3(1.6, 0, -2.4))
+	atk = p.attack_power()
+	swing(row[0])
+	check("thrust 1 takes only the first in line", is_equal_approx(lost(row[0]), atk * HellagurKit.COMBO[0]) and lost(row[1]) == 0.0)
+	swing(row[0])
+	swing(row[0])
+	var run_through := row.filter(func(x: Enemy) -> bool: return lost(x) > 0.0)
+	check("thrust 3 runs through four in a line", run_through.size() == 4 and is_equal_approx(lost(row[0]), atk * (HellagurKit.COMBO[0] + HellagurKit.COMBO[1] + HellagurKit.COMBO[2])) and is_equal_approx(lost(row[3]), atk * HellagurKit.COMBO[2]))
+	check("the fifth and the one beside the line are spared", lost(row[4]) == 0.0 and lost(aside) == 0.0)
+	clear_enemies()
+	await step(1)
+	p.combo_step = 0
+
+	# 饮刃: flasks at 30% and self-regeneration at half; the talent's attack speed.
+	check("flask healing cut to 30%", is_equal_approx(p.potion_heal_multiplier, 0.3) and p.kit.potion_factor() == 0.3)
 	check("regeneration halved", p.kit.regen_factor() == 0.5)
 	game.base.progress_for("hellagur").elite = 2
 	p.hp = p.max_hp * 0.5
@@ -111,11 +153,11 @@ func run() -> void:
 	e = dummy(origin + Vector3(0, 0, -2))
 	var plain := p.attack_power()
 	check("Space opens 弦月", cast(e.global_position) and p.kit.half_timer > 0.0 and p.evasion() >= HellagurKit.HALF_EVASION - 0.001)
-	check("弦月 lifts ATK by 40%", is_equal_approx(p.attack_power(), plain * 1.4 / 1.0))
+	check("弦月 lifts ATK by HALF_ATK", is_equal_approx(p.attack_power(), plain * (1.0 + HellagurKit.HALF_ATK)))
 	atk = p.attack_power()
 	swing(e)
 	tick(0.1)
-	check("弦月 cuts twice for 0.8 each", is_equal_approx(lost(e), atk * HellagurKit.HALF_SCALE * 2))
+	check("弦月 cuts twice for 1.05 each", is_equal_approx(lost(e), atk * HellagurKit.HALF_SCALE * 2))
 	tick(6.0)
 	check("弦月 runs out", p.kit.half_timer == 0.0 and is_equal_approx(p.attack_power(), plain))
 

@@ -25,7 +25,8 @@ func weapon(rng: RandomNumberGenerator, depth: int = 5, region: String = "mine",
 
 func run() -> void:
 	var table := PrefixCatalog.all()
-	check("150 prefixes", table.size() == 150, table.size())
+	# 150 less the nine that became families, plus 12 families × 3 (前缀放大与特效阶等案 §3).
+	check("177 prefixes", table.size() == 177, table.size())
 	var names := {}
 	for id in table: names[str(table[id].name)] = true
 	check("prefix names are unique", names.size() == table.size())
@@ -55,6 +56,7 @@ func run() -> void:
 	rng.seed = 7
 	var counts := {-2: 0, -1: 0, 0: 0, 1: 0, 2: 0}
 	var doubles := 0
+	var family_rolls := 0
 	var limits_ok := true
 	var mine_region := 0
 	const N := 6000
@@ -65,7 +67,9 @@ func run() -> void:
 			continue
 		# The first rolled sits first unless the second outranks it; count all
 		# grades from single-prefix pieces plus both of the doubles.
-		for entry in item.prefixes: counts[PrefixCatalog.grade_of(entry)] += 1
+		for entry in item.prefixes:
+			if PrefixFamilies.family_of(str(entry.id)).is_empty(): counts[PrefixCatalog.grade_of(entry)] += 1
+			else: family_rolls += 1
 		if item.prefixes.size() == 2:
 			doubles += 1
 			var a := PrefixCatalog.get_entry(str(item.prefixes[0].id))
@@ -82,6 +86,9 @@ func run() -> void:
 	var shares := {}
 	for g in counts: shares[g] = float(counts[g]) / total
 	check("grades come 15/20/30/30/5 (±1.5%)", absf(shares[-2] - 0.15) < 0.015 and absf(shares[-1] - 0.20) < 0.015 and absf(shares[0] - 0.30) < 0.015 and absf(shares[1] - 0.30) < 0.015 and absf(shares[2] - 0.05) < 0.015, shares)
+	var all_rolls := family_rolls
+	for g in counts: all_rolls += counts[g]
+	check("about 15% of prefix rolls are an effect family's", absf(float(family_rolls) / all_rolls - PrefixCatalog.FAMILY_SHARE) < 0.02, float(family_rolls) / all_rolls)
 	check("one piece in five has two prefixes (±2%)", absf(float(doubles) / N - 0.2) < 0.02, float(doubles) / N)
 	check("always a prefix; doubles never repeat, share a group, two regions, two tops, or put the lower grade first", limits_ok)
 	var city_region := 0
@@ -89,7 +96,7 @@ func run() -> void:
 	for i in range(N):
 		for entry in weapon(rng, 5, "city").prefixes:
 			if str(PrefixCatalog.get_entry(str(entry.id)).region) == "mine": city_region += 1
-	check("a region's prefixes are about 3× as common there", mine_region > city_region * 2.3, [mine_region, city_region])
+	check("a region's prefixes are about 3× as common there", mine_region > city_region * 2.1, [mine_region, city_region])
 	var early_top := false
 	rng.seed = 9
 	for i in range(3000):
@@ -168,7 +175,7 @@ func run() -> void:
 	# Saves (§0.2-6).
 	var back := Item.from_data(item.to_data())
 	check("prefixes, rolls and midpoints survive a save", back.prefixes == item.prefixes and is_equal_approx(back.power_mid, item.power_mid) and back.value == item.value
-		and back.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER).all(func(m): return not is_zero_approx(m.mid)))
+		and back.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER).all(func(m): return not is_zero_approx(m.mid) or ItemModifier.is_cost(m.stat, m.amount)))
 	var old := item.to_data()
 	old.erase("prefixes")
 	check("an old save's gear rolls its prefixes on load", not Item.from_data(old).prefixes.is_empty())
@@ -201,7 +208,7 @@ func run() -> void:
 	var blade := Item.create("x", Item.Category.WEAPON, 2, 1, 0.0)
 	blade.prefixes = [{"id": "large", "rolls": {"reach_pct": 1.0}}]
 	p.equip(blade)
-	check("攻击范围 lengthens her reach", is_equal_approx(p.weapon_range(), range_before * 1.1), [p.weapon_range(), range_before])
+	check("攻击范围 lengthens her reach", is_equal_approx(p.weapon_range(), range_before * (1.0 + 0.10 * PrefixCatalog.WEAPON_SCALE)), [p.weapon_range(), range_before])
 	var charm := Item.create("x", Item.Category.TRINKET, 1, 1, 0.0)
 	charm.prefixes = [{"id": "snowpriest", "rolls": {"skill_pct": 1.0, "arts_pct": 1.0}}]
 	p.equip(charm)

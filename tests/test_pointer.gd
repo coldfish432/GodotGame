@@ -36,7 +36,9 @@ func run() -> void:
 	await step(2)
 
 	var arrow := AttackCursor.texture()
-	check("the attack arrow is a 32 px image, red at the tip", arrow.get_width() == 32 and arrow.get_image().get_pixel(2, 4).is_equal_approx(AK.RED))
+	# 用户 2026-10-21: only the PRTS hand and the attack sword, both 32 px.
+	var hand := AttackCursor.texture(AttackCursor.HAND)
+	check("the pointers are the 32 px sword and hand", arrow.get_width() == 32 and hand.get_width() == 32 and arrow.get_image().get_pixel(1, 1).a > 0.5 and hand.get_image().get_pixel(AttackCursor.HAND_HOTSPOT.x, AttackCursor.HAND_HOTSPOT.y).a > 0.1)
 	game._update_pointer_cursor(enemy)
 	check("over an enemy the pointer is the attack arrow", game.attack_cursor_on)
 	game._update_pointer_cursor(null)
@@ -91,8 +93,11 @@ func run() -> void:
 	await hold(false, null, 1)
 	check("and release stops it too", p.attack_target == null)
 
-	# A long press that began on the ground still swings at the air there.
+	# A press on the ground walks there (用户 2026-10-20), never swings.
+	p._attack_cooldown = 0.0
+	var steps_before := p.combo_step
 	await hold(true, null, 1)
+	check("a ground press walks", p._has_move_target and p.combo_step == steps_before)
 	await hold(true, null, 30)
 	await hold(false, null, 1)
 	check("a ground press never locks", p.attack_target == null)
@@ -120,7 +125,7 @@ func run() -> void:
 	check("held still where the plate was, it does not swing", game.pickup_target == loot and p.combo_step == 0)
 	game._pointer_position = Vector2(400, 360)
 	game.pointer_step(true, false, null, 1.0 / 60.0)
-	check("moved off the plate, the held press attacks", game.pickup_target == null and p.combo_step == 1)
+	check("moved off the plate onto the ground, the held press walks", game.pickup_target == null and p.combo_step == 0 and p._has_move_target)
 	game.pointer_step(false, false, null, 1.0 / 60.0)
 
 	# Plates with enemies about (用户 2026-10-15): hidden unless Alt is held,

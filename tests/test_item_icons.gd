@@ -16,7 +16,9 @@ func check(label: String, passed: bool, seen: Variant = null) -> void:
 		if seen != null: print("   seen: ", seen)
 	print(("PASS " if passed else "FAIL ") + label)
 
-const SIZES := {Item.Category.WEAPON: Vector2(72, 32), Item.Category.ARMOR: Vector2(72, 72), Item.Category.TRINKET: Vector2(32, 32)}
+const SIZES := {Item.Category.WEAPON: Vector2(72, 32), Item.Category.ARMOR: Vector2(72, 72), Item.Category.TRINKET: Vector2(32, 32),
+	Item.Category.CHEST: Vector2(72, 72), Item.Category.AMULET: Vector2(32, 32), Item.Category.HEAD: Vector2(72, 72), Item.Category.HANDS: Vector2(72, 72),
+	Item.Category.LEGS: Vector2(72, 72), Item.Category.FEET: Vector2(72, 72), Item.Category.RING: Vector2(32, 32)}
 const CELLS := {Item.Category.WEAPON: Vector2i(2, 1), Item.Category.ARMOR: Vector2i(2, 2), Item.Category.TRINKET: Vector2i(1, 1)}
 const ICONS := {
 	"改装砍刀": Item.Category.WEAPON, "制式短刀": Item.Category.WEAPON, "矿区制式刀": Item.Category.WEAPON,
@@ -53,6 +55,14 @@ func run() -> void:
 		check("%s fits inside its rarity border" % item_name, texture != null and texture.get_width() <= tile.x - 4 and texture.get_height() <= tile.y - 4)
 	for id in GearCatalog.BASES:
 		var b: Dictionary = GearCatalog.BASES[id]
+		# E15 (装备部位拆分与数值案 §7): head, hands, legs, feet and rings show their
+		# slot's placeholder at the slot's size until Sol's art lands under the id.
+		if str(b.icon) == str(id):
+			var probe := Item.create(str(b.name), int(b.category) as Item.Category, 1, 1)
+			probe.base_id = id
+			var tex := ItemIcons.texture_for(probe)
+			check("E15 base %s shows an icon at its slot's size" % id, tex != null and tex.get_size() == SIZES[int(b.category)], tex.get_size() if tex != null else null)
+			continue
 		check("base %s「%s」uses its own icon" % [id, b.name], ItemIcons.BY_NAME.get(b.name, "") == b.icon and ResourceLoader.exists(ItemIcons.DIR + b.icon + ".png"))
 	for enemy in ["thug", "crossbow", "crossbow_leader", "brawler", "ice_warrior", "ice_hunter"]:
 		var carried := GearCatalog._carried(enemy, "mine")
@@ -77,7 +87,7 @@ func run() -> void:
 	var prts_missing := []
 	for id in MaterialCatalog.MATERIALS:
 		# Trade goods and 萨米 goods are not PRTS items; they borrow supplies icons.
-		if MaterialCatalog.MATERIALS[id].get("source", "") in ["common", "trade", "sami"]: continue
+		if MaterialCatalog.MATERIALS[id].get("source", "") in ["common", "trade", "sami", "yan", "special", "farm", "meal"]: continue
 		var tex := ItemIcons.texture_for(MaterialCatalog.create(id, 1))
 		if tex == null or tex.get_size() != Vector2(32, 32): prts_missing.append(id)
 	check("every PRTS material has a 32×32 icon", prts_missing.is_empty(), prts_missing)

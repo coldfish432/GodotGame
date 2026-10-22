@@ -29,7 +29,7 @@ func run() -> void:
 	game = find_game(rig)
 	game.base.injured = true
 	game.base.report_unread = true
-	game.base.prestige = 60
+	game.base.set_facility("store", 3)
 	place(game.base_map.station("reception").position + Vector3(0, 0, -1.5))
 	await wait(0.3)
 	await shot("reception")

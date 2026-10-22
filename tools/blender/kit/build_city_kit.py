@@ -38,6 +38,13 @@ from build_poi import _ramp_material, painted, cloth, _settled_publish, _publish
 ## concrete trims a narrow ramp. The slums' copies (WORN) are built with it off.
 CLEAN = False
 
+## 龙门城区 · 下城 (龙门城区与叙拉古地图改造案 v1.1 §1.3): the outer city's
+## buildings built again as "<name>_lower", the same footprint and height:
+## old render darkened and streaked with damp, a third of the windows lit warm,
+## more air conditioners, caged balconies and laundry poles, the awnings
+## faded. CityDressing swaps them in on a 下城 floor.
+LOWER = False
+
 
 def concrete(name, seed, base="7e8184"):
     if CLEAN:
@@ -100,7 +107,9 @@ def plaster(name, hex_rgb, seed):
     """Painted render (C6), coloured per building; its roof the flat roof (C5)."""
     mat, nodes, links = _new(name)
     bsdf = kit.principled(nodes)
-    wall = _tinted(nodes, links, _swatch(nodes, links, "city_plaster_clean.png" if CLEAN else "city_plaster.png", 6.0), hex_rgb, 1.8)
+    if LOWER: hex_rgb = _blend(hex_rgb, "4a5260", 0.4)
+    wall = _tinted(nodes, links, _swatch(nodes, links, "city_plaster_clean.png" if CLEAN else "city_plaster.png", 6.0), hex_rgb, 1.45 if LOWER else 1.8)
+    if LOWER: wall = _damp(nodes, links, wall)
     # The roof a shade of its walls, so a block of roofs is not one grey.
     roof = _tinted(nodes, links, _swatch(nodes, links, "city_roof_clean.png" if CLEAN else "city_roof.png", 6.0), _blend("ffffff", hex_rgb, 0.35), 1.75)
     # Faces looking up are roof (the parapet's top included).
@@ -119,6 +128,29 @@ def plaster(name, hex_rgb, seed):
     links.new(pick.outputs["Result"], bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 1.0
     return mat
+
+
+def _damp(nodes, links, colour):
+    """Damp streaks down a wall: noise stretched tall, darkening in bands."""
+    coord = nodes.new("ShaderNodeTexCoord")
+    mapping = nodes.new("ShaderNodeMapping")
+    mapping.inputs["Scale"].default_value = (1.6, 1.6, 0.18)
+    links.new(coord.outputs["Object"], mapping.inputs["Vector"])
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 2.5
+    noise.inputs["Detail"].default_value = 4.0
+    links.new(mapping.outputs["Vector"], noise.inputs["Vector"])
+    shade = nodes.new("ShaderNodeMapRange")
+    shade.inputs["From Min"].default_value = 0.45
+    shade.inputs["From Max"].default_value = 0.7
+    shade.inputs["To Min"].default_value = 1.0
+    shade.inputs["To Max"].default_value = 0.62
+    links.new(noise.outputs["Fac"], shade.inputs["Value"])
+    mix = nodes.new("ShaderNodeVectorMath")
+    mix.operation = "SCALE"
+    links.new(colour, mix.inputs[0])
+    links.new(shade.outputs[0], mix.inputs["Scale"])
+    return mix.outputs[0]
 
 
 def shutter(name):
@@ -170,6 +202,7 @@ def glass(name, seed):
 
 
 def lit(name):
+    if LOWER: return kit.flat_material(name, "ffc46a", 8.0, "e09040")
     return kit.flat_material(name, "ffd690", 8.0, "e8a050")
 
 
@@ -192,6 +225,8 @@ def steel(name, seed, base="5d6266"):
 def _windows(prefix, width, depth, floors, floor_h, start, seed, sides=("front", "back", "left", "right"), lit_share=0.18):
     """Panes on every floor of the given sides; returns (glass, glow, units)."""
     random.seed(seed)
+    if LOWER and lit_share > 0.0: lit_share = 0.35
+    cage_share, unit_share = (0.5, 0.45) if LOWER else (0.35, 0.22)
     panes, glow, units = [], [], []
     sills, cages = [], []
     for side in sides:
@@ -214,7 +249,7 @@ def _windows(prefix, width, depth, floors, floor_h, start, seed, sides=("front",
                 out_dir = {"front": (0, -1), "back": (0, 1), "left": (-1, 0), "right": (1, 0)}[side]
                 sill_loc = (loc[0] + out_dir[0] * 0.08, loc[1] + out_dir[1] * 0.08, z - 0.7)
                 sills.append(kit.box(f"{prefix}s{side}{f}_{k}", (1.35, 0.2, 0.1), sill_loc, rot))
-                if random.random() < 0.35:
+                if random.random() < cage_share:
                     cage_loc = (loc[0] + out_dir[0] * 0.3, loc[1] + out_dir[1] * 0.3, z)
                     for b in range(5):
                         offset = -0.55 + b * 0.275
@@ -222,7 +257,7 @@ def _windows(prefix, width, depth, floors, floor_h, start, seed, sides=("front",
                         cages.append(kit.box(f"{prefix}c{side}{f}_{k}_{b}", (0.035, 0.035, 1.35), bar_loc))
                     cages.append(kit.box(f"{prefix}ct{side}{f}_{k}", (1.3, 0.55, 0.04), (cage_loc[0], cage_loc[1], z + 0.68), rot))
                 # An air conditioner hung under some windows.
-                if random.random() < 0.22:
+                if random.random() < unit_share:
                     out = 0.25
                     if side == "front": aloc = (u + 0.3, -depth * 0.5 - out, z - 0.95)
                     elif side == "back": aloc = (u + 0.3, depth * 0.5 + out, z - 0.95)
@@ -351,7 +386,7 @@ def _facade(prefix, width, depth, floors, floor_h, start, top, seed, sides=("fro
         place, rot = _side_frame(side, width, depth)
         along = width if side in ("front", "back") else depth
         for f in range(floors):
-            if random.random() > 0.45: continue
+            if random.random() > (0.75 if LOWER else 0.45): continue
             z = start + f * floor_h
             u = random.uniform(-along * 0.3, along * 0.3)
             bw = random.uniform(1.8, 2.6)
@@ -513,7 +548,8 @@ def _detail_parts(name, seed, width, depth, floors, floor_h, start, top, shop, s
     if tanks: parts.append((kit.join(tanks, "tanks"), painted(f"{name}_tanks_p", random.choice(["2e6fb0", "3a80c0", "c8c4b8"]), seed), "tanks"))
     if glass_parts: parts.append((kit.join(glass_parts, "panels"), glass(f"{name}_panels_p", seed), "panels"))
     if laundry + cloth_parts: parts.append((kit.join(laundry + cloth_parts, "laundry"), _laundry_material(f"{name}_laundry_p", seed), "laundry"))
-    if shop: parts.append((kit.join(_awning("", width, depth, seed), "awning"), cloth(f"{name}_awning_p", seed, random.choice(["3c7a5a", "b8402e", "2e6fb0", "c48a2a"])), "awning"))
+    awnings = ["2e4a3e", "6a3028", "2a3e58", "6a5228"] if LOWER else ["3c7a5a", "b8402e", "2e6fb0", "c48a2a"]
+    if shop: parts.append((kit.join(_awning("", width, depth, seed), "awning"), cloth(f"{name}_awning_p", seed, random.choice(awnings)), "awning"))
     return parts
 
 
@@ -552,7 +588,7 @@ def city_tea_house(seed=605):
     """茶餐厅: two storeys, wide signboard, awning over the door."""
     parts = _building("city_tea_house", 8.0, 6.0, 2, 3.2, "c9b58c", "c23b2c", seed, lit_share=0.35)
     awning = d.bbox("awning", (7.0, 1.4, 0.12), (0, -3.7, 2.7), (0.25, 0, 0), width=0.02)
-    parts.append((awning, cloth("city_tea_house_awning_p", seed, "3c7a5a"), "awning"))
+    parts.append((awning, cloth("city_tea_house_awning_p", seed, "2e4a3e" if LOWER else "3c7a5a"), "awning"))
     return parts
 
 
@@ -1126,15 +1162,114 @@ def city_helipad(seed=665):
             (kit.join(ring, "glow"), kit.flat_material("city_helipad_glow_p", "7ff0a8", 8.0, "40c070"), "glow")]
 
 
+# --- 下城 pieces (改造案 v1.1 §1.3) -------------------------------------------------------
+
+def _red_lantern(prefix, at, r=0.3):
+    """A round red paper lantern: its glowing body, gold caps, a tassel."""
+    x, y, z = at
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=14, ring_count=8, radius=r, location=(x, y, z))
+    body = bpy.context.object
+    body.name = f"{prefix}body"
+    body.scale = (1.0, 1.0, 0.82)
+    caps = [d.cyl(f"{prefix}top", r * 0.45, 0.08, (x, y, z + r * 0.8), vertices=10),
+            d.cyl(f"{prefix}foot", r * 0.45, 0.08, (x, y, z - r * 0.8), vertices=10),
+            kit.box(f"{prefix}tassel", (0.05, 0.05, r * 0.9), (x, y, z - r * 1.3))]
+    return [body], caps
+
+
+def city_lc_lantern(seed=691):
+    """红灯笼: an iron bracket out of the wall (origin on the wall at the
+    bracket's height, out towards -Y) and a red lantern hanging from it."""
+    iron = [kit.box("plate", (0.16, 0.04, 0.3), (0, -0.02, 0.0)),
+            kit.box("arm", (0.04, 0.7, 0.04), (0, -0.35, 0.1)),
+            kit.box("brace", (0.03, 0.5, 0.03), (0, -0.22, -0.06), (math.radians(35), 0, 0)),
+            kit.box("cord", (0.02, 0.02, 0.3), (0, -0.66, -0.05))]
+    body, caps = _red_lantern("l", (0, -0.66, -0.48), 0.3)
+    return [(kit.join(iron, "metal"), steel("city_lc_lantern_metal_p", seed, "2e3032"), "metal"),
+            (kit.join(caps, "caps"), painted("city_lc_lantern_caps_p", "b08a3a", seed), "caps"),
+            (kit.join(body, "glow"), kit.flat_material("city_lc_lantern_glow_p", "ff4a30", 6.0, "c02418"), "glow")]
+
+
+def city_lc_skybridge(seed=693):
+    """牌楼连廊: a covered bridge from building to building across a street,
+    SPAN kerb to kerb along x (its ends 0.6 m into the walls either side),
+    3.2 m deep along y; its floor 5 m up, a band of windows, red balusters
+    and brackets, a 歇山 roof of dark glazed tile with upturned corners and
+    ridge ends, a plaque at its middle, two red lanterns under it. Origin on
+    the ground at the middle of the street; stretched along x in the game."""
+    random.seed(seed)
+    span, depth = 10.0, 3.2
+    length = span + 1.2
+    floor_z, body_h = 5.0, 2.8
+    top = floor_z + 0.35 + body_h
+    walls = [d.bbox("body", (length, depth, body_h), (0, 0, floor_z + 0.35 + body_h * 0.5), width=0.03)]
+    trims = [kit.box("slab", (length + 0.2, depth + 0.5, 0.35), (0, 0, floor_z + 0.17)),
+             kit.box("beam", (length + 0.2, depth + 0.3, 0.25), (0, 0, top + 0.1))]
+    red, glass_parts, glow, gold = [], [], [], []
+    for sy in (-1, 1):
+        y = sy * (depth * 0.5 + 0.05)
+        # Balusters along the floor edge, a red rail over them.
+        red.append(kit.box(f"rail{sy}", (length, 0.08, 0.08), (0, y + sy * 0.18, floor_z + 1.15)))
+        for k in range(int(length / 0.4)):
+            red.append(kit.box(f"bal{sy}_{k}", (0.06, 0.06, 0.75), (-length * 0.5 + 0.2 + k * 0.4, y + sy * 0.18, floor_z + 0.75)))
+        # Red posts between the windows, and the windows (a third lit).
+        count = 7
+        for k in range(count + 1):
+            x = -span * 0.5 + k * span / count
+            red.append(kit.box(f"post{sy}_{k}", (0.18, 0.12, body_h), (x, y, floor_z + 0.35 + body_h * 0.5)))
+        for k in range(count):
+            x = -span * 0.5 + (k + 0.5) * span / count
+            pane = kit.box(f"win{sy}_{k}", (span / count - 0.4, 0.05, 1.2), (x, y + sy * 0.02, floor_z + 0.35 + body_h * 0.58))
+            (glow if random.random() < 0.4 else glass_parts).append(pane)
+        # Brackets (斗拱) under the eaves.
+        for k in range(12):
+            x = -length * 0.5 + 0.4 + k * (length - 0.8) / 11
+            red.append(kit.box(f"brk{sy}_{k}", (0.22, 0.4, 0.22), (x, y + sy * 0.2, top + 0.3)))
+    # The plaque on the street face (-Y), gold-framed.
+    gold.append(kit.box("plaque_frame", (2.2, 0.08, 0.8), (0, -depth * 0.5 - 0.42, top - 0.1)))
+    red.append(kit.box("plaque", (1.9, 0.1, 0.6), (0, -depth * 0.5 - 0.45, top - 0.1)))
+    # 歇山: a hipped lower roof all round, a gabled upper roof over it.
+    from build_siracusa_kit import roof as tiled_roof
+    lower_slab, lower_caps, _g = tiled_roof("lower", length + 0.4, depth + 0.6, top + 0.45, 0.9, overhang=0.8, hip=True)
+    upper_slab, upper_caps, gables = tiled_roof("upper", length * 0.72, depth * 0.55, top + 1.05, 1.0, overhang=0.25, hip=False)
+    roof_parts = [lower_slab, upper_slab] + lower_caps + upper_caps
+    walls += gables
+    # Upturned corners and the ridge's end ornaments.
+    w, dd = (length + 0.4) * 0.5 + 0.8, (depth + 0.6) * 0.5 + 0.8
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            roof_parts.append(kit.box(f"horn{sx}{sy}", (0.7, 0.18, 0.14), (sx * (w - 0.2), sy * (dd - 0.2), top + 0.62),
+                                      (0, sx * math.radians(-25), sx * sy * math.radians(45))))
+        roof_parts.append(kit.box(f"ridge_end{sx}", (0.25, 0.25, 0.55), (sx * (length * 0.36 + 0.1), 0, top + 2.35)))
+    lanterns, caps = [], []
+    for sy in (-1, 1):
+        y = sy * (depth * 0.5 - 0.3)
+        red.append(kit.box(f"cord{sy}", (0.02, 0.02, 0.5), (0, y, floor_z - 0.25)))
+        body, cap = _red_lantern(f"lan{sy}", (0, y, floor_z - 0.85), 0.38)
+        lanterns += body
+        caps += cap
+    roof_mat = _ramp_material("city_lc_skybridge_roof_p", [(0.3, "3c4a48"), (0.6, "56625e"), (0.95, "76827a")], 6.0, seed, 4.0)
+    return [(kit.join(walls, "wall"), plaster("city_lc_skybridge_wall_p", "8a8478", seed), "wall"),
+            (kit.join(trims, "trim"), concrete("city_lc_skybridge_trim_p", seed, "6a6c6e"), "trim"),
+            (kit.join(red, "red"), painted("city_lc_skybridge_red_p", "8a2a22", seed), "red"),
+            (kit.join(gold + caps, "gold"), painted("city_lc_skybridge_gold_p", "b08a3a", seed), "gold"),
+            (kit.join(roof_parts, "roof"), roof_mat, "roof"),
+            (kit.join(glass_parts, "glass"), glass("city_lc_skybridge_glass_p", seed), "glass"),
+            (kit.join(glow, "glow"), lit("city_lc_skybridge_glow_p"), "glow"),
+            (kit.join(lanterns, "lanterns_glow"), kit.flat_material("city_lc_skybridge_lanterns_glow_p", "ff4a30", 6.0, "c02418"), "lanterns_glow")]
+
+
 BUILDERS = [city_shop_house, city_tower, city_tea_house, city_ruin, city_shack_a, city_shack_b, city_shack_c,
             city_container, city_scaffold, city_water_barrier, city_hedgehog, city_sandbags, city_kiosk,
             city_gantry, city_wall, city_gate, city_overpass, city_culvert, city_helipad,
             city_row_low_a, city_row_low_b, city_row_mid, city_fence, city_street_lamp,
             city_traffic_light, city_hydrant, city_bin, city_postbox, city_bus_stop, city_phone_booth,
             city_vending, city_bollards, city_cones, city_car_wreck, city_manhole,
-            city_yard_fence, city_yard_gate, city_hoarding, city_site_gate, city_tower_crane]
+            city_yard_fence, city_yard_gate, city_hoarding, city_site_gate, city_tower_crane,
+            city_lc_lantern, city_lc_skybridge]
 PREVIEW = {"city_tower": 18.0, "city_gantry": 16.0, "city_overpass": 15.0, "city_gate": 12.0, "city_shop_house": 14.0,
-           "city_tea_house": 11.0, "city_ruin": 13.0, "city_wall": 8.0, "city_helipad": 10.0}
+           "city_tea_house": 11.0, "city_ruin": 13.0, "city_wall": 8.0, "city_helipad": 10.0,
+           "city_lc_skybridge": 14.0, "city_lc_lantern": 1.6}
 
 
 def publish(name, parts):
@@ -1168,6 +1303,16 @@ BAKE_SIZE = {"wall": 1024, "sheet": 1024, "box": 1024, "shutter": 512, "face": 2
 ## lanes with built again weathered as "<name>_worn".
 CLEAN_BUILDINGS = ["city_tower", "city_shop_house", "city_tea_house", "city_row_low_a", "city_row_low_b", "city_row_mid"]
 WORN = ["city_row_low_a", "city_row_low_b"]
+
+
+def rebuild_lower(new_scene, names=None):
+    """Through the MCP: the 下城 copy of every outer-city building."""
+    global CLEAN, LOWER
+    for name in names or CLEAN_BUILDINGS:
+        CLEAN, LOWER = False, True
+        new_scene(name + "_lower")
+        publish(name + "_lower", globals()[name]())
+    CLEAN, LOWER = False, False
 
 
 def rebuild_clean(new_scene):

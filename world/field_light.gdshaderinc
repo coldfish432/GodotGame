@@ -35,19 +35,14 @@ float field_dither(vec2 frag) {
 	return float(bayer[p.x + p.y * 4]) / 16.0 - 0.5;
 }
 
+// 场景渲染统一改造案_v1 S3: the field is lit by real lights now (the lamps
+// are OmniLights, the glow round her a light that follows her), so these
+// return the surface colour as it is; the light texture is no longer read.
+// Kept as functions so every field shader reads the same.
 vec3 field_lit(vec3 albedo, vec3 world_pos) {
-	vec2 uv = (world_pos.xz - field_light_rect.xy) / field_light_rect.zw;
-	vec3 light = texture(field_light, clamp(uv, vec2(0.0), vec2(1.0))).rgb;
-	if (field_player_light.w > 0.0) {
-		float d = clamp(length(world_pos.xz - field_player.xz) / field_player_light.w, 0.0, 1.0);
-		float rise = clamp(1.0 - abs(world_pos.y - field_player.y) / 3.0, 0.0, 1.0);
-		float fall = (1.0 - d * d) * (1.0 - d * d);  // smooth to zero at the rim
-		light += field_player_light.rgb * fall * rise;
-	}
-	return albedo * light;
+	return albedo;
 }
 
-// field_lit with a faint dither after shading (hides 8-bit light steps).
 vec3 field_lit_px(vec3 albedo, vec3 world_pos, vec2 frag) {
-	return field_lit(albedo, world_pos) + vec3(field_dither(frag) * 2.0 / 255.0);
+	return albedo;
 }

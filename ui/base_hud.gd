@@ -4,21 +4,20 @@ extends Control
 ## The hall HUD (界面策划案 v1.1 #12), after AK's 基建 overview: the sub-page top
 ## bar with the currency pills (GameManager._status_bar), a station list down
 ## the left in department colours with a yellow "!" where something waits
-## (open with its key, toggle_stations; which stations it lists is a setting), a
-## banner when prestige ranks up, the PRTS log bottom left and quick buttons
-## bottom right. Shown while she walks the base.
+## (open with its key, toggle_stations; which stations it lists is a setting),
+## the PRTS log bottom left and quick buttons bottom right. Shown while she
+## walks the base.
 
 var game: GameManager
 var _buttons: HBoxContainer
-var _last_rank := -1
-var _banner_left := 0.0
 
 ## [name, kind, colour] — kinds are the station menus they open.
 const STATIONS := [
 	["调度台", "contracts", Color("ffffff")], ["整备台", "loadout", Color("0098dc")], ["仓管台", "stash", Color("0098dc")],
 	["出库区", "outbound", Color("f5c000")], ["医疗前台", "report", Color("8fc31f")], ["药房窗口", "pharmacy", Color("8fc31f")],
 	["可露希尔的商店", "store", Color("8fc31f")], ["交易所", "exchange", Color("c48cff")], ["加工站", "workshop", Color("e0782a")],
-	["人事部", "personnel", Color("0098dc")],
+	["人事部", "personnel", Color("0098dc")], ["沙盘", "sand_table", Color("5fd0d8")], ["科研部", "research", Color("e0782a")],
+	["基建总控台", "construction", Color("e8b730")], ["农业部", "farm", Color("8fc31f")], ["食堂", "canteen", Color("e0a040")],
 ]
 
 func _ready() -> void:
@@ -26,24 +25,26 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_buttons = HBoxContainer.new()
 	_buttons.add_theme_constant_override("separation", 4)
-	_buttons.position = Vector2(1268 - 2 * 60 + 4, 708 - 48)
+	_buttons.position = Vector2(1268 - 3 * 60 + 4, 708 - 48)
+	_buttons.size = Vector2(3 * 60 - 4, 48)
+	_buttons.alignment = BoxContainer.ALIGNMENT_END
 	add_child(_buttons)
-	for entry in [["合同", "contracts"], ["菜单", "pause"]]:
+	for entry in [["基建", "construction"], ["合同", "contracts"], ["菜单", "pause"]]:
 		var b := AK.button(entry[0], "ghost", 12)
 		b.custom_minimum_size = Vector2(56, 48)
 		var kind: String = entry[1]
 		b.pressed.connect(func():
 			if kind == "pause": game.toggle_panel("pause")
 			else: game.open_station(kind))
+		b.set_meta("kind", kind)
 		_buttons.add_child(b)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if not is_instance_valid(game): return
 	visible = game.base_walk_active()
-	var rank := game.base.rank()
-	if _last_rank >= 0 and rank > _last_rank: _banner_left = 8.0
-	_last_rank = rank
-	_banner_left = maxf(0.0, _banner_left - delta)
+	# The 基建 quick button only once the hub stands (用户 2026-10-22).
+	for b in _buttons.get_children():
+		if b.get_meta("kind", "") == "construction": b.visible = game.base.hub_built()
 	if visible: queue_redraw()
 
 func _text(at: Vector2, text: String, size: int, color: Color, font: Font = null) -> float:
@@ -56,18 +57,12 @@ func _draw() -> void:
 	# Top bar.
 	for i in range(8):
 		draw_rect(Rect2(0, i * 7, 1280, 7), Color(0, 0, 0, 0.85 - i * 0.06))
-	_text(Vector2(18, 22), "RHODES ISLAND · BRIDGE HALL", 10, AK.MUTE, AK.en())
-	_text(Vector2(18, 46), "罗德岛 · 舰桥大厅", 20, AK.FG)
-	# Prestige banner, for a while after a rank up.
-	if _banner_left > 0.0:
-		var rank := game.base.rank()
-		var line := "声望提升：" + str(BaseCatalog.RANK_UNLOCKS[rank]).replace("；", " · ")
-		var w := AK.cn().get_string_size(I18n.t(line), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		var x := 640 - (w + 60) * 0.5
-		draw_rect(Rect2(x, 66, w + 60, 30), Color(0, 0, 0, 0.85))
-		draw_rect(Rect2(x, 66, 36, 30), AK.SP)
-		_text(Vector2(x + 7, 87), "R%d" % rank, 13, AK.INK, AK.en())
-		_text(Vector2(x + 48, 87), line, 13, AK.FG)
+	if game.deck == 2:
+		_text(Vector2(18, 22), "RHODES ISLAND · DECK 2", 10, AK.MUTE, AK.en())
+		_text(Vector2(18, 46), "罗德岛 · 第二层", 20, AK.FG)
+	else:
+		_text(Vector2(18, 22), "RHODES ISLAND · BRIDGE HALL", 10, AK.MUTE, AK.en())
+		_text(Vector2(18, 46), "罗德岛 · 舰桥大厅", 20, AK.FG)
 	_draw_stations()
 	# PRTS log.
 	var lines: Array = game.prts_log.slice(maxi(0, game.prts_log.size() - 4))
@@ -137,18 +132,39 @@ func _status(kind: String) -> String:
 		"personnel":
 			var ready := RecruitCatalog.RECRUITS.keys().filter(func(id): return game.base.recruit_ready(id)).size()
 			return "可寻访 %d" % ready if ready > 0 else "干员名册"
+		"sand_table":
+			var v := game.voyage
+			if v.is_sailing(): return "航行 → %s" % v.sailing.to
+			return "%s%s" % [v.place(), " · 驻留" if v.stay_on() else ""]
 		"workshop":
 			var jobs := game.workshop.busy()
 			return "加工中 %d" % jobs if jobs > 0 else "加工 · 打包"
+		"research":
+			if not game.research.is_open(): return "未建成"
+			var running := game.research.active().size()
+			return "研究中 %d · 课题 %d" % [running, game.research.projects().size()]
+		"construction":
+			if not game.base.hub_built(): return "未建成"
+			var ready := game.construction_ready()
+			return "可升级 %d" % ready if ready > 0 else "设施 · 扩建"
+		"farm":
+			if game.base.facility_level("farm") <= 0: return "未建成"
+			var ripe := game.provisions.ripe_count()
+			return "可收获 %d" % ripe if ripe > 0 else "水培槽 %d" % game.provisions.basins()
+		"canteen":
+			if game.base.facility_level("canteen") <= 0: return "未建成"
+			var meal := game.provisions.meal()
+			return ("烹饪中 %d" % game.provisions.jobs().size()) if not game.provisions.jobs().is_empty() else (meal if not meal.is_empty() else "厨房 · 用餐")
 	return ""
 
 func _claimable(kind: String) -> bool:
 	match kind:
 		"outbound": return _ready_orders() > 0
 		"report": return game.base.report_unread
-		"stash": return game.base.unseen_unlocks
 		"exchange": return not game.market.flash.is_empty()
 		"personnel": return RecruitCatalog.RECRUITS.keys().any(func(id): return game.base.recruit_ready(id))
+		"construction": return game.construction_ready() > 0
+		"farm": return game.provisions.ripe_count() > 0
 	return false
 
 func _ready_orders() -> int:

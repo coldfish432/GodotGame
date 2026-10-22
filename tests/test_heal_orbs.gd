@@ -35,7 +35,9 @@ func run() -> void:
 	p.hp = p.max_hp * 0.5
 	var orb := HealOrb.new()
 	orb.game = game
-	orb.fraction = 0.1
+	# 复利数值改造清单 E: a fixed tier-Ⅰ amount, × the floor's 档位系数.
+	orb.fraction = float(LootTables.HEAL_ORBS.normal.heal)
+	var orb_heal := orb.fraction * Scaling.tier_coef(game.floor_number)
 	game.add_child(orb)
 	orb.global_position = game.world_map.nearest_walkable(at + Vector3(4.0, 0, 0))
 	var placed := orb.global_position
@@ -48,8 +50,8 @@ func run() -> void:
 		if orbs().is_empty(): break
 	check("near her it drifts to her and is taken", orbs().is_empty())
 	# (Her own healing bonus applies, as to any heal.)
-	var expected := minf(p.max_hp, before + p.max_hp * 0.1 * (1.0 + float(p.stats.get("heal_pct", 0.0))))
-	check("it heals a tenth of her life at once", p.hp >= expected - 0.5 and p.hp <= expected + p.max_hp * 0.01, [before, p.hp, expected])
+	var expected := minf(p.max_hp, before + orb_heal * (1.0 + float(p.stats.get("heal_pct", 0.0))))
+	check("it heals its fixed amount at once", p.hp >= expected - 0.5 and p.hp <= expected + p.max_hp * 0.01, [before, p.hp, expected])
 	# 用户 2026-10-15: 治疗球会飞，角色吃不到 — the dropper sets an orb's place
 	# after add_child, and _ready took its landing spot then: the world origin,
 	# so every dropped orb flew off there. Dropped by a real kill on the flat,

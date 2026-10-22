@@ -452,7 +452,9 @@ func _height(point: Vector2, mass: bool) -> float:
 	# A flat-topped bank (rock_top_at), just roughened: a little noise that
 	# fades in from the rim, so the top meets the swept face's lip flush.
 	if field.urban: return rock_top_at(point)
-	return rock_top_at(point) + noise.get_noise_2dv(point * 0.65) * minf(depth * 0.1, 0.18)
+	# The cave's rock is lumpy stone, not a smoothed top (恐怖黎明's caves).
+	if field.region_id == "mine": return rock_top_at(point) + mountain_at(point) + noise.get_noise_2dv(point * 1.3) * minf(depth * 0.3, 0.9)
+	return rock_top_at(point) + mountain_at(point) + noise.get_noise_2dv(point * 0.65) * minf(depth * 0.1, 0.18)
 
 ## Surface height at x/z: the floor where open, the rock mass where not.
 func height_at(point: Vector2) -> float:
@@ -469,9 +471,6 @@ func height_at(point: Vector2) -> float:
 	return ha * (1.0 - fraction.y) + hc * fraction.x + _height(a + Vector2(0, CELL), true) * (fraction.y - fraction.x)
 
 ## `height`: the vertex's own height when the caller has it (mass vertices).
-## How far the city's pavement runs back from the road's edge, to the fronts.
-const PAVEMENT_DEPTH := 2.6
-
 func _color(point: Vector2, kind: int, height: float = NAN) -> Color:
 	if kind == 2:
 		# Cliff face: the darker rock of a bank's foot.
@@ -489,7 +488,10 @@ func _color(point: Vector2, kind: int, height: float = NAN) -> Color:
 		# The city's pavement, kerb to the buildings' feet (cliff_face.gdshader:
 		# city_pave reads G = 0 as pavement).
 		# The slums have no pavement: rubble and mud to the shacks' doors.
-		if field.region_id == "city": return Color(contact, 0.0 if depth < PAVEMENT_DEPTH and field.district_at(point) != "slum" else 1.0, contact, fade)
+		# Paved kerb to wall (用户 2026-10-20: 切面要平整): a 2.6 m strip,
+		# decided per vertex, cut the paving into notched islands.
+		if field.region_id == "city": return Color(contact, 0.0 if field.district_at(point) != "slum" else 1.0, contact, fade)
+		if field.region_id == "siracusa": return Color(contact, 0.0, contact, fade)
 		if field.urban: return Color(contact, 1.0, contact, fade)
 		return Color(contact, contact, contact, fade)
 	var road := 1.0 - smoothstep(1.3, 3.6, field.road_distance(point))
@@ -633,11 +635,28 @@ const MOUNTAIN_BLUR := 2
 const MOUNTAIN_SIGHT := 1.4
 var _mountain_grid := PackedFloat32Array()
 
+## The mine's cave (用户 2026-10-20: 矿洞应该有遮挡视线的岩壁和通天的石柱，表示
+##是在洞窟内): the rock behind the bank climbs steeply into walls, held down
+## before a road like the snow's mountains, and every rock island stands as a
+## pillar up out of sight. Their tops fade to black (cliff_face.gdshader
+## void_from) and open round Lappland when they stand in front of her.
+## Tall enough to run off the top of the screen from the follow camera
+## (用户 2026-10-20: 岩壁的视觉效果应该是一直延伸到屏幕顶端的): a wall's
+## foot 6 m beyond her shows 0.53 of its height on screen above it, so ~13 m
+## reaches the top at the default zoom; past ~22 m the orthographic camera's
+## near plane (it sits 18.9 m off her) would cut the top off.
+const CAVE_WALL := 20.0
+const CAVE_WALL_RISE := Vector2(1.2, 4.5)
+const CAVE_PILLAR := 22.0
+const CAVE_PLINTH := 1.0
+const CAVE_STEP := 1.6
+
 func _build_mountains() -> void:
 	var size := _height_grid.size()
 	_mountain_grid.resize(size)
 	_mountain_grid.fill(0.0)
-	if field.region_id != "snow": return
+	var cave: bool = field.region_id == "mine"
+	if field.region_id != "snow" and not cave: return
 	var shape := FastNoiseLite.new()
 	shape.seed = field.seed_value ^ 0x5a0c
 	shape.frequency = 0.028
@@ -668,14 +687,17 @@ func _build_mountains() -> void:
 			if _distance[i] >= 0.0: continue
 			var depth := -_distance[i]
 			# The rise starts 2.4 in: nearer the rim there is no mountain to read.
-			if depth <= 2.4: continue
+			var start := CAVE_WALL_RISE.x if cave else 2.4
+			if depth <= start: continue
 			var c := (z / 2) * coarse_width + x / 2
 			var fx := float(x % 2) * 0.5
 			var fz := float(z % 2) * 0.5
 			var n := lerpf(lerpf(coarse[c], coarse[c + 1], fx), lerpf(coarse[c + coarse_width], coarse[c + coarse_width + 1], fx), fz)
 			var h := smoothstep(2.4, 18.0, depth) * (0.25 + 0.75 * n) * MOUNTAIN_HEIGHT
+			if cave: h = smoothstep(start, CAVE_WALL_RISE.y, depth) * (0.8 + 0.2 * n) * CAVE_WALL
 			# Contour steps, then smoothed below.
-			h = floorf(h / MOUNTAIN_STEP) * MOUNTAIN_STEP
+			var contour := CAVE_STEP if cave else MOUNTAIN_STEP
+			h = floorf(h / contour) * contour
 			# Held down where a road lies to the north (towards +z) within sight.
 			var north := run[i + width] if z < rows else 100000
 			if north < 24: h = minf(h, float(north) * CELL * MOUNTAIN_SIGHT)
@@ -688,7 +710,28 @@ func _build_mountains() -> void:
 				if _distance[i] >= 0.0: continue
 				next[i] = (raw[i] * 4.0 + raw[i - 1] + raw[i + 1] + raw[i - width] + raw[i + width]) / 8.0
 		raw = next
+	if cave: _raise_pillars(raw)
 	_mountain_grid = raw
+
+## The rock islands inside the rooms: sheer to CAVE_PILLAR from just inside the
+## bank's rim, never held down (the cut-away keeps Lappland in view).
+func _raise_pillars(raw: PackedFloat32Array) -> void:
+	var width := columns + 1
+	# With the modelled columns (TerraceDressing.CAVE_PILLARS) the island is
+	# only their plinth.
+	var top := CAVE_PLINTH if TerraceDressing.cave_pillars_ready() else CAVE_PILLAR
+	for pillar in range(field._closed_circles.size()):
+		var circle: Vector3 = field._closed_circles[pillar]
+		var reach: float = field.pillar_reach(pillar) + CELL
+		var lo := Vector2i(((Vector2(circle.x, circle.y) - Vector2.ONE * reach - origin) / CELL).floor())
+		var hi := Vector2i(((Vector2(circle.x, circle.y) + Vector2.ONE * reach - origin) / CELL).ceil())
+		for z in range(maxi(0, lo.y), mini(rows, hi.y) + 1):
+			for x in range(maxi(0, lo.x), mini(columns, hi.x) + 1):
+				var i := z * width + x
+				if _distance[i] >= 0.0: continue
+				var inside: float = -field._pillar_distance(pillar, origin + Vector2(x, z) * CELL)
+				if inside <= 0.3: continue
+				raw[i] = maxf(raw[i], top * clampf((inside - 0.3) / 0.9, 0.0, 1.0))
 
 ## Mountain height above the bank at x/z (grid triangles, as the mesh).
 func mountain_at(point: Vector2) -> float:
@@ -809,7 +852,9 @@ func _triangle(tool: MeshArrays, a: Vector3, b: Vector3, c: Vector3, ca: Color, 
 		shaded.a = colors[i].a
 		tool.colors.append(shaded)
 		tool.uvs.append(Vector2(vertices[i].x, vertices[i].z) / 5.0)
-		tool.uv2s.append(Vector2(lights[i], 0.0))
+		# UV2.y: how far the rock stands above its bank, for the cave's
+		# fade to black (cliff_face.gdshader void_from).
+		tool.uv2s.append(Vector2(lights[i], mountain_at(Vector2(vertices[i].x, vertices[i].z))))
 		tool.vertices.append(vertices[i])
 
 func _finish(tool: MeshArrays, label: String) -> MeshInstance3D:
@@ -818,7 +863,7 @@ func _finish(tool: MeshArrays, label: String) -> MeshInstance3D:
 	node.mesh = tool.commit()
 	# Rock mass and banks take the swept faces' rock (CliffFace.rock_material),
 	# so the raised ground off the road reads as rock, not as painted floor.
-	node.material_override = FieldArt.terrain_material(field.region_id) if label == "WalkableTerrain" else CliffFace.rock_material(field.region_id)
+	node.material_override = FieldArt.terrain_material(field.region_id, FieldLight.key(field)) if label == "WalkableTerrain" else CliffFace.rock_material(field.region_id)
 	field._generated_root.add_child(node)
 	return node
 
@@ -1002,7 +1047,7 @@ func bundle_nodes(bundle: Bundle) -> Node3D:
 		var node := MeshInstance3D.new()
 		node.name = part[1]
 		node.mesh = (part[0] as MeshArrays).commit()
-		node.material_override = FieldArt.terrain_material(field.region_id) if part[1] == "WalkableTerrain" else CliffFace.rock_material(field.region_id)
+		node.material_override = FieldArt.terrain_material(field.region_id, FieldLight.key(field)) if part[1] == "WalkableTerrain" else CliffFace.rock_material(field.region_id)
 		root.add_child(node)
 	var ground_body := StaticBody3D.new()
 	ground_body.name = "WalkableTerrainCollision"

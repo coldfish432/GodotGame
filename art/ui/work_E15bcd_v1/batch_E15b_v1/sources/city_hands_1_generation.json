@@ -1,0 +1,9 @@
+{
+  "id": "city_hands_1",
+  "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-de877574-362d-42e6-a866-874ed878ec80.png",
+  "tool": "built-in imagegen",
+  "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Lungmen urban set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least22% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 拳馆缠手带: White boxing hand wraps, a little blood-brown at the knuckles. SPECIFIC CONSTRUCTION: Two EMPTY WHITE BOXING WRAPS forming two compact fists, wrapped thumbs, wrist openings, loose tails; one SMALL DULL BLOOD-BROWN stain at knuckles. No red ornament.",
+  "references": [
+    "D:\\CSYE 7370\\downfall-godot\\art\\ui\\work_E15bcd_v1\\batch_E15b_v1\\refs\\accepted_E15a_overview.png"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "generator": "built-in image_gen",
+  "revision_zip_sha256": "257306afb3d30eb2d57beb7249bd7d3dbed72893313c9aef8758cb5079cc40b4",
+  "files": {
+    "before_after_x6.png": {
+      "bytes": 5989,
+      "sha256": "b8a4376c8359d7366ff0522ad1f06652a7da37a837752c9922cbf2f1aaa0d345"
+    },
+    "build_stage1.py": {
+      "bytes": 7249,
+      "sha256": "2d6cd620196174d48ec644b82cf70bca64dc9da70b2fb8f7ccb4fecc61ac9e76"
+    },
+    "generation_prompts.md": {
+      "bytes": 8268,
+      "sha256": "a66a1f45ba6e8fac4838e80194930c18eccc30dea4e184ea384bf9286029433d"
+    },
+    "identity.png": {
+      "bytes": 1453,
+      "sha256": "364cb0ba82433b6d7fa5bd4fa9a00a2108315de83686be1239c126216beeacc7"
+    },
+    "identity_native_64.png": {
+      "bytes": 581,
+      "sha256": "0e81b61149c8a9447d87ea1f41c9f63163582a09f61fb93cbf4a2e4407ca2169"
+    },
+    "identity_on_ground.png": {
+      "bytes": 520756,
+      "sha256": "253f832d1f675ef146653f0e23f58c949c45ebc414f1fa0353c84464abcdcb1d"
+    },
+    "identity_on_ground_detail_x6.png": {
+      "bytes": 16060,
+      "sha256": "0051192802a382c0818e3643237217b09b5c45ad68caf76828715ba253184c8b"
+    },
+    "identity_vs_prts.png": {
+      "bytes": 35555,
+      "sha256": "2f151d8f18603d20f39249eefb25f878e589155894fc90dcd0451cc5721ce2f1"
+    },
+    "palette.json": {
+      "bytes": 199,
+      "sha256": "26ef7e0a52dab5941a3629fff728e3bca9a4b59d551e01653cdc210e0516019a"
+    },
+    "qa_report.json": {
+      "bytes": 2707,
+      "sha256": "d628e2d3d2498e5402ad3521f4c62fb0900012e1cc98fe240980b026c80c450f"
+    },
+    "source_paintings/civilian_generated.png": {
+      "bytes": 521625,
+      "sha256": "e246ecdbf48723f19f6debfbe905c713cc46fb6a86165565c7604b08888f6944"
+    }
+  }
+}

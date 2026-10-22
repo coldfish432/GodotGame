@@ -1,0 +1,290 @@
+[
+  {
+    "id": "snow_head_1",
+    "slot": "head",
+    "name": "冰原毛皮兜帽",
+    "layer": 0,
+    "description": "A **white fur-lined hood** with a leather drawstring.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 冰原毛皮兜帽: A white fur-lined hood with a leather drawstring. SPECIFIC CONSTRUCTION: EMPTY WHITE FUR-LINED HOOD, deep empty face opening, broad fluffy white fur trim and pale hide back, two LEATHER DRAWSTRING ENDS hanging at neck. Soft rounded hood silhouette, no cap. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_head_2",
+    "slot": "head",
+    "name": "科考队防风帽",
+    "layer": 1,
+    "description": "An **expedition-orange balaclava cap** with snow goggles pushed up.",
+    "batch": "E15c",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 科考队防风帽: An expedition-orange balaclava cap with snow goggles pushed up. SPECIFIC CONSTRUCTION: EMPTY EXPEDITION-ORANGE BALACLAVA CAP with SNOW GOGGLES PUSHED UP above eye opening. Orange padded cloth covers head and lower face, EMPTY DARK eye opening; no person, no eyes, no skin. Orange is fabric NOT glowing. Broad pale peach lit planes, small gray goggle lenses. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_head_3",
+    "slot": "head",
+    "name": "雪祀羽冠",
+    "layer": 2,
+    "description": "A **feathered headdress** of pale grey feathers on a bone band, a bead string at the side. Same feathers as 雪祀羽氅.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": "snow_x15",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Headgear alone, EMPTY with no face or head inside, three-quarter FRONT view; fill80%. SUBJECT 雪祀羽冠: A feathered headdress of pale grey feathers on a bone band, a bead string at the side. Same feathers as 雪祀羽氅. SPECIFIC CONSTRUCTION: FEATHERED HEADDRESS ALONE, tall fan of LONG PALE GRAY FEATHERS on an ivory BONE BAND, ONE BEAD STRING hanging down the SIDE. Match feather cloak reference white/gray feather material and bone accents. No face, skull, human head or body. Distinct open tall fan silhouette. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/snow_x15_8x.png"
+    ]
+  },
+  {
+    "id": "snow_hands_1",
+    "slot": "hands",
+    "name": "冰原兽皮手套",
+    "layer": 0,
+    "description": "A pair of **shaggy brown fur mittens**.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 冰原兽皮手套: A pair of shaggy brown fur mittens. SPECIFIC CONSTRUCTION: PAIR SHAGGY BROWN FUR MITTENS, chunky large tufts, each one broad mitten body plus thumb, short empty wrist opening. Broad pale tan fur lit planes, brown shadows, NO separated fingers, no bones. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_hands_2",
+    "slot": "hands",
+    "name": "猎人绑带护手",
+    "layer": 0,
+    "description": "**Leather hand wraps** with a strip of antler bone on the back.",
+    "batch": "E15c",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 猎人绑带护手: Leather hand wraps with a strip of antler bone on the back. SPECIFIC CONSTRUCTION: PAIR EMPTY LEATHER HAND WRAPS, two compact glove-like wrappings, thumbs visible, each with ONE STRIP OF ANTLER BONE on back. Broad tan lit leather folds and ivory bone, simple ties. No skin. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_hands_3",
+    "slot": "hands",
+    "name": "科考队加热手套",
+    "layer": 1,
+    "description": "**Orange insulated gloves** with a small battery pack on the cuff.",
+    "batch": "E15c",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 科考队加热手套: Orange insulated gloves with a small battery pack on the cuff. SPECIFIC CONSTRUCTION: PAIR ORANGE INSULATED GLOVES, bulky padded fingers, small rectangular BATTERY PACK on each wrist cuff. Expedition orange cloth non-glowing, broad pale peach highlights, gray battery housings no screen glow, no text. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_hands_4",
+    "slot": "hands",
+    "name": "雪祀骨片护腕",
+    "layer": 2,
+    "description": "**Bone-plate bracers** bound with red cord. Same bone plates as 骨片札甲.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": "bone_lamellar",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty hand gear, flat FRONT view, slightly overlapping, no hands/arms/skin inside, complete pair fill80%. SUBJECT 雪祀骨片护腕: Bone-plate bracers bound with red cord. Same bone plates as 骨片札甲. SPECIFIC CONSTRUCTION: PAIR SHORT BONE-PLATE BRACERS, staggered RECTANGULAR IVORY BONE LAMELLAE on dark leather cuffs, bound with thin RED CORD. Match bone chest reference warm ivory/beige plates, NOT white steel, no metal knuckles. No hands inside. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/bone_lamellar_8x.png"
+    ]
+  },
+  {
+    "id": "snow_legs_1",
+    "slot": "legs",
+    "name": "兽皮护腿",
+    "layer": 0,
+    "description": "**Fur-trimmed hide leggings**, laced at the side.",
+    "batch": "E15c",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 兽皮护腿: Fur-trimmed hide leggings, laced at the side. SPECIFIC CONSTRUCTION: ONE PAIR WIDE HEAVY HIDE LEGGINGS, broad fur-trimmed cuffs and knee rims, SIDE LACING with large crisscross cords. Brown hide with large pale tan lit planes. Both full hanging legs, wider than rope-bound wool trousers. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_legs_2",
+    "slot": "legs",
+    "name": "雪橇队绑腿",
+    "layer": 0,
+    "description": "**Grey wool trousers** with rope bindings from knee to ankle.",
+    "batch": "E15c",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 雪橇队绑腿: Grey wool trousers with rope bindings from knee to ankle. SPECIFIC CONSTRUCTION: ONE PAIR SLIM GRAY WOOL TROUSERS, thick ROPE BINDINGS spiral from KNEE TO ANKLE on both legs, shins tightly tapered. Broad pale ash-gray cloth faces, rope pale tan. Both full hanging legs with central gap. No fur trim, no boots. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_legs_3",
+    "slot": "legs",
+    "name": "科考队防寒裤",
+    "layer": 1,
+    "description": "**Orange padded snow trousers** with reinforced knees.",
+    "batch": "E15c",
+    "cloth": true,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 科考队防寒裤: Orange padded snow trousers with reinforced knees. SPECIFIC CONSTRUCTION: ONE PAIR ORANGE PADDED SNOW TROUSERS, broad quilted insulated legs, reinforced GRAY KNEES and ankle cuffs. Expedition orange is unlit fabric, broad pale peach/cream lit top-left planes. Both full hanging legs, no boots. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_legs_4",
+    "slot": "legs",
+    "name": "骨片札裙",
+    "layer": 2,
+    "description": "A **lamellar skirt of bone plates** over dark trousers. Same bone plates as 骨片札甲.",
+    "batch": "E15c",
+    "cloth": true,
+    "matchref": "bone_lamellar",
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items. Image2 is CHEST MATERIAL/COLOR reference; match material and dark base. Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. Both legs of one garment, flat FRONT view, waist at TOP, ankles at bottom, clear central gap, no boots/body, garment HEIGHT85%. SUBJECT 骨片札裙: A lamellar skirt of bone plates over dark trousers. Same bone plates as 骨片札甲. SPECIFIC CONSTRUCTION: SHORT FLARED LAMELLAR SKIRT OF IVORY BONE PLATES OVER DARK TROUSERS, 3 staggered horizontal rows of bone plates at hips, both trouser legs extend beneath skirt. Match bone chest WARM IVORY/TAN material; red cord tiny bindings, not large cloth panel. Broad pale bone faces over dark brown shadows, no steel. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png",
+      "refs/bone_lamellar_8x.png"
+    ]
+  },
+  {
+    "id": "snow_feet_1",
+    "slot": "feet",
+    "name": "驯鹿皮靴",
+    "layer": 0,
+    "description": "**Soft reindeer-hide boots** with curled toes and a coloured band.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 驯鹿皮靴: Soft reindeer-hide boots with curled toes and a coloured band. SPECIFIC CONSTRUCTION: PAIR SOFT REINDEER-HIDE BOOTS with distinctly CURLED-UP TOES, low soft shafts, one narrow RED/YELLOW woven COLOR BAND around shaft. Pale tan lit hide tops, darker leather soles; no steel, no antlers. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_feet_2",
+    "slot": "feet",
+    "name": "雪鞋",
+    "layer": 0,
+    "description": "A pair of **wooden-frame snowshoes** tied over plain boots.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 雪鞋: A pair of wooden-frame snowshoes tied over plain boots. SPECIFIC CONSTRUCTION: PAIR WOODEN-FRAME SNOWSHOES TIED OVER PLAIN BOOTS, LONG OVAL WOOD FRAMES extend beyond front and rear of each boot, coarse pale rope webbing visible inside frame, straps attach boots. Both snowshoes with central boot each, front3/4 side view. Tan wood frames pale lit, gray boots, transparent gaps between coarse webbing. No skis. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_feet_3",
+    "slot": "feet",
+    "name": "科考队防滑靴",
+    "layer": 1,
+    "description": "**Heavy orange-and-grey expedition boots**, deep-tread soles.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 科考队防滑靴: Heavy orange-and-grey expedition boots, deep-tread soles. SPECIFIC CONSTRUCTION: PAIR HEAVY ORANGE-AND-GRAY EXPEDITION BOOTS, broad tall padded ORANGE shafts, GRAY reinforced toes and heels, very chunky DEEP-TREAD SOLES. Unlit orange cloth, pale gray lit toe faces and pale peach folds. No spikes. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_feet_4",
+    "slot": "feet",
+    "name": "冰爪战靴",
+    "layer": 2,
+    "description": "**Dark fur boots with steel crampons** on the soles.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 72,
+    "prompt": "Use case: stylized-concept. Asset: ONE 72x72 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 72x72 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. A PAIR of empty footwear in three-quarter SIDE view, one slightly behind the other, both toes point lower left, no legs or feet inside, pair fills80%. SUBJECT 冰爪战靴: Dark fur boots with steel crampons on the soles. SPECIFIC CONSTRUCTION: PAIR DARK FUR BOOTS WITH STEEL CRAMPONS fixed under soles, broad pale SILVER TEETH point down and outward, heavy soft fur shafts with pale gray lit upper-left tufts, charcoal fur shadows. Clearly visible crampon frame and spikes under BOTH feet, no roller wheels. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_ring_1",
+    "slot": "ring",
+    "name": "角兽骨戒",
+    "layer": 0,
+    "description": "A ring **carved from pale bone**, a groove around it.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 角兽骨戒: A ring carved from pale bone, a groove around it. SPECIFIC CONSTRUCTION: ONE RING CARVED FROM PALE BONE, thick simple ivory band, ONE GROOVE around outside, warm tan recesses, one clearly lit creamy face, central hole transparent. No jewel. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_ring_2",
+    "slot": "ring",
+    "name": "族树木戒",
+    "layer": 0,
+    "description": "A **dark wooden ring** with fine grain.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 族树木戒: A dark wooden ring with fine grain. SPECIFIC CONSTRUCTION: ONE DARK WOODEN RING, thick simple brown wood band with FINE GRAIN as only2 or3 broad curved grain lines, not noise. Broad pale tan lit upper-left face covers25% object, dark walnut shadows. No gold or gemstone, transparent central hole. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_ring_3",
+    "slot": "ring",
+    "name": "冰晶指环",
+    "layer": 1,
+    "description": "A silver band holding **a small pale-blue ice crystal** (emit).",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 冰晶指环: A silver band holding a small pale-blue ice crystal (emit). SPECIFIC CONSTRUCTION: ONE SILVER BAND holding ONE SMALL PALE-BLUE ICE CRYSTAL. Crystal has cyan-blue internally LIT CORE fully within pale blue faceted dark-cyan rim; simple broad2x3 logical-pixel icy core survives32px. Small crystal around quarter ring width, not oversized jewel. No glow halo outside crystal, no orange. Clearly lit silver band face, transparent central hole. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  },
+  {
+    "id": "snow_ring_4",
+    "slot": "ring",
+    "name": "雪祀银环",
+    "layer": 2,
+    "description": "A **wide silver band** with three tiny bone beads set in it.",
+    "batch": "E15c",
+    "cloth": false,
+    "matchref": null,
+    "size": 32,
+    "prompt": "Use case: stylized-concept. Asset: ONE 32x32 inventory equipment icon for the Sami snow set of an Arknights extraction ARPG. Image1 is accepted E15a PIXEL ART STYLE reference only; do NOT copy its items.  Crisp painted LOW RESOLUTION pixel art, logical 32x32 canvas, enlarged hard square pixel clusters, 1-native-pixel near-black #0b0c0d outline, top-left light,4-5 simple tone ramps per material, at most24 colors. No dithering, grain, speckled noise or micro-scratches. Cloth uses broad smooth planes, just a few chunky folds. Naturally lit upper-left faces must cover at least30% whole opaque object in PALE tones luminance>=0.6, while keeping dark base in shadows. Dark navy/black stays dark on most surfaces with broad cool gray lit planes and a light rim. One base material; secondary material only functional parts. Genuine transparent background, fully opaque object, no shadow on ground, no background halo. No text, letters, numbers, emblems, logos, diamond markers, symbols, people, skin or mannequin. ONE ring only, slightly turned, band thick enough to read at32px, central hole genuinely transparent, fill85%. SUBJECT 雪祀银环: A wide silver band with three tiny bone beads set in it. SPECIFIC CONSTRUCTION: ONE WIDE SILVER BAND with EXACTLY THREE TINY BONE BEADS on upper outside edge, each round ivory bead separated by dark gaps, thick cool silver ring band, broad pale gray lit face, transparent central hole. CRITICAL NATIVE READABILITY: paint one LARGE contiguous visibly PALE upper-left face on the object, not only a thin rim or small flecks; reserve about one THIRD area for this light face, gray #bac3cf or paler for dark objects. Keep the remaining two thirds dark enough to match chest material. No noise.",
+    "references": [
+      "refs/accepted_E15a_overview.png"
+    ]
+  }
+]

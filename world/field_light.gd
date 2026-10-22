@@ -21,20 +21,26 @@ const REGIONS := {
 	# A darker night than it was (用户 2026-10-16: 龙门加霓虹灯), so the signs
 	# and their colours carry the street.
 	"city": {"ambient": Color(0.84, 0.86, 0.94), "player": Color(0.25, 0.2, 0.12), "player_radius": 7.0},
+	# 龙门城区 · 下城 (改造案 v1.1 §1.3): a cold blue-grey wet night, a shade
+	# darker than the upper city; the warmth in windows and red lanterns.
+	"city_lower": {"ambient": Color(0.62, 0.68, 0.82), "player": Color(0.25, 0.2, 0.12), "player_radius": 7.0},
 	# Cold white-blue under an overcast sky; the warm fires are the reprieve
 	# (暗黑 IV 碎峰岭: frigid palette against warm settlements).
 	"snow": {"ambient": Color(0.8, 0.86, 1.0), "player": Color(0.28, 0.22, 0.14), "player_radius": 7.0, "snow": 1.0},
-	# 叙拉古 (叙拉古方案 §3.4): a cool blue-grey night, the warmth all in the
-	# wall lanterns and the windows; darker still in the rain.
-	"siracusa": {"ambient": Color(0.74, 0.78, 0.9), "player": Color(0.28, 0.21, 0.13), "player_radius": 7.0},
-	"siracusa_rain": {"ambient": Color(0.62, 0.68, 0.84), "player": Color(0.28, 0.21, 0.13), "player_radius": 7.0},
+	# 叙拉古 (叙拉古方案 §3.4; 改造案 v1.1 §2: 黄昏到夜晚): dusk going to night,
+	# the warmth all in the wall lanterns, string lights and windows; darker
+	# still in the rain.
+	"siracusa": {"ambient": Color(0.58, 0.62, 0.76), "player": Color(0.28, 0.21, 0.13), "player_radius": 7.0},
+	"siracusa_rain": {"ambient": Color(0.5, 0.55, 0.7), "player": Color(0.28, 0.21, 0.13), "player_radius": 7.0},
 	# 罗德岛基地 (基地建模改造案_v1): a lit ship interior, cool and even, the
 	# ceiling lamps adding pools; only a faint glow round the operator.
 	"rhodes": {"ambient": Color(0.92, 0.95, 1.0), "player": Color(0.12, 0.12, 0.12), "player_radius": 5.0},
 }
 
-## The light's key for a floor: its region, and Siracusa's weather.
+## The light's key for a floor: its region, Siracusa's weather, Lungmen's
+## upper or lower city.
 static func key(map: Node3D) -> String:
+	if str(map.get("city_variant")) == "lower": return "city_lower"
 	return str(map.region_id) + ("_rain" if str(map.get("weather")) == "rain" else "")
 
 var origin := Vector2.ZERO
@@ -49,6 +55,7 @@ static func region(region_id: String) -> Dictionary:
 
 func build(map: Node3D, lamp_list: Array[Dictionary]) -> void:
 	lights = lamp_list
+	_sync_rig(map)
 	origin = map.SPINE_MIN - Vector2(36, 36)
 	var size: Vector2 = (map.SPINE_MAX + Vector2(36, 36)) - origin
 	columns = ceili(size.x / CELL)
@@ -141,6 +148,82 @@ func apply(region_id: String) -> void:
 	var glow: Color = region(region_id).player
 	RenderingServer.global_shader_parameter_set("field_player_light", Vector4(glow.r, glow.g, glow.b, float(region(region_id).player_radius)))
 	RenderingServer.global_shader_parameter_set("field_snow", float(region(region_id).get("snow", 0.0)))
+
+# --- Real lights (场景渲染统一改造案_v1 S3) ----------------------------------------
+## The shaders no longer read the light texture: every lamp is an OmniLight
+## (the texture is still baked for light_at and its tests). Lamps whose
+## light cannot reach within RIG_REACH of her are off, and no more than
+## RIG_LIMIT stay on (Lungmen's neon streets went to 44 fps); the nearest
+## RIG_SHADOWS cast shadows, re-picked every RIG_PICK seconds.
+const RIG_REACH := 30.0
+const RIG_LIMIT := 32
+const RIG_SHADOWS := 4
+const RIG_PICK := 0.5
+## Her feet, set by GameManager every frame in the field.
+static var focus := Vector3.ZERO
+var rig: LightRig
+
+func _sync_rig(map: Node3D) -> void:
+	var root: Node = map.get("_generated_root")
+	if root == null: return
+	if is_instance_valid(rig): rig.queue_free()
+	rig = LightRig.new()
+	rig.name = "FieldLights"
+	root.add_child(rig)
+	for lamp in lights:
+		var c: Color = lamp.color
+		var peak := maxf(c.r, maxf(c.g, c.b))
+		if peak <= 0.01: continue
+		var o := OmniLight3D.new()
+		o.light_color = Color(c.r / peak, c.g / peak, c.b / peak)
+		# The light texture added about the lamp's colour to the surface at its
+		# centre, smooth to nothing at its radius: matched by energy ~ peak.
+		o.omni_range = float(lamp.radius) * 1.15
+		o.light_energy = clampf(peak * 1.6, 0.25, 1.6)
+		o.omni_attenuation = 1.3
+		o.light_specular = 0.3
+		o.shadow_blur = 1.5
+		o.position = lamp.at   # the generated root and the rig sit at the origin
+		rig.add_child(o)
+	rig.pick()
+
+## The lights' Node: switches far lamps off and gives the near ones shadows.
+class LightRig extends Node3D:
+	var _wait := 0.0
+	func _process(delta: float) -> void:
+		_wait -= delta
+		if _wait > 0.0: return
+		_wait = FieldLight.RIG_PICK
+		pick()
+	func pick() -> void:
+		var at := FieldLight.focus
+		var near: Array = []
+		for o in get_children():
+			var light := o as OmniLight3D
+			if light == null: continue
+			var d := light.global_position.distance_to(at)
+			light.visible = false
+			light.shadow_enabled = false
+			# Ranked by how near its pool's edge comes to her.
+			if d < FieldLight.RIG_REACH + light.omni_range: near.append([d - light.omni_range * 0.5, light])
+		near.sort_custom(func(a, b): return a[0] < b[0])
+		for i in range(mini(FieldLight.RIG_LIMIT, near.size())): (near[i][1] as OmniLight3D).visible = true
+		for i in range(mini(FieldLight.RIG_SHADOWS, near.size())):
+			(near[i][1] as OmniLight3D).shadow_enabled = true
+	## Tint for a self-lit sprite at `p`, as BaseMap.light_tint.
+	func tint_at(p: Vector3, ambient: Color, pull: float) -> Color:
+		var sum := Color(0, 0, 0)
+		var weight := 0.0
+		for o in get_children():
+			var light := o as OmniLight3D
+			if light == null or not light.visible: continue
+			var d := light.global_position.distance_to(p)
+			if d >= light.omni_range: continue
+			var w := light.light_energy * pow(1.0 - d / light.omni_range, 2.0)
+			sum += light.light_color * w
+			weight += w
+		if weight <= 0.0: return ambient
+		return ambient.lerp(sum / weight, clampf(weight * pull, 0.0, pull))
 
 ## Back to unlit (the base, camps): a white pixel over everything, no glow.
 static func clear() -> void:

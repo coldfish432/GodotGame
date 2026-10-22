@@ -35,6 +35,8 @@ const MATERIALS := {
 	"全新装置": {"star": 3, "kind": "craft", "text": "重构后解决了主板空间问题，但能耗更高。"},
 	"改量装置": {"star": 4, "kind": "craft", "text": "大量私自改造的装置，扩容提速但牺牲了稳定性。"},
 	"研磨石": {"star": 3, "kind": "craft", "text": "不起爆、不粉化、不开裂，用于加工武器零件。"},
+	# 炎国's own, sold by 龙门商会: 定向重铸 (前缀放大与特效阶等案 §3).
+	"玄纹墨": {"star": 5, "kind": "craft", "source": "yan", "text": "炎国匠坊调的墨，描进器物的纹路里就不会褪。"},
 	"化合切削液": {"star": 3, "kind": "craft", "text": "金属加工中起润滑吸热作用，提高成品合格率。"},
 	"扭转醇": {"star": 3, "kind": "craft", "text": "化工中介体，液化后像酒精，常让整个工作间醉醺醺的。"},
 	"轻锰矿": {"star": 3, "kind": "craft", "text": "用来产出工业催化剂的金属矿物，加工事故比比皆是。"},
@@ -51,6 +53,12 @@ const MATERIALS := {
 	"技巧概要·卷2": {"star": 3, "kind": "craft", "text": "技能训练用的书籍，进阶篇。"},
 	"技巧概要·卷3": {"star": 4, "kind": "craft", "text": "技能训练用的书籍，专精篇。"},
 	"模组数据块": {"star": 5, "kind": "craft", "text": "解锁干员模组所需的数据。"},
+	# 作战记录 drop in the field (龙门币平衡与科研部策划案 v1.1 §2.1) and go to 人事部
+	# when they come home; worth next to nothing to sell, they are for experience.
+	"基础作战记录": {"star": 2, "kind": "record", "value": 1, "text": "记录了基础作战经验的影像资料。"},
+	"初级作战记录": {"star": 3, "kind": "record", "value": 1, "text": "记录了初级作战经验的影像资料。"},
+	"中级作战记录": {"star": 4, "kind": "record", "value": 1, "text": "记录了中级作战经验的影像资料。"},
+	"高级作战记录": {"star": 5, "kind": "record", "value": 1, "text": "记录了高级作战经验的影像资料。"},
 	"碳": {"star": 2, "kind": "base", "text": "碳原料，用于开发罗德岛的基础设施。"},
 	"碳素": {"star": 3, "kind": "base", "text": "碳素砖，轻、纯度高、好加工，用于开发基础设施。"},
 	"碳素组": {"star": 4, "kind": "base", "text": "一组碳素砖，每一块都饱含着燃烧的工业之魂。"},
@@ -90,6 +98,26 @@ const MATERIALS := {
 	# 萨米林地部族's goods (交易所事件表 §0.1: 萨米出口医药原材料).
 	"林地草药": {"star": 2, "kind": "base", "source": "sami", "stack": 20, "text": "萨米林地人采集晾干的草药，是医药原材料。"},
 	"鞣制兽皮": {"star": 3, "kind": "base", "source": "sami", "stack": 5, "size": Vector2i(2, 1), "text": "岩角兽的皮，鞣制后防寒耐磨。"},
+	# 势力特供 (势力特供策划案_v0_2 §二): each sold by one faction, used up in one department.
+	"高能燃料": {"star": 4, "kind": "base", "source": "special", "stack": 5, "text": "喀兰贸易给登山车队调的高能燃料，罗德岛号的引擎也吃得下。"},
+	"下城区耳目": {"star": 3, "kind": "base", "source": "special", "stack": 5, "text": "鼠王手下线人的一次口信，传闻是真是假，他们比报纸先知道。"},
+	"高纯源岩助熔剂": {"star": 4, "kind": "base", "source": "special", "stack": 5, "text": "乌萨斯西北矿场冶炼用的助熔剂，加进炉子里出料又快又多。"},
+	"萨米冰原苔": {"star": 4, "kind": "base", "source": "special", "stack": 5, "text": "萨米林地人从冰原上采来的苔藓，敷上后伤势和病痛都会退去。"},
+	"骑士工坊专利授权": {"star": 5, "kind": "base", "source": "special", "stack": 3, "text": "卡西米尔商业联合会出售的一次性专利授权，研究可以少走许多弯路。"},
+	"企鹅专递单": {"star": 4, "kind": "base", "source": "special", "stack": 5, "text": "企鹅物流的专递单，交给罗德岛小队或营地，多少东西都直接送回仓库。"},
+	"残党向导": {"star": 3, "kind": "base", "source": "special", "stack": 5, "text": "整合运动残党里熟悉地形的人，愿意指出这一层藏东西的地方。"},
+	"闪耀作物种子": {"star": 4, "kind": "base", "source": "special", "stack": 10, "text": "莱茵生命生态科培育的种子，长成后会在暗处发光。"},
+	"闪耀作物·变种种子": {"star": 5, "kind": "base", "source": "special", "stack": 5, "text": "生态科还在观察的变种，长得慢，光更亮。"},
+	# 农业部 and 食堂 (§四–§五): crops and the 补给 cooked from them.
+	"舰载麦": {"star": 1, "kind": "base", "source": "farm", "text": "农业部水培槽里长的麦子，舰上每顿饭的底料。"},
+	"块茎薯": {"star": 1, "kind": "base", "source": "farm", "text": "耐储存的块茎，食堂的主食。"},
+	"温室豆": {"star": 2, "kind": "base", "source": "farm", "text": "补光灯下长的豆子，蛋白质的来源。"},
+	"闪耀作物": {"star": 4, "kind": "base", "source": "farm", "stack": 5, "text": "莱茵生命的闪耀作物，收下来还在微微发光。"},
+	"闪耀作物·变种": {"star": 5, "kind": "base", "source": "farm", "stack": 3, "text": "变种的闪耀作物，光很亮，味道也更浓。"},
+	"舰内口粮": {"star": 2, "kind": "base", "source": "meal", "stack": 5, "text": "食堂压制的口粮块。"},
+	"食堂便当": {"star": 3, "kind": "base", "source": "meal", "stack": 5, "text": "主食、配菜和豆子装成的便当。"},
+	"闪耀定食": {"star": 4, "kind": "base", "source": "meal", "stack": 3, "text": "闪耀作物做主菜的定食，盘子里也亮着。"},
+	"变种盛宴": {"star": 5, "kind": "base", "source": "meal", "stack": 3, "text": "变种闪耀作物做的大餐，食堂一天只做得出几份。"},
 }
 
 static func star(id: String) -> int:

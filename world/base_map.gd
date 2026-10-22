@@ -18,7 +18,21 @@ const DATA_DIR := "res://art/rhodes_runtime/"
 ## 的位置布局): the west wing industrial (the warehouse, and 加工部 north of it,
 ## its door in the hall's west wall), the east the medical bay, the north
 ## corners the store and 人事部 (the old armory).
-const ROOMS := ["hall", "warehouse", "workshop", "medical", "store", "armory"]
+const ROOMS := ["hall", "warehouse", "workshop", "medical", "store", "armory", "lab",
+	"deck2", "deck2_x", "farm", "farm2", "mess", "galley", "sealed_w", "sealed_nw", "sealed_ne", "sealed_n", "sealed_sw", "sealed_se"]
+## The second deck (势力特供策划案_v0_2 §三; 用户 2026-10-22: 整体轮廓相同，
+## 房间分隔不用一样，第二层不需要舰桥这个大片区域): the first deck's outline
+## 320 m east, divided its own way (tools/blender/base/make_deck2_rooms.py) —
+## the lift on the north wall and a road south from it to a corridor, 食堂
+## and its kitchen, 农业部 in the east wing, the rest sealed for now. Reached
+## only by the lift; the camera keeps to the deck she is on.
+const DECK2_ROOMS := ["deck2", "deck2_x", "farm", "farm2", "mess", "galley", "sealed_w", "sealed_nw", "sealed_ne", "sealed_n", "sealed_sw", "sealed_se"]
+## Doorways shut for now, by room: [side, where along it (x for north, z
+## for west and east)]. Each is a blast door, and a collider closes it.
+## A doorway wider than OPENING is an opening: no door, no wall.
+const SEALED_DOORS := {"deck2_x": [["west", -26.0], ["north", 416.0]], "sealed_w": [["east", -26.0]],
+	"sealed_sw": [["north", 352.0]], "sealed_se": [["north", 416.0]]}
+const OPENING := 6.0
 const ORIGIN := Vector3(0, 0, -400)
 const EAST := -1.0
 const PX := 1.0 / 15.0
@@ -28,6 +42,10 @@ const GROUND_PX_PER_UNIT := 12.7
 ## shift their image down to match; sorting then compares feet with feet.
 const SORT_PIVOT_Y := 0.96
 const PIVOT_SCREEN_PX := SORT_PIVOT_Y * 0.5300 * 15.0  # 0.53 = cos(58°), the screen rise per unit height
+## The same at the camera's tilt now (GameManager._keep_sprites_upright), for
+## billboards placed every frame; ones placed once are kept by the camera's
+## "upright_sprites" group instead.
+static var pivot_screen_px := PIVOT_SCREEN_PX
 const INTERACT_RANGE := 3.0
 ## The game camera never yaws or pitches, so a quad turned to this basis once
 ## is a billboard (same orientation Sprite3D's billboard mode produces).
@@ -47,7 +65,7 @@ const WALL_BAY := 4.0
 ## The bridge wall round the lift (用户 2026-10-18: 主控台变大，突出宏伟).
 const BRIDGE_HALF := 20.2
 ## Half the width each fixed wall piece takes from its run.
-const PIECE_HALF := {"wall_door": 2.0, "bridge_wall": 20.2}
+const PIECE_HALF := {"wall_door": 2.0, "sealed_door": 2.0, "bridge_wall": 20.2}
 ## Ribs along a modelled room's side walls.
 const COLUMN_PITCH := 12.0
 ## How far a wall collider may sit off its room's edge and still count as that wall.
@@ -95,10 +113,12 @@ const PROP_MODELS := {
 ## Sol's painted plates (基地材质美术需求_v1 R1/R3/R10, 6 m a tile) are used
 ## once they are in art/kit/textures/painted/; until then the stand-ins (2 m).
 const PAINTED := "res://art/kit/textures/painted/"
-const DECK_PAINTED := {"medical": "base_deck_med", "store": "base_deck_store"}
+const DECK_PAINTED := {"medical": "base_deck_med", "store": "base_deck_store", "lab": "base_deck_lab"}
 const DECK_TILES := {
 	"medical": preload("res://art/kit/textures/base_deck_med.png"),
 	"store": preload("res://art/kit/textures/base_deck_store.png"),
+	# 科研部 borrows the medical deck until Sol's RS2 plate arrives.
+	"lab": preload("res://art/kit/textures/base_deck_med.png"),
 }
 ## Rooms with the logo laid into the floor: [layout x, z, size] of the logo
 ## and its colour ([] for the hall's: the middle of the room, steel grey).
@@ -110,10 +130,12 @@ const DECK_INLAY := {"hall": [64.0, -25.6, 7.6, Color(0.5, 0.54, 0.57)], "medica
 ## (walls, floors, partitions) and what hangs on a wall or a rail keep their
 ## size; crowded rows (racks, crates, pallets) are scaled less, to their pitch.
 const PROP_SCALE := 1.4
-const UNSCALED := ["wall_", "bridge_wall", "lift_gate", "command_dais", "market_wall", "holo_screen_frame", "lounge_rug", "holo_table", "column", "floor_", "zone_frame",
+const UNSCALED := ["research_holo", "wall_", "bridge_wall", "lift_gate", "command_dais", "market_wall", "holo_screen_frame", "lounge_rug", "holo_table", "column", "floor_", "zone_frame",
 	"med_zone", "med_floor_line", "med_partition", "armory_rail", "rail_hoist", "intel_wall", "container_stack", "gantry_crane",
 	"conveyor", "south_barrier", "big_screen", "cargo_lift", "scan_gate", "directory_board", "goods_shelf", "weapon_wall_rack",
-	"order_board", "sand_table", "cell_", "store_sign"]
+	"order_board", "sand_table", "cell_", "store_sign", "build_", "cable_trunk", "drone_pad", "order_screen",
+	# 农业部's swirl keeps its 1.5 m grid (势力特供策划案 §四).
+	"hydro_basin", "crop_"]
 const PROP_SCALES := {"rack_hatch": Vector3(1.12, 1.0, 1.2), "rack_hatch_leaf": Vector3(1.12, 1.0, 1.2), "rack_": 1.25,
 	"crate_": 1.25, "pallet": 1.2, "case": 1.05, "lab_bench": 1.15, "med_cabinet": 1.25}
 
@@ -160,7 +182,7 @@ const DECOR := {
 		["first_aid", 116.0, -21.5, 0.0, 0.0, [3.8, 0.8]],
 		# 整备台 by the lift: equip, then step onto the lift (用户: 整备后直接出发).
 		["armory_bench", 78.5, -5.0, 0.0, 0.0, [6.0, 1.26]], ["weapon_rack_stand", 88.6, -4.6, 0.0, 0.0, [2.4, 0.9]],
-		["case", 74.0, -8.6, 0.0, 0.0, [2.4, 0.7]], ["case", 83.0, -8.6, 0.0, 0.0, [2.4, 0.7]],
+		["case", 74.0, -8.6, 0.0, 0.0, [2.4, 0.7]],
 		# 交易所 (north-west): the market wall, two rows of trading desks, the counter.
 		# 全息行情巨幕 (用户 2026-10-18: 改为全息超大屏，显示 K 线和涨跌): the
 		# emitter pylons and rail; the screen and the quote ring over the
@@ -191,7 +213,7 @@ const DECOR := {
 		["hanging_sign_store", 7.5, -2.5, 0.0, 3.3, []], ["hanging_sign_personnel", 124.9, -2.5, 0.0, 3.3, []],
 		["hanging_sign_exchange", 40.0, -22.0, 0.0, 3.3, []], ["hanging_sign_lounge", 21.0, -29.5, 0.0, 3.3, []],
 		["hanging_sign_loadout", 78.5, -3.0, 0.0, 3.3, []], ["hanging_sign_logistics", 49.5, -3.0, 0.0, 3.3, []],
-		["hanging_sign_workshop", 4.0, -8.0, 0.0, 3.3, []],
+		["hanging_sign_workshop", 4.0, -8.0, 0.0, 3.3, []], ["hanging_sign_research", 123.8, -46.0, 0.0, 3.3, []],
 		# The directory over the crossroads of the main street and the axis.
 		["hanging_directory", 64.0, -29.6, 0.0, 3.4, []],
 		# 货运区 (north-east): supplies come in on the conveyor and wait under
@@ -232,9 +254,80 @@ const DECOR := {
 		["rack_material", -14.0, 4.9, 0.0, 0.0, [4.2, 1.2]], ["rack_material", -8.0, 4.9, 0.0, 0.0, [4.2, 1.2]],
 		["robot_arm", -28.0, -0.6, 0.0, 0.0, [2.25, 1.2]], ["cargo_cart", -17.0, -0.4, 0.0, 0.0, [1.9, 1.0]],
 		["armory_bench", -34.0, -4.4, 0.0, 0.0, [6.0, 1.26]], ["crate_stack", -22.5, -5.2, 0.0, 0.0, [2.3, 1.0]],
-		["case", -17.5, -5.6, 0.0, 0.0, [2.4, 0.7]], ["plant", -3.0, 5.0, 0.0, 0.0, [0.8, 0.8]],
+		["case", -17.5, -5.6, 0.0, 0.0, [2.4, 0.7]],
 		["pallet", -10.0, -5.4, 0.0, 0.0, [2.4, 1.3]], ["crate_small_sealed", -10.0, -5.4, 0.0, 0.25, []],
 	],
+	# 科研部 (龙门币平衡与科研部策划案_v1_1 §5.3): sample cabinets, the analyser,
+	# the fume hood and the fridge on the north wall; the research tree's
+	# hologram west of centre with the terminal in front, the originium
+	# chamber east of it; benches east; only low things on the camera side.
+	"lab": [
+		["sample_cabinet", 132.6, -40.0, 0.0, 0.0, [2.4, 0.8]], ["sample_cabinet", 135.8, -40.0, 0.0, 0.0, [2.4, 0.8]],
+		["originium_scanner", 147.0, -40.8, 0.0, 0.0, [2.9, 2.6]], ["fume_hood", 157.8, -40.1, 0.0, 0.0, [2.6, 1.1]],
+		["sample_fridge", 162.5, -39.8, 0.0, 0.0, [0.9, 0.8]], ["med_sink", 165.5, -39.9, 0.0, 0.0, [1.4, 0.7]],
+		["research_holo", 141.0, -46.6, 0.0, 0.0, [5.1, 5.1]],
+		["originium_chamber", 152.6, -46.9, 0.0, 0.0, [3.3, 3.3]],
+		["lab_bench", 160.4, -45.6, 0.0, 0.0, [4.1, 0.8]], ["lab_bench", 160.4, -49.6, 0.0, 0.0, [4.1, 0.8]],
+		["lab_bench", 166.2, -45.6, 90.0, 0.0, [0.8, 4.1]],
+		["desk", 133.6, -53.8, 180.0, 0.0, [3.0, 1.2]], ["med_cart", 147.5, -54.2, 0.0, 0.0, [1.1, 0.7]],
+		["cargo_cart", 156.0, -54.0, 0.0, 0.0, [1.9, 1.0]], ["crate_stack", 164.0, -54.4, 0.0, 0.0, [2.3, 1.0]],
+		["plant", 130.4, -55.0, 0.0, 0.0, [0.8, 0.8]], ["plant", 168.0, -40.2, 0.0, 0.0, [0.8, 0.8]],
+	],
+	# 农业部 (势力特供策划案 §四), the second deck's east wing opened into one
+	# (用户 2026-10-22: 农业部放到右侧两个房间，墙壁打通 … 中间墙删掉，重新布局):
+	# two sun-lamp rooms along the north, the third south-east of them past
+	# the door (their basins: _farm_swirl); the terminal by the door, tanks
+	# on the east wall, the potting and seed store along the south.
+	"farm": [
+		["water_tank", 491.6, -25.0, 0.0, 0.0, [2.6, 2.0]], ["water_tank", 491.6, -29.6, 0.0, 0.0, [2.6, 2.0]],
+		["med_sink", 452.0, -33.0, 90.0, 0.0, [0.7, 1.4]],
+		["plant", 451.0, -17.0, 0.0, 0.0, [0.8, 0.8]], ["plant", 492.4, -34.6, 0.0, 0.0, [0.8, 0.8]],
+	],
+	"farm2": [
+		["water_tank", 452.4, -52.6, 0.0, 0.0, [2.6, 2.0]], ["water_tank", 456.6, -52.6, 0.0, 0.0, [2.6, 2.0]],
+		["seed_cabinet", 463.0, -54.6, 0.0, 0.0, [2.4, 0.8]], ["seed_cabinet", 466.6, -54.6, 0.0, 0.0, [2.4, 0.8]],
+		["rack_material", 473.4, -55.3, 0.0, 0.0, [4.2, 1.2]],
+		["potting_bench", 466.0, -46.0, 0.0, 0.0, [3.6, 1.0]], ["potting_bench", 474.0, -46.0, 0.0, 0.0, [3.6, 1.0]],
+		["compost_bin", 486.6, -53.4, 0.0, 0.0, [1.6, 1.2]], ["compost_bin", 486.6, -50.2, 0.0, 0.0, [1.6, 1.2]],
+		["cargo_cart", 482.0, -46.0, 0.0, 0.0, [1.9, 1.0]], ["crate_stack", 455.0, -44.0, 0.0, 0.0, [2.3, 1.0]],
+	],
+	# 食堂 (§五), north of the corridor: the serving counter under the
+	# kitchen's door (BaseWorks builds it), long tables either side of the
+	# way in from the corridor (x 348), vending machines on the east wall.
+	"mess": [
+		["mess_table", 328.5, -10.0, 0.0, 0.0, [6.0, 2.6]], ["mess_table", 338.5, -10.0, 0.0, 0.0, [6.0, 2.6]],
+		["mess_table", 358.5, -10.0, 0.0, 0.0, [6.0, 2.6]], ["mess_table", 368.5, -10.0, 0.0, 0.0, [6.0, 2.6]],
+		["mess_table", 328.5, -16.6, 0.0, 0.0, [6.0, 2.6]], ["mess_table", 338.5, -16.6, 0.0, 0.0, [6.0, 2.6]],
+		["mess_table", 358.5, -16.6, 0.0, 0.0, [6.0, 2.6]], ["mess_table", 368.5, -16.6, 0.0, 0.0, [6.0, 2.6]],
+		["vending_machine", 375.6, -4.0, -90.0, 0.0, [1.0, 1.4]], ["vending_machine", 375.6, -6.6, -90.0, 0.0, [1.0, 1.4]],
+		["dish_rack", 321.4, -5.0, 90.0, 0.0, [0.8, 2.6]], ["dispenser", 363.0, -1.3, 0.0, 0.0, [0.6, 0.6]],
+		["plant", 321.6, -19.6, 0.0, 0.0, [0.8, 0.8]], ["plant", 375.4, -19.6, 0.0, 0.0, [0.8, 0.8]], ["plant", 357.0, -1.2, 0.0, 0.0, [0.8, 0.8]],
+	],
+	# The kitchen north of 食堂, for show (用户 2026-10-22: 添加厨房区域，仅作为装饰):
+	# the ranges on its north wall (BaseWorks), a prep island, fridges, a sink.
+	"galley": [
+		["dish_rack", 321.3, 5.0, 90.0, 0.0, [0.8, 2.6]], ["lab_bench", 329.5, 5.2, 0.0, 0.0, [4.1, 0.8]],
+		["sample_fridge", 337.2, 6.4, -90.0, 0.0, [0.8, 0.9]], ["sample_fridge", 337.2, 5.0, -90.0, 0.0, [0.8, 0.9]],
+		["med_sink", 334.6, 1.3, 0.0, 0.0, [1.4, 0.7]],
+	],
+	# The road from the lift on the north wall down to the corridor (用户
+	# 2026-10-22: 升降梯是在中间的上面，中间留出道路).
+	"deck2": [
+		["cargo_lift", 384.0, -1.9, 0.0, 0.0, []],
+		["plant", 378.9, -19.4, 0.0, 0.0, [0.8, 0.8]], ["plant", 389.1, -19.4, 0.0, 0.0, [0.8, 0.8]],
+	],
+	"deck2_x": [
+		["bench", 350.0, -29.9, 0.0, 0.0, [3.2, 0.8]], ["bench", 418.0, -29.9, 0.0, 0.0, [3.2, 0.8]],
+		["plant", 322.0, -29.8, 0.0, 0.0, [0.8, 0.8]], ["plant", 446.0, -29.8, 0.0, 0.0, [0.8, 0.8]],
+	],
+	# Sealed for now (用户 2026-10-22: 实在没东西放的区域可以暂时封闭): stores under tarps.
+	"sealed_w": [["build_crate_tarp", 262.0, -20.0, 10.0, 0.0, []], ["build_crate_tarp", 290.0, -32.0, -12.0, 0.0, []],
+		["crate_stack", 275.0, -38.0, 0.0, 0.0, []], ["pallet", 305.0, -16.0, 0.0, 0.0, []]],
+	"sealed_nw": [["build_crate_tarp", 290.0, 0.0, 6.0, 0.0, []], ["pallet", 305.0, -2.0, 0.0, 0.0, []]],
+	"sealed_ne": [["build_crate_tarp", 400.0, -8.0, 8.0, 0.0, []], ["pallet", 412.0, -5.0, 0.0, 0.0, []], ["build_crate_tarp", 428.0, -14.0, -10.0, 0.0, []]],
+	"sealed_n": [["build_crate_tarp", 434.0, 7.0, 0.0, 0.0, []]],
+	"sealed_sw": [["build_crate_tarp", 338.0, -42.0, 12.0, 0.0, []], ["crate_stack", 352.0, -38.0, 0.0, 0.0, []], ["build_crate_tarp", 366.0, -49.0, -6.0, 0.0, []]],
+	"sealed_se": [["build_crate_tarp", 400.0, -45.0, -8.0, 0.0, []], ["pallet", 420.0, -50.0, 0.0, 0.0, []], ["build_crate_tarp", 432.0, -40.0, 14.0, 0.0, []]],
 	# 人事部, in the old armory (用户 2026-10-18: 这里变成人事部): the front desk,
 	# the operators' roster hologram, file cabinets, an interview table.
 	"armory": [
@@ -293,10 +386,35 @@ const GUIDE_LINES := {"medical": [
 const FLOOR_ZONES := {"medical": [
 	["med_zone_ward", 143.2, 3.9, 174.0, -2.85], ["med_zone_ward", 143.2, -30.15, 174.0, -36.9],
 	["med_zone_treat", 150.75, -7.25, 166.35, -25.85],
-]}
-## Each room's wall bay and ceiling light (the medical bay white and cool).
-const WALL_MODELS := {"medical": "wall_panel_med"}
-const LAMP_COLOURS := {"medical": Color(0.36, 0.38, 0.4)}
+], "lab": [["med_zone_treat", 148.6, -43.2, 156.6, -51.2]]}
+## Each room's wall bay and ceiling light (the medical bay white and cool,
+## 农业部 the warm white of grow lights, 食堂 warm).
+const WALL_MODELS := {"medical": "wall_panel_med", "lab": "wall_panel_med", "farm": "wall_panel_med", "farm2": "wall_panel_med"}
+const SEALED_LAMP := Color(0.07, 0.07, 0.08)
+const LAMP_COLOURS := {"medical": Color(0.36, 0.38, 0.4), "lab": Color(0.3, 0.33, 0.37), "farm": Color(0.4, 0.38, 0.3), "mess": Color(0.4, 0.33, 0.24),
+	"farm2": Color(0.4, 0.38, 0.3), "galley": Color(0.4, 0.35, 0.28), "sealed_w": SEALED_LAMP, "sealed_nw": SEALED_LAMP, "sealed_ne": SEALED_LAMP,
+	"sealed_n": SEALED_LAMP, "sealed_sw": SEALED_LAMP, "sealed_se": SEALED_LAMP}
+
+## 农业部's swirl (Provisions.basin_rect): the sun lamp at this layout spot,
+## a tile this many metres. Basins are drawn by _farm_swirl, crops by set_farm.
+const FARM_CENTRES := [Vector2(461.0, -6.5), Vector2(482.0, -6.5), Vector2(476.0, -31.0)]
+const FARM_TILE := 1.5
+## Crops stand on the basin's bed (build_base_kit.CROP_Y).
+const CROP_Y := 0.72
+const CROP_MODELS := {"舰载麦": "crop_wheat", "块茎薯": "crop_tuber", "温室豆": "crop_bean", "闪耀作物": "crop_shine", "闪耀作物·变种": "crop_shine_var"}
+## Ripe shining crops light their basin (the RimWorld nod, 势力特供策划案 §4.2).
+const CROP_GLOW := {"闪耀作物": Color(0.45, 0.95, 1.0), "闪耀作物·变种": Color(0.85, 0.6, 1.0)}
+## Rooms whose south side is another room's north wall.
+const SHARED_SOUTH := ["mess", "sealed_ne", "deck2", "deck2_x", "sealed_nw", "farm"]
+## 科研部's own pieces stand in for these until they are built in Blender and
+## exported (build_base_kit.LAB_BUILDERS).
+const STAND_INS := {"sample_cabinet": "med_cabinet", "fume_hood": "lab_bench", "originium_chamber": "originium_scanner",
+	# 基建设施修订案 v1.1 §六, until build_base_kit.WORKS_BUILDERS are exported.
+	"build_post": "stash_terminal", "build_tape": "floor_stripe", "build_crate_tarp": "crate_large_sealed", "build_barrier": "south_barrier",
+	"build_cone": "plant", "build_lamp": "pendant_lamp", "build_scaffold": "rail_hoist", "build_console": "dispatch_console",
+	"cable_trunk": "floor_stripe", "relay_cabinet": "file_cabinets", "drone_pad": "floor_frame", "order_screen": "wall_sign",
+	"pack_rig": "weapon_rack_stand", "secure_safe": "case", "closure_fridge": "vending_machine", "display_case_lock": "display_case",
+	"research_holo": "roster_holo", "hanging_sign_research": "hanging_sign_workshop"}
 ## The base's layout (用户 2026-10-18: 重整主基地摆放逻辑): the old pixel props
 ## standing where a new area now is are left out, [x0, z0, x1, z1] per room:
 ## the hall's north-west is the exchange floor, its south-west the operators'
@@ -311,16 +429,21 @@ const PROP_CLEAR := {"hall": [[0.0, -23.6, 44.0, 0.0], [0.0, -55.0, 44.0, -28.5]
 ## workshop gets the old cargo bay.)
 const STATION_SPOTS := {
 	"workbench": ["hall", 78.5, -5.0], "logistics": ["hall", 49.5, -5.0], "exchange": ["hall", 25.5, -21.2],
+	# The lift up to the second deck, by the departure lift's gate.
+	"deck_lift": ["hall", 71.5, -1.8],
+	# The sand table's near edge, off the main street (沙盘航行策划案 §6).
+	"sand_table": ["hall", 64.0, -30.6],
 	"personnel": ["armory", 113.0, 7.5],
 }
-const STATION_LABELS := {"exchange": ["exchange", "交易所终端"], "personnel": ["personnel", "人事部终端"],
+const STATION_LABELS := {"exchange": ["exchange", "交易所终端"], "sand_table": ["sand_table", "沙盘"], "personnel": ["personnel", "人事部终端"], "deck_lift": ["lift", "升降梯"],
 	"logistics": ["insurance", "后勤柜台：投保"]}
 ## Spawns placed by the layout: she comes back up the lift, so she arrives at it.
-const SPAWN_SPOTS := {"arrival": [64.0, -4.0]}
+const SPAWN_SPOTS := {"arrival": [64.0, -4.0], "deck_lift": [71.5, -4.4]}
 ## Lanes painted on a room's deck: [layout x from, x to, z].
 const LANES := {"warehouse": [[-63.0, -24.0, -25.8], [-63.0, -24.0, -29.6]],
 	# The hall's main street, west door to east door, broken at the axis.
-	"hall": [[4.0, 57.0, -23.8], [71.0, 124.0, -23.8], [4.0, 57.0, -28.2], [71.0, 124.0, -28.2]]}
+	"hall": [[4.0, 57.0, -23.8], [71.0, 124.0, -23.8], [4.0, 57.0, -28.2], [71.0, 124.0, -28.2]],
+	"deck2_x": [[322.0, 446.0, -24.2], [322.0, 446.0, -27.8]]}
 ## The crane's legs stand at either end of its span.
 const CRANE_HALF_SPAN := 13.0
 ## Expansion joints across a modelled room's deck at these layout x.
@@ -399,6 +522,11 @@ var warehouse_reveal: RoomReveal
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(player): return
+	_shadow_pick -= _delta
+	if _shadow_pick <= 0.0:
+		_shadow_pick = SHADOW_PICK
+		_pick_shadows()
+	_tint_sprites()
 	if ship_marker != null:
 		# The hologram turns slowly and breathes up and down over its spot.
 		_holo_time += _delta
@@ -435,6 +563,7 @@ func _ready() -> void:
 		light = FieldLight.new()
 		light.build_area(_model_bounds.grow(4.0), "rhodes", _lamps)
 		FieldLight.clear()
+	_build_lights()
 	if rooms.has("warehouse"):
 		warehouse_reveal = RoomReveal.new()
 		warehouse_reveal.setup(self, "warehouse", "shelf:")
@@ -444,6 +573,88 @@ func _ready() -> void:
 ## Layout coordinates (x east, z north, ground units) to a global position.
 func to_world(x: float, z: float, y: float = 0.0) -> Vector3:
 	return ORIGIN + Vector3(EAST * x, y, z)
+
+# --- Real lights (场景渲染统一改造案_v1 §4.3) ------------------------------------
+## The lamps the light texture used to carry are lights: ceiling lamps, the
+## screens' glow and the originium. The nearest SHADOW_LIGHTS ceiling lamps to
+## her cast shadows, re-picked every SHADOW_PICK seconds as she walks.
+const SHADOW_LIGHTS := 6
+const SHADOW_PICK := 0.5
+var lights: Array[OmniLight3D] = []
+var _ceiling_lights: Array[OmniLight3D] = []
+var _shadow_pick := 0.0
+
+func _build_lights() -> void:
+	for lamp in _lamps:
+		var c: Color = lamp.color
+		var peak := maxf(c.r, maxf(c.g, c.b))
+		if peak <= 0.0: continue
+		var at: Vector3 = lamp.at
+		var ceiling := at.y > 3.0
+		var o := OmniLight3D.new()
+		o.name = "Lamp"
+		o.light_color = Color(c.r / peak, c.g / peak, c.b / peak)
+		o.omni_range = float(lamp.radius) * (1.7 if ceiling else 1.6)
+		o.light_energy = (2.0 if ceiling else 0.9) * clampf(peak * 3.0, 0.4, 1.4)
+		o.light_specular = 0.25 if ceiling else 0.5
+		o.omni_attenuation = 1.2
+		o.shadow_blur = 1.5
+		o.distance_fade_enabled = true
+		o.distance_fade_begin = 40.0
+		o.distance_fade_length = 10.0
+		add_child(o)
+		o.global_position = at
+		lights.append(o)
+		if ceiling: _ceiling_lights.append(o)
+	_pick_shadows()
+
+## The colour the lamps around `at` cast, as a tint for a self-lit sprite:
+## white pulled a little towards the nearby lights' hue and the room's cool
+## ambient, never darker than the sprite as drawn (a dark tint read as a
+## black face, 用户 2026-10-20).
+const AMBIENT_TINT := Color(0.95, 0.97, 1.0)
+const TINT_PULL := 0.28
+func light_tint(at: Vector3) -> Color:
+	var sum := Color(0, 0, 0)
+	var weight := 0.0
+	for o in lights:
+		var d := o.global_position.distance_to(at)
+		if d >= o.omni_range: continue
+		var w := o.light_energy * pow(1.0 - d / o.omni_range, 2.0)
+		sum += o.light_color * w
+		weight += w
+	if weight <= 0.0: return AMBIENT_TINT
+	var hue := sum / weight
+	return AMBIENT_TINT.lerp(hue, clampf(weight * TINT_PULL, 0.0, TINT_PULL))
+
+## Tints the sprites walking the base, and shows their contact shadows.
+func _tint_sprites() -> void:
+	var sprites: Array = []
+	if is_instance_valid(player) and player.get("_sprite") is LapplandAnimator3D: sprites.append(player._sprite)
+	if is_instance_valid(crew):
+		for w in crew.walkers:
+			for c in (w.body as Node).get_children():
+				if c is LapplandAnimator3D: sprites.append(c)
+	for s: LapplandAnimator3D in sprites:
+		s.scene_tint = light_tint(s.global_position)
+		if is_instance_valid(s.contact_shadow): s.contact_shadow.visible = true
+
+## A floor zone is self-lit paint, not a lamp: kept under the bloom threshold
+## so it does not flare white under the real lights.
+const ZONE_GLOW := 0.62
+func _dim_glow(piece: MeshInstance3D, gain: float) -> void:
+	for s in range(piece.mesh.get_surface_count()):
+		var m := piece.get_active_material(s) as ShaderMaterial
+		if m == null or m.shader != TerraceDressing.GLOW_SHADER: continue
+		var dim := m.duplicate() as ShaderMaterial
+		dim.set_shader_parameter("gain", gain)
+		piece.set_surface_override_material(s, dim)
+
+func _pick_shadows() -> void:
+	var at: Vector3 = player.global_position if is_instance_valid(player) else global_position
+	var order := _ceiling_lights.duplicate()
+	order.sort_custom(func(a, b): return a.global_position.distance_squared_to(at) < b.global_position.distance_squared_to(at))
+	for i in range(order.size()): (order[i] as OmniLight3D).shadow_enabled = i < SHADOW_LIGHTS
 
 func set_active(active: bool) -> void:
 	visible = active
@@ -459,23 +670,42 @@ func spawn_point(name: String) -> Vector3:
 
 ## Keeps a 640×360 view from showing the void past the outer walls.
 ## Half a screen is 320 px = 21.3 units across and 180 px ≈ 14.2 units down the ground.
-func clamp_camera(target: Vector3) -> Vector3:
+## `zoom` is the camera's size over the default one; `yaw` its turn
+## (GameManager.camera_yaw): the limits are taken across and up the screen,
+## against the base's extent that way, so a turned view still stops at it.
+## `tilt` stretches the reach up and down the ground (sin 58° over sin of the tilt).
+func clamp_camera(target: Vector3, zoom: float = 1.0, yaw: float = 0.0, tilt: float = 1.0) -> Vector3:
 	var local := target - ORIGIN
-	var east := EAST * local.x
 	var bounds := _bounds()
-	east = clampf(east, bounds.position.x + 21.3, maxf(bounds.position.x + 21.3, bounds.end.x - 21.3))
-	local.z = clampf(local.z, bounds.position.y + 13.6, maxf(bounds.position.y + 13.6, bounds.end.y - 6.0))
-	return ORIGIN + Vector3(EAST * east, local.y, local.z)
+	# Layout x east, y north: screen right and screen up for this turn.
+	var right := Vector2(1, 0).rotated(yaw)
+	var up := Vector2(0, 1).rotated(yaw)
+	var at := Vector2(EAST * local.x, local.z)
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for corner in [bounds.position, Vector2(bounds.end.x, bounds.position.y), bounds.end, Vector2(bounds.position.x, bounds.end.y)]:
+		var p := Vector2(corner.dot(right), corner.dot(up))
+		lo = lo.min(p)
+		hi = hi.max(p)
+	var across := clampf(at.dot(right), lo.x + 21.3 * zoom, maxf(lo.x + 21.3 * zoom, hi.x - 21.3 * zoom))
+	var along := clampf(at.dot(up), lo.y + 13.6 * zoom * tilt, maxf(lo.y + 13.6 * zoom * tilt, hi.y - 6.0 * zoom * tilt))
+	var back := right * across + up * along
+	return ORIGIN + Vector3(EAST * back.x, local.y, back.y)
 
-var _cached_bounds := Rect2()
-## Layout-space extent of all ground quads: x east, y = z north.
+var _cached_bounds := {}
+## Which deck she is on (GameManager.deck): the camera keeps to its rooms.
+var deck := 1
+## Layout-space extent of the deck's ground quads: x east, y = z north.
 func _bounds() -> Rect2:
-	if _cached_bounds.has_area(): return _cached_bounds
+	if _cached_bounds.has(deck): return _cached_bounds[deck]
+	var out := Rect2()
 	for room in rooms.values():
+		if (str(room.id) in DECK2_ROOMS) != (deck == 2): continue
 		var g: Dictionary = room.ground
 		var r := Rect2(g.x, g.z - g.h_px / GROUND_PX_PER_UNIT, g.w_px * PX, g.h_px / GROUND_PX_PER_UNIT)
-		_cached_bounds = r if not _cached_bounds.has_area() else _cached_bounds.merge(r)
-	return _cached_bounds
+		out = r if not out.has_area() else out.merge(r)
+	_cached_bounds[deck] = out
+	return out
 
 func navigation_map_rid() -> RID:
 	return _navigation.get_navigation_map()
@@ -535,6 +765,7 @@ func _add_closure() -> void:
 	figure.position = Vector3(EAST * CLOSURE_SPOT.x, SORT_PIVOT_Y, CLOSURE_SPOT.y)
 	figure.offset.y -= PIVOT_SCREEN_PX
 	figure.double_sided = true
+	figure.add_to_group("upright_sprites")
 	get_node("store").add_child(figure)
 
 ## Removes a prop added with add_prop().
@@ -547,6 +778,7 @@ func remove_prop(room_id: String, sprite: Sprite3D) -> void:
 func place_billboard(sprite: Sprite3D, x: float, z: float, lift_px: float = 0.0) -> void:
 	sprite.position = Vector3(EAST * x, SORT_PIVOT_Y, z)
 	sprite.offset = Vector2(0, sprite.texture.get_height() * 0.5 + lift_px - PIVOT_SCREEN_PX)
+	sprite.set_meta("upright_shift", 0.0)
 
 func texture_at(path: String) -> Texture2D: return _texture(path)
 
@@ -570,9 +802,10 @@ func station(id: String) -> Dictionary:
 func _build_backdrop() -> void:
 	var backdrop := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
-	plane.size = Vector2(700, 400)
+	# Under both decks (the second stands 320 m east of the first).
+	plane.size = Vector2(1100, 400)
 	backdrop.mesh = plane
-	backdrop.position = Vector3(EAST * 86.0, -0.05, -20.0)
+	backdrop.position = Vector3(EAST * 215.0, -0.05, -20.0)
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.albedo_color = Color("0b0c0d")
@@ -638,6 +871,7 @@ func _billboard(texture: Texture2D, x: float, z: float, lift_px: float) -> Sprit
 	# Bottom edge on the feet (raised by lift for hanging items), corrected for the pivot height.
 	sprite.offset = Vector2(0, texture.get_height() * 0.5 + lift_px - PIVOT_SCREEN_PX)
 	sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+	sprite.add_to_group("upright_sprites")
 	return sprite
 
 func _add_floor_collider(x: float, z: float, w: float, d: float) -> void:
@@ -688,9 +922,10 @@ func _build_model_room(root: Node3D, room: Dictionary) -> void:
 	for zone in FLOOR_ZONES.get(room.id, []):
 		var piece := _place_kit(root, zone[0], Vector3(EAST * (zone[1] + zone[3]) * 0.5, 0.0, (zone[2] + zone[4]) * 0.5))
 		piece.scale = Vector3(absf(zone[3] - zone[1]), 1.0, absf(zone[4] - zone[2]))
+		_dim_glow(piece, ZONE_GLOW)
 	var openings := _wall_openings(room)
 	var north: Array = []
-	for gap in openings.north: north.append([gap[0], gap[1], "wall_door"])
+	for gap in openings.north: north.append([gap[0], gap[1], _door_model(room, "north", gap)])
 	for entry in room.sprites:
 		if _prop_spec(entry) == ["lift_gate"]:
 			north.append([float(entry.x) - BRIDGE_HALF, float(entry.x) + BRIDGE_HALF, "bridge_wall"])
@@ -700,14 +935,14 @@ func _build_model_room(root: Node3D, room: Dictionary) -> void:
 	# West and east walls run south; the south wall stays low so it hides
 	# nobody standing in front of it.
 	var west: Array = []
-	for gap in openings.west: west.append([gap[0], gap[1], "wall_door"])
+	for gap in openings.west: west.append([gap[0], gap[1], _door_model(room, "west", gap)])
 	_wall_run(root, -z0, -z0 + size_z, func(t): return Vector3(EAST * x0, 0.0, -t), PI / 2.0, west, 1.0)
 	var east: Array = []
-	for gap in openings.east: east.append([gap[0], gap[1], "wall_door"])
+	for gap in openings.east: east.append([gap[0], gap[1], _door_model(room, "east", gap)])
 	_wall_run(root, -z0, -z0 + size_z, func(t): return Vector3(EAST * (x0 + size_x), 0.0, -t), -PI / 2.0, east, 1.0)
 	# A room north of the hall (the store, the armory) has the hall's north
 	# wall for its south side.
-	if room.id == "hall" or absf(z0 - size_z) > 0.01:
+	if (room.id == "hall" or absf(z0 - size_z) > 0.01) and not room.id in SHARED_SOUTH:
 		_wall_run(root, x0, x0 + size_x, func(t): return Vector3(EAST * t, 0.0, z0 - size_z), PI, [], SOUTH_WALL_SCALE)
 	_partitions(root, room)
 	# Ribs along the side walls, clear of the doors.
@@ -776,6 +1011,8 @@ func _build_model_room(root: Node3D, room: Dictionary) -> void:
 				var leg: float = d[1] + side * CRANE_HALF_SPAN
 				_add_box(leg - 0.4, d[2] - 0.4, leg + 0.4, d[2] + 0.4)
 		if d[0] == "holo_table": _add_hologram(root, float(d[1]), float(d[2]))
+		if d[0] == "research_holo": _add_research_holo(root, float(d[1]), float(d[2]))
+		if d[0] == "originium_chamber": _lamps.append({"at": to_world(d[1], d[2], 1.8), "color": Color(0.5, 0.22, 0.07), "radius": 5.0})
 		if d[0] == "holo_screen_frame": _add_market_holo(root, float(d[1]), float(d[2]))
 		if d[0] == "trading_post":
 			_add_quote_ring(root, float(d[1]), float(d[2]))
@@ -783,6 +1020,7 @@ func _build_model_room(root: Node3D, room: Dictionary) -> void:
 		if d[0] in ["med_bed", "med_bed_used"]: _dress_bed(root, Vector3(EAST * float(d[1]), 0.0, float(d[2])), false, z0)
 		if d[0] in ["holo_table", "intel_wall"]:
 			_lamps.append({"at": to_world(d[1], d[2] - 1.0, 1.0), "color": SCREEN_LAMP.color, "radius": SCREEN_LAMP.radius * 1.6})
+	if room.id == "farm": _farm_swirl(root)
 	for line in GUIDE_LINES.get(room.id, []):
 		var from := Vector2(line[1], line[2])
 		var to := Vector2(line[3], line[4])
@@ -910,6 +1148,34 @@ func set_market(source: MarketState) -> void:
 ## capitals and the mobile cities, the sea round it, the lines dividing the
 ## regions (用户 2026-10-18: 用分割线分出各区域，海也建模), and the little
 ## Rhodes Island over where the ship is.
+## 科研部's research tree over its console: one light per node, seven
+## departments across and six tiers up, lit by set_research (no text).
+var research_lights := {}
+const RESEARCH_HOLO_HEIGHT := 1.3
+const RESEARCH_HOLO_PITCH := Vector2(0.55, 0.42)
+
+func _add_research_holo(root: Node3D, x: float, z: float) -> void:
+	var dot := BoxMesh.new()
+	dot.size = Vector3(0.22, 0.22, 0.05)
+	for c in range(ResearchCatalog.DEPARTMENTS.size()):
+		var department: String = ResearchCatalog.DEPARTMENTS[c]
+		for t in range(1, 7):
+			var mi := MeshInstance3D.new()
+			mi.mesh = dot
+			mi.position = Vector3(EAST * (x + (c - 3) * RESEARCH_HOLO_PITCH.x), RESEARCH_HOLO_HEIGHT + (t - 1) * RESEARCH_HOLO_PITCH.y, z)
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			root.add_child(mi)
+			research_lights[ResearchCatalog.node_id(department, t)] = mi
+	_lamps.append({"at": to_world(x, z - 1.0, 1.5), "color": Color(0.9, 0.55, 0.25), "radius": 5.0})
+	set_research([], [])
+
+## Done nodes in their department's colour, running ones bright, the rest faint.
+func set_research(done: Array, running: Array) -> void:
+	for id in research_lights:
+		var colour: Color = ResearchCatalog.DEPARTMENT_COLORS[ResearchCatalog.department_of(id)]
+		var strength := 1.4 if id in done else (2.2 if id in running else 0.25)
+		(research_lights[id] as MeshInstance3D).material_override = _hologram(colour if id in done or id in running else Color(0.55, 0.75, 0.85), strength)
+
 func _add_hologram(root: Node3D, x: float, z: float) -> void:
 	_holo_centre = Vector2(x, z)
 	var origin := Vector3(EAST * x, HOLO_HEIGHT, z)
@@ -1189,6 +1455,16 @@ func set_ship_at(place: String) -> void:
 	ship_marker.position = Vector3(at.x, _ship_base_y, at.z)
 	_ship_ring.position = at + Vector3(0, 0.04, 0)
 
+## Under way: the ship `t` (0–1) along the leg from `from` to `to`.
+func set_ship_between(from: String, to: String, t: float) -> void:
+	if ship_marker == null: return
+	ship_place = to
+	var p := TerraMap.place_local(from).lerp(TerraMap.place_local(to), clampf(t, 0.0, 1.0))
+	var at := Vector3(EAST * _holo_centre.x, HOLO_HEIGHT, _holo_centre.y) + p
+	_ship_base_y = at.y + SHIP_HOVER
+	ship_marker.position = Vector3(at.x, _ship_base_y, at.z)
+	_ship_ring.position = at + Vector3(0, 0.04, 0)
+
 ## Whether a pixel prop stands where the layout has put a new area (PROP_CLEAR).
 func _cleared(room_id: String, x: float, z: float) -> bool:
 	for r in PROP_CLEAR.get(room_id, []):
@@ -1343,7 +1619,26 @@ func _wall_openings(room: Dictionary) -> Dictionary:
 		for span in list:
 			if span[0] - at > 1.0: out[side].append([at, span[0]])
 			at = maxf(at, span[1])
+		if float(ends[side][1]) - at > 1.0: out[side].append([at, ends[side][1]])
 	return out
+
+## The doorway at `gap` on `side` ([from, to] along the run): an airlock,
+## or a blast door when it is sealed (SEALED_DOORS), which a collider shuts.
+func _door_model(room: Dictionary, side: String, gap: Array) -> String:
+	var mid: float = (float(gap[0]) + float(gap[1])) * 0.5
+	if float(gap[1]) - float(gap[0]) > OPENING: return "-"
+	for entry in SEALED_DOORS.get(room.id, []):
+		if entry[0] != side: continue
+		var at: float = float(entry[1]) if side == "north" else -float(entry[1])
+		if absf(at - mid) > 1.6: continue
+		var x0: float = room.origin[0]
+		var z0: float = room.origin[1]
+		match side:
+			"north": _add_box(mid - 2.0, z0 - 0.7, mid + 2.0, z0 + 0.7)
+			"west": _add_box(x0 - 0.7, -mid - 2.0, x0 + 0.7, -mid + 2.0)
+			"east": _add_box(x0 + float(room.size[0]) - 0.7, -mid - 2.0, x0 + float(room.size[0]) + 0.7, -mid + 2.0)
+		return "sealed_door"
+	return "wall_door"
 
 ## Lays a wall from `from` to `to` (run coordinates; `place` turns one into a
 ## local position): the pieces in `fixed` ([from, to, model]; a doorway sits
@@ -1351,6 +1646,10 @@ func _wall_openings(room: Dictionary) -> Dictionary:
 func _wall_run(root: Node3D, from: float, to: float, place: Callable, yaw: float, fixed: Array, height: float) -> void:
 	var pieces: Array = []
 	for f in fixed:
+		# "-": an opening, left without a wall.
+		if f[2] == "-":
+			pieces.append([f[0], f[1], ""])
+			continue
 		var mid: float = (f[0] + f[1]) * 0.5
 		var half: float = PIECE_HALF.get(f[2], WALL_BAY * 0.5)
 		pieces.append([mid - half, mid + half, f[2]])
@@ -1365,7 +1664,7 @@ func _wall_run(root: Node3D, from: float, to: float, place: Callable, yaw: float
 			for k in range(count):
 				_place_kit(root, WALL_MODELS.get(_building_room, "wall_panel"), place.call(at + (k + 0.5) * bay), yaw, Vector3(bay / WALL_BAY, height * WALL_HEIGHT, 1.0))
 		if p[2] != "":
-			_place_kit(root, p[2], place.call((p[0] + p[1]) * 0.5), yaw, Vector3(1.0, height * (WALL_HEIGHT if p[2] == "wall_door" else 1.0), 1.0))
+			_place_kit(root, p[2], place.call((p[0] + p[1]) * 0.5), yaw, Vector3(1.0, height * (WALL_HEIGHT if p[2] in ["wall_door", "sealed_door"] else 1.0), 1.0))
 		at = maxf(at, p[1])
 
 ## The deck: one quad over the room, the plate tiled in world space and the
@@ -1399,6 +1698,9 @@ func _add_deck(root: Node3D, x0: float, z0: float, size_x: float, size_z: float,
 	material.shader = DECK_SHADER
 	material.set_shader_parameter("deck_tex", tile)
 	material.set_shader_parameter("metres_per_tile", plate[1])
+	# The plate's relief (场景渲染统一改造案_v1 S2), made from its colour beside it.
+	var relief_path := tile.resource_path.replace(".png", "_normal.png")
+	if ResourceLoader.exists(relief_path): material.set_shader_parameter("deck_normal", load(relief_path))
 	material.set_shader_parameter("inlay_tex", LOGO)
 	if _building_room != "": room_visuals[_building_room].shaders.append(material)
 	# The logo lies whole between the command ring and the waiting benches.
@@ -1420,6 +1722,7 @@ func _add_deck(root: Node3D, x0: float, z0: float, size_x: float, size_z: float,
 ## about 3 ms a call, and the base places some 900 pieces.
 static var _kit_meshes := {}
 static func _kit_mesh(model: String) -> Mesh:
+	if not ResourceLoader.exists(KIT % model) and STAND_INS.has(model): model = str(STAND_INS[model])
 	if not _kit_meshes.has(model): _kit_meshes[model] = TerraceDressing.kit_mesh(load(KIT % model))
 	return _kit_meshes[model]
 
@@ -1444,9 +1747,75 @@ func _place_kit(root: Node3D, model: String, at: Vector3, yaw: float = 0.0, scal
 		var material := ShaderMaterial.new()
 		material.shader = KIT_SEE_THROUGH
 		material.set_shader_parameter("albedo_tex", albedo)
+		var relief: Texture2D = source.get_shader_parameter("normal_tex")
+		if relief != null: material.set_shader_parameter("normal_tex", relief)
 		if _share_materials: _shared_kit[key] = material
 		mi.set_surface_override_material(surface, material)
 		_see_through_kit.append(material)
 		if _building_room != "": room_visuals[_building_room].shaders.append(material)
 	root.add_child(mi)
 	return mi
+
+# --- 农业部 (势力特供策划案_v0_2 §四) ----------------------------------------------
+
+## Basins by group (a group a 农业部 level; BaseWorks shows them as built).
+var farm_basins: Array = []
+## Basin -> {crop, stage, piece, light} for what set_farm drew there.
+var _crops := {}
+
+## Layout spot of basin `i`'s middle, and whether it runs east–west.
+static func basin_spot(i: int) -> Array:
+	var r := Provisions.basin_rect(i)
+	var c := r.get_center()
+	return [FARM_CENTRES[Provisions.swirl_of(i)] + c * FARM_TILE, r.size.x > r.size.y]
+
+## The basins of the three swirls round their sun lamps, each one solid.
+func _farm_swirl(root: Node3D) -> void:
+	for i in range(Provisions.BASINS):
+		var spot := basin_spot(i)
+		var at: Vector2 = spot[0]
+		var across: bool = spot[1]
+		var piece := _place_kit(root, "hydro_basin", Vector3(EAST * at.x, 0.0, at.y), 0.0 if across else PI / 2.0)
+		var group := i / Provisions.GROUP
+		while farm_basins.size() <= group: farm_basins.append([])
+		farm_basins[group].append(piece)
+		var half := Vector2(2.0, 0.5) * FARM_TILE if across else Vector2(0.5, 2.0) * FARM_TILE
+		_add_box(at.x - half.x + 0.1, at.y - half.y + 0.1, at.x + half.x - 0.1, at.y + half.y - 0.1)
+
+## Draws what grows in each basin: its crop, taller as it grows (four
+## stages), the shining ones lit once ripe.
+func set_farm(provisions: Provisions) -> void:
+	if not rooms.has("farm"): return
+	var root := get_node_or_null("farm")
+	if root == null: return
+	for i in range(Provisions.BASINS):
+		var plot := provisions.plot(i) if i < provisions.basins() else {}
+		var crop := str(plot.get("crop", ""))
+		var ripe := provisions.ripe(i) if not crop.is_empty() else false
+		var stage := 0 if crop.is_empty() else (4 if ripe else 1 + mini(2, floori(provisions.growth(i) * 3.0)))
+		var drawn: Dictionary = _crops.get(i, {})
+		if drawn.get("crop", "") == crop and int(drawn.get("stage", 0)) == stage: continue
+		if is_instance_valid(drawn.get("piece")): drawn.piece.queue_free()
+		if is_instance_valid(drawn.get("light")): drawn.light.queue_free()
+		_crops[i] = {"crop": crop, "stage": stage}
+		if crop.is_empty(): continue
+		var spot := basin_spot(i)
+		var at: Vector2 = spot[0]
+		var model: String = CROP_MODELS.get(crop, "crop_wheat")
+		if ripe and CROP_GLOW.has(crop): model += "_ripe"
+		var piece := _place_kit(root, model, Vector3(EAST * at.x, CROP_Y, at.y), 0.0 if spot[1] else PI / 2.0)
+		piece.scale.y *= [0.0, 0.3, 0.55, 0.8, 1.0][stage]
+		_crops[i].piece = piece
+		if ripe and CROP_GLOW.has(crop):
+			var light := OmniLight3D.new()
+			light.light_color = CROP_GLOW[crop]
+			light.light_energy = 0.9
+			light.omni_range = 3.5
+			light.shadow_enabled = false
+			light.position = Vector3(EAST * at.x, 1.2, at.y)
+			root.add_child(light)
+			_crops[i].light = light
+
+## The camera's deck (GameManager.ride_lift).
+func set_deck(value: int) -> void:
+	deck = value

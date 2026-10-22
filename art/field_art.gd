@@ -182,29 +182,52 @@ static func painted(name: String) -> Texture2D:
 	var path := PAINTED_DIR + name + ".png"
 	return load(path) if ResourceLoader.exists(path) else null
 
-static func terrain_material(region: String) -> ShaderMaterial:
+## Per floor look (FieldLight.key): the ground's gain and how wet it is.
+const GROUND_LOOK := {
+	"city_lower": {"ground_gain": 0.88, "wet": 1.0},
+	"siracusa": {"ground_gain": 0.72},
+	"siracusa_rain": {"ground_gain": 0.68, "wet": 0.7},
+}
+
+static func terrain_material(region: String, look := "") -> ShaderMaterial:
+	var ground: Dictionary = GROUND_LOOK.get(look if not look.is_empty() else region, {})
 	var shader := Shader.new()
 	shader.code = """shader_type spatial;
-render_mode unshaded, cull_disabled;
-uniform sampler2D atlas : source_color, filter_nearest;
-uniform sampler2D background_tex : source_color, filter_nearest_mipmap, repeat_disable;
+render_mode cull_disabled;
+uniform sampler2D atlas : source_color, filter_linear;
+uniform sampler2D background_tex : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 uniform float world_scale = 12.0;
 uniform float region = 0.0;
 // Painted road (C1) and the pavement along the kerb (C2), when delivered.
 uniform bool painted = false;
 // Mipmapped: at the follow camera a metre is ~30 screen pixels against the
 // swatch's 43, and unfiltered the grain broke up into noise.
-uniform sampler2D road_tex : source_color, filter_nearest_mipmap, repeat_enable;
-uniform sampler2D kerb_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D road_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D kerb_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 // Sol's asphalt is painted darker than the road it replaces; lifted to match.
 uniform float road_gain = 1.75;
 uniform float kerb_gain = 0.92;
+// COLOR.a above which the road surface runs; below it is the kerb strip.
+// 叙拉古 sets it below zero: one paving from kerb to kerb.
+uniform float kerb_edge = 0.92;
 uniform float road_scale = 6.0;
 // How far the painted road is pulled to flat grey (Sol's asphalt patches read
 // as camouflage at the game's zoom).
 uniform float road_flat = 0.45;
 uniform float kerb_scale = 3.0;
+// The floor's material (龙门城区与叙拉古地图改造案 v1.1): the ground a shade
+// darker (ground_gain), and wet — the whole street a little glossier, and
+// puddles in slow patches, darker and nearly mirror.
+uniform float ground_gain = 1.0;
+uniform float wet = 0.0;
 varying vec3 world_position;
+float wet_hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float wet_noise(vec2 p) {
+ vec2 i = floor(p);
+ vec2 f = fract(p);
+ f = f * f * (3.0 - 2.0 * f);
+ return mix(mix(wet_hash(i), wet_hash(i + vec2(1.0, 0.0)), f.x), mix(wet_hash(i + vec2(0.0, 1.0)), wet_hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
 #include "res://art/terrain_sampling.gdshaderinc"
 #include "res://world/field_light.gdshaderinc"
 void vertex() { world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
@@ -216,7 +239,7 @@ void fragment() {
   vec3 asphalt = mix(texture(road_tex, world_position.xz / road_scale).rgb, vec3(0.2, 0.215, 0.23), road_flat) * road_gain;
   vec3 slabs = texture(kerb_tex, world_position.xz / kerb_scale).rgb * kerb_gain;
   // The district's road colour (CityDressing.ROAD_TINTS) carried in COLOR.rgb.
-  ALBEDO = mix(slabs, asphalt * COLOR.rgb / 0.3, step(0.92, COLOR.a)) * UV2.x;
+  ALBEDO = mix(slabs, asphalt * COLOR.rgb / 0.3, step(kerb_edge, COLOR.a)) * UV2.x;
   ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
  } else {
  vec2 tile = fract(world_position.xz / 5.0);
@@ -235,7 +258,10 @@ void fragment() {
  ALBEDO *= UV2.x;
  ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
  }
- ROUGHNESS = 1.0;
+ float puddle = wet * smoothstep(0.62, 0.7, wet_noise(world_position.xz / 3.5) * 0.7 + wet_noise(world_position.xz / 1.3) * 0.3);
+ ALBEDO *= ground_gain * mix(1.0, 0.72, puddle);
+ ROUGHNESS = mix(mix(0.95, 0.6, wet), 0.12, puddle);
+ SPECULAR = mix(mix(0.2, 0.35, wet), 0.6, puddle);
 }
 """
 	var material := ShaderMaterial.new()
@@ -258,6 +284,7 @@ void fragment() {
 		material.set_shader_parameter("road_scale", 6.0)
 		material.set_shader_parameter("kerb_scale", 6.0)
 		material.set_shader_parameter("road_flat", 0.0)
+		material.set_shader_parameter("kerb_edge", -1.0)
 	elif stone:
 		material.set_shader_parameter("road_scale", 3.0)
 		material.set_shader_parameter("road_flat", 0.15)
@@ -265,12 +292,13 @@ void fragment() {
 		material.set_shader_parameter("painted", true)
 		material.set_shader_parameter("road_tex", road)
 		material.set_shader_parameter("kerb_tex", kerb)
+	for key in ground: material.set_shader_parameter(key, ground[key])
 	return material
 
 static func ground_material(region: String) -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """shader_type spatial;
-render_mode unshaded;
+render_mode cull_back;
 uniform sampler2D atlas : source_color, filter_nearest;
 uniform float region = 0.0;
 uniform float brightness = 0.8;

@@ -33,7 +33,7 @@ func run() -> void:
 	if is_instance_valid(game.system_screens): game.system_screens.hide()
 	game.gold = 240000
 	var ex := game.exchange
-	ex.relations = {"karlan": 220, "lungmen": 160, "rhine": 120, "kazimierz": 100}
+	ex.relations = {"karlan": 700, "lungmen": 560, "rhine": 300, "kazimierz": 150}
 	ex.gold_account = 36.5
 	for item in [MaterialCatalog.create("螺栓", 24), MaterialCatalog.create("医用耗材包", 6), MaterialCatalog.create("固源岩", 12), MaterialCatalog.create("源岩", 30)]:
 		game.base.shelf.append(item)

@@ -7,9 +7,11 @@ extends OperatorKit
 ## - Space 永恒狩猎: mark the enemy at the cursor; her next attacks become
 ##   arrow rain falling on it, each round stunning it briefly.
 
-const REACH := 10.0
+const REACH := 7.5  # 用户 2026-10-20: 远程数值和攻击范围小一点
 const INTERVAL := 1.4
-const ARROW_SCALE := 1.6
+## 用户 2026-10-20: 射程很值钱 — about 65% of a blade's damage a second
+## before 重如沼泥 and 锐如兽牙.
+const ARROW_SCALE := 1.0
 const MIRE_BONUS := 0.4
 const MIRE_SLOW := 0.8
 const MIRE_SECONDS := 3.0

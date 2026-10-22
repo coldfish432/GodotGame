@@ -32,16 +32,16 @@ const GEAR := {
 	"crystal_edge": {"name": "源石结晶刃", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.4, "region": "mine",
 		"triggers": [T.ARTS_EDGE], "cost": [],
 		"text": "刃上长出了不该长的东西。", "source": "源石结晶刃（原源石构筑物）"},
-	"vein_core": {"name": "共振矿芯", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 2.0, "region": "mine",
+	"vein_core": {"name": "共振矿芯", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "mine",
 		"triggers": [T.VEIN_BURST], "cost": [],
 		"text": "握在手里会轻轻发颤，敌人倒下时颤得更厉害。", "source": "矿脉共振（原源石构筑物）"},
-	"shadow_bracer": {"name": "残影护腕", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 2.0, "region": "city",
+	"shadow_bracer": {"name": "残影护腕", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "city",
 		"triggers": [T.AFTERIMAGE], "cost": [],
 		"text": "动得够快，影子也会伤人。", "source": "残影步（原迅捷构筑物）"},
-	"spike_plate": {"name": "尖刺重铠", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 2.6, "region": "mine",
+	"spike_plate": {"name": "尖刺重铠", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.6, "region": "mine",
 		"triggers": [T.THORNS], "cost": [ItemModifier.Stat.MOVE_SPEED_PCT, -0.08],
 		"text": "抱住它的人会后悔。", "source": "坚壁 4 共鸣的荆棘"},
-	"bash_shield": {"name": "反击塔盾", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 2.6, "region": "city",
+	"bash_shield": {"name": "反击塔盾", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.6, "region": "city",
 		"triggers": [T.SHIELD_BASH], "cost": [],
 		"text": "挡下来的，原样还回去。", "source": "盾反（原坚壁构筑物）"},
 	# --- 装备扩充策划案 §5–§6: enemy exclusives (Grim Dawn MI, "kind": "exclusive",
@@ -50,35 +50,35 @@ const GEAR := {
 	# mark, plus one random affix. `req`: the attribute the requirement asks.
 	"mi_thug_0": {"name": "暴徒的改刃", "kind": "exclusive", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "mine", "source_enemy": "thug",
 		"implicit": [[ItemModifier.Stat.CRIT_DMG, 0.1]], "fx": "kill_aspd_stack", "fx_text": "击杀时：4 秒内攻速 +12%，叠 3 层", "req": "tec", "form": "blade", "text": "每换一个主人，就多一道焊。"},
-	"mi_crossbow_1": {"name": "绞盘护腕", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "crossbow",
+	"mi_crossbow_1": {"name": "绞盘护腕", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "crossbow",
 		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], "fx": "evade_next_crit", "fx_text": "闪避时：下一次攻击必定暴击（冷却 3 秒）", "req": "agi", "text": "上弦的那只手，手腕先坏。"},
-	"mi_slug_2": {"name": "蜕下的虫壳", "kind": "exclusive", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "mine", "source_enemy": "slug",
+	"mi_slug_2": {"name": "蜕下的虫壳", "kind": "exclusive", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "mine", "source_enemy": "slug",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0]], "fx": "hurt_shards", "fx_text": "受击时：20% 向周围 2 米迸出碎屑，60% 法术攻击力", "req": "phy", "text": "虫子长大了，壳留在原地。"},
-	"mi_armed_3": {"name": "不明罐装呼吸器", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "armed",
+	"mi_armed_3": {"name": "不明罐装呼吸器", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "armed",
 		"implicit": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], "fx": "low_hp_def", "fx_text": "受击时：生命低于 35%，5 秒内防御 +50%（冷却 60 秒）", "req": "phy", "text": "罐子里装的是什么，标签已经说不清。"},
-	"mi_armed_4": {"name": "震荡护符", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "armed",
+	"mi_armed_4": {"name": "震荡护符", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "armed",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0]], "fx": "hurt_shockwave", "fx_text": "受击时：20% 震出半径 1.6 冲击波，60% 攻击力（冷却 3 秒）", "req": "phy", "text": "挨打的人学会了回声。"},
-	"mi_caster_5": {"name": "裸晶护腕", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "caster",
+	"mi_caster_5": {"name": "裸晶护腕", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "caster",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05]], "fx": "signature_spike", "fx_text": "招牌发动时：第一个命中的敌人脚下爆出晶刺，80% 法术攻击力", "req": "arts", "text": "它的上一个主人不需要法杖。"},
-	"mi_shield_6": {"name": "盾面背板", "kind": "exclusive", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "mine", "source_enemy": "shield",
+	"mi_shield_6": {"name": "盾面背板", "kind": "exclusive", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "mine", "source_enemy": "shield",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0]], "fx": "hurt_front_block", "fx_text": "受击时：正面伤害 20% 几率减免 60%", "req": "phy", "text": "原来是挡在前面的，现在背在身上。"},
-	"mi_slug_volatile_7": {"name": "不稳定虫腹", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "slug_volatile",
+	"mi_slug_volatile_7": {"name": "不稳定虫腹", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "slug_volatile",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05]], "fx": "kill_explode", "fx_text": "击杀时：25% 让被击杀者 0.8 秒后爆炸，150% 法术攻击力", "req": "arts", "text": "它安静的时候最危险。"},
 	"mi_picket_8": {"name": "纠察官的套索", "kind": "exclusive", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "mine", "source_enemy": "picket",
 		"implicit": [[ItemModifier.Stat.MOVE_SPEED_PCT, 0.04]], "fx": "hit_execute_bonus", "fx_text": "命中时：对生命低于 30% 的敌人伤害 +30%", "req": "tec", "form": "blade", "text": "追到最后，就不用再追了。"},
-	"mi_picket_9": {"name": "赏金账簿", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "picket",
+	"mi_picket_9": {"name": "赏金账簿", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine", "source_enemy": "picket",
 		"implicit": [[ItemModifier.Stat.CRIT_RATE, 0.03]], "fx": "kill_gold", "fx_text": "击杀时：精英额外掉 1 赤金；普通敌人 10% 额外掉 1 赤金", "req": "tec", "text": "每一页都是一个名字和一个价钱。"},
-	"mi_brawler_10": {"name": "快拳绑带", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "brawler",
+	"mi_brawler_10": {"name": "快拳绑带", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "brawler",
 		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], "fx": "hit_fourth", "fx_text": "命中时：连续命中同一目标第 4 下，追加 40% 攻击力打击", "req": "agi", "text": "第四拳，才是认真的。"},
-	"mi_crossbow_leader_11": {"name": "组长臂章", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "crossbow_leader",
+	"mi_crossbow_leader_11": {"name": "组长臂章", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "crossbow_leader",
 		"implicit": [[ItemModifier.Stat.CRIT_RATE, 0.03]], "fx": "signature_shards", "fx_text": "招牌发动时：前方扇形射出 3 枚碎片，各 25% 攻击力", "req": "tec", "text": "三支里总有一支，替他记着人。"},
-	"mi_greytail_12": {"name": "灰尾屏障坠", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "greytail",
+	"mi_greytail_12": {"name": "灰尾屏障坠", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "greytail",
 		"implicit": [[ItemModifier.Stat.RES_FLAT, 4.0]], "fx": "idle_barrier", "fx_text": "空闲 8 秒（未受伤）：获得 15% 生命上限的屏障；破碎时移速 +30% 3 秒", "req": "arts", "text": "碎掉的时候，人就该跑了。"},
 	"mi_greytail_lord_13": {"name": "香主铁骨扇", "kind": "exclusive", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "city", "source_enemy": "greytail_lord",
 		"implicit": [[ItemModifier.Stat.RES_FLAT, 4.0]], "fx": "kill_barrier", "fx_text": "击杀时：获得 10% 生命上限的屏障 5 秒（刷新不叠加）", "req": "agi", "form": "fist", "text": "扇面是纸，扇骨不是。"},
-	"mi_thrower_14": {"name": "燃烧瓶挂包", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "thrower",
+	"mi_thrower_14": {"name": "燃烧瓶挂包", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "city", "source_enemy": "thrower",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05]], "fx": "kill_fire", "fx_text": "击杀时：倒下处留 3 秒火区，每 0.5 秒 15% 法术攻击力", "req": "arts", "text": "瓶子都空了，包还是一股味。"},
-	"mi_bully_15": {"name": "推土肩甲", "kind": "exclusive", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "city", "source_enemy": "bully",
+	"mi_bully_15": {"name": "推土肩甲", "kind": "exclusive", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "city", "source_enemy": "bully",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0], [ItemModifier.Stat.MOVE_SPEED_PCT, -0.04]], "fx": "evade_ram", "fx_text": "闪避时：闪避变冲撞，路径上敌人受 60% 攻击力并被推开", "req": "phy", "heavy": true, "req_column": "heavy_armor", "text": "挡在前面的，只是还没被推开的。"},
 	"mi_avenger_16": {"name": "换手刃", "kind": "exclusive", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "city", "source_enemy": "avenger",
 		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.04]], "fx": "hurt_half_rage", "fx_text": "受击时：生命 ≤50% 时攻击力 +30%、攻速 +15%，6 秒（冷却 12 秒）", "req": "tec", "form": "blade", "text": "换一只手，再来一次。"},
@@ -86,64 +86,138 @@ const GEAR := {
 		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.04], [ItemModifier.Stat.MOVE_SPEED_PCT, -0.04]], "fx": "hit_third_stun", "fx_text": "命中时：每第 3 次命中眩晕 0.8 秒（精英 0.4 秒）", "req": "phy", "form": "heavy", "req_column": "heavy", "text": "第三下之前，没人会当回事。"},
 	"mi_ice_warrior_18": {"name": "劈冰者", "kind": "exclusive", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "snow", "source_enemy": "ice_warrior",
 		"implicit": [[ItemModifier.Stat.CRIT_DMG, 0.1]], "fx": "hit_fresh_bonus", "fx_text": "命中时：目标生命高于 80% 时伤害 +50%", "req": "phy", "form": "heavy", "req_column": "heavy", "text": "第一下最重。"},
-	"mi_ice_warrior_19": {"name": "雪顶护肩", "kind": "exclusive", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "ice_warrior",
+	"mi_ice_warrior_19": {"name": "雪顶护肩", "kind": "exclusive", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "ice_warrior",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0]], "fx": "hurt_def_stack", "fx_text": "受击时：3 秒内防御 +15%，叠 3 层", "req": "phy", "text": "越挨打，越硬。"},
-	"mi_ice_hunter_20": {"name": "结绳猎记", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "ice_hunter",
+	"mi_ice_hunter_20": {"name": "结绳猎记", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "ice_hunter",
 		"implicit": [[ItemModifier.Stat.CRIT_RATE, 0.03]], "fx": "hit_low_crit", "fx_text": "命中时：对生命低于 35% 的敌人暴击率 +25%", "req": "tec", "text": "每打一个结，就少一只。"},
-	"mi_ice_hunter_21": {"name": "猎人的耐心", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "ice_hunter",
+	"mi_ice_hunter_21": {"name": "猎人的耐心", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "ice_hunter",
 		"implicit": [[ItemModifier.Stat.CRIT_DMG, 0.1]], "fx": "evade_next_crit_long", "fx_text": "闪避时：4 秒内下一次攻击必定暴击（冷却 6 秒）", "req": "tec", "text": "等它先动。"},
-	"mi_taint_husk_22": {"name": "空壳战袍", "kind": "exclusive", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "taint_husk",
+	"mi_taint_husk_22": {"name": "空壳战袍", "kind": "exclusive", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "taint_husk",
 		"implicit": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], "fx": "hurt_sprint", "fx_text": "受击时：2 秒内移速 +40%（冷却 5 秒）", "req": "agi", "text": "已经不疼了，只是想跑。"},
-	"mi_distorted_caster_23": {"name": "置换指骨", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "distorted_caster",
+	"mi_distorted_caster_23": {"name": "置换指骨", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "distorted_caster",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05]], "fx": "idle_strike", "fx_text": "空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力", "req": "arts", "text": "它记得怎么施法，不记得为什么。"},
-	"mi_shattered_champion_24": {"name": "泯灭护颈", "kind": "exclusive", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "shattered_champion",
+	"mi_shattered_champion_24": {"name": "泯灭护颈", "kind": "exclusive", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "shattered_champion",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0]], "fx": "hurt_last_stand", "fx_text": "受击时：每层首次低于 30% 生命，3 秒内受伤 −50%、移速 +30%", "req": "phy", "text": "到最后，连自己也可以舍掉。"},
 	"mi_shattered_champion_25": {"name": "折角", "kind": "exclusive", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "snow", "source_enemy": "shattered_champion",
 		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], "fx": "kill_aspd_stack_big", "fx_text": "击杀时：5 秒内攻速 +20%，叠 3 层", "req": "agi", "form": "fist", "text": "断掉的那一半，还在别人身上。"},
-	"mi_shell_vine_26": {"name": "壳中种子", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "shell_vine",
+	"mi_shell_vine_26": {"name": "壳中种子", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "shell_vine",
 		"implicit": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], "fx": "kill_extra_material", "fx_text": "击杀时：10% 让该敌人多掉一份材料", "req": "tec", "text": "它也在等你打开。"},
-	"mi_rock_hornbeast_27": {"name": "冲阵蹄铁", "kind": "exclusive", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "rock_hornbeast",
+	"mi_rock_hornbeast_27": {"name": "冲阵蹄铁", "kind": "exclusive", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "snow", "source_enemy": "rock_hornbeast",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0]], "fx": "evade_ram", "fx_text": "闪避时：路径上的敌人受 60% 攻击力并被推开", "req": "phy", "text": "让开的不是它。"},
-	"mi_fallen_snowpriest_28": {"name": "雪祀断冠", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "fallen_snowpriest",
+	"mi_fallen_snowpriest_28": {"name": "雪祀断冠", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "fallen_snowpriest",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05]], "fx": "signature_chain", "fx_text": "招牌发动时：招牌命中后跳向 3.5 米内另一敌人，每跳 −15%，最多 2 跳", "req": "arts", "text": "它还在替部族挑选。"},
-	"mi_fallen_snowpriest_29": {"name": "反馈赠之铃", "kind": "exclusive", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "fallen_snowpriest",
+	"mi_fallen_snowpriest_29": {"name": "反馈赠之铃", "kind": "exclusive", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow", "source_enemy": "fallen_snowpriest",
 		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], "fx": "kill_haste", "fx_text": "击杀时：4 秒内移速 +25%、攻速 +15%", "req": "agi", "text": "不该给的，它都给了。"},
 	"set_nameless_0": {"name": "无名者的砍刀", "kind": "set", "set_id": "nameless", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "mine",
 		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.04]], "req": "tec", "form": "blade", "text": "刀柄上刻过名字，又被刮掉了。"},
-	"set_nameless_1": {"name": "无名者的外套", "kind": "set", "set_id": "nameless", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "mine",
+	"set_nameless_1": {"name": "无名者的外套", "kind": "set", "set_id": "nameless", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "mine",
 		"implicit": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], "req": "phy", "text": "衣服是同一批，血不是。"},
-	"set_nameless_2": {"name": "无名者的面具", "kind": "set", "set_id": "nameless", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine",
+	"set_nameless_2": {"name": "无名者的面具", "kind": "set", "set_id": "nameless", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine",
 		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.05]], "req": "agi", "text": "摘下来也没有人认得。"},
 	"set_warrant_0": {"name": "追缉令·钩刀", "kind": "set", "set_id": "warrant", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "mine",
 		"implicit": [[ItemModifier.Stat.CRIT_RATE, 0.03]], "req": "tec", "form": "blade", "text": "刀鞘上的格子，一格一个名字。"},
-	"set_warrant_1": {"name": "追缉令·皮大衣", "kind": "set", "set_id": "warrant", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "mine",
+	"set_warrant_1": {"name": "追缉令·皮大衣", "kind": "set", "set_id": "warrant", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "mine",
 		"implicit": [[ItemModifier.Stat.MOVE_SPEED_PCT, 0.04]], "req": "agi", "text": "雪地里跑起来，下摆不会绊脚。"},
-	"set_warrant_2": {"name": "追缉令·名单", "kind": "set", "set_id": "warrant", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine",
+	"set_warrant_2": {"name": "追缉令·名单", "kind": "set", "set_id": "warrant", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "mine",
 		"implicit": [[ItemModifier.Stat.CRIT_DMG, 0.1]], "req": "tec", "text": "划掉的比没划掉的多。"},
 	"set_inspectors_0": {"name": "督察组定制长刀", "kind": "set", "set_id": "inspectors", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "city",
 		"implicit": [[ItemModifier.Stat.CRIT_RATE, 0.03]], "req": "tec", "form": "blade", "text": "刀鞘上刻着上一任的名字，被磨掉了。"},
-	"set_inspectors_1": {"name": "督察组外勤背心", "kind": "set", "set_id": "inspectors", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "city",
+	"set_inspectors_1": {"name": "督察组外勤背心", "kind": "set", "set_id": "inspectors", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "city",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0]], "req": "phy", "text": "第二年的夏天最难熬。"},
-	"set_inspectors_2": {"name": "督察组任期铭牌", "kind": "set", "set_id": "inspectors", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "city",
+	"set_inspectors_2": {"name": "督察组任期铭牌", "kind": "set", "set_id": "inspectors", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "city",
 		"implicit": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], "req": "phy", "text": "两个日期，中间一道横线。"},
 	"set_grey_order_0": {"name": "琉璃骨尺", "kind": "set", "set_id": "grey_order", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "city",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05]], "req": "agi", "form": "fist", "text": "尺子量的是规矩。"},
-	"set_grey_order_1": {"name": "灰尾长衫", "kind": "set", "set_id": "grey_order", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "city",
+	"set_grey_order_1": {"name": "灰尾长衫", "kind": "set", "set_id": "grey_order", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "city",
 		"implicit": [[ItemModifier.Stat.RES_FLAT, 4.0]], "req": "arts", "text": "穿上这身，就不是一个人走夜路。"},
-	"set_grey_order_2": {"name": "碎琉璃坠", "kind": "set", "set_id": "grey_order", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "city",
+	"set_grey_order_2": {"name": "碎琉璃坠", "kind": "set", "set_id": "grey_order", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "city",
 		"implicit": [[ItemModifier.Stat.RES_FLAT, 4.0]], "req": "arts", "text": "碎了一半，另一半还认得主人。"},
 	"set_clean_snow_0": {"name": "洁雪仪刃", "kind": "set", "set_id": "clean_snow", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "snow",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05], [ItemModifier.Stat.CRIT_RATE, 0.03]], "req": "tec", "form": "blade", "text": "刃面上的环纹，是一场雪落下的样子。"},
-	"set_clean_snow_1": {"name": "洁雪仪氅", "kind": "set", "set_id": "clean_snow", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "snow",
+	"set_clean_snow_1": {"name": "洁雪仪氅", "kind": "set", "set_id": "clean_snow", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "snow",
 		"implicit": [[ItemModifier.Stat.RES_FLAT, 4.0], [ItemModifier.Stat.MAX_HP_PCT, 0.04]], "req": "arts", "text": "雪祀的时候，它比雪还白。"},
-	"set_clean_snow_2": {"name": "洁雪手鼓", "kind": "set", "set_id": "clean_snow", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow",
+	"set_clean_snow_2": {"name": "洁雪手鼓", "kind": "set", "set_id": "clean_snow", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow",
 		"implicit": [[ItemModifier.Stat.ARTS_PCT, 0.05]], "req": "arts", "text": "鼓面上一棵树、三个人，鼓声替他们说话。"},
 	"set_fire_watch_0": {"name": "守望者战斧", "kind": "set", "set_id": "fire_watch", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 1.6, "region": "snow",
 		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.04], [ItemModifier.Stat.DEF_FLAT, 20.0]], "req": "phy", "form": "heavy", "req_column": "heavy", "text": "斧背上的铁钉，是用来敲醒守夜人的。"},
-	"set_fire_watch_1": {"name": "守望者皮甲", "kind": "set", "set_id": "fire_watch", "category": Item.Category.ARMOR, "size": Vector2i(2, 2), "power": 1.6, "region": "snow",
+	"set_fire_watch_1": {"name": "守望者皮甲", "kind": "set", "set_id": "fire_watch", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 1.6, "region": "snow",
 		"implicit": [[ItemModifier.Stat.DEF_FLAT, 20.0], [ItemModifier.Stat.MAX_HP_PCT, 0.04]], "req": "phy", "text": "皮子是去年的，火是今晚的。"},
-	"set_fire_watch_2": {"name": "守望者火绒盒", "kind": "set", "set_id": "fire_watch", "category": Item.Category.TRINKET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow",
+	"set_fire_watch_2": {"name": "守望者火绒盒", "kind": "set", "set_id": "fire_watch", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 1.6, "region": "snow",
 		"implicit": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], "req": "phy", "text": "盖缝里透出一点光，一整夜都不会灭。"},
+	# --- Boss与守卫者策划案 §10 (用户 2026-10-19: 武器、防具、饰品各三件): each region
+	# boss's own nine ("kind": "boss"); only `source_enemy` drops them, more often deeper.
+	"bg_patriot_0": {"name": "锈蚀长戟", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_third_stun", "fx_text": "命中时：每第 3 次命中眩晕 0.8 秒（精英 0.4 秒）", "req": "phy", "form": "heavy", "req_column": "heavy", "text": "戟刃锈了，挥下去还是那么重。"},
+	"bg_patriot_1": {"name": "游击队制式刀", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_execute_bonus", "fx_text": "命中时：对生命低于 30% 的敌人伤害 +30%", "req": "tec", "form": "blade", "text": "“盾”分到的刀，从来不够用，也从来不扔。"},
+	"bg_patriot_2": {"name": "破城重锤", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_fresh_bonus", "fx_text": "命中时：目标生命高于 80% 时伤害 +50%", "req": "phy", "form": "heavy", "req_column": "heavy", "text": "第一下是给城墙的。"},
+	"bg_patriot_3": {"name": "温迪戈重甲", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_def_stack", "fx_text": "受击时：3 秒内防御 +15%，叠 3 层", "req": "phy", "text": "这副甲比穿它的人更早认得冬天。"},
+	"bg_patriot_4": {"name": "游击队斗篷", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_last_stand", "fx_text": "受击时：每层首次低于 30% 生命，3 秒内受伤 −50%、移速 +30%", "req": "agi", "text": "补丁比布多，每一块都有来历。"},
+	"bg_patriot_5": {"name": "结晶化胸甲", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_shockwave", "fx_text": "受击时：20% 震出半径 1.6 冲击波，60% 攻击力（冷却 3 秒）", "req": "phy", "text": "甲片之间长出了石头。"},
+	"bg_patriot_6": {"name": "“盾”的徽记", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "low_hp_def", "fx_text": "受击时：生命低于 35%，5 秒内防御 +50%（冷却 60 秒）", "req": "phy", "text": "挡在所有人前面的那个人留下的。"},
+	"bg_patriot_7": {"name": "结晶臂环", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "signature_spike", "fx_text": "招牌发动时：第一个命中的敌人脚下爆出晶刺，80% 法术攻击力", "req": "arts", "text": "戴久了，手臂会和它长在一起。"},
+	"bg_patriot_8": {"name": "老兵勋带", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "mine", "source_enemy": "patriot",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "kill_haste", "fx_text": "击杀时：4 秒内移速 +25%、攻速 +15%", "req": "agi", "text": "颁给它的国家，已经不认它了。"},
+	"bg_rat_king_0": {"name": "鼠王手杖", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "kill_barrier", "fx_text": "击杀时：获得 10% 生命上限的屏障 5 秒（刷新不叠加）", "req": "agi", "form": "fist", "text": "杖头磨得发亮，是下城区一代人的手。"},
+	"bg_rat_king_1": {"name": "下城区短刃", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "evade_next_crit", "fx_text": "闪避时：下一次攻击必定暴击（冷却 3 秒）", "req": "tec", "form": "blade", "text": "巷子太窄，长刀转不开身。"},
+	"bg_rat_king_2": {"name": "林家铁扇", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_fourth", "fx_text": "命中时：连续命中同一目标第 4 下，追加 40% 攻击力打击", "req": "agi", "form": "fist", "text": "扇面上画的是龙门，扇骨里藏的也是。"},
+	"bg_rat_king_3": {"name": "白毛领长外套", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "idle_barrier", "fx_text": "空闲 8 秒（未受伤）：获得 15% 生命上限的屏障；破碎时移速 +30% 3 秒", "req": "arts", "text": "穿上它的人，从不需要大声说话。"},
+	"bg_rat_king_4": {"name": "贫民窟坎肩", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_sprint", "fx_text": "受击时：2 秒内移速 +40%（冷却 5 秒）", "req": "agi", "text": "下城区教会人的第一件事，是跑。"},
+	"bg_rat_king_5": {"name": "沙尘斗篷", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_front_block", "fx_text": "受击时：正面伤害 20% 几率减免 60%", "req": "phy", "text": "风沙从正面来，它就从正面挡。"},
+	"bg_rat_king_6": {"name": "唱沙铃", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "signature_shards", "fx_text": "招牌发动时：前方扇形射出 3 枚碎片，各 25% 攻击力", "req": "tec", "text": "摇一下，沙子就开始唱。"},
+	"bg_rat_king_7": {"name": "沙狱沙漏", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "signature_chain", "fx_text": "招牌发动时：招牌命中后跳向 3.5 米内另一敌人，每跳 −15%，最多 2 跳", "req": "arts", "text": "漏完之前，没人走得出去。"},
+	"bg_rat_king_8": {"name": "下城区账本", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "city", "source_enemy": "rat_king",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "kill_gold", "fx_text": "击杀时：精英额外掉 1 赤金；普通敌人 10% 额外掉 1 赤金", "req": "tec", "text": "谁欠了谁，鼠王都记得。"},
+	"bg_eikthyrnir_0": {"name": "树痕战锤", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_fresh_bonus", "fx_text": "命中时：目标生命高于 80% 时伤害 +50%", "req": "phy", "form": "heavy", "req_column": "heavy", "text": "锤头上刻着部族的名字，一道一道。"},
+	"bg_eikthyrnir_1": {"name": "木裂之斧", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "kill_aspd_stack_big", "fx_text": "击杀时：5 秒内攻速 +20%，叠 3 层", "req": "phy", "form": "heavy", "req_column": "heavy", "text": "劈开的不只是木头。"},
+	"bg_eikthyrnir_2": {"name": "部族骨刃", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_low_crit", "fx_text": "命中时：对生命低于 35% 的敌人暴击率 +25%", "req": "tec", "form": "blade", "text": "猎人用它收尾，从不用第二下。"},
+	"bg_eikthyrnir_3": {"name": "白毛披风", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_def_stack", "fx_text": "受击时：3 秒内防御 +15%，叠 3 层", "req": "phy", "text": "风雪越大，它越暖。"},
+	"bg_eikthyrnir_4": {"name": "坍缩纹皮甲", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_last_stand", "fx_text": "受击时：每层首次低于 30% 生命，3 秒内受伤 −50%、移速 +30%", "req": "phy", "text": "皮甲上的纹路，自己在长。"},
+	"bg_eikthyrnir_5": {"name": "鹿角护肩", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "evade_ram", "fx_text": "闪避时：路径上的敌人受 60% 攻击力并被推开", "req": "phy", "text": "低头冲过去的时候，角先到。"},
+	"bg_eikthyrnir_6": {"name": "英雄的鹿角坠", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "kill_haste", "fx_text": "击杀时：4 秒内移速 +25%、攻速 +15%", "req": "agi", "text": "萨米人曾经跟着这对角走过整片雪原。"},
+	"bg_eikthyrnir_7": {"name": "霜纹护符", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "idle_strike", "fx_text": "空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力", "req": "arts", "text": "静下来的时候，它比雪还冷。"},
+	"bg_eikthyrnir_8": {"name": "泯灭之心", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "snow", "source_enemy": "eikthyrnir",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "hurt_half_rage", "fx_text": "受击时：生命 ≤50% 时攻击力 +30%、攻速 +15%，6 秒（冷却 12 秒）", "req": "tec", "text": "舍掉一半，剩下的一半会更狠。"},
+	"bg_zaro_0": {"name": "狼主之牙", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_execute_bonus", "fx_text": "命中时：对生命低于 30% 的敌人伤害 +30%", "req": "tec", "form": "blade", "text": "远古的狼只咬一次。"},
+	"bg_zaro_1": {"name": "远古狼爪", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "hit_fourth", "fx_text": "命中时：连续命中同一目标第 4 下，追加 40% 攻击力打击", "req": "agi", "form": "fist", "text": "第四道爪痕，才是它留下的名字。"},
+	"bg_zaro_2": {"name": "清算短刀", "kind": "boss", "category": Item.Category.WEAPON, "size": Vector2i(2, 1), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.ATK_PCT, 0.06], [ItemModifier.Stat.CRIT_DMG, 0.12]], "fx": "kill_aspd_stack", "fx_text": "击杀时：4 秒内攻速 +12%，叠 3 层", "req": "tec", "form": "blade", "text": "血债要用血还，一笔一笔。"},
+	"bg_zaro_3": {"name": "狼皮大氅", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_sprint", "fx_text": "受击时：2 秒内移速 +40%（冷却 5 秒）", "req": "agi", "text": "荒野里的东西，披上就想跑。"},
+	"bg_zaro_4": {"name": "荒野毛皮", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "hurt_def_stack", "fx_text": "受击时：3 秒内防御 +15%，叠 3 层", "req": "phy", "text": "被打得越多，毛越硬。"},
+	"bg_zaro_5": {"name": "旧城区雨衣", "kind": "boss", "category": Item.Category.CHEST, "size": Vector2i(2, 2), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], "fx": "low_hp_def", "fx_text": "受击时：生命低于 35%，5 秒内防御 +50%（冷却 60 秒）", "req": "phy", "text": "沃尔西尼的雨，从来不停。"},
+	"bg_zaro_6": {"name": "溶血骇惧之石", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "kill_explode", "fx_text": "击杀时：25% 让被击杀者 0.8 秒后爆炸，150% 法术攻击力", "req": "arts", "text": "握着它，血会变冷。"},
+	"bg_zaro_7": {"name": "狼嗥骨哨", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "evade_next_crit_long", "fx_text": "闪避时：4 秒内下一次攻击必定暴击（冷却 6 秒）", "req": "tec", "text": "吹响它，就有什么在远处回应。"},
+	"bg_zaro_8": {"name": "血债账簿", "kind": "boss", "category": Item.Category.AMULET, "size": Vector2i(1, 1), "power": 2.0, "region": "siracusa", "source_enemy": "zaro",
+		"implicit": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], "fx": "kill_gold", "fx_text": "击杀时：精英额外掉 1 赤金；普通敌人 10% 额外掉 1 赤金", "req": "tec", "text": "每一页都没有结清。"},
 }
 
 ## Set names and bonuses (§6); the bonuses themselves are in GearEffects.
@@ -165,9 +239,9 @@ const SET_SEEN_WEIGHT := 2.0
 static func kind(id: String) -> String:
 	return str(GEAR.get(id, {}).get("kind", "special"))
 
-## The exclusives an enemy type drops.
+## The exclusives an enemy type drops (a region boss's nine are "boss" pieces, BossGear).
 static func exclusives_of(enemy_type: String) -> Array:
-	return GEAR.keys().filter(func(id): return kind(id) == "exclusive" and str(GEAR[id].source_enemy) == enemy_type)
+	return GEAR.keys().filter(func(id): return kind(id) in ["exclusive", "boss"] and str(GEAR[id].source_enemy) == enemy_type)
 
 static func roll_exclusive(enemy_type: String, region: String, depth: int, rng: RandomNumberGenerator, boss: bool = false) -> Item:
 	var ids := exclusives_of(enemy_type)
@@ -207,16 +281,22 @@ static func drop_chance(reward: float) -> float:
 static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: bool = false) -> Item:
 	var data: Dictionary = GEAR[id]
 	var size: Vector2i = data.size
-	var item := Item.create(data.name, data.category, size.x, size.y, float(data.power) + depth * 0.2)
+	# The written power is its size on tier Ⅰ; it takes the floor's tier, a
+	# boss piece one tier higher (复利数值改造清单 D). It does not roll.
+	var tier := mini(Scaling.TIER_MAX, Scaling.tier_of(depth) + (1 if boss else 0))
+	var item := Item.create(data.name, data.category, size.x, size.y, float(data.power) * Scaling.tier_base(tier))
 	item.special = id
 	item.rarity = 2
 	item.value = 60 + depth * 10
 	item.description = data.text
-	# Named gear is deep gear: T3 at the first block, a boss one grade higher.
-	item.grade = Progression.grade_for(2, depth, 1 if boss else 0)
+	item.grade = tier
+	if data.category == Item.Category.AMULET: item.atk_share = Item.roll_atk_share(rng)
 	for pair in data.get("implicit", []):
 		var fixed := ItemModifier.stat_mod(pair[0], float(pair[1]))
 		fixed.tier = GearCatalog.IMPLICIT_TIER
+		# Flat ones grow with the tier; every one shrinks by the slot (装备部位拆分与数值案 §4).
+		fixed.scale = (Scaling.flat_scale(tier) if int(pair[0]) in ItemModifier.FLAT_STATS else 1.0) * GearSlots.affix(int(data.category))
+		fixed.amount *= fixed.scale
 		item.modifiers.append(fixed)
 	for trigger in data.get("triggers", []): item.modifiers.append(ItemModifier.trigger_mod(trigger))
 	if not data.get("cost", []).is_empty():
@@ -225,7 +305,7 @@ static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: boo
 		item.modifiers.append(cost)
 	var pool: Array = FieldCatalog.AFFIX_POOLS[data.category]
 	var stat: int = pool[rng.randi_range(0, pool.size() - 1)]
-	item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, FieldCatalog._roll_tier(2, rng), rng))
+	item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, 2, rng, Scaling.roll_position(depth, rng), tier, int(data.category)))
 	# Special and exclusive gear carry prefixes; set pieces do not (装备前缀策划案 §0.1-5).
 	PrefixCatalog.roll_onto(item, str(data.get("region", "")), depth, rng)
 	return item

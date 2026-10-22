@@ -5,18 +5,22 @@ extends RefCounted
 ## pieces every screen is built from. Colours are the spec's tokens; fonts are
 ## system fonts (no font files are bundled until the user decides, spec §8 #5).
 
-const BG := Color("161616")
-const PLATE := Color(0.094, 0.094, 0.094, 0.86)
-const PLATE_SOLID := Color("202020")
-const PLATE_2 := Color("2c2c2c")
-const PLATE_3 := Color("383838")
-const LINE := Color("3a3a3a")
-const LINE_2 := Color("5a5a5a")
-const FG := Color("f4f4f4")
-const MUTE := Color("a3a3a3")
-const DIM := Color("6d6d6d")
-const INK := Color("101010")
-const PAPER := Color("e9e9e9")
+## Hull neutrals (界面美术与布局策划案 v2 §1.2): the base's deck plate R1
+## (#3b4146) darkened and lightened, so every screen sits on the ship's steel.
+const BG := Color("0f1316")
+const PLATE := Color(0.086, 0.106, 0.122, 0.92)
+const PLATE_SOLID := Color("1a2126")
+const PLATE_2 := Color("1f262b")
+const PLATE_3 := Color("2a3238")
+const LINE := Color("3b4146")
+const LINE_2 := Color("5a666e")
+const FG := Color("eef3f5")
+const MUTE := Color("9aa7ae")
+const DIM := Color("5f6b72")
+const INK := Color("101518")
+const PAPER := Color("e4eaec")
+const HOLO := Color("3fd2f2")       # the ship's light strips: header lines, focus, brackets
+const HAZARD := Color("e8b730")     # hazard chips, locked or dangerous
 const BLUE := Color("0098dc")       # confirm, start, selected
 const HP := Color("27a6ef")         # her life
 const SP := Color("f5c000")         # skill points, ready, stars, claimable
@@ -266,7 +270,7 @@ static func relic_icon(relic: Dictionary, side: float) -> Control:
 	tile.size = Vector2(side, side)
 	tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var c: Color = RelicCatalog.RARITY_COLORS[relic.rarity]
-	var style := box(Color("1b1b1b"), LINE, 1)
+	var style := box(PLATE_SOLID, LINE, 1)
 	style.border_width_bottom = 3
 	style.border_color = c
 	tile.add_theme_stylebox_override("panel", style)
@@ -341,12 +345,14 @@ class Glyph extends Control:
 class ItemSquare extends Control:
 	var item: Item
 	var dim := false
+	## A shop tile draws its own price and stock instead of the stack count.
+	var hide_count := false
 	func _ready() -> void:
 		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	func _draw() -> void:
 		if item == null: return
 		var s := size
-		draw_rect(Rect2(Vector2.ZERO, s), Color("2b2b2b"))
+		draw_rect(Rect2(Vector2.ZERO, s), AK.PLATE_2)
 		var c := AK.tier_color(item)
 		for i in range(8):
 			var t := float(i) / 8
@@ -371,7 +377,7 @@ class ItemSquare extends Control:
 				shown_name = shown_name.left(shown_name.length() - 1)
 			var w := AK.cn().get_string_size(shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 			draw_string(AK.cn(), Vector2((s.x - w) * 0.5, s.y * 0.5 + 5), shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, AK.FG)
-		if item.is_stackable():
+		if item.is_stackable() and not hide_count:
 			var count := str(item.quantity)
 			var cw := AK.en().get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 			draw_rect(Rect2(s.x - cw - 6, s.y - 18, cw + 6, 14), Color.BLACK)
@@ -388,6 +394,11 @@ class BagGrid extends Control:
 	var allowed: Callable
 	var on_pick: Callable
 	var selected: Item
+	## Drag trading (TraderScreen): drag_out(item) -> payload or null; accept(data)
+	## -> bool and take(data) for what is dropped on the grid.
+	var drag_out: Callable
+	var accept: Callable
+	var take: Callable
 
 	static func make(bag: ItemContainer, allow: Callable = Callable(), pick: Callable = Callable(), current: Item = null) -> BagGrid:
 		var grid := BagGrid.new()
@@ -414,7 +425,24 @@ class BagGrid extends Control:
 			if ok and on_pick.is_valid():
 				var shown := item
 				tile.pressed.connect(func(): on_pick.call(shown))
+			var dragged := item
+			tile.set_drag_forwarding((func(_at: Vector2) -> Variant: return _drag(dragged, tile.size)) if ok and drag_out.is_valid() else Callable(),
+				_can_drop_data if accept.is_valid() else Callable(), _drop_data if accept.is_valid() else Callable())
 			add_child(tile)
+
+	func _drag(item: Item, cells: Vector2) -> Variant:
+		var data: Variant = drag_out.call(item)
+		if data != null:
+			var ghost := AK.item_icon(item, cells)
+			ghost.modulate.a = 0.8
+			set_drag_preview(ghost)
+		return data
+
+	func _can_drop_data(_at: Vector2, data: Variant) -> bool:
+		return accept.is_valid() and bool(accept.call(data))
+
+	func _drop_data(_at: Vector2, data: Variant) -> void:
+		if take.is_valid(): take.call(data)
 
 	func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO, Vector2(container.width, container.height) * CELL), Color(0, 0, 0, 0.55))

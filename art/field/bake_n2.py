@@ -37,11 +37,22 @@ EXTRA_HEIGHTS = {"sentinel": 30,
                  # N4 叙拉古 (叙拉古敌人设计案_v1 §五): the caster's box includes its hood's
                  # wolf ears; the car's is the whole S-facing car, roof to tyres.
                  "family_soldier": 28, "family_intimidator": 33, "family_crossbow": 27,
-                 "family_caster": 27, "family_capo": 31, "family_eraser": 31, "family_car": 24}
+                 "family_caster": 27, "family_capo": 31, "family_eraser": 31, "family_car": 24,
+                 # B1 bosses and wardens (Boss与守卫者策划案 §11), measured on the
+                 # approved identities: Patriot and Eikthyrnir with their antlers,
+                 # Zaro lying down (his S / IDLE is the phase-1 crouch).
+                 "patriot": 46, "rat_king": 36, "eikthyrnir": 46, "zaro": 38,
+                 "crownslayer": 30, "skullshatterer": 32, "hollow_snowpriest": 33, "father_agnir": 31,
+                 # B2: 叙拉古平民 in 扎罗's piazza (Boss战场地策划案 §4.4), a head below the family soldier.
+                 "civilian": 26}
 # Per-enemy quantizer: median cut (the approved N1 method) folds a small warm
 # prop into the greys; octree keeps 萨卡兹哨兵's brass horn gold and its flat
 # masses clean (batch_N3_claude/quantize_compare_x8.png, 2026-10-14).
 QUANTIZE = {"sentinel": Image.Quantize.FASTOCTREE}
+# B1: median cut drops Patriot's red and orange, Zaro's red eye and the Hollow
+# Snowpriest's purple (batch_B1_v1/qa/quantizer_comparison.png), so all eight use octree.
+QUANTIZE.update({k: Image.Quantize.FASTOCTREE for k in ["patriot", "rat_king", "eikthyrnir", "zaro", "crownslayer", "skullshatterer", "hollow_snowpriest", "father_agnir", "civilian"]})
+B1_ENEMIES = {"patriot", "rat_king", "eikthyrnir", "zaro", "crownslayer", "skullshatterer", "hollow_snowpriest", "father_agnir"}
 # N4 叙拉古 family enemies (叙拉古敌人设计案 §1.2, 用户 2026-10-16: 只换特征色):
 # painted in the Saluzzo accent pair, the other families made by swapping those
 # two values after the bake, so the pair must come out of the bake exact. The
@@ -73,7 +84,7 @@ def figure_box(cell: np.ndarray) -> tuple[int, int, int, int] | None:
     return ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
 
 
-def bake_cell(cell: Image.Image, scale: float, method: int = Image.Quantize.MEDIANCUT) -> Image.Image:
+def bake_cell(cell: Image.Image, scale: float, method: int = Image.Quantize.MEDIANCUT, fit_within_cell: bool = False) -> Image.Image:
     a = np.array(cell)
     box = figure_box(a)
     out = Image.new("RGBA", (CELL, CELL))
@@ -98,8 +109,48 @@ def bake_cell(cell: Image.Image, scale: float, method: int = Image.Quantize.MEDI
     lower = body[body.shape[0] // 2:]
     cols = np.where(lower.any(axis=0))[0]
     cx = int(round(cols.mean())) if len(cols) else sprite_img.width // 2
-    out.alpha_composite(sprite_img, (max(0, CENTRE - cx), max(0, FOOT + 1 - sprite_img.height)))
+    x = max(0, CENTRE - cx)
+    y = max(0, FOOT + 1 - sprite_img.height)
+    if fit_within_cell:
+        # B1 wolves can fit the cell but their asymmetric lower-half centre
+        # pushes the tail over its right edge. Translate only; never rescale.
+        # Transparent padding is not part of the painted silhouette. Remove
+        # only empty border pixels before deciding whether a pose really fits.
+        bounds = sprite_img.getbbox()
+        if bounds is not None:
+            sprite_img = sprite_img.crop(bounds)
+            x += bounds[0]
+            y += bounds[1]
+        if sprite_img.width > CELL or sprite_img.height > CELL:
+            raise ValueError(f"B1 painted pose exceeds {CELL}px cell: {sprite_img.size}")
+        x = min(x, CELL - sprite_img.width)
+        y = min(y, CELL - sprite_img.height)
+    out.alpha_composite(sprite_img, (x, y))
     return out
+
+
+def b1_reference_scale(first: Image.Image, native_height: int, method: int) -> float:
+    """Calibrate one board scale to the approved visible S/IDLE height.
+
+    Thin-part growth can add 1-2px beyond the nominal BOX height. Only the
+    reference IDLE is measured; every action/walk cell uses this same scale.
+    """
+    box = figure_box(np.array(first))
+    if box is None:
+        raise ValueError("B1 scale reference has no figure")
+    choices = []
+    for delta in np.arange(-4.0, 2.001, 0.125):
+        candidate = (native_height + delta) / (box[1] - box[0])
+        try:
+            probe = bake_cell(first, candidate, method, fit_within_cell=True)
+        except ValueError:
+            continue
+        bounds = probe.getbbox()
+        measured = bounds[3] - bounds[1] if bounds else 0
+        choices.append((abs(measured - native_height), abs(delta), candidate))
+    if not choices:
+        raise ValueError("B1 reference cannot fit the native cell")
+    return min(choices)[2]
 
 
 def main() -> None:
@@ -120,11 +171,14 @@ def main() -> None:
     box = figure_box(first)
     # Measured on the reference board's cells; the same cell size keeps it valid here.
     scale = native_height / (box[1] - box[0]) * ref_side / side
+    if enemy in B1_ENEMIES:
+        scale = b1_reference_scale(Image.fromarray(first), native_height, QUANTIZE[enemy]) * ref_side / side
     sheet = Image.new("RGBA", (8 * CELL, rows * CELL))
     for r in range(rows):
         for c in range(8):
             cell = board.crop((c * side, r * side, (c + 1) * side, (r + 1) * side))
-            sheet.alpha_composite(bake_cell(cell, scale, QUANTIZE.get(enemy, Image.Quantize.MEDIANCUT)), (c * CELL, r * CELL))
+            sheet.alpha_composite(bake_cell(cell, scale, QUANTIZE.get(enemy, Image.Quantize.MEDIANCUT),
+                                           fit_within_cell=enemy in B1_ENEMIES), (c * CELL, r * CELL))
     if enemy in ACCENT_ENEMIES: sheet = snap_accents(sheet, 26)
     out = path.with_name(path.stem + "_64.png")
     sheet.save(out)

@@ -3,8 +3,9 @@ extends Node3D
 
 ## 用户 2026-10-14: 敌人概率掉落治疗球立即回复血量. A green orb pops out of a
 ## fallen enemy (LootTables.HEAL_ORBS); it drifts to her when she comes near
-## and heals `fraction` of her life the moment it touches her. Fades after
-## LIFETIME.
+## and heals the moment it touches her. Fades after LIFETIME.
+## 复利数值改造清单 E: a fixed amount (`fraction` holds the tier-Ⅰ figure, the
+## name kept for the drop code) times the floor's 档位系数, not a share of life.
 
 const LIFETIME := 25.0
 ## She draws it in from this far, and takes it at TOUCH.
@@ -16,7 +17,7 @@ const COLOUR := Color(0.35, 1.0, 0.45)
 const MODEL := preload("res://art/kit/heal_orb.glb")
 
 var game: GameManager
-var fraction := 0.12
+var fraction := 290.0
 var from := Vector3.INF
 var _rest := Vector3.INF
 var _age := 0.0
@@ -91,6 +92,6 @@ func _physics_process(delta: float) -> void:
 		global_position.y = game.ground_y(Vector3(global_position.x, player.global_position.y, global_position.z))
 
 func _take() -> void:
-	game.player.heal(game.player.max_hp * fraction, true)
+	game.player.heal(fraction * Scaling.tier_coef(game.floor_number), true)
 	game.sound.play("loot")
 	queue_free()

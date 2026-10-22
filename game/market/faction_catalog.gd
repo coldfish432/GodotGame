@@ -27,34 +27,42 @@ const SELL_ONLY := ["weapon", "armor", "trinket", "contraband"]
 const FACTIONS := {
 	"lungmen": {"name": "龙门商会", "region": "龙门", "currency": "lmd", "active": "day", "spread": 0.03, "depth": 1.0, "noise": 1.0,
 		"prefs": {"armor": 1.25, "medical": 1.2, "build": 1.1, "electronic": 1.0, "fuel": 1.0, "weapon": 0.9, "trinket": 0.9, "elite": 0.9, "trade": 1.1},
-		"sells": ["螺栓", "金属板", "胶带", "电线", "灯泡", "蓄电池", "医用耗材包", "代糖", "糖"]},
+		"sells": ["螺栓", "金属板", "胶带", "电线", "灯泡", "蓄电池", "医用耗材包", "代糖", "糖", "玄纹墨"]},
 	"rat": {"name": "鼠王的下城区", "region": "龙门", "currency": "lmd", "active": "night", "spread": 0.10, "depth": 0.5, "noise": 1.5, "black": true,
 		"prefs": {"contraband": 1.6, "weapon": 1.2, "armor": 0.95, "trinket": 1.0, "elite": 0.95, "electronic": 1.0, "medical": 1.05, "originium": 1.1},
-		"sells": ["装置", "全新装置", "研磨石", "化合切削液", "电路板", "继电器"]},
+		"sells": ["装置", "全新装置", "研磨石", "化合切削液", "电路板", "继电器", "下城区耳目"]},
 	"rhine": {"name": "莱茵生命", "region": "哥伦比亚", "currency": "gold", "active": "all", "spread": 0.04, "depth": 0.8, "noise": 1.0,
 		"prefs": {"originium": 1.5, "medical": 1.2, "elite": 1.25, "electronic": 1.15, "cold": 1.3, "trinket": 0.9},
-		"sells": ["全新装置", "凝胶", "晶体元件", "糖", "聚酸酯"]},
+		"sells": ["全新装置", "凝胶", "晶体元件", "糖", "聚酸酯", "闪耀作物种子", "闪耀作物·变种种子"]},
 	"karlan": {"name": "喀兰贸易", "region": "谢拉格", "currency": "gold", "active": "all", "spread": 0.03, "depth": 1.0, "noise": 1.0,
 		"prefs": {"trinket": 1.3, "weapon": 1.1, "armor": 1.05, "cold": 1.4, "trade": 1.2, "build": 0.9, "fuel": 1.05},
-		"sells": ["帆布", "固体燃料", "密封泡沫", "碳素"]},
+		"sells": ["帆布", "固体燃料", "密封泡沫", "碳素", "高能燃料"]},
 	"ursus": {"name": "乌萨斯西北矿场", "region": "乌萨斯", "currency": "gold", "active": "day", "spread": 0.05, "depth": 0.7, "noise": 1.0,
 		"prefs": {"originium": 1.3, "electronic": 1.2, "weapon": 1.15, "fuel": 1.1, "build": 1.0, "elite": 1.0},
-		"sells": ["源岩", "固源岩", "异铁", "异铁碎片", "燃料罐"]},
+		"sells": ["源岩", "固源岩", "异铁", "异铁碎片", "燃料罐", "高纯源岩助熔剂"]},
 	"reunion": {"name": "整合运动残党", "region": "乌萨斯", "currency": "gold", "active": "night", "spread": 0.10, "depth": 0.4, "noise": 1.5, "black": true, "field_only": true,
 		"prefs": {"medical": 1.5, "originium": 1.2, "weapon": 1.2, "fuel": 1.2, "contraband": 1.3},
-		"sells": ["源岩", "固源岩", "固源岩组"]},
+		"sells": ["源岩", "固源岩", "固源岩组", "残党向导"]},
 	"sami": {"name": "萨米林地部族", "region": "萨米", "currency": "gold", "active": "day", "spread": 0.08, "depth": 0.3, "noise": 1.0, "barter": true, "field_only": true,
 		"prefs": {"fuel": 1.4, "medical": 1.3, "build": 1.2, "trade": 1.15},
-		"sells": ["林地草药", "鞣制兽皮"]},
+		"sells": ["林地草药", "鞣制兽皮", "萨米冰原苔"]},
 	"kazimierz": {"name": "卡西米尔商业联合会", "region": "卡西米尔", "currency": "gold", "active": "all", "spread": 0.03, "depth": 1.5, "noise": 1.0, "fee_extra": 0.01,
 		"prefs": {"trinket": 1.35, "weapon": 1.2, "armor": 1.15, "trade": 1.25, "build": 1.0, "electronic": 1.0},
-		"sells": ["螺栓", "螺母", "钉子", "电源线", "工业补给箱"]},
+		"sells": ["螺栓", "螺母", "钉子", "电源线", "工业补给箱", "骑士工坊专利授权"]},
 	"penguin": {"name": "企鹅物流", "region": "龙门", "currency": "lmd", "active": "all", "spread": 0.0, "depth": 1.0, "noise": 0.0, "transport": true,
 		"prefs": {}, "sells": []},
 }
 const ORDER: Array[String] = ["lungmen", "rat", "rhine", "karlan", "ursus", "reunion", "sami", "kazimierz", "penguin"]
 ## Selling contraband to one side costs relation with the other (§3).
 const RIVALS := {"rat": ["lungmen"], "lungmen": ["rat"], "reunion": ["ursus", "lungmen"], "ursus": ["reunion"]}
+## The relation each faction settles back to (沙盘航行策划案 §1.1, 用户 2026-10-19:
+## 按各地态度不同): above it, a daily correction pulls the relation down.
+## 谢拉格 and 萨米 are Rhodes' old friends; 乌萨斯, 整合运动 and 卡西米尔 keep it at arm's length.
+const RELATION_EXPECTED := {
+	"karlan": 1500, "sami": 1500,
+	"lungmen": 1000, "rat": 1000, "rhine": 1000, "penguin": 1000,
+	"ursus": 500, "reunion": 500, "kazimierz": 500,
+}
 ## Who issues 差价合约 (§9.1).
 const CFD_ISSUERS := ["karlan", "kazimierz"]
 ## Field posts by region (§12): who can be met where.
@@ -103,9 +111,9 @@ static func preference(faction: String, category: String) -> float:
 static func category_of(item: Item) -> String:
 	if item == null or item.is_potion(): return ""
 	match item.effect:
-		"raw_ore": return "contraband"
+		"raw_ore", "sealed_ore": return "contraband"
 		"frozen_relic": return "cold"
-	match item.category:
+	match Item.group_of(item.category):
 		Item.Category.WEAPON: return "weapon"
 		Item.Category.ARMOR: return "armor"
 		Item.Category.TRINKET: return "trinket"
@@ -123,6 +131,9 @@ static func material_category(id: String) -> String:
 	if id in ELECTRONIC_PRTS: return "electronic"
 	var data: Dictionary = MaterialCatalog.MATERIALS[id]
 	if str(data.get("source", "")) == "trade": return "trade"
+	# 势力特供 are not traded back; crops and 补给 go with the medical goods.
+	if str(data.get("source", "")) == "special": return ""
+	if str(data.get("source", "")) in ["farm", "meal"]: return "medical"
 	match str(data.get("group", "")):
 		"电子", "能源": return "electronic"
 		"燃料": return "fuel"

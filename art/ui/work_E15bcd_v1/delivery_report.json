@@ -1,0 +1,73 @@
+{
+  "total_icons": 44,
+  "total_emission_masks": 1,
+  "runtime_verified": false,
+  "art_accepted": false,
+  "batches": [
+    {
+      "batch": "E15b",
+      "region": "龙门",
+      "icons": 20,
+      "emission_masks": 0,
+      "minimum_bright_fraction": 0.1565,
+      "maximum_cloth_isolated_fraction": 0.0913,
+      "static_checks": "PASS",
+      "initial_source_paintings": 20,
+      "edited_source_paintings": 9
+    },
+    {
+      "batch": "E15c",
+      "region": "萨米",
+      "icons": 19,
+      "emission_masks": 1,
+      "minimum_bright_fraction": 0.1527,
+      "maximum_cloth_isolated_fraction": 0.0885,
+      "static_checks": "PASS",
+      "initial_source_paintings": 19,
+      "edited_source_paintings": 2
+    },
+    {
+      "batch": "E15d",
+      "region": "罗德岛",
+      "icons": 5,
+      "emission_masks": 0,
+      "minimum_bright_fraction": 0.1604,
+      "maximum_cloth_isolated_fraction": 0.0723,
+      "static_checks": "PASS",
+      "initial_source_paintings": 5,
+      "edited_source_paintings": 3
+    }
+  ],
+  "archives": [
+    {
+      "file": "E15b_v1_review.zip",
+      "files": 107,
+      "bytes": 23677461,
+      "sha256": "c412c3aa1d3715ad5d1d66c5d246d46bbffe194ad2ae5a2e6bf4ec5335d31f0e",
+      "crc": "PASS",
+      "content_hashes": "PASS"
+    },
+    {
+      "file": "E15c_v1_review.zip",
+      "files": 91,
+      "bytes": 18031324,
+      "sha256": "11b336b22d60425bb1c858d9dced59ee7cdb0d8530f92eabfa026e9e213fd0fc",
+      "crc": "PASS",
+      "content_hashes": "PASS"
+    },
+    {
+      "file": "E15d_v1_review.zip",
+      "files": 50,
+      "bytes": 7040210,
+      "sha256": "fc41f1aadeb65598e0b0b2238fc40d13a4d30b7a9a4ef7c6b9393e2491a860b6",
+      "crc": "PASS",
+      "content_hashes": "PASS"
+    }
+  ],
+  "protected_assets": {
+    "checked": 485,
+    "changed": [],
+    "pass_": true
+  },
+  "static_pass": true
+}

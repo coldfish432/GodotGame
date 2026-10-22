@@ -1,6 +1,6 @@
 extends SceneTree
 
-## B3 of 基地玩法策划案_v1_0.md: delivery orders, plain delivery and prestige
+## B3 of 基地玩法策划案_v1_0.md: delivery orders and plain delivery
 ## (§2, §3.8). Board rules on their own, then delivery through the game.
 
 var failures := 0
@@ -55,10 +55,10 @@ func rules() -> void:
 	var big := stack(9, 8, "mine")
 	var second := b.deliver(0, big)
 	check("a 9-stack gives only the 5 still asked for", int(second.used) == 5)
-	check("completes: (30 + 5×8) ×100 x 1.4 = 9800 龙门币, 6 prestige", second.done and second.gold == 9800 and second.prestige == 6 and b.slots[0].state == "done")
+	check("completes: (30 + 5×8) ×100 x 1.4 = 9800 龙门币", second.done and second.gold == 9800 and not second.has("prestige") and b.slots[0].state == "done")
 	check("a done order takes nothing more", b.deliver(0, stack(2, 10, "mine")).is_empty())
 	var ore := b.deliver(2, FieldCatalog.exclusive("mine"))
-	check("exclusive orders pay their fixed sum", ore.done and ore.gold == 16000 and ore.prestige == 12)
+	check("exclusive orders pay their fixed sum", ore.done and ore.gold == 16000)
 	check("abandoning empties an open slot only", b.abandon(1) and b.slots[1] == null and not b.abandon(0))
 
 	# Refill rules, over many seeds and last regions.
@@ -91,7 +91,7 @@ func rules() -> void:
 	copy.load_data(JSON.parse_string(JSON.stringify(saved.to_data())))
 	check("board save round trip keeps slots, state and deliveries", copy.slots[0].state == "done" and copy.slots[0].delivered.size() == 1 and copy.slots[1] == null)
 
-	check("prestige ranks: 0 R0, 20 R1, 60 R2, 200 R4", BaseCatalog.rank_of(0) == 0 and BaseCatalog.rank_of(20) == 1 and BaseCatalog.rank_of(60) == 2 and BaseCatalog.rank_of(250) == 4)
+	check("no order carries prestige any more", BaseCatalog.ORDERS.values().all(func(t): return not t.has("prestige")))
 
 func through_game() -> void:
 	var game := GameManager.new()
@@ -125,8 +125,8 @@ func through_game() -> void:
 	check("board shows an order she can fill", game.warehouse_view.board_state() == "open" and game.warehouse_view._board.get_meta("state") == "open")
 	var gold := game.gold
 	check("deliver from the shelf", game.deliver_to_order(0, shelf_mat) and game.base.location_of(shelf_mat) == "" and game.gold == gold)
-	check("deliver from the pack completes: (20 + 30) ×100 x 1.3 = 6500 龙门币, 5 prestige",
-		game.deliver_to_order(0, pack_mat) and not game.inventory.items.has(pack_mat) and game.gold == gold + 6500 and game.base.prestige == 5)
+	check("deliver from the pack completes: (20 + 30) ×100 x 1.3 = 6500 龙门币",
+		game.deliver_to_order(0, pack_mat) and not game.inventory.items.has(pack_mat) and game.gold == gold + 6500)
 	await step(2)
 	check("with nothing fillable left, a done order shows the completed board", game.warehouse_view.board_state() == "completed")
 	var sold := item("卖掉的饰品", Item.Category.TRINKET, 25)
@@ -135,16 +135,15 @@ func through_game() -> void:
 	# Plain delivery is Rhodes Island's internal buy-back at 80% (势力与交易所策划案 §13).
 	check("plain delivery from the pack pays 80% of its value", game.sell(sold) and game.gold == gold + 2000 and not game.inventory.items.has(sold))
 
-	# Settlement: extraction prestige and refills.
+	# Settlement: refills.
 	game.player.unequip(Item.Category.WEAPON)
 	await game.start_contract("mine")
 	game.settle(true)
 	await step(2)
-	check("extraction adds prestige", game.base.prestige == 5 + BaseCatalog.PRESTIGE_EXTRACTION)
 	check("settlement refills the completed slot, the open one stays", game.base.orders.slots[0] != null and game.base.orders.slots[0].state == "open"
 		and game.base.orders.slots[0].id != "starter" and game.base.orders.slots[1].id == "log_fine_weapon")
-	game.base.add_prestige(60)
-	check("reaching R2 opens a third order slot", game.base.rank() == 2 and game.base.orders.slots.size() == 3)
+	game.base.set_facility("warehouse", 3)
+	check("仓储部 Lv3 opens a third order slot", game.base.orders.slots.size() == 3)
 	game.base.orders = board_with(["eng_raw_ore", "med_city_armor", null])
 	game.base.orders.resize(3)
 	check("contract cards count the orders pointing at each region",
@@ -159,23 +158,22 @@ func through_game() -> void:
 	await step(2)
 	check("an empty board shows the empty state", game.warehouse_view.board_state() == "empty")
 
-	# Saves keep prestige and orders; saves from before orders start fresh.
+	# Saves keep facilities and orders; saves from before orders start fresh.
 	game.base.orders = board_with(["log_trinkets", null])
 	game.save_path = "user://orders_TEST_ONLY.json"
 	game.save_enabled = true
 	game.save_base()
-	var prestige := game.base.prestige
 	game.base = BaseState.new()
 	game.load_base()
-	check("save keeps prestige and the board", game.base.prestige == prestige and game.base.orders.slots[0].id == "log_trinkets" and game.base.orders.slots.size() == 3)
+	check("save keeps the facility and the board", game.base.facility_level("warehouse") == 3 and game.base.orders.slots[0].id == "log_trinkets" and game.base.orders.slots.size() == 3)
 	var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(game.save_path))
 	parsed.base.erase("orders")
-	parsed.base.erase("prestige")
+	parsed.base.erase("facilities")
 	var file := FileAccess.open(game.save_path, FileAccess.WRITE)
 	file.store_string(JSON.stringify(parsed))
 	file.close()
 	game.load_base()
-	check("a save from before orders starts with the starter order", game.base.prestige == 0 and game.base.orders.slots[0].id == "starter")
+	check("a save from before orders starts with the starter order", game.base.facility_level("warehouse") == 1 and game.base.orders.slots[0].id == "starter")
 	game.save_enabled = false
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(game.save_path + suffix): DirAccess.remove_absolute(game.save_path + suffix)

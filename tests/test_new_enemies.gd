@@ -164,11 +164,13 @@ func _mechanics() -> void:
 	# 用户 2026-10-11: 差不多就接入 — the 17 new enemies on their own boards.
 	var own := 0
 	for type in EnemyN2Data.TIPS:
+		# The B1 bosses and wardens are on these boards too, but only as Boss (test_bosses).
+		if BossCatalog.FIGURES.has(type) or type == "civilian": continue
 		var e := spawn(type, Vector3(0, 0, 6.0), false)
 		if e.directional and e.has_walk and e.sheet_type == type and e._tint == Color.WHITE: own += 1
 		e.queue_free()
 	# …and the seven of 叙拉古 (N4, 叙拉古敌人设计案 2026-10-16).
-	check("all 17 new enemies, 萨卡兹哨兵 (N3) and 叙拉古's seven (N4) draw from their own eight-direction boards, untinted", own == 25 and EnemyN2Data.TIPS.size() == 25 and EnemyN2Data.TIPS.has("sentinel") and EnemyN2Data.TIPS.has("family_car"), own)
+	check("all 17 new enemies, 萨卡兹哨兵 (N3) and 叙拉古's seven (N4) draw from their own eight-direction boards, untinted", own == 25 and EnemyN2Data.TIPS.size() == 25 + BossCatalog.FIGURES.size() + 1 and EnemyN2Data.TIPS.has("sentinel") and EnemyN2Data.TIPS.has("family_car"), own)
 	# 用户 2026-10-14: 走路一跳一跳的 — every walk frame of a direction stands on
 	# one foot line (art/install_n2_boards.py settle_walk).
 	var hopping: Array[String] = []

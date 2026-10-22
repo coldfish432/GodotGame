@@ -28,13 +28,13 @@ func _ready() -> void:
 	_dock = PanelContainer.new()
 	_dock.position = Vector2.ZERO
 	_dock.size = Vector2(520, 720)
-	_dock.add_theme_stylebox_override("panel", AK.box(Color(0.063, 0.063, 0.063, 0.96)))
+	_dock.add_theme_stylebox_override("panel", Terminal.panel_style("plate"))
 	add_child(_dock)
 	var outer := VBoxContainer.new()
 	outer.add_theme_constant_override("separation", 0)
 	_dock.add_child(outer)
 	var bar := PanelContainer.new()
-	var bar_style := AK.box(Color("0c0c0c"))
+	var bar_style := AK.box(Color(0, 0, 0, 0.35))
 	bar_style.content_margin_top = 6
 	bar_style.content_margin_bottom = 6
 	bar.add_theme_stylebox_override("panel", bar_style)
@@ -78,6 +78,7 @@ func _ready() -> void:
 	_body = VBoxContainer.new()
 	_body.add_theme_constant_override("separation", 10)
 	margin.add_child(_body)
+	Terminal.frame(_dock, AK.HOLO, 64.0)
 	_map_frame = Control.new()
 	_map_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_map_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -88,7 +89,8 @@ func _ready() -> void:
 	hide_all()
 
 func open(which: String) -> void:
-	if which != kind: _tab = 0
+	var fresh := which != kind
+	if fresh: _tab = 0
 	kind = which
 	show()
 	_dock.visible = which in WIDTHS
@@ -98,6 +100,7 @@ func open(which: String) -> void:
 	match which:
 		"relics": _relics()
 		"journal": _journal()
+	if fresh and _dock.visible: Terminal.reveal(_dock)
 
 func hide_all() -> void:
 	kind = ""
@@ -153,7 +156,7 @@ func _relics() -> void:
 	for i in range(sockets):
 		var empty := Panel.new()
 		empty.custom_minimum_size = Vector2(72, 72)
-		empty.add_theme_stylebox_override("panel", AK.box(Color("1b1b1b")))
+		empty.add_theme_stylebox_override("panel", AK.box(Color("171b1e")))
 		empty.modulate.a = 0.4
 		grid.add_child(empty)
 	if _tab == 1:
@@ -289,9 +292,6 @@ func _order_card(entry: Dictionary) -> Control:
 	var mult := AK.money("lmd", "×%s" % str(entry.mult), 15)
 	mult.alignment = BoxContainer.ALIGNMENT_END
 	reward.add_child(mult)
-	var prestige := AK.label("声望 +%d" % int(entry.prestige), 12, AK.MUTE)
-	prestige.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	reward.add_child(prestige)
 	row.add_child(reward)
 	strip.add_child(body)
 	return strip

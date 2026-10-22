@@ -10,7 +10,8 @@ extends OperatorKit
 ## - 鬼族 (talent): more life. 精英 2: 战意 / 荆棘 / 业火 (斩业星熊).
 
 const COMBO := [1.0, 1.0, 1.4]
-const BASE_DEF := 0.3
+## Her old +30% DEF is in her build now (Operators.STAT_MULT, 复利数值改造清单 I).
+const BASE_DEF := 0.0
 const BLOCK_CHANCE := 0.15
 const BLOCK_ATK := 0.2
 const BLOCK_SECONDS := 5.0

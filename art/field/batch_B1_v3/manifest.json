@@ -1,0 +1,149 @@
+{
+  "stage": 2,
+  "status": "READY_FOR_ART_REVIEW",
+  "boards": [
+    {
+      "id": "patriot",
+      "kind": "action",
+      "rows": 9,
+      "source": "patriot_action.png",
+      "runtime": "patriot_action_64.png",
+      "preview": "patriot_action_64_x6.png"
+    },
+    {
+      "id": "patriot",
+      "kind": "walk",
+      "rows": 8,
+      "source": "patriot_walk.png",
+      "runtime": "patriot_walk_64.png",
+      "preview": "patriot_walk_64_x6.png"
+    },
+    {
+      "id": "rat_king",
+      "kind": "action",
+      "rows": 8,
+      "source": "rat_king_action.png",
+      "runtime": "rat_king_action_64.png",
+      "preview": "rat_king_action_64_x6.png"
+    },
+    {
+      "id": "rat_king",
+      "kind": "walk",
+      "rows": 4,
+      "source": "rat_king_walk.png",
+      "runtime": "rat_king_walk_64.png",
+      "preview": "rat_king_walk_64_x6.png"
+    },
+    {
+      "id": "eikthyrnir",
+      "kind": "action",
+      "rows": 9,
+      "source": "eikthyrnir_action.png",
+      "runtime": "eikthyrnir_action_64.png",
+      "preview": "eikthyrnir_action_64_x6.png"
+    },
+    {
+      "id": "eikthyrnir",
+      "kind": "walk",
+      "rows": 4,
+      "source": "eikthyrnir_walk.png",
+      "runtime": "eikthyrnir_walk_64.png",
+      "preview": "eikthyrnir_walk_64_x6.png"
+    },
+    {
+      "id": "zaro",
+      "kind": "action",
+      "rows": 9,
+      "source": "zaro_action.png",
+      "runtime": "zaro_action_64.png",
+      "preview": "zaro_action_64_x6.png"
+    },
+    {
+      "id": "zaro",
+      "kind": "walk",
+      "rows": 4,
+      "source": "zaro_walk.png",
+      "runtime": "zaro_walk_64.png",
+      "preview": "zaro_walk_64_x6.png"
+    },
+    {
+      "id": "crownslayer",
+      "kind": "action",
+      "rows": 7,
+      "source": "crownslayer_action.png",
+      "runtime": "crownslayer_action_64.png",
+      "preview": "crownslayer_action_64_x6.png"
+    },
+    {
+      "id": "crownslayer",
+      "kind": "walk",
+      "rows": 4,
+      "source": "crownslayer_walk.png",
+      "runtime": "crownslayer_walk_64.png",
+      "preview": "crownslayer_walk_64_x6.png"
+    },
+    {
+      "id": "skullshatterer",
+      "kind": "action",
+      "rows": 6,
+      "source": "skullshatterer_action.png",
+      "runtime": "skullshatterer_action_64.png",
+      "preview": "skullshatterer_action_64_x6.png"
+    },
+    {
+      "id": "skullshatterer",
+      "kind": "walk",
+      "rows": 4,
+      "source": "skullshatterer_walk.png",
+      "runtime": "skullshatterer_walk_64.png",
+      "preview": "skullshatterer_walk_64_x6.png"
+    },
+    {
+      "id": "hollow_snowpriest",
+      "kind": "action",
+      "rows": 7,
+      "source": "hollow_snowpriest_action.png",
+      "runtime": "hollow_snowpriest_action_64.png",
+      "preview": "hollow_snowpriest_action_64_x6.png"
+    },
+    {
+      "id": "hollow_snowpriest",
+      "kind": "walk",
+      "rows": 4,
+      "source": "hollow_snowpriest_walk.png",
+      "runtime": "hollow_snowpriest_walk_64.png",
+      "preview": "hollow_snowpriest_walk_64_x6.png"
+    },
+    {
+      "id": "father_agnir",
+      "kind": "action",
+      "rows": 6,
+      "source": "father_agnir_action.png",
+      "runtime": "father_agnir_action_64.png",
+      "preview": "father_agnir_action_64_x6.png"
+    },
+    {
+      "id": "father_agnir",
+      "kind": "walk",
+      "rows": 4,
+      "source": "father_agnir_walk.png",
+      "runtime": "father_agnir_walk_64.png",
+      "preview": "father_agnir_walk_64_x6.png"
+    }
+  ],
+  "cells": 776,
+  "source_paintings": 39,
+  "visible_S_IDLE_heights": {
+    "patriot": 46,
+    "rat_king": 36,
+    "eikthyrnir": 46,
+    "zaro": 38,
+    "crownslayer": 30,
+    "skullshatterer": 32,
+    "hollow_snowpriest": 33,
+    "father_agnir": 31
+  },
+  "static_checks": "qa_report.json",
+  "approved_stage1": "UNCHANGED",
+  "stage3": "NOT STARTED; board acceptance first"
+}

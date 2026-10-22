@@ -49,8 +49,8 @@ const GEAR := {
 const BYPRODUCTS := ["源岩", "代糖", "酯原料", "异铁碎片", "双酮", "破损装置"]
 const BYPRODUCT_CHANCE := 0.10
 const BYPRODUCT_BUILD_CHANCE := 0.10
-## Queue slots: one, two from Rhodes prestige R3.
-const SLOTS_RANK := 3
+## Queue slots: one, two from 加工部 Lv2.
+const SLOTS_LEVEL := 2
 
 var jobs: Array = []   # {id, output, count, due, byproducts}
 var _next_id := 1
@@ -64,17 +64,18 @@ static func cost_of(output: String, count: int) -> Dictionary:
 	for id in r.get("in", {}): out[id] = int(r["in"][id]) * count
 	return out
 
-static func slots(prestige_rank: int) -> int:
-	return 2 if prestige_rank >= SLOTS_RANK else 1
+static func slots(level: int) -> int:
+	return 2 if level >= SLOTS_LEVEL else 1
 
 func busy() -> int:
 	return jobs.size()
 
 ## Starts `count` of `output` (materials are taken by the caller). The queue
 ## runs jobs one after another per slot, so a new job starts after the last.
-func start(output: String, count: int, now: int, rng: RandomNumberGenerator) -> Dictionary:
+## `time_factor` shortens the job (科研部: 后勤部Ⅳ, the endless 加工时长 line).
+func start(output: String, count: int, now: int, rng: RandomNumberGenerator, time_factor := 1.0) -> Dictionary:
 	var r := recipe(output)
-	var job := {"id": _next_id, "output": output, "count": count, "due": now + int(r.minutes) * 60 * count, "byproducts": {}}
+	var job := {"id": _next_id, "output": output, "count": count, "due": now + maxi(60, roundi(int(r.minutes) * 60 * count * time_factor)), "byproducts": {}}
 	_next_id += 1
 	if RECIPES.has(output):
 		var chance := BYPRODUCT_BUILD_CHANCE if r.get("build", false) else BYPRODUCT_CHANCE

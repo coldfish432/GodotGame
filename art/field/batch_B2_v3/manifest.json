@@ -1,0 +1,66 @@
+{
+  "brief_sha256": "7282650798bf17baae0be0cf8c6467d5fc3438ad5a45eec17c9f4d4c4f3cb888",
+  "status": "PENDING_USER_APPROVAL",
+  "files": {
+    "before_after.png": {
+      "bytes": 452064,
+      "sha256": "a42329ff4d8106637d89f89af75360c68956fdb520e59cefcc34c8b3029b577c"
+    },
+    "civilian_26.png": {
+      "bytes": 702,
+      "sha256": "31d440769d2dfeb8522f2ab9962d397f7b45e7c6f4554f803fbfe6c0ca9bc0d4"
+    },
+    "civilian_26_on_ground_x6.png": {
+      "bytes": 8072,
+      "sha256": "c64c612eace40f1f478009d84db528309950a7c4f9c85b593a8a12655414f6e8"
+    },
+    "civilian_painting.png": {
+      "bytes": 740027,
+      "sha256": "2dba353b99c07e28bbb5a70ebe190b46f5bb3b59ae1ebef3e94515cb78dbdea5"
+    },
+    "civilian_vs_prts.png": {
+      "bytes": 1940839,
+      "sha256": "9d9c9599b0eeccf53120b80b80313bd02089987ff5be2e9ba73020cc353c6b4f"
+    },
+    "civilian_with_style_refs.png": {
+      "bytes": 3190640,
+      "sha256": "763a934bd86cd1861dc6c28bc6a6978f30fb48a692c7bacddbae6fd7a5aa5ff6"
+    },
+    "generation_prompts.md": {
+      "bytes": 3497,
+      "sha256": "f1fe21b8fb978e2abf29089e6e7e2f492bcef7a026b017796d2b7e89c832067a"
+    },
+    "qa_report.json": {
+      "bytes": 2118,
+      "sha256": "aebb69a1fe420d5c31f12ed9d58d7306a19598763fcfa0f5cfefc6f08629cd8d"
+    },
+    "reduction_pipeline/enemy_dir_family_soldier_64.png": {
+      "bytes": 30595,
+      "sha256": "bb6def5410ea75d8137f66ceb50a45cd8484c6c116e65ce5207abd4feee73029"
+    },
+    "reduction_pipeline/reduce_b2.py": {
+      "bytes": 2686,
+      "sha256": "243ce8ff68e6cd381a7838f0cafc7fb8bfec15387f3dc0d968b90aa2a02bd8cf"
+    },
+    "reduction_pipeline/reduce_n1.py": {
+      "bytes": 11636,
+      "sha256": "12b85055b2d2c256962e6a5ce989ba295361e06f7fb000f38f428b641647270c"
+    },
+    "reduction_pipeline/refs_B2/siracusa_arena_ingame.png": {
+      "bytes": 505713,
+      "sha256": "a37c3db97cea5a24b3e0dfc43ae2e3102ff50e08102090e66a7f951b6308fffa"
+    },
+    "source_paintings/v2_civilian_painting.png": {
+      "bytes": 760046,
+      "sha256": "9352e87282f3bffe37169af31828f096ddd69850a0f6a7ba909d79e2d668f230"
+    },
+    "v2_civilian_26.png": {
+      "bytes": 756,
+      "sha256": "f3f067743cee2d72c7cd4419dabb7499f3fe2f7ae70fb103270637b2f3d3bd5b"
+    },
+    "v2_civilian_26_on_ground_x6.png": {
+      "bytes": 8129,
+      "sha256": "c41b318bcb57c175427a3a08de656b7a2a1f86689f15ec6a0ab91ff90436b9b8"
+    }
+  }
+}

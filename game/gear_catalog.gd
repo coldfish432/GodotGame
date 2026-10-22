@@ -46,8 +46,17 @@ static func can_wield(operator_id: String, item: Item) -> bool:
 
 const S := ItemModifier.Stat
 const W := Item.Category.WEAPON
-const A := Item.Category.ARMOR
-const T := Item.Category.TRINKET
+## 装备部位拆分与数值案 (用户 2026-10-21): the old armour bases are chests and
+## the old trinkets amulets; head, hands, legs, feet and rings are new (E15).
+const A := Item.Category.CHEST
+const T := Item.Category.AMULET
+const HEAD := Item.Category.HEAD
+const CHEST := Item.Category.CHEST
+const HANDS := Item.Category.HANDS
+const LEGS := Item.Category.LEGS
+const FEET := Item.Category.FEET
+const AMULET := Item.Category.AMULET
+const RING := Item.Category.RING
 
 ## Shallow / mid / deep bases open at these floors (the ten-floor camp rhythm).
 const TIER_DEPTH := [1, 4, 7]
@@ -71,21 +80,21 @@ const BASES := {
 		"form": "blade", "icon": "patrol_saber", "text": "刀鞘不见了，刀还记得它是追人用的。"},
 	"mine_pickaxe": {"name": "断镐战斧", "region": "mine", "category": W, "tier": 2, "factor": 1.15, "implicit": [[S.ATK_PCT, 0.04], [S.MOVE_SPEED_PCT, -0.04]],
 		"form": "heavy", "icon": "pickhaft_blade", "text": "镐头断了一半，剩下那半磨成了斧。"},
-	"mine_vest": {"name": "矿工护甲", "region": "mine", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"mine_vest": {"name": "矿工护甲", "region": "mine", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.02]],
 		"icon": "miner_vest", "text": "胸口缝着矿场的编号。"},
-	"mine_reunion_coat": {"name": "整合运动制式外套", "region": "mine", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+	"mine_reunion_coat": {"name": "整合运动制式外套", "region": "mine", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
 		"icon": "reunion_coat", "text": "穿上它的人不需要名字。"},
-	"mine_greatcoat": {"name": "纠察队防寒大衣", "region": "mine", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 4.0]],
+	"mine_greatcoat": {"name": "纠察队防寒大衣", "region": "mine", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 2.0], [S.MAX_HP_PCT, 0.01]],
 		"icon": "patrol_winter_coat", "text": "厚得能挡住冻原的风，挡不住矿石病。"},
-	"mine_hazard_suit": {"name": "矿场重型防护服", "region": "mine", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 20.0], [S.MOVE_SPEED_PCT, -0.04]],
+	"mine_hazard_suit": {"name": "矿场重型防护服", "region": "mine", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 15.0], [S.RES_FLAT, 2.0], [S.MOVE_SPEED_PCT, -0.01]],
 		"icon": "heavy_mine_suit", "text": "给最深的矿道准备的，没来得及发下去。"},
-	"mine_dust_mask": {"name": "防尘面罩", "region": "mine", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.RES_FLAT, 4.0]],
+	"mine_dust_mask": {"name": "防尘面罩", "region": "mine", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.RES_FLAT, 2.0]],
 		"icon": "dust_mask", "text": "滤芯是黑的，说明它一直在工作。"},
-	"mine_flask": {"name": "烈酒扁壶", "region": "mine", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.CRIT_DMG, 0.10]],
+	"mine_flask": {"name": "烈酒扁壶", "region": "mine", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.CRIT_DMG, 0.075], [S.MAX_HP_PCT, -0.01]],
 		"icon": "liquor_flask", "text": "摇一摇，还剩一口。"},
-	"mine_reunion_mask": {"name": "整合运动面具", "region": "mine", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"mine_reunion_mask": {"name": "整合运动面具", "region": "mine", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.0375]],
 		"icon": "reunion_mask", "text": "面具都一样，所以没人记得谁倒下了。"},
-	"mine_meter": {"name": "源石感应计", "region": "mine", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.05]],
+	"mine_meter": {"name": "源石感应计", "region": "mine", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.025], [S.DROP_RATE_PCT, 0.05]],
 		"icon": "originium_meter", "text": "罗德岛测绘队的仪器，指针一直贴在头上。"},
 	# --- 龙门 (§4.2)
 	"city_finger_blade": {"name": "指刃", "region": "city", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
@@ -98,21 +107,21 @@ const BASES := {
 		"form": "blade", "icon": "courier_dagger", "text": "货要准时到，人要活着到。"},
 	"city_ring_saber": {"name": "炎式环首刀", "region": "city", "category": W, "tier": 2, "factor": 1.12, "implicit": [[S.CRIT_RATE, 0.03]],
 		"form": "blade", "icon": "yan_ring_saber", "text": "刀法比刀老，刀也比城老。"},
-	"city_lgd_vest": {"name": "近卫局制式护甲", "region": "city", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 20.0]],
+	"city_lgd_vest": {"name": "近卫局制式护甲", "region": "city", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 10.0]],
 		"icon": "lgd_vest", "text": "肩上的局徽被刮过，但没刮干净。"},
-	"city_fire_suit": {"name": "消防署隔热服", "region": "city", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.RES_FLAT, 4.0]],
+	"city_fire_suit": {"name": "消防署隔热服", "region": "city", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.RES_FLAT, 2.0]],
 		"icon": "fire_suit", "text": "那天烧得最厉害的地方，他们最先进去。"},
-	"city_carrier": {"name": "押运防弹背心", "region": "city", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"city_carrier": {"name": "押运防弹背心", "region": "city", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 10.0], [S.MAX_HP_PCT, 0.01]],
 		"icon": "courier_vest", "text": "插板缺了一块，正好是挨过的那一块。"},
-	"city_inspector": {"name": "特别督察组战术护甲", "region": "city", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 20.0], [S.MAX_HP_PCT, 0.04]],
+	"city_inspector": {"name": "特别督察组战术护甲", "region": "city", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 10.0], [S.CRIT_RATE, 0.015]],
 		"icon": "inspector_armor", "text": "这身护甲的上一任主人，任期没满两年。"},
-	"city_charm": {"name": "战术挂饰", "region": "city", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.10]],
+	"city_charm": {"name": "战术挂饰", "region": "city", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.05]],
 		"icon": "tactical_charm", "text": "挂在背心上的小东西，谁都有一个。"},
-	"city_radio": {"name": "近卫局对讲机", "region": "city", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"city_radio": {"name": "近卫局对讲机", "region": "city", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.SKILL_CD_PCT, -0.0375]],
 		"icon": "lgd_radio", "text": "频道里只剩杂音，偶尔有人报位置。"},
-	"city_wallet": {"name": "龙门币钱夹", "region": "city", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]], "value": 1.5,
+	"city_wallet": {"name": "龙门币钱夹", "region": "city", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.GOLD_GAIN_PCT, 0.075]], "value": 1.5,
 		"icon": "lungmen_wallet", "text": "里面的钱早花完了，钱夹本身倒值钱。"},
-	"city_talisman": {"name": "炎式平安符", "region": "city", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.05], [S.RES_FLAT, 4.0]],
+	"city_talisman": {"name": "炎式平安符", "region": "city", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.RES_FLAT, 2.0], [S.MAX_HP_PCT, 0.02]],
 		"icon": "yan_talisman", "text": "求平安的人，未必平安，但符留下来了。"},
 	# --- 萨米 · 冻土林线 (§4.3)
 	"snow_icebreaker": {"name": "破冰刀", "region": "snow", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.10]],
@@ -125,21 +134,21 @@ const BASES := {
 		"form": "blade", "icon": "expedition_machete", "text": "南边城市造的刀，走到这里已经不像南边的了。"},
 	"snow_rite_blade": {"name": "雪祀礼刃", "region": "snow", "category": W, "tier": 2, "factor": 1.15, "implicit": [[S.ATK_PCT, 0.04], [S.CRIT_RATE, 0.03]],
 		"form": "blade", "icon": "snowpriest_blade", "text": "埋在冻土下面，刃口依然是冷的。"},
-	"snow_fur_coat": {"name": "冰原毛皮外套", "region": "snow", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"snow_fur_coat": {"name": "冰原毛皮外套", "region": "snow", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.02]],
 		"icon": "tundra_fur_coat", "text": "毛朝里穿，雪就进不来。"},
-	"snow_cloak": {"name": "雪橇巡逻队斗篷", "region": "snow", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+	"snow_cloak": {"name": "雪橇巡逻队斗篷", "region": "snow", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
 		"icon": "sled_patrol_cloak", "text": "披上它，雪地里远远就能认出你是自己人。"},
-	"snow_parka": {"name": "科考队防寒服", "region": "snow", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 4.0]],
+	"snow_parka": {"name": "科考队防寒服", "region": "snow", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 3.0]],
 		"icon": "expedition_parka", "text": "标签上写的温度，这里早就低过了。"},
-	"snow_lamellar": {"name": "骨片札甲", "region": "snow", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 20.0], [S.MAX_HP_PCT, 0.04]],
+	"snow_lamellar": {"name": "骨片札甲", "region": "snow", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 10.0], [S.MAX_HP_PCT, 0.02]],
 		"icon": "bone_lamellar", "text": "每一片骨头，都来自一只认得这片林子的兽。"},
-	"snow_amulet": {"name": "骨制护符", "region": "snow", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_PCT, 0.05]],
+	"snow_amulet": {"name": "骨制护符", "region": "snow", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_PCT, 0.025]],
 		"icon": "bone_amulet", "text": "刻痕被很多只手摸平了。"},
-	"snow_flute": {"name": "角兽骨笛", "region": "snow", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"snow_flute": {"name": "角兽骨笛", "region": "snow", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.025]],
 		"icon": "antler_flute", "text": "吹响时，林子会安静一下。"},
-	"snow_drumstick": {"name": "兽骨鼓槌", "region": "snow", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.10]],
+	"snow_drumstick": {"name": "兽骨鼓槌", "region": "snow", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.EXP_GAIN_PCT, 0.075]],
 		"icon": "bone_drumstick", "text": "敲鼓的人不在了，鼓槌还记得节拍。"},
-	"snow_cipher": {"name": "密文板残片", "region": "snow", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.05], [S.CRIT_DMG, 0.10]],
+	"snow_cipher": {"name": "密文板残片", "region": "snow", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.025], [S.SKILL_CD_PCT, -0.0375]],
 		"icon": "cipher_fragment", "text": "读不懂上面的字，但它好像读得懂你。"},
 	# --- 装备扩充策划案 §4 (2026-10-11 用户：全上): 63 bases + 3 polearms (长柄).
 	"mine_x01": {"name": "工兵锹", "region": "mine", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 20.0]], "form": "heavy",
@@ -158,33 +167,33 @@ const BASES := {
 		"icon": "mine_x07", "text": "门开了，门后的东西也是。"},
 	"mine_x08": {"name": "帝国突击矛", "region": "mine", "category": W, "tier": 2, "factor": 1.10, "implicit": [[S.CRIT_RATE, 0.03]], "form": "polearm",
 		"icon": "mine_x08", "text": "矛杆上的编号是一个营。"},
-	"mine_x09": {"name": "拼装轻甲", "region": "mine", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 20.0]],
+	"mine_x09": {"name": "拼装轻甲", "region": "mine", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 10.0]],
 		"icon": "mine_x09", "text": "三套甲拆成一套，扣子都对不上。"},
-	"mine_x10": {"name": "改装喷射背架", "region": "mine", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"mine_x10": {"name": "改装喷射背架", "region": "mine", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.DASH_COST_PCT, -0.0625]],
 		"icon": "mine_x10", "text": "燃料早就烧完了，背带还结实。"},
-	"mine_x11": {"name": "整合运动术师兜袍", "region": "mine", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.ARTS_PCT, 0.05]],
+	"mine_x11": {"name": "整合运动术师兜袍", "region": "mine", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.ARTS_PCT, 0.0375]],
 		"icon": "mine_x11", "text": "袖口被烧穿过，从里面。"},
-	"mine_x12": {"name": "伪装吉利服", "region": "mine", "category": A, "tier": 1, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.03]],
+	"mine_x12": {"name": "伪装吉利服", "region": "mine", "category": A, "tier": 1, "factor": 1.00, "implicit": [[S.EVASION, 0.02], [S.CRIT_RATE, 0.0075]],
 		"icon": "mine_x12", "text": "披上它，矿道里就少了一个人。"},
-	"mine_x13": {"name": "游击队旧式军大衣", "region": "mine", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"mine_x13": {"name": "游击队旧式军大衣", "region": "mine", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.HP_FLAT, 147.0]],
 		"icon": "mine_x13", "text": "补丁比原布多，扣子一颗不少。"},
-	"mine_x14": {"name": "复合护具", "region": "mine", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.MAX_HP_PCT, 0.04], [S.MOVE_SPEED_PCT, -0.04]],
+	"mine_x14": {"name": "复合护具", "region": "mine", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.MAX_HP_PCT, 0.03], [S.RES_FLAT, 2.0], [S.MOVE_SPEED_PCT, -0.01]],
 		"icon": "mine_x14", "text": "罐子、管子、面罩，一样都不能少。"},
-	"mine_x15": {"name": "头戴矿灯", "region": "mine", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+	"mine_x15": {"name": "头戴矿灯", "region": "mine", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.DROP_RATE_PCT, 0.05]],
 		"icon": "mine_x15", "text": "电池还剩一格。"},
-	"mine_x16": {"name": "军用止血带", "region": "mine", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"mine_x16": {"name": "军用止血带", "region": "mine", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.HP_FLAT, 98.0]],
 		"icon": "mine_x16", "text": "扣环上写着上一个人的血型。"},
-	"mine_x17": {"name": "劳役编号牌", "region": "mine", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.DEF_FLAT, 20.0]],
+	"mine_x17": {"name": "劳役编号牌", "region": "mine", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.DEF_FLAT, 10.0]],
 		"icon": "mine_x17", "text": "铁皮压的，比戴它的人结实。"},
-	"mine_x18": {"name": "切尔文铜币", "region": "mine", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.03]],
+	"mine_x18": {"name": "切尔文铜币", "region": "mine", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.0225]],
 		"icon": "mine_x18", "text": "在矿里，它买不到任何东西。"},
-	"mine_x19": {"name": "纠察队手铐", "region": "mine", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.ATK_PCT, 0.04]],
+	"mine_x19": {"name": "纠察队手铐", "region": "mine", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.ATK_PCT, 0.02], [S.ATK_FLAT, 12.0]],
 		"icon": "mine_x19", "text": "钥匙不在这里。"},
-	"mine_x20": {"name": "游击队臂章", "region": "mine", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"mine_x20": {"name": "游击队臂章", "region": "mine", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.025], [S.MOVE_SPEED_PCT, 0.01]],
 		"icon": "mine_x20", "text": "线是自己缝的，针脚很密。"},
-	"mine_x21": {"name": "高能虫囊", "region": "mine", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.05]],
+	"mine_x21": {"name": "高能虫囊", "region": "mine", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.0375], [S.SKILL_PCT, 0.0625], [S.MAX_HP_PCT, -0.01]],
 		"icon": "mine_x21", "text": "摸上去是温的，最好别摸。"},
-	"mine_x22": {"name": "拆下的施术单元", "region": "mine", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.RES_FLAT, 4.0]],
+	"mine_x22": {"name": "拆下的施术单元", "region": "mine", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_FLAT, 24.0], [S.RES_FLAT, 2.0]],
 		"icon": "mine_x22", "text": "从一架掉下来的无人机里拆的。"},
 	"city_x01": {"name": "拆迁大锤", "region": "city", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.1]], "form": "heavy",
 		"icon": "city_x01", "text": "墙上用红漆写过一个字，后来墙没了。"},
@@ -202,31 +211,31 @@ const BASES := {
 		"icon": "city_x07", "text": "刀身太长，只能用双手，也只能用一辈子。"},
 	"city_x08": {"name": "炎式朴刀", "region": "city", "category": W, "tier": 2, "factor": 1.10, "implicit": [[S.ATK_PCT, 0.04]], "form": "polearm",
 		"icon": "city_x08", "text": "柄是木头，刃是旧的，路是自己走的。"},
-	"city_x09": {"name": "执勤反光雨衣", "region": "city", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+	"city_x09": {"name": "执勤反光雨衣", "region": "city", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
 		"icon": "city_x09", "text": "雨从不停，巡逻也不停。"},
-	"city_x10": {"name": "拳馆练功服", "region": "city", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"city_x10": {"name": "拳馆练功服", "region": "city", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.EXP_GAIN_PCT, 0.05]],
 		"icon": "city_x10", "text": "衣服换过三次，师父没换过。"},
-	"city_x11": {"name": "染血白工装", "region": "city", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"city_x11": {"name": "染血白工装", "region": "city", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.HP_FLAT, 98.0]],
 		"icon": "city_x11", "text": "洗不掉的部分，就当是颜色。"},
-	"city_x12": {"name": "拾荒者伪装衫", "region": "city", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 20.0]],
+	"city_x12": {"name": "拾荒者伪装衫", "region": "city", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 10.0], [S.EVASION, 0.01]],
 		"icon": "city_x12", "text": "外面是破布，里面是钢板。"},
-	"city_x13": {"name": "香主绸衫", "region": "city", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 4.0], [S.MAX_HP_PCT, 0.04]],
+	"city_x13": {"name": "香主绸衫", "region": "city", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 2.0], [S.CRIT_DMG, 0.025]],
 		"icon": "city_x13", "text": "绸子挡不住刀，挡刀的是别的东西。"},
-	"city_x14": {"name": "防爆重甲", "region": "city", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 20.0], [S.MOVE_SPEED_PCT, -0.04]],
+	"city_x14": {"name": "防爆重甲", "region": "city", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 25.0], [S.MOVE_SPEED_PCT, -0.01]],
 		"icon": "city_x14", "text": "穿上它就不用跑了，反正也跑不动。"},
-	"city_x15": {"name": "执勤警哨", "region": "city", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+	"city_x15": {"name": "执勤警哨", "region": "city", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
 		"icon": "city_x15", "text": "吹响以后，往哪边跑都对。"},
-	"city_x16": {"name": "防风打火机", "region": "city", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_PCT, 0.05]],
+	"city_x16": {"name": "防风打火机", "region": "city", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_FLAT, 24.0]],
 		"icon": "city_x16", "text": "点烟用的，也点别的。"},
-	"city_x17": {"name": "老千骰子", "region": "city", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.03]],
+	"city_x17": {"name": "老千骰子", "region": "city", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.DROP_RATE_PCT, 0.075], [S.CRIT_RATE, -0.0075]],
 		"icon": "city_x17", "text": "六面都是好点数的那一颗，找不到了。"},
-	"city_x18": {"name": "跌打药酒瓶", "region": "city", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"city_x18": {"name": "跌打药酒瓶", "region": "city", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.HP_FLAT, 147.0]],
 		"icon": "city_x18", "text": "酒是外用的。大部分时候。"},
-	"city_x19": {"name": "无人机遥控器", "region": "city", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"city_x19": {"name": "无人机遥控器", "region": "city", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.SKILL_PCT, 0.0625], [S.ATTACK_SPEED_PCT, 0.0125]],
 		"icon": "city_x19", "text": "屏幕上还有信号，飞机不知道在哪。"},
-	"city_x20": {"name": "当铺铜牌", "region": "city", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.1]], "value": 1.2,
+	"city_x20": {"name": "当铺铜牌", "region": "city", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.05], [S.GOLD_GAIN_PCT, 0.025]], "value": 1.2,
 		"icon": "city_x20", "text": "当掉的东西没赎回来，牌子倒留下了。"},
-	"city_x21": {"name": "琉璃护身珠", "region": "city", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.RES_FLAT, 4.0], [S.ARTS_PCT, 0.05]],
+	"city_x21": {"name": "琉璃护身珠", "region": "city", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.025], [S.RES_FLAT, 2.0]],
 		"icon": "city_x21", "text": "有人用技艺烧出来的，冷了以后还在发光。"},
 	"snow_x01": {"name": "染污短刀", "region": "snow", "category": W, "tier": 0, "factor": 0.95, "implicit": [[S.MOVE_SPEED_PCT, 0.04]], "form": "blade", "enemies": ["taint_husk"],
 		"icon": "snow_x01", "text": "握柄上的手印不是现在这只手的。"},
@@ -244,35 +253,35 @@ const BASES := {
 		"icon": "snow_x07", "text": "战士们把骨头绑在前臂上，省得刀被打落。"},
 	"snow_x08": {"name": "林线猎矛", "region": "snow", "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]], "form": "polearm",
 		"icon": "snow_x08", "text": "隔着一臂远，猎物才不会回头咬你。"},
-	"snow_x09": {"name": "角兽长毛披肩", "region": "snow", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"snow_x09": {"name": "角兽长毛披肩", "region": "snow", "category": A, "tier": 0, "factor": 0.95, "implicit": [[S.EVASION, 0.02]],
 		"icon": "snow_x09", "text": "趴在雪里时，和灌木没有分别。"},
-	"snow_x10": {"name": "桦皮护胸", "region": "snow", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.RES_FLAT, 4.0]],
+	"snow_x10": {"name": "桦皮护胸", "region": "snow", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.RES_FLAT, 2.0]],
 		"icon": "snow_x10", "text": "林子里长出来的东西，林子里的病碰不到它。"},
-	"snow_x11": {"name": "林业护具", "region": "snow", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 20.0]],
+	"snow_x11": {"name": "林业护具", "region": "snow", "category": A, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 10.0]],
 		"icon": "snow_x11", "text": "设计时只想过倒下来的树。"},
-	"snow_x12": {"name": "搜救队绳索背心", "region": "snow", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+	"snow_x12": {"name": "搜救队绳索背心", "region": "snow", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.STAMINA_REGEN_PCT, 0.1125]],
 		"icon": "snow_x12", "text": "绳子的另一头，通常没有人。"},
-	"snow_x13": {"name": "科考站加热背心", "region": "snow", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"snow_x13": {"name": "科考站加热背心", "region": "snow", "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.MAX_HP_PCT, 0.02], [S.STAMINA_REGEN_PCT, 0.0375]],
 		"icon": "snow_x13", "text": "线缆另一头接着的东西，早就冻住了。"},
-	"snow_x14": {"name": "冬牙角盔", "region": "snow", "category": A, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 20.0], [S.MOVE_SPEED_PCT, -0.04]],
+	"snow_x14": {"name": "冬牙角盔", "region": "snow", "category": HEAD, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 20.0], [S.RES_FLAT, 1.0], [S.MOVE_SPEED_PCT, -0.01]],
 		"icon": "snow_x14", "text": "透过它看出去的人，都没有回来。"},
-	"snow_x15": {"name": "雪祀羽氅", "region": "snow", "category": A, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.05], [S.RES_FLAT, 4.0]],
+	"snow_x15": {"name": "雪祀羽氅", "region": "snow", "category": A, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.025], [S.SKILL_PCT, 0.0625]],
 		"icon": "snow_x15", "text": "每一根羽毛都在等一场雪。"},
-	"snow_x16": {"name": "族树木片", "region": "snow", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"snow_x16": {"name": "族树木片", "region": "snow", "category": T, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.02]],
 		"icon": "snow_x16", "text": "树倒了以后，部族的人每人分了一片。"},
-	"snow_x17": {"name": "鼷兽毛团", "region": "snow", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"snow_x17": {"name": "鼷兽毛团", "region": "snow", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.STAMINA_REGEN_PCT, 0.075]],
 		"icon": "snow_x17", "text": "它们挤在一起时，比任何皮袄都暖。"},
-	"snow_x18": {"name": "幸运晶石", "region": "snow", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.CRIT_RATE, 0.03]],
+	"snow_x18": {"name": "幸运晶石", "region": "snow", "category": T, "tier": 0, "factor": 0.95, "implicit": [[S.DROP_RATE_PCT, 0.05]],
 		"icon": "snow_x18", "text": "商贩说它挡过一刀。"},
-	"snow_x19": {"name": "骨缝雪镜", "region": "snow", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]],
+	"snow_x19": {"name": "骨缝雪镜", "region": "snow", "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.015], [S.CRIT_DMG, 0.025]],
 		"icon": "snow_x19", "text": "看得少，看得准。"},
-	"snow_x20": {"name": "手持定位仪", "region": "snow", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.04]],
+	"snow_x20": {"name": "手持定位仪", "region": "snow", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.03]],
 		"icon": "snow_x20", "text": "屏幕上的你一直在原地。"},
-	"snow_x21": {"name": "角兽银铃", "region": "snow", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.RES_FLAT, 4.0]],
+	"snow_x21": {"name": "角兽银铃", "region": "snow", "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.RES_FLAT, 2.0], [S.MOVE_SPEED_PCT, 0.01]],
 		"icon": "snow_x21", "text": "角兽走在前面，铃声替它认路。"},
-	"snow_x22": {"name": "黑雪结晶", "region": "snow", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.05], [S.CRIT_RATE, 0.03]],
+	"snow_x22": {"name": "黑雪结晶", "region": "snow", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ARTS_PCT, 0.0375], [S.SKILL_PCT, 0.0625], [S.MAX_HP_PCT, -0.01]],
 		"icon": "snow_x22", "text": "握久了，会忘记为什么握着它。"},
-	"snow_x23": {"name": "猎首獠牙串", "region": "snow", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ATK_PCT, 0.04], [S.CRIT_DMG, 0.1]],
+	"snow_x23": {"name": "猎首獠牙串", "region": "snow", "category": T, "tier": 2, "factor": 1.10, "implicit": [[S.ATK_PCT, 0.02], [S.CRIT_DMG, 0.05]],
 		"icon": "snow_x23", "text": "每一颗都有过一个名字。"},
 	# --- 叙拉古 · 沃尔西尼旧城区 (§11, 用户 2026-10-18): weapons only; armour and
 	# trinkets there still come from the other three tables.
@@ -349,47 +358,193 @@ const BASES := {
 		"form": "blade", "icon": "rhodes_dual_blades", "text": "训练场上教的第一套刀，就是这一套。"},
 	"rhodes_sword": {"name": "罗德岛制式剑", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]],
 		"form": "blade", "icon": "rhodes_sword", "text": "制式的剑，用的人不制式。"},
-	"rhodes_uniform": {"name": "罗德岛外勤制服", "region": "rhodes", "value": 1.5, "category": A, "tier": 1, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"rhodes_uniform": {"name": "罗德岛外勤制服", "region": "rhodes", "value": 1.5, "category": A, "tier": 1, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.02]],
 		"icon": "rhodes_field_uniform", "text": "后勤部发的，尺码总是大一号。"},
-	"rhodes_vest": {"name": "罗德岛制式防护背心", "region": "rhodes", "value": 1.5, "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 20.0]],
+	"rhodes_vest": {"name": "罗德岛制式防护背心", "region": "rhodes", "value": 1.5, "category": A, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 10.0]],
 		"icon": "rhodes_protective_vest", "text": "工程部说它能挡住大多数东西，医疗部说别信。"},
-	"rhodes_beacon": {"name": "罗德岛制式信标", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.05]],
+	"rhodes_beacon": {"name": "罗德岛制式信标", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
 		"icon": "rhodes_beacon", "text": "只要它还亮着，就有人知道你在哪。"},
-	"rhodes_medkit": {"name": "罗德岛制式急救包", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.04]],
+	"rhodes_medkit": {"name": "罗德岛制式急救包", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.02]],
 		"icon": "rhodes_medkit", "text": "绷带、止血钳，都是制式的；用的人不是。"},
-	"rhodes_badge": {"name": "罗德岛干员证章", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_DMG, 0.10]],
+	"rhodes_badge": {"name": "罗德岛干员证章", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.EXP_GAIN_PCT, 0.05]],
 		"icon": "rhodes_badge", "text": "特别颁发，以兹证明。"},
+	# --- E15 (装备部位拆分与数值案 §7): head, hands, legs, feet and rings; the art
+	# brief is art/items/E15_slot_split_brief_v1.md, placeholders until it lands.
+	"mine_head_1": {"name": "矿工安全帽", "region": "mine", "category": HEAD, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 10.0]],
+		"icon": "mine_head_1", "text": "帽檐的灯夹空着，灯早就换了钱。"},
+	"mine_head_2": {"name": "整合运动兜帽", "region": "mine", "category": HEAD, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_PCT, 0.025]],
+		"icon": "mine_head_2", "text": "兜帽底下是谁，没人在乎。"},
+	"mine_head_3": {"name": "纠察队毛皮帽", "region": "mine", "category": HEAD, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 2.0], [S.MAX_HP_PCT, 0.01]],
+		"icon": "mine_head_3", "text": "护耳放下来，就听不见矿洞里的哭声。"},
+	"mine_head_4": {"name": "重装防爆头盔", "region": "mine", "category": HEAD, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 15.0], [S.RES_FLAT, 2.0], [S.MOVE_SPEED_PCT, -0.01]],
+		"icon": "mine_head_4", "text": "视窗只留一条缝，够看清前面的人倒下。"},
+	"mine_hands_1": {"name": "帆布劳保手套", "region": "mine", "category": HANDS, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.015]],
+		"icon": "mine_hands_1", "text": "指尖磨薄了，握刀反而更稳。"},
+	"mine_hands_2": {"name": "整合运动缠手布", "region": "mine", "category": HANDS, "tier": 0, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.025]],
+		"icon": "mine_hands_2", "text": "缠了一圈又一圈，里面那根红线是谁系的？"},
+	"mine_hands_3": {"name": "矿镐护腕", "region": "mine", "category": HANDS, "tier": 1, "factor": 1.05, "implicit": [[S.ATK_PCT, 0.02], [S.DEF_FLAT, 5.0]],
+		"icon": "mine_hands_3", "text": "侧面的皮绳换过三次。"},
+	"mine_hands_4": {"name": "纠察队铁指护手", "region": "mine", "category": HANDS, "tier": 2, "factor": 1.15, "implicit": [[S.ATK_FLAT, 24.0], [S.CRIT_RATE, 0.015]],
+		"icon": "mine_hands_4", "text": "铁指节上的凹痕，都是别人的牙。"},
+	"mine_legs_1": {"name": "矿工工装裤", "region": "mine", "category": LEGS, "tier": 0, "factor": 1.00, "implicit": [[S.HP_FLAT, 98.0]],
+		"icon": "mine_legs_1", "text": "膝盖上的补丁比原布还厚。"},
+	"mine_legs_2": {"name": "整合运动束腿裤", "region": "mine", "category": LEGS, "tier": 0, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
+		"icon": "mine_legs_2", "text": "小腿扎紧，跑起来不绊脚。"},
+	"mine_legs_3": {"name": "游击队绑腿", "region": "mine", "category": LEGS, "tier": 1, "factor": 1.05, "implicit": [[S.STAMINA_REGEN_PCT, 0.075], [S.MOVE_SPEED_PCT, 0.01]],
+		"icon": "mine_legs_3", "text": "从膝盖缠到脚踝，冻原的老规矩。"},
+	"mine_legs_4": {"name": "复合护腿", "region": "mine", "category": LEGS, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 20.0], [S.MAX_HP_PCT, 0.01], [S.MOVE_SPEED_PCT, -0.01]],
+		"icon": "mine_legs_4", "text": "螺栓拧死的护板，摘下来得用扳手。"},
+	"mine_feet_1": {"name": "钢头劳保靴", "region": "mine", "category": FEET, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 10.0]],
+		"icon": "mine_feet_1", "text": "钢头磨亮了，踢开过不少门。"},
+	"mine_feet_2": {"name": "整合运动帆布鞋", "region": "mine", "category": FEET, "tier": 0, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
+		"icon": "mine_feet_2", "text": "一根鞋带换成了红绳。"},
+	"mine_feet_3": {"name": "游击队行军靴", "region": "mine", "category": FEET, "tier": 1, "factor": 1.05, "implicit": [[S.STAMINA_REGEN_PCT, 0.1125]],
+		"icon": "mine_feet_3", "text": "靴底的钉子一颗都没少。"},
+	"mine_feet_4": {"name": "纠察队毛毡靴", "region": "mine", "category": FEET, "tier": 2, "factor": 1.15, "implicit": [[S.MAX_HP_PCT, 0.02], [S.RES_FLAT, 2.0]],
+		"icon": "mine_feet_4", "text": "毡靴外面套着胶鞋，雪水进不来。"},
+	"mine_ring_1": {"name": "铁丝绕成的指环", "region": "mine", "category": RING, "tier": 0, "factor": 1.00, "implicit": [[S.ATK_FLAT, 24.0]],
+		"icon": "mine_ring_1", "text": "三圈铁丝，绕得很用心。"},
+	"mine_ring_2": {"name": "源石碎粒戒", "region": "mine", "category": RING, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_FLAT, 36.0], [S.MAX_HP_PCT, -0.01]],
+		"icon": "mine_ring_2", "text": "那一点光不是宝石，是病。"},
+	"mine_ring_3": {"name": "矿车铆钉戒", "region": "mine", "category": RING, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.015], [S.ATK_FLAT, 12.0]],
+		"icon": "mine_ring_3", "text": "一颗铆钉敲弯了，就是戒指。"},
+	"mine_ring_4": {"name": "整合运动誓约环", "region": "mine", "category": RING, "tier": 2, "factor": 1.15, "implicit": [[S.SKILL_PCT, 0.0625], [S.CRIT_DMG, 0.05]],
+		"icon": "mine_ring_4", "text": "红釉一圈，戴上的人不会再摘。"},
+	"city_head_1": {"name": "街头鸭舌帽", "region": "city", "category": HEAD, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.015]],
+		"icon": "city_head_1", "text": "帽檐晒褪了色，城里的风没变。"},
+	"city_head_2": {"name": "近卫局制式头盔", "region": "city", "category": HEAD, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 10.0]],
+		"icon": "city_head_2", "text": "面罩翻上去的时候，才像个人。"},
+	"city_head_3": {"name": "消防署防烟头盔", "region": "city", "category": HEAD, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 3.0]],
+		"icon": "city_head_3", "text": "后檐很长，挡得住落下来的火。"},
+	"city_head_4": {"name": "特别督察组战术头盔", "region": "city", "category": HEAD, "tier": 2, "factor": 1.15, "implicit": [[S.CRIT_RATE, 0.015], [S.DEF_FLAT, 10.0]],
+		"icon": "city_head_4", "text": "护目镜扣在顶上，随时能拉下来。"},
+	"city_hands_1": {"name": "拳馆缠手带", "region": "city", "category": HANDS, "tier": 0, "factor": 1.00, "implicit": [[S.ATTACK_SPEED_PCT, 0.025]],
+		"icon": "city_hands_1", "text": "关节处的颜色洗不掉了。"},
+	"city_hands_2": {"name": "近卫局战术手套", "region": "city", "category": HANDS, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.015]],
+		"icon": "city_hands_2", "text": "露出指头，才扣得住扳机。"},
+	"city_hands_3": {"name": "押运员护腕", "region": "city", "category": HANDS, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 15.0]],
+		"icon": "city_hands_3", "text": "手背上那块钢板挡过一刀。"},
+	"city_hands_4": {"name": "消防隔热手套", "region": "city", "category": HANDS, "tier": 2, "factor": 1.15, "implicit": [[S.RES_FLAT, 3.0], [S.MAX_HP_PCT, 0.02], [S.ATTACK_SPEED_PCT, -0.0125]],
+		"icon": "city_hands_4", "text": "笨重得很，抓得住烧红的门把。"},
+	"city_legs_1": {"name": "拳馆灯笼裤", "region": "city", "category": LEGS, "tier": 0, "factor": 1.00, "implicit": [[S.EVASION, 0.02]],
+		"icon": "city_legs_1", "text": "裤脚收紧，扫腿不拖泥。"},
+	"city_legs_2": {"name": "近卫局制式长裤", "region": "city", "category": LEGS, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.02]],
+		"icon": "city_legs_2", "text": "侧边一道白线，站岗时最显眼。"},
+	"city_legs_3": {"name": "押运防刺护腿", "region": "city", "category": LEGS, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 15.0]],
+		"icon": "city_legs_3", "text": "护板缝在里层，外面看不出来。"},
+	"city_legs_4": {"name": "香主绸裤", "region": "city", "category": LEGS, "tier": 2, "factor": 1.15, "implicit": [[S.EVASION, 0.02], [S.CRIT_DMG, 0.05]],
+		"icon": "city_legs_4", "text": "云纹只在光下才看得见。"},
+	"city_feet_1": {"name": "功夫布鞋", "region": "city", "category": FEET, "tier": 0, "factor": 1.00, "implicit": [[S.DASH_COST_PCT, -0.0625]],
+		"icon": "city_feet_1", "text": "白底黑面，落地没声音。"},
+	"city_feet_2": {"name": "外卖员跑鞋", "region": "city", "category": FEET, "tier": 0, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.03], [S.DEF_FLAT, -5.0]],
+		"icon": "city_feet_2", "text": "跑得比订单还快。"},
+	"city_feet_3": {"name": "近卫局作战靴", "region": "city", "category": FEET, "tier": 1, "factor": 1.05, "implicit": [[S.MOVE_SPEED_PCT, 0.02], [S.DEF_FLAT, 5.0]],
+		"icon": "city_feet_3", "text": "鞋尖擦得能照人。"},
+	"city_feet_4": {"name": "消防署隔热靴", "region": "city", "category": FEET, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 15.0], [S.RES_FLAT, 2.0], [S.MOVE_SPEED_PCT, -0.01]],
+		"icon": "city_feet_4", "text": "反光条在火场里最先被看见。"},
+	"city_ring_1": {"name": "炎式玉扳指", "region": "city", "category": RING, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.05]],
+		"icon": "city_ring_1", "text": "拇指上的玉，凉得很。"},
+	"city_ring_2": {"name": "当铺金戒", "region": "city", "category": RING, "tier": 0, "factor": 1.00, "implicit": [[S.GOLD_GAIN_PCT, 0.05]],
+		"icon": "city_ring_2", "text": "当了三回，赎了三回。"},
+	"city_ring_3": {"name": "近卫局纪念戒", "region": "city", "category": RING, "tier": 1, "factor": 1.05, "implicit": [[S.HP_FLAT, 147.0]],
+		"icon": "city_ring_3", "text": "戒面上的盾什么也没刻。"},
+	"city_ring_4": {"name": "龙门老字号金戒", "region": "city", "category": RING, "tier": 2, "factor": 1.15, "implicit": [[S.CRIT_RATE, 0.015], [S.CRIT_DMG, 0.05]],
+		"icon": "city_ring_4", "text": "红石头，云纹边，老铺子的手艺。"},
+	"snow_head_1": {"name": "冰原毛皮兜帽", "region": "snow", "category": HEAD, "tier": 0, "factor": 1.00, "implicit": [[S.RES_FLAT, 2.0]],
+		"icon": "snow_head_1", "text": "抽绳一拉，只剩一双眼睛。"},
+	"snow_head_2": {"name": "科考队防风帽", "region": "snow", "category": HEAD, "tier": 1, "factor": 1.05, "implicit": [[S.SKILL_CD_PCT, -0.0375], [S.RES_FLAT, 1.0]],
+		"icon": "snow_head_2", "text": "雪镜推到额头上，就是在想事。"},
+	"snow_head_3": {"name": "雪祀羽冠", "region": "snow", "category": HEAD, "tier": 2, "factor": 1.15, "implicit": [[S.ARTS_PCT, 0.0375], [S.SKILL_CD_PCT, -0.0375], [S.MAX_HP_PCT, -0.01]],
+		"icon": "snow_head_3", "text": "每一根羽毛都有一个名字。"},
+	"snow_hands_1": {"name": "冰原兽皮手套", "region": "snow", "category": HANDS, "tier": 0, "factor": 1.00, "implicit": [[S.HP_FLAT, 98.0]],
+		"icon": "snow_hands_1", "text": "毛长得盖住了手腕。"},
+	"snow_hands_2": {"name": "猎人绑带护手", "region": "snow", "category": HANDS, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_RATE, 0.015]],
+		"icon": "snow_hands_2", "text": "一圈一圈缠紧，风钻不进去。"},
+	"snow_hands_3": {"name": "科考队加热手套", "region": "snow", "category": HANDS, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.0375]],
+		"icon": "snow_hands_3", "text": "电池快没电了，还是暖的。"},
+	"snow_hands_4": {"name": "雪祀骨片护腕", "region": "snow", "category": HANDS, "tier": 2, "factor": 1.15, "implicit": [[S.ARTS_FLAT, 24.0], [S.SKILL_PCT, 0.0625]],
+		"icon": "snow_hands_4", "text": "红绳绑着骨片，一片一片数过。"},
+	"snow_legs_1": {"name": "兽皮护腿", "region": "snow", "category": LEGS, "tier": 0, "factor": 1.00, "implicit": [[S.MAX_HP_PCT, 0.02]],
+		"icon": "snow_legs_1", "text": "侧边系带，毛边朝外。"},
+	"snow_legs_2": {"name": "雪橇队绑腿", "region": "snow", "category": LEGS, "tier": 0, "factor": 1.00, "implicit": [[S.STAMINA_REGEN_PCT, 0.075]],
+		"icon": "snow_legs_2", "text": "粗绳绕到脚踝，踩进雪里也不松。"},
+	"snow_legs_3": {"name": "科考队防寒裤", "region": "snow", "category": LEGS, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 2.0], [S.MAX_HP_PCT, 0.01]],
+		"icon": "snow_legs_3", "text": "膝盖加厚过，跪在冰上也不冷。"},
+	"snow_legs_4": {"name": "骨片札裙", "region": "snow", "category": LEGS, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 10.0], [S.ARTS_PCT, 0.025]],
+		"icon": "snow_legs_4", "text": "走起来骨片相碰，像有人在低语。"},
+	"snow_feet_1": {"name": "驯鹿皮靴", "region": "snow", "category": FEET, "tier": 0, "factor": 1.00, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
+		"icon": "snow_feet_1", "text": "靴尖翘起，绣着一道彩边。"},
+	"snow_feet_2": {"name": "雪鞋", "region": "snow", "category": FEET, "tier": 0, "factor": 1.00, "implicit": [[S.DASH_COST_PCT, -0.09375], [S.MOVE_SPEED_PCT, -0.01]],
+		"icon": "snow_feet_2", "text": "木框绑在靴子上，雪地里不陷。"},
+	"snow_feet_3": {"name": "科考队防滑靴", "region": "snow", "category": FEET, "tier": 1, "factor": 1.05, "implicit": [[S.DASH_COST_PCT, -0.0625], [S.DEF_FLAT, 5.0]],
+		"icon": "snow_feet_3", "text": "鞋底的纹深得能卡住石子。"},
+	"snow_feet_4": {"name": "冰爪战靴", "region": "snow", "category": FEET, "tier": 2, "factor": 1.15, "implicit": [[S.DEF_FLAT, 10.0], [S.DASH_COST_PCT, -0.0625]],
+		"icon": "snow_feet_4", "text": "冰爪咬进冰面，人就不会滑倒。"},
+	"snow_ring_1": {"name": "角兽骨戒", "region": "snow", "category": RING, "tier": 0, "factor": 1.00, "implicit": [[S.ATK_FLAT, 24.0]],
+		"icon": "snow_ring_1", "text": "骨头磨出来的，一圈凹槽。"},
+	"snow_ring_2": {"name": "族树木戒", "region": "snow", "category": RING, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_FLAT, 24.0]],
+		"icon": "snow_ring_2", "text": "木纹细得像指纹。"},
+	"snow_ring_3": {"name": "冰晶指环", "region": "snow", "category": RING, "tier": 1, "factor": 1.05, "implicit": [[S.ARTS_FLAT, 24.0], [S.RES_FLAT, 1.0]],
+		"icon": "snow_ring_3", "text": "那一点蓝不会化。"},
+	"snow_ring_4": {"name": "雪祀银环", "region": "snow", "category": RING, "tier": 2, "factor": 1.15, "implicit": [[S.SKILL_PCT, 0.0625], [S.ARTS_FLAT, 24.0]],
+		"icon": "snow_ring_4", "text": "三颗骨珠，三个祷词。"},
+	"rhodes_head": {"name": "罗德岛外勤头盔", "region": "rhodes", "value": 1.5, "category": HEAD, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 10.0]],
+		"icon": "rhodes_head", "text": "制式的，戴着它的人不是。"},
+	"rhodes_hands": {"name": "罗德岛外勤手套", "region": "rhodes", "value": 1.5, "category": HANDS, "tier": 1, "factor": 1.05, "implicit": [[S.ATTACK_SPEED_PCT, 0.025]],
+		"icon": "rhodes_hands", "text": "指节的护垫是蓝灰色的。"},
+	"rhodes_legs": {"name": "罗德岛外勤长裤", "region": "rhodes", "value": 1.5, "category": LEGS, "tier": 1, "factor": 1.05, "implicit": [[S.MAX_HP_PCT, 0.02]],
+		"icon": "rhodes_legs", "text": "护膝换过一次，还是同一款。"},
+	"rhodes_feet": {"name": "罗德岛外勤战靴", "region": "rhodes", "value": 1.5, "category": FEET, "tier": 1, "factor": 1.05, "implicit": [[S.MOVE_SPEED_PCT, 0.02]],
+		"icon": "rhodes_feet", "text": "走过的路比舰上任何人都远。"},
+	"rhodes_ring": {"name": "罗德岛干员指环", "region": "rhodes", "value": 1.5, "category": RING, "tier": 1, "factor": 1.05, "implicit": [[S.SKILL_PCT, 0.0625]],
+		"icon": "rhodes_ring", "text": "一道蓝灰色的细线，就是证明。"},
 }
 
-## Rhodes standard gear (§10): never dropped. It is made at the depth of a
-## mid tier, 精良; outside factions pay ×1.5 for the brand ("value").
+## Rhodes standard gear (§10): never dropped. 复利数值改造清单 D: made two tiers
+## below the deepest camp's (at least Ⅰ), white until 科研部's 制式换代 makes it
+## blue, then gold (BaseState.rhodes_rarity). Its value is fixed, so selling an
+## old set is never a profit (龙门币平衡与科研部策划案 v1.1 §2.3).
 const RHODES := "rhodes"
 const RHODES_DEPTH := 4
-const RHODES_RARITY := 1
-## One set per operator on joining: a weapon she can wield, an armour, a trinket.
+const RHODES_RARITY := 0
+const RHODES_VALUE := 5
+const RHODES_TIER_LAG := 2
+## One set per operator: a weapon she can wield and one piece for each of the other seven slots.
 const RHODES_KIT := [
 	["rhodes_dual_blades", "rhodes_sword", "rhodes_crossbow", "rhodes_staff"],
+	["rhodes_head"],
 	["rhodes_uniform", "rhodes_vest"],
+	["rhodes_hands"],
+	["rhodes_legs"],
+	["rhodes_feet"],
 	["rhodes_beacon", "rhodes_medkit", "rhodes_badge"],
+	["rhodes_ring"],
 ]
 
 static func is_rhodes(id: String) -> bool:
 	return str(base(id).get("region", "")) == RHODES
 
-## One piece of Rhodes standard gear.
-static func make_rhodes(id: String, rng: RandomNumberGenerator) -> Item:
-	var b := base(id)
-	return LootTables.roll_equipment(int(b.category), str(b.name), RHODES, RHODES_DEPTH, RHODES_RARITY, rng)
+## The tier a kit is made at when the deepest camp is on `deepest_camp`.
+static func rhodes_tier(deepest_camp: int) -> int:
+	return maxi(1, Scaling.tier_of(deepest_camp + 1) - RHODES_TIER_LAG)
 
-## The set a newly joined operator is issued; the weapon is one of her forms.
-static func rhodes_kit(rng: RandomNumberGenerator, operator_id: String = Operators.AMIYA_GUARD) -> Array[Item]:
+## One piece of Rhodes standard gear of `tier` and `rarity`.
+static func make_rhodes(id: String, rng: RandomNumberGenerator, tier: int = 1, rarity: int = RHODES_RARITY) -> Item:
+	var b := base(id)
+	var item := LootTables.roll_equipment(int(b.category), str(b.name), RHODES, (clampi(tier, 1, Scaling.TIER_MAX) - 1) * Scaling.TIER_FLOORS + RHODES_DEPTH, clampi(rarity, 0, 2), rng)
+	item.value = RHODES_VALUE
+	item.value_base = RHODES_VALUE
+	return item
+
+## The set an operator is issued; the weapon is one of her forms.
+static func rhodes_kit(rng: RandomNumberGenerator, operator_id: String = Operators.AMIYA_GUARD, tier: int = 1, rarity: int = RHODES_RARITY) -> Array[Item]:
 	var out: Array[Item] = []
 	var cls := str(Operators.DATA.get(operator_id, {}).get("class", "近卫"))
 	var forms: Array = CLASS_FORMS.get(cls, CLASS_FORMS["近卫"])
 	for choices in RHODES_KIT:
 		var fit: Array = choices.filter(func(id): return int(BASES[id].category) != W or str(BASES[id].form) in forms)
 		if fit.is_empty(): fit = choices
-		out.append(make_rhodes(str(fit[rng.randi_range(0, fit.size() - 1)]), rng))
+		out.append(make_rhodes(str(fit[rng.randi_range(0, fit.size() - 1)]), rng, tier, rarity))
 	return out
 
 ## Names that changed (they follow the art, §2.3), and the generic names of
@@ -415,7 +570,9 @@ static func base(id: String) -> Dictionary:
 	return BASES.get(id, extra_bases.get(id, {}))
 
 ## Bases of a slot in a region that a source may drop at a depth (§2.2–2.3).
+## The old ARMOR / TRINKET read as the chest / amulet (Item.slot_of).
 static func eligible(category: int, region: String, depth: int, source: String) -> Array:
+	category = Item.slot_of(category)
 	var early := EARLY_BY if source in EARLY_SOURCES else 0
 	var out: Array = []
 	for id in BASES:
@@ -432,6 +589,7 @@ static func eligible(category: int, region: String, depth: int, source: String) 
 ## region's deepest weapon; everything else draws from the region's table,
 ## the deepest unlocked tier at weight 2 and the rest at 1 (elites ×2 deep).
 static func pick(category: int, region: String, depth: int, source: String, enemy_type: String, rng: RandomNumberGenerator) -> String:
+	category = Item.slot_of(category)
 	if category == W:
 		if source == "elite":
 			var deep: Array = []
@@ -469,24 +627,35 @@ static func _carried(enemy_type: String, region: String) -> String:
 	return fallback
 
 ## Makes `item` this base: name, power factor, intrinsic stats, flavour text.
-## With `rng`, intrinsics roll within ±20% of the table (装备前缀策划案 §2.8).
+## With `rng`, intrinsics roll in the item's rarity band where its panel sits
+## (底材固有属性表 v1.0: intrinsics fluctuate like the rest of the piece).
 static func apply(item: Item, id: String, rng: RandomNumberGenerator = null) -> void:
 	var b: Dictionary = BASES[id]
+	var position := item.power_position()
 	item.base_id = id
 	item.item_name = b.name
 	item.power *= float(b.factor)
 	item.description = b.text
 	item.value = roundi(item.value * float(b.get("value", 1.0)))
-	var implicit: Array[ItemModifier] = []
-	for pair in b.implicit:
-		var mod: ItemModifier
-		if rng != null: mod = ItemModifier.roll_intrinsic(pair[0], float(pair[1]), rng)
-		else:
-			mod = ItemModifier.stat_mod(pair[0], float(pair[1]))
-			mod.tier = IMPLICIT_TIER
-		implicit.append(mod)
+	var implicit := implicits_for(item, id, rng, position)
 	implicit.append_array(item.modifiers)
 	item.modifiers = implicit
+
+## Base `id`'s intrinsics on `item`, as players see them (no slot multiplier,
+## 用户 2026-10-21); flat ones grow with the item's tier (复利数值改造清单 C).
+## Without `rng` they sit at the blue middle.
+static func implicits_for(item: Item, id: String, rng: RandomNumberGenerator, position: float = -1.0) -> Array[ItemModifier]:
+	var implicit: Array[ItemModifier] = []
+	for pair in BASES[id].implicit:
+		var scale := Scaling.flat_scale(maxi(item.grade, 1)) if int(pair[0]) in ItemModifier.FLAT_STATS else 1.0
+		var mod: ItemModifier
+		if rng != null: mod = ItemModifier.roll_intrinsic(pair[0], float(pair[1]) * scale, rng, item.rarity, position)
+		else:
+			mod = ItemModifier.stat_mod(pair[0], float(pair[1]) * scale)
+			mod.tier = IMPLICIT_TIER
+		mod.scale = scale
+		implicit.append(mod)
+	return implicit
 
 ## For loading: fills `base_id` on gear saved before it existed (name only;
 ## old items keep their stats).

@@ -72,7 +72,7 @@ class MarketList extends Control:
 			var y := k * ROW - scroll
 			if y + ROW < 0 or y > size.y: continue
 			var id: String = ids[k]
-			if id == selected: draw_rect(Rect2(0, y, size.x, ROW - 2), Color("3a3a3a"))
+			if id == selected: draw_rect(Rect2(0, y, size.x, ROW - 2), Color("313a41"))
 			else: draw_rect(Rect2(0, y + ROW - 2, size.x, 1), AK.LINE)
 			var name := Exchange.cfd_name(id)
 			var price := game.exchange.cfd_price(id)

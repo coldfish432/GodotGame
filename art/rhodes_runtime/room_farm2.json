@@ -1,0 +1,49 @@
+{
+ "id": "farm2",
+ "origin": [
+  449.0,
+  -37.0
+ ],
+ "size": [
+  40.0,
+  19.0
+ ],
+ "ground": {
+  "tex": "",
+  "w_px": 616.0,
+  "h_px": 241.3,
+  "x": 448.47,
+  "z": -37.0
+ },
+ "facade": {
+  "tex": "",
+  "w_px": 616.0,
+  "h_px": 46,
+  "x": 448.47,
+  "z": -37.0
+ },
+ "sprites": [],
+ "colliders": [
+  [
+   449.0,
+   -56.6,
+   489.0,
+   -56.0
+  ],
+  [
+   448.4,
+   -56.0,
+   449.0,
+   -37.0
+  ],
+  [
+   489.0,
+   -56.0,
+   489.6,
+   -37.0
+  ]
+ ],
+ "interactables": [],
+ "spawns": {},
+ "_note": "农业部 (south): the third sun-lamp room. Written by tools/blender/base/make_deck2_rooms.py."
+}

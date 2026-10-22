@@ -230,6 +230,28 @@ func in_reach(from: Vector3, direction: Vector3) -> bool:
 	if absf(offset.dot(across)) > map.vault_half_width or absf(offset.dot(map.vault_inward)) > REACH: return false
 	return Vector2(direction.x, direction.z).normalized().dot(map.vault_inward) > 0.3
 
+## Whether a click landing at `point` is on the edge at the mouth: its foot,
+## its face or the rock top just behind (用户 2026-10-20: 左键点地面改为移动, so
+## the wall is clicked the way an enemy is).
+const CLICK_DEPTH := Vector2(-1.5, 4.0)
+func aimed_at(point: Vector3) -> bool:
+	if opened: return false
+	var offset: Vector2 = Vector2(point.x, point.z) - map.vault_mouth
+	var across := Vector2(-map.vault_inward.y, map.vault_inward.x)
+	var depth: float = offset.dot(map.vault_inward)
+	return absf(offset.dot(across)) <= map.vault_half_width + 0.6 and depth >= CLICK_DEPTH.x and depth <= CLICK_DEPTH.y
+
+## Where she stands to strike it from `from`: on the open side of the mouth,
+## as near her own line along it as the mouth allows.
+func stand_point(from: Vector3) -> Vector3:
+	var across := Vector2(-map.vault_inward.y, map.vault_inward.x)
+	var side := clampf((Vector2(from.x, from.z) - map.vault_mouth).dot(across), -map.vault_half_width * 0.6, map.vault_half_width * 0.6)
+	var at: Vector2 = map.vault_mouth + across * side - map.vault_inward * 1.2
+	return Vector3(at.x, map.ground_height(at), at.y)
+
+func inward() -> Vector3:
+	return Vector3(map.vault_inward.x, 0, map.vault_inward.y)
+
 ## A swing landed. True when it broke through.
 func strike() -> bool:
 	if opened: return false

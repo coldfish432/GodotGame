@@ -84,18 +84,29 @@ const MATERIALS := {
 	# Trade goods and 萨米 goods: stand-in icons from the supplies set until drawn.
 	"工业补给箱": "toolkit", "电子元件箱": "circuit_board", "野外生活包": "canvas_sheet", "医疗补给箱": "medical_supplies",
 	"林地草药": "sugar_substitute", "鞣制兽皮": "canvas_sheet",
+	# Borrowed until it has its own art.
+	"玄纹墨": "loxic_kohl",
+	# 势力特供, crops and 补给 (势力特供策划案_v0_2): borrowed until Sol's batch.
+	"高能燃料": "battery", "下城区耳目": "relay", "高纯源岩助熔剂": "compound_cutting_fluid", "萨米冰原苔": "fuscous_fiber",
+	"骑士工坊专利授权": "module_data_block", "企鹅专递单": "duct_tape", "残党向导": "damaged_device",
+	"闪耀作物种子": "crystalline_component", "闪耀作物·变种种子": "crystalline_component",
+	"舰载麦": "sugar_substitute", "块茎薯": "orirock", "温室豆": "ester", "闪耀作物": "crystalline_component", "闪耀作物·变种": "originium_shard",
+	"舰内口粮": "sugar", "食堂便当": "grindstone", "闪耀定食": "coagulating_gel", "变种盛宴": "polyester",
 	# Growth (精英化与加点策划案 §3.2), placeholders until the M batch.
 	"近卫芯片": "guard_chip", "近卫芯片组": "guard_chip_pack", "芯片助剂": "chip_catalyst", "近卫双芯片": "guard_dualchip",
 	"技巧概要·卷1": "skill_summary_1", "技巧概要·卷2": "skill_summary_2", "技巧概要·卷3": "skill_summary_3", "模组数据块": "module_data_block",
+	"基础作战记录": "record_basic", "初级作战记录": "record_drill", "中级作战记录": "record_frontline", "高级作战记录": "record_tactical",
 }
 ## Potions by potion type (M3).
-const POTIONS := {"A": "potion_a", "B": "potion_b", "C": "potion_c"}
+const POTIONS := {"A": "potion_a", "B": "potion_b", "C": "potion_c", "D": "potion_d", "E": "potion_e", "F": "potion_f", "G": "potion_g",
+	"H": "potion_h", "I": "potion_i", "J": "potion_j", "K": "potion_k", "L": "potion_l",
+	"rat": "potion_rat", "reunion": "potion_reunion", "ursus": "potion_ursus", "sami": "potion_sami"}
 
 static var _cache := {}
 
 ## E4: special gear uses its SpecialGear id as the icon id; regional
 ## exclusives are keyed by their effect.
-const EXCLUSIVE_ICONS := {"raw_ore": "raw_originium", "riot_shield": "riot_shield", "frozen_relic": "frozen_relic", "saluzzo_crest": "saluzzo_crest"}
+const EXCLUSIVE_ICONS := {"raw_ore": "raw_originium", "sealed_ore": "raw_originium", "riot_shield": "riot_shield", "frozen_relic": "frozen_relic", "saluzzo_crest": "saluzzo_crest"}
 
 static func icon_id(item: Item) -> String:
 	if item == null: return ""
@@ -106,8 +117,16 @@ static func icon_id(item: Item) -> String:
 	if not item.base_id.is_empty(): return str(GearCatalog.base(item.base_id).get("icon", ""))
 	return BY_NAME.get(item.item_name, "")
 
+## E15 (装备部位拆分与数值案 §7): a head, hands, legs, feet or ring base whose art
+## has not landed yet shows its slot's placeholder; Sol's file under the
+## base's id replaces it with no code change.
+const SLOT_PLACEHOLDERS := {Item.Category.HEAD: "placeholder_head", Item.Category.HANDS: "placeholder_hands",
+	Item.Category.LEGS: "placeholder_legs", Item.Category.FEET: "placeholder_feet", Item.Category.RING: "placeholder_ring"}
+
 static func path_for(item: Item) -> String:
 	var id := icon_id(item)
+	if not id.is_empty() and not ResourceLoader.exists(DIR + id + ".png") and item != null and SLOT_PLACEHOLDERS.has(item.category):
+		id = SLOT_PLACEHOLDERS[item.category]
 	return "" if id.is_empty() else DIR + id + ".png"
 
 static func texture_for(item: Item) -> Texture2D:

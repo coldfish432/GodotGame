@@ -1,0 +1,7 @@
+{
+  "id": "city_feet_3",
+  "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-b475bee3-9f25-4145-ad1e-b154bf069aa7.png",
+  "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Broaden polished PALE SILVER-GRAY toe reflections to cover the TOP HALF of BOTH toes, and add large PALE GRAY lit forward shaft planes on BOTH boots. Keep sides/back black leather, laces and shape unchanged. No steel toe caps. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+  "tool": "built-in imagegen",
+  "edit_target": "sources/city_feet_3_raw.png"
+}

@@ -14,6 +14,8 @@ var pierce := false
 var target: Enemy
 var texture: Texture2D
 var frames := 1
+## Drawn this many times its painted size (早露's charged bolt is drawn larger).
+var art_scale := 1.0
 var on_hit: Callable
 var travelled := 0.0
 var game: GameManager
@@ -33,9 +35,14 @@ static func fire(p_game: GameManager, from: Vector3, p_direction: Vector3, p_rea
 
 func _ready() -> void:
 	if game == null: game = get_parent() as GameManager
+	basis = Basis.looking_at(direction)
 	if texture != null:
-		var art := CombatVfx.painted(self, global_position, direction, texture, frames, 999.0, "ground", 0.0, 0.05, 12.0, false)
+		# The art rides on the shot, which turns itself toward `direction`: laid
+		# straight ahead here, or the turn is applied twice and it flies sideways
+		# (用户 2026-10-20: 早露的重箭横着飞).
+		var art := CombatVfx.painted(self, global_position, Vector3.FORWARD, texture, frames, 999.0, "ground", 0.0, 0.05, 12.0, false)
 		art.game = game
+		art.scale = Vector3.ONE * art_scale
 
 func _alive(enemy) -> bool:
 	return is_instance_valid(enemy) and not enemy._dead

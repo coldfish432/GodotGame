@@ -1,0 +1,554 @@
+{
+  "batch": "UC_UE_v1",
+  "asset_count": 36,
+  "files": [
+    {
+      "file": "kit/panel_plate.png",
+      "size": [
+        96,
+        96
+      ],
+      "nine_patch_margin": 16,
+      "reviewed_override": "feedback/fixed/panel_plate.png",
+      "sha256": "209a1bfb7046d18588db5e1c67db54add15ecb6ec25c5c99d2990bacda5a0219",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/panel_glass.png",
+      "size": [
+        96,
+        96
+      ],
+      "nine_patch_margin": 16,
+      "alpha_exception": "Center rectangle alpha=204/255=0.8; frame opaque.",
+      "reviewed_override": "feedback/fixed/panel_glass.png",
+      "sha256": "59ef57ead218d96c15ad7ca8c8da15c799bacceb527f1c59aadbcb2d9516b5f5",
+      "alpha_values": [
+        0,
+        204,
+        255
+      ]
+    },
+    {
+      "file": "kit/header_strip.png",
+      "size": [
+        256,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "stretch_margins": [
+        32,
+        0,
+        32,
+        0
+      ],
+      "hazard_rect": [
+        16,
+        3,
+        72,
+        6
+      ],
+      "sha256": "3295b93507bc2dc3febbeb553c31bd25d06d636ed0998fed6e6e3bfaf7d965f1",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/btn_normal.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 10,
+      "sha256": "4b43f3290d3cb5ca8a2ef14343f4e7014c42ea866c1e3a7ab67676ec6e2c363c",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/btn_hover.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 10,
+      "sha256": "0656feb4eb205b6fed9be37345813abf5eb333d33221c8dc1a2e86a1d7fb3dae",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/btn_press.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 10,
+      "sha256": "f81e139b9d75f71a7ca524dcdeca9327c7ea0a2ec9f14c35fd9fe8b323ef12ca",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/btn_disabled.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 10,
+      "sha256": "1550ac8ce8ba7ea7c0cd945627e4dd8f5a0df52c732f50fff367372f5eb82064",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/btn_go.png",
+      "size": [
+        96,
+        48
+      ],
+      "nine_patch_margin": 16,
+      "sha256": "81850d947565fa0bb2f48dd229478aaefa27417a56fcd2680d842af675342c07",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/btn_go_stripes.png",
+      "size": [
+        32,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "repeat_x": true,
+      "repeat_y": true,
+      "runtime_opacity": 0.12,
+      "sha256": "1413ff57ebf4d8f1937f225269a98bd199509a9db7f4c186045285c89c1b0a7b",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/slot_frame.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 8,
+      "sha256": "2da039efabd3e9db959d971bf5e1a6a7af5823d357ce8c8095d997e1adc1cb53",
+      "alpha_values": [
+        255
+      ]
+    },
+    {
+      "file": "kit/tip_frame.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 10,
+      "sha256": "4b43f3290d3cb5ca8a2ef14343f4e7014c42ea866c1e3a7ab67676ec6e2c363c",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/holo_ring_ticks.png",
+      "size": [
+        256,
+        256
+      ],
+      "nine_patch_margin": 0,
+      "pivot": [
+        127.5,
+        127.5
+      ],
+      "tintable": true,
+      "sha256": "24ef776b52023e3bfb565ae62b5a865b8ada056a79f20b9a784c31ffdbc5b07b",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/holo_ring_dash.png",
+      "size": [
+        256,
+        256
+      ],
+      "nine_patch_margin": 0,
+      "pivot": [
+        127.5,
+        127.5
+      ],
+      "tintable": true,
+      "sha256": "2c6b93475456be8351864a7cfdc172d3a7d2da445fc31be911d93e1d83d0b868",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/holo_ring_arc.png",
+      "size": [
+        256,
+        256
+      ],
+      "nine_patch_margin": 0,
+      "pivot": [
+        127.5,
+        127.5
+      ],
+      "tintable": true,
+      "reviewed_override": "feedback/fixed/holo_ring_arc.png",
+      "sha256": "06d6d827760b9986d3e62ee0f3f8796ae0c147a335e390ee23e1f7ba3a8a6749",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_head.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "sha256": "85a3c3698f59b1706afa6da798fe552005191c68bfa46f162604f193ff3a3a78",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_chest.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "sha256": "6a5532ae78ebf268d3ecb04c07fe8020c28088743967455528bb17d3ae0b0117",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_hands.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "sha256": "102476aca75581ade110bc6c7059d88cfed7279dd708f206f6a8455089e25c42",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_legs.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "sha256": "bbad1706c0bbee8bebb07c308b5f9061afc098078261a39cb9a360e55618a059",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_feet.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "sha256": "0377398c41e28d55380d53e62aa5bfff815936ed1d3d34b8a39f3254fc7c7040",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_amulet.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "sha256": "15d225f5c13f155dcb289daef288fa8fb23feea8f6bc698df5d3a7da51bcdc27",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_ring.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "sha256": "d94bf667fca6bb4e8fc8771afd425ce670c8fa22f7a86aa145e39fbec7e699b0",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/sil_weapon.png",
+      "size": [
+        48,
+        48
+      ],
+      "nine_patch_margin": 0,
+      "reviewed_override": "feedback/fixed/sil_weapon.png",
+      "sha256": "ee22273ea1e23417bac024cb372f348fa11c75bd017e4ddbbcf9ed623fa21a4c",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/dept_bridge.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "base_pictogram": "bridge",
+      "sha256": "a2b394a3c3d5da91f1a93bd91fb3e4a79609030bd86af522c8d264f23540025d",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/dept_warehouse.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "base_pictogram": "box",
+      "sha256": "11d42ca7a18db96f57e178319d5c1da1c71eeb2dc7e4338ec99f0ff2194cda64",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/dept_logistics.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "base_pictogram": "arrow",
+      "sha256": "25079a4cb5630cb30d8a35d6916ff66e79f8f7c7f7d49ade9965ab790c7a7cd4",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/dept_medical.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "base_pictogram": "plus",
+      "sha256": "98debcb8acf058f1eabbef4cfbc3c15373710b1f203f097782c7a4fbde4f35b3",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/dept_research.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "base_pictogram": "flask",
+      "sha256": "56225986578d6c7a3be72095b15cf3627b5022321d41e233119c4cf432fab24c",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "kit/dept_store.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "base_pictogram": "bag",
+      "sha256": "3e9e8e7b5b1fe0c70796307d8e7f0a0afa55a49f5feb772625a8544781be963b",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/equipment.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "reviewed_override": "feedback/fixed/equipment.png",
+      "sha256": "2c79cd44b5eef3b12a662b498cdc0892e5a98435506d8744a5ddf4e2577eeab2",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/operator.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "cd871965878a0149b28c732360698dd32617a735dc2af79fddb54eed3c43cf46",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/relic.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "145d2644cbcad47da65e16e6a659583764b04470535eabd1321c30678494206f",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/map.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "e79e5ea5b44ce6a827d862814b42a2c415833f35bb1857577eee7154184173fd",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/contract.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "88b584d5bdc5eccf35d14226719c625f10567b69dbeeca51a44f2c644f5ed646",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/lmd.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "reviewed_override": "feedback/fixed/lmd.png",
+      "sha256": "31bf0e98515457188816164b2158ce1d05c417cf331a888df14fded3800dd88e",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/gold.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "a56f426ed3e62a2ae350865afe3cd0cbd6cebeab5347699f282ee27093d663e1",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/pollution.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "c33856d95d0df36d4e449c8336743e511b0bb054c57118511caaa8de32f5cf3d",
+      "alpha_values": [
+        0,
+        255
+      ]
+    }
+  ],
+  "provenance": "Existing painted R1/R4 surfaces and native pixel geometry; six authoritative accepted Claude touchups from U_v1_feedback.zip copied byte-for-byte on every rebuild.",
+  "review": {
+    "result": "Accepted with six touchups",
+    "source": "feedback/review_claude.md",
+    "fixed_sha256": {
+      "equipment.png": "2c79cd44b5eef3b12a662b498cdc0892e5a98435506d8744a5ddf4e2577eeab2",
+      "holo_ring_arc.png": "06d6d827760b9986d3e62ee0f3f8796ae0c147a335e390ee23e1f7ba3a8a6749",
+      "lmd.png": "31bf0e98515457188816164b2158ce1d05c417cf331a888df14fded3800dd88e",
+      "panel_glass.png": "59ef57ead218d96c15ad7ca8c8da15c799bacceb527f1c59aadbcb2d9516b5f5",
+      "panel_plate.png": "209a1bfb7046d18588db5e1c67db54add15ecb6ec25c5c99d2990bacda5a0219",
+      "sil_weapon.png": "ee22273ea1e23417bac024cb372f348fa11c75bd017e4ddbbcf9ed623fa21a4c"
+    }
+  },
+  "sources": [
+    {
+      "file": "sources/base_deck.png",
+      "sha256": "7bf1dbd5a75f0e15dfddec621bf7435db9e284292ed0dcef8674db2dcc9a23fc"
+    },
+    {
+      "file": "sources/base_hazard.png",
+      "sha256": "dd62b912d611df9cf08fd2b9a8f7dbeb122f041451c3bf7662bb3a137fa4c0b5"
+    }
+  ]
+}

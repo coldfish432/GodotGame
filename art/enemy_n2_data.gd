@@ -29,8 +29,17 @@ const TIPS := {
 	"family_capo": [Vector2(1, -31), Vector2(4, -31), Vector2(3, -31), Vector2(-6, -31), Vector2(-4, -31), Vector2(2, -31), Vector2(-2, -31), Vector2(2, -31)],
 	"family_eraser": [Vector2(10, -24), Vector2(9, -27), Vector2(-10, -27), Vector2(-12, -25), Vector2(-6, -27), Vector2(17, -25), Vector2(7, -28), Vector2(11, -26)],
 	"family_car": [Vector2(-6, -25), Vector2(10, -23), Vector2(-26, -10), Vector2(-9, -23), Vector2(-8, -21), Vector2(15, -18), Vector2(26, -14), Vector2(-9, -25)],
+	"patriot": [Vector2(-12, -42), Vector2(-23, -29), Vector2(-19, -41), Vector2(-8, -41), Vector2(6, -40), Vector2(17, -38), Vector2(13, -40), Vector2(9, -42)],
+	"rat_king": [Vector2(16, -41), Vector2(22, -22), Vector2(13, -41), Vector2(16, -41), Vector2(3, -39), Vector2(-13, -41), Vector2(2, -41), Vector2(-16, -40)],
+	"eikthyrnir": [Vector2(-8, -50), Vector2(-4, -46), Vector2(-8, -49), Vector2(-7, -48), Vector2(-3, -48), Vector2(9, -49), Vector2(8, -49), Vector2(18, -44)],
+	"zaro": [Vector2(6, -46), Vector2(2, -44), Vector2(-18, -35), Vector2(-12, -41), Vector2(0, -45), Vector2(2, -44), Vector2(2, -42), Vector2(-4, -46)],
+	"crownslayer": [Vector2(8, -21), Vector2(-15, -13), Vector2(-9, -21), Vector2(-4, -22), Vector2(-1, -23), Vector2(9, -20), Vector2(9, -21), Vector2(4, -23)],
+	"skullshatterer": [Vector2(0, -12), Vector2(-14, -7), Vector2(-16, -18), Vector2(-17, -18), Vector2(0, -12), Vector2(15, -8), Vector2(15, -7), Vector2(16, -12)],
+	"hollow_snowpriest": [Vector2(0, -12), Vector2(-14, -16), Vector2(-13, -12), Vector2(-11, -18), Vector2(0, -12), Vector2(13, -11), Vector2(14, -11), Vector2(13, -18)],
+	"father_agnir": [Vector2(0, -12), Vector2(-13, -9), Vector2(-14, -14), Vector2(-14, -14), Vector2(0, -12), Vector2(15, -15), Vector2(15, -14), Vector2(15, -12)],
+	"civilian": [Vector2(6, -18), Vector2(-9, -19), Vector2(-6, -20), Vector2(-3, -20), Vector2(-2, -20), Vector2(6, -22), Vector2(1, -24), Vector2(6, -18)],
 }
 ## Every one of them also has a 4-frame walk sheet.
-const WALK := ["armed", "caster", "shield", "slug_volatile", "picket", "greytail", "greytail_lord", "thrower", "bully", "avenger", "breacher", "taint_husk", "distorted_caster", "shattered_champion", "shell_vine", "rock_hornbeast", "fallen_snowpriest", "sentinel", "family_soldier", "family_intimidator", "family_crossbow", "family_caster", "family_capo", "family_eraser", "family_car"]
+const WALK := ["armed", "caster", "shield", "slug_volatile", "picket", "greytail", "greytail_lord", "thrower", "bully", "avenger", "breacher", "taint_husk", "distorted_caster", "shattered_champion", "shell_vine", "rock_hornbeast", "fallen_snowpriest", "sentinel", "family_soldier", "family_intimidator", "family_crossbow", "family_caster", "family_capo", "family_eraser", "family_car", "patriot", "rat_king", "eikthyrnir", "zaro", "crownslayer", "skullshatterer", "hollow_snowpriest", "father_agnir", "civilian"]
 ## The sixth action row, where a board has one.
 const EXTRA_ROW := {"picket": "lasso", "distorted_caster": "glide", "family_caster": "incite", "family_eraser": "throw", "family_car": "wreck"}

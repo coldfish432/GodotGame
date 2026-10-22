@@ -1,0 +1,7 @@
+{
+  "id": "snow_feet_1",
+  "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-a05f5379-7a30-4ab9-ab8f-abb431a2bfb7.png",
+  "prompt": "Use case: precise-object-edit. Edit ONLY the ornamental band on this exact pair of curled-toe reindeer-hide boots: REMOVE ALL yellow diamond/lozenge/cross patterns. Replace with a SIMPLE plain RED horizontal cloth band with one THIN STRAIGHT YELLOW STRIPE along its center. Absolutely no symbols, glyphs, diamonds or motifs. Keep curled toes, pair, hide colors, lighting, fur rim, silhouette, pose and crisp pixel art unchanged. Genuine transparent background, no halo.",
+  "tool": "built-in imagegen",
+  "edit_target": "sources/snow_feet_1_raw.png"
+}

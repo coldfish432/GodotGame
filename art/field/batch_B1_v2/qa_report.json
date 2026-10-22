@@ -1,0 +1,156 @@
+{
+  "technical_status": "PASS",
+  "characters": 8,
+  "poses": 9,
+  "revised_figures": [
+    "patriot",
+    "rat_king",
+    "eikthyrnir"
+  ],
+  "accepted_figures_unchanged": [
+    "zaro_lying",
+    "crownslayer",
+    "skullshatterer",
+    "hollow_snowpriest",
+    "father_agnir",
+    "zaro_standing"
+  ],
+  "preservation_evidence": "v1 source and encoded native hashes checked against original v1 manifest; accepted x6 sheet cells pixel-identical",
+  "native_heights": {
+    "patriot": 46,
+    "rat_king": 36,
+    "eikthyrnir": 46
+  },
+  "native_cells": "64x64, binary alpha, >=2px clear border, common foot baseline51",
+  "preview": "BOX to game size, x6 nearest",
+  "blind_match": "PENDING user; no labels or names on image",
+  "revision_review": {
+    "patriot": "Visually checked branching antlers, single visible red eye, front tower shield/orange X, halberd/banner, ragged pale cloak at native x6",
+    "eikthyrnir": {
+      "hammer": "dark head, single cyan band outside coat",
+      "face": "warm tan face with dark hair covering one eye",
+      "hammer_protrusion_px": 13.41,
+      "measurement": "manual source landmarks: head outer x20, adjacent mantle outer x380; multiplied by BOX native scale"
+    },
+    "rat_king": {
+      "cane": "gold knob, dark thick diagonal shaft extended outside coat; lower shaft isolated from body",
+      "native_external_shaft_scan": [
+        {
+          "native_y": 24,
+          "external_shaft_pixels": 3,
+          "dark_shaft_pixels": 3,
+          "x": [
+            31,
+            32,
+            33
+          ]
+        },
+        {
+          "native_y": 25,
+          "external_shaft_pixels": 3,
+          "dark_shaft_pixels": 3,
+          "x": [
+            32,
+            33,
+            34
+          ]
+        },
+        {
+          "native_y": 26,
+          "external_shaft_pixels": 4,
+          "dark_shaft_pixels": 4,
+          "x": [
+            32,
+            33,
+            34,
+            35
+          ]
+        },
+        {
+          "native_y": 27,
+          "external_shaft_pixels": 3,
+          "dark_shaft_pixels": 3,
+          "x": [
+            33,
+            34,
+            35
+          ]
+        },
+        {
+          "native_y": 28,
+          "external_shaft_pixels": 3,
+          "dark_shaft_pixels": 3,
+          "x": [
+            34,
+            35,
+            36
+          ]
+        },
+        {
+          "native_y": 29,
+          "external_shaft_pixels": 3,
+          "dark_shaft_pixels": 3,
+          "x": [
+            35,
+            36,
+            37
+          ]
+        },
+        {
+          "native_y": 30,
+          "external_shaft_pixels": 3,
+          "dark_shaft_pixels": 3,
+          "x": [
+            36,
+            37,
+            38
+          ]
+        },
+        {
+          "native_y": 31,
+          "external_shaft_pixels": 4,
+          "dark_shaft_pixels": 4,
+          "x": [
+            36,
+            37,
+            38,
+            39
+          ]
+        },
+        {
+          "native_y": 32,
+          "external_shaft_pixels": 3,
+          "dark_shaft_pixels": 3,
+          "x": [
+            37,
+            38,
+            39
+          ]
+        }
+      ]
+    }
+  },
+  "palette": "FASTOCTREE 16-colour diagnostic included. Stage1 remains full colour BOX; stage2 must use fast octree per revision, complete bake unperformed.",
+  "ground": [
+    {
+      "region": "mine",
+      "source": "surface_mine_v2.png",
+      "sha256": "b3e604a14dea4852f1f98a4f53040a397307a3d22aa87b1e48bd7e7719c06d45",
+      "evidence": "static texture composite, not runtime evidence"
+    },
+    {
+      "region": "city",
+      "source": "surface_city_v2.png",
+      "sha256": "0c241cf5aee4f38ef7303c7ef976c634212f58830c74b337f9b41c40f0aeee26",
+      "evidence": "static texture composite, not runtime evidence"
+    },
+    {
+      "region": "snow",
+      "source": "surface_snow_v2.png",
+      "sha256": "82394b19d2385c61b61b4ff10686ab46931e41986b05c1c20193509d91a7f07b",
+      "evidence": "static texture composite, not runtime evidence"
+    }
+  ],
+  "stage_2": "NOT STARTED; v2 user identity approval required",
+  "engine_integration": "NOT PERFORMED; static image review only"
+}

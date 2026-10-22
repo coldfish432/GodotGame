@@ -1,0 +1,151 @@
+{
+  "stage": 1,
+  "version": 2,
+  "status": "READY_FOR_USER_IDENTITY_REVIEW",
+  "revised": [
+    "patriot",
+    "rat_king",
+    "eikthyrnir"
+  ],
+  "preserved": [
+    "zaro_lying",
+    "crownslayer",
+    "skullshatterer",
+    "hollow_snowpriest",
+    "father_agnir",
+    "zaro_standing"
+  ],
+  "identity_sheet_order": [
+    "patriot",
+    "rat_king",
+    "eikthyrnir",
+    "zaro_lying",
+    "crownslayer",
+    "skullshatterer",
+    "hollow_snowpriest",
+    "father_agnir",
+    "zaro_standing"
+  ],
+  "figures": [
+    {
+      "id": "patriot",
+      "origin": "revised painted source; built-in image_gen",
+      "source": "batch_B1_v2\\source_paintings\\patriot_generated.png",
+      "source_sha256": "4187f7ec83993fea7cc842fe688a85149658375d200f6536f5a652c2e62c74a9",
+      "visible_size": [
+        44,
+        46
+      ],
+      "native_cell_sha256": "0f0d903c70dcf7d8024ab4638043db956174f276f6510f5f554c328367901047",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": null
+    },
+    {
+      "id": "rat_king",
+      "origin": "revised painted source; built-in image_gen",
+      "source": "batch_B1_v2\\source_paintings\\rat_king_generated.png",
+      "source_sha256": "d3a6c649f00974fb842379476d64014c3c7e1c5faaf06948dd5a5759a35f345d",
+      "visible_size": [
+        42,
+        36
+      ],
+      "native_cell_sha256": "76ae3354b68c4f7e5d5d83f5c71900b8d1bbb404f756217f33b17cc53f0d3c03",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": null
+    },
+    {
+      "id": "eikthyrnir",
+      "origin": "revised painted source; built-in image_gen",
+      "source": "batch_B1_v2\\source_paintings\\eikthyrnir_generated.png",
+      "source_sha256": "dd42d6962a8d83643bdb21e3ae63d83be0747f599aa7cd5138f64dd1039f0bc3",
+      "visible_size": [
+        45,
+        46
+      ],
+      "native_cell_sha256": "90a1a5c95d78c38ad73f5d7f50bcf2f69650697a0b356c1c82d74a0e326d24c5",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": null
+    },
+    {
+      "id": "zaro_lying",
+      "origin": "accepted v1 artwork reused byte-for-byte; not regenerated",
+      "source": "batch_B1_v1\\source_paintings\\zaro_lying_generated.png",
+      "source_sha256": "64f96eb18a524272e590d5170f8ededc1e5db9644cb73263ff35bec8a22b80bd",
+      "visible_size": [
+        60,
+        38
+      ],
+      "native_cell_sha256": "5e373e9dddfecf3c7e23a5c14999d9df22837411bf7f657b6b5272362f3ab8e7",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": "cdf2fd8d4051d3a718640cab5b7444a7036796fed58e51a170de0a4fc72417bc"
+    },
+    {
+      "id": "crownslayer",
+      "origin": "accepted v1 artwork reused byte-for-byte; not regenerated",
+      "source": "batch_B1_v1\\source_paintings\\crownslayer_generated.png",
+      "source_sha256": "54825cde7b05bfcc7fd02b9cb3b87e773a914f98e2262789808043ce69e07418",
+      "visible_size": [
+        22,
+        30
+      ],
+      "native_cell_sha256": "2af3b8aeacd8f15bcc84b0f08c7719fd4cd7d5bcf1abefe2015cb6aa8afb4413",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": "a57366114fb2f2d86e7aef280ef57979588cf61ddb97f86510994d06b044d641"
+    },
+    {
+      "id": "skullshatterer",
+      "origin": "accepted v1 artwork reused byte-for-byte; not regenerated",
+      "source": "batch_B1_v1\\source_paintings\\skullshatterer_generated.png",
+      "source_sha256": "453ee453f4cd8b8c205a925b03149db27d39c043189e75b836eec729f7fee4c6",
+      "visible_size": [
+        23,
+        32
+      ],
+      "native_cell_sha256": "9ca2d57d95657f65e452c08deb3b008a85f632a598b950f1aac8462d1339d156",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": "afe2acdf878abaef6246217c473114cdefb9196ed6ce0da90c8b2ce9454b44a4"
+    },
+    {
+      "id": "hollow_snowpriest",
+      "origin": "accepted v1 artwork reused byte-for-byte; not regenerated",
+      "source": "batch_B1_v1\\source_paintings\\hollow_snowpriest_generated.png",
+      "source_sha256": "f4c16d8395c3ce6e3b5512bf6cd3d3591a58c0d03d93e3ae601b2051a11eb3e9",
+      "visible_size": [
+        25,
+        33
+      ],
+      "native_cell_sha256": "2b03f70214b491e174ef5018b28b55ebdbe702fd5ab2a20b08da6db7de81d284",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": "c9a7c86866e2473be154a3f614d734d701230eb328ca2a4baf8864d9c3ad4102"
+    },
+    {
+      "id": "father_agnir",
+      "origin": "accepted v1 artwork reused byte-for-byte; not regenerated",
+      "source": "batch_B1_v1\\source_paintings\\father_agnir_generated.png",
+      "source_sha256": "14375b7d5c828891608be7d8dcb30317c415378e2f8f2dec27bed40aca2d11c3",
+      "visible_size": [
+        24,
+        31
+      ],
+      "native_cell_sha256": "2ee009d8df7d286bc91318ee2d7073960b6ecd6572c095e77e26159f65091d35",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": "b04b4b33dd4bb16799d35056138228e58083f2ad9c42bcf76457da8e5d84c4f9"
+    },
+    {
+      "id": "zaro_standing",
+      "origin": "accepted v1 artwork reused byte-for-byte; not regenerated",
+      "source": "batch_B1_v1\\source_paintings\\zaro_standing_generated.png",
+      "source_sha256": "6819a578a5de3f02af163f73e4c84c64e4db6887f641fe9013df3d8fab775bfe",
+      "visible_size": [
+        60,
+        48
+      ],
+      "native_cell_sha256": "9e7df3ac44737deb09a8ec93dbf17e39972ba39de9da99ff8331be6887366fe4",
+      "hash_kind": "decoded RGBA pixels",
+      "baseline_native_file_sha256": "06ffb739d643052e212fb495aeaf2755978319e900901462c0e0f6c8536628da"
+    }
+  ],
+  "acceptance": "v2 blind match and user approval pending",
+  "private_answer": "identity_vs_prts_key.md",
+  "future_bake_quantizer": "FASTOCTREE, not MEDIANCUT"
+}

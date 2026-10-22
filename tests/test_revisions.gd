@@ -28,6 +28,7 @@ func run() -> void:
 	await _protection()
 	await _camps()
 	await _trader()
+	await _workbench()
 	await _escape()
 	print("REVISIONS RESULT: %d checks, %d failures" % [checks, failures])
 	game.queue_free()
@@ -47,17 +48,15 @@ func _economy() -> void:
 	var total := 0
 	for i in range(4000): total += Economy.bars_from_reward(12.0, rng)
 	check("old reward units become 赤金 at 10 : 1 on average", absf(total / 4000.0 - 1.2) < 0.05, total / 4000.0)
-	var lo := 999999
-	var hi := 0
-	for i in range(400):
-		var r := Economy.contract_reward(1, rng)
-		lo = mini(lo, r)
-		hi = maxi(hi, r)
-		if r % 10 != 0: lo = -1
-	check("one floor pays 800–1200 in steps of 10", lo >= 800 and hi <= 1200 and hi > lo, [lo, hi])
-	check("no floors, no reward", Economy.contract_reward(0, rng) == 0)
+	# The contract's pay (龙门币平衡与科研部策划案 v1.1 §2.2): 8,000 × the start's
+	# income index × the kind × the offer's roll, in hundreds.
+	check("a search from floor 1 at roll 1.0 pays 8,000", Economy.contract_reward({"type": "search", "roll": 1.0}, 1) == 8000)
+	check("deep 9 pays ×1.5, from floor 41 ×3.28", Economy.contract_reward({"type": "deep", "steps": 9, "roll": 1.0}, 41) == 39400, Economy.contract_reward({"type": "deep", "steps": 9, "roll": 1.0}, 41))
+	check("寻访 and 运送 pay their own way", Economy.contract_reward({"type": "recruit"}, 1) == 0)
 
+	game._pending_contract = {"type": "search", "vaults": 1, "roll": 1.0}
 	await game.start_contract("city")
+	check("taking the contract fixes its pay", int(game.contract.get("reward", 0)) == 8000, game.contract)
 	await step(2)
 	game._clear_field()
 	game.inventory.items.clear()
@@ -77,10 +76,11 @@ func _economy() -> void:
 	check("a gold drop lands as a 赤金 stack on the ground", drops.size() == 1 and drops[0].item.quantity == 3, drops.size())
 	# Extraction: 赤金 comes home as an item, the contract pays 龙门币 per floor.
 	var before := game.gold
+	game.contract_vaults = 1
 	game.settle(true)
 	await step(2)
 	var reward := game.gold - before
-	check("extracting from floor 1 pays one floor's 800–1200 龙门币", reward >= 800 and reward <= 1200, reward)
+	check("extracting with the objective done pays the fixed pay, and nothing more", reward == 8000, reward)
 	var crated := func(): return game.base.all_items().filter(func(x): return x.material_id == Economy.GOLD_ID).reduce(func(n, x): return n + x.quantity, 0)
 	check("赤金 found on the contract comes home in a receiving crate", game.gold_bars() == 0 and crated.call() == 4, crated.call())
 	await game.start_contract("city")
@@ -250,12 +250,12 @@ func _camps() -> void:
 	await game.advance(0)
 	check("an upgraded camp adds no contamination", game.in_camp and game.run_contamination == dose)
 	var lmd := game.gold
-	# Floors only: a random contract that happens to be done (deep +25%) would add its bonus.
+	# No contract, no pay (v1.1 §2.2: the pay is the contract's, fixed when taken).
 	game.contract = {}
 	game.camp_extract()
 	await step(2)
 	var reward := game.gold - lmd
-	check("extracting at camp 20|21 from floor 1 pays 20 floors (16,000–24,000)", game.in_base and reward >= 16000 and reward <= 24000, reward)
+	check("extracting at camp 20|21 without a contract pays nothing", game.in_base and reward == 0, reward)
 
 	# Starting from an unlocked camp.
 	await game.start_contract("mine", 20)
@@ -266,10 +266,13 @@ func _camps() -> void:
 	check("and goes on to the floor after it", game.floor_number == 21 and not game.in_camp)
 	check("difficulty there is the depth's own (3.5 × 20 − 3)", is_equal_approx(game.pressure, 67.0))
 	lmd = game.gold
+	var fixed := int(game.contract.get("reward", 0))
+	check("a camp start fixes the pay at that tier (Ⅲ)", fixed == Economy.contract_reward(game.contract, 21) and fixed > 0, fixed)
+	var done: bool = game.contract_progress().get("done", false)
 	game.settle(true)
 	await step(2)
 	reward = game.gold - lmd
-	check("the reward counts only the floors walked this time (one)", reward >= 800 and reward <= 1200, reward)
+	check("the pay comes only with the objective done", reward == (fixed if done else 0), [reward, done])
 	await game.start_contract("city", 10)
 	await step(2)
 	check("a locked camp is not a start point (city has none)", not game.in_camp and game.floor_number == 1)
@@ -347,6 +350,56 @@ func _trader() -> void:
 	game.close_modal()
 	game.settle(true)
 	await step(2)
+
+## 整备台 takes gear and flasks off the shelves; buying stays at the shop / 医疗部 (用户 2026-10-21).
+func _workbench() -> void:
+	if not game.in_base:
+		game.settle(true)
+		await step(2)
+	var blade := Item.create("仓库里的刀", Item.Category.WEAPON, 1, 2, 1.0)
+	var flask := BaseCatalog.create_potion("A")
+	var ore := MaterialCatalog.create(Economy.GOLD_ID, 1)
+	for it in [blade, flask, ore]: game.base.put_back(it, "shelf")
+	var worn: Item = game.player.equipped.get(Item.Category.WEAPON)
+	game.open_station("loadout")
+	await step(1)
+	var shown := _tiles(game.menu)
+	check("the workbench lists shelf gear and flasks, not materials", shown.has(blade) and shown.has(flask) and not shown.has(ore), shown.size())
+	check("and sells nothing", _button(game.menu, "购买") == null)
+	# 用户 2026-10-21 仓库图: no action buttons; right click wears a piece or
+	# brings a flask out (drag does the rest, test_drag_transfer).
+	var depot: BaseScreens.FlowGrid = _find_depot(game.menu)
+	depot.on_alt.call(blade)
+	await step(1)
+	check("right click puts the shelf blade on", game.player.equipped.get(Item.Category.WEAPON) == blade and not game.stash.has(blade))
+	check("and the old weapon goes to its shelf", worn == null or game.stash.has(worn))
+	depot = _find_depot(game.menu)
+	depot.on_alt.call(flask)
+	await step(1)
+	check("right click on a flask moves it into the pack", game.inventory.items.has(flask) and not game.stash.has(flask) and not game.player.equipped.values().has(flask))
+	game.open_station("insurance")
+	await step(1)
+	check("the logistics counter shows no shelves", _tiles(game.menu).is_empty())
+	if worn != null: game.equip_from_stash(worn)
+	game.store_item(flask)
+	game.base.take_from_shelf(ore)
+	game.close_modal()
+
+func _tiles(node: Node) -> Array:
+	var out := []
+	for child in node.find_children("*", "Button", true, false):
+		if child.get_parent() is BaseScreens.FlowGrid and child.is_visible_in_tree() and not child.get_parent().is_queued_for_deletion(): out.append(child.get_meta("item"))
+	return out
+
+func _find_depot(node: Node) -> BaseScreens.FlowGrid:
+	for child in node.find_children("*", "Control", true, false):
+		if child is BaseScreens.FlowGrid and child.is_visible_in_tree() and not child.is_queued_for_deletion(): return child
+	return null
+
+func _button(node: Node, text: String) -> Button:
+	for child in node.find_children("*", "Button", true, false):
+		if child.text == text and child.is_visible_in_tree() and not child.is_queued_for_deletion(): return child
+	return null
 
 ## Esc goes back one level; with nothing open it pauses (用户 2026-10-06).
 func _escape() -> void:

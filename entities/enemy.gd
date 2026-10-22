@@ -49,6 +49,8 @@ var _warning_markers: Array[Node] = []
 ## 威胁值 patrols (ThreatMeter): which wave it came with (0 = not a patrol); it
 ## wanders the floor, chases what it sees, and wanders on from where it lost her.
 var patrol_wave := 0
+## Called in by a boss or warden mid-fight (用户 2026-10-20): it drops nothing.
+var called_in := false
 var _wander_target := Vector3.INF
 var _wander_time := 0.0
 ## 萨卡兹哨兵 (ThreatMeter): "watch" until it sees her; then "run" to a
@@ -62,6 +64,7 @@ var _run_target := Vector3.INF
 const ANIM_FRAME_TIME := 0.25
 
 var _sprite: Sprite3D
+var _seen_yaw := 0.0
 var _walk_frames: Array[ImageTexture] = []
 var _anim_timer: float = ANIM_FRAME_TIME
 var _anim_frame: int = 0
@@ -237,7 +240,18 @@ func _build_visual() -> void:
 	# Side-view cells centre the body at x=28, directional cells at x=32.
 	if directional or not elite: _sprite.offset = Vector2(0 if directional else 4, 19)
 	_sprite.position.y = _art_base_y
+	_sprite.add_to_group("upright_sprites")
+	# Sprites keep to their own render layer; a soft contact shadow under
+	# its feet lands on the ground only (场景渲染统一改造案_v1 §4.6).
+	_sprite.layers = LapplandAnimator3D.SPRITE_LAYER
 	add_child(_sprite)
+	var contact := Decal.new()
+	var reach := 1.3 * (1.35 if elite else 1.0) * (1.0 if own_art() else float(attack_profile.get("scale", 1.0)))
+	contact.size = Vector3(reach, 0.6, reach)
+	contact.cull_mask = 1
+	contact.texture_albedo = LapplandAnimator3D._contact_texture()
+	add_child(contact)
+	contact.position = Vector3(0, -0.65, 0)
 	# Its life bar is the HUD's (界面策划案 §2.6). The old 3D bar it carried
 	# showed itself again on every hit, so elites wore two bars.
 	_glint = EnemyAttackVfx.part(self, Vector3.ZERO, Vector3.ONE * PIXEL, Color.WHITE)
@@ -321,6 +335,15 @@ func figure_scale() -> float:
 
 func _advance_animation(delta: float) -> void:
 	_bob_time += delta
+	# The view turned (GameManager.camera_yaw): the way it faces in the world
+	# is another column, or the other side, on screen now.
+	if is_instance_valid(game) and game.camera_yaw != _seen_yaw and is_instance_valid(_sprite) and is_instance_valid(game.camera):
+		_seen_yaw = game.camera_yaw
+		var facing := -global_basis.z
+		facing.y = 0.0
+		if facing.length_squared() > 0.0001:
+			if directional: _turn_to(facing.normalized(), true)
+			else: _sprite.flip_h = facing.dot(game.camera.global_basis.x) < 0
 	# Distance stepped since the previous tick decides walking vs standing.
 	walking = _stepped > 0.0005
 	# Backing up plays the walk board backwards.
@@ -489,6 +512,11 @@ func _physics_process(delta: float) -> void:
 	if behavior == Behavior.GUARD or hunts() or _can_perceive(player_position):
 		_last_seen_position = player_position
 	var target := _last_seen_position
+	# 残影: for a moment it goes for the afterimage and does not swing.
+	if _decoy_time > 0.0:
+		_decoy_time -= delta
+		_move_toward_target(_decoy_point, delta)
+		return
 	# Unseen, a 灭迹人 goes round to come at her from behind.
 	if stealthed() and hunts(): target = flank_point(player_position)
 	var distance := _flat_distance(global_position, player_position)
@@ -509,11 +537,22 @@ func _physics_process(delta: float) -> void:
 func _flat_distance(a: Vector3, b: Vector3) -> float:
 	return Vector2(a.x - b.x, a.z - b.z).length()
 
+## 疾影's 残影 draws it to `point` for `seconds`.
+var _decoy_point := Vector3.ZERO
+var _decoy_time := 0.0
+
+func decoy(point: Vector3, seconds: float) -> void:
+	if _dead or boss: return
+	_decoy_point = point
+	_decoy_time = seconds
+
 ## 萨卢佐家族的旧徽记: elites pick her out from further off.
 const CREST_SIGHT := 1.5
 
 func _can_perceive(point: Vector3) -> bool:
-	var reach := perception_radius * (CREST_SIGHT if elite and game.player != null and game.player.equipped_effect("saluzzo_crest") else 1.0)
+	# 林隐 / 无声 (前缀放大与特效阶等案 §3): she slips out of sight.
+	if game.player != null and game.player.families != null and game.player.families.concealed_from(_flat_distance(global_position, point)): return false
+	var reach := perception_radius * (CREST_SIGHT if elite and game.player != null and game.player.equipped_effect("saluzzo_crest") else 1.0) * game.feud_sight(self)
 	return _flat_distance(global_position, point) <= reach and _flat_distance(home_position, point) <= leash_radius and game.line_of_sight(global_position, point)
 
 ## force: its post has woken, so it turns back even on the way home.
@@ -808,9 +847,9 @@ func _begin_telegraphed_attack() -> void:
 	var segment := current_segment()
 	_windup_remaining = 0.45 if _in_combo else float(segment.windup)
 	_windup_total = _windup_remaining
-	_pending_damage = atk * float(segment.damage) * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR) * game.enemy_attack_multiplier()
+	_pending_damage = atk * float(segment.damage) * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR) * game.enemy_attack_multiplier() * game.feud_damage(self)
 	warn_shape = ""
-	pending_warning_position = game.player.global_position if telegraphs() else attack_origin
+	pending_warning_position = _locked_target if telegraphs() else attack_origin
 	pending_warning_radius = float(segment.get("radius", 0.0))
 	var rim := unstoppable_now()
 	if str(segment.shape) in ["charge", "lane"] and telegraphs():
@@ -847,12 +886,36 @@ func current_segment() -> Dictionary:
 	segment.merge(segments[_combo_index % segments.size()], true)
 	return segment
 
-func _lock_direction() -> void:
-	_locked_target = game.player.global_position
+## `keep`: a tracking windup following whoever it first turned on.
+func _lock_direction(keep: bool = false) -> void:
+	if not keep: _aim_civilian = null
+	if keep: _locked_target = _aim_civilian.global_position if is_instance_valid(_aim_civilian) else game.player.global_position
+	else: _locked_target = _aim_target()
 	attack_direction = _locked_target - global_position
 	attack_direction.y = 0
 	attack_direction = attack_direction.normalized() if attack_direction.length_squared() > 0.001 else Vector3.RIGHT
 	_face(attack_direction, 1.0)
+
+var _aim_civilian: Node3D
+## Its blow goes at her; on 扎罗's piazza a 叙拉古平民 within its reach may
+## take it instead, on BossCatalog.CIVILIAN_TARGET_CHANCE (用户 2026-10-20).
+func _aim_target() -> Vector3:
+	var her_at := game.player.global_position
+	if attack_profile.get("neutral", false) or attack_profile.get("roadblock", false): return her_at
+	var reach := float(attack_profile.get("reach", 1.5)) + 0.3
+	for c in get_tree().get_nodes_in_group("civilians"):
+		if c == self or not is_instance_valid(c) or c._dead or c.fleeing or _flat_distance(c.global_position, global_position) > reach: continue
+		if game.rng.randf() < BossCatalog.CIVILIAN_TARGET_CHANCE:
+			_aim_civilian = c
+			return c.global_position
+		break
+	return her_at
+
+## Each 平民 its blow reaches: 血债, and it cringes and runs.
+func _strike_civilians() -> void:
+	for c in get_tree().get_nodes_in_group("civilians"):
+		if c == self or not is_instance_valid(c) or c._dead: continue
+		if threatens(c.global_position): c.struck()
 
 ## One step of turning toward her (WINDUP_TURN_DEG). No longer used in a
 ## windup (用户 2026-10-14: 敌人不能甩枪); kept for whatever turns between attacks.
@@ -874,7 +937,7 @@ func _tick_attack(delta: float) -> void:
 		if not _aim_locked:
 			# Track only before the 0.7s boundary, then hold that last direction
 			# for the entire 0.5s reaction window, including the firing tick.
-			if previous < float(attack_profile.track): _lock_direction()
+			if previous < float(attack_profile.track): _lock_direction(true)
 			if _attack_elapsed >= float(attack_profile.track):
 				_aim_locked = true
 				# The only read on the sniper: make the lock unmissable.
@@ -940,6 +1003,7 @@ func _tick_attack(delta: float) -> void:
 
 func _resolve_attack() -> void:
 	if _dead or state != State.CHASING or attack_phase != "windup": return
+	_strike_civilians()
 	preparing_attack = false
 	attack_phase = "strike"
 	_phase_remaining = STRIKE_TIME

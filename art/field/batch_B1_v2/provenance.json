@@ -1,0 +1,33 @@
+{
+  "tool": "built-in image_gen",
+  "revision_input": "../B1_revision_v2_inputs/B1_revision_v2.md",
+  "updated_brief": "../B1_revision_v2_inputs/B_bosses_brief_v1.md",
+  "brief_sha256": "fda2cb19d0335b048fe56ca28a186b9613917161b83e1c3d2cb76073db49d446",
+  "reference_source": "../B1_revision_v2_inputs/refs_B1/prts_sources.md",
+  "patriot_model": "../B1_revision_v2_inputs/refs_B1/prts/patriot_model/stance1_marching_idle.png",
+  "edit_targets": [
+    "../batch_B1_v1/source_paintings/eikthyrnir_generated.png",
+    "../batch_B1_v1/source_paintings/rat_king_generated.png"
+  ],
+  "prompts": "generation_prompts.json",
+  "method": "Only three painted source revisions. Code performs BOX resampling, alpha thresholding, assembly, measurements and packaging; no geometry drawing or manual pixel repainting.",
+  "explicit_emblem_exceptions": [
+    "Patriot tower shield orange X",
+    "accepted Father Agnir chest gold cross"
+  ],
+  "review_status": "Five character identities accepted per user review (six poses); three revised identities pending approval.",
+  "sources": [
+    {
+      "file": "source_paintings\\eikthyrnir_generated.png",
+      "sha256": "dd42d6962a8d83643bdb21e3ae63d83be0747f599aa7cd5138f64dd1039f0bc3"
+    },
+    {
+      "file": "source_paintings\\patriot_generated.png",
+      "sha256": "4187f7ec83993fea7cc842fe688a85149658375d200f6536f5a652c2e62c74a9"
+    },
+    {
+      "file": "source_paintings\\rat_king_generated.png",
+      "sha256": "d3a6c649f00974fb842379476d64014c3c7e1c5faaf06948dd5a5759a35f345d"
+    }
+  ]
+}

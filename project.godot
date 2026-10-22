@@ -39,6 +39,10 @@ field_player={
 "type": "vec3",
 "value": Vector3(0, -1000, 0)
 }
+field_cut={
+"type": "float",
+"value": 0.0
+}
 field_player_light={
 "type": "vec4",
 "value": Vector4(0, 0, 0, 0)

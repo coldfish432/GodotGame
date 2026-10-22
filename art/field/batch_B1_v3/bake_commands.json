@@ -1,0 +1,178 @@
+[
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\patriot_action.png",
+      "patriot",
+      "9"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\patriot_action_64.png scale 0.2535"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\patriot_walk.png",
+      "patriot",
+      "8",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\patriot_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\patriot_walk_64.png scale 0.2535"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\rat_king_action.png",
+      "rat_king",
+      "8"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\rat_king_action_64.png scale 0.1965"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\rat_king_walk.png",
+      "rat_king",
+      "4",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\rat_king_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\rat_king_walk_64.png scale 0.1965"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\eikthyrnir_action.png",
+      "eikthyrnir",
+      "9"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\eikthyrnir_action_64.png scale 0.2521"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\eikthyrnir_walk.png",
+      "eikthyrnir",
+      "4",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\eikthyrnir_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\eikthyrnir_walk_64.png scale 0.2521"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\zaro_action.png",
+      "zaro",
+      "9"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\zaro_action_64.png scale 0.2595"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\zaro_walk.png",
+      "zaro",
+      "4",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\zaro_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\zaro_walk_64.png scale 0.2595"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\crownslayer_action.png",
+      "crownslayer",
+      "7"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\crownslayer_action_64.png scale 0.1639"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\crownslayer_walk.png",
+      "crownslayer",
+      "4",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\crownslayer_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\crownslayer_walk_64.png scale 0.1639"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\skullshatterer_action.png",
+      "skullshatterer",
+      "6"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\skullshatterer_action_64.png scale 0.175"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\skullshatterer_walk.png",
+      "skullshatterer",
+      "4",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\skullshatterer_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\skullshatterer_walk_64.png scale 0.175"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\hollow_snowpriest_action.png",
+      "hollow_snowpriest",
+      "7"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\hollow_snowpriest_action_64.png scale 0.175"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\hollow_snowpriest_walk.png",
+      "hollow_snowpriest",
+      "4",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\hollow_snowpriest_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\hollow_snowpriest_walk_64.png scale 0.175"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\father_agnir_action.png",
+      "father_agnir",
+      "6"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\father_agnir_action_64.png scale 0.1632"
+  },
+  {
+    "command": [
+      "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\father_agnir_walk.png",
+      "father_agnir",
+      "4",
+      "--scale-from",
+      "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\father_agnir_action.png"
+    ],
+    "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v3\\father_agnir_walk_64.png scale 0.1632"
+  }
+]

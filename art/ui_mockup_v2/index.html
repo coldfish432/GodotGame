@@ -1,0 +1,353 @@
+<meta charset="utf-8">
+<title>罗德岛舰内界面</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Saira:wdth,wght@100..125,400..800&display=swap">
+<style>
+/* 布局：上方页签切界面；1280×720 舞台按宽度等比缩放；舞台下方写这一屏的拆分说明。单一深色（舰内终端），白舱皮肤只在医疗界面里出现。 */
+:root{
+  color-scheme:dark;
+  --hull0:#0f1316; --hull1:rgba(22,27,31,.93); --hull1s:#161b1f; --hull2:#1f262b; --hull3:#2a3238;
+  --seam:#3b4146; --seamhi:#5a666e;
+  --fg:#eef3f5; --mute:#9aa7ae; --dim:#5f6b72; --paper:#e4eaec; --ink:#11171a;
+  --holo:#3fd2f2; --blue:#0098dc; --hazard:#e8b730; --sp:#f5c000; --hp:#27a6ef; --red:#e23c3c; --ori:#e0782a; --green:#8fc31f;
+  --t0:#9a9a9a; --t1:#16a2e8; --t2:#ffc400; --special:#c48cff;
+  --d-bridge:#3fd2f2; --d-eng:#e8b730; --d-log:#4b9be0; --d-med:#2fbfa6; --d-lab:#8fb8ff; --d-store:#ff5fa2;
+  --med-bg:#d7dee1; --med-panel:#eef2f3; --med-ink:#1b2328; --med-line:#b9c5ca;
+  --store-bg:#2a2523;
+  --cn:"Noto Sans SC","Microsoft YaHei",sans-serif;
+  --en:"Saira","Bahnschrift","Arial Narrow",sans-serif;
+}
+html,body{background:var(--hull0);color:var(--fg)}
+body{font-family:var(--cn);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+h1{font:900 22px/1.2 var(--cn);margin:0 0 4px;text-wrap:balance}
+h1 small{font:600 12px var(--en);font-stretch:125%;letter-spacing:.2em;color:var(--mute);margin-left:10px}
+.lede{color:var(--mute);font-size:13px;margin:0 0 14px;max-width:70ch}
+nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+nav button{font:700 13px var(--cn);color:var(--mute);background:var(--hull2);border:0;padding:8px 12px;cursor:pointer;clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--ink)}
+nav button:focus-visible{outline:2px solid var(--holo);outline-offset:2px}
+.frame{width:100%;max-width:1280px;aspect-ratio:16/9;position:relative;overflow:hidden;background:#000;outline:1px solid var(--seam)}
+#stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;overflow:hidden;font-family:var(--cn)}
+.note{max-width:1280px;margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.note div{background:var(--hull2);padding:10px 12px;font-size:13px;line-height:1.6;color:var(--mute);min-width:0}
+.note b{color:var(--fg)}
+.note em{font-style:normal;color:var(--holo)}
+
+/* ---- 舞台内组件 ---- */
+#stage *{box-sizing:border-box}
+.abs{position:absolute}
+.bgimg{position:absolute;inset:0;background-size:cover;image-rendering:pixelated}
+.dim{position:absolute;inset:0;background:rgba(8,11,13,.42)}
+.cut{clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.cut6{clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+.win{position:absolute;background:linear-gradient(135deg,var(--seamhi),var(--seam) 30%)}
+.win>.in{position:absolute;inset:1px;background:var(--hull1)}
+.win.solid>.in{background:var(--hull1s)}
+.rivet{position:absolute;width:3px;height:3px;background:var(--seamhi)}
+.tb{position:absolute;left:0;right:0;top:0;height:44px;display:flex;align-items:center;gap:12px;padding-right:8px;background:rgba(10,14,16,.7)}
+.tb .blk{width:6px;align-self:stretch;clip-path:polygon(0 10px,100% 0,100% 100%,0 100%)}
+.tb .cnT{font:900 18px var(--cn)}
+.tb .enT{font:600 10px var(--en);font-stretch:125%;letter-spacing:.24em;color:var(--mute);text-transform:uppercase}
+.tb .grow{flex:1}
+.tb .key{font:800 11px var(--en);background:var(--paper);color:var(--ink);padding:2px 6px}
+.tb .x{width:32px;height:32px;display:grid;place-items:center;color:var(--mute);font-size:18px}
+.tb::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--dc) 0,var(--dc) 40%,transparent)}
+.tabs{display:flex;gap:2px}
+.tab{font:700 13px var(--cn);padding:6px 14px;background:var(--hull3);color:var(--mute)}
+.tab.on{background:var(--paper);color:var(--ink)}
+.sec{display:flex;align-items:center;gap:8px;font:900 14px var(--cn)}
+.sec::before{content:"";width:4px;height:13px;background:var(--fg)}
+.sec span{font:600 9px var(--en);font-stretch:125%;letter-spacing:.22em;color:var(--dim)}
+.btn{display:inline-grid;place-items:center;font:700 13px var(--cn);background:var(--hull3);color:var(--fg);padding:0 14px;height:30px;clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+.btn.blue{background:var(--blue)}
+.btn.paper{background:var(--paper);color:var(--ink)}
+.btn.haz{background:repeating-linear-gradient(135deg,#2a2410 0 8px,#3a3115 8px 16px);color:var(--hazard);outline:1px solid var(--hazard);outline-offset:-1px}
+.go{position:absolute;background:var(--blue);display:grid;place-items:center;clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%)}
+.go::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 22px,rgba(255,255,255,.08) 22px 24px)}
+.go b{font:900 26px var(--cn);position:relative}
+.go i{font:700 10px var(--en);font-style:normal;letter-spacing:.3em;position:relative;display:block;text-align:center}
+.grid{position:absolute;background-color:rgba(6,9,11,.75);background-image:linear-gradient(var(--seam) 1px,transparent 1px),linear-gradient(90deg,var(--seam) 1px,transparent 1px);background-size:40px 40px;outline:1px solid var(--seam)}
+.it{position:absolute;display:grid;place-items:center}
+.it img{image-rendering:pixelated;position:relative}
+.it::before{content:"";position:absolute;inset:1px;background:linear-gradient(0deg,var(--tc) -40%,transparent 55%);opacity:.55}
+.it::after{content:"";position:absolute;left:1px;right:1px;bottom:1px;height:3px;background:var(--tc)}
+.it .n{position:absolute;right:2px;bottom:5px;font:800 10px var(--en);background:#000;padding:0 3px;z-index:1}
+.slot{position:absolute;background:var(--hull2);outline:1px solid var(--seam);outline-offset:-1px;display:grid;place-items:center}
+.slot.on{outline-color:var(--tc);background:linear-gradient(0deg,color-mix(in srgb,var(--tc) 30%,transparent),var(--hull2) 60%)}
+.slot img{image-rendering:pixelated}
+.slot svg{opacity:.35}
+.slot .cap{position:absolute;left:4px;top:3px;font:700 10px var(--cn);color:var(--dim)}
+.slot .ins{position:absolute;right:3px;top:3px;width:12px;height:12px;background:#4fd1c5;clip-path:polygon(50% 0,100% 25%,100% 60%,50% 100%,0 60%,0 25%)}
+.stat{display:flex;justify-content:space-between;font:400 13px var(--cn);color:var(--mute);height:22px;align-items:center}
+.stat b{font:700 13px var(--en);color:var(--fg);font-variant-numeric:tabular-nums}
+.stat b small{color:var(--green);font-size:12px;margin-left:4px}
+.lbl{font:400 12px var(--cn);color:var(--mute)}
+.num{font-family:var(--en);font-variant-numeric:tabular-nums;font-weight:700}
+.hb{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:flex-end}
+.hb .s{width:58px;height:58px;background:rgba(12,16,19,.85);outline:1px solid var(--seam);position:relative;display:grid;place-items:center}
+.hb .s i{position:absolute;left:3px;top:2px;font:800 9px var(--en);font-style:normal;color:var(--mute)}
+.bar{position:relative;height:10px;background:#0a0d0f;outline:1px solid var(--seam)}
+.bar>div{position:absolute;left:0;top:0;bottom:0}
+.wm{position:absolute;right:20px;bottom:30px;font:900 150px/1 var(--en);font-stretch:125%;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.06);letter-spacing:.02em;pointer-events:none}
+/* 站点外壳 */
+.shell{position:absolute;inset:0;background-color:var(--hull0)}
+.shell.plate{background-image:linear-gradient(rgba(59,65,70,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(59,65,70,.35) 1px,transparent 1px);background-size:64px 64px}
+.shell.grate{background-image:repeating-linear-gradient(45deg,rgba(68,75,81,.18) 0 1px,transparent 1px 8px)}
+.shell.screen{background:#0b1215 repeating-linear-gradient(0deg,rgba(63,210,242,.035) 0 1px,transparent 1px 3px)}
+.top{position:absolute;left:0;right:0;top:0;height:60px;background:rgba(8,11,13,.92);display:flex;align-items:center;gap:10px;padding:0 16px 0 14px}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:linear-gradient(90deg,transparent,var(--dc) 20%,var(--dc) 80%,transparent)}
+.sq{width:44px;height:44px;background:var(--hull3);display:grid;place-items:center;font-size:20px;clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%)}
+.top .blk{width:6px;height:44px;background:var(--dc);clip-path:polygon(0 8px,100% 0,100% 100%,0 100%);margin-left:6px}
+.top .t b{display:block;font:900 22px/1.1 var(--cn)}
+.top .t i{font:600 10px var(--en);font-style:normal;font-stretch:125%;letter-spacing:.24em;color:var(--mute)}
+.pill{display:flex;align-items:center;gap:8px;background:#000;padding:0 12px;height:32px;font:700 14px var(--en)}
+.foot{position:absolute;left:0;right:0;bottom:0;height:28px;display:flex;align-items:center;gap:10px;padding:0 16px;background:rgba(8,11,13,.85);font:600 10px var(--en);letter-spacing:.24em;color:var(--dim)}
+.foot img{width:16px;height:16px;image-rendering:pixelated;opacity:.7}
+.kc{font:800 10px var(--en);background:var(--hull3);color:var(--fg);padding:2px 6px;letter-spacing:0}
+.panel{position:absolute;background:rgba(22,27,31,.88);outline:1px solid var(--seam);outline-offset:-1px}
+.card{position:absolute;background:var(--hull2);clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+/* 白舱 */
+.med{--fg:var(--med-ink);--mute:#4d5c63;--dim:#7b8a91;--seam:var(--med-line);--hull2:#ffffff;--hull3:#dfe6e8;color:var(--med-ink)}
+.med .shell{background:var(--med-bg) linear-gradient(rgba(47,191,166,.08) 1px,transparent 1px) 0 0/32px 32px}
+.med .panel{background:var(--med-panel)}
+.med .sec::before{background:var(--d-med)}
+.med .grid{background-color:#f7fafa;background-image:linear-gradient(var(--med-line) 1px,transparent 1px),linear-gradient(90deg,var(--med-line) 1px,transparent 1px)}
+.med .top{background:#f4f7f8;color:var(--med-ink)}
+.med .sq{background:#dfe6e8;color:var(--med-ink)}
+.med .pill{background:#1b2328;color:#fff}
+.med .foot{background:#c9d2d6;color:#6d7c83}
+.med .wm{-webkit-text-stroke-color:rgba(27,35,40,.07)}
+.med .tab{background:#dfe6e8;color:#4d5c63}.med .tab.on{background:var(--med-ink);color:#fff}
+/* swatches */
+.sw{position:absolute;width:132px}
+.sw .c{height:56px;outline:1px solid var(--seam)}
+.sw b{display:block;font:700 12px var(--cn);margin-top:6px}
+.sw i{font:600 11px var(--en);font-style:normal;color:var(--mute)}
+@media (prefers-reduced-motion:no-preference){.pulse{animation:p 2.4s ease-in-out infinite}@keyframes p{50%{opacity:.55}}}
+</style>
+
+<h1>罗德岛舰内界面<small>UI V2.0 · RHODES ISLAND INTERIOR</small></h1>
+<p class="lede">界面就是舰上那台终端的屏幕：蓝灰舰板、舱壁切角、全息青灯带、部门色标识；方舟客户端的写法照旧。装备栏照恐怖黎明排 8 槽。对应《界面美术与布局策划案_v2_0》。</p>
+<nav id="nav" role="tablist"></nav>
+<div class="frame" id="frame"><div id="stage"></div></div>
+<div class="note" id="note"></div>
+
+<script>
+const IMG='img/';
+const S=document.getElementById('stage'),F=document.getElementById('frame');
+function fit(){S.style.transform=`scale(${F.clientWidth/1280})`}
+new ResizeObserver(fit).observe(F);
+
+const at=(x,y,w,h)=>`left:${x}px;top:${y}px;${w!=null?`width:${w}px;`:''}${h!=null?`height:${h}px;`:''}`;
+const TC=['var(--t0)','var(--t1)','var(--t2)','var(--special)'];
+// 部位剪影（空槽）
+const SIL={
+ head:'<path d="M20 6c-8 0-13 6-13 14v6h26v-6c0-8-5-14-13-14zM9 28h22v5H9z"/>',
+ chest:'<path d="M10 4l6 4h8l6-4 8 6-4 10-4-2v18H10V18l-4 2-4-10z"/>',
+ hands:'<path d="M12 6h4v12h2V4h4v14h2V6h4v16c0 7-4 12-10 12s-10-5-10-10v-8h4z"/>',
+ legs:'<path d="M10 4h20l-1 32h-7l-2-20-2 20h-7z"/>',
+ feet:'<path d="M12 4h8v20l12 4v8H8V24z"/>',
+ amulet:'<path d="M8 4c0 10 5 16 12 16S32 14 32 4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 18l6 8-6 10-6-10z"/>',
+ ring:'<circle cx="20" cy="22" r="10" fill="none" stroke="currentColor" stroke-width="4"/><path d="M16 6h8l3 6H13z"/>',
+ weapon:'<path d="M18 2h4v26h-4zM12 28h16v3H12zM18 31h4v7h-4z"/>'};
+const sil=(k,s=40)=>`<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="#9aa7ae" color="#9aa7ae">${SIL[k]}</svg>`;
+function slot(x,y,w,h,k,cap,item,opt={}){
+  const tc=item?TC[item.t]:'';
+  const img=item?`<img src="${IMG}${item.i}.png" style="${item.rot?'transform:rotate(-90deg);':''}width:${item.w}px;height:${item.h}px">`:sil(k,Math.min(w,h)>60?48:28);
+  return `<div class="slot${item?' on':''}" style="${at(x,y,w,h)}--tc:${tc}">${img}${opt.cap!==false?`<span class="cap">${cap}</span>`:''}${opt.ins?'<span class="ins"></span>':''}</div>`;
+}
+function it(gx,gy,cw,ch,icon,t,n,ox=0,oy=0){
+  const [iw,ih]=[cw==1?32:72,ch==1?32:72];
+  return `<div class="it" style="${at(ox+gx*40,oy+gy*40,cw*40,ch*40)}--tc:${TC[t]}"><img src="${IMG}${icon}.png" width="${iw}" height="${ih}">${n?`<span class="n">${n}</span>`:''}</div>`;
+}
+function win(x,y,w,h,{cn,en,dc='var(--holo)',key,tabs,solid}={},body=''){
+  const tb=cn?`<div class="tb" style="--dc:${dc}"><div class="blk" style="background:${dc}"></div><div><div class="cnT">${cn}</div><div class="enT">${en}</div></div>${tabs?`<div class="tabs">${tabs.map((t,i)=>`<div class="tab${i==0?' on':''}">${t}</div>`).join('')}</div>`:''}<div class="grow"></div>${key?`<span class="key">${key}</span>`:''}<div class="x">✕</div></div>`:'';
+  const r=(l,t)=>`<div class="rivet" style="${l}:4px;${t}:4px"></div>`;
+  return `<div class="win cut${solid?' solid':''}" style="${at(x,y,w,h)}"><div class="in cut">${tb}<div class="abs" style="left:0;top:${cn?44:0}px;right:0;bottom:0">${body}</div>${r('right','top')}${r('left','bottom')}</div></div>`;
+}
+const field=()=>`<div class="bgimg" style="background-image:url(${IMG}field_city.png)"></div><div class="dim"></div>`;
+function hotbar(){
+  const s=['LMB','RMB','SPC','Q','1','2','3','4','5'];const ic=['rhodes_dual_blades','','','potion_a','potion_b','potion_c','','',''];
+  return `<div class="hb"><div style="width:200px"><div class="lbl" style="display:flex;justify-content:space-between;color:#fff;font-size:11px"><span>生命</span><span class="num">2400 / 2400</span></div><div class="bar" style="height:12px"><div style="width:100%;background:var(--hp)"></div></div></div>${s.map((k,i)=>`<div class="s"><i>${k}</i>${ic[i]?`<img src="${IMG}${ic[i]}.png" width="${i==0?54:32}" style="image-rendering:pixelated">`:''}</div>`).join('')}<div style="width:200px"><div class="lbl" style="font-size:11px;color:#fff">体力</div><div class="bar"><div style="width:100%;background:#e9eef0"></div></div><div class="lbl" style="font-size:11px;color:#fff;margin-top:4px">剑气</div><div class="bar"><div style="width:66%;background:var(--sp)"></div></div></div></div>`;
+}
+function shell(dc,cn,en,skin,tabs,pills,body,foot,wm){
+  return `<div class="shell ${skin}"></div><div class="top" style="--dc:${dc}"><div class="sq">‹</div><div class="sq">⌂</div><div class="blk"></div><div class="t"><b>${cn}</b><i>${en}</i></div><div style="width:24px"></div>${tabs?`<div class="tabs">${tabs.map((t,i)=>`<div class="tab${i==0?' on':''}" style="padding:10px 20px;font-size:14px">${t}</div>`).join('')}</div>`:''}<div style="flex:1"></div>${pills||`<div class="pill"><span style="width:12px;height:12px;border:3px solid #fff;border-radius:50%"></span>15,510</div><div class="pill" style="background:var(--sp);color:#000">声望 R2</div>`}</div>${wm?`<div class="wm">${wm}</div>`:''}${body}<div class="foot"><img src="${IMG}base_rhodes_logo.png">RHODES ISLAND · ${en}<div style="flex:1"></div>${(foot||[]).map(([k,a])=>`<span class="kc">${k}</span><span style="letter-spacing:0;font-family:var(--cn);font-size:11px;color:var(--mute)">${a}</span>`).join('')}</div>`;
+}
+
+// ---- 纸娃娃（恐怖黎明排法） ----
+const GEAR={weapon:{i:'twin_fang',w:72,h:32,t:2,rot:1},head:{i:'dust_mask',w:32,h:32,t:1},chest:{i:'rhodes_protective_vest',w:72,h:72,t:2},hands:{i:'shadow_bracer',w:32,h:32,t:0},amulet:{i:'yan_talisman',w:32,h:32,t:1},ring:{i:'tactical_charm',w:32,h:32,t:0}};
+function doll(ox,oy,scale=1,{ins=false,g=GEAR}={}){
+  const p=(x,y,w,h)=>[ox+x*scale,oy+y*scale,w*scale,h*scale];
+  const o={ins};
+  return [
+   slot(...p(12,12,88,112),'weapon','武器',g.weapon,o),
+   slot(...p(12,132,88,136),'chest','胸',g.chest,o),
+   slot(...p(12,276,88,112),'legs','腿',g.legs,o),
+   `<div class="abs" style="${at(...p(112,12,40,40))}background:var(--hull2);outline:1px solid var(--seam);display:grid;place-items:center;font:800 ${14*scale}px var(--en);color:var(--sp)">E1</div>`,
+   slot(...p(156,12,80,80),'head','头',g.head,o),
+   slot(...p(240,12,40,40),'amulet','',g.amulet,{...o,cap:false}),
+   slot(...p(112,56,40,40),'ring','',g.ring,{...o,cap:false}),
+   `<div class="abs" style="${at(...p(108,100,176,240))}">
+      <div class="abs pulse" style="left:8%;right:8%;bottom:4%;height:18%;border:2px solid var(--holo);border-radius:50%;box-shadow:0 0 18px rgba(63,210,242,.35) inset"></div>
+      <img src="${IMG}base_rhodes_logo.png" class="abs" style="left:50%;bottom:6%;width:${40*scale}px;transform:translateX(-50%) scaleY(.45);opacity:.35;image-rendering:pixelated">
+      <img src="${IMG}lappland_sprite.png" class="abs" style="left:50%;bottom:9%;width:${168*scale}px;transform:translateX(-50%);image-rendering:pixelated"></div>`,
+   `<div class="abs" style="${at(...p(108,348,176,40))}background:var(--hull2);display:flex;align-items:center;justify-content:space-between;padding:0 ${6*scale}px;font-size:${12*scale}px;white-space:nowrap"><span>精英 1 · Lv 30</span>${scale==1?'<span class="btn" style="height:26px;padding:0 8px;white-space:nowrap">干员<span class="key" style="margin-left:6px;font:800 10px var(--en);background:var(--paper);color:var(--ink);padding:0 4px">C</span></span>':''}</div>`,
+   `<div class="abs" style="${at(...p(292,12,88,112))}background:linear-gradient(180deg,#2a2410,var(--hull2));outline:1px solid #5a4a18;outline-offset:-1px;display:grid;place-items:center;text-align:center">
+     <div><div style="width:${40*scale}px;height:${40*scale}px;margin:0 auto;background:var(--sp);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></div>${scale==1?'<div style="font:700 11px var(--cn);margin-top:6px">幼狼之牙</div><div style="font:700 9px var(--cn);color:#111;background:var(--green);display:inline-block;padding:0 4px;margin-top:3px">攻击回复</div>':''}</div></div>`,
+   slot(...p(292,132,88,112),'hands','手',g.hands,o),
+   slot(...p(292,276,88,112),'feet','脚',g.feet,o),
+  ].join('');
+}
+function packGrid(x,y,cols=10,rows=6){
+  return `<div class="grid" style="${at(x,y,cols*40,rows*40)}"></div>`+
+   [it(0,0,1,1,'potion_a',0,5),it(1,0,1,1,'potion_b',1,2),it(2,0,1,1,'potion_c',1,1),it(3,0,2,2,'lgd_vest',1),it(5,0,2,1,'moon_edge',2),it(5,1,1,1,'reunion_mask',0),it(6,1,1,1,'pure_gold',2,7),it(7,0,1,1,'metal_plate',0,3),it(8,0,1,1,'circuit_board',0,2),it(0,1,1,1,'lgd_radio',1),it(1,1,1,1,'raw_originium',0),it(0,2,2,1,'courier_dagger',0)].map(h=>h.replace(/left:(\d+)px;top:(\d+)px/,(m,a,b)=>`left:${+a+x}px;top:${+b+y}px`)).join('');
+}
+function statsCol(x,y,w,diff){
+  const rows=[['基础','BASE',[['生命','2400 / 2400',diff?'+260':''],['攻击','600'],['法术攻击','360'],['防御','212',diff?'+12':''],['法术抗性','10']]],['战斗','COMBAT',[['攻击速度','100'],['暴击率','6%'],['暴击伤害','150%']]],['其他','OTHER',[['移动速度','5.5'],['生命回复','48 / 秒']]]];
+  return `<div class="abs" style="${at(x,y,w)}">${rows.map(([c,e,r])=>`<div class="sec" style="margin:10px 0 4px">${c}<span>${e}</span></div>${r.map(([k,v,d])=>`<div class="stat"><span>${k}</span><b>${v}${d?`<small>${d}</small>`:''}</b></div>`).join('')}`).join('')}</div>`;
+}
+function invWin(x,y,{stats=true}={}){
+  const W=stats?1120:817;
+  let body=`<div class="abs" style="${at(0,0,392,440)}">${doll(0,4)}</div><div class="abs" style="left:392px;top:0;width:1px;bottom:0;background:var(--seam)"></div>
+  <div class="abs" style="${at(393,0,424,440)}">
+    <div class="abs" style="${at(12,12,400)}display:flex;align-items:center;gap:6px"><div class="sec">背包<span>8 / 60</span></div><div style="flex:1"></div><span class="btn blue" style="height:26px">全部</span><span class="btn" style="height:26px">精良以上</span><span class="btn" style="height:26px">整理</span></div>
+    ${packGrid(12,48)}
+    <div class="sec abs" style="${at(12,304)}">安全袋<span>SAFE</span></div>
+    <div class="grid" style="${at(12,330,80,80)}"></div>${it(0,0,1,1,'lungmen_wallet',1,0,12,330)}
+    <div class="abs" style="${at(260,380,152)}text-align:right;font:900 18px var(--cn);color:var(--sp)">赤金 <span class="num">7</span></div>
+  </div>`;
+  if(stats) body+=`<div class="abs" style="left:817px;top:0;width:1px;bottom:0;background:var(--seam)"></div><div class="abs" style="${at(818,0,302,440)}padding:0 16px">${statsCol(16,0,270,true)}</div>`;
+  return win(x,y,W,484,{cn:'装备 · 背包',en:'Equipment · Inventory',key:'I'},body);
+}
+function tip(x,y,{name,tier,lines,tag}){
+  return `<div class="abs cut6" style="${at(x,y,236)}background:rgba(10,13,15,.97);outline:1px solid ${TC[tier]};padding:10px 12px;font-size:12px;line-height:1.7">${tag?`<div style="font:700 10px var(--cn);color:var(--mute)">${tag}</div>`:''}<div style="font:900 14px var(--cn);color:${TC[tier]}">${name}</div>${lines.map(l=>`<div style="color:${l[1]||'var(--mute)'}">${l[0]}</div>`).join('')}</div>`;
+}
+
+// ---- 各界面 ----
+const SCREENS=[
+{id:'style',name:'风格与组件',note:[
+ ['取色','底板和接缝取自基地舰板 R1（<em>#3b4146</em>）和格栅 R3，灯带取墙面灯带的全息青，警示黄取 R 警示条。'],
+ ['形状','窗口切左上和右下 10 px（舱门切角），按钮只切右下 6 px；外框上、左两边受光；铆钉只在两个直角。'],
+ ['部门皮肤','舰桥舰板、仓储格栅、医疗白舱、交易所屏幕、可露希尔暖灰加霓虹粉；同类界面靠各自样式区分，不禁颜色。']],
+ html:()=>{
+  const sw=[['舰体 0','#0f1316','HULL_0'],['窗口底','#161b1f','HULL_1 .93'],['卡片','#1f262b','HULL_2'],['凸起','#2a3238','HULL_3'],['接缝','#3b4146','SEAM ← R1'],['受光边','#5a666e','SEAM_HI'],['全息青','#3fd2f2','HOLO'],['方舟蓝','#0098dc','BLUE'],['警示黄','#e8b730','HAZARD'],['技力黄','#f5c000','SP'],['敌方红','#e23c3c','RED'],['源石橙','#e0782a','ORI · 仅源石']];
+  const dept=[['舰桥','var(--d-bridge)','BRIDGE','plate'],['工程部 · 仓储','var(--d-eng)','DEPOT','grate'],['后勤部 · 整备','var(--d-log)','LOADOUT','plate'],['医疗部','var(--d-med)','MEDICAL','med'],['科研部','var(--d-lab)','RESEARCH','screen'],['交易所 · 账房','var(--holo)','EXCHANGE','screen'],['可露希尔','var(--d-store)','STORE','store']];
+  return `<div class="shell plate"></div>
+  <div class="sec abs" style="${at(24,20)}">色板<span>PALETTE</span></div>
+  ${sw.map((s,i)=>`<div class="sw" style="${at(24+(i%6)*146,48+Math.floor(i/6)*98)}"><div class="c" style="background:${s[1]}"></div><b>${s[0]}</b><i>${s[2]}</i></div>`).join('')}
+  <div class="sec abs" style="${at(24,250)}">部门皮肤<span>DEPARTMENTS</span></div>
+  ${dept.map((d,i)=>{const x=24+i*126,y=278;const bg=d[3]=='med'?'var(--med-bg)':d[3]=='screen'?'#0b1215':d[3]=='store'?'var(--store-bg)':'var(--hull0)';const pat=d[3]=='grate'?'repeating-linear-gradient(45deg,rgba(120,130,140,.18) 0 1px,transparent 1px 8px)':d[3]=='screen'?'repeating-linear-gradient(0deg,rgba(63,210,242,.07) 0 1px,transparent 1px 3px)':d[3]=='plate'?'linear-gradient(rgba(59,65,70,.5) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(90deg,rgba(59,65,70,.5) 1px,transparent 1px) 0 0/32px 32px':'none';
+    return `<div class="abs cut" style="${at(x,y,116,120)}background:${pat},${bg}"><div class="abs" style="left:0;top:0;width:6px;height:44px;background:${d[1]};clip-path:polygon(0 8px,100% 0,100% 100%,0 100%)"></div><div class="abs" style="left:0;right:0;top:44px;height:2px;background:linear-gradient(90deg,${d[1]},transparent)"></div><div class="abs" style="left:14px;top:8px;font:900 13px var(--cn);color:${d[3]=='med'?'var(--med-ink)':'#fff'}">${d[0]}</div><div class="abs" style="left:14px;top:26px;font:600 9px var(--en);letter-spacing:.2em;color:${d[3]=='med'?'#4d5c63':'var(--mute)'}">${d[2]}</div>${d[3]=='grate'?'<div class="abs" style="left:0;right:0;top:46px;height:4px;background:repeating-linear-gradient(135deg,var(--hazard) 0 6px,#111 6px 12px)"></div>':''}${d[3]=='med'?'<div class="abs" style="left:46px;top:64px;width:24px;height:24px;background:var(--d-med);clip-path:polygon(35% 0,65% 0,65% 35%,100% 35%,100% 65%,65% 65%,65% 100%,35% 100%,35% 65%,0 65%,0 35%,35% 35%)"></div>':''}${d[3]=='store'?'<div class="abs" style="left:14px;top:70px;background:#fff;color:#000;font:800 11px var(--en);padding:2px 8px;clip-path:polygon(0 0,100% 0,100% 60%,85% 100%,0 100%)">600</div>':''}${d[0]=='舰桥'?`<img src="${IMG}base_rhodes_logo.png" class="abs" style="left:42px;top:62px;width:32px;opacity:.5;image-rendering:pixelated">`:''}</div>`}).join('')}
+  <div class="sec abs" style="${at(940,20)}">窗口<span>WINDOW</span></div>
+  ${win(940,48,316,190,{cn:'藏品',en:'Relics',key:'R',tabs:['本次','图鉴']},`<div class="abs" style="left:14px;top:14px;display:flex;gap:6px">${[0,1,2,3,0].map(t=>`<div style="width:40px;height:40px;background:var(--hull2);border-bottom:3px solid ${TC[t]}"></div>`).join('')}</div>`)}
+  <div class="sec abs" style="${at(24,420)}">按钮与格子<span>CONTROLS</span></div>
+  <div class="abs" style="${at(24,450)}display:flex;gap:8px;align-items:center"><span class="btn">普通</span><span class="btn paper">选中</span><span class="btn blue">确认</span><span class="btn haz">放弃合同</span><span class="btn" style="opacity:.4">禁用</span></div>
+  <div class="go" style="${at(24,500,260,76)}"><div><b>开始行动</b><i>OPERATION START</i></div></div>
+  <div class="abs" style="${at(320,500,400,80)}">${packGrid(0,0,10,2)}</div>
+  <div class="sec abs" style="${at(760,420)}">纸娃娃槽<span>SLOTS</span></div>
+  ${slot(760,450,88,112,'chest','胸',null)}${slot(856,450,88,112,'chest','胸',GEAR.chest)}${slot(952,450,88,112,'weapon','武器',GEAR.weapon,{ins:true})}${slot(1048,450,40,40,'ring','',null,{cap:false})}${slot(1096,450,40,40,'amulet','',GEAR.amulet,{cap:false})}
+  <div class="abs" style="${at(760,580,480)}font-size:12px;color:var(--mute)">空槽画部位剪影 · 已装备换档位色框 · 青色六角为投保</div>`;}},
+{id:'inv',name:'I 装备·背包',note:[
+ ['恐怖黎明排法','左列<b>武器 / 胸 / 腿</b>三个高槽；头在上中，项链在头右上，戒指在头左下；右列<b>手 / 脚</b>。原副手位置画技能牌，原换武器键位置画精英化徽记，原底排换成等级条和“干员 C”按钮。'],
+ ['武器竖画','武器物品仍占 2×1，在纸娃娃里转 90° 竖着画（像素无损），和恐怖黎明主手一样。'],
+ ['拆分 S1','干员信息、完整属性、技能树全部挪到 C；这里只留属性摘要（悬停装备时显示差值）。窗口保持居中扁宽，上下露出战场。']],
+ html:()=>field()+invWin(80,118)+tip(600,254,{tag:'背包',name:'龙门近卫局制式护甲',tier:1,lines:[['胸 · 2×3'],['生命 +260','var(--green)'],['防御 +12','var(--green)'],['冰冻抗性 +6%']]})+tip(844,254,{tag:'已装备',name:'罗德岛防护背心',tier:2,lines:[['胸 · 2×3'],['生命 +0'],['防御 +0'],['法术抗性 +4%']]})+hotbar()},
+{id:'char',name:'C 干员',note:[
+ ['拆分 S1 / S7','原来 I 和 C 是同一个窗口，干员养成又是另一个全屏页。现在 C 是左侧停靠窗（640×720），三页：<b>概览 / 属性 / 技能</b>。基地人事部和局内打开的是同一套。'],
+ ['合成挪走','干员养成里的“合成”配方挪到加工站第二页。'],
+ ['数据不写死','职业、星级、技能牌按当前干员读，不再写死“近卫★★★★★”和“幼狼之牙”。']],
+ html:()=>field()+win(0,0,640,720,{cn:'干员',en:'Operator',key:'C',tabs:['概览','属性','技能']},`
+  <div class="abs" style="${at(16,16,260,620)}background:linear-gradient(180deg,var(--hull2),#2a2410);">
+    <div class="abs" style="${at(0,0,44,44)}background:#000;display:grid;place-items:center;font:900 14px var(--cn)">近卫</div>
+    <img src="${IMG}portrait_lappland.png" class="abs" style="left:18px;top:80px;width:224px;image-rendering:pixelated">
+    <div class="abs" style="${at(16,360,228)}"><div style="color:var(--sp);letter-spacing:2px">★★★★★</div><div style="font:900 28px var(--cn)">拉普兰德</div><div style="font:600 11px var(--en);letter-spacing:.24em;color:var(--mute)">LAPPLAND · GUARD · LORD</div></div>
+    <div class="abs" style="${at(16,470,228)}"><div class="stat"><span>精英化</span><b>1</b></div><div class="stat"><span>等级</span><b>30 / 70</b></div><div class="bar" style="margin-top:4px"><div style="width:42%;background:var(--sp)"></div></div></div>
+    <div class="btn blue abs" style="${at(16,560,228,40)}">晋升</div>
+  </div>
+  <div class="abs" style="${at(292,8,330)}">${statsCol(0,0,330,false)}<div class="sec" style="margin:10px 0 4px">抗性<span>RESIST</span></div>${[['物理减伤','8%'],['法术抗性','10'],['冰冻抗性','6%'],['源石侵蚀抗性','0%']].map(([k,v])=>`<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('')}</div>
+ `)+`<div class="abs" style="${at(660,0,620,720)}"></div>`},
+{id:'loot',name:'开箱',note:[
+ ['拆分 S10','原来开箱时箱子网格顶掉右侧属性栏。现在箱子单独一个窗口停靠在左侧（恐怖黎明仓库与商人的位置），I 收起属性栏并右移。'],
+ ['操作','两个窗口之间拖动；Shift + 点击直接转移；“全部拿取”。']],
+ html:()=>field()+win(8,118,440,484,{cn:'加固补给箱',en:'Supply Crate',dc:'var(--hazard)'},`<div class="grid" style="${at(20,20,400,240)}"></div>${[it(0,0,2,2,'fire_suit',1),it(2,0,1,1,'potion_a',0,2),it(3,0,1,1,'metal_plate',0,4),it(4,0,2,1,'courier_dagger',0),it(2,1,1,1,'circuit_board',0,1),it(6,0,2,2,'riot_shield',2)].map(h=>h.replace(/left:(\d+)px;top:(\d+)px/,(m,a,b)=>`left:${+a+20}px;top:${+b+20}px`)).join('')}<div class="btn blue abs" style="${at(260,384,160,40)}">全部拿取</div>`)+invWin(456,118,{stats:false})+hotbar()},
+{id:'wb',name:'整备台·换装',note:[
+ ['拆分 S2','原来整备台、后勤柜台、出发准备共用一个 departure() 页面，按条件显隐十几块。现在整备台有自己的两页：<b>换装 | 改造</b>；投保去后勤柜台；出发准备只读。'],
+ ['布局','左：1:1 纸娃娃（右上角青色六角是投保标记，只显示）；中：仓库装备，按 8 个部位分页签；右：背包窄版与属性差值。'],
+ ['皮肤','后勤部：深钢底、后勤蓝标识色。']],
+ html:()=>shell('var(--d-log)','整备台','LOADOUT','plate',['换装','改造'],null,
+  `<div class="panel" style="${at(16,76,392,600)}">${doll(0,6,1,{ins:true})}</div>
+   <div class="panel" style="${at(424,76,440,600)}"><div class="abs" style="${at(12,12,416)}display:flex;flex-wrap:wrap;gap:2px">${['全部','武器','头','胸','手','腿','脚','项链','戒指','药剂'].map((t,i)=>`<span class="tab${i==0?' on':''}" style="padding:4px 9px;font-size:12px">${t}</span>`).join('')}</div>
+   <div class="grid" style="${at(20,56,400,520)}"></div>${[it(0,0,2,2,'expedition_parka',1),it(2,0,2,1,'moon_edge',2),it(2,1,1,1,'reunion_mask',0),it(3,1,1,1,'dust_mask',1),it(4,0,2,2,'lgd_vest',0),it(6,0,2,1,'rhodes_dual_blades',3),it(6,1,1,1,'shadow_bracer',1),it(0,2,1,1,'potion_a',0,5),it(1,2,1,1,'potion_b',1,3),it(8,0,2,2,'fire_suit',2)].map(h=>h.replace(/left:(\d+)px;top:(\d+)px/,(m,a,b)=>`left:${+a+20}px;top:${+b+56}px`)).join('')}</div>
+   <div class="panel" style="${at(880,76,384,600)}"><div class="sec abs" style="${at(12,12)}">背包<span>PACK 8×8</span></div><div class="grid" style="${at(32,40,320,240)}"></div>${statsCol(16,290,352,true)}</div>`,
+  [['E','装备'],['RMB','存回仓库'],['ESC','返回']],'LOADOUT')},
+{id:'refit',name:'整备台·改造',note:[
+ ['拆分 S2','重铸 / 校准 / 精调和前缀锁原来是在换装页选中装备后才冒出来的按钮，现在是整备台的第二页，有自己的工位布局。'],
+ ['布局','左：选装备（身上 8 件 + 背包 + 仓库）；中：夹具工位，物品放大两倍，下面是前缀行与锁；右：三张操作卡。']],
+ html:()=>shell('var(--d-log)','整备台','REFIT','plate',['换装','改造'],null,
+  `<div class="panel" style="${at(16,76,392,600)}"><div class="sec abs" style="${at(12,12)}">身上<span>WORN</span></div>${['武器 · 双刃 · 月刃','胸 · 罗德岛防护背心','头 · 防尘面罩','手 · 影缚护腕','项链 · 炎国符箓','戒指 · 战术护符'].map((t,i)=>`<div class="abs card" style="${at(12,40+i*52,368,46)}${i==1?'outline:2px solid var(--holo);outline-offset:-2px;':''}display:flex;align-items:center;gap:10px;padding:0 10px"><div style="width:4px;height:30px;background:${TC[[2,2,1,0,1,0][i]]}"></div><span style="font-size:13px">${t}</span></div>`).join('')}<div class="sec abs" style="${at(12,370)}">背包与仓库<span>PACK · DEPOT</span></div></div>
+   <div class="panel" style="${at(424,76,440,600)}"><div class="abs" style="${at(120,30,200,200)}border:2px solid var(--d-log);box-shadow:0 0 30px rgba(75,155,224,.25) inset;display:grid;place-items:center"><img src="${IMG}rhodes_protective_vest.png" width="144" style="image-rendering:pixelated"></div>${['l','r'].map(s=>`<div class="abs" style="${s=='l'?'left:100px':'left:324px'};top:110px;width:16px;height:40px;background:var(--seamhi)"></div>`).join('')}
+   <div class="abs" style="${at(24,260,392)}text-align:center;font:900 16px var(--cn);color:var(--t2)">坚固的 · 罗德岛防护背心</div>
+   ${[['坚固的','防御 +18','var(--t1)',true],['迅捷的','攻击速度 +4%','var(--t2)',false],['','生命 +220','var(--mute)',false]].map(([p,v,c,l],i)=>`<div class="abs card" style="${at(24,300+i*56,392,48)}display:flex;align-items:center;gap:10px;padding:0 12px"><span style="color:${c};font-weight:900;width:60px">${p||'固有'}</span><span style="flex:1">${v}</span>${p?`<span class="btn ${l?'paper':''}" style="height:26px">${l?'已锁':'锁定'}</span>`:''}</div>`).join('')}</div>
+   <div class="panel" style="${at(880,76,384,600)}">${[['重铸','重抽全部未锁前缀','12,000'],['校准','重抽一条前缀的数值','4,000'],['精调','一条数值提升一档','8,000']].map(([a,b,c],i)=>`<div class="abs card" style="${at(12,12+i*120,360,108)}padding:12px"><div style="font:900 18px var(--cn)">${a}</div><div class="lbl" style="margin-top:4px">${b}</div><div class="abs num" style="right:12px;bottom:12px;font-size:16px">${c}</div><div class="abs" style="left:12px;bottom:12px;display:flex;gap:4px"><img src="${IMG}metal_plate.png" width="24"><img src="${IMG}circuit_board.png" width="24"></div></div>`).join('')}<div class="btn blue abs" style="${at(12,536,360,48)}">执行</div></div>`,
+  [['E','执行'],['ESC','返回']],'REFIT')},
+{id:'dep',name:'出发准备',note:[
+ ['拆分 S2','只做部署确认：选干员、看装备摘要（0.6 倍只读纸娃娃）、部署目标、随队物资和开始行动。换装和投保不在这里。'],
+ ['入口','调度台“出发准备 ›”或升降梯。']],
+ html:()=>shell('var(--d-bridge)','出发准备','SQUAD','plate',null,null,
+  `<div class="panel" style="${at(16,76,250,600)}background:linear-gradient(180deg,var(--hull2) 40%,#4a3d14)"><div class="abs" style="${at(12,12,226)}display:flex;gap:2px"><span class="tab on" style="flex:1;text-align:center">拉普兰德</span><span class="tab" style="flex:1;text-align:center">阿米娅</span></div><img src="${IMG}lappland_sprite.png" class="abs" style="left:20px;top:110px;width:210px;image-rendering:pixelated"><div class="abs" style="${at(16,490,220)}"><div style="color:var(--sp)">★★★★★</div><div style="font:900 26px var(--cn)">拉普兰德</div><div class="lbl">精英 1 · Lv 30</div></div><div class="abs" style="left:0;right:0;bottom:0;height:4px;background:var(--sp)"></div></div>
+   <div class="panel" style="${at(282,76,420,600)}"><div class="sec abs" style="${at(12,12)}">装备<span>LOADOUT</span></div><div class="abs" style="${at(90,40,240,240)}">${doll(0,0,.6,{ins:true})}</div><div class="sec abs" style="${at(12,300)}">背包<span>PACK 10×6</span></div><div class="abs" style="${at(10,330,400,240)}">${packGrid(0,0)}</div></div>
+   <div class="panel" style="${at(718,76,546,600)}"><div class="abs" style="${at(20,20)}"><span style="background:var(--paper);color:var(--ink);font:800 12px var(--en);padding:1px 6px">LG</span> <span class="lbl" style="letter-spacing:.2em;font-family:var(--en)">DEPLOY TO</span><div style="font:900 34px var(--cn);margin-top:6px">龙门</div><div style="font:700 16px var(--cn)">下城区废墟</div></div>
+   <div class="abs" style="${at(20,150,506)}display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${[['起点','LG-01'],['深度','LG-01'],['污染','0']].map(([k,v],i)=>`<div style="background:var(--hull3);padding:8px 10px"><div class="lbl">${k}</div><div class="num" style="font-size:18px;color:${i==2?'var(--ori)':'#fff'}">${v}</div></div>`).join('')}</div>
+   <div class="sec abs" style="${at(20,240)}">随队物资<span>KITS</span></div><div class="abs" style="${at(20,268,506)}display:flex;gap:6px">${['医疗包','御寒包','净化剂'].map((k,i)=>`<span class="btn ${i==0?'paper':''}">${k}</span>`).join('')}</div>
+   <div class="abs lbl" style="${at(20,460)}">药剂 <b class="num" style="color:#fff">3</b></div>
+   <div class="go" style="${at(20,494,506,86)}"><div><b>开始行动</b><i>OPERATION START</i></div></div></div>`,
+  [['ENTER','开始行动'],['ESC','返回']],'SQUAD')},
+{id:'pharm',name:'药房窗口',cls:'med',note:[
+ ['拆分 S4','药房和医疗前台原来是同一界面的两个页签，现在是两个站点、两个界面。'],
+ ['白舱皮肤','医疗部唯一的亮色界面：白底、青绿方格、医疗十字；红色只给“重伤”。待拍板（§8 第 2 条）。']],
+ html:()=>shell('var(--d-med)','药房窗口','PHARMACY','',null,`<div class="pill">15,510</div>`,
+  `${[['potion_a','标准急救剂','立即回复 960 生命','免费'],['potion_b','缓释凝胶','6 秒内共回复 1680 生命','600'],['potion_c','抑制喷剂','回复 480 生命，污染 −6','900']].map(([i,n,d,p],k)=>`<div class="abs card" style="${at(16+k*274,76,266,150)}background:#fff;outline:1px solid var(--med-line);outline-offset:-1px"><div class="abs" style="left:0;top:0;bottom:0;width:4px;background:var(--d-med)"></div><img src="${IMG}${i}.png" class="abs" style="left:20px;top:20px;width:64px;image-rendering:pixelated"><div class="abs" style="left:100px;top:20px;right:12px"><div style="font:900 16px var(--cn)">${n}</div><div class="lbl" style="margin-top:4px">${d}</div></div><div class="abs num" style="left:100px;bottom:16px;font-size:16px;color:${k==0?'var(--d-med)':'var(--med-ink)'}">${p}</div></div>`).join('')}
+   <div class="panel" style="${at(16,244,820,432)}"><div class="sec abs" style="${at(14,14)}">将带入<span>CARRY-IN 10×6</span></div><div class="abs" style="${at(14,46,400,240)}">${`<div class="grid" style="${at(0,0,400,240)}"></div>`+it(0,0,1,1,'potion_a',0,5)+it(1,0,1,1,'potion_b',1,2)}</div></div>
+   <div class="panel" style="${at(852,76,412,600)}"><div class="sec abs" style="${at(14,14)}">本次合同<span>CONTRACT</span></div><div class="abs" style="${at(14,50,384)}"><div class="stat"><span>免费急救剂</span><b>3 / 3</b></div><div class="stat"><span>已配</span><b>7</b></div><div class="stat"><span>合计</span><b>1,200</b></div></div><div class="btn blue abs" style="${at(14,536,384,48)}">确认</div></div>`,
+  [['LMB','配一瓶'],['RMB','移出'],['ESC','返回']],'MEDICAL')},
+{id:'store',name:'可露希尔·商店',note:[
+ ['拆分 S3','原来商店一个界面有 5–7 个页签（商店、寄存、出售赤金、换汇、贷款、交割、随队物资、补给、处理）。商店只留<b>药剂 / 补给 / 随队物资</b>，钱的事去账房。'],
+ ['皮肤','商店舰板暖灰 + 霓虹粉灯带 + 白底斜切价签（待拍板 §8 第 3 条）。']],
+ html:()=>`<div class="shell" style="background:var(--store-bg) repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 48px)"></div>`+shell('var(--d-store)','可露希尔的商店','STORE','',['药剂','补给','随队物资'],null,
+  `<div class="abs" style="${at(0,62,380,630)}background:linear-gradient(180deg,#3a2730,#1a1517)"><div class="abs" style="left:50%;top:120px;transform:translateX(-50%);width:200px;height:300px;border:2px dashed rgba(255,95,162,.4);display:grid;place-items:center;color:rgba(255,95,162,.7);font-size:12px">立绘 U6</div><div class="abs" style="${at(24,470)}"><div style="font:900 28px var(--cn)">可露希尔</div><div style="font:600 11px var(--en);letter-spacing:.24em;color:var(--mute)">CLOSURE · ENGINEERING</div></div><div class="btn abs" style="${at(24,560,332,44)}background:#0b1215;color:var(--holo)">账房 ›</div></div>
+   ${[['potion_a','标准急救剂','300'],['potion_b','缓释凝胶','600'],['potion_c','抑制喷剂','900'],['rhodes_badge','补给信标','1,500'],['lgd_radio','短波电台','2,200'],['metal_plate','金属板 ×5','800'],['circuit_board','电路板 ×2','1,100'],['pure_gold','赤金','4,800']].map(([i,n,p],k)=>`<div class="abs" style="${at(396+(k%4)*216,90+Math.floor(k/4)*190,204,176)}background:#332c2a;outline:1px solid #4a403c;outline-offset:-1px"><div class="abs" style="left:0;right:0;top:0;height:2px;background:var(--d-store)"></div><img src="${IMG}${i}.png" class="abs" style="left:70px;top:28px;width:64px;image-rendering:pixelated"><div class="abs" style="left:12px;top:110px;font:700 14px var(--cn)">${n}</div><div class="abs num" style="left:12px;bottom:12px;background:#fff;color:#000;padding:2px 10px;clip-path:polygon(0 0,100% 0,100% 60%,88% 100%,0 100%)">${p}</div></div>`).join('')}
+   <div class="abs" style="${at(396,480,868,196)}background:rgba(0,0,0,.25)"><div class="sec abs" style="${at(12,12)}">背包<span>PACK</span></div><div class="abs" style="${at(12,40,400,160)}overflow:hidden">${packGrid(0,0,10,4)}</div><div class="abs" style="right:16px;bottom:16px;font:900 18px var(--cn)">余额 <span class="num">15,510</span></div></div>`,
+  [['LMB','购买'],['ESC','离开']],'')},
+{id:'ledger',name:'可露希尔·账房',note:[
+ ['拆分 S3','出售赤金、换汇、贷款、交割从商店拆出，成为账房。左边账户，右边四个业务页签；交割只在营地出现。'],
+ ['皮肤','屏幕皮肤（近黑 + 扫描线 + 等宽数字），和交易所同一家族。']],
+ html:()=>shell('var(--holo)','可露希尔 · 账房','LEDGER','screen',['出售赤金','换汇','贷款','交割'],`<div class="pill">15,510</div><div class="pill" style="color:var(--sp)">29.93</div>`,
+  `<div class="panel" style="${at(16,76,380,600)}background:rgba(8,16,19,.9)">${[['龙门币','15,510'],['赤金','29.93'],['待还贷款','0'],['龙门币 / 赤金','1024.8']].map(([k,v],i)=>`<div class="abs" style="${at(16,16+i*90,348,80)}border-bottom:1px solid rgba(63,210,242,.2)"><div class="lbl">${k}</div><div class="num" style="font-size:30px;color:${i==1?'var(--sp)':i==3?'var(--holo)':'#fff'}">${v}</div></div>`).join('')}</div>
+   <div class="panel" style="${at(412,76,852,600)}background:rgba(8,16,19,.9)"><div class="sec abs" style="${at(20,20)}">出售赤金<span>SELL GOLD</span></div><div class="abs" style="${at(20,60,812)}display:flex;gap:12px">${['1','10','全部'].map((k,i)=>`<div class="card" style="position:relative;flex:1;height:160px;padding:16px;background:#0e1b20"><img src="${IMG}pure_gold.png" width="48" style="image-rendering:pixelated"><div style="font:900 22px var(--cn);margin-top:8px">× ${k}</div><div class="num" style="position:absolute;right:16px;bottom:14px;font-size:18px;color:var(--holo)">${['1,024','10,248','30,672'][i]}</div></div>`).join('')}</div><div class="go" style="${at(20,496,812,80)}"><div><b>成交</b></div></div></div>`,
+  [['LMB','选择'],['ESC','返回']],'LEDGER')},
+{id:'camp',name:'营地终端',note:[
+ ['拆分 S3','营地终端只管<b>撤离 / 继续 / 寄存</b>。可露希尔（商店、账房）和净化点是营地里另外两个交互点，各按 E 打开。'],
+ ['布局','左栏营地编号牌与两个大按钮；右侧只有寄存一页。']],
+ html:()=>field()+`<div class="abs" style="${at(0,0,380,720)}background:rgba(10,14,16,.94)"><div class="abs" style="left:0;top:0;width:6px;height:120px;background:var(--green)"></div><div class="abs" style="${at(28,40)}"><div style="font:600 11px var(--en);letter-spacing:.24em;color:var(--mute)">CAMP</div><div class="num" style="font-size:56px;line-height:1">10|11</div><div style="font:900 18px var(--cn);margin-top:6px">龙门 · 下城区营地</div></div><div class="go" style="${at(28,480,324,80)}background:var(--green)"><div><b style="color:#0c1a04">撤离</b><i style="color:#0c1a04">EXTRACT</i></div></div><div class="go" style="${at(28,576,324,80)}"><div><b>继续 · LG-11</b><i>PROCEED</i></div></div></div>`+win(400,40,860,560,{cn:'寄存',en:'Deposit',dc:'var(--green)'},`<div class="sec abs" style="${at(20,16)}">背包<span>PACK</span></div>${packGrid(20,44)}<div class="sec abs" style="${at(450,16)}">寄存柜<span>LOCKER</span></div><div class="grid" style="${at(450,44,320,240)}"></div><div class="abs" style="${at(450,310,380)}"><div class="stat"><span>费用</span><b>1,200</b></div></div><div class="btn blue abs" style="${at(630,446,200,44)}">寄存</div>`)},
+{id:'set',name:'Esc 菜单与设置',note:[
+ ['拆分 S5','Esc 菜单只留竖栏：继续、设置、放弃合同（黄黑斜纹两步确认）、回到标题。设置是独立窗口，左侧五类：<b>画面 / 界面 / 音频 / 基地 / 按键</b>。'],
+ ['合并','标题画面的设置（SystemScreens）删掉，三处都打开这一个窗口。']],
+ html:()=>`<div class="bgimg" style="background-image:url(${IMG}base_hall.png)"></div><div class="dim" style="background:rgba(8,11,13,.6)"></div><div class="abs" style="${at(0,0,280,720)}background:rgba(10,14,16,.95)"><div class="abs" style="${at(26,36)}"><div style="font:600 10px var(--en);letter-spacing:.24em;color:var(--mute)">PAUSED</div><div style="font:900 30px var(--cn)">暂停</div></div>${['继续作业','设置','放弃合同','回到标题'].map((t,i)=>`<div class="abs ${i==2?'btn haz':''}" style="${at(i==2?16:0,130+i*50,i==2?248:280,44)}${i==1?'background:var(--paper);color:var(--ink);':''}display:flex;align-items:center;padding-left:26px;font:700 15px var(--cn)">${t}</div>`).join('')}</div>`+
+  win(300,60,960,600,{cn:'设置',en:'Settings',solid:true},`<div class="abs" style="${at(0,0,200,556)}background:rgba(0,0,0,.25)">${['画面','界面','音频','基地','按键'].map((t,i)=>`<div class="abs" style="${at(0,12+i*46,200,40)}${i==4?'background:var(--paper);color:var(--ink);':''}display:flex;align-items:center;padding-left:20px;font:700 14px var(--cn)">${t}</div>`).join('')}</div>
+  <div class="abs" style="${at(220,16,720)}"><div style="display:grid;grid-template-columns:1fr 120px 120px;gap:4px;font-size:13px">${['功能','主键','副键'].map(h=>`<div class="lbl" style="padding:4px 0">${h}</div>`).join('')}${[['快捷栏 1','RMB',''],['快捷栏 2','SPC',''],['快捷栏 3','Q',''],['快捷栏 4','1',''],['闪避','',''],['标准急救剂','','MB4'],['装备 · 背包','I',''],['干员','C',''],['藏品','R',''],['地图','M',''],['合同','J',''],['站点总览','TAB','']].map(r=>r.map((c,j)=>`<div style="${j?'background:var(--hull3);text-align:center;font:700 12px var(--en);':''}padding:7px 8px">${c||(j?'—':'')}</div>`).join('')).join('')}</div></div><div class="btn abs" style="right:20px;bottom:20px">恢复默认</div>`)},
+];
+
+const nav=document.getElementById('nav'),note=document.getElementById('note');
+function show(id){
+  const s=SCREENS.find(x=>x.id===id)||SCREENS[0];
+  S.className=s.cls||'';S.innerHTML=s.html();
+  note.innerHTML=s.note.map(([h,t])=>`<div><b>${h}</b><br>${t}</div>`).join('');
+  [...nav.children].forEach(b=>b.setAttribute('aria-selected',b.dataset.id===s.id));
+  try{localStorage.setItem('uiv2',s.id)}catch(e){}
+  if(location.hash.slice(1)!==s.id) history.replaceState(null,'','#'+s.id);
+}
+SCREENS.forEach(s=>{const b=document.createElement('button');b.textContent=s.name;b.dataset.id=s.id;b.setAttribute('role','tab');b.onclick=()=>show(s.id);nav.appendChild(b)});
+let start=location.hash.slice(1);if(!start){try{start=localStorage.getItem('uiv2')}catch(e){}}
+show(start||'inv');fit();
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();if(k==='i')show('inv');if(k==='c')show('char');if(k==='escape')show('set')});
+</script>

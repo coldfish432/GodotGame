@@ -15,35 +15,53 @@ const STATION_TITLES := {
 	"personnel": ["人事部", "PERSONNEL"],
 }
 static var _detail: RichTextLabel
+## A screen's own accent for the shell (a trader's colour); clear = the station's department.
+static var accent_override := Color(0, 0, 0, 0)
 
-## The sub-page shell. `currencies` are [kind, value] pairs: "lmd", "gold", "rank", "ori".
+## The sub-page shell. `currencies` are [kind, value] pairs: "lmd", "gold", "ori".
 static func shell(menu: FieldMenu, cn_title: String, en_title: String, tabs: Array = [], tab: int = 0, on_tab: Callable = Callable(), watermark: String = "", currencies: Array = []) -> Control:
 	var stage := menu.stage_begin(1.0)
+	var accent := accent_override if accent_override.a > 0.0 else Terminal.dept_color(menu._station)
 	stage.add_child(AK.rect(AK.BG, Vector2.ZERO, Vector2(1280, 720)))
 	if not watermark.is_empty():
 		var mark := AK.label(watermark, 120, Color(1, 1, 1, 0.04), AK.en())
-		AK.put(stage, mark, Vector2(1290 - AK.en().get_string_size(watermark, HORIZONTAL_ALIGNMENT_LEFT, -1, 120).x, 556))
-	stage.add_child(AK.rect(Color("0c0c0c"), Vector2.ZERO, Vector2(1280, 60)))
+		AK.put(stage, mark, Vector2(1290 - AK.en().get_string_size(watermark, HORIZONTAL_ALIGNMENT_LEFT, -1, 120).x, 540))
+	stage.add_child(AK.rect(Color(0.035, 0.047, 0.055, 0.96), Vector2.ZERO, Vector2(1280, 60)))
+	# The header's light strip in the department colour, brightest in the middle.
+	stage.add_child(AK.rect(Color(accent, 0.28), Vector2(0, 60), Vector2(1280, 2)))
+	stage.add_child(AK.rect(Color(accent, 0.85), Vector2(160, 60), Vector2(960, 2)))
 	var back := AK.button("‹", "plain", 22)
 	AK.put(stage, back, Vector2(14, 8), Vector2(44, 44))
 	back.pressed.connect(menu.game.go_back)
 	var home := AK.button("⌂", "plain", 18)
 	AK.put(stage, home, Vector2(60, 8), Vector2(44, 44))
 	home.pressed.connect(menu.game.close_modal)
+	stage.add_child(AK.rect(accent, Vector2(114, 8), Vector2(5, 44)))
 	var titles := VBoxContainer.new()
 	titles.add_theme_constant_override("separation", -2)
 	titles.add_child(AK.label(en_title, 10, AK.MUTE, AK.en()))
-	titles.add_child(AK.label(cn_title, 22, AK.FG))
-	AK.put(stage, titles, Vector2(120, 8))
+	var title_label := AK.label(cn_title, 22, AK.FG)
+	titles.add_child(title_label)
+	if menu.reveal_pending: Terminal.type_in(title_label)
+	AK.put(stage, titles, Vector2(128, 8))
 	if not tabs.is_empty():
-		AK.put(stage, AK.toggle(tabs, tab, on_tab, 13), Vector2(140 + maxf(110.0, AK.cn().get_string_size(I18n.t(cn_title), HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 8.0), 12))
+		AK.put(stage, AK.toggle(tabs, tab, on_tab, 13), Vector2(148 + maxf(110.0, AK.cn().get_string_size(I18n.t(cn_title), HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 8.0), 12))
 	var pills := HBoxContainer.new()
 	pills.alignment = BoxContainer.ALIGNMENT_END
 	pills.add_theme_constant_override("separation", 6)
 	for entry in (currencies if not currencies.is_empty() else [["lmd", Economy.format(menu.game.gold)]]):
 		pills.add_child(pill(entry[0], entry[1]))
 	AK.put(stage, pills, Vector2(700, 14), Vector2(564, 32))
-	AK.put(stage, AK.label("RHODES ISLAND · PRTS", 9, AK.DIM, AK.en()), Vector2(1140, 700))
+	# Footer: the Rhodes mark and the department, as on the ship's terminals.
+	stage.add_child(AK.rect(Color(0.035, 0.047, 0.055, 0.85), Vector2(0, 694), Vector2(1280, 26)))
+	var logo := TextureRect.new()
+	logo.texture = load("res://art/kit/textures/base_rhodes_logo.png")
+	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	logo.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	logo.modulate = Color(1, 1, 1, 0.7)
+	logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	AK.put(stage, logo, Vector2(14, 699), Vector2(16, 16))
+	AK.put(stage, AK.label("RHODES ISLAND · %s" % en_title, 9, AK.DIM, AK.en()), Vector2(38, 700))
 	return stage
 
 static func pill(kind: String, value: String) -> PanelContainer:
@@ -56,18 +74,11 @@ static func pill(kind: String, value: String) -> PanelContainer:
 	row.add_theme_constant_override("separation", 6)
 	match kind:
 		"lmd", "gold": row.add_child(AK.money(kind, value, 16))
-		"rank":
-			row.add_child(AK.tag("声望", AK.SP))
-			row.add_child(AK.label(value, 15, AK.FG, AK.en()))
 		"ori":
 			row.add_child(AK.tag("污染", AK.ORI))
 			row.add_child(AK.label(value, 15, AK.ORI, AK.en()))
 	p.add_child(row)
 	return p
-
-static func _rank_text(base: BaseState) -> String:
-	var rank := base.rank()
-	return "R%d" % rank
 
 static func _section(stage: Control, text: String, en_text: String, at: Vector2) -> void:
 	AK.put(stage, AK.section(text, en_text), at)
@@ -117,31 +128,52 @@ static func contracts(menu: FieldMenu) -> void:
 		if orders > 0: AK.put(b, AK.tag("订单 %d" % orders, AK.SP), Vector2(14, 74))
 		for child in b.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.pressed.connect(func(): menu.region_pick = id; menu.pick = 0; menu.contract_pick = 0; contracts(menu))
-	# The floors of a block, snaking, the random-extraction band tinted, the camp.
+	# The middle picks the floors (用户 2026-10-21: 中间改为层数选择): every block
+	# she can start from, CH-01 or a camp she has reached, then the block's
+	# floors snaking, the random-extraction band tinted, the camp at its end.
+	var starts: Array = [0] + game.base.unlocked_camps(region)
+	var start: int = int(menu.pick) if menu.pick is int and int(menu.pick) in starts else 0
+	_section(stage, "层数", "FLOORS", Vector2(248, TOP + 8))
+	for i in range(starts.size()):
+		var depth: int = starts[i]
+		var on := depth == start
+		var tile := Button.new()
+		tile.focus_mode = Control.FOCUS_NONE
+		tile.set_meta("label", "%s-01" % code if depth == 0 else game.camp_label(depth))
+		for s in ["normal", "hover", "pressed"]:
+			tile.add_theme_stylebox_override(s, AK.box(AK.PAPER if on else (AK.PLATE_3 if s == "hover" else AK.PLATE_2), AK.GREEN if depth > 0 and not on else Color.TRANSPARENT, 1 if depth > 0 and not on else 0))
+		AK.put(stage, tile, Vector2(248 + (i % 4) * 152, TOP + 40 + (i / 4) * 78), Vector2(144, 70))
+		var ink := AK.INK if on else AK.FG
+		AK.put(tile, AK.label(str(tile.get_meta("label")), 18, ink, AK.en()), Vector2(12, 8))
+		AK.put(tile, AK.label("%s-%02d – %s-%02d" % [code, depth + 1, code, depth + FieldCatalog.CAMP_INTERVAL], 11, Color(ink, 0.7), AK.en()), Vector2(12, 42))
+		for child in tile.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var chosen := depth
+		tile.pressed.connect(func(): menu.pick = chosen; contracts(menu))
+	var chain_top: float = TOP + 40 + ceili(starts.size() / 4.0) * 78 + 24
 	var chain := ChainLines.new()
-	AK.put(stage, chain, Vector2(232, TOP), Vector2(640, 600))
+	AK.put(stage, chain, Vector2(232, chain_top), Vector2(640, 260))
 	for n in range(1, FieldCatalog.CAMP_INTERVAL + 1):
 		var i := n - 1
 		var row := 0 if i < 5 else 1
 		var col := i if row == 0 else 9 - i
-		var at := Vector2(232 + 20 + col * 104, TOP + 190 + row * 80)
-		var node := AK.label("%s-%02d" % [code, n], 14, AK.FG, AK.en())
+		var at := Vector2(232 + 20 + col * 104, chain_top + row * 80)
+		var node := AK.label("%s-%02d" % [code, start + n], 14, AK.FG, AK.en())
 		node.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		var style := AK.box(Color("3b3b2a") if FieldCatalog.RANDOM_EXTRACTION_ODDS.has(n) else AK.PLATE_3)
 		node.add_theme_stylebox_override("normal", style)
 		AK.put(stage, node, at, Vector2(84, 34))
-		chain.points.append(at - Vector2(232, TOP) + Vector2(42, 17))
+		chain.points.append(at - Vector2(232, chain_top) + Vector2(42, 17))
 	var camp := HBoxContainer.new()
 	camp.alignment = BoxContainer.ALIGNMENT_CENTER
 	camp.add_theme_constant_override("separation", 6)
-	camp.add_child(AK.label(game.camp_label(FieldCatalog.CAMP_INTERVAL), 14, AK.INK, AK.en()))
+	camp.add_child(AK.label(game.camp_label(start + FieldCatalog.CAMP_INTERVAL), 14, AK.INK, AK.en()))
 	camp.add_child(AK.label("撤离 · 可露希尔", 11, AK.INK))
 	var camp_plate := PanelContainer.new()
 	camp_plate.add_theme_stylebox_override("panel", AK.box(AK.GREEN))
 	camp_plate.add_child(camp)
-	AK.put(stage, camp_plate, Vector2(252, TOP + 350), Vector2(188, 40))
-	chain.points.append(Vector2(20 + 94, 350 + 20))
+	AK.put(stage, camp_plate, Vector2(252, chain_top + 160), Vector2(188, 40))
+	chain.points.append(Vector2(20 + 94, 160 + 20))
 	# The detail, right.
 	var x := 884.0
 	stage.add_child(AK.rect(Color(0.04, 0.04, 0.04, 0.92), Vector2(x, 60), Vector2(396, 660)))
@@ -155,34 +187,21 @@ static func contracts(menu: FieldMenu) -> void:
 	AK.put(stage, _wrap(data.brief, 12, AK.MUTE, 350), Vector2(x + 18, TOP + 96))
 	stage.add_child(AK.rect(AK.LINE, Vector2(x + 18, TOP + 140), Vector2(350, 1)))
 	_section(stage, "掉落", "DROPS", Vector2(x + 18, TOP + 154))
-	var drops := HBoxContainer.new()
-	drops.add_theme_constant_override("separation", 8)
-	drops.add_child(AK.tag("常规", AK.PAPER))
-	drops.add_child(AK.label(data.loot, 12, AK.FG))
-	AK.put(stage, drops, Vector2(x + 18, TOP + 182))
+	# Only the region's own drop (用户 2026-10-21: 只保留专属掉落提示).
 	var special := HBoxContainer.new()
 	special.add_theme_constant_override("separation", 8)
 	special.add_child(AK.tag("专属", AK.SP))
 	var exclusive := FieldCatalog.exclusive(region)
 	special.add_child(AK.item_icon(exclusive, Vector2(46, 46)))
 	special.add_child(AK.label(exclusive.item_name, 12, exclusive.rarity_color()))
-	AK.put(stage, special, Vector2(x + 18, TOP + 208))
-	AK.put(stage, AK.label("藏品倾向", 12, AK.MUTE), Vector2(x + 18, TOP + 272))
-	AK.put(stage, _wrap(str(data.build).split("（")[0], 12, AK.FG, 260), Vector2(x + 100, TOP + 272))
-	_section(stage, "起点", "START", Vector2(x + 18, TOP + 310))
-	var starts: Array = [0] + game.base.unlocked_camps(region)
-	var start: int = int(menu.pick) if menu.pick is int and int(menu.pick) in starts else 0
-	var names: Array = starts.map(func(d): return "%s-01" % code if d == 0 else game.camp_label(d))
-	var toggle := AK.toggle(names, starts.find(start), func(i): menu.pick = starts[i]; contracts(menu), 13)
-	for b in toggle.get_children(): b.custom_minimum_size.x = 96
-	AK.put(stage, toggle, Vector2(x + 18, TOP + 338))
+	AK.put(stage, special, Vector2(x + 18, TOP + 182))
 	# The objective: three cards, one picked (§6 B1).
-	_section(stage, "合同目标", "OBJECTIVE", Vector2(x + 18, TOP + 376))
+	_section(stage, "合同目标", "OBJECTIVE", Vector2(x + 18, TOP + 256))
 	var offers: Array = game.contract_offers(region)
 	var chosen := clampi(menu.contract_pick, 0, offers.size() - 1)
 	# 寻访合同 come after the three: then the rows go to one line each.
 	var compact := offers.size() > FieldCatalog.CONTRACT_OFFERS
-	var row := 31 if compact else 44
+	var row := 34 if compact else 50
 	for i in range(offers.size()):
 		var offer: Dictionary = offers[i]
 		var card := Button.new()
@@ -191,14 +210,14 @@ static func contracts(menu: FieldMenu) -> void:
 		var on := i == chosen
 		for s in ["normal", "hover", "pressed"]:
 			card.add_theme_stylebox_override(s, AK.box(AK.PAPER if on else (AK.PLATE_3 if s == "hover" else AK.PLATE_2)))
-		AK.put(stage, card, Vector2(x + 18, TOP + 400 + i * row), Vector2(360, row - 4))
+		AK.put(stage, card, Vector2(x + 18, TOP + 284 + i * row), Vector2(360, row - 4))
 		var ink := AK.INK if on else AK.FG
 		var kind: String = FieldCatalog.CONTRACT_NAMES[offer.type]
 		AK.put(card, AK.tag(kind, AK.SP), Vector2(10, 4 if compact else 10))
 		# The text starts after the tag, however long its shown name is.
 		var text_x := maxf(64.0, 10.0 + AK.cn().get_string_size(I18n.t(kind), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 12.0 + 8.0)
 		AK.put(card, AK.label(FieldCatalog.contract_goal(offer, region, start + 1), 13, ink), Vector2(text_x, 4 if compact else 2))
-		var bonus := AK.label(FieldCatalog.contract_bonus_text(offer), 11, Color(ink, 0.7))
+		var bonus := AK.label(game.contract_pay_text(offer, start + 1), 11, Color(ink, 0.7))
 		if compact:
 			bonus.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			AK.put(card, bonus, Vector2(150, 7), Vector2(200, 16))
@@ -207,7 +226,13 @@ static func contracts(menu: FieldMenu) -> void:
 		for child in card.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var index := i
 		card.pressed.connect(func(): menu.contract_pick = index; contracts(menu))
-	var go := AK.go_button("开始行动", "OPERATION START")
+	# 外勤部Ⅱ: one free reroll of the chosen ordinary card per return.
+	if game.base.contract_reroll and chosen < (game.base.contract_offers.get(region, []) as Array).size():
+		var reroll := AK.button("重抽", "ghost", 11)
+		AK.put(stage, reroll, Vector2(x + 318, TOP + 252), Vector2(60, 24))
+		reroll.pressed.connect(func(): game.reroll_contract(region, chosen); contracts(menu))
+	# 最终准备: who goes and what she carries, then 开始行动 there.
+	var go := AK.go_button("最终准备", "FINAL PREP")
 	if compact: AK.put(stage, go, Vector2(x + 18, BOTTOM - 56), Vector2(360, 50))
 	else: AK.put(stage, go, Vector2(x + 18, BOTTOM - 84), Vector2(360, 72))
 	go.pressed.connect(func():
@@ -264,30 +289,24 @@ static func personnel(menu: FieldMenu) -> void:
 
 # --- #14 仓库 -------------------------------------------------------------------------
 
-const STASH_TABS := ["全部", "武器", "防具", "饰品", "材料", "升级"]
+const STASH_TABS := ["全部", "武器", "防具", "饰品", "材料"]
 
-## At the 仓管台 (zone -1): only the upgrade projects until the master console
-## is bought, then every zone plus the upgrades tab. At a zone's floor frame
-## (zone = its category): that zone's shelves and its next rack (用户 2026-10-07).
+## At the 仓管台 (zone -1): the 基建 page until the master console is bought,
+## then every zone. At a zone's floor frame (zone = its category): that zone's
+## shelves and its next rack (用户 2026-10-07).
 static func stash(menu: FieldMenu, zone: int = -1) -> void:
 	var game := menu.game
 	var base: BaseState = game.base
-	var currencies := [["lmd", Economy.format(game.gold)], ["rank", _rank_text(base)]]
-	var tab: int = menu.stash_tab if zone < 0 else zone + 1
+	if zone < 0 and not base.console:
+		construction(menu, "仓管台", "warehouse")
+		return
+	var currencies := [["lmd", Economy.format(game.gold)]]
+	var tab: int = clampi(menu.stash_tab, 0, STASH_TABS.size() - 1) if zone < 0 else zone + 1
 	var stage: Control
 	if zone >= 0:
 		stage = shell(menu, "%s区货架" % BaseCatalog.CATEGORY_NAMES[zone], "SHELVES", [], 0, Callable(), "DEPOT", currencies)
-	elif not base.console:
-		stage = shell(menu, "仓管台", "DEPOT", ["升级"], 0, func(_i): pass, "DEPOT", currencies)
-		tab = STASH_TABS.size() - 1
 	else:
 		stage = shell(menu, "仓管台", "DEPOT", STASH_TABS, tab, func(i): menu.stash_tab = i; stash(menu), "DEPOT", currencies)
-	if zone < 0 and tab == STASH_TABS.size() - 1:
-		var holder := VBoxContainer.new()
-		holder.add_theme_constant_override("separation", 12)
-		AK.put(stage, holder, Vector2(16, TOP + 8), Vector2(1248, 0))
-		_list_into(menu, holder, menu._expansion_section)
-		return
 	if zone >= 0: _rack_button(menu, stage, zone)
 	else:
 		var search := LineEdit.new()
@@ -326,10 +345,16 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 	AK.put(stage, loads, Vector2(560, TOP + 6))
 	# The shelves as one 16-wide grid, items flowed in.
 	var shown: Array = game.stash.filter(func(x: Item): return (tab == 0 or x.category == tab - 1) and (zone >= 0 or menu._matches(x)))
+	# Drag: shelf → carry-in brings it, carry-in → shelf stores it.
+	var stores := func(item: Item) -> bool: return game.carried_items().has(item)
+	var brings := func(item: Item) -> bool: return game.stash.has(item)
 	var grid := FlowGrid.make(shown, 16, 10, func(item: Item): game.bring_item(item); stash(menu, zone), func(item: Item): _show_detail(game, item))
+	grid.dragging(stores, func(item: Item): game.store_item(item); stash(menu, zone))
 	AK.put(stage, grid, Vector2(16, TOP + 50))
 	# What goes out with her next.
 	var carry_y := TOP + 50 + 10 * 40 + 12
+	var bring_drop := func(item: Item): game.bring_item(item); stash(menu, zone)
+	ItemDrag.zone(stage, Vector2(16, carry_y - 4), Vector2(932, 56), brings, bring_drop)
 	_section(stage, "将带入", "CARRY-IN", Vector2(16, carry_y + 14))
 	var carry := HBoxContainer.new()
 	carry.add_theme_constant_override("separation", 6)
@@ -343,11 +368,12 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 		var shown_item: Item = item
 		b.pressed.connect(func(): game.store_item(shown_item); stash(menu, zone))
 		b.mouse_entered.connect(func(): _show_detail(game, shown_item))
+		ItemDrag.wire(b, shown_item, brings, bring_drop)
 		carry.add_child(b)
 	AK.put(stage, carry, Vector2(150, carry_y))
 	# The detail column.
 	var card := PanelContainer.new()
-	card.add_theme_stylebox_override("panel", AK.box(Color("0d0d0d"), AK.LINE_2, 1, 12))
+	card.add_theme_stylebox_override("panel", AK.box(Color("0b0d0f"), AK.LINE_2, 1, 12))
 	_detail = RichTextLabel.new()
 	_detail.bbcode_enabled = true
 	_detail.fit_content = true
@@ -377,6 +403,148 @@ static func _rack_button(menu: FieldMenu, stage: Control, zone: int) -> void:
 	build.disabled = not refusal.is_empty()
 	build.pressed.connect(func(): game.build_rack(zone); stash(menu, zone))
 
+# --- 基建 ---------------------------------------------------------------------------
+
+## The 基建总控台 (基建设施修订案 v1.1 §四, 用户 2026-10-22): the facilities down
+## the left, the picked one's upgrades on the right. From the hub (`site` "")
+## only connected facilities can be upgraded; at a facility's own site
+## (`site` its id) its page alone, connected or not.
+static func construction(menu: FieldMenu, title: String = "基建总控台", site: String = "") -> void:
+	var game := menu.game
+	var base: BaseState = game.base
+	var stage := shell(menu, title, "CONSTRUCTION", [], 0, Callable(), "BUILD", [["lmd", Economy.format(game.gold)]])
+	var redraw := func(): construction(menu, title, site)
+	if not site.is_empty():
+		_facility_page(menu, stage, site, false, Vector2(16, TOP + 4), 1248, redraw)
+		return
+	if not menu.build_pick in BaseCatalog.FACILITY_ORDER: menu.build_pick = "hub"
+	_section(stage, "设施", "FACILITIES", Vector2(16, TOP + 4))
+	var y := TOP + 34
+	for id in BaseCatalog.FACILITY_ORDER:
+		var row := Button.new()
+		row.flat = true
+		row.focus_mode = Control.FOCUS_NONE
+		row.set_meta("facility_row", id)
+		var picked: bool = id == menu.build_pick
+		row.add_child(AK.rect(AK.PLATE if picked else AK.PLATE_2, Vector2.ZERO, Vector2(300, 64)))
+		row.add_child(AK.rect(Terminal.DEPT.eng if picked else AK.LINE_2, Vector2.ZERO, Vector2(6, 64)))
+		AK.put(row, AK.label(BaseCatalog.facility_name(id), 15, AK.FG), Vector2(18, 10))
+		AK.put(row, AK.label("Lv%d / %d" % [base.facility_level(id), BaseCatalog.facility_max(id)], 12, AK.MUTE, AK.en()), Vector2(18, 36))
+		if id != "hub":
+			var linked := base.is_connected_to_hub(id)
+			var dot := AK.rect(AK.HOLO if linked else AK.DIM, Vector2(204, 41), Vector2(8, 8))
+			row.add_child(dot)
+			AK.put(row, AK.label("已接入" if linked else "未接入", 12, AK.HOLO if linked else AK.MUTE), Vector2(218, 34))
+		if game.facility_refusal(id, true).is_empty() or game.connect_refusal(id).is_empty():
+			var c := Vector2(286, 14)
+			var mark := Polygon2D.new()
+			mark.polygon = AK.diamond(c, 8)
+			mark.color = AK.SP
+			row.add_child(mark)
+		var pick: String = id
+		row.pressed.connect(func(): menu.build_pick = pick; redraw.call())
+		AK.put(stage, row, Vector2(16, y), Vector2(300, 64))
+		y += 70
+	_facility_page(menu, stage, menu.build_pick, true, Vector2(336, TOP + 4), 928, redraw)
+
+## One facility's upgrades: its link to the hub, its next level, then the
+## projects it owns. `remote`: seen from the hub, where an unconnected one
+## shows only its link.
+static func _facility_page(menu: FieldMenu, stage: Control, id: String, remote: bool, at: Vector2, width: float, redraw: Callable) -> void:
+	var game := menu.game
+	var base: BaseState = game.base
+	_section(stage, BaseCatalog.facility_name(id), "Lv%d / %d" % [base.facility_level(id), BaseCatalog.facility_max(id)], at)
+	var y := at.y + 30
+	var gate := game.gate_refusal(id)
+	if not gate.is_empty():
+		var g: Dictionary = BaseCatalog.FACILITIES[id].gate
+		var rel := game.exchange.relation(str(g.faction))
+		var need: int = Exchange.RANK_AT[int(g.rank)]
+		stage.add_child(AK.rect(AK.PLATE_2, Vector2(at.x, y), Vector2(width, 54)))
+		AK.put(stage, AK.label("%s 关系 R%d" % [FactionCatalog.name_of(str(g.faction)), int(g.rank)], 14, AK.FG), Vector2(at.x + 14, y + 8))
+		AK.put(stage, AK.label("%d / %d" % [rel, need], 12, AK.MUTE, AK.en()), Vector2(at.x + 14, y + 30))
+		var bar := FieldPanels.Bar.new()
+		bar.ratio = float(rel) / maxf(need, 1)
+		bar.colour = AK.SP
+		AK.put(stage, bar, Vector2(at.x + 160, y + 36), Vector2(width - 180, 4))
+		return
+	if id != "hub" and not base.is_connected_to_hub(id) and (remote or base.hub_built()):
+		var c_refusal := game.connect_refusal(id)
+		_project_row(menu, stage, Vector2(at.x, y), ["接入基建总控台", "", int(BaseCatalog.CONNECT_COST.price), BaseCatalog.connect_materials(id), c_refusal,
+			func(): return game.connect_facility(id)], redraw, width, "接入")
+		y += 60
+		if remote: return
+	var level := base.facility_level(id)
+	var step := BaseCatalog.facility_step(id, level + 1)
+	if step.is_empty(): _project_row(menu, stage, Vector2(at.x, y), ["Lv%d" % level, "已满级", 0, {}, "", Callable()], redraw, width)
+	else:
+		var refusal := game.facility_refusal(id, remote)
+		_project_row(menu, stage, Vector2(at.x, y), ["Lv%d  %s" % [level + 1, step.opens], "", int(step.price), step.materials, refusal,
+			func(): return game.upgrade_facility(id, remote)], redraw, width, "建成" if level == 0 else "升级", "facility", id)
+	y += 60
+	for row in _projects(game, id):
+		_project_row(menu, stage, Vector2(at.x, y), row, redraw, width)
+		y += 60
+
+## The projects a facility owns: [title, done text ("" while open), price, materials, refusal, buy].
+static func _projects(game: GameManager, id: String) -> Array:
+	var base: BaseState = game.base
+	var rows: Array = []
+	match id:
+		"hub":
+			rows.append(["营地升级", "已升级" if base.camp_upgraded else "", BaseCatalog.CAMP_UPGRADE_PRICE, BaseCatalog.CAMP_UPGRADE_MATERIALS, game.camp_upgrade_refusal(), game.buy_camp_upgrade])
+		"warehouse":
+			rows.append(["仓库总控面板", "已就位" if base.console else "", BaseCatalog.CONSOLE_PRICE, BaseCatalog.CONSOLE_MATERIALS, game.console_refusal(), game.buy_console])
+			rows.append(["搬运无人机", "已就位" if base.drone else "", BaseCatalog.DRONE_PRICE, BaseCatalog.DRONE_MATERIALS, game.drone_refusal(), game.buy_drone])
+			for category in GameManager.RACK_ZONES:
+				var slot := base.next_rack_slot(category)
+				var zone: int = category
+				rows.append(["%s区货架 %d/%d" % [BaseCatalog.CATEGORY_NAMES[category], int(base.racks[category]), BaseCatalog.RACK_SLOTS], "已满配" if slot < 0 else "",
+					int(BaseCatalog.RACK_PRICES[slot]) if slot >= 0 else 0, game.rack_cost(category), game.rack_refusal(category).trim_suffix("。"), func(): return game.build_rack(zone)])
+		"outfit":
+			for kind in ["pack", "safe"]:
+				var level := base.pack_level if kind == "pack" else base.safe_level
+				var sizes: Array = BaseCatalog.PACK_SIZES if kind == "pack" else BaseCatalog.SAFE_SIZES
+				var prices: Array = BaseCatalog.PACK_PRICES if kind == "pack" else BaseCatalog.SAFE_PRICES
+				var now: Vector2i = sizes[level]
+				var full := level + 1 >= sizes.size()
+				var next: Vector2i = now if full else sizes[level + 1]
+				var label := "%s %d×%d" % ["背包" if kind == "pack" else "安全袋", now.x, now.y] + ("" if full else " → %d×%d" % [next.x, next.y])
+				rows.append([label, "已满配" if full else "", 0 if full else int(prices[level + 1]), game.upgrade_cost(kind), game.upgrade_refusal(kind),
+					game.buy_pack_upgrade if kind == "pack" else game.buy_safe_upgrade])
+	return rows
+
+## One upgrade card: title, cost (short materials in red), button; or its done state.
+static func _project_row(menu: FieldMenu, stage: Control, at: Vector2, row: Array, redraw: Callable, width: float = 396.0, verb: String = "建造", meta_key: String = "project", meta_value: Variant = null) -> void:
+	var game := menu.game
+	stage.add_child(AK.rect(AK.PLATE_2, at, Vector2(width, 54)))
+	AK.put(stage, AK.label(row[0], 14, AK.FG), at + Vector2(14, 7))
+	if not str(row[1]).is_empty():
+		AK.put(stage, AK.label(row[1], 12, AK.GREEN), at + Vector2(14, 31))
+		return
+	_cost_line(game, stage, at + Vector2(14, 31), int(row[2]), row[3], 12)
+	var refusal: String = row[4]
+	var b := AK.button(verb if refusal.is_empty() else _short_refusal(refusal), "blue" if refusal.is_empty() else "plain", 12)
+	b.set_meta(meta_key, meta_value if meta_value != null else row[0])
+	b.disabled = not refusal.is_empty()
+	var buy: Callable = row[5]
+	b.pressed.connect(func(): buy.call(); redraw.call())
+	AK.put(stage, b, at + Vector2(width - 160, 10), Vector2(150, 34))
+
+## The cost line already marks what is short in red, so the button just says so.
+static func _short_refusal(refusal: String) -> String:
+	return "材料不足" if refusal.begins_with("缺少") else refusal
+
+## 龙门币 then each material, red where the warehouse is short.
+static func _cost_line(game: GameManager, stage: Control, at: Vector2, price: int, materials: Dictionary, size: int = 12) -> void:
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 10)
+	line.add_child(AK.money("lmd", Economy.format(price), size + 2))
+	for mat in materials:
+		var short := game.material_count(mat) < int(materials[mat])
+		line.add_child(AK.label("%s×%d" % [mat, int(materials[mat])], size, AK.RED if short else AK.MUTE))
+	AK.put(stage, line, at)
+
 static func _show_detail(game: GameManager, item: Item) -> void:
 	if is_instance_valid(_detail): _detail.text = ItemTooltip.text(game, item, false, false)
 
@@ -388,7 +556,7 @@ static func outbound(menu: FieldMenu) -> void:
 	var orders: OrderBoard = base.orders
 	var tab: int = menu.outbound_tab
 	var stage := shell(menu, "出库区", "OUTBOUND", ["订单", "直接交付"], tab, func(i): menu.outbound_tab = i; menu.pick = null; outbound(menu), "ORDERS",
-		[["lmd", Economy.format(game.gold)], ["rank", _rank_text(base)]])
+		[["lmd", Economy.format(game.gold)]])
 	var deliverable := game.deliverable_items()
 	if tab == 1:
 		var pick: Item = menu.pick if menu.pick is Item else null
@@ -411,21 +579,8 @@ static func outbound(menu: FieldMenu) -> void:
 			menu.pick = null
 			outbound(menu), pick != null)
 		return
-	# Prestige, then the order strips.
-	var rank := base.rank()
-	stage.add_child(AK.rect(AK.PLATE_2, Vector2(16, TOP + 8), Vector2(1248, 64)))
-	AK.put(stage, AK.label("PRESTIGE", 9, AK.MUTE, AK.en()), Vector2(32, TOP + 16))
-	AK.put(stage, AK.label("R%d" % rank, 30, AK.FG, AK.en()), Vector2(32, TOP + 28))
-	if rank < BaseCatalog.PRESTIGE_RANKS.size():
-		var need: int = BaseCatalog.PRESTIGE_RANKS[rank]
-		AK.put(stage, AK.label("R%d 解锁：%s" % [rank + 1, BaseCatalog.RANK_UNLOCKS[rank + 1]], 12, AK.MUTE), Vector2(110, TOP + 18))
-		var count := AK.label("%d / %d" % [base.prestige, need], 12, AK.FG, AK.en())
-		AK.put(stage, count, Vector2(1180, TOP + 18))
-		var bar := FieldPanels.Bar.new()
-		bar.ratio = float(base.prestige) / maxf(need, 1)
-		bar.colour = AK.SP
-		AK.put(stage, bar, Vector2(110, TOP + 46), Vector2(1138, 6))
-	var y := TOP + 86
+	# The order strips.
+	var y := TOP + 8
 	for i in range(orders.slots.size()):
 		var order = orders.slots[i]
 		_order_strip(menu, stage, Vector2(16, y), i, order, deliverable)
@@ -458,9 +613,6 @@ static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, slot: int
 	var money := AK.money("lmd", Economy.format(int(t.gold)) if t.has("gold") else "×%s" % str(t.mult), 16)
 	money.alignment = BoxContainer.ALIGNMENT_END
 	reward.add_child(money)
-	var prestige := AK.label("声望 +%d" % int(t.prestige), 12, AK.MUTE)
-	prestige.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	reward.add_child(prestige)
 	AK.put(stage, reward, at + Vector2(840, 10), Vector2(120, 52))
 	if done: return
 	var small := HBoxContainer.new()
@@ -485,42 +637,14 @@ static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, slot: int
 const MEDICAL_TABS := ["药房窗口", "回收报告"]
 
 static func medical(menu: FieldMenu, tab: int) -> void:
+	if tab == 0:
+		TraderScreen.pharmacy(menu)
+		return
 	var game := menu.game
 	var base: BaseState = game.base
 	var stage := shell(menu, "医疗部", "MEDICAL", MEDICAL_TABS, tab, func(i): medical(menu, i), "MEDICAL",
 		[["lmd", Economy.format(game.gold)]])
 	match tab:
-		0:
-			_section(stage, "将带入 · 背包", "CARRY-IN", Vector2(16, TOP + 8))
-			AK.put(stage, AK.BagGrid.make(game.inventory), Vector2(16, TOP + 36))
-			var y := TOP + 36 + game.inventory.height * 40 + 20
-			_section(stage, "可配药剂", "PHARMACY", Vector2(16, y))
-			var x := 16.0
-			for type in BaseCatalog.POTIONS:
-				var potion: Dictionary = BaseCatalog.POTIONS[type]
-				var price := base.potion_price(type)
-				var card := Button.new()
-				card.focus_mode = Control.FOCUS_NONE
-				card.set_meta("label", potion.name)
-				for s in ["normal", "hover", "pressed", "disabled"]:
-					var style := AK.box(AK.PLATE_3 if s == "hover" else AK.PLATE_2)
-					style.border_color = AK.ORI if type == "C" else AK.GREEN
-					style.border_width_bottom = 3
-					card.add_theme_stylebox_override(s, style)
-				card.disabled = price < 0 or game.gold < price or not game.inventory.can_take(BaseCatalog.create_potion(type))
-				if price < 0: card.modulate.a = 0.4
-				AK.put(stage, card, Vector2(x, y + 30), Vector2(290, 92))
-				AK.put(card, AK.item_icon(BaseCatalog.create_potion(type), Vector2(52, 52)), Vector2(12, 12))
-				AK.put(card, AK.label(potion.name, 14, AK.FG), Vector2(76, 10))
-				var effect := _wrap(potion.text, 11, AK.MUTE, 200)
-				AK.put(card, effect, Vector2(76, 30))
-				var cost := "R%d" % int(potion.rank) if price < 0 else ("免费" if price == 0 else Economy.format(price) + " 龙门币")
-				AK.put(card, AK.label(cost, 13, AK.SP, AK.en() if price > 0 else AK.cn()), Vector2(76, 66))
-				for child in card.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				var kind: String = type
-				card.pressed.connect(func(): game.buy_potion(kind); medical(menu, 0))
-				x += 300
-			AK.put(stage, AK.label("免费急救剂 %d" % base.free_potions, 12, AK.MUTE), Vector2(16, y + 132))
 		1:
 			var holder := VBoxContainer.new()
 			holder.add_theme_constant_override("separation", 10)
@@ -540,221 +664,15 @@ static func medical(menu: FieldMenu, tab: int) -> void:
 
 # --- #17 出发准备 / 整备 ----------------------------------------------------------------
 
-## `region` empty = the workbench / logistics counter: the same loadout, with item
-## actions on the right instead of the deployment target.
+## One entry, four screens (界面美术与布局策划案 v2 S2, LoadoutScreens): a region
+## is 出发准备; "insurance" the logistics counter; otherwise the workbench.
 static func departure(menu: FieldMenu, region: String, kind: String = "") -> void:
-	var game := menu.game
-	var base: BaseState = game.base
-	var deploying := not region.is_empty()
-	var titles: Array = ["出发准备", "SQUAD"] if deploying else STATION_TITLES.get(kind, ["整备台", "WORKBENCH"])
-	var stage := shell(menu, titles[0], titles[1], [], 0, Callable(), AK.REGION_CODE.get(region, "") if deploying else "")
-	# The operator card.
-	var card := Control.new()
-	card.clip_contents = true
-	AK.put(stage, card, Vector2(16, TOP + 6), Vector2(250, BOTTOM - TOP - 6))
-	card.add_child(AK.rect(Color("262626"), Vector2.ZERO, card.size))
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(1, 0.77, 0, 0.0))
-	gradient.set_color(1, Color(1, 0.77, 0, 0.28))
-	var fade := GradientTexture2D.new()
-	fade.gradient = gradient
-	fade.fill_from = Vector2(0, 0)
-	fade.fill_to = Vector2(0, 1)
-	var glow := TextureRect.new()
-	glow.texture = fade
-	glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	glow.stretch_mode = TextureRect.STRETCH_SCALE
-	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	AK.put(card, glow, Vector2(0, card.size.y * 0.45), Vector2(250, card.size.y * 0.55))
-	var who := Operators.info(game.player.operator_id)
-	var sprite := TextureRect.new()
-	sprite.texture = Operators.portrait(game.player.operator_id)
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	# Three rows of operator tabs sit above her when deploying with a full roster.
-	var tab_rows := ceili(game.base.deployable().size() / 3.0) if deploying else 0
-	AK.put(card, sprite, Vector2(-1, maxf(90.0, 44.0 + tab_rows * 30.0)), Vector2(252, 252))
-	var cls := AK.label(str(who["class"]), 13, AK.FG)
-	cls.add_theme_stylebox_override("normal", AK.box(Color.BLACK, Color.TRANSPARENT, 0, 10))
-	AK.put(card, cls, Vector2.ZERO)
-	AK.put(card, AK.label("★".repeat(int(who.get("stars", 5))), 13, AK.SP), Vector2(12, card.size.y - 58))
-	AK.put(card, AK.label(Operators.display_name(game.player.operator_id), 20, AK.FG), Vector2(12, card.size.y - 40))
-	card.add_child(AK.rect(AK.SP, Vector2(0, card.size.y - 4), Vector2(250, 4)))
-	var p: OperatorProgress = game.progress()
-	AK.put(card, AK.label("%s · Lv %d" % [Progression.ELITE_NAMES[p.elite], p.level], 13, AK.FG, AK.en()), Vector2(12, card.size.y - 80))
-	var train := AK.button("干员养成" + (" ●" if p.attribute_points + p.skill_points > 0 else ""), "yellow" if p.attribute_points + p.skill_points > 0 else "plain", 12)
-	train.pressed.connect(func(): game.open_training(func(): _back_from_training(menu, region, kind)))
-	AK.put(card, train, Vector2(140, card.size.y - 86))
-	if kind == "loadout":
-		# 加工部 hangs off the workbench until its room is built (用户: 先挂工作台).
-		var shop := AK.button("加工站", "plain", 12)
-		shop.pressed.connect(func():
-			menu.back_to = func(): menu.show_station("loadout")
-			menu.show_station("workshop")
-			menu.back_to = func(): menu.show_station("loadout"))
-		AK.put(card, shop, Vector2(12, 40), Vector2(110, 30))
-	if deploying:
-		# Who deploys: one tab per operator, three to a row, along the card's top.
-		var tabs := GridContainer.new()
-		tabs.columns = 2 if game.base.deployable().size() <= 2 else 3
-		tabs.add_theme_constant_override("h_separation", 4)
-		tabs.add_theme_constant_override("v_separation", 4)
-		for id in game.base.deployable():
-			var tab := AK.button(Operators.display_name(id), "blue" if id == game.player.operator_id else "plain", 12 if tabs.columns == 2 else 11)
-			tab.custom_minimum_size = Vector2(110, 30) if tabs.columns == 2 else Vector2(72, 26)
-			var chosen_id: String = id
-			tab.pressed.connect(func(): game.choose_operator(chosen_id); _refresh(menu, region, kind))
-			tabs.add_child(tab)
-		AK.put(card, tabs, Vector2(12, 40))
-	# Loadout: the worn three, insurable; then the pack.
-	var pick: Item = menu.pick if menu.pick is Item else null
-	_section(stage, "带入装备", "LOADOUT", Vector2(282, TOP + 8))
-	var y := TOP + 36
-	for category in [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET]:
-		var item: Item = game.player.equipped.get(category)
-		var row := Button.new()
-		row.focus_mode = Control.FOCUS_NONE
-		for s in ["normal", "hover", "pressed", "disabled"]:
-			row.add_theme_stylebox_override(s, AK.box(Color("333333") if item != null and (item == pick or s == "hover") else AK.PLATE_2))
-		AK.put(stage, row, Vector2(282, y), Vector2(610, 64))
-		if item == null:
-			AK.put(row, AK.label("%s · 空" % Item.CATEGORY_NAMES[category], 13, AK.MUTE), Vector2(16, 22))
-			row.disabled = true
-		else:
-			row.set_meta("item", item)
-			AK.put(row, AK.item_icon(item, Vector2(60, 60)), Vector2(2, 2))
-			AK.put(row, AK.item_name(item, 14), Vector2(74, 10))
-			AK.put(row, AK.label("%s · 价值 %s" % [Item.CATEGORY_NAMES[category], Economy.format(Economy.price(item))], 12, AK.MUTE), Vector2(74, 36))
-			for child in row.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var chosen := item
-			row.pressed.connect(func(): menu.pick = chosen; _refresh(menu, region, kind))
-			_insure_control(menu, stage, item, Vector2(282 + 610 - 150, y + 14), region, kind)
-			if pick == item: AK.frame(row)
-		y += 70
-	_section(stage, "背包", "PACK %d×%d" % [game.inventory.width, game.inventory.height], Vector2(282, y + 6))
-	var pick_item := func(item: Item): menu.pick = item; _refresh(menu, region, kind)
-	AK.put(stage, AK.BagGrid.make(game.inventory, Callable(), pick_item, pick), Vector2(282, y + 34))
-	# Right column.
-	var x := 924.0
-	stage.add_child(AK.rect(Color(0.04, 0.04, 0.04, 0.92), Vector2(x - 16, 60), Vector2(372, 660)))
-	if deploying:
-		var data: Dictionary = FieldCatalog.REGIONS[region]
-		var parts: PackedStringArray = str(data.name).split(" · ")
-		var head := HBoxContainer.new()
-		head.add_theme_constant_override("separation", 8)
-		head.add_child(AK.tag(AK.REGION_CODE.get(region, "LG"), AK.PAPER))
-		head.add_child(AK.label("DEPLOY TO", 10, AK.MUTE, AK.en()))
-		AK.put(stage, head, Vector2(x, TOP + 8))
-		AK.put(stage, AK.label(parts[0], 30, AK.FG), Vector2(x, TOP + 30))
-		AK.put(stage, AK.label(parts[1] if parts.size() > 1 else "", 15, AK.FG), Vector2(x, TOP + 72))
-		var start: int = game._pending_start_camp
-		var cells := [["起点", game.camp_label(start) if start > 0 else AK.floor_code(region, 1), AK.GREEN if start > 0 else AK.FG],
-			["深度", AK.floor_code(region, start + 1), AK.FG]]
-		for i in range(cells.size()):
-			stage.add_child(AK.rect(AK.PLATE_2, Vector2(x + i * 114, TOP + 104), Vector2(108, 56)))
-			AK.put(stage, AK.label(cells[i][0], 11, AK.MUTE), Vector2(x + i * 114 + 8, TOP + 110))
-			AK.put(stage, AK.label(cells[i][1], 15, cells[i][2], AK.en() if i > 0 or start == 0 else AK.cn()), Vector2(x + i * 114 + 8, TOP + 130))
-		var tags := HBoxContainer.new()
-		tags.add_theme_constant_override("separation", 6)
-		var orders := base.orders.pointing_at(region)
-		if orders > 0: tags.add_child(AK.tag("订单 %d" % orders, AK.SP))
-		if base.injured: tags.add_child(AK.tag("重伤", AK.RED))
-		AK.put(stage, tags, Vector2(x, TOP + 172))
-		var warn_y := TOP + 204
-		for warning in game.departure_warnings():
-			AK.put(stage, _wrap(warning, 12, AK.SP, 340), Vector2(x, warn_y))
-			warn_y += 40
-		AK.put(stage, AK.label("药剂 %d" % game.potion_count(), 12, AK.MUTE), Vector2(x, BOTTOM - 120))
-		var go := AK.go_button("开始行动", "OPERATION START")
-		AK.put(stage, go, Vector2(x, BOTTOM - 96), Vector2(340, 84))
-		go.pressed.connect(func(): game.start_contract(region, game._pending_start_camp))
-		return
-	# Workbench / logistics: what the picked item can do here.
-	if pick == null or not game.carried_items().has(pick):
-		var all := AK.button("背包与安全袋的材料全部存回仓库", "plain", 13)
-		all.disabled = not game.carried_items().any(func(it): return not it.is_equippable())
-		all.pressed.connect(func(): game.store_all_materials(); _refresh(menu, region, kind))
-		AK.put(stage, all, Vector2(x, TOP + 8), Vector2(340, 44))
-		return
-	var actions := VBoxContainer.new()
-	actions.add_theme_constant_override("separation", 6)
-	if game.inventory.items.has(pick) and pick.is_equippable():
-		var equip := AK.button("装备", "blue", 14)
-		equip.pressed.connect(func(): game.equip_from(pick, game.inventory); game.save_base(); menu.pick = null; _refresh(menu, region, kind))
-		actions.add_child(equip)
-	if game.player.equipped.values().has(pick):
-		var off := AK.button("卸下", "plain", 14)
-		off.pressed.connect(func(): game.unequip_to_pack(pick); game.save_base(); _refresh(menu, region, kind))
-		actions.add_child(off)
-	var store := AK.button("存回仓库", "plain", 14)
-	store.pressed.connect(func(): game.store_item(pick); menu.pick = null; _refresh(menu, region, kind))
-	actions.add_child(store)
-	for b in actions.get_children(): b.custom_minimum_size = Vector2(340, 44)
-	var bottom := BOTTOM
-	# 重铸 / 校准 / 精调 (装备前缀策划案 §2.5, §2.8): the workbench only.
-	if kind != "insurance" and PrefixCatalog.eligible_item(pick):
-		if _tuning == pick:
-			var listed := _tune_list(menu, stage, pick, Vector2(x, bottom), region, kind)
-			EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.price(pick)), Vector2(x, TOP + 8), bottom - listed - TOP - 8 - 66)
-			return
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 5)
-		for entry in [["reforge", "重铸"], ["calibrate", "校准"], ["tune", "精调"]]:
-			var refresh_kind: String = entry[0]
-			var cost := game.refresh_cost(refresh_kind, pick)
-			var mats: Dictionary = GameManager.REFRESH_MATERIALS[refresh_kind]
-			var text := "%s\n%s\n%s" % [entry[1], Economy.format(cost), " ".join(mats.keys().map(func(id): return "%s×%d" % [id, mats[id]]))]
-			var b := AK.button(text, "plain", 11)
-			b.custom_minimum_size = Vector2(110, 62)
-			b.clip_text = true
-			var refusal := game.refresh_refusal(refresh_kind, pick)
-			b.disabled = not refusal.is_empty()
-			if refresh_kind == "tune": b.pressed.connect(func(): _tuning = pick; _refresh(menu, region, kind))
-			else: b.pressed.connect(func(): game.refresh_gear(refresh_kind, pick); _refresh(menu, region, kind))
-			row.add_child(b)
-		bottom -= 68
-		AK.put(stage, row, Vector2(x, bottom))
-	var top := bottom - actions.get_child_count() * 50
-	AK.put(stage, actions, Vector2(x, top))
-	EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.price(pick)), Vector2(x, TOP + 8), top - TOP - 8 - 66)
+	if not region.is_empty(): LoadoutScreens.deploy(menu, region)
+	elif kind == "insurance": LoadoutScreens.logistics(menu)
+	else: LoadoutScreens.workbench(menu)
 
 ## The item whose lines 精调 is choosing from (null otherwise).
 static var _tuning: Item = null
-
-## 精调: one button per line that rolls, then 返回.
-## Returns the height it takes.
-static func _tune_list(menu: FieldMenu, stage: Control, item: Item, at: Vector2, region: String, kind: String) -> float:
-	var game := menu.game
-	var list := VBoxContainer.new()
-	list.add_theme_constant_override("separation", 4)
-	list.add_child(AK.label("精调 · %s · 改量装置×1" % Economy.format(game.refresh_cost("tune", item)), 12, AK.MUTE))
-	for line in PrefixCatalog.rollable_lines(item):
-		var chosen: Array = line
-		var b := AK.button(PrefixCatalog.line_label(item, line), "plain", 12)
-		b.custom_minimum_size = Vector2(340, 32)
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.disabled = not game.refresh_refusal("tune", item).is_empty()
-		b.pressed.connect(func(): game.refresh_gear("tune", item, chosen); _refresh(menu, region, kind))
-		list.add_child(b)
-	var back := AK.button("返回", "plain", 13)
-	back.custom_minimum_size = Vector2(340, 36)
-	back.pressed.connect(func(): _tuning = null; _refresh(menu, region, kind))
-	list.add_child(back)
-	var height := list.get_child_count() * 36.0
-	AK.put(stage, list, Vector2(at.x, at.y - height))
-	return height
-
-static func _insure_control(menu: FieldMenu, stage: Control, item: Item, at: Vector2, region: String, kind: String) -> void:
-	var game := menu.game
-	if item.insured:
-		AK.put(stage, AK.tag("已投保", AK.HP, false), at + Vector2(70, 10))
-		return
-	var price := game.insurance_price(item)
-	var b := AK.button("投保 %s" % Economy.format(price), "plain", 12)
-	b.disabled = game.gold < price
-	b.pressed.connect(func(): game.insure(item); _refresh(menu, region, kind))
-	AK.put(stage, b, at, Vector2(140, 36))
 
 static func _back_from_training(menu: FieldMenu, region: String, kind: String) -> void:
 	menu.game.open_modal("station")
@@ -778,7 +696,7 @@ static func pause(menu: FieldMenu) -> void:
 	var game := menu.game
 	var stage := menu.stage_begin(0.85)
 	var page: int = menu.pause_page
-	stage.add_child(AK.rect(Color("0e0e0e"), Vector2.ZERO, Vector2(280, 720)))
+	stage.add_child(AK.rect(Color("0c0e10"), Vector2.ZERO, Vector2(280, 720)))
 	AK.put(stage, AK.label("PAUSED", 10, AK.MUTE, AK.en()), Vector2(26, 36))
 	AK.put(stage, AK.label("暂停", 28, AK.FG), Vector2(26, 50))
 	var y := 110.0
@@ -840,7 +758,7 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 	var rows: Array = []
 	match tab:
 		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"]]
-		1: rows = [["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["language"],
+		1: rows = [["界面动效", ["精简", "完整"], "ui_motion"], ["交易确认", ["关", "开"], "trade_confirm"], ["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["language"],
 			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95]]
 		2: rows = [["主音量", [], "master_volume"]]
 		3:
@@ -908,7 +826,7 @@ static func _base_settings(menu: FieldMenu, stage: Control) -> void:
 ## (middle, side buttons, wheel). Click a binding, then press a key or mouse
 ## button; Esc cancels, Backspace clears. A binding another function had is
 ## taken from it. The hotbar's contents are picked on the bar itself.
-const KEY_ROW := 30.0
+const KEY_ROW := 24.0
 
 static func _hotbar_page(menu: FieldMenu, stage: Control) -> void:
 	_panel(stage)
@@ -919,7 +837,7 @@ static func _hotbar_page(menu: FieldMenu, stage: Control) -> void:
 		AK.put(stage, AK.label("主键", 11, AK.MUTE), Vector2(334 + col * 470 + 196, 54))
 		AK.put(stage, AK.label("副键", 11, AK.MUTE), Vector2(334 + col * 470 + 342, 54))
 	var binds := Keybinds.all()
-	var columns := {"快捷栏": 0, "专用键": 0, "移动": 1, "界面": 1}
+	var columns := {"快捷栏": 0, "专用键": 0, "视角": 0, "移动": 1, "界面": 1}
 	var y := [76.0, 76.0]
 	var last_group := ["", ""]
 	for f in Keybinds.FUNCTIONS:
@@ -991,6 +909,16 @@ class FlowGrid extends Control:
 	var rows := 10
 	var on_pick: Callable
 	var on_hover: Callable
+	## Drag (ItemDrag): its items drag out when `drag`; it takes what accept(item) allows.
+	var drag := false
+	var accept: Callable
+	var take: Callable
+	## Packed (the workbench depot): each item at the first cell it fits, row by
+	## row, so small pieces fill the gaps beside big ones; the grid grows to fit.
+	var places := {}
+	## Right click (a quick action) and the item's full hover card.
+	var on_alt: Callable
+	var cards := false
 
 	static func make(shown: Array, w: int, h: int, pick: Callable, hover: Callable) -> FlowGrid:
 		var grid := FlowGrid.new()
@@ -1003,17 +931,62 @@ class FlowGrid extends Control:
 		grid.size = grid.custom_minimum_size
 		return grid
 
+	## The packed grid: `w` wide, at least `min_rows` tall, every item placed.
+	static func packed(shown: Array, w: int, min_rows: int, pick: Callable) -> FlowGrid:
+		var taken := {}
+		var places := {}
+		var rows := min_rows
+		for item: Item in shown:
+			var at := Vector2i(-1, -1)
+			var y := 0
+			while at.x < 0:
+				for x in range(w - item.width + 1):
+					var free := true
+					for dy in range(item.height):
+						for dx in range(item.width):
+							if taken.has(Vector2i(x + dx, y + dy)): free = false
+					if free:
+						at = Vector2i(x, y)
+						break
+				y += 1
+			for dy in range(item.height):
+				for dx in range(item.width): taken[at + Vector2i(dx, dy)] = true
+			places[item] = at
+			rows = maxi(rows, at.y + item.height)
+		var grid := make(shown, w, rows, pick, func(_it): pass)
+		grid.places = places
+		grid.cards = true
+		return grid
+
+	## Cells the items take.
+	func used_cells() -> int:
+		var n := 0
+		for item: Item in items: n += item.width * item.height
+		return n
+
+	## Its items drag out; drops that `accept_item(item)` allows go to `take_item(item)`.
+	func dragging(accept_item: Callable, take_item: Callable) -> FlowGrid:
+		drag = true
+		accept = accept_item
+		take = take_item
+		return self
+
 	func _ready() -> void:
+		if accept.is_valid(): ItemDrag.wire(self, null, accept, take)
 		var x := 0
 		var y := 0
 		var row_h := 0
 		for item: Item in items:
-			if x + item.width > columns:
+			if places.has(item):
+				x = places[item].x
+				y = places[item].y
+			elif x + item.width > columns:
 				x = 0
 				y += row_h
 				row_h = 0
 			if y + item.height > rows: break
-			var tile := Button.new()
+			var tile: Button = TraderScreen.ShelfTile.new() if cards else Button.new()
+			if cards: tile.item = item
 			tile.flat = true
 			tile.focus_mode = Control.FOCUS_NONE
 			tile.position = Vector2(x, y) * CELL
@@ -1023,6 +996,10 @@ class FlowGrid extends Control:
 			var shown := item
 			tile.pressed.connect(func(): on_pick.call(shown))
 			tile.mouse_entered.connect(func(): on_hover.call(shown))
+			if on_alt.is_valid():
+				tile.gui_input.connect(func(e: InputEvent):
+					if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_RIGHT: on_alt.call(shown))
+			if drag or accept.is_valid(): ItemDrag.wire(tile, shown if drag else null, accept, take)
 			add_child(tile)
 			x += item.width
 			row_h = maxi(row_h, item.height)
@@ -1038,7 +1015,7 @@ static func item_card(menu: FieldMenu, item: Item) -> void:
 	var game := menu.game
 	var base: BaseState = game.base
 	var stage := menu.stage_begin(0.85)
-	var panel := AK.rect(Color("101010"), Vector2(260, 130), Vector2(760, 460))
+	var panel := AK.rect(Color("0d1012"), Vector2(260, 130), Vector2(760, 460))
 	stage.add_child(panel)
 	stage.add_child(AK.rect(AK.tier_color(item), Vector2(260, 130), Vector2(760, 4)))
 	AK.put(stage, AK.label("CRATE", 10, AK.MUTE, AK.en()), Vector2(284, 152))

@@ -1,0 +1,415 @@
+{
+  "batch": "UD_UF_v1",
+  "asset_count": 18,
+  "UD": 5,
+  "UF": 13,
+  "files": [
+    {
+      "id": "potion_d",
+      "name": "热能饮剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_d.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "a52f0bead8ffd47404fdb8269b1089c318c0c6689d58ee33b951f2f2a4dbfdea",
+      "source": "source_paintings/potion_d_cap.png",
+      "source_sha256": "27f403d9e305869963601040d0cb65a5bbd8cee25fb211d5ecc9eb94dd9cd573",
+      "source_bbox": [
+        392,
+        120,
+        879,
+        1168
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "thermos",
+      "accent": "#bc5031",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_e",
+      "name": "镇静合剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_e.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "9a3df7562828360b03ea1436891f6e758929ddab56241ba0d605156021ddd221",
+      "source": "source_paintings/potion_e.png",
+      "source_sha256": "6b66ab8b108bd2345c7bd590bd40f32040f3caaac0c8aaa62de61a18a6386001",
+      "source_bbox": [
+        190,
+        218,
+        1098,
+        1143
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "oval_flask",
+      "accent": "#b084d2",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_f",
+      "name": "战术兴奋剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_f.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "02f5c99be61889d870d9d61e6f77e1fea85bf23566ade56669c02fbdc678d0f2",
+      "source": "source_paintings/potion_f.png",
+      "source_sha256": "1bf303377d1938e8dc99d3e40e177799c855e3dea7fb9bff85775445116dec0a",
+      "source_bbox": [
+        116,
+        89,
+        1197,
+        1181
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "angular_injector",
+      "accent": "#e13b48",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_g",
+      "name": "急行针剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_g.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "452682e51f600ea1c4707654da26a71d5987bdc57f3f18daeced54947a7b0aeb",
+      "source": "source_paintings/potion_g.png",
+      "source_sha256": "d100ea914e4e7ace5dbdecd53fe1955b1d0e9ed05c6012b4aa0af27c976a0f49",
+      "source_bbox": [
+        176,
+        133,
+        1094,
+        1138
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "slim_syringe",
+      "accent": "#6cd69e",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_h",
+      "name": "源石护盾凝胶",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_h.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "3f4cb56215c18ad279c894db4d542b4cb85810a989dd48bfa5cd505da4877909",
+      "source": "source_paintings/potion_h.png",
+      "source_sha256": "07f5f7c5884fdbb1c6b22c2a8627fcea5541934731dc8bb98bde1e2fd58d5b07",
+      "source_bbox": [
+        79,
+        105,
+        1135,
+        1190
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "squeeze_tube",
+      "accent": "#3fd2f2",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_i",
+      "name": "广谱解毒剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_i.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "b8c438403a9e556733f1540a3c87f1ed6031ad990a525677885a52737ea459ba",
+      "source": "source_paintings/potion_i.png",
+      "source_sha256": "8698c4aa1eb030a4b5a3cf4b495bc0e17e1064935054f96636439b7a25935ca2",
+      "source_bbox": [
+        473,
+        101,
+        781,
+        1157
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "double_ampoule",
+      "accent": "#47be64",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_j",
+      "name": "静默喷剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_j.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "6bd78c351f797d9cc664c5ad6c51e9027ad52f7e243822dad19caf4814813fae",
+      "source": "source_paintings/potion_j.png",
+      "source_sha256": "b95f2929aaaa2f53d79bd42c5d6547f57b92b5c9f957e886cf7a144a53501521",
+      "source_bbox": [
+        432,
+        111,
+        859,
+        1162
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "black_spray",
+      "accent": "#a6a7b3",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_k",
+      "name": "技艺增幅剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_k.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "54592fd45075d3caeca01a2dc55a0bebdcabc8b2ceedeaf6773f7f926c664d4d",
+      "source": "source_paintings/potion_k.png",
+      "source_sha256": "1017f1673098db37d0a914dbc2f673c4e7eb9cc63c700d0c5d20d5b891352576",
+      "source_bbox": [
+        325,
+        126,
+        929,
+        1143
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "faceted_cartridge",
+      "accent": "#ac6de2",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_l",
+      "name": "应急强心针",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_l.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "11140ad93eac16c4c985a017829763a532c498b4f9da71eca07fe0a8854248ff",
+      "source": "source_paintings/potion_l.png",
+      "source_sha256": "895413f6b361d0195bee8426072da67e410ff4197ef3eba0e9a2fd48e0b69167",
+      "source_bbox": [
+        140,
+        115,
+        1156,
+        1179
+      ],
+      "packaging": "Closure shared magenta label",
+      "silhouette": "yellow_safety_injector",
+      "accent": "#e8bd32",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_rat",
+      "name": "黑市兴奋剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_rat.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "2ac4af570814448b2c7b08a1c7a05bdafa63832bf88421f3c369474ca0df2909",
+      "source": "source_paintings/potion_rat.png",
+      "source_sha256": "e385566c9935eece82960a6be25b7266d5ab142f30686b70d723262a3f91b86f",
+      "source_bbox": [
+        305,
+        142,
+        957,
+        1145
+      ],
+      "packaging": "Regional improvised packaging",
+      "silhouette": "cork_vial",
+      "accent": "#be343b",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_reunion",
+      "name": "自制抑制剂",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_reunion.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "4427e3d70074bff5e98bac212dfa80343cc2c35060da9795f8813040aa65888e",
+      "source": "source_paintings/potion_reunion.png",
+      "source_sha256": "f43d47dd4565cf0df7471402f0a7208769b9476fcf67940eec029a34e3d31c7c",
+      "source_bbox": [
+        449,
+        74,
+        821,
+        1160
+      ],
+      "packaging": "Regional improvised packaging",
+      "silhouette": "cloth_stop_bottle",
+      "accent": "#9fa990",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_ursus",
+      "name": "矿工烈酒",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_ursus.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "8df7296e7b0c210aa7cbef1bd388660c02dccde1a73f30b9a1e55d8845235ad4",
+      "source": "source_paintings/potion_ursus.png",
+      "source_sha256": "8e4fb9d43fcd4fa44dafe2c331d8eb9e1e2c6c387ef8f097613d267091fb2f4b",
+      "source_bbox": [
+        176,
+        137,
+        1078,
+        1186
+      ],
+      "packaging": "Regional improvised packaging",
+      "silhouette": "round_hip_flask",
+      "accent": "#b87b3d",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "potion_sami",
+      "name": "林地草药茶",
+      "kind": "UF",
+      "file": "art/items/runtime/potion_sami.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "51e11fcd48fc8cf5c014bf7e47dfe76f77a226bac9420ec3643e02cec2ee128b",
+      "source": "source_paintings/potion_sami.png",
+      "source_sha256": "94c62e407451abc03453453d1da5b222db5e2299afdc5c5d911c50426eadc63f",
+      "source_bbox": [
+        268,
+        134,
+        1032,
+        1153
+      ],
+      "packaging": "Regional improvised packaging",
+      "silhouette": "herb_flask",
+      "accent": "#8da34e",
+      "process": "Alpha>=128, trim alpha bbox, nearest-neighbor fit within 28x28, center on32x32,24-color quantize,no dithering"
+    },
+    {
+      "id": "title",
+      "name": "标题：罗德岛陆行舰",
+      "kind": "UD",
+      "file": "art/ui/key/title.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7d4f963b836dd51519c6f809c9d1676829621495888cfba05660b062af8e8044",
+      "source": "source_paintings/title.png",
+      "source_sha256": "4b9b23db43032ff6faecfbddadc8d9d4b4919302cc33fe68ef007471c91e8eb7",
+      "source_crop": [
+        0,
+        0,
+        1672,
+        940
+      ],
+      "brightness_multiplier": 1.0,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_mine",
+      "name": "切尔诺伯格矿区",
+      "kind": "UD",
+      "file": "art/ui/key/load_mine.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "cfc14c777f089fa49e1749cb8946439a8a82b3ab6735bfdf7587a9af229ee331",
+      "source": "source_paintings/load_mine.png",
+      "source_sha256": "0e53689078385d109d5e678b04c440680db249a5141a77ef06882e0e26dd2203",
+      "source_crop": [
+        0,
+        96,
+        2048,
+        672
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_city",
+      "name": "龙门下城区",
+      "kind": "UD",
+      "file": "art/ui/key/load_city.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "25f38f492cb245b97f574d42284ffc6afc6ed6ce32c8851980d7eebfd792ff2a",
+      "source": "source_paintings/load_city.png",
+      "source_sha256": "2289a8c2febd7c609a489342892fa9bb9e75a449f5c2f3893dfb4cfe4826e909",
+      "source_crop": [
+        0,
+        117,
+        1983,
+        675
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_snow",
+      "name": "萨米雪原",
+      "kind": "UD",
+      "file": "art/ui/key/load_snow.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "687190791106cd62d2f838f193291a05a461bd3b00667aab80da237038e574b4",
+      "source": "source_paintings/load_snow.png",
+      "source_sha256": "015628e97aa65839e175aaecd83a206c849d15547b8f371ad2184cb4bcf25176",
+      "source_crop": [
+        0,
+        0,
+        2048,
+        576
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    },
+    {
+      "id": "load_siracusa",
+      "name": "叙拉古旧城区",
+      "kind": "UD",
+      "file": "art/ui/key/load_siracusa.png",
+      "size": [
+        1280,
+        360
+      ],
+      "sha256": "de4d657aa1ceb586a31cac530ad51d0c0723da8237d5ba0e5be94e763b82d342",
+      "source": "source_paintings/load_siracusa.png",
+      "source_sha256": "7842033f81f7f0fb004a8d5273929aad08cce7df21085fbe9d7c4924b1af49a5",
+      "source_crop": [
+        0,
+        0,
+        1983,
+        558
+      ],
+      "brightness_multiplier": 0.72,
+      "process": "Aspect-preserving crop,nearest-neighbor logical half size,128-color quantize,no dithering,integer2x upscale"
+    }
+  ],
+  "method": "Built-in image_gen paintings; scripts only deterministic crop,resize,palette/alpha normalization,previews,hashing and packaging.",
+  "acceptance": "PENDING_ART_REVIEW",
+  "runtime_validation": "NOT_RUN"
+}

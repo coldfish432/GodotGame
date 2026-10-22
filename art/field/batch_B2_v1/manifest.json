@@ -1,0 +1,57 @@
+{
+  "batch": "B2_v1 stage1 identity",
+  "character": "civilian",
+  "status": "READY_FOR_IDENTITY_REVIEW",
+  "generator": "built-in image_gen.imagegen",
+  "native_visible_height": 26,
+  "source_bbox": [
+    287,
+    69,
+    940,
+    1236
+  ],
+  "registration_scale": 0.19880034275921166,
+  "native_bake_scale": 0.10560344827586207,
+  "native_reference_calibration": "b1_reference_scale to26 visible pixels; identity preview only",
+  "soldier_reference": "refs/enemy_dir_family_soldier_64.png, row1 column2 SW",
+  "comparison_order": [
+    "PRTS portrait",
+    "civilian native x6",
+    "accepted family soldier native x6"
+  ],
+  "cast_order": "civilian, family soldier, unmodified N1 overview at original6x",
+  "ground_evidence": "Offline composite over supplied screenshot; new civilians placed beside existing placeholder NPCs. Not a runtime capture. Main overlay uses assumed1.5x screen scale (39px); literal native1x overlay also supplied. Camera projection is not verified.",
+  "ground_placements_bottom_left": [
+    [
+      589,
+      187
+    ],
+    [
+      406,
+      295
+    ],
+    [
+      863,
+      295
+    ],
+    [
+      406,
+      485
+    ],
+    [
+      863,
+      485
+    ],
+    [
+      695,
+      554
+    ]
+  ],
+  "source_sha256": "f2453f14380f162c145ce84a8945d8a4e273c7ceb79555426c803c3373ef721d",
+  "pipeline_hashes": {
+    "bake_n2.py": "2396d78c8f84715dad6384b2df0bf83a8d5a16c3136402f65425b8310055a149",
+    "reduce_n1.py": "12b85055b2d2c256962e6a5ce989ba295361e06f7fb000f38f428b641647270c"
+  },
+  "no_action_or_walk_boards_created": true,
+  "approval_gate": "Source brief: The user approves it before you start the boards."
+}

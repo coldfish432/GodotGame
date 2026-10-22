@@ -151,7 +151,7 @@ func refresh() -> void:
 	for c in _cell_layers:
 		var count := base.shelf_count(c)
 		for r in range(_cell_layers[c].size()):
-			var filled := clampi(count - r * BaseCatalog.RACK_CELLS, 0, BaseCatalog.RACK_CELLS)
+			var filled := clampi(count - r * base.rack_cells(), 0, base.rack_cells())
 			var cells: Array = _cell_layers[c][r]
 			for k in range(cells.size()): cells[k].visible = k < filled
 	# Zone frames cover the built columns; they light up for the category she is carrying.
@@ -281,6 +281,8 @@ static func _signature_of(base: BaseState) -> String:
 	return ",".join(parts)
 
 func _hand_texture(category: int) -> Texture2D:
+	# A slot's piece (a ring, a helmet) carries its group's icon (8 slots).
+	category = Item.group_of(category)
 	if _hand_textures.has(category): return _hand_textures[category]
 	var image := _rgba(tex.carried_frame)
 	var icon := _rgba(tex["icon_" + CATEGORY_KEYS[category]])

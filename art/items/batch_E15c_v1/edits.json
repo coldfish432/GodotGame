@@ -1,0 +1,16 @@
+[
+  {
+    "id": "snow_feet_1",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-a05f5379-7a30-4ab9-ab8f-abb431a2bfb7.png",
+    "prompt": "Use case: precise-object-edit. Edit ONLY the ornamental band on this exact pair of curled-toe reindeer-hide boots: REMOVE ALL yellow diamond/lozenge/cross patterns. Replace with a SIMPLE plain RED horizontal cloth band with one THIN STRAIGHT YELLOW STRIPE along its center. Absolutely no symbols, glyphs, diamonds or motifs. Keep curled toes, pair, hide colors, lighting, fur rim, silhouette, pose and crisp pixel art unchanged. Genuine transparent background, no halo.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/snow_feet_1_raw.png"
+  },
+  {
+    "id": "snow_ring_2",
+    "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-75c7a59a-5b92-4fae-b052-a07cc5265630.png",
+    "prompt": "Use case: lighting-weather. Edit this exact DARK WOODEN ring only in lighting. Broaden the existing upper-left light wood face, add a broad naturally lit lower-front inner arc, so about35% of opaque ring is PALE WARM TAN #ecd0a0 or lighter, clearly light enough at32px. Keep majority ring dark walnut brown and keep subtle wood grain, one ring, exact silhouette, thick band, transparent central hole and composition. It must remain WOOD, no silver/gray metal, no jewels, no new groove. Broad clean pixel clusters, no noise. Genuine transparent background, no halo or text.",
+    "tool": "built-in imagegen",
+    "edit_target": "sources/snow_ring_2_raw.png"
+  }
+]

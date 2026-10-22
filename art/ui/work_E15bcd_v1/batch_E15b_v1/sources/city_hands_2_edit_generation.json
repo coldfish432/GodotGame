@@ -1,0 +1,7 @@
+{
+  "id": "city_hands_2",
+  "source_external": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-c2641132-46de-440a-b866-f70b7e369884.png",
+  "prompt": "Use case: precise-object-edit. Edit this exact equipment icon. Light BOTH large KNUCKLE PADS in PALE gray-blue #c6ced8 with large smooth connected top faces, plus upper-left outer glove fabric rim. Fingerless black gloves remain black elsewhere. Finger holes stay empty. No grain or speckle, flat broad cloth shapes. CRITICAL: clearly visible LARGE PALE SILVER/CREAM-GRAY light faces, not medium gray; light-face color #c6ced8 or lighter, broad area covering30-35% opaque item, to retain at least15% light pixels at native72px. Keep the majority remaining surfaces in the original dark base color. Keep object count, silhouette, material, fittings, orientation, pixel-art style, exact item identity. Simplify to broad clean flat pixel clusters, 4-5tones, no speckled noise. Genuine transparent background, no halo, no ground, no text or symbols.",
+  "tool": "built-in imagegen",
+  "edit_target": "sources/city_hands_2_raw.png"
+}

@@ -1,0 +1,561 @@
+<meta charset="utf-8">
+<title>罗德岛终端界面</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Saira:wdth,wght@100..125,400..800&display=swap">
+<style>
+/* 布局：上方选场景；下面是 1280×720 的游戏舞台，按宽度等比缩放。舞台里的按钮可以直接点，场景之间会走真实过场。
+   单一深色主题：陆行舰终端。底板 = R1 舰板贴图压暗；全息层 = R6 屏幕贴图；警示条 = R4；远景 = R9 荒野。 */
+:root{
+  color-scheme:dark;
+  --void:#07090b; --hull:#0e1215; --glass:rgba(12,16,19,.82); --plate:#1a2126; --plate2:#242c32;
+  --seam:#3b4146; --seamhi:#6b7880; --fg:#eef3f5; --mute:#97a4ab; --dim:#5c686f;
+  --holo:#3fd2f2; --holo2:#9cecff; --blue:#0098dc; --haz:#e8b730; --sp:#f5c000; --hp:#27a6ef; --red:#e23c3c; --ori:#e0782a; --green:#8fc31f;
+  --t0:#9a9a9a; --t1:#16a2e8; --t2:#ffc400; --t3:#c48cff;
+  --pink:#ff5fa2; --med:#2fbfa6;
+  --cn:"Noto Sans SC","Microsoft YaHei",sans-serif; --en:"Saira","Bahnschrift","Arial Narrow",sans-serif;
+}
+html,body{background:var(--void);color:var(--fg)}
+body{font-family:var(--cn);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 40px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:10px}
+header h1{font:900 22px var(--cn);margin:0}
+header span{font:600 11px var(--en);font-stretch:125%;letter-spacing:.24em;color:var(--mute)}
+nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+nav button{font:700 13px var(--cn);color:var(--mute);background:var(--plate);border:0;padding:8px 12px;cursor:pointer;clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+nav button[aria-selected="true"]{background:var(--holo);color:#04161c}
+nav button:focus-visible{outline:2px solid var(--holo);outline-offset:2px}
+.frame{width:100%;max-width:1280px;aspect-ratio:16/9;position:relative;overflow:hidden;background:#000;outline:1px solid var(--seam)}
+#stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;overflow:hidden;user-select:none}
+.hint{max-width:1280px;margin-top:10px;color:var(--mute);font-size:13px;line-height:1.6}
+.hint kbd{font:700 11px var(--en);background:var(--plate2);color:var(--fg);padding:1px 6px}
+
+#stage *{box-sizing:border-box}
+.a{position:absolute}
+.px{image-rendering:pixelated}
+canvas#dust{position:absolute;inset:0;pointer-events:none;z-index:5}
+#scene{position:absolute;inset:0}
+.layer{position:absolute;inset:0}
+
+/* 背景 */
+.bg{position:absolute;inset:-20px;background-size:cover;background-position:center;image-rendering:pixelated}
+.bg.blur{filter:blur(6px) brightness(.45) saturate(.8)}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 40%,rgba(0,0,0,.75) 100%)}
+.scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none;z-index:6}
+
+/* 面板：舰板贴图 + 压暗玻璃 + 切角 */
+.pn{position:absolute}
+.pn>.body{position:absolute;inset:0;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+  background:linear-gradient(180deg,rgba(14,18,21,.90),rgba(10,13,16,.94)),url(img/base_deck.png) 0 0/256px 256px;image-rendering:pixelated}
+.pn>.edge{position:absolute;inset:0;pointer-events:none;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+  background:linear-gradient(135deg,var(--seamhi),var(--seam) 25%,var(--seam) 75%,#2a3035);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:1px}
+.pn.glass>.body{background:linear-gradient(180deg,rgba(12,16,19,.78),rgba(8,11,13,.86))}
+.pn .inner{position:absolute;inset:0}
+.brk{position:absolute;width:14px;height:14px;border-color:var(--holo);border-style:solid;opacity:.9;pointer-events:none}
+.brk.tl{left:-5px;top:-5px;border-width:2px 0 0 2px}.brk.tr{right:-5px;top:-5px;border-width:2px 2px 0 0}
+.brk.bl{left:-5px;bottom:-5px;border-width:0 0 2px 2px}.brk.br{right:-5px;bottom:-5px;border-width:0 2px 2px 0}
+.hdr{position:absolute;left:0;right:0;top:0;height:48px;display:flex;align-items:center;gap:12px;padding:0 10px 0 22px;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
+.hdr::before{content:"";position:absolute;left:0;top:0;width:72px;height:6px;background:url(img/base_hazard.png) 0 0/48px 24px;image-rendering:pixelated;clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.hdr::after{content:"";position:absolute;left:12px;right:0;bottom:0;height:1px;background:linear-gradient(90deg,var(--dc,var(--holo)),transparent 70%);box-shadow:0 0 8px var(--dc,var(--holo))}
+.hdr .ic{width:26px;height:26px}
+.hdr .cnT{font:900 19px/1 var(--cn);letter-spacing:.04em}
+.hdr .enT{font:600 9px/1 var(--en);font-stretch:125%;letter-spacing:.3em;color:var(--mute);margin-top:4px;text-transform:uppercase}
+.hdr .ser{font:500 9px var(--en);letter-spacing:.2em;color:var(--dim)}
+.hdr .key{font:800 11px var(--en);background:var(--fg);color:#000;padding:2px 6px}
+.hdr .x{width:30px;height:30px;display:grid;place-items:center;color:var(--mute);cursor:pointer;font-size:16px}
+.hdr .x:hover{color:var(--fg);background:rgba(255,255,255,.06)}
+.grow{flex:1}
+.sec{display:flex;align-items:center;gap:8px;font:900 13px var(--cn)}
+.sec::before{content:"";width:3px;height:12px;background:var(--holo);box-shadow:0 0 6px var(--holo)}
+.sec i{font:600 9px var(--en);font-style:normal;font-stretch:125%;letter-spacing:.24em;color:var(--dim)}
+.micro{font:500 9px var(--en);letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
+.num{font-family:var(--en);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* 打开动画 */
+.open{animation:wipe .52s cubic-bezier(.2,.8,.2,1) both}
+@keyframes wipe{0%{clip-path:inset(0 0 100% 0);filter:brightness(2.2)}60%{filter:brightness(1.2)}100%{clip-path:inset(-20px -20px -20px -20px);filter:none}}
+.open::after{content:"";position:absolute;left:-10px;right:-10px;height:2px;top:0;background:var(--holo);box-shadow:0 0 16px 4px rgba(63,210,242,.6);animation:scanbar .52s cubic-bezier(.2,.8,.2,1) both;pointer-events:none;z-index:9}
+@keyframes scanbar{0%{top:0;opacity:1}100%{top:100%;opacity:0}}
+.open .brk{animation:brk .5s .25s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes brk{0%{opacity:0;transform:scale(2.2)}100%{opacity:.9;transform:none}}
+.rise{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:none}}
+.slideL{animation:slideL .55s cubic-bezier(.2,.8,.2,1) both}@keyframes slideL{0%{opacity:0;transform:translateX(-60px)}100%{opacity:1;transform:none}}
+.slideR{animation:slideR .55s cubic-bezier(.2,.8,.2,1) both}@keyframes slideR{0%{opacity:0;transform:translateX(60px)}100%{opacity:1;transform:none}}
+
+/* 全息环 */
+.spin{animation:spin 30s linear infinite}.spinR{animation:spin 46s linear infinite reverse}.spinF{animation:spin 9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bob{animation:bob 3.2s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-6px)}}
+.flick{animation:flick 5s steps(1) infinite}@keyframes flick{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.35}94%{opacity:1}96%{opacity:.6}97%{opacity:1}}
+.breathe{animation:br 2.6s ease-in-out infinite}@keyframes br{50%{opacity:.45}}
+.holoTex{position:absolute;background:url(img/base_screen.png) 0 0/512px 256px;image-rendering:pixelated;mix-blend-mode:screen;opacity:.16;animation:holoScroll 40s linear infinite}
+@keyframes holoScroll{to{background-position:-512px 0}}
+
+/* 格子与物品 */
+.grid{position:absolute;background-color:rgba(4,7,9,.7);background-image:linear-gradient(rgba(59,65,70,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(59,65,70,.9) 1px,transparent 1px);background-size:40px 40px;box-shadow:inset 0 0 0 1px var(--seam)}
+.it{position:absolute;display:grid;place-items:center;cursor:pointer;overflow:hidden}
+.it img{image-rendering:pixelated;position:relative;z-index:1;transition:transform .15s}
+.it::before{content:"";position:absolute;inset:1px;background:linear-gradient(0deg,var(--tc) -50%,transparent 60%);opacity:.5}
+.it::after{content:"";position:absolute;left:1px;right:1px;bottom:1px;height:3px;background:var(--tc);box-shadow:0 0 6px var(--tc)}
+.it:hover{box-shadow:inset 0 0 0 1px var(--holo),0 0 10px rgba(63,210,242,.4);z-index:3}
+.it:hover img{transform:scale(1.08)}
+.it .n{position:absolute;right:2px;bottom:5px;font:800 10px var(--en);background:#000;padding:0 3px;z-index:2}
+.sheen{display:none}
+
+.slot{position:absolute;display:grid;place-items:center;cursor:pointer;
+  background:radial-gradient(ellipse at 50% 120%,color-mix(in srgb,var(--tc,#000) 35%,transparent),transparent 70%),linear-gradient(180deg,#151b1f,#0d1114);
+  box-shadow:inset 0 0 0 1px var(--seam),inset 0 1px 0 0 rgba(255,255,255,.06);transition:box-shadow .15s}
+.slot.on{box-shadow:inset 0 0 0 1px var(--tc),inset 0 0 18px -6px var(--tc)}
+.slot:hover{box-shadow:inset 0 0 0 1px var(--holo),0 0 14px rgba(63,210,242,.35)}
+.slot:hover .sb{opacity:1;transform:none}
+.slot .sb{position:absolute;inset:-4px;pointer-events:none;opacity:0;transform:scale(1.15);transition:.18s}
+.slot .sb::before,.slot .sb::after{content:"";position:absolute;width:10px;height:10px;border:2px solid var(--holo)}
+.slot .sb::before{left:0;top:0;border-width:2px 0 0 2px}.slot .sb::after{right:0;bottom:0;border-width:0 2px 2px 0}
+.slot img{image-rendering:pixelated;position:relative;z-index:1}
+.slot svg{opacity:.28}
+.slot .cap{position:absolute;left:5px;top:3px;font:700 10px var(--cn);color:var(--dim)}
+.slot .ins{position:absolute;right:4px;top:4px;width:11px;height:12px;background:#4fd1c5;clip-path:polygon(50% 0,100% 25%,100% 70%,50% 100%,0 70%,0 25%);z-index:2}
+
+/* 按钮 */
+.btn{position:absolute;display:grid;place-items:center;cursor:pointer;font:700 13px var(--cn);color:var(--fg);
+  background:linear-gradient(180deg,#2b343a,#1d2428);box-shadow:inset 0 0 0 1px var(--seam),inset 0 1px 0 rgba(255,255,255,.08);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%);transition:filter .12s,transform .12s}
+.btn:hover{filter:brightness(1.3)}.btn:active{transform:translateY(1px)}
+.btn.inl{position:relative;display:inline-flex;align-items:center;white-space:nowrap;height:26px;padding:0 10px;font-size:12px}
+.btn.on{background:var(--fg);color:#000;box-shadow:none}
+.go{position:absolute;cursor:pointer;overflow:hidden;background:linear-gradient(100deg,#0089c9,#00a6ec);clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%);transition:filter .15s}
+.go:hover{filter:brightness(1.15)}
+.go::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 26px,rgba(255,255,255,.09) 26px 28px);animation:stripes 1.6s linear infinite}
+@keyframes stripes{to{background-position:57px 0}}
+.go .lab{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+.go b{font:900 28px/1 var(--cn);letter-spacing:.08em}
+.go i{font:700 10px var(--en);font-style:normal;letter-spacing:.4em;margin-top:6px;opacity:.9}
+.go .chev{position:absolute;right:28px;top:50%;transform:translateY(-50%);z-index:1;font:900 26px var(--en);animation:chev 1.2s ease-in-out infinite}
+@keyframes chev{50%{transform:translate(6px,-50%)}}
+
+.stat{display:flex;justify-content:space-between;align-items:center;height:23px;font-size:13px;color:var(--mute);border-bottom:1px solid rgba(59,65,70,.35)}
+.stat b{font:700 13px var(--en);color:var(--fg);font-variant-numeric:tabular-nums}
+.stat b small{color:var(--green);margin-left:5px;font-size:12px}
+.bar{position:absolute;background:rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px var(--seam)}
+.bar .f{position:absolute;left:1px;top:1px;bottom:1px;transition:width .6s}
+.bar .ticks{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 19px,rgba(0,0,0,.55) 19px 20px)}
+
+/* 提示卡 */
+.tip{position:absolute;width:244px;z-index:20;pointer-events:none;padding:12px 14px;font-size:12px;line-height:1.75;
+  background:linear-gradient(180deg,rgba(14,19,22,.97),rgba(8,11,13,.98));box-shadow:inset 0 0 0 1px var(--tc),0 10px 30px rgba(0,0,0,.6);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);animation:rise .2s both}
+.tip .tg{font:700 10px var(--cn);color:var(--mute);display:flex;justify-content:space-between}
+.tip .nm{font:900 15px var(--cn);color:var(--tc);text-shadow:0 0 10px color-mix(in srgb,var(--tc) 50%,transparent)}
+.tip .ln{color:var(--mute)}.tip .up{color:var(--green)}.tip .dn{color:var(--red)}
+.tip .fl{font-style:italic;color:var(--dim);margin-top:4px;border-top:1px solid var(--seam);padding-top:4px}
+
+/* HUD */
+.hb{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;gap:5px;z-index:4}
+.hb .s{width:56px;height:56px;position:relative;display:grid;place-items:center;
+  background:linear-gradient(180deg,rgba(26,33,38,.92),rgba(10,13,15,.95));box-shadow:inset 0 0 0 1px var(--seam),inset 0 1px 0 rgba(255,255,255,.07)}
+.hb .s i{position:absolute;left:3px;top:2px;font:800 9px var(--en);font-style:normal;color:var(--mute)}
+.hb .s .q{position:absolute;right:3px;top:2px;font:800 10px var(--en)}
+.hb .s .cd{position:absolute;left:1px;right:1px;top:1px;background:rgba(0,0,0,.72);display:grid;place-items:center;font:800 15px var(--en)}
+.hb .s.rdy{box-shadow:inset 0 0 0 1px var(--sp),0 0 12px rgba(245,192,0,.5)}
+.side{width:206px;position:relative;height:56px}
+.dmg{position:absolute;font:900 22px var(--en);text-shadow:0 2px 0 #000,0 0 6px #000;pointer-events:none;animation:dmg 1s ease-out forwards;z-index:4}
+@keyframes dmg{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1;transform:translateY(-8px) scale(1.15)}100%{opacity:0;transform:translateY(-46px) scale(1)}}
+.toast{position:absolute;left:50%;top:56px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:7px 16px 7px 0;background:rgba(8,11,13,.88);box-shadow:inset 0 0 0 1px var(--seam);animation:rise .3s both;z-index:4}
+.toast b{background:var(--blue);font:800 11px var(--en);padding:8px 10px;letter-spacing:.12em}
+
+/* 过场 */
+.wipe{position:absolute;inset:0;z-index:50;pointer-events:none}
+.wipe .p{position:absolute;top:-10%;bottom:-10%;width:75%;background:#07090b}
+.wipe .p.l{left:-80%;transform:skewX(-14deg);box-shadow:8px 0 0 var(--haz)}
+.wipe .p.r{right:-80%;transform:skewX(-14deg);box-shadow:-8px 0 0 var(--holo)}
+.wipe.in .p.l{animation:wl .38s cubic-bezier(.7,0,.3,1) forwards}.wipe.in .p.r{animation:wr .38s cubic-bezier(.7,0,.3,1) forwards}
+.wipe.out .p.l{left:-5%;animation:wl2 .42s cubic-bezier(.7,0,.3,1) forwards}.wipe.out .p.r{right:-5%;animation:wr2 .42s cubic-bezier(.7,0,.3,1) forwards}
+@keyframes wl{to{left:-5%}}@keyframes wr{to{right:-5%}}@keyframes wl2{to{left:-90%}}@keyframes wr2{to{right:-90%}}
+.wipe .logo{position:absolute;left:50%;top:50%;width:72px;transform:translate(-50%,-50%);opacity:0;image-rendering:pixelated}
+.wipe.in .logo{animation:logoIn .38s .2s forwards}@keyframes logoIn{to{opacity:.9}}
+.wipe.out .logo{opacity:.9;animation:logoOut .2s forwards}@keyframes logoOut{to{opacity:0}}
+
+
+.opc{position:relative;width:100px;height:160px;cursor:pointer;overflow:hidden;
+  background:linear-gradient(180deg,#1b2227 0%,#12171a 55%,color-mix(in srgb,var(--oc) 28%,#12171a) 100%);
+  box-shadow:inset 0 0 0 1px var(--seam);clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);transition:box-shadow .15s,transform .15s}
+.opc:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px var(--oc)}
+.opc img{position:absolute;left:50%;bottom:34px;height:112px;transform:translateX(-50%);transition:transform .2s}
+
+.opc .cls{position:absolute;left:0;top:0;background:#000;font:900 11px var(--cn);padding:2px 5px}
+.opc .el{position:absolute;right:4px;top:3px;font:800 11px var(--en);color:var(--sp)}
+.opc .hurt{position:absolute;right:0;top:20px;background:var(--red);font:900 10px var(--cn);padding:1px 5px}
+.opc .nm{position:absolute;left:0;right:0;bottom:0;height:34px;padding:2px 7px;background:rgba(5,7,9,.85);box-shadow:inset 0 -3px 0 var(--oc)}
+.opc .nm b{display:block;font:900 13px/1.3 var(--cn);white-space:nowrap}
+.opc .nm span{font-size:10px;color:var(--mute)}
+.opc .ck{position:absolute;right:0;bottom:34px;width:22px;height:22px;display:grid;place-items:center;background:var(--oc);color:#000;font:900 13px var(--en);opacity:0;transform:scale(.4);transition:.18s}
+.opc .k{position:absolute;left:4px;bottom:38px;font:800 10px var(--en);color:var(--dim)}
+.opc.sel{box-shadow:inset 0 0 0 2px var(--oc),inset 0 0 26px -8px var(--oc)}
+.opc.sel .ck{opacity:1;transform:none}
+.opchip{position:relative;width:38px;height:44px;cursor:pointer;overflow:hidden;background:linear-gradient(180deg,#1b2227,color-mix(in srgb,var(--oc) 30%,#12171a));box-shadow:inset 0 0 0 1px var(--seam);transition:transform .15s}
+.opchip img{position:absolute;left:50%;top:-2px;height:150px;transform:translateX(-50%)}
+.opchip:hover{transform:translateY(-2px)}
+.opchip.sel{box-shadow:inset 0 0 0 2px var(--oc),0 0 10px color-mix(in srgb,var(--oc) 60%,transparent)}
+.opchip .hd{position:absolute;right:0;top:0;width:8px;height:8px;background:var(--red)}
+
+.it .pt{position:absolute;left:1px;bottom:4px;z-index:2;background:#fff;color:#000;font:800 8px/11px var(--en);letter-spacing:-.02em;padding:0 3px;display:flex;align-items:center;gap:2px;clip-path:polygon(0 0,100% 0,100% 55%,calc(100% - 4px) 100%,0 100%);white-space:nowrap}
+.it .stk{position:absolute;right:2px;top:1px;z-index:2;font:800 9px var(--en);color:#cfd8dc;text-shadow:0 1px 0 #000}
+.it .lk{position:absolute;inset:0;z-index:2;background:repeating-linear-gradient(135deg,rgba(232,183,48,.22) 0 4px,transparent 4px 8px);font:800 9px var(--en);color:var(--haz);display:flex;gap:2px;padding:2px;align-items:flex-start}
+.it .so{position:absolute;left:-6px;right:-6px;top:14px;z-index:2;background:rgba(226,60,60,.85);font:900 9px var(--cn);text-align:center;transform:rotate(-18deg)}
+.it.pick{box-shadow:inset 0 0 0 2px var(--holo),0 0 12px rgba(63,210,242,.5);z-index:3}
+.medskin{color:#1b2328}
+.medskin .tleft{background:linear-gradient(180deg,#f4f7f8,#e3eaec)!important;box-shadow:inset 0 0 0 1px #b9c5ca!important}
+.medskin .fadeL{background:linear-gradient(0deg,#e3eaec 70%,transparent)!important}
+.medskin #dealBar .lbl{color:#7b8a91}
+.medskin .topbar{background:#f4f7f8!important;color:#1b2328}
+.medskin .topbar .btn{background:#dfe6e8;color:#1b2328;box-shadow:none}
+.medskin .pn>.body{background:#eef2f3}
+.medskin .pn>.edge{background:#b9c5ca}
+.medskin .brk{border-color:var(--med)}
+.medskin .grid{background-color:#f7fafa;background-image:linear-gradient(#c8d2d6 1px,transparent 1px),linear-gradient(90deg,#c8d2d6 1px,transparent 1px);box-shadow:inset 0 0 0 1px #b9c5ca}
+.medskin .sec::before{background:var(--med);box-shadow:none}
+.medskin .lbl,.medskin .micro{color:#5b6a71}
+.medskin #dealBar{background:#fff!important;box-shadow:inset 0 0 0 1px #b9c5ca!important}
+.medskin .go{background:linear-gradient(100deg,#22a892,var(--med))}
+.medskin .btn{background:#dfe6e8;color:#1b2328;box-shadow:inset 0 0 0 1px #b9c5ca}
+@media (prefers-reduced-motion:reduce){#stage *,#stage *::before,#stage *::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition:none!important}}
+</style>
+
+<header><h1>罗德岛终端界面</h1><span>UI V3 · LANDSHIP TERMINAL · MOTION PROTOTYPE</span></header>
+<nav id="nav"></nav>
+<div class="frame" id="frame"><div id="stage"><div id="scene"></div><canvas id="dust" width="1280" height="720"></canvas><div class="scanlines"></div></div></div>
+<p class="hint">舞台里的按钮可以直接点：标题 → 整备台 → 出发准备 → 行动开始 → 局内。局内按 <kbd>I</kbd> 装备背包、<kbd>C</kbd> 干员、<kbd>Esc</kbd> 关闭。悬停物品看提示卡。原画用的是 Sol 画的待机图和 NPC 立绘（占位），底板、警示条、全息纹理都是基地 R 批材质。</p>
+
+<script>
+const S=document.getElementById('stage'),F=document.getElementById('frame'),SC=document.getElementById('scene');
+const fit=()=>S.style.transform=`scale(${F.clientWidth/1280})`;new ResizeObserver(fit).observe(F);
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const at=(x,y,w,h)=>`left:${x}px;top:${y}px;${w!=null?`width:${w}px;`:''}${h!=null?`height:${h}px;`:''}`;
+const TC=['var(--t0)','var(--t1)','var(--t2)','var(--t3)'];
+const IMG='img/';
+
+// ---------- 装饰 ----------
+function ring(sz,col='var(--holo)'){
+  return `<div class="a" style="width:${sz}px;height:${sz}px;border-radius:50%;background:radial-gradient(circle at 50% 55%,color-mix(in srgb,${col} 16%,transparent) 0,color-mix(in srgb,${col} 6%,transparent) 45%,transparent 70%)"></div>`;
+}
+const brk='<span class="brk tl"></span><span class="brk tr"></span><span class="brk bl"></span><span class="brk br"></span>';
+const icoSVG=k=>({
+ bag:'<svg viewBox="0 0 26 26" class="ic" fill="none" stroke="var(--holo)" stroke-width="2"><rect x="4" y="8" width="18" height="15"/><path d="M9 8V4h8v4M4 14h18"/></svg>',
+ op:'<svg viewBox="0 0 26 26" class="ic" fill="none" stroke="var(--holo)" stroke-width="2"><circle cx="13" cy="9" r="5"/><path d="M3 24c1-6 5-9 10-9s9 3 10 9"/></svg>',
+ wrench:'<svg viewBox="0 0 26 26" class="ic" fill="none" stroke="var(--holo)" stroke-width="2"><path d="M16 3a6 6 0 0 0-5 8L3 19l4 4 8-8a6 6 0 0 0 8-5l-4 2-3-3z"/></svg>',
+ cart:'<svg viewBox="0 0 26 26" class="ic" fill="none" stroke="var(--pink)" stroke-width="2"><path d="M2 4h4l3 13h12l3-9H8"/><circle cx="10" cy="22" r="2"/><circle cx="20" cy="22" r="2"/></svg>',
+ squad:'<svg viewBox="0 0 26 26" class="ic" fill="none" stroke="var(--holo)" stroke-width="2"><path d="M13 2l10 6v10l-10 6L3 18V8z"/><path d="M13 8v10M8 13h10"/></svg>'}[k]);
+function panel(x,y,w,h,{cn,en,ic,key,dc,tabs,ser,cls='',onX='close'}={},body=''){
+  const hdr=cn?`<div class="hdr" style="--dc:${dc||'var(--holo)'}">${icoSVG(ic||'bag')}<div><div class="cnT" data-decode>${cn}</div><div class="enT">${en}</div></div>${tabs?`<div style="display:flex;gap:2px;margin-left:14px">${tabs.map((t,i)=>`<span class="btn inl ${i==0?'on':''}">${t}</span>`).join('')}</div>`:''}<div class="grow"></div><span class="ser">${ser||'RI-PRTS / 0047'}</span>${key?`<span class="key">${key}</span>`:''}<div class="x" data-act="${onX}">✕</div></div>`:'';
+  return `<div class="pn open ${cls}" style="${at(x,y,w,h)}"><div class="body"></div><div class="edge"></div>${brk}<div class="inner">${hdr}<div class="a" style="left:0;right:0;top:${cn?48:0}px;bottom:0">${body}</div></div></div>`;
+}
+const SIL={head:'<path d="M20 6c-8 0-13 6-13 14v6h26v-6c0-8-5-14-13-14zM9 28h22v5H9z"/>',chest:'<path d="M10 4l6 4h8l6-4 8 6-4 10-4-2v18H10V18l-4 2-4-10z"/>',hands:'<path d="M12 6h4v12h2V4h4v14h2V6h4v16c0 7-4 12-10 12s-10-5-10-10v-8h4z"/>',legs:'<path d="M10 4h20l-1 32h-7l-2-20-2 20h-7z"/>',feet:'<path d="M12 4h8v20l12 4v8H8V24z"/>',amulet:'<path d="M8 4c0 10 5 16 12 16S32 14 32 4" fill="none" stroke="#9aa7ae" stroke-width="2"/><path d="M20 18l6 8-6 10-6-10z"/>',ring:'<circle cx="20" cy="22" r="10" fill="none" stroke="#9aa7ae" stroke-width="4"/><path d="M16 6h8l3 6H13z"/>',weapon:'<path d="M18 2h4v26h-4zM12 28h16v3H12zM18 31h4v7h-4z"/>'};
+const sil=(k,s)=>`<img src="${IMG}sil_${k}.png" class="px" width="${s>40?48:32}" style="opacity:.32">`;
+
+// ---------- 物品数据 ----------
+const ITEMS={
+ twin_fang:{n:'双生獠牙',t:2,slot:'武器',l:['攻击 +182','攻击速度 +6%','暴击伤害 +18%'],f:'两把刀，一样的齿痕。',w:72,h:32},
+ rhodes_protective_vest:{n:'坚固的 · 罗德岛防护背心',t:2,slot:'胸',l:['生命 +410','防御 +26','法术抗性 +4'],f:'后勤部标准件，内衬是新换的。',w:72,h:72},
+ dust_mask:{n:'防尘面罩',t:1,slot:'头',l:['生命 +120','法术抗性 +3'],w:32,h:32},
+ shadow_bracer:{n:'影缚护腕',t:0,slot:'手',l:['攻击速度 +3%'],w:32,h:32},
+ yan_talisman:{n:'炎国符箓',t:1,slot:'项链',l:['技力回复 +6%','法术攻击 +24'],w:32,h:32},
+ tactical_charm:{n:'战术护符',t:0,slot:'戒指',l:['攻击 +18'],w:32,h:32},
+ lgd_vest:{n:'龙门近卫局制式护甲',t:1,slot:'胸',l:['生命 +520','防御 +30','冰冻抗性 +6%'],cmp:'rhodes_protective_vest',f:'近卫局编号已经刮掉了。',w:72,h:72},
+ moon_edge:{n:'迅捷的 · 月刃',t:2,slot:'武器',l:['攻击 +166','攻击速度 +10%'],cmp:'twin_fang',w:72,h:32},
+ reunion_mask:{n:'整合运动面具',t:0,slot:'头',l:['生命 +80'],cmp:'dust_mask',w:32,h:32},
+ potion_a:{n:'标准急救剂',t:0,slot:'药剂',l:['立即回复 960 生命'],w:32,h:32},
+ potion_b:{n:'缓释凝胶',t:1,slot:'药剂',l:['6 秒内共回复 1680 生命'],w:32,h:32},
+ potion_c:{n:'抑制喷剂',t:1,slot:'药剂',l:['回复 480 生命','污染 −6'],w:32,h:32},
+ pure_gold:{n:'赤金',t:2,slot:'货币',l:['可露希尔按汇率收购'],w:32,h:32},
+ metal_plate:{n:'金属板',t:0,slot:'材料',l:['加工、改造用'],w:32,h:32},
+ circuit_board:{n:'电路板',t:0,slot:'材料',l:['加工、改造用'],w:32,h:32},
+ lgd_radio:{n:'近卫局短波电台',t:1,slot:'交付品',l:['出库区订单需要'],w:32,h:32},
+ raw_originium:{n:'源石原矿',t:0,slot:'材料',l:['污染 +2 / 层'],w:32,h:72},
+ courier_dagger:{n:'信使短刀',t:0,slot:'武器',l:['攻击 +96'],cmp:'twin_fang',w:72,h:32},
+ lungmen_wallet:{n:'龙门币钱夹',t:1,slot:'交付品',l:['交付价 ×1.5'],w:32,h:32},
+ fire_suit:{n:'消防员外套',t:1,slot:'胸',l:['生命 +360','灼烧抗性 +12%'],cmp:'rhodes_protective_vest',w:72,h:72},
+ riot_shield:{n:'防暴盾',t:2,slot:'武器',l:['防御 +40'],w:72,h:72},
+ expedition_parka:{n:'远征派克大衣',t:1,slot:'胸',l:['生命 +300','寒冷抗性 +20%'],cmp:'rhodes_protective_vest',w:72,h:72},
+ rhodes_dual_blades:{n:'罗德岛制式双刃',t:3,slot:'武器',l:['攻击 +210','每第 3 击释放剑气'],cmp:'twin_fang',w:72,h:32},
+};
+function item(id,gx,gy,cw,ch,ox,oy,n){
+  const d=ITEMS[id];return `<div class="it ${d.t>=2?'gold':''}" data-item="${id}" style="${at(ox+gx*40,oy+gy*40,cw*40,ch*40)}--tc:${TC[d.t]}"><img src="${IMG}${id}.png" width="${d.w}" height="${d.h}">${n?`<span class="n">${n}</span>`:''}${d.t>=2?'<span class="sheen"></span>':''}</div>`;
+}
+const PACK=[['potion_a',0,0,1,1,5],['potion_b',1,0,1,1,2],['potion_c',2,0,1,1,1],['lgd_vest',3,0,2,2],['moon_edge',5,0,2,1],['reunion_mask',5,1,1,1],['pure_gold',6,1,1,1,7],['metal_plate',7,0,1,1,3],['circuit_board',8,0,1,1,2],['lgd_radio',0,1,1,1],['raw_originium',9,0,1,2],['courier_dagger',0,2,2,1],['lungmen_wallet',7,1,1,1]];
+const pack=(x,y,c=10,r=6,list=PACK)=>`<div class="grid" style="${at(x,y,c*40,r*40)}"></div>`+list.filter(p=>p[1]+p[3]<=c&&p[2]+p[4]<=r).map(p=>item(p[0],p[1],p[2],p[3],p[4],x,y,p[5])).join('');
+
+// 纸娃娃（恐怖黎明排法）
+const WORN={weapon:'twin_fang',chest:'rhodes_protective_vest',head:'dust_mask',hands:'shadow_bracer',amulet:'yan_talisman',ring:'tactical_charm'};
+function slot(x,y,w,h,k,cap,{ins}={}){
+  const id=WORN[k],d=id&&ITEMS[id];
+  const inner=d?`<img src="${IMG}${id}.png" style="${k=='weapon'?'transform:rotate(-90deg);':''}width:${d.w}px;height:${d.h}px">`:sil(k,Math.min(w,h)>60?50:28);
+  return `<div class="slot ${d?'on':''} ${d&&d.t>=2?'gold':''}" ${id?`data-item="${id}"`:''} style="${at(x,y,w,h)}--tc:${d?TC[d.t]:'transparent'}">${inner}${cap?`<span class="cap">${cap}</span>`:''}${ins&&d?'<span class="ins"></span>':''}${d&&d.t>=2?'<span class="sheen"></span>':''}<span class="sb"></span></div>`;
+}
+function doll(ox,oy,art='pv_op_lappland',opt={}){
+  const p=(x,y,w,h)=>[ox+x,oy+y,w,h];
+  return [slot(...p(12,12,88,112),'weapon','武器',opt),slot(...p(12,132,88,136),'chest','胸',opt),slot(...p(12,276,88,112),'legs','腿',opt),
+   `<div class="a" style="${at(...p(112,12,40,40))}display:grid;place-items:center;background:linear-gradient(180deg,#2a2410,#151b1f);box-shadow:inset 0 0 0 1px #6b5418"><svg width="26" height="26" viewBox="0 0 26 26" fill="var(--sp)"><path d="M3 12l10-8 10 8v5l-10-8-10 8z"/><path d="M3 21l10-8 10 8v4l-10-8-10 8z" opacity=".55"/></svg></div>`,
+   slot(...p(156,12,80,80),'head','头',opt),slot(...p(240,12,40,40),'amulet','',opt),slot(...p(112,56,40,40),'ring','',opt),
+   `<div class="a" style="${at(...p(104,96,184,248))}overflow:visible">
+     <div class="a" style="left:-6px;top:40px">${ring(196)}</div>
+     <div class="a" style="left:30px;right:30px;bottom:14px;height:18px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%)"></div>
+     <div class="a" style="left:-40px;right:-40px;bottom:22px;text-align:center"><img src="${IMG}${art}.png" class="px" style="height:240px;margin-bottom:-12px"></div></div>`,
+   `<div class="a" style="${at(...p(104,352,184,36))}display:flex;align-items:center;justify-content:space-between;padding:0 8px;background:rgba(0,0,0,.4);box-shadow:inset 0 0 0 1px var(--seam);font-size:12px;white-space:nowrap"><span><b style="color:var(--sp)">E${(typeof OPS!=='undefined'?OPS[pickOp].e:1)}</b> · Lv <span class="num">${(typeof OPS!=='undefined'?OPS[pickOp].lv:30)}</span></span><span class="btn inl" data-act="char" style="height:24px">干员 <span style="margin-left:5px;font:800 10px var(--en);background:var(--fg);color:#000;padding:0 4px">C</span></span></div>`,
+   `<div class="a" style="${at(...p(292,12,88,112))}overflow:hidden;background:linear-gradient(180deg,#2c2410,#121619);box-shadow:inset 0 0 0 1px #7a6320;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px">
+     <div style="position:relative;width:42px;height:42px"><svg width="42" height="42" viewBox="0 0 42 42"><path d="M21 3l16 18-16 18L5 21z" fill="var(--sp)"/><path d="M14 21l7-9 7 9-7 9z" fill="#2c2410"/></svg></div>
+     <div style="font:900 12px var(--cn)">幼狼之牙</div><div style="font:700 9px var(--cn);background:var(--green);color:#0c1a04;padding:0 4px">攻击回复</div></div>`,
+   slot(...p(292,132,88,112),'hands','手',opt),slot(...p(292,276,88,112),'feet','脚',opt)].join('');
+}
+function stats(x,y,w,diff){
+  const g=[['基础','BASE',[['生命','2400',diff&&'+110'],['攻击','600'],['法术攻击','360'],['防御','212',diff&&'+4'],['法术抗性','10']]],['战斗','COMBAT',[['攻击速度','106%'],['暴击率','6%'],['暴击伤害','168%']]],['其他','OTHER',[['移动速度','5.5'],['生命回复','48 / 秒']]]];
+  return `<div class="a" style="${at(x,y,w)}">${g.map(([c,e,r],k)=>`<div class="sec rise" style="margin:12px 0 4px;animation-delay:${.15+k*.08}s">${c}<i>${e}</i></div>${r.map(([a,b,d])=>`<div class="stat"><span>${a}</span><b data-count="${parseFloat(b)}" data-suffix="${b.replace(/^[\d.]+/,'')}">${b}${d?`<small>${d}</small>`:''}</b></div>`).join('')}`).join('')}</div>`;
+}
+
+// ---------- 干员 ----------
+const OPS=[
+ {id:'lappland',n:'拉普兰德',c:'近卫',s:5,col:'#f5c000',e:1,lv:30},
+ {id:'amiya',n:'阿米娅',c:'近卫',s:5,col:'#3fd2f2',e:1,lv:24},
+ {id:'hellagur',n:'赫拉格',c:'近卫',s:6,col:'#c9b27a',e:0,lv:40,hurt:1},
+ {id:'rosa',n:'早露',c:'狙击',s:6,col:'#d8dde4',e:0,lv:18},
+ {id:'hoshiguma',n:'星熊',c:'重装',s:6,col:'#3ccf8e',e:0,lv:22},
+ {id:'lin',n:'林',c:'术师',s:6,col:'#c08cff',e:0,lv:10},
+ {id:'typhon',n:'提丰',c:'狙击',s:6,col:'#b07cd8',e:0,lv:12},
+ {id:'santalla',n:'寒檀',c:'术师',s:5,col:'#8fc8ff',e:0,lv:8},
+ {id:'texas',n:'德克萨斯',c:'先锋',s:5,col:'#e05050',e:0,lv:15}];
+let pickOp=0;
+function opCards(x,y){
+  return `<div class="a" style="left:${x}px;top:${y}px;display:grid;grid-template-columns:repeat(3,100px);gap:6px">${OPS.map((o,i)=>`<div class="opc rise ${i==pickOp?'sel':''}" data-op="${i}" style="--oc:${o.col};animation-delay:${.05+i*.035}s">
+    <img src="${IMG}art_${o.id}.png" class="px" style="${o.hurt?'filter:grayscale(.7) brightness(.8)':''}">
+    <span class="el">E${o.e}</span>${o.hurt?'<span class="hurt">重伤</span>':''}
+    <div class="nm"><b>${o.n}</b><span class="num">Lv ${o.lv}</span></div><span class="ck">✓</span><span class="k">${i+1}</span></div>`).join('')}</div>`;
+}
+function opChips(x,y){
+  return `<div class="a" style="left:${x}px;top:${y}px;display:flex;gap:4px">${OPS.map((o,i)=>`<div class="opchip ${i==pickOp?'sel':''}" data-op="${i}" style="--oc:${o.col}"><img src="${IMG}pv_op_${o.id}.png" class="px">${o.hurt?'<span class="hd"></span>':''}</div>`).join('')}</div>`;
+}
+function depOpLine(){const o=OPS[pickOp];return `<div style="display:flex;align-items:center;gap:10px;height:64px;padding:0 12px;background:linear-gradient(90deg,color-mix(in srgb,${o.col} 22%,transparent),transparent);box-shadow:inset 3px 0 0 ${o.col}"><div style="font:900 22px var(--cn)">${o.n}</div><div class="grow"></div>${o.hurt?'<span style="background:var(--red);font:900 12px var(--cn);padding:3px 8px">重伤</span>':''}<span class="num" style="color:var(--mute)">E${o.e} · Lv ${o.lv}</span></div>`}
+function selectOp(i){
+  if(i<0||i>=OPS.length)return;pickOp=i;
+  SC.querySelectorAll('[data-op]').forEach(el=>el.classList.toggle('sel',+el.dataset.op===i));
+  const art='pv_op_'+OPS[i].id;
+  const d=document.getElementById('depDoll');if(d)d.innerHTML=doll(0,0,art,{ins:true});
+  const w=document.getElementById('wbDoll');if(w)w.innerHTML=doll(6,6,art,{ins:true});
+  const l=document.getElementById('depOp');if(l){l.innerHTML=depOpLine();l.firstChild.classList.add('rise')}
+}
+
+// ---------- 药剂与商人（塔科夫式三栏） ----------
+Object.assign(ITEMS,{
+ potion_a:{n:'标准急救剂 · Ⅲ',t:0,slot:'制式回复',l:['立即回复 1,410 生命'],w:32,h:32},
+ potion_b:{n:'缓释凝胶 · Ⅲ',t:1,slot:'制式回复',l:['6 秒内共回复 2,470 生命'],w:32,h:32},
+ potion_c:{n:'抑制喷剂',t:1,slot:'可露希尔特供',l:['回复 480 生命','污染 −6','之后 30 秒污染累积减半'],w:32,h:32},
+ p_D:{n:'热能饮剂',t:1,slot:'可露希尔特供',l:['寒冷 −15','之后 60 秒寒冷累积减半'],w:32,h:32},
+ p_E:{n:'镇静合剂',t:1,slot:'可露希尔特供',l:['血债 −5','60 秒内击杀不增加血债'],sd:['同 60 秒内移速 −10%'],w:32,h:32},
+ p_F:{n:'战术兴奋剂',t:2,slot:'可露希尔特供',l:['20 秒内攻击 +20%','攻速 +10%'],sd:['结束后 15 秒受到伤害 +15%'],w:32,h:32},
+ p_G:{n:'急行针剂',t:1,slot:'可露希尔特供',l:['20 秒内移速 +25%','体力回复 +60%'],sd:['结束后 10 秒体力回复 −50%'],w:32,h:32},
+ p_H:{n:'源石护盾凝胶',t:2,slot:'可露希尔特供',l:['获得生命上限 15% 的护盾','持续 20 秒'],w:32,h:32},
+ p_I:{n:'广谱解毒剂',t:0,slot:'可露希尔特供',l:['清除眩晕和减速','之后 10 秒免疫'],w:32,h:32},
+ p_J:{n:'静默喷剂',t:2,slot:'可露希尔特供',l:['45 秒内威胁值累积 −50%','敌人发现距离 −30%'],sd:['同 45 秒内攻击 −10%'],w:32,h:32},
+ p_K:{n:'技艺增幅剂',t:2,slot:'可露希尔特供',l:['被动积攒立刻 +1 格'],sd:['当前生命 −5%'],w:32,h:32},
+ p_L:{n:'应急强心针',t:3,slot:'可露希尔特供',l:['放在背包里即生效','受到致命伤害时保留 1 点生命','并回复生命上限的 25%'],sd:['每份合同最多 1 次','触发后 30 秒生命回复停止'],w:32,h:32},
+ p_rat:{n:'黑市兴奋剂',t:2,slot:'地区药剂 · 龙门',l:['20 秒内攻击 +30%','攻速 +15%'],sd:['结束后 20 秒受到伤害 +25%'],w:32,h:32},
+ p_reunion:{n:'自制抑制剂',t:0,slot:'地区药剂 · 矿区',l:['污染 −4'],sd:['带“脏”标记'],w:32,h:32},
+ p_ursus:{n:'矿工烈酒',t:1,slot:'地区药剂 · 矿区',l:['寒冷 −10','30 秒内攻击 +10%'],sd:['同 30 秒内移速 −10%'],w:32,h:32},
+ p_sami:{n:'林地草药茶',t:1,slot:'地区药剂 · 雪原',l:['60 秒内寒冷累积减半','每秒回复生命上限 0.3%'],w:32,h:32},
+});
+const CUR={lmd:'<svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="3.6" fill="none" stroke="#000" stroke-width="1.8"/></svg>',gold:'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 7l2-4h4l2 4z" fill="#b8860b"/></svg>'};
+let deal=null;
+function good(g,i,ox,oy){
+  const d=ITEMS[g.id];const st=g.lock||g.sold?'filter:grayscale(1) brightness(.45);':'';
+  return `<div class="it gd ${g.sel?'pick':''}" data-good="${i}" data-item="${g.id}" style="${at(ox+g.x*40,oy+g.y*40,(g.w||1)*40,(g.h||1)*40)}--tc:${TC[d.t]}">
+   <img src="${IMG}${g.id}.png" width="${d.w}" height="${d.h}" style="${st}">
+   <span class="pt">${CUR[g.cur||'lmd']}${g.p}</span>${g.s?`<span class="stk">${g.s}</span>`:''}
+   ${g.lock?`<span class="lk"><svg width="9" height="10" viewBox="0 0 9 10"><rect x="1" y="4" width="7" height="6" fill="#e8b730"/><path d="M2.5 4V2.5a2 2 0 0 1 4 0V4" stroke="#e8b730" fill="none" stroke-width="1.4"/></svg>${g.lock}</span>`:''}
+   ${g.sold?'<span class="so">售罄</span>':''}</div>`;
+}
+function dealBar(g){
+  if(!g)return `<div class="lbl" style="padding:22px;color:var(--dim)">—</div>`;
+  const d=ITEMS[g.id];
+  return `<div style="display:flex;align-items:center;gap:8px;height:100%;padding:0 10px">
+   <div style="flex:none;width:40px;height:40px;display:grid;place-items:center;background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px ${TC[d.t]}"><img src="${IMG}${g.id}.png" class="px" width="32"></div>
+   <div style="min-width:0;flex:1"><div style="font:900 13px var(--cn);color:${TC[d.t]};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.n}</div>
+     <div style="display:flex;align-items:center;gap:2px;margin-top:3px"><span class="btn inl" style="height:20px;padding:0 6px">−</span><span class="num" style="width:24px;text-align:center">${g.q||1}</span><span class="btn inl" style="height:20px;padding:0 6px">+</span></div></div>
+   <div class="num" style="flex:none;text-align:right;font-size:16px">${g.p}</div></div>`;
+}
+function trader(o){
+  const tabs=o.tabs||['购买'];const mode=o.mode||tabs[0];
+  const goods=o.goods.map((g,i)=>good(g,i,20,58)).join('');
+  const dealInner=mode==='出售'?`<div style="display:flex;align-items:center;height:100%;padding:0 14px;gap:10px"><span class="lbl">${o.goods.length} 件</span><div class="grow"></div><span class="lbl">合计</span><span class="num" style="font-size:22px;color:var(--sp)">${o.total}</span></div>`:dealBar(o.goods.find(g=>g.sel));
+  return `${o.bg}
+   ${baseTop(o.title,o.en,o.dc,null)}
+   <div class="a slideL tleft" style="${at(16,76,300,600)}overflow:hidden;background:${o.leftBg||'linear-gradient(180deg,rgba(20,26,30,.9),rgba(10,13,15,.96))'};box-shadow:inset 0 0 0 1px var(--seam);clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)">
+     <div class="a" style="left:0;right:0;top:0;height:3px;background:${o.dc};box-shadow:0 0 10px ${o.dc}"></div>
+     <div class="a" style="left:50px;top:30px;opacity:.55">${ring(200,o.dc)}</div>
+     ${o.portrait?`<div class="a" style="left:0;right:0;top:24px;text-align:center"><img src="${IMG}${o.portrait}.png" class="px" style="height:240px;margin-top:20px"></div>`:`<div class="a" style="left:80px;top:30px;width:140px;height:270px;border:2px dashed color-mix(in srgb,${o.dc} 60%,transparent);display:grid;place-items:center;color:${o.dc};font-size:12px">立绘 UB</div>`}
+     <div class="a fadeL" style="left:0;right:0;bottom:0;height:330px;background:linear-gradient(0deg,rgba(7,9,11,.97) 70%,transparent)"></div>
+     <div class="a" style="left:20px;top:300px"><div style="font:900 28px/1.1 var(--cn)">${o.pname}</div><div class="micro" style="letter-spacing:.35em">${o.pen}</div></div>
+     <div class="a" style="left:20px;right:20px;top:366px;display:flex;gap:6px;align-items:center">${o.rank?`<span style="background:${o.dc};color:#000;font:900 12px var(--cn);padding:3px 8px">${o.rank}</span>`:''}<div class="grow"></div><span class="num" style="font-size:18px">${o.bal}</span></div>
+     <div class="a" id="dealBar" style="${at(16,404,268,64)}background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px var(--seam)">${dealInner}</div>
+     <div class="go" style="${at(16,474,268,56)}"><div class="lab"><b style="font-size:22px">成交</b></div></div>
+     <div class="a" style="${at(16,540,268,40)}display:flex;gap:6px">${o.ledger?`<div class="btn" style="position:relative;flex:1;height:40px;background:#0b1215;color:var(--holo);box-shadow:inset 0 0 0 1px rgba(63,210,242,.5)">账房 ›</div>`:''}<div class="btn" data-act="go:wb" style="position:relative;flex:1;height:40px">离开</div></div></div>
+   ${panel(328,76,440,600,{},`<div class="a" style="left:18px;top:14px;right:18px;display:flex;gap:2px;align-items:center">${tabs.map(t=>`<span class="btn" style="position:relative;height:34px;padding:0 26px;font-size:14px;${t===mode?'background:var(--fg);color:#000;box-shadow:none':''}">${t}</span>`).join('')}<div class="grow"></div>
+       ${o.restock?`<span class="micro" style="font-family:var(--cn);letter-spacing:0;font-size:11px;color:var(--mute)">补货</span><span class="num" style="margin-left:6px">${o.restock}</span>`:''}
+       ${o.refresh&&mode!=='出售'?`<span class="btn" style="position:relative;height:34px;padding:0 12px;margin-left:8px;font-size:13px">刷新 <span class="num" style="margin-left:4px;color:var(--sp)">◆3</span></span>`:''}</div>
+     <div class="grid" style="${at(20,58,400,520)}${mode==='出售'?'box-shadow:inset 0 0 0 1px var(--seam),inset 0 0 0 2px rgba(143,195,31,.25)':''}"></div>${goods}`)}
+   ${panel(780,76,484,600,{},`<div class="sec a" style="left:20px;top:16px">我的背包<i>PACK 10×6</i></div>${pack(20,44)}
+     <div class="sec a" style="left:20px;top:302px">安全袋<i>SAFE</i></div><div class="grid" style="${at(20,328,80,80)}"></div>${item('lungmen_wallet',0,0,1,1,20,328)}
+     <div class="a" style="left:120px;top:330px"><div class="micro">LMD</div><div class="num" style="font-size:20px">15,510</div><div class="micro" style="margin-top:8px">赤金</div><div class="num" style="font-size:20px;color:var(--sp)">7</div></div>`)}
+   ${baseFoot('RHODES ISLAND · '+o.en.split(' · ')[0],[['LMB','选择'],['SHIFT+LMB','直接买 1 个'],['拖动','买入 / 卖出'],['ESC','离开']],o.dc)}`;
+}
+const STORE_GOODS=[
+ {id:'potion_c',x:0,y:0,p:'1,000',s:'5/5'},{id:'p_D',x:1,y:0,p:'900',s:'4/5',sel:1},{id:'p_E',x:2,y:0,p:'1,200',s:'5/5'},{id:'p_F',x:3,y:0,p:'1,500',s:'2/3'},{id:'p_G',x:4,y:0,p:'1,200',s:'3/3'},
+ {id:'p_I',x:5,y:0,p:'800',s:'5/5'},{id:'p_H',x:6,y:0,p:'1,800',lock:'R3'},{id:'p_J',x:7,y:0,p:'1,400',lock:'R3'},{id:'p_K',x:8,y:0,p:'1,600',lock:'R4'},{id:'p_L',x:9,y:0,p:'5,000',lock:'R4'},
+ {id:'lgd_radio',x:0,y:2,p:'2,200',s:'2/2'},{id:'metal_plate',x:1,y:2,p:'160',s:'20'},{id:'circuit_board',x:2,y:2,p:'550',s:'6'},{id:'rhodes_dual_blades',x:3,y:2,w:2,p:'24,000',s:'1/1'},{id:'expedition_parka',x:5,y:2,w:2,h:2,p:'8,600',s:'1/1'},{id:'pure_gold',x:7,y:2,p:'4,800',sold:1}];
+const CANNOT_GOODS=[{id:'moon_edge',x:0,y:0,w:2,p:'9',cur:'gold'},{id:'lgd_radio',x:2,y:0,p:'2',cur:'gold'},{id:'pure_gold',x:3,y:0,p:'1',cur:'gold'},{id:'reunion_mask',x:4,y:0,p:'1',cur:'gold'}];
+const RAT_GOODS=[{id:'p_rat',x:0,y:0,p:'5',cur:'gold',s:'3/3',sel:1},{id:'potion_a',x:1,y:0,p:'4',cur:'gold',s:'2/2'},{id:'p_G',x:2,y:0,p:'6',cur:'gold',s:'1/1'},{id:'circuit_board',x:0,y:1,p:'2',cur:'gold',s:'4/4'},{id:'courier_dagger',x:1,y:1,w:2,p:'6',cur:'gold',s:'1/1'},{id:'lgd_vest',x:3,y:0,w:2,h:2,p:'11',cur:'gold',s:'1/1'}];
+const PHARM_GOODS=[{id:'potion_a',x:0,y:0,p:'免费 3',s:'3/3',sel:1},{id:'potion_a',x:1,y:0,p:'300',s:'∞'},{id:'potion_b',x:2,y:0,p:'600',s:'∞'}];
+
+// ---------- 场景 ----------
+function fieldBg(){return `<div class="bg" style="background-image:url(${IMG}field_city.png);inset:0"></div><div class="vignette"></div>
+  <img src="${IMG}lappland_sprite.png" class="a px" style="left:619px;top:330px;width:84px"><div class="a" style="left:600px;top:398px;width:120px">
+  <div style="height:5px;background:#000;box-shadow:0 0 0 1px #000"><div style="height:100%;width:92%;background:var(--hp)"></div></div><div style="display:flex;gap:2px;margin-top:2px">${[1,1,0].map(f=>`<div style="flex:1;height:3px;background:${f?'var(--sp)':'#222'}"></div>`).join('')}</div></div>`}
+function hud(){
+  const keys=[['LMB','rhodes_dual_blades',''],['RMB','',''],['SPC','',''],['Q','potion_a','5'],['1','potion_b','2'],['2','potion_c','1'],['3'],['4'],['5']];
+  return `<div class="a slideL" style="left:0;top:0;display:flex;align-items:stretch;height:44px;z-index:4">
+     <div style="background:var(--fg);color:#000;padding:4px 12px"><div style="font:700 9px var(--en);letter-spacing:.2em">FLOOR</div><div class="num" style="font-size:20px;line-height:1">LG-04</div></div>
+     <div style="background:rgba(8,11,13,.85);display:flex;align-items:center;gap:18px;padding:0 18px;box-shadow:inset 0 -1px 0 var(--holo)"><span style="font:900 14px var(--cn)">龙门 · 下城区废墟</span><span class="num" style="color:var(--sp)">◆ 7</span><span class="num">▣ 5</span><span class="num" style="color:var(--ori)">污染 12 <small style="font-size:10px">+0.4/s</small></span></div></div>
+   <div class="a slideR" style="right:12px;top:10px;display:flex;gap:3px;z-index:4">${[['装备','I','inv'],['干员','C','char'],['藏品','R',''],['地图','M',''],['合同','J','']].map(([a,b,c])=>`<div class="btn" data-act="${c}" style="position:relative;width:52px;height:44px;flex-direction:column;font-size:12px;line-height:1.1"><span>${a}</span><span class="num" style="font-size:10px;color:var(--mute)">${b}</span></div>`).join('')}<div class="btn on" style="position:relative;width:44px;height:44px">II</div></div>
+   <div class="a slideR" style="right:12px;top:62px;width:232px;height:176px;z-index:4;background:rgba(6,10,12,.8);box-shadow:inset 0 0 0 1px var(--seam);overflow:hidden">
+     <svg width="232" height="176" class="a" style="left:0;top:0"><g stroke="rgba(63,210,242,.55)" fill="rgba(63,210,242,.08)"><path d="M20 120h60v-40h50v-30h60v80h-40v30H60v-40z"/><path d="M130 50h20v-30h50v30"/></g><circle cx="116" cy="96" r="4" fill="var(--hp)"/><circle cx="190" cy="40" r="4" fill="var(--green)"/><circle cx="60" cy="140" r="3" fill="var(--red)"/></svg>
+     <div class="a spinF" style="left:116px;top:96px;width:150px;height:150px;margin:-75px 0 0 -75px;background:conic-gradient(from 0deg,rgba(63,210,242,.28),transparent 22%);border-radius:50%"></div>
+     <div class="a micro" style="left:8px;bottom:6px">EXPLORED 34%</div></div>
+   <div class="a slideR" style="right:12px;top:246px;width:232px;z-index:4">${[['后勤部','近卫局短波电台','1 / 2','var(--hp)'],['工程部','金属板','3 / 3','var(--haz)']].map(([a,b,c,d])=>`<div style="display:flex;align-items:center;gap:8px;height:30px;background:rgba(8,11,13,.75);margin-bottom:3px;padding-right:8px"><div style="width:4px;height:100%;background:${d}"></div><span class="micro" style="letter-spacing:0;font-family:var(--cn);font-size:11px;color:var(--mute)">${a}</span><span style="flex:1;font-size:12px">${b}</span><span class="num" style="color:${c.startsWith('3')?'var(--green)':'#fff'}">${c}</span></div>`).join('')}</div>
+   <div class="hb rise" style="animation-delay:.15s"><div class="side"><div style="display:flex;justify-content:space-between;font:700 11px var(--cn)"><span>生命</span><span class="num">2208 / 2400</span></div><div class="bar" style="left:0;right:0;bottom:22px;height:14px"><div class="f" style="width:96%;background:#fff;opacity:.35"></div><div class="f" id="hpf" style="width:92%;background:linear-gradient(180deg,#5cc4ff,var(--hp))"></div><div class="ticks"></div></div><div class="micro" style="position:absolute;bottom:4px;left:0">E1 · LV 30</div></div>
+   ${keys.map(([k,ic,q],i)=>`<div class="s ${i==2?'':''}"><i>${k}</i>${ic?`<img src="${IMG}${ic}.png" class="px" width="${i==0?50:32}">`:''}${q?`<span class="q">${q}</span>`:''}${i==1?`<svg width="30" height="30" viewBox="0 0 30 30"><path d="M4 22c6-2 12-8 18-18" stroke="var(--holo)" stroke-width="3" fill="none"/><path d="M14 26l12-4" stroke="var(--holo)" stroke-width="2"/></svg><div class="cd" style="height:40%">1.2</div>`:''}</div>`).join('')}
+   <div class="side"><div style="font:700 11px var(--cn)">体力</div><div class="bar" style="left:0;right:0;top:18px;height:8px"><div class="f" style="width:84%;background:#e9eef0"></div></div><div style="font:700 11px var(--cn);position:absolute;top:30px">剑气</div><div style="position:absolute;left:0;right:0;bottom:0;display:flex;gap:3px">${[1,1,0].map(f=>`<div style="flex:1;height:8px;background:${f?'var(--sp)':'rgba(0,0,0,.6)'};box-shadow:inset 0 0 0 1px var(--seam)${f?',0 0 8px rgba(245,192,0,.6)':''}"></div>`).join('')}</div></div></div>
+   <div id="dmgLayer" class="a" style="inset:0;pointer-events:none"></div>`;
+}
+const SCENES={
+ title:{name:'标题',html:()=>`<div class="bg" style="background-image:url(${IMG}title.png);inset:-40px;animation:pan 40s ease-in-out infinite alternate"></div>
+   <style>@keyframes pan{to{transform:translateX(-30px) scale(1.04)}}</style>
+   <div class="a" style="inset:0;background:linear-gradient(0deg,rgba(7,9,11,.98) 0%,rgba(7,9,11,.4) 45%,rgba(7,9,11,.7) 100%)"></div>
+   
+   <div class="a" style="left:820px;top:90px">${ring(380)}</div>
+   <img src="${IMG}base_rhodes_logo.png" class="a px" style="left:946px;top:216px;width:128px;opacity:.85">
+   <div class="a slideL" style="left:96px;top:190px"><div class="micro" style="letter-spacing:.5em">RHODES ISLAND PHARMACEUTICALS INC.</div>
+     <div style="font:900 96px/1 var(--en);font-stretch:125%;letter-spacing:.04em;margin-top:10px;text-shadow:0 0 30px rgba(63,210,242,.25)" data-decode>DOWNFALL</div>
+     <div style="font:900 30px var(--cn);letter-spacing:.3em;margin-top:8px">罗德岛 · 外勤</div>
+     <div style="width:420px;height:2px;margin-top:18px;background:linear-gradient(90deg,var(--holo),transparent);box-shadow:0 0 10px var(--holo)"></div></div>
+   <div class="go" data-act="go:wb" style="${at(96,450,320,84)}"><div class="lab"><b>开始唤醒</b><i>START</i></div><span class="chev">›</span></div>
+   <div class="btn" style="${at(96,548,154,40)}">设置</div><div class="btn" style="${at(262,548,154,40)}">退出</div>
+   <div class="a micro" style="left:96px;bottom:24px">PRTS TERMINAL V3.0 · LANDSHIP RHODES ISLAND · <span id="clock"></span></div>
+   <div class="a micro" style="right:40px;bottom:24px" id="coord"></div>`},
+ wb:{name:'整备台',html:()=>`<div class="bg blur" style="background-image:url(${IMG}bg_workshop.png)"></div><div class="vignette"></div>
+   ${baseTop('整备台','LOADOUT · LOGISTICS DEPT.','var(--hp)',['换装','改造'])}
+   ${panel(16,78,404,600,{},`<div class="a" style="left:0;top:0" id="wbDoll">${doll(6,6,'pv_op_'+OPS[pickOp].id,{ins:true})}</div><div class="sec a" style="left:18px;top:410px">干员<i>OPERATOR</i></div>${opChips(16,436)}`)}
+   ${panel(436,78,440,600,{},`<div class="a" style="${at(18,16,404)}display:flex;flex-wrap:wrap;gap:3px">${['全部','武器','头','胸','手','腿','脚','项链','戒指','药剂'].map((t,i)=>`<span class="btn inl ${i==0?'on':''}" style="padding:0 ${t.length>1?8:9}px">${t}</span>`).join('')}</div><div class="sec a" style="left:18px;top:56px">仓库<i>DEPOT · 128 / 160</i></div>${pack(20,82,10,12,[['expedition_parka',0,0,2,2],['moon_edge',2,0,2,1],['reunion_mask',2,1,1,1],['dust_mask',3,1,1,1],['lgd_vest',4,0,2,2],['rhodes_dual_blades',6,0,2,1],['shadow_bracer',6,1,1,1],['potion_a',0,2,1,1,12],['potion_b',1,2,1,1,4],['fire_suit',8,0,2,2],['riot_shield',2,2,2,2],['courier_dagger',4,2,2,1],['potion_c',0,3,1,1,3],['tactical_charm',7,1,1,1]])}`)}
+   ${panel(892,78,372,600,{},`<div class="sec a" style="left:18px;top:16px">背包<i>PACK 8×6</i></div>${pack(26,42,8,6)}${stats(18,290,336,true)}`)}
+   <div class="go" data-act="go:dep" style="${at(1012,620,252,0)}display:none"></div>
+   ${baseFoot('RHODES ISLAND · LOGISTICS',[['E','装备'],['RMB','存回仓库'],['TAB','出发准备']])}
+   <div class="btn" data-act="go:dep" style="${at(1104,14,160,36)}z-index:5;background:linear-gradient(100deg,#0089c9,#00a6ec)">出发准备 ›</div>`},
+ dep:{name:'出发准备',html:()=>`<div class="bg blur" style="background-image:url(${IMG}bg_bridge.png)"></div><div class="vignette"></div>
+   ${baseTop('出发准备','SQUAD · BRIDGE','var(--holo)')}
+   ${panel(16,78,760,600,{},`<div class="sec a" style="left:18px;top:16px">干员<i>OPERATOR</i></div>${opChips(18,42)}
+     <div class="a" style="left:12px;top:96px;right:12px;height:1px;background:linear-gradient(90deg,var(--seam),transparent)"></div>
+     <div class="sec a" style="left:18px;top:108px">装备<i>LOADOUT</i></div><div class="a" style="left:6px;top:124px;transform:scale(.84);transform-origin:0 0;width:392px" id="depDoll">${doll(0,0,'pv_op_'+OPS[pickOp].id,{ins:true})}</div>
+     <div class="sec a" style="left:356px;top:108px">背包<i>PACK 10×6</i></div>${pack(350,134,10,6)}`)}
+   ${panel(792,78,472,600,{},`<div class="a" style="left:22px;top:18px"><span style="background:var(--fg);color:#000;font:800 12px var(--en);padding:1px 7px">LG</span> <span class="micro">DEPLOY TO</span><div style="font:900 40px/1.15 var(--cn);margin-top:6px">龙门</div><div style="font:700 16px var(--cn);color:var(--mute)">下城区废墟</div></div>
+     <div class="a" style="left:306px;top:10px;opacity:.6">${ring(150)}</div>
+     <div class="a" style="${at(22,158,428)}display:grid;grid-template-columns:repeat(3,1fr);gap:4px">${[['起点','LG-01'],['深度','LG-10'],['污染','0']].map(([a,b],i)=>`<div style="background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px var(--seam);padding:8px 10px"><div class="micro" style="font-family:var(--cn);letter-spacing:0;font-size:11px">${a}</div><div class="num" style="font-size:20px;color:${i==2?'var(--ori)':'#fff'}">${b}</div></div>`).join('')}</div>
+     <div class="sec a" style="left:22px;top:248px">随队物资<i>KITS</i></div><div class="a" style="left:22px;top:274px;display:flex;gap:4px"><span class="btn inl on">医疗包</span><span class="btn inl">御寒包</span><span class="btn inl">净化剂</span></div>
+     <div class="a" style="left:22px;top:330px;font-size:13px;color:var(--mute)">药剂 <b class="num" style="color:#fff">8</b>　　安全袋 <b class="num" style="color:#fff">1 / 4</b></div>
+     <div class="a" id="depOp" style="${at(22,370,428,64)}">${depOpLine()}</div>
+     <div class="go" data-act="go:launch" style="${at(22,476,428,92)}"><div class="lab"><b>开始行动</b><i>OPERATION START</i></div><span class="chev">›</span></div>`)}
+   ${baseFoot('RHODES ISLAND · BRIDGE',[['1–9','选择干员'],['ENTER','开始行动'],['ESC','返回']])}`},
+ launch:{name:'行动开始',html:()=>`<div class="a" style="inset:0;background:#05070a"></div>
+   
+   <div class="a" style="left:0;right:0;top:250px;height:220px;background:url(${IMG}load_city.png) center/cover;image-rendering:pixelated;opacity:.85"></div>
+   <div class="a" style="left:0;right:0;top:250px;height:220px;background:linear-gradient(90deg,rgba(5,7,10,.85),rgba(5,7,10,.1) 45%,rgba(5,7,10,.1) 60%,rgba(5,7,10,.85))"></div>
+   <div class="a" style="left:0;right:0;top:250px;height:2px;background:var(--blue);box-shadow:0 0 16px var(--blue);animation:grow .6s both"></div><div class="a" style="left:0;right:0;top:468px;height:2px;background:var(--blue);box-shadow:0 0 16px var(--blue);animation:grow .6s .1s both"></div>
+   <style>@keyframes grow{0%{transform:scaleX(0)}100%{transform:none}}@keyframes ld{to{width:100%}}</style>
+   <div class="a slideL" style="left:120px;top:282px"><div class="micro" style="letter-spacing:.5em;color:var(--holo)">OPERATION START</div><div style="font:900 82px/1.1 var(--cn);letter-spacing:.12em" data-decode>行动开始</div></div>
+   <div class="a slideR" style="right:120px;top:300px;text-align:right"><div class="num" style="font-size:72px;line-height:1;background:var(--fg);color:#000;padding:4px 16px">LG-01</div><div style="font:900 20px var(--cn);margin-top:10px">龙门 · 下城区废墟</div></div>
+   <div class="a" style="left:120px;right:120px;bottom:120px;height:4px;background:rgba(255,255,255,.1)"><div style="height:100%;width:0;background:var(--holo);box-shadow:0 0 10px var(--holo);animation:ld 2.4s .3s cubic-bezier(.4,0,.2,1) forwards"></div></div>
+   <div class="a" style="left:120px;bottom:70px;display:flex;gap:12px;align-items:center"><span style="background:var(--blue);font:800 11px var(--en);padding:3px 8px;letter-spacing:.12em">TIPS</span><span style="color:var(--mute);font-size:14px">按住 Alt 显示地上所有物品的名牌。</span></div>`,
+   mount(){setTimeout(()=>{if(cur==='launch')go('field')},3000)}},
+ field:{name:'局内',html:()=>fieldBg()+hud()+`<div class="toast"><b>PRTS</b><span style="font-size:13px">背包已满，无法拾取</span></div>`,mount:startDmg},
+ inv:{name:'装备 · 背包',html:()=>fieldBg()+hud()+`<div class="a" style="inset:0;background:rgba(4,6,8,.45);z-index:6"></div><div class="a" style="inset:0;z-index:7">${panel(80,112,1120,496,{cn:'装备 · 背包',en:'Equipment · Inventory',ic:'bag',key:'I'},
+   `<div class="a" style="left:0;top:0">${doll(4,8)}</div><div class="a" style="left:396px;top:12px;bottom:12px;width:1px;background:linear-gradient(transparent,var(--seam),transparent)"></div>
+    <div class="a" style="${at(408,16,404)}display:flex;align-items:center;gap:4px"><div class="sec">背包<i>13 / 60</i></div><div class="grow"></div><span class="btn inl on" style="background:var(--blue);color:#fff">全部</span><span class="btn inl">精良以上</span><span class="btn inl">整理</span></div>
+    ${pack(410,48)}
+    <div class="sec a" style="left:410px;top:304px">安全袋<i>SAFE 2×2</i></div><div class="grid" style="${at(410,330,80,80)}"></div>${item('lungmen_wallet',0,0,1,1,410,330)}
+    <div class="a" style="left:640px;top:390px;font:900 18px var(--cn);color:var(--sp);text-shadow:0 0 10px rgba(245,192,0,.4)">赤金 <span class="num" data-count="7">7</span></div>
+    <div class="a" style="left:824px;top:12px;bottom:12px;width:1px;background:linear-gradient(transparent,var(--seam),transparent)"></div>
+    ${stats(840,0,262,false)}`)}</div>`},
+ char:{name:'干员',html:()=>fieldBg()+hud()+`<div class="a" style="inset:0;background:linear-gradient(90deg,rgba(4,6,8,.7),rgba(4,6,8,.2));z-index:6"></div><div class="a" style="inset:0;z-index:7">${panel(0,0,660,720,{cn:'干员',en:'Operator',ic:'op',key:'C',tabs:['概览','属性','技能']},
+   `<div class="a" style="${at(0,0,300,672)}overflow:hidden;background:linear-gradient(180deg,transparent,rgba(245,192,0,.12))">
+      <div class="a" style="left:-20px;top:60px">${ring(340,'var(--sp)')}</div>
+      <div class="a" style="left:-10px;top:24px;font:900 120px/1 var(--en);font-stretch:125%;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.07)">LAPP</div>
+      <img src="${IMG}pv_op_lappland.png" class="a px" style="left:30px;top:20px;height:480px">
+      <div class="a" style="left:0;right:0;bottom:0;height:230px;background:linear-gradient(0deg,rgba(7,9,11,.95) 40%,transparent)"></div>
+      <div class="a" style="left:24px;bottom:150px"><div style="font:900 40px/1.1 var(--cn)">拉普兰德</div><div class="micro" style="letter-spacing:.4em">LAPPLAND</div></div>
+      <div class="a" style="left:24px;right:24px;bottom:84px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>精英 <b style="color:var(--sp)">1</b> · Lv <b class="num">30</b></span><span class="num" style="color:var(--mute)">4,210 / 10,000</span></div><div class="bar" style="left:0;right:0;top:22px;height:6px"><div class="f" style="width:42%;background:var(--sp);box-shadow:0 0 6px var(--sp)"></div></div></div>
+      <div class="btn" style="left:24px;right:24px;bottom:20px;height:44px;background:linear-gradient(100deg,#0089c9,#00a6ec)">晋升</div></div>
+    <div class="a" style="left:300px;top:12px;bottom:12px;width:1px;background:linear-gradient(transparent,var(--seam),transparent)"></div>
+    ${stats(320,0,316,false)}<div class="a" style="left:320px;top:400px;width:316px"><div class="sec">抗性<i>RESIST</i></div>${[['物理减伤','8%'],['法术抗性','10'],['冰冻抗性','6%'],['源石侵蚀','0%']].map(([a,b])=>`<div class="stat"><span>${a}</span><b>${b}</b></div>`).join('')}</div>`)}</div>`},
+ store:{name:'可露希尔商店',html:()=>trader({bg:`<div class="a" style="inset:0;background:#1d1917 url(${IMG}base_deck.png) 0 0/256px 256px;image-rendering:pixelated"></div><div class="a" style="inset:0;background:linear-gradient(90deg,rgba(60,20,38,.55),rgba(24,14,18,.9) 40%)"></div>`,title:'可露希尔的商店',en:'STORE · CLOSURE',dc:'var(--pink)',portrait:'pv_npc_closure',pname:'可露希尔',pen:'CLOSURE',rank:'声望 R2',bal:'⦿ 15,510',
+   ledger:true,restock:'18:42',goods:STORE_GOODS}),mount(){CURGOODS=STORE_GOODS}},
+ rat:{name:'游商 · 鼠王',html:()=>trader({bg:`<div class="bg blur" style="background-image:url(${IMG}field_city.png)"></div><div class="a" style="inset:0;background:rgba(6,14,10,.55)"></div>`,title:'鼠王的下城区',en:'FIELD POST · LUNGMEN',dc:'#5fe08a',portrait:'pv_npc_post_rat',pname:'下城区货郎',pen:'RAT KING · UNDERCITY',rank:'关系 Ⅱ',bal:'◆ 7',restock:'42:10',goods:RAT_GOODS}),mount(){CURGOODS=RAT_GOODS}},
+ cannot:{name:'坎诺特 · 出售',html:()=>trader({bg:`<div class="bg blur" style="background-image:url(${IMG}field_city.png)"></div><div class="a" style="inset:0;background:rgba(30,12,8,.55)"></div>`,title:'诡意行商',en:'TRADER · CANNOT',dc:'#c8643c',portrait:'pv_npc_cannot',pname:'坎诺特',pen:'CANNOT',bal:'◆ 7',tabs:['购买','出售'],mode:'出售',total:'◆ 13',goods:CANNOT_GOODS}),mount(){CURGOODS=CANNOT_GOODS}},
+ pharm:{name:'药房（白舱）',html:()=>`<div class="medskin a" style="inset:0">`+trader({bg:`<div class="a" style="inset:0;background:#d7dee1 url(${IMG}base_deck_med.png) 0 0/256px 256px;image-rendering:pixelated"></div><div class="a" style="inset:0;background:rgba(232,238,240,.72)"></div>`,title:'药房窗口',en:'PHARMACY · MEDICAL',dc:'var(--med)',portrait:'pv_npc_medic',pname:'医疗干员',pen:'MEDICAL DEPT.',rank:'免费 3 / 3',bal:'⦿ 15,510',goods:PHARM_GOODS})+`</div>`,mount(){CURGOODS=PHARM_GOODS}},
+};
+function baseTop(cn,en,dc,tabs){return `<div class="a slideL topbar" style="left:0;right:0;top:0;height:62px;z-index:3;background:linear-gradient(180deg,rgba(7,9,11,.96),rgba(7,9,11,.85));display:flex;align-items:center;gap:10px;padding:0 16px 0 14px">
+  <div class="btn" data-act="go:title" style="position:relative;width:44px;height:44px;font-size:20px">‹</div><div class="btn" data-act="go:title" style="position:relative;width:44px;height:44px;font-size:18px">⌂</div>
+  <div style="width:6px;height:44px;margin-left:8px;background:${dc};box-shadow:0 0 10px ${dc};clip-path:polygon(0 8px,100% 0,100% 100%,0 100%)"></div>
+  <div><div style="font:900 22px/1.1 var(--cn)" data-decode>${cn}</div><div class="micro" style="letter-spacing:.3em">${en}</div></div>
+  ${tabs?`<div style="display:flex;gap:2px;margin-left:24px">${tabs.map((t,i)=>`<span class="btn" style="position:relative;height:36px;padding:0 22px;font-size:14px;${i==0?'background:var(--fg);color:#000;box-shadow:none':''}">${t}</span>`).join('')}</div>`:''}
+  <div class="grow"></div><div style="display:flex;gap:4px;margin-right:${tabs&&cn=='整备台'?'170px':'0'}"><div class="num" style="background:#000;padding:7px 12px;box-shadow:inset 0 0 0 1px var(--seam)">⦿ <span data-count="15510">15510</span></div><div class="num" style="background:var(--sp);color:#000;padding:7px 12px">声望 R2</div></div>
+  <div class="a" style="left:0;right:0;bottom:-2px;height:2px;background:linear-gradient(90deg,transparent,${dc} 15%,${dc} 85%,transparent);box-shadow:0 0 10px ${dc}"></div></div>`}
+function baseFoot(t,keys,dc='var(--holo)'){return `<div class="a" style="left:0;right:0;bottom:0;height:30px;z-index:3;background:rgba(7,9,11,.9);display:flex;align-items:center;gap:10px;padding:0 16px"><img src="${IMG}base_rhodes_logo.png" class="px" width="16" style="opacity:.7"><span class="micro" style="letter-spacing:.3em">${t}</span><span class="micro" id="coord2"></span><div class="grow"></div>${keys.map(([k,a])=>`<span style="font:800 10px var(--en);background:#2a3238;padding:2px 6px">${k}</span><span style="font-size:11px;color:var(--mute)">${a}</span>`).join('')}</div>`}
+
+// ---------- 运行 ----------
+let cur='title',dmgTimer=null,CURGOODS=null;
+const order=['title','wb','dep','launch','field','inv','char','store','pharm','rat','cannot'];
+const nav=document.getElementById('nav');
+order.forEach(k=>{const b=document.createElement('button');b.textContent=SCENES[k].name;b.dataset.k=k;b.onclick=()=>go(k);nav.appendChild(b)});
+function render(k){
+  cur=k;clearInterval(dmgTimer);SC.innerHTML=SCENES[k].html();
+  [...nav.children].forEach(b=>b.setAttribute('aria-selected',b.dataset.k===k));
+  SC.querySelectorAll('[data-decode]').forEach(decode);SC.querySelectorAll('[data-count]').forEach(countUp);
+  SCENES[k].mount&&SCENES[k].mount();
+  try{if(location.hash.slice(1)!==k)history.replaceState(null,'','#'+k)}catch(e){}
+}
+function go(k){
+  if(k===cur)return;
+  const quick=(cur==='field'||cur==='inv'||cur==='char')&&(k==='field'||k==='inv'||k==='char');
+  if(quick||RM){render(k);return}
+  const w=document.createElement('div');w.className='wipe in';w.innerHTML=`<div class="p l"></div><div class="p r"></div><img class="logo" src="${IMG}base_rhodes_logo.png">`;S.appendChild(w);
+  setTimeout(()=>{render(k);w.className='wipe out';setTimeout(()=>w.remove(),450)},520);
+}
+const GLYPH='アイウエオカキクケコ01#$%&ABCDEFRHODES';
+function decode(el){if(RM)return;const t=el.textContent;let f=0;const n=t.length;const id=setInterval(()=>{f++;el.textContent=[...t].map((c,i)=>i<f/2?c:(c===' '?' ':GLYPH[Math.random()*GLYPH.length|0])).join('');if(f>=n*2){clearInterval(id);el.textContent=t}},28)}
+function countUp(el){if(RM)return;const v=+el.dataset.count;if(!v)return;const suf=el.dataset.suffix||'';const kids=[...el.childNodes].slice(1).map(n=>n.cloneNode(true));const t0=performance.now();const fmt=x=>(v>=1000?Math.round(x).toLocaleString('en-US'):(v%1?x.toFixed(1):Math.round(x)))+suf;
+  (function step(t){const p=Math.min(1,(t-t0)/700),e=1-Math.pow(1-p,3);el.textContent=fmt(v*e);kids.forEach(k=>el.appendChild(k.cloneNode(true)));if(p<1)requestAnimationFrame(step)})(t0)}
+function startDmg(){if(RM)return;const L=document.getElementById('dmgLayer');if(!L)return;dmgTimer=setInterval(()=>{const d=document.createElement('div');d.className='dmg';const crit=Math.random()<.25;d.textContent=crit?(1200+Math.random()*600|0):(300+Math.random()*300|0);d.style.color=crit?'var(--sp)':(Math.random()<.4?'#9fd7ff':'#fff');if(crit)d.style.fontSize='30px';d.style.left=(720+Math.random()*120)+'px';d.style.top=(300+Math.random()*60)+'px';L.appendChild(d);setTimeout(()=>d.remove(),1000)},620)}
+// 悬停提示
+let tipEl=null;
+S.addEventListener('mouseover',e=>{const t=e.target.closest('[data-item]');if(!t){tipEl&&tipEl.remove();tipEl=null;return}if(tipEl&&tipEl.dataset.for===t.dataset.item+t.style.left)return;tipEl&&tipEl.remove();
+  const id=t.dataset.item,d=ITEMS[id],sr=S.getBoundingClientRect(),r=t.getBoundingClientRect(),sc=sr.width/1280;let x=(r.right-sr.left)/sc+8,y=(r.top-sr.top)/sc;
+  const card=(dd,tag)=>`<div class="tip" style="--tc:${TC[dd.t]};position:relative"><div class="tg"><span>${tag}</span><span>${dd.slot}</span></div><div class="nm">${dd.n}</div>${dd.l.map(l=>`<div class="ln">${l}</div>`).join('')}${(dd.sd||[]).map(l=>`<div class="dn">副作用 · ${l}</div>`).join('')}${dd.f?`<div class="fl">${dd.f}</div>`:''}</div>`;
+  const cmp=d.cmp&&ITEMS[d.cmp];const w=cmp?496:244;if(x+w>1270)x=(r.left-sr.left)/sc-w-8;if(y+220>710)y=490;
+  tipEl=document.createElement('div');tipEl.className='a';tipEl.dataset.for=id+t.style.left;tipEl.style.cssText=`left:${x}px;top:${y}px;display:flex;gap:8px;z-index:40;pointer-events:none`;
+  tipEl.innerHTML=card(d,t.classList.contains('slot')?'已装备':'物品')+(cmp?card(cmp,'已装备'):'');S.appendChild(tipEl)});
+S.addEventListener('mouseleave',()=>{tipEl&&tipEl.remove();tipEl=null});
+S.addEventListener('click',e=>{const gd=e.target.closest('[data-good]');if(gd&&CURGOODS){SC.querySelectorAll('.gd').forEach(x=>x.classList.remove('pick'));gd.classList.add('pick');const db=document.getElementById('dealBar');if(db&&!db.textContent.includes('合计'))db.innerHTML=dealBar(CURGOODS[+gd.dataset.good]);return}const o=e.target.closest('[data-op]');if(o){selectOp(+o.dataset.op);return}const a=e.target.closest('[data-act]');if(!a)return;const v=a.dataset.act;
+  if(v.startsWith('go:'))go(v.slice(3));else if(v==='close')go('field');else if(v==='inv'||v==='char')go(cur===v?'field':v)});
+document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if((cur==='dep'||cur==='wb')&&/^[1-9]$/.test(k)){selectOp(+k-1);return}if(!['field','inv','char'].includes(cur))return;if(k==='i')go(cur==='inv'?'field':'inv');if(k==='c')go(cur==='char'?'field':'char');if(k==='escape')go('field')});
+// 环境粒子
+const cv=document.getElementById('dust'),cx=cv.getContext('2d');const P=[...Array(70)].map(()=>({x:Math.random()*1280,y:Math.random()*720,v:.1+Math.random()*.35,s:Math.random()*1.8+.4,a:Math.random()*.5+.1,h:Math.random()<.3}));
+(function tick(){cx.clearRect(0,0,1280,720);if(!RM)for(const p of P){p.y-=p.v;p.x+=Math.sin(p.y/60)*.2;if(p.y<-5){p.y=725;p.x=Math.random()*1280}cx.fillStyle=p.h?`rgba(63,210,242,${p.a})`:`rgba(220,230,235,${p.a*.6})`;cx.fillRect(p.x,p.y,p.s,p.s)}requestAnimationFrame(tick)})();
+setInterval(()=>{const c=document.getElementById('clock');if(c)c.textContent=new Date().toISOString().slice(0,19).replace('T',' ');const g=document.getElementById('coord');if(g)g.textContent=`N 37.${(Math.random()*9999|0)} · E 112.${(Math.random()*9999|0)} · SPD 42 KM/H`},500);
+let start=location.hash.slice(1);render(SCENES[start]?start:'title');fit();
+</script>
+

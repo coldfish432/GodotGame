@@ -1,0 +1,98 @@
+{
+  "batch": "E15d",
+  "status": "art_review_pending",
+  "tool": "built-in imagegen",
+  "normalization": "alpha128; nearest fit; median-cut without dithering, highlights and shadows quantized separately without brightening: cloth5 plus2 red or expedition4 gray+4 orange; other20 plus3 ice; exact1px inner outline",
+  "items": [
+    {
+      "id": "rhodes_head",
+      "name": "罗德岛外勤头盔",
+      "slot": "head",
+      "layer": null,
+      "file": "rhodes_head.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/rhodes_head_raw.png",
+      "source_sha256": "8fb6128ce6228a14048e5961b5e6520580587d80478f20a8f791a38648a06e12",
+      "sha256": "afd7bee5043053823dd40a43969312af94695ea0f00c9c4d91616223725ffb16",
+      "emit": false
+    },
+    {
+      "id": "rhodes_hands",
+      "name": "罗德岛外勤手套",
+      "slot": "hands",
+      "layer": null,
+      "file": "rhodes_hands.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/rhodes_hands_edited.png",
+      "source_sha256": "263bd3ab113c0491851ee2c506c3d6375bb85ea0a8c440dc74e34b2fe65979a5",
+      "sha256": "e32328ce52276dbd402df53ad252930806cc533aa6af94ffd33c5658b24c49cd",
+      "emit": false
+    },
+    {
+      "id": "rhodes_legs",
+      "name": "罗德岛外勤长裤",
+      "slot": "legs",
+      "layer": null,
+      "file": "rhodes_legs.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": true,
+      "source": "sources/rhodes_legs_edited.png",
+      "source_sha256": "e0a18b39527dc681a373fdbf884c69ec2e8964cac476209d0d3e9d41ead96ef5",
+      "sha256": "d15881c21ccf8297b2b539b0435cc6ef4fb713c743affed6f9794362c442de51",
+      "emit": false
+    },
+    {
+      "id": "rhodes_feet",
+      "name": "罗德岛外勤战靴",
+      "slot": "feet",
+      "layer": null,
+      "file": "rhodes_feet.png",
+      "size": [
+        72,
+        72
+      ],
+      "cloth": false,
+      "source": "sources/rhodes_feet_edited.png",
+      "source_sha256": "5cb79a449da12be219624449c35607bea38214099e47923e3ab48faf6765b742",
+      "sha256": "21596005f19684f4cbb580b6056b8853130f3993774ca5c54d0841bbd30ec488",
+      "emit": false
+    },
+    {
+      "id": "rhodes_ring",
+      "name": "罗德岛干员指环",
+      "slot": "ring",
+      "layer": null,
+      "file": "rhodes_ring.png",
+      "size": [
+        32,
+        32
+      ],
+      "cloth": false,
+      "source": "sources/rhodes_ring_raw.png",
+      "source_sha256": "2646c0ffe406f568ab10677a24a9ad20832cdcfd3f509a6779b3053ee32c3090",
+      "sha256": "d09bd56ac4fa44644c6f77e367c4ad04b301e20873195d1cc0ddbd48a1db2b7b",
+      "emit": false
+    }
+  ],
+  "expected_count": 5,
+  "missing": [],
+  "backgrounds": [
+    "#2c2e30",
+    "#142538",
+    "#352710"
+  ],
+  "emission_files": [],
+  "reused_assets": [],
+  "runtime_verified": false
+}

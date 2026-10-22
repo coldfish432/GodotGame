@@ -14,13 +14,13 @@ New-Item -ItemType Directory -Force -Path $evidence | Out-Null
 $env:DOWNFALL_FULL = if ($Full) { '1' } else { '' }
 
 # Longest first, so the slow map sweeps start at once and the short suites fill in.
-$headlessSuites = @('test_layout', 'test_siracusa', 'test_siracusa_enemies', 'test_recruit', 'test_traps_traces', 'test_bridges', 'test_elevation', 'test_terrain', 'test_guards', 'test_scene_dressing',
+$headlessSuites = @('test_layout', 'test_siracusa', 'test_siracusa_enemies', 'test_city_variants', 'test_recruit', 'test_traps_traces', 'test_bridges', 'test_elevation', 'test_terrain', 'test_guards', 'test_scene_dressing',
     'test_v1', 'test_revisions', 'test_new_enemies', 'test_run_goals', 'test_threat', 'test_base_state', 'test_warehouse', 'test_orders',
-    'test_medical', 'test_progression', 'test_base_scene', 'test_movement', 'test_combat', 'test_enemy_attacks',
+    'test_medical', 'test_progression', 'test_works', 'test_base_scene', 'test_movement', 'test_combat', 'test_enemy_attacks',
     'test_lappland', 'test_amiya', 'test_hellagur', 'test_recruit_kits', 'test_pointer', 'test_prts', 'test_hotbar', 'test_relics', 'test_builds', 'test_inventory', 'test_loot',
-    'test_item_icons', 'test_relic_icons', 'test_gear', 'test_growth', 'test_gear_expansion', 'test_ai_driver', 'test_audio', 'test_a3_assets', 'test_i18n', 'test_heal_orbs', 'test_prefixes', 'test_market', 'test_exchange')
+    'test_item_icons', 'test_relic_icons', 'test_gear', 'test_growth', 'test_gear_expansion', 'test_ai_driver', 'test_audio', 'test_a3_assets', 'test_i18n', 'test_heal_orbs', 'test_prefixes', 'test_prefix_families', 'test_market', 'test_potion_shops', 'test_drag_transfer', 'test_number_fields', 'test_exchange', 'test_voyage', 'test_research', 'test_map_features', 'test_bosses', 'test_arenas', 'test_camera', 'test_specials')
 $visualSuites = @('test_ui_v1', 'test_lappland_input', 'test_amiya_input', 'test_loot_input', 'test_hotbar_input',
-    'test_base_crew', 'capture_enemy_attacks', 'capture_lappland', 'capture_amiya', 'capture_recruit_kits', 'capture_v1', 'capture_terrain', 'capture_guards')
+    'test_base_crew', 'capture_enemy_attacks', 'capture_lappland', 'capture_amiya', 'capture_recruit_kits', 'capture_v1', 'capture_terrain', 'capture_guards', 'capture_bosses', 'capture_arenas')
 
 function Invoke-Suites([string[]]$suites, [string[]]$extra, [int]$parallel) {
     $queue = [System.Collections.Queue]::new()

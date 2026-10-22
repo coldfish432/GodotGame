@@ -44,11 +44,11 @@ func rules() -> void:
 	legacy.load_data({"injured": true, "operator": Operators.AMIYA_GUARD}, {})
 	check("an old save's single injury goes to whoever deploys", legacy.injured_operators() == [Operators.AMIYA_GUARD])
 	check("the base keeps no contamination at all", not "contamination" in base and not base.to_data().has("contamination"))
-	check("the inhibitor needs R2; a standard flask is free while the free issue lasts", base.potion_price("C") == -1 and base.potion_price("B") == 600 and base.potion_price("A") == 0)
+	check("the inhibitor needs 商店 Lv3; a standard flask is free while the free issue lasts", base.potion_price("C") == -1 and base.potion_price("B") == 600 and base.potion_price("A") == 0)
 	base.free_potions = 0
 	check("after the free issue a standard flask costs 300", base.potion_price("A") == BaseCatalog.POTION_A_PRICE)
-	base.prestige = 60
-	check("at R2 it is sold", base.potion_price("C") == 1000)
+	base.set_facility("store", 3)
+	check("at 商店 Lv3 it is sold", base.potion_price("C") == 1000)
 	var copy := BaseState.new()
 	base.free_potions = 1
 	copy.load_data(JSON.parse_string(JSON.stringify(base.to_data())), {})
@@ -112,10 +112,13 @@ func through_game() -> void:
 	game.run_contamination = 92.0
 	await step(2)
 	check("plus heavy contamination: life capped at 60%% (40%% at most): %.1f" % game.player.hp, is_equal_approx(game.player.max_hp, plain) and is_equal_approx(game.player.life_cap(), plain * 0.6) and game.player.hp <= plain * 0.6 + 0.01)
+	# 复利数值改造清单 E: no bonus or penalty touches a flask, contamination
+	# included. Ungeared (600 HP) the cap would hide the 960, so a buff lifts it.
+	game.player.apply_buff(4000.0, 0.0)
 	game.player.hp = 1
 	game.potions = 1
 	game._use_potion()
-	check("heavy contamination cuts potion healing by a quarter (960 -> 720)", is_equal_approx(game.player.hp, 721.0))
+	check("heavy contamination no longer cuts potion healing (960 in full)", is_equal_approx(game.player.hp, 1.0 + BaseCatalog.potion_heal("A", 1)))
 	game.player.hp = -1
 	await step(2)
 	check("death: injury stays, max HP back to normal at the base", game.base.injured and is_equal_approx(game.player.max_hp, plain) and game.player.condition_hp_penalty == 0.0)
@@ -161,15 +164,15 @@ func through_game() -> void:
 
 	# Pharmacy (药剂进背包): flasks are pack items bought one at a time.
 	game.gold = 10000
-	game.base.prestige = 0
+	game.base.set_facility("store", 1)
 	game.inventory.items.clear()
 	game.safe_bag.items.clear()
 	game.base.free_potions = 3
-	check("the inhibitor is locked below R2", not game.buy_potion("C"))
+	check("the inhibitor is locked below 商店 Lv3", not game.buy_potion("C"))
 	check("a free standard flask goes into the pack", game.buy_potion("A") and game.gold == 10000 and game.base.free_potions == 2 and game.potions == 1)
 	check("a gel costs 600 and takes a cell", game.buy_potion("B") and game.gold == 9400 and game.inventory.occupied_cells() == 2)
-	game.base.prestige = 60
-	check("at R2 the inhibitor costs 1000", game.buy_potion("C") and game.gold == 8400)
+	game.base.set_facility("store", 3)
+	check("at Lv3 the inhibitor costs 1000", game.buy_potion("C") and game.gold == 8400)
 	await game.start_contract("city")
 	check("departure adds the free flasks still owed (1 + 1 + 1 bought, + 2 issued)", game.potions == 5 and game.base.free_potions == 0)
 	# 用户 2026-10-17: 药剂可堆叠 — one kind shares a cell.
@@ -183,6 +186,8 @@ func through_game() -> void:
 	check("a picked-up flask joins the stack", game.inventory.add_stack(loose) == 0 and stack_a[0].quantity == 3 and game.potions == 5)
 	check("a flask saved one per cell stacks after loading", Item.from_data({"name": "标准急救剂", "potion": "A", "value": 30}).max_stack == BaseCatalog.POTION_STACK)
 	check("orders never take a flask", not game.base.orders.slots.any(func(o): return o != null and game.carried_potions().any(func(x): return game.base.orders.matches(game.base.orders.slots.find(o), x))))
+	# Room for a gel's 1680 above her ungeared 600 HP.
+	game.player.apply_buff(2000.0, 0.0)
 	game.player.hp = 5
 	game.run_contamination = 10
 	for f in game.carried_potions().filter(func(x): return x.potion_type == "A"):
@@ -190,9 +195,9 @@ func through_game() -> void:
 	game._use_potion()
 	check("Q drinks a gel before the inhibitor; the gel heals nothing at once", is_equal_approx(game.player.hp, 5) and game._slow_heal_left > 0 and game.potions == 1)
 	game._tick_medical(3.0)
-	check("gel heals over 6 s (half after 3 s)", is_equal_approx(game.player.hp, 845.0))
+	check("gel heals over 6 s (half after 3 s)", is_equal_approx(game.player.hp, 5.0 + BaseCatalog.potion_heal("B", 1) * 0.5))
 	game._tick_medical(10.0)
-	check("and stops at 1680 in total", is_equal_approx(game.player.hp, 1685.0))
+	check("and stops at 1680 in total", is_equal_approx(game.player.hp, 5.0 + BaseCatalog.potion_heal("B", 1)))
 	game.player.hp = 5
 	game.run_contamination = 10
 	game._use_potion()
@@ -211,7 +216,8 @@ func through_game() -> void:
 	check("a flask in the pack can be drunk directly (right click)", game.drink(full) and game.potions == 0 and game.player.hp > 100)
 	game.builds.assign(["\"剑锤\""])
 	game.player._recompute_stats()
-	check("\"剑锤\" cuts flask healing by 20%", is_equal_approx(game.player.potion_heal_multiplier, 0.8))
+	# 复利数值改造清单 E: relics no longer change flask healing (the old 药剂容量).
+	check("\"剑锤\" leaves flask healing alone", is_equal_approx(game.player.potion_heal_multiplier, 1.0))
 	game.builds.clear()
 	game.player._recompute_stats()
 	game.settle(true)

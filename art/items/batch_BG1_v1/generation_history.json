@@ -1,0 +1,17 @@
+[
+  {
+    "id": "bg_zaro_7",
+    "superseded_source": "sources/bg_zaro_7_first_attempt.png",
+    "selected_source": "sources/bg_zaro_7_raw.png",
+    "input": "refs/bg_zaro_7_revision_input_8x.png",
+    "prompt": "sources/bg_zaro_7_revision_prompt.txt",
+    "reason": "Reduce isolated diagonal outline pixels by turning the whistle near-horizontal."
+  },
+  {
+    "id": "bg_zaro_7",
+    "superseded_source": "sources/bg_zaro_7_horizontal_attempt.png",
+    "selected_source": "sources/bg_zaro_7_raw.png",
+    "prompt": "sources/bg_zaro_7_thick_final_prompt.txt",
+    "reason": "Thicker bone tube with clear large finger holes at native32px."
+  }
+]

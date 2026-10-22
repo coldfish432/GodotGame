@@ -3,7 +3,10 @@ shader_type spatial;
 // enemy winding up an attack that cannot be interrupted (新敌人攻击案 §一第 6 条).
 // Draws only where the cell is empty and a neighbour is not, so it can share
 // the sprite's plane without hiding a single painted texel.
-render_mode unshaded, cull_disabled, shadows_disabled;
+// Drawn in the transparent pass, writing no depth: as an opaque quad its
+// whole square reached the depth prepass, and the outline post and SSAO
+// drew it as a box round the enemy (用户 2026-10-21).
+render_mode unshaded, cull_disabled, shadows_disabled, depth_draw_never;
 
 uniform sampler2D atlas : filter_nearest, source_color;
 // The cell inside the atlas, in UV: x, y, width, height.
@@ -30,4 +33,5 @@ void fragment() {
 	float near = max(max(filled(texel + vec2(1, 0)), filled(texel - vec2(1, 0))), max(filled(texel + vec2(0, 1)), filled(texel - vec2(0, 1))));
 	if (near < 0.5) discard;
 	ALBEDO = colour.rgb;
+	ALPHA = colour.a;
 }

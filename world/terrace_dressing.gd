@@ -28,12 +28,15 @@ const KERBS := {
 ## Metres along the edge each kind takes before the next (rolled in the range).
 const KERB_STEP := {"big": Vector2(1.6, 2.2), "small": Vector2(0.8, 1.2)}
 const KERB_SNOW_BIAS := -0.3
+## The boulders and ruined wall: stone, a cap of snow at most.
+const STONE_SNOW_BIAS := -0.4
 ## Floor slope (rise per metre) that counts as ramp: a 2.2 tier over 6.5 is
 ## 0.34; level floor is 0, and a cliff's samples jump far past the top end.
 const KERB_SLOPE := Vector2(0.12, 0.7)
 const RUBBLE := preload("res://art/models/cliff_rubble_pile.glb")
 const SHADER := preload("res://world/terrace_dressing.gdshader")
 const KIT_SHADER := preload("res://world/kit_piece.gdshader")
+const KIT_CAVE_SHADER := preload("res://world/kit_piece_cave.gdshader")
 const GLOW_SHADER := preload("res://world/kit_glow.gdshader")
 ## The region whose kit a floor borrows (FieldCatalog.art_region: 叙拉古 uses
 ## Lungmen's until its own is modelled).
@@ -73,6 +76,9 @@ const FORESTS := {
 ## nothing hides a road from the camera).
 const CRAGS := {
 	"snow": {"step": 7.0, "depth": Vector2(4.0, 30.0), "paths": ["res://art/kit/snow_crag_a.glb", "res://art/kit/snow_crag_b.glb", "res://art/kit/snow_crag_c.glb"], "scale": Vector2(0.8, 1.5)},
+	# The mine's rock crowded with stalagmites from the wall's foot up its
+	# slope (参考《恐怖黎明》's caves, 用户 2026-10-20).
+	"mine": {"step": 3.5, "depth": Vector2(0.6, 9.0), "paths": ["res://art/kit/mine_stalagmites_a.glb", "res://art/kit/mine_stalagmites_b.glb", "res://art/kit/mine_stalagmites_c.glb"], "scale": Vector2(0.8, 1.7)},
 }
 var crag_transforms := {}
 var crag_count := 0
@@ -104,6 +110,9 @@ const ACCENTS := {
 		{"at": "brace", "paths": ["res://art/kit/mine_brace.glb"], "gap": Vector2(10.0, 16.0), "scale": Vector2(0.9, 1.05), "min_rise": 1.8},
 		{"at": "floor", "paths": ["res://art/kit/mine_rocks_a.glb", "res://art/kit/mine_rocks_b.glb"], "gap": Vector2(4.0, 7.0), "scale": Vector2(0.8, 1.2), "min_rise": 1.0},
 		{"at": "floor", "paths": ["res://art/kit/mine_cart.glb"], "gap": Vector2(18.0, 40.0), "scale": Vector2(0.95, 1.05), "min_rise": 1.0},
+		# Originium breaking out at the walls' foot, each one a lamp
+		# (ORIGINIUM_LIGHT): the cave lit by its own crystals.
+		{"at": "foot", "paths": ["res://art/kit/mine_originium_a.glb", "res://art/kit/mine_originium_b.glb"], "gap": Vector2(14.0, 28.0), "scale": Vector2(0.9, 1.4), "min_rise": 1.0},
 	],
 	# 萨米·冻土林线 (雪原地图调研与方案_v1.md): drifts banked at the cliff foot,
 	# icicles under the lip, fallen pines on the floor.
@@ -111,6 +120,11 @@ const ACCENTS := {
 		{"at": "foot", "paths": ["res://art/kit/snow_drift_a.glb", "res://art/kit/snow_drift_b.glb"], "gap": Vector2(10.0, 18.0), "scale": Vector2(0.55, 0.85), "min_rise": 1.5},
 		{"at": "hang", "paths": ["res://art/kit/snow_icicles.glb"], "gap": Vector2(4.0, 9.0), "scale": Vector2(0.9, 1.2), "min_rise": 1.5},
 		{"at": "floor", "paths": ["res://art/kit/snow_log.glb"], "gap": Vector2(35.0, 70.0), "scale": Vector2(0.85, 1.1), "min_rise": 1.0},
+		# 用户 2026-10-20: 雪原只是需要更多精细的建模. Frost-split boulders and
+		# the odd run of Ursus wall along the cliff foot, ice thrust up against it.
+		{"at": "floor", "paths": ["res://art/kit/snow_boulders_a.glb", "res://art/kit/snow_boulders_b.glb"], "gap": Vector2(8.0, 16.0), "scale": Vector2(1.2, 2.0), "min_rise": 1.0},
+		{"at": "floor", "paths": ["res://art/kit/snow_ruin_a.glb", "res://art/kit/snow_ruin_b.glb"], "gap": Vector2(45.0, 90.0), "scale": Vector2(0.9, 1.1), "min_rise": 1.0},
+		{"at": "foot", "paths": ["res://art/kit/snow_ice_shards.glb"], "gap": Vector2(16.0, 30.0), "scale": Vector2(0.9, 1.5), "min_rise": 1.0},
 	],
 }
 ## Baked kit colours against the swept face's tinted swatch (CliffFace.TINTS).
@@ -190,8 +204,11 @@ func build(world: Node3D) -> void:
 		city.build(map, root)
 		lamps.append_array(city.lamps)
 		map.mark("city blocks")
-	if ACCENTS.has(map.region_id): _place_accents(ACCENTS[map.region_id])
+	if ACCENTS.has(map.region_id):
+		_place_accents(ACCENTS[map.region_id])
+		_light_originium()
 	else: _place_rubble(rubble_transforms)
+	if SCATTER.has(map.region_id): _scatter(SCATTER[map.region_id])
 	_place_ramps(ramp_transforms)
 	if FRAMES.has(map.region_id): _place_frames(FRAMES[map.region_id])
 	if MARKERS.has(map.region_id): _place_markers(MARKERS[map.region_id])
@@ -218,14 +235,17 @@ func build(world: Node3D) -> void:
 		var lit: Dictionary = LIGHTING[map.region_id]
 		_place_lights(lit)
 		_add_set(root, "Lanterns", _kit_mesh(load(lit.lantern)), lantern_points)
-		_add_set(root, "LampPosts", _kit_mesh(load(lit.post)), post_points)
+		_add_set(root, "LampPosts", _kit_mesh(load(lit.post)), _enlarged(post_points, PROP_SCALE))
 		_add_set(root, "Headframe", _kit_mesh(load(lit.headframe)), headframe_points)
-	if MARKERS.has(map.region_id): _add_set(root, "Waymarks", _kit_mesh(load(MARKERS[map.region_id].post)), marker_points)
+	if MARKERS.has(map.region_id): _add_set(root, "Waymarks", _kit_mesh(load(MARKERS[map.region_id].post)), _enlarged(marker_points, PROP_SCALE))
 	map.mark("accents ramps frames lights")
 	if CRAGS.has(map.region_id):
 		_place_crags(CRAGS[map.region_id])
 		for path in crag_transforms:
 			_add_set(root, "Crags_" + String(path).get_file().get_basename(), _kit_mesh(load(path)), crag_transforms[path])
+	if map.region_id == "mine":
+		_place_cave_pillars(root)
+		_place_light_shafts(root)
 	map.mark("crags")
 	if FORESTS.has(map.region_id):
 		_place_trees(FORESTS[map.region_id])
@@ -245,7 +265,13 @@ func build(world: Node3D) -> void:
 		field_light.build(map, lamps)
 	map.mark("extraction + light map")
 	for path in accent_transforms:
-		_add_set(root, "Accent_" + String(path).get_file().get_basename(), _kit_mesh(load(path)), accent_transforms[path])
+		# The boulders and the ruined wall keep their stone showing: under the
+		# full snow they read as snowballs.
+		var bias := STONE_SNOW_BIAS if String(path).contains("snow_boulders") or String(path).contains("snow_ruin") else 0.0
+		var label := String(path).get_file().get_basename()
+		var placed: Array[Transform3D] = accent_transforms[path]
+		if label in PROP_ACCENTS: placed = _enlarged(placed, PROP_SCALE)
+		_add_set(root, "Accent_" + label, kit_mesh(load(path), float(KIT_GAIN.get(map.region_id, 1.0)), bias), placed)
 
 ## Steps along every face chain for each accent kind, with its own random gap,
 ## and keeps pieces on one chain apart.
@@ -307,6 +333,51 @@ func _accent(kind: Dictionary, chain: Dictionary, i: int, rise: float) -> Varian
 			var turn := Basis(Vector3.UP, rng.randf_range(0.0, TAU))
 			return Transform3D(turn * Basis.from_scale(Vector3.ONE * size), Vector3(at.x, map.ground_height(at), at.y))
 	return null
+
+## Free-standing pieces against the figures (CityDressing.PROP_SCALE says why):
+## drawn this much larger all round. Pieces fitted to a cliff (its foot, lip,
+## braces, icicles) and the ramps keep the size the terrain gives them.
+const PROP_SCALE := 1.6
+const TREE_SCALE := 1.4
+const PROP_ACCENTS := ["mine_rocks_a", "mine_rocks_b", "mine_cart", "mine_originium_a", "mine_originium_b", "snow_log", "snow_boulders_a",
+	"snow_boulders_b", "snow_ruin_a", "snow_ruin_b", "snow_ice_shards", "snow_shrub"]
+
+static func _enlarged(list: Array[Transform3D], factor: float) -> Array[Transform3D]:
+	var out: Array[Transform3D] = []
+	for t in list: out.append(Transform3D(t.basis * Basis.from_scale(Vector3.ONE * factor), t.origin))
+	return out
+
+## Each Originium cluster's glow on the rock round it.
+const ORIGINIUM_LIGHT := Color(1.0, 0.45, 0.12) * 0.75
+func _light_originium() -> void:
+	for path in accent_transforms:
+		if not String(path).contains("mine_originium"): continue
+		for placed: Transform3D in accent_transforms[path]:
+			lamps.append({"at": placed.origin + Vector3.UP * 0.9 * PROP_SCALE, "color": ORIGINIUM_LIGHT, "radius": 6.5 * 1.3})
+
+## Small things over the rooms' open floor (stones in the mine, frozen shrubs
+## on the tundra), on
+## their own generator so nothing else on the floor moves. No collision: they
+## are knee high and stand clear of the corridors' middle.
+const SCATTER := {
+	"mine": {"density": 0.01, "paths": ["res://art/kit/mine_rocks_a.glb", "res://art/kit/mine_rocks_b.glb"], "scale": Vector2(0.35, 0.6)},
+	"snow": {"density": 0.012, "paths": ["res://art/kit/snow_shrub.glb", "res://art/kit/snow_shrub.glb", "res://art/kit/snow_ice_shards.glb"], "scale": Vector2(0.7, 1.3)},
+}
+var scatter_count := 0
+func _scatter(scatter: Dictionary) -> void:
+	var pick := RandomNumberGenerator.new()
+	pick.seed = map.seed_value ^ 0x5ca77e
+	var paths: Array = scatter.paths
+	for i in range(map._open_circles.size()):
+		var room: Vector3 = map._open_circles[i]
+		for k in range(roundi(room.z * room.z * PI * float(scatter.density))):
+			var at := Vector2(room.x, room.y) + Vector2.from_angle(pick.randf_range(0.0, TAU)) * room.z * sqrt(pick.randf()) * 1.1
+			var path: String = paths[pick.randi_range(0, paths.size() - 1)]
+			var size := pick.randf_range(scatter.scale.x, scatter.scale.y)
+			if map._surface.distance_at(at) < 0.8 or not map._has_clearance(at): continue
+			if not accent_transforms.has(path): accent_transforms[path] = [] as Array[Transform3D]
+			(accent_transforms[path] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, pick.randf_range(0.0, TAU)) * Basis.from_scale(Vector3.ONE * size), Vector3(at.x, map.ground_height(at), at.y)))
+			scatter_count += 1
 
 ## Support frames along every corridor, away from the rooms: at each spot the
 ## walls either side are found by walking out to the contour, a post stands
@@ -383,7 +454,7 @@ func _place_lights(lit: Dictionary) -> void:
 			var ground: float = map.ground_height(spot)
 			var turn := Basis(Vector3.UP, rng.randf_range(0.0, TAU))
 			post_points.append(Transform3D(turn, Vector3(spot.x, ground, spot.y)))
-			lamps.append({"at": Vector3(spot.x, ground + float(lit.get("post_light", 2.2)), spot.y), "color": warm, "radius": 11.0})
+			lamps.append({"at": Vector3(spot.x, ground + float(lit.get("post_light", 2.2)) * PROP_SCALE, spot.y), "color": warm, "radius": 11.0})
 	# The way down: headframe behind the three markers, cold and strong.
 	if map.exit_chamber >= 0 and map.route_nodes.size() == 3:
 		var middle: Vector3 = map.route_nodes[1].position
@@ -550,7 +621,7 @@ func _place_markers(marker: Dictionary) -> void:
 			# The lantern arm reaches into the corridor.
 			var facing := Basis.looking_at(Vector3(side.x, 0, side.y)) * Basis(Vector3.UP, PI / 2)
 			marker_points.append(Transform3D(facing, Vector3(spot.x, ground, spot.y)))
-			lamps.append({"at": Vector3(spot.x - side.x * 0.6, ground + 1.6, spot.y - side.y * 0.6), "color": marker.light, "radius": 7.5})
+			lamps.append({"at": Vector3(spot.x - side.x * 0.6 * PROP_SCALE, ground + 1.6 * PROP_SCALE, spot.y - side.y * 0.6 * PROP_SCALE), "color": marker.light, "radius": 7.5})
 
 ## Trees on the rock: a jittered grid inside the map, each spot kept only
 ## where it is far enough into the rock that the crown stays off the road.
@@ -594,7 +665,7 @@ func _place_trees(forest: Dictionary) -> void:
 					picked = k
 					break
 			var kind: Dictionary = kinds[picked]
-			var scale := rng.randf_range(kind.scale.x, kind.scale.y)
+			var scale := rng.randf_range(kind.scale.x, kind.scale.y) * TREE_SCALE
 			var height: float = heights[picked] * scale
 			# Road to the north of this spot (+z, away from the camera): near bank.
 			var toward := Vector2(map._surface.distance_near(p + Vector2(0.8, 0)) - map._surface.distance_near(p - Vector2(0.8, 0)),
@@ -646,6 +717,119 @@ func _place_crags(crags: Dictionary) -> void:
 			_crag_spots.append(Vector3(p.x, p.y, size.x * scale * 0.55 + 0.8))
 			crag_count += 1
 		z += step
+
+## The mine's cave pillars (用户 2026-10-20: 通天的石柱): a column on every rock
+## island, scaled to it, rising off the top of the screen into the dark. Its
+## own generator, so the rest of the floor's dressing is not reshuffled.
+const CAVE_PILLARS := ["res://art/kit/mine_pillar_a.glb", "res://art/kit/mine_pillar_b.glb", "res://art/kit/mine_pillar_c.glb"]
+var cave_pillar_count := 0
+
+## Each column: x, z and the radius it covers on screen.
+var cave_pillar_spots: Array[Vector3] = []
+const CAVE_PILLAR_HEIGHT := 24.0
+
+## Whether rock stands between the camera and her at `at` (GameManager eases
+## the cut-away open while it does): a column nearer the camera across her
+## line of sight, or the cave wall rising before her. `toward_camera` is the
+## camera's way along the ground; at `pitch` a point s metres nearer the camera
+## covers her middle once it stands 0.9 + s·tan(pitch) high.
+func rock_before(at: Vector3, toward_camera: Vector2, pitch: float) -> bool:
+	if map.region_id != "mine" or map._surface == null: return false
+	var feet := Vector2(at.x, at.z)
+	var slope := tan(pitch)
+	for spot in cave_pillar_spots:
+		var offset := Vector2(spot.x, spot.y) - feet
+		var s := offset.dot(toward_camera)
+		if s <= 0.0 or absf(offset.cross(toward_camera)) > spot.z + 1.2: continue
+		if CAVE_PILLAR_HEIGHT >= 0.9 + s * slope: return true
+	var ground: float = map._surface.ground_at(feet)
+	for k in range(1, 16):
+		var s := k * 0.7
+		for side: float in [-0.9, 0.0, 0.9]:
+			var p := feet + toward_camera * s + toward_camera.orthogonal() * side
+			if map._surface.top_at(p) - ground >= 0.9 + s * slope: return true
+	return false
+
+static func cave_pillars_ready() -> bool:
+	return ResourceLoader.exists(CAVE_PILLARS[0])
+
+func _place_cave_pillars(root: Node3D) -> void:
+	var paths := CAVE_PILLARS.filter(func(path: String) -> bool: return ResourceLoader.exists(path))
+	if paths.is_empty(): return
+	var pick := RandomNumberGenerator.new()
+	pick.seed = map.seed_value ^ 0x9111a5
+	var placed := {}
+	for i in range(map._closed_circles.size()):
+		var circle: Vector3 = map._closed_circles[i]
+		var at := Vector2(circle.x, circle.y)
+		var path: String = paths[pick.randi_range(0, paths.size() - 1)]
+		var size := circle.z * 0.75
+		var basis := Basis(Vector3.UP, pick.randf_range(0.0, TAU)) * Basis.from_scale(Vector3(size, pick.randf_range(0.95, 1.1), size))
+		if not placed.has(path): placed[path] = [] as Array[Transform3D]
+		(placed[path] as Array[Transform3D]).append(Transform3D(basis, Vector3(at.x, map._surface.ground_at(at) - 0.2, at.y)))
+		cave_pillar_spots.append(Vector3(at.x, at.y, size * 1.3))
+		cave_pillar_count += 1
+	for path in placed:
+		var mesh := (_kit_mesh(load(path)) as Mesh).duplicate()
+		for surface in range(mesh.get_surface_count()):
+			var source := mesh.surface_get_material(surface) as ShaderMaterial
+			var material := ShaderMaterial.new()
+			material.shader = KIT_CAVE_SHADER
+			for parameter in ["albedo_tex", "normal_tex", "gain"]:
+				material.set_shader_parameter(parameter, source.get_shader_parameter(parameter))
+			material.set_shader_parameter("void_from", 6.0)
+			material.set_shader_parameter("void_span", 12.0)
+			mesh.surface_set_material(surface, material)
+		_add_set(root, "CavePillars_" + String(path).get_file().get_basename(), mesh, placed[path])
+
+## Daylight through cracks in the mine's roof: in some of the bigger rooms, a
+## pale shaft from out of sight above, its pool on the floor a spot light's.
+const SHAFT_SHADER := preload("res://world/light_shaft.gdshader")
+# Rare and faint (用户 2026-10-21: 顶光还是太奇怪了，有点突兀，更柔和并不常见).
+const SHAFT_CHANCE := 0.15
+const SHAFT_HEIGHT := 22.0
+var light_shaft_count := 0
+
+func _place_light_shafts(root: Node3D) -> void:
+	var pick := RandomNumberGenerator.new()
+	pick.seed = map.seed_value ^ 0x5aaf7
+	var material := ShaderMaterial.new()
+	material.shader = SHAFT_SHADER
+	for i in range(map._open_circles.size()):
+		var room: Vector3 = map._open_circles[i]
+		if room.z < 7.0 or pick.randf() > SHAFT_CHANCE: continue
+		var at := Vector2(room.x, room.y) + Vector2.from_angle(pick.randf_range(0.0, TAU)) * room.z * pick.randf_range(0.0, 0.4)
+		if map._surface.distance_at(at) < 2.0: continue
+		var ground: float = map._surface.ground_at(at)
+		var radius := pick.randf_range(1.6, 2.6)
+		var cone := CylinderMesh.new()
+		cone.top_radius = radius * 0.55
+		cone.bottom_radius = radius
+		cone.height = SHAFT_HEIGHT
+		cone.cap_top = false
+		cone.cap_bottom = false
+		cone.radial_segments = 20
+		var shaft := MeshInstance3D.new()
+		shaft.name = "LightShaft"
+		shaft.mesh = cone
+		shaft.material_override = material
+		shaft.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		shaft.position = Vector3(at.x, ground + SHAFT_HEIGHT * 0.5, at.y)
+		root.add_child(shaft)
+		var sun := SpotLight3D.new()
+		sun.name = "ShaftLight"
+		sun.light_color = Color(0.78, 0.86, 1.0)
+		sun.light_energy = 3.0
+		sun.spot_range = SHAFT_HEIGHT + 4.0
+		# Wide and fading from the middle out: a soft glow, no edged pool.
+		sun.spot_angle = rad_to_deg(atan(radius * 2.4 / SHAFT_HEIGHT))
+		sun.spot_angle_attenuation = 3.0
+		sun.spot_attenuation = 0.4
+		sun.light_specular = 0.2
+		sun.position = Vector3(at.x, ground + SHAFT_HEIGHT, at.y)
+		sun.rotation = Vector3(-PI * 0.5, 0.0, 0.0)
+		root.add_child(sun)
+		light_shaft_count += 1
 
 func _on_crag(p: Vector2) -> bool:
 	for spot in _crag_spots:
@@ -761,6 +945,8 @@ static func kit_mesh(scene: PackedScene, gain: float = 1.0, snow_bias: float = 0
 		if source != null and source.resource_name.get_slice(".", 0).ends_with("_glow"):
 			material.shader = GLOW_SHADER
 		if source != null: material.set_shader_parameter("albedo_tex", source.albedo_texture)
+		# The relief baked with the colour (场景渲染统一改造案_v1 S2); the lit base shader reads it.
+		if source != null and source.normal_enabled and source.normal_texture != null: material.set_shader_parameter("normal_tex", source.normal_texture)
 		if material.shader == KIT_SHADER:
 			material.set_shader_parameter("gain", gain)
 			material.set_shader_parameter("snow_bias", snow_bias)

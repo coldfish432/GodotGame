@@ -5,11 +5,34 @@ extends Node3D
 
 const CAMERA_OFFSET := Vector3(0.0, 16.0, -10.0)
 const CAMERA_FOLLOW_SPEED := 10.0
+## The follow camera can be zoomed and turned round her (用户 2026-10-20, after
+## Grim Dawn): the wheel zooms between the limits, a key turns it 45°, the
+## middle button dragged turns it freely, one key brings back the default
+## view. The tilt goes from 50° to 70° (用户 2026-10-20: 有限俯角), a key a
+## step or the middle button dragged up and down; the sprites, drawn for 58°,
+## are kept on their feet at any of it (_keep_sprites_upright).
+const CAMERA_PITCH := 1.0121970114513341  # atan2(16, 10), the 58° the art is drawn for
+const CAMERA_PITCH_MIN := deg_to_rad(50.0)
+const CAMERA_PITCH_MAX := deg_to_rad(70.0)
+const CAMERA_TILT_STEP := deg_to_rad(5.0)
+const CAMERA_SIZE := 24.0
+const CAMERA_SIZE_MIN := 14.0
+const CAMERA_SIZE_MAX := 32.0
+const CAMERA_ZOOM_STEP := 2.0
+const CAMERA_TURN_STEP := PI / 4.0
+const CAMERA_DRAG_TURN := 0.012  # radians per world-viewport pixel
+const CAMERA_EASE := 12.0
 const ENEMY_PICK_MASK := 4  # matches Enemy.PICK_LAYER
 
 @export var fixed_map_seed: int = 0
 
-var floor_number: int = 1
+## Setting it moves the floor-bound numbers along (复利数值改造清单 A, E): the
+## physical K and the relic texts' 档位系数.
+var floor_number: int = 1:
+	set(value):
+		floor_number = value
+		CombatStats.physical_k = Scaling.physical_k(value)
+		RelicCatalog.set_floor(value)
 ## Flasks are pack items that stack (药剂进背包, 用户 2026-10-05 / 10-17): this is
 ## how many she carries, pack and safe bag. Setting it replaces them with that
 ## many 标准急救剂 in the pack (tests and debug use).
@@ -18,8 +41,14 @@ var potions: int:
 	set(value): _set_standard_potions(value)
 ## Q drinks the first of these she carries (标准急救剂 first).
 const POTION_ORDER := ["A", "B", "C"]
-## Contamination taken on this contract so far (§4.1); added to the base's at settlement.
-var run_contamination := 0.0
+## The 特供 and regional flasks' timers and side effects (药剂与商人界面策划案 §2–§3).
+var potion_fx := PotionEffects.new()
+## 地图特色 on this contract (地图特色策划案_v1_0.md): 源石污染, 血债, 寒冷.
+var features := FeatureMeter.new()
+## Contamination taken on this contract so far (§4.1); it is the 地图特色 meter's.
+var run_contamination: float:
+	get: return float(features.values.contamination)
+	set(v): features.values.contamination = v
 var _slow_heal_left := 0.0       # 缓释凝胶: health still to come
 var _slow_heal_rate := 0.0
 var _suppress_timer := 0.0       # 抑制喷剂: contamination accrues at half rate meanwhile
@@ -43,6 +72,20 @@ var base := BaseState.new()
 var market := MarketState.new()
 var exchange := Exchange.new()
 var workshop := Workshop.new()
+## 科研部 (龙门币平衡与科研部策划案_v1_1.md §5); its state is on base.research.
+var research := Research.new(self)
+## Rhodes Island on Terra: voyages, medical stays, bulk orders (沙盘航行策划案_v1_0.md).
+var voyage := VoyageState.new()
+## 农业部 and 食堂 on the second deck (势力特供策划案_v0_2 §三–§六); state on base.farm.
+var provisions := Provisions.new(self)
+## The 补给 eaten for this contract ("" none), and how many services this
+## floor's Rhodes squad has given.
+var run_meal := ""
+var squad_uses := 0
+## The floor a 残党向导 was used on (−1 none): its vault and trace show on the map.
+var guide_floor := -1
+## Which deck of the base she is on (1 the hall's, 2 the farm's and canteen's).
+var deck := 1
 ## Tests fix the market's dice; 0 rolls them.
 var fixed_market_seed := 0
 var _market_save_left := 60.0
@@ -59,6 +102,8 @@ var world_map: ContinuousWorldMap
 var base_map: BaseMap
 var warehouse_view: WarehouseView
 var medical_view: MedicalView
+## The construction sites and the parts each facility level puts in the base.
+var works: BaseWorks
 var markers: BaseMarkers
 var _status_bar: Label
 ## Where Lappland appears on returning: the hall after extraction, the medical
@@ -92,6 +137,10 @@ var _vault_guardians: Array[Enemy] = []
 ## The outpost floor's squad (§6 B2); its routes stay shut until all of it falls.
 var _outpost_squad: Array[Enemy] = []
 var outpost_cleared := true
+## The outpost's boss (every 20th floor) or warden (the 10th between), Boss与守卫者策划案.
+var outpost_boss: Boss
+## A boss floor's arena (Boss战场地策划案): gate, cover, the region's device.
+var arena: BossArena
 var _buff_taken: bool = false
 ## Who stands at this floor's encounter spot: "" / "squad" / "trader", and
 ## whether the squad's one service has been used (保全系统修订案 §2).
@@ -137,6 +186,9 @@ var bounty_killed := false
 var _bounty: Enemy
 ## 寻访合同 (干员寻访策划案 §2.2): she has been reached and spoken to.
 var recruit_met := false
+## 运送合同 (沙盘航行策划案 §5.3): the crate is handed over, and where.
+var cargo_delivered := false
+var handover_node: Node3D
 ## Her figure on her floor, and the guard round her.
 var recruit_node: Node3D
 var _recruit_post: GuardPost
@@ -186,11 +238,20 @@ const HOLD_ATTACK_TIME := 0.25
 var attack_cursor_on := false
 var _pointer_position := Vector2.ZERO
 var _has_pointer_position := false
-var _sword_shake_frames := 0
 ## The camera's smooth follow position. What is rendered is this snapped to
 ## whole screen pixels (see _snap_to_pixels).
 var _camera_follow := Vector3.ZERO
 var _camera_snapped := Vector3.INF
+## The camera's turn round the vertical (0 = the default view from the south)
+## and its orthographic size, each easing to where the player set it.
+var camera_yaw := 0.0
+var camera_yaw_goal := 0.0
+var camera_size_goal := CAMERA_SIZE
+var camera_pitch := CAMERA_PITCH
+var camera_pitch_goal := CAMERA_PITCH
+## The tilt the sprites were last set for.
+var _sprites_pitch := CAMERA_PITCH
+var _camera_dragging := false
 
 ## Opens or closes the base's station overview (BaseHud), remembered in the settings.
 func toggle_station_panel() -> void:
@@ -198,6 +259,7 @@ func toggle_station_panel() -> void:
 
 func _ready() -> void:
 	_setup_input()
+	AttackCursor.apply(false)
 	rng.randomize()
 	sound = FieldAudio.new()
 	add_child(sound)
@@ -225,6 +287,9 @@ func _ready() -> void:
 	medical_view = MedicalView.new()
 	base_map.add_child(medical_view)
 	medical_view.setup(self, base_map)
+	works = BaseWorks.new()
+	base_map.add_child(works)
+	works.setup(self, base_map)
 	markers = BaseMarkers.new()
 	base_map.add_child(markers)
 	markers.setup(self, base_map)
@@ -292,10 +357,91 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouse:
 		_pointer_position = event.position
 		_has_pointer_position = true
+	if _camera_dragging and event is InputEventMouseMotion:
+		camera_yaw_goal -= event.relative.x * CAMERA_DRAG_TURN
+		tilt_camera(event.relative.y * CAMERA_DRAG_TURN)
+
+## The wheel and the drag start only where no panel took the press.
+func _unhandled_input(event: InputEvent) -> void:
+	if not camera_control_active(): return
+	if event.is_action_pressed("camera_zoom_in"): zoom_camera(-1)
+	elif event.is_action_pressed("camera_zoom_out"): zoom_camera(1)
+	elif event.is_action_pressed("camera_drag"): _camera_dragging = true
+
+func camera_control_active() -> bool:
+	return simulation_active() or base_walk_active()
+
+## One wheel notch closer (-1) or further out (1).
+func zoom_camera(steps: int) -> void:
+	camera_size_goal = clampf(camera_size_goal + steps * CAMERA_ZOOM_STEP, CAMERA_SIZE_MIN, CAMERA_SIZE_MAX)
+
+## Steeper (positive radians) or lower, within the limits.
+func tilt_camera(radians: float) -> void:
+	camera_pitch_goal = clampf(camera_pitch_goal + radians, CAMERA_PITCH_MIN, CAMERA_PITCH_MAX)
+
+## Turn to the next 45° mark on that side (1 or -1).
+func turn_camera(side: int) -> void:
+	var mark := camera_yaw_goal / CAMERA_TURN_STEP
+	camera_yaw_goal = (floorf(mark + 0.001) + 1.0 if side > 0 else ceilf(mark - 0.001) - 1.0) * CAMERA_TURN_STEP
+
+func reset_camera_view() -> void:
+	# The short way round to the default view.
+	camera_yaw_goal = camera_yaw - wrapf(camera_yaw, -PI, PI)
+	camera_size_goal = CAMERA_SIZE
+	camera_pitch_goal = CAMERA_PITCH
+
+## Where the camera sits from the point it looks at, tilted and turned with the view.
+func camera_offset() -> Vector3:
+	var reach := CAMERA_OFFSET.length()
+	return Vector3(0.0, reach * sin(camera_pitch), -reach * cos(camera_pitch)).rotated(Vector3.UP, camera_yaw)
+
+## A billboard shows its height above the ground cos(tilt) as tall on screen,
+## so at another tilt than 58° its image would float above its feet or sink
+## below them. Each sprite in "upright_sprites" is moved on its image by that
+## difference (its height measured once, its own ground under it); each
+## upright figure in "upright_figures" (BILLBOARD_FIXED_Y) is stretched by
+## 1 / cos(tilt) to draw the same pixels.
+func _keep_sprites_upright() -> void:
+	if is_equal_approx(camera_pitch, CAMERA_PITCH) and is_equal_approx(_sprites_pitch, CAMERA_PITCH): return
+	_sprites_pitch = camera_pitch
+	var rise := cos(CAMERA_PITCH) - cos(camera_pitch)
+	BaseMap.pivot_screen_px = BaseMap.SORT_PIVOT_Y * cos(camera_pitch) * 15.0
+	for node in get_tree().get_nodes_in_group("upright_sprites"):
+		var sprite := node as SpriteBase3D
+		if sprite == null or not sprite.is_inside_tree(): continue
+		if not sprite.has_meta("upright_height"): sprite.set_meta("upright_height", sprite.global_position.y - ground_y(sprite.global_position))
+		var shift: float = float(sprite.get_meta("upright_height")) * rise / sprite.pixel_size
+		sprite.offset.y += shift - float(sprite.get_meta("upright_shift", 0.0))
+		sprite.set_meta("upright_shift", shift)
+	for node in get_tree().get_nodes_in_group("upright_figures"):
+		(node as Node3D).scale.y = 1.0 / cos(camera_pitch)
+
+func _camera_keys() -> void:
+	if Input.is_action_just_pressed("camera_turn_left"): turn_camera(1)
+	if Input.is_action_just_pressed("camera_turn_right"): turn_camera(-1)
+	if Input.is_action_just_pressed("camera_reset"): reset_camera_view()
+	if Input.is_action_just_pressed("camera_tilt_up"): tilt_camera(CAMERA_TILT_STEP)
+	if Input.is_action_just_pressed("camera_tilt_down"): tilt_camera(-CAMERA_TILT_STEP)
 
 ## Seconds until the base next looks for insurance that is due.
 var _insurance_check := 0.0
 const INSURANCE_CHECK_SECONDS := 5.0
+
+## The cave's cut-away round her (cutaway.gdshaderinc field_cut): opens over
+## CUT_EASE seconds while rock stands between her and the camera, closes as
+## gently once it does not (用户 2026-10-21: 挡视野时突然消失).
+const CUT_EASE := 0.25
+var _cut_amount := 0.0
+
+func _ease_cutaway(delta: float) -> void:
+	var want := 0.0
+	if not in_base and is_instance_valid(world_map) and is_instance_valid(world_map.terrace_dressing):
+		var away := Vector2(camera_offset().x, camera_offset().z)
+		if away.length() > 0.01 and world_map.terrace_dressing.rock_before(player.global_position, away.normalized(), camera_pitch): want = 1.0
+	var next := move_toward(_cut_amount, want, delta / CUT_EASE)
+	if next == _cut_amount: return
+	_cut_amount = next
+	RenderingServer.global_shader_parameter_set("field_cut", _cut_amount)
 
 func _process(delta: float) -> void:
 	message_timer -= delta
@@ -309,9 +455,12 @@ func _process(delta: float) -> void:
 	_update_pointer_cursor(pointed)
 	if binding_key: return
 	if Input.is_action_just_pressed("toggle_inventory"): toggle_panel("inventory")
+	if Input.is_action_just_pressed("toggle_operator"): toggle_panel("training")
 	for entry in [["toggle_relics", "relics"], ["toggle_map", "map"], ["toggle_journal", "journal"]]:
 		if Input.is_action_just_pressed(entry[0]): toggle_panel(entry[1])
 	if Input.is_action_just_pressed("toggle_pause"): go_back()
+	if camera_control_active(): _camera_keys()
+	if _camera_dragging and not Input.is_action_pressed("camera_drag"): _camera_dragging = false
 	# A hit while she searches shuts the box's window, so she can answer it.
 	if hands_busy() and (not looting.is_inside_tree() or player.hp < _loot_hp - 0.5): close_modal()
 	if simulation_active() and hands_busy(): _tick_toasts(delta)
@@ -336,20 +485,37 @@ func _process(delta: float) -> void:
 	_update_base_prompt()
 	# The snowfall rides above her view (TerraceDressing.weather).
 	if is_instance_valid(world_map) and is_instance_valid(world_map.terrace_dressing) and is_instance_valid(world_map.terrace_dressing.weather) and world_map.terrace_dressing.weather.is_inside_tree() and is_instance_valid(player) and player.is_inside_tree():
-		world_map.terrace_dressing.weather.global_position = player.global_position + Vector3(0, 11, 4)
+		world_map.terrace_dressing.weather.global_position = player.global_position + Vector3(0, 11, 4).rotated(Vector3.UP, camera_yaw)
 	# The glow that follows her through the field (FieldLight).
-	if is_instance_valid(player): RenderingServer.global_shader_parameter_set("field_player", player.global_position + Vector3.DOWN * 0.7)
+	if is_instance_valid(player):
+		RenderingServer.global_shader_parameter_set("field_player", player.global_position + Vector3.DOWN * 0.7)
+		FieldLight.focus = player.global_position
+		_tint_in_field()
+		_ease_cutaway(delta)
 	if is_instance_valid(camera):
 		# Anything that placed the camera directly (spawns, captures) restarts the follow from there.
-		if not camera.global_position.is_equal_approx(_camera_snapped): _camera_follow = camera.global_position
-		_camera_follow = _camera_follow.lerp(camera_target() + CAMERA_OFFSET, minf(1, CAMERA_FOLLOW_SPEED * delta))
-		_camera_snapped = _snap_to_pixels(_camera_follow)
+		if not camera.global_position.is_equal_approx(_camera_snapped): _camera_follow = camera.global_position - camera_offset()
+		var blend := minf(1, CAMERA_EASE * delta)
+		camera_yaw = lerpf(camera_yaw, camera_yaw_goal, blend) if absf(camera_yaw_goal - camera_yaw) > 0.0005 else camera_yaw_goal
+		camera.size = lerpf(camera.size, camera_size_goal, blend) if absf(camera_size_goal - camera.size) > 0.005 else camera_size_goal
+		camera_pitch = lerpf(camera_pitch, camera_pitch_goal, blend) if absf(camera_pitch_goal - camera_pitch) > 0.0005 else camera_pitch_goal
+		_keep_sprites_upright()
+		camera.global_basis = Basis.looking_at(-camera_offset(), Vector3.UP)
+		# She stays in the middle while the view turns: the follow eases the
+		# point looked at, the offset turns round it.
+		_camera_follow = _camera_follow.lerp(camera_target(), minf(1, CAMERA_FOLLOW_SPEED * delta))
+		_camera_snapped = _snap_to_pixels(_camera_follow + camera_offset())
 		camera.global_position = _camera_snapped
 
 		camera.h_offset = 0.0
-		if _sword_shake_frames > 0 and simulation_active():
-			camera.h_offset = (1.0 if _sword_shake_frames == 2 else -1.0) * camera.size / get_viewport().get_visible_rect().size.y
-			_sword_shake_frames -= 1
+		camera.v_offset = 0.0
+		# A boss's heavy blow (BossVfx): a few pixels, dying away, both ways.
+		if _impact_frames > 0 and simulation_active():
+			var texel := camera.size / get_viewport().get_visible_rect().size.y
+			var k := float(_impact_frames) / float(maxi(1, _impact_total))
+			camera.h_offset += (1.0 if _impact_frames % 2 else -1.0) * _impact_pixels * k * texel
+			camera.v_offset = (1.0 if (_impact_frames / 2) % 2 else -1.0) * _impact_pixels * 0.6 * k * texel
+			_impact_frames -= 1
 
 ## The world renders at a low resolution and is scaled up with nearest-neighbour
 ## filtering, and every floor, prop and sprite rounds to that pixel grid on its
@@ -371,7 +537,7 @@ func _snap_to_pixels(position: Vector3) -> Vector3:
 ## Where the camera looks: the player, kept inside the base's walls while at home.
 func camera_target() -> Vector3:
 	if in_base and is_instance_valid(base_map) and base_map.visible:
-		return base_map.clamp_camera(player.global_position)
+		return base_map.clamp_camera(player.global_position, camera.size / CAMERA_SIZE if is_instance_valid(camera) else 1.0, camera_yaw, sin(CAMERA_PITCH) / sin(camera_pitch))
 	return player.global_position
 
 ## Any container channel in progress is broken off (a dodge, 用户 2026-10-10).
@@ -440,12 +606,21 @@ func progress() -> OperatorProgress:
 func award_kill(enemy: Enemy) -> void:
 	var kind := "normal"
 	if enemy == _bounty: kind = "boss"
+	elif enemy is Boss and (enemy as Boss).rank == "boss": kind = "region_boss"
 	elif enemy.boss: kind = "leader"
 	elif enemy.elite: kind = "elite"
 	run_kills[kind] = int(run_kills.get(kind, 0)) + 1
-	if progress().add_exp(Progression.kill_exp(kind, floor_number)) > 0:
+	var exp := Progression.kill_exp(kind, floor_number)
+	if enemy is Boss: exp = Progression.boss_exp((enemy as Boss).rank, (enemy as Boss).tier, floor_number)
+	exp = roundi(exp * player.exp_gain_multiplier)
+	if progress().add_exp(exp) > 0:
 		player._recompute_stats()
 		sound.play("charge")
+	# 人事部Ⅳ/Ⅵ: the benched operators learn a share of it.
+	var share := research.bench_share()
+	if share > 0.0:
+		for id in base.roster:
+			if id != player.operator_id: base.progress_for(id).add_exp(roundi(exp * share))
 
 ## Feeds `count` 作战记录 of `record` to the current operator (base only):
 ## stops at the level cap, and pays 0.5 龙门币 per point of experience.
@@ -455,7 +630,7 @@ func feed_record(record: String, count: int) -> int:
 	var used := 0
 	while used < count and int(base.records.get(record, 0)) > 0 and not p.at_cap():
 		var exp := int(Progression.RECORD_EXP[record])
-		var price := ceili(exp * Progression.LMD_PER_EXP)
+		var price := record_price(record)
 		if gold < price: break
 		gold -= price
 		base.records[record] = int(base.records[record]) - 1
@@ -466,18 +641,32 @@ func feed_record(record: String, count: int) -> int:
 		save_base()
 	return used
 
+## 龙门币 for one record (人事部Ⅰ and the endless line take their shares off).
+func record_price(record: String) -> int:
+	return ceili(int(Progression.RECORD_EXP[record]) * Progression.LMD_PER_EXP * research.feed_factor())
+
+## The promotion's 龙门币 (人事部Ⅴ: −25%).
+func promotion_lmd() -> int:
+	var lmd := int(progress().promotion_cost().get("lmd", 0))
+	return roundi(lmd * 0.75) if base.researched("promotion_fee") else lmd
+
+## Resetting `points` skill points at `elite` (人事部Ⅱ: −50%).
+func respec_price(points: int, elite: int) -> int:
+	var cost := Progression.respec_cost(points, elite)
+	return cost / 2 if base.researched("respec_fee") else cost
+
 func promotion_refusal() -> String:
 	var p := progress()
 	var block := p.promotion_block()
 	if not block.is_empty(): return block
 	var cost := p.promotion_cost()
-	if gold < int(cost.lmd): return "龙门币不足"
+	if gold < promotion_lmd(): return "龙门币不足"
 	return materials_refusal(cost.materials)
 
 func promote_operator() -> bool:
 	if not in_base or not promotion_refusal().is_empty(): return false
 	var cost := progress().promotion_cost()
-	gold -= int(cost.lmd)
+	gold -= promotion_lmd()
 	consume_materials(cost.materials)
 	progress().promote()
 	player._recompute_stats()
@@ -510,7 +699,7 @@ func set_transmuter(group: String, node_id: String) -> bool:
 
 func respec_skills() -> bool:
 	var p := progress()
-	var cost := Progression.respec_cost(p.refundable_points(), p.elite)
+	var cost := respec_price(p.refundable_points(), p.elite)
 	if not in_base or p.refundable_points() <= 0 or gold < cost: return false
 	gold -= cost
 	p.reset_skills()
@@ -560,21 +749,31 @@ func spawn_hazard(at: Vector3, radius: float, fuse: float, lasting: float, damag
 	hazard.global_position = Vector3(at.x, ground_y(at), at.z)
 	return hazard
 
-func start_sword_shake() -> void:
-	_sword_shake_frames = 2
+## (Her own blows never shake the camera, 用户 2026-10-20: 挥砍抖动也删掉.)
+## A heavier shake for a boss's blow landing: `pixels` at first, over `frames`.
+## A bigger one already running is not cut short.
+var _impact_frames := 0
+var _impact_total := 1
+var _impact_pixels := 0.0
+func start_impact_shake(pixels: float, frames: int) -> void:
+	if _impact_frames > 0 and _impact_pixels * _impact_frames / _impact_total >= pixels: return
+	_impact_pixels = pixels
+	_impact_frames = frames
+	_impact_total = frames
 
 func _physics_process(delta: float) -> void:
 	if simulation_active() and is_instance_valid(player):
 		fog.reveal(player.global_position)
 		_announce_discoveries()
 		_tick_medical(delta)
+		_tick_features(delta)
 		_tick_contract()
 		_tick_extraction(delta)
 		for trap in traps:
 			if is_instance_valid(trap): trap.check(player)
 		if player.hp <= 0: _on_player_died()
 		else: _tick_auto_potion(delta)
-	if threat_rising(): _tick_threat(delta)
+	if threat_rising() and not boss_fight(): _tick_threat(delta)
 
 func show_base() -> void:
 	in_base = true
@@ -584,10 +783,16 @@ func show_base() -> void:
 	_inventory_panel.hide()
 	menu.hide()
 	base_map.set_active(true)
-	base_map.set_ship_at(base.ship_at)
+	apply_scene_look(true)
+	show_ship()
+	research.tick()
+	show_research()
+	base_map.set_farm(provisions)
 	refresh_look()
+	deck = 1
+	base_map.set_deck(1)
 	player.teleport(base_map.spawn_point(base_spawn))
-	camera.global_position = camera_target() + CAMERA_OFFSET
+	camera.global_position = camera_target() + camera_offset()
 
 ## What Lappland is standing at, if anything: a warehouse spot (crate, zone,
 ## staging) or one of the base stations.
@@ -611,6 +816,10 @@ func _base_interact() -> void:
 			menu.shelf_zone = station.category
 			menu.show_station("shelves")
 		"putback": put_back_carried()
+		"build_site": open_build_site(str(station.facility))
+		"hub":
+			if base.hub_built(): open_station("construction")
+			else: open_build_site("hub")
 		"staging":
 			if base.hand: stage_carried()
 			else:
@@ -618,22 +827,25 @@ func _base_interact() -> void:
 				menu.show_staging()
 		_: open_station(station.kind)
 
+## A facility's construction site: its upgrades on the spot, connected or not.
+func open_build_site(facility: String) -> void:
+	if not in_base or transitioning or not BaseCatalog.FACILITIES.has(facility): return
+	open_modal("station")
+	menu.show_build_site(facility)
+
 func open_station(kind: String) -> void:
 	if not in_base or transitioning: return
 	if kind == "report" and base.report_unread:
 		base.report_unread = false
-		save_base()
-	if kind == "stash" and base.unseen_unlocks:
-		base.unseen_unlocks = false
 		save_base()
 	open_modal("station")
 	menu.show_station(kind)
 
 func _handle_base_pointer() -> void:
 	if _pointer_gate:
-		_pointer_gate = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+		_pointer_gate = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 		return
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		player.set_move_target(_get_pointer_ground())
 
 func _build_base_prompt(layer: CanvasLayer) -> void:
@@ -714,13 +926,13 @@ func _update_base_prompt() -> void:
 func start_contract(region: String, start_camp: int = 0) -> void:
 	if transitioning or not in_base or not FieldCatalog.REGIONS.has(region): return
 	region_id = region
-	base.ship_at = TerraMap.place_for_region(region)
 	in_base = false
 	refresh_look()
 	_settled = false
 	transitioning = true
 	close_modal()
 	base_map.set_active(false)
+	apply_scene_look(false)
 	settlement.clear()
 	builds.clear()
 	build_offers.clear()
@@ -732,6 +944,10 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	floor_number = 1
 	pressure = 0
 	threat.reset()
+	features.reset()
+	_take_kits(region)
+	# 纠察队 heard of the infected Rhodes treated at Chernobog (沙盘航行策划案 §4.4).
+	threat.value = ThreatMeter.FULL * voyage.threat_start(region)
 	_tracked_warned = -1
 	route_index = 0
 	in_camp = false
@@ -741,22 +957,39 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	var from_camp := start_camp > 0 and base.camp_unlocked(region, start_camp)
 	if from_camp: floor_number = start_camp
 	start_floor = floor_number + (1 if from_camp else 0)
+	var test_floor := boss_test_floor()
+	if test_floor > 0:
+		from_camp = false
+		floor_number = test_floor
+		start_floor = test_floor
 	contract = _pending_contract.duplicate() if not _pending_contract.is_empty() else (contract_offers(region)[0] as Dictionary).duplicate()
 	_pending_contract = {}
+	# Taking it fixes the pay (v1.1 §2.2); the endless 合同报酬 line adds its share.
+	contract.reward = roundi(Economy.contract_reward(contract, start_floor) * research.contract_bonus() / 10000.0) * 100
+	# Signed projects are paid now, at this start's tier, and are on for this contract.
+	var project_paid := research.charge_departure(start_floor)
+	research.apply_run(true)
+	_trader_met = false
 	contract_vaults = 0
 	bounty_killed = false
 	_bounty = null
 	recruit_met = false
+	cargo_delivered = false
 	_contract_announced = false
 	_run_seed = fixed_map_seed if fixed_map_seed else rng.randi()
 	_apply_medical_state()
+	guide_floor = -1
+	_apply_meal(provisions.take_for_run())
 	# Whatever she is carrying around the warehouse stays at the base.
 	if base.return_hand(): set_message("手上的物品已放回原处。")
 	_issue_free_potions()
+	if research.on("supply"):   # 课题 战地补给
+		for i in range(2): inventory.add_stack(BaseCatalog.create_potion("A", Economy.tier_of(start_floor)))
 	prts_log.clear()
 	prts_toasts.clear()
 	broadcast("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
 	broadcast("合同目标：%s。" % FieldCatalog.contract_goal(contract, region_id, start_floor))
+	if project_paid > 0: broadcast("课题经费 %s 龙门币：%s。" % [Economy.format(project_paid), "、".join(base.research.run.map(func(p): return str(ResearchCatalog.PROJECTS[p][0])))])
 	broadcast("PRTS：博士，%s已就位。" % Operators.info(player.operator_id).name)
 	route_history = [{"floor": start_floor, "name": "营地" if from_camp else "入口"}]
 	for item in carried_items():
@@ -770,11 +1003,30 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 		return
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
-	camera.global_position = player.global_position + CAMERA_OFFSET
+	if test_floor > 0: player.teleport(_boss_test_spot())
+	camera.global_position = player.global_position + camera_offset()
 	await _await_navigation_sync()
 	_spawn_wave()
 	transitioning = false
 	set_message("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
+
+## Debug builds only: DOWNFALL_BOSS_FLOOR=20 starts every contract on that
+## floor, next to its boss (20, 40 …) or warden (10, 30 …). 0 when unset.
+static func boss_test_floor() -> int:
+	if not OS.is_debug_build(): return 0
+	var n := OS.get_environment("DOWNFALL_BOSS_FLOOR").to_int()
+	return n if n > 0 and n % FieldCatalog.CAMP_INTERVAL == FieldCatalog.OUTPOST_PLACE % FieldCatalog.CAMP_INTERVAL else 0
+
+## Outside the arena gate on a boss floor; a dozen metres short of the warden
+## otherwise. At the entry's height above the ground, or she sinks into it.
+func _boss_test_spot() -> Vector3:
+	var lift := Vector3.UP * ContinuousWorldMap.ENTRY_POSITION.y
+	if world_map.arena_centre != Vector3.INF:
+		return world_map.nearest_walkable(world_map.arena_entry - Vector3(0, 0, 4.0) + lift)
+	var guard := world_map.route_guard_position
+	var back := ContinuousWorldMap.ENTRY_POSITION - guard
+	back.y = 0.0
+	return world_map.nearest_walkable(Vector3(guard.x, 0.0, guard.z) + back.normalized() * 12.0 + lift)
 
 func _clear_field() -> void:
 	looting = null
@@ -784,6 +1036,7 @@ func _clear_field() -> void:
 			child.queue_free()
 	_vault_guardians.clear()
 	_outpost_squad.clear()
+	outpost_boss = null
 	if is_instance_valid(number_layer):
 		for label in number_layer.get_children(): label.queue_free()
 
@@ -794,7 +1047,16 @@ func _build_world() -> void:
 	_vault_guardians.clear()
 	traps.clear()
 	trace_point = null
+	# A blow's dust or splash still playing (BossVfx lives on the manager, not the floor).
+	for fx in get_tree().get_nodes_in_group("boss_vfx"): fx.queue_free()
+	fires.clear()
+	shower = null
+	shower_progress = -1.0
 	_roll_encounter()
+	# A boss floor is its arena and nothing else (Boss战场地策划案 Q5): no 坎诺特, no squad.
+	var boss_floor := BossCatalog.is_boss_floor(floor_number) and is_outpost_floor()
+	if boss_floor: encounter = ""
+	world_map.boss_layout = boss_floor
 	world_map.encounter_kind = encounter
 	build_offers.clear()
 	_device_offers.clear()
@@ -808,10 +1070,25 @@ func _build_world() -> void:
 	world_map.region_id = region_id
 	world_map.extraction_available = is_extraction_floor()
 	world_map.generate(_run_seed + floor_number * 7919, floor_number)
+	arena = null
+	if world_map.boss_layout and world_map.arena_centre != Vector3.INF:
+		arena = BossArena.new()
+		world_map._generated_root.add_child(arena)
+		arena.setup(self)
+		# Its gate and cover are walls to the navigation too.
+		world_map._build_navigation_mesh()
 	# The fog covers this floor's own bounds (each floor rolls its size).
 	fog.setup(world_map.SPINE_MIN, world_map.SPINE_MAX)
 	fog.hidden = world_map.vault_hidden
 	outpost_cleared = not is_outpost_floor()
+	# The region (and Siracusa's weather) decides the floor's light (S3).
+	apply_scene_look(false)
+
+## The top bar's place: the region, and in Lungmen this floor's upper or lower
+## city (the camps and the base have neither).
+func place_name() -> String:
+	var variant: String = world_map.city_variant if is_instance_valid(world_map) and not in_base and not in_camp else ""
+	return FieldCatalog.place_name(region_id, variant)
 
 ## The 10th floor of each block, just before the camp, is the outpost (§6 B2).
 func is_outpost_floor() -> bool:
@@ -828,7 +1105,10 @@ func _roll_random_extraction() -> void:
 	if place == 1: _block_random_found = false
 	_random_extraction_available = false
 	if _block_random_found or not FieldCatalog.RANDOM_EXTRACTION_ODDS.has(place): return
-	if rng.randf() < float(FieldCatalog.RANDOM_EXTRACTION_ODDS[place]):
+	# 课题 撤离保障: one every block, each of the three floors a third.
+	var odds := float(FieldCatalog.RANDOM_EXTRACTION_ODDS[place])
+	if research.on("extract"): odds = 1.0 / float(7 - place)
+	if rng.randf() < odds:
 		_random_extraction_available = true
 		_block_random_found = true
 
@@ -836,12 +1116,18 @@ func is_buff_available() -> bool: return not _buff_taken
 ## Who stands at this floor's encounter spot (保全系统修订案 §2).
 func _roll_encounter() -> void:
 	var roll := rng.randf()
-	encounter = "squad" if roll < FieldCatalog.SQUAD_CHANCE else ("trader" if roll < FieldCatalog.SQUAD_CHANCE + FieldCatalog.TRADER_CHANCE else "")
+	var trader := FieldCatalog.TRADER_CHANCE * (1.5 if base.researched("trader_odds") else 1.0)
+	var squad := squad_chance()
+	encounter = "squad" if roll < squad else ("trader" if roll < squad + trader else "")
+	# 课题 商队联络: 坎诺特 waits on the third floor of the contract if not met before.
+	if research.on("trader") and not _trader_met and floor_number - start_floor >= 2: encounter = "trader"
+	if encounter == "trader": _trader_met = true
 	# A faction's post (势力与交易所策划案 §12) takes some of the empty spots.
 	post_faction = ""
 	if encounter.is_empty():
 		var posts: Array = FactionCatalog.POSTS.get(region_id, [])
 		var chance := POST_CHANCE * (2.0 if posts.any(func(f): return market.post_boosted(f)) else 1.0)
+		if voyage.post_boost(region_id): chance *= VoyageCatalog.POST_BOOST
 		if not posts.is_empty() and rng.randf() < chance:
 			encounter = "post"
 			post_faction = posts[rng.randi() % posts.size()]
@@ -852,6 +1138,9 @@ func _roll_encounter() -> void:
 	trader_rerolls = 0
 	_encounter_greeted = false
 	squad_mult = FieldCatalog.SQUAD_PRICE_STEPS[rng.randi() % FieldCatalog.SQUAD_PRICE_STEPS.size()]
+	squad_uses = 0
+	# 食堂补给 from Ⅱ: the squad's price one step lower.
+	if meal_tier() >= Provisions.SQUAD_STEP_DOWN_TIER: squad_mult = snappedf(squad_mult - Provisions.SQUAD_STEP, 0.01)
 
 ## Who stands at the encounter spot, by name.
 func encounter_name() -> String:
@@ -883,13 +1172,22 @@ func _interact() -> void:
 		else:
 			open_relic_offer(cache.source, cache)
 		return
+	var fire := near_fire()
 	if _recruit_nearby():
 		_meet_recruit()
+	elif fire != null and not pack_fuels().is_empty():
+		_open_fuel(fire)
+	elif is_instance_valid(shower) and not shower.used and near(shower):
+		_start_shower()
+	elif _handover_nearby():
+		_hand_over_cargo()
 	elif is_instance_valid(trace_point) and near(trace_point):
 		_take_trace()
+	elif is_instance_valid(arena) and not arena.mine_near(player.global_position).is_empty():
+		arena.arm_mine(arena.mine_near(player.global_position))
 	elif near(world_map.buff_device_node) and not _buff_taken:
 		_offer_builds()
-	elif near(world_map.encounter_node) and not encounter.is_empty() and (encounter in ["trader", "post"] or not encounter_used):
+	elif near(world_map.encounter_node) and not encounter.is_empty() and (encounter in ["trader", "post"] or not encounter_used or squad_extras()):
 		_open_encounter()
 	else:
 		for i in range(world_map.route_nodes.size()):
@@ -973,8 +1271,10 @@ func _advance_floor(route: int) -> void:
 	transitioning = false
 	set_message("进入第 %d 层 · %s；上一层已无法返回。" % [floor_number, FieldCatalog.ROUTES[route].name])
 	broadcast("进入 %s · %s。" % [AK.floor_code(region_id, floor_number), FieldCatalog.ROUTES[route].name])
-	if is_outpost_floor(): broadcast("前方是整合运动据点：击破头目，入口才会开放。")
+	if is_outpost_floor(): broadcast(_outpost_line())
 	if is_bounty_floor(): broadcast("悬赏目标在本层。")
+	if base.researched("floor_report"):   # 情报部Ⅲ
+		broadcast("PRTS：本层兴趣点 %d，精英 %d。" % [world_map.cache_positions.size(), floor_enemies().filter(func(e): return e.elite).size()])
 
 func _offer_builds() -> void:
 	open_relic_offer("device")
@@ -1121,7 +1421,7 @@ var prts_log: Array = []
 var _seen_encounter := false
 var _seen_exit := false
 ## The panels the HUD buttons and the I / C / R / M / J / Esc keys open.
-const PANELS := ["inventory", "relics", "map", "journal", "pause"]
+const PANELS := ["inventory", "training", "relics", "map", "journal", "pause"]
 
 func broadcast(text: String) -> void:
 	prts_log.append([Time.get_time_string_from_system(), text])
@@ -1169,6 +1469,7 @@ func toggle_panel(kind: String) -> void:
 	open_modal(kind)
 	match kind:
 		"inventory": _inventory_panel.open()
+		"training": menu.show_training(true)
 		"pause": menu.show_pause()
 		_: field_panels.open(kind)
 
@@ -1228,7 +1529,7 @@ func order_progress() -> Array:
 		var what := BaseCatalog.order_text(order.id).split("：")[1] if "：" in BaseCatalog.order_text(order.id) else BaseCatalog.order_text(order.id)
 		what = what.split(" ×")[0].split("（")[0]
 		rows.append({"dept": t.dept, "colour": DEPT_COLOURS.get(t.dept, Color.WHITE), "color": DEPT_COLOURS.get(t.dept, Color.WHITE), "what": what, "have": have, "need": board.remaining(slot),
-			"slot": slot, "mult": t.get("mult", 1.0), "prestige": t.get("prestige", 0)})
+			"slot": slot, "mult": t.get("mult", 1.0)})
 	return rows
 
 ## What E would do right here, for the prompt near her ("" for nothing).
@@ -1238,9 +1539,13 @@ func interaction_prompt() -> String:
 		var cache := node as RelicCache
 		if cache.game == self and near(cache): return "密室藏品" if cache.source == "vault" else "战斗缴获"
 	if _recruit_nearby(): return Operators.display_name(str(contract.operator))
+	if near_fire() != null and not pack_fuels().is_empty(): return "火堆"
+	if is_instance_valid(shower) and not shower.used and near(shower) and shower_progress < 0.0: return "净化喷淋"
+	if _handover_nearby(): return FactionCatalog.name_of(str(contract.faction))
 	if is_instance_valid(trace_point) and near(trace_point): return "踪迹"
+	if is_instance_valid(arena) and not arena.mine_near(player.global_position).is_empty(): return "干扰地雷"
 	if near(world_map.buff_device_node) and not _buff_taken: return "强化装置"
-	if near(world_map.encounter_node) and not encounter.is_empty() and (encounter in ["trader", "post"] or not encounter_used):
+	if near(world_map.encounter_node) and not encounter.is_empty() and (encounter in ["trader", "post"] or not encounter_used or squad_extras()):
 		return encounter_name()
 	for node in world_map.route_nodes:
 		if near(node): return "深入"
@@ -1267,7 +1572,7 @@ func squad_insure(item: Item) -> bool:
 	if not squad_refusal(item, "insure").is_empty(): return false
 	spend_gold_bars(squad_price(item))
 	item.insured = true
-	encounter_used = true
+	_use_squad()
 	save_base(true)
 	set_message("罗德岛小队：%s 已投保。" % item.item_name)
 	return true
@@ -1282,7 +1587,7 @@ func squad_send_home(item: Item) -> bool:
 	if player.equipped.get(item.category) == item: player.unequip(item.category)
 	item.carried_in = false
 	base.receive_to_staging(item)
-	encounter_used = true
+	_use_squad()
 	save_base(true)
 	set_message("罗德岛小队：%s 已送回基地暂存区。" % item.item_name)
 	return true
@@ -1327,6 +1632,7 @@ func _on_player_died() -> void:
 func settle(extracted: bool) -> void:
 	if _settled: return
 	_settled = true
+	_apply_meal("")
 	transitioning = true
 	var in_camp_before_settle := in_camp
 	in_camp = false
@@ -1336,6 +1642,7 @@ func settle(extracted: bool) -> void:
 	# in the safe bag) — she already knows it, so it skips the crates. Anything
 	# found on this contract arrives as a sealed crate at receiving.
 	var new_finds := 0
+	var brought_records := {}
 	var still_equipped: Array[Item] = []
 	# Insurance whose time has come arrives first (保全系统修订案 §3).
 	var returned := base.tick_insurance()
@@ -1364,7 +1671,11 @@ func settle(extracted: bool) -> void:
 			# Brought out: the insurance stays for the next contract (用户 2026-10-15:
 			# 投保后带出的不消保，只有被找回一次才消).
 			item.carried_in = false
-			if not stays_on_her and base.receive(item): new_finds += 1
+			# 作战记录 brought out go to 人事部's counters, not a crate (v1.1 §2.1).
+			if Progression.RECORD_EXP.has(item.material_id) and not stays_on_her:
+				base.add_records({item.material_id: item.quantity})
+				brought_records[item.material_id] = int(brought_records.get(item.material_id, 0)) + item.quantity
+			elif not stays_on_her and base.receive(item): new_finds += 1
 		settlement.append(entry)
 		var shown := {"item": item, "reason": reason, "x": item.grid_x, "y": item.grid_y, "w": item.width, "h": item.height}
 		settlement_view[where].append(shown)
@@ -1383,20 +1694,26 @@ func settle(extracted: bool) -> void:
 	builds.clear()
 	build_offers.clear()
 	_device_offers.clear()
-	# 作战记录 by kill count, on extraction and on death alike (§4.2).
-	var records := Progression.records_for(run_kills)
-	base.add_records(records)
-	settlement_view.records = records
+	# 作战记录 are field drops now: only what came home counts (v1.1 §2.1).
+	settlement_view.records = brought_records
 	settlement_view.kills = run_kills.duplicate()
 	run_kills = {}
 	run_sets_seen = {}
-	if extracted: _grant(0, BaseCatalog.PRESTIGE_EXTRACTION)
 	base.orders.refill(rng, region_id)
-	base.settle_medical(not extracted)
-	base.reroll_available = base.rank() >= BaseCatalog.REROLL_RANK
+	# Bulk orders: crates handed over pay now; a crate lost with the pack reopens its order.
+	voyage.on_settle()
+	voyage.contract_done(region_id)
+	base.settle_medical(not extracted, Economy.tier_of(floor_number))
+	research.settle()
+	research.apply_run(false)
+	base.contract_reroll = base.researched("offer_reroll")
+	base.reroll_available = base.facility_level("warehouse") >= BaseCatalog.REROLL_LEVEL
 	# The drone empties staging onto the shelves at every return (§3.4a).
 	if base.drone: base.sort_staging()
-	run_contamination = 0.0
+	# 后勤部Ⅵ: everything that came home goes straight onto the shelves.
+	if base.researched("auto_sort"): base.sort_all()
+	features.reset()
+	player.cold = 0.0
 	_slow_heal_left = 0.0
 	_suppress_timer = 0.0
 	player.condition_hp_penalty = 0.0
@@ -1406,20 +1723,16 @@ func settle(extracted: bool) -> void:
 	player.hp = player.max_hp
 	# 赤金 came home as items with everything else; the contract itself pays
 	# 龙门币 for every floor travelled, and nothing on death (经济修订案 §3).
-	var reward := Economy.contract_reward(floor_number - start_floor + 1, rng) if extracted else 0
-	# The objective's bonus: only on extraction with it done (§6 B1).
+	# The pay fixed when the contract was taken, on extraction with the objective
+	# done; nothing else is granted here — the field's gains are what came home
+	# (v1.1 §2.1–2.2). The rare piece of a hunt dropped from the bounty itself.
 	var achieved: bool = extracted and progress.get("done", false)
-	settlement_view.contract = {"goal": progress.get("goal", ""), "done": achieved, "bonus": FieldCatalog.contract_bonus_text(contract) if achieved else ""}
+	var reward: int = int(contract.get("reward", 0)) if achieved else 0
+	settlement_view.contract = {"goal": progress.get("goal", ""), "done": achieved, "bonus": contract_pay_text(contract) if achieved else ""}
 	if achieved:
-		match str(contract.type):
-			"deep": reward += roundi(reward * FieldCatalog.DEEP_BONUS)
-			"recover": _grant(FieldCatalog.RECOVER_REWARD.money, FieldCatalog.RECOVER_REWARD.prestige)
-			"search": _grant(FieldCatalog.SEARCH_REWARD.money, FieldCatalog.SEARCH_REWARD.prestige)
-			"hunt":
-				if base.receive(_rare_gear()): new_finds += 1
-			"recruit":
-				base.recruit(str(contract.operator))
-				new_finds += issue_kits()
+		if str(contract.type) == "recruit":
+			base.recruit(str(contract.operator))
+			new_finds += issue_kits()
 	if not contract.is_empty(): base.contract_offers.erase(region_id)
 	contract = {}
 	gold += reward
@@ -1462,6 +1775,8 @@ func _init_market() -> void:
 	var loaded := save_enabled and market.load_file(market_path())
 	if not loaded: market.start(BaseState.now(), fixed_market_seed)
 	exchange.setup(self, market)
+	voyage.setup(self)
+	voyage.notify = func(text: String): _on_exchange_notice(text, "voyage")
 	Economy.fx = market.fx_rate()
 
 ## After a load the market catches up on the time the game was shut (用户:
@@ -1472,6 +1787,9 @@ func _catch_up_market() -> void:
 	exchange.counters.clear()
 	market.advance_to(BaseState.now())
 	_tick_workshop()
+	_tick_kitchen()
+	if not research.tick().is_empty(): save_base()
+	voyage.tick(BaseState.now())
 	if gap < 600: return
 	var c := exchange.counters
 	var hours := gap / 3600.0
@@ -1487,7 +1805,17 @@ func _tick_market(delta: float) -> void:
 	_workshop_check -= delta
 	if _workshop_check <= 0.0:
 		_workshop_check = 5.0
-		if in_base: _tick_workshop()
+		if in_base:
+			_tick_workshop()
+			_tick_kitchen()
+		if in_base and not research.tick().is_empty(): save_base()
+		var before := voyage.to_data().hash()
+		voyage.tick(BaseState.now())
+		if voyage.to_data().hash() != before: save_base(not in_base)
+		if in_base and is_instance_valid(base_map):
+			show_ship()
+			show_research()
+			base_map.set_farm(provisions)
 	if save_enabled:
 		_market_save_left -= delta
 		if _market_save_left <= 0.0:
@@ -1522,6 +1850,39 @@ func closure_convert(to_gold: bool, amount: float) -> bool:
 	save_base(not in_base)
 	return true
 
+## The little ship on the sand table: at anchor, or along its leg.
+## The research tree's hologram in 科研部 shows what is done and running.
+func show_research() -> void:
+	if is_instance_valid(base_map): base_map.set_research(base.research.done, base.research.active.map(func(e): return str(e.id)))
+
+func show_ship() -> void:
+	if voyage.is_sailing(): base_map.set_ship_between(str(voyage.sailing.from), str(voyage.sailing.to), voyage.progress(BaseState.now()))
+	else: base_map.set_ship_at(base.ship_at)
+
+# --- 沙盘 (沙盘航行策划案_v1_0.md) --------------------------------------------------------
+
+func sail(to: String, mode: String, fuel := false) -> bool:
+	if not in_base or not voyage.sail(to, mode, BaseState.now(), fuel): return false
+	show_ship()
+	save_base()
+	return true
+
+func set_stay(kind: String, on: bool) -> bool:
+	if not in_base or not voyage.set_stay(kind, on, BaseState.now()): return false
+	save_base()
+	return true
+
+func submit_bulk(id: int) -> bool:
+	if not in_base or not voyage.submit(id, BaseState.now()): return false
+	save_base()
+	return true
+
+func pack_bulk(id: int) -> bool:
+	if not in_base or not voyage.pack(id): return false
+	save_base()
+	set_message("大宗货箱已送到暂存区。")
+	return true
+
 func open_exchange() -> void:
 	if not in_base or transitioning: return
 	open_modal("station")
@@ -1531,18 +1892,22 @@ func open_exchange() -> void:
 
 func workshop_refusal(output: String, count: int) -> String:
 	if count <= 0 or Workshop.recipe(output).is_empty(): return "没有这个配方"
-	if workshop.busy() >= Workshop.slots(base.rank()): return "加工队列已满"
+	if workshop.busy() >= workshop_slots(): return "加工队列已满"
 	var cost := Workshop.cost_of(output, count)
 	var missing := materials_refusal(cost)
 	if not missing.is_empty(): return missing
 	if gold < int(Workshop.recipe(output).lmd) * count: return "龙门币不足"
 	return ""
 
+## Queue slots: Workshop.slots by rank, one more with 后勤部Ⅱ.
+func workshop_slots() -> int:
+	return Workshop.slots(base.facility_level("workshop")) + (1 if base.researched("workshop_slot") else 0)
+
 func workshop_start(output: String, count: int) -> bool:
 	if not in_base or not workshop_refusal(output, count).is_empty(): return false
 	consume_materials(Workshop.cost_of(output, count))
 	gold -= int(Workshop.recipe(output).lmd) * count
-	workshop.start(output, count, BaseState.now(), rng)
+	workshop.start(output, count, BaseState.now(), rng, research.workshop_time_factor())
 	save_base()
 	set_message("加工部：%s ×%d 开始加工。" % [output, count])
 	return true
@@ -1557,7 +1922,7 @@ func _tick_workshop() -> void:
 		if Workshop.GEAR.has(str(job.output)):
 			made.erase(str(job.output))
 			for k in range(int(job.count)):
-				var piece := GearCatalog.make_rhodes(str(Workshop.GEAR[job.output].base), rng)
+				var piece := GearCatalog.make_rhodes(str(Workshop.GEAR[job.output].base), rng, GearCatalog.rhodes_tier(research.deepest_camp()), base.rhodes_rarity)
 				if not base.receive_to_staging(piece): base.receive(piece)
 		for id in made:
 			var left := int(made[id])
@@ -1598,11 +1963,40 @@ func post_buy(material: String, count: int) -> bool:
 			stack.description += " 来路不明，携带时污染缓慢上升。"
 		if inventory.add_stack(stack) > 0: drop_at_feet(stack)
 	exchange.add_relation(post_faction, clampi(roundi(Exchange.lmd_eq(str(q.currency), cost) / 5000.0), 1, 10))
+	exchange.special_bought(material)
 	save_base(true)
 	return true
 
 ## 萨米's barter: what `give` is worth at their bid, against `want` at their ask.
+## The post's own flask (药剂与商人界面策划案 §3): its type, or "".
+func post_potion() -> String:
+	return str(BaseCatalog.REGIONAL.get(post_faction, ""))
+
+## Why it cannot be bought now ("" = it can).
+func post_potion_refusal() -> String:
+	var type := post_potion()
+	if type.is_empty(): return "不出售"
+	var p: Dictionary = BaseCatalog.POTIONS[type]
+	if p.has("barter"):
+		for id in p.barter:
+			if material_count(id) < int(p.barter[id]): return "需要 %s ×%d" % [id, int(p.barter[id])]
+	elif gold_bars() < int(p.bars): return "赤金不足"
+	if not inventory.can_take(BaseCatalog.create_potion(type, Economy.tier_of(floor_number))): return "背包已满"
+	return ""
+
+## One of the post's flask into the pack, for 赤金 or (萨米) in trade.
+func post_buy_potion() -> bool:
+	if encounter != "post" or in_base or not post_potion_refusal().is_empty(): return false
+	var type := post_potion()
+	var p: Dictionary = BaseCatalog.POTIONS[type]
+	if p.has("barter"): consume_materials(p.barter)
+	elif not spend_gold_bars(int(p.bars)): return false
+	inventory.add_stack(BaseCatalog.create_potion(type, Economy.tier_of(floor_number)))
+	save_base(true)
+	return true
+
 func barter_count(give: Item, want: String) -> int:
+	if exchange.rank(post_faction) < FactionSpecials.rank_needed(want): return 0
 	var q := exchange.quote_sell(give, post_faction, false)
 	if not q.ok: return 0
 	var unit := float(exchange.material_spot(post_faction, want, false)) * (1.0 + 0.08 + 0.1 * sin(float(market.barter_seed + want.hash())))
@@ -1633,6 +2027,8 @@ func drop_at_feet(item: Item) -> void:
 ## "item": Item, "price": 赤金, "sold": bool}. Rolled when he is first met.
 var trader_stock: Array[Dictionary] = []
 var trader_rerolls := 0
+## 课题 商队联络: 坎诺特 already stood on this contract.
+var _trader_met := false
 ## 幸运硬币 / 假面舞会面具 pay once per encounter, on first meeting.
 var _encounter_greeted := false
 
@@ -1669,9 +2065,11 @@ func _roll_trader_stock() -> void:
 	for i in range(FieldCatalog.TRADER_GEAR):
 		trader_stock.append(_trader_gear_slot(_roll_trader_gear()))
 	for i in range(FieldCatalog.TRADER_POTIONS):
+		# Any flask but the 强心针, the regional ones too (药剂与商人界面策划案 §1);
+		# the restoratives still come up most.
 		var roll := rng.randf()
-		var type := "A" if roll < 0.5 else ("B" if roll < 0.85 else "C")
-		trader_stock.append({"kind": "item", "item": BaseCatalog.create_potion(type), "price": _trader_discount(int(FieldCatalog.TRADER_POTION_PRICES[type])), "sold": false})
+		var type: String = "A" if roll < 0.35 else ("B" if roll < 0.55 else FieldCatalog.TRADER_POTION_POOL[rng.randi() % FieldCatalog.TRADER_POTION_POOL.size()])
+		trader_stock.append({"kind": "item", "item": BaseCatalog.create_potion(type, Economy.tier_of(floor_number)), "price": _trader_discount(FieldCatalog.trader_potion_price(type)), "sold": false})
 	var special := SpecialGear.roll(region_id, floor_number, rng) if rng.randf() < FieldCatalog.TRADER_SPECIAL_CHANCE else _roll_trader_gear()
 	trader_stock.append(_trader_gear_slot(special))
 	# 坎诺特 sometimes has an enemy exclusive of this region (装备扩充策划案 §1.1).
@@ -1692,7 +2090,8 @@ func _trader_gear_slot(item: Item) -> Dictionary:
 	return {"kind": "item", "item": item, "price": _trader_discount(maxi(1, ceili(item.value * FieldCatalog.TRADER_GEAR_MARKUP / 10.0))), "sold": false}
 
 func trader_reroll_cost() -> int:
-	return FieldCatalog.TRADER_REROLL_BASE + FieldCatalog.TRADER_REROLL_STEP * trader_rerolls
+	var cost := FieldCatalog.TRADER_REROLL_BASE + FieldCatalog.TRADER_REROLL_STEP * trader_rerolls
+	return maxi(1, cost - 1) if base.researched("trader_odds") else cost
 
 func trader_reroll() -> bool:
 	if encounter != "trader" or gold_bars() < trader_reroll_cost(): return false
@@ -1730,7 +2129,7 @@ func trader_buy(slot: int) -> bool:
 ## What he pays for `item` in 赤金 (§3: 交付价 × 50%), or 0 when he will not buy it:
 ## gear and materials only — no flasks, no 原矿, nothing insured, no 赤金.
 func trader_offer(item: Item) -> int:
-	if item == null or item.is_potion() or item.insured or item.effect == "raw_ore" or item.material_id == Economy.GOLD_ID: return 0
+	if item == null or item.is_potion() or item.insured or item.effect in ["raw_ore", SEALED_ORE, VoyageCatalog.CARGO_EFFECT] or item.material_id == Economy.GOLD_ID: return 0
 	return maxi(1, floori(item.value * FieldCatalog.TRADER_BUYBACK / 10.0))
 
 func trader_sell(item: Item) -> bool:
@@ -1758,11 +2157,14 @@ func _give_gold_bars(bars: int) -> void:
 ## the fixed extraction, and 可露希尔. Reaching one unlocks it for this region.
 func _enter_camp() -> void:
 	in_camp = true
+	_roll_camp_closure()
 	broadcast("PRTS：前进据点已确认，博士。")
 	_clear_field()
 	world_map._clear_generated_map()
 	player.clear_move_target()
 	base.unlock_camp(region_id, floor_number)
+	features.enter_camp()
+	player.cold = 0.0
 	# 营地里污染照涨，升级后不涨: a flat dose for the time spent there.
 	if not base.camp_upgraded:
 		run_contamination += contamination_rate() * FieldCatalog.CAMP_EXPOSURE_SECONDS
@@ -1793,31 +2195,86 @@ func _pay_gold(bars: int) -> bool:
 	if in_base: return consume_materials({Economy.GOLD_ID: bars}) if bars > 0 else true
 	return spend_gold_bars(bars)
 
-## 可露希尔's price for a flask in 赤金: the pharmacy's 龙门币 price, rounded up
-## to whole 赤金 (撤离与营地修订案 §0: 同价). -1 while the rank does not allow it.
+## 可露希尔's flasks in 赤金 (v1.1 §2.3): 赤金 does not split, so one bar buys
+## as many flasks as the pharmacy's 龙门币 price fits into the live rate, at
+## least one. The tier is the camp's (or the deepest camp's at the base).
 func closure_potion_price(type: String) -> int:
 	var p: Dictionary = BaseCatalog.POTIONS[type]
-	if base.rank() < int(p.rank): return -1
-	var lmd: int = BaseCatalog.POTION_A_PRICE if type == "A" else int(p.price)
-	return maxi(1, ceili(float(lmd) / Economy.bar_lmd()))
+	if base.facility_level("store") < int(p.store): return -1
+	# The dearer 特供 cost as many bars as their 龙门币 price needs (at least one).
+	return maxi(1, ceili(_closure_lmd(type) / maxf(1.0, Economy.bar_lmd())))
 
-## A flask from 可露希尔, into the pack (in a camp, or at her base counter).
+func _closure_lmd(type: String) -> float:
+	return float(Economy.tiered(BaseCatalog.POTION_A_PRICE if type == "A" else int(BaseCatalog.POTIONS[type].get("price", 1000)), closure_potion_tier()))
+
+## What 可露希尔 shows: at the base her 特供 line; in a camp A and B and the
+## three 特供 this camp drew (药剂与商人界面策划案 §1).
+func closure_goods() -> Array:
+	if in_camp: return ["A", "B"] + camp_closure_stock.keys().filter(func(k): return not k in ["A", "B"])
+	return BaseCatalog.CLOSURE_LINE.duplicate()
+
+## Bottles of `type` she has left (-1: no limit). The base shelf refills every
+## hour (BaseState.closure_left); a camp's draw is what it is.
+func closure_stock_left(type: String) -> int:
+	if type in ["A", "B"]: return -1
+	if in_camp: return int(camp_closure_stock.get(type, 0))
+	return base.closure_left(type)
+
+## A camp's counter: A and B, and CAMP_SPECIALS of her 特供 her base store stocks.
+var camp_closure_stock := {}
+
+func _roll_camp_closure() -> void:
+	camp_closure_stock = {}
+	var open: Array = BaseCatalog.CLOSURE_LINE.filter(func(k): return base.facility_level("store") >= int(BaseCatalog.POTIONS[k].store))
+	for i in range(mini(BaseCatalog.CAMP_SPECIALS, open.size())):
+		var k: String = open[rng.randi() % open.size()]
+		open.erase(k)
+		camp_closure_stock[k] = int(BaseCatalog.POTIONS[k].cap)
+
+func closure_potion_tier() -> int:
+	return Economy.tier_of(floor_number + 1) if in_camp else deepest_tier()
+
+func closure_potion_bundle(type: String) -> int:
+	var bars := maxi(1, closure_potion_price(type))
+	return maxi(1, floori(bars * Economy.bar_lmd() / maxf(1.0, _closure_lmd(type))))
+
+## Flasks from 可露希尔, into the pack (in a camp, or at her base counter): one
+## bar's bundle; whatever does not fit stays with her and is not charged.
 func closure_buy_potion(type: String) -> bool:
 	if not (in_camp or in_base) or not BaseCatalog.POTIONS.has(type): return false
 	var price := closure_potion_price(type)
 	if price < 0 or gold_available() < price: return false
-	var flask := BaseCatalog.create_potion(type)
-	if inventory.add_stack(flask) > 0:
+	var stock := closure_stock_left(type)
+	if stock == 0:
+		notice("售罄，等可露希尔补货")
+		return false
+	var flask := BaseCatalog.create_potion(type, closure_potion_tier())
+	var bundle := mini(closure_potion_bundle(type), flask.max_stack)
+	if stock > 0: bundle = mini(bundle, stock)
+	flask.set_quantity(bundle)
+	var left := inventory.add_stack(flask)
+	if left >= bundle:
 		notice("背包空间不足：药剂要占一格。")
 		return false
+	if left > 0: notice("背包放不下的 %d 瓶留在了可露希尔那里。" % left)
+	if stock > 0:
+		if in_camp: camp_closure_stock[type] = stock - (bundle - left)
+		else: base.closure_stock[type] = stock - (bundle - left)
 	_pay_gold(price)
 	save_base(not in_base)
 	return true
 
+## The departure tier of the deepest camp in any region (Ⅰ with none):
+## camp 10 starts floor 11, tier Ⅱ.
+func deepest_tier() -> int:
+	var deepest := 0
+	for region in base.camps: deepest = maxi(deepest, int(base.camps[region]))
+	return Economy.tier_of(deepest + 1)
+
 ## 寄存 (§3): materials only, no special (regional) ones and no flasks; the fee is
 ## 20% of the 交付价, in 赤金, rounded up, at least one.
 func deposit_fee(item: Item) -> int:
-	return maxi(1, ceili(Economy.price(item) * FieldCatalog.DEPOSIT_FEE / Economy.bar_lmd())) if item != null else 0
+	return maxi(1, ceili(Economy.price(item) * FieldCatalog.DEPOSIT_FEE * research.deposit_fee_factor() / Economy.bar_lmd())) if item != null else 0
 
 func deposit_refusal(item: Item) -> String:
 	if not in_camp: return "不在营地"
@@ -1869,7 +2326,7 @@ func buy_camp_upgrade() -> bool:
 ## Hidden difficulty (§4, after 贪婪洞窟's per-floor tables): a curve by floor plus
 ## the chosen route's modifier for this floor only. Never shown as a number.
 func difficulty() -> float:
-	var d := FieldCatalog.DIFFICULTY_PER_FLOOR * (floor_number - 1) + float(FieldCatalog.ROUTES[route_index].danger)
+	var d := minf(EnemyAttacks.PRESSURE_DEPTH_MAX, FieldCatalog.DIFFICULTY_PER_FLOOR * (floor_number - 1)) + float(FieldCatalog.ROUTES[route_index].danger)
 	return maxf(0.0, d * pressure_multiplier())
 
 func passes_pickup_filter(item: Item) -> bool:
@@ -1934,6 +2391,7 @@ func quick_move(item: Item, from: ItemContainer) -> bool:
 func apply_container_sizes() -> void:
 	var pack: Vector2i = BaseCatalog.PACK_SIZES[base.pack_level]
 	var safe: Vector2i = BaseCatalog.SAFE_SIZES[base.safe_level]
+	if base.researched("safe_row"): safe.y += 1   # 外勤部Ⅳ
 	inventory.resize(pack.x, pack.y)
 	safe_bag.resize(safe.x, safe.y)
 
@@ -1973,7 +2431,7 @@ func upgrade_cost(kind: String) -> Dictionary:
 	var table: Array = BaseCatalog.PACK_MATERIALS if kind == "pack" else BaseCatalog.SAFE_MATERIALS
 	return table[level] if level < table.size() else {}
 
-## Gold, rank and materials together, for the terminal buttons.
+## Gold, facility level and materials together, for the terminal buttons.
 func upgrade_refusal(kind: String) -> String:
 	var refusal := base.upgrade_refusal(kind, gold)
 	return refusal if not refusal.is_empty() else materials_refusal(upgrade_cost(kind))
@@ -1988,7 +2446,7 @@ func rack_refusal(category: int) -> String:
 
 func drone_refusal() -> String:
 	if base.drone: return "已就位"
-	if base.rank() < BaseCatalog.DRONE_RANK: return "需要声望 R%d" % BaseCatalog.DRONE_RANK
+	if base.facility_level("warehouse") < BaseCatalog.DRONE_LEVEL: return "需要仓储部 Lv%d" % BaseCatalog.DRONE_LEVEL
 	if gold < BaseCatalog.DRONE_PRICE: return "龙门币不足"
 	return materials_refusal(BaseCatalog.DRONE_MATERIALS)
 
@@ -2103,6 +2561,24 @@ func bring_item(item: Item) -> bool:
 		base.put_back(item, "shelf")
 		notice("背包空间不足：%s 仍在货架上。" % item.item_name)
 		return false
+	save_base()
+	return true
+
+## 整备台: off the shelf straight onto her; what she wore goes to its shelf (or the pack).
+func equip_from_stash(item: Item) -> bool:
+	if not in_base or not stash.has(item) or not item.is_equippable(): return false
+	var refusal := player.equip_refusal(item)
+	if not refusal.is_empty():
+		notice("装备需求未达标：%s。" % refusal)
+		return false
+	base.take_from_shelf(item)
+	var previous: Item = player.unequip(item.category)
+	if previous != null and base.store(previous).is_empty() and not inventory.try_add(previous):
+		player.equip(previous)
+		base.put_back(item, "shelf")
+		notice("仓库和背包都满了：%s 仍在货架上。" % item.item_name)
+		return false
+	player.equip(item)
 	save_base()
 	return true
 
@@ -2239,7 +2715,29 @@ const TUNE_STEP := 1.5
 
 func refresh_cost(kind: String, item: Item) -> int:
 	var base_cost := maxi(REFRESH_MIN_LMD, ceili(Economy.price(item) / 3.0))
-	return roundi(base_cost * pow(TUNE_STEP, item.tune_count)) if kind == "tune" else base_cost
+	if kind == "tune": return roundi(base_cost * pow(research.tune_step(), item.tune_count))
+	var cost := base_cost * research.refresh_factor()
+	if kind == "reforge":
+		if reforge_keep >= 0 and base.researched("prefix_lock"): cost *= 2.0   # 工程部Ⅴ
+		if base.researched("reforge_pick"): cost *= 1.5                        # 工程部Ⅵ
+	return roundi(cost)
+
+## 工程部Ⅴ: the prefix 重铸 keeps (-1: none). Cleared after every 重铸.
+var reforge_keep := -1
+## 工程部Ⅵ: {"item": Item, "options": [prefixes, prefixes]} waiting for her pick.
+var reforge_choice := {}
+
+## Picks one of the two 重铸 results waiting on `item`.
+func choose_reforge(index: int) -> bool:
+	if reforge_choice.is_empty() or index < 0 or index >= (reforge_choice.options as Array).size(): return false
+	var item: Item = reforge_choice.item
+	item.prefixes = (reforge_choice.options[index] as Array).duplicate(true)
+	PrefixCatalog.refresh_value(item)
+	reforge_choice = {}
+	player._recompute_stats()
+	player.hp = minf(player.hp, player.max_hp)
+	save_base()
+	return true
 
 ## "" when it can be done now, else why not.
 func refresh_refusal(kind: String, item: Item) -> String:
@@ -2257,7 +2755,19 @@ func refresh_gear(kind: String, item: Item, line: Array = []) -> bool:
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	match kind:
-		"reforge": PrefixCatalog.reforge(item, rng)
+		"reforge":
+			var keep := reforge_keep if base.researched("prefix_lock") else -1
+			reforge_keep = -1
+			if base.researched("reforge_pick"):
+				var before: Array = item.prefixes.duplicate(true)
+				var options: Array = []
+				for i in range(2):
+					PrefixCatalog.reforge(item, rng, keep)
+					options.append(item.prefixes.duplicate(true))
+					item.prefixes = before.duplicate(true)
+				PrefixCatalog.refresh_value(item)
+				reforge_choice = {"item": item, "options": options}
+			else: PrefixCatalog.reforge(item, rng, keep)
 		"calibrate": PrefixCatalog.calibrate(item, rng)
 		"tune":
 			PrefixCatalog.reroll_line(item, line, rng)
@@ -2266,6 +2776,312 @@ func refresh_gear(kind: String, item: Item, line: Array = []) -> bool:
 	player.hp = minf(player.hp, player.max_hp)
 	save_base()
 	return true
+
+## 定向重铸 (前缀放大与特效阶等案 §3, 用户 2026-10-21): turns a piece's prefix
+## into one of the families she wears. Only with the ship at 龙门 (炎国) and
+## 龙门商会 at its top rank, for 龙门币 and a 玄纹墨 sold there. It may fail:
+## the piece stays as it was and nothing comes back; every failure raises the
+## next try's odds along an S curve until it is certain.
+const DIRECTED_ANCHOR := "龙门"
+const DIRECTED_FACTION := "lungmen"
+const DIRECTED_MATERIAL := "玄纹墨"
+const DIRECTED_LMD := 3.0
+const DIRECTED_BASE := 0.40
+const DIRECTED_MID := 3.0
+const DIRECTED_CERTAIN := 8
+
+## The odds after `fails` failures in a row: 40% at first, 100% from the eighth.
+static func directed_chance(fails: int) -> float:
+	if fails >= DIRECTED_CERTAIN: return 1.0
+	var s := func(n: float) -> float: return 1.0 / (1.0 + exp(-(n - DIRECTED_MID)))
+	var share: float = (s.call(float(fails)) - s.call(0.0)) / (s.call(float(DIRECTED_CERTAIN)) - s.call(0.0))
+	return DIRECTED_BASE + (1.0 - DIRECTED_BASE) * share
+
+func directed_cost(item: Item) -> int:
+	return roundi(maxi(REFRESH_MIN_LMD, ceili(Economy.price(item) / 3.0)) * DIRECTED_LMD)
+
+## "" when 定向重铸 of `item` into `family` can be done now, else why not.
+func directed_refusal(item: Item, family: String) -> String:
+	if not in_base or not PrefixCatalog.eligible_item(item) or not PrefixFamilies.FAMILIES.has(family): return "无法改造"
+	if base.ship_at != DIRECTED_ANCHOR or not voyage.sailing.is_empty(): return "需要停靠龙门"
+	if exchange.rank(DIRECTED_FACTION) < Exchange.RANK_AT.size() - 1: return "需要龙门商会关系 R%d" % (Exchange.RANK_AT.size() - 1)
+	if not player.families.worn.has(family): return "未装备该族"
+	for entry in item.prefixes:
+		if PrefixFamilies.family_of(str(entry.id)) == family: return "已是该族"
+	if gold < directed_cost(item): return "龙门币不足"
+	return materials_refusal({DIRECTED_MATERIAL: 1})
+
+## Returns "" when refused, else "success" or "fail".
+func directed_reforge(item: Item, family: String, rng: RandomNumberGenerator = null) -> String:
+	if not directed_refusal(item, family).is_empty(): return ""
+	gold -= directed_cost(item)
+	consume_materials({DIRECTED_MATERIAL: 1})
+	if rng == null:
+		rng = RandomNumberGenerator.new()
+		rng.randomize()
+	var result := "fail"
+	if rng.randf() < directed_chance(base.directed_fails):
+		base.directed_fails = 0
+		result = "success"
+		var id := ""
+		for p in PrefixFamilies.FAMILIES[family].prefixes:
+			if str(p[3]) == PrefixCatalog.slot_kind(item): id = str(p[0])
+		# The family takes the first prefix's place; a second one stays unless
+		# it is a family of the same kind.
+		var rest: Array = item.prefixes.slice(1).filter(func(e): return str(PrefixCatalog.get_entry(str(e.id)).group) != "fam_" + family)
+		item.prefixes = [PrefixCatalog.roll_entry(id, rng)] + rest
+		PrefixCatalog.refresh_value(item)
+	else:
+		base.directed_fails += 1
+	player._recompute_stats()
+	player.hp = minf(player.hp, player.max_hp)
+	save_base()
+	return result
+
+# --- 势力特供 (势力特供策划案_v0_2 §二, 用户 2026-10-22) -------------------------------
+
+const SPECIAL_FUEL := "高能燃料"
+const SPECIAL_EARS := "下城区耳目"
+const SPECIAL_FLUX := "高纯源岩助熔剂"
+const SPECIAL_MOSS := "萨米冰原苔"
+const SPECIAL_PATENT := "骑士工坊专利授权"
+const SPECIAL_SLIP := "企鹅专递单"
+const SPECIAL_GUIDE := "残党向导"
+
+## 下城区耳目 on a headline still 待证实: whether it is true, before it is settled.
+func peek_refusal(headline: Dictionary) -> String:
+	if not in_base: return "只在基地"
+	if str(headline.get("status", "")) != "待证实" or headline.has("peek") or _rumor_of(headline).is_empty(): return "无法查证"
+	return materials_refusal({SPECIAL_EARS: 1})
+
+func peek_rumor(headline: Dictionary) -> bool:
+	if not peek_refusal(headline).is_empty(): return false
+	consume_materials({SPECIAL_EARS: 1})
+	headline["peek"] = "属实" if bool(_rumor_of(headline).rumor.truth) else "不实"
+	save_base()
+	return true
+
+func _rumor_of(headline: Dictionary) -> Dictionary:
+	for e in market.effects:
+		if str(e.id) == str(headline.get("id", "")) and e.has("rumor") and not bool(e.rumor.get("verified", false)): return e
+	return {}
+
+## 高纯源岩助熔剂 on a 加工部 job: its byproducts doubled (one drawn if it had
+## none), the rest of its time × 0.7. Once a job.
+func flux_refusal(job: Dictionary) -> String:
+	if not in_base or not workshop.jobs.has(job): return "无效"
+	if job.get("flux", false): return "已使用"
+	return materials_refusal({SPECIAL_FLUX: 1})
+
+func use_flux(job: Dictionary) -> bool:
+	if not flux_refusal(job).is_empty(): return false
+	consume_materials({SPECIAL_FLUX: 1})
+	job["flux"] = true
+	if Workshop.RECIPES.has(str(job.output)):
+		var by: Dictionary = job.get("byproducts", {})
+		if by.is_empty(): by[Workshop.BYPRODUCTS[rng.randi() % Workshop.BYPRODUCTS.size()]] = 1
+		for id in by: by[id] = int(by[id]) * FactionSpecials.FLUX_BYPRODUCTS
+		job["byproducts"] = by
+	var now := BaseState.now()
+	job["due"] = now + roundi(maxi(0, int(job.due) - now) * FactionSpecials.FLUX_TIME)
+	save_base()
+	set_message("加工部：%s 加入助熔剂。" % job.output)
+	return true
+
+## 骑士工坊专利授权 on running research: the rest of its time halved. Once a project.
+func patent_refusal(id: String) -> String:
+	if not in_base or not research.is_running(id): return "无效"
+	for e in research.active():
+		if str(e.id) == id and e.get("patent", false): return "已使用"
+	return materials_refusal({SPECIAL_PATENT: 1})
+
+func use_patent(id: String) -> bool:
+	if not patent_refusal(id).is_empty(): return false
+	consume_materials({SPECIAL_PATENT: 1})
+	var now := BaseState.now()
+	for e in research.active():
+		if str(e.id) == id:
+			e["patent"] = true
+			e["end"] = now + roundi(maxi(0, int(e.end) - now) * FactionSpecials.PATENT_TIME)
+	research.tick()
+	save_base()
+	return true
+
+## 萨米冰原苔: every injured operator cured, free, every lasting ill cleared.
+func moss_refusal() -> String:
+	if not in_base: return "只在基地"
+	if base.injured_operators().is_empty(): return "无人负伤"
+	return materials_refusal({SPECIAL_MOSS: 1})
+
+func moss_cure() -> bool:
+	if not moss_refusal().is_empty(): return false
+	consume_materials({SPECIAL_MOSS: 1})
+	base.injuries.clear()
+	save_base()
+	set_message("萨米冰原苔：所有干员已痊愈。")
+	return true
+
+## 企鹅专递单, from 企鹅物流's desk at the exchange.
+func slip_refusal() -> String:
+	if not in_base: return "只在基地"
+	if exchange.rank("penguin") < FactionSpecials.rank_needed(SPECIAL_SLIP): return "需要关系 R%d" % FactionSpecials.rank_needed(SPECIAL_SLIP)
+	if gold < FactionSpecials.SLIP_PRICE: return "龙门币不足"
+	return ""
+
+func buy_slip() -> bool:
+	if not slip_refusal().is_empty(): return false
+	gold -= FactionSpecials.SLIP_PRICE
+	exchange._deliver_goods(SPECIAL_SLIP, 1)
+	exchange.add_relation("penguin", 1)
+	set_message("企鹅专递单已送到收货区。")
+	return true
+
+func carried_count(material: String) -> int:
+	return inventory.count_material(material) + safe_bag.count_material(material)
+
+## Takes `count` of a material from the pack and safe bag only (in the field
+## the warehouse is out of reach).
+func _spend_carried(material: String, count: int) -> bool:
+	if carried_count(material) < count: return false
+	var need := count
+	for pool in [inventory.items, safe_bag.items]:
+		for item: Item in pool.duplicate():
+			if need <= 0: break
+			if item.material_id != material: continue
+			var used := mini(need, item.quantity)
+			need -= used
+			if used < item.quantity: item.set_quantity(item.quantity - used)
+			else: _hand_over(item)
+	return true
+
+## 企鹅专递单 at a Rhodes squad or a camp: any number of things she carries go
+## home, onto the warehouse shelves; what they cannot hold, to staging.
+func parcel_refusal() -> String:
+	if in_base: return "只在局内"
+	if carried_count(SPECIAL_SLIP) <= 0: return "需要企鹅专递单"
+	if not in_camp and not (encounter == "squad" and near(world_map.encounter_node)): return "需要罗德岛小队或营地"
+	return ""
+
+## What a slip can send: the pack and the safe bag (not what she wears, nor the slips).
+func parcel_items() -> Array[Item]:
+	var out: Array[Item] = []
+	for item in inventory.items + safe_bag.items:
+		if item.material_id != SPECIAL_SLIP: out.append(item)
+	return out
+
+## Sends `items`; returns how many went where ({shelf, staging, receiving}).
+func parcel_send(items: Array) -> Dictionary:
+	var out := {"shelf": 0, "staging": 0, "receiving": 0}
+	if not parcel_refusal().is_empty() or items.is_empty(): return out
+	var sending: Array[Item] = []
+	for item in items:
+		if item is Item and parcel_items().has(item) and not sending.has(item): sending.append(item)
+	if sending.is_empty(): return out
+	_spend_carried(SPECIAL_SLIP, 1)
+	for item in sending:
+		inventory.remove(item)
+		safe_bag.remove(item)
+		item.carried_in = false
+		var where := base.store(item)
+		if where.is_empty():
+			base.receive(item)
+			where = "receiving"
+		out[where] = int(out[where]) + 1
+	exchange.add_relation("penguin", 1)
+	save_base(true)
+	set_message("企鹅专递：%d 件已送回仓库。" % sending.size())
+	return out
+
+## 残党向导 in the field: this floor's vault and trace show on the map.
+func guide_refusal() -> String:
+	if in_base or in_camp: return "只在局内"
+	if guide_floor == floor_number: return "本层已使用"
+	if carried_count(SPECIAL_GUIDE) <= 0: return "需要残党向导"
+	return ""
+
+func use_guide() -> bool:
+	if not guide_refusal().is_empty(): return false
+	_spend_carried(SPECIAL_GUIDE, 1)
+	guide_floor = floor_number
+	broadcast("PRTS：残党向导标出了本层的密室和踪迹。")
+	return true
+
+func guide_active() -> bool:
+	return not in_base and guide_floor == floor_number
+
+## Items that do something when used from the pack in the field.
+func usable_special(item: Item) -> bool:
+	return item != null and item.material_id == SPECIAL_GUIDE and not in_base
+
+# --- 第二层：农业部与食堂 (势力特供策划案_v0_2 §三–§六) ---------------------------------
+
+func farm_changed() -> void:
+	save_base()
+	if is_instance_valid(base_map): base_map.set_farm(provisions)
+
+func _tick_kitchen() -> void:
+	var done := provisions.tick()
+	if done.is_empty(): return
+	for job in done: broadcast("PRTS：食堂做好了 %s ×%d。" % [job.output, int(job.count)])
+	save_base(not in_base)
+
+## The 补给 for this contract: max HP and regeneration on the sheet, attack
+## and attack speed as a lasting hex beside the flasks'. "" takes it off.
+func _apply_meal(meal_id: String) -> void:
+	run_meal = meal_id if Provisions.MEALS.has(meal_id) else ""
+	if not is_instance_valid(player): return
+	player.clear_hex("meal")
+	var m: Dictionary = Provisions.MEALS.get(run_meal, {})
+	var hex := {}
+	for key in ["atk", "aspd"]:
+		if m.has(key): hex[key] = float(m[key])
+	if not hex.is_empty(): player.add_hex("meal", hex, -1.0)
+	player._recompute_stats()
+
+func meal_tier() -> int:
+	return int(Provisions.MEALS.get(run_meal, {}).get("tier", 0))
+
+func squad_chance() -> float:
+	return Provisions.SQUAD_CHANCE if meal_tier() >= Provisions.SQUAD_CHANCE_TIER else FieldCatalog.SQUAD_CHANCE
+
+func squad_max_uses() -> int:
+	return Provisions.SQUAD_USES if meal_tier() >= Provisions.SQUAD_USES_TIER else 1
+
+func squad_uses_left() -> int:
+	return maxi(0, squad_max_uses() - squad_uses)
+
+func _use_squad() -> void:
+	squad_uses += 1
+	encounter_used = squad_uses >= squad_max_uses()
+
+## The squad's services past its paid ones: 企鹅专递 and the 补给 mailed to it.
+func squad_extras() -> bool:
+	return encounter == "squad" and (carried_count(SPECIAL_SLIP) > 0 or not provisions.mailed().is_empty())
+
+func squad_supply_refusal() -> String:
+	if in_base or encounter != "squad" or not near(world_map.encounter_node): return "小队不在附近"
+	if provisions.mailed().is_empty(): return "没有寄来的补给"
+	return ""
+
+## The 补给 企鹅物流 carried out, eaten here: it replaces the one from the canteen.
+func squad_supply() -> bool:
+	if not squad_supply_refusal().is_empty(): return false
+	var meal_id := provisions.mailed()
+	base.farm.mailed = ""
+	_apply_meal(meal_id)
+	save_base(true)
+	set_message("罗德岛小队：%s，%s。" % [meal_id, Provisions.meal_text(meal_id)])
+	return true
+
+## The lift between the decks.
+func ride_lift(to_deck: int) -> void:
+	if not in_base or transitioning or not to_deck in [1, 2]: return
+	close_modal()
+	deck = to_deck
+	base_map.set_deck(to_deck)
+	player.clear_move_target()
+	player.teleport(base_map.spawn_point("deck2" if to_deck == 2 else "deck_lift"))
+	camera.global_position = camera_target() + camera_offset()
 
 func insure(item: Item) -> bool:
 	if not in_base or not carried_items().has(item) or not item.is_equippable() or item.insured or gold < insurance_price(item): return false
@@ -2292,7 +3108,7 @@ func _hand_over(item: Item) -> bool:
 
 ## Plain delivery for money, outside any order.
 func sell(item: Item) -> bool:
-	if not in_base or not deliverable_items().has(item) or not _hand_over(item): return false
+	if not in_base or not deliverable_items().has(item) or item.effect == VoyageCatalog.CARGO_EFFECT or not _hand_over(item): return false
 	gold += Economy.direct_price(item)
 	save_base()
 	return true
@@ -2305,8 +3121,8 @@ func deliver_to_order(slot: int, item: Item) -> bool:
 	else: _hand_over(item)
 	var text := BaseCatalog.order_text(base.orders.slots[slot].id)
 	if result.done:
-		_grant(result.gold, result.prestige)
-		set_message("订单完成：%s  ·  龙门币 +%s  ·  声望 +%d" % [text, Economy.format(result.gold), result.prestige])
+		gold += int(result.gold)
+		set_message("订单完成：%s  ·  龙门币 +%s" % [text, Economy.format(result.gold)])
 	else: set_message("已交付 %s ×%d：%s 还差 %d" % [item.item_name, int(result.used), text, base.orders.remaining(slot)])
 	save_base()
 	return true
@@ -2316,11 +3132,6 @@ func abandon_order(slot: int) -> bool:
 	set_message("已放弃订单：下次结算后补上新订单。")
 	save_base()
 	return true
-
-func _grant(money: int, prestige: int) -> void:
-	gold += money
-	var new_rank := base.add_prestige(prestige)
-	if new_rank > 0: set_message("声望提升到 R%d：%s。" % [new_rank, BaseCatalog.RANK_UNLOCKS[new_rank]])
 
 func reroll_order(slot: int) -> bool:
 	if not in_base or not base.reroll_available or not base.orders.reroll(slot, rng): return false
@@ -2367,6 +3178,67 @@ func buy_drone() -> bool:
 	set_message("工程部的搬运无人机到位：在货箱前可以全部开箱并归类。")
 	return true
 
+## The facility's next level (BaseCatalog.FACILITIES): gold, then materials.
+## `remote` is the 基建总控台 (or its quick button): only connected facilities.
+func facility_refusal(id: String, remote := false) -> String:
+	if remote and not base.is_connected_to_hub(id): return "未接入"
+	var gate := gate_refusal(id)
+	if not gate.is_empty(): return gate
+	var refusal := base.facility_refusal(id, gold)
+	return refusal if not refusal.is_empty() else materials_refusal(facility_cost(id))
+
+## A faction relation a facility's building waits for ("" once met or built).
+func gate_refusal(id: String) -> String:
+	var gate: Dictionary = BaseCatalog.FACILITIES[id].get("gate", {})
+	if gate.is_empty() or base.facility_level(id) >= 1: return ""
+	if exchange.rank(str(gate.faction)) >= int(gate.rank): return ""
+	return "需要%s关系 R%d" % [FactionCatalog.name_of(str(gate.faction)), int(gate.rank)]
+
+func connect_refusal(id: String) -> String:
+	if not id in BaseCatalog.connectable(): return "无效"
+	if base.is_connected_to_hub(id): return "已接入"
+	if not base.hub_built(): return "需要基建总控台"
+	var gate := gate_refusal(id)
+	if not gate.is_empty(): return gate
+	if gold < int(BaseCatalog.CONNECT_COST.price): return "龙门币不足"
+	return materials_refusal(BaseCatalog.connect_materials(id))
+
+func connect_facility(id: String) -> bool:
+	if not in_base or not connect_refusal(id).is_empty(): return false
+	consume_materials(BaseCatalog.connect_materials(id))
+	gold -= int(BaseCatalog.CONNECT_COST.price)
+	base.connect_facility(id)
+	save_base()
+	set_message("%s已接入基建总控台。" % BaseCatalog.facility_name(id))
+	return true
+
+func facility_cost(id: String) -> Dictionary:
+	return BaseCatalog.facility_step(id, base.facility_level(id) + 1).get("materials", {})
+
+## The warehouse zones that build racks (one per Item.group_of).
+const RACK_ZONES := [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET, Item.Category.MATERIAL]
+
+## How many base upgrades could be bought right now from the hub (the 基建 marker).
+func construction_ready() -> int:
+	var n := 0
+	for id in BaseCatalog.FACILITY_ORDER:
+		if facility_refusal(id, true).is_empty() or connect_refusal(id).is_empty(): n += 1
+	for refusal in [console_refusal(), drone_refusal(), upgrade_refusal("pack"), upgrade_refusal("safe"), camp_upgrade_refusal()]:
+		if refusal.is_empty(): n += 1
+	for zone in RACK_ZONES:
+		if rack_refusal(zone).is_empty(): n += 1
+	return n
+
+func upgrade_facility(id: String, remote := false) -> bool:
+	if not in_base or not BaseCatalog.FACILITIES.has(id) or not facility_refusal(id, remote).is_empty(): return false
+	var step := BaseCatalog.facility_step(id, base.facility_level(id) + 1)
+	consume_materials(step.materials)
+	gold -= int(step.price)
+	var level := base.raise_facility(id)
+	save_base()
+	set_message("%s升到 Lv%d：%s。" % [BaseCatalog.facility_name(id), level, step.opens])
+	return true
+
 ## Opens every crate and puts everything that fits on its shelf (§3.5); the
 ## reveal plays as a list in the menu and the drone flies the deliveries.
 func sort_everything() -> Dictionary:
@@ -2390,7 +3262,6 @@ func station_needs_attention(id: String) -> bool:
 		"receiving_bays": return base.sealed_count() > 0
 		"outbound": return is_instance_valid(warehouse_view) and warehouse_view.orders_fillable()
 		"reception": return base.report_unread or base.any_injured()
-		"stash": return base.unseen_unlocks
 		"exchange": return not market.flash.is_empty() or not swan_popup.is_empty()
 	return false
 
@@ -2423,17 +3294,15 @@ func open_training(back: Callable = Callable()) -> void:
 func request_contract(region: String, start_camp: int = 0) -> void:
 	if not in_base or transitioning: return
 	_pending_start_camp = start_camp
-	if departure_warnings().is_empty():
+	if departure_warnings().is_empty() and not kits_in_stock(region):
 		start_contract(region, start_camp)
 		return
 	open_modal("station")
 	menu.show_departure(region)
 
-## The base's top bar (§5.1): gold, prestige, and an injury when present.
+## The base's top bar (§5.1): gold, and an injury when present.
 func base_status_text() -> String:
-	var rank := base.rank()
 	var parts: Array[String] = ["龙门币 %s" % Economy.format(gold)]
-	parts.append("声望 R%d · %d%s" % [rank, base.prestige, "" if rank >= BaseCatalog.PRESTIGE_RANKS.size() else "/%d" % BaseCatalog.PRESTIGE_RANKS[rank]])
 	var injured := base.injured_operators()
 	if not injured.is_empty(): parts.append("重伤 " + "、".join(injured.map(func(id): return Operators.display_name(id))))
 	return "   ".join(parts)
@@ -2462,8 +3331,18 @@ func _set_standard_potions(count: int) -> void:
 ## The free 标准急救剂 for this contract go into the pack (what does not fit stays
 ## issued for next time).
 func _issue_free_potions() -> void:
-	while base.free_potions > 0 and inventory.add_stack(BaseCatalog.create_potion("A")) == 0:
+	# The departure camp's tier (复利数值改造清单 E); 医疗部Ⅴ adds one.
+	var bonus := int(research.free_potion_tier_bonus()) if research != null and research.has_method("free_potion_tier_bonus") else 0
+	var tier := mini(Scaling.TIER_MAX, Scaling.tier_of(start_floor) + bonus)
+	while base.free_potions > 0 and inventory.add_stack(BaseCatalog.create_potion("A", tier)) == 0:
 		base.free_potions -= 1
+
+## Of the flasks she carries of `type`, the highest tier (pack before safe bag).
+func _best_potion(type: String, carried: Array[Item]) -> Item:
+	var pick: Item = null
+	for item in carried:
+		if item.potion_type == type and (pick == null or item.grade > pick.grade): pick = item
+	return pick
 
 ## The best flask to drink now (AI driver): the first by POTION_ORDER, from the pack before the safe bag. At
 ## full health only the inhibitor is worth drinking (it also cleanses).
@@ -2472,39 +3351,39 @@ func _use_potion() -> void:
 	if carried.is_empty(): return
 	var pick: Item = null
 	for type in POTION_ORDER:
-		for item in carried:
-			if item.potion_type == type:
-				pick = item
-				break
+		pick = _best_potion(type, carried)
 		if pick != null: break
 	if player.full_hp() and pick.potion_type != "C":
-		var inhibitor := carried.filter(func(x): return x.potion_type == "C")
-		if inhibitor.is_empty(): return
-		pick = inhibitor[0]
+		pick = _best_potion("C", carried)
+		if pick == null: return
 	drink(pick)
 
 ## A hotbar flask slot: the first carried flask of `type`, pack before safe
 ## bag. Nothing happens when she has none of that kind.
 func use_potion_type(type: String) -> bool:
-	for item in carried_potions():
-		if item.potion_type == type: return drink(item)
-	return false
+	var pick := _best_potion(type, carried_potions())
+	return drink(pick) if pick != null else false
 
 ## Drinks one flask she carries (a hotbar slot, or right click in the pack).
 func drink(item: Item) -> bool:
 	if in_base or item == null or not item.is_potion() or not carried_items().has(item): return false
 	if player.is_controlled(): return false
+	# 应急强心针 is never drunk: it fires by itself on a killing blow.
+	if not PotionEffects.drinkable(item.potion_type):
+		notice("应急强心针放在背包里就会生效")
+		return false
 	if item.quantity > 1: item.set_quantity(item.quantity - 1)
 	else:
 		inventory.remove(item)
 		safe_bag.remove(item)
 	var type := item.potion_type
-	var amount: float = {"A": BaseCatalog.POTION_A_HEAL, "B": BaseCatalog.POTION_B_HEAL, "C": BaseCatalog.POTION_C_HEAL}[type]
-	if builds.has("ore_heart"): amount *= 0.5
-	if builds.has("bloodthirst"): amount *= 0.7
-	if builds.has("safe_salvage"):
-		amount *= 1.0 + 0.25 * safe_bag.items.filter(func(x): return not x.is_equippable()).size()
-	amount *= _potion_heal_factor * player.potion_heal_multiplier
+	# A fixed amount for its tier, no bonus of any kind (复利数值改造清单 E);
+	# only an operator's own trait (赫拉格: 30%) changes it.
+	if PotionEffects.handles(type):
+		set_message(potion_fx.apply(type))
+		save_base(true)
+		return true
+	var amount := BaseCatalog.potion_heal(type, maxi(item.grade, 1)) * player.potion_heal_multiplier
 	match type:
 		"B":
 			# A new gel replaces what was left of the last one.
@@ -2512,12 +3391,12 @@ func drink(item: Item) -> bool:
 			_slow_heal_rate = amount / BaseCatalog.POTION_B_SECONDS
 			set_message("缓释凝胶：%.0f 秒内回复 %d 生命" % [BaseCatalog.POTION_B_SECONDS, roundi(amount)])
 		"C":
-			player.heal(amount, true)
+			player.heal(amount, true, false)
 			run_contamination -= BaseCatalog.POTION_C_CLEANSE
 			_suppress_timer = BaseCatalog.POTION_C_SUPPRESS_SECONDS
 			set_message("抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])
 		_:
-			player.heal(amount, true)
+			player.heal(amount, true, false)
 			set_message("标准急救剂：回复 %d 生命" % roundi(amount))
 	save_base(true)
 	return true
@@ -2554,14 +3433,15 @@ func contamination_rate() -> float:
 	if region_id == "mine": rate += BaseCatalog.CONTAMINATION_MINE
 	if route_index == 2: rate += BaseCatalog.CONTAMINATION_DEEP_ROUTE
 	rate += count_effect("raw_ore") * BaseCatalog.CONTAMINATION_PER_ORE
+	rate += count_effect(SEALED_ORE) * FeatureCatalog.SEALED_ORE_RATE
 	rate += count_effect("dirty") * CONTAMINATION_PER_DIRTY
 	if _suppress_timer > 0.0: rate *= 0.5
-	return rate * maxf(0.0, 1.0 + float(player.stats.get("contam_pct", 0.0)))
+	return rate * maxf(0.0, 1.0 + float(player.stats.get("contam_pct", 0.0))) * features.growth_mult("contamination", floor_number)
 
 ## Shown on the field HUD only when it is moving or could: the mine, the deep
 ## route, or ore in the pack.
 func contamination_visible() -> bool:
-	return not in_base and (region_id == "mine" or route_index == 2 or count_effect("raw_ore") > 0)
+	return not in_base and (region_id == "mine" or route_index == 2 or count_effect("raw_ore") > 0 or count_effect(SEALED_ORE) > 0)
 
 ## At departure: injury and contamination set max HP, potion healing and
 ## self-regeneration for the whole contract; the pharmacy fills the belt.
@@ -2569,7 +3449,10 @@ func contamination_visible() -> bool:
 ## extra room, and losses come off the end (the bought fourth bottle first).
 func _apply_medical_state() -> void:
 	player.regen_blocked = false
+	potion_fx.game = self
+	potion_fx.reset()
 	run_contamination = 0.0
+	player.cold = 0.0
 	player.condition_hp_penalty = -1.0   # force the recompute
 	player.set_condition(base.injured, current_contamination())
 	_potion_heal_factor = 1.0 - BaseCatalog.contamination_potion_penalty(current_contamination())
@@ -2578,10 +3461,11 @@ func _apply_medical_state() -> void:
 	_announced_tier = 0
 
 func _tick_medical(delta: float) -> void:
+	potion_fx.tick(delta)
 	if _slow_heal_left > 0.0:
 		var heal_step := minf(_slow_heal_left, _slow_heal_rate * delta)
 		_slow_heal_left -= heal_step
-		player.heal(heal_step)
+		player.heal(heal_step, false, false)
 	_suppress_timer = maxf(0.0, _suppress_timer - delta)
 	run_contamination += contamination_rate() * delta
 	# Contamination works live (§6 D): max HP, regeneration and potion healing.
@@ -2596,9 +3480,9 @@ func _tick_medical(delta: float) -> void:
 ## 标准急救剂 are free while this contract's free issue lasts.
 func buy_potion(type: String) -> bool:
 	if not in_base or not BaseCatalog.POTIONS.has(type): return false
-	var price := base.potion_price(type)
+	var price := potion_price(type)
 	if price < 0 or gold < price: return false
-	var flask := BaseCatalog.create_potion(type)
+	var flask := BaseCatalog.create_potion(type, deepest_tier())
 	if inventory.add_stack(flask) > 0:
 		notice("背包空间不足：药剂要占一格。")
 		return false
@@ -2607,17 +3491,32 @@ func buy_potion(type: String) -> bool:
 	save_base()
 	return true
 
+## The pharmacy's price at the deepest camp's tier (v1.1 §4.1); 0 while the
+## free issue lasts, -1 before the rank allows it.
+func potion_price(type: String) -> int:
+	var price := base.potion_price(type)
+	return Economy.tiered(price, deepest_tier()) if price > 0 else price
+
+## Treatment: × the income index of the floor she fell on (v1.1 §4.1); 医疗部Ⅱ halves it.
+func injury_price(id: String) -> int:
+	var tier := int(base.injuries.get(id, 1)) if (base.injuries.get(id, 1) is int or base.injuries.get(id, 1) is float) else 1
+	var price := Economy.tiered(BaseCatalog.INJURY_TREATMENT, tier)
+	return price / 2 if base.researched("injury_fee") else price
+
 ## Treats one operator's injury (the one who deploys next by default).
 func treat_injury(id: String = "") -> bool:
 	if id.is_empty(): id = base.operator
-	if not in_base or not base.injuries.has(id) or gold < BaseCatalog.INJURY_TREATMENT: return false
-	gold -= BaseCatalog.INJURY_TREATMENT
+	if not in_base or not base.injuries.has(id) or gold < injury_price(id): return false
+	gold -= injury_price(id)
 	base.injuries.erase(id)
 	save_base()
 	set_message("%s的重伤已治愈。" % Operators.display_name(id))
 	return true
 
 func _spawn_wave() -> void:
+	if world_map.boss_layout:
+		_spawn_boss_floor()
+		return
 	# Ordinary enemies defend their own origin along the main route. Search
 	# encounters have their own budget, so no region leaves reward spurs bare.
 	# Scaled with the route: the segment is about twice the ground it used to
@@ -2701,6 +3600,7 @@ func _spawn_wave() -> void:
 	if is_outpost_floor(): _spawn_outpost()
 	if is_bounty_floor(): _spawn_bounty()
 	if is_recruit_floor(): _spawn_recruit()
+	if is_handover_floor(): _spawn_handover()
 	if floor_number % FieldCatalog.CAMP_INTERVAL != 0:
 		_spawn_traps()
 		_spawn_trace()
@@ -2708,16 +3608,396 @@ func _spawn_wave() -> void:
 	# edge, baked with the work lights in one pass.
 	if is_instance_valid(trace_point):
 		var wide := 1.5 if RecruitCatalog.is_big(trace_point.key) else 1.0
-		work_lights.append({"at": trace_point.global_position + Vector3.UP * 0.8, "color": TracePoint.GLOW * TracePoint.GLOW_GAIN, "radius": TracePoint.GLOW_RADIUS * wide})
+		work_lights.append({"at": trace_point.global_position + Vector3.UP * 0.8, "color": trace_point.glow * TracePoint.GLOW_GAIN, "radius": TracePoint.GLOW_RADIUS * wide * research.glow_factor()})
 	if world_map.vault_seal != null:
-		work_lights.append(world_map.vault_seal.glow_lamp())
+		var lamp: Dictionary = world_map.vault_seal.glow_lamp()
+		lamp.radius = float(lamp.radius) * research.glow_factor()   # 情报部Ⅰ
+		work_lights.append(lamp)
 	if is_instance_valid(world_map.terrace_dressing): world_map.terrace_dressing.add_lamps(work_lights)
 	if not world_map.roadblock.is_empty() and floor_number % FieldCatalog.CAMP_INTERVAL != 0: _spawn_car()
+	_spawn_fires()
+	_spawn_shower()
+	threat.plan_floor(region_id, floor_enemies().size())
+
+## A boss floor (Boss战场地策划案 Q5): the boss in its arena and nothing else —
+## no enemies, posts, boxes, traps or traces in the other rooms. A contract's
+## own target on this floor (寻访, 交付, 悬赏) still comes.
+func _spawn_boss_floor() -> void:
+	if is_instance_valid(world_map.buff_device_node): world_map.buff_device_node.visible = false
+	_buff_taken = true
+	_spawn_outpost()
+	if is_instance_valid(arena): arena.spawn_civilians()
+	if is_bounty_floor(): _spawn_bounty()
+	if is_recruit_floor(): _spawn_recruit()
+	if is_handover_floor(): _spawn_handover()
+	_spawn_fires()
+	_spawn_shower()
 	threat.plan_floor(region_id, floor_enemies().size())
 
 ## This floor's enemies still standing (not the grazing herds).
 func floor_enemies() -> Array:
 	return get_tree().get_nodes_in_group("enemies").filter(func(e): return e.game == self and not e._dead and not e.attack_profile.get("neutral", false))
+
+# --- 地图特色 (地图特色策划案_v1_0.md) ----------------------------------------------
+
+const SEALED_ORE := "sealed_ore"
+## This floor's 火堆 (萨米) and 净化喷淋点 (矿区).
+var fires: Array[FirePit] = []
+var shower: ShowerPoint
+## The shower being used: seconds held so far (−1: not), and her life when it began.
+var shower_progress := -1.0
+var _shower_hp := 0.0
+## The fire the fuel picker is open for.
+var fuel_fire: FirePit
+## Base kits at departure: kit id -> false when unticked (ticked by default).
+var kit_choice := {}
+
+## Takes the base kits ticked for a contract in `region`, one per feature.
+func _take_kits(region: String) -> void:
+	for id in chosen_kits(region):
+		var tier := base.take_kit(id)
+		if tier > 0: features.kits[str(FeatureCatalog.KITS[id].feature)] = [id, tier]
+	kit_choice.clear()
+
+## The kits that would go on a contract in `region`: in stock and not
+## unticked; plain and refined do not stack, the refined one wins.
+func chosen_kits(region: String) -> Array[String]:
+	var by_feature := {}
+	for id in FeatureCatalog.kits_for(region):
+		if base.kit_stock(id) <= 0 or not bool(kit_choice.get(id, true)): continue
+		var feature: String = FeatureCatalog.KITS[id].feature
+		if not by_feature.has(feature) or id.ends_with("_plus"): by_feature[feature] = id
+	var out: Array[String] = []
+	for feature in by_feature: out.append(str(by_feature[feature]))
+	return out
+
+## Ticks or unticks a kit at departure; ticking one of a kind unticks the other.
+func toggle_kit(id: String, region: String) -> void:
+	if not FeatureCatalog.KITS.has(id): return
+	var on := not kit_on(id, region)
+	kit_choice[id] = on
+	var other := id.trim_suffix("_plus") if id.ends_with("_plus") else id + "_plus"
+	if on: kit_choice[other] = false
+
+func kit_on(id: String, region: String) -> bool:
+	return id in chosen_kits(region)
+
+## Whether any kit for `region` is in stock (the departure card shows them).
+func kits_in_stock(region: String) -> bool:
+	return FeatureCatalog.kits_for(region).any(func(id): return base.kit_stock(id) > 0)
+
+func kit_refusal(id: String) -> String:
+	var kit: Dictionary = FeatureCatalog.KITS[id]
+	if base.facility_level("store") < int(kit.store): return "商店 Lv%d" % int(kit.store)
+	if gold < FeatureCatalog.kit_price(id, deepest_tier()): return "龙门币不足"
+	return ""
+
+## 可露希尔 at the base sells the kits for 龙门币, at the deepest camp's tier
+## (v1.1 §4.1); they wait at the base.
+func buy_kit(id: String) -> bool:
+	if not in_base or not FeatureCatalog.KITS.has(id) or not kit_refusal(id).is_empty(): return false
+	gold -= FeatureCatalog.kit_price(id, deepest_tier())
+	base.add_kit(id, deepest_tier())
+	save_base()
+	return true
+
+## The meters the HUD shows: 污染 as before, 血债 in 叙拉古, 寒冷 in 萨米.
+func shown_features() -> Array[String]:
+	var out: Array[String] = []
+	if in_base: return out
+	if region_id == "siracusa": out.append("debt")
+	if region_id == "snow": out.append("cold")
+	if contamination_visible(): out.append("contamination")
+	return out
+
+func feature_value(kind: String) -> float:
+	return current_contamination() if kind == "contamination" else features.value(kind)
+
+## A second, now: what the HUD shows next to the value.
+func feature_rate(kind: String) -> float:
+	match kind:
+		"contamination": return contamination_rate()
+		"cold": return cold_rate()
+	return 0.0
+
+## 寒冷 a second at this moment: rising on a 萨米 floor, falling inside a lit fire.
+func cold_rate() -> float:
+	if in_base or in_camp or region_id != "snow": return 0.0
+	if warm_fire() != null: return -FeatureCatalog.FIRE_WARM
+	var rate := FeatureCatalog.COLD_RATE + (FeatureCatalog.COLD_DEEP if route_index == 2 else 0.0)
+	# 埃克提尔尼尔's blizzard from tier 5 (Boss与守卫者策划案 §6).
+	if boss_fight() and outpost_boss.figure_id == "eikthyrnir" and outpost_boss.tier >= 5: rate *= BossCatalog.BLIZZARD
+	return rate * features.growth_mult("cold", floor_number)
+
+## The lit fire she stands at, if any.
+func warm_fire() -> FirePit:
+	if not is_instance_valid(player): return null
+	for fire in fires:
+		if is_instance_valid(fire) and fire.lit() and fire.warms(player.global_position): return fire
+	return null
+
+func _tick_features(delta: float) -> void:
+	for fire in fires:
+		if is_instance_valid(fire): fire.burn(delta)
+	var cold_step := cold_rate() * delta
+	if cold_step >= 0.0: features.add("cold", cold_step * potion_fx.cold_mult())
+	else: features.reduce("cold", -cold_step)
+	player.cold = features.value("cold")
+	if region_id == "siracusa" and not in_camp and features.reckoning_due(delta):
+		# On a boss floor 扎罗 takes the 清算时刻 himself; no squad comes (Q6).
+		if boss_fight() and outpost_boss.figure_id == "zaro":
+			features.reckon_wait = FeatureCatalog.RECKONING_EVERY
+			outpost_boss.begin_reckoning()
+			broadcast("PRTS：博士，清算时刻。")
+		else: _spawn_reckoning()
+	_tick_shower(delta)
+	for kind in ["debt", "cold"]:
+		var reached := features.newly_reached(kind)
+		if reached > 0: set_message("%s %d（%s）" % [FeatureCatalog.NAMES[kind], roundi(features.value(kind)), FeatureCatalog.TIER_NAMES[kind][reached]])
+	var step := floori(maxi(floor_number - 1, 0) / FeatureCatalog.DEPTH_BLOCK)
+	if step > features.depth_step:
+		features.depth_step = step
+		var own := FeatureCatalog.feature_of(region_id)
+		if not own.is_empty(): broadcast("PRTS：博士，越往深处，%s来得越快。" % FeatureCatalog.NAMES[own])
+
+## 火堆 (§5.3): two or three on every 萨米 floor, off the main path at a quarter,
+## a half and three quarters of the way; one by a 冰原营地 (one at most) and
+## one by the random extraction.
+func _spawn_fires() -> void:
+	fires.clear()
+	if region_id != "snow": return
+	# The arena's two fires, the first one lit (Boss战场地策划案 §4.3).
+	if is_instance_valid(arena):
+		for at in arena.fire_spots():
+			var pit := FirePit.new()
+			pit.name = "FirePit"
+			world_map._generated_root.add_child(pit)
+			pit.global_position = Vector3(at.x, ground_y(at), at.z)
+			fires.append(pit)
+		if not fires.is_empty(): fires[0].feed(BossCatalog.FIRE_START)
+		return
+	var path: PackedVector2Array = world_map.main_path
+	if path.size() < 6: return
+	var count := FeatureCatalog.FIRES + (1 if rng.randf() < FeatureCatalog.FIRE_EXTRA else 0)
+	var shares: Array = [0.33, 0.66] if count == 2 else [0.25, 0.5, 0.75]
+	var spots: Array[Vector3] = []
+	for share in shares:
+		var i := clampi(int(path.size() * float(share)), 1, path.size() - 2)
+		var along := (path[i + 1] - path[i - 1]).normalized()
+		for attempt in range(10):
+			var side := Vector2(-along.y, along.x) * (1.0 if attempt % 2 == 0 else -1.0) * rng.randf_range(FeatureCatalog.FIRE_OFFSET.x, FeatureCatalog.FIRE_OFFSET.y)
+			var at := world_map.nearest_walkable(Vector3(path[i].x + side.x, 0, path[i].y + side.y))
+			if _fire_spot_ok(at, spots, attempt < 6):
+				spots.append(at)
+				break
+	# At most one 冰原营地 a floor keeps a fire (用户 2026-10-19).
+	for node in get_tree().get_nodes_in_group("loot_containers"):
+		var box := node as LootContainer
+		if box == null or box.game != self or box.kind != "camp": continue
+		var at := world_map.nearest_walkable(box.global_position + Vector3(2.4, 0, 0))
+		if _fire_spot_ok(at, spots, false):
+			spots.append(at)
+			break
+	if is_extraction_floor() and is_instance_valid(world_map.exit_node):
+		var at := world_map.nearest_walkable(world_map.exit_node.global_position + Vector3(0, 0, 3.0))
+		if _fire_spot_ok(at, spots, false): spots.append(at)
+	for at in spots:
+		var fire := FirePit.new()
+		fire.name = "FirePit"
+		world_map._generated_root.add_child(fire)
+		fire.global_position = Vector3(at.x, ground_y(at), at.z)
+		fires.append(fire)
+
+## Off the vault and apart from the other fires; `strict` also keeps it clear
+## of the floor's marks and FIRE_ENEMY_CLEAR from any enemy.
+func _fire_spot_ok(at: Vector3, placed: Array[Vector3], strict: bool = true) -> bool:
+	var flat := Vector2(at.x, at.z)
+	if world_map.vault_hidden(flat): return false
+	for other in placed:
+		if other.distance_to(at) < FeatureCatalog.FIRE_RADIUS * 2.0: return false
+	if not strict: return true
+	if not _trap_spot_ok(at, []): return false
+	for enemy in floor_enemies():
+		if Vector2(enemy.global_position.x, enemy.global_position.z).distance_to(flat) < FeatureCatalog.FIRE_ENEMY_CLEAR: return false
+	return true
+
+func near_fire() -> FirePit:
+	for fire in fires:
+		if is_instance_valid(fire) and near(fire): return fire
+	return null
+
+## The fuels in the pack (not the safe bag): id -> count.
+func pack_fuels() -> Dictionary:
+	var out := {}
+	for item in inventory.items:
+		if FeatureCatalog.FUELS.has(item.material_id): out[item.material_id] = int(out.get(item.material_id, 0)) + item.quantity
+	return out
+
+## E at a fire: the picker of what to burn; nothing without fuel.
+func _open_fuel(fire: FirePit) -> void:
+	if pack_fuels().is_empty(): return
+	fuel_fire = fire
+	open_modal("fuel")
+	menu.show_fuel()
+
+## One piece of `id` from the pack onto the fire (用户 2026-10-19: she picks which).
+func burn_fuel(id: String, fire: FirePit = null) -> bool:
+	if fire == null: fire = fuel_fire
+	if not is_instance_valid(fire) or not FeatureCatalog.FUELS.has(id): return false
+	if fire.burn_left >= FeatureCatalog.FIRE_MAX: return false
+	for item in inventory.items:
+		if item.material_id != id: continue
+		if item.quantity > 1: item.set_quantity(item.quantity - 1)
+		else: inventory.remove(item)
+		fire.feed(float(FeatureCatalog.FUELS[id]))
+		return true
+	return false
+
+## 净化喷淋点 (§3.3): on SHOWER_CHANCE of mine floors, beside the main path.
+func _spawn_shower() -> void:
+	shower = null
+	shower_progress = -1.0
+	if region_id != "mine" or floor_number % FieldCatalog.CAMP_INTERVAL == 0: return
+	if not force_shower and rng.randf() >= FeatureCatalog.SHOWER_CHANCE: return
+	var path: PackedVector2Array = world_map.main_path
+	if path.size() < 6: return
+	for attempt in range(20):
+		var i := rng.randi_range(2, path.size() - 3)
+		var along := (path[i + 1] - path[i - 1]).normalized()
+		var side := Vector2(-along.y, along.x) * (1.0 if attempt % 2 == 0 else -1.0) * rng.randf_range(3.0, 5.0)
+		var at := world_map.nearest_walkable(Vector3(path[i].x + side.x, 0, path[i].y + side.y))
+		if not _trap_spot_ok(at, []): continue
+		shower = ShowerPoint.new()
+		shower.name = "ShowerPoint"
+		world_map._generated_root.add_child(shower)
+		shower.global_position = Vector3(at.x, ground_y(at), at.z)
+		return
+
+## Place one whatever the roll (tests and captures).
+var force_shower := false
+
+func _start_shower() -> void:
+	shower_progress = 0.0
+	_shower_hp = player.hp
+
+## Held SHOWER_SECONDS beside it: −SHOWER_CUT; a hit or a step away breaks it off.
+func _tick_shower(delta: float) -> void:
+	if shower_progress < 0.0: return
+	if not is_instance_valid(shower) or shower.used or not near(shower) or player.hp < _shower_hp - 0.5:
+		shower_progress = -1.0
+		if is_instance_valid(shower): shower.spraying(false)
+		return
+	shower_progress += delta
+	shower.spraying(true)
+	if shower_progress < FeatureCatalog.SHOWER_SECONDS: return
+	shower_progress = -1.0
+	shower.use()
+	run_contamination = maxf(0.0, current_contamination() - FeatureCatalog.SHOWER_CUT)
+	set_message("污染 −%d" % int(FeatureCatalog.SHOWER_CUT))
+
+## A field supply used from the pack (right click): the sealer seals one ore,
+## the others take their feature down.
+func use_supply(item: Item) -> bool:
+	if in_base or not FeatureCatalog.is_supply(item) or not carried_items().has(item): return false
+	var data: Dictionary = FeatureCatalog.SUPPLIES[item.material_id]
+	if item.material_id == "源石矿封装器":
+		var ore := _unsealed_ore()
+		if ore == null: return false
+		seal_ore(ore)
+	else:
+		var kind: String = data.feature
+		features.reduce(kind, float(data.cut))
+		set_message("%s −%d" % [FeatureCatalog.NAMES[kind], int(data.cut)])
+	_spend_one(item)
+	save_base(true)
+	return true
+
+func _spend_one(item: Item) -> void:
+	if item.quantity > 1: item.set_quantity(item.quantity - 1)
+	else:
+		inventory.remove(item)
+		safe_bag.remove(item)
+
+func _unsealed_ore() -> Item:
+	for item in carried_items():
+		if item.effect == "raw_ore": return item
+	return null
+
+## Right click on a raw ore with a sealer in the pack or safe bag seals it.
+func seal_with_sealer(ore: Item) -> bool:
+	if in_base or ore == null or ore.effect != "raw_ore": return false
+	for item in carried_items():
+		if item.material_id == "源石矿封装器":
+			seal_ore(ore)
+			_spend_one(item)
+			return true
+	return false
+
+## 简易封装的源石原矿 (用户 2026-10-19): the same ore and price, 0.01/s.
+func seal_ore(ore: Item) -> void:
+	ore.effect = SEALED_ORE
+	ore.item_name = FeatureCatalog.SEALED_ORE_NAME
+	ore.description = "简易封装：携带时每块每秒污染 +0.01。"
+	set_message(FeatureCatalog.SEALED_ORE_NAME)
+
+## 可露希尔 in a camp: the field supplies and 固体燃料 for 赤金.
+func supply_price(id: String) -> int:
+	return FeatureCatalog.FUEL_BARS if id == "固体燃料" else int(FeatureCatalog.SUPPLIES[id].bars)
+
+func supply_item(id: String) -> Item:
+	return MaterialCatalog.create(id, 1, region_id) if id == "固体燃料" else FeatureCatalog.create_supply(id)
+
+func closure_buy_supply(id: String) -> bool:
+	if not in_camp or not id in FeatureCatalog.CAMP_SUPPLIES: return false
+	var price := supply_price(id)
+	if gold_available() < price: return false
+	if inventory.add_stack(supply_item(id)) > 0:
+		notice("背包空间不足。")
+		return false
+	_pay_gold(price)
+	save_base(true)
+	return true
+
+## 营地处理: contamination −CAMP_CLEANSE once a camp.
+func camp_cleanse_refusal() -> String:
+	if not in_camp: return "营地"
+	if features.camp_cleansed: return "已处理"
+	if current_contamination() <= 0.0: return "无"
+	if gold_available() < FeatureCatalog.CAMP_CLEANSE_BARS: return "赤金不足"
+	return ""
+
+func camp_cleanse() -> bool:
+	if not camp_cleanse_refusal().is_empty(): return false
+	_pay_gold(FeatureCatalog.CAMP_CLEANSE_BARS)
+	features.camp_cleansed = true
+	run_contamination = maxf(0.0, current_contamination() - FeatureCatalog.CAMP_CLEANSE)
+	save_base(true)
+	return true
+
+## 赔偿金: 血债 −CAMP_DEBT, one 赤金 dearer each time in the same camp.
+func camp_debt_refusal() -> String:
+	if not in_camp: return "营地"
+	if features.value("debt") <= 0.0: return "无"
+	if gold_available() < features.camp_debt_price(): return "赤金不足"
+	return ""
+
+func camp_pay_debt() -> bool:
+	if not camp_debt_refusal().is_empty(): return false
+	_pay_gold(features.camp_debt_price())
+	features.camp_debt_paid += 1
+	features.reduce("debt", FeatureCatalog.CAMP_DEBT)
+	save_base(true)
+	return true
+
+## 仇家 (血债 60, §4.4): the families hit harder …
+func feud_damage(enemy: Enemy) -> float:
+	if region_id != "siracusa" or not FeatureCatalog.family(enemy.enemy_type) or features.tier("debt") < 1: return 1.0
+	return 1.0 + FeatureCatalog.FEUD_DAMAGE
+
+## … and see her from further.
+func feud_sight(enemy: Enemy) -> float:
+	if region_id != "siracusa" or not FeatureCatalog.family(enemy.enemy_type) or features.tier("debt") < 1: return potion_fx.sight_mult()
+	return (1.0 + FeatureCatalog.FEUD_SIGHT) * potion_fx.sight_mult()
 
 # --- 威胁值 (ThreatMeter, 用户 2026-10-14) ------------------------------------------
 
@@ -2735,13 +4015,17 @@ func near_squad() -> bool:
 var _tracked_warned := -1
 
 func _tick_threat(delta: float) -> void:
-	var boost := (1.0 + ThreatMeter.SENTINEL_BOOST * alerted_sentinels()) * market.threat_mult(region_id)
+	var boost := (1.0 + ThreatMeter.SENTINEL_BOOST * alerted_sentinels()) * market.threat_mult(region_id) * research.threat_factor() * potion_fx.threat_mult() * player.families.threat_mult()
 	if threat.add(threat.per_second() * boost * delta):
 		_spawn_patrol()
+	elif player.families.tier("stealth") >= 4 and threat.ratio() >= STEALTH_WARN_AT and _patrol_warned != threat.wave:
+		# 潜伏 (4) 预警: where the next patrol will come in from.
+		_patrol_warned = threat.wave
+		_next_patrol_entry = _patrol_entry()
+		broadcast("PRTS：博士，巡逻队即将从%s方进入。" % _direction_name(_next_patrol_entry - player.global_position))
 	elif threat.ratio() >= ThreatMeter.TRACKED_AT and _tracked_warned != threat.wave:
 		_tracked_warned = threat.wave
-		# 叙拉古: the meter is the families' 血债 (叙拉古方案 §3.5, from 「叙拉古人」).
-		broadcast("PRTS：博士，血债快要清算了。" if region_id == "siracusa" else "PRTS：博士，信号正在被追踪。")
+		broadcast("PRTS：博士，信号正在被追踪。")
 
 ## Sentinels with their "!" up right now.
 func alerted_sentinels() -> int:
@@ -2754,8 +4038,21 @@ func on_sentinel_spotted(_sentinel: Enemy) -> void:
 ## The next patrol onto this floor: stronger with every wave here.
 func _spawn_patrol() -> void:
 	threat.wave += 1
-	var wave := threat.wave
-	var at := _patrol_entry()
+	_spawn_squad(threat.wave, false)
+	broadcast("PRTS：博士，搜捕巡逻队进入本层。")
+
+## 清算 (地图特色策划案 §4.4): 叙拉古's 血债 at 90 sends the families, their own
+## count of reckonings making them stronger as patrols grow; they take their share.
+func _spawn_reckoning() -> void:
+	features.reckoning_sent()
+	_spawn_squad(features.reckonings, true)
+	broadcast("PRTS：博士，清算时刻。家族的人进入本层。")
+
+## A patrol of wave `wave`: PATROL_SIZE, an elite from PATROL_ELITE_FROM on;
+## a reckoning brings a 家族灭迹人 too.
+func _spawn_squad(wave: int, reckoning_squad: bool) -> void:
+	var at := _patrol_entry() if _next_patrol_entry == Vector3.INF or reckoning_squad else _next_patrol_entry
+	if not reckoning_squad: _next_patrol_entry = Vector3.INF
 	var power := ThreatMeter.strength(wave)
 	var with_elite := wave >= ThreatMeter.PATROL_ELITE_FROM
 	var size := ThreatMeter.PATROL_SIZE + (1 if with_elite else 0)
@@ -2768,15 +4065,16 @@ func _spawn_patrol() -> void:
 		enemy.max_health *= power.x
 		enemy.health = enemy.max_health
 		enemy.atk *= power.y
-	# 叙拉古: every reckoning brings one 家族灭迹人, who leaves the patrol and
-	# closes in on her unseen (叙拉古敌人设计案 §三第 6 条).
-	if region_id == "siracusa":
+		if reckoning_squad: enemy.add_to_group("reckoning")
+	# Every reckoning brings one 家族灭迹人, who leaves the patrol and closes in
+	# on her unseen (叙拉古敌人设计案 §三第 6 条).
+	if reckoning_squad:
 		var eraser := _spawn_enemy(at + Vector3(1.6, 0.0, 1.6), true, false, "family_eraser")
 		eraser.configure_patrol(wave)
 		eraser.max_health *= power.x
 		eraser.health = eraser.max_health
 		eraser.atk *= power.y
-	broadcast("PRTS：博士，清算时刻。家族的人进入本层。" if region_id == "siracusa" else "PRTS：博士，搜捕巡逻队进入本层。")
+		eraser.add_to_group("reckoning")
 
 ## 用户 2026-10-14: 增加游荡敌人. A few small groups on the floor from the
 ## start, walking waypoint to waypoint (Enemy.configure_wander) and chasing
@@ -2814,6 +4112,20 @@ func _spawn_wanderers() -> void:
 
 ## A main-path point SPAWN_MIN–SPAWN_MAX from her, clear of the exit, the
 ## encounter spot and the route markers; else the farthest clear one.
+## 潜伏 (4): the warning goes out at this share of the meter, once a wave.
+const STEALTH_WARN_AT := 0.85
+var _patrol_warned := -1
+var _next_patrol_entry := Vector3.INF
+
+## "东北" for a ground offset, as the camera faces north by default.
+func _direction_name(offset: Vector3) -> String:
+	var angle := fposmod(rad_to_deg(atan2(offset.x, -offset.z)), 360.0)
+	return ["北", "东北", "东", "东南", "南", "西南", "西", "西北"][int(roundf(angle / 45.0)) % 8]
+
+## 隔离 (前缀放大与特效阶等案 §3): contamination down by `amount`.
+func cleanse_contamination(amount: float) -> void:
+	run_contamination = maxf(0.0, current_contamination() - amount)
+
 func _patrol_entry() -> Vector3:
 	var keep_clear: Array[Node3D] = [world_map.exit_node, world_map.encounter_node]
 	keep_clear.append_array(world_map.route_nodes)
@@ -2875,17 +4187,68 @@ func _poi_variant(kind: String, at: Vector3) -> String:
 
 ## The outpost squad holds the ground just before the route markers: a leader
 ## (an elite with OUTPOST_BOSS_HP life and OUTPOST_BOSS_ATK attack) and its guards.
+## Boss与守卫者策划案 §3.1: the 20th floors hold the region's boss alone, the
+## 10th between a warden with its two guards.
 func _spawn_outpost() -> void:
 	var spot := Vector2(world_map.route_guard_position.x, world_map.route_guard_position.z)
-	var leader := _spawn_enemy(Vector3(spot.x, 0, spot.y), true, false)
-	leader.boss = true
-	leader.max_health *= FieldCatalog.OUTPOST_BOSS_HP
-	leader.health = leader.max_health
-	leader.atk *= FieldCatalog.OUTPOST_BOSS_ATK
-	_outpost_squad.append(leader)
+	var at := Vector3(spot.x, 0, spot.y)
+	if BossCatalog.is_boss_floor(floor_number):
+		outpost_boss = _spawn_boss(str(BossCatalog.BOSSES.get(region_id, "patriot")), BossCatalog.boss_tier(floor_number), at)
+		_outpost_squad.append(outpost_boss)
+		return
+	outpost_boss = _spawn_boss(str(BossCatalog.WARDENS.get(region_id, "crownslayer")), BossCatalog.warden_tier(floor_number), at)
+	_outpost_squad.append(outpost_boss)
 	for i in range(FieldCatalog.OUTPOST_GUARDS):
 		var side := -1.0 if i % 2 == 0 else 1.0
-		_outpost_squad.append(_spawn_enemy(Vector3(spot.x + side * 1.8, 0, spot.y + 1.2), false, i == 1 and region_id != "mine"))
+		var guard := _spawn_enemy(Vector3(spot.x + side * 1.8, 0, spot.y + 1.2), false, i == 1 and region_id != "mine")
+		_outpost_squad.append(guard)
+		outpost_boss.guards.append(guard)
+
+## A boss or warden `id` of `tier` at `at`, with the floor's depth and the relics on it.
+func _spawn_boss(id: String, tier: int, at: Vector3) -> Boss:
+	var figure := Boss.new()
+	add_child(figure)
+	figure.global_position = world_map.nearest_walkable(at) + Vector3.UP * 0.65
+	figure.global_position.y = ground_y(figure.global_position) + Enemy.GROUND_LIFT
+	figure.setup_boss(self, id, tier)
+	var growth := Scaling.floor_growth(floor_number)
+	figure.max_health *= growth * (1.0 + (EnemyAttacks.SNOW_HP_BONUS if region_id == "snow" else 0.0))
+	figure.max_health *= enemy_life_multiplier(player.f("enemy_hp"))
+	figure.atk *= growth
+	figure.defense *= growth
+	figure.finish_setup()
+	figure.died.connect(_on_enemy_died)
+	return figure
+
+## Fighting the floor's region boss right now (the threat meter waits, Q5).
+func boss_fight() -> bool:
+	return is_instance_valid(outpost_boss) and outpost_boss.in_fight()
+
+func on_boss_engaged(figure: Boss) -> void:
+	sound.play("stun_hum")
+	broadcast("PRTS：博士，%s。" % BossCatalog.display_name(figure.figure_id))
+
+func on_boss_reset(_figure: Boss) -> void:
+	broadcast("PRTS：博士，目标脱离接触，已恢复。")
+
+## What PRTS says on entering an outpost floor.
+func _outpost_line() -> String:
+	if BossCatalog.is_boss_floor(floor_number):
+		return "PRTS：前方是%s的战场。击破之后，入口才会开放。" % BossCatalog.display_name(str(BossCatalog.BOSSES.get(region_id, "")))
+	return "PRTS：%s守在入口前。击破守卫者，入口才会开放。" % BossCatalog.display_name(str(BossCatalog.WARDENS.get(region_id, "")))
+
+## The first fall of this region's boss at this tier is recorded (§10).
+func _first_boss_fall() -> void:
+	base.boss_falls["%s:%d" % [region_id, BossCatalog.boss_tier(floor_number)]] = true
+
+## A warden's clearing: WARDEN_EXCLUSIVE for one of the region's enemy exclusives.
+func _warden_exclusive(at: Vector3) -> void:
+	if rng.randf() >= BossCatalog.WARDEN_EXCLUSIVE: return
+	var ids := SpecialGear.GEAR.keys().filter(func(id): return SpecialGear.kind(id) == "exclusive" and str(SpecialGear.GEAR[id].region) == region_id)
+	if ids.is_empty(): return
+	var item := SpecialGear.create(ids[rng.randi() % ids.size()], floor_number, rng, true)
+	item.origin_region = region_id
+	_drop_at(at, [{"item": item}], 0.7)
 
 
 ## The hunt contract's bounty: an elite with HUNT_HP life on its floor, marked.
@@ -2906,10 +4269,55 @@ func _spawn_bounty() -> void:
 func contract_offers(region: String) -> Array:
 	if not base.contract_offers.has(region) or (base.contract_offers[region] as Array).size() < FieldCatalog.CONTRACT_OFFERS:
 		base.contract_offers[region] = FieldCatalog.roll_contracts(region, rng)
+	# 外勤部Ⅰ: the fourth kind as well.
+	var held: Array = base.contract_offers[region]
+	while base.researched("offer_slot") and held.size() < contract_offer_count():
+		var kinds := held.map(func(c): return str(c.type))
+		for extra in FieldCatalog.roll_contracts(region, rng):
+			if not str(extra.type) in kinds:
+				held.append(extra)
+				break
+	# The pay's random share goes with the offer (v1.1 §2.2).
+	for offer: Dictionary in base.contract_offers[region]:
+		if not offer.has("roll"): offer.roll = snappedf(rng.randf_range(Economy.CONTRACT_ROLL.x, Economy.CONTRACT_ROLL.y), 0.01)
 	var offers: Array = (base.contract_offers[region] as Array).duplicate()
 	for id in RecruitCatalog.in_region(region):
 		if base.recruit_ready(id): offers.append(RecruitCatalog.contract_for(id))
+	offers.append_array(voyage.delivery_offers(region))
 	return offers
+
+## Ordinary offers at the dispatch desk: 3, 4 with 外勤部Ⅰ.
+func contract_offer_count() -> int:
+	return FieldCatalog.CONTRACT_OFFERS + (1 if base.researched("offer_slot") else 0)
+
+## 外勤部Ⅱ: swaps ordinary offer `index` of `region` for a fresh one of another
+## kind, once per return.
+func reroll_contract(region: String, index: int) -> bool:
+	if not in_base or not base.contract_reroll or not base.contract_offers.has(region): return false
+	var held: Array = base.contract_offers[region]
+	if index < 0 or index >= held.size(): return false
+	var kinds := []
+	for i in range(held.size()):
+		if i != index: kinds.append(str(held[i].type))
+	# A roll can come back with only kinds already held; try a few.
+	for attempt in range(8):
+		for fresh in FieldCatalog.roll_contracts(region, rng):
+			if str(fresh.type) in kinds: continue
+			fresh.roll = snappedf(rng.randf_range(Economy.CONTRACT_ROLL.x, Economy.CONTRACT_ROLL.y), 0.01)
+			held[index] = fresh
+			base.contract_reroll = false
+			save_base()
+			return true
+	return false
+
+## What a contract pays, as its card and the settlement show it: the pay fixed
+## when it was taken, or what it would be from `start_floor` (v1.1 §2.2).
+func contract_pay_text(c: Dictionary, start_floor: int = -1) -> String:
+	if not Economy.pays_contract_reward(c): return FieldCatalog.contract_bonus_text(c)
+	var pay: int = int(c.reward) if c.has("reward") else roundi(Economy.contract_reward(c, maxi(start_floor, 1)) * research.contract_bonus() / 10000.0) * 100
+	var parts: Array[String] = ["%s 龙门币" % Economy.format(pay)]
+	if str(c.type) == "hunt": parts.append("稀有装备 ×1")
+	return " · ".join(parts)
 
 # --- 叙拉古 (叙拉古敌人设计案 §三, §四.1) -----------------------------------------
 
@@ -2927,14 +4335,20 @@ func _siracusa_death(enemy: Enemy) -> void:
 		if other.global_position.distance_to(enemy.global_position) <= EnemyAttacks.CAPO_DEBT_RADIUS: debt += EnemyAttacks.CAPO_DEBT
 	if debt > 0.0: add_debt(debt)
 
-## 血债 from anything but the clock: a fall, a 家族术师's 煽动.
+## 血债 (地图特色策划案 §4.2): a fall, a 家族术师's 煽动, at the old weights
+## times DEBT_SCALE; faster deeper, with the voyage's feud (沙盘航行策划案) and
+## the crest worn, slower with the broker's letter.
 func add_debt(amount: float) -> void:
-	if threat.add(amount): _spawn_patrol()
+	if region_id != "siracusa" or potion_fx.debt_block > 0.0: return
+	var mult := FeatureCatalog.DEBT_SCALE * features.growth_mult("debt", floor_number) * voyage.debt_mult(region_id)
+	if player.equipped_effect("saluzzo_crest"): mult *= 1.0 + FeatureCatalog.CREST_DEBT
+	features.add("debt", amount * mult)
 
-## 清算时刻: a reckoning's patrol is still standing on this 叙拉古 floor.
+## 清算时刻: a reckoning is still standing on this 叙拉古 floor.
 func reckoning() -> bool:
 	if region_id != "siracusa": return false
-	return get_tree().get_nodes_in_group("patrols").any(func(e): return e.game == self and not e._dead)
+	if is_instance_valid(outpost_boss) and outpost_boss.reckoning_active(): return true
+	return get_tree().get_nodes_in_group("reckoning").any(func(e): return e.game == self and not e._dead)
 
 ## 家族专用轿车 in its lane's mouth (§三第 7 条), and the body that stops her
 ## there; both go when it is broken.
@@ -3023,6 +4437,7 @@ func _trap_spot_ok(at: Vector3, placed: Array[Vector3]) -> bool:
 	if is_instance_valid(world_map.exit_node): marks.append(world_map.exit_node.position)
 	for node in world_map.route_nodes: marks.append(node.position)
 	if is_instance_valid(recruit_node): marks.append(recruit_node.global_position)
+	if is_instance_valid(handover_node): marks.append(handover_node.global_position)
 	for child in get_children():
 		if child is GuardPost: marks.append((child as GuardPost).global_position)
 	for mark in marks:
@@ -3031,6 +4446,7 @@ func _trap_spot_ok(at: Vector3, placed: Array[Vector3]) -> bool:
 
 ## A trap went off under her: the 威胁值 rises (用户 2026-10-17: 挂钩).
 func trap_sprung(amount: float) -> void:
+	if research.on("traps"): return   # 课题 陷阱预警
 	if threat.add(amount): _spawn_patrol()
 
 # --- 踪迹点 (干员寻访策划案 §13) --------------------------------------------------
@@ -3047,7 +4463,7 @@ func _spawn_trace() -> void:
 	if sought.is_empty(): return
 	var p := progress()
 	var suited := RecruitCatalog.suited_floor(p.elite, p.level) if p != null else 1
-	if not force_trace and rng.randf() >= RecruitCatalog.trace_chance(floor_number, suited): return
+	if not force_trace and rng.randf() >= RecruitCatalog.trace_chance(floor_number, suited) * research.trace_factor(): return
 	var ends: Array[Vector2] = []
 	ends.append_array(world_map.niche_centres)
 	for centre in world_map.branch_centres: ends.append(Vector2(centre.x, centre.y))
@@ -3066,7 +4482,7 @@ func _spawn_trace() -> void:
 func _take_trace() -> void:
 	var id := trace_point.operator
 	var key := trace_point.key
-	trace_point.queue_free()
+	trace_point.collect(player)
 	trace_point = null
 	var before := base.clues(id)
 	var repeat := base.found_before(id, key)
@@ -3161,6 +4577,39 @@ func _meet_recruit() -> void:
 	set_message("寻访 · %s 同意随行" % name)
 	broadcast("PRTS：%s同意随博士返回罗德岛。撤离后完成入职。" % name)
 
+func is_handover_floor() -> bool:
+	return str(contract.get("type", "")) == "deliver" and not cargo_delivered and floor_number == int(contract.floor)
+
+const HANDOVER_MODEL := "res://art/kit/base_cargo_cart.glb"
+
+## The faction's people and their cart, halfway along the trunk (§5.3).
+func _spawn_handover() -> void:
+	var path: Array = world_map.main_path
+	var spot: Vector2 = path[clampi(path.size() / 2, 0, path.size() - 1)]
+	var at := world_map.nearest_walkable(Vector3(spot.x, 0, spot.y))
+	handover_node = world_map._set_piece("交接点 · E", at, Color("c48cff"), HANDOVER_MODEL)
+
+func _handover_nearby() -> bool:
+	return is_handover_floor() and is_instance_valid(handover_node) and near(handover_node)
+
+## The contract's crate in her pack, or null.
+func carried_cargo() -> Item:
+	var o := voyage.order(int(contract.get("order", 0)))
+	var crate := voyage.cargo_item(o) if not o.is_empty() else null
+	return crate if crate != null and carried_items().has(crate) else null
+
+func _hand_over_cargo() -> void:
+	var crate := carried_cargo()
+	if crate == null:
+		notice("背包里没有这张订单的大宗货箱。")
+		return
+	inventory.remove(crate)
+	safe_bag.remove(crate)
+	cargo_delivered = true
+	voyage.handed_over(int(contract.order))
+	set_message("运送完成 · %s" % FactionCatalog.name_of(str(contract.faction)))
+	broadcast("PRTS：大宗货箱已交给%s的接头人。" % FactionCatalog.name_of(str(contract.faction)))
+
 ## {goal, have, need, done} for the running contract, or {} without one.
 func contract_progress() -> Dictionary:
 	if contract.is_empty(): return {}
@@ -3175,6 +4624,7 @@ func contract_progress() -> Dictionary:
 			have = inventory.count_material(contract.material) + safe_bag.count_material(contract.material)
 		"hunt": have = 1 if bounty_killed else 0
 		"recruit": have = 1 if recruit_met else 0
+		"deliver": have = 1 if cargo_delivered else 0
 		"search":
 			need = int(contract.vaults)
 			have = contract_vaults
@@ -3190,7 +4640,7 @@ func _tick_contract() -> void:
 
 ## One rare piece of this region's gear, the hunt's bounty.
 func _rare_gear() -> Item:
-	var category: int = [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET][rng.randi() % 3]
+	var category: int = GearSlots.roll(rng)
 	var id := GearCatalog.pick(category, region_id, floor_number, "vault", "", rng)
 	return LootTables.roll_equipment(category, GearCatalog.BASES[id].name, region_id, floor_number, 2, rng)
 
@@ -3202,7 +4652,21 @@ func _clear_outpost(at: Vector3) -> void:
 	chest.vault = true
 	add_child(chest)
 	chest.global_position = world_map.nearest_walkable(at + Vector3(1.5, 0, 0))
-	_spawn_relic_cache(world_map.nearest_walkable(at - Vector3(1.5, 0, 0)), "vault", false)
+	var region_boss := BossCatalog.is_boss_floor(floor_number)
+	# A boss gives a second chest (Boss与守卫者策划案 §10); its own kill already left a boss-grade cache.
+	if region_boss:
+		for i in range(BossCatalog.BOSS_CHESTS - 1):
+			var more := LootContainer.new()
+			more.game = self
+			more.kind = "vault_gear"
+			more.vault = true
+			add_child(more)
+			more.global_position = world_map.nearest_walkable(at + Vector3(1.5, 0, 1.6 * (i + 1)))
+		_first_boss_fall()
+	else:
+		_warden_exclusive(at)
+		_spawn_relic_cache(world_map.nearest_walkable(at - Vector3(1.5, 0, 0)), "vault", false)
+	if is_instance_valid(arena): arena.open_exit()
 	set_message("据点已击破：入口解封。")
 	broadcast("据点已击破，深入入口解封。")
 
@@ -3215,11 +4679,13 @@ func _spawn_enemy(position: Vector3, elite: bool, ranged: bool, type: String = "
 	enemy.global_position = world_map.nearest_walkable(position) + Vector3.UP * 0.65
 	enemy.global_position.y = ground_y(enemy.global_position) + Enemy.GROUND_LIFT # Navigation voxel height is not the actor's ground height.
 	enemy.setup(self, elite, ranged, type)
-	var depth := floor_number - 1
-	enemy.max_health *= 1.0 + depth * EnemyAttacks.HP_PER_DEPTH + (EnemyAttacks.SNOW_HP_BONUS if region_id == "snow" else 0.0)
+	# ×1.04 a floor for life, attack and defence alike (复利数值改造清单 A).
+	var growth := Scaling.floor_growth(floor_number)
+	enemy.max_health *= growth * (1.0 + (EnemyAttacks.SNOW_HP_BONUS if region_id == "snow" else 0.0))
 	enemy.max_health *= enemy_life_multiplier(player.f("enemy_hp"))
 	enemy.health = enemy.max_health
-	enemy.atk *= 1.0 + depth * EnemyAttacks.ATK_PER_DEPTH
+	enemy.atk *= growth
+	enemy.defense *= growth
 	enemy.died.connect(_on_enemy_died)
 	return enemy
 
@@ -3291,7 +4757,7 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 		if _outpost_squad.is_empty() and not outpost_cleared: _clear_outpost(_enemy.global_position)
 	# A vault guardian still counts for its vault, whether or not it dropped a cache.
 	# Patrols do not count toward combat caches (用户 2026-10-14).
-	if not in_base and _enemy.patrol_wave == 0 and rolls_relic_cache(_enemy):
+	if not in_base and _enemy.patrol_wave == 0 and not _enemy.called_in and rolls_relic_cache(_enemy):
 		_spawn_relic_cache(_enemy.global_position, "cache", false)
 		set_message("战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。")
 	if _enemy in _vault_guardians:
@@ -3310,25 +4776,55 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 func loot_ctx() -> Dictionary:
 	# Depth works through LootTables.stair (掉落阶梯); the route adds its own reward.
 	var reward := float(FieldCatalog.ROUTES[route_index].reward)
-	return {"region": region_id, "depth": floor_number, "reward": reward, "rng": rng, "pity": base.loot_pity, "set_seen": run_sets_seen}
+	return {"region": region_id, "depth": floor_number, "reward": reward, "rng": rng, "pity": base.loot_pity, "set_seen": run_sets_seen,
+		"drop_pct": player.drop_rate_bonus if is_instance_valid(player) else 0.0}
 
 func _roll_named_item() -> Item: return FieldCatalog.exclusive(region_id)
 
 func spawn_enemy_drops(enemy: Enemy) -> void:
 	_drop_heal_orbs(enemy)
+	# What a boss calls in mid-fight carries nothing (用户 2026-10-20).
+	if enemy.called_in: return
 	# A patrol carries nothing ordinary: now and then one rare piece (ThreatMeter).
 	if enemy.patrol_wave > 0:
 		if rng.randf() < ThreatMeter.rare_chance(enemy.patrol_wave, enemy.elite):
 			_drop_at(enemy.global_position, [{"item": _rare_gear()}], 0.7)
 		return
+	_drop_records(enemy)
+	# The hunt's bounty carries the contract's rare piece (v1.1 §2.1: no settlement gifts).
+	if enemy == _bounty and str(contract.get("type", "")) == "hunt":
+		_drop_at(enemy.global_position, [{"item": _rare_gear()}], 0.9)
 	var ctx := loot_ctx()
 	ctx["boss"] = enemy.boss
+	# A region boss drops its own nine pieces more often the deeper it is; a
+	# warden rolls a region exclusive on clearing instead (§10).
+	if enemy is Boss:
+		var figure := enemy as Boss
+		ctx["exclusive_chance"] = BossCatalog.exclusive_chance(figure.tier) if figure.rank == "boss" else 0.0
+		if figure.rank == "warden": ctx["set_chance"] = BossCatalog.WARDEN_SET
 	var drops := LootTables.enemy_drops(enemy.enemy_type, enemy.elite, enemy.behavior == Enemy.Behavior.GUARD, ctx)
 	# 巨壳藤蔓 was the box: it gives the box's contents and one more share.
 	if not enemy.mimic_kind.is_empty():
 		drops.append_array(LootTables.container_drops(enemy.mimic_kind, ctx, true))
 		drops.append_array(LootTables.container_drops(enemy.mimic_kind, ctx, false))
 	_drop_at(enemy.global_position, drops, 0.7)
+
+## 作战记录 as loot (龙门币平衡与科研部策划案 v1.1 §2.1), the old settlement's
+## expectation: one basic per RECORD_NORMAL_ODDS⁻¹ ordinary kills, 初级 from
+## every elite, 中级 from every leader, 高级 from bosses, wardens and bounties.
+## The 作战记录整理 project adds its share as a chance of one more.
+const RECORD_NORMAL_ODDS := 0.1
+
+func _drop_records(enemy: Enemy) -> void:
+	if in_base or enemy.attack_profile.get("neutral", false): return
+	var record := ""
+	if enemy is Boss or enemy == _bounty: record = "高级作战记录"
+	elif enemy.boss: record = "中级作战记录"
+	elif enemy.elite: record = "初级作战记录"
+	elif rng.randf() < RECORD_NORMAL_ODDS: record = "基础作战记录"
+	if record.is_empty(): return
+	var count := 1 + (1 if rng.randf() < research.record_bonus() else 0)
+	_drop_at(enemy.global_position, [{"item": MaterialCatalog.create(record, count, region_id)}], 0.8)
 
 ## Healing orbs out of a fallen enemy (LootTables.HEAL_ORBS); none from the
 ## grazing herds.
@@ -3376,7 +4872,7 @@ func drop_found(box: LootContainer, item: Item, index: int, total: int) -> void:
 ## when they round to nothing.
 func _drop_item(drop: Dictionary) -> Item:
 	if drop.has("item"): return drop.item
-	var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier, rng)
+	var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier * research.gold_factor(), rng)
 	if drop.get("single", false): bars = mini(bars, 1)   # a point of interest's 赤金
 	return MaterialCatalog.create(Economy.GOLD_ID, bars, region_id) if bars > 0 else null
 
@@ -3415,7 +4911,7 @@ func _drop_at(position: Vector3, drops: Array, radius: float) -> void:
 		if drop.has("item"): loot.item = drop.item
 		else:
 			# The loot tables still speak in old reward units; they land as 赤金.
-			var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier, rng)
+			var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier * research.gold_factor(), rng)
 			if drop.get("single", false): bars = mini(bars, 1)   # a point of interest's 赤金
 			if bars <= 0:
 				loot.free()
@@ -3495,7 +4991,7 @@ func save_base(active_contract: bool = false) -> void:
 		if not carried_items().has(item): left_behind.append(item.to_data())
 	var data := {"version": 3, "gold": gold, "base": base.to_data(), "loadout": loadout, "left_behind": left_behind,
 		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter,
-		"exchange": exchange.to_data(), "workshop": workshop.to_data()}
+		"exchange": exchange.to_data(), "workshop": workshop.to_data(), "voyage": voyage.to_data()}
 	market.save_file(market_path())
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
@@ -3520,12 +5016,22 @@ func shed_unusable_weapon() -> bool:
 ## Rhodes standard gear (装备策划案 §10, 用户 2026-10-18): every operator on
 ## the roster is issued one set, once, to the receiving bays. Returns the
 ## pieces sent.
+## Rhodes standard gear (复利数值改造清单 D): each operator gets a set two tiers
+## below the deepest camp's, at BaseState.rhodes_rarity; a fresh set whenever
+## that tier or the rarity rises past the last one she was given.
 func issue_kits() -> int:
+	var deepest := 0
+	for region in base.camps: deepest = maxi(deepest, int(base.camps[region]))
+	var tier := GearCatalog.rhodes_tier(deepest)
+	var rarity := clampi(int(base.rhodes_rarity), 0, 2)
 	var sent := 0
 	for id in base.roster:
-		if id in base.kitted: continue
-		base.kitted.append(id)
-		for piece in GearCatalog.rhodes_kit(rng, id):
+		var last: Array = base.kit_issued.get(id, [])
+		if last.size() >= 2 and int(last[0]) >= tier and int(last[1]) >= rarity: continue
+		if last.is_empty() and id in base.kitted and tier == 1 and rarity == 0: continue
+		base.kit_issued[id] = [tier, rarity]
+		if not id in base.kitted: base.kitted.append(id)
+		for piece in GearCatalog.rhodes_kit(rng, id, tier, rarity):
 			if base.receive(piece): sent += 1
 	return sent
 
@@ -3550,6 +5056,8 @@ func load_base() -> void:
 	else: base.load_data(parsed.get("base", {}), seen)
 	exchange.load_data(parsed.get("exchange", {}))
 	workshop.load_data(parsed.get("workshop", {}))
+	voyage.load_data(parsed.get("voyage", {}))
+	research.apply_globals()
 	player.set_operator(base.operator)
 	refresh_look()
 	inventory.items.clear()
@@ -3580,26 +5088,183 @@ func _configure_camera_and_light() -> void:
 	camera = Camera3D.new()
 	add_child(camera)
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.size = 24.0
+	camera.size = CAMERA_SIZE
 	var initial_target: Vector3 = ContinuousWorldMap.ENTRY_POSITION
-	camera.global_position = initial_target + CAMERA_OFFSET
+	camera.global_position = initial_target + camera_offset()
 	camera.look_at(initial_target, Vector3.UP)
 	camera.current = true
 
-	var sun := DirectionalLight3D.new()
+	sun = DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50.0, -30.0, 0.0)
-	sun.light_energy = 1.2
+	sun.light_energy = FIELD_SUN
 	sun.shadow_enabled = true
 	add_child(sun)
 
-	var env := WorldEnvironment.new()
+	world_environment = WorldEnvironment.new()
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_SKY
 	environment.sky = Sky.new()
 	environment.sky.sky_material = ProceduralSkyMaterial.new()
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.environment = environment
-	add_child(env)
+	_field_environment = environment
+	_base_environment = base_environment()
+	world_environment.environment = environment
+	add_child(world_environment)
+	outline_pass = MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(2, 2)
+	outline_pass.mesh = quad
+	var outline_material := ShaderMaterial.new()
+	outline_material.shader = OUTLINE_SHADER
+	outline_pass.material_override = outline_material
+	outline_pass.extra_cull_margin = 16384.0
+	outline_pass.custom_aabb = AABB(Vector3(-1e5, -1e5, -1e5), Vector3(2e5, 2e5, 2e5))
+	outline_pass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	outline_pass.visible = false
+	camera.add_child(outline_pass)
+
+# --- The scene's look (场景渲染统一改造案_v1 §4.4) ----------------------------------
+## The base is lit by its lamps (BaseMap lights), graded as one scene and
+## outlined like the sprites; the field keeps its light texture until S3.
+const OUTLINE_SHADER := preload("res://world/outline_post.gdshader")
+const FIELD_SUN := 1.2
+const BASE_SUN := 0.15
+var sun: DirectionalLight3D
+var world_environment: WorldEnvironment
+var outline_pass: MeshInstance3D
+var _field_environment: Environment
+var _base_environment: Environment
+
+## 罗德岛舰内: cool, even, the lamps and screens carrying the light.
+static func base_environment() -> Environment:
+	var e := Environment.new()
+	e.background_mode = Environment.BG_COLOR
+	e.background_color = Color(0.02, 0.025, 0.03)
+	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	e.ambient_light_color = Color(0.62, 0.66, 0.72)
+	e.ambient_light_energy = 0.8
+	e.tonemap_mode = Environment.TONE_MAPPER_ACES
+	e.tonemap_exposure = 1.0
+	e.tonemap_white = 8.0
+	e.ssao_enabled = true
+	e.ssao_radius = 1.4
+	e.ssao_intensity = 2.2
+	e.ssao_power = 1.4
+	e.ssil_enabled = true
+	e.ssil_intensity = 0.8
+	e.glow_enabled = true
+	e.glow_intensity = 0.55
+	e.glow_hdr_threshold = 1.0
+	e.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	e.fog_enabled = true
+	e.fog_light_color = Color(0.32, 0.38, 0.46)
+	e.fog_density = 0.004
+	e.adjustment_enabled = true
+	e.adjustment_contrast = 1.06
+	e.adjustment_saturation = 1.08
+	return e
+
+## Each region's field light (场景渲染统一改造案_v1 S3), keyed like FieldLight.key:
+## ambient energy (its colour is FieldLight.REGIONS' ambient), the sun's colour
+## and energy, the fog's colour and density, the background. Then its filter
+## (改造案 v1.1: 滤镜), each optional: contrast, saturation, brightness, and
+## `grade` [shadows, highlights] — the colour black and white are taken to,
+## per channel (adjustment_color_correction).
+const FIELD_LOOK := {
+	"mine": {"ambient": 0.42, "sun": Color(0.74, 0.8, 1.0), "sun_energy": 0.22, "fog": Color(0.2, 0.22, 0.3), "fog_density": 0.006, "bg": Color(0.03, 0.03, 0.04)},
+	"city": {"ambient": 0.34, "sun": Color(0.6, 0.68, 0.9), "sun_energy": 0.12, "fog": Color(0.12, 0.14, 0.2), "fog_density": 0.005, "bg": Color(0.02, 0.02, 0.035)},
+	# 下城: wet and cold, a shade darker; blue shadows, warm-yellow highlights
+	# so the windows and lanterns stand out.
+	"city_lower": {"ambient": 0.38, "sun": Color(0.56, 0.64, 0.86), "sun_energy": 0.1, "fog": Color(0.13, 0.16, 0.22), "fog_density": 0.009, "bg": Color(0.015, 0.02, 0.03),
+		"contrast": 1.1, "saturation": 0.9, "brightness": 1.0, "grade": [Color(0.0, 0.015, 0.05), Color(1.0, 0.95, 0.82)]},
+	"snow": {"ambient": 0.5, "sun": Color(0.85, 0.9, 1.0), "sun_energy": 0.45, "fog": Color(0.66, 0.72, 0.82), "fog_density": 0.008, "bg": Color(0.5, 0.55, 0.62)},
+	# 叙拉古 at dusk going to night (§2): the sun low and orange; violet-blue
+	# shadows, amber highlights; colder again in the rain.
+	"siracusa": {"ambient": 0.54, "sun": Color(1.0, 0.74, 0.56), "sun_energy": 0.12, "fog": Color(0.17, 0.17, 0.24), "fog_density": 0.007, "bg": Color(0.02, 0.02, 0.04),
+		"contrast": 1.08, "saturation": 0.86, "grade": [Color(0.0, 0.005, 0.04), Color(1.0, 0.93, 0.8)]},
+	"siracusa_rain": {"ambient": 0.42, "sun": Color(0.7, 0.68, 0.84), "sun_energy": 0.18, "fog": Color(0.2, 0.22, 0.3), "fog_density": 0.012, "bg": Color(0.03, 0.035, 0.05),
+		"contrast": 1.08, "saturation": 0.9, "grade": [Color(0.0, 0.01, 0.05), Color(0.97, 0.95, 0.88)]},
+}
+var _field_environments := {}
+var _player_light: OmniLight3D
+
+static func field_environment(look_key: String) -> Environment:
+	var look: Dictionary = FIELD_LOOK.get(look_key, FIELD_LOOK.city)
+	var e := base_environment()
+	e.background_color = look.bg
+	e.ambient_light_color = FieldLight.region(look_key).ambient
+	e.ambient_light_energy = look.ambient
+	e.ssao_radius = 2.0
+	e.ssao_intensity = 1.8
+	e.ssil_intensity = 0.6
+	e.fog_light_color = look.fog
+	e.fog_density = look.fog_density
+	e.adjustment_contrast = float(look.get("contrast", e.adjustment_contrast))
+	e.adjustment_saturation = float(look.get("saturation", e.adjustment_saturation))
+	e.adjustment_brightness = float(look.get("brightness", e.adjustment_brightness))
+	if look.has("grade"): e.adjustment_color_correction = grade_texture(look.grade[0], look.grade[1])
+	return e
+
+## A per-channel curve from `shadows` at black to `highlights` at white,
+## straight through grey between.
+static func grade_texture(shadows: Color, highlights: Color) -> GradientTexture1D:
+	var gradient := Gradient.new()
+	gradient.set_color(0, shadows)
+	gradient.set_color(1, highlights)
+	var mid := Color(0.5, 0.5, 0.5) + (shadows + highlights - Color.WHITE) * 0.5
+	mid.a = 1.0
+	gradient.add_point(0.5, mid)
+	var texture := GradientTexture1D.new()
+	texture.gradient = gradient
+	return texture
+
+## Swaps the environment, the sun, the outline and her own light for the base
+## or the field (the region read off the floor just built).
+func apply_scene_look(base_look: bool) -> void:
+	if not is_instance_valid(world_environment): return
+	sun.light_energy = BASE_SUN
+	sun.light_color = Color.WHITE
+	outline_pass.visible = true
+	if base_look:
+		world_environment.environment = _base_environment
+	else:
+		var look_key := FieldLight.key(world_map) if is_instance_valid(world_map) else region_id
+		if not _field_environments.has(look_key): _field_environments[look_key] = field_environment(look_key)
+		world_environment.environment = _field_environments[look_key]
+		var look: Dictionary = FIELD_LOOK.get(look_key, FIELD_LOOK.city)
+		sun.light_energy = look.sun_energy
+		sun.light_color = look.sun
+	_update_player_light(base_look)
+
+## In the field her self-lit sprite takes the nearby lamps' colour and stands
+## on its contact shadow, as in the base (BaseMap._tint_sprites).
+const FIELD_TINT := Color(0.96, 0.97, 1.0)
+func _tint_in_field() -> void:
+	if in_base or player._sprite == null: return
+	var dressing: TerraceDressing = world_map.terrace_dressing if is_instance_valid(world_map) else null
+	var rig: FieldLight.LightRig = dressing.field_light.rig if dressing != null and dressing.field_light != null else null
+	player._sprite.scene_tint = rig.tint_at(player.global_position, FIELD_TINT, 0.28) if is_instance_valid(rig) else FIELD_TINT
+	if is_instance_valid(player._sprite.contact_shadow): player._sprite.contact_shadow.visible = true
+
+## The warm glow round her in the field (FieldLight.REGIONS' "player"), now a
+## light that walks with her; none in the base.
+func _update_player_light(base_look: bool) -> void:
+	if not is_instance_valid(player): return
+	if not is_instance_valid(_player_light):
+		_player_light = OmniLight3D.new()
+		_player_light.name = "OwnLight"
+		_player_light.omni_attenuation = 1.4
+		_player_light.light_specular = 0.2
+		player.add_child(_player_light)
+		_player_light.position = Vector3(0, 1.6, 0)
+	var region := FieldLight.region(FieldLight.key(world_map) if is_instance_valid(world_map) else region_id)
+	var glow: Color = region.player
+	var peak := maxf(glow.r, maxf(glow.g, glow.b))
+	_player_light.visible = not base_look and peak > 0.0
+	if peak > 0.0:
+		_player_light.light_color = Color(glow.r / peak, glow.g / peak, glow.b / peak)
+		_player_light.light_energy = peak * 2.4
+		_player_light.omni_range = float(region.player_radius) * 1.2
 
 func _build_player() -> void:
 	player = Player.new()
@@ -3634,18 +5299,16 @@ func _build_inventory_panel() -> void:
 	layer.add_child(field_panels)
 
 func _handle_pointer_input(pointed_enemy: Enemy, delta: float = 0.0) -> void:
-	pointer_step(Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT), Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT), pointed_enemy, delta)
+	pointer_step(Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT), false, pointed_enemy, delta)
 
-## One frame of the field's mouse: `left`/`right` are the buttons held now.
+## One frame of the field's mouse: `left` is the button held now. Right is
+## an ordinary bindable key now (用户 2026-10-20, Keybinds), not a move; the
+## `right` argument is kept for old callers and ignored.
 func pointer_step(left: bool, right: bool, pointed_enemy: Enemy, delta: float) -> void:
 	if _pointer_gate:
-		_pointer_gate = left or right
+		_pointer_gate = left
 		_held_on_enemy = false
 		return
-	if right:
-		player.clear_target()
-		pickup_target = null
-		player.set_move_target(_get_pointer_ground())
 
 	var left_click := left and not _left_was_down
 	var released := _left_was_down and not left
@@ -3688,8 +5351,8 @@ func pointer_step(left: bool, right: bool, pointed_enemy: Enemy, delta: float) -
 		return
 	# A press held from a name plate (用户 2026-10-13: 左键选中拾取物品时不触发
 	# 攻击): while the cursor stays put — the plate gone because the item was
-	# taken — nothing swings. Moved off it, the press is an attack again
-	# (用户 2026-10-15: 长按选到名牌上再移开判定为攻击).
+	# taken — nothing swings. Moved off it, the press counts again: an enemy
+	# under it is attacked, the ground walked to (用户 2026-10-15 / 10-20).
 	if _plate_held != null:
 		if pointer_ui().distance_to(_plate_from) < PLATE_LEAVE_PX: return
 		_plate_held = null
@@ -3712,14 +5375,17 @@ func pointer_step(left: bool, right: bool, pointed_enemy: Enemy, delta: float) -
 	# off the enemy she keeps at the lock (none once it died) until release.
 	if _held_on_enemy: return
 
-	# Left on the ground drops the lock. A blade swings at the air there (and
-	# lands on an enemy in reach in front); a ranged weapon walks there instead.
-	player.clear_target()
-	if player.is_ranged_weapon():
-		player.set_move_target(_get_pointer_ground())
+	# Left on the ground drops the lock and walks there, whatever she holds
+	# (用户 2026-10-20: 左键点地面改为会移动; no more air swings). On a sealed
+	# vault's 暗墙 with a blade it locks the wall instead (Player.lock_wall).
+	var ground := _get_pointer_ground()
+	var seal: VaultSeal = world_map.vault_seal if not in_base and is_instance_valid(world_map) else null
+	if left_click and seal != null and seal.aimed_at(ground) and not player.is_ranged_weapon() and not (player.kit != null and player.kit.ranged()):
+		player.lock_wall()
 		return
-	player.clear_move_target()
-	player.attack_direction(_get_pointer_ground() - player.global_position)
+	if player.wall_target and not left_click: return
+	player.clear_target()
+	player.set_move_target(ground)
 
 ## The attack arrow while the pointer is on an enemy's hit box in the running
 ## field (not over the hotbar, a ground item's name plate or a drag), else
@@ -3731,13 +5397,12 @@ func _update_pointer_cursor(pointed_enemy: Enemy) -> void:
 		on = _hud.hotbar_slot_at(at) < -1 and _hud.picker_slot < 0 and not is_instance_valid(_hud.loot_label_at(at))
 	if on == attack_cursor_on: return
 	attack_cursor_on = on
-	if on: Input.set_custom_mouse_cursor(AttackCursor.texture(), Input.CURSOR_ARROW, AttackCursor.HOTSPOT)
-	else: Input.set_custom_mouse_cursor(null)
+	AttackCursor.apply(on)
 
 func _exit_tree() -> void:
 	if attack_cursor_on:
 		attack_cursor_on = false
-		Input.set_custom_mouse_cursor(null)
+		AttackCursor.apply(false)
 
 ## The pointer in HUD (UI viewport) coordinates, where the name plates are drawn.
 func pointer_ui() -> Vector2:
@@ -3835,7 +5500,7 @@ func ground_y(at: Vector3) -> float:
 	return world_map.ground_height(Vector2(at.x, at.z), at.y)
 
 func _create_relic(item_name: String, modifiers: Array[ItemModifier]) -> Item:
-	var item := Item.create(item_name, Item.Category.TRINKET, 1, 1, 0.0)
+	var item := Item.create(item_name, Item.Category.AMULET, 1, 1, 0.0)
 	item.modifiers = modifiers
 	return item
 

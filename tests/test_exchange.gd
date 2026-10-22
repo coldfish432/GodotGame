@@ -46,7 +46,9 @@ func run() -> void:
 	var ex := game.exchange
 	var market := game.market
 	game.gold = 500000
-	check("the exchange opens with 喀兰贸易 at R1", ex.unlocked() and ex.rank("karlan") == 1 and ex.rank("lungmen") == 0)
+	check("a new base starts with 喀兰贸易 at R1 and the exchange unbuilt", not ex.unlocked() and ex.rank("karlan") == 1 and ex.rank("lungmen") == 0)
+	game.base.set_facility("exchange", 1)
+	check("built, it opens (基建设施修订案 v1.1)", ex.unlocked())
 	# --- Spot ---------------------------------------------------------------------
 	var armor := stash_add(Item.create("测试护甲", Item.Category.ARMOR, 2, 2))
 	armor.value = 100
@@ -67,9 +69,9 @@ func run() -> void:
 	ex.relations["lungmen"] = 50
 	check("contraband to 鼠王 costs 龙门商会 relation", ex.sell_item(ore, "rat") and ex.relation("lungmen") == 45)
 	var fee_r1 := ex.remote_fee("karlan")
-	ex.relations["karlan"] = 500
+	ex.relations["karlan"] = Exchange.RANK_AT[5]
 	check("the remote fee falls 0.5%% a rank: %.3f, %.3f" % [fee_r1, ex.remote_fee("karlan")], is_equal_approx(fee_r1, 0.035) and is_equal_approx(ex.remote_fee("karlan"), 0.015))
-	ex.relations["karlan"] = 100
+	ex.relations["karlan"] = Exchange.RANK_AT[1]
 	var crates := game.base.crates.size()
 	var lmd := game.gold
 	check("buying from a shelf pays and lands at receiving", ex.buy_material("lungmen", "螺栓", 5) and game.gold < lmd and game.base.crates.size() == crates + 1)
@@ -93,7 +95,7 @@ func run() -> void:
 	ex.place_sell_order(shield, "karlan", "stop", 50.0)
 	check("cancelling returns the item to staging", ex.cancel_order(ex.orders[-1].id) and game.base.staging.any(func(i): return i.item_name == "测试盾"))
 	# --- Forwards -----------------------------------------------------------------
-	ex.relations["lungmen"] = 300
+	ex.relations["lungmen"] = Exchange.RANK_AT[3]
 	set_index("lungmen:build", 1.0)
 	var balance := game.gold
 	check("a 交货合约 needs the rank for its leverage", not ex.forward_refusal("lungmen", 3).is_empty() if ex.rank("lungmen") < 3 else true)
@@ -109,7 +111,7 @@ func run() -> void:
 	later(3700)
 	check("no goods at expiry: default, relation −40, a cooldown", ex.forwards.is_empty() and ex.relation("lungmen") == rel - 40 and ex.forward_refusal("lungmen", 1) == "违约冷却中")
 	check("the cooldown lasts at least six hours", int(ex.forward_cooldown["lungmen"]) - market.t >= Exchange.DEFAULT_MIN_COOLDOWN - 200)
-	ex.relations["karlan"] = 300
+	ex.relations["karlan"] = Exchange.RANK_AT[3]
 	crates = game.base.crates.size()
 	check("a 收货合约 opens", ex.open_forward("karlan", "帆布", 4, 0, false, 1))
 	later(3700)
@@ -144,7 +146,7 @@ func run() -> void:
 	check("borrowed money is not margin (贷款不能当保证金)", not ex.open_cfd("fx", 1, 1, 10000.0) and ex.cfd_refusal("fx", 1, 10000.0) == "保证金不足")
 	ex.loan = 0
 	game.gold = 900000
-	ex.relations["karlan"] = 100
+	ex.relations["karlan"] = Exchange.RANK_AT[1]
 	check("the notional cap per issuer", not ex.open_cfd("fx", 1, 1, 60000.0) and ex.cfd_refusal("fx", 1, 60000.0) == "持仓上限")
 	check("leverage needs the issuer's rank", not ex.open_cfd("comp:lungmen", 1, 2, 5.0))
 	ex.open_cfd("fx", -1, 1, 10000.0)
@@ -158,7 +160,7 @@ func run() -> void:
 	check("a stop-loss closes the short", not ex.cfds.has(short))
 	# --- Loans --------------------------------------------------------------------
 	game.gold = 0
-	check("the loan limit follows prestige: %d" % ex.loan_limit(), ex.loan_limit() == 20000 * (game.base.rank() + 1))
+	check("the loan limit follows 交易所's level: %d" % ex.loan_limit(), ex.loan_limit() == 20000 * maxi(1, game.base.facility_level("exchange")))
 	check("borrowing adds to the balance", ex.borrow(10000) and game.gold == 10000 and ex.loan == 10000)
 	check("not past the limit", not ex.borrow(ex.loan_limit()))
 	ex.on_settlement(0)
@@ -261,7 +263,7 @@ func run() -> void:
 	check("整合运动残党's goods are dirty: contamination rises while carried", game.count_effect("dirty") == 1 and game.contamination_rate() > rate_before)
 	check("dirty stacks do not merge with clean ones", not MaterialCatalog.create("源岩", 1).can_stack_with(game.inventory.items.filter(func(i): return i.effect == "dirty")[0]))
 	# A forward expiring in the field settles from the warehouse only.
-	ex.relations["lungmen"] = 300
+	ex.relations["lungmen"] = Exchange.RANK_AT[3]
 	ex.forward_cooldown.clear()
 	ex.open_forward("lungmen", "固源岩", 3, 0, true, 1)
 	game.inventory.try_add(MaterialCatalog.create("固源岩", 3))

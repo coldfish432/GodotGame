@@ -24,6 +24,11 @@ const SPOTS := [Vector2(78.5, -7.5), Vector2(49.5, -7.5), Vector2(25.5, -17.5), 
 	Vector2(21.0, -38.0), Vector2(30.0, -44.0), Vector2(88.0, -34.0), Vector2(106.0, -20.0), Vector2(40.0, -10.0),
 	Vector2(113.0, 4.0), Vector2(140.0, -22.0), Vector2(-20.0, -26.0)]
 
+## Crew at the canteen's tables on the second deck (势力特供策划案 §三): they
+## stay at their places on the benches' ends, layout x/z, and do not walk.
+const DINER_SPOTS := [Vector2(324.0, -10.0), Vector2(343.0, -16.6), Vector2(355.0, -10.0), Vector2(374.0, -16.6)]
+const DINERS := 3
+
 ## Tests set this to walk operators that have sheets in place of the crew.
 static var pool_override: Array = []
 
@@ -31,6 +36,7 @@ var base_map: BaseMap
 var rng := RandomNumberGenerator.new()
 ## {body: CharacterBody3D, path: PackedVector3Array, step: int, wait: float}
 var walkers: Array[Dictionary] = []
+var diners: Array[Node3D] = []
 
 func setup(map: BaseMap) -> void:
 	base_map = map
@@ -75,6 +81,19 @@ func _spawn() -> void:
 		add_child(body)
 		body.global_position = _spot()
 		walkers.append({"body": body, "path": PackedVector3Array(), "step": 0, "wait": rng.randf_range(0.0, PAUSE.y)})
+	# The rest of the crew eat upstairs once the canteen has rooms.
+	if base_map.rooms.has("mess"):
+		var spots := DINER_SPOTS.duplicate()
+		spots.shuffle()
+		for i in range(mini(DINERS, ids.size() - mini(COUNT, ids.size()))):
+			var diner := Node3D.new()
+			diner.name = "Diner_" + str(ids[COUNT + i])
+			var sprite := LapplandAnimator3D.new()
+			sprite.character = ids[COUNT + i]
+			diner.add_child(sprite)
+			add_child(diner)
+			diner.global_position = base_map.to_world(spots[i].x, spots[i].y, BaseMap.PLAYER_Y)
+			diners.append(diner)
 
 ## A point on the nav mesh by one of the SPOTS, a few metres either way.
 func _spot() -> Vector3:

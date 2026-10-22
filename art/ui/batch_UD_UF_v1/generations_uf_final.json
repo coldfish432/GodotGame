@@ -1,0 +1,12 @@
+[
+  {
+    "id": "potion_sami",
+    "prompt": "Use case: stylized-concept. Draw ONE standalone painted PIXEL-ART inventory item icon for a dark tactical extraction ARPG, ultimately 32x32 native pixels. Reference image is STYLE ONLY: hard pixel blocks, dark near-black outer contour, 4-5 clear value steps, top-left highlight, readable compact silhouette; NOT smooth vector or photoreal product rendering. Design as a simple chunky 32x32-pixel icon enlarged with nearest-neighbor, no micro-details. One item centered filling 80% of square, complete object inside frame with clear margin. Genuine transparent background, opaque object including glass, no shadow, no glow, no border, no UI, no text, letters, digits, medical crosses, real brands, or emblem. Keep main cap/label feature toward upper-left or center; bottom-right 10x10 native area is reserved for UI stack badge. Sami FOREST HERBAL TEA: squat pear-shaped handmade dark MOSS-GREEN glazed earthenware flask, short wide neck plugged with a soft tan FUR/LEATHER STOPPER tied down with braided beige grass cord, small dried green leaf sprig tucked into the neck tie, simple cream cloth tag color block on upper body. One leather strap around lower belly. Warm brown clay base and subdued green glaze, no industrial silver fittings, no modern bottle cap, NO magenta branding, no writing. Side-three-quarter view, broad rustic pear silhouette. Herbal tea carried for barter in snowy forest.",
+    "path": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-824779f4-0e9e-4a21-bd12-53250403edc1.png"
+  },
+  {
+    "id": "potion_d_cap",
+    "prompt": "Change ONLY the top closure of this thermal DRINK bottle icon. Replace the entire spray-pump head (the small circular sideways nozzle and tall push actuator) with a SHORT BROAD CLOSED BLACK RIBBED SCREW CAP suitable for a THERMOS DRINK, plus a small flat sip-cover lid. NO spray nozzle, NO hole or side tube. Keep the same copper-red bottle body, steel shoulder collar, vivid magenta blank label band, pixel-art color ramps, silhouette scale, highlights, transparent background and no text. One complete object, painted hard pixel blocks, compatible with 32x32 reduction.",
+    "path": "C:\\Users\\yuan\\.codex\\generated_images\\01a15ecb-ee90-7973-8a09-634fc312afa2\\exec-263174c3-6bf1-4625-b66d-1232185dbf10.png"
+  }
+]

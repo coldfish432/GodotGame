@@ -1,0 +1,11 @@
+{
+ "视角": "Camera",
+ "拉近视角": "Zoom In",
+ "拉远视角": "Zoom Out",
+ "视角左转": "Rotate Left",
+ "视角右转": "Rotate Right",
+ "拖动旋转视角": "Drag to Rotate",
+ "复位视角": "Reset Camera",
+ "视角抬高": "Tilt Up",
+ "视角压低": "Tilt Down"
+}

@@ -1,0 +1,96 @@
+{
+  "status": "STATIC_CHECKS_PASS_USER_APPROVAL_PENDING",
+  "checks": {
+    "v3_sprite_matches_original_reducer": true,
+    "v2_sprite_matches_original_reducer": true,
+    "supplied_reduction_pipeline_byte_identical": true
+  },
+  "painting_alpha_extrema": [
+    0,
+    255
+  ],
+  "images": {
+    "before_after.png": {
+      "size": [
+        1254,
+        950
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_26.png": {
+      "size": [
+        15,
+        28
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_26_on_ground_x6.png": {
+      "size": [
+        600,
+        300
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_painting.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_vs_prts.png": {
+      "size": [
+        2508,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "civilian_with_style_refs.png": {
+      "size": [
+        3762,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "v2_civilian_26.png": {
+      "size": [
+        16,
+        28
+      ],
+      "mode": "RGBA"
+    },
+    "v2_civilian_26_on_ground_x6.png": {
+      "size": [
+        600,
+        300
+      ],
+      "mode": "RGBA"
+    },
+    "reduction_pipeline/enemy_dir_family_soldier_64.png": {
+      "size": [
+        512,
+        320
+      ],
+      "mode": "RGBA"
+    },
+    "source_paintings/v2_civilian_painting.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    "reduction_pipeline/refs_B2/siracusa_arena_ingame.png": {
+      "size": [
+        1280,
+        720
+      ],
+      "mode": "RGB"
+    }
+  },
+  "visual_review": "Both eyes exposed in painting; dark hair, darker cap than v2 and pale ears; hand lowered; larger continuous light shirt. Direct 26 px ground preview visually reviewed; visible skin patch below cap and separate light torso. User recognisability acceptance pending.",
+  "limitations": [
+    "Ground image is a static composite, not runtime evidence.",
+    "No boards produced; user painting approval required."
+  ]
+}

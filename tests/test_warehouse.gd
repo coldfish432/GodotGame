@@ -163,7 +163,7 @@ func run() -> void:
 
 	# Zones grow with their racks; empty-handed in a zone opens its shelves; the
 	# 仓管台 sells upgrades until its master console is bought (用户 2026-10-07).
-	game.base.prestige = 100000
+	game.base.max_facilities()
 	game.gold = 1000000
 	# The material zone is full from the checks above: the costs ride in the pack.
 	for id in ["螺栓", "金属板", "电源线", "继电器", "灯泡"]:

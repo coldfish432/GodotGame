@@ -48,7 +48,7 @@ func _ready() -> void:
 	panel = PanelContainer.new()
 	panel.position = WINDOW.position
 	panel.size = WINDOW.size
-	panel.add_theme_stylebox_override("panel", AK.box(Color(0.063, 0.063, 0.063, 0.97), AK.LINE_2, 1))
+	panel.add_theme_stylebox_override("panel", Terminal.panel_style("plate"))
 	add_child(panel)
 	var outer := VBoxContainer.new()
 	outer.add_theme_constant_override("separation", 0)
@@ -58,6 +58,7 @@ func _ready() -> void:
 	body.add_theme_constant_override("separation", 0)
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	outer.add_child(body)
+	Terminal.frame(panel, AK.HOLO, 52.0)
 	_float = HBoxContainer.new()
 	_float.add_theme_constant_override("separation", 6)
 	_float.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -82,7 +83,7 @@ func _ready() -> void:
 
 func _title_bar() -> Control:
 	var bar := PanelContainer.new()
-	bar.add_theme_stylebox_override("panel", AK.box(Color("0c0c0c"), Color.TRANSPARENT, 0, 0))
+	bar.add_theme_stylebox_override("panel", AK.box(Color(0, 0, 0, 0.35), Color.TRANSPARENT, 0, 0))
 	bar.custom_minimum_size.y = 52
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
@@ -92,8 +93,8 @@ func _title_bar() -> Control:
 	row.add_child(spacer)
 	var titles := VBoxContainer.new()
 	titles.add_theme_constant_override("separation", -2)
-	titles.add_child(AK.label("OPERATOR · INVENTORY", 10, AK.MUTE, AK.en()))
-	titles.add_child(AK.label("干员 · 背包", 20, AK.FG))
+	titles.add_child(AK.label("EQUIPMENT · INVENTORY", 10, AK.MUTE, AK.en()))
+	titles.add_child(AK.label("装备 · 背包", 20, AK.FG))
 	row.add_child(titles)
 	var fill := Control.new()
 	fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -112,8 +113,10 @@ func open() -> void:
 	hovered = null
 	_notice_seen = game.notice_serial
 	_notice.visible = false
+	var fresh := not visible
 	show()
 	_rebuild()
+	if fresh: Terminal.reveal(panel)
 
 func _process(delta: float) -> void:
 	if not visible: return
@@ -195,94 +198,39 @@ func _divider() -> ColorRect:
 # --- Left: operator, paper doll, skill -------------------------------------------------
 
 func _operator_column() -> Control:
+	# The 8-slot doll (PaperDoll, Grim Dawn's layout); her name and rank along the foot.
 	var column := VBoxContainer.new()
 	column.custom_minimum_size.x = 400
-	column.add_theme_constant_override("separation", 6)
 	var doll := Control.new()
-	doll.custom_minimum_size = Vector2(400, 290)
+	doll.custom_minimum_size = PaperDoll.SIZE + Vector2(8, 0)
 	doll.clip_contents = true
 	column.add_child(doll)
-	var back := ColorRect.new()
-	back.color = Color("151515")
-	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	doll.add_child(back)
-	var head := HBoxContainer.new()
-	head.position = Vector2(12, 10)
-	head.add_theme_constant_override("separation", 8)
-	doll.add_child(head)
-	var cls := PanelContainer.new()
-	cls.add_theme_stylebox_override("panel", AK.box(Color.BLACK))
-	cls.custom_minimum_size = Vector2(40, 40)
-	var mark := AK.label("近卫", 12, AK.FG)
-	mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	cls.add_child(mark)
-	head.add_child(cls)
-	var names := VBoxContainer.new()
-	names.add_theme_constant_override("separation", -3)
-	names.add_child(AK.label("★★★★★", 11, AK.SP))
-	var who := Operators.info(game.player.operator_id)
-	names.add_child(AK.label(Operators.display_name(game.player.operator_id), 19, AK.FG))
-	names.add_child(AK.label(str(who.branch), 9, AK.MUTE, AK.en()))
-	head.add_child(names)
-	var p: OperatorProgress = game.progress()
-	var growth := HBoxContainer.new()
-	growth.position = Vector2(12, 246)
-	growth.add_theme_constant_override("separation", 8)
-	growth.add_child(AK.label("%s · Lv %d" % [Progression.ELITE_NAMES[p.elite], p.level], 12, AK.FG, AK.en()))
-	var points := p.attribute_points + p.skill_points
-	var train := AK.button("加点" + (" %d" % points if points > 0 else ""), "yellow" if points > 0 else "plain", 11)
-	train.pressed.connect(func(): game.open_training(func(): game.close_modal(); game.toggle_panel("inventory")))
-	growth.add_child(train)
-	doll.add_child(growth)
-	_portrait = Operators.portrait(game.player.operator_id)
-	if _portrait != null:
-		var image := TextureRect.new()
-		image.texture = _portrait
-		image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		image.position = Vector2(116, 50)
-		image.size = Vector2(168, 168)
-		doll.add_child(image)
-	var spots := {Item.Category.WEAPON: Rect2(12, 90, 110, 64), Item.Category.ARMOR: Rect2(282, 46, 106, 106), Item.Category.TRINKET: Rect2(282, 174, 62, 62)}
-	for category in spots:
+	PaperDoll.decorate(game, doll, Vector2(4, 0))
+	_portrait = OperatorScreen.standing(game.player.operator_id)
+	for slot_category in PaperDoll.SPOTS:
+		var r: Rect2 = PaperDoll.SPOTS[slot_category]
 		var slot := EquipSlot.new()
 		slot.panel = self
-		slot.category = category
-		slot.item = game.player.equipped.get(category)
-		slot.position = spots[category].position
-		slot.custom_minimum_size = spots[category].size
-		slot.size = spots[category].size
+		slot.category = slot_category
+		slot.item = PaperDoll.worn(game, slot_category)
+		slot.position = r.position + Vector2(4, 0)
+		slot.custom_minimum_size = r.size
+		slot.size = r.size
+		slot.tooltip_text = "" if slot.item != null else Item.slot_name(slot_category)
 		doll.add_child(slot)
-		var tag := AK.label(Item.CATEGORY_NAMES[category], 11, AK.MUTE)
-		tag.position = spots[category].position + Vector2(0, spots[category].size.y + 2)
-		doll.add_child(tag)
-	var skill := PanelContainer.new()
-	skill.add_theme_stylebox_override("panel", AK.box(AK.PLATE_2, Color.TRANSPARENT, 0, 10))
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	skill.add_child(row)
-	var icon := ColorRect.new()
-	icon.color = Color.BLACK
-	icon.custom_minimum_size = Vector2(44, 44)
-	row.add_child(icon)
-	var text := VBoxContainer.new()
-	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var title := HBoxContainer.new()
-	title.add_theme_constant_override("separation", 6)
-	title.add_child(AK.label("幼狼之牙", 14, AK.FG))
-	title.add_child(AK.tag("攻击回复", AK.GREEN))
-	title.add_child(AK.tag("自动触发", AK.PAPER))
-	text.add_child(title)
-	var desc := AK.label("双剑三段连斩，每次命中回复 1 点技力；技力满后，下一次攻击放出剑气，造成法术伤害。", 12, AK.FG)
-	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc.custom_minimum_size.x = 300
-	text.add_child(desc)
-	row.add_child(text)
-	var pad := MarginContainer.new()
-	for side in ["left", "right"]: pad.add_theme_constant_override("margin_" + side, 12)
-	pad.add_child(skill)
-	column.add_child(pad)
+	var p: OperatorProgress = game.progress()
+	var foot := HBoxContainer.new()
+	foot.position = Vector2(12, PaperDoll.FOOT.position.y)
+	foot.add_theme_constant_override("separation", 8)
+	foot.add_child(AK.label(Operators.display_name(game.player.operator_id), 14, AK.FG))
+	foot.add_child(AK.label("%s · Lv %d" % [Progression.ELITE_NAMES[p.elite], p.level], 12, AK.MUTE, AK.en()))
+	var points := p.attribute_points + p.skill_points
+	# The operator window is its own panel (C, 界面美术与布局策划案 v2 §4.2).
+	var train := AK.button("干员 C" + (" · %d" % points if points > 0 else ""), "yellow" if points > 0 else "plain", 11)
+	train.set_meta("label", "干员")
+	train.pressed.connect(func(): game.toggle_panel("training"))
+	foot.add_child(train)
+	doll.add_child(foot)
 	return column
 
 # --- Middle: pack, safe bag, 赤金 ---------------------------------------------------------
@@ -344,6 +292,15 @@ func _fill_actions() -> void:
 			var drink := AK.button("饮用", "blue", 12)
 			drink.pressed.connect(func(): game.drink(selected); selected = null; _rebuild())
 			_actions.add_child(drink)
+		if FeatureCatalog.is_supply(selected) and not game.in_base:
+			var use := AK.button("使用", "blue", 12)
+			use.pressed.connect(func(): game.use_supply(selected); selected = null; _rebuild())
+			_actions.add_child(use)
+		if game.usable_special(selected):
+			var guide := AK.button("使用", "blue", 12)
+			guide.disabled = not game.guide_refusal().is_empty()
+			guide.pressed.connect(func(): game.use_guide(); selected = null; _rebuild())
+			_actions.add_child(guide)
 		var move := AK.button("移到安全袋" if selected_container == game.inventory else "移回背包", "plain", 12)
 		move.pressed.connect(func(): game.quick_move(selected, selected_container); selected = null; _rebuild())
 		_actions.add_child(move)
@@ -480,7 +437,7 @@ func _refresh_tooltip() -> void:
 
 func _tip_card(bbcode: String) -> PanelContainer:
 	var card := PanelContainer.new()
-	card.add_theme_stylebox_override("panel", AK.box(Color("0d0d0d"), AK.LINE_2, 1, 10))
+	card.add_theme_stylebox_override("panel", AK.box(Color("0b0d0f"), AK.LINE_2, 1, 10))
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var text := RichTextLabel.new()
 	text.bbcode_enabled = true
@@ -506,6 +463,9 @@ func ask_drop(item: Item, from: ItemContainer) -> void:
 func right_click(item: Item, container: ItemContainer) -> void:
 	if container == null: game.unequip_to_pack(item)
 	elif item.is_potion(): game.drink(item)
+	elif FeatureCatalog.is_supply(item): game.use_supply(item)
+	elif game.usable_special(item): game.use_guide()
+	elif item.effect == "raw_ore": game.seal_with_sealer(item)
 	elif item.is_equippable(): game.equip_from(item, container)
 	selected = null
 	hovered = null
@@ -536,7 +496,7 @@ func drop_on_grid(data: Dictionary, container: ItemContainer, cell: Vector2i) ->
 func drop_on_slot(data: Dictionary, category: int) -> void:
 	var item: Item = data.item
 	var from: ItemContainer = data.get("from")
-	if from != null and item.category == category: game.equip_from(item, from)
+	if from != null and PaperDoll.fits(item, category): game.equip_from(item, from)
 	_drag_item = null
 	selected = null
 	_rebuild()
@@ -690,7 +650,7 @@ class ItemTile extends Button:
 	static func style_for(button: Button, shown: Item) -> void:
 		for state in ["normal", "hover", "pressed"]:
 			var style := StyleBoxFlat.new()
-			style.bg_color = Color("2b2b2b") if state == "normal" else Color("363636")
+			style.bg_color = Color("242b30") if state == "normal" else Color("2d363c")
 			if shown.insured:
 				style.border_color = InventoryPanel.INSURED
 				style.set_border_width_all(1)
@@ -743,7 +703,7 @@ class EquipSlot extends Button:
 		add_theme_font_size_override("font_size", 12)
 		for state in ["normal", "hover", "pressed"]:
 			var style := StyleBoxFlat.new()
-			style.bg_color = Color("232323") if item == null else Color("2b2b2b")
+			style.bg_color = Color("1d2327") if item == null else Color("242b30")
 			if state == "hover":
 				style.border_color = Color.WHITE
 				style.set_border_width_all(1)
@@ -759,9 +719,11 @@ class EquipSlot extends Button:
 			accept_event()
 
 	func _draw() -> void:
-		if item == null: return
+		if item == null:
+			PaperDoll.draw_silhouette(self, category, size)
+			return
 		ItemTile.draw_glow(self, item)
-		ItemIcons.draw(self, item, Rect2(Vector2.ZERO, size))
+		PaperDoll.draw_item(self, item, category, size)
 		ItemTile.draw_badges(self, item, false)
 
 	func _get_drag_data(_at: Vector2) -> Variant:
@@ -772,7 +734,7 @@ class EquipSlot extends Button:
 		return {"item": item, "from": null, "grab": Vector2(InventoryPanel.CELL, InventoryPanel.CELL) * 0.5}
 
 	func _can_drop_data(_at: Vector2, data: Variant) -> bool:
-		return data is Dictionary and data.has("item") and data.item.category == category and data.get("from") != null
+		return data is Dictionary and data.has("item") and PaperDoll.fits(data.item, category) and data.get("from") != null
 
 	func _drop_data(_at: Vector2, data: Variant) -> void:
 		panel.drop_on_slot(data, category)

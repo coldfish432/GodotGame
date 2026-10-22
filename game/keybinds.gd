@@ -4,8 +4,10 @@ extends RefCounted
 ## Every rebindable function and its two keys (用户 2026-10-10, after Grim Dawn's
 ## Options → Keybindings: 所有功能可改键，主键＋副键；药剂可放快捷栏，也能绑专用键，
 ## 如鼠标侧键). A binding is a keyboard key or a mouse button (middle, side
-## buttons, wheel). Left and right mouse (attack / move), Ctrl+click (safe bag)
-## and Esc (pause, so the menu is always reachable) stay fixed.
+## buttons, wheel). Left mouse (attack / move), Ctrl+click (safe bag) and Esc
+## (pause, so the menu is always reachable) stay fixed. Right mouse is an
+## ordinary key, by default slot 1, the dodge (用户 2026-10-20: 右键改为可绑键，
+## 默认绑闪避，Shift 不再是闪避).
 ##
 ## Each function is an InputMap action of the same id. Stored in settings.cfg
 ## under "keybinds" as {id: [primary, secondary]}, each {"key": code} or
@@ -13,7 +15,7 @@ extends RefCounted
 
 ## [id, name, group, primary, secondary]
 const FUNCTIONS := [
-	["hotbar_1", "快捷栏 1", "快捷栏", {"key": KEY_SHIFT}, null],
+	["hotbar_1", "快捷栏 1", "快捷栏", {"mouse": MOUSE_BUTTON_RIGHT}, null],
 	["hotbar_2", "快捷栏 2", "快捷栏", {"key": KEY_SPACE}, null],
 	["hotbar_3", "快捷栏 3", "快捷栏", {"key": KEY_Q}, null],
 	["hotbar_4", "快捷栏 4", "快捷栏", {"key": KEY_1}, null],
@@ -30,8 +32,18 @@ const FUNCTIONS := [
 	["move_down", "向下移动", "移动", {"key": KEY_S}, {"key": KEY_DOWN}],
 	["move_left", "向左移动", "移动", {"key": KEY_A}, {"key": KEY_LEFT}],
 	["move_right", "向右移动", "移动", {"key": KEY_D}, {"key": KEY_RIGHT}],
+	["camera_zoom_in", "拉近视角", "视角", {"mouse": MOUSE_BUTTON_WHEEL_UP}, null],
+	["camera_zoom_out", "拉远视角", "视角", {"mouse": MOUSE_BUTTON_WHEEL_DOWN}, null],
+	["camera_turn_left", "视角左转", "视角", {"key": KEY_Z}, null],
+	["camera_turn_right", "视角右转", "视角", {"key": KEY_X}, null],
+	["camera_tilt_up", "视角抬高", "视角", {"key": KEY_PAGEUP}, null],
+	["camera_tilt_down", "视角压低", "视角", {"key": KEY_PAGEDOWN}, null],
+	["camera_drag", "拖动旋转视角", "视角", {"mouse": MOUSE_BUTTON_MIDDLE}, null],
+	["camera_reset", "复位视角", "视角", {"key": KEY_HOME}, null],
 	["interact", "交互", "界面", {"key": KEY_E}, null],
-	["toggle_inventory", "背包", "界面", {"key": KEY_I}, {"key": KEY_C}],
+	["toggle_inventory", "背包", "界面", {"key": KEY_I}, null],
+	# I and C are two windows now (界面美术与布局策划案 v2 S1).
+	["toggle_operator", "干员", "界面", {"key": KEY_C}, null],
 	["toggle_relics", "藏品", "界面", {"key": KEY_R}, null],
 	["toggle_map", "地图", "界面", {"key": KEY_M}, null],
 	["toggle_journal", "合同", "界面", {"key": KEY_J}, null],
@@ -41,9 +53,9 @@ const FUNCTIONS := [
 	["toggle_stations", "站点总览（基地）", "界面", {"key": KEY_TAB}, null],
 ]
 ## Shown on the keys page, not changeable.
-const FIXED := [["攻击 / 拾取 / 选择", "左键"], ["移动", "右键"], ["安全袋", "Ctrl + 左键"], ["暂停", "Esc"]]
+const FIXED := [["攻击 / 移动 / 拾取 / 选择", "左键"], ["安全袋", "Ctrl + 左键"], ["暂停", "Esc"]]
 const BLOCKED_KEYS := [KEY_ESCAPE]
-const BLOCKED_MOUSE := [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]
+const BLOCKED_MOUSE := [MOUSE_BUTTON_LEFT]
 ## Movement reads these as analogue axes (Input.get_vector) with a deadzone.
 const AXES := ["move_up", "move_down", "move_left", "move_right"]
 
@@ -136,7 +148,7 @@ static func from_event(event: InputEvent) -> Variant:
 		return b if _valid(b) else null
 	return null
 
-const MOUSE_NAMES := {MOUSE_BUTTON_MIDDLE: "中键", MOUSE_BUTTON_XBUTTON1: "侧键 1", MOUSE_BUTTON_XBUTTON2: "侧键 2",
+const MOUSE_NAMES := {MOUSE_BUTTON_RIGHT: "右键", MOUSE_BUTTON_MIDDLE: "中键", MOUSE_BUTTON_XBUTTON1: "侧键 1", MOUSE_BUTTON_XBUTTON2: "侧键 2",
 	MOUSE_BUTTON_WHEEL_UP: "滚轮上", MOUSE_BUTTON_WHEEL_DOWN: "滚轮下", MOUSE_BUTTON_WHEEL_LEFT: "滚轮左", MOUSE_BUTTON_WHEEL_RIGHT: "滚轮右"}
 
 static func label(binding: Variant) -> String:

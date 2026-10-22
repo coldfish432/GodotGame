@@ -10,6 +10,13 @@ var p: Player
 var failures := 0
 var checks := 0
 var origin := Vector3(0, 0.7, -22)
+const ARENA := Vector3(0, 0.7, -22)
+## Her ungeared sheet (复利数值改造清单 A, I): CombatStats.BASE × her own multipliers.
+var ATK := 0.0
+var ARTS := 0.0
+var HP := 0.0
+var DEF := 0.0
+var RES := 0.0
 
 func _initialize() -> void: call_deferred("run")
 func step(n: int = 1) -> void:
@@ -61,9 +68,29 @@ func use(ids: Array) -> void:
 	game.builds.assign(ids)
 	p._recompute_stats()
 
+## The arena: the nearest spot to `near` with open ground and no prop over the
+## dummies' spread (-3..7 each way): a sandbag wall's collider between two
+## dummies blocks a sweep (用户 2026-10-20 had the sandbags enlarged).
+func _clear_origin(near: Vector3) -> Vector3:
+	var map := game.world_map
+	for ring in range(0, 80, 2):
+		for k in range(maxi(1, ring * 2)):
+			var c := Vector2(near.x, near.z) + Vector2.from_angle(TAU * k / maxf(1.0, ring * 2.0)) * float(ring)
+			var ok := true
+			for x in range(-3, 8):
+				for z in range(-3, 8):
+					var q := c + Vector2(x, z)
+					if not map._is_open(q.x, q.y, 0.0) or map.in_prop(q, 0.8):
+						ok = false
+						break
+				if not ok: break
+			if ok: return Vector3(c.x, near.y, c.y)
+	return near
+
 func reset_arena() -> void:
 	game._clear_field()
 	await step(2)
+	origin = _clear_origin(ARENA)
 	game.inventory.items.clear()
 	game.safe_bag.items.clear()
 	use([])
@@ -89,6 +116,12 @@ func run() -> void:
 	p.set_physics_process(false)
 	p._sprite.set_process(false)
 	await reset_arena()
+	var id := Operators.LAPPLAND
+	ATK = CombatStats.BASE.atk
+	ARTS = CombatStats.BASE.arts
+	HP = CombatStats.BASE.hp * Operators.stat_mult(id, "hp")
+	DEF = CombatStats.BASE.def * Operators.stat_mult(id, "def")
+	RES = CombatStats.BASE.res + Operators.stat_mult(id, "res")
 	_catalog()
 	_formulas()
 	_offers()
@@ -125,20 +158,21 @@ func _catalog() -> void:
 	check("no relic deals damage of its own (that is special equipment)", not ids.has("藤蔓炮手") and not ids.has("尖刺之手") and not ids.has("老者面"))
 
 func _formulas() -> void:
-	check("physical: ATK minus DEF", is_equal_approx(CombatStats.physical(600, 100), 500))
-	check("physical floor is 10% of the hit", is_equal_approx(CombatStats.physical(600, 900), 60))
+	check("physical: ATK × K / (K + DEF), half at DEF = K", is_equal_approx(CombatStats.physical(600, 600, 600), 300) and is_equal_approx(CombatStats.physical(600, 100, 600), 600 * 600 / 700.0))
+	check("armour never stops a hit, and K grows ×1.04 a floor", is_equal_approx(CombatStats.physical(600, 5400, 600), 60) and is_equal_approx(Scaling.physical_k(11), 600 * pow(1.04, 10))
+		and is_equal_approx(CombatStats.physical_k, Scaling.physical_k(game.floor_number)), CombatStats.physical_k)
 	check("arts: scaled by resistance", is_equal_approx(CombatStats.arts(500, 30), 350))
 	check("resistance is capped at 80", is_equal_approx(CombatStats.arts(500, 120), 100))
 	check("true damage ignores both", is_equal_approx(CombatStats.mitigate(500, "true", 999, 99), 500))
-	check("Lappland's base sheet", p.max_hp == 2400 and is_equal_approx(p.attack_power(), 600) and is_equal_approx(p.arts_power(), 360)
-		and is_equal_approx(p.defense_value(), 200) and is_equal_approx(p.resistance(), 10) and is_equal_approx(p.current_aspd(), 100) and p.crit_rate() == 0.0)
+	check("Lappland's base sheet: 150 / 150, life 600 and DEF 50 × hers, RES 10 + 15", p.operator_id == Operators.LAPPLAND and is_equal_approx(p.max_hp, HP) and is_equal_approx(HP, 600) and is_equal_approx(p.attack_power(), ATK) and is_equal_approx(p.arts_power(), ARTS)
+		and is_equal_approx(p.defense_value(), DEF) and is_equal_approx(p.resistance(), RES) and is_equal_approx(RES, 25) and is_equal_approx(p.current_aspd(), 100) and p.crit_rate() == 0.0)
 	var blade := Item.create("测试战刃", Item.Category.WEAPON, 2, 1, 2.5)
 	blade.modifiers = [ItemModifier.stat_mod(ItemModifier.Stat.ATK_PCT, 0.08), ItemModifier.stat_mod(ItemModifier.Stat.CRIT_RATE, 0.05)]
 	p.equip(blade)
-	check("weapon power and affixes feed ATK and crit", is_equal_approx(p.attack_power(), 700 * 1.08) and is_equal_approx(p.crit_rate(), 0.05))
+	check("weapon power and affixes feed ATK and crit", is_equal_approx(p.attack_power(), (ATK + 2.5 * CombatStats.WEAPON_MAIN_PER_POWER) * 1.08) and is_equal_approx(p.crit_rate(), 0.05))
 	p.unequip(Item.Category.WEAPON)
 	use(["皇帝的恩宠", "贵族刺剑"])
-	check("relic percentages add in one layer: 600 × (1 + 0.15 + 0.25)", is_equal_approx(p.attack_power(), 840))
+	check("relic percentages add in one layer: ATK × (1 + 0.15 + 0.25)", is_equal_approx(p.attack_power(), ATK * 1.4))
 	use([])
 
 func _offers() -> void:
@@ -238,17 +272,17 @@ func _sources() -> void:
 func _attack() -> void:
 	var e := dummy(Vector3(0, 0, 2))
 	use(["锈蚀刀片"])
-	check("锈蚀刀片: physical damage +15%", is_equal_approx(swing(e), 690))
+	check("锈蚀刀片: physical damage +15%", is_equal_approx(swing(e), ATK * 1.15))
 	e.defense = 300
 	use(["残破合影"])
-	check("残破合影: ignores 12% of defence", is_equal_approx(swing(e), 600 - 300 * 0.88))
+	check("残破合影: ignores 12% of defence", is_equal_approx(swing(e), CombatStats.physical(ATK, 300 * 0.88)))
 	use(["撕扯之手", "迷迭香之拥"])
-	check("defence ignore stacks and caps at 100%", is_equal_approx(swing(e), 600))
+	check("defence ignore stacks and caps at 100%", is_equal_approx(swing(e), ATK))
 	e.defense = 0
 	use(["溃决之手"])
 	e.health = e.max_health * 0.5
-	check("溃决之手: +25% into an enemy at half life", is_equal_approx(swing(e), 750))
-	e.health = e.max_health * 0.205
+	check("溃决之手: +25% into an enemy at half life", is_equal_approx(swing(e), ATK * 1.25))
+	e.health = e.max_health * 0.2 + ATK * 0.5 # just above 20%: one hit takes it under
 	swing(e)
 	check("溃决之手: an ordinary enemy under 20% is executed", e._dead)
 	var boss := dummy(Vector3(1, 0, 2), true)
@@ -260,43 +294,43 @@ func _attack() -> void:
 	await step()
 	var lone := dummy(Vector3(0, 0, 2))
 	use(["荣耀绶带"])
-	check("荣耀绶带: +60% with one enemy near", is_equal_approx(swing(lone), 960))
+	check("荣耀绶带: +60% with one enemy near", is_equal_approx(swing(lone), ATK * 1.6))
 	var crowd := dummy(Vector3(0.5, 0, 3))
-	check("but not with two", is_equal_approx(swing(lone), 600))
+	check("but not with two", is_equal_approx(swing(lone), ATK))
 	crowd.queue_free()
 	await step()
 	use(["绿叶菜罐头"])
 	p._on_wave_released()
-	check("绿叶菜罐头: +60% ATK for a second after a wave", is_equal_approx(p.attack_power(), 960))
+	check("绿叶菜罐头: +60% ATK for a second after a wave", is_equal_approx(p.attack_power(), ATK * 1.6))
 	p._tick_relic_timers(1.1)
-	check("and only for that second", is_equal_approx(p.attack_power(), 600))
+	check("and only for that second", is_equal_approx(p.attack_power(), ATK))
 	use(["\"噤声\""])
 	p.since_wave = 60.0
-	check("\"噤声\": +60% after 60 s without a wave", is_equal_approx(p.attack_power(), 960))
+	check("\"噤声\": +60% after 60 s without a wave", is_equal_approx(p.attack_power(), ATK * 1.6))
 	p._on_wave_released()
-	check("and back to nothing after a wave", is_equal_approx(p.attack_power(), 600))
+	check("and back to nothing after a wave", is_equal_approx(p.attack_power(), ATK))
 	use(["轰鸣之手"])
 	for i in range(12): swing(lone)
-	check("轰鸣之手: +8% per hit up to +80%", p.hit_stacks == 10 and is_equal_approx(p.attack_power(), 1080))
+	check("轰鸣之手: +8% per hit up to +80%", p.hit_stacks == 10 and is_equal_approx(p.attack_power(), ATK * 1.8))
 	p._tick_relic_timers(3.1)
-	check("and gone after 3 s without a hit", is_equal_approx(p.attack_power(), 600))
+	check("and gone after 3 s without a hit", is_equal_approx(p.attack_power(), ATK))
 	use(["古乔治营养原浆"])
-	check("古乔治营养原浆: +30% at full life", is_equal_approx(p.attack_power(), 780))
+	check("古乔治营养原浆: +30% at full life", is_equal_approx(p.attack_power(), ATK * 1.3))
 	p.hp = p.max_hp * 0.5
-	check("+15% at half life", is_equal_approx(p.attack_power(), 690))
+	check("+15% at half life", is_equal_approx(p.attack_power(), ATK * 1.15))
 	p.hp = p.max_hp
 	use(["赏善郎"])
 	p._on_block()
-	check("赏善郎: a block arms the next hit at ×2", is_equal_approx(swing(lone), 1200) and is_equal_approx(swing(lone), 600))
+	check("赏善郎: a block arms the next hit at ×2", is_equal_approx(swing(lone), ATK * 2) and is_equal_approx(swing(lone), ATK))
 	use(["《光耀卡西米尔》"])
 	p._on_evade()
-	check("《光耀卡西米尔》: +70% ATK for 6 s after an evade", is_equal_approx(p.attack_power(), 1020))
+	check("《光耀卡西米尔》: +70% ATK for 6 s after an evade", is_equal_approx(p.attack_power(), ATK * 1.7))
 	use(["《拳经三问》"])
 	p.wave_count = 0
 	for i in range(3): p._on_wave_released()
-	check("《拳经三问》: +4% per wave released this contract", is_equal_approx(p.attack_power(), 600 * 1.12))
+	check("《拳经三问》: +4% per wave released this contract", is_equal_approx(p.attack_power(), ATK * 1.12))
 	use(["折戟-破釜沉舟"])
-	check("折戟-破釜沉舟: ATK +40%, 攻速 +30, DEF −40%", is_equal_approx(p.attack_power(), 840) and is_equal_approx(p.current_aspd(), 130) and is_equal_approx(p.defense_value(), 120))
+	check("折戟-破釜沉舟: ATK +40%, 攻速 +30, DEF −40%", is_equal_approx(p.attack_power(), ATK * 1.4) and is_equal_approx(p.current_aspd(), 130) and is_equal_approx(p.defense_value(), DEF * 0.6))
 	use(["死仇时代的恨意", "开裂的束缚带"])
 	check("死仇时代的恨意 and 开裂的束缚带 add up on enemy attack (+20% −7%)", is_equal_approx(game.enemy_attack_multiplier(), 1.13))
 	use([])
@@ -316,7 +350,7 @@ func _wave() -> void:
 	use(["制式防暴用具"])
 	check("制式防暴用具: arts damage +20% on waves", is_equal_approx(p.wave_bonus_against(dummy(Vector3(5, 0, 5))), 1.2))
 	use(["断杖-苦难巫咒"])
-	check("断杖-苦难巫咒: arts damage +70%, life −40%", is_equal_approx(p.max_hp, 1440) and is_equal_approx(float(p.stats.arts_dmg_pct), 0.7))
+	check("断杖-苦难巫咒: arts damage +70%, life −40%", is_equal_approx(p.max_hp, HP * 0.6) and is_equal_approx(float(p.stats.arts_dmg_pct), 0.7))
 	use(["古高卢银币"])
 	p.clear_charge()
 	p.reset_floor_state()
@@ -386,12 +420,12 @@ func _tempo() -> void:
 	use(["\"永夜的窥视\""])
 	var hp := p.hp
 	p._tick_relics_in_field(1.0)
-	check("\"永夜的窥视\": ATK +25%, 攻速 +25, loses 0.6% life a second", is_equal_approx(p.attack_power(), 750) and is_equal_approx(p.current_aspd(), 125) and is_equal_approx(p.hp, hp - p.max_hp * 0.006))
+	check("\"永夜的窥视\": ATK +25%, 攻速 +25, loses 0.6% life a second", is_equal_approx(p.attack_power(), ATK * 1.25) and is_equal_approx(p.current_aspd(), 125) and is_equal_approx(p.hp, hp - p.max_hp * 0.006))
 	await reset_arena()
 
 func _defense() -> void:
 	use(["异铁小圆盾"])
-	check("异铁小圆盾: DEF +25%", is_equal_approx(p.defense_value(), 250))
+	check("异铁小圆盾: DEF +25%", is_equal_approx(p.defense_value(), DEF * 1.25))
 	use(["设计师量尺", "\"法术杀手\""])
 	check("设计师量尺 / \"法术杀手\": 15% physical and arts evasion", is_equal_approx(p.evasion(), 0.15) and is_equal_approx(p.arts_evasion(), 0.15))
 	use(["皇族金胸针", "药枚"])
@@ -404,24 +438,24 @@ func _defense() -> void:
 	p.hp = p.max_hp
 	use(["活木甲"])
 	p.reset_floor_state()
-	check("活木甲: a 50% life barrier each segment", is_equal_approx(p.shield, 1200))
+	check("活木甲: a 50% life barrier each segment", is_equal_approx(p.shield, HP * 0.5))
 	p.shield = 0
 	use(["墙眼"])
 	var archer := dummy(Vector3(4, 0, 0), false, 0, 0, 100000, "crossbow")
 	p.take_damage(1000, "phys", archer)
-	check("墙眼: ranged hits deal half", is_equal_approx(p.hp, p.max_hp - 400))
+	check("墙眼: ranged hits deal half", is_equal_approx(p.hp, p.max_hp - CombatStats.physical(1000, DEF) * 0.5), p.max_hp - p.hp)
 	p.hp = p.max_hp
 	use(["古堡的子嗣"])
 	p.segment_time = 100.0
-	check("古堡的子嗣: DEF +300 and RES +30 after 100 s in a segment", is_equal_approx(p.defense_value(), 500) and is_equal_approx(p.resistance(), 40))
+	check("古堡的子嗣: DEF +120% and RES +30 after 100 s in a segment", is_equal_approx(p.defense_value(), DEF * 2.2) and is_equal_approx(p.resistance(), RES + 30))
 	p.segment_time = 0
 	use(["魔王的床榻"])
-	check("魔王的床榻: at full life DEF +20%, RES +10", is_equal_approx(p.defense_value(), 240) and is_equal_approx(p.resistance(), 20))
+	check("魔王的床榻: at full life DEF +20%, RES +10", is_equal_approx(p.defense_value(), DEF * 1.2) and is_equal_approx(p.resistance(), RES + 10))
 	use(["霜牡的肩甲"])
 	dummy(Vector3(1, 0, 0))
 	dummy(Vector3(-1, 0, 0))
 	p._tick_relics_in_field(0.1)
-	check("霜牡的肩甲: two enemies close trigger ATK and DEF +40% for 30 s", p.guard_timer > 0 and is_equal_approx(p.attack_power(), 840) and is_equal_approx(p.defense_value(), 280))
+	check("霜牡的肩甲: two enemies close trigger ATK and DEF +40% for 30 s", p.guard_timer > 0 and is_equal_approx(p.attack_power(), ATK * 1.4) and is_equal_approx(p.defense_value(), DEF * 1.4))
 	use(["雪牝的护手"])
 	dummy(Vector3(0, 0, 1))
 	p._tick_relics_in_field(0.1)
@@ -430,21 +464,24 @@ func _defense() -> void:
 
 func _life() -> void:
 	use(["难闻的止血剂", "急救药箱", "未知仪器"])
-	check("life relics add up: +105%", is_equal_approx(p.max_hp, 2400 * 2.05))
+	check("life relics add up: +105%", is_equal_approx(p.max_hp, HP * 2.05))
 	use(["活玫瑰"])
 	p.hp = 100
 	p.heal(100)
 	check("活玫瑰: healing +20%", is_equal_approx(p.hp, 220))
 	use(["演出用香水", "《坎德之花》"])
-	check("演出用香水 + 《坎德之花》: 1% of max life and 30 more a second", is_equal_approx(p.regen_rate(), 2.4 + 30 + 24))
+	check("演出用香水 + 《坎德之花》: 0.1% of max life of her own plus 24 + 30 flat a second", is_equal_approx(p.regen_rate(), HP * 0.001 + 30 + 24), p.regen_rate())
+	game.floor_number = 11
+	check("the flat part takes the tier's coefficient, her own 0.1% does not", is_equal_approx(p.regen_rate(), HP * 0.001 + (30 + 24) * Scaling.tier_coef(11)) and Scaling.tier_coef(11) > 1.4, p.regen_rate())
+	game.floor_number = 1
 	use(["\"萤灯映牍\""])
-	p.hp = 1000
+	p.hp = 100
 	dummy(Vector3(3, 0, 3), false, 0, 0, 1).take_hit(10, "true")
-	check("\"萤灯映牍\": a kill heals 240", is_equal_approx(p.hp, 1240))
+	check("\"萤灯映牍\": a kill heals 240 × the tier's coefficient", is_equal_approx(p.hp, 100 + 240 * Scaling.tier_coef(game.floor_number)), p.hp)
 	use(["\"忠义\""])
 	for x in [-1, 0, 1]: dummy(Vector3(x, 0, 1.5))
 	p._tick_relics_in_field(1.0)
-	check("\"忠义\": 150 a second with three enemies close", is_equal_approx(p.hp, 1390))
+	check("\"忠义\": 150 a second with three enemies close", is_equal_approx(p.hp, 340 + 150 * Scaling.tier_coef(game.floor_number)), p.hp)
 	use(["复还之手", "\"时光之末\""])
 	p.hp = 300
 	p.take_damage(5000, "true")
@@ -465,28 +502,29 @@ func _life() -> void:
 	p.hp = p.max_hp  # or the game settles the contract as a death
 	use(["米诺斯颂诗", "Friston.P"])
 	dummy(Vector3(-3, 0, -3), true, 0, 0, 1).take_hit(10, "true")
-	check("米诺斯颂诗 / Friston.P: an elite kill adds 3% life and 5 攻速", is_equal_approx(p.max_hp, 2400 * 1.03) and is_equal_approx(p.current_aspd(), 105))
+	check("米诺斯颂诗 / Friston.P: an elite kill adds 3% life and 5 攻速", is_equal_approx(p.max_hp, HP * 1.03) and is_equal_approx(p.current_aspd(), 105))
 	await reset_arena()
 
 func _misc() -> void:
 	use(["\"剑锤\""])
-	check("\"剑锤\": ATK, DEF and life +10%, flask healing −20%", is_equal_approx(p.attack_power(), 660) and is_equal_approx(p.potion_heal_multiplier, 0.8))
+	check("\"剑锤\": ATK, DEF and life +10%, damage taken +5% (flasks untouched)", is_equal_approx(p.attack_power(), ATK * 1.1) and is_equal_approx(p.defense_value(), DEF * 1.1)
+		and is_equal_approx(p.max_hp, HP * 1.1) and is_equal_approx(float(p.stats.taken_pct), 0.05) and is_equal_approx(p.potion_heal_multiplier, 1.0))
 	use(["统帅肖像"])
-	check("统帅肖像: +10% normally", is_equal_approx(p.attack_power(), 660))
+	check("统帅肖像: +10% normally", is_equal_approx(p.attack_power(), ATK * 1.1))
 	game.route_index = 2
 	p._recompute_stats()
-	check("and +30% on the deep route", is_equal_approx(p.attack_power(), 780) and is_equal_approx(p.max_hp, 2400 * 1.3))
+	check("and +30% on the deep route", is_equal_approx(p.attack_power(), ATK * 1.3) and is_equal_approx(p.max_hp, HP * 1.3))
 	game.route_index = 0
 	use(["登天斧"])
-	check("登天斧: +60% on the first segment", is_equal_approx(p.attack_power(), 960))
+	check("登天斧: +60% on the first segment", is_equal_approx(p.attack_power(), ATK * 1.6))
 	game.floor_number = 4
 	p._recompute_stats()
-	check("+30% by the fourth", is_equal_approx(p.attack_power(), 780) and is_equal_approx(p.max_hp, 2400 * 1.3))
+	check("+30% by the fourth", is_equal_approx(p.attack_power(), ATK * 1.3) and is_equal_approx(p.max_hp, HP * 1.3))
 	game.floor_number = 1
 	use(["圆石祭坛"])
 	seed(7)
 	for i in range(40): p.reset_floor_state()
-	check("圆石祭坛: stacks on new segments, at most 10", p.altar_stacks == 10 and is_equal_approx(p.attack_power(), 900))
+	check("圆石祭坛: stacks on new segments, at most 10", p.altar_stacks == 10 and is_equal_approx(p.attack_power(), ATK * 1.5))
 	use(["友谊之证"])
 	game.add_gold(10)
 	check("友谊之证: 赤金 +30%", game.run_gold == 13)
@@ -497,10 +535,10 @@ func _special() -> void:
 	var b := dummy(Vector3(1.2, 0, 2.4))
 	wear("lord_blade")
 	swing(a)
-	check("领主宽刃 sweeps a neighbour for half", is_equal_approx(b.max_health - b.health, 300))
+	check("领主宽刃 sweeps a neighbour for half", is_equal_approx(b.max_health - b.health, ATK * 0.5))
 	wear("crystal_edge")
 	var e := dummy(Vector3(-1, 0, 2), false, 0, 0)
-	check("源石结晶刃 adds 18% arts ATK to each hit", is_equal_approx(swing(e), 600 + 360 * 0.18))
+	check("源石结晶刃 adds 18% arts ATK to each hit", is_equal_approx(swing(e), ATK + ARTS * 0.18))
 	wear("twin_fang")
 	p.sword_charge = 3
 	var before := game.get_children().filter(func(n): return n is SwordWave).size()
@@ -534,19 +572,19 @@ func _special() -> void:
 	p.stamina = 100
 	var crossed := dummy(Vector3(1.4, 0, 0))
 	p._start_dash(Vector3.RIGHT)
-	check("残影护腕 cuts what the dash passes", is_equal_approx(crossed.max_health - crossed.health, 720))
+	check("残影护腕 cuts what the dash passes", is_equal_approx(crossed.max_health - crossed.health, ATK * 1.2))
 	p.dash_remaining = 0
 	p.invulnerable = false
 	p.teleport(origin)
 	wear("spike_plate")
 	var attacker := dummy(Vector3(1, 0, 0))
 	p.take_damage(800, "phys", attacker)
-	check("尖刺重铠 answers an attacker with 80% of DEF", is_equal_approx(attacker.max_health - attacker.health, 160))
+	check("尖刺重铠 answers an attacker with 80% of DEF", is_equal_approx(attacker.max_health - attacker.health, DEF * 0.8))
 	wear("bash_shield")
 	p.shield = 100
 	p.take_damage(800, "phys")
 	var hit := dummy(Vector3(0, 0, 2))
-	check("反击塔盾 adds 150% DEF to the next hit after a shield soak", is_equal_approx(swing(hit), 600 + 300))
+	check("反击塔盾 adds 150% DEF to the next hit after a shield soak", is_equal_approx(swing(hit), ATK + DEF * 1.5))
 	await reset_arena()
 	wear("vein_core")
 	var near := dummy(Vector3(2, 0, 0))
@@ -557,7 +595,7 @@ func _special() -> void:
 		if near.health < near.max_health:
 			burst = true
 			break
-	check("共振矿芯 bursts for 100% arts ATK", burst and is_equal_approx(near.max_health - near.health, 360))
+	check("共振矿芯 bursts for 100% arts ATK", burst and is_equal_approx(near.max_health - near.health, ARTS))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4
 	var rolled := 0

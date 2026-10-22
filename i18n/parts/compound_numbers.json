@@ -1,0 +1,13 @@
+{
+ "立即回复": "Instantly heals",
+ "6 秒内共回复": "Heals over 6 s:",
+ "生命；再用一瓶会覆盖剩余回复": "HP; another dose replaces the remaining heal",
+ "生命，污染 −6，之后 30 秒污染累积减半": "HP, Contamination −6, then halves Contamination buildup for 30 s",
+ "每秒回复": "Regen per second:",
+ "生命；生命上限 −25": "HP; Max HP −25",
+ "击倒敌人时回复": "On enemy kill, restore",
+ "4 米内有 3 名及以上敌人时，每秒回复": "With 3+ enemies within 4 m, regen per second:",
+ "在同一区段停留 100 秒后，防御 +120%、法抗 +30": "After 100 s in the same segment: DEF +120%, RES +30",
+ "攻击 / 移动 / 拾取 / 选择": "Attack / Move / Pick up / Select",
+ "攻击力、防御与生命上限 +10%；受到伤害 +5%": "ATK, DEF and Max HP +10%; DMG taken +5%"
+}

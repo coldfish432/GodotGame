@@ -53,14 +53,27 @@ func run() -> void:
 	var off := trap.global_position.direction_to(light.global_position)
 	off = Vector3(-off.x, 0, -off.z).normalized() * 4.0
 	trap.kind = "heavy"
+	# Ungeared she has 600 HP, which a heavy trap's 600 takes whole: dress her
+	# in the Rhodes issue so the blow can be measured.
+	var kit_rng := RandomNumberGenerator.new()
+	kit_rng.seed = 2718
+	# Prefixes off: one like 受到伤害 +x% would change the measured blow.
+	for piece in GearCatalog.rhodes_kit(kit_rng, game.player.operator_id):
+		piece.prefixes.clear()
+		game.player.equip(piece)
 	game.player.hp = game.player.max_hp
 	game.player.shield = 0.0
 	game.threat.value = 0.0
 	var hp := game.player.hp
 	game.player.teleport(trap.global_position)
 	await step(2)
-	check("it strikes once for its fixed 600", absf(hp - game.player.hp - 600.0) < 0.5, hp - game.player.hp)
-	check("and the 威胁值 rises by 8", absf(game.threat.value - 8.0) < 0.3, game.threat.value)
+	# 用户 2026-10-22: a heavy trap gives itself away, its blow lands after its fuse.
+	check("a heavy trap lights its fuse: no blow yet, the 威胁值 up by 8", trap.fuse > 0.0 and absf(hp - game.player.hp) < 1.0 and absf(game.threat.value - 8.0) < 0.3, [trap.fuse, hp, game.player.hp, game.threat.value])
+	await step(40)
+	# Its fixed 600 × the floor's 档位系数 (复利数值改造清单 E; 1 on floor 1).
+	var blow := float(FieldTrap.KINDS.heavy.damage) * Scaling.tier_coef(game.floor_number)
+	check("then it strikes once for its fixed %d" % roundi(blow), absf(hp - game.player.hp - blow) < 1.0, [hp, game.player.hp, game.player.max_hp])
+	check("and its sprung model takes its place", (trap.get_node("Look") as MeshInstance3D).mesh != TerraceDressing.kit_mesh(load(FieldTrap.MODEL % [trap.region, "heavy"])))
 	var after := game.player.hp
 	game.player.teleport(trap.global_position + off)
 	await step(1)
@@ -68,6 +81,33 @@ func run() -> void:
 	await step(2)
 	# Out of combat she regains a little meanwhile; no second blow lands.
 	check("sprung, it is spent", trap.spent and game.player.hp >= after - 0.5, [after, game.player.hp])
+	# Out of a lit fuse before it ends: no blow.
+	var dodge: FieldTrap = FieldTrap.new()
+	dodge.setup(game, "heavy", "mine")
+	game.world_map._generated_root.add_child(dodge)
+	dodge.global_position = trap.global_position + off * 2.0
+	game.traps.append(dodge)
+	game.player.hp = game.player.max_hp
+	game.player.teleport(dodge.global_position)
+	await step(2)
+	game.player.teleport(dodge.global_position + off)
+	var whole := game.player.hp
+	await step(40)
+	check("stepped out of a lit fuse, she takes no blow", dodge.spent and game.player.hp >= whole - 1.0, [whole, game.player.hp])
+	# A foe on her trail springs one, takes its blow, and the 威胁值 stays.
+	var foe: Enemy = game.floor_enemies()[0]
+	var lure: FieldTrap = FieldTrap.new()
+	lure.setup(game, "light", "mine")
+	game.world_map._generated_root.add_child(lure)
+	lure.global_position = dodge.global_position + off * 2.0
+	game.traps.append(lure)
+	var threat_before := game.threat.value
+	var foe_hp := foe.health
+	foe.state = Enemy.State.CHASING
+	foe.global_position = lure.global_position
+	await step(2)
+	check("a foe on her trail springs it and takes its blow, the 威胁值 unchanged", lure.spent and not lure.by_player and foe.health < foe_hp and absf(game.threat.value - threat_before) < 0.5, [lure.spent, foe_hp, foe.health, game.threat.value, threat_before])
+	foe.global_position += Vector3(300, 0, 300)
 	light.kind = "light"
 	game.player.invulnerable = true
 	game.player.teleport(light.global_position)

@@ -1,0 +1,212 @@
+{
+  "stage": 1,
+  "status": "READY_FOR_USER_IDENTITY_REVIEW",
+  "figures": [
+    {
+      "id": "patriot",
+      "source": "source_paintings\\patriot_generated.png",
+      "source_sha256": "ecf607f5f5eadf865a5ef33e4889c26553d850a2cfd6f9a261b823b81fe18ccc",
+      "native": "native/patriot.png",
+      "native_cell": "native/patriot_64.png",
+      "visible_size": [
+        42,
+        46
+      ],
+      "foreground_bbox": [
+        11,
+        6,
+        53,
+        52
+      ],
+      "native_cell_sha256": "19982a2ae5aaf10f07c16d26f03c67913bf457593be4f2ec790bed3d7aefaef1"
+    },
+    {
+      "id": "rat_king",
+      "source": "source_paintings\\rat_king_generated.png",
+      "source_sha256": "2ca0b26b602d59ddaaa3d9bf2fb564cd7ef045691fdda1279f4c12e3c4189eec",
+      "native": "native/rat_king.png",
+      "native_cell": "native/rat_king_64.png",
+      "visible_size": [
+        32,
+        36
+      ],
+      "foreground_bbox": [
+        16,
+        16,
+        48,
+        52
+      ],
+      "native_cell_sha256": "b7bdb3c86cc2154e90344b66682cc185fbd76d2c9554436976bd67a37e28a9de"
+    },
+    {
+      "id": "eikthyrnir",
+      "source": "source_paintings\\eikthyrnir_generated.png",
+      "source_sha256": "1707d1ed100d3dcf734deb498e1c3e17684c377601ed13b49a2d7c0909d7c0aa",
+      "native": "native/eikthyrnir.png",
+      "native_cell": "native/eikthyrnir_64.png",
+      "visible_size": [
+        39,
+        46
+      ],
+      "foreground_bbox": [
+        12,
+        6,
+        51,
+        52
+      ],
+      "native_cell_sha256": "7978d006a198e41c797210d78fa5e703a1d97165217e760fe38f3f5e5912d462"
+    },
+    {
+      "id": "zaro_lying",
+      "source": "source_paintings\\zaro_lying_generated.png",
+      "source_sha256": "64f96eb18a524272e590d5170f8ededc1e5db9644cb73263ff35bec8a22b80bd",
+      "native": "native/zaro_lying.png",
+      "native_cell": "native/zaro_lying_64.png",
+      "visible_size": [
+        60,
+        38
+      ],
+      "foreground_bbox": [
+        2,
+        14,
+        62,
+        52
+      ],
+      "native_cell_sha256": "cdf2fd8d4051d3a718640cab5b7444a7036796fed58e51a170de0a4fc72417bc"
+    },
+    {
+      "id": "crownslayer",
+      "source": "source_paintings\\crownslayer_generated.png",
+      "source_sha256": "54825cde7b05bfcc7fd02b9cb3b87e773a914f98e2262789808043ce69e07418",
+      "native": "native/crownslayer.png",
+      "native_cell": "native/crownslayer_64.png",
+      "visible_size": [
+        22,
+        30
+      ],
+      "foreground_bbox": [
+        21,
+        22,
+        43,
+        52
+      ],
+      "native_cell_sha256": "a57366114fb2f2d86e7aef280ef57979588cf61ddb97f86510994d06b044d641"
+    },
+    {
+      "id": "skullshatterer",
+      "source": "source_paintings\\skullshatterer_generated.png",
+      "source_sha256": "453ee453f4cd8b8c205a925b03149db27d39c043189e75b836eec729f7fee4c6",
+      "native": "native/skullshatterer.png",
+      "native_cell": "native/skullshatterer_64.png",
+      "visible_size": [
+        23,
+        32
+      ],
+      "foreground_bbox": [
+        20,
+        20,
+        43,
+        52
+      ],
+      "native_cell_sha256": "afe2acdf878abaef6246217c473114cdefb9196ed6ce0da90c8b2ce9454b44a4"
+    },
+    {
+      "id": "hollow_snowpriest",
+      "source": "source_paintings\\hollow_snowpriest_generated.png",
+      "source_sha256": "f4c16d8395c3ce6e3b5512bf6cd3d3591a58c0d03d93e3ae601b2051a11eb3e9",
+      "native": "native/hollow_snowpriest.png",
+      "native_cell": "native/hollow_snowpriest_64.png",
+      "visible_size": [
+        25,
+        33
+      ],
+      "foreground_bbox": [
+        19,
+        19,
+        44,
+        52
+      ],
+      "native_cell_sha256": "c9a7c86866e2473be154a3f614d734d701230eb328ca2a4baf8864d9c3ad4102"
+    },
+    {
+      "id": "father_agnir",
+      "source": "source_paintings\\father_agnir_generated.png",
+      "source_sha256": "14375b7d5c828891608be7d8dcb30317c415378e2f8f2dec27bed40aca2d11c3",
+      "native": "native/father_agnir.png",
+      "native_cell": "native/father_agnir_64.png",
+      "visible_size": [
+        24,
+        31
+      ],
+      "foreground_bbox": [
+        20,
+        21,
+        44,
+        52
+      ],
+      "native_cell_sha256": "b04b4b33dd4bb16799d35056138228e58083f2ad9c42bcf76457da8e5d84c4f9"
+    },
+    {
+      "id": "zaro_standing",
+      "source": "source_paintings\\zaro_standing_generated.png",
+      "source_sha256": "6819a578a5de3f02af163f73e4c84c64e4db6887f641fe9013df3d8fab775bfe",
+      "native": "native/zaro_standing.png",
+      "native_cell": "native/zaro_standing_64.png",
+      "visible_size": [
+        60,
+        48
+      ],
+      "foreground_bbox": [
+        2,
+        4,
+        62,
+        52
+      ],
+      "native_cell_sha256": "06ffb739d643052e212fb495aeaf2755978319e900901462c0e0f6c8536628da"
+    }
+  ],
+  "reference_order": [
+    "patriot",
+    "rat_king",
+    "eikthyrnir",
+    "zaro",
+    "crownslayer",
+    "skullshatterer",
+    "hollow_snowpriest",
+    "father_agnir"
+  ],
+  "identity_sheet_order": [
+    "patriot",
+    "rat_king",
+    "eikthyrnir",
+    "zaro_lying",
+    "crownslayer",
+    "skullshatterer",
+    "hollow_snowpriest",
+    "father_agnir",
+    "zaro_standing"
+  ],
+  "target_heights": {
+    "patriot": 46,
+    "rat_king": 36,
+    "eikthyrnir": 46,
+    "zaro": 38,
+    "crownslayer": 30,
+    "skullshatterer": 32,
+    "hollow_snowpriest": 33,
+    "father_agnir": 31
+  },
+  "scale": {
+    "cell": 64,
+    "foot_y_inclusive": 51,
+    "preview_scale": 6,
+    "downscale": "BOX from generated painting; binary alpha >128; no source palette quantization",
+    "zaro_standing_shoulder_y_source": 440,
+    "zaro_source_sole_y_exclusive": 1065,
+    "zaro_shoulder_height": 38,
+    "zaro_scale": 0.0608,
+    "zaro_note": "Shoulder landmark below tallest ruff tuft, manually reviewed in this three-quarter identity. Lying pose uses standing body length; final S/profile board calibration remains stage 2."
+  },
+  "stage_2": "NOT STARTED; user identity approval required",
+  "stage_3": "NOT STARTED"
+}

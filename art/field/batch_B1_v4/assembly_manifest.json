@@ -1,0 +1,1464 @@
+{
+  "changed_cells": 72,
+  "preserved_source_cells_in_four_boards": 208,
+  "rows": {
+    "patriot_action_r09": {
+      "selected": "kneel_pole_final",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            43,
+            118,
+            421,
+            436
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            218,
+            184
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            494,
+            123,
+            854,
+            436
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            208,
+            181
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            972,
+            124,
+            1285,
+            435
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            181,
+            180
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1442,
+            132,
+            1708,
+            437
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            154,
+            176
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            58,
+            558,
+            390,
+            859
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            192,
+            174
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            508,
+            562,
+            859,
+            859
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            203,
+            171
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            945,
+            556,
+            1312,
+            859
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            212,
+            175
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1403,
+            566,
+            1756,
+            859
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            204,
+            169
+          ],
+          "source_sha256": "9c9875b082c52e0338de75e83a9488716c6f0fbf5c006b35d7cb30b0d3d3cd1f"
+        }
+      ]
+    },
+    "patriot_action_r08": {
+      "selected": "patriot_action_r08",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            97,
+            133,
+            400,
+            433
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            175,
+            173
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            503,
+            116,
+            844,
+            433
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            197,
+            183
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            948,
+            136,
+            1279,
+            433
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            191,
+            171
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1410,
+            137,
+            1720,
+            433
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            179,
+            171
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            76,
+            543,
+            357,
+            846
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            162,
+            175
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            529,
+            551,
+            822,
+            846
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            169,
+            170
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            957,
+            551,
+            1267,
+            846
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            179,
+            170
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1413,
+            550,
+            1701,
+            846
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            166,
+            171
+          ],
+          "source_sha256": "caa0f5de34578b8e8747550aee70ad3bce2eb6dad9983f334d125cb08d28fd88"
+        }
+      ]
+    },
+    "patriot_walk_r05": {
+      "selected": "patriot_walk_r05",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            45,
+            101,
+            407,
+            407
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            209,
+            177
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            525,
+            87,
+            855,
+            407
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            190,
+            185
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            927,
+            107,
+            1286,
+            407
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            207,
+            173
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1387,
+            106,
+            1743,
+            407
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            205,
+            174
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            52,
+            510,
+            378,
+            813
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            188,
+            175
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            506,
+            498,
+            848,
+            813
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            197,
+            182
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            927,
+            514,
+            1302,
+            813
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            216,
+            173
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1387,
+            507,
+            1740,
+            813
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            204,
+            177
+          ],
+          "source_sha256": "ec5d9943b5c473f174fb973e4470e9de55c77164af376e8a97be1b91d2841313"
+        }
+      ]
+    },
+    "patriot_walk_r06": {
+      "selected": "patriot_walk_r06",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            81,
+            156,
+            379,
+            437
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            172,
+            162
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            513,
+            141,
+            827,
+            438
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            181,
+            171
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            947,
+            146,
+            1288,
+            437
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            197,
+            168
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1402,
+            153,
+            1722,
+            435
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            185,
+            163
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            77,
+            537,
+            374,
+            836
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            171,
+            173
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            516,
+            535,
+            840,
+            834
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            187,
+            173
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            949,
+            540,
+            1294,
+            834
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            199,
+            170
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1427,
+            532,
+            1744,
+            834
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            183,
+            174
+          ],
+          "source_sha256": "496a918cc98d5b6e64865d8652b2fb8e528f2e4b640040d79c3dc6e92995b5ac"
+        }
+      ]
+    },
+    "patriot_walk_r07": {
+      "selected": "patriot_walk_r07",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            86,
+            161,
+            376,
+            418
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            167,
+            148
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            518,
+            128,
+            820,
+            419
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            174,
+            168
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            965,
+            159,
+            1273,
+            418
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            178,
+            150
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1416,
+            150,
+            1726,
+            418
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            179,
+            155
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            74,
+            530,
+            367,
+            811
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            169,
+            162
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            525,
+            522,
+            849,
+            811
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            187,
+            167
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            957,
+            529,
+            1296,
+            812
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            196,
+            163
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1415,
+            527,
+            1732,
+            811
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            183,
+            164
+          ],
+          "source_sha256": "8acfeb22804230e365e8cdb7c40381e0e6cdf4a03aba580650192e6ed1385cd5"
+        }
+      ]
+    },
+    "patriot_walk_r08": {
+      "selected": "patriot_walk_r08",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            76,
+            156,
+            354,
+            426
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            160,
+            156
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            425,
+            141,
+            823,
+            427
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            230,
+            165
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            896,
+            145,
+            1276,
+            427
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            219,
+            163
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1339,
+            148,
+            1731,
+            427
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            226,
+            161
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            107,
+            557,
+            376,
+            838
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            155,
+            162
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            516,
+            557,
+            878,
+            834
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            209,
+            160
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            933,
+            550,
+            1322,
+            834
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            225,
+            164
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1405,
+            557,
+            1760,
+            834
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            205,
+            160
+          ],
+          "source_sha256": "38daa854830568b167a8e34a0781d66eed3ceaa2936b3deb1ba4c60e045a667e"
+        }
+      ]
+    },
+    "eikthyrnir_action_r09": {
+      "selected": "eikthyrnir_roar_final",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            106,
+            99,
+            365,
+            438
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            150,
+            196
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            564,
+            101,
+            813,
+            438
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            144,
+            195
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            1012,
+            102,
+            1246,
+            440
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            135,
+            195
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1484,
+            103,
+            1715,
+            439
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            133,
+            194
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            88,
+            501,
+            360,
+            841
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            157,
+            196
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            571,
+            505,
+            830,
+            845
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            150,
+            196
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            1019,
+            504,
+            1256,
+            845
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            137,
+            197
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1452,
+            506,
+            1720,
+            845
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            155,
+            196
+          ],
+          "source_sha256": "71516c122dc5aec7f713b245ee273078fb056fc19afbf674979fa83b2eb283ca"
+        }
+      ]
+    },
+    "zaro_action_r07": {
+      "selected": "zaro_action_r07",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            27,
+            231,
+            422,
+            414
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            228,
+            106
+          ],
+          "source_sha256": "e46679296a9fb519c2addc9539a0d09a11647653ddab7e217ac7a9b4ec336a09"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            474,
+            229,
+            855,
+            413
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            220,
+            106
+          ],
+          "source_sha256": "640adb1ae4f6642d548be684a45ff4cd02b8318b00b01a0314f1f9d91b3ded0f"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            926,
+            235,
+            1301,
+            415
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            216,
+            104
+          ],
+          "source_sha256": "640adb1ae4f6642d548be684a45ff4cd02b8318b00b01a0314f1f9d91b3ded0f"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1353,
+            215,
+            1741,
+            427
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            224,
+            122
+          ],
+          "source_sha256": "e46679296a9fb519c2addc9539a0d09a11647653ddab7e217ac7a9b4ec336a09"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            36,
+            627,
+            423,
+            830
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            223,
+            117
+          ],
+          "source_sha256": "e46679296a9fb519c2addc9539a0d09a11647653ddab7e217ac7a9b4ec336a09"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            484,
+            622,
+            861,
+            839
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            218,
+            125
+          ],
+          "source_sha256": "e46679296a9fb519c2addc9539a0d09a11647653ddab7e217ac7a9b4ec336a09"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            926,
+            662,
+            1320,
+            834
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            227,
+            99
+          ],
+          "source_sha256": "640adb1ae4f6642d548be684a45ff4cd02b8318b00b01a0314f1f9d91b3ded0f"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1364,
+            651,
+            1743,
+            831
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            219,
+            104
+          ],
+          "source_sha256": "e46679296a9fb519c2addc9539a0d09a11647653ddab7e217ac7a9b4ec336a09"
+        }
+      ]
+    },
+    "zaro_action_r08": {
+      "selected": "zaro_action_r08",
+      "registration": [
+        {
+          "slot": 0,
+          "source_bbox": [
+            93,
+            82,
+            356,
+            406
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            152,
+            187
+          ],
+          "source_sha256": "e2e805e8ebca2e661db58d0a8078a976a19d019fbc7b738d21451ae587fca4fd"
+        },
+        {
+          "slot": 1,
+          "source_bbox": [
+            426,
+            110,
+            852,
+            426
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            246,
+            182
+          ],
+          "source_sha256": "e2e805e8ebca2e661db58d0a8078a976a19d019fbc7b738d21451ae587fca4fd"
+        },
+        {
+          "slot": 2,
+          "source_bbox": [
+            893,
+            110,
+            1304,
+            421
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            237,
+            180
+          ],
+          "source_sha256": "8caaa0ace492b991059c00d51fb37823fe879483c26ca946c60ee91bb5af4187"
+        },
+        {
+          "slot": 3,
+          "source_bbox": [
+            1391,
+            117,
+            1734,
+            423
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            198,
+            177
+          ],
+          "source_sha256": "e2e805e8ebca2e661db58d0a8078a976a19d019fbc7b738d21451ae587fca4fd"
+        },
+        {
+          "slot": 4,
+          "source_bbox": [
+            131,
+            509,
+            323,
+            828
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            111,
+            184
+          ],
+          "source_sha256": "e2e805e8ebca2e661db58d0a8078a976a19d019fbc7b738d21451ae587fca4fd"
+        },
+        {
+          "slot": 5,
+          "source_bbox": [
+            447,
+            524,
+            807,
+            827
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            208,
+            175
+          ],
+          "source_sha256": "e2e805e8ebca2e661db58d0a8078a976a19d019fbc7b738d21451ae587fca4fd"
+        },
+        {
+          "slot": 6,
+          "source_bbox": [
+            915,
+            508,
+            1345,
+            818
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            248,
+            179
+          ],
+          "source_sha256": "8caaa0ace492b991059c00d51fb37823fe879483c26ca946c60ee91bb5af4187"
+        },
+        {
+          "slot": 7,
+          "source_bbox": [
+            1413,
+            507,
+            1756,
+            829
+          ],
+          "source_size": [
+            1774,
+            887
+          ],
+          "uniform_canvas_dpi_scale": 0.5772266065388951,
+          "assembled_figure_size": [
+            198,
+            186
+          ],
+          "source_sha256": "e2e805e8ebca2e661db58d0a8078a976a19d019fbc7b738d21451ae587fca4fd"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\pipeline\\bake_n2.py",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\patriot_action.png",
+        "patriot",
+        "9"
+      ],
+      "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\patriot_action_64.png scale 0.2535\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\pipeline\\bake_n2.py",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\patriot_walk.png",
+        "patriot",
+        "8",
+        "--scale-from",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\patriot_action.png"
+      ],
+      "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\patriot_walk_64.png scale 0.2535\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\pipeline\\bake_n2.py",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\eikthyrnir_action.png",
+        "eikthyrnir",
+        "9"
+      ],
+      "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\eikthyrnir_action_64.png scale 0.2521\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\yuan\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\pipeline\\bake_n2.py",
+        "D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\zaro_action.png",
+        "zaro",
+        "9"
+      ],
+      "output": "baked D:\\CSYE 7370\\downfall-godot\\art\\field\\batch_B1_v4\\zaro_action_64.png scale 0.2595\n"
+    }
+  ],
+  "normalization": "uniform DPI from whole reference grid; no per-cell resizing, no geometry painting, no auto-fit to native64"
+}

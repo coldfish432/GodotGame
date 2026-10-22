@@ -111,6 +111,17 @@ func _build() -> void:
 				stroke(self, Vector3.ZERO, ray * reach * 0.6, P, Color("4a4640"))
 			if big:
 				for i in range(3): part(self, direction.rotated(Vector3.UP, i * TAU / 3) * 0.4 + Vector3.UP * 0.2, Vector3.ONE * P * 2, Color("8a8478"))
+		"sand_burst":
+			# “鼠王”'s 唱沙 (用户 2026-10-20): yellow sand bursting up all along a
+			# strip of the cross, `reach` long (centred here), `spread` wide.
+			duration = 0.55
+			var sand := [Color("e0c070"), Color("c8a050"), Color("f0dc98")]
+			var count := maxi(6, int(reach * 2.5))
+			for i in range(count):
+				var along := (float(i) / float(count - 1) - 0.5) * reach
+				var off := (randf() - 0.5) * spread * 0.8
+				var tall := P * (4.0 + randf() * 6.0)
+				part(self, direction * along + side * off + Vector3.UP * tall * 0.5, Vector3(P * 4.0, tall, P * 4.0), sand[i % sand.size()])
 		"crystal_spikes":
 			# 术师: three black originium spikes lit orange inside; they shatter.
 			duration = 0.40
@@ -228,6 +239,11 @@ func _process(delta: float) -> void:
 		"dust", "snow_puff":
 			scale = Vector3.ONE * (1.0 + t)
 			position.y += delta * 0.6
+		"sand_burst":
+			# The grains rise and spread, then settle out of sight.
+			for child in get_children():
+				child.position += (Vector3.UP * (1.6 - t * 3.0) + Vector3(child.position.x, 0, child.position.z).normalized() * 0.3) * delta
+				child.scale = Vector3.ONE * (1.0 - t * 0.6)
 		"wood_chip", "vine_burst":
 			for child in get_children():
 				child.position += (child.position.normalized() * 1.5 + Vector3.DOWN * t * 2.0) * delta

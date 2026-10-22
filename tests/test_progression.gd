@@ -1,6 +1,6 @@
 extends SceneTree
 
-## B5 of 基地玩法策划案_v1_0.md: what prestige ranks open, building racks, the
+## B5 of 基地玩法策划案_v1_0.md: what facility levels open, building racks, the
 ## sorting drone, the R3 order reroll, station markers, the base's top bar and
 ## the departure card (§2.2, §3.5, §3.6, §5).
 
@@ -26,6 +26,14 @@ func give(game: GameManager, cost: Dictionary) -> void:
 			game.base.shelf.append(m)
 			left -= m.quantity
 
+## The first button under `node` whose meta `key` is `value`.
+func _find_meta(node: Node, key: String, value: Variant) -> Button:
+	for child in node.get_children():
+		if child is Button and child.has_meta(key) and child.get_meta(key) == value: return child
+		var found := _find_meta(child, key, value)
+		if found != null: return found
+	return null
+
 func run() -> void:
 	rules()
 	await through_game()
@@ -34,15 +42,15 @@ func run() -> void:
 
 func rules() -> void:
 	var base := BaseState.new()
-	check("racks follow the build order's prices and ranks", BaseCatalog.RACK_PRICES == [0, 6000, 9000, 14000, 14000, 14000, 20000, 20000, 20000]
-		and BaseCatalog.RACK_RANKS == [0, 1, 1, 2, 2, 2, 3, 3, 3])
-	check("the second rack needs R1", "R1" in base.rack_refusal(Item.Category.WEAPON, 99999))
-	base.add_prestige(20)
-	check("a rank-up leaves something new to look at", base.unseen_unlocks and base.rank() == 1)
-	check("at R1 with enough gold it can be built", base.rack_refusal(Item.Category.WEAPON, 6000).is_empty() and "龙门币不足" in base.rack_refusal(Item.Category.WEAPON, 5999))
+	check("racks follow the build order's prices and 仓储部 levels", BaseCatalog.RACK_PRICES == [0, 8000, 12000, 25000, 25000, 25000, 45000, 45000, 45000]
+		and BaseCatalog.RACK_LEVELS == [1, 2, 2, 3, 3, 3, 4, 4, 4])
+	check("the second rack needs 仓储部 Lv2", "仓储部 Lv2" in base.rack_refusal(Item.Category.WEAPON, 99999))
+	check("upgrading 仓储部 is refused without the gold", base.facility_refusal("warehouse", 9999) == "龙门币不足" and base.facility_refusal("warehouse", 10000).is_empty())
+	check("raising it opens the next level", base.raise_facility("warehouse") == 2 and base.facility_level("warehouse") == 2)
+	check("at Lv2 with enough gold it can be built", base.rack_refusal(Item.Category.WEAPON, 8000).is_empty() and "龙门币不足" in base.rack_refusal(Item.Category.WEAPON, 7999))
 	check("building the second rack: 24 cells", base.build_rack(Item.Category.WEAPON) == 1 and base.capacity(Item.Category.WEAPON) == 24)
 	base.build_rack(Item.Category.WEAPON)
-	check("the middle row needs R2", "R2" in base.rack_refusal(Item.Category.WEAPON, 999))
+	check("the middle row needs Lv3", "仓储部 Lv3" in base.rack_refusal(Item.Category.WEAPON, 999))
 	for i in range(6): base.racks[Item.Category.WEAPON] = 3 + i + 1
 	check("nine racks is the most: 108 cells", base.capacity(Item.Category.WEAPON) == 108 and base.next_rack_slot(Item.Category.WEAPON) == -1)
 
@@ -97,8 +105,8 @@ func through_game() -> void:
 	# Top bar.
 	game.base.injured = true
 	await step(2)
-	check("the base top bar shows gold, prestige and injury, never contamination: " + game._status_bar.text,
-		game._status_bar.visible and "龙门币" in game._status_bar.text and "声望 R0 · 0/20" in game._status_bar.text and not "污染" in game._status_bar.text and "重伤" in game._status_bar.text)
+	check("the base top bar shows gold and injury, never contamination or prestige: " + game._status_bar.text,
+		game._status_bar.visible and "龙门币" in game._status_bar.text and not "声望" in game._status_bar.text and not "污染" in game._status_bar.text and "重伤" in game._status_bar.text)
 
 	# Departure card only when there is something to look at.
 	game.request_contract("mine")
@@ -112,18 +120,20 @@ func through_game() -> void:
 	game.settle(true)
 	await step(2)
 
-	# Prestige to R1: drone and front-row racks.
-	game.gold = 100000
-	check("the drone needs R1", not game.buy_drone())
-	game._grant(0, 20)
-	check("rank-up message names what it opens: " + game.message, "R1" in game.message and "无人机" in game.message)
-	check("the warehouse terminal marker turns yellow until it is opened", game.station_needs_attention("stash"))
-	game.open_station("stash")
+	# 仓储部 to Lv2 on the 基建 page: drone and front-row racks.
+	game.gold = 110000
+	check("the drone needs 仓储部 Lv2", not game.buy_drone() and game.drone_refusal() == "需要仓储部 Lv2")
+	check("the upgrade needs its materials", not game.upgrade_facility("warehouse") and "缺少" in game.facility_refusal("warehouse"))
+	give(game, BaseCatalog.facility_step("warehouse", 2).materials)
+	game.open_build_site("warehouse")
+	var up: Button = _find_meta(game.menu, "facility", "warehouse")
+	check("the warehouse's construction site offers the upgrade", up != null and not up.disabled)
+	if up != null: up.pressed.emit()
+	check("upgrading names what it opens: " + game.message, game.base.facility_level("warehouse") == 2 and "无人机" in game.message and game.gold == 100000)
 	game.close_modal()
-	check("opening it clears that", not game.station_needs_attention("stash"))
 	check("without materials the rack is refused", not game.build_rack(Item.Category.WEAPON) and "螺栓" in game.message)
 	give(game, BaseCatalog.RACK_MATERIALS[1])
-	check("build the second weapon rack for 6000 + its materials", game.build_rack(Item.Category.WEAPON) and game.gold == 94000 and game.base.racks[Item.Category.WEAPON] == 2)
+	check("build the second weapon rack for 8000 + its materials", game.build_rack(Item.Category.WEAPON) and game.gold == 92000 and game.base.racks[Item.Category.WEAPON] == 2)
 	await step(3)
 	check("the new rack joins the reveal", reveal.built_shelves().size() == 5)
 	var a: Array = view.anchors.zones.weapon
@@ -139,7 +149,7 @@ func through_game() -> void:
 	query.position = Vector3(second.node.position.x, 1.0, second.node.position.z) + BaseMap.ORIGIN
 	check("and stands in the way like the first", not space.intersect_point(query).is_empty())
 	give(game, BaseCatalog.DRONE_MATERIALS)
-	check("buy the drone for 15000 + its materials", game.material_count("螺栓") == 0 and game.buy_drone() and game.gold == 79000 and not game.buy_drone())
+	check("buy the drone for 20000 + its materials", game.material_count("螺栓") == 0 and game.buy_drone() and game.gold == 72000 and not game.buy_drone())
 
 	# Sort everything with the drone.
 	var finds: Array[Item] = []
@@ -157,13 +167,13 @@ func through_game() -> void:
 	game.settle(true)
 	check("on every return the drone empties staging onto the shelves", game.base.location_of(later) == "shelf")
 
-	# R3 reroll, once per settlement.
-	game._grant(0, 100)
+	# 仓储部 Lv4 reroll, once per settlement.
+	game.base.set_facility("warehouse", 4)
 	check("not before the next settlement", not game.base.reroll_available)
 	await game.start_contract("city")
 	game.settle(true)
 	game.base.orders.slots = [{"id": "eng_materials", "state": "open", "delivered": []}, {"id": "log_trinkets", "state": "open", "delivered": []}, null]
-	check("R3: one free reroll after a settlement", game.base.rank() == 3 and game.reroll_order(0) and not game.reroll_order(1))
+	check("Lv4: one free reroll after a settlement", game.reroll_order(0) and not game.reroll_order(1))
 
 	# Saves keep all of it.
 	game.save_path = "user://progression_TEST_ONLY.json"
@@ -173,7 +183,7 @@ func through_game() -> void:
 	game.base = BaseState.new()
 	game.load_base()
 	await step(3)
-	check("save keeps racks, the drone and prestige", game.base.racks == racks and game.base.drone and game.base.rank() == 3)
+	check("save keeps racks, the drone and facility levels", game.base.racks == racks and game.base.drone and game.base.facility_level("warehouse") == 4)
 	check("racks from a save are shown", reveal.built_shelves().size() == 5)
 	game.save_enabled = false
 	for suffix in ["", ".bak", ".tmp"]:

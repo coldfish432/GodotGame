@@ -24,7 +24,7 @@ const PROFILES := {
 	# 切尔诺伯格
 	"armed": {"name": "武装人员", "attack": "钝器重击", "row": -1, "windup": 1.0, "interval": 2.1, "damage": 1.4, "shape": "circle", "reach": 2.4, "radius": 1.65, "recovery": 0.3, "elite": true, "tint": Color("c0a080")},
 	"caster": {"name": "术师", "attack": "源石晶刺", "art": "crossbow", "tint": Color("c49cff"), "windup": 0.8, "interval": 2.2, "damage": 1.0, "shape": "ground", "reach": 9.0, "radius": 1.2, "recovery": 0.3},
-	"shield": {"name": "机动盾兵", "attack": "盾推", "art": "thug", "tint": Color("9fb3c8"), "windup": 0.9, "interval": 1.6, "damage": 0.8, "shape": "sector", "reach": 2.2, "angle": 90.0, "recovery": 0.6, "front_guard": 0.6, "knockback": 2.0},
+	"shield": {"heavy": true, "name": "机动盾兵", "attack": "盾推", "art": "thug", "tint": Color("9fb3c8"), "windup": 0.9, "interval": 1.6, "damage": 0.8, "shape": "sector", "reach": 2.2, "angle": 90.0, "recovery": 0.6, "front_guard": 0.6, "knockback": 2.0},
 	# 用户 2026-10-11: rears up and chops down with its front claws (抬起前爪向下劈).
 	"slug_volatile": {"name": "高能源石虫", "attack": "前爪下劈", "art": "slug", "tint": Color("ff9a4a"), "windup": 0.8, "interval": 1.2, "damage": 0.7, "shape": "sector", "reach": 1.9, "angle": 90.0, "recovery": 0.3, "death_blast": 2.0},
 	"picket": {"name": "感染者纠察官", "attack": "扇形挥击", "art": "thug", "tint": Color("d08a6a"), "windup": 0.8, "interval": 1.3, "damage": 1.0, "shape": "sector", "reach": 2.6, "angle": 110.0, "recovery": 0.3, "lasso": true},
@@ -32,20 +32,20 @@ const PROFILES := {
 	"greytail": {"name": "灰尾", "attack": "突刺", "art": "brawler", "tint": Color("aab0b8"), "windup": 0.8, "interval": 1.0, "damage": 0.8, "shape": "lane", "reach": 3.2, "width": 0.9, "dash": 1.2, "recoil": 0.8, "recovery": 0.25, "barrier": 0.3},
 	"greytail_lord": {"name": "灰尾香主", "attack": "重击", "row": -1, "windup": 1.0, "interval": 2.0, "damage": 1.3, "shape": "circle", "reach": 2.4, "radius": 1.6, "recovery": 0.3, "elite": true, "barrier": 0.3, "barrier_color": Color("c8b0f0"), "tint": Color("b8b0d8")},
 	"thrower": {"name": "燃烧瓶投掷者", "attack": "燃烧瓶", "art": "crossbow", "tint": Color("ffb066"), "windup": 1.0, "interval": 2.4, "damage": 0.8, "shape": "lob", "reach": 9.0, "radius": 1.3, "fire_time": 3.0, "recovery": 0.3, "backstep": 3.0},
-	"bully": {"name": "欺凌者", "attack": "冲撞", "row": -1, "windup": 1.2, "interval": 2.6, "damage": 1.5, "shape": "charge", "reach": 7.0, "width": 1.4, "recovery": 1.0, "elite": true, "unstoppable": true, "knockback": 2.5, "tint": Color("e0a070")},
+	"bully": {"heavy": true, "name": "欺凌者", "attack": "冲撞", "row": -1, "windup": 1.2, "interval": 2.6, "damage": 1.5, "shape": "charge", "reach": 7.0, "width": 1.4, "recovery": 1.0, "elite": true, "unstoppable": true, "knockback": 2.5, "tint": Color("e0a070")},
 	"avenger": {"name": "寻仇者", "attack": "突刺回砍", "row": -1, "windup": 1.0, "interval": 2.0, "damage": 0.8, "shape": "circle", "reach": 2.4, "radius": 1.6, "recovery": 0.3, "elite": true, "combo": 2, "phase": 0.5, "tint": Color("d07070"),
 		# 新敌人攻击案 §三第 10 条: a straight thrust, then a back-cut round its own feet;
 		# below half it adds a third (the thrust again).
 		"segments": [{"shape": "lane", "reach": 3.0, "width": 0.9}, {"shape": "self", "radius": 1.6}]},
-	"breacher": {"name": "粉碎攻坚手", "attack": "重锤砸地", "row": -1, "windup": 1.1, "interval": 2.2, "damage": 1.3, "shape": "circle", "reach": 2.2, "radius": 2.0, "recovery": 0.4, "elite": true, "front_guard": 0.3, "stun_every": 3, "stun": 0.8, "tint": Color("8090a8")},
+	"breacher": {"heavy": true, "name": "粉碎攻坚手", "attack": "重锤砸地", "row": -1, "windup": 1.1, "interval": 2.2, "damage": 1.3, "shape": "circle", "reach": 2.2, "radius": 2.0, "recovery": 0.4, "elite": true, "front_guard": 0.3, "stun_every": 3, "stun": 0.8, "tint": Color("8090a8")},
 	# 萨米
 	"taint_husk": {"name": "染污躯壳", "attack": "横扫", "art": "ice_warrior", "tint": Color("8a7a9a"), "windup": 0.9, "interval": 1.4, "damage": 1.1, "shape": "sector", "reach": 2.4, "angle": 110.0, "recovery": 0.3, "enrage_run": 2.0},
 	"distorted_caster": {"name": "歪曲施法者", "attack": "脚下施法", "art": "ice_hunter", "tint": Color("9a7be0"), "windup": 0.9, "interval": 2.2, "damage": 1.1, "shape": "ground", "reach": 8.0, "radius": 1.3, "recovery": 0.3, "glide": 5.0},
-	"shattered_champion": {"name": "木裂战士", "attack": "突进两段斩", "row": -1, "windup": 0.9, "interval": 2.0, "damage": 1.0, "shape": "circle", "reach": 2.6, "radius": 1.7, "recovery": 0.3, "elite": true, "combo": 2, "annihilate": 0.3, "tint": Color("b0c8d0")},
+	"shattered_champion": {"name": "木裂战士", "attack": "突进两段斩", "row": -1, "windup": 0.9, "interval": 2.0, "damage": 0.85, "shape": "circle", "reach": 2.6, "radius": 1.7, "recovery": 0.3, "elite": true, "combo": 2, "annihilate": 0.3, "tint": Color("b0c8d0")},
 	"shell_vine": {"name": "巨壳藤蔓", "attack": "张口", "art": "slug", "tint": Color("7aaa5a"), "scale": 1.3, "windup": 0.7, "interval": 1.2, "damage": 1.0, "shape": "lane", "reach": 2.4, "width": 1.4, "dash": 1.6, "recoil": 1.0, "recovery": 0.3},
 	# 用户 2026-10-11: lowers its head and butts with its horns (低头用角顶): a short
 	# lunge, not a charge across the room.
-	"rock_hornbeast": {"name": "岩角兽", "attack": "角顶", "art": "slug", "tint": Color("a08060"), "scale": 1.5, "windup": 1.0, "interval": 2.0, "damage": 1.0, "shape": "lane", "reach": 2.4, "width": 1.4, "dash": 1.0, "recoil": 0.6, "recovery": 0.6, "front_guard": 0.5, "neutral": true, "knockback": 2.0},
+	"rock_hornbeast": {"heavy": true, "name": "岩角兽", "attack": "角顶", "art": "slug", "tint": Color("a08060"), "scale": 1.5, "windup": 1.0, "interval": 2.0, "damage": 1.0, "shape": "lane", "reach": 2.4, "width": 1.4, "dash": 1.0, "recoil": 0.6, "recovery": 0.6, "front_guard": 0.5, "neutral": true, "knockback": 2.0},
 	"fallen_snowpriest": {"name": "陷落雪祀", "attack": "冰弹", "art": "ice_hunter", "tint": Color("eef4ff"), "windup": 1.2, "interval": 2.4, "damage": 1.1, "shape": "projectile", "reach": 11.0, "projectile": "ice_orb", "shots": 1, "recovery": 0.35, "haste_bounce": true},
 	# 威胁值 (用户 2026-10-14; PRTS 萨卡兹哨兵: 负责侦查和预警, 不攻击): it never
 	# attacks; seeing her it puts up a red "!" (the meter fills faster), runs to
@@ -55,9 +55,9 @@ const PROFILES := {
 	# to the 血债 (§四.1, 用户 2026-10-16: 血债杀人涨).
 	"family_soldier": {"name": "家族士兵", "attack": "匕首突刺", "windup": 0.7, "interval": 1.2, "damage": 0.8, "shape": "lane", "reach": 2.4, "width": 0.8, "dash": 0.8, "recoil": 0.6, "recovery": 0.25, "debt": 3.0},
 	# 用户 2026-10-16: 穿透类攻击打到他就停下 (blocks_pierce); slow, hard, heavy.
-	"family_intimidator": {"name": "家族恫吓者", "attack": "双拳砸", "windup": 1.1, "interval": 2.0, "damage": 1.2, "shape": "sector", "reach": 2.2, "angle": 100.0, "recovery": 0.6, "knockback": 1.5, "slow": 0.6, "blocks_pierce": true, "debt": 12.0},
+	"family_intimidator": {"heavy": true, "name": "家族恫吓者", "attack": "双拳砸", "windup": 1.1, "interval": 2.0, "damage": 1.0, "shape": "sector", "reach": 2.2, "angle": 100.0, "recovery": 0.6, "knockback": 1.5, "slow": 0.6, "blocks_pierce": true, "debt": 12.0},
 	# 清算时刻: its bolts turn to arts (Enemy.shot_kind).
-	"family_crossbow": {"name": "家族弩手", "attack": "枪弩连射", "windup": 1.0, "interval": 2.0, "damage": 0.6, "shape": "projectile", "reach": 11.0, "projectile": "arrow", "shots": 2, "recovery": 0.3, "reckoning_arts": true},
+	"family_crossbow": {"name": "家族弩手", "attack": "枪弩连射", "windup": 1.0, "interval": 2.0, "damage": 0.8, "shape": "projectile", "reach": 11.0, "projectile": "arrow", "shots": 2, "recovery": 0.3, "reckoning_arts": true},
 	# 煽动 (§三第 4 条): stops to raise the 血债 "incite" a second (INCITE_*).
 	"family_caster": {"name": "家族术师", "attack": "双发术弹", "windup": 0.9, "interval": 2.4, "damage": 0.7, "shape": "projectile", "reach": 9.0, "projectile": "ice_orb", "shots": 2, "recovery": 0.3, "incite": 0.75},
 	# Its own deaths and those round it within CAPO_DEBT_RADIUS add CAPO_DEBT each.
@@ -65,10 +65,10 @@ const PROFILES := {
 		# 近身一掌: within "trigger" of her, a backhand round its own feet instead.
 		"close": {"shape": "self", "radius": 1.6, "windup": 0.7, "damage": 1.0, "trigger": 1.8}},
 	# Comes only with the reckoning's patrols, unseen until close (Enemy.stealth).
-	"family_eraser": {"name": "家族灭迹人", "attack": "现身斩", "row": -1, "windup": 0.55, "interval": 2.0, "damage": 1.6, "shape": "lane", "reach": 3.2, "width": 0.9, "dash": 1.2, "recoil": 0.6, "recovery": 0.4, "elite": true, "stealth": true},
+	"family_eraser": {"name": "家族灭迹人", "attack": "现身斩", "row": -1, "windup": 0.55, "interval": 2.0, "damage": 1.3, "shape": "lane", "reach": 3.2, "width": 0.9, "dash": 1.2, "recoil": 0.6, "recovery": 0.4, "elite": true, "stealth": true},
 	# A roadblock in a lane's mouth (§三第 7 条): never leaves it; a short charge
 	# out and back. Broken within CAR_DROP_REACH it lets out three soldiers.
-	"family_car": {"name": "家族专用轿车", "attack": "一路顺风", "row": -1, "windup": 1.3, "interval": 3.5, "damage": 1.8, "shape": "charge", "reach": 4.5, "width": 1.8, "recovery": 1.2, "elite": true, "unstoppable": true, "knockback": 3.0, "roadblock": true, "machine": true},
+	"family_car": {"heavy": true, "name": "家族专用轿车", "attack": "一路顺风", "row": -1, "windup": 1.3, "interval": 3.5, "damage": 1.5, "shape": "charge", "reach": 4.5, "width": 1.8, "recovery": 1.2, "elite": true, "unstoppable": true, "knockback": 3.0, "roadblock": true, "machine": true},
 }
 ## 叙拉古's 血债 (§四.1): around a fallen enemy, every 家族角头 within this adds CAPO_DEBT.
 const CAPO_DEBT_RADIUS := 3.0
@@ -123,13 +123,13 @@ const STATS := {
 	"distorted_caster": {"hp": 1000.0, "atk": 500.0, "def": 60.0, "res": 40.0, "kind": "arts"},
 	"shattered_champion": {"hp": 3800.0, "atk": 600.0, "def": 280.0, "res": 30.0, "kind": "phys"},
 	"family_soldier": {"hp": 1300.0, "atk": 420.0, "def": 120.0, "res": 10.0, "kind": "phys"},
-	"family_intimidator": {"hp": 2600.0, "atk": 480.0, "def": 420.0, "res": 10.0, "kind": "phys"},
+	"family_intimidator": {"hp": 2200.0, "atk": 480.0, "def": 420.0, "res": 10.0, "kind": "phys"},
 	"family_crossbow": {"hp": 1100.0, "atk": 420.0, "def": 100.0, "res": 10.0, "kind": "phys"},
 	"family_caster": {"hp": 1000.0, "atk": 440.0, "def": 120.0, "res": 40.0, "kind": "arts"},
 	"family_capo": {"hp": 3600.0, "atk": 560.0, "def": 320.0, "res": 25.0, "kind": "arts"},
-	"family_eraser": {"hp": 3800.0, "atk": 640.0, "def": 360.0, "res": 45.0, "kind": "phys"},
-	"family_car": {"hp": 4200.0, "atk": 640.0, "def": 480.0, "res": 15.0, "kind": "phys"},
-	"shell_vine": {"hp": 2200.0, "atk": 460.0, "def": 200.0, "res": 20.0, "kind": "phys"},
+	"family_eraser": {"hp": 3400.0, "atk": 640.0, "def": 360.0, "res": 45.0, "kind": "phys"},
+	"family_car": {"hp": 3800.0, "atk": 640.0, "def": 480.0, "res": 15.0, "kind": "phys"},
+	"shell_vine": {"hp": 1900.0, "atk": 460.0, "def": 200.0, "res": 20.0, "kind": "phys"},
 	"rock_hornbeast": {"hp": 2000.0, "atk": 420.0, "def": 250.0, "res": 0.0, "kind": "phys"},
 	"fallen_snowpriest": {"hp": 1800.0, "atk": 520.0, "def": 120.0, "res": 40.0, "kind": "arts"},
 	"sentinel": {"hp": 900.0, "atk": 0.0, "def": 60.0, "res": 20.0, "kind": "phys"},
@@ -154,6 +154,8 @@ const FIGURE_HEIGHTS := {
 	"greytail": 28, "greytail_lord": 31, "thrower": 26, "bully": 33, "avenger": 30, "breacher": 32,
 	"taint_husk": 29, "distorted_caster": 31, "shattered_champion": 34, "shell_vine": 22, "rock_hornbeast": 28, "fallen_snowpriest": 30,
 	"sentinel": 28,
+	# B1 (Boss与守卫者策划案 §11): bosses stand over the cast; clamped by Enemy.figure_scale.
+	"patriot": 46, "rat_king": 36, "eikthyrnir": 46, "zaro": 38, "crownslayer": 30, "skullshatterer": 32, "hollow_snowpriest": 33, "father_agnir": 31,
 }
 const BASE_FIGURE := 28.0
 
@@ -163,10 +165,13 @@ static func is_elite_type(type: String) -> bool:
 ## The sprite sheet a type uses: its own, or the one it borrows.
 static func art_type(type: String) -> String:
 	return str(PROFILES.get(type, {}).get("art", type))
-const HP_PER_DEPTH := 0.12
-const ATK_PER_DEPTH := 0.02
+## Growth per floor is compound now, ×1.04 for life, attack and defence alike
+## (复利数值改造清单 A; Scaling.floor_growth); the snow adds its share on top.
 const SNOW_HP_BONUS := 0.45
 const PRESSURE_DIVISOR := 160.0
+## 警戒 from depth stops here (floor ≈ 30), so it adds at most +62.5% (the
+## route's danger and relics still add on top).
+const PRESSURE_DEPTH_MAX := 100.0
 
 static func default_type(region: String, elite: bool, ranged: bool) -> String:
 	if elite: return "armed" if region == "mine" else "elite"

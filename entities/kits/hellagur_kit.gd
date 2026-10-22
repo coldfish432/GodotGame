@@ -1,24 +1,49 @@
 class_name HellagurKit
 extends OperatorKit
 ## 赫拉格 · 武者 · 刃 (干员寻访策划案 §4.1, §9 第 7 条).
-## - Basic: three cuts (slash, return cut, iai); every landed hit heals him
-##   (饮刃). Flasks and self-regeneration heal him only half (用户 2026-10-16).
+## - Basic: three forward thrusts (用户 2026-10-20: 三段前刺); the third runs
+##   straight through up to four enemies in a line. Every landed hit heals him
+##   (饮刃). Flasks heal him 30%, self-regeneration half (用户 2026-10-16 / 10-20).
 ## - 月盈星亏 (talent): attack speed rises with the life he has lost.
 ## - Space 月相: each press steps to the next phase and opens it — 新月 (the
 ##   next cut is a heavy two-hit cleave) → 弦月 (double cuts and evasion for a
 ##   while) → 满月 (wide sweeps over several enemies for a while).
 ## - 坚忍 (tree): once a segment a lethal hit leaves him on 1 life.
 
-const COMBO := [1.0, 1.0, 1.3]
+## A heavy blade (用户 2026-10-20: 攻速减慢，出手变重): he swings a third
+## slower than the others and each thrust hits that much harder.
+## 数值平衡案_v1_0.md §4: 125% of 拉普兰德 before; about 113% now, the heavy
+## blade still best into armour.
+const COMBO := [1.3, 1.3, 1.65]
+const INTERVAL := 1.35
+## Seconds he and the struck freeze on each thrust, the third the longest.
+const THRUST_STOP := 0.07
+const PIERCE_STOP := 0.12
+## The third thrust shoves those it runs through.
+const PIERCE_PUSH := 0.4
+## 一次攻击抬一次手 (用户 2026-10-20): each thrust raises the blade first and
+## strikes only when it comes down — this many animation frames of windup
+## (the thrusts' first frame, the third's first two; see the "thrust" and
+## "pierce" actions), at the speed the pose plays.
+const THRUST_WINDUP_FRAMES := 1.0
+const PIERCE_WINDUP_FRAMES := 2.0
+const THRUST_RATE := 0.85
+const PIERCE_RATE := 0.8
+## The third thrust: how many it runs through, how far past his reach it
+## carries and how wide its line is (each side of the aim).
+const PIERCE_MAX := 4
+const PIERCE_EXTRA := 1.2
+const PIERCE_HALF_WIDTH := 0.65
 ## PRTS 武者: 每次攻击回复生命. Before the 饮刃 node has a rank.
 const HIT_HEAL := 0.015
 const NEWMOON_SCALE := 1.75
 const NEWMOON_GAP := 0.1
-const HALF_SCALE := 0.8
+## Raised with his slower swing (INTERVAL) so 弦月 keeps its pace of damage.
+const HALF_SCALE := 1.05
 const HALF_GAP := 0.08
-const HALF_ATK := 0.4
+const HALF_ATK := 0.3
 const HALF_EVASION := 0.25
-const FULL_ATK := 0.6
+const FULL_ATK := 0.4
 const FULL_TARGETS := 3
 const FULL_RADIUS := 4.2
 const FULL_HALF_ANGLE := 75.0
@@ -33,6 +58,8 @@ var half_timer := 0.0
 var full_timer := 0.0
 var tenacity_used := 0
 var _pending: Array[Dictionary] = []
+## Thrusts raised and not yet down: {"at": seconds left, "strike": Callable}.
+var _strikes: Array[Dictionary] = []
 var _marker: CombatVfx
 
 func _init(p: Player) -> void:
@@ -44,7 +71,9 @@ func cooldown_total() -> float:
 func moon_scale() -> float:
 	return value("moon", 0) if rank("moon") > 0 else 1.0
 
-func potion_factor() -> float: return 0.5
+func interval_factor() -> float: return INTERVAL
+## 武者 (用户 2026-10-20): flasks only 30% on him, closer to PRTS's 不成为治疗目标.
+func potion_factor() -> float: return 0.3
 func regen_factor() -> float: return 0.5
 
 func aspd_bonus() -> float:
@@ -111,6 +140,12 @@ func tick(delta: float) -> void:
 		if cut.at > 0.0: continue
 		_pending.remove_at(i)
 		_cut(cut.target, cut.raw, cut.crit, cut.direction)
+	for i in range(_strikes.size() - 1, -1, -1):
+		var strike: Dictionary = _strikes[i]
+		strike.at -= delta
+		if strike.at > 0.0: continue
+		_strikes.remove_at(i)
+		(strike.strike as Callable).call()
 
 func swing(direction: Vector3, target: Enemy, stage: int, lands: bool, multiplier: float, crit: bool, crit_factor: float) -> void:
 	var rate := player.animation_rate()
@@ -125,7 +160,6 @@ func swing(direction: Vector3, target: Enemy, stage: int, lands: bool, multiplie
 		_cut(target, raw, crit, direction)
 		_pending.append({"at": NEWMOON_GAP, "target": target, "raw": raw, "crit": crit, "direction": direction})
 		_stop(target, 0.06)
-		if is_instance_valid(game()): game().start_sword_shake()
 		return
 	if half_timer > 0.0:
 		play("halfmoon", direction, 0.0, rate)
@@ -148,15 +182,73 @@ func swing(direction: Vector3, target: Enemy, stage: int, lands: bool, multiplie
 			_cut(enemy, player.attack_power() * float(COMBO[stage]) * moon_scale() * factor * player.target_multiplier(enemy), crit, direction)
 		if not struck.is_empty(): _stop(struck[0], 0.04)
 		return
-	play("attack_" + str(stage + 1), direction, 0.0, rate)
-	match stage:
-		0: fx(at, direction, "cut_1", 1, 0.12, "ground", 1.5, 0.04)
-		1: fx(at, direction, "cut_2", 1, 0.12, "ground", 1.5, 0.05)
-		_: fx(at, direction, "iai", 1, 0.16, "ground", 1.3, 0.05)
-	if not lands: return
-	var scale := float(COMBO[stage]) * (1.0 + value("iai") if stage == 2 else 1.0)
-	_cut(target, player.attack_power() * scale * factor * player.target_multiplier(target), crit, direction)
-	_stop(target, 0.05 if stage == 2 else 0.03)
+	if stage == 2:
+		_pierce(direction, target, lands, factor, crit, rate)
+		return
+	play("thrust", direction, 0.0, rate * THRUST_RATE)
+	var scale := float(COMBO[stage])
+	_raise(THRUST_WINDUP_FRAMES / (12.0 * rate * THRUST_RATE), func() -> void:
+		_thrust_art(direction, 0.55, 1.8)
+		OperatorVfx.hellagur_thrust(player, direction, stage)
+		if not lands or not alive(target): return
+		_cut(target, player.attack_power() * scale * factor * player.target_multiplier(target), crit, direction)
+		_stop(target, THRUST_STOP))
+
+## The blade goes up now and comes down `seconds` later, when `strike` runs;
+## a dodge or a stagger before then drops it (interrupt).
+func _raise(seconds: float, strike: Callable) -> void:
+	_strikes.append({"at": seconds, "strike": strike})
+
+## Whether a thrust is raised and still to come down.
+func winding() -> bool:
+	return not _strikes.is_empty()
+
+## Which blow his next swing is, for OperatorVfx: a phase's cut or a thrust.
+func stance() -> String:
+	if newmoon_armed: return "newmoon"
+	if half_timer > 0.0: return "halfmoon"
+	if full_timer > 0.0: return "fullmoon"
+	return "thrust"
+
+## How far the third thrust carries.
+func pierce_length() -> float:
+	return player.weapon_range() + PIERCE_EXTRA
+
+## The enemies the third thrust runs through: on his terrace, ahead along
+## `direction`, within the line's width, nearest first, at most PIERCE_MAX.
+func pierced(direction: Vector3, target: Enemy = null) -> Array[Enemy]:
+	var aim := Vector3(direction.x, 0, direction.z).normalized()
+	var line: Array[Enemy] = []
+	if alive(target): line.append(target)
+	for enemy in enemies_near(player.global_position, pierce_length(), aim, 90.0):
+		if enemy in line: continue
+		var offset := enemy.global_position - player.global_position
+		offset.y = 0
+		if absf(offset.dot(aim.cross(Vector3.UP))) <= PIERCE_HALF_WIDTH: line.append(enemy)
+	line.sort_custom(func(a: Enemy, b: Enemy) -> bool: return flat(a.global_position - player.global_position) < flat(b.global_position - player.global_position))
+	return line.slice(0, PIERCE_MAX)
+
+func _pierce(direction: Vector3, target: Enemy, lands: bool, factor: float, crit: bool, rate: float) -> void:
+	play("pierce", direction, 0.4, rate * PIERCE_RATE)
+	var scale := float(COMBO[2]) * (1.0 + value("iai"))
+	_raise(PIERCE_WINDUP_FRAMES / (12.0 * rate * PIERCE_RATE), func() -> void:
+		var length := pierce_length()
+		_thrust_art(direction, length / (76.0 * CombatVfx.PIXEL), length * 0.5 + 0.2)
+		OperatorVfx.hellagur_thrust(player, direction, 2)
+		if not lands: return
+		for enemy in pierced(direction, target if alive(target) else null):
+			_cut(enemy, player.attack_power() * scale * factor * player.target_multiplier(enemy), crit, direction)
+			if alive(enemy):
+				enemy.hitstop_remaining = maxf(enemy.hitstop_remaining, PIERCE_STOP)
+				enemy.push(direction, PIERCE_PUSH)
+		player.hitstop_remaining = PIERCE_STOP)
+
+## His painted stroke for a thrust: the long iai line turned to run along the
+## aim, `stretch` of its length, centred `ahead` in front of him.
+func _thrust_art(direction: Vector3, stretch: float, ahead: float) -> void:
+	var aim := Vector3(direction.x, 0, direction.z).normalized()
+	var art := fx(foot(player.global_position) + aim * ahead, aim.rotated(Vector3.UP, PI * 0.5), "iai", 1, 0.14, "ground", 0.0, 0.05)
+	if art != null: art.scale = Vector3(stretch, 1.0, minf(1.0, stretch))
 
 ## One landed cut: the shared hit pipeline, then 饮刃's life back.
 func _cut(target: Enemy, raw: float, crit: bool, direction: Vector3) -> void:
@@ -194,6 +286,7 @@ func reset_segment() -> void:
 
 func interrupt() -> void:
 	_pending.clear()
+	_strikes.clear()
 
 func reset() -> void:
 	super()

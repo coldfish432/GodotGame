@@ -26,27 +26,35 @@ var hand: Item = null
 var hand_from := ""
 ## Category -> racks built.
 var racks := {}
-## Cumulative, never spent (§2). Ranks unlock convenience and capacity only.
-var prestige := 0
+## Facility id -> level (BaseCatalog.FACILITIES). Levels unlock convenience and
+## capacity only, never combat strength.
+var facilities := {}
+## Facilities connected to the 基建总控台 (upgraded from there as well as on site).
+var connected: Array[String] = []
 var orders := OrderBoard.new()
 ## Medical (§4). An injury belongs to the operator who fell and stays on her
 ## until it is treated (博士主角叙事修订案 §5, 用户 2026-10-15); contamination
-## does not leave the field (用户 2026-10-15: 污染不带出局外). id -> true.
+## does not leave the field (用户 2026-10-15: 污染不带出局外). id -> the tier
+## of the floor she fell on (true in saves from before tiers: tier Ⅰ).
 var injuries := {}
 ## Whether the operator who deploys next is injured.
 var injured: bool:
 	get: return injuries.has(operator)
 	set(value):
-		if value: injuries[operator] = true
+		if value: injuries[operator] = maxi(1, int(injuries.get(operator, 1)))
 		else: injuries.erase(operator)
 ## Free 标准急救剂 still to be issued for the next contract (药剂进背包). They go
 ## into the pack at departure; reset after every settlement.
 var free_potions := BaseCatalog.FREE_POTIONS
+## 可露希尔特供 left this window, and when she restocks (unix seconds;
+## 用户 2026-10-21: 每日不限量，单位时间限量，需要时间补货).
+var closure_stock := {}
+var closure_restock_at := 0
 ## What the medical report adds to the item list: whether this settlement
 ## left an injury. Unread until she opens it.
 var medical_report := {}
 var report_unread := false
-## The engineering drone (§3.5): bought once at R1, sorts on command and empties
+## The engineering drone (§3.5): bought once from 仓储部 Lv2, sorts on command and empties
 ## staging onto the shelves at every return.
 var drone := false
 ## The warehouse master console (BaseCatalog.CONSOLE_PRICE): browse, search and
@@ -57,12 +65,14 @@ var contract_offers := {}
 ## Expansion levels into BaseCatalog.PACK_SIZES / SAFE_SIZES.
 var pack_level := 0
 var safe_level := 0
-## R3: one free order reroll per settlement.
+## 仓储部 Lv4: one free order reroll per settlement.
 var reroll_available := false
-## A rank-up opened something to buy at the warehouse terminal, not yet looked at.
-var unseen_unlocks := false
 ## Bad-luck protection for drops (掉落物策划案 §5.2), kept across contracts.
 var loot_pity := {"rare_gear": 0.0, "rare_material": 0.0}
+## 定向重铸's failures in a row (GameManager.directed_chance).
+var directed_fails := 0
+## Region bosses fallen at each tier, "region:tier" -> true (Boss与守卫者策划案 §10).
+var boss_falls := {}
 ## Insured items lost on a death, waiting to come back (保全系统修订案 §3):
 ## {"item": Item, "left": contracts still to settle}. Every settlement counts
 ## one down; at zero the item arrives as a sealed crate.
@@ -75,6 +85,36 @@ var camps := {}
 var ship_at := TerraMap.START
 ## The camp upgrade, bought once for every region.
 var camp_upgraded := false
+## 随队物资 bought from 可露希尔 (地图特色策划案 §8): "kit id@tier" -> count
+## (tiers: v1.1 §4.1). Kept at the base, off the shelves; one taken per contract.
+var kits := {}
+
+## Kits of `id` in stock, every tier.
+func kit_stock(id: String) -> int:
+	var n := 0
+	for key in kits:
+		if str(key).get_slice("@", 0) == id: n += int(kits[key])
+	return n
+
+## The highest tier of `id` in stock (0 with none).
+func kit_best_tier(id: String) -> int:
+	var best := 0
+	for key in kits:
+		if str(key).get_slice("@", 0) == id and int(kits[key]) > 0: best = maxi(best, int(str(key).get_slice("@", 1)))
+	return best
+
+func add_kit(id: String, tier: int) -> void:
+	var key := "%s@%d" % [id, tier]
+	kits[key] = int(kits.get(key, 0)) + 1
+
+## Takes one of `id`, the highest tier; returns its tier (0 with none).
+func take_kit(id: String) -> int:
+	var tier := kit_best_tier(id)
+	if tier <= 0: return 0
+	var key := "%s@%d" % [id, tier]
+	kits[key] = int(kits[key]) - 1
+	if int(kits[key]) <= 0: kits.erase(key)
+	return tier
 ## The operator who deploys next (Operators.ORDER), picked at the departure screen.
 var operator := default_operator()
 ## Who has joined (干员寻访策划案 §9): a new Doctor has only Amiya; the debug
@@ -88,8 +128,47 @@ var recruit_clues := {}
 var recruit_found := {}
 ## Each operator's growth (精英化与加点策划案_v0_2.md): id -> OperatorProgress.
 var progress := {}
-## 作战记录 (§4.2): counters, never items — no shelf, no space.
+## 作战记录 (§4.2): counters at 人事部. They drop in the field as items and
+## turn into counters when they come home (龙门币平衡与科研部策划案 v1.1 §2.1).
 var records := {}
+## 科研部 (v1.1 §5): finished node ids; running research [{id, start, end}];
+## signed projects id -> sorties left; endless line -> level; the projects
+## charged for the contract under way.
+var research := {"done": [], "active": [], "projects": {}, "endless": {}, "run": []}
+## 农业部 and 食堂 (Provisions): basins, the kitchen queue, the 补给 eaten and the one mailed.
+var farm := Provisions.fresh_state()
+## Rhodes standard gear's rarity, raised by 工程部Ⅱ/Ⅳ (复利清单 D): 0 white, 1 blue, 2 gold.
+var rhodes_rarity := 0
+## The last Rhodes set issued to each operator: id -> [tier, rarity] (复利清单 D reissues).
+var kit_issued := {}
+## 外勤部Ⅱ: one free contract reroll per return.
+var contract_reroll := false
+## A medical stay has run at least an hour (医疗部Ⅲ's requirement).
+var stayed := false
+
+## Whether research node `key` ("rack_cells") or id ("logistics_3") is done.
+func researched(key: String) -> bool:
+	var id := key if ResearchCatalog.valid(key) else ResearchCatalog.id_of_key(key)
+	return id in (research.done as Array)
+
+func endless_level(line: String) -> int:
+	return int((research.endless as Dictionary).get(line, 0))
+
+## A project paid for on the contract under way.
+func project_on(project: String) -> bool:
+	return project in (research.run as Array)
+
+## The order board: 2, 3 from 仓储部 Lv3, one more with 后勤部Ⅰ.
+func order_slot_count() -> int:
+	return BaseCatalog.ORDER_SLOTS + (1 if facility_level("warehouse") >= BaseCatalog.ORDER_SLOTS_LEVEL else 0) + (1 if researched("order_slot") else 0)
+
+## Cells on one rack: 14 with 后勤部Ⅲ.
+func rack_cells() -> int:
+	return BaseCatalog.RACK_CELLS + (2 if researched("rack_cells") else 0)
+
+## Free 标准急救剂 per contract: 4 with 医疗部Ⅰ.
+func free_potion_count() -> int:
+	return BaseCatalog.FREE_POTIONS + (1 if researched("free_potion") else 0)
 
 func progress_for(id: String) -> OperatorProgress:
 	if not progress.has(id): progress[id] = OperatorProgress.create(id)
@@ -115,19 +194,59 @@ func _init() -> void:
 	for category in range(Item.Category.size()):
 		racks[category] = BaseCatalog.STARTING_RACKS
 	orders.start_fresh()
+	reset_facilities()
 
-func rank() -> int:
-	return BaseCatalog.rank_of(prestige)
+func reset_facilities() -> void:
+	facilities = {}
+	for id in BaseCatalog.FACILITY_ORDER: facilities[id] = BaseCatalog.facility_start(id)
+	connected = []
+
+func hub_built() -> bool:
+	return facility_level("hub") >= 1
+
+func is_connected_to_hub(id: String) -> bool:
+	return id == "hub" or id in connected
+
+func connect_facility(id: String) -> void:
+	if not is_connected_to_hub(id) and id in BaseCatalog.connectable(): connected.append(id)
+
+## `id` at `level`, clamped (tools, tests and old saves).
+func set_facility(id: String, level: int) -> void:
+	facilities[id] = clampi(level, BaseCatalog.facility_start(id), BaseCatalog.facility_max(id))
+	orders.resize(order_slot_count())
+
+## Every facility at its top level (tools and tests).
+func max_facilities() -> void:
+	for id in BaseCatalog.FACILITY_ORDER: facilities[id] = BaseCatalog.facility_max(id)
+	connected.assign(BaseCatalog.connectable())
+	orders.resize(order_slot_count())
+
+func facility_level(id: String) -> int:
+	return int(facilities.get(id, BaseCatalog.facility_start(id)))
+
+## Why `id` cannot go up a level now ("" if it can, given the gold; materials
+## are GameManager's to check).
+func facility_refusal(id: String, money: int) -> String:
+	var step := BaseCatalog.facility_step(id, facility_level(id) + 1)
+	if step.is_empty(): return "已满级"
+	if money < int(step.price): return "龙门币不足"
+	return ""
+
+## Raises `id` one level; the caller pays. Returns the new level.
+func raise_facility(id: String) -> int:
+	facilities[id] = mini(facility_level(id) + 1, BaseCatalog.facility_max(id))
+	orders.resize(order_slot_count())
+	return facility_level(id)
 
 ## Max HP lost on the next contract: the injury's.
 func hp_penalty() -> float:
 	return BaseCatalog.hp_penalty(0.0, injured)
 
-## Price of one flask (龙门币), or -1 when the rank does not allow it yet. A
+## Price of one flask (龙门币), or -1 when 可露希尔商店 does not stock it yet. A
 ## 标准急救剂 is free while some of this contract's free issue is left.
 func potion_price(type: String) -> int:
 	var p: Dictionary = BaseCatalog.POTIONS[type]
-	if rank() < int(p.rank): return -1
+	if facility_level("store") < int(p.store): return -1
 	if type == "A": return 0 if free_potions > 0 else BaseCatalog.POTION_A_PRICE
 	return int(p.price)
 
@@ -185,7 +304,7 @@ func recruit(id: String) -> void:
 	recruit_found.erase(id)
 
 func reset_potions() -> void:
-	free_potions = BaseCatalog.FREE_POTIONS
+	free_potions = free_potion_count()
 
 ## Any operator still carrying an injury (the reception's marker).
 func any_injured() -> bool:
@@ -200,8 +319,9 @@ func injured_operators() -> Array[String]:
 
 ## After a settlement: a fall injures the operator who fell; an injury already
 ## there stays until treated. Returns the report it records.
-func settle_medical(died: bool) -> Dictionary:
-	if died: injured = true
+## `tier` is the floor's she fell on: it sets the treatment's price.
+func settle_medical(died: bool, tier: int = 1) -> Dictionary:
+	if died: injuries[operator] = tier
 	reset_potions()
 	medical_report = {"injured": died, "operator": operator}
 	report_unread = true
@@ -211,6 +331,19 @@ func settle_medical(died: bool) -> Dictionary:
 static var clock_offset := 0
 ## Tests that need the clock to stand still between their own moves pin it here (0: live).
 static var frozen_clock := 0
+## 可露希尔特供 on her base shelf: what is left of `type` this window. The
+## whole line refills to its caps once the window has run out.
+func closure_left(type: String) -> int:
+	if now() >= closure_restock_at:
+		closure_stock = {}
+		for id in BaseCatalog.CLOSURE_LINE: closure_stock[id] = int(BaseCatalog.POTIONS[id].cap)
+		closure_restock_at = now() + BaseCatalog.RESTOCK_SECONDS
+	return int(closure_stock.get(type, 0))
+
+## Seconds until she restocks.
+func closure_restock_in() -> int:
+	return maxi(0, closure_restock_at - now())
+
 static func now() -> int:
 	return (frozen_clock if frozen_clock > 0 else int(Time.get_unix_time_from_system())) + clock_offset
 
@@ -234,25 +367,15 @@ func receive_to_staging(item: Item) -> bool:
 	staging.append(item)
 	return true
 
-## Adds prestige; returns the new rank if it went up, else -1.
-func add_prestige(amount: int) -> int:
-	var before := rank()
-	prestige += maxi(amount, 0)
-	orders.resize(BaseCatalog.ORDER_SLOTS_R2 if rank() >= 2 else BaseCatalog.ORDER_SLOTS)
-	if rank() > before:
-		unseen_unlocks = true
-		return rank()
-	return -1
-
 # --- Expansion and the drone (§3.5, §3.6) ---------------------------------------
 
 ## "" when the next pack ("pack") or safe-bag ("safe") level can be bought.
 func upgrade_refusal(kind: String, money: int) -> String:
 	var level := pack_level if kind == "pack" else safe_level
 	var prices: Array = BaseCatalog.PACK_PRICES if kind == "pack" else BaseCatalog.SAFE_PRICES
-	var ranks: Array = BaseCatalog.PACK_RANKS if kind == "pack" else BaseCatalog.SAFE_RANKS
+	var needs: Array = BaseCatalog.PACK_LEVELS if kind == "pack" else BaseCatalog.SAFE_LEVELS
 	if level + 1 >= prices.size(): return "已满配"
-	if rank() < int(ranks[level + 1]): return "需要声望 R%d" % int(ranks[level + 1])
+	if facility_level("outfit") < int(needs[level + 1]): return "需要整备部 Lv%d" % int(needs[level + 1])
 	if money < int(prices[level + 1]): return "龙门币不足"
 	return ""
 
@@ -268,7 +391,7 @@ func next_rack_slot(category: int) -> int:
 func rack_refusal(category: int, gold: int) -> String:
 	var slot := next_rack_slot(category)
 	if slot < 0: return "%s区的 9 个货架位都建好了。" % BaseCatalog.CATEGORY_NAMES[category]
-	if rank() < int(BaseCatalog.RACK_RANKS[slot]): return "需要声望 R%d。" % BaseCatalog.RACK_RANKS[slot]
+	if facility_level("warehouse") < int(BaseCatalog.RACK_LEVELS[slot]): return "需要仓储部 Lv%d。" % BaseCatalog.RACK_LEVELS[slot]
 	if gold < int(BaseCatalog.RACK_PRICES[slot]): return "龙门币不足（%s）。" % Economy.format(BaseCatalog.RACK_PRICES[slot])
 	return ""
 
@@ -313,11 +436,13 @@ func sort_staging() -> Dictionary:
 
 # --- Queries -----------------------------------------------------------------
 
+## Racks hold a group: the five armour slots share the armour racks, the
+## amulet and ring the trinket racks (装备部位拆分与数值案, Item.group_of).
 func capacity(category: int) -> int:
-	return int(racks[category]) * BaseCatalog.RACK_CELLS
+	return int(racks[Item.group_of(category)]) * rack_cells()
 
 func shelf_count(category: int) -> int:
-	return shelf.filter(func(x): return x.category == category).size()
+	return shelf.filter(func(x): return Item.group_of(x.category) == Item.group_of(category)).size()
 
 func shelf_has_room(category: int) -> bool:
 	return shelf_count(category) < capacity(category)
@@ -370,7 +495,7 @@ func shelve_refusal(item: Item) -> String:
 	if not location_of(item) in ["crate_open", "staging"]: return "只能上架已开箱或暂存区里的物品。"
 	if not shelf_has_room(item.category) and shelf_merge_room(item) < item.quantity:
 		return "%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。" % [
-			BaseCatalog.CATEGORY_NAMES[item.category], shelf_count(item.category), capacity(item.category)]
+			BaseCatalog.CATEGORY_NAMES[Item.group_of(item.category)], shelf_count(item.category), capacity(item.category)]
 	return ""
 
 func shelve(item: Item) -> bool:
@@ -445,8 +570,8 @@ func pick_up(item: Item) -> bool:
 ## Why the carried item cannot go into `category`'s zone, or "" if it can.
 func shelve_hand_refusal(category: int) -> String:
 	if hand == null: return "手上没有东西。"
-	if hand.category != category:
-		return "这是%s区。%s要放到%s区，已为你高亮。" % [BaseCatalog.CATEGORY_NAMES[category], hand.item_name, BaseCatalog.CATEGORY_NAMES[hand.category]]
+	if Item.group_of(hand.category) != Item.group_of(category):
+		return "这是%s区。%s要放到%s区，已为你高亮。" % [BaseCatalog.CATEGORY_NAMES[Item.group_of(category)], hand.item_name, BaseCatalog.CATEGORY_NAMES[Item.group_of(hand.category)]]
 	if not shelf_has_room(category) and shelf_merge_room(hand) < hand.quantity:
 		return "%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。" % [BaseCatalog.CATEGORY_NAMES[category], shelf_count(category), capacity(category)]
 	return ""
@@ -475,6 +600,13 @@ func return_hand() -> bool:
 func _drop_hand() -> void:
 	hand = null
 	hand_from = ""
+
+## Out of the base from wherever it is (a crate, staging, the shelf, her hands).
+func remove_item(item: Item) -> bool:
+	if location_of(item).is_empty(): return false
+	if hand == item: _drop_hand()
+	else: _take(item)
+	return true
 
 ## Undo of take_from_shelf / unstage when the pack refuses the item.
 func put_back(item: Item, where: String) -> void:
@@ -513,15 +645,16 @@ func to_data() -> Dictionary:
 	var rack_data := {}
 	for category in racks: rack_data[str(category)] = racks[category]
 	return {"shelf": shelf.map(func(x): return x.to_data()), "crates": crate_data,
-		"staging": staging_data, "racks": rack_data, "prestige": prestige, "orders": orders.to_data(),
-		"injuries": injuries.keys(), "free_potions": free_potions,
+		"staging": staging_data, "racks": rack_data, "facilities": facilities.duplicate(), "connected": connected.duplicate(), "orders": orders.to_data(),
+		"injuries": injuries.duplicate(), "free_potions": free_potions, "closure_stock": closure_stock.duplicate(), "closure_restock_at": closure_restock_at,
 		"medical_report": medical_report, "report_unread": report_unread,
-		"drone": drone, "console": console, "contract_offers": contract_offers.duplicate(true), "reroll_available": reroll_available, "unseen_unlocks": unseen_unlocks,
-		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(),
+		"drone": drone, "console": console, "contract_offers": contract_offers.duplicate(true), "reroll_available": reroll_available,
+		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(), "directed_fails": directed_fails,
 		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "due": e.due}),
-		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "operator": operator,
+		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "kits": kits.duplicate(), "operator": operator,
 		"roster": roster.duplicate(), "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
-		"kitted": kitted.duplicate(), "progress": _progress_data(), "records": records.duplicate()}
+		"kitted": kitted.duplicate(), "progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(),
+		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "kit_issued": kit_issued.duplicate(true), "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true)}
 
 func _progress_data() -> Dictionary:
 	var out := {}
@@ -535,12 +668,18 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	staging.clear()
 	crates.clear()
 	_drop_hand()
-	prestige = maxi(int(data.get("prestige", 0)), 0)
+	boss_falls = (data.get("boss_falls", {}) as Dictionary).duplicate()
 	injuries = {}
-	for id in data.get("injuries", []):
-		if Operators.valid(str(id)): injuries[str(id)] = true
+	var saved_injuries: Variant = data.get("injuries", [])
+	for id in saved_injuries:
+		var tier: int = int(saved_injuries[id]) if saved_injuries is Dictionary and (saved_injuries[id] is float or saved_injuries[id] is int) else 1
+		if Operators.valid(str(id)): injuries[str(id)] = maxi(tier, 1)
+	_load_research(data)
+	farm = Provisions.load_state(data.get("farm"))
 	reset_potions()
-	free_potions = clampi(int(data.get("free_potions", BaseCatalog.FREE_POTIONS)), 0, BaseCatalog.FREE_POTIONS)
+	free_potions = clampi(int(data.get("free_potions", free_potion_count())), 0, free_potion_count())
+	closure_stock = (data.get("closure_stock", {}) as Dictionary).duplicate() if data.get("closure_stock") is Dictionary else {}
+	closure_restock_at = int(data.get("closure_restock_at", 0))
 	medical_report = data.get("medical_report", {})
 	report_unread = bool(data.get("report_unread", false))
 	drone = bool(data.get("drone", false))
@@ -548,8 +687,7 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	contract_offers = (data.get("contract_offers", {}) as Dictionary).duplicate(true)
 	pack_level = clampi(int(data.get("pack_level", 0)), 0, BaseCatalog.PACK_SIZES.size() - 1)
 	safe_level = clampi(int(data.get("safe_level", 0)), 0, BaseCatalog.SAFE_SIZES.size() - 1)
-	reroll_available = bool(data.get("reroll_available", false)) and rank() >= BaseCatalog.REROLL_RANK
-	unseen_unlocks = bool(data.get("unseen_unlocks", false))
+	directed_fails = maxi(0, int(data.get("directed_fails", 0)))
 	var pity: Dictionary = data.get("loot_pity", {})
 	loot_pity = {"rare_gear": clampf(float(pity.get("rare_gear", 0.0)), 0.0, LootTables.RARE_GEAR_PITY_CAP),
 		"rare_material": clampf(float(pity.get("rare_material", 0.0)), 0.0, LootTables.RARE_MATERIAL_PITY_CAP)}
@@ -593,17 +731,26 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	for region in saved_camps:
 		if FieldCatalog.REGIONS.has(str(region)): unlock_camp(str(region), int(saved_camps[region]))
 	camp_upgraded = bool(data.get("camp_upgraded", false))
+	kits = {}
+	var saved_kits: Dictionary = data.get("kits", {})
+	for id in saved_kits:
+		# Saves from before tiers hold plain ids: tier Ⅰ.
+		var kit_id := str(id).get_slice("@", 0)
+		var tier := clampi(int(str(id).get_slice("@", 1)) if "@" in str(id) else 1, 1, Economy.INCOME_INDEX.size())
+		if FeatureCatalog.KITS.has(kit_id) and int(saved_kits[id]) > 0: kits["%s@%d" % [kit_id, tier]] = int(saved_kits[id])
 	for entry in data.get("insurance_queue", []):
 		var queued := _fresh(entry.get("item", {}), seen)
 		# Saves from before the clock counted contracts left: an hour each.
 		var due := int(entry.get("due", now() + maxi(int(entry.get("left", 1)), 1) * 3600))
 		if queued: insurance_queue.append({"item": queued, "due": due})
-	if data.has("orders"): orders.load_data(data.orders)
-	else: orders.start_fresh()
-	orders.resize(BaseCatalog.ORDER_SLOTS_R2 if rank() >= 2 else BaseCatalog.ORDER_SLOTS)
 	var racks_in: Dictionary = data.get("racks", {})
 	for category in racks:
 		racks[category] = clampi(int(racks_in.get(str(category), BaseCatalog.STARTING_RACKS)), BaseCatalog.STARTING_RACKS, BaseCatalog.RACK_SLOTS)
+	_load_facilities(data)
+	reroll_available = bool(data.get("reroll_available", false)) and facility_level("warehouse") >= BaseCatalog.REROLL_LEVEL
+	if data.has("orders"): orders.load_data(data.orders)
+	else: orders.start_fresh()
+	orders.resize(order_slot_count())
 	for entry in data.get("crates", []):
 		var item := _fresh(entry.get("item", {}), seen)
 		if item: crates.append({"item": item, "opened": bool(entry.get("opened", false))})
@@ -616,9 +763,65 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 				else: loose.append(item)
 	place_loose(loose)
 
+## Saves from before facilities had prestige ranks: each facility gets the
+## level that opens what the rank opened, and at least what was built.
+func _load_facilities(data: Dictionary) -> void:
+	reset_facilities()
+	var saved: Variant = data.get("facilities")
+	if saved is Dictionary:
+		for id in BaseCatalog.FACILITY_ORDER:
+			facilities[id] = clampi(int(saved.get(id, BaseCatalog.facility_start(id))), BaseCatalog.facility_start(id), BaseCatalog.facility_max(id))
+		if saved.has("hub"):
+			for id in data.get("connected", []):
+				if str(id) in BaseCatalog.connectable(): connect_facility(str(id))
+		else:
+			# v1.0 saves (no hub yet): the hub built and everything connected;
+			# their exchange was open from the start (v1.1 §七).
+			facilities.hub = 1
+			facilities.exchange = maxi(1, int(saved.get("exchange", 1)))
+			connected.assign(BaseCatalog.connectable())
+		return
+	var prestige := maxi(int(data.get("prestige", 0)), 0)
+	var rank := 0
+	for threshold in [20, 60, 120, 200]:
+		if prestige >= threshold: rank += 1
+	var warehouse := 1 + mini(rank, 3)
+	if drone: warehouse = maxi(warehouse, BaseCatalog.DRONE_LEVEL)
+	for category in racks: warehouse = maxi(warehouse, int(BaseCatalog.RACK_LEVELS[int(racks[category]) - 1]))
+	var outfit := maxi(1 + mini(rank, 3), maxi(int(BaseCatalog.PACK_LEVELS[pack_level]), int(BaseCatalog.SAFE_LEVELS[safe_level])))
+	facilities = {"hub": 1, "warehouse": warehouse, "outfit": outfit, "store": 1 + rank, "workshop": 2 if rank >= 3 else 1,
+		"lab": 2 if rank >= 4 else (1 if rank >= 2 or not (research.done as Array).is_empty() else 0), "exchange": 1 + rank}
+	connected.assign(BaseCatalog.connectable())
+
+## 科研部 state; saves from before it start empty.
+func _load_research(data: Dictionary) -> void:
+	var saved: Dictionary = data.get("research", {})
+	research = {"done": [], "active": [], "projects": {}, "endless": {}, "run": []}
+	for id in saved.get("done", []):
+		if ResearchCatalog.valid(str(id)) and not str(id) in research.done: research.done.append(str(id))
+	for entry in saved.get("active", []):
+		if entry is Dictionary and ResearchCatalog.valid(str(entry.get("id", ""))) and not str(entry.id) in research.done:
+			research.active.append({"id": str(entry.id), "start": int(entry.get("start", 0)), "end": int(entry.get("end", 0))})
+	var projects: Dictionary = saved.get("projects", {})
+	for id in projects:
+		if ResearchCatalog.PROJECTS.has(str(id)) and int(projects[id]) > 0: research.projects[str(id)] = int(projects[id])
+	var endless: Dictionary = saved.get("endless", {})
+	for line in endless:
+		if ResearchCatalog.ENDLESS.has(str(line)): research.endless[str(line)] = clampi(int(endless[line]), 0, ResearchCatalog.ENDLESS_CAP)
+	for id in saved.get("run", []):
+		if ResearchCatalog.PROJECTS.has(str(id)): research.run.append(str(id))
+	rhodes_rarity = clampi(int(data.get("rhodes_rarity", 0)), 0, 2)
+	kit_issued = {}
+	var issued: Dictionary = data.get("kit_issued", {})
+	for id in issued:
+		var grade: Array = issued[id] if issued[id] is Array else []
+		if Operators.valid(str(id)) and grade.size() == 2: kit_issued[str(id)] = [int(grade[0]), int(grade[1])]
+	contract_reroll = bool(data.get("contract_reroll", false))
+	stayed = bool(data.get("stayed", false))
+
 ## Version 1 had one flat warehouse list; it goes on the shelves, overflow to staging.
 func migrate_v1(stash_data: Array, seen: Dictionary) -> void:
-	prestige = 0
+	reset_facilities()
 	console = true
 	orders.start_fresh()
 	shelf.clear()

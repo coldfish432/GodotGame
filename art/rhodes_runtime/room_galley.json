@@ -1,0 +1,49 @@
+{
+ "id": "galley",
+ "origin": [
+  320.0,
+  10.0
+ ],
+ "size": [
+  18.0,
+  10.0
+ ],
+ "ground": {
+  "tex": "",
+  "w_px": 286.1,
+  "h_px": 127.0,
+  "x": 319.47,
+  "z": 10.0
+ },
+ "facade": {
+  "tex": "",
+  "w_px": 286.1,
+  "h_px": 46,
+  "x": 319.47,
+  "z": 10.0
+ },
+ "sprites": [],
+ "colliders": [
+  [
+   320.0,
+   10.0,
+   338.0,
+   10.6
+  ],
+  [
+   319.4,
+   0.0,
+   320.0,
+   10.0
+  ],
+  [
+   338.0,
+   0.0,
+   338.6,
+   10.0
+  ]
+ ],
+ "interactables": [],
+ "spawns": {},
+ "_note": "The kitchen, for show: ranges, the prep island, fridges. Written by tools/blender/base/make_deck2_rooms.py."
+}

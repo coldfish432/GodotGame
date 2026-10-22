@@ -1,0 +1,119 @@
+{
+  "batch": "UC_UE_v1",
+  "files": [
+    {
+      "file": "icons/equipment.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "reviewed_override": "feedback/fixed/equipment.png",
+      "sha256": "2c79cd44b5eef3b12a662b498cdc0892e5a98435506d8744a5ddf4e2577eeab2",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/operator.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "cd871965878a0149b28c732360698dd32617a735dc2af79fddb54eed3c43cf46",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/relic.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "145d2644cbcad47da65e16e6a659583764b04470535eabd1321c30678494206f",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/map.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "e79e5ea5b44ce6a827d862814b42a2c415833f35bb1857577eee7154184173fd",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/contract.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "88b584d5bdc5eccf35d14226719c625f10567b69dbeeca51a44f2c644f5ed646",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/lmd.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "reviewed_override": "feedback/fixed/lmd.png",
+      "sha256": "31bf0e98515457188816164b2158ce1d05c417cf331a888df14fded3800dd88e",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/gold.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "a56f426ed3e62a2ae350865afe3cd0cbd6cebeab5347699f282ee27093d663e1",
+      "alpha_values": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/pollution.png",
+      "size": [
+        24,
+        24
+      ],
+      "nine_patch_margin": 0,
+      "tintable": true,
+      "sha256": "c33856d95d0df36d4e449c8336743e511b0bb054c57118511caaa8de32f5cf3d",
+      "alpha_values": [
+        0,
+        255
+      ]
+    }
+  ]
+}

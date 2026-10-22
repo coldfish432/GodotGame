@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-19 America/New_York",
+  "tool": "built-in image_gen",
+  "method": "Nine original painted sprite identities, PRTS icons used only as visual reference; deterministic cropping, BOX downscale and assembly",
+  "source_reference_manifest": "../refs_B1/reference_manifest.json",
+  "style_reference": [
+    "../batch_N1_claude/identity_sheet.png",
+    "../batch_N1_claude/overview_x6.png",
+    "../batch_N4_v1/identity_sheet.png"
+  ],
+  "brief": "../B_bosses_brief_v1.md",
+  "brief_sha256": "8832bca8165108dbea0dd72246cc06e524bdb5a30fabf2692eb00a75005f86d7",
+  "approval_boundary": "Identity art is not approved yet. Stop before stage 2. User authorized self-sourcing references, not bypassing identity approval.",
+  "interpretations": [
+    "Father Agnir has an eye-covering white band as the brief explicitly requires; the supplied PRTS portrait has its wrap higher.",
+    "Father Agnir chest cross is the explicit exception to the generic no-emblem rule.",
+    "Zaro lying and standing are the same physical body length; do not scale lying silhouette height to standing shoulder height.",
+    "Stage 1 uses the explicit BOX preview instruction. Stage-2 palette and feature survival require a separate bake review."
+  ],
+  "sources": [
+    {
+      "file": "source_paintings\\crownslayer_before_emblem_removal.png",
+      "sha256": "f38f3f04913dcbad0bde74cf894f2123e2d106cd0ba9c65881b271562640a0db"
+    },
+    {
+      "file": "source_paintings\\crownslayer_generated.png",
+      "sha256": "54825cde7b05bfcc7fd02b9cb3b87e773a914f98e2262789808043ce69e07418"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_before_emblem_removal.png",
+      "sha256": "b10eef0576ab6bb939661f5f3b359cf2c18e99217f0b281fff8018b932f641b9"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_generated.png",
+      "sha256": "1707d1ed100d3dcf734deb498e1c3e17684c377601ed13b49a2d7c0909d7c0aa"
+    },
+    {
+      "file": "source_paintings\\father_agnir_generated.png",
+      "sha256": "14375b7d5c828891608be7d8dcb30317c415378e2f8f2dec27bed40aca2d11c3"
+    },
+    {
+      "file": "source_paintings\\hollow_snowpriest_generated.png",
+      "sha256": "f4c16d8395c3ce6e3b5512bf6cd3d3591a58c0d03d93e3ae601b2051a11eb3e9"
+    },
+    {
+      "file": "source_paintings\\patriot_generated.png",
+      "sha256": "ecf607f5f5eadf865a5ef33e4889c26553d850a2cfd6f9a261b823b81fe18ccc"
+    },
+    {
+      "file": "source_paintings\\rat_king_generated.png",
+      "sha256": "2ca0b26b602d59ddaaa3d9bf2fb564cd7ef045691fdda1279f4c12e3c4189eec"
+    },
+    {
+      "file": "source_paintings\\skullshatterer_generated.png",
+      "sha256": "453ee453f4cd8b8c205a925b03149db27d39c043189e75b836eec729f7fee4c6"
+    },
+    {
+      "file": "source_paintings\\zaro_lying_generated.png",
+      "sha256": "64f96eb18a524272e590d5170f8ededc1e5db9644cb73263ff35bec8a22b80bd"
+    },
+    {
+      "file": "source_paintings\\zaro_standing_generated.png",
+      "sha256": "6819a578a5de3f02af163f73e4c84c64e4db6887f641fe9013df3d8fab775bfe"
+    }
+  ]
+}

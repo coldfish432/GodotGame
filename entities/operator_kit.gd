@@ -18,6 +18,7 @@ static var _textures := {}
 
 static func make(operator_id: String, p: Player) -> OperatorKit:
 	match operator_id:
+		"lappland": return LapplandKit.new(p)
 		"hellagur": return HellagurKit.new(p)
 		"hoshiguma": return HoshigumaKit.new(p)
 		"typhon": return TyphonKit.new(p)
@@ -34,6 +35,8 @@ func _init(p: Player, operator_id: String = "") -> void:
 # --- What she is ------------------------------------------------------------------
 
 func ranged() -> bool: return false
+## False when Player plays her combo itself (拉普兰德's blades and 剑气).
+func plays_swing() -> bool: return true
 ## Her reach; 0 keeps the weapon's.
 func reach() -> float: return 0.0
 func interval_factor() -> float: return 1.0
@@ -99,7 +102,7 @@ func reset() -> void:
 func game() -> GameManager:
 	return player.game
 
-func rank(node_id: String) -> int:
+func rank(node_id: String) -> float:
 	return player.rank(node_id)
 
 func transmuter(group: String) -> String:
@@ -211,13 +214,17 @@ func skill_hit(target: Enemy, raw: float, kind: String, crit: bool = false) -> f
 	return dealt
 
 ## ATK × skill damage × what the cast took.
-func skill_power() -> float:
-	return player.attack_power() * player.wave_multiplier() * skill_mult
+## Her skills' power: ATK for physical skills, arts power for arts ones (清单 F).
+func skill_power(kind: String = "phys") -> float:
+	return player.power_for(kind) * player.wave_multiplier() * skill_mult
 
 ## Common cast bookkeeping: cooldown (技能冷却 applies), the skill relics
 ## (噤声 build-ups, 拳经三问), signature gear, combat and the order queue.
 func begin_cast(total: float, toward: Variant = null) -> void:
 	cooldown = total * player.skill_cd_factor()
+	# 连咏 / 大术式 (前缀放大与特效阶等案 §3): no cooldown now and then, a free
+	# recast every third.
+	if player.families != null and player.families.on_skill(player.recast_skill): cooldown = 0.0
 	skill_mult = player.attack_multiplier() * (player.gear_fx.spend_signature_bonus() if player.gear_fx != null else 1.0)
 	if player.gear_fx != null:
 		var target: Enemy = toward if toward is Enemy and alive(toward) else null

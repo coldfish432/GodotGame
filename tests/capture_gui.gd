@@ -20,6 +20,8 @@ func capture(label: String) -> void:
 	root.get_texture().get_image().save_png("res://../evidence/gui-" + ("en-" if I18n.is_english() else "") + label + ".png")
 func run() -> void:
 	if OS.get_environment("DOWNFALL_LANG") == "en": I18n.set_language("en")
+	# Stills: the screens at rest, not mid-reveal (Terminal.motion).
+	SystemScreens.settings["ui_motion"] = false
 	rig = load("res://game/main.tscn").instantiate()
 	rig.persist_sessions = false
 	root.add_child(rig)
@@ -50,6 +52,12 @@ func run() -> void:
 			game._inventory_panel.hover(item, game.inventory, Rect2(600, 200, 40, 40))
 			break
 	await capture("inventory-hover")
+	for page in range(3):
+		game.menu.operator_tab = page
+		if game.modal == "training": game.menu.show_training(true)
+		else: game.toggle_panel("training")
+		await capture("operator-%d" % page)
+	game.menu.operator_tab = 0
 	game.toggle_panel("relics")
 	await capture("relics")
 	game.toggle_panel("journal")
@@ -107,6 +115,12 @@ func run() -> void:
 	await capture("base-contracts")
 	game.close_modal()
 	await capture("base")
+	game.menu.workbench_tab = 1
+	game.open_station("loadout")
+	await capture("base-refit")
+	game.menu.workbench_tab = 0
+	game.open_station("insurance")
+	await capture("base-insurance")
 	for station in ["stash", "outbound", "pharmacy", "report", "loadout", "store"]:
 		game.open_station(station)
 		await capture("base-" + station)

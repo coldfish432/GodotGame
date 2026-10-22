@@ -125,6 +125,27 @@ func run() -> void:
 	var dodged: float = player.global_position.distance_to(before_dodge)
 	check("dodge-cancels-the-swing", player.swing_remaining == 0.0 and dodged > 1.0, {"dodged": dodged})
 
+	# A slanting dodge into a wall slides along it (用户 2026-10-20: 斜街闪避撞墙).
+	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
+	await step(2)
+	player._dash_cooldown = 0.0
+	player.stamina = 100.0
+	var wall := StaticBody3D.new()
+	var wall_shape := CollisionShape3D.new()
+	var wall_box := BoxShape3D.new()
+	wall_box.size = Vector3(1.0, 3.0, 12.0)
+	wall_shape.shape = wall_box
+	wall.add_child(wall_shape)
+	game.add_child(wall)
+	wall.global_position = player.global_position + Vector3(1.4, 0.5, 0)
+	await physics_frame
+	await physics_frame
+	var slide_from: Vector3 = player.global_position
+	player._start_dash(Vector3(1, 0, -1))
+	var slid := Vector2(player.global_position.x - slide_from.x, player.global_position.z - slide_from.z)
+	wall.queue_free()
+	check("slanting-dodge-slides-along-a-wall", slid.length() > 1.6 and slid.x < 0.95, {"slid": slid})
+
 	# Down-right faces down-right: the sheet's southeast row is drawn facing
 	# down-left, so that facing shows the southwest row mirrored.
 	var sprite: LapplandAnimator3D = game.player._sprite

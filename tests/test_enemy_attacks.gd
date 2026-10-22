@@ -17,7 +17,7 @@ func check(label: String, ok: bool) -> void:
 func clean() -> void:
 	game._clear_field()
 	await step()
-	game.player.hp = 2400
+	game.player.hp = game.player.max_hp
 	game.player.invulnerable = false
 	game.player.teleport(origin + Vector3(2, 0, 0))
 ## What a physical hit of `raw` costs her after her defence (局内构筑与数值策划案 §4).
@@ -90,14 +90,14 @@ func run() -> void:
 	thug._tick_attack(0.1)
 	check("thug holds its aim through the windup", rad_to_deg(locked.angle_to(thug.attack_direction)) < 0.01)
 	thug._tick_attack(0.71)
-	check("…and strikes where it aimed: stepping behind it dodges", locked.dot(thug.attack_direction) > 0.999 and is_equal_approx(game.player.hp, 2400))
+	check("…and strikes where it aimed: stepping behind it dodges", locked.dot(thug.attack_direction) > 0.999 and is_equal_approx(game.player.hp, game.player.max_hp))
 	check("100 degree sector includes front and excludes side/outside radius", EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(2, 0, 0)) and not EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(0, 0, 1)) and not EnemyAttacks.contains(thug.attack_profile, origin, Vector3.RIGHT, origin + Vector3(2.5, 0, 0)))
 	check("miss leaves no dark red cuts", not game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == "cuts"))
 	await clean()
 	thug = enemy("thug")
 	thug._begin_telegraphed_attack()
 	thug._tick_attack(0.81)
-	check("front sector hit applies physical damage after defence and post-hit cuts", is_equal_approx(game.player.hp, 2400 - taken(thug._pending_damage)) and game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == "cuts"))
+	check("front sector hit applies physical damage after defence and post-hit cuts", is_equal_approx(game.player.hp, game.player.max_hp - taken(thug._pending_damage)) and game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == "cuts"))
 
 	for type in ["slug", "brawler"]:
 		await clean()
@@ -107,11 +107,11 @@ func run() -> void:
 		e._begin_telegraphed_attack()
 		e._tick_attack(0.81)
 		var before := e.global_position
-		check(type + " does not hit the future dash endpoint early", is_equal_approx(game.player.hp, 2400))
+		check(type + " does not hit the future dash endpoint early", is_equal_approx(game.player.hp, game.player.max_hp))
 		for frame in range(6): e._tick_attack(1.0 / 60)
 		check(type + " lunge stops at the player instead of passing through", e.attack_phase == "contact" and e.global_position.x < target.x and target.x - e.global_position.x <= e.contact_distance() + 0.01 and e.pose_frame == 3)
 		check(type + " contact plays a hit spark", game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == ("bite" if type == "slug" else "stab")))
-		check(type + " swept strip hits only once", is_equal_approx(game.player.hp, 2400 - taken(e._pending_damage)))
+		check(type + " swept strip hits only once", is_equal_approx(game.player.hp, game.player.max_hp - taken(e._pending_damage)))
 		var at_contact := e.global_position
 		for frame in range(30): e._tick_attack(1.0 / 60)
 		check(type + " springs back out of the player after contact", is_equal_approx(at_contact.distance_to(e.global_position), float(e.attack_profile.recoil)) and e.global_position.x < at_contact.x)
@@ -132,7 +132,7 @@ func run() -> void:
 		e._begin_telegraphed_attack()
 		e._tick_attack(0.81)
 		e._tick_attack(0.10)
-		check(type + " lunge cannot cross a wall or damage through it", e.global_position.x < wall.global_position.x and is_equal_approx(game.player.hp, 2400))
+		check(type + " lunge cannot cross a wall or damage through it", e.global_position.x < wall.global_position.x and is_equal_approx(game.player.hp, game.player.max_hp))
 		wall.queue_free()
 		await step()
 
@@ -192,15 +192,15 @@ func run() -> void:
 	bullet = game.launch_enemy_projectile(origin, origin + Vector3.RIGHT, 1.5, "bullet", 15)
 	bullet.set_physics_process(false)
 	bullet._physics_process(0.4)
-	check("fast bullet swept collision cannot tunnel through player", is_equal_approx(game.player.hp, 2400 - taken(1.5)) and bullet.is_queued_for_deletion())
+	check("fast bullet swept collision cannot tunnel through player", is_equal_approx(game.player.hp, game.player.max_hp - taken(1.5)) and bullet.is_queued_for_deletion())
 	await step()
-	game.player.hp = 2400
+	game.player.hp = game.player.max_hp
 	var wall := wall_at(origin + Vector3(2, 0, 0))
 	await step()
 	var arrow := game.launch_enemy_projectile(origin, origin + Vector3.RIGHT, 1.0)
 	arrow.set_physics_process(false)
 	arrow._physics_process(1)
-	check("cover blocks arrows before player and makes wood fragments", is_equal_approx(game.player.hp, 2400) and arrow.is_queued_for_deletion() and game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == "wood"))
+	check("cover blocks arrows before player and makes wood fragments", is_equal_approx(game.player.hp, game.player.max_hp) and arrow.is_queued_for_deletion() and game.get_children().any(func(n): return n is EnemyAttackVfx and n.kind == "wood"))
 	wall.queue_free()
 	await step()
 	game.player.teleport(origin + Vector3(0, 0, 5))
@@ -217,7 +217,7 @@ func run() -> void:
 	check("menus pause projectile position and range consumption", bullet.global_position == origin and bullet.travelled == 0)
 	game.close_modal()
 	bullet._physics_process(0.4)
-	check("sidestepping the locked bullet path avoids damage", is_equal_approx(game.player.hp, 2400) and not bullet.is_queued_for_deletion())
+	check("sidestepping the locked bullet path avoids damage", is_equal_approx(game.player.hp, game.player.max_hp) and not bullet.is_queued_for_deletion())
 	await clean()
 	var fast := enemy("brawler")
 	game.player.invulnerable = true

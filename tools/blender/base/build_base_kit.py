@@ -55,13 +55,13 @@ SWATCHES = {
 HAZARD = re.compile(r"_hz_m$|^base_barrier_stripe_m$")
 FABRIC = re.compile(r"(seat|chair|_mat|_bl|_pad|curtain)_m$")
 CONTAINER = re.compile(r"^base_(ct_(grey|blue|orange)|c[kml][so](_lid)?|crate|cv_box|cc_box)_m$")
-GRATING = {"base_hl_m", "base_cl2_deck_m", "base_fj_m"}
+GRATING = {"base_hl_m", "base_cl2_deck_m", "base_fj_m", "base_lc_grate_m"}
 SCREENS = {"base_console_glow_m", "base_desk_glow_m", "base_hang_glow_m", "base_counter_glow_m", "base_bs_scr_m",
            "base_iw_screen_m", "base_fa_scr_m", "base_sc_glow_m", "base_ab_glow_m", "base_mr_glow_m", "base_mi_glow_m",
            "base_mm_glow_m", "base_me_glow_m", "base_cc_glow_m", "base_bw_mon_m", "base_bw_screen_m",
            "base_bs2_scr_m", "base_ns_glow_m", "base_os_scr_m", "base_cr2_glow_m", "base_mk_glow_m",
            "base_cd_scr_m", "base_mw_scr_m", "base_ec_scr_m", "base_pd_glow_m", "base_it_glow_m", "base_fb_glow_m", "base_htd_glow_m",
-           "base_td_scr_m", "base_tp_scr_m"}
+           "base_td_scr_m", "base_tp_scr_m", "base_lc_scr_m", "base_lsc_scr_m", "base_lfh_scr_m", "base_lrh_scr_m"}
 ## A neutral swatch times its colour comes out darker: lifted back by this.
 TINT_GAIN = 1.7
 
@@ -121,6 +121,12 @@ def glow(name, hex_rgb=SCREEN):
     if name in SCREENS and _swatch_ready("screen"):
         return swatch_material(name, "screen")
     return kit.flat_material(name, hex_rgb, 9.0, "3fa8b8")
+
+
+def glow_warm(name, hex_rgb, darker):
+    """A lit part whose mottling stays in its own hue (glow() mixes in screen
+    cyan, which turns originium orange to peach)."""
+    return kit.flat_material(name, hex_rgb, 9.0, darker)
 
 
 def join(name, objs):
@@ -1951,6 +1957,7 @@ SIGNS = {
     "warehouse": ("d8a520", "box"), "medical": ("8fc31f", "plus"), "store": ("d0662a", "bag"),
     "personnel": ("3a8fd0", "person"), "exchange": ("c48cff", "chart"), "lounge": ("3fa8a0", "cup"),
     "loadout": ("0098dc", "blades"), "logistics": ("e0b030", "arrow"), "workshop": ("e0782a", "gear"),
+    "research": ("e0782a", "flask"),
 }
 
 
@@ -1974,6 +1981,9 @@ def _pictogram(kind, prefix):
     if kind == "gear":
         teeth = [b(f"t{k}", 0.1, 0.12, 0.2 * math.cos(k * math.pi / 4), 0.2 * math.sin(k * math.pi / 4), -k * math.pi / 4) for k in range(8)]
         return teeth + [b("hub", 0.3, 0.3, 0, 0), b("hole", 0.08, 0.08, 0, 0)][:1]
+    if kind == "flask":
+        return [b("neck", 0.1, 0.18, 0, 0.17), b("lip", 0.18, 0.04, 0, 0.27), b("body", 0.36, 0.2, 0, -0.08),
+                b("sl", 0.08, 0.16, -0.12, 0.04, 0.5), b("sr", 0.08, 0.16, 0.12, 0.04, -0.5), b("base", 0.44, 0.05, 0, -0.2)]
     if kind == "blades":
         return [b("a", 0.06, 0.5, 0, 0, 0.6), b("b", 0.06, 0.5, 0, 0, -0.6), b("c", 0.24, 0.05, 0, -0.14)]
     return [b("a", 0.34, 0.06, -0.04, 0), b("b", 0.22, 0.06, 0.1, 0.06, -0.75), b("c", 0.22, 0.06, 0.1, -0.06, 0.75)]
@@ -2021,6 +2031,214 @@ def base_hanging_sign_lounge(): return _hanging_sign("lounge")
 def base_hanging_sign_loadout(): return _hanging_sign("loadout")
 def base_hanging_sign_logistics(): return _hanging_sign("logistics")
 def base_hanging_sign_workshop(): return _hanging_sign("workshop")
+def base_hanging_sign_research(): return _hanging_sign("research")
+
+
+def _torus(name, major, minor, z, segments=48, rings=8, x=0.0, y=0.0, rotation=(0, 0, 0)):
+    bpy.ops.mesh.primitive_torus_add(major_radius=major, minor_radius=minor, location=(x, y, z), rotation=rotation,
+                                     major_segments=segments, minor_segments=rings)
+    obj = bpy.context.object
+    obj.name = name
+    return obj
+
+
+def _cone(name, r1, r2, depth, location, vertices=24, rotation=(0, 0, 0)):
+    bpy.ops.mesh.primitive_cone_add(radius1=r1, radius2=r2, depth=depth, location=location, vertices=vertices, rotation=rotation)
+    obj = bpy.context.object
+    obj.name = name
+    return obj
+
+
+def _bolts(prefix, points, radius=0.025, depth=0.02, axis="y"):
+    """Little hex bolt heads at `points`, facing +Y (or up)."""
+    rot = (math.radians(90), 0, 0) if axis == "y" else (0, 0, 0)
+    return [d.cyl(f"{prefix}{k}", radius, depth, p, rot, 6) for k, p in enumerate(points)]
+
+
+def _pipe(name, a, b, radius, vertices=12):
+    """A straight pipe from `a` to `b`."""
+    va, vb = mathutils.Vector(a), mathutils.Vector(b)
+    mid, axis = (va + vb) / 2, vb - va
+    obj = d.cyl(name, radius, axis.length, tuple(mid), (0, 0, 0), vertices)
+    obj.rotation_mode = "QUATERNION"
+    obj.rotation_quaternion = axis.to_track_quat("Z", "Y")
+    bpy.ops.object.select_all(action="DESELECT")
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    return obj
+
+
+# --- 科研部 (龙门币平衡与科研部策划案_v1_1 §5.3; 用户 2026-10-20: 面数更多，搭配材质、纹理和渲染) --
+
+def base_originium_chamber():
+    """源石隔离舱: a stepped plinth ringed by a hazard band, a grated floor and
+    an emitter under a cluster of originium held in three containment rings
+    between six clamped posts; an open crown of beams and a central emitter,
+    cable runs down the posts, a control lectern at the front, coolant pipes
+    behind."""
+    body, hz, grate, dark, glow_o, glow_c, scr = [], [], [], [], [], [], []
+    body += [d.cyl("lc_base0", 1.62, 0.12, (0, 0, 0.06), vertices=64), d.cyl("lc_base1", 1.52, 0.22, (0, 0, 0.23), vertices=64),
+             d.cyl("lc_base2", 1.42, 0.06, (0, 0, 0.37), vertices=64)]
+    hz.append(d.cyl("lc_band", 1.535, 0.08, (0, 0, 0.2), vertices=64))
+    body += _bolts("lc_bb", [(1.53 * math.cos(k * math.pi / 12), 1.53 * math.sin(k * math.pi / 12), 0.3) for k in range(24)], 0.03, 0.03, "z")
+    grate.append(d.cyl("lc_grate", 1.32, 0.03, (0, 0, 0.41), vertices=64))
+    body += [d.cyl("lc_emit_base", 0.55, 0.22, (0, 0, 0.52), vertices=32), d.cyl("lc_emit_neck", 0.38, 0.18, (0, 0, 0.7), vertices=32)]
+    glow_c.append(_torus("lc_emit_ring", 0.47, 0.03, 0.62, 40, 6))
+    for k in range(8):
+        a = k * math.pi / 4
+        body.append(d.bbox(f"lc_fin{k}", (0.05, 0.28, 0.2), (0.45 * math.cos(a), 0.45 * math.sin(a), 0.55), (0, 0, a + math.pi / 2)))
+    for k in range(6):
+        a = k * math.pi / 3 + math.pi / 6
+        x, y = 1.4 * math.cos(a), 1.4 * math.sin(a)
+        body.append(d.bbox(f"lc_post{k}", (0.13, 0.13, 2.7), (x, y, 1.75), (0, 0, a), 0.02))
+        for j, z in enumerate((0.55, 1.7, 2.85)):
+            body.append(d.bbox(f"lc_clamp{k}{j}", (0.22, 0.22, 0.12), (x, y, z), (0, 0, a), 0.02))
+            glow_o.append(d.bbox(f"lc_node{k}{j}", (0.06, 0.02, 0.05), (x * 0.92, y * 0.92, z + 0.1), (0, 0, a + math.pi / 2)))
+        dark.append(_pipe(f"lc_cable{k}", (x * 1.06, y * 1.06, 3.0), (x * 1.06, y * 1.06, 0.45), 0.03, 8))
+    for j, z in enumerate((0.55, 1.7, 2.85)):
+        glow_c.append(_torus(f"lc_ring{j}", 1.36, 0.035, z, 64, 6))
+    body.append(_torus("lc_crown", 1.4, 0.13, 3.08, 64, 10))
+    for k in range(4):
+        a = k * math.pi / 4
+        body.append(d.bbox(f"lc_beam{k}", (2.7, 0.1, 0.12), (0, 0, 3.12), (0, 0, a), 0.02))
+    body += [d.cyl("lc_top_emit", 0.32, 0.22, (0, 0, 3.08), vertices=32), d.cyl("lc_top_lens", 0.22, 0.1, (0, 0, 2.94), vertices=32)]
+    glow_c.append(d.cyl("lc_top_glow", 0.18, 0.04, (0, 0, 2.88), vertices=24))
+    # The cluster: a dark core and lit shards, hexagonal like originium.
+    crystals = [(0, 0, 1.55, 1.5, 0.0, 0.0), (0.38, 0.12, 1.3, 1.0, 0.45, 0.2), (-0.34, -0.16, 1.35, 1.1, -0.4, -0.25),
+                (0.08, 0.42, 1.25, 0.8, 0.3, -0.5), (-0.14, -0.42, 1.28, 0.85, -0.25, 0.5), (0.3, -0.3, 1.45, 0.6, 0.6, 0.6),
+                (-0.32, 0.3, 1.45, 0.65, -0.55, -0.6), (0.0, 0.0, 2.25, 0.5, 0.15, 0.3), (0.15, -0.1, 0.95, 0.5, 0.0, 0.9)]
+    for k, (x, y, z, h, rx, ry) in enumerate(crystals):
+        r = 0.12 + h * 0.07
+        glow_o.append(d.cyl(f"lc_cr{k}", r, h, (x, y, z), (rx, ry, k * 0.4), 6))
+        tip = (x + math.sin(ry) * h * 0.62, y - math.sin(rx) * h * 0.62, z + math.cos(rx) * math.cos(ry) * h * 0.62)
+        glow_o.append(_cone(f"lc_tip{k}", r, 0.0, h * 0.35, tip, 6, (rx, ry, k * 0.4)))
+    dark.append(d.cyl("lc_core", 0.2, 0.7, (0, 0, 1.45), vertices=6))
+    # The lectern at the front (+Y faces the room).
+    body += [d.bbox("lc_lect_post", (0.3, 0.3, 1.0), (0, 1.95, 0.5)), d.bbox("lc_lect_top", (0.8, 0.5, 0.08), (0, 1.92, 1.05), (math.radians(-25), 0, 0))]
+    scr.append(d.bbox("lc_lect_scr", (0.66, 0.36, 0.02), (0, 1.94, 1.1), (math.radians(-25), 0, 0)))
+    glow_o += [d.bbox(f"lc_btn{k}", (0.05, 0.05, 0.02), (-0.25 + k * 0.1, 1.78, 1.0)) for k in range(6)]
+    # Coolant pipes behind, into the deck.
+    for s in (-1, 1):
+        dark += [_pipe(f"lc_cool{s}a", (s * 0.6, -1.45, 0.3), (s * 0.6, -2.0, 0.3), 0.09, 16),
+                 _pipe(f"lc_cool{s}b", (s * 0.6, -2.0, 0.3), (s * 0.6, -2.0, 0.0), 0.09, 16)]
+        body.append(_torus(f"lc_flange{s}", 0.11, 0.025, 0.3, 16, 6, s * 0.6, -1.5, (math.radians(90), 0, 0)))
+    return [(join("lc_body_j", body), steel("base_lc_m", 5, HULL), "box"),
+            (join("lc_hz_j", hz), steel("base_lc_hz_m", 2, SAFETY), "band"),
+            (join("lc_grate_j", grate), steel("base_lc_grate_m", 3, HULL), "grate"),
+            (join("lc_dark_j", dark), paint("base_lc_dark_m", "2a2f33", "1a1e22"), "pipes"),
+            (join("lc_scr_j", scr), glow("base_lc_scr_m"), "screen_glow"),
+            (join("lc_rings", glow_c), glow_warm("base_lc_ring_m", "8fd8f0", "3fa8b8"), "ring_glow"),
+            (join("lc_crystal", glow_o), glow_warm("base_lc_crystal_m", "ff7a24", "c2461a"), "crystal_glow")]
+
+
+def base_sample_cabinet():
+    """源石样本柜: an open-fronted cabinet, three shelves of tube racks, each
+    sealed tube lit by the sample inside; a lit cornice, a status screen on
+    the side post, two drawers below, a hazard strip at the foot."""
+    body, hz, tubes, caps, samples, scr, glows = [], [], [], [], [], [], []
+    body += [d.bbox("lsc_back", (2.4, 0.1, 3.0), (0, -0.35, 1.5)), d.bbox("lsc_top", (2.5, 0.85, 0.14), (0, 0, 2.93)),
+             d.bbox("lsc_foot", (2.4, 0.8, 0.12), (0, 0, 0.06))]
+    body += [d.bbox(f"lsc_side{s}", (0.1, 0.82, 3.0), (s * 1.15, 0, 1.5)) for s in (-1, 1)]
+    body += [d.bbox(f"lsc_drawer{k}", (1.08, 0.06, 0.36), (-0.56 + k * 1.12, 0.39, 0.38)) for k in range(2)]
+    body += [d.bbox(f"lsc_pull{k}", (0.3, 0.05, 0.04), (-0.56 + k * 1.12, 0.44, 0.44)) for k in range(2)]
+    body += [d.bbox(f"lsc_vent{k}", (0.03, 0.02, 0.5), (1.21, -0.2 + k * 0.08, 1.6)) for k in range(6)]
+    hz.append(d.bbox("lsc_hz", (2.38, 0.03, 0.08), (0, 0.41, 0.12)))
+    glows.append(d.bbox("lsc_cornice", (2.2, 0.03, 0.04), (0, 0.43, 2.86)))
+    scr.append(d.bbox("lsc_scr", (0.03, 0.34, 0.24), (1.21, 0.15, 1.95)))
+    for k in range(3):
+        z = 0.7 + k * 0.72
+        body.append(d.bbox(f"lsc_shelf{k}", (2.2, 0.66, 0.05), (0, 0.03, z)))
+        body.append(d.bbox(f"lsc_rack{k}", (2.1, 0.22, 0.12), (0, 0.15, z + 0.09)))
+        glows.append(d.bbox(f"lsc_lip{k}", (2.2, 0.03, 0.03), (0, 0.37, z + 0.02)))
+        for j in range(10):
+            x = -0.95 + j * 0.21
+            for row, y in enumerate((0.08, 0.24)):
+                tubes.append(d.cyl(f"lsc_t{k}{j}{row}", 0.055, 0.42, (x, y, z + 0.27), vertices=16))
+                caps.append(d.cyl(f"lsc_c{k}{j}{row}", 0.062, 0.06, (x, y, z + 0.5), vertices=16))
+                level = (j + row + k) % 3
+                samples.append(d.cyl(f"lsc_s{k}{j}{row}", 0.04, 0.14 + 0.06 * level, (x, y, z + 0.13 + 0.03 * level), vertices=6))
+    return [(join("lsc_body_j", body), steel("base_lsc_m", 5, WHITE), "box"),
+            (join("lsc_hz_j", hz), steel("base_lsc_hz_m", 2, SAFETY), "band"),
+            (join("lsc_tubes", tubes), glow("base_lsc_tube_m", "bfe8f0"), "tube_glow"),
+            (join("lsc_caps", caps), paint("base_lsc_cap_m", BLUE, "2c5880"), "caps"),
+            (join("lsc_samples", samples), glow_warm("base_lsc_sample_m", "ff7a24", "c2461a"), "sample_glow"),
+            (join("lsc_scr_j", scr), glow("base_lsc_scr_m"), "screen_glow"),
+            (join("lsc_glows", glows), glow("base_lsc_light_m", "f4fbff"), "light_glow")]
+
+
+def base_fume_hood():
+    """通风橱: a steel base with two doors, a dark epoxy worktop, a baffled back
+    wall, a framed sash with its handle and lit sill, a side control post
+    with lit buttons, glassware on the worktop and a flanged duct to the
+    ceiling."""
+    body, top, glass, liquid, scr, glows, hz = [], [], [], [], [], [], []
+    body += [d.bbox("lfh_base", (2.4, 0.95, 0.88), (0, 0, 0.44)), d.bbox("lfh_kick", (2.3, 0.85, 0.1), (0, 0, 0.05))]
+    body += [d.bbox(f"lfh_door{k}", (1.12, 0.04, 0.68), (-0.58 + k * 1.16, 0.48, 0.48)) for k in range(2)]
+    body += [d.bbox(f"lfh_handle{k}", (0.04, 0.05, 0.3), (-0.1 + k * 0.2, 0.52, 0.55)) for k in range(2)]
+    top.append(d.bbox("lfh_top", (2.46, 1.0, 0.05), (0, 0, 0.91)))
+    body += [d.bbox("lfh_backwall", (2.3, 0.06, 1.4), (0, -0.45, 1.62)), d.bbox("lfh_hood", (2.46, 1.0, 0.5), (0, 0, 2.55))]
+    body += [d.bbox(f"lfh_baffle{k}", (2.2, 0.04, 0.04), (0, -0.41, 1.15 + k * 0.22)) for k in range(5)]
+    body += [d.bbox(f"lfh_side{s}", (0.1, 1.0, 1.4), (s * 1.18, 0, 1.62)) for s in (-1, 1)]
+    body += [d.bbox("lfh_sash_top", (2.26, 0.06, 0.08), (0, 0.47, 2.0)), d.bbox("lfh_sash_bar", (1.2, 0.07, 0.05), (0, 0.52, 1.92))]
+    body += [d.bbox(f"lfh_sash_side{s}", (0.06, 0.06, 0.95), (s * 1.1, 0.47, 1.52)) for s in (-1, 1)]
+    hz.append(d.bbox("lfh_hz", (2.4, 0.03, 0.08), (0, 0.5, 2.38)))
+    glows += [d.bbox("lfh_sill", (2.2, 0.03, 0.03), (0, 0.48, 0.96)), d.bbox("lfh_lamp", (2.0, 0.3, 0.02), (0, 0.0, 2.29))]
+    body.append(d.bbox("lfh_ctrl", (0.2, 0.12, 0.6), (1.3, 0.38, 1.4)))
+    glows += [d.bbox(f"lfh_btn{k}", (0.1, 0.02, 0.05), (1.3, 0.45, 1.25 + k * 0.1)) for k in range(4)]
+    scr.append(d.bbox("lfh_scr", (0.14, 0.02, 0.12), (1.3, 0.45, 1.62)))
+    body.append(d.cyl("lfh_duct", 0.26, 1.5, (0, -0.15, 3.55), vertices=32))
+    body += [_torus(f"lfh_fl{k}", 0.27, 0.03, 2.9 + k * 0.5, 32, 6, 0, -0.15) for k in range(3)]
+    # Glassware: flasks, beakers and a retort stand.
+    for k, x in enumerate((-0.8, -0.45, 0.45)):
+        glass += [_cone(f"lfh_flask{k}", 0.13, 0.04, 0.24, (x, 0.0, 1.05), 24), d.cyl(f"lfh_neck{k}", 0.035, 0.12, (x, 0.0, 1.23), vertices=16)]
+        liquid.append(_cone(f"lfh_liq{k}", 0.12, 0.07, 0.1, (x, 0.0, 0.99), 24))
+    for k, x in enumerate((-0.1, 0.1, 0.8)):
+        glass.append(d.cyl(f"lfh_beaker{k}", 0.07, 0.16, (x, 0.18, 1.01), vertices=20))
+        liquid.append(d.cyl(f"lfh_bliq{k}", 0.062, 0.07, (x, 0.18, 0.97), vertices=20))
+    body += [d.bbox("lfh_stand_foot", (0.3, 0.2, 0.03), (0.9, -0.2, 0.95)), d.cyl("lfh_stand_rod", 0.015, 0.8, (0.98, -0.2, 1.35), vertices=8),
+             d.bbox("lfh_clamp", (0.18, 0.04, 0.04), (0.9, -0.2, 1.45))]
+    return [(join("lfh_body_j", body), steel("base_lfh_m", 5, WHITE), "box"),
+            (join("lfh_top_j", top), paint("base_lfh_top_m", "2a2f33", "1a1e22"), "top"),
+            (join("lfh_hz_j", hz), steel("base_lfh_hz_m", 2, SAFETY), "band"),
+            (join("lfh_glass", glass), glow("base_lfh_glass_m", "cfeef4"), "glass_glow"),
+            (join("lfh_liquid", liquid), glow("base_lfh_liquid_m", "8fe0c0"), "liquid_glow"),
+            (join("lfh_scr_j", scr), glow("base_lfh_scr_m"), "screen_glow"),
+            (join("lfh_glows", glows), glow("base_lfh_light_m", "f4fbff"), "light_glow")]
+
+
+def base_research_holo():
+    """全息科技树台: a stepped round console, eight workstation bays round its
+    rim (an angled screen and a keyboard each), a lit floor ring, a central
+    emitter column with a lens; the tree itself (one light per node) is drawn
+    in Godot and lit by what is done."""
+    body, dark, scr, glows, hz = [], [], [], [], []
+    body += [d.cyl("lrh_step0", 2.55, 0.1, (0, 0, 0.05), vertices=64), d.cyl("lrh_step1", 2.4, 0.55, (0, 0, 0.375), vertices=64),
+             d.cyl("lrh_lip", 2.48, 0.06, (0, 0, 0.68), vertices=64), d.cyl("lrh_top", 2.15, 0.08, (0, 0, 0.74), vertices=64)]
+    hz.append(d.cyl("lrh_hz", 2.56, 0.04, (0, 0, 0.12), vertices=64))
+    glows.append(_torus("lrh_ring", 2.02, 0.035, 0.8, 64, 6))
+    body += _bolts("lrh_b", [(2.42 * math.cos(k * math.pi / 16), 2.42 * math.sin(k * math.pi / 16), 0.5) for k in range(32)], 0.025, 0.02, "z")
+    for k in range(8):
+        a = k * math.pi / 4 + math.pi / 8
+        x, y = 2.3 * math.cos(a), 2.3 * math.sin(a)
+        yaw = a + math.pi / 2
+        body.append(d.bbox(f"lrh_bay{k}", (0.95, 0.42, 0.18), (x, y, 0.84), (0, 0, yaw)))
+        scr.append(d.bbox(f"lrh_scr{k}", (0.8, 0.02, 0.36), (2.38 * math.cos(a), 2.38 * math.sin(a), 1.08), (math.radians(-20), 0, yaw - math.pi)))
+        dark.append(d.bbox(f"lrh_kb{k}", (0.6, 0.2, 0.03), (2.12 * math.cos(a), 2.12 * math.sin(a), 0.94), (0, 0, yaw)))
+        glows.append(d.bbox(f"lrh_led{k}", (0.6, 0.02, 0.02), (2.5 * math.cos(a), 2.5 * math.sin(a), 0.62), (0, 0, yaw)))
+    body += [d.cyl("lrh_column", 0.42, 0.5, (0, 0, 1.03), vertices=32), d.cyl("lrh_collar", 0.5, 0.08, (0, 0, 1.3), vertices=32)]
+    for k in range(6):
+        a = k * math.pi / 3
+        body.append(d.bbox(f"lrh_fin{k}", (0.05, 0.22, 0.4), (0.44 * math.cos(a), 0.44 * math.sin(a), 1.05), (0, 0, a + math.pi / 2)))
+    glows += [d.cyl("lrh_lens", 0.3, 0.06, (0, 0, 1.37), vertices=32), _torus("lrh_lens_ring", 0.38, 0.025, 1.36, 32, 6)]
+    for k in range(4):
+        a = k * math.pi / 2
+        dark.append(_pipe(f"lrh_conduit{k}", (0.5 * math.cos(a), 0.5 * math.sin(a), 0.8), (1.9 * math.cos(a), 1.9 * math.sin(a), 0.8), 0.04, 10))
+    return [(join("lrh_body_j", body), steel("base_lrh_m", 5, HULL), "box"),
+            (join("lrh_hz_j", hz), steel("base_lrh_hz_m", 2, SAFETY), "band"),
+            (join("lrh_dark_j", dark), paint("base_lrh_dark_m", "2a2f33", "1a1e22"), "dark"),
+            (join("lrh_scr_j", scr), glow("base_lrh_scr_m"), "screen_glow"),
+            (join("lrh_glows", glows), glow_warm("base_lrh_glow_m", "ffa050", "d0662a"), "ring_glow")]
 
 
 def base_fabricator():
@@ -2050,6 +2268,8 @@ HALL_BUILDERS = [base_command_dais, base_market_wall, base_exchange_counter, bas
                  base_hanging_sign_exchange, base_hanging_sign_lounge, base_hanging_sign_loadout, base_hanging_sign_logistics,
                  base_hanging_sign_workshop, base_fabricator, base_holo_screen_frame, base_trader_desk, base_trading_post]
 ROOM_BUILDERS += HALL_BUILDERS
+LAB_BUILDERS = [base_hanging_sign_research, base_originium_chamber, base_sample_cabinet, base_fume_hood, base_research_holo]
+ROOM_BUILDERS += LAB_BUILDERS
 
 
 # --- Detail pass (用户 2026-10-18: 补更精细的模型) -------------------------------------
@@ -2204,6 +2424,662 @@ def _det_bar_counter():
     taps = [d.cyl(f"bcd_t{k}", 0.03, 0.3, (0.6 + k * 0.2, -0.2, 1.25), vertices=6) for k in range(3)]
     return [(join("bcd_cups", cups), paint("base_bcd_m", WHITE, "b0b8bc"), "cups"),
             (join("bcd_taps", taps), steel("base_bcd_tap_m", 2, "a8b0b4"), "taps")]
+
+
+
+# --- 基建 (基建设施修订案_v1_1 §二, §三, §六) ------------------------------------------
+# The construction kit every unbuilt part stands behind, and the parts the
+# facility levels add. The kit pieces are shown at their modelled size
+# (BaseMap.UNSCALED "build_"), the parts at PROP_SCALE like the other props.
+
+def _hazard_plate(name, size, location, rotation=(0, 0, 0)):
+    return d.bbox(name, size, location, rotation, 0.008)
+
+
+def base_build_barrier(width=2.0):
+    """施工围挡: a 2 m panel of yellow-and-black stripes in a steel frame on two
+    ballast feet, the Rhodes logo stencilled in the middle, reflectors along
+    the top rail and an amber flasher on one post."""
+    frame, feet, hz, logo, refl, lamp = [], [], [], [], [], []
+    for s in (-1, 1):
+        x = s * (width / 2 - 0.06)
+        frame.append(d.bbox(f"bb_post{s}", (0.07, 0.07, 1.08), (x, 0, 0.6), width=0.01))
+        feet += [d.bbox(f"bb_foot{s}", (0.34, 0.6, 0.14), (x, 0, 0.07), width=0.03),
+                 d.bbox(f"bb_foot_top{s}", (0.24, 0.42, 0.06), (x, 0, 0.17), width=0.02)]
+        feet += _bolts(f"bb_fb{s}", [(x + dx, 0.0, 0.205) for dx in (-0.07, 0.07)], 0.02, 0.02, "z")
+    frame += [d.bbox("bb_rail_top", (width, 0.06, 0.07), (0, 0, 1.13)), d.bbox("bb_rail_bot", (width, 0.05, 0.05), (0, 0, 0.27))]
+    hz.append(_hazard_plate("bb_panel", (width - 0.16, 0.03, 0.78), (0, 0.0, 0.7)))
+    logo.append(d.bbox("bb_logo", (0.5, 0.012, 0.44), (0, 0.022, 0.7), width=0.002))
+    refl += [d.bbox(f"bb_refl{k}", (0.16, 0.012, 0.035), (-width / 2 + 0.35 + k * (width - 0.7) / 3, 0.036, 1.13)) for k in range(4)]
+    lamp += [d.cyl("bb_flash", 0.06, 0.09, (-width / 2 + 0.06, 0, 1.24), vertices=16)]
+    frame.append(d.cyl("bb_flash_base", 0.05, 0.04, (-width / 2 + 0.06, 0, 1.18), vertices=12))
+    return [(join("bb_frame_j", frame), steel("base_bb_m", 3, HULL), "frame"),
+            (join("bb_feet_j", feet), paint("base_bb_feet_m", ORANGE, "a24e1e"), "feet"),
+            (join("bb_hz_j", hz), steel("base_bb_hz_m", 2, SAFETY), "panel"),
+            (join("bb_logo_j", logo), logo_decal("base_bb_logo_m", SAFETY), "logo"),
+            (join("bb_refl_j", refl), glow("base_bb_refl_m", "f2f6f8"), "refl_glow"),
+            (join("bb_lamp_j", lamp), glow_warm("base_bb_lamp_m", "ffb03a", "c27414"), "lamp_glow")]
+
+
+def base_build_cone():
+    """A road cone on a square rubber foot, two reflective bands."""
+    foot = [d.bbox("bc_foot", (0.4, 0.4, 0.05), (0, 0, 0.025), width=0.02)]
+    cone = [_cone("bc_cone", 0.15, 0.03, 0.62, (0, 0, 0.36), 24)]
+    bands = [_cone("bc_band0", 0.115, 0.1, 0.07, (0, 0, 0.36), 24), _cone("bc_band1", 0.08, 0.062, 0.06, (0, 0, 0.52), 24)]
+    for k, b in enumerate(bands):
+        b.scale = (1.06, 1.06, 1.0)
+    return [(join("bc_foot_j", foot), paint("base_bcone_foot_m", RUBBER, "202326"), "foot"),
+            (join("bc_cone_j", cone), paint("base_bcone_m", ORANGE, "b4521e"), "cone"),
+            (join("bc_band_j", bands), glow("base_bcone_refl_m", "eef3f5"), "band_glow")]
+
+
+def base_build_crate_tarp():
+    """Supplies under a grey tarp on a pallet: the crate's shape through the
+    cloth, the cloth hanging in folds round the foot, two yellow ratchet
+    straps over it, corner guards, a facility pictogram patch (no text)."""
+    pallet, tarp, straps, guards, patch = [], [], [], [], []
+    pallet += [d.bbox(f"bct_slat{k}", (1.6, 0.16, 0.03), (0, -0.5 + k * 0.25, 0.13), width=0.006) for k in range(5)]
+    pallet += [d.bbox(f"bct_block{i}{j}", (0.14, 0.14, 0.1), (x, y, 0.05), width=0.01) for i, x in enumerate((-0.7, 0, 0.7)) for j, y in enumerate((-0.5, 0, 0.5))]
+    tarp.append(d.bbox("bct_body", (1.5, 1.1, 0.86), (0, 0, 0.58), width=0.08))
+    tarp.append(d.bbox("bct_top", (1.38, 0.98, 0.1), (0.02, -0.01, 1.03), (0, 0, 0.03), 0.05))
+    # Folds round the foot, uneven.
+    for k in range(9):
+        t = -0.66 + k * 0.165
+        tarp.append(d.bbox(f"bct_fold_s{k}", (0.12, 0.05, 0.3 + 0.08 * ((k * 7) % 3)), (t, 0.565, 0.33), (0.06 * ((k % 2) * 2 - 1), 0, 0), 0.02))
+        tarp.append(d.bbox(f"bct_fold_n{k}", (0.12, 0.05, 0.28 + 0.07 * ((k * 5) % 3)), (t, -0.565, 0.33), (0, 0, 0), 0.02))
+    for k in range(6):
+        t = -0.42 + k * 0.17
+        tarp.append(d.bbox(f"bct_fold_w{k}", (0.05, 0.12, 0.3 + 0.06 * (k % 3)), (-0.765, t, 0.33), width=0.02))
+        tarp.append(d.bbox(f"bct_fold_e{k}", (0.05, 0.12, 0.28 + 0.06 * ((k + 1) % 3)), (0.765, t, 0.33), width=0.02))
+    for s in (-1, 1):
+        x = s * 0.4
+        straps += [d.bbox(f"bct_strap_t{s}", (0.07, 1.16, 0.012), (x, 0, 1.085)), d.bbox(f"bct_strap_f{s}", (0.07, 0.012, 0.95), (x, 0.58, 0.6)),
+                   d.bbox(f"bct_strap_b{s}", (0.07, 0.012, 0.95), (x, -0.58, 0.6))]
+        guards.append(d.bbox(f"bct_ratchet{s}", (0.12, 0.05, 0.08), (x, 0.6, 0.78), width=0.01))
+    guards += [d.bbox(f"bct_guard{k}", (0.12, 0.12, 0.14), (sx * 0.72, sy * 0.52, 1.0), width=0.01)
+               for k, (sx, sy) in enumerate(((-1, -1), (-1, 1), (1, -1), (1, 1)))]
+    patch.append(d.bbox("bct_patch", (0.36, 0.012, 0.3), (0.0, 0.57, 0.78), width=0.003))
+    return [(join("bct_pallet_j", pallet), paint("base_bct_pallet_m", "7c6440", "54432a"), "pallet"),
+            (join("bct_tarp_j", tarp), paint("base_bct_mat_m", "6f777c", "50575b"), "box"),
+            (join("bct_straps_j", straps), paint("base_bct_strap_m", SAFETY, "a07a12"), "straps"),
+            (join("bct_guard_j", guards), steel("base_bct_guard_m", 3, HULL), "guards"),
+            (join("bct_patch_j", patch), logo_decal("base_bct_patch_m", SAFETY), "patch")]
+
+
+def base_build_scaffold(width=3.0, depth=1.5, height=3.4):
+    """Two-bay tube scaffolding: standards on screw-jack base plates, ledgers
+    at each lift, cross braces on the back, two grated decks with toe boards,
+    a ladder up the side, a hazard banner along the top rail."""
+    tubes, plates, decks, toes, banner = [], [], [], [], []
+    xs = (-width / 2, 0.0, width / 2)
+    ys = (-depth / 2, depth / 2)
+    for i, x in enumerate(xs):
+        for j, y in enumerate(ys):
+            tubes.append(_pipe(f"bsc_std{i}{j}", (x, y, 0.12), (x, y, height), 0.024, 10))
+            plates += [d.bbox(f"bsc_plate{i}{j}", (0.16, 0.16, 0.012), (x, y, 0.006)), d.cyl(f"bsc_jack{i}{j}", 0.03, 0.12, (x, y, 0.07), vertices=8)]
+    for k, z in enumerate((0.25, 1.4, 2.6, height - 0.05)):
+        for y in ys:
+            tubes.append(_pipe(f"bsc_led{k}{y}", (-width / 2, y, z), (width / 2, y, z), 0.022, 8))
+        for x in xs:
+            tubes.append(_pipe(f"bsc_tr{k}{x}", (x, -depth / 2, z), (x, depth / 2, z), 0.022, 8))
+    for i in range(2):
+        tubes.append(_pipe(f"bsc_brace{i}", (xs[i], -depth / 2, 0.25), (xs[i + 1], -depth / 2, 2.6), 0.018, 8))
+    for k, z in enumerate((1.42, 2.62)):
+        for i in range(2):
+            cx = (xs[i] + xs[i + 1]) / 2
+            decks.append(d.bbox(f"bsc_deck{k}{i}", (width / 2 - 0.06, depth - 0.08, 0.04), (cx, 0, z + 0.04), width=0.006))
+        toes += [d.bbox(f"bsc_toe{k}{s}", (width, 0.02, 0.15), (0, s * (depth / 2 - 0.01), z + 0.13)) for s in (-1, 1)]
+    for k in range(10):
+        tubes.append(_pipe(f"bsc_rung{k}", (width / 2 + 0.1, -0.2, 0.3 + k * 0.3), (width / 2 + 0.1, 0.2, 0.3 + k * 0.3), 0.014, 6))
+    tubes += [_pipe(f"bsc_lad{s}", (width / 2 + 0.1, s * 0.2, 0.0), (width / 2 + 0.1, s * 0.2, 3.1), 0.018, 8) for s in (-1, 1)]
+    banner.append(_hazard_plate("bsc_banner", (width - 0.1, 0.015, 0.32), (0, depth / 2 + 0.03, height - 0.3)))
+    return [(join("bsc_tubes_j", tubes), steel("base_bsc_m", 4, PANEL), "frame"),
+            (join("bsc_plates_j", plates), steel("base_bsc_plate_m", 2, HULL), "plates"),
+            (join("bsc_decks_j", decks), steel("base_bsc_deck_m", 3, HULL), "deck"),
+            (join("bsc_toes_j", toes), paint("base_bsc_toe_m", "8a6c3e", "5e4928"), "toes"),
+            (join("bsc_banner_j", banner), steel("base_bsc_hz_m", 2, SAFETY), "banner")]
+
+
+def base_build_lamp():
+    """A tripod work lamp: three splayed legs, a telescoping mast, two flood
+    heads on a crossbar facing the work, a cable coiled at its foot into a
+    small power box."""
+    legs, mast, heads, light, box = [], [], [], [], []
+    for k in range(3):
+        a = k * 2 * math.pi / 3
+        legs.append(_pipe(f"bl_leg{k}", (0.0, 0.0, 0.9), (0.42 * math.cos(a), 0.42 * math.sin(a), 0.0), 0.02, 8))
+        legs.append(d.cyl(f"bl_shoe{k}", 0.045, 0.03, (0.42 * math.cos(a), 0.42 * math.sin(a), 0.015), vertices=10))
+    mast += [d.cyl("bl_mast0", 0.035, 1.0, (0, 0, 1.2), vertices=12), d.cyl("bl_mast1", 0.026, 0.8, (0, 0, 1.9), vertices=12),
+             d.cyl("bl_collar", 0.05, 0.08, (0, 0, 1.7), vertices=12), d.bbox("bl_bar", (0.9, 0.05, 0.05), (0, 0, 2.28))]
+    for s in (-1, 1):
+        x = s * 0.32
+        heads += [d.bbox(f"bl_head{s}", (0.34, 0.16, 0.26), (x, 0.06, 2.22), (math.radians(-20), 0, 0), 0.02)]
+        heads += [d.bbox(f"bl_fin{s}{k}", (0.3, 0.02, 0.2), (x, -0.04 - k * 0.03, 2.22), (math.radians(-20), 0, 0)) for k in range(3)]
+        light.append(d.bbox(f"bl_lens{s}", (0.28, 0.02, 0.2), (x, 0.145, 2.19), (math.radians(-20), 0, 0)))
+    box += [d.bbox("bl_box", (0.36, 0.24, 0.26), (0.34, -0.42, 0.13), width=0.02)]
+    box += [_torus(f"bl_coil{k}", 0.17 - k * 0.025, 0.014, 0.02 + k * 0.026, 24, 6, -0.25, -0.3) for k in range(3)]
+    box.append(_pipe("bl_cable", (-0.05, -0.05, 0.9), (-0.15, -0.25, 0.05), 0.014, 6))
+    return [(join("bl_legs_j", legs), steel("base_blp_m", 2, HULL), "legs"),
+            (join("bl_mast_j", mast + heads), paint("base_blp_head_m", SAFETY, "a07a12"), "heads"),
+            (join("bl_light_j", light), glow_warm("base_blp_light_m", "fff0c8", "e0b060"), "light_glow"),
+            (join("bl_box_j", box), paint("base_blp_box_m", RUBBER, "202326"), "box")]
+
+
+def base_build_post():
+    """施工终端: a slim post on a bolted plate, a tilted amber screen with a
+    keypad under it, a hazard band, a beacon on top, its cable into the deck."""
+    body, hz, scr, lamp = [], [], [], []
+    body += [d.bbox("bp_plate", (0.5, 0.5, 0.03), (0, 0, 0.015), width=0.01), d.bbox("bp_post", (0.18, 0.18, 1.2), (0, -0.04, 0.63), width=0.02),
+             d.bbox("bp_head", (0.46, 0.3, 0.34), (0, 0.04, 1.2), (math.radians(-28), 0, 0), 0.025),
+             d.bbox("bp_pad", (0.3, 0.14, 0.04), (0, 0.16, 0.96), (math.radians(-40), 0, 0), 0.01)]
+    body += _bolts("bp_bolt", [(sx * 0.2, sy * 0.2, 0.035) for sx in (-1, 1) for sy in (-1, 1)], 0.02, 0.02, "z")
+    body.append(_pipe("bp_cable", (0.0, -0.13, 0.4), (0.0, -0.28, 0.03), 0.02, 8))
+    hz.append(d.bbox("bp_band", (0.19, 0.19, 0.12), (0, -0.04, 0.3)))
+    scr.append(d.bbox("bp_scr", (0.38, 0.02, 0.24), (0, 0.19, 1.24), (math.radians(-28), 0, 0)))
+    scr += [d.bbox(f"bp_key{k}", (0.05, 0.05, 0.015), (-0.1 + (k % 3) * 0.1, 0.18 + (k // 3) * 0.035, 0.985 + (k // 3) * 0.03), (math.radians(-40), 0, 0)) for k in range(6)]
+    lamp += [d.cyl("bp_beacon", 0.06, 0.1, (0, 0.0, 1.47), vertices=16)]
+    body.append(d.cyl("bp_beacon_base", 0.07, 0.03, (0, 0.0, 1.405), vertices=16))
+    return [(join("bp_body_j", body), steel("base_bp_m", 3, HULL), "body"),
+            (join("bp_hz_j", hz), steel("base_bp_hz_m", 2, SAFETY), "band"),
+            (join("bp_scr_j", scr), glow_warm("base_bp_scr_m", "ffc24a", "c2861a"), "screen_glow"),
+            (join("bp_lamp_j", lamp), glow_warm("base_bp_lamp_m", "ffb03a", "c27414"), "lamp_glow")]
+
+
+def base_build_tape(length=1.0):
+    """Hazard tape laid on the deck, 1 m long (stretched along x per site)."""
+    tape = [d.bbox("bt_tape", (length, 0.14, 0.008), (0, 0, 0.004), width=0.001)]
+    return [(join("bt_tape_j", tape), steel("base_bt_hz_m", 1, SAFETY), "tape")]
+
+
+def base_cable_trunk(length=3.0):
+    """A cable trunk run across the deck to a facility, lit along its lid when
+    the link is live: a low ramped cover, grated lid, a cyan strip."""
+    body = [d.bbox("ct_cover", (0.5, length, 0.08), (0, 0, 0.04), width=0.02)]
+    body += [d.bbox(f"ct_ramp{s}", (0.12, length, 0.04), (s * 0.3, 0, 0.02), (0, s * math.radians(25), 0)) for s in (-1, 1)]
+    grate = [d.bbox(f"ct_slot{k}", (0.32, 0.05, 0.01), (0, -length / 2 + 0.15 + k * 0.15, 0.085)) for k in range(int(length / 0.15) - 1)]
+    strip = [d.bbox("ct_strip", (0.05, length - 0.1, 0.012), (0.19, 0, 0.088))]
+    return [(join("ct_body_j", body), steel("base_ctk_m", 3, HULL), "body"),
+            (join("ct_grate_j", grate), paint("base_ctk_slot_m", "1e2226"), "grate"),
+            (join("ct_strip_j", strip), glow("base_ctk_glow_m", "6fd8e4"), "strip_glow")]
+
+
+def base_relay_cabinet():
+    """接入中继柜: a rack cabinet that links a facility to the hub — a vented
+    door with a status screen and rows of port lights, a conduit up into the
+    cable tray on top, a hazard plinth, the Rhodes logo on its side."""
+    body, door, hz, leds, scr, conduit, logo = [], [], [], [], [], [], []
+    body += [d.bbox("rc_body", (1.4, 0.8, 1.9), (0, 0, 1.03), width=0.02), d.bbox("rc_cap", (1.46, 0.86, 0.06), (0, 0, 2.0))]
+    hz.append(d.bbox("rc_plinth", (1.44, 0.84, 0.1), (0, 0, 0.05)))
+    door.append(d.bbox("rc_door", (1.26, 0.03, 1.72), (0, 0.41, 1.02), width=0.01))
+    door += [d.bbox(f"rc_vent{k}", (0.5, 0.02, 0.025), (-0.3, 0.43, 0.4 + k * 0.06)) for k in range(8)]
+    door += [d.bbox("rc_handle", (0.04, 0.04, 0.3), (0.55, 0.45, 1.0)), d.bbox("rc_hinge0", (0.04, 0.04, 0.14), (-0.62, 0.43, 1.6)),
+             d.bbox("rc_hinge1", (0.04, 0.04, 0.14), (-0.62, 0.43, 0.45))]
+    scr.append(d.bbox("rc_scr", (0.5, 0.02, 0.3), (0.25, 0.43, 1.55)))
+    for r in range(6):
+        for c in range(8):
+            leds.append(d.bbox(f"rc_led{r}{c}", (0.035, 0.015, 0.02), (-0.08 + c * 0.075, 0.43, 0.95 + r * 0.07)))
+    conduit += [_pipe("rc_conduit0", (-0.45, -0.25, 2.03), (-0.45, -0.25, 2.6), 0.05, 12), _pipe("rc_conduit1", (-0.2, -0.25, 2.03), (-0.2, -0.25, 2.6), 0.04, 12),
+                d.bbox("rc_tray", (1.0, 0.3, 0.06), (-0.3, -0.25, 2.62))]
+    logo.append(d.bbox("rc_logo", (0.32, 0.012, 0.32), (-0.35, 0.432, 1.55)))
+    return [(join("rc_body_j", body + door), steel("base_rlc_m", 5, PANEL), "box"),
+            (join("rc_hz_j", hz), steel("base_rlc_hz_m", 2, SAFETY), "plinth"),
+            (join("rc_leds_j", leds), glow("base_rlc_led_m", "6fd8e4"), "led_glow"),
+            (join("rc_scr_j", scr), glow("base_rlc_scr_m"), "screen_glow"),
+            (join("rc_conduit_j", conduit), paint("base_rlc_conduit_m", "2a2f33", "1a1e22"), "conduit"),
+            (join("rc_logo_j", logo), logo_decal("base_rlc_logo_m", PANEL), "logo")]
+
+
+def base_build_console(width=6.4):
+    """基建总控台: a three-seat arc desk in engineering yellow trim — angled
+    screen banks, keyboards, a central projector with the ship's plan floating
+    over it in cyan (six facility nodes round the hull), chairs, a hazard kick
+    rail, cable bundles off the back towards the trunks."""
+    body, trim, hz, scr, holo, nodes, dark, chairs = [], [], [], [], [], [], [], []
+    for k in range(5):
+        a = math.radians(-36 + k * 18)
+        x, y = 4.6 * math.sin(a), 4.6 * (1 - math.cos(a)) - 1.0
+        body.append(d.bbox(f"bk_desk{k}", (1.32, 0.95, 0.82), (x, y + 0.2, 0.41), (0, 0, -a), 0.03))
+        body.append(d.bbox(f"bk_top{k}", (1.36, 1.05, 0.05), (x, y + 0.18, 0.85), (0, 0, -a), 0.01))
+        trim.append(d.bbox(f"bk_trim{k}", (1.34, 0.04, 0.06), (x - 0.48 * math.sin(a), y + 0.7 - (1 - math.cos(a)) * 0.0, 0.78), (0, 0, -a)))
+        hz.append(d.bbox(f"bk_kick{k}", (1.3, 0.03, 0.12), (x - 0.5 * math.sin(a), y + 0.69, 0.07), (0, 0, -a)))
+        if k != 2:
+            body.append(d.bbox(f"bk_bank{k}", (1.2, 0.12, 0.62), (x + 0.28 * math.sin(a), y - 0.1, 1.2), (math.radians(14), 0, -a), 0.02))
+            scr.append(d.bbox(f"bk_scr{k}", (1.06, 0.02, 0.5), (x + 0.26 * math.sin(a), y - 0.03, 1.21), (math.radians(14), 0, -a)))
+            scr.append(d.bbox(f"bk_kb{k}", (0.6, 0.22, 0.02), (x - 0.12 * math.sin(a), y + 0.45, 0.885), (0, 0, -a)))
+    # The projector and the plan over it.
+    body += [d.cyl("bk_proj", 0.5, 0.3, (0, -0.55, 1.0), vertices=32), d.cyl("bk_proj_ring", 0.58, 0.06, (0, -0.55, 1.18), vertices=32)]
+    holo.append(_torus("bk_proj_glow", 0.42, 0.03, 1.22, 40, 6, 0.0, -0.55))
+    hull = [(-1.3, 0.0), (-0.9, 0.42), (0.9, 0.42), (1.45, 0.12), (1.45, -0.12), (0.9, -0.42), (-0.9, -0.42)]
+    for k in range(len(hull)):
+        a, b = hull[k], hull[(k + 1) % len(hull)]
+        holo.append(_pipe(f"bk_hull{k}", (a[0], -0.55 + a[1], 2.0), (b[0], -0.55 + b[1], 2.0), 0.018, 6))
+    holo += [_pipe("bk_deck0", (-0.9, -0.55, 2.0), (1.2, -0.55, 2.0), 0.01, 6), _pipe("bk_deck1", (0.2, -0.97, 2.0), (0.2, -0.13, 2.0), 0.01, 6)]
+    for k, (x, y) in enumerate(((-0.8, 0.2), (-0.8, -0.2), (0.0, 0.28), (0.0, -0.28), (0.8, 0.2), (0.8, -0.2))):
+        nodes.append(d.bbox(f"bk_node{k}", (0.12, 0.12, 0.12), (x, -0.55 + y, 2.0)))
+    # Thin light lines from the projector up to the plan (kit glow parts are
+    # opaque, so no beam volume).
+    holo += [_pipe(f"bk_ray{k}", (0.4 * math.cos(k * math.pi / 3), -0.55 + 0.4 * math.sin(k * math.pi / 3), 1.24),
+                   (1.1 * math.cos(k * math.pi / 3), -0.55 + 0.35 * math.sin(k * math.pi / 3), 1.98), 0.008, 4) for k in range(6)]
+    # Cable bundles off the back.
+    for k in range(6):
+        x = -1.5 + k * 0.6
+        dark.append(_pipe(f"bk_cab{k}", (x, -0.4, 0.3), (x * 1.2, -1.6, 0.04), 0.045, 8))
+    for k in (0, 1, 3, 4):
+        a = math.radians(-36 + k * 18)
+        x, y = 4.6 * math.sin(a), 4.6 * (1 - math.cos(a)) - 1.0
+        cx, cy = x - 0.95 * math.sin(a), y + 1.25
+        chairs += [d.cyl(f"bk_ch_base{k}", 0.28, 0.05, (cx, cy, 0.03), vertices=10), d.cyl(f"bk_ch_post{k}", 0.04, 0.4, (cx, cy, 0.25), vertices=8),
+                   d.bbox(f"bk_ch_seat{k}", (0.5, 0.5, 0.1), (cx, cy, 0.5), (0, 0, -a), 0.04),
+                   d.bbox(f"bk_ch_back{k}", (0.48, 0.08, 0.55), (cx + 0.22 * math.sin(a), cy + 0.24, 0.82), (math.radians(-8), 0, -a), 0.04)]
+    return [(join("bk_body_j", body), steel("base_hubc_m", 6, HULL), "box"),
+            (join("bk_trim_j", trim), paint("base_hubc_trim_m", SAFETY, "a07a12"), "trim"),
+            (join("bk_hz_j", hz), steel("base_hubc_hz_m", 2, SAFETY), "kick"),
+            (join("bk_scr_j", scr), glow("base_hubc_scr_m"), "screen_glow"),
+            (join("bk_holo_j", holo), glow_warm("base_hubc_holo_m", "8fe6f6", "3fa8b8"), "holo_glow"),
+            (join("bk_nodes_j", nodes), glow_warm("base_hubc_node_m", "ffd25a", "c29a1a"), "node_glow"),
+            (join("bk_dark_j", dark), paint("base_hubc_cable_m", "2a2f33", "1a1e22"), "cables"),
+            (join("bk_chairs_j", chairs), paint("base_hubc_chair_m", "3a4146", "262b2f"), "chairs")]
+
+
+def base_drone_pad(size=4.6):
+    """无人机停机坪: a raised square pad, grated edge, a lit landing ring and
+    corner lights, hazard chevrons on the corners, a charging pylon with its
+    arm folded over the pad, its cable into the deck."""
+    body, grate, hz, ring, lamps, pylon = [], [], [], [], [], []
+    body.append(d.bbox("dp_pad", (size, size, 0.1), (0, 0, 0.05), width=0.03))
+    body.append(d.bbox("dp_inner", (size - 0.6, size - 0.6, 0.02), (0, 0, 0.11)))
+    grate += [d.bbox(f"dp_edge{k}", (size - 0.1, 0.24, 0.015), (0, s * (size / 2 - 0.17), 0.105)) for k, s in enumerate((-1, 1))]
+    grate += [d.bbox(f"dp_edge_s{k}", (0.24, size - 0.5, 0.015), (s * (size / 2 - 0.17), 0, 0.105)) for k, s in enumerate((-1, 1))]
+    for k, (sx, sy) in enumerate(((-1, -1), (-1, 1), (1, -1), (1, 1))):
+        hz.append(d.bbox(f"dp_chev{k}", (0.7, 0.7, 0.012), (sx * (size / 2 - 0.55), sy * (size / 2 - 0.55), 0.125), (0, 0, math.radians(45))))
+        lamps.append(d.cyl(f"dp_lamp{k}", 0.07, 0.05, (sx * (size / 2 - 0.15), sy * (size / 2 - 0.15), 0.13), vertices=12))
+    ring.append(_torus("dp_ring", 1.3, 0.04, 0.125, 64, 6))
+    ring += [d.bbox(f"dp_tick{k}", (0.32, 0.06, 0.012), (1.55 * math.cos(k * math.pi / 4), 1.55 * math.sin(k * math.pi / 4), 0.125), (0, 0, k * math.pi / 4)) for k in range(8)]
+    pylon += [d.bbox("dp_pylon", (0.3, 0.3, 1.6), (size / 2 - 0.3, -size / 2 + 0.3, 0.9), width=0.03),
+              d.bbox("dp_arm", (1.2, 0.12, 0.1), (size / 2 - 0.9, -size / 2 + 0.3, 1.66), (0, math.radians(-12), 0), 0.02),
+              d.cyl("dp_plug", 0.06, 0.2, (size / 2 - 1.5, -size / 2 + 0.3, 1.5), vertices=10)]
+    pylon.append(_pipe("dp_cable", (size / 2 - 0.3, -size / 2 + 0.1, 0.4), (size / 2 - 0.3, -size / 2 - 0.2, 0.02), 0.03, 8))
+    return [(join("dp_body_j", body + pylon), steel("base_dp_m", 4, HULL), "box"),
+            (join("dp_grate_j", grate), steel("base_dp_grate_m", 3, PANEL), "grate"),
+            (join("dp_hz_j", hz), steel("base_dp_hz_m", 2, SAFETY), "chevrons"),
+            (join("dp_ring_j", ring), glow("base_dp_ring_m", "6fd8e4"), "ring_glow"),
+            (join("dp_lamp_j", lamps), glow_warm("base_dp_lamp_m", "ffb03a", "c27414"), "lamp_glow")]
+
+
+def base_order_screen(width=2.8):
+    """订单调度屏: a wall screen on two brackets over the order board — three
+    lit order bands and a refresh glyph, a frame with a yellow header."""
+    frame, head, scr, bands = [], [], [], []
+    frame += [d.bbox("os_frame", (width, 0.1, 1.5), (0, 0, 2.2), width=0.02)]
+    frame += [d.bbox(f"os_br{s}", (0.1, 0.3, 0.1), (s * (width / 2 - 0.3), -0.15, 2.9)) for s in (-1, 1)]
+    head.append(d.bbox("os_head", (width, 0.12, 0.16), (0, 0.01, 2.98)))
+    scr.append(d.bbox("os_scr", (width - 0.16, 0.02, 1.3), (0, 0.06, 2.18)))
+    bands += [d.bbox(f"os_band{k}", (width - 0.5, 0.012, 0.26), (-0.1, 0.075, 2.6 - k * 0.38)) for k in range(3)]
+    bands.append(_torus("os_refresh", 0.11, 0.02, 0.0, 24, 6, width / 2 - 0.25, 0.08, (math.radians(90), 0, 0)))
+    bands[-1].location.z = 2.6
+    return [(join("os_frame_j", frame), steel("base_ors_m", 3, HULL), "frame"),
+            (join("os_head_j", head), paint("base_ors_head_m", SAFETY, "a07a12"), "head"),
+            (join("os_scr_j", scr), glow("base_ors2_scr_m", "2e7f8a"), "screen_glow"),
+            (join("os_band_j", bands), glow("base_ors_band_m", "bff2f8"), "band_glow")]
+
+
+def base_pack_rig():
+    """背包改装架: a tactical pack hung on a test frame — the frame on a low
+    tool bench, the pack's main bag, side pouches, straps and buckles, a
+    folding lamp arm over it, tools and a roll of webbing on the bench."""
+    frame, bench, bag, straps, metal, lamp = [], [], [], [], [], []
+    bench += [d.bbox("pr_bench", (1.8, 0.8, 0.7), (0, 0, 0.35), width=0.03), d.bbox("pr_top", (1.86, 0.86, 0.05), (0, 0, 0.72))]
+    frame += [d.bbox(f"pr_post{s}", (0.06, 0.06, 1.3), (s * 0.45, -0.25, 1.4)) for s in (-1, 1)]
+    frame += [d.bbox("pr_cross", (1.0, 0.06, 0.06), (0, -0.25, 2.02)), d.bbox("pr_hook", (0.06, 0.2, 0.06), (0, -0.15, 1.96))]
+    bag += [d.bbox("pr_bag", (0.62, 0.36, 0.82), (0, -0.05, 1.42), width=0.08), d.bbox("pr_lid", (0.6, 0.38, 0.14), (0, -0.04, 1.86), (math.radians(6), 0, 0), 0.05),
+            d.bbox("pr_front", (0.44, 0.12, 0.36), (0, 0.17, 1.28), width=0.05)]
+    bag += [d.bbox(f"pr_side{s}", (0.14, 0.26, 0.42), (s * 0.38, -0.04, 1.3), width=0.04) for s in (-1, 1)]
+    straps += [d.bbox(f"pr_strap{s}", (0.06, 0.02, 0.8), (s * 0.16, 0.235, 1.42)) for s in (-1, 1)]
+    straps += [d.bbox(f"pr_web{k}", (0.64, 0.02, 0.04), (0, 0.24, 1.15 + k * 0.42)) for k in range(2)]
+    straps.append(d.cyl("pr_roll", 0.09, 0.22, (0.6, 0.15, 0.82), (0, math.radians(90), 0), 16))
+    metal += [d.bbox(f"pr_buckle{s}", (0.08, 0.03, 0.05), (s * 0.16, 0.25, 1.2)) for s in (-1, 1)]
+    metal += [d.bbox("pr_tool0", (0.3, 0.05, 0.02), (-0.5, 0.2, 0.755), (0, 0, 0.3)), d.bbox("pr_tool1", (0.22, 0.04, 0.03), (-0.2, 0.25, 0.755), (0, 0, -0.4)),
+              d.cyl("pr_awl", 0.015, 0.2, (0.25, 0.25, 0.76), (0, math.radians(90), 0.6), 8)]
+    lamp += [d.bbox("pr_arm0", (0.04, 0.04, 0.5), (0.8, -0.3, 0.98)), d.bbox("pr_arm1", (0.6, 0.04, 0.04), (0.55, -0.3, 1.24), (0, math.radians(-20), 0)),
+             d.cyl("pr_shade", 0.1, 0.12, (0.28, -0.2, 1.3), (math.radians(30), 0, 0), 16)]
+    glow_part = [d.cyl("pr_bulb", 0.07, 0.02, (0.28, -0.17, 1.24), (math.radians(30), 0, 0), 16)]
+    return [(join("pr_bench_j", bench + frame + lamp), steel("base_pr_m", 4, HULL), "box"),
+            (join("pr_bag_j", bag), paint("base_pr_bl_m", "4a5a4a", "34402f"), "bag"),
+            (join("pr_strap_j", straps), paint("base_pr_strap_m", "2a2f33", "1a1e22"), "straps"),
+            (join("pr_metal_j", metal), paint("base_pr_metal_m", SAFETY, "a07a12"), "metal"),
+            (join("pr_glow_j", glow_part), glow_warm("base_pr_glow_m", "fff0c8", "e0b060"), "lamp_glow")]
+
+
+def base_secure_safe():
+    """安全袋保险柜: a heavy armoured safe on a hazard plinth — thick walls with
+    bolted corners, a door with a spoked wheel and heavy hinges, a lit keypad
+    and status strip, the Rhodes logo on the door."""
+    body, door, hz, glows, logo = [], [], [], [], []
+    body.append(d.bbox("ss_body", (1.5, 1.1, 1.35), (0, 0, 0.78), width=0.06))
+    hz.append(d.bbox("ss_plinth", (1.56, 1.16, 0.1), (0, 0, 0.05)))
+    body += [d.bbox(f"ss_corner{k}", (0.18, 0.18, 1.37), (sx * 0.68, sy * 0.48, 0.78), width=0.03)
+             for k, (sx, sy) in enumerate(((-1, -1), (-1, 1), (1, -1), (1, 1)))]
+    body += _bolts("ss_bolt", [(sx * 0.68, 0.575, z) for sx in (-1, 1) for z in (0.3, 0.75, 1.2)], 0.03, 0.02)
+    door += [d.bbox("ss_door", (1.1, 0.06, 1.12), (0, 0.57, 0.78), width=0.03)]
+    door += [d.bbox(f"ss_hinge{k}", (0.1, 0.1, 0.2), (-0.6, 0.6, z)) for k, z in enumerate((0.4, 1.15))]
+    door += [_torus("ss_wheel", 0.2, 0.025, 0.0, 32, 8, 0.12, 0.65, (math.radians(90), 0, 0)), d.cyl("ss_hub", 0.06, 0.08, (0.12, 0.64, 0.0), (math.radians(90), 0, 0), 16)]
+    door += [d.bbox(f"ss_spoke{k}", (0.4, 0.03, 0.03), (0.12, 0.65, 0.0), (0, k * math.pi / 3, 0)) for k in range(3)]
+    for part in door[-5:]:
+        part.location.z = 0.72
+    glows += [d.bbox("ss_keypad", (0.22, 0.02, 0.3), (0.42, 0.61, 0.95)), d.bbox("ss_strip", (0.9, 0.02, 0.03), (0, 0.61, 1.28))]
+    logo.append(d.bbox("ss_logo", (0.3, 0.012, 0.3), (-0.3, 0.605, 1.05)))
+    return [(join("ss_body_j", body + door), steel("base_sfe_m", 6, HULL), "box"),
+            (join("ss_hz_j", hz), steel("base_sfe_hz_m", 2, SAFETY), "plinth"),
+            (join("ss_glow_j", glows), glow("base_sfe_glow_m", "6fd8e4"), "keypad_glow"),
+            (join("ss_logo_j", logo), logo_decal("base_sfe_logo_m", HULL), "logo")]
+
+
+def base_closure_fridge(width=1.7):
+    """可露希尔的特供冷柜: a double glass-fronted fridge, lit shelves of vials
+    in their colours, a pink neon strip along the top in her store's colour,
+    a frosted kick plate and the compressor grille."""
+    body, glass, shelves, vials, neon, grille = [], [], [], [], [], []
+    body += [d.bbox("cf_body", (width, 0.9, 2.0), (0, 0, 1.0), width=0.03), d.bbox("cf_mull", (0.06, 0.04, 1.6), (0, 0.46, 1.08))]
+    glass += [d.bbox(f"cf_glass{s}", (width / 2 - 0.1, 0.02, 1.56), (s * width / 4, 0.46, 1.08)) for s in (-1, 1)]
+    body += [d.bbox(f"cf_handle{s}", (0.03, 0.05, 0.5), (s * 0.08, 0.5, 1.1)) for s in (-1, 1)]
+    colours = ["ff7a24", "6fd8e4", "ff5fa2", "8fc31f"]
+    for r in range(4):
+        z = 0.5 + r * 0.38
+        shelves.append(d.bbox(f"cf_shelf{r}", (width - 0.1, 0.7, 0.02), (0, 0.05, z)))
+        for c in range(8):
+            vials.append(d.cyl(f"cf_vial{r}{c}", 0.04, 0.16, (-width / 2 + 0.16 + c * (width - 0.3) / 7, 0.2, z + 0.09), vertices=8))
+    neon.append(d.bbox("cf_neon", (width - 0.1, 0.04, 0.06), (0, 0.45, 1.95)))
+    grille += [d.bbox(f"cf_gr{k}", (width - 0.2, 0.02, 0.02), (0, 0.46, 0.08 + k * 0.05)) for k in range(4)]
+    return [(join("cf_body_j", body), steel("base_cf_m", 4, WHITE), "box"),
+            (join("cf_glass_j", glass + shelves), glow("base_cf_glass_m", "dff4ff"), "glass_glow"),
+            (join("cf_vials_j", vials), glow_warm("base_cf_vial_m", "ffa860", "c2601a"), "vial_glow"),
+            (join("cf_neon_j", neon), glow_warm("base_cf_neon_m", "ff7ab8", "d23e86"), "neon_glow"),
+            (join("cf_grille_j", grille), paint("base_cf_grille_m", "2a2f33"), "grille")]
+
+
+def base_display_case_lock():
+    """The same glass case locked down for 应急强心针: a dark vault pad, the
+    injector in a cradle, a lock bar across with a red lock light."""
+    parts = _display_case("dcl", 3.0, False)
+    bar = [d.bbox("dcl_bar", (3.0, 0.12, 0.08), (0, 0, 1.45)), d.bbox("dcl_lock", (0.22, 0.16, 0.2), (0, 0.06, 1.45), width=0.02),
+           d.bbox("dcl_cradle", (0.7, 0.24, 0.08), (0, 0, 0.9)), d.cyl("dcl_injector", 0.05, 0.5, (0, 0, 0.98), (0, math.radians(90), 0), 12)]
+    light = [d.bbox("dcl_light", (0.08, 0.02, 0.06), (0, 0.15, 1.48))]
+    return parts + [(join("dcl_bar_j", bar), steel("base_dcl_bar_m", 3, SAFETY), "lock"),
+                    (join("dcl_light_j", light), glow_warm("base_dcl_light_m", "ff4a4a", "b01e1e"), "lock_glow")]
+
+
+WORKS_BUILDERS = [base_build_barrier, base_build_cone, base_build_crate_tarp, base_build_scaffold, base_build_lamp, base_build_post,
+                  base_build_tape, base_cable_trunk, base_relay_cabinet, base_build_console, base_drone_pad, base_order_screen,
+                  base_pack_rig, base_secure_safe, base_closure_fridge, base_display_case_lock]
+ROOM_BUILDERS += WORKS_BUILDERS
+
+
+# Second deck (势力特供策划案_v0_2 §三–§五, 用户 2026-10-22): 农业部 in RimWorld's
+# 11×11 sun-lamp room — one sun lamp, 24 1×4 hydroponics basins (a tile 1.5 m, so a basin
+# is 6 × 1.5 m) — and 食堂's galley, counter and tables. The basins and
+# crops are shown at their real size (BaseMap.UNSCALED), so the swirl's grid
+# holds; crops stand on the basin top (CROP_Y) and BaseMap squashes them
+# while they grow.
+LEAF = "4f8a3a"
+SOIL = "3a2c22"
+WATER = "2c5a66"
+CROP_Y = 0.72
+
+
+def base_hydro_basin():
+    """水培槽: a long white tray on steel legs, the nutrient bed dark inside
+    its lip, a feed pipe along one side with drip lines across, the pump box
+    and its status lamp at one end."""
+    body, frame, bed, pipe, lamp = [], [], [], [], []
+    body += [d.bbox("hb_tray", (5.8, 1.3, 0.34), (0, 0, 0.53)), d.bbox("hb_lip", (5.9, 1.4, 0.05), (0, 0, 0.71))]
+    bed.append(d.bbox("hb_bed", (5.6, 1.1, 0.04), (0, 0, 0.7)))
+    for x in (-2.6, -0.9, 0.9, 2.6):
+        for y in (-0.55, 0.55):
+            frame.append(d.bbox(f"hb_leg{x}{y}", (0.1, 0.1, 0.38), (x, y, 0.19)))
+    frame.append(d.bbox("hb_rail", (5.6, 0.08, 0.06), (0, -0.55, 0.12)))
+    frame.append(d.bbox("hb_rail2", (5.6, 0.08, 0.06), (0, 0.55, 0.12)))
+    pipe.append(d.cyl("hb_feed", 0.06, 5.7, (0, -0.68, 0.66), (0, math.radians(90), 0), 10))
+    for k in range(9):
+        pipe.append(d.bbox(f"hb_drip{k}", (0.03, 1.1, 0.02), (-2.5 + k * 0.625, 0, 0.75)))
+    body.append(d.bbox("hb_pump", (0.36, 0.5, 0.36), (2.98, -0.3, 0.5)))
+    lamp.append(d.bbox("hb_lamp", (0.08, 0.2, 0.06), (3.17, -0.3, 0.6)))
+    return [(join("hb_body_j", body), steel("base_hb_m", 4, WHITE), "tray"),
+            (join("hb_frame_j", frame), steel("base_hb_frame_m", 3, HULL), "frame"),
+            (join("hb_bed_j", bed), paint("base_hb_bed_m", WATER, "1e3e48"), "bed"),
+            (join("hb_pipe_j", pipe), paint("base_hb_pipe_m", BLUE, "2c5880"), "pipe"),
+            (join("hb_lamp_j", lamp), glow("base_hb_lamp_m", "8ff0a0"), "lamp_glow")]
+
+
+def base_sun_lamp():
+    """太阳灯: RimWorld's sun lamp — a steel column on a ballast foot, four
+    arms holding a wide hood, its ring of lamps lit all round the rim."""
+    post = [d.cyl("sl_foot", 0.9, 0.3, (0, 0, 0.15), vertices=20), d.cyl("sl_col", 0.18, 3.0, (0, 0, 1.8), vertices=14)]
+    hood = [d.cyl("sl_hood", 1.3, 0.22, (0, 0, 3.4), vertices=24), d.cyl("sl_cap", 0.6, 0.3, (0, 0, 3.6), vertices=20)]
+    for k in range(4):
+        a = k * math.pi / 2 + math.pi / 4
+        post.append(d.bbox(f"sl_arm{k}", (1.2, 0.1, 0.1), (0.6 * math.cos(a), 0.6 * math.sin(a), 3.3), (0, 0, a)))
+    ring = [d.cyl("sl_ring", 1.36, 0.08, (0, 0, 3.27), vertices=24)]
+    bulbs = [d.cyl(f"sl_b{k}", 0.12, 0.1, (1.05 * math.cos(k * math.tau / 12), 1.05 * math.sin(k * math.tau / 12), 3.5), vertices=10) for k in range(12)]
+    hz = [d.bbox("sl_hz", (0.4, 0.04, 0.2), (0, 0.19, 0.8))]
+    return [(join("sl_post_j", post), steel("base_sl_m", 3, PANEL), "post"),
+            (join("sl_hood_j", hood), steel("base_sl_hood_m", 5, HULL), "hood"),
+            (join("sl_hz_j", hz), paint("base_sl_hz_m", SAFETY), "band"),
+            (join("sl_light_j", ring + bulbs), glow_warm("base_sl_glow_m", "fff1b0", "f0c860"), "light_glow")]
+
+
+def base_water_tank():
+    """营养液罐: a tall tank with banded hoops, a level gauge lit down its front,
+    a valve and pipe off the side."""
+    tank = [d.cyl("wt_body", 1.1, 2.6, (0, 0, 1.4), vertices=24), d.cyl("wt_dome", 1.0, 0.2, (0, 0, 2.8), vertices=24)]
+    hoops = [d.cyl(f"wt_hoop{k}", 1.14, 0.1, (0, 0, 0.5 + k * 0.8), vertices=24) for k in range(3)]
+    foot = [d.bbox("wt_foot", (2.4, 2.0, 0.12), (0, 0, 0.06))]
+    gauge = [d.bbox("wt_gauge", (0.12, 0.05, 1.6), (0, 1.11, 1.4))]
+    pipe = [d.cyl("wt_pipe", 0.09, 1.0, (1.4, 0, 0.6), (0, math.radians(90), 0), 10), d.cyl("wt_valve", 0.16, 0.12, (1.2, 0, 0.6), (0, math.radians(90), 0), 12)]
+    return [(join("wt_body_j", tank), steel("base_wt_m", 6, WHITE), "tank"),
+            (join("wt_hoop_j", hoops + foot), steel("base_wt_hoop_m", 2, HULL), "hoop"),
+            (join("wt_pipe_j", pipe), paint("base_wt_pipe_m", BLUE, "2c5880"), "pipe"),
+            (join("wt_gauge_j", gauge), glow("base_wt_glow_m", "6ff0c0"), "gauge_glow")]
+
+
+def base_seed_cabinet():
+    """种子柜: a white cabinet of small drawers, each with a coloured tag, a
+    lit humidity screen on top."""
+    body = [d.bbox("sc_body", (2.4, 0.8, 2.2), (0, 0, 1.1))]
+    drawers, tags = [], []
+    for r in range(5):
+        for c in range(6):
+            x, z = -0.98 + c * 0.39, 0.35 + r * 0.38
+            drawers.append(d.bbox(f"sc_d{r}{c}", (0.34, 0.04, 0.32), (x, 0.41, z)))
+            tags.append(d.bbox(f"sc_t{r}{c}", (0.14, 0.02, 0.06), (x, 0.44, z + 0.08)))
+    scr = [d.bbox("sc_scr", (0.8, 0.05, 0.3), (0, 0.38, 2.35))]
+    return [(join("sc_body_j", body + drawers), steel("base_seed_m", 5, WHITE), "body"),
+            (join("sc_tag_j", tags), paint("base_seed_tag_m", LEAF, "2f5a22"), "tags"),
+            (join("sc_scr_j", scr), glow("base_seed_glow_m", "8ff0a0"), "screen_glow")]
+
+
+def base_potting_bench():
+    """育苗台: a steel bench with seedling trays and pots, a tool rail behind."""
+    bench = [d.bbox("pb_top", (3.6, 1.0, 0.08), (0, 0, 0.92)), d.bbox("pb_shelf", (3.4, 0.9, 0.05), (0, 0, 0.3))]
+    bench += [d.bbox(f"pb_leg{x}{y}", (0.08, 0.08, 0.9), (x, y, 0.45)) for x in (-1.7, 1.7) for y in (-0.42, 0.42)]
+    trays = [d.bbox(f"pb_tray{k}", (0.9, 0.6, 0.1), (-1.2 + k * 1.2, 0.1, 1.01)) for k in range(3)]
+    sprouts = [kit.rock(f"pb_sp{k}{j}", 0.07, (-1.5 + k * 1.2 + j * 0.15, 0.1 + (j % 2) * 0.15, 1.1), (1, 1, 1.4), 1) for k in range(3) for j in range(5)]
+    rail = [d.bbox("pb_rail", (3.4, 0.06, 0.06), (0, -0.48, 1.6))]
+    rail += [d.bbox(f"pb_tool{k}", (0.05, 0.04, 0.4), (-1.4 + k * 0.7, -0.46, 1.38)) for k in range(5)]
+    return [(join("pb_bench_j", bench + rail), steel("base_pb_m", 3, PANEL), "bench"),
+            (join("pb_tray_j", trays), paint("base_pb_tray_m", SOIL, "241a12"), "trays"),
+            (join("pb_sprout_j", sprouts), paint("base_pb_sprout_m", "7fbf5a", "4f8a3a"), "sprouts")]
+
+
+def base_compost_bin():
+    """堆肥箱: a green bin with a hinged lid and a vent."""
+    body = [d.bbox("cb_body", (1.6, 1.2, 0.9), (0, 0, 0.45)), d.bbox("cb_lid", (1.7, 1.3, 0.1), (0, 0, 0.95))]
+    vent = [d.bbox(f"cb_v{k}", (0.6, 0.02, 0.04), (0, 0.61, 0.5 + k * 0.1)) for k in range(3)]
+    return [(join("cb_body_j", body), steel("base_cb_m", 2, "4f7a3a"), "bin"),
+            (join("cb_vent_j", vent), steel("base_cb_vent_m", 3, HULL), "vent")]
+
+
+def _plants(prefix, colour, dark, count_x, count_y, radius, height, squash=(1.0, 1.0, 1.6)):
+    out = []
+    for i in range(count_x):
+        for j in range(count_y):
+            x = -2.55 + (i + 0.5) * 5.1 / count_x
+            y = -0.4 + (j + 0.5) * 0.8 / count_y
+            out.append(kit.rock(f"{prefix}{i}_{j}", radius, (x, y, height * 0.5), squash, 1))
+    return out
+
+
+def base_crop_wheat():
+    """舰载麦: dense rows of golden stalks with heavy heads."""
+    stalks = []
+    for i in range(22):
+        for j in range(3):
+            x, y = -2.6 + i * 0.25, -0.38 + j * 0.38
+            stalks.append(d.bbox(f"cw_s{i}{j}", (0.04, 0.04, 0.7), (x, y, 0.35)))
+    heads = _plants("cw_h", "d8c060", "a08a30", 22, 3, 0.07, 1.48, (0.8, 0.8, 2.2))
+    return [(join("cw_stalk_j", stalks), paint("base_cw_m", "9aa040", "6a7028"), "stalks"),
+            (join("cw_head_j", heads), paint("base_cw_head_m", "d8c060", "a08a30"), "heads")]
+
+
+def base_crop_tuber():
+    """块茎薯: low broad-leaved bushes over the bed."""
+    leaves = _plants("ct_l", LEAF, "2f5a22", 9, 2, 0.32, 0.7, (1.2, 1.0, 0.7))
+    return [(join("ct_leaf_j", leaves), paint("base_ct_m", "5f8a3a", "3a5a22"), "leaves")]
+
+
+def base_crop_bean():
+    """温室豆: vines up a little trellis, pods hanging."""
+    trellis = [d.bbox(f"cbn_t{k}", (0.04, 0.04, 1.1), (-2.6 + k * 0.65, 0, 0.55)) for k in range(9)]
+    trellis.append(d.bbox("cbn_top", (5.3, 0.04, 0.04), (0, 0, 1.1)))
+    vines = _plants("cbn_v", "6faf4a", "3f7a2a", 12, 2, 0.2, 1.4, (0.9, 0.9, 2.4))
+    pods = _plants("cbn_p", "a8d070", "6f9a40", 16, 2, 0.06, 1.2, (0.6, 0.6, 2.0))
+    return [(join("cbn_tr_j", trellis), paint("base_cbn_tr_m", "8a6a40", "5a4228"), "trellis"),
+            (join("cbn_v_j", vines), paint("base_cbn_m", "6faf4a", "3f7a2a"), "vines"),
+            (join("cbn_p_j", pods), paint("base_cbn_pod_m", "c8e090", "8aa858"), "pods")]
+
+
+def _shine(prefix, leaf, dark, bulb, bulb_dark, ripe, tall):
+    stems = _plants(prefix + "s", leaf, dark, 8, 2, 0.24, tall, (0.8, 0.8, 2.6))
+    out = [(join(prefix + "stem_j", stems), paint(f"base_{prefix}m", leaf, dark), "leaves")]
+    pods = []
+    for i in range(8):
+        for j in range(2):
+            x = -2.55 + (i + 0.5) * 5.1 / 8
+            y = -0.4 + (j + 0.5) * 0.4
+            pods.append(d.cyl(f"{prefix}b{i}{j}", 0.13, 0.22, (x, y, tall * 1.1), vertices=10))
+    if ripe:
+        out.append((join(prefix + "bulb_j", pods), glow_warm(f"base_{prefix}glow_m", bulb, bulb_dark), "bulb_glow"))
+    else:
+        out.append((join(prefix + "bulb_j", pods), paint(f"base_{prefix}bud_m", _darker(bulb, 0.6), _darker(bulb_dark, 0.6)), "buds"))
+    return out
+
+
+def base_crop_shine():
+    """闪耀作物 growing: pale blue-green stems with closed buds."""
+    return _shine("cs", "5fa8a0", "3a6a66", "8ff0ff", "3fb8d0", False, 1.0)
+
+
+def base_crop_shine_ripe():
+    """闪耀作物 ripe: the buds open and glow (the RimWorld nod)."""
+    return _shine("csr", "5fa8a0", "3a6a66", "8ff0ff", "3fb8d0", True, 1.0)
+
+
+def base_crop_shine_var():
+    """闪耀作物·变种 growing: taller violet stems."""
+    return _shine("cv", "8a6aa8", "5a4270", "e0b0ff", "a060e0", False, 1.3)
+
+
+def base_crop_shine_var_ripe():
+    return _shine("cvr", "8a6aa8", "5a4270", "e0b0ff", "a060e0", True, 1.3)
+
+
+def base_kitchen_range():
+    """灶台: a stainless cooking line — four burners lit orange, pots and a
+    wok on them, the extraction hood above on two posts, a splash back."""
+    body = [d.bbox("kr_body", (6.0, 1.2, 0.9), (0, 0, 0.45)), d.bbox("kr_top", (6.1, 1.3, 0.06), (0, 0, 0.93)),
+            d.bbox("kr_back", (6.0, 0.1, 1.2), (0, -0.6, 1.5))]
+    body += [d.bbox(f"kr_door{k}", (1.3, 0.04, 0.6), (-2.2 + k * 1.47, 0.61, 0.45)) for k in range(4)]
+    hood = [d.bbox("kr_hood", (6.2, 1.1, 0.5), (0, -0.1, 2.7)), d.bbox("kr_duct", (1.0, 0.8, 0.9), (0, -0.2, 3.3))]
+    hood += [d.bbox(f"kr_post{s}", (0.1, 0.1, 1.8), (s * 3.0, -0.55, 1.8)) for s in (-1, 1)]
+    burners = [d.cyl(f"kr_b{k}", 0.24, 0.03, (-2.2 + k * 1.47, 0.1, 0.97), vertices=16) for k in range(4)]
+    pots = [d.cyl("kr_pot0", 0.3, 0.35, (-2.2, 0.1, 1.15), vertices=16), d.cyl("kr_pot1", 0.26, 0.28, (-0.73, 0.1, 1.12), vertices=16),
+            d.cyl("kr_wok", 0.38, 0.1, (0.73, 0.1, 1.04), vertices=18), d.cyl("kr_pot2", 0.3, 0.4, (2.2, 0.1, 1.18), vertices=16)]
+    lamp = [d.bbox("kr_lamp", (5.8, 0.05, 0.05), (0, 0.42, 2.44))]
+    return [(join("kr_body_j", body + hood), steel("base_kr_m", 6, "c8ccd0"), "steel"),
+            (join("kr_pot_j", pots), steel("base_kr_pot_m", 3, HULL), "pots"),
+            (join("kr_burn_j", burners), glow_warm("base_kr_glow_m", "ff8a3a", "c04a1a"), "burner_glow"),
+            (join("kr_lamp_j", lamp), glow_warm("base_kr_lamp_m", "fff1d0", "e8c890"), "lamp_glow")]
+
+
+def base_serving_counter():
+    """出餐口: a long counter with food wells under a sneeze guard, the dishes
+    in their colours, warm heat lamps along the guard, trays stacked at one end."""
+    body = [d.bbox("scn_body", (10.0, 1.1, 1.0), (0, 0, 0.5)), d.bbox("scn_top", (10.2, 1.2, 0.06), (0, 0, 1.03))]
+    guard = [d.bbox("scn_glass", (9.6, 0.04, 0.5), (0, 0.1, 1.45)), d.bbox("scn_rail", (9.8, 0.08, 0.06), (0, 0.1, 1.72))]
+    guard += [d.bbox(f"scn_post{k}", (0.05, 0.05, 0.7), (-4.8 + k * 1.6, 0.1, 1.38)) for k in range(7)]
+    food, colours = [], []
+    dishes = [("d8c060", "a08a30"), ("8a5a30", "5a3a1a"), ("7fbf5a", "4f8a3a"), ("8ff0ff", "3fb8d0"), ("d0662a", "a24e1e"), ("e0d0b0", "b0a080")]
+    out = []
+    for k, (c, dk) in enumerate(dishes):
+        well = [d.bbox(f"scn_w{k}", (1.2, 0.7, 0.06), (-4.0 + k * 1.6, -0.05, 1.08))]
+        out.append((join(f"scn_f{k}_j", well), paint(f"base_scn_f{k}_m", c, dk), f"food{k}"))
+    trays = [d.bbox(f"scn_tr{k}", (0.6, 0.45, 0.03), (4.6, 0.2, 1.09 + k * 0.04)) for k in range(6)]
+    lamps = [d.bbox("scn_lamp", (9.4, 0.06, 0.04), (0, 0.1, 1.68))]
+    return [(join("scn_body_j", body + guard), steel("base_scn_m", 5, "c8ccd0"), "steel"),
+            (join("scn_tray_j", trays), paint("base_scn_tray_m", ORANGE, "a24e1e"), "trays"),
+            (join("scn_lamp_j", lamps), glow_warm("base_scn_glow_m", "ffd090", "e0a050"), "lamp_glow")] + out
+
+
+def base_dish_rack():
+    """碗碟架: a wire rack of plates and stacked bowls."""
+    frame = [d.bbox("dr_side0", (0.06, 0.7, 1.8), (-1.25, 0, 0.9)), d.bbox("dr_side1", (0.06, 0.7, 1.8), (1.25, 0, 0.9))]
+    frame += [d.bbox(f"dr_sh{k}", (2.5, 0.7, 0.04), (0, 0, 0.3 + k * 0.5)) for k in range(4)]
+    plates = [d.cyl(f"dr_p{k}{j}", 0.16, 0.02, (-1.0 + j * 0.25, 0, 0.42 + k * 0.5), (math.radians(90), 0, 0), 14) for k in range(3) for j in range(9)]
+    return [(join("dr_frame_j", frame), steel("base_dr_m", 3, PANEL), "frame"),
+            (join("dr_plate_j", plates), paint("base_dr_plate_m", WHITE, "9aa2a4"), "plates")]
+
+
+def base_mess_table():
+    """食堂长桌: a long table, a bench either side, trays and cups set out."""
+    table = [d.bbox("mt_top", (6.0, 1.0, 0.08), (0, 0, 0.8)), d.bbox("mt_beam", (5.6, 0.12, 0.1), (0, 0, 0.45))]
+    table += [d.bbox(f"mt_leg{s}", (0.1, 0.8, 0.76), (s * 2.7, 0, 0.38)) for s in (-1, 1)]
+    benches = [d.bbox(f"mt_bench{s}", (5.8, 0.4, 0.06), (0, s * 0.95, 0.48)) for s in (-1, 1)]
+    benches += [d.bbox(f"mt_bl{s}{x}", (0.08, 0.36, 0.46), (x, s * 0.95, 0.23)) for s in (-1, 1) for x in (-2.6, 2.6)]
+    trays = [d.bbox(f"mt_tr{k}{s}", (0.5, 0.36, 0.03), (-2.2 + k * 1.1, s * 0.26, 0.86)) for k in range(5) for s in (-1, 1) if (k + s) % 3 != 0]
+    cups = [d.cyl(f"mt_c{k}", 0.05, 0.12, (-1.65 + k * 1.1, 0.0, 0.9), vertices=10) for k in range(4)]
+    return [(join("mt_table_j", table), steel("base_mt_m", 3, "b8bcc0"), "table"),
+            (join("mt_bench_j", benches), paint("base_mt_bench_m", BLUE, "2c5880"), "benches"),
+            (join("mt_tray_j", trays + cups), paint("base_mt_tray_m", ORANGE, "a24e1e"), "trays")]
+
+
+def base_sealed_door(width=4.0, height=3.6, opening=3.0):
+    """封闭的舱门 (用户 2026-10-22: 实在没东西放的区域可以暂时封闭): the airlock
+    bay with its blast shutter down — hazard stripes across the leaf, a bar
+    bolted over it, a red lamp lit above."""
+    side = (width - opening) / 2
+    hull = [d.bbox("sd_l", (side, 0.5, height), (-width / 2 + side / 2, -0.25, height / 2)),
+            d.bbox("sd_r", (side, 0.5, height), (width / 2 - side / 2, -0.25, height / 2)),
+            d.bbox("sd_head", (opening, 0.5, height - 2.7), (0, -0.25, 2.7 + (height - 2.7) / 2)),
+            d.bbox("sd_tray", (width, 0.28, 0.16), (0, 0.12, height - 0.3))]
+    frame = [d.bbox("sd_fl", (0.3, 0.8, 2.9), (-opening / 2 - 0.15, -0.1, 1.45)),
+             d.bbox("sd_fr", (0.3, 0.8, 2.9), (opening / 2 + 0.15, -0.1, 1.45)),
+             d.bbox("sd_ft", (opening + 0.6, 0.8, 0.3), (0, -0.1, 2.95))]
+    leaf = [d.bbox("sd_leaf", (opening, 0.2, 2.7), (0, -0.05, 1.35))]
+    stripes = [d.bbox(f"sd_hz{k}", (0.34, 0.04, 3.2), (-1.2 + k * 0.6, 0.06, 1.35), (0, math.radians(35), 0)) for k in range(5)]
+    bar = [d.bbox("sd_bar", (opening + 0.4, 0.16, 0.22), (0, 0.16, 1.3))]
+    bar += [d.cyl(f"sd_bolt{s}", 0.08, 0.1, (s * (opening / 2 + 0.05), 0.26, 1.3), (math.radians(90), 0, 0), 10) for s in (-1, 1)]
+    lamp = [d.cyl("sd_lamp", 0.18, 0.2, (0, 0.3, 3.3), (math.radians(90), 0, 0), 12)]
+    return [(join("sd_hull_j", hull), steel("base_sd_hull_m", 7, HULL), "hull"),
+            (join("sd_frame_j", frame + bar), steel("base_sd_frame_m", 2, PANEL), "frame"),
+            (join("sd_leaf_j", leaf), steel("base_sd_leaf_m", 5, PANEL), "leaf"),
+            (join("sd_hz_j", stripes), paint("base_sd_hz_m", SAFETY), "stripe"),
+            (join("sd_lamp_j", lamp), glow_warm("base_sd_lamp_m", "ff4a3a", "b01e1e"), "lamp_glow")]
+
+
+DECK2_BUILDERS = [base_hydro_basin, base_sun_lamp, base_sealed_door, base_water_tank, base_seed_cabinet,
+                  base_potting_bench, base_compost_bin, base_crop_wheat, base_crop_tuber, base_crop_bean, base_crop_shine,
+                  base_crop_shine_ripe, base_crop_shine_var, base_crop_shine_var_ripe, base_kitchen_range, base_serving_counter,
+                  base_dish_rack, base_mess_table]
+ROOM_BUILDERS += DECK2_BUILDERS
 
 
 DETAILS = {

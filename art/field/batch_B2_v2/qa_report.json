@@ -1,0 +1,174 @@
+{
+  "stage": 1,
+  "approval": "PENDING_USER_REVIEW",
+  "native_figure_size": [
+    15,
+    26
+  ],
+  "sampling_phase_native_pixels": [
+    0,
+    0
+  ],
+  "feature_checks": {
+    "patch_2x2": true,
+    "face_2x3": true,
+    "bag_3x3": true,
+    "shirt_3px_wide": true,
+    "left_ear_2px_wide": false,
+    "right_ear_2px_wide": false
+  },
+  "checks": {
+    "height_26": true,
+    "transparent_identity": true,
+    "hard_native_alpha": true
+  },
+  "palette_pixel_counts": {
+    "#0b0c0d": 55,
+    "#292623": 1,
+    "#3e3a36": 4,
+    "#4a4038": 51,
+    "#5a4a3c": 11,
+    "#6a5038": 1,
+    "#7a5a3c": 29,
+    "#a09888": 0,
+    "#c8bca4": 17,
+    "#e2dac6": 63,
+    "#d8ac88": 0,
+    "#efd0ad": 20,
+    "#a88060": 0,
+    "#8a8070": 0
+  },
+  "largest_solid_color_rectangles": {
+    "#0b0c0d": {
+      "area": 5,
+      "xywh": [
+        8,
+        5,
+        5,
+        1
+      ]
+    },
+    "#292623": {
+      "area": 1,
+      "xywh": [
+        2,
+        15,
+        1,
+        1
+      ]
+    },
+    "#3e3a36": {
+      "area": 2,
+      "xywh": [
+        5,
+        9,
+        1,
+        2
+      ]
+    },
+    "#4a4038": {
+      "area": 16,
+      "xywh": [
+        9,
+        19,
+        4,
+        4
+      ]
+    },
+    "#5a4a3c": {
+      "area": 8,
+      "xywh": [
+        4,
+        3,
+        4,
+        2
+      ]
+    },
+    "#6a5038": {
+      "area": 1,
+      "xywh": [
+        5,
+        5,
+        1,
+        1
+      ]
+    },
+    "#7a5a3c": {
+      "area": 12,
+      "xywh": [
+        4,
+        16,
+        3,
+        4
+      ]
+    },
+    "#a09888": {
+      "area": 0,
+      "xywh": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "#c8bca4": {
+      "area": 6,
+      "xywh": [
+        8,
+        2,
+        2,
+        3
+      ]
+    },
+    "#e2dac6": {
+      "area": 18,
+      "xywh": [
+        7,
+        11,
+        3,
+        6
+      ]
+    },
+    "#d8ac88": {
+      "area": 0,
+      "xywh": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "#efd0ad": {
+      "area": 10,
+      "xywh": [
+        6,
+        6,
+        5,
+        2
+      ]
+    },
+    "#a88060": {
+      "area": 0,
+      "xywh": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "#8a8070": {
+      "area": 0,
+      "xywh": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "limitations": [
+    "Static arena composite only; no Godot runtime verification.",
+    "Pixel area totals alone do not prove spatial feature dimensions or recognisability.",
+    "Stage 2 remains gated on user identity approval."
+  ]
+}

@@ -5,8 +5,8 @@
 // would streak down them. Shading is the same fixed sun the terrain bakes
 // into its vertex colours (TerrainSurface._triangle).
 shader_type spatial;
-render_mode unshaded, cull_back;
-uniform sampler2D background_tex : source_color, filter_nearest_mipmap, repeat_disable;
+render_mode cull_back;
+uniform sampler2D background_tex : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 uniform float world_scale = 12.0;
 uniform vec3 tint = vec3(1.0);
 varying vec3 world_position;
@@ -23,6 +23,7 @@ void fragment() {
 	vec3 grain = surface_texture(world_position.zy) * weight.x
 		+ surface_texture(world_position.xz) * weight.y
 		+ surface_texture(world_position.xy) * weight.z;
-	float shade = 0.74 + abs(dot(world_normal, normalize(vec3(-0.4, 0.8, -0.4)))) * 0.26;
-	ALBEDO = field_lit_px(field_snowed(grain * tint, world_normal, world_position) * shade, world_position, FRAGCOORD.xy);
+	ALBEDO = field_lit_px(field_snowed(grain * tint, world_normal, world_position), world_position, FRAGCOORD.xy);
+	ROUGHNESS = 0.9;
+	SPECULAR = 0.2;
 }

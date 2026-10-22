@@ -18,6 +18,7 @@ extends RefCounted
 ##
 ## Visual only: the collision wall on the face line stays as it is.
 const SHADER := preload("res://world/cliff_face.gdshader")
+const CAVE_SHADER := preload("res://world/cliff_face_cave.gdshader")
 ## Baked in Blender by tools/blender/kit/build_rock_swatch.py. A region
 ## without its own swatch uses its terrain background, tinted.
 const SWATCHES := {"mine": "res://art/kit/textures/mine_rock_swatch.png"}
@@ -92,7 +93,7 @@ static func rock_material(region: String) -> ShaderMaterial:
 	var own := region
 	region = FieldCatalog.art_region(region)
 	var material := ShaderMaterial.new()
-	material.shader = SHADER
+	material.shader = CAVE_SHADER if own == "mine" else SHADER
 	var texture: Texture2D = load(SWATCHES[region]) if SWATCHES.has(region) else FieldArt.BACKGROUNDS[region]
 	# Sol's painted face (the city's kerbs and retaining walls, C3) once delivered.
 	var face := FieldArt.painted(own + "_wall")
@@ -110,7 +111,19 @@ static func rock_material(region: String) -> ShaderMaterial:
 	if own == "city" and pave != null:
 		material.set_shader_parameter("city_pave", true)
 		material.set_shader_parameter("pave_tex", pave)
+	# 叙拉古: the road's own paving runs on to the houses' feet (用户 2026-10-20:
+	# 道路边缘有奇怪的黑色阴影), at the road's gain.
+	var stone := FieldArt.painted("siracusa_road") if own == "siracusa" else null
+	if stone != null:
+		material.set_shader_parameter("city_pave", true)
+		material.set_shader_parameter("pave_tex", stone)
+		material.set_shader_parameter("pave_scale", 6.0)
+		material.set_shader_parameter("pave_gain", 1.6)
 	material.set_shader_parameter("top_tint", Vector3.ONE * (0.85 if region == "mine" else 0.95))
+	# The mine's cave walls and pillars (TerrainSurface CAVE_WALL).
+	if own == "mine":
+		material.set_shader_parameter("void_from", 3.0)
+		material.set_shader_parameter("void_span", 13.0)
 	return material
 
 static func _key(point: Vector2) -> Vector2i:

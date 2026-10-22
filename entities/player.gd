@@ -30,6 +30,7 @@ const STAMINA_REGEN := 8.0
 ## Self-regeneration ticks every second like LoL instead of a 5 s lump (用户
 ## 2026-10-14: 改为lol那样每秒回血；战斗中不回), still only out of combat.
 const HP_REGEN_INTERVAL := 1.0
+## The life 林栖的's share was written against (the old base, 2400).
 const BLADE_RANGE := 3.4
 ## 0.7 s between swings (用户 2026-10-03: 0.42 was too fast; ATK left at 600).
 const BASE_BLADE_COOLDOWN := 0.7
@@ -64,7 +65,9 @@ const CROWD_SECONDS := 30.0
 const CROWD_COOLDOWN := 60.0
 ## Amiya (Guard), 阿米娅攻击动作与特效设计案 §五 with the 2026-10-09 changes:
 ## every hit is arts damage off ATK (术战者); stage 2 is 奔夜's double cut.
-const AMIYA_COMBO := [[1.0], [0.55, 0.55], [1.3]]
+## 数值平衡案_v1_0.md §4 (用户 2026-10-20): arts past armour plus 绝影 put her
+## at 131% of 拉普兰德; now about 110%.
+const AMIYA_COMBO := [[0.95], [0.5, 0.5], [1.2]]
 const AMIYA_SECOND_CUT := 0.08
 ## The stage-3 thrust stays in place (用户 2026-10-10: 前戳不位移).
 ## 影霄·绝影 as an active skill like 剑圣's Q (Alpha Strike, 用户 2026-10-09):
@@ -81,7 +84,7 @@ const SHADOW_BOUNCE_RANGE := 4.0
 const SHADOW_STRIKE_SCALE := 1.0
 const SHADOW_REPEAT_SCALE := 0.25
 const SHADOW_COOLDOWN := 8.0
-const SHADOW_REFUND := 1.0
+const SHADOW_REFUND := 0.5
 const SHADOW_FIRST := 0.06
 const SHADOW_GAP := 0.1
 
@@ -107,8 +110,17 @@ var move_speed: float = BASE_MOVE_SPEED
 var blade_cooldown: float = BASE_BLADE_COOLDOWN
 var attack_speed: float = 1.0
 var gold_gain_multiplier: float = 1.0
+## Operator experience and the gear share of drops (底材固有属性表 v1.0).
+var exp_gain_multiplier: float = 1.0
+var drop_rate_bonus: float = 0.0
 ## Flask healing from the old capacity stat (relics, affixes): ±20% a point.
 var potion_heal_multiplier: float = 1.0
+## 科研部's combat nodes (Research.combat_sheet; 科研树状化策划案 §2): their own
+## zone, applied after gear, points and relics. hp / atk / def are shares of
+## the final value; RESEARCH_ADDS join the stat sheet as they are.
+var research_sheet := {}
+const RESEARCH_ADDS := ["res", "crit", "crit_dmg", "aspd", "skill_pct", "skill_cd_pct", "elite_pct", "dmg_reduce", "evasion",
+	"move_pct", "stamina_regen_pct", "dash_cost_pct"]
 
 var _buff_max_hp_bonus: float = 0.0
 var _buff_damage_bonus: float = 0.0
@@ -130,14 +142,15 @@ var regen_blocked := false
 ## Contamination right now (GameManager feeds it every frame): it cuts max HP
 ## and regeneration live (局内节奏与目标策划案 §6 D).
 var contamination := 0.0
+## 萨米's 寒冷 right now (地图特色策划案 §5.2), set by GameManager every tick.
+var cold := 0.0
+## Boss and warden debuffs on her (Boss与守卫者策划案 §3.3): id -> {"time", and
+## any of "aspd", "def", "atk", "move" as shares}. Only ever on her play, never her build.
+var hexes := {}
 
 var _sprite: LapplandAnimator3D
 var game: GameManager
 var combat_timer := 6.0
-## 游击的 (装备前缀策划案 §4.5): seconds left of its after-dodge attack bonus.
-var dash_atk_timer := 0.0
-## 诡意的: the stat it lifts on this floor (PrefixCatalog.FICKLE key).
-var fickle_key := ""
 ## Fractional sword-wave charge from 技能冷却 (hits count for more or less).
 var _charge_carry := 0.0
 var stationary_time := 0.0
@@ -193,9 +206,12 @@ var _shadow_clock := 0.0
 var _shadow_next := 0.0
 ## Growth (精英化与加点策划案_v0_2.md): skill-tree state that lives in the field.
 var gear_fx: GearEffects
+## Effect prefix families and their 阶等 (前缀放大与特效阶等案 §3).
+var families: PrefixFamilies
+## Where her last skill was aimed, for 大术式's recast.
+var _last_skill_point := Vector3.ZERO
 var wolf_timer := 0.0        # 狼魂 running
 var wolf_waves := 0          # waves toward the next 狼魂
-var sundial_timer := 0.0     # 日晷: evasion after stage 3
 var step_timer := 0.0        # 影步: crit after a dodge
 var nightrun_timer := 0.0    # 奔夜: arts evasion after stage 2
 var fury_timer := 0.0        # 青色怒火 doubled after 绝影
@@ -224,6 +240,7 @@ func _ready() -> void:
 	_navigation.target_desired_distance = ARRIVE_THRESHOLD
 	add_child(_navigation)
 	gear_fx = GearEffects.new(self)
+	families = PrefixFamilies.new(self)
 	_build_visual()
 	collision_layer = 2
 	collision_mask = 1
@@ -273,9 +290,12 @@ func progress() -> OperatorProgress:
 	return game.base.progress_for(operator_id)
 
 ## Rank of a skill-tree node (0 when she has none, or outside a game).
-func rank(node_id: String) -> int:
+## The node's rank as the old rank it is worth (SkillTrees.effect_rank; 清单 J):
+## every value is written on those.
+func rank(node_id: String) -> float:
 	var p := progress()
-	return p.rank(node_id) if p != null else (1 if SkillTrees.node(operator_id, node_id).get("type", "") == "signature" else 0)
+	var data := SkillTrees.node(operator_id, node_id)
+	return SkillTrees.effect_rank(data, p.rank(node_id) if p != null else (1 if data.get("type", "") == "signature" else 0))
 
 func transmuter(group: String) -> String:
 	var p := progress()
@@ -337,9 +357,33 @@ var attack_target: Enemy
 func lock_target(enemy: Enemy) -> void:
 	if not is_instance_valid(enemy) or enemy._dead: return
 	attack_target = enemy
+	wall_target = false
 
 func clear_target() -> void:
 	attack_target = null
+	wall_target = false
+
+## A left click on a sealed vault's 暗墙 locks it the same way (with air swings
+## gone, a click is the only way to swing at it): she walks to its mouth and
+## swings until it breaks. Melee only; a ranged weapon cannot open it.
+var wall_target := false
+
+func lock_wall() -> void:
+	attack_target = null
+	wall_target = true
+
+func _follow_wall() -> void:
+	var seal: VaultSeal = game.world_map.vault_seal if is_instance_valid(game) and is_instance_valid(game.world_map) else null
+	if seal == null or seal.opened or is_ranged_weapon() or (kit != null and kit.ranged()):
+		wall_target = false
+		return
+	if seal.in_reach(global_position, seal.inward()):
+		_has_move_target = false
+		attack_direction(seal.inward())
+		if seal.opened: wall_target = false
+		return
+	var stand := seal.stand_point(global_position)
+	if not _has_move_target or _move_target.distance_to(stand) > 0.4: set_move_target(stand)
 
 func has_target() -> bool:
 	return is_instance_valid(attack_target) and not attack_target._dead and attack_target.is_inside_tree() and (not is_instance_valid(game) or attack_target.game == game)
@@ -360,6 +404,9 @@ func weapon_range() -> float:
 ## Each physics frame with a lock: attack when in reach and in sight, else
 ## walk toward it (re-pathing as it moves).
 func _follow_target() -> void:
+	if wall_target:
+		_follow_wall()
+		return
 	if not has_target():
 		attack_target = null
 		return
@@ -417,6 +464,7 @@ func _physics_process(delta: float) -> void:
 	if is_instance_valid(game) and not (game.simulation_active() or game.base_walk_active()):
 		return
 	_tick_combat(delta)
+	_tick_hexes(delta)
 	_tick_amiya(delta)
 	if kit != null and hitstop_remaining <= 0.0: kit.tick(delta)
 	if is_instance_valid(_shell):
@@ -454,19 +502,21 @@ func _physics_process(delta: float) -> void:
 		# drain does not wait, but never takes the last point (§6 D, A2).
 		if rate < 0.0: hp = maxf(minf(hp, 1.0), hp + rate * HP_REGEN_INTERVAL)
 		elif not full_hp() and not regen_blocked and combat_timer >= OUT_OF_COMBAT:
-			heal(rate * HP_REGEN_INTERVAL * (kit.regen_factor() if kit != null else 1.0))
-		# 林栖的: idle for 3 s (no hits given or taken), a share of max HP a second.
-		if f("idle_regen") > 0.0 and not full_hp() and not regen_blocked and combat_timer >= PrefixCatalog.IDLE_SECONDS:
-			heal(max_hp * f("idle_regen") * HP_REGEN_INTERVAL * (kit.regen_factor() if kit != null else 1.0))
+			heal(rate * HP_REGEN_INTERVAL * (kit.regen_factor() if kit != null else 1.0), false, false)
+		# 林栖: idle (no hits given or taken) for a while, a share of max life.
+		if families != null and families.regen_per_second() > 0.0 and not full_hp() and not regen_blocked:
+			heal(families.regen_per_second() * HP_REGEN_INTERVAL * (kit.regen_factor() if kit != null else 1.0))
 
 	var move_vec := Vector3.ZERO if busy else _key_move_vector()
 	if busy:
 		_has_move_target = false
 		attack_target = null
+		wall_target = false
 	elif move_vec != Vector3.ZERO:
 		# Keys take over from a clicked destination or a locked enemy.
 		_has_move_target = false
 		attack_target = null
+		wall_target = false
 	else:
 		_follow_target()
 	if move_vec == Vector3.ZERO and _has_move_target:
@@ -491,14 +541,15 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -2.0
 	else:
 		velocity.y += GRAVITY * delta
-	var speed := move_speed * (gear_fx.move_mult() if gear_fx != null else 1.0) * (kit.move_mult() if kit != null else 1.0)
+	var speed := move_speed * (gear_fx.move_mult() if gear_fx != null else 1.0) * (kit.move_mult() if kit != null else 1.0) * FeatureCatalog.cold_move(cold) * maxf(0.2, 1.0 + hex("move"))
 	velocity.x = move_vec.x * speed
 	velocity.z = move_vec.z * speed
 	move_and_slide()
 
-	var regen := (STAMINA_REGEN + float(stats.get("stamina_regen", 0.0))) * (1.0 + float(stats.get("stamina_regen_pct", 0.0)))
+	var regen := (STAMINA_REGEN + float(stats.get("stamina_regen", 0.0))) * (1.0 + float(stats.get("stamina_regen_pct", 0.0)) + hex("stamina"))
 	if equipped_effect("frozen_relic"):
 		regen *= 0.6
+	regen *= FeatureCatalog.cold_stamina(cold)
 	stamina = minf(100.0, stamina + regen * delta)
 	if move_vec.length_squared() > 0.01:
 		look_at(global_position + move_vec, Vector3.UP)
@@ -537,11 +588,11 @@ func _tick_relic_timers(delta: float) -> void:
 	dance_timer = maxf(0, dance_timer - delta)
 	dance_cooldown = maxf(0, dance_cooldown - delta)
 	wolf_timer = maxf(0, wolf_timer - delta)
-	sundial_timer = maxf(0, sundial_timer - delta)
 	step_timer = maxf(0, step_timer - delta)
 	nightrun_timer = maxf(0, nightrun_timer - delta)
 	fury_timer = maxf(0, fury_timer - delta)
 	if gear_fx != null: gear_fx.tick(delta)
+	if families != null: families.tick(delta)
 	since_wave += delta
 	segment_time += delta
 	if hit_stacks > 0:
@@ -556,7 +607,7 @@ func _tick_relics_in_field(delta: float) -> void:
 		while _auto_charge >= 1.0:
 			_auto_charge -= 1.0
 			add_charge(1)
-	if f("crowd_regen") > 0.0 and nearby_enemy_count(4.0) >= 3: heal(f("crowd_regen") * delta)
+	if f("crowd_regen") > 0.0 and nearby_enemy_count(4.0) >= 3: heal(f("crowd_regen") * tier_coef() * delta)
 	if f("crowd_guard") > 0.0 and guard_cooldown <= 0.0 and nearby_enemy_count(3.0) >= 2:
 		guard_timer = CROWD_SECONDS
 		guard_cooldown = CROWD_COOLDOWN
@@ -616,7 +667,7 @@ func _tick_control(delta: float) -> bool:
 	if _control_velocity.length_squared() > 0.0001: move_and_collide(_control_velocity * delta)
 	velocity = Vector3.ZERO
 	if is_instance_valid(_stun_mark) and _stun_mark.visible: _stun_mark.rotation.z += delta * 4.0
-	var regen := (STAMINA_REGEN + float(stats.get("stamina_regen", 0.0))) * (1.0 + float(stats.get("stamina_regen_pct", 0.0)))
+	var regen := (STAMINA_REGEN + float(stats.get("stamina_regen", 0.0))) * (1.0 + float(stats.get("stamina_regen_pct", 0.0)) + hex("stamina"))
 	stamina = minf(100.0, stamina + regen * delta)
 	if control_timer <= 0.0:
 		control_kind = ""
@@ -649,6 +700,7 @@ func interrupt_actions_for(reason: String) -> void:
 	if shadow_active: _end_shadow(false)
 	if kit != null: kit.interrupt()
 	attack_target = null
+	wall_target = false
 	_has_move_target = false
 	if is_instance_valid(_sprite): _sprite.cancel_action()
 	if is_instance_valid(game): game.cancel_channels(reason)
@@ -656,14 +708,13 @@ func interrupt_actions_for(reason: String) -> void:
 func _start_dash(direction: Vector3) -> void:
 	if not can_dash(): return
 	interrupt_actions()
-	stamina -= dash_cost()
-	_dash_cooldown = maxf(0.15, DASH_COOLDOWN * (1.0 + float(stats.get("dash_cd_pct", 0.0))))
-	if f("dash_atk") > 0.0: dash_atk_timer = PrefixCatalog.DASH_ATK_SECONDS
+	if families == null or not families.free_dash(): stamina -= dash_cost()
+	_dash_cooldown = maxf(0.15, DASH_COOLDOWN * (1.0 + float(stats.get("dash_cd_pct", 0.0))) * (families.dash_cd_mult() if families != null else 1.0))
 	invulnerable = true
 	dash_remaining = DASH_INVULN_DURATION
 	_sprite.start_dash(direction)
 	var start := global_position
-	move_and_collide(direction.normalized() * DASH_IMPULSE)
+	_dash_move(direction.normalized() * DASH_IMPULSE)
 	if is_instance_valid(game):
 		for i in range(3):
 			CombatVfx.afterimage(game, _sprite, start.lerp(global_position, float(i) / 3.0), 0.2 + i * 0.2)
@@ -672,6 +723,17 @@ func _start_dash(direction: Vector3) -> void:
 			_deal(enemy, attack_power() * 1.2, "phys", false, 0.0, false)
 	if rank("shadow_step") > 0: step_timer = 1.5
 	if gear_fx != null: gear_fx.on_evade(start, global_position)
+	if families != null: families.on_dash(start, global_position, _enemies_near_segment(start, global_position, 1.0))
+
+## The dodge's jump, sliding along whatever it meets the way walking does
+## (用户 2026-10-20: 斜街向右上闪避撞墙): street edges are rows of boxes, so a
+## slanting dodge used to stop dead on the first corner.
+func _dash_move(motion: Vector3) -> void:
+	for i in range(4):
+		var hit := move_and_collide(motion)
+		if hit == null: return
+		motion = hit.get_remainder().slide(hit.get_normal())
+		if motion.length() < 0.05: return
 
 func _enemies_near_segment(from: Vector3, to: Vector3, radius: float) -> Array[Enemy]:
 	var found: Array[Enemy] = []
@@ -693,7 +755,6 @@ func nearby_enemy_count(radius: float) -> int:
 
 func _tick_combat(delta: float) -> void:
 	combo_idle += delta
-	if dash_atk_timer > 0.0: dash_atk_timer = maxf(0.0, dash_atk_timer - delta)
 	if combo_idle >= maxf(COMBO_WINDOW, current_cooldown() + 0.5): combo_step = 0
 	if sword_charge > 0 and sword_charge < wave_hits_needed():
 		charge_idle += delta
@@ -707,7 +768,7 @@ func _tick_combat(delta: float) -> void:
 ## 剑气 is hers (用户 2026-10-04, 精英化案 §8.1): no affix needed. The old 剑气
 ## affix is now 剑气强化 (+25% wave damage), read in _recompute_stats.
 func has_sword_wave() -> bool:
-	return not is_amiya() and kit == null
+	return not is_amiya() and (kit == null or kit is LapplandKit)
 
 ## Whether any worn item carries this special-equipment trigger (SpecialGear).
 func has_trigger(trigger: ItemModifier.Trigger) -> bool:
@@ -725,7 +786,7 @@ func add_charge(amount: int) -> void:
 	if is_amiya():
 		refund_shadow(amount)
 		return
-	if kit != null:
+	if kit != null and not has_sword_wave():
 		kit.refund(float(amount))
 		return
 	if not has_sword_wave() or amount <= 0: return
@@ -773,7 +834,7 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	if _attack_cooldown > 0 or hitstop_remaining > 0 or dash_remaining > 0 or shadow_active or control_timer > 0.0: return
 	if kit != null and kit.busy(): return
 	if is_instance_valid(game) and not game.simulation_active(): return
-	if not is_instance_valid(target) and is_ranged_weapon() and kit == null: return
+	if not is_instance_valid(target) and is_ranged_weapon() and (kit == null or not kit.plays_swing()): return
 	direction.y = 0
 	if direction.length_squared() < 0.001: direction = -global_basis.z
 	direction = direction.normalized()
@@ -788,11 +849,11 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	var hit := lands or release
 	if hit and combat_timer >= OUT_OF_COMBAT and f("engage_aspd") > 0.0: engage_timer = 10.0
 	var multiplier := attack_multiplier() if hit else 0.0
-	var crit_chance := crit_rate() + (gear_fx.crit_bonus(target) if gear_fx != null else 0.0)
+	var crit_chance := crit_rate() + (gear_fx.crit_bonus(target) if gear_fx != null else 0.0) + (families.crit_bonus() if families != null else 0.0)
 	if step_timer > 0.0:
 		crit_chance += 0.10 * rank("shadow_step")
 		if hit: step_timer = 0.0
-	var crit := hit and ((gear_fx != null and gear_fx.take_forced_crit()) or randf() < crit_chance)
+	var crit := hit and ((gear_fx != null and gear_fx.take_forced_crit()) or (families != null and families.take_forced_crit(target)) or randf() < crit_chance)
 	var crit_factor := crit_damage() if crit else 1.0
 	if hit:
 		combat_timer = 0
@@ -803,10 +864,11 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	look_at(global_position + direction, Vector3.UP)
 	# A sealed vault's 暗墙 in front of her takes the blow (VaultSeal).
 	if is_instance_valid(game) and not is_ranged_weapon() and not (kit != null and kit.ranged()): game.strike_vault_wall(global_position, direction)
+	OperatorVfx.swing(self, direction, stage, release)
 	if is_amiya():
 		_amiya_swing(direction, target, stage, lands, multiplier, crit, crit_factor)
 		return
-	if kit != null:
+	if kit != null and kit.plays_swing():
 		kit.swing(direction, target, stage, lands, multiplier, crit, crit_factor)
 		return
 	_sprite.play_attack(direction, stage, release, animation_rate())
@@ -828,14 +890,16 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 				for side in [-1.0, 1.0]:
 					_spawn_wave(direction.rotated(Vector3.UP, deg_to_rad(20.0 * side)), wave_damage * 0.5, crit, true)
 			CombatVfx.spawn(game, foot, direction, "burst", 0, true)
-			game.start_sword_shake()
-	if release: _on_wave_released()
+	if release:
+		_on_wave_released()
+		if families != null and families.on_skill(func(): add_charge(wave_hits_needed())): add_charge(wave_hits_needed())
 	if lands:
 		var stop := 0.05 if release or stage == 2 else 0.03
-		var raw := attack_power() * stage_scale(stage) * form_factor(1) * multiplier * target_multiplier(target) * crit_factor
-		var pierce := physical_pierce()
-		# 狼魂: her blades strike as arts while it runs (PRTS: 伤害类型变为法术).
+		# 狼魂: her blades strike as arts while it runs (PRTS: 伤害类型变为法术), off
+		# her arts power then (复利数值改造清单 F).
 		var kind := "arts" if wolf_timer > 0.0 else "phys"
+		var raw := power_for(kind) * stage_scale(stage) * form_factor(1) * multiplier * target_multiplier(target) * crit_factor
+		var pierce := physical_pierce()
 		_deal(target, raw, kind, crit, pierce if kind == "phys" else 0.0, true)
 		_melee_riders(target, raw, crit, pierce)
 		_after_landed(target, raw, stage)
@@ -848,6 +912,7 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 		if f("hit_stack_atk") > 0.0:
 			hit_stacks = mini(HIT_STACK_MAX, hit_stacks + 1)
 			hit_stack_timer = HIT_STACK_SECONDS
+		if stage == 2 and operator_id == Operators.LAPPLAND: _lappland_cross(target, raw, kind, crit, pierce, direction)
 		if not release:
 			add_charge(1 + (int(f("finisher_charge")) if stage == 2 else 0))
 
@@ -858,19 +923,46 @@ func _after_landed(target: Enemy, raw: float, stage: int) -> void:
 	if gear_fx != null: gear_fx.on_hit(target, raw)
 	if target._dead: return
 	if operator_id == Operators.LAPPLAND:
-		if stage == 2 and rank("sundial") > 0: sundial_timer = 4.0
-		if stage == 2 and rank("shadow_hand") > 0: target.apply_status("slow", 2.0, 0.06 * rank("shadow_hand"))
-		var mind := SkillTrees.mind_break(elite_stage(), module_level())
-		if float(mind[0]) > 0.0:
-			target.silence(float(mind[1]) if target.elite or target.boss else float(mind[0]))
-			if float(mind[2]) > 0.0: target.apply_status("fragile", 6.0, float(mind[2]))
+		# 影落とす時針: under 日晷 her blades slow what they hit.
+		if rank("shadow_hand") > 0 and kit is LapplandKit and (kit as LapplandKit).timer > 0.0:
+			target.apply_status("slow", 2.0, 0.06 * rank("shadow_hand"))
 		if wolf_timer > 0.0 and rank("extra_target") > 0 and is_instance_valid(game):
 			for node in get_tree().get_nodes_in_group("enemies"):
 				var other := node as Enemy
 				if other == target or other == null or other.game != game or other._dead: continue
 				if _flat(other.global_position - global_position) <= 4.0:
-					_deal(other, attack_power() * SkillTrees.extra_target(rank("extra_target")), "arts", false, 0.0, false)
+					_deal(other, arts_power() * SkillTrees.extra_target(rank("extra_target")), "arts", false, 0.0, false)
 					break
+
+## 拉普兰德's third cut crosses both blades: one more beside the target (within
+## CROSS_RADIUS of it, in her reach) takes CROSS_SCALE of the blow.
+const CROSS_RADIUS := 2.2
+const CROSS_SCALE := 0.6
+
+func _lappland_cross(target: Enemy, raw: float, kind: String, crit: bool, pierce: float, direction: Vector3) -> void:
+	if not is_instance_valid(game) or not is_instance_valid(target): return
+	var best: Enemy = null
+	var best_distance := CROSS_RADIUS
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var other := node as Enemy
+		if other == null or other == target or other.game != game or other._dead or not is_target_in_range(other): continue
+		var distance := _flat(other.global_position - target.global_position)
+		if distance <= best_distance and game.line_of_sight(global_position, other.global_position):
+			best = other
+			best_distance = distance
+	if best == null: return
+	var scaled := raw / maxf(0.01, target_multiplier(target)) * target_multiplier(best) * CROSS_SCALE
+	_deal(best, scaled, kind, crit, pierce if kind == "phys" else 0.0, true)
+	_melee_riders(best, scaled, crit, pierce)
+	if is_instance_valid(best): CombatVfx.spawn(game, best.global_position, direction, "spark")
+
+## 精神摧毁 (用户 2026-10-20: 剑气命中沉默敌人): her wave stops the target's
+## special abilities for a while (less on elites and bosses), with 模组 fragile.
+func _mind_break(enemy: Enemy) -> void:
+	var mind := SkillTrees.mind_break(elite_stage(), module_level())
+	if float(mind[0]) <= 0.0: return
+	enemy.silence(float(mind[1]) if enemy.elite or enemy.boss else float(mind[0]))
+	if float(mind[2]) > 0.0: enemy.apply_status("fragile", 6.0, float(mind[2]))
 
 ## After a wave leaves: 拳经三问 counts it, 绿叶菜罐头 opens its window, and the
 ## "噤声" / 鸣脊兽 build-ups start over. Waves count toward 狼魂 (not those
@@ -910,6 +1002,8 @@ func land_hit(target: Enemy, raw: float, kind: String, crit: bool, pierce: float
 func _melee_riders(target: Enemy, raw: float, crit: bool, pierce: float) -> void:
 	target.hit_by_player = true
 	if target._dead: return
+	if families != null: families.on_basic_hit(target)
+	if not is_instance_valid(target) or target._dead: return
 	if has_trigger(ItemModifier.Trigger.ARTS_EDGE): _deal(target, arts_power() * 0.18, "arts", false, 0.0, false)
 	if has_trigger(ItemModifier.Trigger.SHIELD_BASH) and bash_timer > 0:
 		bash_timer = 0
@@ -946,14 +1040,24 @@ func _deal(target: Enemy, raw: float, kind: String, crit: bool, pierce: float = 
 	if not is_instance_valid(target) or target._dead: return 0.0
 	if kind == "arts": raw *= 1.0 + float(stats.get("arts_dmg_pct", 0.0))
 	elif kind == "phys": raw *= 1.0 + float(stats.get("phys_dmg_pct", 0.0))
+	raw *= maxf(0.1, 1.0 + hex("atk"))
 	var dealt := target.take_hit(raw, kind, crit, pierce)
-	if direct and dealt > 0.0: heal(dealt * lifesteal())
+	if direct and dealt > 0.0: _lifesteal(dealt)
+	if direct: OperatorVfx.hit(self, target, kind, crit)
 	return dealt
 
 ## Called by a sword wave for each enemy it passes through.
+## Lifesteal off `dealt`; 潮涌 keeps what spills over full life as a shield.
+func _lifesteal(dealt: float) -> void:
+	var amount := dealt * lifesteal() * (families.lifesteal_mult() if families != null else 1.0)
+	if amount <= 0.0: return
+	if families != null: families.on_lifesteal(amount, maxf(0.0, max_hp - hp))
+	heal(amount)
+
 func on_wave_hit(enemy: Enemy, dealt: float, _wave: SwordWave) -> void:
-	if dealt > 0.0: heal(dealt * lifesteal())
+	if dealt > 0.0: _lifesteal(dealt)
 	if not is_instance_valid(enemy): return
+	if operator_id == Operators.LAPPLAND and not enemy._dead: _mind_break(enemy)
 	if has_trigger(ItemModifier.Trigger.EMBER): enemy.apply_status("burn", 4.0, arts_power() * 0.10 * (1.0 + float(stats.get("arts_dmg_pct", 0.0))))
 	_try_execute(enemy)
 
@@ -989,8 +1093,8 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 		_on_block()
 		stats_changed.emit()
 		return
-	if blocks_left > 0:
-		blocks_left -= 1
+	if blocks_left > 0 or (families != null and families.take_block()):
+		if blocks_left > 0: blocks_left -= 1
 		_on_block()
 		if is_instance_valid(game): DamageNumber.spawn(game, global_position, "抵挡", "shield")
 		return
@@ -1000,7 +1104,8 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 	if is_instance_valid(attacker) and attacker.ranged: reduction -= f("ranged_taken")
 	reduction += float(stats.get("dmg_reduce", 0.0))
 	amount *= 1.0 - minf(CombatStats.REDUCTION_CAP, reduction)
-	amount *= 1.0 + float(stats.get("taken_pct", 0.0))
+	amount *= maxf(0.0, 1.0 + float(stats.get("taken_pct", 0.0)) + hex("taken"))
+	if families != null: amount = families.incoming(amount)
 	if kit != null:
 		amount = kit.mitigate(amount, kind, attacker)
 		kit.on_hurt(amount, attacker)
@@ -1026,14 +1131,17 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 	if is_instance_valid(game):
 		game.sound.play("hurt")
 		DamageNumber.spawn(game, global_position, str(roundi(amount)), "hurt")
+	var before_ratio := hp_ratio()
 	hp -= amount
 	if gear_fx != null: gear_fx.on_hurt(amount, attacker)
+	if families != null: families.on_hurt(before_ratio)
 	if is_instance_valid(_sprite): _sprite.play_hurt()
 	message_requested.emit("受到伤害！观察敌人的蓄力姿势与武器方向，及时侧移或闪避。")
 	stats_changed.emit()
 
 ## 复还之手 (once a segment, back to full) then "时光之末" (once a contract, 1 life).
 func _survive_lethal() -> bool:
+	if is_instance_valid(game) and game.potion_fx.emergency_save(self): return true
 	if kit != null and kit.survive_lethal(): return true
 	if f("death_full") > 0.0 and not death_full_used:
 		death_full_used = true
@@ -1070,10 +1178,8 @@ func _has_low_hp_ward() -> bool:
 ## Entering a segment: the per-segment relics reset, the opening ones fire.
 func reset_floor_state() -> void:
 	reset_combat_state(false)
-	# 诡意的 lifts a different stat on every floor.
-	if f("fickle") > 0.0:
-		fickle_key = PrefixCatalog.FICKLE.keys()[randi() % PrefixCatalog.FICKLE.size()]
-		_recompute_stats()
+	# 诡意 lifts different stats on every floor; 城垣 and 隔离 start over.
+	if families != null: families.on_floor()
 	_low_hp_ward_used_this_floor = false
 	death_full_used = false
 	hurt_stacks = 0
@@ -1089,9 +1195,10 @@ func reset_floor_state() -> void:
 	if f("segment_charge") > 0.0: add_charge(int(f("segment_charge")))
 
 ## Healing scales with 治疗效果.
-func heal(amount: float, show: bool = false) -> void:
+## `bonus` false: flasks (复利数值改造清单 E), which no healing bonus changes.
+func heal(amount: float, show: bool = false, bonus: bool = true) -> void:
 	if amount <= 0.0: return
-	amount *= 1.0 + float(stats.get("heal_pct", 0.0))
+	if bonus: amount *= 1.0 + float(stats.get("heal_pct", 0.0))
 	hp = minf(max_hp, hp + amount)
 	if show and is_instance_valid(game): DamageNumber.spawn(game, global_position, "+%d" % roundi(amount), "heal")
 	stats_changed.emit()
@@ -1133,9 +1240,9 @@ func reset_stats() -> void:
 	shadow_cooldown = 0.0
 	if kit != null: kit.reset()
 	if gear_fx != null: gear_fx.reset()
+	if families != null: families.reset()
 	wolf_timer = 0.0
 	wolf_waves = 0
-	sundial_timer = 0.0
 	step_timer = 0.0
 	nightrun_timer = 0.0
 	fury_timer = 0.0
@@ -1177,14 +1284,20 @@ const MODIFIER_KEYS := {
 	ItemModifier.Stat.POTION_CAPACITY_FLAT: "potion_cap", ItemModifier.Stat.ATK_PCT: "atk_pct",
 	ItemModifier.Stat.ARTS_PCT: "arts_pct", ItemModifier.Stat.DEF_FLAT: "def", ItemModifier.Stat.RES_FLAT: "res",
 	ItemModifier.Stat.CRIT_RATE: "crit", ItemModifier.Stat.CRIT_DMG: "crit_dmg",
+	ItemModifier.Stat.ATK_FLAT: "atk", ItemModifier.Stat.ARTS_FLAT: "arts", ItemModifier.Stat.HP_FLAT: "hp",
+	ItemModifier.Stat.EVASION: "evasion", ItemModifier.Stat.SKILL_CD_PCT: "skill_cd_pct", ItemModifier.Stat.SKILL_PCT: "skill_pct",
+	ItemModifier.Stat.STAMINA_REGEN_PCT: "stamina_regen_pct", ItemModifier.Stat.DASH_COST_PCT: "dash_cost_pct",
+	ItemModifier.Stat.EXP_GAIN_PCT: "exp_pct", ItemModifier.Stat.DROP_RATE_PCT: "drop_pct",
 }
 
 func _recompute_stats() -> void:
+	# Tooltips read weapon panels as her main stat (复利数值改造清单 F).
+	CombatStats.wearer_main = Operators.main_stat(operator_id)
 	var sheet := CombatStats.empty()
 	for item in equipped.values():
 		if item == null:
 			continue
-		CombatStats.add(sheet, CombatStats.power_stats(item.category, item.power))
+		CombatStats.add(sheet, CombatStats.item_stats(item, Operators.main_stat(operator_id)))
 		for mod in item.modifiers:
 			# The old 剑气 affix is 技能强化 now: skill damage on a weapon (20–30%).
 			if mod.trigger == ItemModifier.Trigger.SWORD_WAVE and item.category == Item.Category.WEAPON: sheet.skill_pct += mod.skill_boost()
@@ -1206,9 +1319,6 @@ func _recompute_stats() -> void:
 		if item == null: continue
 		var prefix_fx := PrefixCatalog.fx_of(item)
 		for key in prefix_fx: fx[key] = float(fx.get(key, 0.0)) + float(prefix_fx[key])
-	if f("fickle") > 0.0:
-		if not PrefixCatalog.FICKLE.has(fickle_key): fickle_key = PrefixCatalog.FICKLE.keys()[randi() % PrefixCatalog.FICKLE.size()]
-		sheet[fickle_key] = float(sheet.get(fickle_key, 0.0)) + float(PrefixCatalog.FICKLE[fickle_key]) * f("fickle")
 	# Growth: attribute points, the module, 精英 2's resistance (精英化案 §3, §5, §8).
 	var p := progress()
 	if p != null:
@@ -1216,9 +1326,19 @@ func _recompute_stats() -> void:
 		if p.module_level > 0 and SkillTrees.MODULES.has(operator_id): CombatStats.add(sheet, SkillTrees.MODULES[operator_id].stats)
 		if p.elite >= 2: sheet.res += Progression.E2_RES
 	if gear_fx != null: CombatStats.add(sheet, gear_fx.static_sheet())
+	if families != null:
+		families.refresh(equipped)
+		CombatStats.add(sheet, families.static_sheet())
+	research_sheet = game.research.combat_sheet() if is_instance_valid(game) and game.research != null else {}
+	for key in RESEARCH_ADDS:
+		if research_sheet.has(key): sheet[key] = float(sheet.get(key, 0.0)) + float(research_sheet[key])
+	# 食堂补给 for this contract (势力特供策划案 §5.2); its attack and speed are the "meal" hex.
+	var meal: Dictionary = Provisions.MEALS.get(game.run_meal, {}) if is_instance_valid(game) else {}
+	for key in ["hp_pct", "regen_pct"]:
+		if meal.has(key): sheet[key] = float(sheet.get(key, 0.0)) + float(meal[key])
 	stats = sheet
 	var hp_pct := float(sheet.hp_pct) + (kit.hp_pct() if kit != null else 0.0) + f("elite_hp_stack") * mini(ELITE_STACK_MAX, elite_kills) + _axe_and_route_bonus()
-	max_hp = maxf(1.0, (CombatStats.BASE.hp + _buff_max_hp_bonus + float(sheet.hp)) * maxf(0.1, 1.0 + hp_pct))
+	max_hp = maxf(1.0, (CombatStats.BASE.hp + _buff_max_hp_bonus + float(sheet.hp)) * maxf(0.1, 1.0 + hp_pct) * Operators.stat_mult(operator_id, "hp") * research_mult("hp"))
 	damage_bonus = 1.0 + _buff_damage_bonus + float(sheet.dmg_pct)
 	move_speed = BASE_MOVE_SPEED * maxf(0.3, 1.0 + float(sheet.move_pct))
 	# 攻速 divides the interval (明日方舟: interval / (攻速 / 100)), so stacking it
@@ -1226,7 +1346,10 @@ func _recompute_stats() -> void:
 	attack_speed = clampf(CombatStats.BASE.aspd + float(sheet.aspd), CombatStats.ASPD_MIN, CombatStats.ASPD_MAX) / 100.0
 	blade_cooldown = maxf(MIN_BLADE_COOLDOWN, BASE_BLADE_COOLDOWN * (1.0 + float(sheet.interval_pct)) / attack_speed)
 	gold_gain_multiplier = 1.0 + float(sheet.gold_pct)
-	potion_heal_multiplier = maxf(0.2, 1.0 + BaseCatalog.POTION_HEAL_PER_CAP * float(sheet.potion_cap)) * (kit.potion_factor() if kit != null else 1.0)
+	exp_gain_multiplier = 1.0 + float(sheet.exp_pct)
+	drop_rate_bonus = float(sheet.drop_pct)
+	# Flasks heal their fixed amount; only an operator's own trait changes it.
+	potion_heal_multiplier = (kit.potion_factor() if kit != null else 1.0) * (1.0 + float(research_sheet.get("heal_pct", 0.0)))
 	hp = minf(hp, max_hp)
 	stats_changed.emit()
 
@@ -1248,7 +1371,7 @@ func equipped_effect(effect: String) -> bool:
 	return false
 
 func ore_count() -> int:
-	return game.count_effect("raw_ore") if is_instance_valid(game) else 0
+	return game.count_effect("raw_ore") + game.count_effect(GameManager.SEALED_ORE) if is_instance_valid(game) else 0
 
 func hp_ratio() -> float:
 	return clampf(hp / maxf(max_hp, 1.0), 0.0, 1.0)
@@ -1265,8 +1388,18 @@ func full_hp() -> bool:
 
 ## 攻击力 right now: (base + flat) × (1 + every +X%, static and conditional,
 ## added together the way 明日方舟 stacks one layer).
+## 科研部's share of a final stat ("hp", "atk", "def"): 1 + its total.
+func research_mult(key: String) -> float:
+	return 1.0 + float(research_sheet.get(key, 0.0))
+
 func attack_power() -> float:
-	var pct := float(stats.get("atk_pct", 0.0))
+	return (CombatStats.BASE.atk + float(stats.get("atk", 0.0))) * maxf(0.1, 1.0 + float(stats.get("atk_pct", 0.0)) + power_bonus()) * research_mult("atk")
+
+## Every timed and conditional "攻击力 +%" (relics, prefixes, kits, 狼魂, 青色怒火,
+## gear effects): it lifts arts power the same way, since arts hits come off
+## arts power (复利数值改造清单 F).
+func power_bonus() -> float:
+	var pct := 0.0
 	pct += f("full_hp_atk") * hp_ratio()
 	pct += f("build_atk") * minf(1.0, since_wave / BUILD_ATK_SECONDS)
 	pct += f("hit_stack_atk") * hit_stacks
@@ -1274,16 +1407,14 @@ func attack_power() -> float:
 	if evade_timer > 0.0: pct += f("evade_atk")
 	pct += f("wave_stack_atk") * wave_count
 	if f("lone_atk") > 0.0 and nearby_enemy_count(6.0) == 1: pct += f("lone_atk")
-	# Prefix conditions (装备前缀策划案 §4): 暴动的, 家族的, 游击的.
-	if f("crowd_atk") > 0.0: pct += f("crowd_atk") * mini(PrefixCatalog.CROWD_MAX, nearby_enemy_count(PrefixCatalog.CROWD_RADIUS))
-	if f("high_hp_atk") > 0.0 and hp_ratio() > PrefixCatalog.HIGH_HP: pct += f("high_hp_atk")
-	if dash_atk_timer > 0.0: pct += f("dash_atk")
+	# Prefix families (前缀放大与特效阶等案 §3): 暴动, 家族, 游击, 反噬.
+	if families != null: pct += families.atk_pct()
 	if guard_timer > 0.0: pct += 0.40
 	pct += 0.05 * altar_stacks
 	pct += _axe_and_route_bonus()
 	pct += _growth_atk_pct()
 	if gear_fx != null: pct += gear_fx.atk_pct()
-	return (CombatStats.BASE.atk + float(stats.get("atk", 0.0))) * maxf(0.1, 1.0 + pct)
+	return pct
 
 ## 狼魂's ATK while it runs, 青色怒火 (doubled during and just after 绝影),
 ## 每击败一个敌人 stacks during 绝影.
@@ -1301,23 +1432,50 @@ func _cyan_fury() -> float:
 	var fury := SkillTrees.cyan_fury(elite_stage(), module_level())
 	return fury * (2.0 if shadow_active or fury_timer > 0.0 else 1.0)
 
+## Physical hits come off ATK, arts hits off arts power (复利数值改造清单 F).
+func power_for(kind: String) -> float:
+	return arts_power() if kind == "arts" else attack_power()
+
 func arts_power() -> float:
-	var pct := float(stats.get("arts_pct", 0.0))
-	return (CombatStats.BASE.arts + float(stats.get("arts", 0.0))) * maxf(0.1, 1.0 + pct)
+	return (CombatStats.BASE.arts + float(stats.get("arts", 0.0))) * maxf(0.1, 1.0 + float(stats.get("arts_pct", 0.0)) + power_bonus()) * research_mult("atk")
+
+## Puts on (or refreshes) a debuff; `seconds` < 0 lasts until cleared.
+func add_hex(id: String, values: Dictionary, seconds: float) -> void:
+	var entry := values.duplicate()
+	entry["time"] = seconds
+	hexes[id] = entry
+
+func clear_hex(id: String) -> void:
+	hexes.erase(id)
+
+## The sum of every debuff's `key` (shares, so −0.3 is 30% less).
+func hex(key: String) -> float:
+	var total := 0.0
+	for id in hexes: total += float(hexes[id].get(key, 0.0))
+	return total
+
+func _tick_hexes(delta: float) -> void:
+	for id in hexes.keys():
+		var t := float(hexes[id].time)
+		if t < 0.0: continue
+		t -= delta
+		if t <= 0.0: hexes.erase(id)
+		else: hexes[id].time = t
 
 func defense_value() -> float:
 	var flat := CombatStats.BASE.def + float(stats.get("def", 0.0))
-	if f("linger") > 0.0 and segment_time >= LINGER_SECONDS: flat += 300.0
 	var pct := float(stats.get("def_pct", 0.0)) + 0.05 * altar_stacks
+	# 古堡的子嗣: +120% (was +300 on a 200 base; 复利数值改造清单 D).
+	if f("linger") > 0.0 and segment_time >= LINGER_SECONDS: pct += 1.2
 	if f("full_def") > 0.0 and full_hp(): pct += 0.20
 	if guard_timer > 0.0: pct += 0.40
 	pct += _cyan_fury()
 	if kit != null: pct += kit.def_pct()
 	if gear_fx != null: pct += gear_fx.def_pct()
-	return flat * maxf(0.0, 1.0 + pct)
+	return flat * maxf(0.0, 1.0 + pct) * maxf(0.1, 1.0 + hex("def")) * Operators.stat_mult(operator_id, "def") * research_mult("def")
 
 func resistance() -> float:
-	var res := CombatStats.BASE.res + float(stats.get("res", 0.0))
+	var res := CombatStats.BASE.res + float(stats.get("res", 0.0)) + Operators.stat_mult(operator_id, "res")
 	if f("linger") > 0.0 and segment_time >= LINGER_SECONDS: res += 30.0
 	if shadow_active and rank("kill_stack") > 0: res += 20.0 * shadow_kill_stacks
 	if f("full_def") > 0.0 and full_hp(): res += 10.0
@@ -1335,7 +1493,6 @@ func lifesteal() -> float:
 
 func evasion() -> float:
 	var value := float(stats.get("evasion", 0.0)) + (0.5 if dance_timer > 0.0 else 0.0)
-	if sundial_timer > 0.0: value += float(SkillTrees.sundial(rank("sundial"))[0])
 	if kit != null: value += kit.evasion_bonus()
 	return clampf(value, 0.0, CombatStats.EVASION_CAP if dance_timer <= 0.0 else 0.75)
 
@@ -1355,15 +1512,32 @@ func arts_evasion() -> float:
 	return clampf(value, 0.0, CombatStats.EVASION_CAP if dance_timer <= 0.0 else 0.75)
 
 ## Self-regeneration per second (paid out every HP_REGEN_INTERVAL once out of combat).
-## The base is 0.1% of max HP a second (用户 2026-10-14: 基础改为0.1%; was a flat 48).
+## 复利数值改造清单 E: her own is 0.1% of max HP a second and no bonus touches
+## it; flat regeneration (relics, 体魄) is written at tier Ⅰ, takes the floor's
+## 档位系数, and the regeneration bonuses apply to that part only.
+func natural_regen() -> float:
+	return max_hp * CombatStats.BASE.regen_max_pct
+
+func bonus_regen() -> float:
+	return (float(stats.get("regen", 0.0)) * tier_coef() + max_hp * float(stats.get("regen_max_pct", 0.0))) * (1.0 + float(stats.get("regen_pct", 0.0)))
+
+## The current floor's 档位系数 (Scaling.tier_coef): fixed heals scale by it.
+func tier_coef() -> float:
+	return Scaling.tier_coef(game.floor_number) if is_instance_valid(game) else 1.0
+
 func regen_rate() -> float:
-	var own := (max_hp * CombatStats.BASE.regen_max_pct + float(stats.get("regen", 0.0))) * (1.0 + float(stats.get("regen_pct", 0.0))) + max_hp * float(stats.get("regen_max_pct", 0.0))
-	return own * BaseCatalog.contamination_regen_factor(contamination) - max_hp * BaseCatalog.contamination_drain(contamination)
+	var own := natural_regen() + bonus_regen()
+	if FeatureCatalog.cold_stops_regen(cold): own = 0.0
+	var drain := BaseCatalog.contamination_drain(contamination) if families == null or families.contamination_drains() else 0.0
+	return own * BaseCatalog.contamination_regen_factor(contamination) - max_hp * (drain + FeatureCatalog.cold_drain(cold))
 
 ## Injury and contamination: moves the block over the top of the life bar.
 func set_condition(injured: bool, contamination_now: float) -> void:
 	contamination = contamination_now
 	var penalty := BaseCatalog.hp_penalty(contamination_now, injured)
+	# 净化: contamination's cut halves (injury's stays).
+	if families != null and families.contamination_cut_mult() < 1.0:
+		penalty = minf(BaseCatalog.HP_PENALTY_CAP, BaseCatalog.contamination_hp_cut(contamination_now) * families.contamination_cut_mult() + (BaseCatalog.INJURY_HP_PENALTY if injured else 0.0))
 	if absf(penalty - condition_hp_penalty) < 0.0005: return
 	condition_hp_penalty = penalty
 	hp = hp   # the setter cuts it to the new cap
@@ -1385,19 +1559,18 @@ func current_aspd() -> float:
 	if operator_id == Operators.LAPPLAND and combo_step >= 1: aspd += 4.0 * rank("frenzy")
 	if kit != null: aspd += kit.aspd_bonus()
 	if gear_fx != null: aspd += gear_fx.aspd_bonus()
-	return clampf(aspd, CombatStats.ASPD_MIN, CombatStats.ASPD_MAX)
+	if families != null: aspd += families.aspd_bonus()
+	return clampf(aspd * FeatureCatalog.cold_aspd(cold) * maxf(0.2, 1.0 + hex("aspd")), CombatStats.ASPD_MIN, CombatStats.ASPD_MAX)
 
 func current_cooldown() -> float:
 	return maxf(MIN_BLADE_COOLDOWN, BASE_BLADE_COOLDOWN * form_factor(0) * (kit.interval_factor() if kit != null else 1.0) * (1.0 + float(stats.get("interval_pct", 0.0))) / (current_aspd() / 100.0))
 
 func stage_scale(stage: int) -> float:
 	var scale: float = COMBO_SCALES[clampi(stage, 0, 2)]
-	# 日晷: the third stage, the hour hand's sweep, hits harder.
-	if stage == 2 and operator_id == Operators.LAPPLAND: scale *= 1.0 + float(SkillTrees.sundial(rank("sundial"))[1])
 	return scale
 
 func physical_pierce() -> float:
-	return clampf(float(stats.get("def_ignore", 0.0)), 0.0, 1.0)
+	return clampf(float(stats.get("def_ignore", 0.0)) + (families.pierce() if families != null else 0.0), 0.0, 1.0)
 
 ## Skill damage: 剑气 for Lappland, 绝影 for Amiya (both read this). 技能伤害
 ## from gear (装备前缀策划案 §6) adds to the relics' wave damage.
@@ -1427,12 +1600,13 @@ func target_multiplier(enemy: Enemy) -> float:
 	multiplier *= 1.0 + f("wounded_dmg") * (1.0 - ratio)
 	if enemy.elite: multiplier *= 1.0 + float(stats.get("elite_pct", 0.0))
 	if gear_fx != null: multiplier *= gear_fx.damage_mult(enemy)
+	if families != null: multiplier *= families.damage_mult(enemy)
 	return multiplier
 
 ## Called by GameManager whenever an enemy dies.
 func on_kill(enemy: Enemy) -> void:
 	if not is_instance_valid(game) or enemy == null: return
-	if f("kill_heal") > 0.0: heal(f("kill_heal"))
+	if f("kill_heal") > 0.0: heal(f("kill_heal") * tier_coef())
 	if f("kill_charge") > 0.0:
 		add_charge(int(f("kill_charge")))
 		stamina = minf(100.0, stamina + 10.0)
@@ -1440,6 +1614,7 @@ func on_kill(enemy: Enemy) -> void:
 		elite_kills += 1
 		if f("elite_hp_stack") > 0.0: _recompute_stats()
 	if gear_fx != null: gear_fx.on_kill(enemy)
+	if families != null: families.on_kill(enemy)
 	if kit != null: kit.on_kill(enemy)
 	if shadow_active and is_amiya():
 		if rank("kill_stack") > 0: shadow_kill_stacks = mini(3, shadow_kill_stacks + 1)
@@ -1462,10 +1637,33 @@ func has_skill() -> bool:
 	return is_amiya() or kit != null
 
 func cast_skill(point: Vector3) -> bool:
-	if is_amiya(): return cast_shadow(point)
+	if is_amiya():
+		var shadow := cast_shadow(point)
+		if shadow: OperatorVfx.skill(self, point)
+		return shadow
 	if kit == null or not kit.skill_ready() or dash_remaining > 0.0 or hitstop_remaining > 0.0 or control_timer > 0.0: return false
 	if is_instance_valid(game) and not game.simulation_active(): return false
-	return kit.cast(point)
+	_last_skill_point = point
+	var cast := kit.cast(point)
+	if cast: OperatorVfx.skill(self, point)
+	return cast
+
+## 大术式: the same skill again, free, at the last aim.
+func recast_skill() -> void:
+	if not is_instance_valid(game) or not game.simulation_active(): return
+	if is_amiya():
+		shadow_cooldown = 0.0
+		cast_shadow(_last_skill_point)
+	elif kit != null:
+		kit.cooldown = 0.0
+		if kit.cast(_last_skill_point): OperatorVfx.skill(self, _last_skill_point)
+
+## 悬赏: the skill is ready again (a wave's charge for Lappland).
+func reset_skill_cooldown() -> void:
+	shadow_cooldown = 0.0
+	if kit != null: kit.cooldown = 0.0
+	if has_sword_wave(): add_charge(wave_hits_needed())
+	stats_changed.emit()
 
 func skill_ready_now() -> bool:
 	if is_amiya(): return shadow_ready()
@@ -1497,7 +1695,7 @@ func _amiya_swing(direction: Vector3, target: Enemy, stage: int, lands: bool, mu
 		factor *= 1.0 + SkillTrees.nightrun(rank("nightrun"))
 		if rank("nightrun") > 0: nightrun_timer = 2.0
 		if randf() < 0.08 * rank("double_cut"): cuts.append(0.55)
-	_amiya_cut(target, attack_power() * float(cuts[0]) * factor, crit, direction)
+	_amiya_cut(target, arts_power() * float(cuts[0]) * factor, crit, direction)
 	# Skill relics and gear reach 绝影 too (用户 2026-10-15): 折戟-浴血's
 	# stage-3 charge, 月下's extra strike.
 	if stage == 2: refund_shadow(int(f("finisher_charge")))
@@ -1507,7 +1705,7 @@ func _amiya_swing(direction: Vector3, target: Enemy, stage: int, lands: bool, mu
 	hitstop_remaining = stop
 	for i in range(1, cuts.size()):
 		_pending_cuts.append({"at": AMIYA_SECOND_CUT * i, "target": target, "direction": direction, "crit": crit,
-			"raw": attack_power() * float(cuts[i]) * factor})
+			"raw": arts_power() * float(cuts[i]) * factor})
 
 ## One landed combo cut: arts damage, the melee riders, and 绝影's cooldown
 ## shortened by SHADOW_REFUND (剑圣 Q: every basic attack cuts the cooldown).
@@ -1528,7 +1726,7 @@ func _amiya_cut(target: Enemy, raw: float, crit: bool, direction: Vector3) -> vo
 func _amiya_moon_strike(target: Enemy) -> void:
 	if not _alive(target): return
 	if is_instance_valid(game): CombatVfx.spawn(game, target.global_position, target.global_position - global_position, "strike_flash")
-	var raw := attack_power() * SHADOW_STRIKE_SCALE * float(SkillTrees.shadow(rank("shadow"))[0]) * wave_multiplier() * 0.5 * target_multiplier(target)
+	var raw := arts_power() * SHADOW_STRIKE_SCALE * float(SkillTrees.shadow(rank("shadow"))[0]) * wave_multiplier() * 0.5 * target_multiplier(target)
 	_deal(target, raw, "arts", false, 0.0, true)
 	on_wave_hit(target, 0.0, null)
 
@@ -1593,6 +1791,8 @@ func cast_shadow(point: Vector3) -> bool:
 	shadow_active = true
 	invulnerable = true
 	shadow_cooldown = float(SkillTrees.shadow(rank("shadow"))[1]) * skill_cd_factor()
+	_last_skill_point = point
+	if families != null and families.on_skill(recast_skill): shadow_cooldown = 0.0
 	shadow_kill_stacks = 0
 	shadow_true = false
 	shadow_primary = target
@@ -1659,7 +1859,7 @@ func _shadow_strike() -> void:
 	var fresh := not _shadow_hit_ids.has(target.get_instance_id())
 	_shadow_hit_ids[target.get_instance_id()] = true
 	shadow_strikes += 1
-	var crit := randf() < crit_rate()
+	var crit := (families != null and families.take_forced_crit(target)) or randf() < crit_rate()
 	if is_instance_valid(game):
 		# The strike itself: one bright blade flash across the enemy.
 		var across := (global_position - target.global_position).cross(Vector3.UP)
@@ -1670,7 +1870,7 @@ func _shadow_strike() -> void:
 	_shadow_damage(target, 1.0 if fresh else SHADOW_REPEAT_SCALE, crit)
 	if shadow_strikes >= _shadow_strikes_total and is_instance_valid(game):
 		if _alive(target): CombatVfx.spawn(game, Vector3(target.global_position.x, game.ground_y(target.global_position) + 0.09, target.global_position.z), target.global_position - global_position, "finisher")
-		game.start_sword_shake()
+		OperatorVfx.finisher(self, target)
 
 func _shadow_damage(target: Enemy, scale_by: float, crit: bool) -> void:
 	var scale := float(SkillTrees.shadow(rank("shadow"))[0])
@@ -1680,7 +1880,7 @@ func _shadow_damage(target: Enemy, scale_by: float, crit: bool) -> void:
 		"shadow_flash":
 			scale *= 3.5
 			kind = "true"
-	var raw := attack_power() * SHADOW_STRIKE_SCALE * scale * scale_by * wave_multiplier() * _shadow_multiplier * target_multiplier(target) * (crit_damage() if crit else 1.0)
+	var raw := arts_power() * SHADOW_STRIKE_SCALE * scale * scale_by * wave_multiplier() * _shadow_multiplier * target_multiplier(target) * (crit_damage() if crit else 1.0)
 	_deal(target, raw, kind, crit, 0.0, true)
 	on_wave_hit(target, 0.0, null)
 
@@ -1729,6 +1929,7 @@ func teleport(position: Vector3) -> void:
 	velocity = Vector3.ZERO
 	_has_move_target = false
 	attack_target = null
+	wall_target = false
 
 # --- Comparison (装备与背包界面调研 §5.1 / §5.14) ---------------------------------
 

@@ -1,0 +1,82 @@
+{
+  "stage": "1_PAINTING",
+  "approval": "PENDING_USER_REVIEW",
+  "archive_crc": "PASS",
+  "checks": {
+    "civilian_painting.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        33,
+        16,
+        1228,
+        1239
+      ]
+    },
+    "civilian_with_style_refs.png": {
+      "size": [
+        3762,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        53,
+        60,
+        3713,
+        1220
+      ]
+    },
+    "civilian_vs_prts.png": {
+      "size": [
+        2508,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        47,
+        60,
+        2447,
+        1220
+      ]
+    },
+    "source_paintings/civilian_painting_generated.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "alpha_bbox": [
+        33,
+        16,
+        1228,
+        1239
+      ]
+    }
+  },
+  "limitations": [
+    "Visual style and recognisability require user approval.",
+    "No 26px reduction or animation boards created for this painting.",
+    "No Godot integration or runtime validation performed.",
+    "Legacy pixel assets and their reports are superseded and excluded from this review package."
+  ],
+  "visual_review": "Both comparison pages inspected: full figure, visible patched cap and lighter wolf ears, light rolled-sleeve shirt, open waistcoat, satchel, no weapon; final user style acceptance pending."
+}

@@ -1,0 +1,434 @@
+[
+  {
+    "id": "bg_patriot_0",
+    "name": "锈蚀长戟 Rusted Halberd",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "Patriot's halberd, rust on the blade",
+    "design": "Long polearm: left leather-wrapped wooden haft, right rusted axe blade plus spear point; small torn orange-red pennant hangs immediately behind head. Halberd silhouette, not a sword.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_0, 锈蚀长戟 Rusted Halberd.\nSubject: Patriot's halberd, rust on the blade. Long polearm: left leather-wrapped wooden haft, right rusted axe blade plus spear point; small torn orange-red pennant hangs immediately behind head. Halberd silhouette, not a sword.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_1",
+    "name": "游击队制式刀 Partisan Issue Blade",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a plain worn short sword",
+    "design": "Plain straight steel short sword, left worn dark grip and simple crossguard, right broad pointed blade, modest chips. No large crystals, no ornate decoration.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_1, 游击队制式刀 Partisan Issue Blade.\nSubject: a plain worn short sword. Plain straight steel short sword, left worn dark grip and simple crossguard, right broad pointed blade, modest chips. No large crystals, no ornate decoration.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_2",
+    "name": "破城重锤 Wallbreaker Maul",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a huge blocky maul",
+    "design": "Two-handed brutal block maul. Long left haft, enormous rectangular iron head on right, rusty edges and orange rivets. Not a hammer with an axe blade.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_2, 破城重锤 Wallbreaker Maul.\nSubject: a huge blocky maul. Two-handed brutal block maul. Long left haft, enormous rectangular iron head on right, rusty edges and orange rivets. Not a hammer with an axe blade.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_3",
+    "name": "温迪戈重甲 Wendigo Heavy Plate",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "dark grey plate with orange trim",
+    "design": "Empty front-view heavy cuirass, massive angular pauldrons, layered dark grey plates, orange piping and rivets. No wearer, no head, no hands or legs.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_3, 温迪戈重甲 Wendigo Heavy Plate.\nSubject: dark grey plate with orange trim. Empty front-view heavy cuirass, massive angular pauldrons, layered dark grey plates, orange piping and rivets. No wearer, no head, no hands or legs.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_4",
+    "name": "游击队斗篷 Partisan Cloak",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a heavily patched cloak",
+    "design": "Empty front-view pale dirty-grey hood-down shoulder cloak, asymmetric ragged hem, three large stitched dark patches, simple orange-red clasp. No wearer.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_4, 游击队斗篷 Partisan Cloak.\nSubject: a heavily patched cloak. Empty front-view pale dirty-grey hood-down shoulder cloak, asymmetric ragged hem, three large stitched dark patches, simple orange-red clasp. No wearer.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_5",
+    "name": "结晶化胸甲 Crystallised Breastplate",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "originium crystals growing between the plates",
+    "design": "Empty front-view heavy dark breastplate, angular black Originium crystal clusters growing specifically from gaps between steel plates; sharp grey highlights, small rusty orange straps.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_5, 结晶化胸甲 Crystallised Breastplate.\nSubject: originium crystals growing between the plates. Empty front-view heavy dark breastplate, angular black Originium crystal clusters growing specifically from gaps between steel plates; sharp grey highlights, small rusty orange straps.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_6",
+    "name": "“盾”的徽记 Shieldguard Insignia",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a shield-shaped badge",
+    "design": "Single shield-shaped iron lapel badge, chunky orange X over dark inset, worn silver rim. Generic Shieldguard sign, no real-world heraldry.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_6, “盾”的徽记 Shieldguard Insignia.\nSubject: a shield-shaped badge. Single shield-shaped iron lapel badge, chunky orange X over dark inset, worn silver rim. Generic Shieldguard sign, no real-world heraldry.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_7",
+    "name": "结晶臂环 Crystal Armband",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a band with originium crystal",
+    "design": "One broad open iron armband, obvious oval opening and a faceted black Originium crystal on top. Steel reflections, tiny lavender crystal facet only.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_7, 结晶臂环 Crystal Armband.\nSubject: a band with originium crystal. One broad open iron armband, obvious oval opening and a faceted black Originium crystal on top. Steel reflections, tiny lavender crystal facet only.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_patriot_8",
+    "name": "老兵勋带 Veteran's Ribbon",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "an old Ursus medal ribbon",
+    "design": "Old simple medal hanging below a short faded rust-red cloth ribbon; tarnished brass, two cloth tails, no text or national insignia.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_patriot_8, 老兵勋带 Veteran's Ribbon.\nSubject: an old Ursus medal ribbon. Old simple medal hanging below a short faded rust-red cloth ribbon; tarnished brass, two cloth tails, no text or national insignia.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_0",
+    "name": "鼠王手杖 Rat King's Cane",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a polished walking cane",
+    "design": "Polished dark wood walking cane, long slim shaft horizontally to right, elegant silver curved handle at left; no hidden sword, no rat head, no blade.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_0, 鼠王手杖 Rat King's Cane.\nSubject: a polished walking cane. Polished dark wood walking cane, long slim shaft horizontally to right, elegant silver curved handle at left; no hidden sword, no rat head, no blade.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_1",
+    "name": "下城区短刃 Lower City Shortblade",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a short alley knife",
+    "design": "Compact alley knife, chunky worn brown handle left, broad short single-edged steel blade right, small simple guard, no needle blade.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_1, 下城区短刃 Lower City Shortblade.\nSubject: a short alley knife. Compact alley knife, chunky worn brown handle left, broad short single-edged steel blade right, small simple guard, no needle blade.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_2",
+    "name": "林家铁扇 Lin Family Iron Fan",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "an iron folding fan",
+    "design": "Open folding iron fan, fan pivot at left, dark metal ribs spread toward right into a broad silver semicircle; large planar panels, one purple tassel at pivot.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_2, 林家铁扇 Lin Family Iron Fan.\nSubject: an iron folding fan. Open folding iron fan, fan pivot at left, dark metal ribs spread toward right into a broad silver semicircle; large planar panels, one purple tassel at pivot.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_3",
+    "name": "白毛领长外套 White Fur-Collared Coat",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "the Rat King's white coat",
+    "design": "Empty front-view long ivory coat, enormous shaggy white fur collar, dark waistcoat and purple necktie visible in open front, long sleeves, no wearer.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_3, 白毛领长外套 White Fur-Collared Coat.\nSubject: the Rat King's white coat. Empty front-view long ivory coat, enormous shaggy white fur collar, dark waistcoat and purple necktie visible in open front, long sleeves, no wearer.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_4",
+    "name": "贫民窟坎肩 Slum Vest",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a patched vest",
+    "design": "Empty front-view sleeveless charcoal-brown waistcoat, visible armholes, three big patched cloth panels and worn brass buttons. No sleeves, no coat.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_4, 贫民窟坎肩 Slum Vest.\nSubject: a patched vest. Empty front-view sleeveless charcoal-brown waistcoat, visible armholes, three big patched cloth panels and worn brass buttons. No sleeves, no coat.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_5",
+    "name": "沙尘斗篷 Sandstorm Cloak",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a sand-coloured cloak",
+    "design": "Empty front-view sand-beige hooded travel cloak, big hood opening, broad draped shoulders, wind-worn torn lower edge, dark leather clasp. No wearer or sand effects.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_5, 沙尘斗篷 Sandstorm Cloak.\nSubject: a sand-coloured cloak. Empty front-view sand-beige hooded travel cloak, big hood opening, broad draped shoulders, wind-worn torn lower edge, dark leather clasp. No wearer or sand effects.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_6",
+    "name": "唱沙铃 Sandsong Bell",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a small bell with sand",
+    "design": "Single small bronze handbell, visible flared bell mouth, sand-gold glass inset in body, short loop handle and clapper; no hourglass.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_6, 唱沙铃 Sandsong Bell.\nSubject: a small bell with sand. Single small bronze handbell, visible flared bell mouth, sand-gold glass inset in body, short loop handle and clapper; no hourglass.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_7",
+    "name": "沙狱沙漏 Sand Prison Hourglass",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "an hourglass",
+    "design": "Single upright glass hourglass with two glass bulbs and a narrow waist, sand-gold contents, brass top/bottom with two dark supports.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_7, 沙狱沙漏 Sand Prison Hourglass.\nSubject: an hourglass. Single upright glass hourglass with two glass bulbs and a narrow waist, sand-gold contents, brass top/bottom with two dark supports.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_rat_king_8",
+    "name": "下城区账本 Lower City Ledger",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a worn notebook",
+    "design": "Closed squat thick notebook in worn tan-brown leather, wraparound dark leather strap, cream page block and dog-eared corner. No writing.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_rat_king_8, 下城区账本 Lower City Ledger.\nSubject: a worn notebook. Closed squat thick notebook in worn tan-brown leather, wraparound dark leather strap, cream page block and dog-eared corner. No writing.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_0",
+    "name": "树痕战锤 Treescar Warhammer",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a blocky Mjölnir-style hammer",
+    "design": "Mjolnir-like heavy short rectangular hammer head at right, broad dark iron faces with pale cyan carved lines and bright steel edges; left wrapped dark wooden handle. Not an axe.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_0, 树痕战锤 Treescar Warhammer.\nSubject: a blocky Mjölnir-style hammer. Mjolnir-like heavy short rectangular hammer head at right, broad dark iron faces with pale cyan carved lines and bright steel edges; left wrapped dark wooden handle. Not an axe.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_1",
+    "name": "木裂之斧 Shattered Axe",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a splintered-wood axe",
+    "design": "Big chipped iron axe head at right, cleft splitting weathered wood haft extending left, pale exposed splinters at head socket, small cyan cord.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_1, 木裂之斧 Shattered Axe.\nSubject: a splintered-wood axe. Big chipped iron axe head at right, cleft splitting weathered wood haft extending left, pale exposed splinters at head socket, small cyan cord.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_2",
+    "name": "部族骨刃 Tribal Bone Blade",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a bone knife",
+    "design": "Primitive slightly curved ivory bone knife, jagged spine, pointed tip right, sinew-wrapped left grip and small dark wood guard. No metal sword.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_2, 部族骨刃 Tribal Bone Blade.\nSubject: a bone knife. Primitive slightly curved ivory bone knife, jagged spine, pointed tip right, sinew-wrapped left grip and small dark wood guard. No metal sword.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_3",
+    "name": "白毛披风 White Fur Cape",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a white fur mantle",
+    "design": "Empty front-view broad thick white fur shoulder cape, rounded fur collar, scalloped coarse tufts, dark green-grey inner lining visible centrally, cyan clasp. No horns and no sleeves.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_3, 白毛披风 White Fur Cape.\nSubject: a white fur mantle. Empty front-view broad thick white fur shoulder cape, rounded fur collar, scalloped coarse tufts, dark green-grey inner lining visible centrally, cyan clasp. No horns and no sleeves.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_4",
+    "name": "坍缩纹皮甲 Collapse-Etched Leathers",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "dark leather with pale cyan patterns",
+    "design": "Empty front-view dark leather torso tunic with shoulder flaps, waist belt and large pale cyan geometric frost lines; no white fur, no antlers, no wearer.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_4, 坍缩纹皮甲 Collapse-Etched Leathers.\nSubject: dark leather with pale cyan patterns. Empty front-view dark leather torso tunic with shoulder flaps, waist belt and large pale cyan geometric frost lines; no white fur, no antlers, no wearer.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_5",
+    "name": "鹿角护肩 Antler Pauldrons",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "shoulder guards with antler tines",
+    "design": "A matched pair of steel-and-hide shoulder guards linked by short chest strap, each has big branching deer antler tines. No torso, no helmet, no animal head.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_5, 鹿角护肩 Antler Pauldrons.\nSubject: shoulder guards with antler tines. A matched pair of steel-and-hide shoulder guards linked by short chest strap, each has big branching deer antler tines. No torso, no helmet, no animal head.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_6",
+    "name": "英雄的鹿角坠 Hero's Antler Pendant",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a small antler on a cord",
+    "design": "Single small forked deer antler pendant hanging from dark cord loop, ivory tines, dark brass cap. Clear antler Y silhouette, no skull.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_6, 英雄的鹿角坠 Hero's Antler Pendant.\nSubject: a small antler on a cord. Single small forked deer antler pendant hanging from dark cord loop, ivory tines, dark brass cap. Clear antler Y silhouette, no skull.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_7",
+    "name": "霜纹护符 Frostmark Charm",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a charm with cyan frost lines",
+    "design": "Single thick angular slate talisman on a short cord loop, bold pale-cyan frost zigzag inlaid into the face, grey beveled rim. No alphabetic rune or lettering.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_7, 霜纹护符 Frostmark Charm.\nSubject: a charm with cyan frost lines. Single thick angular slate talisman on a short cord loop, bold pale-cyan frost zigzag inlaid into the face, grey beveled rim. No alphabetic rune or lettering.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_eikthyrnir_8",
+    "name": "泯灭之心 Heart of Annihilation",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a dark cracked wooden heart",
+    "design": "Single anatomically stylized wooden heart, obvious heart shape made of dark cracked wood, pale split grain and small cyan inner fissure. No flames, no floating fragments.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_eikthyrnir_8, 泯灭之心 Heart of Annihilation.\nSubject: a dark cracked wooden heart. Single anatomically stylized wooden heart, obvious heart shape made of dark cracked wood, pale split grain and small cyan inner fissure. No flames, no floating fragments.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_0",
+    "name": "狼主之牙 Wolflord's Fang",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a blade like a huge fang",
+    "design": "One huge curved ivory fang fashioned into a blade: black leather left grip, dark metal guard, long thick tooth tapering to right. Curved organic fang shape, tiny dark red band.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_0, 狼主之牙 Wolflord's Fang.\nSubject: a blade like a huge fang. One huge curved ivory fang fashioned into a blade: black leather left grip, dark metal guard, long thick tooth tapering to right. Curved organic fang shape, tiny dark red band.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_1",
+    "name": "远古狼爪 Ancient Wolf Claw",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a claw gauntlet",
+    "design": "One wearable claw gauntlet: blackened metal wrist cuff at left, three large curved ivory claws projecting together to right, grey fur around wrist, red strap. No detached animal paw.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_1, 远古狼爪 Ancient Wolf Claw.\nSubject: a claw gauntlet. One wearable claw gauntlet: blackened metal wrist cuff at left, three large curved ivory claws projecting together to right, grey fur around wrist, red strap. No detached animal paw.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_2",
+    "name": "清算短刀 Reckoning Knife",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a slim stiletto",
+    "design": "Extremely slim straight stiletto dagger, needle steel blade points right, charcoal grip left and elegant tiny guard, dark red pommel; narrower than alley knife.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_2, 清算短刀 Reckoning Knife.\nSubject: a slim stiletto. Extremely slim straight stiletto dagger, needle steel blade points right, charcoal grip left and elegant tiny guard, dark red pommel; narrower than alley knife.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Wide landscape composition in a 9:4 aspect ratio, fills 92 percent width. Handle or hilt on LEFT, head or tip on RIGHT, rising by at most 12 degrees. Entire object inside canvas with transparent margin.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_3",
+    "name": "狼皮大氅 Wolfskin Mantle",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a dark grey wolf pelt",
+    "design": "Empty front-view open shoulder mantle of dark grey wolf pelt, recognizable wolf head forming shoulder clasp/collar at top, long hanging pelt sides, silver ruff highlights. No whole live wolf.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_3, 狼皮大氅 Wolfskin Mantle.\nSubject: a dark grey wolf pelt. Empty front-view open shoulder mantle of dark grey wolf pelt, recognizable wolf head forming shoulder clasp/collar at top, long hanging pelt sides, silver ruff highlights. No whole live wolf.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_4",
+    "name": "荒野毛皮 Wildland Pelt",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a shaggy fur coat",
+    "design": "Empty front-view sleeved heavy shaggy grey-brown fur coat, very broad cylindrical body, rough natural fur hem, pale fur edges. NO wolf head, no animal mask, no cape silhouette.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_4, 荒野毛皮 Wildland Pelt.\nSubject: a shaggy fur coat. Empty front-view sleeved heavy shaggy grey-brown fur coat, very broad cylindrical body, rough natural fur hem, pale fur edges. NO wolf head, no animal mask, no cape silhouette.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_5",
+    "name": "旧城区雨衣 Old Town Raincoat",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a 1940s raincoat",
+    "design": "Empty front-view 1940s charcoal raincoat, broad lapels, double-breasted buttons, waist belt and long clean hem, muted slate shoulder highlights. No hood, no wearer.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_5, 旧城区雨衣 Old Town Raincoat.\nSubject: a 1940s raincoat. Empty front-view 1940s charcoal raincoat, broad lapels, double-breasted buttons, waist belt and long clean hem, muted slate shoulder highlights. No hood, no wearer.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 72x72 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, centered, fills about 85 percent of canvas. Armour viewed straight from FRONT, empty garment displayed without mannequin or human.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_6",
+    "name": "溶血骇惧之石 Stone of Hemolytic Dread",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a dark red stone",
+    "design": "Single dark crimson roughly faceted stone, nearly black edges, blood-red center and sharp pale red specular glint; irregular angular stone silhouette, no mount, no floating aura.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_6, 溶血骇惧之石 Stone of Hemolytic Dread.\nSubject: a dark red stone. Single dark crimson roughly faceted stone, nearly black edges, blood-red center and sharp pale red specular glint; irregular angular stone silhouette, no mount, no floating aura.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_7",
+    "name": "狼嗥骨哨 Wolf-Howl Bone Whistle",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a bone whistle",
+    "design": "Single ivory bone whistle diagonal lower-left to upper-right, hollow mouth opening at one end and three large finger holes, short dark leather lanyard. Not a knife or horn.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_7, 狼嗥骨哨 Wolf-Howl Bone Whistle.\nSubject: a bone whistle. Single ivory bone whistle diagonal lower-left to upper-right, hollow mouth opening at one end and three large finger holes, short dark leather lanyard. Not a knife or horn.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  },
+  {
+    "id": "bg_zaro_8",
+    "name": "血债账簿 Blood Debt Ledger",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a red-bound ledger",
+    "design": "Closed red-bound ledger book, deep oxblood leather cover, dark metal corner guards, cream page block and black spine, small clasp; no writing, no crest.",
+    "prompt": "Use case: stylized-concept. Asset type: one game inventory equipment icon, bg_zaro_8, 血债账簿 Blood Debt Ledger.\nSubject: a red-bound ledger. Closed red-bound ledger book, deep oxblood leather cover, dark metal corner guards, cream page block and black spine, small clasp; no writing, no crest.\nStyle: painted pixel-art item matching an established dark tactical-fantasy inventory set: crisp stair-step silhouette, chunky connected pixel clusters, limited 4-5 tone ramps per material, restrained weathering, sharp one-native-pixel near-black outline #0b0c0d, top-left lighting. Paint for final 32x32 pixels, enlarged cleanly: prioritize large readable material planes over microdetail. No smooth photoreal rendering.\nComposition: Square composition, one compact object centered, fills about 85 percent, clear bold silhouette.\nBoss-exclusive lavender #b49ae8 appears ONLY as one tiny band, bead, stitch or gem, under 4 percent of visible object; preserve specified steel/wood/fur/orange/cyan/red colors. Give dark material generous pale grey edge planes so at least 15 percent of opaque pixels have bright highlights. No monochrome purple tint.\nBackground: genuine transparent alpha, no ground, no cast shadow, no backdrop, no border/frame, no UI, no readable writing/numbers/logos, no person, no hand holding item, no floating effects. ONE item only, no variants or sheet."
+  }
+]

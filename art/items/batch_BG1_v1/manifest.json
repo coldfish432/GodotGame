@@ -1,0 +1,1082 @@
+[
+  {
+    "id": "bg_patriot_0",
+    "name": "锈蚀长戟 Rusted Halberd",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "Patriot's halberd, rust on the blade",
+    "design": "Long polearm: left leather-wrapped wooden haft, right rusted axe blade plus spear point; small torn orange-red pennant hangs immediately behind head. Halberd silhouette, not a sword.",
+    "file": "bg_patriot_0.png",
+    "preview": "bg_patriot_0_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_0_raw.png",
+    "source_sha256": "cfdd0895f527a9beaea1d8a642975df446dcfe64ce03bf81b105a6c43eeddb56",
+    "statistics": {
+      "opaque_pixels": 316,
+      "colors": 13,
+      "bright_pixel_percent": 16.46,
+      "isolated_pixel_percent": 2.85,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        6,
+        70,
+        26
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_1",
+    "name": "游击队制式刀 Partisan Issue Blade",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a plain worn short sword",
+    "design": "Plain straight steel short sword, left worn dark grip and simple crossguard, right broad pointed blade, modest chips. No large crystals, no ornate decoration.",
+    "file": "bg_patriot_1.png",
+    "preview": "bg_patriot_1_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_1_raw.png",
+    "source_sha256": "b2c35fcdaac74a3fa6a957bdfe7698d86f683499f5dd9d5e525f930b94400bbb",
+    "statistics": {
+      "opaque_pixels": 463,
+      "colors": 21,
+      "bright_pixel_percent": 20.73,
+      "isolated_pixel_percent": 1.3,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        7,
+        70,
+        24
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_2",
+    "name": "破城重锤 Wallbreaker Maul",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a huge blocky maul",
+    "design": "Two-handed brutal block maul. Long left haft, enormous rectangular iron head on right, rusty edges and orange rivets. Not a hammer with an axe blade.",
+    "file": "bg_patriot_2.png",
+    "preview": "bg_patriot_2_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_2_raw.png",
+    "source_sha256": "38a5782d4951def6239fa38724f938cfe15ec7b3c684f5a8c84da5088ef29c40",
+    "statistics": {
+      "opaque_pixels": 662,
+      "colors": 18,
+      "bright_pixel_percent": 24.77,
+      "isolated_pixel_percent": 2.42,
+      "lavender_pixel_percent": 0.6,
+      "bbox": [
+        2,
+        4,
+        70,
+        27
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_3",
+    "name": "温迪戈重甲 Wendigo Heavy Plate",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "dark grey plate with orange trim",
+    "design": "Empty front-view heavy cuirass, massive angular pauldrons, layered dark grey plates, orange piping and rivets. No wearer, no head, no hands or legs.",
+    "file": "bg_patriot_3.png",
+    "preview": "bg_patriot_3_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_3_raw.png",
+    "source_sha256": "46e602b1553831e5b06f19620b4dcf2a027bd75e11a90735c3e61061a1d4f181",
+    "statistics": {
+      "opaque_pixels": 2955,
+      "colors": 23,
+      "bright_pixel_percent": 16.01,
+      "isolated_pixel_percent": 2.0,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        3,
+        70,
+        68
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_4",
+    "name": "游击队斗篷 Partisan Cloak",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a heavily patched cloak",
+    "design": "Empty front-view pale dirty-grey hood-down shoulder cloak, asymmetric ragged hem, three large stitched dark patches, simple orange-red clasp. No wearer.",
+    "file": "bg_patriot_4.png",
+    "preview": "bg_patriot_4_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_4_raw.png",
+    "source_sha256": "663142dca20f7d88aad850b42afcaec92ebd858cd160679347b2ca3615a27564",
+    "statistics": {
+      "opaque_pixels": 2873,
+      "colors": 21,
+      "bright_pixel_percent": 30.39,
+      "isolated_pixel_percent": 1.39,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        3,
+        2,
+        69,
+        70
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_5",
+    "name": "结晶化胸甲 Crystallised Breastplate",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "originium crystals growing between the plates",
+    "design": "Empty front-view heavy dark breastplate, angular black Originium crystal clusters growing specifically from gaps between steel plates; sharp grey highlights, small rusty orange straps.",
+    "file": "bg_patriot_5.png",
+    "preview": "bg_patriot_5_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_5_raw.png",
+    "source_sha256": "aa67e47185a9900da4263f7dfd409d35359b3234a7ccb1006fb2b8200d2a20b9",
+    "statistics": {
+      "opaque_pixels": 3061,
+      "colors": 23,
+      "bright_pixel_percent": 16.04,
+      "isolated_pixel_percent": 1.4,
+      "lavender_pixel_percent": 0.1,
+      "bbox": [
+        2,
+        3,
+        70,
+        69
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_6",
+    "name": "“盾”的徽记 Shieldguard Insignia",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a shield-shaped badge",
+    "design": "Single shield-shaped iron lapel badge, chunky orange X over dark inset, worn silver rim. Generic Shieldguard sign, no real-world heraldry.",
+    "file": "bg_patriot_6.png",
+    "preview": "bg_patriot_6_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_6_raw.png",
+    "source_sha256": "9ea8ba546af97b356145865c8f50cf81db6a039f273725d9e600e7806c96ac85",
+    "statistics": {
+      "opaque_pixels": 457,
+      "colors": 15,
+      "bright_pixel_percent": 22.32,
+      "isolated_pixel_percent": 3.06,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        4,
+        2,
+        28,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_7",
+    "name": "结晶臂环 Crystal Armband",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a band with originium crystal",
+    "design": "One broad open iron armband, obvious oval opening and a faceted black Originium crystal on top. Steel reflections, tiny lavender crystal facet only.",
+    "file": "bg_patriot_7.png",
+    "preview": "bg_patriot_7_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_7_raw.png",
+    "source_sha256": "9836beb047da7646dcb6b4a2d4d39f31bb844c417aed469292048b86dde6d0f5",
+    "statistics": {
+      "opaque_pixels": 485,
+      "colors": 18,
+      "bright_pixel_percent": 20.21,
+      "isolated_pixel_percent": 2.68,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_patriot_8",
+    "name": "老兵勋带 Veteran's Ribbon",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "an old Ursus medal ribbon",
+    "design": "Old simple medal hanging below a short faded rust-red cloth ribbon; tarnished brass, two cloth tails, no text or national insignia.",
+    "file": "bg_patriot_8.png",
+    "preview": "bg_patriot_8_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_patriot_8_raw.png",
+    "source_sha256": "7acd6a372d63cd152a355328d53ca9ecc2f12a21d7c1d1dd062683e3d32e5b94",
+    "statistics": {
+      "opaque_pixels": 474,
+      "colors": 23,
+      "bright_pixel_percent": 23.63,
+      "isolated_pixel_percent": 3.8,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_0",
+    "name": "鼠王手杖 Rat King's Cane",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a polished walking cane",
+    "design": "Polished dark wood walking cane, long slim shaft horizontally to right, elegant silver curved handle at left; no hidden sword, no rat head, no blade.",
+    "file": "bg_rat_king_0.png",
+    "preview": "bg_rat_king_0_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_0_raw.png",
+    "source_sha256": "178aa343f46701a5fafbc5a4637b6aea0ccccfd8ec91bdf1f31d494d201c7133",
+    "statistics": {
+      "opaque_pixels": 262,
+      "colors": 17,
+      "bright_pixel_percent": 16.03,
+      "isolated_pixel_percent": 3.05,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        9,
+        70,
+        22
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_1",
+    "name": "下城区短刃 Lower City Shortblade",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a short alley knife",
+    "design": "Compact alley knife, chunky worn brown handle left, broad short single-edged steel blade right, small simple guard, no needle blade.",
+    "file": "bg_rat_king_1.png",
+    "preview": "bg_rat_king_1_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_1_raw.png",
+    "source_sha256": "7a628459d7f90882c022fd1c2f5735aec6028d6dcd3e8c6693ca1a9d01cd713a",
+    "statistics": {
+      "opaque_pixels": 692,
+      "colors": 19,
+      "bright_pixel_percent": 23.55,
+      "isolated_pixel_percent": 1.59,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        6,
+        70,
+        25
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_2",
+    "name": "林家铁扇 Lin Family Iron Fan",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "an iron folding fan",
+    "design": "Open folding iron fan, fan pivot at left, dark metal ribs spread toward right into a broad silver semicircle; large planar panels, one purple tassel at pivot.",
+    "file": "bg_rat_king_2.png",
+    "preview": "bg_rat_king_2_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_2_raw.png",
+    "source_sha256": "95325af12d7f5e68e8d7960af2deff6dc015eb7c58c00f666240616416fc7998",
+    "statistics": {
+      "opaque_pixels": 860,
+      "colors": 21,
+      "bright_pixel_percent": 27.44,
+      "isolated_pixel_percent": 3.14,
+      "lavender_pixel_percent": 0.81,
+      "bbox": [
+        4,
+        2,
+        68,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_3",
+    "name": "白毛领长外套 White Fur-Collared Coat",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "the Rat King's white coat",
+    "design": "Empty front-view long ivory coat, enormous shaggy white fur collar, dark waistcoat and purple necktie visible in open front, long sleeves, no wearer.",
+    "file": "bg_rat_king_3.png",
+    "preview": "bg_rat_king_3_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_3_raw.png",
+    "source_sha256": "818ce6ab1f22e0e3d243fe3638e2a3f8c9d4d151c0aaf5e9f1efb7eb31a76fec",
+    "statistics": {
+      "opaque_pixels": 2978,
+      "colors": 22,
+      "bright_pixel_percent": 60.41,
+      "isolated_pixel_percent": 1.41,
+      "lavender_pixel_percent": 0.57,
+      "bbox": [
+        5,
+        2,
+        67,
+        70
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_4",
+    "name": "贫民窟坎肩 Slum Vest",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a patched vest",
+    "design": "Empty front-view sleeveless charcoal-brown waistcoat, visible armholes, three big patched cloth panels and worn brass buttons. No sleeves, no coat.",
+    "file": "bg_rat_king_4.png",
+    "preview": "bg_rat_king_4_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_4_raw.png",
+    "source_sha256": "75d56bfc442f87fafc3ad9b56fe866880387987f893b3d7a1ec36409c1d8333c",
+    "statistics": {
+      "opaque_pixels": 3191,
+      "colors": 19,
+      "bright_pixel_percent": 21.5,
+      "isolated_pixel_percent": 0.94,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        7,
+        2,
+        65,
+        70
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_5",
+    "name": "沙尘斗篷 Sandstorm Cloak",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a sand-coloured cloak",
+    "design": "Empty front-view sand-beige hooded travel cloak, big hood opening, broad draped shoulders, wind-worn torn lower edge, dark leather clasp. No wearer or sand effects.",
+    "file": "bg_rat_king_5.png",
+    "preview": "bg_rat_king_5_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_5_raw.png",
+    "source_sha256": "21f7d18cce4490dc9b598d2c0efd54fe862a7513b121dfe92dc214719b14efd5",
+    "statistics": {
+      "opaque_pixels": 2503,
+      "colors": 21,
+      "bright_pixel_percent": 29.6,
+      "isolated_pixel_percent": 2.28,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        4,
+        2,
+        68,
+        70
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_6",
+    "name": "唱沙铃 Sandsong Bell",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a small bell with sand",
+    "design": "Single small bronze handbell, visible flared bell mouth, sand-gold glass inset in body, short loop handle and clapper; no hourglass.",
+    "file": "bg_rat_king_6.png",
+    "preview": "bg_rat_king_6_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_6_raw.png",
+    "source_sha256": "cabed24b550b6750448fbb7586ba6ca1f0295b07810e0ce55b8cd4711d499e6b",
+    "statistics": {
+      "opaque_pixels": 344,
+      "colors": 21,
+      "bright_pixel_percent": 20.64,
+      "isolated_pixel_percent": 5.81,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        5,
+        2,
+        27,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_7",
+    "name": "沙狱沙漏 Sand Prison Hourglass",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "an hourglass",
+    "design": "Single upright glass hourglass with two glass bulbs and a narrow waist, sand-gold contents, brass top/bottom with two dark supports.",
+    "file": "bg_rat_king_7.png",
+    "preview": "bg_rat_king_7_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_7_raw.png",
+    "source_sha256": "affa0db9abeac4adbdf38949a11860c5ab16b17a7c881a27810d64089a7b976a",
+    "statistics": {
+      "opaque_pixels": 359,
+      "colors": 15,
+      "bright_pixel_percent": 22.01,
+      "isolated_pixel_percent": 7.24,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        7,
+        2,
+        24,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_rat_king_8",
+    "name": "下城区账本 Lower City Ledger",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a worn notebook",
+    "design": "Closed squat thick notebook in worn tan-brown leather, wraparound dark leather strap, cream page block and dog-eared corner. No writing.",
+    "file": "bg_rat_king_8.png",
+    "preview": "bg_rat_king_8_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_rat_king_8_raw.png",
+    "source_sha256": "b8ea57bbaa02385d2c5639e1ac3dbdd3cf4698b06dc63862f0abcd0ce043b431",
+    "statistics": {
+      "opaque_pixels": 519,
+      "colors": 21,
+      "bright_pixel_percent": 18.11,
+      "isolated_pixel_percent": 0.77,
+      "lavender_pixel_percent": 0.19,
+      "bbox": [
+        2,
+        2,
+        30,
+        29
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_0",
+    "name": "树痕战锤 Treescar Warhammer",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a blocky Mjölnir-style hammer",
+    "design": "Mjolnir-like heavy short rectangular hammer head at right, broad dark iron faces with pale cyan carved lines and bright steel edges; left wrapped dark wooden handle. Not an axe.",
+    "file": "bg_eikthyrnir_0.png",
+    "preview": "bg_eikthyrnir_0_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_0_raw.png",
+    "source_sha256": "3d40e782c02232a8d36903a974360011f80c5d536abe0dade1e47b6c9c669e57",
+    "statistics": {
+      "opaque_pixels": 835,
+      "colors": 23,
+      "bright_pixel_percent": 17.72,
+      "isolated_pixel_percent": 2.16,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        2,
+        69,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_1",
+    "name": "木裂之斧 Shattered Axe",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a splintered-wood axe",
+    "design": "Big chipped iron axe head at right, cleft splitting weathered wood haft extending left, pale exposed splinters at head socket, small cyan cord.",
+    "file": "bg_eikthyrnir_1.png",
+    "preview": "bg_eikthyrnir_1_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_1_raw.png",
+    "source_sha256": "d2ee9097ba556d63e287b65aebd36d3bd68c64eeb876f30d6ba923b9c8a4b4a2",
+    "statistics": {
+      "opaque_pixels": 707,
+      "colors": 21,
+      "bright_pixel_percent": 17.4,
+      "isolated_pixel_percent": 2.97,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        3,
+        2,
+        69,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_2",
+    "name": "部族骨刃 Tribal Bone Blade",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a bone knife",
+    "design": "Primitive slightly curved ivory bone knife, jagged spine, pointed tip right, sinew-wrapped left grip and small dark wood guard. No metal sword.",
+    "file": "bg_eikthyrnir_2.png",
+    "preview": "bg_eikthyrnir_2_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_2_raw.png",
+    "source_sha256": "1049dd5c99135b3cd1a5f0c29bb25158d9186388221f08857086586e3cddaa42",
+    "statistics": {
+      "opaque_pixels": 596,
+      "colors": 20,
+      "bright_pixel_percent": 27.35,
+      "isolated_pixel_percent": 3.19,
+      "lavender_pixel_percent": 0.34,
+      "bbox": [
+        2,
+        6,
+        70,
+        25
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_3",
+    "name": "白毛披风 White Fur Cape",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a white fur mantle",
+    "design": "Empty front-view broad thick white fur shoulder cape, rounded fur collar, scalloped coarse tufts, dark green-grey inner lining visible centrally, cyan clasp. No horns and no sleeves.",
+    "file": "bg_eikthyrnir_3.png",
+    "preview": "bg_eikthyrnir_3_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_3_raw.png",
+    "source_sha256": "15cbf2db97d779b5955d565ef92f2105b2eb2fc5fccc018d95a92f7d6c44703d",
+    "statistics": {
+      "opaque_pixels": 3355,
+      "colors": 16,
+      "bright_pixel_percent": 69.96,
+      "isolated_pixel_percent": 1.4,
+      "lavender_pixel_percent": 0.09,
+      "bbox": [
+        2,
+        3,
+        70,
+        69
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_4",
+    "name": "坍缩纹皮甲 Collapse-Etched Leathers",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "dark leather with pale cyan patterns",
+    "design": "Empty front-view dark leather torso tunic with shoulder flaps, waist belt and large pale cyan geometric frost lines; no white fur, no antlers, no wearer.",
+    "file": "bg_eikthyrnir_4.png",
+    "preview": "bg_eikthyrnir_4_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_4_raw.png",
+    "source_sha256": "34fdb5dfe398d7da0fe47a04b6a59345a444c66614246ee69d1cc585c0836868",
+    "statistics": {
+      "opaque_pixels": 2906,
+      "colors": 22,
+      "bright_pixel_percent": 16.24,
+      "isolated_pixel_percent": 2.17,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        2,
+        69,
+        70
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_5",
+    "name": "鹿角护肩 Antler Pauldrons",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "shoulder guards with antler tines",
+    "design": "A matched pair of steel-and-hide shoulder guards linked by short chest strap, each has big branching deer antler tines. No torso, no helmet, no animal head.",
+    "file": "bg_eikthyrnir_5.png",
+    "preview": "bg_eikthyrnir_5_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_5_raw.png",
+    "source_sha256": "02e84549028b3c30795144a444a38af0e708f82621957912e1fd44f3be2b221b",
+    "statistics": {
+      "opaque_pixels": 1673,
+      "colors": 22,
+      "bright_pixel_percent": 22.89,
+      "isolated_pixel_percent": 3.59,
+      "lavender_pixel_percent": 0.42,
+      "bbox": [
+        2,
+        12,
+        70,
+        60
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_6",
+    "name": "英雄的鹿角坠 Hero's Antler Pendant",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a small antler on a cord",
+    "design": "Single small forked deer antler pendant hanging from dark cord loop, ivory tines, dark brass cap. Clear antler Y silhouette, no skull.",
+    "file": "bg_eikthyrnir_6.png",
+    "preview": "bg_eikthyrnir_6_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_6_raw.png",
+    "source_sha256": "770ffd48971dd26d8acfbdfc5bd07e056fa2f3f99d7b6625aea2673978a3bcf3",
+    "statistics": {
+      "opaque_pixels": 207,
+      "colors": 14,
+      "bright_pixel_percent": 17.87,
+      "isolated_pixel_percent": 5.8,
+      "lavender_pixel_percent": 0.97,
+      "bbox": [
+        3,
+        2,
+        28,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_7",
+    "name": "霜纹护符 Frostmark Charm",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a charm with cyan frost lines",
+    "design": "Single thick angular slate talisman on a short cord loop, bold pale-cyan frost zigzag inlaid into the face, grey beveled rim. No alphabetic rune or lettering.",
+    "file": "bg_eikthyrnir_7.png",
+    "preview": "bg_eikthyrnir_7_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_7_raw.png",
+    "source_sha256": "c6f5153c48b0894654c4d5088bd3762f9afcad68633b5d71f818f107893f3e40",
+    "statistics": {
+      "opaque_pixels": 309,
+      "colors": 18,
+      "bright_pixel_percent": 23.62,
+      "isolated_pixel_percent": 4.21,
+      "lavender_pixel_percent": 0.32,
+      "bbox": [
+        4,
+        2,
+        28,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_eikthyrnir_8",
+    "name": "泯灭之心 Heart of Annihilation",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a dark cracked wooden heart",
+    "design": "Single anatomically stylized wooden heart, obvious heart shape made of dark cracked wood, pale split grain and small cyan inner fissure. No flames, no floating fragments.",
+    "file": "bg_eikthyrnir_8.png",
+    "preview": "bg_eikthyrnir_8_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_eikthyrnir_8_raw.png",
+    "source_sha256": "4d257e3f695da3817c73e5a7c035d3412440b74eed1882641f8c79a843812adf",
+    "statistics": {
+      "opaque_pixels": 427,
+      "colors": 21,
+      "bright_pixel_percent": 17.56,
+      "isolated_pixel_percent": 4.22,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        4,
+        2,
+        27,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_0",
+    "name": "狼主之牙 Wolflord's Fang",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a blade like a huge fang",
+    "design": "One huge curved ivory fang fashioned into a blade: black leather left grip, dark metal guard, long thick tooth tapering to right. Curved organic fang shape, tiny dark red band.",
+    "file": "bg_zaro_0.png",
+    "preview": "bg_zaro_0_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_0_raw.png",
+    "source_sha256": "c66db0775e8da641ac7a513b53579ccd751d5a092263550917fc3ef06fb840f3",
+    "statistics": {
+      "opaque_pixels": 635,
+      "colors": 22,
+      "bright_pixel_percent": 28.03,
+      "isolated_pixel_percent": 4.88,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        2,
+        70,
+        29
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_1",
+    "name": "远古狼爪 Ancient Wolf Claw",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a claw gauntlet",
+    "design": "One wearable claw gauntlet: blackened metal wrist cuff at left, three large curved ivory claws projecting together to right, grey fur around wrist, red strap. No detached animal paw.",
+    "file": "bg_zaro_1.png",
+    "preview": "bg_zaro_1_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_1_raw.png",
+    "source_sha256": "85321b2db56b736ee49089cdb16313f12aa6bcfd25e6326cc55ba9a68d972219",
+    "statistics": {
+      "opaque_pixels": 1181,
+      "colors": 22,
+      "bright_pixel_percent": 26.93,
+      "isolated_pixel_percent": 3.22,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        2,
+        69,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_2",
+    "name": "清算短刀 Reckoning Knife",
+    "kind": "weapon",
+    "native_size": [
+      72,
+      32
+    ],
+    "notes": "a slim stiletto",
+    "design": "Extremely slim straight stiletto dagger, needle steel blade points right, charcoal grip left and elegant tiny guard, dark red pommel; narrower than alley knife.",
+    "file": "bg_zaro_2.png",
+    "preview": "bg_zaro_2_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_2_raw.png",
+    "source_sha256": "e438b61720266e5024ef3bf330d948e44d39fe5b7098cebedf8bf4523c4cf483",
+    "statistics": {
+      "opaque_pixels": 230,
+      "colors": 16,
+      "bright_pixel_percent": 17.39,
+      "isolated_pixel_percent": 2.17,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        10,
+        69,
+        22
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_3",
+    "name": "狼皮大氅 Wolfskin Mantle",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a dark grey wolf pelt",
+    "design": "Empty front-view open shoulder mantle of dark grey wolf pelt, recognizable wolf head forming shoulder clasp/collar at top, long hanging pelt sides, silver ruff highlights. No whole live wolf.",
+    "file": "bg_zaro_3.png",
+    "preview": "bg_zaro_3_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_3_raw.png",
+    "source_sha256": "04544ee6e8da462f546b0e71ffdaef619fa8c1d84bf34d467079b36a27e9b612",
+    "statistics": {
+      "opaque_pixels": 2889,
+      "colors": 24,
+      "bright_pixel_percent": 18.07,
+      "isolated_pixel_percent": 1.0,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        7,
+        2,
+        65,
+        70
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_4",
+    "name": "荒野毛皮 Wildland Pelt",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a shaggy fur coat",
+    "design": "Empty front-view sleeved heavy shaggy grey-brown fur coat, very broad cylindrical body, rough natural fur hem, pale fur edges. NO wolf head, no animal mask, no cape silhouette.",
+    "file": "bg_zaro_4.png",
+    "preview": "bg_zaro_4_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_4_raw.png",
+    "source_sha256": "5933660b1323f78ff689b4ebf6b33045830cfb6c368a99143038ae30cd6659b0",
+    "statistics": {
+      "opaque_pixels": 3124,
+      "colors": 24,
+      "bright_pixel_percent": 28.81,
+      "isolated_pixel_percent": 1.5,
+      "lavender_pixel_percent": 0.06,
+      "bbox": [
+        2,
+        3,
+        70,
+        69
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_5",
+    "name": "旧城区雨衣 Old Town Raincoat",
+    "kind": "armour",
+    "native_size": [
+      72,
+      72
+    ],
+    "notes": "a 1940s raincoat",
+    "design": "Empty front-view 1940s charcoal raincoat, broad lapels, double-breasted buttons, waist belt and long clean hem, muted slate shoulder highlights. No hood, no wearer.",
+    "file": "bg_zaro_5.png",
+    "preview": "bg_zaro_5_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_5_raw.png",
+    "source_sha256": "bcae9cf0ca8336aa6d55111c45b96415e6db686abb101b6a61590e7d5a6ba40d",
+    "statistics": {
+      "opaque_pixels": 2272,
+      "colors": 21,
+      "bright_pixel_percent": 16.2,
+      "isolated_pixel_percent": 1.06,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        12,
+        2,
+        59,
+        70
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_6",
+    "name": "溶血骇惧之石 Stone of Hemolytic Dread",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a dark red stone",
+    "design": "Single dark crimson roughly faceted stone, nearly black edges, blood-red center and sharp pale red specular glint; irregular angular stone silhouette, no mount, no floating aura.",
+    "file": "bg_zaro_6.png",
+    "preview": "bg_zaro_6_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_6_raw.png",
+    "source_sha256": "02ff2c44b6659ecc724146ff5281182de576655a6bda11a90d79369e6e6005e8",
+    "statistics": {
+      "opaque_pixels": 434,
+      "colors": 17,
+      "bright_pixel_percent": 17.51,
+      "isolated_pixel_percent": 5.53,
+      "lavender_pixel_percent": 3.23,
+      "bbox": [
+        3,
+        2,
+        29,
+        30
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_7",
+    "name": "狼嗥骨哨 Wolf-Howl Bone Whistle",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a bone whistle",
+    "design": "Single ivory bone whistle diagonal lower-left to upper-right, hollow mouth opening at one end and three large finger holes, short dark leather lanyard. Not a knife or horn.",
+    "file": "bg_zaro_7.png",
+    "preview": "bg_zaro_7_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_7_raw.png",
+    "source_sha256": "603e3a995b7a2da869fdabacb7c0e1a91f3dde311c507780e5e060cb775d4017",
+    "statistics": {
+      "opaque_pixels": 204,
+      "colors": 18,
+      "bright_pixel_percent": 46.57,
+      "isolated_pixel_percent": 0.98,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        9,
+        30,
+        22
+      ],
+      "binary_alpha": true
+    }
+  },
+  {
+    "id": "bg_zaro_8",
+    "name": "血债账簿 Blood Debt Ledger",
+    "kind": "trinket",
+    "native_size": [
+      32,
+      32
+    ],
+    "notes": "a red-bound ledger",
+    "design": "Closed red-bound ledger book, deep oxblood leather cover, dark metal corner guards, cream page block and black spine, small clasp; no writing, no crest.",
+    "file": "bg_zaro_8.png",
+    "preview": "bg_zaro_8_8x.png",
+    "has_emit": false,
+    "source": "sources/bg_zaro_8_raw.png",
+    "source_sha256": "926668bda6907970c94bbd8e9c41022166fa0bc96c86dd5c2a2f31a2b5cd97fa",
+    "statistics": {
+      "opaque_pixels": 539,
+      "colors": 19,
+      "bright_pixel_percent": 22.82,
+      "isolated_pixel_percent": 0.37,
+      "lavender_pixel_percent": 0.0,
+      "bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "binary_alpha": true
+    }
+  }
+]

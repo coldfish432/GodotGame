@@ -1,0 +1,69 @@
+{
+ "id": "farm",
+ "origin": [
+  449.0,
+  4.0
+ ],
+ "size": [
+  45.0,
+  41.0
+ ],
+ "ground": {
+  "tex": "",
+  "w_px": 691.0,
+  "h_px": 520.7,
+  "x": 448.47,
+  "z": 4.0
+ },
+ "facade": {
+  "tex": "",
+  "w_px": 691.0,
+  "h_px": 46,
+  "x": 448.47,
+  "z": 4.0
+ },
+ "sprites": [],
+ "colliders": [
+  [
+   449.0,
+   4.0,
+   494.0,
+   4.6
+  ],
+  [
+   489.0,
+   -37.6,
+   494.0,
+   -37.0
+  ],
+  [
+   448.4,
+   -37.0,
+   449.0,
+   -27.5
+  ],
+  [
+   448.4,
+   -24.5,
+   449.0,
+   4.0
+  ],
+  [
+   494.0,
+   -37.0,
+   494.6,
+   4.0
+  ]
+ ],
+ "interactables": [
+  {
+   "id": "farm",
+   "kind": "farm",
+   "label": "农业部终端",
+   "x": 456.0,
+   "z": -21.0
+  }
+ ],
+ "spawns": {},
+ "_note": "农业部 (north): two of RimWorld's 11×11 sun-lamp rooms of hydroponics; open south into its other room. Written by tools/blender/base/make_deck2_rooms.py."
+}

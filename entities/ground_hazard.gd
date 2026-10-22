@@ -37,7 +37,8 @@ func _ready() -> void:
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.albedo_color = colour if fuse <= 0.0 else Color(0.95, 0.2, 0.15, 0.3)
-	material.no_depth_test = true
+	# On the ground under whoever stands in it, not over them (用户 2026-10-20).
+	material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
 	_disc.material_override = material
 	_disc.position.y = 0.06
 	add_child(_disc)

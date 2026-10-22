@@ -1,0 +1,177 @@
+{
+  "tool": "built-in image_gen",
+  "status": "STAGE2_REVIEW_CANDIDATE",
+  "identity_approval": "../B1_stage2_inputs/B1_accepted_go_stage2.md",
+  "approved_identity_sources": "Patriot/Rat King/Eikthyrnir v2; other five identities including both Zaro poses v1. All approved source hashes unchanged.",
+  "painted_sources": [
+    {
+      "file": "source_paintings\\crownslayer_action_generated.png",
+      "sha256": "d1219e0ca8c34b86f9a87ff27c83d9b89ae5e8511caf561dbc14dfa3f2e61a5f"
+    },
+    {
+      "file": "source_paintings\\crownslayer_sw_correction_generated.png",
+      "sha256": "1a81349c74be228eb64fa44df1b2e1a8c87d31b7aba10f4656bf568cf0667277"
+    },
+    {
+      "file": "source_paintings\\crownslayer_sw_final_generated.png",
+      "sha256": "86955360e3935df0377ee6089c3de0c95ae8f946775618a627f50318883d1b54"
+    },
+    {
+      "file": "source_paintings\\crownslayer_walk_generated.png",
+      "sha256": "278b6d3f4ec1046927c32e5f7173bc3687d09b3e0f4285fbff6372f8cfb0f704"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_action_generated.png",
+      "sha256": "99f65cf9e8ed7d659c2dffacdaa633742883350d51e00bfb0feea4144691f167"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_roar_compact_generated.png",
+      "sha256": "c65671b247d36426b3227a9f3abc580e968ca6767ec2a336f4c0460e90be72a3"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_sw_correction_generated.png",
+      "sha256": "0c1d6f9c786dc41c6023c270836be8de0327c6f13e54150e612633d214695e96"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_sw_final_generated.png",
+      "sha256": "d3f659d3d0c987dcc122fbfd51a0a8deebc1ba6f93a7c14b3a46491c9ac2da58"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_sweep_generated.png",
+      "sha256": "51680b48d1552c8f6c18c1e8ec0ed07f8efde17d31d16cf0bf69555f5d8b3122"
+    },
+    {
+      "file": "source_paintings\\eikthyrnir_walk_generated.png",
+      "sha256": "30225865239b9e5f54bd2186ed5e4d7b948bfecdae6f9f545affb0ae95cc34b2"
+    },
+    {
+      "file": "source_paintings\\father_agnir_action_generated.png",
+      "sha256": "fbf22d0ab07920c0f217cb9041c1ee5829534201568eb95216fd4744eb236bda"
+    },
+    {
+      "file": "source_paintings\\father_agnir_sw_correction_generated.png",
+      "sha256": "f2db7566ab1b0fe276c441e7f1cc7551d72920753ca4b42a3d4584199149ff5e"
+    },
+    {
+      "file": "source_paintings\\father_agnir_sw_final_generated.png",
+      "sha256": "03940dadcf6d0e31bf4aa432df309d2f9e48ff5e39e753279dbe03e83bd081e7"
+    },
+    {
+      "file": "source_paintings\\father_agnir_walk_generated.png",
+      "sha256": "9af1723958392f00b35a8dd5df1f05ec4215562f8f0890ffca784f3aca146c39"
+    },
+    {
+      "file": "source_paintings\\hollow_snowpriest_action_generated.png",
+      "sha256": "1eb41c567f1379d28591590c30db840ae0b45e91a8d0387652213f4d6da0bd90"
+    },
+    {
+      "file": "source_paintings\\hollow_snowpriest_sw_correction_generated.png",
+      "sha256": "0c2cd62ab2631194bb4ff18562f62cc4247d0004cf5e4076fb69496509ccc890"
+    },
+    {
+      "file": "source_paintings\\hollow_snowpriest_walk_generated.png",
+      "sha256": "24c05d8a28894b212438d6d1426b22cd7a1c67dcbf7cf550146f75195e8d1a00"
+    },
+    {
+      "file": "source_paintings\\patriot_action_generated.png",
+      "sha256": "6504324176fbe21fb61c1dc440d95b73c1fa6b2fbd3692b516651e4f9c035719"
+    },
+    {
+      "file": "source_paintings\\patriot_sw_correction_generated.png",
+      "sha256": "b213e8eb610b67dd05e0b57042468fa515d298fd01a4b3d0d98991bdf46938b4"
+    },
+    {
+      "file": "source_paintings\\patriot_sw_final_generated.png",
+      "sha256": "bce1b2e0483164b25cc820cbb94650ac01f1072b80f9cff8748d6e8d50a825ab"
+    },
+    {
+      "file": "source_paintings\\patriot_walk_first_pass_b_generated.png",
+      "sha256": "7b00592269b1dcf867116519edb9ae4e0ac336209bc95a802ef1da3b767b04d4"
+    },
+    {
+      "file": "source_paintings\\patriot_walk_generated.png",
+      "sha256": "e5d89c6173c44bc6cd9bda58ba9fc46028b9e3899e635945c7a58cf4438ae18c"
+    },
+    {
+      "file": "source_paintings\\rat_king_action_generated.png",
+      "sha256": "9f35c8bcdb94da46ca8c15194ef76984f3ddab68611f19f0238135b7e1748939"
+    },
+    {
+      "file": "source_paintings\\rat_king_strike_generated.png",
+      "sha256": "c063036180d3aeff04f99a057fffd31a2e8f48a152493161a4e047ed4acaabc2"
+    },
+    {
+      "file": "source_paintings\\rat_king_sw_correction_generated.png",
+      "sha256": "00f42e2ffa454e6e7e74031a6c230aee8193ad8962219a2496cbedd7f047b0a5"
+    },
+    {
+      "file": "source_paintings\\rat_king_walk_generated.png",
+      "sha256": "5ecfec28786248441f13770a44ddb92211b254bdb07fe336c0d9df4c8b1cca8c"
+    },
+    {
+      "file": "source_paintings\\skullshatterer_action_generated.png",
+      "sha256": "56831954bcfcf09d74e516188d5a20c6dd046d6dc48a3aff5a2f6382ca7a3fbe"
+    },
+    {
+      "file": "source_paintings\\skullshatterer_sw_correction_generated.png",
+      "sha256": "dde31b81de220bc21ef9d4fa9d6ddd540a3a46ceb7eab1a9254581c5444eaaad"
+    },
+    {
+      "file": "source_paintings\\skullshatterer_sw_final_generated.png",
+      "sha256": "67a93be12d87f2dedd8b6c8bc2d3aed287d9043dedd44c57a0fcd42a4e09bd13"
+    },
+    {
+      "file": "source_paintings\\skullshatterer_walk_generated.png",
+      "sha256": "59303193d6cdaa92b225cc41e209f4ab5bb972370ab4ff4b763f118443d0011a"
+    },
+    {
+      "file": "source_paintings\\zaro_action_generated.png",
+      "sha256": "1f70bc736607677d09dea9724b4e405123b9df94aa917d0ccf8bcb66e403afcd"
+    },
+    {
+      "file": "source_paintings\\zaro_charge_compact_generated.png",
+      "sha256": "e4b558f1d8526d7e05b3bf8a31df07ba7e537cb693b36b11a79a1d4461ed5467"
+    },
+    {
+      "file": "source_paintings\\zaro_down_generated.png",
+      "sha256": "48e2c84db33473e278b48faa4e4cab9c06fa91b7a3979f41711cbd1ec79f717b"
+    },
+    {
+      "file": "source_paintings\\zaro_howl_compact_generated.png",
+      "sha256": "58f678a4d6dc6d55f9c063f8c1cc4646c6252e7b5810839069c52ad20a45584b"
+    },
+    {
+      "file": "source_paintings\\zaro_pounce_compact_generated.png",
+      "sha256": "452cb9ff9bcce9db6a7ab6fd2f099b0da1c4f7ca2919313edf907f19d4202139"
+    },
+    {
+      "file": "source_paintings\\zaro_strike_compact_generated.png",
+      "sha256": "bfeae78cef65666daf70da8ea6cddaba9052827d22f6e48eaba86831cba2a023"
+    },
+    {
+      "file": "source_paintings\\zaro_strike_final_generated.png",
+      "sha256": "cbb029a115fd3e76663d9f97a1d9c6b69b24945b4cc56a84f81bc1baf9254381"
+    },
+    {
+      "file": "source_paintings\\zaro_sw_correction_generated.png",
+      "sha256": "278b77a497465cafc16aecfdbaf3cb5c138544e58b5d184defc9631d186350ab"
+    },
+    {
+      "file": "source_paintings\\zaro_walk_generated.png",
+      "sha256": "e858514409ca2d4b377b2bf76291a276f5208f0083cce431e5e6aa7f31191ea5"
+    }
+  ],
+  "prompts": "generation_prompts.md",
+  "assembly": "assemble_and_bake.py; hand-reviewed row cuts, remove detached neighboring alpha fragments (keep Agnir halo), crop/resize/repack only. No procedural character drawing. No source mirroring in code.",
+  "registration": "Each independently generated board/row is registered with one explicit source-DPI multiplier; multiplier details in assembly_manifest.json. This is not an automatic proof of physical/anatomical continuity.",
+  "first_cell": "Approved source painting reused in S/IDLE; first action cell determines all action/walk runtime scales. Zaro action first cell is lying, walk first standing.",
+  "bake": "FASTOCTREE16; BOX; supplied outline/thickening method with documented B1-only patch. Original and delivered bake scripts preserved under pipeline/.",
+  "bake_patch_regression": "qa/bake_patch_regression.json",
+  "runtime_evidence": "No Godot import/playback or fight integration tested. GIFs and contact sheets are offline previews.",
+  "approval_boundary": "Stage2 artwork needs user review; stage3 gear icons wait for board acceptance.",
+  "interpretations": [
+    "The explicit post-release THROW pose uses an empty throwing hand; no flying projectile.",
+    "N hides face naturally; identity is retained by silhouette/clothes/equipment.",
+    "Independent supplement strips correct missing rows and compact tall poses; visual direction, handedness, physical consistency and pose quality remain user review items."
+  ]
+}

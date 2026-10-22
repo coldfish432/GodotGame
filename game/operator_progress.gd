@@ -53,7 +53,8 @@ func add_exp(amount: int) -> int:
 	while not at_cap() and exp >= exp_needed():
 		exp -= exp_needed()
 		level += 1
-		attribute_points += 1
+		# 复利数值改造清单 J: a skill point every level, an attribute point every second.
+		if level % Progression.ATTRIBUTE_EVERY == 0: attribute_points += 1
 		skill_points += 1
 		gained += 1
 	if at_cap(): exp = 0
@@ -106,7 +107,7 @@ func rank_block(node_id: String) -> String:
 	var data := SkillTrees.node(operator_id, node_id)
 	if data.is_empty(): return "无"
 	var r := rank(node_id)
-	if r >= int(data.max): return "已满"
+	if r >= SkillTrees.max_rank(data): return "已满"
 	if data.has("parent") and rank(str(data.parent)) <= 0: return "需要" + str(SkillTrees.node(operator_id, data.parent).name)
 	var need := SkillTrees.rank_elite(data, r)
 	if elite < need: return "需要" + Progression.ELITE_NAMES[need]
@@ -173,7 +174,7 @@ func upgrade_module() -> void:
 
 func to_data() -> Dictionary:
 	return {"level": level, "exp": exp, "elite": elite, "attributes": attributes.duplicate(), "attribute_points": attribute_points,
-		"skill_points": skill_points, "ranks": ranks.duplicate(), "transmuters": transmuters.duplicate(), "module": module_level}
+		"skill_points": skill_points, "ranks": ranks.duplicate(), "transmuters": transmuters.duplicate(), "module": module_level, "scale": 2}
 
 static func from_data(id: String, data: Dictionary) -> OperatorProgress:
 	var p := create(id)
@@ -185,12 +186,41 @@ static func from_data(id: String, data: Dictionary) -> OperatorProgress:
 		p.attributes[key] = maxi(int(p.attributes[key]), int(attrs.get(key, p.attributes[key])))
 	p.attribute_points = maxi(0, int(data.get("attribute_points", 0)))
 	p.skill_points = maxi(0, int(data.get("skill_points", 0)))
+	var old := int(data.get("scale", 1)) < 2
 	var saved_ranks: Dictionary = data.get("ranks", {})
 	for node_id in saved_ranks:
 		var node_data := SkillTrees.node(id, str(node_id))
 		if node_data.is_empty(): continue
-		p.ranks[str(node_id)] = clampi(int(saved_ranks[node_id]), 0, int(node_data.max))
+		var r := int(saved_ranks[node_id])
+		if old: r = SkillTrees.fine_rank(node_data, r)
+		p.ranks[str(node_id)] = clampi(r, 0, SkillTrees.max_rank(node_data))
 	var saved_tx: Dictionary = data.get("transmuters", {})
 	for group in saved_tx: p.transmuters[str(group)] = str(saved_tx[group])
 	p.module_level = clampi(int(data.get("module", 0)), 0, 3)
+	if old: p._migrate_levels(int(data.get("level", 1)))
 	return p
+
+## A save from before 60 / 80 / 90 (复利数值改造清单 J): the level at the same
+## share of its stage; points recounted under the new rules — the attributes
+## she raised keep their share, the rest come back unspent.
+func _migrate_levels(old_level: int) -> void:
+	var old_cap := int(Progression.OLD_LEVEL_CAPS[elite])
+	level = clampi(roundi(1.0 + float(old_level - 1) * float(level_cap() - 1) / float(old_cap - 1)), 1, level_cap())
+	exp = 0
+	var start := Progression.start_attributes(operator_id)
+	var old_extra := 0
+	for key in Progression.ATTRIBUTES: old_extra += maxi(0, attribute(key) - int(start[key]))
+	var old_total := old_extra + attribute_points
+	var new_total := Progression.level_attribute_points(elite, level) + elite * Progression.PROMOTION_ATTRIBUTE_POINTS
+	var ratio := float(new_total) / float(maxi(1, old_total))
+	var raised := 0
+	for key in Progression.ATTRIBUTES:
+		var extra := mini(roundi(maxi(0, attribute(key) - int(start[key])) * ratio), new_total - raised)
+		attributes[key] = int(start[key]) + extra
+		raised += extra
+	attribute_points = maxi(0, new_total - raised)
+	var spent := 0
+	for node_id in ranks:
+		var node_data := SkillTrees.node(operator_id, node_id)
+		if not node_data.is_empty(): spent += SkillTrees.spent(node_data, rank(node_id))
+	skill_points = maxi(0, Progression.level_skill_points(elite, level) + elite * Progression.PROMOTION_SKILL_POINTS - spent)

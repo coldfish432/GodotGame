@@ -1,0 +1,30 @@
+{
+  "stage": 1,
+  "approval": "PENDING_USER_REVIEW",
+  "checks": {
+    "native_height_26": true,
+    "hard_native_alpha": true,
+    "identity_transparent": true,
+    "required_images_present": true
+  },
+  "native_figure_size": [
+    14,
+    26
+  ],
+  "native_canvas": [
+    64,
+    64
+  ],
+  "accepted_soldier_actual_height": 30,
+  "cast_order": "civilian, accepted SW soldier, then N1 row-major (empty cells omitted)",
+  "ground_placement_feet": [
+    520,
+    400
+  ],
+  "limitations": [
+    "Scene is a static composite, not a Godot capture.",
+    "Recognisability and final art acceptance require user review.",
+    "Brief says soldier 28 px; supplied accepted board actually measures 30 px in SW idle. It is preserved unchanged.",
+    "No action or walk boards generated; stage 2 requires approval."
+  ]
+}

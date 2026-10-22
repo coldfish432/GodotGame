@@ -98,7 +98,7 @@ func run() -> void:
 	game.camp_extract()
 	await step(2)
 	# Gear she set out with stays on her; finds arrive as receiving crates (基地玩法策划案 §3.2).
-	check("extraction keeps carried-in gear on her and crates the finds", game.in_base and game.player.equipped.get(Item.Category.ARMOR) == armor
+	check("extraction keeps carried-in gear on her and crates the finds", game.in_base and game.player.equipped.get(armor.category) == armor
 		and game.inventory.items.has(weapon) and game.safe_bag.items.has(material) and game.base.location_of(oversized) == "crate_sealed")
 	check("settlement clears run builds; insured gear carried out stays insured (用户 2026-10-15)", game.builds.is_empty() and armor.insured and not armor.carried_in)
 	var count := game.base.all_items().size() + game.carried_items().size()
@@ -176,7 +176,7 @@ func run() -> void:
 		var exclusive_count := 0
 		for i in range(1200):
 			var item := FieldCatalog.roll_item(region, 2, local_rng)
-			counts[region][item.category] += 1
+			counts[region][Item.group_of(item.category)] += 1
 			if not item.exclusive_region.is_empty():
 				exclusive_count += 1
 				if item.exclusive_region != region: failures += 1
@@ -237,13 +237,16 @@ func run() -> void:
 	game.player.unequip(Item.Category.TRINKET)
 	game.builds.clear()
 	game.player._recompute_stats()
+	# Ungeared she has 600 HP (复利数值改造清单): room above 300 + a flask's 960.
+	game.player.apply_buff(2000.0, 0.0)
 	game.player.hp = 300
 	game.potions = 3
 	game._use_potion()
-	check("potion heals 960 and consumes charge", game.player.hp == 1260 and game.potions == 2)
+	var after_flask := 300.0 + BaseCatalog.potion_heal("A", 1)
+	check("potion heals 960 and consumes charge", is_equal_approx(game.player.hp, after_flask) and game.potions == 2)
 	game.player.regen_timer = 0
 	game.player._physics_process(0.01)
-	check("self regeneration coexists with potion", is_equal_approx(game.player.hp, 1260 + game.player.regen_rate() * Player.HP_REGEN_INTERVAL))
+	check("self regeneration coexists with potion", is_equal_approx(game.player.hp, after_flask + game.player.regen_rate() * Player.HP_REGEN_INTERVAL))
 	game._spawn_enemy(game.player.position + Vector3(2, 0, 0), true, false)
 	var enemy: Enemy = get_nodes_in_group("enemies")[0]
 	var enemy_hp := enemy.health
@@ -363,7 +366,23 @@ func run() -> void:
 	game.force_vault_guard = 0
 	await game.start_contract("mine")
 	await clean()
-	for i in range(VaultSeal.HITS): game.strike_vault_wall(Vector3(game.world_map.vault_mouth.x, 0, game.world_map.vault_mouth.y) - Vector3(game.world_map.vault_inward.x, 0, game.world_map.vault_inward.y) * 1.5, Vector3(game.world_map.vault_inward.x, 0, game.world_map.vault_inward.y))
+	# With air swings gone (用户 2026-10-20) a click on the wall locks it: she
+	# walks to the mouth and swings until it breaks.
+	var seal: VaultSeal = game.world_map.vault_seal
+	check("a click on the wall's face is aimed at it, one out in the lane is not", seal.aimed_at(Vector3(game.world_map.vault_mouth.x, 0, game.world_map.vault_mouth.y)) and not seal.aimed_at(Vector3(game.world_map.vault_mouth.x, 0, game.world_map.vault_mouth.y) - seal.inward() * 6.0))
+	var start: Vector2 = game.world_map.vault_mouth - game.world_map.vault_inward * 3.0
+	# A trap the map happened to put by the mouth would end the run mid-test.
+	for trap in game.traps:
+		if is_instance_valid(trap): trap.queue_free()
+	game.traps.clear()
+	game.player.hp = game.player.max_hp
+	game.player.global_position = Vector3(start.x, game.world_map.ground_height(start) + 0.3, start.y)
+	game.player.velocity = Vector3.ZERO
+	game.player.lock_wall()
+	for i in range(600):
+		await game.get_tree().physics_frame
+		if game.vault_opened: break
+	check("locked on the wall, she breaks it with her own swings", game.vault_opened and not game.player.wall_target)
 	check("an unguarded vault: no one, its chests open at once", game.vault_opened and game._vault_guardians.is_empty() and game.get_tree().get_nodes_in_group("loot_containers").filter(func(c): return c.vault and not c.sealed).size() == 3)
 	game.world_map.force_vault = -1
 	game.force_vault_guard = -1

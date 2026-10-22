@@ -841,7 +841,8 @@ func _flash_step(dt: int) -> void:
 	var info: Dictionary = FactionCatalog.info(faction)
 	var offer := {"id": _next_flash_id, "faction": faction, "until": t + rng.randi_range(60, 120)}
 	_next_flash_id += 1
-	if rng.randf() < 0.6 or (info.sells as Array).is_empty():
+	var shelf := FactionSpecials.plain_shelf(faction)
+	if rng.randf() < 0.6 or shelf.is_empty():
 		var cats: Array = (info.prefs as Dictionary).keys()
 		offer["kind"] = "buy"
 		offer["category"] = cats[rng.randi() % cats.size()]
@@ -849,7 +850,7 @@ func _flash_step(dt: int) -> void:
 		offer["left"] = 20000
 	else:
 		offer["kind"] = "sell"
-		offer["material"] = info.sells[rng.randi() % info.sells.size()]
+		offer["material"] = shelf[rng.randi() % shelf.size()]
 		offer["mult"] = rng.randf_range(0.6, 0.75)
 		offer["left"] = rng.randi_range(5, 20)
 	flash.append(offer)

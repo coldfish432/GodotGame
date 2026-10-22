@@ -1,22 +1,24 @@
 extends Node
 
-## Renders the 3D world at a 640x360 internal resolution and upscales it with
-## nearest-neighbor filtering for a chunky pixel-art look. The HUD/inventory
-## panel stay outside the low-res SubViewport so on-screen text stays
-## legible — a common pattern for "pixel-art 3D" games: only the world gets
-## the retro treatment, not the UI. GameManager itself is unaware of any of
-## this; it just gets handed a ui_root to attach its CanvasLayers to instead
-## of attaching them to itself (see GameManager.ui_root).
+## Renders the 3D world in its own SubViewport, with the HUD/inventory panel
+## outside it. It used to render at 640x360 and upscale 2x nearest for a
+## chunky pixel look; the world now renders at the window's resolution with
+## MSAA and FXAA (场景渲染统一改造案_v1 §4.1, 用户 2026-10-20: 角色用烘焙像素图，
+## 场景用原始建模) — the characters keep their pixel sprites, the scene is drawn
+## whole. GameManager itself is unaware of any of this; it just gets handed a
+## ui_root to attach its CanvasLayers to instead of attaching them to itself
+## (see GameManager.ui_root).
 
-const RENDER_WIDTH := 640
-const RENDER_HEIGHT := 360
+const RENDER_WIDTH := 1280
+const RENDER_HEIGHT := 720
 @export var persist_sessions := true
 
 func _ready() -> void:
 	var world_viewport := SubViewport.new()
 	world_viewport.size = Vector2i(RENDER_WIDTH, RENDER_HEIGHT)
 	world_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	world_viewport.msaa_3d = Viewport.MSAA_DISABLED
+	world_viewport.msaa_3d = Viewport.MSAA_4X
+	world_viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
 
 	var world_layer := CanvasLayer.new()
 	world_layer.layer = 0
@@ -24,8 +26,8 @@ func _ready() -> void:
 
 	var container := SubViewportContainer.new()
 	container.stretch = true
-	container.stretch_shrink = 2
-	container.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	container.stretch_shrink = 1
+	container.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	container.set_anchors_preset(Control.PRESET_FULL_RECT)
 	world_layer.add_child(container)
 	container.add_child(world_viewport)

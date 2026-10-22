@@ -105,7 +105,7 @@ func _deep() -> void:
 	game.settle(true)
 	await step(2)
 	var view: Dictionary = game.settlement_view
-	check("deep: extraction pays the contract +50%", view.contract.done and game.gold - before == view.reward and view.reward >= roundi(5 * 800 * 1.5) and view.contract.bonus.contains("+50%"), [view.reward, view.contract])
+	check("deep: extraction pays the pay fixed when it was taken (v1.1 §2.2)", view.contract.done and game.gold - before == view.reward and view.reward > 0 and view.contract.bonus.contains("龙门币"), [view.reward, view.contract])
 	check("after settling the region's offers are rolled again", not game.base.contract_offers.has("mine") or (game.base.contract_offers.mine as Array).size() == 3)
 	check("no contract runs at the base", game.contract.is_empty())
 
@@ -131,12 +131,10 @@ func _search_and_recover() -> void:
 	game.safe_bag.try_add(MaterialCatalog.create("糖", 1))
 	await step(1)
 	check("recover: the safe bag counts too", game.contract_progress().done)
-	var prestige := game.base.prestige
 	var gold := game.gold
 	game.settle(true)
 	await step(2)
-	check("recover: extraction pays 6,000 and 3 prestige on top", game.settlement_view.contract.done and game.gold - gold == game.settlement_view.reward + FieldCatalog.RECOVER_REWARD.money
-		and game.base.prestige - prestige == FieldCatalog.RECOVER_REWARD.prestige + BaseCatalog.PRESTIGE_EXTRACTION)
+	check("recover: extraction pays the contract, no more money", game.settlement_view.contract.done and game.gold - gold == game.settlement_view.reward)
 
 func _hunt() -> void:
 	game._pending_contract = {"type": "hunt", "offset": 3}
@@ -151,8 +149,7 @@ func _hunt() -> void:
 	kill(bounty)
 	await step(2)
 	check("hunt: killing it completes the objective", game.bounty_killed and game.contract_progress().done)
-	var crates := game.base.crates.size()
+	var dropped := get_nodes_in_group("loot").filter(func(n): return n.item != null and n.item.rarity == 2 and n.item.is_equippable())
+	check("hunt: the bounty drops the rare piece on the spot (no settlement gift)", not dropped.is_empty())
 	game.settle(true)
 	await step(2)
-	var newest: Item = game.base.crates.back().item if game.base.crates.size() > crates else null
-	check("hunt: extraction sends a rare piece of gear home", newest != null and newest.rarity == 2 and newest.is_equippable())

@@ -1,0 +1,537 @@
+{
+  "scope": "static PNG checks only",
+  "runtime_verified": false,
+  "style_accepted": false,
+  "items": [
+    {
+      "id": "mine_head_1",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.6069,
+      "isolated_fraction": 0.1698,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        11,
+        65,
+        60
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_head_2",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 8,
+      "bright_fraction": 0.1587,
+      "isolated_fraction": 0.0261,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        10,
+        7,
+        61,
+        65
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_head_3",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.3482,
+      "isolated_fraction": 0.1456,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        8,
+        65,
+        64
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_head_4",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.1774,
+      "isolated_fraction": 0.2478,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        8,
+        7,
+        63,
+        65
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_hands_1",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 7,
+      "bright_fraction": 0.4636,
+      "isolated_fraction": 0.0649,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        8,
+        65,
+        64
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_hands_2",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 8,
+      "bright_fraction": 0.4717,
+      "isolated_fraction": 0.0763,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        12,
+        65,
+        59
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_hands_3",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2611,
+      "isolated_fraction": 0.2459,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        12,
+        65,
+        59
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_hands_4",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.3258,
+      "isolated_fraction": 0.2644,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        10,
+        65,
+        61
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_legs_1",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 7,
+      "bright_fraction": 0.2762,
+      "isolated_fraction": 0.0586,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        14,
+        5,
+        58,
+        66
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_legs_2",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 7,
+      "bright_fraction": 0.3766,
+      "isolated_fraction": 0.0587,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        12,
+        5,
+        59,
+        66
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_legs_3",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 7,
+      "bright_fraction": 0.2015,
+      "isolated_fraction": 0.0804,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        15,
+        5,
+        56,
+        66
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_legs_4",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2735,
+      "isolated_fraction": 0.2694,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        16,
+        5,
+        56,
+        66
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_feet_1",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.1845,
+      "isolated_fraction": 0.2771,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        11,
+        65,
+        61
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_feet_2",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 8,
+      "bright_fraction": 0.2208,
+      "isolated_fraction": 0.0726,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        7,
+        16,
+        65,
+        55
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_feet_3",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2519,
+      "isolated_fraction": 0.26,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        7,
+        8,
+        65,
+        64
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_feet_4",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 7,
+      "bright_fraction": 0.4555,
+      "isolated_fraction": 0.0299,
+      "cloth_noise_enforced": true,
+      "bbox": [
+        8,
+        7,
+        63,
+        65
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_ring_1",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.264,
+      "isolated_fraction": 0.6008,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        2,
+        3,
+        29,
+        29
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_ring_2",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 23,
+      "bright_fraction": 0.2956,
+      "isolated_fraction": 0.263,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        29,
+        29
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_ring_3",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2128,
+      "isolated_fraction": 0.3727,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        3,
+        2,
+        28,
+        29
+      ],
+      "pass": true
+    },
+    {
+      "id": "mine_ring_4",
+      "checks": {
+        "size": true,
+        "rgba": true,
+        "binary_alpha": true,
+        "palette_le24": true,
+        "bright_ge15pct": true,
+        "outline_1px": true,
+        "padding": true,
+        "cloth_isolated_le10pct": true,
+        "source_exists": true,
+        "hash": true
+      },
+      "colors": 21,
+      "bright_fraction": 0.2453,
+      "isolated_fraction": 0.1775,
+      "cloth_noise_enforced": false,
+      "bbox": [
+        2,
+        3,
+        29,
+        29
+      ],
+      "pass": true
+    }
+  ],
+  "emit": {
+    "size": true,
+    "nonempty": true,
+    "localized_to_base": true,
+    "same_rgb_as_base": true,
+    "binary_alpha": true,
+    "glowing_pixels": 5,
+    "not_full_silhouette": true
+  },
+  "pass": true
+}

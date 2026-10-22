@@ -1,0 +1,102 @@
+{
+  "None": {
+    "patriot": {
+      "red": 151,
+      "orange": 58,
+      "purple": 0,
+      "blue": 0
+    },
+    "rat_king": {
+      "red": 1,
+      "orange": 20,
+      "purple": 2,
+      "blue": 10
+    },
+    "eikthyrnir": {
+      "red": 0,
+      "orange": 14,
+      "purple": 0,
+      "blue": 0
+    },
+    "zaro": {
+      "red": 1,
+      "orange": 0,
+      "purple": 0,
+      "blue": 0
+    },
+    "crownslayer": {
+      "red": 73,
+      "orange": 42,
+      "purple": 0,
+      "blue": 0
+    },
+    "skullshatterer": {
+      "red": 54,
+      "orange": 27,
+      "purple": 0,
+      "blue": 0
+    },
+    "hollow_snowpriest": {
+      "red": 0,
+      "orange": 19,
+      "purple": 22,
+      "blue": 75
+    },
+    "father_agnir": {
+      "red": 0,
+      "orange": 3,
+      "purple": 0,
+      "blue": 0
+    }
+  },
+  "2": {
+    "patriot": {
+      "red": 126,
+      "orange": 20,
+      "purple": 0,
+      "blue": 0
+    },
+    "rat_king": {
+      "red": 0,
+      "orange": 21,
+      "purple": 2,
+      "blue": 6
+    },
+    "eikthyrnir": {
+      "red": 0,
+      "orange": 23,
+      "purple": 0,
+      "blue": 0
+    },
+    "zaro": {
+      "red": 1,
+      "orange": 0,
+      "purple": 0,
+      "blue": 0
+    },
+    "crownslayer": {
+      "red": 60,
+      "orange": 45,
+      "purple": 0,
+      "blue": 0
+    },
+    "skullshatterer": {
+      "red": 42,
+      "orange": 30,
+      "purple": 0,
+      "blue": 0
+    },
+    "hollow_snowpriest": {
+      "red": 0,
+      "orange": 18,
+      "purple": 14,
+      "blue": 58
+    },
+    "father_agnir": {
+      "red": 0,
+      "orange": 0,
+      "purple": 0,
+      "blue": 0
+    }
+  }
+}

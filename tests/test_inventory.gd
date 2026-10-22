@@ -70,11 +70,13 @@ func run() -> void:
 		for mod in item.modifiers:
 			if not mod.is_random_affix(): continue
 			tiers[mod.tier] += 1
-			# Each tier rolls in its band (装备前缀策划案 §2.8): 60–80 / 90–110 / 120–140%.
+			# Each rarity rolls in its band (复利数值改造清单 B): 60–80 / 90–110 / 120–140%;
+			# white has no random affixes, so its band shows on the panel instead.
 			var band: Array = ItemModifier.TIER_RANGES[mod.tier]
-			var ratio := mod.amount / float(FieldCatalog.AFFIX_AMOUNTS[mod.stat])
+			in_range = in_range and mod.tier == item.rarity
+			var ratio := mod.amount / (float(FieldCatalog.AFFIX_AMOUNTS[mod.stat]) * mod.scale)
 			in_range = in_range and ratio >= float(band[0]) - 0.0001 and ratio <= float(band[1]) + 0.0001
-	check("affixes roll all three tiers in their 60–80/90–110/120–140% bands", tiers[0] > 0 and tiers[1] > 0 and tiers[2] > 0 and in_range, tiers)
+	check("affixes roll in their rarity's 90–110/120–140% band", tiers[1] > 0 and tiers[2] > 0 and in_range, tiers)
 	var tiered := weapon(2.0)
 	var atk := ItemModifier.stat_mod(ItemModifier.Stat.ATK_PCT, 0.104)
 	atk.tier = 2
@@ -83,7 +85,7 @@ func run() -> void:
 	var old := tiered.to_data()
 	old.mods = [{"stat": ItemModifier.Stat.ATK_PCT, "amount": 0.056, "trigger": 0}]
 	check("old saves infer the tier from the amount", Item.from_data(old).modifiers[0].tier == 0)
-	check("Alt shows the tier and the range", "Ⅲ" in atk.describe_detailed(false) and "范围" in atk.describe_detailed(true) and not "范围" in atk.describe_detailed(false))
+	check("Alt shows the range", "范围" in atk.describe_detailed(true) and not "范围" in atk.describe_detailed(false))
 
 	# --- Rarity colours are one palette.
 	check("rarity colours match the relic palette", Item.RARITY_COLORS[1] != Item.RARITY_COLORS[0] and Item.RARITY_COLORS[2] == RelicCatalog.RARITY_COLORS[2])
@@ -91,13 +93,14 @@ func run() -> void:
 	# --- Side-effect-free preview (no 战力: 用户 2026-10-06).
 	var p := game.player
 	p.sword_charge = 2
-	p.hp = 1000
+	p.hp = p.max_hp * 0.5
+	var hp_now := p.hp
 	var atk_now := p.attack_power()
 	var blade := weapon(3.0)
 	blade.modifiers = [ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE)]
 	var preview := p.preview_equip(blade)
 	check("preview reports higher ATK for a better weapon, and no 战力", preview.after.atk > preview.before.atk and not preview.after.has("rating") and not p.has_method("power_rating"))
-	check("preview leaves life, charge and the slot untouched", p.hp == 1000 and p.sword_charge == 2 and p.equipped.get(Item.Category.WEAPON) == null and is_equal_approx(p.attack_power(), atk_now))
+	check("preview leaves life, charge and the slot untouched", p.hp == hp_now and p.sword_charge == 2 and p.equipped.get(Item.Category.WEAPON) == null and is_equal_approx(p.attack_power(), atk_now))
 	var tip := ItemTooltip.text(game, blade, false, false)
 	check("tooltip shows per-stat differences and no 战力", not "战力" in tip and "▲" in tip and "攻击力" in tip and "触发" in tip)
 	check("tooltip has no death forecast or key hints, and gives the 交付价 in 龙门币", not "死亡时" in tip and not "按住" in tip and "龙门币" in tip)
@@ -250,8 +253,8 @@ func run() -> void:
 	await step(2)
 	check("starts at 10×6 and 2×2", game.inventory.width == 10 and game.inventory.height == 6 and game.safe_bag.width == 2 and game.safe_bag.height == 2)
 	game.gold = 100000
-	check("pack expansion needs R1", not game.buy_pack_upgrade())
-	game.base.prestige = 60
+	check("pack expansion needs 整备部 Lv2", not game.buy_pack_upgrade() and game.upgrade_refusal("pack") == "需要整备部 Lv2")
+	game.base.set_facility("outfit", 3)
 	check("expansions also need base materials", not game.buy_pack_upgrade() and "缺少" in game.upgrade_refusal("pack"))
 	var needed := {}
 	for cost in [BaseCatalog.PACK_MATERIALS[1], BaseCatalog.PACK_MATERIALS[2], BaseCatalog.SAFE_MATERIALS[1]]:
@@ -262,9 +265,9 @@ func run() -> void:
 			var m := MaterialCatalog.create(id, left)
 			game.base.shelf.append(m)
 			left -= m.quantity
-	check("at R2 the pack grows to 10×8 then 12×8", game.buy_pack_upgrade() and game.inventory.height == 8 and game.buy_pack_upgrade() and game.inventory.width == 12)
-	check("then it is fully expanded", not game.buy_pack_upgrade() and game.gold == 100000 - 12000 - 26000)
-	check("safe bag grows to 3×2 at R2, 3×3 needs R3", game.buy_safe_upgrade() and game.safe_bag.width == 3 and not game.buy_safe_upgrade())
+	check("at 整备部 Lv3 the pack grows to 10×8 then 12×8", game.buy_pack_upgrade() and game.inventory.height == 8 and game.buy_pack_upgrade() and game.inventory.width == 12)
+	check("then it is fully expanded", not game.buy_pack_upgrade() and game.gold == 100000 - 15000 - 40000)
+	check("safe bag grows to 3×2 at Lv3, 3×3 needs Lv4", game.buy_safe_upgrade() and game.safe_bag.width == 3 and not game.buy_safe_upgrade())
 	check("and every material was used", needed.keys().all(func(id): return game.material_count(id) == 0))
 	var data_out := game.base.to_data()
 	var reloaded := BaseState.new()

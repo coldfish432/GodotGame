@@ -59,7 +59,7 @@ const CHARACTERS := {
 	# (hold_action): 星熊's saw grind, 林's sustain, 寒檀's channel.
 	"hellagur": {"walk": "res://godot_assets/hellagur_walk_32.png", "idle": "res://godot_assets/hellagur_idle_32.png",
 		"combat": "res://godot_assets/hellagur_combat_64.png", "signature": "", "mirrored": {},
-		"actions": {"attack_1": [0, 3], "attack_2": [3, 2], "attack_3": [5, 3], "newmoon": [8, 2], "halfmoon": [10, 3], "fullmoon": [13, 2], "hurt": [15, 1]}},
+		"actions": {"attack_1": [0, 3], "attack_2": [3, 2], "attack_3": [5, 3], "thrust": [[13, 6, 7], 3], "pierce": [[13, 13, 6, 6, 7], 5], "newmoon": [8, 2], "halfmoon": [10, 3], "fullmoon": [13, 2], "hurt": [15, 1]}},
 	"rosa": {"walk": "res://godot_assets/rosa_walk_32.png", "idle": "res://godot_assets/rosa_idle_32.png",
 		"combat": "res://godot_assets/rosa_combat_64.png", "signature": "", "mirrored": {},
 		"actions": {"attack_1": [0, 3], "attack_2": [0, 3], "attack_3": [3, 3], "volley": [6, 6], "hurt": [12, 1]}},
@@ -96,10 +96,24 @@ var action_duration := 0.0
 var action_name := ""
 ## Playback multiplier for the current action (attack speed); 1 = 12 FPS.
 var action_rate := 1.0
+## The light around her in the base (场景渲染统一改造案_v1 §4.6): the sprite
+## stays self-lit and takes the place's colour as a tint (BaseMap.light_tint).
+var scene_tint := Color.WHITE:
+	set(value):
+		scene_tint = value
+		if action_name != "dash": modulate = value
+## A soft shadow at her feet, shown where the scene is lit for real (the base).
+var contact_shadow: Decal
 var _body: CharacterBody3D
 var _facing_index := 2 # south
 var _turn_timer := 0.0
 var _forced_direction := Vector3.ZERO
+## The facing is a row on screen. When the view turns (GameManager.camera_yaw)
+## the row turns with it, so she keeps facing the same way in the world: it is
+## worked out from the row last set and where world east was on screen then,
+## so a slow drag still turns her once it passes half a row.
+var _facing_ref_index := 2
+var _facing_ref_east := INF
 
 func _ready() -> void:
 	_body = get_node_or_null(body_path) as CharacterBody3D
@@ -111,7 +125,33 @@ func _ready() -> void:
 	# discard rather than blend — keeps depth sorting sane against the world.
 	alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 	position.y = CELL_TEXELS * PIXEL_SIZE * 0.5 - FOOT_DROP
+	# Kept on her feet at any camera tilt (GameManager._keep_sprites_upright).
+	add_to_group("upright_sprites")
+	# Sprites sit on their own render layer so ground decals (the contact
+	# shadow among them) never land on a sprite.
+	layers = SPRITE_LAYER
+	contact_shadow = Decal.new()
+	contact_shadow.size = Vector3(1.3, 0.6, 1.3)
+	contact_shadow.cull_mask = 1
+	contact_shadow.texture_albedo = _contact_texture()
+	contact_shadow.visible = false
+	add_child(contact_shadow)
+	contact_shadow.position = Vector3(0, -position.y + 0.1, 0)
 	_play_idle()
+
+const SPRITE_LAYER := 2
+static var _contact: Texture2D
+
+## A round shadow, darkest under the feet.
+static func _contact_texture() -> Texture2D:
+	if _contact == null:
+		var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+		for y in range(64):
+			for x in range(64):
+				var r := Vector2(x - 31.5, y - 31.5).length() / 31.5
+				img.set_pixel(x, y, Color(0, 0, 0, clampf(1.0 - r, 0.0, 1.0) * 0.55))
+		_contact = ImageTexture.create_from_image(img)
+	return _contact
 
 ## One of an operator's sheets ("walk", "idle", "combat"), or null.
 static func sheet(id: String, kind: String) -> Resource:
@@ -174,6 +214,7 @@ func face_world_direction(direction: Vector3) -> void:
 func _process(delta: float) -> void:
 	if not is_instance_valid(_body):
 		return
+	_follow_camera_turn()
 
 	if _body is Player:
 		var player := _body as Player
@@ -240,6 +281,7 @@ func _update_facing(angle: float, delta: float) -> void:
 	var candidate := posmod(roundi(angle / (PI / 4.0)), 8)
 	if candidate == _facing_index:
 		_turn_timer = 0.0
+		_remember_facing()
 		return
 
 	var current_angle := float(_facing_index) * PI / 4.0
@@ -253,6 +295,22 @@ func _update_facing(angle: float, delta: float) -> void:
 		var turn_step := 1 if clockwise_steps <= 4 else -1
 		_facing_index = posmod(_facing_index + turn_step, 8)
 		_turn_timer = turn_step_seconds
+		_remember_facing()
+
+func _face_toward(direction: Vector3) -> void:
+	_facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
+	_remember_facing()
+
+func _remember_facing() -> void:
+	_facing_ref_index = _facing_index
+	_facing_ref_east = _screen_angle(Vector3.RIGHT)
+
+func _follow_camera_turn() -> void:
+	if _facing_ref_east == INF:
+		_remember_facing()
+		return
+	var turn := wrapf(_screen_angle(Vector3.RIGHT) - _facing_ref_east, -PI, PI)
+	if absf(turn) > 0.0001: _facing_index = posmod(roundi((_facing_ref_index * PI / 4.0 + turn) / (PI / 4.0)), 8)
 
 func _play_idle() -> void:
 	var idle_name := "idle_" + _sheet_direction(_facing_index)
@@ -286,7 +344,11 @@ func _build_combat_frames() -> void:
 			sprite_frames.add_animation(animation_name)
 			sprite_frames.set_animation_speed(animation_name, 12)
 			sprite_frames.set_animation_loop(animation_name, false)
-			for column in range(actions[action][0], actions[action][0] + actions[action][1]):
+			# An entry is [first column, count] or, for poses taken from apart,
+			# [[columns...], count] (赫拉格's thrusts: the blade raised high, then the iai thrust).
+			var entry: Array = actions[action]
+			var columns: Array = entry[0] if entry[0] is Array else range(int(entry[0]), int(entry[0]) + int(entry[1]))
+			for column in columns:
 				var texture := AtlasTexture.new()
 				texture.atlas = combat_sheet
 				texture.region = Rect2(column * COMBAT_CELL, row * COMBAT_CELL, COMBAT_CELL, COMBAT_CELL)
@@ -308,7 +370,7 @@ func _start_action(action: String, rate: float = 1.0) -> void:
 	frame = 0
 
 func play_attack(direction: Vector3, stage: int, wave: bool, rate: float = 1.0) -> void:
-	_facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
+	_face_toward(direction)
 	_start_action(signature_action if wave else "attack_" + str(stage + 1), rate)
 
 ## The frame for the action's clock: the last one held, or, for an action with
@@ -325,7 +387,7 @@ func _action_frame() -> int:
 ## One of her named actions (an operator kit's skill pose), facing `direction`.
 func play_action(action: String, direction: Vector3, rate: float = 1.0) -> void:
 	if not actions.has(action): return
-	if direction.length_squared() > 0.0001: _facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
+	if direction.length_squared() > 0.0001: _face_toward(direction)
 	_start_action(action, rate)
 
 ## Hold a pose for `seconds` regardless of the action's frame count — the
@@ -339,7 +401,7 @@ func play_hurt() -> void:
 
 func start_dash(direction: Vector3) -> void:
 	cancel_action()
-	_facing_index = posmod(roundi(_screen_angle(direction) / (PI / 4)), 8)
+	_face_toward(direction)
 	animation = "walk_" + _sheet_direction(_facing_index)
 	stop()
 	frame = 1
@@ -354,4 +416,4 @@ func cancel_action() -> void:
 	action_name = ""
 	action_rate = 1.0
 	flip_h = false
-	modulate = Color.WHITE
+	modulate = scene_tint

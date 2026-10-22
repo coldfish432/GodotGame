@@ -53,7 +53,7 @@ func run() -> void:
 		var data: Dictionary = MaterialCatalog.MATERIALS[id]
 		if m.max_stack != int(data.get("stack", MaterialCatalog.STACK[star])) or m.quantity != m.max_stack or m.value != m.unit_value * m.quantity: stack_ok = false
 		# 赤金 overrides its stack and value as the in-run money (经济修订案 §2).
-		if not MaterialCatalog.is_common(id) and not data.has("stack") and (m.max_stack != MaterialCatalog.STACK[star] or m.unit_value != MaterialCatalog.UNIT_VALUE[star]): stack_ok = false
+		if not MaterialCatalog.is_common(id) and not data.has("stack") and not data.has("value") and (m.max_stack != MaterialCatalog.STACK[star] or m.unit_value != MaterialCatalog.UNIT_VALUE[star]): stack_ok = false
 	check("stack size and value follow rarity (PRTS) or the supply's own figures", stack_ok)
 
 	# Enemies drop only their own materials.
@@ -139,15 +139,18 @@ func run() -> void:
 	for i in range(1000): if LootTables.roll_quality("vault", 0.0, rng) == 0: vault_common += 1
 	check("vault chests never roll common", vault_common == 0)
 
-	# Depth caps affix tiers: no Ⅲ before segment 3.
-	var max_tier_shallow := 0
-	var max_tier_deep := 0
+	# 复利数值改造清单 B: an affix rolls in its piece's rarity band; within a
+	# tier, the floor's tenth rolls higher than its first.
+	var gold_bands := true
+	var early := 0.0
+	var late := 0.0
 	for i in range(600):
-		for mod in LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 1, 2, rng).modifiers:
-			max_tier_shallow = maxi(max_tier_shallow, mod.tier)
-		for mod in LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 4, 2, rng).modifiers:
-			max_tier_deep = maxi(max_tier_deep, mod.tier)
-	check("tier Ⅲ only from segment 3", max_tier_shallow <= 1 and max_tier_deep == 2, [max_tier_shallow, max_tier_deep])
+		var first := LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 11, 2, rng)
+		var tenth := LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 20, 2, rng)
+		for mod in first.modifiers: if mod.is_random_affix(): gold_bands = gold_bands and mod.tier == 2
+		early += first.power_position()
+		late += tenth.power_position()
+	check("gold affixes roll in the gold band; a tier's tenth floor rolls higher than its first", gold_bands and late > early * 1.5, [early / 600.0, late / 600.0])
 
 	# 掉落阶梯 (用户 2026-10-18): deeper floors drop better gear and materials.
 	var stairs := []
@@ -173,7 +176,8 @@ func run() -> void:
 	check("a normal enemy's gear is rare ~0.5% on floor 1, ~2.5% on floor 40, 5% from floor 90 on", absf(shallow_rare - 0.005) < 0.0015 and absf(deep_rare - 0.0247) < 0.004
 		and mid_rare > shallow_rare and mid_rare < deep_rare and mid_top > deep_rare and mid_top < top_rare and absf(top_rare - 0.05) < 0.005
 		and absf(rare_share.call(150, "normal") - top_rare) < 0.005, [shallow_rare, mid_rare, deep_rare, mid_top, top_rare])
-	check("an elite's gear is rare ~2.5% on floor 1, ~5.3% on 40, ~7.8% from 90", absf(rare_share.call(1, "elite") - 0.025) < 0.004 and absf(rare_share.call(40, "elite") - 0.0535) < 0.006 and absf(rare_share.call(90, "elite") - 0.0777) < 0.008)
+	# Along the S curve (复利数值改造清单 B): same ends, slow early, fast mid.
+	check("an elite's gear is rare ~2.5% on floor 1, ~7.8% from 90, rising between", absf(rare_share.call(1, "elite") - 0.025) < 0.004 and rare_share.call(40, "elite") > rare_share.call(20, "elite") and rare_share.call(60, "elite") > rare_share.call(40, "elite") and absf(rare_share.call(90, "elite") - 0.0777) < 0.008)
 	# Past the top, good prefixes get likelier floor by floor.
 	var good_share := func(depth: int) -> float:
 		var g := LootTables.past_top(depth)
@@ -191,6 +195,8 @@ func run() -> void:
 		var seen_n := 0
 		for i in range(3000):
 			for entry in LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", depth, 1, r).prefixes:
+				# Effect families do not follow the grade odds (前缀放大与特效阶等案 §3).
+				if not PrefixFamilies.family_of(str(entry.id)).is_empty(): continue
 				seen_n += 1
 				if int(PrefixCatalog.get_entry(str(entry.id)).grade) >= 1: good += 1
 		return good / float(maxi(seen_n, 1))
@@ -226,9 +232,11 @@ func run() -> void:
 		for item in items_of(LootTables.container_drops("weapon_box", c)):
 			if item.category != Item.Category.WEAPON: box_ok = false
 		for item in items_of(LootTables.container_drops("construction", c)):
+			# The mine's piles may hold a 源石矿封装器 too (地图特色策划案 §3.3).
+			if FeatureCatalog.is_supply(item): continue
 			if str(MaterialCatalog.MATERIALS[item.material_id].kind) != "base": base_ok = false
 		for item in items_of(LootTables.container_drops("armor_box", c)):
-			if item.category != Item.Category.ARMOR and item.exclusive_region.is_empty(): box_ok = false
+			if not Item.is_armor_slot(item.category) and item.exclusive_region.is_empty(): box_ok = false
 	check("weapon boxes give weapons, armour boxes armour", box_ok)
 	check("construction piles give only base materials", base_ok)
 	var hardware := true
@@ -472,7 +480,7 @@ func run() -> void:
 
 	# Construction takes materials.
 	game.gold = 500000
-	game._grant(0, 200)
+	game.base.max_facilities()
 	base.shelf.clear()
 	check("racks need their materials", not game.build_rack(Item.Category.WEAPON) and "缺少" in game.rack_refusal(Item.Category.WEAPON))
 	base.shelf.append(MaterialCatalog.create("螺栓", 10))
