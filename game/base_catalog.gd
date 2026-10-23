@@ -150,7 +150,7 @@ const ORDERS := {
 	"proc_cube": {"dept": "加工部", "count": 2, "material": "固源岩组", "mult": 1.6, "weight": 2},
 	"proc_device": {"dept": "加工部", "count": 2, "material": "全新装置", "mult": 1.6, "weight": 2},
 	"proc_iron": {"dept": "加工部", "count": 3, "material": "异铁组", "mult": 1.5, "weight": 1},
-	"proc_crate": {"dept": "加工部", "count": 1, "material": "工业补给箱", "mult": 1.5, "weight": 1},
+	"proc_crate": {"dept": "加工部", "count": 1, "material": "建材包", "mult": 1.5, "weight": 1},
 }
 
 static func is_exclusive_order(id: String) -> bool:

@@ -76,6 +76,8 @@ var workshop := Workshop.new()
 var research := Research.new(self)
 ## Rhodes Island on Terra: voyages, medical stays, bulk orders (沙盘航行策划案_v1_0.md).
 var voyage := VoyageState.new()
+## 可露希尔's 代售 (交易所交易包修订案 §5).
+var consign := Consignment.new()
 ## 农业部 and 食堂 on the second deck (势力特供策划案_v0_2 §三–§六); state on base.farm.
 var provisions := Provisions.new(self)
 ## The 补给 eaten for this contract ("" none), and how many services this
@@ -459,6 +461,7 @@ func _process(delta: float) -> void:
 	for entry in [["toggle_relics", "relics"], ["toggle_map", "map"], ["toggle_journal", "journal"]]:
 		if Input.is_action_just_pressed(entry[0]): toggle_panel(entry[1])
 	if Input.is_action_just_pressed("toggle_pause"): go_back()
+	if in_base and Input.is_action_just_pressed("quick_pack") and is_instance_valid(menu) and menu.quick_pack_here() and not get_tree().root.gui_get_focus_owner() is LineEdit: menu.open_quick_pack()
 	if camera_control_active(): _camera_keys()
 	if _camera_dragging and not Input.is_action_pressed("camera_drag"): _camera_dragging = false
 	# A hit while she searches shuts the box's window, so she can answer it.
@@ -1512,6 +1515,7 @@ func go_back() -> void:
 	if is_instance_valid(_inventory_panel) and is_instance_valid(_inventory_panel._confirm) and _inventory_panel._confirm.visible:
 		_inventory_panel._confirm.hide()
 		return
+	if is_instance_valid(menu) and menu.close_quick_pack(): return
 	match modal:
 		"":
 			toggle_panel("pause")
@@ -1809,12 +1813,15 @@ func _init_market() -> void:
 	if not loaded: market.start(BaseState.now(), fixed_market_seed)
 	exchange.setup(self, market)
 	voyage.setup(self)
+	consign.setup(self)
 	voyage.notify = func(text: String): _on_exchange_notice(text, "voyage")
 	Economy.fx = market.fx_rate()
 
 ## After a load the market catches up on the time the game was shut (用户:
 ## 不暂停，读档时模拟 k 线); PRTS sums up what happened meanwhile.
 func _catch_up_market() -> void:
+	exchange.migrate_packs()
+	_migrate_trade_crates()
 	var gap := BaseState.now() - market.t
 	var before := exchange.account_value()
 	exchange.counters.clear()
@@ -1925,7 +1932,7 @@ func open_exchange() -> void:
 # --- 加工部 (§2) -----------------------------------------------------------------
 
 func workshop_refusal(output: String, count: int) -> String:
-	if count <= 0 or Workshop.recipe(output).is_empty(): return "没有这个配方"
+	if count <= 0 or Packs.is_pack(output) or Workshop.recipe(output).is_empty(): return "没有这个配方"
 	if workshop.busy() >= workshop_slots(): return "加工队列已满"
 	var cost := Workshop.cost_of(output, count)
 	var missing := materials_refusal(cost)
@@ -1945,6 +1952,149 @@ func workshop_start(output: String, count: int) -> bool:
 	save_base()
 	set_message("加工部：%s ×%d 开始加工。" % [output, count])
 	return true
+
+# --- Trade packs (交易所交易包修订案 §3–§4) ----------------------------------------------
+
+## Why `count` packs of `pack` cannot be made now ("" = they can): the queue,
+## the 龙门币, and enough on the shelves (`quick`: one-key packing's picks).
+func pack_refusal(pack: String, count: int, quick: bool = true) -> String:
+	if not Packs.is_pack(pack) or count <= 0: return "没有这个包"
+	if workshop.busy() >= workshop_slots(): return "加工队列已满"
+	if gold < Packs.PACK_LMD * count: return "龙门币不足"
+	if Packs.max_packs(pack, stash, quick) < count: return "货不够"
+	return ""
+
+## One-key packing (§3.4): picks from the shelves, cheapest first, each pack
+## closed by the unit that spills least; the packs queue at the 加工部.
+func pack_quick(pack: String, count: int) -> bool:
+	if not in_base or not pack_refusal(pack, count).is_empty(): return false
+	var plan := Packs.auto_pick(pack, stash, count)
+	return _pack_take(pack, int(plan.packs), plan.take)
+
+## Packing by hand (§3.1): the chosen pieces fill packs in the order chosen;
+## a pack's spill is lost, what does not fill a last pack stays on the shelf.
+func pack_manual(pack: String, chosen: Array) -> bool:
+	if not in_base or not Packs.is_pack(pack): return false
+	var take := {}
+	var made := 0
+	var acc := 0
+	var run: Array = []
+	for item: Item in chosen:
+		if not stash.has(item) or not Packs.packable(item) or FactionCatalog.category_of(item) != Packs.category_of(pack): continue
+		run.append(item)
+		acc += Packs.points(item)
+		if acc >= Packs.face(pack):
+			made += 1
+			acc = 0
+			for x: Item in run: take[x] = Packs.units(x)
+			run.clear()
+	if made <= 0 or workshop.busy() >= workshop_slots() or gold < Packs.PACK_LMD * made: return false
+	return _pack_take(pack, made, take)
+
+func _pack_take(pack: String, made: int, take: Dictionary) -> bool:
+	if made <= 0: return false
+	for item: Item in take:
+		var n := int(take[item])
+		if item.is_stackable() and n < item.quantity: item.set_quantity(item.quantity - n)
+		else: _hand_over(item)
+	gold -= Packs.PACK_LMD * made
+	workshop.start(pack, made, BaseState.now(), rng, research.workshop_time_factor())
+	save_base()
+	set_message("加工部：%s ×%d 开始打包。" % [pack, made])
+	return true
+
+## Points to spend opening one `pack` now: its face and the category's leftover.
+func open_points(pack: String) -> int:
+	return Packs.face(pack) + int(workshop.points.get(Packs.category_of(pack), 0))
+
+## Why `pick` cannot come out of one `pack` ("" = it can).
+func unpack_refusal(pack: String, pick: Dictionary) -> String:
+	if not Packs.can_open(pack): return "拆不开"
+	if material_count(pack) <= 0: return "没有这个包"
+	var cost := Packs.pick_cost(pack, pick)
+	if cost < 0: return "清单里没有"
+	if cost > open_points(pack): return "点数不足"
+	return ""
+
+## Opens one pack at the warehouse console (§4): the pick goes to staging, the
+## points left wait for the next pack of the category.
+func unpack(pack: String, pick: Dictionary) -> bool:
+	if not in_base or not unpack_refusal(pack, pick).is_empty(): return false
+	var left := open_points(pack) - Packs.pick_cost(pack, pick)
+	consume_materials({pack: 1})
+	workshop.points[Packs.category_of(pack)] = left
+	for id in pick:
+		var n := int(pick[id])
+		while n > 0:
+			var stack := MaterialCatalog.create(id, mini(n, MaterialCatalog.stack_size(id)))
+			n -= stack.quantity
+			if not base.receive_to_staging(stack): base.receive(stack)
+	save_base()
+	set_message("%s 已拆开，物品在暂存区。" % pack)
+	return true
+
+## Buys shelf entry `i` of the 代售 open here (§5): bars or 龙门币, into the
+## pack (at the base the receiving bay when the pack is full).
+func consign_buy(i: int) -> bool:
+	var anchor := consign.anchor_here()
+	if anchor.is_empty() or not consign.buy_refusal(anchor, i).is_empty(): return false
+	var entry: Dictionary = consign.goods(anchor)[i]
+	var cur := Consignment.currency(anchor)
+	var cost := Consignment.whole(cur, consign.buy_quote(anchor, entry), true)
+	if cur == "gold":
+		if not _pay_gold(cost): return false
+	else:
+		if gold < cost: return false
+		gold -= cost
+	entry.sold = true
+	var item := Item.from_data(entry.item)
+	if str(entry.kind) == "special": exchange.special_bought(item.material_id)
+	if inventory.add_stack(item) > 0:
+		if in_base: base.receive(item)
+		else: drop_at_feet(item)
+	save_base(not in_base)
+	return true
+
+## What she pays for `item` here, whole ("" when she does not take it).
+func consign_offer(item: Item) -> String:
+	var anchor := consign.anchor_here()
+	if anchor.is_empty() or not Consignment.takes(item): return ""
+	var cur := Consignment.currency(anchor)
+	var paid := Consignment.whole(cur, consign.sell_quote(anchor, item), false)
+	return (str(paid) if cur == "gold" else Economy.format(paid)) if paid > 0 else ""
+
+## Sells a carried `item` through her (§5.4).
+func consign_sell(item: Item) -> bool:
+	var anchor := consign.anchor_here()
+	if anchor.is_empty() or not Consignment.takes(item) or not (inventory.items.has(item) or safe_bag.items.has(item)): return false
+	var cur := Consignment.currency(anchor)
+	var paid := Consignment.whole(cur, consign.sell_quote(anchor, item), false)
+	if paid <= 0 or not _hand_over(item): return false
+	if cur == "lmd": gold += paid
+	elif not in_base: give_gold_bars(paid)
+	else:
+		var left := paid
+		while left > 0:
+			var stack := MaterialCatalog.create(Economy.GOLD_ID, mini(left, MaterialCatalog.stack_size(Economy.GOLD_ID)))
+			left -= stack.quantity
+			if not base.receive_to_staging(stack): base.receive(stack)
+	save_base(not in_base)
+	return true
+
+## The old trade crates become packs where they lie (§7.3).
+func _migrate_trade_crates() -> void:
+	var items: Array[Item] = base.all_items()
+	items.append_array(inventory.items)
+	items.append_array(safe_bag.items)
+	for item in items:
+		if not Packs.LEGACY.has(item.material_id): continue
+		var pack := MaterialCatalog.create(str(Packs.LEGACY[item.material_id]), item.quantity)
+		item.item_name = pack.item_name
+		item.material_id = pack.material_id
+		item.max_stack = pack.max_stack
+		item.unit_value = pack.unit_value
+		item.description = pack.description
+		item.set_quantity(item.quantity)
 
 ## Finished jobs go to staging (the receiving bay when it is full).
 func _tick_workshop() -> void:
@@ -5059,7 +5209,7 @@ func save_base(active_contract: bool = false) -> void:
 		if not carried_items().has(item): left_behind.append(item.to_data())
 	var data := {"version": 3, "gold": gold, "base": base.to_data(), "loadout": loadout, "left_behind": left_behind,
 		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter,
-		"exchange": exchange.to_data(), "workshop": workshop.to_data(), "voyage": voyage.to_data()}
+		"exchange": exchange.to_data(), "workshop": workshop.to_data(), "voyage": voyage.to_data(), "consign": consign.to_data()}
 	market.save_file(market_path())
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
@@ -5125,6 +5275,7 @@ func load_base() -> void:
 	exchange.load_data(parsed.get("exchange", {}))
 	workshop.load_data(parsed.get("workshop", {}))
 	voyage.load_data(parsed.get("voyage", {}))
+	consign.load_data(parsed.get("consign", {}))
 	research.apply_globals()
 	player.set_operator(base.operator)
 	refresh_look()

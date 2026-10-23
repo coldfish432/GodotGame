@@ -87,7 +87,7 @@ func run() -> void:
 	var prts_missing := []
 	for id in MaterialCatalog.MATERIALS:
 		# Trade goods and 萨米 goods are not PRTS items; they borrow supplies icons.
-		if MaterialCatalog.MATERIALS[id].get("source", "") in ["common", "trade", "sami", "yan", "special", "farm", "meal"]: continue
+		if MaterialCatalog.MATERIALS[id].get("source", "") in ["common", "trade", "pack", "sami", "yan", "special", "farm", "meal"]: continue
 		var tex := ItemIcons.texture_for(MaterialCatalog.create(id, 1))
 		if tex == null or tex.get_size() != Vector2(32, 32): prts_missing.append(id)
 	check("every PRTS material has a 32×32 icon", prts_missing.is_empty(), prts_missing)

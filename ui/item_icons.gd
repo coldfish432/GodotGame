@@ -83,6 +83,10 @@ const MATERIALS := {
 	"扳手": "wrench", "工具套装": "toolkit", "医用耗材包": "medical_supplies",
 	# Trade goods and 萨米 goods: stand-in icons from the supplies set until drawn.
 	"工业补给箱": "toolkit", "电子元件箱": "circuit_board", "野外生活包": "canvas_sheet", "医疗补给箱": "medical_supplies",
+	# Trade packs (交易包修订案 §8): the supplies set until Sol's pack crates.
+	"建材包": "toolkit", "电子包": "circuit_board", "医疗包": "medical_supplies", "燃料包": "fuel_can",
+	"寒地物资包": "canvas_sheet", "源石包": "toolkit", "养成材料包": "toolkit", "违禁品包": "toolkit",
+	"武器包": "toolkit", "防具包": "toolkit", "饰品包": "toolkit",
 	"林地草药": "sugar_substitute", "鞣制兽皮": "canvas_sheet",
 	# Borrowed until it has its own art.
 	"玄纹墨": "loxic_kohl",

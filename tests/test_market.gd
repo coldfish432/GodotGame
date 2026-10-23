@@ -43,6 +43,10 @@ func run() -> void:
 	check("more than seven days only simulates the last seven: %d ms" % (Time.get_ticks_msec() - t), Time.get_ticks_msec() - t < 3000 and m.t > T0 + 60 * 86400 - 3)
 	# Active hours (不停市): thin books outside them, never closed.
 	var day := T0 - posmod(T0, 86400)    # midnight UTC = local with tz 0
+	# The made-up history may leave an all-day or spread event running; the
+	# hours alone are checked here.
+	m.effects.clear()
+	m._mods_dirty = true
 	m.t = day + 10 * 3600
 	check("龙门商会 active at 10:00, not at 22:00", m.active("lungmen", 10) and not m.active("lungmen", 22))
 	check("鼠王 active at 22:00, 喀兰贸易 all day", m.active("rat", 22) and not m.active("rat", 10) and m.active("karlan", 3))

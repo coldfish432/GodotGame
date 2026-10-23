@@ -86,6 +86,8 @@ var recent_sales := {}        # faction -> 龙门币 sold recently, for news wei
 var counters := {}            # offline summary: fills, liquidations, defaults, arrivals
 var _next_id := 1
 var _day := 0
+## 1 once the account trades packs (交易包修订案 §7.3).
+var packs_version := 1
 ## notify(text, kind): the game decides how to show it (PRTS log in the field).
 var notify := Callable()
 
@@ -260,6 +262,10 @@ func quote_sell(item: Item, faction: String, remote: bool = true, flash_mult: fl
 	if remote and FactionCatalog.info(faction).get("field_only", false):
 		out.why = "只能在局内据点交易"
 		return out
+	# The terminal trades packs only (交易包修订案 §6); posts still take loose goods.
+	if remote and not Packs.is_pack(item.material_id):
+		out.why = "只收交易包"
+		return out
 	if market.halted(m):
 		out.why = "暂停收货"
 		return out
@@ -298,7 +304,8 @@ func sell_item(item: Item, faction: String, remote: bool = true, flash: Dictiona
 ## Unit price of `material` from `faction`'s shelf: {ok, why, unit, currency, market}.
 func quote_buy(faction: String, material: String) -> Dictionary:
 	var out := {"ok": false, "why": "", "currency": FactionCatalog.currency(faction), "unit": 0.0}
-	if not material in FactionCatalog.info(faction).get("sells", []):
+	var shelf: Array = FactionCatalog.packs_sold(faction) if Packs.is_pack(material) else FactionCatalog.info(faction).get("sells", [])
+	if not material in shelf:
 		out.why = "不出售"
 		return out
 	# 势力特供 (势力特供策划案_v0_2 §二): only from their relation rank.
@@ -320,6 +327,8 @@ func quote_buy(faction: String, material: String) -> Dictionary:
 func buy_material(faction: String, material: String, count: int, remote: bool = true, flash: Dictionary = {}) -> bool:
 	if count <= 0: return false
 	if remote and FactionCatalog.info(faction).get("field_only", false): return false
+	# At the terminal: packs, and the 势力特供 (交易包修订案 §6).
+	if remote and not Packs.is_pack(material) and not FactionSpecials.is_special(material): return false
 	var q := quote_buy(faction, material)
 	if not q.ok: return false
 	var unit := float(q.unit) * float(flash.get("mult", 1.0))
@@ -413,6 +422,7 @@ func place_sell_order(item: Item, faction: String, kind: String, price: float, t
 	return true
 
 func place_buy_order(faction: String, material: String, count: int, price: float, term: String = "1d") -> bool:
+	if not Packs.is_pack(material): return false
 	var q := quote_buy(faction, material)
 	if not q.ok or str(q.market).is_empty() or FactionCatalog.info(faction).get("field_only", false): return false
 	if orders_with(faction) >= order_slots(faction): return false
@@ -489,18 +499,16 @@ func _fill_buy(o: Dictionary) -> void:
 
 # --- Forwards (§8) ----------------------------------------------------------------------
 
-## Materials `faction` writes forwards on: its shelf and what it likes buying.
+## Packs `faction` writes forwards on (交易包修订案 §6): what it buys or sells.
 func forward_materials(faction: String) -> Array[String]:
-	var out: Array[String] = []
-	for id in FactionSpecials.plain_shelf(faction):
-		if MaterialCatalog.MATERIALS.has(id) and not out.has(id): out.append(id)
-	for id in MaterialCatalog.MATERIALS:
-		if out.size() >= 8: break
-		if id == Economy.GOLD_ID or out.has(id): continue
-		var category := FactionCatalog.material_category(id)
-		if category.is_empty() or FactionCatalog.preference(faction, category) < 1.1: continue
-		if MaterialCatalog.star(id) <= 3: out.append(id)
-	return out
+	return FactionCatalog.packs_traded(faction)
+
+## Why a forward on `pack` in this direction cannot be written ("" = it can):
+## she delivers what the faction buys, receives only what it sells (§3.3).
+static func forward_side_refusal(faction: String, pack: String, deliver: bool) -> String:
+	if not Packs.is_pack(pack): return "只做交易包"
+	if deliver: return "" if FactionCatalog.preference(faction, Packs.category_of(pack)) > 0.0 else "不收这类货"
+	return "" if FactionCatalog.packs_sold(faction).has(pack) else "只能交货"
 
 ## Unit spot of a material at a faction: what it pays (deliver) or asks (receive).
 func material_spot(faction: String, material: String, deliver: bool) -> float:
@@ -527,7 +535,7 @@ func forward_refusal(faction: String, lev: int) -> String:
 ## Opens a forward: `deliver` (交货合约) or receive (收货合约).
 func open_forward(faction: String, material: String, count: int, term: int, deliver: bool, lev: int) -> bool:
 	if count <= 0 or term < 0 or term >= TERMS.size() or not lev in LEVERAGES: return false
-	if not forward_refusal(faction, lev).is_empty(): return false
+	if not forward_refusal(faction, lev).is_empty() or not forward_side_refusal(faction, material, deliver).is_empty(): return false
 	var currency := FactionCatalog.currency(faction)
 	var k := forward_price(faction, material, term, deliver)
 	var notional := k * count
@@ -902,7 +910,7 @@ func ship_fee(item: Item) -> int:
 	return ceili(Economy.price(item) * rate)
 
 func ship(item: Item, faction: String) -> bool:
-	if market_of(item, faction).is_empty() or FactionCatalog.info(faction).get("transport", false): return false
+	if not Packs.is_pack(item.material_id) or market_of(item, faction).is_empty() or FactionCatalog.info(faction).get("transport", false): return false
 	var fee := ship_fee(item)
 	if not pay("lmd", fee): return false
 	var due := market.t + game.rng.randi_range(SHIP_HOURS.x, SHIP_HOURS.y)
@@ -978,12 +986,43 @@ func on_event(ev: Dictionary) -> void:
 	for f in ev.get("relation", {}):
 		if recent_sales.has(f): add_relation(f, int(ev.relation[f]))
 
+# --- Trade packs (交易包修订案 §7.3) -----------------------------------------------------------
+
+## Once, on a save from before the packs: positions on loose materials and on
+## the old 贸易品 books close at today's price (no relation lost, not a default),
+## their orders are cancelled with the fee back, the watch list moves to packs.
+func migrate_packs() -> void:
+	if packs_version >= 1: return
+	packs_version = 1
+	for f in forwards.duplicate():
+		if Packs.is_pack(str(f.material)): continue
+		forwards.erase(f)
+		credit(str(f.currency), maxf(0.0, float(f.margin) + forward_pnl(f)))
+	for o in orders.duplicate():
+		var loose: bool = o.has("material") and not Packs.is_pack(str(o.material))
+		if o.has("item"): loose = not Packs.is_pack(str(o.item.get("material", "")))
+		if not loose and market.books.has(str(o.market)): continue
+		var fee := float(Economy.price(Item.from_data(o.item))) * ORDER_FEE if o.has("item") else 			float(MaterialCatalog.create(str(o.material), 1).unit_value * Economy.LMD_PER_VALUE) * int(o.count) * ORDER_FEE if MaterialCatalog.MATERIALS.has(str(o.material)) else 0.0
+		cancel_order(int(o.id))
+		credit("lmd", fee)
+	for c in cfds.duplicate():
+		var u := str(c.underlying)
+		if u == FactionCatalog.FX or u.begins_with("comp:") or market.books.has(u): continue
+		cfds.erase(c)
+		credit(str(c.currency), float(c.margin))
+	var moved: Array[String] = []
+	for w in watch:
+		if (w == FactionCatalog.FX or w.begins_with("comp:") or market.books.has(w)) and not moved.has(w): moved.append(w)
+	watch = moved
+	alerts = alerts.filter(func(a): return str(a.market) == FactionCatalog.FX or str(a.market).begins_with("comp:") or market.books.has(str(a.market)))
+
 # --- Saving ---------------------------------------------------------------------------------
 
 func to_data() -> Dictionary:
 	return {"gold_account": gold_account, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
 		"cfds": cfds, "forward_cooldown": forward_cooldown, "loan": loan, "shipments": shipments, "history": history,
-		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE}
+		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE,
+		"packs_version": packs_version}
 
 func load_data(d: Dictionary) -> void:
 	gold_account = float(d.get("gold_account", 0.0))
@@ -1003,3 +1042,5 @@ func load_data(d: Dictionary) -> void:
 	cfd_day = d.get("cfd_day", cfd_day)
 	recent_sales = d.get("recent_sales", {})
 	_next_id = int(d.get("next_id", 1))
+	# A fresh account starts on packs; an old one migrates once (migrate_packs).
+	packs_version = int(d.get("packs_version", 0 if not d.is_empty() else 1))

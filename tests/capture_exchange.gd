@@ -35,7 +35,10 @@ func run() -> void:
 	var ex := game.exchange
 	ex.relations = {"karlan": 700, "lungmen": 560, "rhine": 300, "kazimierz": 150}
 	ex.gold_account = 36.5
-	for item in [MaterialCatalog.create("螺栓", 24), MaterialCatalog.create("医用耗材包", 6), MaterialCatalog.create("固源岩", 12), MaterialCatalog.create("源岩", 30)]:
+	game.base.set_facility("exchange", 1)
+	for item in [MaterialCatalog.create("螺栓", 20), MaterialCatalog.create("螺栓", 20), MaterialCatalog.create("金属板", 14), MaterialCatalog.create("钉子", 20),
+			MaterialCatalog.create("医用耗材包", 6), MaterialCatalog.create("固源岩", 12), MaterialCatalog.create("源岩", 30),
+			MaterialCatalog.create("建材包", 3), MaterialCatalog.create("防具包", 2), MaterialCatalog.create("寒地物资包", 1)]:
 		game.base.shelf.append(item)
 	var armor := Item.create("近卫局制式护甲", Item.Category.ARMOR, 2, 2)
 	armor.value = 130
@@ -45,12 +48,13 @@ func run() -> void:
 	ex.toggle_watch("rhine:originium")
 	game.market.fire("C2")
 	game.market.fire("X2")
-	ex.open_forward("lungmen", "螺栓", 20, 1, true, 1)
-	ex.open_forward("karlan", "帆布", 6, 2, false, 2)
+	ex.open_forward("lungmen", "建材包", 2, 1, true, 1)
+	ex.open_forward("karlan", "寒地物资包", 1, 2, false, 2)
 	ex.open_cfd("fx", 1, 2, 15000.0)
 	ex.open_cfd("comp:kazimierz", -1, 1, 4.0)
 	ex.add_alert("fx", ">=", ex.cfd_price("fx") * 1.03)
 	game.open_exchange()
+	await step(90)
 	page(0, "fx", 3)
 	await capture("market-fx-cfd")
 	page(0, "lungmen:armor", 0)
@@ -67,12 +71,49 @@ func run() -> void:
 	await capture("funds")
 	game.menu.show_station("workshop")
 	await capture("workshop")
+	# 交易所交易包修订案: 打包, one-key packing, 拆包, 可露希尔's 代售.
+	ExchangeScreen.workshop_tab = 1
+	ExchangeScreen.pack_pick = "建材包"
+	ExchangeScreen.pack_chosen = game.stash.filter(func(i): return i.material_id == "金属板")
+	game.menu.show_station("workshop")
+	await capture("workshop-pack")
+	game.menu.open_quick_pack()
+	await capture("quick-pack")
+	game.menu.close_quick_pack()
+	ExchangeScreen.workshop_tab = 0
+	game.close_modal()
+	game.base.console = true
+	game.menu.stash_tab = BaseScreens.UNPACK_TAB
+	BaseScreens.unpack_counts = {"金属板": 6, "螺栓": 8}
+	game.open_station("stash")
+	game.menu.show_station("stash")
+	await step(90)
+	await capture("unpack")
+	game.menu.stash_tab = 0
+	game.close_modal()
+	game.base.ship_at = "萨米"
+	game.base.camps["snow"] = 20
+	game.base.shelf.append(MaterialCatalog.create(Economy.GOLD_ID, 30))
+	game.open_station("store")
+	game.menu.camp_tab = 1
+	game.menu.show_station("store")
+	await step(90)
+	await capture("consign-base")
+	game.menu.trader_tab = "sell"
+	game.inventory.add_stack(MaterialCatalog.create("代糖", 12))
+	game.menu.show_station("store")
+	await capture("consign-sell")
+	game.menu.trader_tab = "buy"
+	game.voyage.sailing = {"to": "龙门", "start": BaseState.now(), "due": BaseState.now() + 5400}
+	game.menu.show_station("store")
+	await capture("consign-sailing")
+	game.voyage.sailing = {}
 	game.close_modal()
 	game.open_station("store")
-	game.menu.camp_tab = 2
+	game.menu.camp_tab = 3
 	game.menu.show_station("store")
 	await capture("closure-fx")
-	game.menu.camp_tab = 3
+	game.menu.camp_tab = 4
 	game.menu.show_station("store")
 	await capture("closure-loan")
 	game.close_modal()

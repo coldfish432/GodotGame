@@ -437,10 +437,18 @@ static func _info(stage: Control, game: GameManager, item: Item, key: String, va
 
 ## In a camp, or (`at_base`) her counter at the base: the same shop and 赤金
 ## buying, no deposit and no way out there (用户：不区分).
+## 可露希尔's tabs at the base and in a camp (代售 second, 交易包修订案 §5.1).
+const CLOSURE_TABS_BASE := ["商店", "代售", "出售赤金", "换汇", "贷款", "随队物资"]
+const CLOSURE_TABS_CAMP := ["商店", "代售", "寄存", "出售赤金", "换汇", "交割", "补给", "处理"]
+
 static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 	# 商店 is the Tarkov-style trader screen (药剂与商人界面策划案 §4).
 	if menu.camp_tab <= 0:
 		TraderScreen.closure(menu, at_base)
+		return
+	# 代售 (交易所交易包修订案 §5) is a trader screen too.
+	if menu.camp_tab == 1:
+		TraderScreen.consign(menu, at_base)
 		return
 	var game := menu.game
 	var stage := menu.stage_begin(0.97)
@@ -470,11 +478,11 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 	# 换汇 at the live rate (势力与交易所策划案 §1.3); the loan at the base (§10);
 	# forward delivery in a camp (§8.3).
 	# 地图特色策划案 §9: 随队物资 at the base; 补给 and 处理 in a camp.
-	var tabs := ["商店", "出售赤金", "换汇", "贷款", "随队物资"] if at_base else ["商店", "寄存", "出售赤金", "换汇", "交割", "补给", "处理"]
+	var tabs := CLOSURE_TABS_BASE if at_base else CLOSURE_TABS_CAMP
 	var tab: int = clampi(menu.camp_tab, 0, tabs.size() - 1)
 	var redraw := func(): camp(menu, at_base)
 	AK.put(stage, AK.toggle(tabs, tab, func(i): menu.camp_tab = i; menu.pick = null; camp(menu, at_base)), Vector2(410, 32))
-	tab = ([0, 2, 3, 4, 6] if at_base else [0, 1, 2, 3, 5, 7, 8])[tab]
+	tab = ([0, 9, 2, 3, 4, 6] if at_base else [0, 9, 1, 2, 3, 5, 7, 8])[tab]
 	if tab in [3, 4, 5]:
 		_closure_money(menu, stage, tab, at_base)
 		return

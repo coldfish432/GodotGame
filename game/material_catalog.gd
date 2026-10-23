@@ -95,6 +95,20 @@ const MATERIALS := {
 	"电子元件箱": {"star": 3, "kind": "base", "source": "trade", "stack": 1, "size": Vector2i(2, 2), "value": 115, "text": "电线、灯泡和继电器打成的一箱电子件。"},
 	"野外生活包": {"star": 3, "kind": "base", "source": "trade", "stack": 1, "size": Vector2i(2, 2), "value": 78, "text": "帆布、固体燃料和胶带，寒地营地的过冬物资。"},
 	"医疗补给箱": {"star": 3, "kind": "base", "source": "trade", "stack": 1, "size": Vector2i(2, 2), "value": 108, "text": "医用耗材、糖和胶带装成的一箱医疗补给。"},
+	# Trade packs (交易所交易包修订案 §2, 用户 2026-10-23): the exchange's only
+	# goods; "value" is the face (Packs.PACKS). The crates above are the old
+	# trade goods, turned into packs when a save loads (§7.3).
+	"建材包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准建材包，交易所按包报价。"},
+	"电子包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 120, "text": "加工部封装的标准电子包，交易所按包报价。"},
+	"医疗包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准医疗包，交易所按包报价。"},
+	"燃料包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准燃料包，交易所按包报价。"},
+	"寒地物资包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准寒地物资包，交易所按包报价。"},
+	"源石包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 120, "text": "加工部封装的标准源石包，交易所按包报价。"},
+	"养成材料包": {"star": 4, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 300, "text": "加工部封装的标准养成材料包，交易所按包报价。"},
+	"违禁品包": {"star": 4, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 200, "text": "来路不明的货封在一起，只有黑市收。拆不开。"},
+	"武器包": {"star": 4, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 400, "text": "按价值封装的一箱武器，加了封条，拆不开。"},
+	"防具包": {"star": 4, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 400, "text": "按价值封装的一箱防具，加了封条，拆不开。"},
+	"饰品包": {"star": 4, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 400, "text": "按价值封装的一箱饰品，加了封条，拆不开。"},
 	# 萨米林地部族's goods (交易所事件表 §0.1: 萨米出口医药原材料).
 	"林地草药": {"star": 2, "kind": "base", "source": "sami", "stack": 20, "text": "萨米林地人采集晾干的草药，是医药原材料。"},
 	"鞣制兽皮": {"star": 3, "kind": "base", "source": "sami", "stack": 5, "size": Vector2i(2, 1), "text": "岩角兽的皮，鞣制后防寒耐磨。"},

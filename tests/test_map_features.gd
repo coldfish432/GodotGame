@@ -123,7 +123,7 @@ func _snow() -> void:
 	game.features.values.cold = 70.0
 	game._enter_camp()
 	check("a camp clears the cold", game.features.value("cold") == 0.0 and game.player.cold == 0.0)
-	game.menu.camp_tab = 5
+	game.menu.camp_tab = 6
 	game.menu.show_camp()
 	var supply_rows: Array = game.menu.stage.find_children("*", "Button", true, false).filter(func(b): return b.has_meta("supply"))
 	check("可露希尔 in a camp sells the field supplies and solid fuel", supply_rows.size() == FeatureCatalog.CAMP_SUPPLIES.size())
@@ -184,7 +184,7 @@ func _mine() -> void:
 	var bars := game.gold_available()
 	check("营地处理: −30 for 3 赤金", game.camp_cleanse() and is_equal_approx(game.run_contamination, dose - 30.0) and game.gold_available() == bars - 3)
 	check("once a camp", not game.camp_cleanse() and game.camp_cleanse_refusal() == "已处理")
-	game.menu.camp_tab = 6
+	game.menu.camp_tab = 7
 	game.menu.show_camp()
 	var service: Array = game.menu.stage.find_children("*", "Button", true, false).filter(func(b): return b.has_meta("service"))
 	check("处理 lists only what has a value (污染, no 血债 here)", service.size() == 1 and service[0].get_meta("service") == "cleanse")

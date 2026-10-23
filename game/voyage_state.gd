@@ -276,6 +276,7 @@ static func order_materials(faction: String) -> Array[String]:
 	var out: Array[String] = []
 	for id in MaterialCatalog.MATERIALS:
 		if id == Economy.GOLD_ID or int(MaterialCatalog.MATERIALS[id].star) > 3: continue
+		if str(MaterialCatalog.MATERIALS[id].get("source", "")) in ["pack", "trade"]: continue
 		var category := FactionCatalog.material_category(id)
 		if category in VoyageCatalog.ORDER_CATEGORIES and FactionCatalog.preference(faction, category) > 0.0: out.append(id)
 	return out

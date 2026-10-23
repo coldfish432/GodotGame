@@ -15,6 +15,8 @@ const STATION_TITLES := {
 	"personnel": ["人事部", "PERSONNEL"],
 }
 static var _detail: RichTextLabel
+## The piece last under the pointer in the warehouse or the workshop (one-key packing's pick).
+static var hovered: Item = null
 ## A screen's own accent for the shell (a trader's colour); clear = the station's department.
 static var accent_override := Color(0, 0, 0, 0)
 
@@ -293,7 +295,11 @@ static func personnel(menu: FieldMenu) -> void:
 
 # --- #14 仓库 -------------------------------------------------------------------------
 
-const STASH_TABS := ["全部", "武器", "防具", "饰品", "材料"]
+const STASH_TABS := ["全部", "武器", "防具", "饰品", "材料", "拆包"]
+## The 拆包 page (交易所交易包修订案 §4): the pack picked and the pick so far.
+const UNPACK_TAB := 5
+static var unpack_pick := ""
+static var unpack_counts := {}
 
 ## At the 仓管台 (zone -1): the 基建 page until the master console is bought,
 ## then every zone. At a zone's floor frame (zone = its category): that zone's
@@ -311,6 +317,9 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 		stage = shell(menu, "%s区货架" % BaseCatalog.CATEGORY_NAMES[zone], "SHELVES", [], 0, Callable(), "DEPOT", currencies)
 	else:
 		stage = shell(menu, "仓管台", "DEPOT", STASH_TABS, tab, func(i): menu.stash_tab = i; stash(menu), "DEPOT", currencies)
+		if tab == UNPACK_TAB:
+			_unpack_page(menu, stage)
+			return
 	if zone >= 0: _rack_button(menu, stage, zone)
 	else:
 		var search := LineEdit.new()
@@ -389,6 +398,85 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 	AK.put(stage, card, Vector2(964, TOP + 50))
 	card.visible = not shown.is_empty()
 	if not shown.is_empty(): _show_detail(game, shown[0])
+
+## 拆包 (§4): the packs held on the left, the pack's list with points and
+## − / + in the middle, the points left and 拆包 on the right.
+static func _unpack_page(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var held: Array[String] = []
+	for pack in Packs.ORDER:
+		if Packs.can_open(pack) and game.material_count(pack) > 0: held.append(pack)
+	if not unpack_pick in held:
+		unpack_pick = held[0] if not held.is_empty() else ""
+		unpack_counts.clear()
+	var left := VBoxContainer.new()
+	left.add_theme_constant_override("separation", 4)
+	AK.put(stage, left, Vector2(16, TOP + 8), Vector2(240, 0))
+	left.add_child(AK.section("持有", "PACKS  %d" % held.size()))
+	for pack in held:
+		var b := AK.button("%s  ×%d" % [pack, game.material_count(pack)], "blue" if pack == unpack_pick else "plain", 13)
+		b.custom_minimum_size = Vector2(240, 34)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		var chosen: String = pack
+		b.pressed.connect(func(): unpack_pick = chosen; unpack_counts.clear(); stash(menu))
+		left.add_child(b)
+	if unpack_pick.is_empty(): return
+	var points := game.open_points(unpack_pick)
+	var spent := Packs.pick_cost(unpack_pick, unpack_counts)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	AK.put(stage, scroll, Vector2(272, TOP + 8), Vector2(640, BOTTOM - TOP - 16))
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 4)
+	list.custom_minimum_size.x = 620
+	scroll.add_child(list)
+	for id in Packs.open_list(unpack_pick):
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var sample := MaterialCatalog.create(id, 1)
+		var icon := AK.item_icon(sample, Vector2(32, 32))
+		icon.custom_minimum_size = Vector2(32, 32)
+		row.add_child(icon)
+		var title := AK.label(id, 13, AK.FG)
+		title.custom_minimum_size.x = 200
+		row.add_child(title)
+		var cost := Packs.open_cost(id)
+		var pts := AK.label(str(cost), 13, AK.MUTE, AK.en())
+		pts.custom_minimum_size.x = 60
+		row.add_child(pts)
+		var n := int(unpack_counts.get(id, 0))
+		var material: String = id
+		var minus := AK.button("−", "plain", 13)
+		minus.custom_minimum_size = Vector2(30, 28)
+		minus.disabled = n <= 0
+		minus.pressed.connect(func():
+			unpack_counts[material] = maxi(0, int(unpack_counts.get(material, 0)) - 1)
+			if int(unpack_counts[material]) == 0: unpack_counts.erase(material)
+			stash(menu))
+		row.add_child(minus)
+		var count := AK.label(str(n), 14, AK.HOLO if n > 0 else AK.MUTE, AK.en())
+		count.custom_minimum_size.x = 40
+		count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		row.add_child(count)
+		var plus := AK.button("+", "plain", 13)
+		plus.custom_minimum_size = Vector2(30, 28)
+		plus.disabled = spent + cost > points
+		plus.pressed.connect(func(): unpack_counts[material] = int(unpack_counts.get(material, 0)) + 1; stash(menu))
+		row.add_child(plus)
+		list.add_child(row)
+	var right := VBoxContainer.new()
+	right.add_theme_constant_override("separation", 8)
+	AK.put(stage, right, Vector2(932, TOP + 8), Vector2(330, 0))
+	right.add_child(AK.section(unpack_pick, "POINTS"))
+	right.add_child(AK.label("%d / %d" % [points - spent, points], 28, AK.HOLO, AK.en()))
+	var refusal := game.unpack_refusal(unpack_pick, unpack_counts) if not unpack_counts.is_empty() else "未选"
+	var go := AK.button("拆包" if refusal.is_empty() else refusal, "blue" if refusal.is_empty() else "plain", 15)
+	go.custom_minimum_size = Vector2(320, 44)
+	go.disabled = not refusal.is_empty()
+	go.pressed.connect(func():
+		if game.unpack(unpack_pick, unpack_counts): unpack_counts.clear()
+		stash(menu))
+	right.add_child(go)
 
 ## The zone's next rack: the front row first, then further back.
 static func _rack_button(menu: FieldMenu, stage: Control, zone: int) -> void:
@@ -550,6 +638,7 @@ static func _cost_line(game: GameManager, stage: Control, at: Vector2, price: in
 	AK.put(stage, line, at)
 
 static func _show_detail(game: GameManager, item: Item) -> void:
+	hovered = item
 	if is_instance_valid(_detail): _detail.text = ItemTooltip.text(game, item, false, false)
 
 # --- #15 出库区 -----------------------------------------------------------------------

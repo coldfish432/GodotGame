@@ -841,7 +841,7 @@ func _flash_step(dt: int) -> void:
 	var info: Dictionary = FactionCatalog.info(faction)
 	var offer := {"id": _next_flash_id, "faction": faction, "until": t + rng.randi_range(60, 120)}
 	_next_flash_id += 1
-	var shelf := FactionSpecials.plain_shelf(faction)
+	var shelf := FactionCatalog.packs_sold(faction)   # 交易包修订案 §6: flash sales are packs
 	if rng.randf() < 0.6 or shelf.is_empty():
 		var cats: Array = (info.prefs as Dictionary).keys()
 		offer["kind"] = "buy"

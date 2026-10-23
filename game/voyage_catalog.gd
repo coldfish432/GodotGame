@@ -91,7 +91,7 @@ const ORDER_LINES := Vector2i(1, 2)
 const ORDER_COUNT := Vector2i(30, 100)
 const ORDER_TOTAL := 150
 ## Categories an order can ask for (gear only goes one way, contraband never).
-const ORDER_CATEGORIES := ["originium", "medical", "electronic", "build", "fuel", "cold", "elite", "trade"]
+const ORDER_CATEGORIES := ["originium", "medical", "electronic", "build", "fuel", "cold", "elite"]
 
 ## The crate a delivery contract carries: too big for any safe bag, worth
 ## nothing to anyone but its buyer.

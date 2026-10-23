@@ -264,7 +264,20 @@ static func _number(parent: Node, caption: String, value: float, decimals: int, 
 		row.add_child(whole)
 	if not suffix.is_empty(): row.add_child(AK.label(suffix, 12, AK.MUTE))
 	parent.add_child(row)
+	_fit_field(parent, row, c, field)
 	return field
+
+## The typed field gives way when the row would run past its column (the
+## order panel is 288 wide; 用户 2026-10-23: 修复界面超出): 120 at most, 64
+## at least; below that the caption column drops to its text's width.
+static func _fit_field(parent: Node, row: HBoxContainer, caption: Label, field: LineEdit) -> void:
+	var room := (parent as Control).custom_minimum_size.x if parent is Control else 0.0
+	if room <= 0.0: return
+	var others := row.get_combined_minimum_size().x - field.get_combined_minimum_size().x
+	if room - others < 64.0:
+		caption.custom_minimum_size.x = 0.0
+		others = row.get_combined_minimum_size().x - field.get_combined_minimum_size().x
+	field.custom_minimum_size.x = clampf(room - others, 48.0, 120.0)
 
 ## "1,234.50" with `decimals` places (none for counts).
 static func number_text(v: float, decimals: int) -> String:
@@ -305,10 +318,11 @@ static func _go(parent: Node, text: String, enabled: bool, on_press: Callable, k
 	b.pressed.connect(on_press)
 	parent.add_child(b)
 
+## The packs of `category` she holds (the terminal trades packs only, 交易包修订案 §6).
 static func _matching_items(game: GameManager, category: String) -> Array[Item]:
 	var out: Array[Item] = []
 	for item in game.deliverable_items():
-		if FactionCatalog.category_of(item) == category: out.append(item)
+		if Packs.is_pack(item.material_id) and FactionCatalog.category_of(item) == category: out.append(item)
 	return out
 
 static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
@@ -333,10 +347,10 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 			build(menu))
 		body.add_child(b)
 	body.add_child(AK.section("买入", "BUY"))
-	var shelf: Array = FactionCatalog.info(faction).get("sells", [])
+	var shelf: Array = FactionCatalog.packs_sold(faction).filter(func(p): return Packs.category_of(p) == category)
+	shelf.append_array((FactionCatalog.info(faction).get("sells", []) as Array).filter(func(m): return FactionSpecials.is_special(m)))
 	for material in shelf:
 		var special := FactionSpecials.is_special(material)
-		if not special and FactionCatalog.material_category(material) != category and shelf.size() > 3: continue
 		var q := ex.quote_buy(faction, material)
 		if not q.ok:
 			# 势力特供 below their rank show what they wait for (势力特供策划案 §二).
@@ -388,7 +402,7 @@ static func _order_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	body.add_child(_seg(["当日", "1日", "3日", "7日", "结算"], order_term, func(i): order_term = i; build(menu), 10, 288.0))
 	var term: String = ["session", "1d", "3d", "7d", "settle"][order_term]
 	if order_kind == 2:
-		var shelf: Array = FactionCatalog.info(faction).get("sells", [])
+		var shelf: Array = FactionCatalog.packs_sold(faction)
 		if shelf.is_empty():
 			body.add_child(AK.label("不出售", 12, AK.MUTE))
 			return
@@ -435,6 +449,7 @@ static func _forward_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	var material: String = materials[posmod(fwd_material, materials.size())]
 	_picker(body, "商品", material, func(): fwd_material -= 1; build(menu), func(): fwd_material += 1; build(menu))
 	body.add_child(_seg(["交货合约", "收货合约"], 0 if fwd_deliver else 1, func(i): fwd_deliver = i == 0; build(menu), 11, 288.0))
+	var side := Exchange.forward_side_refusal(faction, material, fwd_deliver)
 	body.add_child(_seg(Exchange.TERM_NAMES, fwd_term, func(i): fwd_term = i; build(menu), 10, 288.0))
 	body.add_child(_seg(["1×", "2×", "3×"], lev - 1, func(i): lev = i + 1; build(menu), 11, 288.0))
 	_number(body, "数量", qty, 0, 1, 1, func(v): qty = int(v); build(menu), "", func(): return maxi(1, game.material_count(material)))
@@ -443,7 +458,7 @@ static func _forward_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	var notional := k * qty
 	body.add_child(AK.label("约定价 %s   名义 %s" % [Exchange.format_money(currency, k), Exchange.format_money(currency, notional)], 11, AK.FG))
 	body.add_child(AK.label("保证金 %s   开仓费 %s   库存 %d" % [Exchange.format_money(currency, notional / lev), Exchange.format_money(currency, notional * Exchange.OPEN_FEE[lev - 1]), game.material_count(material)], 11, AK.MUTE))
-	var refusal := ex.forward_refusal(faction, lev)
+	var refusal := side if not side.is_empty() else ex.forward_refusal(faction, lev)
 	if not refusal.is_empty(): body.add_child(AK.label(refusal, 12, AK.RED))
 	_go(body, "签约", refusal.is_empty(), func():
 		if ex.open_forward(faction, material, qty, fwd_term, fwd_deliver, lev): game.save_base()
@@ -681,7 +696,7 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	_go(right, "企鹅专递单  %s" % (Economy.format(FactionSpecials.SLIP_PRICE) if slip.is_empty() else slip), slip.is_empty(), func():
 		if game.buy_slip(): game.save_base()
 		build(menu))
-	var items: Array[Item] = game.deliverable_items().filter(func(i): return not FactionCatalog.category_of(i).is_empty())
+	var items: Array[Item] = game.deliverable_items().filter(func(i): return Packs.is_pack(i.material_id))
 	if items.is_empty():
 		right.add_child(AK.label("可运 0", 12, AK.MUTE))
 		return
@@ -700,12 +715,21 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 
 static var workshop_count := 1
 static var workshop_pick := ""
+static var workshop_tab := 0
+## 打包 (交易所交易包修订案 §3): the pack picked, the pieces chosen by hand in
+## order, and how many one-key packing makes.
+static var pack_pick := "建材包"
+static var pack_chosen: Array = []
+static var pack_count := 1
 
 static func workshop(menu: FieldMenu) -> void:
 	var game := menu.game
-	var stage := BaseScreens.shell(menu, "加工站", "WORKSHOP · PROCESSING DEPT", [], 0, Callable(), "PROCESS",
+	var stage := BaseScreens.shell(menu, "加工站", "WORKSHOP · PROCESSING DEPT", ["加工", "打包"], workshop_tab, func(i): workshop_tab = i; workshop(menu), "PROCESS",
 		[["lmd", Economy.format(game.gold)]])
-	var names: Array = Workshop.RECIPES.keys() + Workshop.PACKS.keys() + Workshop.GEAR.keys()
+	if workshop_tab == 1:
+		_pack_page(menu, stage)
+		return
+	var names: Array = Workshop.RECIPES.keys() + Workshop.GEAR.keys()
 	if workshop_pick.is_empty(): workshop_pick = names[0]
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 4)
@@ -745,6 +769,10 @@ static func workshop(menu: FieldMenu) -> void:
 	go.disabled = not refusal.is_empty()
 	go.pressed.connect(func(): game.workshop_start(workshop_pick, workshop_count); workshop(menu))
 	right.add_child(go)
+	_queue(menu, right)
+
+static func _queue(menu: FieldMenu, right: VBoxContainer) -> void:
+	var game := menu.game
 	right.add_child(AK.section("队列", "QUEUE  %d / %d" % [game.workshop.busy(), game.workshop_slots()]))
 	for j in game.workshop.jobs:
 		var job: Dictionary = j
@@ -761,6 +789,182 @@ static func workshop(menu: FieldMenu) -> void:
 			b.pressed.connect(func(): game.use_flux(job); workshop(menu))
 			row.add_child(b)
 		right.add_child(row)
+
+# --- 打包 (交易所交易包修订案 §3) --------------------------------------------------------------
+
+## The shelf goods that may go into `pack`, cheapest first.
+static func _pack_pool(game: GameManager, pack: String) -> Array:
+	var out: Array = game.stash.filter(func(x: Item): return Packs.packable(x) and FactionCatalog.category_of(x) == Packs.category_of(pack))
+	out.sort_custom(func(a, b): return Packs.unit_points(a) < Packs.unit_points(b))
+	return out
+
+static func _pack_page(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	pack_chosen = pack_chosen.filter(func(x): return game.stash.has(x))
+	# Left: the eleven packs.
+	var left := VBoxContainer.new()
+	left.add_theme_constant_override("separation", 4)
+	AK.put(stage, left, Vector2(16, TOP + 8), Vector2(220, 0))
+	for pack in Packs.ORDER:
+		var b := AK.button("%s   %d" % [pack, Packs.face(pack)], "blue" if pack == pack_pick else "plain", 13)
+		b.custom_minimum_size = Vector2(220, 34)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		var chosen: String = pack
+		b.pressed.connect(func(): pack_pick = chosen; pack_chosen.clear(); pack_count = 1; workshop(menu))
+		left.add_child(b)
+	# Middle: the shelf's goods of its category; a click puts one in or takes it out.
+	var pool := _pack_pool(game, pack_pick)
+	AK.put(stage, AK.section("仓库", "%s  %d" % [FactionCatalog.CATEGORIES.get(Packs.category_of(pack_pick), ""), pool.size()]), Vector2(252, TOP + 8))
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	AK.put(stage, scroll, Vector2(252, TOP + 40), Vector2(536, BOTTOM - TOP - 48))
+	var grid := GridContainer.new()
+	grid.columns = 8
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	scroll.add_child(grid)
+	for item: Item in pool:
+		var cell := VBoxContainer.new()
+		cell.add_theme_constant_override("separation", 0)
+		var b := Button.new()
+		b.flat = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(58, 58)
+		var picked := pack_chosen.has(item)
+		b.add_child(AK.rect(Color(AK.HOLO, 0.35) if picked else Color(0, 0, 0, 0.35), Vector2.ZERO, Vector2(58, 58)))
+		var icon := AK.item_icon(item, Vector2(54, 54))
+		icon.position = Vector2(2, 2)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(icon)
+		var shown: Item = item
+		b.mouse_entered.connect(func(): BaseScreens.hovered = shown)
+		b.pressed.connect(func():
+			if pack_chosen.has(shown): pack_chosen.erase(shown)
+			else: pack_chosen.append(shown)
+			workshop(menu))
+		b.tooltip_text = "%s%s" % [item.display_name(), item.stack_suffix()]
+		cell.add_child(b)
+		var pts := AK.label(str(Packs.points(item)), 11, AK.HOLO if picked else AK.MUTE, AK.en())
+		pts.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		pts.custom_minimum_size.x = 58
+		cell.add_child(pts)
+		grid.add_child(cell)
+	# Right: by hand, one-key, the queue.
+	var right := VBoxContainer.new()
+	right.add_theme_constant_override("separation", 8)
+	AK.put(stage, right, Vector2(804, TOP + 8), Vector2(460, 0))
+	right.add_child(AK.section(pack_pick, "FACE %d" % Packs.face(pack_pick)))
+	var face := Packs.face(pack_pick)
+	var manual := Packs.manual_packs(pack_pick, pack_chosen)
+	var bar := FieldPanels.Bar.new()
+	bar.ratio = clampf(float(manual.points) / face, 0.0, 1.0)
+	bar.colour = AK.HOLO
+	bar.custom_minimum_size = Vector2(440, 8)
+	right.add_child(bar)
+	right.add_child(AK.label("已装 %d / %d   ·   %d 包   ·   溢出 %d" % [int(manual.points), face, int(manual.packs), int(manual.overflow) if int(manual.packs) > 0 else 0], 13, AK.FG))
+	var by_hand := "未装满" if int(manual.packs) <= 0 else ("加工队列已满" if game.workshop.busy() >= game.workshop_slots() else ("龙门币不足" if game.gold < Packs.PACK_LMD * int(manual.packs) else ""))
+	_go(right, ("打包 ×%d" % int(manual.packs)) if by_hand.is_empty() else by_hand, by_hand.is_empty(), func():
+		if game.pack_manual(pack_pick, pack_chosen): pack_chosen.clear()
+		workshop(menu))
+	right.add_child(AK.section("一键打包", "QUICK"))
+	_quick_form(menu, right, func(): workshop(menu))
+	_queue(menu, right)
+
+## Pack kind, count (− / slider / + / 全部), what it uses and costs, and 打包 (§3.4).
+static func _quick_form(menu: FieldMenu, parent: VBoxContainer, redraw: Callable, with_picker: bool = false) -> void:
+	var game := menu.game
+	if with_picker:
+		_picker(parent, "包", pack_pick, func():
+			pack_pick = Packs.ORDER[posmod(Packs.ORDER.find(pack_pick) - 1, Packs.ORDER.size())]
+			pack_count = 1
+			redraw.call(), func():
+			pack_pick = Packs.ORDER[posmod(Packs.ORDER.find(pack_pick) + 1, Packs.ORDER.size())]
+			pack_count = 1
+			redraw.call())
+	var most := Packs.max_packs(pack_pick, game.stash)
+	pack_count = clampi(pack_count, 1, maxi(1, most))
+	_number(parent, "数量", pack_count, 0, 1, 1, func(v): pack_count = clampi(int(v), 1, maxi(1, most)); redraw.call(), "/ %d" % most, func(): return most)
+	var slider := HSlider.new()
+	slider.min_value = 1
+	slider.max_value = maxi(1, most)
+	slider.step = 1
+	slider.value = pack_count
+	slider.editable = most > 1
+	slider.custom_minimum_size = Vector2(288, 20)
+	slider.drag_ended.connect(func(_changed): pack_count = int(slider.value); redraw.call())
+	parent.add_child(slider)
+	var plan := _plan(game)
+	var pieces := 0
+	for item in plan.take: pieces += int(plan.take[item])
+	parent.add_child(AK.label("用掉 %d 件   ·   溢出 %d 点   ·   %s 龙门币" % [pieces, int(plan.overflow), Economy.format(Packs.PACK_LMD * pack_count)], 12, AK.MUTE))
+	var refusal := game.pack_refusal(pack_pick, pack_count)
+	_go(parent, "打包" if refusal.is_empty() else refusal, refusal.is_empty(), func():
+		if game.pack_quick(pack_pick, pack_count):
+			pack_count = 1
+			menu.close_quick_pack()
+		redraw.call())
+
+## The one-key plan for the pick and count, kept while the shelves stay as they are
+## (the window redraws on every step of the count).
+static var _plan_key := ""
+static var _plan_cache := {}
+
+static func _plan(game: GameManager) -> Dictionary:
+	var points := 0
+	for item: Item in game.stash: points += Packs.points(item)
+	var key := "%s|%d|%d|%d" % [pack_pick, pack_count, game.stash.size(), points]
+	if key != _plan_key:
+		_plan_key = key
+		_plan_cache = Packs.auto_pick(pack_pick, game.stash, pack_count)
+	return _plan_cache
+
+## The one-key packing window over the warehouse (§3.4): the
+## pack of the piece under the pointer, else the last one used.
+static func quick_pack(menu: FieldMenu, hovered: Item) -> Control:
+	if hovered != null and Packs.packable(hovered):
+		var pack := Packs.pack_for(FactionCatalog.category_of(hovered))
+		if not pack.is_empty() and pack != pack_pick:
+			pack_pick = pack
+			pack_count = 1
+	var panel := QuickPack.new()
+	panel.menu = menu
+	panel.redraw()
+	return panel
+
+## The window itself: Enter packs, Esc (GameManager.go_back) closes it.
+class QuickPack extends Control:
+	var menu: FieldMenu
+
+	func redraw() -> void:
+		if not is_instance_valid(menu): return
+		for c in get_children(): c.queue_free()
+		position = Vector2.ZERO
+		size = Vector2(1280, 720)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		add_child(AK.rect(Color(0, 0, 0, 0.55), Vector2.ZERO, size))
+		var panel := Panel.new()
+		panel.add_theme_stylebox_override("panel", AK.box(Color(0.03, 0.04, 0.05, 0.98), AK.HOLO, 1, 0))
+		panel.position = Vector2(420, 200)
+		panel.size = Vector2(440, 290)
+		add_child(panel)
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 8)
+		box.position = Vector2(20, 14)
+		box.custom_minimum_size.x = 400
+		panel.add_child(box)
+		box.add_child(AK.section("一键打包", "QUICK PACK"))
+		ExchangeScreen._quick_form(menu, box, redraw, true)
+		var cancel := AK.button("取消", "plain", 13)
+		cancel.custom_minimum_size = Vector2(288, 30)
+		cancel.pressed.connect(func(): menu.close_quick_pack())
+		box.add_child(cancel)
+
+	func _unhandled_key_input(event: InputEvent) -> void:
+		if event is InputEventKey and event.pressed and not event.echo and event.keycode in [KEY_ENTER, KEY_KP_ENTER]:
+			get_viewport().set_input_as_handled()
+			if menu.game.pack_quick(ExchangeScreen.pack_pick, ExchangeScreen.pack_count):
+				ExchangeScreen.pack_count = 1
+				menu.close_quick_pack()
 
 # --- A faction's post in the field (§12) ---------------------------------------------------
 

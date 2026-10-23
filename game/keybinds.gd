@@ -50,6 +50,8 @@ const FUNCTIONS := [
 	["show_items", "显示全部地面物品", "界面", {"key": KEY_ALT}, null],
 	["toggle_watch", "盯盘小窗（基地）", "界面", {"key": KEY_K}, null],
 	["toggle_stations", "站点总览（基地）", "界面", {"key": KEY_TAB}, null],
+	# 交易所交易包修订案 §3.4: over the warehouse console.
+	["quick_pack", "一键打包（基地）", "界面", {"key": KEY_P}, null],
 ]
 ## Shown on the keys page, not changeable.
 const FIXED := [["攻击 / 移动 / 拾取 / 选择", "左键"], ["安全袋", "Ctrl + 左键"], ["暂停", "Esc"]]

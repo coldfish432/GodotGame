@@ -3,7 +3,7 @@ extends RefCounted
 
 ## 加工部 (势力与交易所策划案_v0_7.md §2): the PRTS 加工站 recipes
 ## (掉落物调研_PRTS道具.md §2.1, costs from 罗德岛基建/加工站), byproducts, and
-## packing loose supplies into trade goods. Jobs run on real time and finish
+## packing goods into trade packs by value (交易包修订案 §3; Packs). Jobs run on real time and finish
 ## while the game is shut; finished goods go to staging. The queue shows only
 ## 进行中 / 完成 (no time left, 用户 rule for queues outside the exchange).
 
@@ -24,13 +24,6 @@ const RECIPES := {
 	"碳素": {"in": {"碳": 3}, "lmd": 800, "minutes": 3, "tier": 3, "build": true},
 	"碳素组": {"in": {"碳素": 3}, "lmd": 2400, "minutes": 8, "tier": 4, "build": true},
 }
-## Trade goods (§2.2): loose supplies packed into one crate.
-const PACKS := {
-	"工业补给箱": {"in": {"螺栓": 12, "金属板": 6, "胶带": 2}, "lmd": 0, "minutes": 1},
-	"电子元件箱": {"in": {"电线": 8, "灯泡": 4, "继电器": 2}, "lmd": 0, "minutes": 1},
-	"野外生活包": {"in": {"帆布": 4, "固体燃料": 6, "胶带": 3}, "lmd": 0, "minutes": 1},
-	"医疗补给箱": {"in": {"医用耗材包": 3, "糖": 4, "胶带": 2}, "lmd": 0, "minutes": 1},
-}
 ## Rhodes standard gear (装备策划案 §10.3, 用户 2026-10-18: 加工部可制作):
 ## output name -> base, materials, 龙门币, minutes per piece. Each comes out a
 ## fresh 精良 piece (GearCatalog.make_rhodes).
@@ -44,6 +37,17 @@ const GEAR := {
 	"罗德岛制式信标": {"base": "rhodes_beacon", "in": {"电路板": 1, "蓄电池": 1, "晶体元件": 1}, "lmd": 1000, "minutes": 20},
 	"罗德岛制式急救包": {"base": "rhodes_medkit", "in": {"医用耗材包": 2, "糖": 2}, "lmd": 800, "minutes": 15},
 	"罗德岛干员证章": {"base": "rhodes_badge", "in": {"赤金": 1}, "lmd": 1200, "minutes": 20},
+	# The other five slots (E15d field line, E16 protective line).
+	"罗德岛外勤头盔": {"base": "rhodes_head", "in": {"聚酸酯": 1, "金属板": 1}, "lmd": 800, "minutes": 15},
+	"罗德岛外勤手套": {"base": "rhodes_hands", "in": {"帆布": 1, "聚酸酯": 1}, "lmd": 600, "minutes": 10},
+	"罗德岛外勤长裤": {"base": "rhodes_legs", "in": {"帆布": 2, "聚酸酯": 1}, "lmd": 700, "minutes": 15},
+	"罗德岛外勤战靴": {"base": "rhodes_feet", "in": {"帆布": 1, "聚酸酯": 1, "金属板": 1}, "lmd": 700, "minutes": 15},
+	"罗德岛干员指环": {"base": "rhodes_ring", "in": {"异铁": 1, "研磨石": 1}, "lmd": 800, "minutes": 15},
+	"罗德岛制式防护头盔": {"base": "rhodes_head_heavy", "in": {"全新装置": 1, "金属板": 2}, "lmd": 1100, "minutes": 25},
+	"罗德岛制式防护臂甲": {"base": "rhodes_hands_heavy", "in": {"装置": 1, "金属板": 2}, "lmd": 900, "minutes": 20},
+	"罗德岛制式防护护腿": {"base": "rhodes_legs_heavy", "in": {"装置": 1, "金属板": 2, "聚酸酯": 1}, "lmd": 1000, "minutes": 20},
+	"罗德岛制式防护战靴": {"base": "rhodes_feet_heavy", "in": {"装置": 1, "金属板": 1, "聚酸酯": 1}, "lmd": 900, "minutes": 20},
+	"罗德岛生体监测环": {"base": "rhodes_ring_monitor", "in": {"电路板": 1, "晶体元件": 1}, "lmd": 1000, "minutes": 20},
 }
 ## The six T1 materials a byproduct is drawn from (PRTS 加工站).
 const BYPRODUCTS := ["源岩", "代糖", "酯原料", "异铁碎片", "双酮", "破损装置"]
@@ -54,9 +58,13 @@ const SLOTS_LEVEL := 2
 
 var jobs: Array = []   # {id, output, count, due, byproducts}
 var _next_id := 1
+## Points left over from opening packs, per category (交易包修订案 §4: 余点).
+var points := {}
 
+## A recipe by output; packs are queued too (their goods are taken by value).
 static func recipe(output: String) -> Dictionary:
-	return RECIPES.get(output, PACKS.get(output, GEAR.get(output, {})))
+	if Packs.is_pack(output): return {"in": {}, "lmd": Packs.PACK_LMD, "minutes": Packs.PACK_MINUTES}
+	return RECIPES.get(output, GEAR.get(output, {}))
 
 static func cost_of(output: String, count: int) -> Dictionary:
 	var out := {}
@@ -96,8 +104,9 @@ func finished(now: int) -> Array:
 	return done
 
 func to_data() -> Dictionary:
-	return {"jobs": jobs, "next_id": _next_id}
+	return {"jobs": jobs, "next_id": _next_id, "points": points}
 
 func load_data(d: Dictionary) -> void:
 	jobs = d.get("jobs", [])
 	_next_id = int(d.get("next_id", 1))
+	points = d.get("points", {})

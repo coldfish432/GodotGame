@@ -237,6 +237,29 @@ func _refresh() -> void:
 	if _station.is_empty(): show_base()
 	else: show_station(_station)
 
+# --- One-key packing (交易所交易包修订案 §3.4) ------------------------------------------
+
+var quick_pack_panel: Control = null
+
+## Where the key works: the warehouse console and its shelves. Not the
+## workshop: its 打包 page has the same form on the right (用户 2026-10-23).
+func quick_pack_here() -> bool:
+	return visible and _station in ["stash", "shelves"]
+
+func open_quick_pack() -> void:
+	if not quick_pack_here(): return
+	close_quick_pack()
+	quick_pack_panel = ExchangeScreen.quick_pack(self, BaseScreens.hovered)
+	add_child(quick_pack_panel)
+
+## Closes the window; true when there was one (Esc).
+func close_quick_pack() -> bool:
+	if not is_instance_valid(quick_pack_panel): return false
+	quick_pack_panel.queue_free()
+	quick_pack_panel = null
+	_refresh()
+	return true
+
 func _contracts_section() -> void:
 	var cards := HBoxContainer.new()
 	cards.add_theme_constant_override("separation", 18)

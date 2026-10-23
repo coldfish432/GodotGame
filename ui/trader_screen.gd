@@ -537,7 +537,7 @@ static func closure(menu: FieldMenu, at_base: bool) -> void:
 		goods.append({"item": flask, "price": str(maxi(price, 0)), "currency": "gold", "lock": ("商店 Lv%d" % int(BaseCatalog.POTIONS[type].store)) if price < 0 else "",
 			"refusal": refusal, "sold": left == 0, "stock": ("%d/%d" % [left, int(BaseCatalog.POTIONS[type].cap)]) if left >= 0 else ""})
 		types.append(type)
-	var tabs := ["商店", "出售赤金", "换汇", "贷款", "随队物资"] if at_base else ["商店", "寄存", "出售赤金", "换汇", "交割", "补给", "处理"]
+	var tabs := EventScreens.CLOSURE_TABS_BASE if at_base else EventScreens.CLOSURE_TABS_CAMP
 	var buttons: Array = []
 	if at_base:
 		buttons = [[["离开", "plain", game.close_modal]]]
@@ -552,6 +552,42 @@ static func closure(menu: FieldMenu, at_base: bool) -> void:
 		"goods": goods, "on_buy": func(i): game.closure_buy_potion(types[i]),
 		"buttons": buttons, "redraw": func(): EventScreens.camp(menu, at_base),
 		"restock_in": (func() -> int: return game.base.closure_restock_in()) if at_base else Callable(),
+	})
+
+## 可露希尔's 代售 (交易所交易包修订案 §5): the market of the place open here —
+## the ship's anchor at the base (shut under way), the map's in a camp. Its
+## 特产, loose goods and own gear; she takes loose goods and gear back.
+static func consign(menu: FieldMenu, at_base: bool) -> void:
+	var game := menu.game
+	var anchor := game.consign.anchor_here()
+	var cur := Consignment.currency(anchor) if not anchor.is_empty() else "gold"
+	var selling := menu.trader_tab == "sell" and not anchor.is_empty()
+	var goods: Array = []
+	for i in range(game.consign.goods(anchor).size()):
+		var entry: Dictionary = game.consign.goods(anchor)[i]
+		var price := game.consign.buy_quote(anchor, entry)
+		var whole := Consignment.whole(cur, maxf(price, 0.0), true)
+		goods.append({"item": Item.from_data(entry.item), "price": str(whole) if cur == "gold" else Economy.format(whole), "currency": cur,
+			"sold": entry.sold, "refusal": game.consign.buy_refusal(anchor, i)})
+	var region := Consignment.region_of(anchor)
+	var standing := "代售 · " + anchor if not anchor.is_empty() else "航行中"
+	if anchor.is_empty() and game.voyage.is_sailing():
+		standing += " · 到达 " + Time.get_datetime_string_from_unix_time(MarketState.local(int(game.voyage.sailing.due)), true).substr(11, 5)
+	var tabs := EventScreens.CLOSURE_TABS_BASE if at_base else EventScreens.CLOSURE_TABS_CAMP
+	var buttons: Array = [[["离开", "plain", game.close_modal]]] if at_base else [[["撤离", "green", game.camp_extract], ["继续 · %s" % AK.floor_code(game.region_id, game.floor_number + 1), "plain", game.leave_camp]]]
+	build(menu, {
+		"title": "可露希尔的商店" if at_base else game.camp_label(game.floor_number), "en": "CLOSURE · CONSIGNMENT",
+		"tabs": tabs, "tab": 1, "on_tab": func(i): menu.camp_tab = i; menu.pick = null; EventScreens.camp(menu, at_base),
+		"accent": FieldCatalog.REGIONS[region].color.lightened(0.35) if not region.is_empty() else Terminal.DEPT.store,
+		"portrait": "npc_closure", "who": "可露希尔", "who_en": "CLOSURE · ENGINEERING", "standing": standing,
+		"balance": [["gold", str(game.gold_available())], ["lmd", Economy.format(game.gold)]],
+		"trade_tabs": ["购买", "出售"] if not anchor.is_empty() else ["购买"], "selling": selling, "sell_currency": cur,
+		"on_trade_tab": func(i): menu.trader_tab = ["buy", "sell"][i]; menu.pick = null; consign(menu, at_base),
+		"goods": goods, "on_buy": func(i): game.consign_buy(i),
+		"offer": func(item: Item) -> String: return game.consign_offer(item),
+		"on_sell": func(item: Item): game.consign_sell(item),
+		"buttons": buttons, "redraw": func(): consign(menu, at_base),
+		"restock_in": (func() -> int: return game.consign.restock_in()) if not anchor.is_empty() else Callable(),
 	})
 
 ## 药房窗口: only the 制式 restoratives, A and B (药剂与商人界面策划案 §1).

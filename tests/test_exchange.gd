@@ -50,16 +50,19 @@ func run() -> void:
 	game.base.set_facility("exchange", 1)
 	check("built, it opens (基建设施修订案 v1.1)", ex.unlocked())
 	# --- Spot ---------------------------------------------------------------------
-	var armor := stash_add(Item.create("测试护甲", Item.Category.ARMOR, 2, 2))
-	armor.value = 100
+	# The terminal trades packs only (交易所交易包修订案 §6).
+	var loose_armor := stash_add(Item.create("测试护甲", Item.Category.ARMOR, 2, 2))
+	loose_armor.value = 100
+	check("the terminal refuses loose goods, a post takes them", ex.quote_sell(loose_armor, "lungmen").why == "只收交易包" and ex.quote_sell(loose_armor, "lungmen", false).ok)
+	var armor := stash_add(MaterialCatalog.create("防具包", 1))
 	set_index("lungmen:armor", 1.0)
 	var q := ex.quote_sell(armor, "lungmen")
-	var expected := 10000.0 * 1.25 * market.bid("lungmen:armor") * (1.0 - minf(0.3, 0.5 * 12500.0 / market.depth("lungmen:armor"))) * (1.0 - 0.04)
+	var expected := 40000.0 * 1.25 * market.bid("lungmen:armor") * (1.0 - minf(0.3, 0.5 * 50000.0 / market.depth("lungmen:armor"))) * (1.0 - 0.04)
 	check("龙门商会 quotes base × preference × bid − slippage − 4%%: %.0f" % float(q.net), q.ok and absf(float(q.net) - expected) < 1.0 and q.currency == "lmd")
 	var gold_before := game.gold
 	check("selling pays 龙门币", ex.sell_item(armor, "lungmen") and game.gold - gold_before == floori(float(q.net)) and not game.stash.has(armor))
 	check("selling builds relation and pushes the market", ex.relation("lungmen") > 0 and market.books["lungmen:armor"].p > 0.0)
-	var cube := stash_add(MaterialCatalog.create("固源岩", 10))
+	var cube := stash_add(MaterialCatalog.create("源石包", 1))
 	var rq := ex.quote_sell(cube, "rhine")
 	var acct := ex.gold_account
 	check("莱茵生命 pays into the 赤金 account (fixed 1000 base)", rq.currency == "gold" and ex.sell_item(cube, "rhine") and absf(ex.gold_account - acct - float(rq.net)) < 0.02)
@@ -67,22 +70,24 @@ func run() -> void:
 	game.inventory.try_add(ore)
 	check("a field-only faction refuses remote trade", not ex.quote_sell(ore, "reunion").ok and ex.quote_sell(ore, "reunion", false).ok)
 	ex.relations["lungmen"] = 50
-	check("contraband to 鼠王 costs 龙门商会 relation", ex.sell_item(ore, "rat") and ex.relation("lungmen") == 45)
+	var dirty := stash_add(MaterialCatalog.create("违禁品包", 1))
+	check("contraband to 鼠王 costs 龙门商会 relation", ex.sell_item(dirty, "rat") and ex.relation("lungmen") == 45)
 	var fee_r1 := ex.remote_fee("karlan")
 	ex.relations["karlan"] = Exchange.RANK_AT[5]
 	check("the remote fee falls 0.5%% a rank: %.3f, %.3f" % [fee_r1, ex.remote_fee("karlan")], is_equal_approx(fee_r1, 0.035) and is_equal_approx(ex.remote_fee("karlan"), 0.015))
 	ex.relations["karlan"] = Exchange.RANK_AT[1]
 	var crates := game.base.crates.size()
 	var lmd := game.gold
-	check("buying from a shelf pays and lands at receiving", ex.buy_material("lungmen", "螺栓", 5) and game.gold < lmd and game.base.crates.size() == crates + 1)
+	check("the terminal sells no loose goods", not ex.buy_material("lungmen", "螺栓", 5) and game.gold == lmd)
+	check("龙门商会 sells the packs of its shelf, never gear", FactionCatalog.packs_sold("lungmen").has("建材包") and not FactionCatalog.packs_sold("lungmen").has("武器包"))
+	check("buying a pack pays and lands at receiving", ex.buy_material("lungmen", "建材包", 1) and game.gold < lmd and game.base.crates.size() == crates + 1)
 	check("and uses the buy quota", ex.quota_left("lungmen") < ex.quota_cap("lungmen"))
 	ex.quota_used["lungmen"] = ex.quota_cap("lungmen")
-	check("a full quota refuses", not ex.buy_material("lungmen", "螺栓", 1))
+	check("a full quota refuses", not ex.buy_material("lungmen", "建材包", 1))
 	later(600)
 	check("the quota comes back 10% per 10 minutes", absf(ex.quota_left("lungmen") - ex.quota_cap("lungmen") * 0.1) < 50.0)
 	# --- Orders -------------------------------------------------------------------
-	var sword := stash_add(Item.create("测试长剑", Item.Category.WEAPON, 1, 3))
-	sword.value = 80
+	var sword := stash_add(MaterialCatalog.create("武器包", 1))
 	set_index("karlan:weapon", 1.0)
 	check("a limit sell escrows the item", ex.place_sell_order(sword, "karlan", "limit", 110.0) and not game.stash.has(sword) and ex.orders.size() == 1)
 	later(4)
@@ -91,32 +96,35 @@ func run() -> void:
 	set_index("karlan:weapon", 1.12)
 	later(4)
 	check("and fills when the market reaches it", ex.orders.is_empty() and ex.gold_account > acct)
-	var shield := stash_add(Item.create("测试盾", Item.Category.ARMOR, 2, 2))
+	var shield := stash_add(MaterialCatalog.create("防具包", 1))
 	ex.place_sell_order(shield, "karlan", "stop", 50.0)
-	check("cancelling returns the item to staging", ex.cancel_order(ex.orders[-1].id) and game.base.staging.any(func(i): return i.item_name == "测试盾"))
+	check("cancelling returns the item to staging", ex.cancel_order(ex.orders[-1].id) and game.base.staging.any(func(i): return i.material_id == "防具包"))
 	# --- Forwards -----------------------------------------------------------------
 	ex.relations["lungmen"] = Exchange.RANK_AT[3]
 	set_index("lungmen:build", 1.0)
 	var balance := game.gold
 	check("a 交货合约 needs the rank for its leverage", not ex.forward_refusal("lungmen", 3).is_empty() if ex.rank("lungmen") < 3 else true)
-	check("opening a forward takes margin and fee", ex.open_forward("lungmen", "螺栓", 10, 0, true, 2) and game.gold < balance)
+	check("forwards are on packs only", not ex.open_forward("lungmen", "螺栓", 10, 0, true, 2) and ex.forward_materials("lungmen").has("建材包"))
+	check("opening a forward takes margin and fee", ex.open_forward("lungmen", "建材包", 2, 0, true, 2) and game.gold < balance)
 	var f: Dictionary = ex.forwards[-1]
-	check("the deliver price is under spot", float(f.k) < ex.material_spot("lungmen", "螺栓", true))
-	stash_add(MaterialCatalog.create("螺栓", 10))
+	check("the deliver price is under spot", float(f.k) < ex.material_spot("lungmen", "建材包", true))
+	stash_add(MaterialCatalog.create("建材包", 2))
 	var rel := ex.relation("lungmen")
 	balance = game.gold
-	check("delivering pays K × Q plus the margin back", ex.deliver_forward(f.id) and game.gold - balance == floori(float(f.k) * 10 + float(f.margin)) and ex.relation("lungmen") == rel + 10)
-	ex.open_forward("lungmen", "螺栓", 30, 0, true, 1)
+	check("delivering pays K × Q plus the margin back", ex.deliver_forward(f.id) and game.gold - balance == floori(float(f.k) * 2 + float(f.margin)) and ex.relation("lungmen") == rel + 10)
+	ex.open_forward("lungmen", "建材包", 3, 0, true, 1)
 	rel = ex.relation("lungmen")
 	later(3700)
 	check("no goods at expiry: default, relation −40, a cooldown", ex.forwards.is_empty() and ex.relation("lungmen") == rel - 40 and ex.forward_refusal("lungmen", 1) == "违约冷却中")
 	check("the cooldown lasts at least six hours", int(ex.forward_cooldown["lungmen"]) - market.t >= Exchange.DEFAULT_MIN_COOLDOWN - 200)
 	ex.relations["karlan"] = Exchange.RANK_AT[3]
+	ex.gold_account += 500.0
+	check("gear packs only go one way: no 收货合约", not ex.open_forward("karlan", "武器包", 1, 0, false, 1) and Exchange.forward_side_refusal("karlan", "武器包", false) == "只能交货")
 	crates = game.base.crates.size()
-	check("a 收货合约 opens", ex.open_forward("karlan", "帆布", 4, 0, false, 1))
+	check("a 收货合约 opens", ex.open_forward("karlan", "寒地物资包", 1, 0, false, 1))
 	later(3700)
 	check("and at expiry pays the rest and the goods arrive", ex.forwards.is_empty() and game.base.crates.size() == crates + 1)
-	ex.open_forward("karlan", "碳素", 5, 1, false, 3)
+	ex.open_forward("karlan", "建材包", 5, 1, false, 3)
 	var fwd: Dictionary = ex.forwards[-1]
 	set_index("karlan:build", 0.3)
 	later(4)
@@ -194,7 +202,8 @@ func run() -> void:
 	check("plain delivery pays 80%% of 交付价: %d" % (game.gold - balance), game.gold - balance == roundi(Economy.price(MaterialCatalog.create("螺栓", 10)) * 0.8))
 	# --- 企鹅物流 -------------------------------------------------------------------
 	game.gold = 100000
-	var cargo := stash_add(MaterialCatalog.create("医用耗材包", 10))
+	check("企鹅物流 carries packs only", not ex.ship(stash_add(MaterialCatalog.create("医用耗材包", 10)), "reunion"))
+	var cargo := stash_add(MaterialCatalog.create("医疗包", 1))
 	check("shipping charges a fee and takes the goods", ex.ship(cargo, "reunion") and game.gold < 100000 and ex.shipments.size() == 1)
 	acct = ex.gold_account
 	later(4 * 3600 + 10)
@@ -216,14 +225,7 @@ func run() -> void:
 	BaseState.clock_offset += 11 * 60
 	game._tick_workshop()
 	check("finished goods go to staging", game.base.staging.size() > staged and game.base.staging.any(func(i): return i.material_id == "固源岩" and i.quantity == 5))
-	stash_add(MaterialCatalog.create("螺栓", 12))
-	stash_add(MaterialCatalog.create("金属板", 6))
-	stash_add(MaterialCatalog.create("胶带", 2))
-	check("packing a trade crate", game.workshop_start("工业补给箱", 1))
-	BaseState.clock_offset += 120
-	game._tick_workshop()
-	var crate: Item = game.base.staging.filter(func(i): return i.material_id == "工业补给箱")[0] if game.base.staging.any(func(i): return i.material_id == "工业补给箱") else null
-	check("a trade crate is trade goods", crate != null and FactionCatalog.category_of(crate) == "trade" and ex.quote_sell(crate, "kazimierz").ok)
+	check("packs are not a recipe (they are packed by value)", game.workshop_refusal("建材包", 1) == "没有这个配方" and not FactionCatalog.CATEGORIES.has("trade"))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1
 	var w := Workshop.new()
@@ -265,11 +267,12 @@ func run() -> void:
 	# A forward expiring in the field settles from the warehouse only.
 	ex.relations["lungmen"] = Exchange.RANK_AT[3]
 	ex.forward_cooldown.clear()
-	ex.open_forward("lungmen", "固源岩", 3, 0, true, 1)
-	game.inventory.try_add(MaterialCatalog.create("固源岩", 3))
+	game.gold = 100000
+	ex.open_forward("lungmen", "建材包", 1, 0, true, 1)
+	game.inventory.try_add(MaterialCatalog.create("建材包", 1))
 	BaseState.clock_offset += 3700
 	game.market.advance_to(BaseState.now())
-	check("in the field the pack is never emptied for a delivery (default instead)", game.inventory.count_material("固源岩") == 3 and ex.forwards.is_empty() and ex.history[-1].kind == "default")
+	check("in the field the pack is never emptied for a delivery (default instead)", game.inventory.count_material("建材包") == 1 and ex.forwards.is_empty() and ex.history[-1].kind == "default")
 	check("news of the region she works in comes up more", ex._news_weight("U1") > ex._news_weight("C5"))
 	game.post_faction = "sami"
 	set_index("sami:fuel", 1.0)
