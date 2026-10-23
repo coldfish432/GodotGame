@@ -28,3 +28,10 @@ static func apply(attack: bool) -> void:
 	var art := texture(ART if attack else HAND)
 	var spot := HOTSPOT if attack else HAND_HOTSPOT
 	for shape in range(SHAPES): Input.set_custom_mouse_cursor(art, shape, spot)
+
+## The system's pointers again, at quit: Input keeps the image otherwise and
+## frees it after the renderer (GameManager.release_static_caches).
+static func release() -> void:
+	if DisplayServer.get_name() == "headless": return
+	for shape in range(SHAPES): Input.set_custom_mouse_cursor(null, shape)
+	_attack = -1

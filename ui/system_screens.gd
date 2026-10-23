@@ -28,8 +28,17 @@ const CARDS := {"mine": "load_mine", "snow": "load_snow", "siracusa": "load_sira
 var _settings: Control
 var _loading_left := 0.0
 var _was_transitioning := false
+## The loading bar: where it is drawn and where it is heading. The map's stages
+## move the target while a floor is built. It paints straight to its canvas
+## item: mid-build no frame ends, so a queued redraw would never run.
+var _progress := 0.0
+var _target := 0.0
+var _bar: Control
+const BAR := Rect2(96, 676, 1088, 4)
+const BAR_BUILT := 0.85
+const BAR_SPEED := 1.6
 static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}, "language": "zh",
-	"auto_potion": "", "auto_potion_low": 0.4, "auto_potion_high": 0.9, "base_look": "",
+	"auto_potion": "potion_A", "auto_potion_low": 0.4, "auto_potion_high": 0.9, "base_look": "",
 	# 界面动效 (界面动态美术方案 v3 §2): the scan reveal, wipes and typing titles.
 	"ui_motion": true,
 	# Ask before a dragged buy or sale goes through (TraderScreen.ask).
@@ -51,6 +60,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	SystemScreens.load_settings()
 	SystemScreens.apply_settings()
+	SystemScreens.apply_window()
 	_title = _build_title()
 	_loading = _build_loading()
 	_settings = _build_settings()
@@ -69,18 +79,47 @@ func _start() -> void:
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(game): return
-	if game.transitioning and not _was_transitioning and not _title.visible: _flash_loading()
+	if game.transitioning and not _was_transitioning and not _title.visible and not _loading.visible: _flash_loading()
 	_was_transitioning = game.transitioning
 	if _loading.visible:
 		_show_card()
 		_loading_left -= delta
-		if _loading_left <= 0.0 and not game.transitioning: _loading.hide()
+		# Waiting on the navigation creeps on to just short of full; done fills it.
+		if game.transitioning: _target = maxf(_target, minf(_target + delta * 0.05, 0.95))
+		else: _target = 1.0
+		_progress = move_toward(_progress, _target, delta * BAR_SPEED)
+		_draw_bar()
+		if _loading_left <= 0.0 and not game.transitioning and _progress >= 1.0: _loading.hide()
 
 func _flash_loading() -> void:
 	_tip.text = TIPS[randi() % TIPS.size()]
 	_loading_left = 0.8
+	_progress = 0.0
+	_target = 0.3
+	_draw_bar()
 	_show_card()
 	_loading.show()
+
+## A floor is about to be built: the screen goes up at once, before the work.
+func begin_loading() -> void:
+	_flash_loading()
+	_target = 0.1
+
+## One stage of the map done (ContinuousWorldMap.mark). The frame is busy
+## building, so the bar is drawn here and now.
+func step_loading(_stage: String) -> void:
+	_target = minf(BAR_BUILT, _target + (BAR_BUILT - _target) * 0.15)
+	_progress = maxf(_progress, _target)
+	_draw_bar()
+	RenderingServer.force_draw()
+
+func _draw_bar() -> void:
+	var ci := _bar.get_canvas_item()
+	var done := clampf(_progress, 0.0, 1.0)
+	RenderingServer.canvas_item_clear(ci)
+	RenderingServer.canvas_item_add_rect(ci, BAR, AK.LINE_2)
+	RenderingServer.canvas_item_add_rect(ci, Rect2(BAR.position, Vector2(BAR.size.x * done, BAR.size.y)), AK.BLUE)
+	AK.en().draw_string(ci, Vector2(BAR.position.x, BAR.position.y - 8), "%d%%" % roundi(done * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, BAR.size.x, 12, AK.MUTE)
 
 ## The card of the floor being entered: the region's, Lungmen's by its upper
 ## or lower city; none for the base or a camp.
@@ -194,6 +233,11 @@ func _build_loading() -> Control:
 	_tip = AK.label("", 15, AK.FG)
 	_tip.position = Vector2(150, 618)
 	screen.add_child(_tip)
+	_bar = Control.new()
+	_bar.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bar.draw.connect(_draw_bar)
+	screen.add_child(_bar)
 	return screen
 
 func _build_settings() -> Control:
@@ -314,6 +358,8 @@ static func save_settings() -> void:
 static func set_setting(key: String, value: Variant) -> void:
 	settings[key] = value
 	apply_settings()
+	# Only these touch the window: the tutorial saves its step here mid-play.
+	if key in ["fullscreen", "vsync"]: apply_window()
 	if _game != null: save_settings()
 
 ## Only the real game touches the window, audio and save file; tests never
@@ -331,5 +377,8 @@ static func apply_settings() -> void:
 	if _game.is_node_ready(): _game.refresh_look()
 	I18n.set_language(str(settings.language))
 	apply_audio()
+
+static func apply_window() -> void:
+	if _game == null: return
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if settings.vsync else DisplayServer.VSYNC_DISABLED)

@@ -16,7 +16,8 @@ extends RefCounted
 ## fall at the mine's face, and the like), and a faint glow (用户 2026-10-17:
 ## 密室也发幽幽的光) the same as a trace's: the tell breathes a pale light, motes
 ## seep from the face, and the glow is in the floor's light map until the edge
-## breaks. No marker, no E prompt, nothing on the minimap until it is open.
+## breaks. Nothing on the minimap until it is open; standing at the mouth
+## shows E, which opens it (用户 2026-10-22: 密室还是不会开，改为靠近按e开启).
 
 const HITS := 3
 ## A swing lands on the edge from this far, in front of her.
@@ -229,6 +230,15 @@ func in_reach(from: Vector3, direction: Vector3) -> bool:
 	var across := Vector2(-map.vault_inward.y, map.vault_inward.x)
 	if absf(offset.dot(across)) > map.vault_half_width or absf(offset.dot(map.vault_inward)) > REACH: return false
 	return Vector2(direction.x, direction.z).normalized().dot(map.vault_inward) > 0.3
+
+## Whether she stands at the mouth, on its open side, close enough for E.
+const E_DEPTH := Vector2(-3.0, 1.0)
+func near(from: Vector3) -> bool:
+	if opened: return false
+	var offset: Vector2 = Vector2(from.x, from.z) - map.vault_mouth
+	var across := Vector2(-map.vault_inward.y, map.vault_inward.x)
+	var depth: float = offset.dot(map.vault_inward)
+	return absf(offset.dot(across)) <= map.vault_half_width + 1.0 and depth >= E_DEPTH.x and depth <= E_DEPTH.y
 
 ## Whether a click landing at `point` is on the edge at the mouth: its foot,
 ## its face or the rock top just behind (用户 2026-10-20: 左键点地面改为移动, so

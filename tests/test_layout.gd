@@ -25,6 +25,23 @@ func step(n: int = 1) -> void:
 		await physics_frame
 		await process_frame
 
+## The targets with no walkable path from the entry. The navigation server
+## merges a new bake on a background thread (async iterations), so under load
+## the map can still be the old one a few frames after a bake; asked again for
+## up to NAV_WAIT frames, a target still cut off then is really stranded.
+const NAV_WAIT := 120
+func stranded(map_rid: RID, targets: Array) -> Array[int]:
+	var out: Array[int] = []
+	for frame in range(NAV_WAIT):
+		out.clear()
+		for t in range(targets.size()):
+			var target: Vector3 = targets[t]
+			var path := NavigationServer3D.map_get_path(map_rid, ContinuousWorldMap.ENTRY_POSITION, target, true)
+			if path.size() <= 1 or path[path.size() - 1].distance_to(target) >= 2.0: out.append(t)
+		if out.is_empty(): break
+		await step()
+	return out
+
 func check(label: String, passed: bool) -> void:
 	checks.append({"check": label, "passed": passed})
 	if not passed: failures += 1
@@ -36,8 +53,15 @@ func run() -> void:
 	game.save_enabled = false
 	root.add_child(game)
 	await step(30)
+	# start_at_base = false sends her out on a random seed at once, and
+	# start_contract only starts from the base: back first, or the first seed
+	# is checked on that random floor.
+	if not game.in_base:
+		game.settle(true)
+		await step(3)
 
 	var unreachable := 0
+	var unseeded := 0
 	var worst_seed := 0
 	var pillars := 0
 	var caches := 0
@@ -52,6 +76,9 @@ func run() -> void:
 		game.fixed_map_seed = map_seed
 		await game.start_contract(["mine", "city", "snow"][i % 3])
 		await step(4)
+		if game._floor_seed() != map_seed + game.floor_number * 7919:
+			print("  seed %d did not take: floor seed %d" % [map_seed, game._floor_seed()])
+			unseeded += 1
 		var map_rid: RID = game.world_map._generated_root.get_navigation_map()
 		var targets: Array = [
 			game.world_map.buff_position,
@@ -83,13 +110,10 @@ func run() -> void:
 			if post.guards.size() != post.planned:
 				missing_guards += 1
 				print("  seed %d post '%s' at %s has %d guards" % [map_seed, post.title, post.position, post.guards.size()])
-		for t in range(targets.size()):
-			var target: Vector3 = targets[t]
-			var path := NavigationServer3D.map_get_path(map_rid, ContinuousWorldMap.ENTRY_POSITION, target, true)
-			if path.size() <= 1 or path[path.size() - 1].distance_to(target) >= 2.0:
-				unreachable += 1
-				worst_seed = map_seed
-				print("  seed %d stranded %s: %s" % [map_seed, kinds[t], target])
+		for t in await stranded(map_rid, targets):
+			unreachable += 1
+			worst_seed = map_seed
+			print("  seed %d stranded %s: %s" % [map_seed, kinds[t], targets[t]])
 		pillars += game.world_map._closed_circles.size()
 		caches += game.world_map.cache_positions.size()
 		chambers += game.world_map._open_circles.size()
@@ -100,6 +124,7 @@ func run() -> void:
 		game.settle(true)
 		await step(3)
 
+	check("every layout is built from its own seed", unseeded == 0)
 	check("devices, destinations, caches and enemies reachable across %d layouts / 3 regions" % SEEDS, unreachable == 0)
 	check("every guard post gets the guards it was given across all layouts", missing_guards == 0)
 

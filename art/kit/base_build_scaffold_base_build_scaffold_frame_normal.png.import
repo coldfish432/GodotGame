@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dl3xdunardho6"
+uid="uid://cjqjt7wq8f4rc"
 path="res://.godot/imported/base_build_scaffold_base_build_scaffold_frame_normal.png-fc8ba4642fe2fc6b089c845a436d8054.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "5849e8011ff7f90bfebb08844e75191e"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

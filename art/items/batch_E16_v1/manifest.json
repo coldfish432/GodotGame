@@ -1,0 +1,130 @@
+{
+  "batch": "E16_v1",
+  "tool": "built-in image_gen",
+  "items": [
+    {
+      "id": "rhodes_head_heavy",
+      "name": "罗德岛制式防护头盔",
+      "slot": "head",
+      "file": "rhodes_head_heavy.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": true,
+      "isolated_pixel_percent": 2.506,
+      "accent_percent": {
+        "blue": 3.968,
+        "orange": 0.0,
+        "cyan": 0.084,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 4.052,
+      "source": "sources/rhodes_head_heavy_raw.png",
+      "source_sha256": "181e7b12035234e2f547f45d7b13198cfb4db70fdf15e8c3c15e160143af440c",
+      "sha256": "23b025d8aaada68ca1a6c58e1fc5c86abfd934677a788437f85e93eb8ec29610",
+      "logo_position": [
+        51,
+        21
+      ],
+      "emit_file": "rhodes_head_heavy_emit.png"
+    },
+    {
+      "id": "rhodes_hands_heavy",
+      "name": "罗德岛制式防护臂甲",
+      "slot": "hands",
+      "file": "rhodes_hands_heavy.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "isolated_pixel_percent": 5.892,
+      "accent_percent": {
+        "blue": 3.024,
+        "orange": 0.0,
+        "cyan": 0.0,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 3.024,
+      "source": "sources/rhodes_hands_heavy_redraw.png",
+      "source_sha256": "110ab0c89ddbd33fd5fd91bafa0cc51216989b150e1b75d76bb23aa1b00716ab",
+      "sha256": "f8ffcd27f5376e0620f58f25b17de9414c459d65fdc51a03a23f4ab7cd878137"
+    },
+    {
+      "id": "rhodes_legs_heavy",
+      "name": "罗德岛制式防护护腿",
+      "slot": "legs",
+      "file": "rhodes_legs_heavy.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "isolated_pixel_percent": 2.228,
+      "accent_percent": {
+        "blue": 1.609,
+        "orange": 0.0,
+        "cyan": 0.0,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 1.609,
+      "source": "sources/rhodes_legs_heavy_raw.png",
+      "source_sha256": "76165b49a46898182b46e7186a58faaf43332b6d3a46f6742cc7eb6bb1e86410",
+      "sha256": "73d8b17425a969e9e6a135c2828faa836bf6409af13c8cf2daafa0167293ec91"
+    },
+    {
+      "id": "rhodes_feet_heavy",
+      "name": "罗德岛制式防护战靴",
+      "slot": "feet",
+      "file": "rhodes_feet_heavy.png",
+      "native_size": [
+        72,
+        72
+      ],
+      "has_emit": false,
+      "isolated_pixel_percent": 1.703,
+      "accent_percent": {
+        "blue": 2.67,
+        "orange": 0.0,
+        "cyan": 0.0,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 2.67,
+      "source": "sources/rhodes_feet_heavy_raw.png",
+      "source_sha256": "9821af7add0ab6f014cb5ede710e15f6af03e294bac706a0947436e7df68a1c9",
+      "sha256": "fb2cee878a154f35a7fb63bf6daa6f9b24f660ea6c6e9e828ac13e55f5c51772"
+    },
+    {
+      "id": "rhodes_ring_monitor",
+      "name": "罗德岛生体监测环",
+      "slot": "ring",
+      "file": "rhodes_ring_monitor.png",
+      "native_size": [
+        32,
+        32
+      ],
+      "has_emit": true,
+      "isolated_pixel_percent": 6.911,
+      "accent_percent": {
+        "blue": 0.0,
+        "orange": 0.0,
+        "cyan": 0.216,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 0.216,
+      "source": "sources/rhodes_ring_monitor_redraw.png",
+      "source_sha256": "a586d9d72cd7212a9a8fb9bd194252270a09f1c7a4d147ba7eae36ef9ec19992",
+      "sha256": "81cacd4a429531bb5c334099f274b50d24ca02729fc6b9da142927c0d1b2c8c7",
+      "emit_file": "rhodes_ring_monitor_emit.png"
+    }
+  ],
+  "backgrounds": [
+    "#2c2e30",
+    "#142538",
+    "#352710",
+    "#381b0f"
+  ],
+  "runtime_verified": false,
+  "art_accepted": false
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "icons": 5,
+  "emit_masks": 2,
+  "exact_8x_copies": 5,
+  "protected_files": 932,
+  "protected_changed": 0,
+  "runtime_verified": false,
+  "art_accepted": false
+}

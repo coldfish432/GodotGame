@@ -1,0 +1,228 @@
+{
+  "status": "PASS",
+  "items": [
+    {
+      "id": "rhodes_head_heavy",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "palette": true,
+        "outline": true,
+        "bright_ge15": true,
+        "isolated_le10": true,
+        "accent_total_le10": true,
+        "accent_single_le6": true,
+        "single_flat_color_le25": true,
+        "padding": true,
+        "logo_exact": true,
+        "emit_nonempty": true
+      },
+      "opaque_pixels": 2394,
+      "colors": 17,
+      "isolated_pixel_percent": 2.506,
+      "bright_pixel_percent": 43.943,
+      "max_single_color_percent": 21.303,
+      "largest_flat_region_percent": 12.824,
+      "accent_percent": {
+        "blue": 3.968,
+        "orange": 0.0,
+        "cyan": 0.084,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 4.052,
+      "binary_alpha": true,
+      "palette_valid": true,
+      "outline_exact": true,
+      "bbox": [
+        8,
+        7,
+        63,
+        65
+      ]
+    },
+    {
+      "id": "rhodes_hands_heavy",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "palette": true,
+        "outline": true,
+        "bright_ge15": true,
+        "isolated_le10": true,
+        "accent_total_le10": true,
+        "accent_single_le6": true,
+        "single_flat_color_le25": true,
+        "padding": true
+      },
+      "opaque_pixels": 1918,
+      "colors": 15,
+      "isolated_pixel_percent": 5.892,
+      "bright_pixel_percent": 49.374,
+      "max_single_color_percent": 18.665,
+      "largest_flat_region_percent": 4.327,
+      "accent_percent": {
+        "blue": 3.024,
+        "orange": 0.0,
+        "cyan": 0.0,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 3.024,
+      "binary_alpha": true,
+      "palette_valid": true,
+      "outline_exact": true,
+      "bbox": [
+        11,
+        7,
+        60,
+        65
+      ]
+    },
+    {
+      "id": "rhodes_legs_heavy",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "palette": true,
+        "outline": true,
+        "bright_ge15": true,
+        "isolated_le10": true,
+        "accent_total_le10": true,
+        "accent_single_le6": true,
+        "single_flat_color_le25": true,
+        "padding": true
+      },
+      "opaque_pixels": 1616,
+      "colors": 14,
+      "isolated_pixel_percent": 2.228,
+      "bright_pixel_percent": 41.151,
+      "max_single_color_percent": 24.876,
+      "largest_flat_region_percent": 4.827,
+      "accent_percent": {
+        "blue": 1.609,
+        "orange": 0.0,
+        "cyan": 0.0,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 1.609,
+      "binary_alpha": true,
+      "palette_valid": true,
+      "outline_exact": true,
+      "bbox": [
+        18,
+        5,
+        54,
+        66
+      ]
+    },
+    {
+      "id": "rhodes_feet_heavy",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "palette": true,
+        "outline": true,
+        "bright_ge15": true,
+        "isolated_le10": true,
+        "accent_total_le10": true,
+        "accent_single_le6": true,
+        "single_flat_color_le25": true,
+        "padding": true
+      },
+      "opaque_pixels": 2172,
+      "colors": 14,
+      "isolated_pixel_percent": 1.703,
+      "bright_pixel_percent": 37.477,
+      "max_single_color_percent": 19.705,
+      "largest_flat_region_percent": 3.361,
+      "accent_percent": {
+        "blue": 2.67,
+        "orange": 0.0,
+        "cyan": 0.0,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 2.67,
+      "binary_alpha": true,
+      "palette_valid": true,
+      "outline_exact": true,
+      "bbox": [
+        8,
+        7,
+        63,
+        65
+      ]
+    },
+    {
+      "id": "rhodes_ring_monitor",
+      "pass_": true,
+      "checks": {
+        "size": true,
+        "binary_alpha": true,
+        "colors_le24": true,
+        "palette": true,
+        "outline": true,
+        "bright_ge15": true,
+        "isolated_le10": true,
+        "accent_total_le10": true,
+        "accent_single_le6": true,
+        "single_flat_color_le25": true,
+        "padding": true,
+        "emit_nonempty": true
+      },
+      "opaque_pixels": 463,
+      "colors": 12,
+      "isolated_pixel_percent": 6.911,
+      "bright_pixel_percent": 47.516,
+      "max_single_color_percent": 21.598,
+      "largest_flat_region_percent": 16.199,
+      "accent_percent": {
+        "blue": 0.0,
+        "orange": 0.0,
+        "cyan": 0.216,
+        "yellow": 0.0
+      },
+      "accent_total_percent": 0.216,
+      "binary_alpha": true,
+      "palette_valid": true,
+      "outline_exact": true,
+      "bbox": [
+        2,
+        3,
+        29,
+        29
+      ]
+    }
+  ],
+  "emission": [
+    {
+      "file": "rhodes_head_heavy_emit.png",
+      "pixels": 2,
+      "subset_of_base": true,
+      "localized": true,
+      "nonempty": true
+    },
+    {
+      "file": "rhodes_ring_monitor_emit.png",
+      "pixels": 1,
+      "subset_of_base": true,
+      "localized": true,
+      "nonempty": true
+    }
+  ],
+  "protected_files": 932,
+  "protected_changed": [],
+  "runtime_verified": false,
+  "art_accepted": false,
+  "definitions": {
+    "isolated": "Opaque pixels with no identical RGB among four orthogonal opaque neighbors.",
+    "bright": "Rec709 weighted sRGB code values >=153.",
+    "flat": "Maximum total share of any one RGB, stricter than connected-region-only checks."
+  }
+}

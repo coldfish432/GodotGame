@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://56l50me7iu5p"
+uid="uid://bmwei6ae4toa3"
 path="res://.godot/imported/siracusa_arch_house_siracusa_arch_house_glass_normal.png-97ae0e0531884d88dea336087b6c4a72.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "ed441453a92b8b3a2078d41733dc7524"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

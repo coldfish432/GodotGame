@@ -1,6 +1,6 @@
 class_name GameMusic
 extends Node
-## Two looping tracks and two stings, cut from Gemini downloads by
+## Two looping tracks and a sting for a failed run, cut from Gemini downloads by
 ## audio/tools/cut_audio.py (cut points in audio/asset_log.json). Behavior
 ## predicted in CHANGE-BRIEF.md, "Generated audio — predictions".
 ##
@@ -11,7 +11,9 @@ const TRACKS := {
 	"base": ["res://audio/music/base_loop.ogg", 40.171],
 	"mine": ["res://audio/music/mine_loop.ogg", 13.3034],
 }
-const STINGS := {true: "res://audio/music/sting_extract.ogg", false: "res://audio/music/sting_fail.ogg"}
+# No sting on a successful extraction (用户 2026-10-23: 移除行动成功的背景音乐):
+# the base track simply comes back.
+const STINGS := {false: "res://audio/music/sting_fail.ogg"}
 const LEVEL_DB := -6.0
 const PAUSE_DUCK_DB := -10.0     # the base does not freeze on pause, so it ducks
 const LEAVE_BASE_FADE := 1.0
@@ -73,13 +75,11 @@ func _process(_delta: float) -> void:
 func end_run(extracted: bool) -> void:
 	if track != "mine": return
 	_switch("", END_FADE[extracted])
+	if not _streams.has(extracted): return
 	sting = "extract" if extracted else "fail"
 	stings_played += 1
-	if _streams.has(extracted):
-		_sting_player.stream = _streams[extracted]
-		if not _silent: _sting_player.play()
-	else:
-		_on_sting_finished()
+	_sting_player.stream = _streams[extracted]
+	if not _silent: _sting_player.play()
 
 func _on_sting_finished() -> void:
 	sting = ""

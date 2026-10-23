@@ -77,6 +77,8 @@ func run() -> void:
 	hud.picker_slot = Hotbar.AUTO
 	check("its picker offers empty, 急救剂 and 缓释凝胶 only", hud._picker_rows().map(func(r): return r[1]) == ["potion_B", "potion_A", ""])
 	hud.picker_slot = -1
+	check("it holds 急救剂 by default", Hotbar.auto_potion() == "potion_A")
+	Hotbar.set_action(Hotbar.AUTO, "")
 	Hotbar.set_action(Hotbar.AUTO, "potion_C")
 	check("抑制喷剂 cannot go in it", Hotbar.auto_potion() == "")
 	Hotbar.set_action(Hotbar.AUTO, "potion_A")

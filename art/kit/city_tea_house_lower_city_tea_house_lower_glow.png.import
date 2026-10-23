@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cajbskjuj6kl4"
+uid="uid://6c7p1pnjfi0r"
 path="res://.godot/imported/city_tea_house_lower_city_tea_house_lower_glow.png-91a8ca7f33b2d9d3abe00f85148b9ca7.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "5ed3f1097f7c5bb56a0f89911acb2e1b"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

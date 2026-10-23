@@ -181,12 +181,17 @@ func _sentinels() -> void:
 	check("萨卡兹哨兵 keep watch beside the path", sentinels.size() == 1)
 	if sentinels.is_empty(): return
 	var post: Enemy = sentinels[0]
+	# Patrols come while the sentinel runs; under load a step is many physics
+	# ticks, enough for them to kill her between two shelter() calls.
+	game.player.invulnerable = true
 	# Her own floor rate first, far from every sentinel.
 	game.player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	await step(2)
 	check("no sentinel is alerted before it sees her", game.alerted_sentinels() == 0 and post.sentinel_mode == "watch" and not post.alerted())
+	# One fixed tick, not 30 frames: under load a process frame runs several
+	# physics ticks, so two frame windows fill by different amounts.
 	game.threat.value = 0.0
-	await step(30)
+	game._tick_threat(1.0)
 	var calm := game.threat.value
 	var start := post.global_position
 	game.player.teleport(beside(post))
@@ -198,15 +203,20 @@ func _sentinels() -> void:
 	var path := NavigationServer3D.map_get_path(rid, NavigationServer3D.map_get_closest_point(rid, start), goal, true)
 	check("its spot is one it can reach", not path.is_empty() and path[-1].distance_to(goal) <= 1.0)
 	game.threat.value = 0.0
-	await step(30)
+	game._tick_threat(1.0)
 	var boosted := game.threat.value
 	check("while its ! is up the meter fills faster", boosted > calm * (1.0 + ThreatMeter.SENTINEL_BOOST * 0.8), [calm, boosted])
 	var attacked := false
 	for i in range(60 * 16):
 		shelter()
 		await step()
+		if not is_instance_valid(post): break
 		if post.attack_phase != "idle" or post.preparing_attack: attacked = true
 		if post.sentinel_mode == "hold": break
+	if not is_instance_valid(post):
+		check("the sentinel is still there while it runs", false, [game.threat.wave, game.floor_number, game.in_base])
+		game.player.invulnerable = false
+		return
 	check("it reaches its spot and stands there", post.sentinel_mode == "hold" and post.alerted(), post.sentinel_mode)
 	# Standing: she walks right up and it does not run.
 	var held := post.global_position
@@ -228,6 +238,7 @@ func _sentinels() -> void:
 	kill(post)
 	await step(2)
 	check("killed, its ! and the faster fill end", game.alerted_sentinels() == before - 1)
+	game.player.invulnerable = false
 
 ## A walkable spot a few steps from `enemy` that it can see: nearest_walkable
 ## alone can land her on another terrace, out of its sight.
@@ -244,7 +255,8 @@ func _next_floor() -> void:
 	game.threat.wave = 3
 	await game.advance(0)
 	await step(2)
-	check("the next floor keeps 30% and starts the patrols over", game.threat.value < 40.0 * ThreatMeter.CARRY + 1.0 and game.threat.value >= 40.0 * ThreatMeter.CARRY and game.threat.wave == 0, game.threat.value)
+	check("the next floor keeps 30% and starts the patrols over", game.threat.value < 40.0 * ThreatMeter.CARRY + 1.0 and game.threat.value >= 40.0 * ThreatMeter.CARRY and game.threat.wave == 0,
+		[game.threat.value, game.floor_number, game.transitioning, game.in_base, game.in_camp, game.player.hp])
 	game.settle(true)
 	await step(2)
 

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bvw5p2v7tvshm"
+uid="uid://lkrt2ai8ffjd"
 path="res://.godot/imported/base_research_holo_base_research_holo_ring_glow.png-08a8b0a9d7dc15e365822fff9f624487.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "3a4ce8f9714f9fdc799f7bf208e60888"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

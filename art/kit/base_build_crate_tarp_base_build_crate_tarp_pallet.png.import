@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://boutbwrqlr7n5"
+uid="uid://dsunm2ebnb667"
 path="res://.godot/imported/base_build_crate_tarp_base_build_crate_tarp_pallet.png-e268ecdf40d472a8ec897e4eec86d250.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "48b6a8e241cbb29fbeb7e972e44ba4bc"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

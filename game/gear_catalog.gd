@@ -498,6 +498,18 @@ const BASES := {
 		"icon": "rhodes_feet", "text": "走过的路比舰上任何人都远。"},
 	"rhodes_ring": {"name": "罗德岛干员指环", "region": "rhodes", "value": 1.5, "category": RING, "tier": 1, "factor": 1.05, "implicit": [[S.SKILL_PCT, 0.0625]],
 		"icon": "rhodes_ring", "text": "一道蓝灰色的细线，就是证明。"},
+	# --- E16 (用户 2026-10-22): the protective line that goes with 制式防护背心;
+	# art brief art/items/E16_rhodes_heavy_brief_v1.md, placeholders until it lands.
+	"rhodes_head_heavy": {"name": "罗德岛制式防护头盔", "region": "rhodes", "value": 1.5, "category": HEAD, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 2.0]],
+		"icon": "rhodes_head_heavy", "text": "面罩放下来，谁也认不出是谁。"},
+	"rhodes_hands_heavy": {"name": "罗德岛制式防护臂甲", "region": "rhodes", "value": 1.5, "category": HANDS, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 10.0]],
+		"icon": "rhodes_hands_heavy", "text": "前臂那块白甲，挡刀比挡雨多。"},
+	"rhodes_legs_heavy": {"name": "罗德岛制式防护护腿", "region": "rhodes", "value": 1.5, "category": LEGS, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 10.0]],
+		"icon": "rhodes_legs_heavy", "text": "护膝的扣带，工程部改过三版。"},
+	"rhodes_feet_heavy": {"name": "罗德岛制式防护战靴", "region": "rhodes", "value": 1.5, "category": FEET, "tier": 1, "factor": 1.05, "implicit": [[S.HP_FLAT, 98.0]],
+		"icon": "rhodes_feet_heavy", "text": "重是重了点，踩下去心里踏实。"},
+	"rhodes_ring_monitor": {"name": "罗德岛生体监测环", "region": "rhodes", "value": 1.5, "category": RING, "tier": 1, "factor": 1.05, "implicit": [[S.MAX_HP_PCT, 0.02]],
+		"icon": "rhodes_ring_monitor", "text": "那一点青光还亮着，医疗部就还在等你回去。"},
 }
 
 ## Rhodes standard gear (§10): never dropped. 复利数值改造清单 D: made two tiers
@@ -512,13 +524,13 @@ const RHODES_TIER_LAG := 2
 ## One set per operator: a weapon she can wield and one piece for each of the other seven slots.
 const RHODES_KIT := [
 	["rhodes_dual_blades", "rhodes_sword", "rhodes_crossbow", "rhodes_staff"],
-	["rhodes_head"],
+	["rhodes_head", "rhodes_head_heavy"],
 	["rhodes_uniform", "rhodes_vest"],
-	["rhodes_hands"],
-	["rhodes_legs"],
-	["rhodes_feet"],
+	["rhodes_hands", "rhodes_hands_heavy"],
+	["rhodes_legs", "rhodes_legs_heavy"],
+	["rhodes_feet", "rhodes_feet_heavy"],
 	["rhodes_beacon", "rhodes_medkit", "rhodes_badge"],
-	["rhodes_ring"],
+	["rhodes_ring", "rhodes_ring_monitor"],
 ]
 
 static func is_rhodes(id: String) -> bool:

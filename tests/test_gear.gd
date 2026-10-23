@@ -35,7 +35,7 @@ func run() -> void:
 	# 装备扩充策划案 §4.4: 39 + 63 + 3 polearms; §11 Siracusa 11 weapons; §10 Rhodes 9;
 	# §12 ranged and staves 5 per region.
 	# 装备部位拆分与数值案 §7: + E15's 64 head, hands, legs, feet and ring bases.
-	check("209 bases", B.size() == 209, B.size())
+	check("214 bases", B.size() == 214, B.size())
 	for region in ["mine", "city", "snow"]:
 		var counts := [0, 0, 0]
 		for id in B:
@@ -191,7 +191,14 @@ func run() -> void:
 	check("Rhodes gear is worth a fixed 5", badge.value == GearCatalog.RHODES_VALUE and badge.value_base == GearCatalog.RHODES_VALUE)
 	var late := GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD, GearCatalog.rhodes_tier(50), 2)
 	check("from the floor-50 camp the kit is tier Ⅳ, gold after 换代", late.all(func(i): return i.grade == 4 and i.rarity == 2))
-	check("every Rhodes base has a 加工部 recipe", Workshop.GEAR.size() == 9 and Workshop.GEAR.values().all(func(r): return GearCatalog.is_rhodes(str(r.base))))
+	var made := Workshop.GEAR.values().map(func(r): return str(r.base))
+	var rhodes_ids := B.keys().filter(func(id): return GearCatalog.is_rhodes(id))
+	check("every Rhodes base has a 加工部 recipe", made.size() == rhodes_ids.size() and rhodes_ids.all(func(id): return id in made), [made.size(), rhodes_ids.size()])
+	var heavy := {}
+	for i in range(200):
+		for piece in GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD):
+			if piece.base_id.ends_with("_heavy") or piece.base_id == "rhodes_ring_monitor": heavy[piece.base_id] = true
+	check("kits also hand out the E16 protective line", heavy.size() == 5, heavy.keys())
 	check("recipes use known materials", Workshop.GEAR.values().all(func(r): return r["in"].keys().all(func(m): return MaterialCatalog.MATERIALS.has(m))))
 
 	# 远程与法杖 (§12): each region has 3 ranged and 2 staves; classes wield their own forms.

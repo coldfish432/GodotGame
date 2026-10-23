@@ -992,6 +992,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	cargo_delivered = false
 	_contract_announced = false
 	_run_seed = fixed_map_seed if fixed_map_seed else rng.randi()
+	await _begin_loading()
 	_apply_medical_state()
 	guide_floor = -1
 	_apply_meal(provisions.take_for_run())
@@ -1022,6 +1023,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	camera.global_position = player.global_position + camera_offset()
 	await _await_navigation_sync()
 	_spawn_wave()
+	_end_loading()
 	transitioning = false
 	set_message("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
 
@@ -1084,7 +1086,7 @@ func _build_world() -> void:
 	player.reset_floor_state()
 	world_map.region_id = region_id
 	world_map.extraction_available = is_extraction_floor()
-	world_map.generate(_run_seed + floor_number * 7919, floor_number)
+	world_map.generate(_floor_seed(), floor_number)
 	arena = null
 	if world_map.boss_layout and world_map.arena_centre != Vector3.INF:
 		arena = BossArena.new()
@@ -1098,6 +1100,23 @@ func _build_world() -> void:
 	outpost_cleared = not is_outpost_floor()
 	# The region (and Siracusa's weather) decides the floor's light (S3).
 	apply_scene_look(false)
+
+func _floor_seed() -> int:
+	return _run_seed + floor_number * 7919
+
+## 加载界面 (用户 2026-10-23: 点了就立刻切到加载界面并读条): the real game
+## shows the loading screen and lets it draw before the floor is built, and the
+## map's stages move its bar. Tests have no SystemScreens and build at once.
+func _begin_loading() -> void:
+	if not is_instance_valid(system_screens) or not system_screens.is_inside_tree(): return
+	# The card shows this floor's upper or lower city before it is built.
+	if region_id == "city": world_map.city_variant = ContinuousWorldMap.city_variant_of(_floor_seed())
+	system_screens.begin_loading()
+	world_map.progress_hook = system_screens.step_loading
+	for i in range(2): await get_tree().process_frame
+
+func _end_loading() -> void:
+	world_map.progress_hook = Callable()
 
 ## The top bar's place: the region, and in Lungmen this floor's upper or lower
 ## city (the camps and the base have neither).
@@ -1193,6 +1212,10 @@ func _interact() -> void:
 		else:
 			open_relic_offer(cache.source, cache)
 		return
+	if _vault_nearby():
+		CombatVfx.spawn(self, world_map.vault_seal.wall_centre() + Vector3(0, 0.8, 0), world_map.vault_seal.inward(), "spark")
+		_open_vault()
+		return
 	var fire := near_fire()
 	if _recruit_nearby():
 		_meet_recruit()
@@ -1241,6 +1264,11 @@ func strike_vault_wall(from: Vector3, direction: Vector3) -> bool:
 	CombatVfx.spawn(self, seal.wall_centre() + Vector3(0, 0.8, 0), direction, "spark")
 	if seal.strike(): _open_vault()
 	return true
+
+## At a sealed vault's mouth, where E opens it.
+func _vault_nearby() -> bool:
+	var seal: VaultSeal = world_map.vault_seal if not in_base and is_instance_valid(world_map) else null
+	return seal != null and not vault_opened and seal.near(player.global_position)
 
 func _open_vault() -> void:
 	if vault_opened or world_map.vault_seal == null: return
@@ -1301,10 +1329,12 @@ func _advance_floor(route: int) -> void:
 	threat.next_floor()
 	_tracked_warned = -1
 	route_history.append({"floor": floor_number, "name": FieldCatalog.ROUTES[route].name})
+	await _begin_loading()
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	await _await_navigation_sync()
 	_spawn_wave()
+	_end_loading()
 	transitioning = false
 	set_message("进入第 %d 层 · %s；上一层已无法返回。" % [floor_number, FieldCatalog.ROUTES[route].name])
 	broadcast("进入 %s · %s。" % [AK.floor_code(region_id, floor_number), FieldCatalog.ROUTES[route].name])
@@ -1582,6 +1612,7 @@ func interaction_prompt() -> String:
 	for node in get_tree().get_nodes_in_group("relic_caches"):
 		var cache := node as RelicCache
 		if cache.game == self and near(cache): return "密室藏品" if cache.source == "vault" else "战斗缴获"
+	if _vault_nearby(): return "密室"
 	if _recruit_nearby(): return Operators.display_name(str(contract.operator))
 	if near_fire() != null and not pack_fuels().is_empty(): return "火堆"
 	if is_instance_valid(shower) and not shower.used and near(shower) and shower_progress < 0.0: return "净化喷淋"
@@ -5775,13 +5806,9 @@ func pointer_step(left: bool, right: bool, pointed_enemy: Enemy, delta: float) -
 	if _held_on_enemy: return
 
 	# Left on the ground drops the lock and walks there, whatever she holds
-	# (用户 2026-10-20: 左键点地面改为会移动; no more air swings). On a sealed
-	# vault's 暗墙 with a blade it locks the wall instead (Player.lock_wall).
+	# (用户 2026-10-20: 左键点地面改为会移动; no more air swings). A vault's
+	# 暗墙 is opened with E at its mouth (_vault_nearby), not by clicking it.
 	var ground := _get_pointer_ground()
-	var seal: VaultSeal = world_map.vault_seal if not in_base and is_instance_valid(world_map) else null
-	if left_click and seal != null and seal.aimed_at(ground) and not player.is_ranged_weapon() and not (player.kit != null and player.kit.ranged()):
-		player.lock_wall()
-		return
 	if player.wall_target and not left_click: return
 	player.clear_target()
 	player.set_move_target(ground)
@@ -5803,6 +5830,24 @@ func _exit_tree() -> void:
 	if attack_cursor_on:
 		attack_cursor_on = false
 		AttackCursor.apply(false)
+	release_static_caches()
+
+## Textures, meshes and shaders kept in static vars are otherwise freed with
+## their scripts, after the renderer has shut down, which crashed the release
+## build on quit (用户 2026-10-23: 先修退出崩溃). They fill again on demand.
+static func release_static_caches() -> void:
+	for cache: Dictionary in [BarrierFx._cells, BossVfx._band_shaders, BossVfx._textures, BossVfx._splat_shaders,
+			BaseMap._kit_meshes, TerraceDressing._kit_cache, AttackCursor._textures, ItemIcons._cache, PaperDoll._silhouettes,
+			RelicIcons._cache, ResearchTreeView._cards, ResearchTreeView._bands, GroundHazard._circles, Loot._ground_cache,
+			OperatorKit._textures, FieldArt._frames]:
+		cache.clear()
+	AttackCursor.release()
+	BossVfx._soft = null
+	BossVfx._shaft_shader = null
+	Enemy._silence_tex = null
+	Enemy._incite_tex = null
+	InventoryPanel._portrait = null
+	LapplandAnimator3D._contact = null
 
 ## The pointer in HUD (UI viewport) coordinates, where the name plates are drawn.
 func pointer_ui() -> Vector2:

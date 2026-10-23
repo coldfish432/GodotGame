@@ -14,6 +14,8 @@ func check(label: String, passed: bool) -> void:
 	print(("PASS " if passed else "FAIL ") + label)
 
 func run() -> void:
+	# Life is set by hand here; the default auto slot (急救剂) would drink.
+	SystemScreens.settings["auto_potion"] = ""
 	rules()
 	await through_game()
 	print("MEDICAL FAILURES: %d" % failures)

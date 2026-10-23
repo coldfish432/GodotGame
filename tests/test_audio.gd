@@ -34,8 +34,7 @@ func run() -> void:
 		var entry: Dictionary = log["audio/music/%s_loop.ogg" % key]
 		check("%s loop loads, loops, and jumps back to the logged point (%.4f s)" % [key, entry.loop_offset],
 			stream != null and stream.loop and is_equal_approx(stream.loop_offset, float(entry.loop_offset)))
-	check("both stings load and do not loop", music._streams.has(true) and music._streams.has(false)
-		and not music._streams[true].loop and not music._streams[false].loop)
+	check("the fail sting loads and does not loop; extraction has none", music._streams.has(false) and not music._streams[false].loop and not music._streams.has(true))
 	check("all four warehouse cues load", ["lights_on", "lights_off", "hatch", "shelf"].all(func(c): return game.sound.streams.has(c)))
 	check("Music and SFX buses feed Master", AudioServer.get_bus_index("Music") > 0 and AudioServer.get_bus_index("SFX") > 0
 		and AudioServer.get_bus_send(AudioServer.get_bus_index("Music")) == "Master")
@@ -131,10 +130,9 @@ func run() -> void:
 	played = music.stings_played
 	game.settle(true)
 	await step(3)
-	check("extraction: one extract sting", music.stings_played == played + 1 and music.sting == "extract" and music._sting_player.stream == music._streams[true])
-	music._sting_player.stop()
-	music._on_sting_finished()
+	check("extraction: no sting, the field loop fading out", music.stings_played == played and music.sting == "" and not music._sting_player.playing)
 	await step(3)
+	check("after extraction the base track comes straight back", music.track == "base")
 
 	# --- Boot-time settle of an interrupted contract ---------------------------
 	played = music.stings_played

@@ -31,7 +31,6 @@
  "打开地图": "Open the map",
  "地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。": "The map shows the explored parts of this floor, with markers for the way deeper, extraction beacons and more.",
  "请沿道路寻找深入入口进入下一层，或在撤离信标处撤离、返回罗德岛。": "Follow the roads to the way deeper to reach the next floor, or extract at an extraction beacon and return to Rhodes Island.",
- "博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。对墙体发动近战攻击即可破开；室内有稀有物资，也可能有守卫者。": "Doctor, this wall has cracks and a faint glow at its base; there may be a vault behind it. Break it with melee attacks. Inside are rare supplies, and possibly guardians.",
  "陷阱": "Trap",
  "前方地面有陷阱。踩中会受到固定伤害并提高威胁值；重型陷阱触发后有短暂引信，及时闪避可以躲开。": "There is a trap on the ground ahead. Stepping on it deals fixed damage and raises the Threat; a heavy trap has a short fuse once triggered, so a quick dodge can escape it.",
  "已发现撤离信标。进入撤离区域并停留数秒即可撤离，携带的物品将一同带回罗德岛。": "Extraction beacon found. Stay inside the extraction zone for a few seconds to extract; everything you carry comes back to Rhodes Island.",
@@ -119,5 +118,6 @@
  "这里是尚未建成的设施。按交互键查看建造需要的龙门币和材料；没有接入总控台的设施也可以在现场升级。": "This facility is not built yet. Press the interact key to see the LMD and materials it needs; facilities not connected to the hub can be upgraded on the spot.",
  "升降梯连接舰桥大厅与二层，二层是农业部和食堂。": "The lift links the Bridge Hall with Deck 2, home of Agriculture and the Canteen.",
  "农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。": "Agriculture's hydroponic trays grow crops in real time; ripe crops never wither. The Canteen cooks them.",
- "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。": "The Canteen cooks crops into meals. Eat one before you leave and your operator gains HP, regeneration or attack on the next contract."
+ "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。": "The Canteen cooks crops into meals. Eat one before you leave and your operator gains HP, regeneration or attack on the next contract.",
+ "博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。走到墙前按 E 即可破开；室内有稀有物资，也可能有守卫者。": "Doctor, this wall has cracks and a faint glow at its base; there may be a vault behind it. Walk up to it and press E to break it open. Inside are rare supplies, and possibly guardians."
 }

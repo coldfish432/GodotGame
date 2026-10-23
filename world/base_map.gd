@@ -851,10 +851,16 @@ func _room_records(room: Dictionary) -> void:
 
 func _texture(path: String) -> Texture2D:
 	if _textures.has(path): return _textures[path]
-	# Loaded from the PNG bytes so the generated folder needs no import step.
-	var image := Image.new()
-	image.load_png_from_buffer(FileAccess.get_file_as_bytes(path))
-	var texture := ImageTexture.create_from_image(image)
+	# Loaded from the PNG bytes so the generated folder needs no import step;
+	# an exported build has only the imported copy.
+	var bytes := FileAccess.get_file_as_bytes(path)
+	var texture: Texture2D
+	if bytes.is_empty():
+		texture = load(path)
+	else:
+		var image := Image.new()
+		image.load_png_from_buffer(bytes)
+		texture = ImageTexture.create_from_image(image)
 	_textures[path] = texture
 	return texture
 
@@ -1186,7 +1192,11 @@ func _add_hologram(root: Node3D, x: float, z: float) -> void:
 	root.add_child(_holo_cities(origin))
 	ship_marker = MeshInstance3D.new()
 	ship_marker.name = "HoloRhodes"
-	ship_marker.mesh = load(KIT % "holo_rhodes").instantiate().find_children("*", "MeshInstance3D", true, false)[0].mesh
+	# Only its mesh is kept: the scene left unfreed outlived the renderer at
+	# exit and crashed the release build on quit.
+	var holo: Node = load(KIT % "holo_rhodes").instantiate()
+	ship_marker.mesh = holo.find_children("*", "MeshInstance3D", true, false)[0].mesh
+	holo.free()
 	ship_marker.material_override = _hologram(Color(0.55, 0.9, 1.0), 1.5)
 	root.add_child(ship_marker)
 	var ring := TorusMesh.new()

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://jj7qbov38xlh"
+uid="uid://cgpl768jdmxmw"
 path="res://.godot/imported/base_potting_bench_base_potting_bench_trays.png-33ca0ad5d19e1e05bbc2dce8eb9b2953.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "2ebd2a73eef4aa62e22ddf049bdad8b8"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

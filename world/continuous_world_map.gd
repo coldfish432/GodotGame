@@ -214,7 +214,12 @@ var _crossings: Array[Dictionary] = []
 var _profile := OS.get_environment("DOWNFALL_PROFILE") == "1"
 var _profile_at := 0
 
+## The loading screen's bar (SystemScreens.step_loading): told at every stage
+## while the game is loading a floor, empty otherwise.
+var progress_hook := Callable()
+
 func mark(stage: String) -> void:
+	if progress_hook.is_valid() and not stage.is_empty(): progress_hook.call(stage)
 	if not _profile: return
 	var now := Time.get_ticks_usec()
 	if not stage.is_empty(): print("  [map %s] %-22s %7.1f ms" % [region_id, stage, (now - _profile_at) / 1000.0])

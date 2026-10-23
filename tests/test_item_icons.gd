@@ -82,6 +82,13 @@ func run() -> void:
 	check("the ore icon is 32×72", ore != null and ore.get_size() == Vector2(32, 72))
 	for id in ["raw_originium", "twin_fang", "ember_fang", "moon_edge", "crystal_edge", "vein_core"]:
 		check("%s has an emit mask" % id, ResourceLoader.exists(ItemIcons.DIR + id + "_emit.png"))
+	# E16 (2026-10-23): the Rhodes protective line shows Sol's art, not the placeholder.
+	for id in ["rhodes_head_heavy", "rhodes_hands_heavy", "rhodes_legs_heavy", "rhodes_feet_heavy", "rhodes_ring_monitor"]:
+		var probe := Item.create(str(GearCatalog.BASES[id].name), int(GearCatalog.BASES[id].category) as Item.Category, 1, 1)
+		probe.base_id = id
+		check("E16 %s uses its own icon" % id, ItemIcons.path_for(probe) == ItemIcons.DIR + id + ".png")
+	for id in ["rhodes_head_heavy", "rhodes_ring_monitor"]:
+		check("%s has an emit mask" % id, ResourceLoader.exists(ItemIcons.DIR + id + "_emit.png"))
 	# M1: every PRTS material (and 赤金) has a 32×32 icon; materials and
 	# potions without art yet still fall back to text.
 	var prts_missing := []

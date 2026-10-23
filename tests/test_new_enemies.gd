@@ -188,6 +188,9 @@ func _mechanics() -> void:
 	var slug := spawn("slug_volatile", Vector3(0.5, 0, 0.5))
 	var mate := spawn("thug", Vector3(1.0, 0, -0.5))
 	var hp := p.hp
+	# The auto slot (污染与回血修订) would drink 急救剂 below 40% and top her back up.
+	var auto: Variant = SystemScreens.settings.get("auto_potion", "")
+	SystemScreens.settings["auto_potion"] = ""
 	slug.take_hit(99999.0, "true")
 	await step(2)
 	var hazard: GroundHazard = null
@@ -196,7 +199,8 @@ func _mechanics() -> void:
 	check("高能源石虫 leaves a fused blast", hazard != null and hazard.fuse > 0.0 and hazard.hurts_enemies)
 	var mate_hp := mate.health
 	for i in range(80): await step(1)
-	check("…which hurts her and other enemies (敌我都伤)", p.hp < hp and mate.health < mate_hp)
+	check("…which hurts her and other enemies (敌我都伤)", p.hp < hp and mate.health < mate_hp, [hp, p.hp, mate_hp, mate.health])
+	SystemScreens.settings["auto_potion"] = auto
 	await reset()
 	# Wherever the floor's cover (CityDressing) leaves the rope a clear line.
 	var throw := Vector3(7.0, 0, 0)

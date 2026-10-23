@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://btuc0i0dsv6ec"
+uid="uid://b87vnwx5agoff"
 path="res://.godot/imported/snow_fire_pit_snow_fire_pit_rock.png-7c7f5c0d2656f633af83ff89cc7c18a1.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "4b84d8ee7c5888b85617fe55995056f6"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
