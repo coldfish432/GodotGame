@@ -304,12 +304,16 @@ func _ready() -> void:
 	menu.game = self
 	layer.add_child(menu)
 	_build_base_prompt(layer)
+	if save_enabled: await _claim_save()
 	_init_market()
 	if save_enabled:
 		load_base()
-		if issue_kits() > 0: save_base()
+		if app_mode.is_empty() and issue_kits() > 0: save_base()
 	_catch_up_market()
-	if start_at_base:
+	if not app_mode.is_empty():
+		# Deferred: the main scene may still be adding its children.
+		_open_app.call_deferred()
+	elif start_at_base:
 		show_base()
 	else:
 		await start_contract(region_id)
@@ -447,6 +451,11 @@ func _ease_cutaway(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	message_timer -= delta
+	if _claiming: return
+	if not app_mode.is_empty():
+		_app_process(delta)
+		return
+	_lock_tick(delta)
 	if not is_instance_valid(player):
 		return
 	_tick_insurance_clock(delta)
@@ -1430,6 +1439,10 @@ func open_modal(kind: String) -> void:
 	player.clear_target()
 
 func close_modal() -> void:
+	# The terminal is the exchange and nothing else: closing it goes back to it.
+	if app_mode == "exchange" and is_instance_valid(menu):
+		menu.show_station("exchange")
+		return
 	_stop_looting()
 	modal = ""
 	_pointer_gate = true
@@ -1795,6 +1808,140 @@ func settle(extracted: bool) -> void:
 		open_modal("settlement")
 		menu.show_settlement()
 
+# --- The standalone terminal and ticker (交易终端与盯盘小窗策划案_v1_0.md) ----------
+
+## "" (the game), "exchange" (A: the terminal, trades) or "ticker" (B: looks
+## only). Set by the main scene from the command line before _ready.
+var app_mode := ""
+## One writer per save (§3); null in tests that do not save.
+var save_lock: SaveLock = null
+var _lock_left := 0.0
+var _claiming := false
+var _seen_seq := ""
+## A terminal or ticker follows this save: the market is saved every few seconds.
+var _followed := false
+## The save's Doctor is out on a contract (the terminal is then read-only).
+var _saved_active := false
+var ticker: Control = null
+const MARKET_SAVE_FOLLOWED := 5.0
+## How long the game waits for a terminal or ticker writer to step down.
+const RELEASE_WAIT := 5.0
+const TOAST_KINDS := ["alert", "warning", "liquidation", "fill", "default", "arrival", "delivery"]
+
+## Takes the save's writer lock. The game waits for a terminal or ticker to
+## step down (saving first), then takes it; a terminal or ticker that finds a
+## writer reads instead (§3.1).
+func _claim_save() -> void:
+	save_lock = SaveLock.new(save_path, app_mode if not app_mode.is_empty() else "game")
+	if save_lock.try_claim() or not app_mode.is_empty(): return
+	if str(save_lock.current().get("mode", "")) != "game": save_lock.request_release()
+	# Nothing ticks until the save is ours and loaded (_process waits on this).
+	_claiming = true
+	var waited := 0.0
+	while waited < RELEASE_WAIT:
+		await get_tree().create_timer(0.2).timeout
+		waited += 0.2
+		if save_lock.try_claim(): break
+	if not save_lock.holder: save_lock.force_claim()
+	_claiming = false
+
+func writer() -> bool:
+	return save_lock == null or save_lock.holder
+
+func save_lock_saved() -> void:
+	if save_lock != null: save_lock.saved()
+
+## Why the terminal may not trade now, "" when it may (§0-3).
+func trade_block() -> String:
+	if app_mode.is_empty(): return ""
+	if app_mode == "ticker": return "只读"
+	if not writer(): return "只读 · 游戏中" if str(save_lock.current().get("mode", "")) == "game" else "只读"
+	if _saved_active: return "只读 · 局内"
+	return ""
+
+## Every BEAT seconds: the writer beats and steps down when the game asks; a
+## reader beats, reloads when the writer saved, and takes over when it is gone.
+func _lock_tick(delta: float) -> void:
+	if save_lock == null or not save_enabled: return
+	_lock_left -= delta
+	if _lock_left > 0.0: return
+	_lock_left = SaveLock.BEAT
+	# The game never gives the save up: if a terminal took a lock it thought
+	# stale (a long floor build), the game takes it back and asks it to read.
+	if not save_lock.still_holder() and app_mode.is_empty():
+		save_lock.request_release()
+		save_lock.force_claim()
+	save_lock.beat()
+	if save_lock.holder:
+		var was := _followed
+		_followed = save_lock.readers_present()
+		if _followed and not was: _market_save_left = minf(_market_save_left, MARKET_SAVE_FOLLOWED)
+		if save_lock.release_requested():
+			save_base()
+			save_lock.release()
+			_seen_seq = ""
+			_refresh_app()
+		return
+	var d := save_lock.current()
+	if not SaveLock.alive(d):
+		_reload_from_disk()
+		if save_lock.try_claim(): _refresh_app()
+		return
+	# A new save, or a new writer: read again.
+	var mark := "%s/%d" % [d.get("id", ""), int(d.get("seq", -1))]
+	if mark != _seen_seq:
+		_seen_seq = mark
+		_reload_from_disk()
+
+## A reader picks up what the writer saved: the market, then the account (§3.2).
+func _reload_from_disk() -> void:
+	market.load_file(market_path())
+	Economy.fx = market.fx_rate()
+	load_base()
+	market.advance_to(BaseState.now())
+	Economy.fx = market.fx_rate()
+	_refresh_app()
+
+func _refresh_app() -> void:
+	if app_mode == "exchange" and is_instance_valid(menu) and menu.visible and modal == "station": menu._refresh()
+	if is_instance_valid(ticker): ticker.queue_redraw()
+
+func _open_app() -> void:
+	if is_instance_valid(_hud): _hud.hide()
+	if is_instance_valid(watch_widget): watch_widget.hide()
+	if app_mode == "exchange":
+		open_modal("station")
+		menu.show_station("exchange")
+	else:
+		ticker = TickerView.new()
+		ticker.game = self
+		var layer := CanvasLayer.new()
+		layer.layer = 40
+		(ui_root if is_instance_valid(ui_root) else self).add_child(layer)
+		layer.add_child(ticker)
+
+## The terminal and ticker: the market and the lock, nothing of the world.
+func _app_process(delta: float) -> void:
+	_lock_tick(delta)
+	_tick_market(delta)
+
+## A Windows notification for the account's events (§4): from the writer
+## only, and from the game only while its window is not in front.
+func _toast(text: String, kind: String) -> void:
+	if not kind in TOAST_KINDS or not save_enabled or not writer() or DisplayServer.get_name() == "headless": return
+	if app_mode.is_empty() and DisplayServer.window_is_focused(): return
+	Toast.show("罗德岛交易终端", text)
+
+## The command line that opens the terminal ("exchange") or the ticker.
+static func app_args(mode: String) -> PackedStringArray:
+	var args := PackedStringArray()
+	if OS.has_feature("editor"): args.append_array(["--path", ProjectSettings.globalize_path("res://")])
+	args.append_array(["--", "--" + mode])
+	return args
+
+func launch_app(mode: String) -> void:
+	OS.create_process(OS.get_executable_path(), app_args(mode))
+
 # --- The exchange (势力与交易所策划案_v0_7.md) ------------------------------------
 
 ## The faction at this floor's post, when the encounter is one.
@@ -1843,7 +1990,7 @@ func _catch_up_market() -> void:
 func _tick_market(delta: float) -> void:
 	market.advance_to(BaseState.now())
 	_workshop_check -= delta
-	if _workshop_check <= 0.0:
+	if app_mode.is_empty() and _workshop_check <= 0.0:
 		_workshop_check = 5.0
 		if in_base:
 			_tick_workshop()
@@ -1856,11 +2003,13 @@ func _tick_market(delta: float) -> void:
 			show_ship()
 			show_research()
 			base_map.set_farm(provisions)
-	if save_enabled:
+	if save_enabled and writer():
 		_market_save_left -= delta
 		if _market_save_left <= 0.0:
-			_market_save_left = MARKET_SAVE_SECONDS
+			# Followed by a terminal or ticker: every few seconds (交易终端策划案 §3.2).
+			_market_save_left = MARKET_SAVE_FOLLOWED if _followed else MARKET_SAVE_SECONDS
 			market.save_file(market_path())
+			save_lock_saved()
 
 ## News reaches the Doctor through PRTS: the log everywhere, a line at the base
 ## for flash offers, and the one popup for a black swan (§5.5).
@@ -1876,6 +2025,8 @@ func _on_market_news(headline: Dictionary, event: Dictionary) -> void:
 ## Account events (§12): in the field PRTS reports them, at the base a line.
 ## Price alerts are the Doctor's own and only show at the base.
 func _on_exchange_notice(text: String, kind: String) -> void:
+	_toast(text, kind)
+	if not app_mode.is_empty(): return
 	if kind == "alert" and not in_base: return
 	broadcast("PRTS：" + text)
 	if in_base: set_message(text)
@@ -3043,6 +3194,7 @@ const SPECIAL_GUIDE := "残党向导"
 ## 下城区耳目 on a headline still 待证实: whether it is true, before it is settled.
 func peek_refusal(headline: Dictionary) -> String:
 	if not in_base: return "只在基地"
+	if not trade_block().is_empty(): return trade_block()
 	if str(headline.get("status", "")) != "待证实" or headline.has("peek") or _rumor_of(headline).is_empty(): return "无法查证"
 	return materials_refusal({SPECIAL_EARS: 1})
 
@@ -3116,6 +3268,7 @@ func moss_cure() -> bool:
 ## 企鹅专递单, from 企鹅物流's desk at the exchange.
 func slip_refusal() -> String:
 	if not in_base: return "只在基地"
+	if not trade_block().is_empty(): return trade_block()
 	if exchange.rank("penguin") < FactionSpecials.rank_needed(SPECIAL_SLIP): return "需要关系 R%d" % FactionSpecials.rank_needed(SPECIAL_SLIP)
 	if gold < FactionSpecials.SLIP_PRICE: return "龙门币不足"
 	return ""
@@ -5198,7 +5351,7 @@ func _set_gold_bars(bars: int) -> void:
 		if inventory.add_stack(stack) > 0: break
 
 func save_base(active_contract: bool = false) -> void:
-	if not save_enabled: return
+	if not save_enabled or not writer(): return
 	var loadout: Array = []
 	for item in carried_items():
 		var entry := item.to_data()
@@ -5210,6 +5363,13 @@ func save_base(active_contract: bool = false) -> void:
 	var data := {"version": 3, "gold": gold, "base": base.to_data(), "loadout": loadout, "left_behind": left_behind,
 		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter,
 		"exchange": exchange.to_data(), "workshop": workshop.to_data(), "voyage": voyage.to_data(), "consign": consign.to_data()}
+	# The terminal and ticker only touch these three (交易终端策划案 §3.4):
+	# the rest of the save stays as the game left it.
+	if not app_mode.is_empty() and FileAccess.file_exists(save_path):
+		var old: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
+		if old is Dictionary:
+			for key in ["gold", "base", "exchange"]: old[key] = data[key]
+			data = old
 	market.save_file(market_path())
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
@@ -5220,6 +5380,7 @@ func save_base(active_contract: bool = false) -> void:
 	if FileAccess.file_exists(save_path): DirAccess.copy_absolute(save_path, save_path + ".bak")
 	if DirAccess.rename_absolute(save_path + ".tmp", save_path) != OK:
 		notice("存档替换失败，旧存档保留。")
+	save_lock_saved()
 
 ## A weapon the deployed operator cannot wield (§2.4) goes back to the
 ## warehouse (staging when the shelves are full); true if one was moved.
@@ -5297,7 +5458,9 @@ func load_base() -> void:
 	for data in parsed.get("left_behind", []):
 		var dropped := Item.from_data(data)
 		if not seen.has(dropped.uid) and dropped.insured: _insured_left_behind.append(dropped)
-	if bool(parsed.get("active_contract", false)):
+	_saved_active = bool(parsed.get("active_contract", false))
+	# The terminal and ticker never settle a run in progress: only the game does.
+	if _saved_active and app_mode.is_empty():
 		rng.state = int(parsed.get("rng_state", "1"))
 		_settled = false
 		settle(false)
@@ -5636,6 +5799,7 @@ func _update_pointer_cursor(pointed_enemy: Enemy) -> void:
 	AttackCursor.apply(on)
 
 func _exit_tree() -> void:
+	if save_lock != null: save_lock.leave()
 	if attack_cursor_on:
 		attack_cursor_on = false
 		AttackCursor.apply(false)

@@ -113,6 +113,15 @@ func _log(entry: Dictionary) -> void:
 	history.append(entry)
 	if history.size() > HISTORY_KEEP: history = history.slice(history.size() - HISTORY_KEEP)
 
+## Set while the market's own step runs (fills, expiries, liquidations), which
+## go on in a read-only terminal too.
+var _auto := false
+
+## A read-only terminal or ticker refuses what the player does
+## (交易终端与盯盘小窗策划案_v1_0.md §0-3); the market's own step is never refused.
+func blocked() -> bool:
+	return not _auto and game != null and not game.trade_block().is_empty()
+
 # --- Relations, fees, quota --------------------------------------------------------
 
 func relation(faction: String) -> int:
@@ -285,6 +294,7 @@ func quote_sell(item: Item, faction: String, remote: bool = true, flash_mult: fl
 
 ## Sells `item` to `faction`. remote = at the terminal; false at a post or camp.
 func sell_item(item: Item, faction: String, remote: bool = true, flash: Dictionary = {}) -> bool:
+	if blocked(): return false
 	var q := quote_sell(item, faction, remote, float(flash.get("mult", 1.0)))
 	if not q.ok or not game._hand_over(item): return false
 	# Face to face in the field she is paid in bars, into the pack.
@@ -325,6 +335,7 @@ func quote_buy(faction: String, material: String) -> Dictionary:
 	return out
 
 func buy_material(faction: String, material: String, count: int, remote: bool = true, flash: Dictionary = {}) -> bool:
+	if blocked(): return false
 	if count <= 0: return false
 	if remote and FactionCatalog.info(faction).get("field_only", false): return false
 	# At the terminal: packs, and the 势力特供 (交易包修订案 §6).
@@ -367,6 +378,7 @@ func flash_offer(id: int) -> Dictionary:
 	return {}
 
 func sell_to_flash(id: int, item: Item, at_post: bool = false) -> bool:
+	if blocked(): return false
 	var offer := flash_offer(id)
 	if offer.is_empty() or offer.kind != "buy" or FactionCatalog.category_of(item) != str(offer.category): return false
 	var faction := str(offer.faction)
@@ -378,6 +390,7 @@ func sell_to_flash(id: int, item: Item, at_post: bool = false) -> bool:
 	return true
 
 func buy_from_flash(id: int, count: int, at_post: bool = false) -> bool:
+	if blocked(): return false
 	var offer := flash_offer(id)
 	if offer.is_empty() or offer.kind != "sell" or count > int(offer.left): return false
 	var faction := str(offer.faction)
@@ -412,6 +425,7 @@ func _return_item(data: Dictionary) -> void:
 ## A limit sell (`kind` "limit") fills when the index reaches `price` (display
 ## units); a stop sell ("stop") sells at market once it falls to `price`.
 func place_sell_order(item: Item, faction: String, kind: String, price: float, term: String = "1d") -> bool:
+	if blocked(): return false
 	var m := market_of(item, faction)
 	if m.is_empty() or FactionCatalog.info(faction).get("field_only", false): return false
 	if orders_with(faction) >= order_slots(faction): return false
@@ -422,6 +436,7 @@ func place_sell_order(item: Item, faction: String, kind: String, price: float, t
 	return true
 
 func place_buy_order(faction: String, material: String, count: int, price: float, term: String = "1d") -> bool:
+	if blocked(): return false
 	if not Packs.is_pack(material): return false
 	var q := quote_buy(faction, material)
 	if not q.ok or str(q.market).is_empty() or FactionCatalog.info(faction).get("field_only", false): return false
@@ -435,6 +450,7 @@ func place_buy_order(faction: String, material: String, count: int, price: float
 
 ## "When `watch_market` goes `op` `price`, sell `item` to `faction` at market."
 func place_conditional(watch_market: String, op: String, price: float, item: Item, faction: String, term: String = "1d") -> bool:
+	if blocked(): return false
 	var m := market_of(item, faction)
 	if m.is_empty() or not market.books.has(watch_market) or orders_with(faction) >= order_slots(faction): return false
 	if not pay("lmd", float(Economy.price(item)) * ORDER_FEE): return false
@@ -443,6 +459,7 @@ func place_conditional(watch_market: String, op: String, price: float, item: Ite
 	return true
 
 func cancel_order(id: int) -> bool:
+	if blocked(): return false
 	for o in orders:
 		if int(o.id) != id: continue
 		orders.erase(o)
@@ -534,6 +551,7 @@ func forward_refusal(faction: String, lev: int) -> String:
 
 ## Opens a forward: `deliver` (交货合约) or receive (收货合约).
 func open_forward(faction: String, material: String, count: int, term: int, deliver: bool, lev: int) -> bool:
+	if blocked(): return false
 	if count <= 0 or term < 0 or term >= TERMS.size() or not lev in LEVERAGES: return false
 	if not forward_refusal(faction, lev).is_empty() or not forward_side_refusal(faction, material, deliver).is_empty(): return false
 	var currency := FactionCatalog.currency(faction)
@@ -559,6 +577,7 @@ func margin_ratio(position: Dictionary, pnl: float) -> float:
 ## Delivers the goods of a 交货合约 now: from the warehouse, then the bags
 ## (`warehouse_only` when it settles by itself while she is out in the field).
 func deliver_forward(id: int, warehouse_only: bool = false) -> bool:
+	if blocked(): return false
 	for f in forwards:
 		if int(f.id) != id or f.dir != "deliver": continue
 		if warehouse_only:
@@ -574,6 +593,7 @@ func deliver_forward(id: int, warehouse_only: bool = false) -> bool:
 
 ## Pays the rest of a 收货合约 now and takes the goods.
 func take_forward(id: int) -> bool:
+	if blocked(): return false
 	for f in forwards:
 		if int(f.id) != id or f.dir != "receive": continue
 		var rest := float(f.k) * int(f.count) - float(f.margin)
@@ -602,6 +622,7 @@ func _consume_stash(material: String, count: int) -> bool:
 	return true
 
 func add_margin(id: int, amount: float) -> bool:
+	if blocked(): return false
 	for list in [forwards, cfds]:
 		for p in list:
 			if int(p.id) != id: continue
@@ -613,6 +634,7 @@ func add_margin(id: int, amount: float) -> bool:
 
 ## Auto top-up (挂单 "自动追加保证金"): below `ratio`, refill to the opening margin.
 func set_auto_margin(id: int, ratio: float) -> void:
+	if blocked(): return
 	for list in [forwards, cfds]:
 		for p in list:
 			if int(p.id) == id: p.auto = ratio
@@ -714,6 +736,7 @@ func cfd_refusal(underlying: String, lev: int, margin: float) -> String:
 	return ""
 
 func open_cfd(underlying: String, dir: int, lev: int, margin: float) -> bool:
+	if blocked(): return false
 	if not underlying in cfd_underlyings() or not lev in LEVERAGES or margin <= 0.0 or absi(dir) != 1: return false
 	if not cfd_refusal(underlying, lev, margin).is_empty(): return false
 	var currency := cfd_currency(underlying)
@@ -726,6 +749,7 @@ func open_cfd(underlying: String, dir: int, lev: int, margin: float) -> bool:
 	return true
 
 func set_cfd_limits(id: int, tp: float, sl: float) -> void:
+	if blocked(): return
 	for c in cfds:
 		if int(c.id) == id:
 			c.tp = tp
@@ -733,6 +757,7 @@ func set_cfd_limits(id: int, tp: float, sl: float) -> void:
 
 ## Closes a CFD: the margin back plus the result, profit under the day's cap.
 func close_cfd(id: int, reason: String = "") -> bool:
+	if blocked(): return false
 	for c in cfds:
 		if int(c.id) != id: continue
 		cfds.erase(c)
@@ -838,12 +863,14 @@ func loan_locked() -> bool:
 	return loan > roundi(loan_limit() * LOAN_OVERDUE)
 
 func borrow(amount: int) -> bool:
+	if blocked(): return false
 	if amount <= 0 or loan_locked() or loan + amount > loan_limit(): return false
 	loan += amount
 	game.gold += amount
 	return true
 
 func repay(amount: int) -> bool:
+	if blocked(): return false
 	amount = mini(amount, loan)
 	if amount <= 0 or game.gold < amount: return false
 	game.gold -= amount
@@ -858,6 +885,12 @@ static func loan_rate(debt: int) -> float:
 ## Settlement: interest once, quotas back, an overdue loan takes the reward first.
 ## Returns how much of `reward` went to the loan.
 func on_settlement(reward: int) -> int:
+	_auto = true
+	var taken := _settle(reward)
+	_auto = false
+	return taken
+
+func _settle(reward: int) -> int:
 	var taken := 0
 	if loan > 0:
 		loan = ceili(loan * (1.0 + loan_rate_now(loan)))
@@ -875,6 +908,7 @@ func on_settlement(reward: int) -> int:
 
 ## 龙门币 → 赤金账户 (`to_gold`) or back, at the live rate less the spread.
 func convert(to_gold: bool, amount: float, closure: bool = false) -> bool:
+	if blocked(): return false
 	if amount <= 0.0: return false
 	if not closure and not unlocked(): return false
 	var spread := Economy.closure_spread if closure else Economy.EXCHANGE_FX_SPREAD
@@ -889,11 +923,13 @@ func convert(to_gold: bool, amount: float, closure: bool = false) -> bool:
 
 ## Bars (the item) into the 赤金 account, and whole bars out.
 func deposit_bars(count: int) -> bool:
+	if blocked(): return false
 	if count <= 0 or not game.consume_materials({Economy.GOLD_ID: count}): return false
 	credit("gold", count)
 	return true
 
 func withdraw_bars(count: int) -> bool:
+	if blocked(): return false
 	if count <= 0 or not pay("gold", count): return false
 	var left := count
 	while left > 0:
@@ -910,6 +946,7 @@ func ship_fee(item: Item) -> int:
 	return ceili(Economy.price(item) * rate)
 
 func ship(item: Item, faction: String) -> bool:
+	if blocked(): return false
 	if not Packs.is_pack(item.material_id) or market_of(item, faction).is_empty() or FactionCatalog.info(faction).get("transport", false): return false
 	var fee := ship_fee(item)
 	if not pay("lmd", fee): return false
@@ -962,6 +999,11 @@ func _tick_alerts() -> void:
 
 ## Called by MarketState after each step (live and while catching up).
 func on_step(_t: int, dt: int) -> void:
+	_auto = true
+	_step_account(dt)
+	_auto = false
+
+func _step_account(dt: int) -> void:
 	_roll_day()
 	for f in quota_used.keys():
 		quota_used[f] = maxf(0.0, float(quota_used[f]) - quota_cap(f) * QUOTA_REGEN * dt / QUOTA_REGEN_SECS)
@@ -994,6 +1036,7 @@ func on_event(ev: Dictionary) -> void:
 func migrate_packs() -> void:
 	if packs_version >= 1: return
 	packs_version = 1
+	_auto = true
 	for f in forwards.duplicate():
 		if Packs.is_pack(str(f.material)): continue
 		forwards.erase(f)
@@ -1015,6 +1058,7 @@ func migrate_packs() -> void:
 		if (w == FactionCatalog.FX or w.begins_with("comp:") or market.books.has(w)) and not moved.has(w): moved.append(w)
 	watch = moved
 	alerts = alerts.filter(func(a): return str(a.market) == FactionCatalog.FX or str(a.market).begins_with("comp:") or market.books.has(str(a.market)))
+	_auto = false
 
 # --- Saving ---------------------------------------------------------------------------------
 

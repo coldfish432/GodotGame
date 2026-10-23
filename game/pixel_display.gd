@@ -39,6 +39,33 @@ func _ready() -> void:
 	var game := GameManager.new()
 	game.save_enabled = persist_sessions
 	game.ui_root = ui_layer
+	# `-- --exchange` / `-- --ticker` (交易终端与盯盘小窗策划案_v1_0.md §1): the
+	# exchange alone, no world drawn, no title, no sound.
+	var user_args := OS.get_cmdline_user_args()
+	# Checking aids: `--save=user://x.json` plays another save, `--shot=path.png`
+	# saves the window after a few seconds (`--shot=path.png@20` after 20).
+	for arg in user_args:
+		if arg.begins_with("--save="): game.save_path = arg.substr(7)
+		if arg.begins_with("--shot="): _shot_later(arg.substr(7))
+	if get_tree().current_scene == self and ("--exchange" in user_args or "--ticker" in user_args):
+		game.app_mode = "exchange" if "--exchange" in user_args else "ticker"
+		world_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		container.hide()
+		SystemScreens.load_settings()
+		I18n.set_language(str(SystemScreens.settings.language))
+		AudioServer.set_bus_mute(0, true)
+		var window := get_window()
+		if game.app_mode == "ticker":
+			window.borderless = true
+			window.always_on_top = true
+			window.content_scale_size = TickerView.SIZE
+			window.size = TickerView.SIZE
+			window.title = "罗德岛盯盘"
+		else:
+			window.mode = Window.MODE_WINDOWED
+			window.title = "罗德岛交易终端"
+		world_viewport.add_child(game)
+		return
 	world_viewport.add_child(game)
 	# Title, loading and settings only in the real game; tests instantiate this
 	# scene under their own SceneTree and go straight in.
@@ -51,3 +78,10 @@ func _ready() -> void:
 		system_layer.add_child(screens)
 		game.system_screens = screens
 		screens.show_title()
+
+## `path.png` or `path.png@seconds` (6 by default); several can be given.
+func _shot_later(spec: String) -> void:
+	var parts := spec.split("@")
+	await get_tree().create_timer(float(parts[1]) if parts.size() > 1 else 6.0).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(parts[0])

@@ -918,6 +918,13 @@ static func _base_settings(menu: FieldMenu, stage: Control) -> void:
 		AK.put(stage, toggle, Vector2(900, y + 6), Vector2(320, 38))
 		stage.add_child(AK.rect(AK.LINE, Vector2(334, y + (49 if i == 0 else 43)), Vector2(886, 1)))
 		y += 50 if i == 0 else 44
+	# 交易终端与盯盘小窗策划案 §1: the exchange outside the game.
+	AK.put(stage, AK.label("交易终端与盯盘小窗", 14, AK.FG), Vector2(334, y + 12))
+	var links := AK.button("创建桌面快捷方式", "plain", 13)
+	links.pressed.connect(func():
+		Toast.desktop_shortcuts()
+		menu.game.set_message("桌面上已创建：罗德岛交易终端、罗德岛盯盘。"))
+	AK.put(stage, links, Vector2(1020, y + 6), Vector2(200, 34))
 
 ## 按键设置 (用户 2026-10-10, after Grim Dawn's Options → Keybindings): every
 ## Keybinds function with a primary and a secondary binding, keyboard or mouse

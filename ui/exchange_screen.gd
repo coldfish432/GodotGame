@@ -53,15 +53,20 @@ static func _seg(names: Array, current: int, on_pick: Callable, size: int = 12, 
 static func _redraw(menu: FieldMenu) -> void:
 	build(menu)
 
+## Why the player may not act here (a read-only terminal, 交易终端策划案 §0-3), "" if they may.
+static var _blocked := ""
+
 static func build(menu: FieldMenu) -> void:
 	var game := menu.game
 	var ex := game.exchange
+	_blocked = game.trade_block()
 	var stage := BaseScreens.shell(menu, "交易所", "EXCHANGE · KARLAN TRADE", TABS, tab, func(i):
 		tab = i
 		if i == 2: game.market.mark_read()
 		build(menu), "MARKET",
 		[["lmd", Economy.format(game.gold)], ["gold", "%.2f" % ex.gold_account]])
 	_account_bar(stage, game)
+	_app_corner(menu, stage)
 	if not ex.unlocked():
 		AK.put(stage, AK.label("喀兰贸易关系 R1", 18, AK.MUTE), Vector2(560, 360))
 		return
@@ -70,6 +75,22 @@ static func build(menu: FieldMenu) -> void:
 		1: _positions_page(menu, stage)
 		2: _news_page(menu, stage)
 		3: _money_page(menu, stage)
+
+## Top right, under the money: the terminal's state (可交易 / 只读 · …), or in
+## the game the button that opens the ticker (§1).
+static func _app_corner(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	if game.app_mode.is_empty():
+		var b := AK.button("盯盘小窗", "plain", 11)
+		b.pressed.connect(func(): game.launch_app("ticker"))
+		AK.put(stage, b, Vector2(1160, TOP + 2), Vector2(100, 26))
+		return
+	AK.put(stage, AK.tag(_blocked if not _blocked.is_empty() else "可交易", AK.SP if not _blocked.is_empty() else AK.GREEN), Vector2(1160, TOP + 5))
+
+## A button that changes the account: off while read-only.
+static func _act(b: Button) -> Button:
+	if not _blocked.is_empty(): b.disabled = true
+	return b
 
 static func _account_bar(stage: Control, game: GameManager) -> void:
 	var ex := game.exchange
@@ -172,8 +193,8 @@ static func _news_row(game: GameManager, n: Dictionary, width: float) -> Control
 	# 鼠王's 下城区耳目 (势力特供策划案 §二): learn a rumor's truth before it settles.
 	if str(n.get("status", "")) == "待证实" and not n.has("peek") and game.material_count(GameManager.SPECIAL_EARS) > 0:
 		l.custom_minimum_size.x = width - 210
-		var b := AK.button("耳目", "yellow", 11)
-		b.disabled = not game.peek_refusal(n).is_empty()
+		var b := _act(AK.button("耳目", "yellow", 11))
+		b.disabled = b.disabled or not game.peek_refusal(n).is_empty()
 		b.pressed.connect(func():
 			game.peek_rumor(n)
 			var menu := game.menu
@@ -312,6 +333,9 @@ static func _stepper(parent: Node, caption: String, value: String, on_minus: Cal
 	parent.add_child(row)
 
 static func _go(parent: Node, text: String, enabled: bool, on_press: Callable, kind: String = "blue") -> void:
+	if not _blocked.is_empty() and enabled:
+		enabled = false
+		text = _blocked
 	var b := AK.button(text, kind if enabled else "plain", 13)
 	b.custom_minimum_size = Vector2(288, 34)
 	b.disabled = not enabled
@@ -341,6 +365,7 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 		var b := AK.button("%s  →  %s" % [item.display_name() + item.stack_suffix(), Exchange.format_money(str(q.currency), float(q.net)) if q.ok else str(q.why)], "plain", 11)
 		b.custom_minimum_size = Vector2(288, 30)
 		b.disabled = not q.ok
+		_act(b)
 		var chosen: Item = item
 		b.pressed.connect(func():
 			if ex.sell_item(chosen, faction, true): game.save_base()
@@ -361,7 +386,7 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 		l.custom_minimum_size.x = 170
 		row.add_child(l)
 		for n in [1, 5]:
-			var b := AK.button("×%d" % n, "plain", 11)
+			var b := _act(AK.button("×%d" % n, "plain", 11))
 			var chosen_material: String = material
 			var count: int = n
 			b.pressed.connect(func():
@@ -512,7 +537,7 @@ static func _positions_page(menu: FieldMenu, stage: Control) -> void:
 				"交货" if pos.dir == "deliver" else "收货", pos.material, int(pos.count), FactionCatalog.name_of(str(pos.faction)), "%d×" % int(pos.lev),
 				Exchange.format_money(str(pos.currency), float(pos.k)), Exchange.format_money(str(pos.currency), ex.material_spot(str(pos.faction), str(pos.material), pos.dir == "deliver")),
 				Exchange.format_money(str(pos.currency), pnl), roundi(ex.margin_ratio(pos, pnl) * 100), _left(int(pos.expires) - game.market.t)], 12))
-		var act := AK.button("交割" if pos.dir == "deliver" else "收货", "blue", 12)
+		var act := _act(AK.button("交割" if pos.dir == "deliver" else "收货", "blue", 12))
 		act.pressed.connect(func():
 			if (ex.deliver_forward(int(pos.id)) if pos.dir == "deliver" else ex.take_forward(int(pos.id))): game.save_base()
 			build(menu))
@@ -529,10 +554,10 @@ static func _positions_page(menu: FieldMenu, stage: Control) -> void:
 			return "%s %s %d×  ·  开仓 %.2f  现价 %.2f  ·  盈亏 %s  ·  保证金率 %d%%%s" % [Exchange.cfd_name(str(pos.underlying)), "做多" if int(pos.dir) > 0 else "做空", int(pos.lev),
 				float(pos.entry), ex.cfd_price(str(pos.underlying)), Exchange.format_money(str(pos.currency), pnl), roundi(ex.margin_ratio(pos, pnl) * 100),
 				("  ·  止盈 %.2f 止损 %.2f" % [float(pos.tp), float(pos.sl)]) if float(pos.tp) > 0 or float(pos.sl) > 0 else ""], 12))
-		var close := AK.button("平仓", "blue", 12)
+		var close := _act(AK.button("平仓", "blue", 12))
 		close.pressed.connect(func(): ex.close_cfd(int(pos.id)); game.save_base(); build(menu))
 		row.add_child(close)
-		var limits := AK.button("止盈止损 ±5%", "plain", 12)
+		var limits := _act(AK.button("止盈止损 ±5%", "plain", 12))
 		limits.pressed.connect(func():
 			var p := ex.cfd_price(str(pos.underlying))
 			ex.set_cfd_limits(int(pos.id), p * (1.0 + 0.05 * int(pos.dir)), p * (1.0 - 0.05 * int(pos.dir)))
@@ -550,7 +575,7 @@ static func _positions_page(menu: FieldMenu, stage: Control) -> void:
 		row.add_child(MarketWidgets.live(func(): return "%s%s  %s  ·  %s  ·  %.2f  ·  现价 %.2f  ·  %s" % [kind, "卖" if order.side == "sell" else "买", what,
 			FactionCatalog.market_name(str(order.market)), float(order.price), game.market.price(str(order.market)),
 			"到结算" if int(order.expires) == 0 else "剩 " + _left(int(order.expires) - game.market.t)], 12))
-		var cancel := AK.button("撤单", "plain", 12)
+		var cancel := _act(AK.button("撤单", "plain", 12))
 		cancel.pressed.connect(func(): ex.cancel_order(int(order.id)); game.save_base(); build(menu))
 		row.add_child(cancel)
 		box.add_child(row)
@@ -579,12 +604,12 @@ static func _history_kind(kind: String) -> String:
 
 static func _margin_buttons(menu: FieldMenu, row: HBoxContainer, pos: Dictionary) -> void:
 	var game := menu.game
-	var add := AK.button("追加保证金", "plain", 12)
+	var add := _act(AK.button("追加保证金", "plain", 12))
 	add.pressed.connect(func():
 		if game.exchange.add_margin(int(pos.id), float(pos.margin) * 0.5): game.save_base()
 		build(menu))
 	row.add_child(add)
-	var auto := AK.button("自动追加 %s" % ("开" if float(pos.get("auto", 0.0)) > 0.0 else "关"), "plain", 12)
+	var auto := _act(AK.button("自动追加 %s" % ("开" if float(pos.get("auto", 0.0)) > 0.0 else "关"), "plain", 12))
 	auto.pressed.connect(func():
 		game.exchange.set_auto_margin(int(pos.id), 0.0 if float(pos.get("auto", 0.0)) > 0.0 else 0.5)
 		game.save_base()
@@ -655,12 +680,12 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	_number(col, "龙门币", fx_amount, 2, 1000.0, 0.01, func(v): fx_amount = v; build(menu), "", func(): return game.gold)
 	col.add_child(MarketWidgets.live(func(): return "→ 赤金 %.2f   ·   ← 需要赤金 %.2f" % [fx_amount / (Economy.fx * (1.0 + Economy.EXCHANGE_FX_SPREAD)), fx_amount / (Economy.fx * (1.0 - Economy.EXCHANGE_FX_SPREAD))], 12, AK.MUTE))
 	var fx_row := HBoxContainer.new()
-	var buy := AK.button("龙门币换赤金", "blue", 13)
+	var buy := _act(AK.button("龙门币换赤金", "blue", 13))
 	buy.pressed.connect(func():
 		if ex.convert(true, fx_amount): game.save_base()
 		build(menu))
 	fx_row.add_child(buy)
-	var sell := AK.button("赤金换龙门币", "plain", 13)
+	var sell := _act(AK.button("赤金换龙门币", "plain", 13))
 	sell.pressed.connect(func():
 		if ex.convert(false, fx_amount / (Economy.fx * (1.0 - Economy.EXCHANGE_FX_SPREAD))): game.save_base()
 		build(menu))
@@ -670,12 +695,12 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	# Bars are the item: whole ones only.
 	_number(col, "赤金", bars, 0, 1, 1, func(v): bars = int(v); build(menu), "块  ·  库存 %d" % game.material_count(Economy.GOLD_ID), func(): return game.material_count(Economy.GOLD_ID))
 	var bar_row := HBoxContainer.new()
-	var dep := AK.button("存入", "blue", 13)
+	var dep := _act(AK.button("存入", "blue", 13))
 	dep.pressed.connect(func():
 		if ex.deposit_bars(bars): game.save_base()
 		build(menu))
 	bar_row.add_child(dep)
-	var wd := AK.button("取出", "plain", 13)
+	var wd := _act(AK.button("取出", "plain", 13))
 	wd.pressed.connect(func():
 		if ex.withdraw_bars(bars): game.save_base()
 		build(menu))
