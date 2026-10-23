@@ -85,6 +85,13 @@ var camps := {}
 var ship_at := TerraMap.START
 ## The camp upgrade, bought once for every region.
 var camp_upgraded := false
+## The first time she ever reaches floor 5 it has a random extraction for sure
+## (用户 2026-10-22: 第一次下图 5 层必定有一个随机撤离点); set once that is given.
+var first_extract_given := false
+## She has extracted at least once (GameManager.first_run_lock).
+var extracted_once := false
+## 主线引导 (Story.fresh()).
+var story := Story.fresh()
 ## 随队物资 bought from 可露希尔 (地图特色策划案 §8): "kit id@tier" -> count
 ## (tiers: v1.1 §4.1). Kept at the base, off the shelves; one taken per contract.
 var kits := {}
@@ -300,6 +307,7 @@ func recruit_ready(id: String) -> bool:
 func recruit(id: String) -> void:
 	if not Operators.valid(id) or recruited(id): return
 	roster.append(id)
+	Story.note(story, "joined")
 	recruit_clues.erase(id)
 	recruit_found.erase(id)
 
@@ -651,7 +659,7 @@ func to_data() -> Dictionary:
 		"drone": drone, "console": console, "contract_offers": contract_offers.duplicate(true), "reroll_available": reroll_available,
 		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(), "directed_fails": directed_fails,
 		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "due": e.due}),
-		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "kits": kits.duplicate(), "operator": operator,
+		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "first_extract_given": first_extract_given, "extracted_once": extracted_once, "story": story.duplicate(true), "kits": kits.duplicate(), "operator": operator,
 		"roster": roster.duplicate(), "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
 		"kitted": kitted.duplicate(), "progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(),
 		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "kit_issued": kit_issued.duplicate(true), "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true)}
@@ -731,6 +739,14 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	for region in saved_camps:
 		if FieldCatalog.REGIONS.has(str(region)): unlock_camp(str(region), int(saved_camps[region]))
 	camp_upgraded = bool(data.get("camp_upgraded", false))
+	first_extract_given = bool(data.get("first_extract_given", false))
+	# A save from before these: she has been out before, the thread is behind her.
+	extracted_once = bool(data.get("extracted_once", true))
+	var saved_story: Variant = data.get("story", null)
+	story = Story.fresh()
+	if saved_story is Dictionary:
+		for key in story: story[key] = (saved_story as Dictionary).get(key, story[key])
+	else: story = Story.finished_state()
 	kits = {}
 	var saved_kits: Dictionary = data.get("kits", {})
 	for id in saved_kits:

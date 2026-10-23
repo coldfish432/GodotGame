@@ -1,0 +1,43 @@
+{
+  "generator": "built-in image_gen",
+  "prompt_file": "art\\characters\\crew\\work_CR3_v1\\prompts.json",
+  "sources": [
+    {
+      "file": "art\\characters\\crew\\work_CR3_v1\\raw\\dobermann_idle.png",
+      "sha256": "802991da7874f227cfba88605ae67a14b8058d8c42440f50b94ffd535f91c93f"
+    },
+    {
+      "file": "art\\characters\\crew\\work_CR3_v1\\raw\\dobermann_rear.png",
+      "sha256": "676258aad280710bab040765ecd9826da84bda9514640296ad06fd1d160fe94a"
+    },
+    {
+      "file": "art\\characters\\crew\\work_CR3_v1\\raw\\dobermann_walk.png",
+      "sha256": "c6183a2d69a7ecfd71e241fee44e6b6fa82856681b21d4b5e94f9bec7421affb"
+    },
+    {
+      "file": "art\\characters\\crew\\work_CR3_v1\\raw\\kaltsit_idle.png",
+      "sha256": "5912091ee215469ae7a6825e8a28ec26835c893180f5de1433f0f09f9d0c63a1"
+    },
+    {
+      "file": "art\\characters\\crew\\work_CR3_v1\\raw\\kaltsit_rear.png",
+      "sha256": "3c9aad7ef8c2e1cfca3819db570caec2111a10d83b04ba805e402531d88352e3"
+    },
+    {
+      "file": "art\\characters\\crew\\work_CR3_v1\\raw\\kaltsit_walk.png",
+      "sha256": "f320e2ff0ff111108b2b280b2587f1b9307a68b99b2d057d67f843c40b46e6b5"
+    }
+  ],
+  "assembly": "Component extraction and uniform proportional fitting from generated art, dedicated rear row replacements, established CR deterministic 8px breath warp. Portraits proportionally BOX downsampled from approved paintings; alpha threshold 128. No palette quantization.",
+  "directions": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "stage1_approval": "User continued after painting review.",
+  "runtime_bake": "Not run; source manifest is discoverable by prepare_crew_atlas.py."
+}

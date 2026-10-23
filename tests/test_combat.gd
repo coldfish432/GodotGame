@@ -189,11 +189,7 @@ func run() -> void:
 	await step(150)
 	gap = Vector2(mark.global_position.x - game.player.global_position.x, mark.global_position.z - game.player.global_position.z).length()
 	check("ranged-lock-stops-at-max-range-and-attacks", mark.health < mark_hp and gap > 6.0 and gap <= 7.05, {"gap": gap, "mark": [mark_hp, mark.health]})
-	# Keys cancel the lock; a dead target releases it.
-	Input.action_press("move_left")
-	await step(3)
-	Input.action_release("move_left")
-	check("keys-cancel-the-lock", not game.player.has_target(), {})
+	# A dead target releases the lock.
 	game.player.lock_target(mark)
 	mark.take_hit(mark.health + 1.0, "true")
 	await step(3)

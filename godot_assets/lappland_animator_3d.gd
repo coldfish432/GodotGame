@@ -84,7 +84,9 @@ const CHARACTERS := {
 ## godot_assets/crew/. Their rows all face the right way.
 const CREW := ["doctor", "sharp", "stormeye", "pith", "touch", "tulip", "mechanist", "misery",
 	"reserve_vanguard", "reserve_guard", "reserve_defender", "reserve_sniper", "reserve_caster",
-	"reserve_medic", "reserve_supporter", "reserve_specialist"]
+	"reserve_medic", "reserve_supporter", "reserve_specialist",
+	# ST1b (用户 2026-10-22: 补杜宾、凯尔希的行走精灵图): walk once their sheets are baked.
+	"dobermann", "kaltsit"]
 const CREW_CONFIG := {"actions": {}, "signature": "", "mirrored": {}}
 const WALK_FPS := 8.0
 var character := "lappland"

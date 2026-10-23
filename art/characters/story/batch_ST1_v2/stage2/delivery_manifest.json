@@ -1,0 +1,265 @@
+{
+  "batch": "ST1_v2 + CR3_v1",
+  "files": [
+    {
+      "file": "art/characters/crew/batch_CR3_v1/dobermann_idle_source.png",
+      "bytes": 469831,
+      "sha256": "29fe1a8a976d099bd405eafb50c38c76ab075e4491bcb236fd994121d293c358"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/dobermann_walk_source.png",
+      "bytes": 1464048,
+      "sha256": "926d8ae1b0f102701ef64dc74fa1cd826cc797ec2d087d67a5e5c3a3fcfafaf7"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/kaltsit_idle_source.png",
+      "bytes": 519420,
+      "sha256": "8fb3163f7b293bb5fb1d6a97d82d37d93af37374791c3b872f922454bc93f832"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/kaltsit_walk_source.png",
+      "bytes": 1650878,
+      "sha256": "26f6c774200f00b1ad124b3accc7c8a398624581ef695178495aaeb31871bbf2"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/manifest.json",
+      "bytes": 667,
+      "sha256": "4c47cb09ebf668940ffadad72e2c708eeb6ddf2591652129fa83facfc04eee0b"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/preview_32.png",
+      "bytes": 2243,
+      "sha256": "7a2e5fa921056c264b09ec1dc8d18c5c003b9c4695a1de8b8974deeef81d3478"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/previews/directions_32_enlarged.png",
+      "bytes": 50708,
+      "sha256": "7b6e42f1ff700a7bb95a87508e2f36121d88e592188b57ce72e68935547a7020"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/previews/walk_contact.png",
+      "bytes": 204026,
+      "sha256": "d40cd306877394fc339afea240125902d8d9de82bba600820ffa624932530d34"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/previews/walk_preview.gif",
+      "bytes": 111305,
+      "sha256": "922d228c1d7b0100f52bc694ba7fca5ece8abc1ac5302c38878546c153123502"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/provenance.json",
+      "bytes": 1731,
+      "sha256": "34124230461541b5a4e15b3fc1ef18223086380b391dcec0526be0e83e7d011b"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/qa_report.json",
+      "bytes": 21106,
+      "sha256": "91407e145fd07eb697572adef6c76c63fccbc2e5d41051dfa4af295f7578af41"
+    },
+    {
+      "file": "art/characters/crew/batch_CR3_v1/README.md",
+      "bytes": 1394,
+      "sha256": "a236c0a14386baeff4ea4bcce2da29cd81c22d793eef89f8c12a4e51cebb4367"
+    },
+    {
+      "file": "art/characters/crew/CR_brief_v1.md",
+      "bytes": 9610,
+      "sha256": "2a349e30517c37a2d2ee79682d142b091fbdebd5e9cc8f2ce0c90cfc7f7d2bef"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/build_st1.py",
+      "bytes": 9658,
+      "sha256": "8648a8c21cb43404cad4feb36e2195dd1c06b616f9d563c7f16b90aba4e9cd96"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/package_st1.py",
+      "bytes": 1501,
+      "sha256": "ee5459702fa34077085f0e1adc03177a9638aa9ca382ff9b019b83cfb38cdf04"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/prompts.json",
+      "bytes": 9892,
+      "sha256": "305e148574217c77199f102989be9a2648dd76dc6126ab5a0a88e439480735cb"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/raw/dobermann_idle.png",
+      "bytes": 852422,
+      "sha256": "802991da7874f227cfba88605ae67a14b8058d8c42440f50b94ffd535f91c93f"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/raw/dobermann_rear.png",
+      "bytes": 1132598,
+      "sha256": "676258aad280710bab040765ecd9826da84bda9514640296ad06fd1d160fe94a"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/raw/dobermann_walk.png",
+      "bytes": 1630089,
+      "sha256": "c6183a2d69a7ecfd71e241fee44e6b6fa82856681b21d4b5e94f9bec7421affb"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/raw/kaltsit_idle.png",
+      "bytes": 1042861,
+      "sha256": "5912091ee215469ae7a6825e8a28ec26835c893180f5de1433f0f09f9d0c63a1"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/raw/kaltsit_rear.png",
+      "bytes": 1655720,
+      "sha256": "3c9aad7ef8c2e1cfca3819db570caec2111a10d83b04ba805e402531d88352e3"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/raw/kaltsit_walk.png",
+      "bytes": 2107800,
+      "sha256": "f320e2ff0ff111108b2b280b2587f1b9307a68b99b2d057d67f843c40b46e6b5"
+    },
+    {
+      "file": "art/characters/crew/work_CR3_v1/validate_st1.py",
+      "bytes": 3359,
+      "sha256": "ff24d9a83235e1214ccd36578f25264dd45d85bc1ed3221fdabbe612b269829d"
+    },
+    {
+      "file": "art/characters/crew/work_CR_v1/build_crew.py",
+      "bytes": 13051,
+      "sha256": "adf405ede55eeee6d5f3ceab759e83180c0c824784d5cf9502172c4a92f91bc9"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/input/refs/style/npc_closure.png",
+      "bytes": 44222,
+      "sha256": "d50fd4a6c584b8962f4dce0348e97a1859ee95e0e36be78e25e92def96011c8c"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/input/refs/style/op_amiya_guard.png",
+      "bytes": 36683,
+      "sha256": "e26b1237fd5293c3b950909af72264db7bd8069d8ab653d0d322351aeda63bed"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/input/ST1_brief_v2.md",
+      "bytes": 4067,
+      "sha256": "8aa5ac6ffe4d65e371b8846fe92e61f27e23199b8433bf387586c663c4c1e37b"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/paintings/dobermann_standing_painting.png",
+      "bytes": 331616,
+      "sha256": "a582a4db85c96d692e946882165bca61b7d18a91c2a8ae990cca6b73817163cc"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/paintings/kaltsit_standing_painting.png",
+      "bytes": 381450,
+      "sha256": "c7b2d105853c4ccd4178c1a4280bb78b8a8e4038b9872e913ca438d19f5537e7"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/previews/standing_prts_comparison.png",
+      "bytes": 535302,
+      "sha256": "9907b21dc1f491e9810b20c3efeff3183e78f32bbe1b81a3ec7a4cf69f63210b"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/prompts.json",
+      "bytes": 4773,
+      "sha256": "8fb94eecc4ac8d2435651858d5a01ad60f2422192f154ea242aef816c6721bce"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/qa_report.json",
+      "bytes": 1225,
+      "sha256": "0d62af99e2e1b79023de7c42d0fce059fd0bc50d71586cd25a2afc2d0d12dfb8"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/README.md",
+      "bytes": 933,
+      "sha256": "8c5a5af13a70e0b5b0a4c8f741c9cd6a3b128004fd58b4efb1f6ac8d845e7c76"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/reference_sources.json",
+      "bytes": 899,
+      "sha256": "c7c2b4a52ec7630590873d3d822182d47eb22c6377ecbe201a5458ffbde53cce"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/refs/prts/dobermann_avatar.png",
+      "bytes": 21954,
+      "sha256": "8a9ce42e17e4e1221a6c5c9440527e3f3d9c842aed80e6ebd9e310fc40845c83"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/refs/prts/dobermann_standing.png",
+      "bytes": 177765,
+      "sha256": "8c0cf6f796c7cac2e13559e8c135d3cf1c5689c29cdb629a5fdc3762ed3ed324"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/refs/prts/kaltsit_avatar.png",
+      "bytes": 71958,
+      "sha256": "23af18e570050f2b85510480190655f3a539d138d3228cb35b339913b5736620"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/refs/prts/kaltsit_standing.png",
+      "bytes": 1299871,
+      "sha256": "57ef9ed92eb45c622a435324b58d957f39c3f076b924d0645b1a0fca8085144d"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/source/dobermann_generated.png",
+      "bytes": 872995,
+      "sha256": "a3797f7caa29f48e4971174b9e92f13a8a6e279f30607b5ad4a535a8b2d4b186"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/source/kaltsit_generated.png",
+      "bytes": 999274,
+      "sha256": "c0cf8dabd9187a981d55d49dc4d27d803f7c49dc07c6df576fbf2e128e87d3e4"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/brief_snapshot.md",
+      "bytes": 4067,
+      "sha256": "8aa5ac6ffe4d65e371b8846fe92e61f27e23199b8433bf387586c663c4c1e37b"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/identity_prts_comparison.png",
+      "bytes": 156401,
+      "sha256": "ae5079fd49ac510f302894e94cf235a9a69ff97b3f22e5ba1f7e9772e2568ae6"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/npc_dobermann.png",
+      "bytes": 22171,
+      "sha256": "a25aa6eba71c87e4cf3ac4a00804c36b283ca127385c1ebe4937988ca94a7709"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/npc_dobermann_2x.png",
+      "bytes": 29221,
+      "sha256": "1958da692c9365588aaeae08219a7997dbed75111e48da9a7e59730cd83f352b"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/npc_kaltsit.png",
+      "bytes": 25793,
+      "sha256": "3d8d8de01a16850d35102ae0bc57c037382c8e92fffbcae95fd1a0cd8856bee9"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/npc_kaltsit_2x.png",
+      "bytes": 33750,
+      "sha256": "ec6571fce1d9b10a71d4e8edbed13aeae8a088ffd79e129485db33498008e715"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/qa_report.json",
+      "bytes": 21106,
+      "sha256": "91407e145fd07eb697572adef6c76c63fccbc2e5d41051dfa4af295f7578af41"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/README.md",
+      "bytes": 1780,
+      "sha256": "d7cb8deb95ea3aa902ae43ae528b9f9be3f2acb5a3e9ab2078bf87efb641285b"
+    },
+    {
+      "file": "art/characters/story/batch_ST1_v2/stage2/validation_report.json",
+      "bytes": 11957,
+      "sha256": "a467dfd6260ff3fbd5edbf09a59d2a15025da27ced04c72c76204f44af14452a"
+    },
+    {
+      "file": "art/characters/story/ST1_brief_v2.md",
+      "bytes": 4067,
+      "sha256": "8aa5ac6ffe4d65e371b8846fe92e61f27e23199b8433bf387586c663c4c1e37b"
+    },
+    {
+      "file": "art/ui/portraits/npc_dobermann.png",
+      "bytes": 22171,
+      "sha256": "a25aa6eba71c87e4cf3ac4a00804c36b283ca127385c1ebe4937988ca94a7709"
+    },
+    {
+      "file": "art/ui/portraits/npc_kaltsit.png",
+      "bytes": 25793,
+      "sha256": "3d8d8de01a16850d35102ae0bc57c037382c8e92fffbcae95fd1a0cd8856bee9"
+    }
+  ]
+}

@@ -74,7 +74,8 @@ func run() -> void:
 	game.menu.pause_page = 2
 	BaseScreens.pause(game.menu)
 	await step(3)
-	check("the keys page lists functions with primary and secondary", buttons(rig, "⇧").size() >= 1 and buttons(rig, "W").size() == 1 and buttons(rig, "↑").size() == 1)
+	check("the keys page lists functions with primary and secondary", buttons(rig, "E").size() == 1 and buttons(rig, "M").size() == 1)
+	check("and no movement keys (用户 2026-10-22: 移除 wasd 移动方式)", buttons(rig, "W").is_empty() and buttons(rig, "↑").is_empty())
 	var flask_index := Keybinds.ids().find("potion_A")
 	# 急救剂's primary is the (flask_index)-th function's first button: click it.
 	var target: Button = null

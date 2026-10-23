@@ -22,7 +22,8 @@ func find_game(node: Node) -> GameManager:
 		if found != null: return found
 	return null
 func find_button(node: Node, text: String) -> Button:
-	if node is Button and node.is_visible_in_tree() and (node.text == text or str(node.get_meta("label", "")) == text): return node
+	# Operator chips are portraits: their name is the tooltip (LoadoutScreens).
+	if node is Button and node.is_visible_in_tree() and (node.text == text or str(node.get_meta("label", "")) == text or (node.has_meta("operator") and node.tooltip_text == text)): return node
 	for child in node.get_children():
 		var found := find_button(child, text)
 		if found != null: return found
@@ -111,14 +112,27 @@ func run() -> void:
 	p.shadow_cooldown = Player.SHADOW_COOLDOWN
 	await mouse(enemy.global_position, true)
 	var poses: Dictionary = {}
-	for i in range(240):
+	for i in range(300):
 		poses[p._sprite.action_name] = true
 		hover(enemy.global_position)
 		await step()
 	await mouse(enemy.global_position, false)
+	var armoured := 1000000 - enemy.health
+	var cooled := p.shadow_ready()
+	# The same hold on it with no armour: arts ignore DEF, so about the same.
+	await step(30)
+	enemy.defense = 0
+	enemy.health = 1000000
+	await mouse(enemy.global_position, true)
+	for i in range(300):
+		hover(enemy.global_position)
+		await step()
+	await mouse(enemy.global_position, false)
+	var bare := 1000000 - enemy.health
 	check("held mouse cuts through all three stages", poses.has("attack_1") and poses.has("attack_2") and poses.has("attack_3"))
-	check("arts damage goes through heavy armour", 1000000 - enemy.health > 600.0 * 4)
-	check("hitting brings 绝影 off cooldown well before 8 s", p.shadow_ready())
+	print("AMIYA DEALT armoured ", armoured, " bare ", bare)
+	check("arts damage goes through heavy armour", armoured > 0.0 and armoured >= bare * 0.8)
+	check("hitting brings 绝影 off cooldown well before 8 s", cooled)
 	check("绝影 never fires by itself", not poses.has("shadow"))
 	# A left click on open ground ends the lock (and walks there).
 	await click_at(hover(origin + Vector3(-2, 0, 0)), MOUSE_BUTTON_LEFT)

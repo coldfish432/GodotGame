@@ -159,6 +159,7 @@ func sow(i: int, crop: String) -> bool:
 	if c.has("seed"): game.consume_materials({c.seed: 1})
 	else: game.gold -= int(c.seed_lmd)
 	_state().plots[i] = {"crop": crop, "at": BaseState.now()}
+	game.story_note("sowed")
 	game.farm_changed()
 	return true
 
@@ -255,6 +256,7 @@ func eat(meal_id: String) -> bool:
 	if not game.in_base or not eat_refusal(meal_id).is_empty(): return false
 	game.consume_materials({meal_id: 1})
 	_state().meal = meal_id
+	game.story_note("meal")
 	game.save_base()
 	return true
 

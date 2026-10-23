@@ -36,7 +36,13 @@ static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false
 	"trade_confirm": true,
 	# 站点总览 (用户 2026-10-18: 不常驻，快捷键开启，设置里自定义显示哪些):
 	# open or not, and the station kinds left out of it.
-	"station_panel": false, "station_hidden": []}
+	"station_panel": false, "station_hidden": [],
+	# 新手引导: the step reached (TutorialCard.STEPS.size() = done or off).
+	"tutorial_step": 0,
+	# The first-sight cards (TutorialSpotlight): on or not, and the ids already shown.
+	"tutorial_tips": true, "tutorial_seen": [],
+	# 主线引导 (Story): on or off; off, every region is open from the start.
+	"story_guide": true}
 static var _game: GameManager
 
 func _ready() -> void:

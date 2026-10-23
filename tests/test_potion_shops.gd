@@ -148,7 +148,8 @@ func _effects() -> void:
 	game.potion_fx.emergency_used = false
 	p.hp = 5
 	p.shield = 0.0
-	p.take_damage(p.max_hp * 3.0)
+	# True damage: an evasion roll must not make this flaky.
+	p.take_damage(p.max_hp * 3.0, "true")
 	check("强心针 saves a killing blow once", p.hp > 0 and game.potion_count("L") == 0, [p.hp, game.potion_count("L"), game.in_base])
 
 func _reloaded() -> BaseState:

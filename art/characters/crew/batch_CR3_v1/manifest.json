@@ -1,0 +1,36 @@
+{
+  "sheets": [
+    {
+      "id": "dobermann",
+      "kind": "walk",
+      "file": "dobermann_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "dobermann",
+      "kind": "idle",
+      "file": "dobermann_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "kaltsit",
+      "kind": "walk",
+      "file": "kaltsit_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "kaltsit",
+      "kind": "idle",
+      "file": "kaltsit_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    }
+  ]
+}

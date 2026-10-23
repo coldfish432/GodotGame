@@ -835,6 +835,7 @@ func open_build_site(facility: String) -> void:
 
 func open_station(kind: String) -> void:
 	if not in_base or transitioning: return
+	if kind == "personnel": story_note("personnel")
 	if kind == "report" and base.report_unread:
 		base.report_unread = false
 		save_base()
@@ -925,6 +926,8 @@ func _update_base_prompt() -> void:
 
 func start_contract(region: String, start_camp: int = 0) -> void:
 	if transitioning or not in_base or not FieldCatalog.REGIONS.has(region): return
+	story_note("contract")
+	first_run_ore = 0
 	region_id = region
 	in_base = false
 	refresh_look()
@@ -1099,11 +1102,17 @@ func is_extraction_floor() -> bool:
 	return _random_extraction_available
 
 ## At most one random extraction per block of ten, on floor 4, 5 or 6, each with
-## exactly 1/6 (撤离与营地修订案 §2).
+## exactly 1/6 (撤离与营地修订案 §2). The first floor 5 she ever reaches has
+## one for sure (BaseState.first_extract_given).
 func _roll_random_extraction() -> void:
 	var place := (floor_number - 1) % FieldCatalog.CAMP_INTERVAL + 1
 	if place == 1: _block_random_found = false
 	_random_extraction_available = false
+	if floor_number == 5 and not base.first_extract_given:
+		base.first_extract_given = true
+		_random_extraction_available = true
+		_block_random_found = true
+		return
 	if _block_random_found or not FieldCatalog.RANDOM_EXTRACTION_ODDS.has(place): return
 	# 课题 撤离保障: one every block, each of the three floors a third.
 	var odds := float(FieldCatalog.RANDOM_EXTRACTION_ODDS[place])
@@ -1195,6 +1204,9 @@ func _interact() -> void:
 				if not outpost_cleared:
 					notice("据点头目还在：入口封锁中。")
 					return
+				if first_run_lock():
+					notice("PRTS：博士，首次外勤请先从撤离信标撤离。")
+					return
 				open_modal("route")
 				menu.show_routes(i)
 				return
@@ -1242,6 +1254,19 @@ func _open_vault() -> void:
 		if guarded: chest.add_to_group("sealed_loot")
 	set_message("密室" if not guarded else "密室：守卫者 %d" % _vault_guardians.size())
 	broadcast("PRTS：博士，墙后是一间密室。")
+
+## 用户 2026-10-22: 第一次外勤必须从随机撤离点撤离，用教程限制. Until she has
+## extracted once, a floor with a random extraction lets her go no deeper —
+## while the guide is on, in the real game.
+func first_run_lock() -> bool:
+	return not base.extracted_once and is_extraction_floor() and is_instance_valid(system_screens) and (TutorialSpotlight.tips_on() or not TutorialCard.finished())
+
+## 主线引导 (Story): one more of `event` (a crate opened, an order filled…).
+func story_note(event: String) -> void:
+	Story.note(base.story, event)
+
+func region_open(region: String) -> bool:
+	return Story.region_open(base.story, region)
 
 func near(node: Node3D) -> bool:
 	return is_instance_valid(node) and node.visible and player.global_position.distance_to(node.global_position) < 2.8
@@ -1477,6 +1502,8 @@ func toggle_panel(kind: String) -> void:
 ## screen — and with nothing open, the pause menu with its settings.
 func go_back() -> void:
 	if transitioning: return
+	if is_instance_valid(tutorial_spotlight) and tutorial_spotlight.go_back(): return
+	if is_instance_valid(story_card) and story_card.go_back(): return
 	var focus := get_tree().root.gui_get_focus_owner()
 	if focus is LineEdit:
 		focus.release_focus()
@@ -1632,6 +1659,12 @@ func _on_player_died() -> void:
 func settle(extracted: bool) -> void:
 	if _settled: return
 	_settled = true
+	# The first retreat: what was kept and what comes back (TutorialSpotlight).
+	if not extracted and is_instance_valid(tutorial_spotlight): tutorial_spotlight.request("death")
+	base.story.fell = not extracted
+	if extracted:
+		base.extracted_once = true
+		if region_id != "mine": story_note("away")
 	_apply_meal("")
 	transitioning = true
 	var in_camp_before_settle := in_camp
@@ -1745,12 +1778,12 @@ func settle(extracted: bool) -> void:
 	in_base = true
 	transitioning = false
 	save_base()
-	set_message("%s：%d 件新物品已送到仓储区收货区。%s%s" % ["合同交付" if extracted else "回收队归来", new_finds,
+	set_message("%s：%d 件新物品已送到仓储区收货区。%s%s" % ["合同交付" if extracted else "罗德岛小队归来", new_finds,
 		"合同报酬 %s 龙门币。" % Economy.format(reward) if reward > 0 else "", "投保物品送回 %d 件。" % returned.size() if not returned.is_empty() else ""])
 	base_spawn = "arrival" if extracted else "death"
 	show_base()
 	var who := str(Operators.info(player.operator_id).name)
-	broadcast("PRTS：博士与%s已完成撤离。" % who if extracted else "PRTS：回收队已接回博士与%s。" % who)
+	broadcast("PRTS：博士与%s已完成撤离。" % who if extracted else "PRTS：罗德岛小队已接回博士与%s。" % who)
 	if new_finds > 0: broadcast("收货区货箱有 %d 件新物品待开箱。" % new_finds)
 	if repaid > 0: broadcast("贷款逾期：合同报酬先还款 %s 龙门币。" % Economy.format(repaid))
 	_tick_workshop()
@@ -1863,6 +1896,7 @@ func show_ship() -> void:
 
 func sail(to: String, mode: String, fuel := false) -> bool:
 	if not in_base or not voyage.sail(to, mode, BaseState.now(), fuel): return false
+	story_note("sailed")
 	show_ship()
 	save_base()
 	return true
@@ -1930,6 +1964,7 @@ func _tick_workshop() -> void:
 				var stack := MaterialCatalog.create(id, mini(left, MaterialCatalog.stack_size(id)))
 				left -= stack.quantity
 				if not base.receive_to_staging(stack): base.receive(stack)
+		story_note("crafted")
 		broadcast("PRTS：加工部完成 %s ×%d%s。" % [job.output, int(job.count), "，附带副产物" if not job.get("byproducts", {}).is_empty() else ""])
 	if in_base: set_message("加工部完成 %d 项，已送到暂存区。" % done.size())
 	save_base(not in_base)
@@ -2156,6 +2191,7 @@ func _give_gold_bars(bars: int) -> void:
 ## A camp sits after every CAMP_INTERVAL floors (10|11, 20|21 …): no enemies,
 ## the fixed extraction, and 可露希尔. Reaching one unlocks it for this region.
 func _enter_camp() -> void:
+	story_note("camp")
 	in_camp = true
 	_roll_camp_closure()
 	broadcast("PRTS：前进据点已确认，博士。")
@@ -2261,6 +2297,7 @@ func closure_buy_potion(type: String) -> bool:
 		if in_camp: camp_closure_stock[type] = stock - (bundle - left)
 		else: base.closure_stock[type] = stock - (bundle - left)
 	_pay_gold(price)
+	if in_base: story_note("store_potion")
 	save_base(not in_base)
 	return true
 
@@ -2579,6 +2616,7 @@ func equip_from_stash(item: Item) -> bool:
 		notice("仓库和背包都满了：%s 仍在货架上。" % item.item_name)
 		return false
 	player.equip(item)
+	story_note("bench_equip")
 	save_base()
 	return true
 
@@ -2606,6 +2644,7 @@ func inspect_crate(item: Item) -> void:
 		sound.play("loot")
 		save_base()
 	if base.location_of(item) != "crate_open": return
+	story_note("crate")
 	open_modal("station")
 	menu.show_item_card(item)
 
@@ -2628,6 +2667,7 @@ func shelve_carried(category: int) -> bool:
 		return false
 	var item := base.hand
 	base.shelve_hand(category)
+	story_note("shelve")
 	save_base()
 	set_message("已上架：%s（%s区 %d/%d）" % [item.item_name, BaseCatalog.CATEGORY_NAMES[category], base.shelf_count(category), base.capacity(category)])
 	return true
@@ -2662,6 +2702,7 @@ func shelve_item(item: Item) -> bool:
 		set_message(refusal)
 		return false
 	base.shelve(item)
+	story_note("shelve")
 	save_base()
 	return true
 
@@ -2692,6 +2733,7 @@ func _tick_insurance_clock(delta: float) -> void:
 	if arrived.is_empty(): return
 	save_base()
 	set_message("投保物品送回 %d 件，已到收货区。" % arrived.size())
+	if is_instance_valid(tutorial_spotlight): tutorial_spotlight.request("insured_back")
 
 ## Insured gear that did not come out: back 2–4 hours later, and the
 ## insurance is used up by that one return. Returns the wait in seconds.
@@ -3078,6 +3120,7 @@ func ride_lift(to_deck: int) -> void:
 	if not in_base or transitioning or not to_deck in [1, 2]: return
 	close_modal()
 	deck = to_deck
+	if to_deck == 2: story_note("lift")
 	base_map.set_deck(to_deck)
 	player.clear_move_target()
 	player.teleport(base_map.spawn_point("deck2" if to_deck == 2 else "deck_lift"))
@@ -3087,6 +3130,7 @@ func insure(item: Item) -> bool:
 	if not in_base or not carried_items().has(item) or not item.is_equippable() or item.insured or gold < insurance_price(item): return false
 	gold -= insurance_price(item)
 	item.insured = true
+	story_note("insure")
 	save_base()
 	return true
 
@@ -3122,6 +3166,7 @@ func deliver_to_order(slot: int, item: Item) -> bool:
 	var text := BaseCatalog.order_text(base.orders.slots[slot].id)
 	if result.done:
 		gold += int(result.gold)
+		story_note("order")
 		set_message("订单完成：%s  ·  龙门币 +%s" % [text, Economy.format(result.gold)])
 	else: set_message("已交付 %s ×%d：%s 还差 %d" % [item.item_name, int(result.used), text, base.orders.remaining(slot)])
 	save_base()
@@ -4277,6 +4322,11 @@ func contract_offers(region: String) -> Array:
 			if not str(extra.type) in kinds:
 				held.append(extra)
 				break
+	# The first contract is fixed (主线 苏醒): 切尔诺伯格 · 回收 源岩.
+	if region == "mine" and Story.count(base.story, "contract") == 0 and Story.is_on():
+		var first: Dictionary = (base.contract_offers[region] as Array)[0]
+		if str(first.get("type", "")) != "recover" or str(first.get("material", "")) != "源岩":
+			(base.contract_offers[region] as Array)[0] = {"type": "recover", "material": "源岩", "count": 6}
 	# The pay's random share goes with the offer (v1.1 §2.2).
 	for offer: Dictionary in base.contract_offers[region]:
 		if not offer.has("roll"): offer.roll = snappedf(rng.randf_range(Economy.CONTRACT_ROLL.x, Economy.CONTRACT_ROLL.y), 0.01)
@@ -4807,6 +4857,8 @@ func spawn_enemy_drops(enemy: Enemy) -> void:
 	if not enemy.mimic_kind.is_empty():
 		drops.append_array(LootTables.container_drops(enemy.mimic_kind, ctx, true))
 		drops.append_array(LootTables.container_drops(enemy.mimic_kind, ctx, false))
+	var owed := orirock_owed()
+	if owed > 0: drops.append({"item": MaterialCatalog.create(FIRST_RUN_ORE, owed, region_id)})
 	_drop_at(enemy.global_position, drops, 0.7)
 
 ## 作战记录 as loot (龙门币平衡与科研部策划案 v1.1 §2.1), the old settlement's
@@ -4901,6 +4953,20 @@ func on_container_opened(box: LootContainer) -> void:
 	sound.play("loot")
 	save_base(true)
 
+## The first run's 源岩 (用户 2026-10-22: 第一次外勤保证前 5 层至少掉出 6 个源岩，
+## 让固定的第一份回收合同一定能完成): while she has never extracted and runs the
+## fixed 回收 源岩 contract from CH-01, every 源岩 dropped is counted, and the
+## first kill on a floor tops it up to FIRST_RUN_ORE_BY[floor] — front-loaded,
+## so floors she clears quickly or skips still leave her the six by floor 5.
+const FIRST_RUN_ORE := "源岩"
+const FIRST_RUN_ORE_BY := {1: 3, 2: 6, 3: 6, 4: 6, 5: 6}
+var first_run_ore := 0
+
+func orirock_owed() -> int:
+	if in_base or base.extracted_once or start_floor != 1 or not FIRST_RUN_ORE_BY.has(floor_number): return 0
+	if str(contract.get("type", "")) != "recover" or str(contract.get("material", "")) != FIRST_RUN_ORE: return 0
+	return maxi(0, int(FIRST_RUN_ORE_BY[floor_number]) - first_run_ore)
+
 ## Scatters drops ({"item"} / {"gold"}) in a ring around `position`.
 func _drop_at(position: Vector3, drops: Array, radius: float) -> void:
 	var start := rng.randf() * TAU
@@ -4908,7 +4974,9 @@ func _drop_at(position: Vector3, drops: Array, radius: float) -> void:
 		var drop: Dictionary = drops[i]
 		var loot := Loot.new()
 		loot.game = self
-		if drop.has("item"): loot.item = drop.item
+		if drop.has("item"):
+			loot.item = drop.item
+			if not in_base and (drop.item as Item).item_name == FIRST_RUN_ORE: first_run_ore += (drop.item as Item).quantity
 		else:
 			# The loot tables still speak in old reward units; they land as 赤金.
 			var bars := Economy.bars_from_reward(float(drop.gold) * player.gold_gain_multiplier * research.gold_factor(), rng)
@@ -5273,6 +5341,10 @@ func _build_player() -> void:
 	add_child(player)
 	player.global_position = ContinuousWorldMap.ENTRY_POSITION
 
+var tutorial_card: TutorialCard
+var tutorial_spotlight: TutorialSpotlight
+var story_card: StoryCard
+
 func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	(ui_root if is_instance_valid(ui_root) else self).add_child(layer)
@@ -5286,6 +5358,19 @@ func _build_hud() -> void:
 	var base_hud := BaseHud.new()
 	base_hud.game = self
 	layer.add_child(base_hud)
+	tutorial_card = TutorialCard.new()
+	tutorial_card.game = self
+	layer.add_child(tutorial_card)
+	# Over the HUD and the menus' layer, so the dim covers everything but the ring.
+	var tips := CanvasLayer.new()
+	tips.layer = 6
+	(ui_root if is_instance_valid(ui_root) else self).add_child(tips)
+	story_card = StoryCard.new()
+	story_card.game = self
+	tips.add_child(story_card)
+	tutorial_spotlight = TutorialSpotlight.new()
+	tutorial_spotlight.game = self
+	tips.add_child(tutorial_spotlight)
 
 func _build_inventory_panel() -> void:
 	var layer := CanvasLayer.new()

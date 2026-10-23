@@ -1,0 +1,49 @@
+{
+  "stage": "ST1a step 1 painting review",
+  "status": "USER_CONTINUED_TO_STAGE2",
+  "assets": [
+    {
+      "id": "dobermann",
+      "path": "paintings\\dobermann_standing_painting.png",
+      "size": [
+        439,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0,
+        0,
+        417,
+        1024
+      ],
+      "sha256": "a582a4db85c96d692e946882165bca61b7d18a91c2a8ae990cca6b73817163cc",
+      "visual_review": "Full body visible, faces right, recognisable identity; user art approval pending."
+    },
+    {
+      "id": "kaltsit",
+      "path": "paintings\\kaltsit_standing_painting.png",
+      "size": [
+        404,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0,
+        0,
+        369,
+        1024
+      ],
+      "sha256": "c7b2d105853c4ccd4178c1a4280bb78b8a8e4038b9872e913ca438d19f5537e7",
+      "visual_review": "Full body visible, faces right, recognisable identity; user art approval pending."
+    }
+  ],
+  "note": "Historical painting QA; see stage2 for current delivery evidence."
+}

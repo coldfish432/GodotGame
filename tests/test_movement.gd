@@ -64,40 +64,32 @@ func run() -> void:
 	check("dash-costs-stamina-and-moves", game.player.stamina <= stamina_before - 24.0 and dash_moved > 1.0,
 		{"stamina_before": stamina_before, "stamina_after": game.player.stamina, "moved": dash_moved})
 
-	# --- WASD / arrows walk screen-relative and replace a click destination.
+	# --- No keyboard walking (用户 2026-10-22: 移除 wasd 移动方式): WASD and the
+	# arrows are not movement keys any more; she stands still under them.
 	var camera: Camera3D = game.get_viewport().get_camera_3d()
 	var screen_right := Vector3(camera.global_basis.x.x, 0, camera.global_basis.x.z).normalized()
 	var screen_down := -Vector3(-camera.global_basis.z.x, 0, -camera.global_basis.z.z).normalized()
-	for entry in [["move_right", screen_right], ["move_down", screen_down]]:
-		game.player.teleport(ContinuousWorldMap.ENTRY_POSITION)
-		await step(2)
-		game.player.set_move_target(game.player.global_position - entry[1] * 6.0)
-		var from: Vector3 = game.player.global_position
-		Input.action_press(entry[0])
-		await step(30)
-		Input.action_release(entry[0])
-		var walked: Vector3 = game.player.global_position - from
-		walked.y = 0
-		check("keys-walk-" + entry[0], walked.length() > 1.5 and walked.normalized().dot(entry[1]) > 0.9 and not game.player._has_move_target,
-			{"walked": str(walked), "dot": walked.normalized().dot(entry[1])})
-	# --- No attacking on the move (用户 2026-10-07): a swing roots her until
-	# its animation ends, held keys and new move orders wait, a dodge cancels.
-	var player: Player = game.player
-	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
+	check("no-movement-actions", not InputMap.has_action("move_up") and not InputMap.has_action("move_right") and Keybinds.info("move_up").is_empty(), {})
+	game.player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	await step(2)
-	player._attack_cooldown = 0.0
-	Input.action_press("move_right")
-	await step(3)
-	player.attack_direction(screen_right)
-	var swing: float = player.swing_remaining
-	var at_swing: Vector3 = player.global_position
-	await step(roundi(swing * 60.0) - 3)
-	var drift: float = Vector2(player.global_position.x - at_swing.x, player.global_position.z - at_swing.z).length()
-	check("swing-roots-her-while-keys-held", swing > 0.15 and drift < 0.05, {"swing": swing, "drift": drift})
-	await step(20)
-	var after: float = Vector2(player.global_position.x - at_swing.x, player.global_position.z - at_swing.z).length()
-	check("keys-walk-again-after-the-swing", player.swing_remaining == 0.0 and after > 0.5, {"after": after})
-	Input.action_release("move_right")
+	game.player.clear_move_target()
+	var still_from: Vector3 = game.player.global_position
+	for code in [KEY_W, KEY_D, KEY_RIGHT]:
+		var press := InputEventKey.new()
+		press.physical_keycode = code
+		press.keycode = code
+		press.pressed = true
+		Input.parse_input_event(press)
+	await step(30)
+	for code in [KEY_W, KEY_D, KEY_RIGHT]:
+		var release := InputEventKey.new()
+		release.physical_keycode = code
+		release.keycode = code
+		release.pressed = false
+		Input.parse_input_event(release)
+	var key_drift: float = Vector2(game.player.global_position.x - still_from.x, game.player.global_position.z - still_from.z).length()
+	check("wasd-and-arrows-do-not-walk", key_drift < 0.05, {"drift": key_drift})
+	var player: Player = game.player
 
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	await step(2)

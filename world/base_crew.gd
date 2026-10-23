@@ -11,7 +11,9 @@ extends Node3D
 ## Everyone but the Doctor, who is the player's to walk.
 const CREW := ["sharp", "stormeye", "pith", "touch", "tulip", "mechanist", "misery",
 	"reserve_vanguard", "reserve_guard", "reserve_defender", "reserve_sniper", "reserve_caster",
-	"reserve_medic", "reserve_supporter", "reserve_specialist"]
+	"reserve_medic", "reserve_supporter", "reserve_specialist",
+	# ST1b (用户 2026-10-22: 补杜宾、凯尔希的行走精灵图): walk once their sheets are baked.
+	"dobermann", "kaltsit"]
 const COUNT := 7
 ## An unhurried walk on board: under half her speed (Player.BASE_MOVE_SPEED 5.5).
 const SPEED := 2.3

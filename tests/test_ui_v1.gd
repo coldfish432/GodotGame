@@ -113,7 +113,7 @@ func run() -> void:
 	check("the shield's pack tile exists", tile != null)
 	if tile != null: await click(tile)
 	await click_button("装备")
-	check("inventory mouse equip changes stats", game.player.equipped.get(Item.Category.ARMOR) == shield and game.player.move_speed < 5)
+	check("inventory mouse equip changes stats", game.player.equipped.get(shield.category) == shield and game.player.move_speed < 5)
 	await click_button("✕")
 	check("closing inventory does not click-through move", game.modal.is_empty() and not game.player._has_move_target)
 	# The squad replaces gilding (保全系统修订案): meet one, insure with 赤金.

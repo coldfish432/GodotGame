@@ -80,6 +80,7 @@ func start(id: String) -> bool:
 	game.consume_materials(ResearchCatalog.materials(id))
 	var now := BaseState.now()
 	active().append({"id": id, "start": now, "end": now + ResearchCatalog.hours(id) * 3600})
+	game.story_note("research")
 	game.save_base()
 	return true
 

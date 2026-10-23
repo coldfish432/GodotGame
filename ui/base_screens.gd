@@ -101,7 +101,7 @@ static func _wrap(text: String, size: int, colour: Color, width: float) -> Label
 static func contracts(menu: FieldMenu) -> void:
 	var game := menu.game
 	var regions: Array = FieldCatalog.REGIONS.keys()
-	if not menu.region_pick in regions: menu.region_pick = regions[0]
+	if not menu.region_pick in regions or not game.region_open(menu.region_pick): menu.region_pick = regions[0]
 	var region: String = menu.region_pick
 	var data: Dictionary = FieldCatalog.REGIONS[region]
 	var parts: PackedStringArray = str(data.name).split(" · ")
@@ -127,6 +127,10 @@ static func contracts(menu: FieldMenu) -> void:
 		var orders := game.base.orders.pointing_at(id)
 		if orders > 0: AK.put(b, AK.tag("订单 %d" % orders, AK.SP), Vector2(14, 74))
 		for child in b.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Before the first voyage only 切尔诺伯格 (主线引导): the others greyed out.
+		if not game.region_open(id):
+			b.disabled = true
+			b.modulate = Color(1, 1, 1, 0.35)
 		b.pressed.connect(func(): menu.region_pick = id; menu.pick = 0; menu.contract_pick = 0; contracts(menu))
 	# The middle picks the floors (用户 2026-10-21: 中间改为层数选择): every block
 	# she can start from, CH-01 or a camp she has reached, then the block's
@@ -758,7 +762,7 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 	var rows: Array = []
 	match tab:
 		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"]]
-		1: rows = [["界面动效", ["精简", "完整"], "ui_motion"], ["交易确认", ["关", "开"], "trade_confirm"], ["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["language"],
+		1: rows = [["界面动效", ["精简", "完整"], "ui_motion"], ["交易确认", ["关", "开"], "trade_confirm"], ["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["新手引导", ["关", "开"], "tutorial"], ["主线引导", ["关", "开"], "story_guide"], ["language"],
 			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95]]
 		2: rows = [["主音量", [], "master_volume"]]
 		3:
@@ -790,7 +794,12 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 			AK.put(stage, slider, Vector2(900, y + 12), Vector2(320, 24))
 		else:
 			var current := 1 if bool(s.get(key, false)) else 0
-			var toggle := AK.toggle(row[1], current, func(i): SystemScreens.set_setting(key, i == 1); pause(menu), 13)
+			var pick := func(i): SystemScreens.set_setting(key, i == 1); pause(menu)
+			# 新手引导: on starts it over, off skips the rest.
+			if key == "tutorial":
+				current = 0 if TutorialCard.finished() and not bool(s.get("tutorial_tips", true)) else 1
+				pick = func(i): TutorialCard.set_on(i == 1); pause(menu)
+			var toggle := AK.toggle(row[1], current, pick, 13)
 			toggle.alignment = BoxContainer.ALIGNMENT_END
 			AK.put(stage, toggle, Vector2(900, y + 6), Vector2(320, 38))
 		stage.add_child(AK.rect(AK.LINE, Vector2(334, y + 49), Vector2(886, 1)))
@@ -837,7 +846,7 @@ static func _hotbar_page(menu: FieldMenu, stage: Control) -> void:
 		AK.put(stage, AK.label("主键", 11, AK.MUTE), Vector2(334 + col * 470 + 196, 54))
 		AK.put(stage, AK.label("副键", 11, AK.MUTE), Vector2(334 + col * 470 + 342, 54))
 	var binds := Keybinds.all()
-	var columns := {"快捷栏": 0, "专用键": 0, "视角": 0, "移动": 1, "界面": 1}
+	var columns := {"快捷栏": 0, "专用键": 0, "视角": 0, "界面": 1}
 	var y := [76.0, 76.0]
 	var last_group := ["", ""]
 	for f in Keybinds.FUNCTIONS:

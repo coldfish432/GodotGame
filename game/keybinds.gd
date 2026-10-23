@@ -9,6 +9,9 @@ extends RefCounted
 ## ordinary key, by default slot 1, the dodge (用户 2026-10-20: 右键改为可绑键，
 ## 默认绑闪避，Shift 不再是闪避).
 ##
+## No movement keys: she walks where the left button points (用户 2026-10-22:
+## 移除 wasd 移动方式).
+##
 ## Each function is an InputMap action of the same id. Stored in settings.cfg
 ## under "keybinds" as {id: [primary, secondary]}, each {"key": code} or
 ## {"mouse": button} or null.
@@ -28,10 +31,6 @@ const FUNCTIONS := [
 	["potion_A", "标准急救剂", "专用键", null, null],
 	["potion_B", "缓释凝胶", "专用键", null, null],
 	["potion_C", "抑制喷剂", "专用键", null, null],
-	["move_up", "向上移动", "移动", {"key": KEY_W}, {"key": KEY_UP}],
-	["move_down", "向下移动", "移动", {"key": KEY_S}, {"key": KEY_DOWN}],
-	["move_left", "向左移动", "移动", {"key": KEY_A}, {"key": KEY_LEFT}],
-	["move_right", "向右移动", "移动", {"key": KEY_D}, {"key": KEY_RIGHT}],
 	["camera_zoom_in", "拉近视角", "视角", {"mouse": MOUSE_BUTTON_WHEEL_UP}, null],
 	["camera_zoom_out", "拉远视角", "视角", {"mouse": MOUSE_BUTTON_WHEEL_DOWN}, null],
 	["camera_turn_left", "视角左转", "视角", {"key": KEY_Z}, null],
@@ -56,8 +55,6 @@ const FUNCTIONS := [
 const FIXED := [["攻击 / 移动 / 拾取 / 选择", "左键"], ["安全袋", "Ctrl + 左键"], ["暂停", "Esc"]]
 const BLOCKED_KEYS := [KEY_ESCAPE]
 const BLOCKED_MOUSE := [MOUSE_BUTTON_LEFT]
-## Movement reads these as analogue axes (Input.get_vector) with a deadzone.
-const AXES := ["move_up", "move_down", "move_left", "move_right"]
 
 static func ids() -> Array:
 	return FUNCTIONS.map(func(f): return f[0])
@@ -119,7 +116,7 @@ static func _store(data: Dictionary) -> void:
 static func apply() -> void:
 	var data := all()
 	for id in data:
-		if not InputMap.has_action(id): InputMap.add_action(id, 0.2 if id in AXES else 0.5)
+		if not InputMap.has_action(id): InputMap.add_action(id, 0.5)
 		InputMap.action_erase_events(id)
 		for binding in data[id]:
 			var event := event_for(binding)

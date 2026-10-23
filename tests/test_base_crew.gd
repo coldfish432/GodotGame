@@ -25,7 +25,10 @@ func run() -> void:
 	var missing := BaseCrew.CREW.filter(func(id): return LapplandAnimator3D.sheet(id, "walk") == null)
 	check("the crew are known to the animator", BaseCrew.CREW.all(func(id): return id in LapplandAnimator3D.CREW))
 	check("only crew with sheets walk", BaseCrew.pool().size() == BaseCrew.CREW.size() - missing.size())
-	check("all 15 crew and the Doctor have their sheets", missing.is_empty() and LapplandAnimator3D.has_sheets("doctor"))
+	# 杜宾 and 凯尔希 (ST1b) walk once Sol's sheets are baked; until then they stay out.
+	var pending := ["dobermann", "kaltsit"].filter(func(id): return id in missing)
+	check("all 15 CR crew and the Doctor have their sheets", missing.all(func(id): return id in pending) and LapplandAnimator3D.has_sheets("doctor"))
+	check("an ST1b one without sheets never walks", pending.all(func(id): return not id in BaseCrew.pool()))
 	var rig: Node = load("res://game/main.tscn").instantiate()
 	rig.persist_sessions = false
 	root.add_child(rig)

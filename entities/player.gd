@@ -507,19 +507,15 @@ func _physics_process(delta: float) -> void:
 		if families != null and families.regen_per_second() > 0.0 and not full_hp() and not regen_blocked:
 			heal(families.regen_per_second() * HP_REGEN_INTERVAL * (kit.regen_factor() if kit != null else 1.0))
 
-	var move_vec := Vector3.ZERO if busy else _key_move_vector()
+	# Left click only (用户 2026-10-22: 移除 wasd 移动方式).
+	var move_vec := Vector3.ZERO
 	if busy:
-		_has_move_target = false
-		attack_target = null
-		wall_target = false
-	elif move_vec != Vector3.ZERO:
-		# Keys take over from a clicked destination or a locked enemy.
 		_has_move_target = false
 		attack_target = null
 		wall_target = false
 	else:
 		_follow_target()
-	if move_vec == Vector3.ZERO and _has_move_target:
+	if _has_move_target:
 		var to_target := _move_target - global_position
 		to_target.y = 0.0
 		if to_target.length() <= ARRIVE_THRESHOLD:
@@ -556,25 +552,6 @@ func _physics_process(delta: float) -> void:
 
 	if hp <= 0.0:
 		died.emit()
-
-## WASD / arrow keys as a direction on the ground, screen-relative: W walks
-## toward the top of the screen whatever the camera yaw.
-func _key_move_vector() -> Vector3:
-	if not InputMap.has_action("move_up"): return Vector3.ZERO
-	var keys := Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	if keys == Vector2.ZERO: return Vector3.ZERO
-	var right := Vector3.RIGHT
-	var down := Vector3.BACK
-	var camera := get_viewport().get_camera_3d()
-	if is_instance_valid(camera):
-		var basis := camera.global_transform.basis
-		var flat_right := Vector3(basis.x.x, 0.0, basis.x.z)
-		var flat_up := Vector3(-basis.z.x, 0.0, -basis.z.z)
-		if flat_up.length_squared() < 0.0001: flat_up = Vector3(basis.y.x, 0.0, basis.y.z)
-		if flat_right.length_squared() > 0.0001 and flat_up.length_squared() > 0.0001:
-			right = flat_right.normalized()
-			down = -flat_up.normalized()
-	return (right * keys.x + down * keys.y).normalized()
 
 func _tick_relic_timers(delta: float) -> void:
 	hurt_timer = maxf(0, hurt_timer - delta)

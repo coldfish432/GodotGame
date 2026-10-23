@@ -28,7 +28,7 @@
   "_r(\"\\\"时光之末\\\"\", \"life\", 2, \"仅一次，在非区域最终战斗中失败时不结束探索，目标生命+1并继续\", \"本合同一次：受到致命伤害时保留 1 生命并无敌 2 秒\", {}, {\"death_cling\": 1.0}),"
  ],
  "\"时光之末\"：保留 1 点生命（本合同已用）": [
-  "entities/player.gd:1157",
+  "entities/player.gd:1134",
   "message_requested.emit(\"\\\"时光之末\\\"：保留 1 点生命（本合同已用）\")"
  ],
  "\"枯木的回声\"": [
@@ -196,8 +196,12 @@
   "body.add_child(_seg([\"当日\", \"1日\", \"3日\", \"7日\", \"结算\"], order_term, func(i): order_term = i; build(menu), 10, 288.0))"
  ],
  "Ctrl + 左键": [
-  "game/keybinds.gd:56",
+  "game/keybinds.gd:55",
   "const FIXED := [[\"攻击 / 移动 / 拾取 / 选择\", \"左键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ ],
+ "Ctrl + 左键 /": [
+  "ui/tutorial_card.gd:306",
+  "\"safe_bag\": return \"Ctrl + 左键 / %s\" % Keybinds.short_label(\"stash_item\")"
  ],
  "D32钢": [
   "game/loot_tables.gd:23",
@@ -212,119 +216,123 @@
   "\"intel_3\": [\"PRTS 层级预报\", 3, \"floor_report\", \"进层播报兴趣点 · 精英\", [\"intel_1\"], {}],"
  ],
  "PRTS 快讯 · 黑天鹅": [
-  "game/game_manager.gd:891",
+  "game/game_manager.gd:892",
   "column.add_child(AK.label(\"PRTS 快讯 · 黑天鹅\", 14, AK.RED))"
  ],
  "PRTS 快讯：": [
-  "game/game_manager.gd:1829",
+  "game/game_manager.gd:1861",
   "var line := \"PRTS 快讯：\" + str(headline.title)"
  ],
  "PRTS 提示": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "PRTS：": [
-  "game/game_manager.gd:1800",
+  "game/game_manager.gd:1832",
   "broadcast(\"PRTS：\" + text)"
  ],
  "PRTS：前方是": [
-  "game/game_manager.gd:4237",
+  "game/game_manager.gd:4281",
   "return \"PRTS：前方是%s的战场。击破之后，入口才会开放。\" % BossCatalog.display_name(str(BossCatalog.BOSSES.get(region_id, \"\")))"
  ],
  "PRTS：前进据点已确认，博士。": [
-  "game/game_manager.gd:2161",
+  "game/game_manager.gd:2196",
   "broadcast(\"PRTS：前进据点已确认，博士。\")"
  ],
  "PRTS：加工部完成": [
-  "game/game_manager.gd:1933",
+  "game/game_manager.gd:1967",
   "broadcast(\"PRTS：加工部完成 %s ×%d%s。\" % [job.output, int(job.count), \"，附带副产物\" if not job.get(\"byproducts\", {}).is_empty() else \"\"])"
  ],
  "PRTS：博士与": [
-  "game/game_manager.gd:1753",
-  "broadcast(\"PRTS：博士与%s已完成撤离。\" % who if extracted else \"PRTS：回收队已接回博士与%s。\" % who)"
+  "game/game_manager.gd:1785",
+  "broadcast(\"PRTS：博士与%s已完成撤离。\" % who if extracted else \"PRTS：罗德岛小队已接回博士与%s。\" % who)"
  ],
  "PRTS：博士，": [
-  "game/game_manager.gd:993",
+  "game/game_manager.gd:995",
   "broadcast(\"PRTS：博士，%s已就位。\" % Operators.info(player.operator_id).name)"
  ],
  "PRTS：博士，信号正在被追踪。": [
-  "game/game_manager.gd:4028",
+  "game/game_manager.gd:4072",
   "broadcast(\"PRTS：博士，信号正在被追踪。\")"
  ],
  "PRTS：博士，墙后是一间密室。": [
-  "game/game_manager.gd:1244",
+  "game/game_manager.gd:1255",
   "broadcast(\"PRTS：博士，墙后是一间密室。\")"
  ],
  "PRTS：博士，巡逻队即将从": [
-  "game/game_manager.gd:4025",
+  "game/game_manager.gd:4069",
   "broadcast(\"PRTS：博士，巡逻队即将从%s方进入。\" % _direction_name(_next_patrol_entry - player.global_position))"
  ],
  "PRTS：博士，搜捕巡逻队进入本层。": [
-  "game/game_manager.gd:4042",
+  "game/game_manager.gd:4086",
   "broadcast(\"PRTS：博士，搜捕巡逻队进入本层。\")"
  ],
  "PRTS：博士，本层发现撤离点。": [
-  "game/game_manager.gd:1511",
+  "game/game_manager.gd:1537",
   "broadcast(\"PRTS：博士，本层发现撤离点。\")"
  ],
  "PRTS：博士，清算时刻。": [
-  "game/game_manager.gd:3751",
+  "game/game_manager.gd:3795",
   "broadcast(\"PRTS：博士，清算时刻。\")"
  ],
  "PRTS：博士，清算时刻。家族的人进入本层。": [
-  "game/game_manager.gd:4049",
+  "game/game_manager.gd:4093",
   "broadcast(\"PRTS：博士，清算时刻。家族的人进入本层。\")"
  ],
  "PRTS：博士，目标脱离接触，已恢复。": [
-  "game/game_manager.gd:4232",
+  "game/game_manager.gd:4276",
   "broadcast(\"PRTS：博士，目标脱离接触，已恢复。\")"
  ],
  "PRTS：博士，越往深处，": [
-  "game/game_manager.gd:3761",
+  "game/game_manager.gd:3805",
   "if not own.is_empty(): broadcast(\"PRTS：博士，越往深处，%s来得越快。\" % FeatureCatalog.NAMES[own])"
  ],
  "PRTS：博士，这条踪迹之前已经记录过了。": [
-  "game/game_manager.gd:4492",
+  "game/game_manager.gd:4541",
   "broadcast(\"PRTS：博士，这条踪迹之前已经记录过了。\")"
  ],
  "PRTS：博士，这条踪迹记录过，但又多了些细节。": [
-  "game/game_manager.gd:4498",
+  "game/game_manager.gd:4547",
   "broadcast(\"PRTS：博士，这条踪迹记录过，但又多了些细节。\")"
  ],
  "PRTS：博士，附近发现": [
-  "game/game_manager.gd:1508",
+  "game/game_manager.gd:1534",
   "broadcast(\"PRTS：博士，附近发现%s。\" % encounter_name())"
  ],
- "PRTS：回收队已接回博士与": [
-  "game/game_manager.gd:1753",
-  "broadcast(\"PRTS：博士与%s已完成撤离。\" % who if extracted else \"PRTS：回收队已接回博士与%s。\" % who)"
+ "PRTS：博士，首次外勤请先从撤离信标撤离。": [
+  "game/game_manager.gd:1207",
+  "notice(\"PRTS：博士，首次外勤请先从撤离信标撤离。\")"
  ],
  "PRTS：大宗货箱已交给": [
-  "game/game_manager.gd:4611",
+  "game/game_manager.gd:4660",
   "broadcast(\"PRTS：大宗货箱已交给%s的接头人。\" % FactionCatalog.name_of(str(contract.faction)))"
  ],
  "PRTS：本层兴趣点": [
-  "game/game_manager.gd:1277",
+  "game/game_manager.gd:1301",
   "broadcast(\"PRTS：本层兴趣点 %d，精英 %d。\" % [world_map.cache_positions.size(), floor_enemies().filter(func(e): return e.elite).size()])"
  ],
  "PRTS：残党向导标出了本层的密室和踪迹。": [
-  "game/game_manager.gd:3006",
+  "game/game_manager.gd:3047",
   "broadcast(\"PRTS：残党向导标出了本层的密室和踪迹。\")"
  ],
+ "PRTS：罗德岛小队已接回博士与": [
+  "game/game_manager.gd:1785",
+  "broadcast(\"PRTS：博士与%s已完成撤离。\" % who if extracted else \"PRTS：罗德岛小队已接回博士与%s。\" % who)"
+ ],
  "PRTS：莱茵生命生态科提醒，闪耀作物收获后仍会发光一段时间，请放在阴凉处。": [
-  "game/provisions.gd:179",
+  "game/provisions.gd:180",
   "if crop in GLOWING: game.broadcast(\"PRTS：莱茵生命生态科提醒，闪耀作物收获后仍会发光一段时间，请放在阴凉处。\")"
  ],
  "PRTS：萨卡兹哨兵发现了博士的踪迹。": [
-  "game/game_manager.gd:4036",
+  "game/game_manager.gd:4080",
   "broadcast(\"PRTS：萨卡兹哨兵发现了博士的踪迹。\")"
  ],
  "PRTS：车里还有人！": [
-  "game/game_manager.gd:4387",
+  "game/game_manager.gd:4436",
   "broadcast(\"PRTS：车里还有人！\")"
  ],
  "PRTS：食堂做好了": [
-  "game/game_manager.gd:3025",
+  "game/game_manager.gd:3066",
   "for job in done: broadcast(\"PRTS：食堂做好了 %s ×%d。\" % [job.output, int(job.count)])"
  ],
  "Sealed for now (用户 2026-10-22: 实在没东西放的区域可以暂时封闭). Written by tools/blender/base/make_deck2_rooms.py.": [
@@ -432,7 +440,7 @@
   "row.add_child(AK.label(\"交货 %s ×%d → %s  ·  背包 %d  ·  剩 %s\" % [pos.material, int(pos.count), FactionCatalog.name_of(str(pos.faction)),"
  ],
  "·  可交付": [
-  "ui/base_screens.gd:610",
+  "ui/base_screens.gd:614",
   "AK.put(stage, AK.label(\"已完成\" if done else \"已交付 %d / %d  ·  可交付 %d\" % [orders.delivered_count(slot), count, fits.size()], 12, AK.GREEN if done or not fits.is_empty() else AK.MUTE), at + Vector2(188, 40"
  ],
  "·  可信度": [
@@ -480,7 +488,7 @@
   "lines.append(\"等级 %s%s\" % [Progression.GRADE_MARKS[int(req.grade)], (\"  ·  需求 \" + \" · \".join(parts)) if not parts.is_empty() else \"\"])"
  ],
  "·  龙门币 +": [
-  "game/game_manager.gd:3125",
+  "game/game_manager.gd:3169",
   "set_message(\"订单完成：%s  ·  龙门币 +%s\" % [text, Economy.format(result.gold)])"
  ],
  "· [color=#4fd18b]套装[/color]": [
@@ -575,6 +583,10 @@
   "game/boss_catalog.gd:137",
   "\"rat_king\": {\"name\": \"“鼠王”\", \"rank\": \"boss\", \"region\": \"city\", \"hp\": 26000.0, \"atk\": 560.0, \"def\": 380.0, \"res\": 30.0, \"kind\": \"arts\","
  ],
+ "……回来就好。先去医疗部，然后看看你带回了什么。": [
+  "game/story.gd:25",
+  "\"lines_fell\": [[\"凯尔希\", \"……回来就好。先去医疗部，然后看看你带回了什么。\"]],"
+ ],
  "→ 赤金": [
   "ui/exchange_screen.gd:641",
   "col.add_child(MarketWidgets.live(func(): return \"→ 赤金 %.2f   ·   ← 需要赤金 %.2f\" % [fx_amount / (Economy.fx * (1.0 + Economy.EXCHANGE_FX_SPREAD)), fx_amount / (Economy.fx * (1.0 - Economy.EXCHANGE_FX_SPR"
@@ -592,7 +604,7 @@
   "var star := AK.button(\"★ 自选\" if game.exchange.watch.has(selected) else \"☆ 自选\", \"plain\", 11)"
  ],
  "、": [
-  "game/game_manager.gd:992",
+  "game/game_manager.gd:994",
   "if project_paid > 0: broadcast(\"课题经费 %s 龙门币：%s。\" % [Economy.format(project_paid), \"、\".join(base.research.run.map(func(p): return str(ResearchCatalog.PROJECTS[p][0])))])"
  ],
  "、法抗 +20，最多 3 层。": [
@@ -600,7 +612,7 @@
   "\"text\": \"绝影期间每击败一个敌人攻击力 +%s、法抗 +20，最多 3 层。\"},"
  ],
  "。": [
-  "game/base_state.gd:394",
+  "game/base_state.gd:402",
   "if facility_level(\"warehouse\") < int(BaseCatalog.RACK_LEVELS[slot]): return \"需要仓储部 Lv%d。\" % BaseCatalog.RACK_LEVELS[slot]"
  ],
  "《": [
@@ -759,9 +771,17 @@
   "world/warehouse_view.gd:223",
   "\"label\": (\"上架到%s区（%d/%d）\" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else (\"%s区：%s\" % [zone, \"放不下\" if c == base.hand.category else \"类别不对\"])}"
  ],
+ "上架区": [
+  "ui/tutorial_spotlight.gd:58",
+  "\"base_zone\": [\"上架区\", \"拿着物品走进同类别的地面框，按交互键即可上架。空手站进框里按交互键，可以查看这一区的货架、扩建货架。\", 60.0],"
+ ],
  "下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂": [
   "ui/field_menu.gd:173",
   "\"pharmacy\": [\"药房窗口 / 配药\", \"下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂\"],"
+ ],
+ "下一步": [
+  "ui/tutorial_card.gd:120",
+  "_next = AK.button(\"下一步\", \"blue\", 11)"
  ],
  "下城": [
   "game/field_catalog.gd:227",
@@ -796,7 +816,7 @@
   "skip.text = \"不再提示\""
  ],
  "不出售": [
-  "game/game_manager.gd:1978",
+  "game/game_manager.gd:2012",
   "if type.is_empty(): return \"不出售\""
  ],
  "不动：抵挡伤害时，对 3 米内敌人反震 250% 防御值的物理伤害并眩晕 1 秒": [
@@ -808,15 +828,15 @@
   "if not in_waters(str(o.faction)): return \"不在境内\""
  ],
  "不在背包里": [
-  "game/game_manager.gd:2281",
+  "game/game_manager.gd:2317",
   "if item == null or not (inventory.items.has(item) or safe_bag.items.has(item)): return \"不在背包里\""
  ],
  "不在营地": [
-  "game/game_manager.gd:2280",
+  "game/game_manager.gd:2316",
   "if not in_camp: return \"不在营地\""
  ],
  "不实": [
-  "game/game_manager.gd:2860",
+  "game/game_manager.gd:2901",
   "headline[\"peek\"] = \"属实\" if bool(_rumor_of(headline).rumor.truth) else \"不实\""
  ],
  "不开刃，打在身上也不留口子。": [
@@ -880,7 +900,7 @@
   "_p(\"focused\", 1, T, \"专注的\", \"Focused\", {\"skill_pct\": 0.15})"
  ],
  "专用键": [
-  "game/keybinds.gd:26",
+  "game/keybinds.gd:29",
   "[\"dash\", \"闪避\", \"专用键\", null, null],"
  ],
  "专精": [
@@ -900,15 +920,15 @@
   "\"saw_karma\": {\"name\": \"业火\", \"type\": \"transmuter\", \"group\": \"saw\", \"tier\": 2, \"max\": 1,"
  ],
  "东": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "东北": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "东南": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "东国的": [
@@ -924,7 +944,7 @@
   "_confirm.dialog_text = \"把 %s 丢到地面？\" % item.display_name()"
  ],
  "丢失": [
-  "game/game_manager.gd:2346",
+  "game/game_manager.gd:2382",
   "return \"丢失\""
  ],
  "丢弃物品": [
@@ -952,11 +972,11 @@
   "\"近卫双芯片\": {\"star\": 5, \"kind\": \"craft\", \"text\": \"两组芯片与助剂合成的高阶芯片，用于近卫干员的精英 2 晋升。\"},"
  ],
  "个": [
-  "game/game_manager.gd:2494",
+  "game/game_manager.gd:2530",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "个人仓库": [
-  "ui/base_screens.gd:572",
+  "ui/base_screens.gd:576",
   "var row := EventScreens._item_row(item, Economy.format(Economy.price(item)), \"个人仓库\" if game.stash.has(item) else \"背包\", true, item == pick)"
  ],
  "个人仓库 /": [
@@ -968,11 +988,11 @@
   "if fits.is_empty(): text(box, \"个人仓库和背包里没有符合的物品。\", 14, Color(\"99aab8\"))"
  ],
  "个留在地上。": [
-  "game/game_manager.gd:2494",
+  "game/game_manager.gd:2530",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "个货架": [
-  "ui/base_screens.gd:398",
+  "ui/base_screens.gd:402",
   "label = \"扩建第 %d 个货架  %s%s\" % [slot + 1, Economy.format(BaseCatalog.RACK_PRICES[slot]), \"\" if cost.is_empty() else \" + \" + BaseCatalog.cost_text(cost)]"
  ],
  "中": [
@@ -992,11 +1012,11 @@
   "{\"price\": 30000, \"materials\": {\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1}, \"opens\": \"中排货架 · 订单栏 +1\"},"
  ],
  "中文": [
-  "ui/system_screens.gd:273",
+  "ui/system_screens.gd:279",
   "row.add_child(AK.toggle([\"中文\", \"English\"], current, func(i):"
  ],
  "中级作战记录": [
-  "game/game_manager.gd:4822",
+  "game/game_manager.gd:4871",
   "elif enemy.boss: record = \"中级作战记录\""
  ],
  "中转站货运积压": [
@@ -1004,7 +1024,7 @@
   "\"L21\": {\"region\": \"龙门\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"中转站货运积压\", \"penguin_fee\": 1.3, \"effects\": [{\"sel\": \"lungmen:*\", \"spread\": 1.3}, {\"sel\": \"lungmen:trade\", \"mult\": 0.9}]},"
  ],
  "中键": [
-  "game/keybinds.gd:151",
+  "game/keybinds.gd:148",
   "const MOUSE_NAMES := {MOUSE_BUTTON_RIGHT: \"右键\", MOUSE_BUTTON_MIDDLE: \"中键\", MOUSE_BUTTON_XBUTTON1: \"侧键 1\", MOUSE_BUTTON_XBUTTON2: \"侧键 2\","
  ],
  "中间人信物": [
@@ -1016,15 +1036,23 @@
   "\"broker_letter\": {\"name\": \"中间人的担保函\", \"feature\": \"debt\", \"cut\": 0.3, \"price\": 7000, \"store\": 1},"
  ],
  "临界护盾化解了这次伤害": [
-  "entities/player.gd:1129",
+  "entities/player.gd:1106",
   "message_requested.emit(\"临界护盾化解了这次伤害\")"
  ],
+ "主线": [
+  "ui/story_card.gd:55",
+  "head.add_child(_tag(\"主线\", AK.SP))"
+ ],
+ "主线引导": [
+  "ui/base_screens.gd:765",
+  "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
+ ],
  "主键": [
-  "ui/base_screens.gd:837",
+  "ui/base_screens.gd:846",
   "AK.put(stage, AK.label(\"主键\", 11, AK.MUTE), Vector2(334 + col * 470 + 196, 54))"
  ],
  "主音量": [
-  "ui/base_screens.gd:763",
+  "ui/base_screens.gd:767",
   "2: rows = [[\"主音量\", [], \"master_volume\"]]"
  ],
  "主食、配菜和豆子装成的便当。": [
@@ -1123,12 +1151,16 @@
   "game/market/market_events.gd:303",
   "\"U18\": {\"region\": \"乌萨斯\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 1, \"title\": \"乌萨斯集团军换防\", \"effects\": [{\"sel\": \"ursus:*\", \"spread\": 1.3}, {\"sel\": \"reunion:*\", \"spread\": 0.8}]},"
  ],
+ "乘升降梯去二层": [
+  "game/story.gd:48",
+  "\"goals\": [[\"lift\", \"乘升降梯去二层\"], [\"sowed\", \"建成农业部并播种一次\"], [\"meal\", \"建成食堂，出发前用一次餐\"]]},"
+ ],
  "买": [
   "ui/exchange_screen.gd:137",
   "return \"买 %.2f   卖 %.2f   价差 %.1f%%   深度 %s   手续费 %.1f%%   额度 %s   %s\" % [m.bid(selected) * 100, m.ask(selected) * 100, m.spread(selected) * 100,"
  ],
  "买下": [
-  "game/game_manager.gd:2125",
+  "game/game_manager.gd:2159",
   "set_message(\"买下 %s\" % entry.item.display_name())"
  ],
  "买入": [
@@ -1140,8 +1172,8 @@
   "\"thug\": {\"name\": \"暴徒\", \"attack\": \"乱劈\", \"row\": 0, \"windup\": 0.8, \"interval\": 1.35, \"damage\": 1.0, \"shape\": \"sector\", \"reach\": 2.4, \"angle\": 100.0, \"recovery\": 0.25},"
  ],
  "二层": [
-  "ui/provision_screens.gd:197",
-  "var decks := [[1, \"一层\", \"舰桥大厅\"], [2, \"二层\", \"农业部 · 食堂\"]]"
+  "game/story.gd:46",
+  "{\"id\": \"deck2\", \"title\": \"二层\", \"after\": [\"industry\"],"
  ],
  "二连击": [
   "game/skill_trees.gd:99",
@@ -1152,11 +1184,11 @@
   "\"icon\": \"city_legs_4\", \"text\": \"云纹只在光下才看得见。\"},"
  ],
  "交互": [
-  "game/keybinds.gd:43",
+  "game/keybinds.gd:42",
   "[\"interact\", \"交互\", \"界面\", {\"key\": KEY_E}, null],"
  ],
  "交付": [
-  "ui/base_screens.gd:577",
+  "ui/base_screens.gd:581",
   "EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, \"\", \"交付\" + (\" +%s\" % Economy.format(Economy.price(pick)) if pick != null else \"\"), Callable(), func():"
  ],
  "交付 +": [
@@ -1164,7 +1196,7 @@
   "button(row, \"交付 +%s\" % Economy.format(Economy.price(item)), func(): game.sell(item); _refresh())"
  ],
  "交付 ×": [
-  "ui/base_screens.gd:628",
+  "ui/base_screens.gd:632",
   "var deliver := AK.button(\"交付\" if fits.is_empty() or not fits[0].is_stackable() else \"交付 ×%d\" % orders.takes(slot, fits[0]), \"blue\" if not fits.is_empty() else \"plain\", 14)"
  ],
  "交付个人仓库或背包里的物品：按订单或直接换龙门币": [
@@ -1172,7 +1204,7 @@
   "\"outbound\": [\"出库区 / 订单与交付\", \"交付个人仓库或背包里的物品：按订单或直接换龙门币\"],"
  ],
  "交付价": [
-  "ui/base_screens.gd:1024",
+  "ui/base_screens.gd:1033",
   "EventScreens._info(stage, game, item, \"交付价\", Economy.format(Economy.price(item)), Vector2(620, 152))"
  ],
  "交割": [
@@ -1187,8 +1219,12 @@
   "ui/sand_table_screen.gd:157",
   "if str(order.state) == \"handover\": return \"交接 %s\" % ExchangeScreen._left(int(order.due) - BaseState.now())"
  ],
+ "交接点": [
+  "ui/tutorial_spotlight.gd:26",
+  "\"handover\": [\"交接点\", \"运送合同的交接点。背包或安全袋里带着这张订单的大宗货箱时，按交互键交付；报酬在结算时到账。\", 56.0],"
+ ],
  "交接点 · E": [
-  "game/game_manager.gd:4590",
+  "game/game_manager.gd:4639",
   "handover_node = world_map._set_piece(\"交接点 · E\", at, Color(\"c48cff\"), HANDOVER_MODEL)"
  ],
  "交易所": [
@@ -1203,8 +1239,12 @@
   "world/base_map.gd:438",
   "const STATION_LABELS := {\"exchange\": [\"exchange\", \"交易所终端\"], \"sand_table\": [\"sand_table\", \"沙盘\"], \"personnel\": [\"personnel\", \"人事部终端\"], \"deck_lift\": [\"lift\", \"升降梯\"],"
  ],
+ "交易所终端可以买卖九大势力的商品，查看行情与新闻，下现货、挂单、远期和差价合约。交易所需要先建成才能使用。": [
+  "ui/tutorial_spotlight.gd:65",
+  "\"base_exchange\": [\"交易所\", \"交易所终端可以买卖九大势力的商品，查看行情与新闻，下现货、挂单、远期和差价合约。交易所需要先建成才能使用。\", 64.0],"
+ ],
  "交易确认": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "交货": [
@@ -1219,6 +1259,10 @@
   "ui/event_screens.gd:656",
   "if not any: box.add_child(AK.label(\"交货合约 0\", 14, AK.MUTE))"
  ],
+ "产业": [
+  "game/story.gd:43",
+  "{\"id\": \"industry\", \"title\": \"产业\", \"after\": [\"voyage\"],"
+ ],
  "人事部": [
   "game/research_catalog.gd:19",
   "\"field\": \"外勤部\", \"commerce\": \"商务部\", \"personnel\": \"人事部\", \"joint\": \"联合研究\"}"
@@ -1226,6 +1270,10 @@
  "人事部终端": [
   "world/base_map.gd:438",
   "const STATION_LABELS := {\"exchange\": [\"exchange\", \"交易所终端\"], \"sand_table\": [\"sand_table\", \"沙盘\"], \"personnel\": [\"personnel\", \"人事部终端\"], \"deck_lift\": [\"lift\", \"升降梯\"],"
+ ],
+ "人事部记录各位干员的寻访进度：从发现踪迹到可以寻访、正式入职。": [
+  "ui/tutorial_spotlight.gd:67",
+  "\"base_personnel\": [\"人事部\", \"人事部记录各位干员的寻访进度：从发现踪迹到可以寻访、正式入职。\", 56.0],"
  ],
  "人人都知道它的主人，没人提起它的主人。": [
   "game/gear_catalog.gd:305",
@@ -1248,19 +1296,19 @@
   "body.add_child(MarketWidgets.live(func(): return \"今日额度 %s / %s   待入账 %s\" % [Economy.format(roundi(ex.cfd_day.used)), Economy.format(roundi(ex.cfd_cap())), Economy.format(roundi(ex.cfd_pending()))], 11"
  ],
  "仍在暂存区。": [
-  "game/game_manager.gd:2680",
+  "game/game_manager.gd:2720",
   "notice(\"背包空间不足：%s 仍在暂存区。\" % item.item_name)"
  ],
  "仍在货架上。": [
-  "game/game_manager.gd:2562",
+  "game/game_manager.gd:2598",
   "notice(\"背包空间不足：%s 仍在货架上。\" % item.item_name)"
  ],
  "仍留在地上。": [
-  "game/game_manager.gd:2496",
+  "game/game_manager.gd:2532",
   "notice(\"背包空间不足：%s ×%d 仍留在地上。\" % [item.item_name, left])"
  ],
  "仍被封印：先击败全部守卫者。": [
-  "game/game_manager.gd:1161",
+  "game/game_manager.gd:1169",
   "notice(\"%s仍被封印：先击败全部守卫者。\" % box.title())"
  ],
  "从": [
@@ -1274,6 +1322,10 @@
  "从个人仓库带入下一份合同": [
   "ui/field_menu.gd:170",
   "\"stash\": [\"仓管台 / 仓库\", \"从个人仓库带入下一份合同\"],"
+ ],
+ "从撤离信标撤离": [
+  "ui/tutorial_card.gd:36",
+  "[\"extract\", \"撤离\", \"第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。\", \"从撤离信标撤离\", \"field\"],"
  ],
  "从膝盖缠到脚踝，冻原的老规矩。": [
   "game/gear_catalog.gd:394",
@@ -1296,11 +1348,11 @@
   "return \"仓库 %d/%d\" % [have, room]"
  ],
  "仓库和背包都满了：": [
-  "game/game_manager.gd:2579",
+  "game/game_manager.gd:2615",
   "notice(\"仓库和背包都满了：%s 仍在货架上。\" % item.item_name)"
  ],
  "仓库总控面板": [
-  "ui/base_screens.gd:497",
+  "ui/base_screens.gd:501",
   "rows.append([\"仓库总控面板\", \"已就位\" if base.console else \"\", BaseCatalog.CONSOLE_PRICE, BaseCatalog.CONSOLE_MATERIALS, game.console_refusal(), game.buy_console])"
  ],
  "仓库总控面板 · 已就位": [
@@ -1308,7 +1360,7 @@
   "if base.console: button(machines, \"仓库总控面板 · 已就位\", func(): pass, true)"
  ],
  "仓库总控面板上线：仓管台可以查看和调取所有分区。": [
-  "game/game_manager.gd:3169",
+  "game/game_manager.gd:3213",
   "set_message(\"仓库总控面板上线：仓管台可以查看和调取所有分区。\")"
  ],
  "仓管台": [
@@ -1318,6 +1370,10 @@
  "仓管台 / 仓库": [
   "ui/field_menu.gd:170",
   "\"stash\": [\"仓管台 / 仓库\", \"从个人仓库带入下一份合同\"],"
+ ],
+ "仓管台管理仓储部。建成仓库总控台后，可以在这里查看全部货架、搜索物品并直接带走。": [
+  "ui/tutorial_spotlight.gd:56",
+  "\"base_stash\": [\"仓管台\", \"仓管台管理仓储部。建成仓库总控台后，可以在这里查看全部货架、搜索物品并直接带走。\", 60.0],"
  ],
  "仓管台：仓库": [
   "art/rhodes_runtime/room_warehouse.json",
@@ -1348,31 +1404,31 @@
   "clear(\"一键分类 / 开箱与归类\", \"开出 %d 件  ·  上架 %d 件  ·  放进暂存区 %d 件  ·  未能放下 %d 件\" % ["
  ],
  "件。": [
-  "game/game_manager.gd:1749",
+  "game/game_manager.gd:1781",
   "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
  ],
  "件已送回仓库。": [
-  "game/game_manager.gd:2992",
+  "game/game_manager.gd:3033",
   "set_message(\"企鹅专递：%d 件已送回仓库。\" % sending.size())"
  ],
  "件新物品已送到仓储区收货区。": [
-  "game/game_manager.gd:1748",
-  "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"回收队归来\", new_finds,"
+  "game/game_manager.gd:1780",
+  "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"罗德岛小队归来\", new_finds,"
  ],
  "件新物品待开箱。": [
-  "game/game_manager.gd:1754",
+  "game/game_manager.gd:1786",
   "if new_finds > 0: broadcast(\"收货区货箱有 %d 件新物品待开箱。\" % new_finds)"
  ],
  "件材料。": [
-  "game/game_manager.gd:2479",
+  "game/game_manager.gd:2515",
   "if stored > 0: set_message(\"已存回 %d 件材料。\" % stored)"
  ],
  "件物品留在容器里。": [
-  "game/game_manager.gd:1391",
+  "game/game_manager.gd:1415",
   "if left > 0: notice(\"背包空间不足，%d 件物品留在容器里。\" % left)"
  ],
  "件，已到收货区。": [
-  "game/game_manager.gd:2694",
+  "game/game_manager.gd:2734",
   "set_message(\"投保物品送回 %d 件，已到收货区。\" % arrived.size())"
  ],
  "价差": [
@@ -1396,11 +1452,11 @@
   "\"企鹅专递单\": [\"penguin\", 2, \"warehouse\"],"
  ],
  "企鹅专递单已送到收货区。": [
-  "game/game_manager.gd:2936",
+  "game/game_manager.gd:2977",
   "set_message(\"企鹅专递单已送到收货区。\")"
  ],
  "企鹅专递：": [
-  "game/game_manager.gd:2992",
+  "game/game_manager.gd:3033",
   "set_message(\"企鹅专递：%d 件已送回仓库。\" % sending.size())"
  ],
  "企鹅物流": [
@@ -1448,7 +1504,7 @@
   "\"specials\": [\"怒潮：击杀后 5 秒内攻速 +4，至多 5 层\", \"众怒：周围 4 名以上敌人时受到伤害 −15%；计数上限 8 名\","
  ],
  "会放回原处": [
-  "game/game_manager.gd:3274",
+  "game/game_manager.gd:3318",
   "if base.hand: out.append(\"手上的 %s 会放回原处\" % base.hand.item_name)"
  ],
  "传奇的": [
@@ -1632,7 +1688,7 @@
   "const STAY_NAMES := {\"injured\": \"伤员\", \"infected\": \"感染者\"}"
  ],
  "伤害数字": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "伤害随目标生命降低至多 +50%；命中生命低于 20% 的普通敌人时直接击杀": [
@@ -1727,6 +1783,14 @@
   "inventory/item_modifier.gd:68",
   "Trigger.EMBER: \"余烬：技能命中使敌人灼烧 4 秒，每 0.5 秒受到 10% 法术攻击力的法术伤害\","
  ],
+ "作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。": [
+  "ui/tutorial_card.gd:24",
+  "[\"search\", \"搜索\", \"作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。\", \"搜索一个容器\", \"field\"],"
+ ],
+ "作战地图": [
+  "ui/tutorial_card.gd:32",
+  "[\"map\", \"作战地图\", \"地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。\", \"打开地图\", \"field\"],"
+ ],
  "作战记录": [
   "ui/event_screens.gd:695",
   "if int(records.get(record, 0)) > 0: record_parts.append(\"%s ×%d\" % [record.replace(\"作战记录\", \"\"), int(records[record])])"
@@ -1768,11 +1832,11 @@
   "\"icon\": \"snow_legs_1\", \"text\": \"侧边系带，毛边朝外。\"},"
  ],
  "侧键 1": [
-  "game/keybinds.gd:151",
+  "game/keybinds.gd:148",
   "const MOUSE_NAMES := {MOUSE_BUTTON_RIGHT: \"右键\", MOUSE_BUTTON_MIDDLE: \"中键\", MOUSE_BUTTON_XBUTTON1: \"侧键 1\", MOUSE_BUTTON_XBUTTON2: \"侧键 2\","
  ],
  "侧键 2": [
-  "game/keybinds.gd:151",
+  "game/keybinds.gd:148",
   "const MOUSE_NAMES := {MOUSE_BUTTON_RIGHT: \"右键\", MOUSE_BUTTON_MIDDLE: \"中键\", MOUSE_BUTTON_XBUTTON1: \"侧键 1\", MOUSE_BUTTON_XBUTTON2: \"侧键 2\","
  ],
  "侧面的皮绳换过三次。": [
@@ -1780,11 +1844,11 @@
   "\"icon\": \"mine_hands_3\", \"text\": \"侧面的皮绳换过三次。\"},"
  ],
  "保留": [
-  "game/game_manager.gd:2355",
+  "game/game_manager.gd:2391",
   "if outcome.begins_with(\"保留\"):"
  ],
  "保留（安全袋）": [
-  "game/game_manager.gd:2344",
+  "game/game_manager.gd:2380",
   "if safe_bag.items.has(item): return \"保留（安全袋）\""
  ],
  "保证金": [
@@ -1868,11 +1932,11 @@
   "_p(\"stiff\", -1, W, \"僵硬的\", \"Stiff\", {\"aspd\": -8.0}, {\"form\": \"fist\"})"
  ],
  "先击退她身边的敌人。": [
-  "game/game_manager.gd:4573",
+  "game/game_manager.gd:4622",
   "notice(\"先击退她身边的敌人。\")"
  ],
  "先放下手上的": [
-  "game/game_manager.gd:2616",
+  "game/game_manager.gd:2654",
   "set_message(\"先放下手上的 %s。\" % base.hand.item_name)"
  ],
  "先敲开冰，再敲开别的。": [
@@ -1880,7 +1944,7 @@
   "\"form\": \"blade\", \"enemies\": [\"ice_warrior\"], \"icon\": \"icebreaker_knife\", \"text\": \"先敲开冰，再敲开别的。\"},"
  ],
  "先留在箱里": [
-  "ui/base_screens.gd:1040",
+  "ui/base_screens.gd:1049",
   "var later := AK.button(\"先留在箱里\", \"plain\", 14)"
  ],
  "先锋": [
@@ -1916,7 +1980,7 @@
   "\"icon\": \"mine_head_2\", \"text\": \"兜帽底下是谁，没人在乎。\"},"
  ],
  "入口": [
-  "game/game_manager.gd:994",
+  "game/game_manager.gd:996",
   "route_history = [{\"floor\": start_floor, \"name\": \"营地\" if from_camp else \"入口\"}]"
  ],
  "入职": [
@@ -1940,7 +2004,7 @@
   "if id == FactionCatalog.FX: return \"全天\""
  ],
  "全屏": [
-  "ui/base_screens.gd:760",
+  "ui/base_screens.gd:764",
   "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
  ],
  "全新装置": [
@@ -1960,7 +2024,7 @@
   "const PICKUP_FILTER_NAMES := [\"全部\", \"精良以上\", \"仅稀有\"]"
  ],
  "全部开箱并归类": [
-  "ui/base_screens.gd:1037",
+  "ui/base_screens.gd:1046",
   "var sort := AK.button(\"全部开箱并归类\", \"plain\", 14)"
  ],
  "全部投保": [
@@ -2000,7 +2064,7 @@
   "\"vein_core\": {\"name\": \"共振矿芯\", \"category\": Item.Category.AMULET, \"size\": Vector2i(1, 1), \"power\": 2.0, \"region\": \"mine\","
  ],
  "关": [
-  "ui/base_screens.gd:760",
+  "ui/base_screens.gd:764",
   "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
  ],
  "关系 +": [
@@ -2008,7 +2072,7 @@
   "AK.put(stage, AK.label(\"%s   关系 +%d\" % [Exchange.format_money(str(o.currency), float(o.pay)), int(o.relation)], 13, AK.SP), Vector2(680, y + 56))"
  ],
  "关系 R": [
-  "game/game_manager.gd:3195",
+  "game/game_manager.gd:3239",
   "return \"需要%s关系 R%d\" % [FactionCatalog.name_of(str(gate.faction)), int(gate.rank)]"
  ],
  "关系回落 −30%": [
@@ -2091,6 +2155,10 @@
   "game/material_catalog.gd:112",
   "\"舰载麦\": {\"star\": 1, \"kind\": \"base\", \"source\": \"farm\", \"text\": \"农业部水培槽里长的麦子，舰上每顿饭的底料。\"},"
  ],
+ "农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。": [
+  "ui/tutorial_spotlight.gd:73",
+  "\"base_farm\": [\"农业部\", \"农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。\", 60.0],"
+ ],
  "农业部终端": [
   "art/rhodes_runtime/room_farm.json",
   "农业部终端"
@@ -2130,6 +2198,10 @@
  "冰原的": [
   "game/prefix_catalog.gd:210",
   "_p(\"tundra\", 1, A, \"冰原的\", \"Tundra\", {\"res\": 10.0, \"move_pct\": -0.03}, {\"region\": \"snow\"})"
+ ],
+ "冰原的寒冷正在累积。达到 60 时移动和体力回复变慢，90 时攻速下降并开始掉血。站在点燃的火堆旁、使用热能饮剂或自热罐头都能驱寒。": [
+  "ui/tutorial_spotlight.gd:48",
+  "\"cold\": [\"寒冷\", \"冰原的寒冷正在累积。达到 60 时移动和体力回复变慢，90 时攻速下降并开始掉血。站在点燃的火堆旁、使用热能饮剂或自热罐头都能驱寒。\", 0.0],"
  ],
  "冰原营地": [
   "game/loot_tables.gd:75",
@@ -2240,8 +2312,12 @@
   "_p(\"frostcracked\", -1, A, \"冻裂的\", \"Frost-Cracked\", {\"res\": -4.0, \"move_pct\": -0.03}, {\"region\": \"snow\"})"
  ],
  "净化喷淋": [
-  "game/game_manager.gd:1543",
+  "game/game_manager.gd:1569",
   "if is_instance_valid(shower) and not shower.used and near(shower) and shower_progress < 0.0: return \"净化喷淋\""
+ ],
+ "净化喷淋点仍可使用。在旁边按住交互键约 3 秒，可以降低污染，仅限一次。": [
+  "ui/tutorial_spotlight.gd:29",
+  "\"shower\": [\"净化喷淋\", \"净化喷淋点仍可使用。在旁边按住交互键约 3 秒，可以降低污染，仅限一次。\", 52.0],"
  ],
  "净化的": [
   "game/prefix_families.gd:89",
@@ -2254,6 +2330,10 @@
  "凝胶": [
   "game/loot_tables.gd:21",
   "\"ice_hunter\": {\"common\": [[\"异铁碎片\", 1, 2]], \"uncommon\": [[\"研磨石\", 1, 1]], \"rare\": [[\"凝胶\", 1, 1], [\"轻锰矿\", 1, 1]]},"
+ ],
+ "凯尔希": [
+  "game/story.gd:25",
+  "\"lines_fell\": [[\"凯尔希\", \"……回来就好。先去医疗部，然后看看你带回了什么。\"]],"
  ],
  "凶恶的": [
   "game/prefix_catalog.gd:146",
@@ -2274,6 +2354,10 @@
  "出发准备": [
   "ui/loadout_screens.gd:450",
   "var stage := BaseScreens.shell(menu, \"出发准备\", \"SQUAD\", [], 0, Callable(), AK.REGION_CODE.get(region, \"\"))"
+ ],
+ "出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。": [
+  "ui/tutorial_spotlight.gd:55",
+  "\"base_insurance\": [\"后勤柜台\", \"出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。\", 60.0],"
  ],
  "出售": [
   "ui/event_screens.gd:534",
@@ -2300,7 +2384,7 @@
   "text(body, \"出战准备 / 投保\", 18)"
  ],
  "出战干员": [
-  "ui/system_screens.gd:245",
+  "ui/system_screens.gd:251",
   "var names: Array = [\"出战干员\"]"
  ],
  "出拳够快的人，刀只需要很短。": [
@@ -2314,6 +2398,10 @@
  "击杀叠「接替」最多 3 层；招牌发动时消耗，每层招牌伤害 +30%": [
   "game/special_gear.gd:225",
   "\"nameless\": {\"name\": \"无名者\", \"region\": \"mine\", \"pieces\": [\"set_nameless_0\", \"set_nameless_1\", \"set_nameless_2\"], \"two\": \"生命低于 50% 时攻速 +12\", \"three\": \"击杀叠「接替」最多 3 层；招牌发动时消耗，每层招牌伤害 +30%\"},"
+ ],
+ "击杀家族成员会积累血债。达到 60 时家族敌人更凶狠，90 时会派出清算小队。中间人信物、镇静合剂和营地赔偿都可以降低血债。": [
+  "ui/tutorial_spotlight.gd:49",
+  "\"debt\": [\"血债\", \"击杀家族成员会积累血债。达到 60 时家族敌人更凶狠，90 时会派出清算小队。中间人信物、镇静合剂和营地赔偿都可以降低血债。\", 0.0],"
  ],
  "击杀敌人时技能充能 +1，回复 10 体力": [
   "game/relic_catalog.gd:84",
@@ -2354,6 +2442,10 @@
  "击破悬赏目标 ·": [
   "game/field_catalog.gd:60",
   "\"hunt\": return \"击破悬赏目标 · %s\" % AK.floor_code(region, start_floor + int(contract.offset))"
+ ],
+ "击败一个敌人": [
+  "ui/tutorial_card.gd:21",
+  "[\"kill\", \"接敌\", \"已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。\", \"击败一个敌人\", \"field\"],"
  ],
  "击退与拉拽的距离也减半。": [
   "game/skill_trees.gd:265",
@@ -2472,7 +2564,7 @@
   "\"implicit\": [[ItemModifier.Stat.CRIT_DMG, 0.1]], \"req\": \"tec\", \"text\": \"划掉的比没划掉的多。\"},"
  ],
  "初级作战记录": [
-  "game/game_manager.gd:4823",
+  "game/game_manager.gd:4872",
   "elif enemy.elite: record = \"初级作战记录\""
  ],
  "删除": [
@@ -2494,6 +2586,10 @@
  "到达": [
   "ui/field_panels.gd:234",
   "_objective(\"到达\" + game.camp_label(camp_at), game.floor_number - block_start, FieldCatalog.CAMP_INTERVAL, AK.GREEN)"
+ ],
+ "到达前进据点": [
+  "game/story.gd:36",
+  "\"goals\": [[\"store_potion\", \"在可露希尔的商店买一瓶特供药剂\"], [\"camp\", \"到达前进据点\"]]},"
  ],
  "制式换代计划": [
   "game/research_catalog.gd:61",
@@ -2528,12 +2624,16 @@
   "\"芯片助剂\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"制造芯片用的催化剂，合成双芯片的必备材料；价值高，产量小。\"},"
  ],
  "刷新": [
-  "ui/base_screens.gd:621",
+  "ui/base_screens.gd:625",
   "var reroll := AK.button(\"刷新\", \"plain\", 12)"
  ],
  "刻痕被很多只手摸平了。": [
   "game/gear_catalog.gd:146",
   "\"icon\": \"bone_amulet\", \"text\": \"刻痕被很多只手摸平了。\"},"
+ ],
+ "前方地面有陷阱。踩中会受到固定伤害并提高威胁值；重型陷阱触发后有短暂引信，及时闪避可以躲开。": [
+  "ui/tutorial_spotlight.gd:28",
+  "\"trap\": [\"陷阱\", \"前方地面有陷阱。踩中会受到固定伤害并提高威胁值；重型陷阱触发后有短暂引信，及时闪避可以躲开。\", 40.0],"
  ],
  "前爪下劈": [
   "game/enemy_attacks.gd:29",
@@ -2542,6 +2642,14 @@
  "前进": [
   "ui/event_screens.gd:206",
   "var go := AK.go_button(\"前进\", \"PROCEED\")"
+ ],
+ "前进据点": [
+  "ui/tutorial_spotlight.gd:50",
+  "\"camp\": [\"前进据点\", \"前进据点已确认，博士。这里没有敌人：可以在可露希尔处补给、处理污染或血债，也可以从这里撤离。到过的据点以后可以直接作为出发点。\", 0.0],"
+ ],
+ "前进据点已确认，博士。这里没有敌人：可以在可露希尔处补给、处理污染或血债，也可以从这里撤离。到过的据点以后可以直接作为出发点。": [
+  "ui/tutorial_spotlight.gd:50",
+  "\"camp\": [\"前进据点\", \"前进据点已确认，博士。这里没有敌人：可以在可露希尔处补给、处理污染或血债，也可以从这里撤离。到过的据点以后可以直接作为出发点。\", 0.0],"
  ],
  "剑兔": [
   "game/operators.gd:25",
@@ -2624,7 +2732,7 @@
   "var left := AK.label(\"剩余 %d 次\" % int(r.projects()[project]) if r.projects().has(project) else \"\", 13, AK.SP)"
  ],
  "副键": [
-  "ui/base_screens.gd:838",
+  "ui/base_screens.gd:847",
   "AK.put(stage, AK.label(\"副键\", 11, AK.MUTE), Vector2(334 + col * 470 + 342, 54))"
  ],
  "劈冰": [
@@ -2656,7 +2764,7 @@
   "\"city_feet_1\": {\"name\": \"功夫布鞋\", \"region\": \"city\", \"category\": FEET, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.DASH_COST_PCT, -0.0625]],"
  ],
  "加入助熔剂。": [
-  "game/game_manager.gd:2888",
+  "game/game_manager.gd:2929",
   "set_message(\"加工部：%s 加入助熔剂。\" % job.output)"
  ],
  "加固安全袋": [
@@ -2687,12 +2795,16 @@
   "ui/base_hud.gd:18",
   "[\"可露希尔的商店\", \"store\", Color(\"8fc31f\")], [\"交易所\", \"exchange\", Color(\"c48cff\")], [\"加工站\", \"workshop\", Color(\"e0782a\")],"
  ],
+ "加工站用材料和龙门币加工成品，按现实时间计时，完成后送到暂存区。": [
+  "ui/tutorial_spotlight.gd:66",
+  "\"base_workshop\": [\"加工站\", \"加工站用材料和龙门币加工成品，按现实时间计时，完成后送到暂存区。\", 60.0],"
+ ],
  "加工部": [
   "game/base_catalog.gd:63",
   "\"workshop\": {\"name\": \"加工部\", \"start\": 1, \"levels\": ["
  ],
  "加工部完成": [
-  "game/game_manager.gd:1934",
+  "game/game_manager.gd:1968",
   "if in_base: set_message(\"加工部完成 %d 项，已送到暂存区。\" % done.size())"
  ],
  "加工部打包的螺栓、金属板和胶带，外部势力按箱收购。": [
@@ -2704,7 +2816,7 @@
   "\"logistics_2\": [\"第二加工线\", 2, \"workshop_slot\", \"加工部队列 +1\", [\"logistics_1\"], {}],"
  ],
  "加工部：": [
-  "game/game_manager.gd:1912",
+  "game/game_manager.gd:1945",
   "set_message(\"加工部：%s ×%d 开始加工。\" % [output, count])"
  ],
  "加工队列 +1": [
@@ -2712,7 +2824,7 @@
   "{\"price\": 40000, \"materials\": {\"微型电机\": 1, \"装置\": 2}, \"opens\": \"加工队列 +1\"},"
  ],
  "加工队列已满": [
-  "game/game_manager.gd:1895",
+  "game/game_manager.gd:1928",
   "if workshop.busy() >= workshop_slots(): return \"加工队列已满\""
  ],
  "动得够快，影子也会伤人。": [
@@ -2731,6 +2843,10 @@
   "ui/exchange_screen.gd:669",
   "col.add_child(AK.section(\"势力关系\", \"RELATIONS\"))"
  ],
+ "势力据点": [
+  "ui/tutorial_spotlight.gd:35",
+  "\"post\": [\"势力据点\", \"这是一处势力据点。只收购该势力需要的货物，按当前价格当面成交。\", 56.0],"
+ ],
  "匕首突刺": [
   "game/enemy_attacks.gd:56",
   "\"family_soldier\": {\"name\": \"家族士兵\", \"attack\": \"匕首突刺\", \"windup\": 0.7, \"interval\": 1.2, \"damage\": 0.8, \"shape\": \"lane\", \"reach\": 2.4, \"width\": 0.8, \"dash\": 0.8, \"recoil\": 0.6, \"recovery\": 0.25, \"debt\": 3"
@@ -2744,7 +2860,7 @@
   "\"扭转醇\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"化工中介体，液化后像酒精，常让整个工作间醉醺醺的。\"},"
  ],
  "北": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "北原邪魔南下": [
@@ -2756,35 +2872,39 @@
   "\"kazimierz\": \"卡西米尔紧张\", \"sami\": \"北地威胁\", \"catastrophe\": \"天灾活跃\", \"originium\": \"源石紧张\","
  ],
  "区": [
-  "game/game_manager.gd:2632",
+  "game/game_manager.gd:2671",
   "set_message(\"已上架：%s（%s区 %d/%d）\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[category], base.shelf_count(category), base.capacity(category)])"
  ],
  "区。": [
-  "game/base_state.gd:574",
+  "game/base_state.gd:582",
   "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[Item.group_of(category)], hand.item_name, BaseCatalog.CATEGORY_NAMES[Item.group_of(hand.category)]]"
  ],
  "区上架。": [
-  "game/game_manager.gd:2620",
+  "game/game_manager.gd:2658",
   "set_message(\"拿起 %s：去%s区上架。\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[item.category]])"
  ],
  "区和暂存区都满了：": [
-  "game/game_manager.gd:2589",
+  "game/game_manager.gd:2626",
   "set_message(\"%s区和暂存区都满了：%s 留在身上。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
  ],
+ "区域头目": [
+  "ui/tutorial_spotlight.gd:37",
+  "\"boss\": [\"区域头目\", \"博士，前方是头目的场地。头目倒下前出口闸门会保持关闭，请做好准备再进入。\", 72.0],"
+ ],
  "区已满（": [
-  "game/base_state.gd:497",
+  "game/base_state.gd:505",
   "return \"%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。\" % ["
  ],
  "区已满：": [
-  "game/game_manager.gd:2594",
+  "game/game_manager.gd:2631",
   "if base.store(item) == \"staging\": set_message(\"%s区已满：%s 放进了暂存区。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
  ],
  "区新货架已就位：容量": [
-  "game/game_manager.gd:3155",
+  "game/game_manager.gd:3199",
   "set_message(\"%s区新货架已就位：容量 %d。\" % [BaseCatalog.CATEGORY_NAMES[category], base.capacity(category)])"
  ],
  "区的 9 个货架位都建好了。": [
-  "game/base_state.gd:393",
+  "game/base_state.gd:401",
   "if slot < 0: return \"%s区的 9 个货架位都建好了。\" % BaseCatalog.CATEGORY_NAMES[category]"
  ],
  "区的地面框里按 E 上架，或放进暂存区。": [
@@ -2792,7 +2912,7 @@
   "if base.hand: set_message(\"手上拿着 %s：走到%s区的地面框里按 E 上架，或放进暂存区。\" % [base.hand.item_name, BaseCatalog.CATEGORY_NAMES[base.hand.category]])"
  ],
  "区货架": [
-  "ui/base_screens.gd:307",
+  "ui/base_screens.gd:311",
   "stage = shell(menu, \"%s区货架\" % BaseCatalog.CATEGORY_NAMES[zone], \"SHELVES\", [], 0, Callable(), \"DEPOT\", currencies)"
  ],
  "区货架（": [
@@ -2804,7 +2924,7 @@
   "\"label\": (\"上架到%s区（%d/%d）\" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else (\"%s区：%s\" % [zone, \"放不下\" if c == base.hand.category else \"类别不对\"])}"
  ],
  "区，已为你高亮。": [
-  "game/base_state.gd:574",
+  "game/base_state.gd:582",
   "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[Item.group_of(category)], hand.item_name, BaseCatalog.CATEGORY_NAMES[Item.group_of(hand.category)]]"
  ],
  "区：": [
@@ -2830,6 +2950,10 @@
  "医疗前台 / 回收报告与治疗": [
   "ui/field_menu.gd:172",
   "\"report\": [\"医疗前台 / 回收报告与治疗\", \"上一份合同的回收明细，以及重伤治疗\"],"
+ ],
+ "医疗前台会给出上一份合同的回收报告。倒下的干员带有重伤、生命上限降低，在这里支付龙门币治疗。": [
+  "ui/tutorial_spotlight.gd:62",
+  "\"base_report\": [\"医疗前台\", \"医疗前台会给出上一份合同的回收报告。倒下的干员带有重伤、生命上限降低，在这里支付龙门币治疗。\", 60.0],"
  ],
  "医疗前台：回收报告与治疗": [
   "art/rhodes_runtime/room_medical.json",
@@ -2880,16 +3004,20 @@
   "\"shadow_ten\": {\"name\": \"十连\", \"type\": \"transmuter\", \"group\": \"shadow\", \"tier\": 2, \"max\": 1,"
  ],
  "升到 Lv": [
-  "game/game_manager.gd:3239",
+  "game/game_manager.gd:3283",
   "set_message(\"%s升到 Lv%d：%s。\" % [BaseCatalog.facility_name(id), level, step.opens])"
  ],
  "升级": [
-  "ui/base_screens.gd:483",
+  "ui/base_screens.gd:487",
   "func(): return game.upgrade_facility(id, remote)], redraw, width, \"建成\" if level == 0 else \"升级\", \"facility\", id)"
  ],
  "升降梯": [
   "ui/provision_screens.gd:196",
   "AK.put(panel, AK.label(\"升降梯\", 24, AK.FG), Vector2(28, 34))"
+ ],
+ "升降梯连接舰桥大厅与二层，二层是农业部和食堂。": [
+  "ui/tutorial_spotlight.gd:72",
+  "\"base_lift\": [\"升降梯\", \"升降梯连接舰桥大厅与二层，二层是农业部和食堂。\", 56.0],"
  ],
  "协同训练": [
   "game/research_catalog.gd:116",
@@ -2912,7 +3040,7 @@
   "_go(body, \"卖出 %s\" % item.display_name(), true, func():"
  ],
  "卖出赤金 ×": [
-  "game/game_manager.gd:2308",
+  "game/game_manager.gd:2344",
   "set_message(\"卖出赤金 ×%d：龙门币 +%s\" % [bars, Economy.format(paid)])"
  ],
  "卖给": [
@@ -2920,11 +3048,11 @@
   "body.add_child(AK.section(\"卖给\" + FactionCatalog.name_of(faction), \"SELL\"))"
  ],
  "卖给坎诺特：": [
-  "game/game_manager.gd:2143",
+  "game/game_manager.gd:2177",
   "set_message(\"卖给坎诺特：%s，赤金 +%d\" % [item.display_name(), pay])"
  ],
  "南": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "南边城市造的刀，走到这里已经不像南边的了。": [
@@ -2932,8 +3060,44 @@
   "\"form\": \"blade\", \"icon\": \"expedition_machete\", \"text\": \"南边城市造的刀，走到这里已经不像南边的了。\"},"
  ],
  "博士": [
-  "ui/system_screens.gd:248",
+  "ui/system_screens.gd:254",
   "names.append(\"博士\")"
+ ],
+ "博士，二层的农业舱修好了！大家说想吃点热的……": [
+  "game/story.gd:47",
+  "\"lines\": [[\"阿米娅\", \"博士，二层的农业舱修好了！大家说想吃点热的……\"]],"
+ ],
+ "博士，前方是头目的场地。头目倒下前出口闸门会保持关闭，请做好准备再进入。": [
+  "ui/tutorial_spotlight.gd:37",
+  "\"boss\": [\"区域头目\", \"博士，前方是头目的场地。头目倒下前出口闸门会保持关闭，请做好准备再进入。\", 72.0],"
+ ],
+ "博士，外勤不是郊游。备齐装备，贵重的东西先投保，如果投保的装备遗落在外勤区域，罗德岛小队会去回收。": [
+  "game/story.gd:29",
+  "\"lines\": [[\"杜宾\", \"博士，外勤不是郊游。备齐装备，贵重的东西先投保，如果投保的装备遗落在外勤区域，罗德岛小队会去回收。\"]],"
+ ],
+ "博士，外勤区域里有干员留下的行动痕迹……她应该还在附近。把这些线索交给人事部，就能查到她的下落。": [
+  "game/story.gd:38",
+  "\"lines\": [[\"阿米娅\", \"博士，外勤区域里有干员留下的行动痕迹……她应该还在附近。把这些线索交给人事部，就能查到她的下落。\"]],"
+ ],
+ "博士，寻访目标就在前方，身边有守卫。击败守卫后按交互键与她会面；成功撤离后，她才会正式加入罗德岛。": [
+  "ui/tutorial_spotlight.gd:25",
+  "\"recruit\": [\"寻访目标\", \"博士，寻访目标就在前方，身边有守卫。击败守卫后按交互键与她会面；成功撤离后，她才会正式加入罗德岛。\", 60.0],"
+ ],
+ "博士，干员生命偏低。快捷栏上的急救剂可以立即回复；最右侧的自动格会在生命低于下限时自动喝药，上下限可在设置里调整。应急强心针放在背包里，会在致命一击时自动生效。": [
+  "ui/tutorial_spotlight.gd:45",
+  "\"low_hp\": [\"生命告急\", \"博士，干员生命偏低。快捷栏上的急救剂可以立即回复；最右侧的自动格会在生命低于下限时自动喝药，上下限可在设置里调整。应急强心针放在背包里，会在致命一击时自动生效。\", 34.0],"
+ ],
+ "博士，您终于醒了……罗德岛的情况不太好，我们需要您。": [
+  "game/story.gd:21",
+  "\"lines\": [[\"PRTS\", \"系统同步完成。欢迎回来，博士。\"], [\"阿米娅\", \"博士，您终于醒了……罗德岛的情况不太好，我们需要您。\"]],"
+ ],
+ "博士，每十层之后设有前进据点，到达后可以在那里补给与撤离。": [
+  "game/story.gd:35",
+  "\"lines\": [[\"可露希尔\", \"商店重新营业！不过我这儿只收赤金。\"], [\"PRTS\", \"博士，每十层之后设有前进据点，到达后可以在那里补给与撤离。\"]],"
+ ],
+ "博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。对墙体发动近战攻击即可破开；室内有稀有物资，也可能有守卫者。": [
+  "ui/tutorial_spotlight.gd:22",
+  "\"vault\": [\"密室\", \"博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。对墙体发动近战攻击即可破开；室内有稀有物资，也可能有守卫者。\", 64.0],"
  ],
  "卡西米尔": [
   "game/voyage_catalog.gd:8",
@@ -3132,7 +3296,7 @@
   "_r(\"老磨盘\", \"tempo\", 1, \"我方单位受到伤害后攻击速度+6（最多叠加10次）\", \"受到伤害后攻速 +6（本区段至多 10 次）\", {}, {\"hurt_stack_aspd\": 6.0}),"
  ],
  "受到伤害！观察敌人的蓄力姿势与武器方向，及时侧移或闪避。": [
-  "entities/player.gd:1139",
+  "entities/player.gd:1116",
   "message_requested.emit(\"受到伤害！观察敌人的蓄力姿势与武器方向，及时侧移或闪避。\")"
  ],
  "受到攻击时": [
@@ -3244,19 +3408,19 @@
   "_r(\"古高卢银币\", \"wave\", 0, \"所有干员初始技力+6\", \"进入每个区段时技能充能 +1\", {}, {\"segment_charge\": 1.0}),"
  ],
  "只在基地": [
-  "game/game_manager.gd:2853",
+  "game/game_manager.gd:2894",
   "if not in_base: return \"只在基地\""
  ],
  "只在局内": [
-  "game/game_manager.gd:2960",
+  "game/game_manager.gd:3001",
   "if in_base: return \"只在局内\""
  ],
  "只收材料": [
-  "game/game_manager.gd:2282",
+  "game/game_manager.gd:2318",
   "if item.category != Item.Category.MATERIAL or item.is_potion(): return \"只收材料\""
  ],
  "只收装备": [
-  "game/game_manager.gd:1563",
+  "game/game_manager.gd:1589",
   "if item == null or not carried_items().has(item) or not item.is_equippable(): return \"只收装备\""
  ],
  "只斩 1 次，系数 ×3.5，真实伤害。": [
@@ -3264,11 +3428,11 @@
   "\"text\": \"只斩 1 次，系数 ×3.5，真实伤害。\"},"
  ],
  "只未开货箱": [
-  "game/game_manager.gd:3279",
+  "game/game_manager.gd:3323",
   "if sealed > 0: parts.append(\"收货区仍有 %d 只未开货箱\" % sealed)"
  ],
  "只能上架已开箱或暂存区里的物品。": [
-  "game/base_state.gd:495",
+  "game/base_state.gd:503",
   "if not location_of(item) in [\"crate_open\", \"staging\"]: return \"只能上架已开箱或暂存区里的物品。\""
  ],
  "只能在局内据点交易": [
@@ -3286,6 +3450,10 @@
  "可交付订单": [
   "ui/event_screens.gd:679",
   "[\"深度\", AK.floor_code(view.region, view.depth), AK.FG], [\"可交付订单\", str(view.get(\"orders\", 0)), AK.SP]]"
+ ],
+ "可以按需调整观察视角：滚轮缩放，旋转键每次转动 45°，翻页键调整俯角，按住中键拖动自由旋转，复位键恢复默认视角。": [
+  "ui/tutorial_card.gd:19",
+  "[\"camera\", \"观察视角\", \"可以按需调整观察视角：滚轮缩放，旋转键每次转动 45°，翻页键调整俯角，按住中键拖动自由旋转，复位键恢复默认视角。\", \"调整一次视角\", \"base\"],"
  ],
  "可充电电池，便携设备的电源。": [
   "game/material_catalog.gd:86",
@@ -3324,8 +3492,8 @@
   "AK.put(stage, AK.section(\"可投保\" if service == \"insure\" else \"可送回\"), Vector2(470, 120))"
  ],
  "可露希尔": [
-  "ui/event_screens.gd:457",
-  "AK.put(side, AK.label(\"可露希尔\", 30, AK.FG), Vector2(32, 62))"
+  "game/story.gd:32",
+  "\"lines\": [[\"可露希尔\", \"哟，博士！工程部那群人说总控台要是不修好，什么都升不了级。电线、继电器、灯泡，带回来我就给你装上——钱嘛，另算。\"]],"
  ],
  "可露希尔商店": [
   "game/base_catalog.gd:57",
@@ -3335,8 +3503,12 @@
   "ui/base_hud.gd:18",
   "[\"可露希尔的商店\", \"store\", Color(\"8fc31f\")], [\"交易所\", \"exchange\", Color(\"c48cff\")], [\"加工站\", \"workshop\", Color(\"e0782a\")],"
  ],
+ "可露希尔的商店用赤金出售特供药剂，每小时补货。这里还可以出售赤金、换汇、贷款，以及购买减缓地图特色的随队物资。": [
+  "ui/tutorial_spotlight.gd:64",
+  "\"base_store\": [\"可露希尔的商店\", \"可露希尔的商店用赤金出售特供药剂，每小时补货。这里还可以出售赤金、换汇、贷款，以及购买减缓地图特色的随队物资。\", 60.0],"
+ ],
  "右键": [
-  "game/keybinds.gd:151",
+  "game/keybinds.gd:148",
   "const MOUSE_NAMES := {MOUSE_BUTTON_RIGHT: \"右键\", MOUSE_BUTTON_MIDDLE: \"中键\", MOUSE_BUTTON_XBUTTON1: \"侧键 1\", MOUSE_BUTTON_XBUTTON2: \"侧键 2\","
  ],
  "各国协议限产至纯源石": [
@@ -3347,8 +3519,12 @@
   "game/market/market_events.gd:353",
   "\"X22\": {\"region\": \"泰拉\", \"kind\": \"announce\", \"hours\": 24, \"weight\": 1, \"title\": \"各国协调源石运输标准\", \"effects\": [{\"sel\": \"*:originium\", \"spread\": 0.85}, {\"sel\": \"*:contraband\", \"mult\": 0.9}]},"
  ],
+ "各部门把需要的物资写成订单挂在这里。交付货架或背包里的物品完成订单，就能获得龙门币；也可以把物品直接卖给可露希尔。": [
+  "ui/tutorial_spotlight.gd:61",
+  "\"base_outbound\": [\"出库区\", \"各部门把需要的物资写成订单挂在这里。交付货架或背包里的物品完成订单，就能获得龙门币；也可以把物品直接卖给可露希尔。\", 60.0],"
+ ],
  "合同": [
-  "game/keybinds.gd:49",
+  "game/keybinds.gd:48",
   "[\"toggle_journal\", \"合同\", \"界面\", {\"key\": KEY_J}, null],"
  ],
  "合同 ·": [
@@ -3360,19 +3536,23 @@
   "\"field_1\": [\"合同中介网\", 1, \"offer_slot\", \"合同可选 3 → 4\", [], {}],"
  ],
  "合同交付": [
-  "game/game_manager.gd:1748",
-  "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"回收队归来\", new_finds,"
+  "game/game_manager.gd:1780",
+  "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"罗德岛小队归来\", new_finds,"
  ],
  "合同可选 3 → 4": [
   "game/research_catalog.gd:72",
   "\"field_1\": [\"合同中介网\", 1, \"offer_slot\", \"合同可选 3 → 4\", [], {}],"
  ],
+ "合同委托": [
+  "ui/tutorial_card.gd:20",
+  "[\"contract\", \"合同委托\", \"调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。\", \"调度台接合同出击\", \"base\"],"
+ ],
  "合同开始：": [
-  "game/game_manager.gd:990",
+  "game/game_manager.gd:992",
   "broadcast(\"合同开始：%s。\" % FieldCatalog.REGIONS[region_id].name)"
  ],
  "合同报酬": [
-  "game/game_manager.gd:1749",
+  "game/game_manager.gd:1781",
   "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
  ],
  "合同报酬 +": [
@@ -3380,16 +3560,20 @@
   "\"deep\": return \"合同报酬 +%d%%\" % roundi(DEEP_BONUS * 100)"
  ],
  "合同目标": [
-  "ui/base_screens.gd:199",
+  "ui/base_screens.gd:203",
   "_section(stage, \"合同目标\", \"OBJECTIVE\", Vector2(x + 18, TOP + 256))"
  ],
  "合同目标完成：": [
-  "game/game_manager.gd:4638",
+  "game/game_manager.gd:4687",
   "set_message(\"合同目标完成：%s\" % progress.goal)"
  ],
  "合同目标：": [
-  "game/game_manager.gd:991",
+  "game/game_manager.gd:993",
   "broadcast(\"合同目标：%s。\" % FieldCatalog.contract_goal(contract, region_id, start_floor))"
+ ],
+ "合同面板显示本次合同的目标进度，以及基地各部门的订单需求。": [
+  "ui/tutorial_card.gd:31",
+  "[\"journal\", \"合同目标\", \"合同面板显示本次合同的目标进度，以及基地各部门的订单需求。\", \"打开合同面板\", \"field\"],"
  ],
  "合成": [
   "ui/operator_screen.gd:161",
@@ -3412,11 +3596,11 @@
   "AK.put(stage, AK.section(\"合计\", \"SUMMARY\"), Vector2(868, TOP + 14))"
  ],
  "同意随博士返回罗德岛。撤离后完成入职。": [
-  "game/game_manager.gd:4578",
+  "game/game_manager.gd:4627",
   "broadcast(\"PRTS：%s同意随博士返回罗德岛。撤离后完成入职。\" % name)"
  ],
  "同意随行": [
-  "game/game_manager.gd:4577",
+  "game/game_manager.gd:4626",
   "set_message(\"寻访 · %s 同意随行\" % name)"
  ],
  "名义": [
@@ -3428,7 +3612,7 @@
   "\"safe_2\": \"安全袋扩容二\", \"exchange\": \"交易所\", \"roster_3\": \"名册 3 人\", \"lungmen_r5\": \"龙门商会 R5\"}"
  ],
  "名守卫者，宝箱尚未解封。": [
-  "game/game_manager.gd:4771",
+  "game/game_manager.gd:4820",
   "else: set_message(\"密室仍有 %d 名守卫者，宝箱尚未解封。\" % _vault_guardians.size())"
  ],
  "名敌人。": [
@@ -3479,25 +3663,9 @@
   "game/gear_catalog.gd:418",
   "\"icon\": \"city_head_3\", \"text\": \"后檐很长，挡得住落下来的火。\"},"
  ],
- "向上移动": [
-  "game/keybinds.gd:31",
-  "[\"move_up\", \"向上移动\", \"移动\", {\"key\": KEY_W}, {\"key\": KEY_UP}],"
- ],
- "向下移动": [
-  "game/keybinds.gd:32",
-  "[\"move_down\", \"向下移动\", \"移动\", {\"key\": KEY_S}, {\"key\": KEY_DOWN}],"
- ],
  "向光标方向扇形射出 4 枚叉枪，每枚": [
   "game/skill_trees.gd:192",
   "\"text\": \"向光标方向扇形射出 4 枚叉枪，每枚 %s 并钉住目标 4 秒；冷却 %s 秒。\"},"
- ],
- "向右移动": [
-  "game/keybinds.gd:34",
-  "[\"move_right\", \"向右移动\", \"移动\", {\"key\": KEY_D}, {\"key\": KEY_RIGHT}],"
- ],
- "向左移动": [
-  "game/keybinds.gd:33",
-  "[\"move_left\", \"向左移动\", \"移动\", {\"key\": KEY_A}, {\"key\": KEY_LEFT}],"
  ],
  "启用": [
   "ui/operator_screen.gd:228",
@@ -3571,6 +3739,10 @@
   "game/prefix_catalog.gd:224",
   "_p(\"spellguard\", 1, T, \"咒护的\", \"Spellguarded\", {\"evasion_arts\": 0.04, \"res\": 2.0})"
  ],
+ "哟，博士！工程部那群人说总控台要是不修好，什么都升不了级。电线、继电器、灯泡，带回来我就给你装上——钱嘛，另算。": [
+  "game/story.gd:32",
+  "\"lines\": [[\"可露希尔\", \"哟，博士！工程部那群人说总控台要是不修好，什么都升不了级。电线、继电器、灯泡，带回来我就给你装上——钱嘛，另算。\"]],"
+ ],
  "哥伦比亚": [
   "game/voyage_catalog.gd:8",
   "const ANCHORS: Array[String] = [\"龙门\", \"切尔诺伯格\", \"萨米\", \"叙拉古\", \"哥伦比亚\", \"谢拉格\", \"卡西米尔\"]"
@@ -3608,7 +3780,7 @@
   "var w := AK.cn().get_string_size(\"售罄\", HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x"
  ],
  "售罄，等可露希尔补货": [
-  "game/game_manager.gd:2249",
+  "game/game_manager.gd:2284",
   "notice(\"售罄，等可露希尔补货\")"
  ],
  "唱沙铃": [
@@ -3636,12 +3808,16 @@
   "var tabs := [\"商店\", \"出售赤金\", \"换汇\", \"贷款\", \"随队物资\"] if at_base else [\"商店\", \"寄存\", \"出售赤金\", \"换汇\", \"交割\", \"补给\", \"处理\"]"
  ],
  "商店 Lv": [
-  "game/game_manager.gd:3691",
+  "game/game_manager.gd:3735",
   "if base.facility_level(\"store\") < int(kit.store): return \"商店 Lv%d\" % int(kit.store)"
  ],
  "商店中购买道具所需源石锭-50%": [
   "game/relic_catalog.gd:144",
   "_r(\"锈蚀的铁锤\", \"fortune\", 0, \"商店中购买道具所需源石锭-50%\", \"坎诺特商店的价格 −50%\", {}, {\"shop_discount\": 0.50}),"
+ ],
+ "商店重新营业！不过我这儿只收赤金。": [
+  "game/story.gd:35",
+  "\"lines\": [[\"可露希尔\", \"商店重新营业！不过我这儿只收赤金。\"], [\"PRTS\", \"博士，每十层之后设有前进据点，到达后可以在那里补给与撤离。\"]],"
  ],
  "商贩说它挡过一刀。": [
   "game/gear_catalog.gd:275",
@@ -3712,7 +3888,7 @@
   "\"Z21\": {\"region\": \"卡西米尔\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 1, \"title\": \"四城联合安保升级\", \"effects\": [{\"sel\": \"kazimierz:armor\", \"mult\": 1.2}]},"
  ],
  "回到标题": [
-  "ui/base_screens.gd:692",
+  "ui/base_screens.gd:696",
   "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
  ],
  "回响：释放技能后 3 秒内攻速 +20": [
@@ -3740,16 +3916,12 @@
   "\"report\": return \"返还中 %d\" % base.insurance_queue.size() if not base.insurance_queue.is_empty() else \"回收报告\""
  ],
  "回收明细": [
-  "ui/base_screens.gd:653",
+  "ui/base_screens.gd:657",
   "holder.add_child(AK.section(\"回收明细\", \"RECOVERY\"))"
  ],
  "回收矿料，测绘污染。狭窄矿道 / 密集追击": [
   "game/field_catalog.gd:211",
   "\"mine\": {\"name\": \"切尔诺伯格 · 坍塌矿区\", \"brief\": \"回收矿料，测绘污染。狭窄矿道 / 密集追击\","
- ],
- "回收队归来": [
-  "game/game_manager.gd:1748",
-  "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"回收队归来\", new_finds,"
  ],
  "回收防务与医疗物资。曲折街区 / 近战伏击": [
   "game/field_catalog.gd:215",
@@ -3768,7 +3940,7 @@
   "\"log_fuel\": {\"dept\": \"后勤部\", \"count\": 10, \"material\": \"固体燃料\", \"mult\": 1.5, \"weight\": 2},"
  ],
  "固定": [
-  "ui/base_screens.gd:862",
+  "ui/base_screens.gd:871",
   "AK.put(stage, AK.label(\"固定\", 13, AK.SP), Vector2(804, fy + 4))"
  ],
  "固源岩": [
@@ -3804,7 +3976,7 @@
   "_r(\"圆石祭坛\", \"attack\", 1, \"战斗后有概率使攻击力和防御力永久+5%（最多10层）\", \"每进入一个新区段，50% 概率本合同攻击力与防御 +5%（至多 10 层）\", {}, {\"altar\": 0.50}),"
  ],
  "圆石祭坛：攻击力与防御 +5": [
-  "entities/player.gd:1193",
+  "entities/player.gd:1170",
   "message_requested.emit(\"圆石祭坛：攻击力与防御 +5%%（%d 层）\" % altar_stacks)"
  ],
  "圣佑的": [
@@ -3819,17 +3991,65 @@
   "game/market/market_events.gd:299",
   "\"U14\": {\"region\": \"乌萨斯\", \"kind\": \"breaking\", \"hours\": 48, \"weight\": 2, \"title\": \"圣骏堡追加军工拨款\", \"effects\": [{\"sel\": \"ursus:weapon\", \"mult\": 1.2}, {\"sel\": \"ursus:electronic\", \"mult\": 1.15}]},"
  ],
+ "在人事部查看寻访进度": [
+  "game/story.gd:39",
+  "\"goals\": [[\"personnel\", \"在人事部查看寻访进度\"], [\"joined\", \"让一名干员入职\"]]},"
+ ],
+ "在出库区完成一张订单": [
+  "game/story.gd:26",
+  "\"goals\": [[\"crate\", \"在收货区打开一个货箱\"], [\"shelve\", \"把一件物品送上上架区\"], [\"order\", \"在出库区完成一张订单\"], [\"treat\", \"在医疗前台治疗重伤\"]],"
+ ],
+ "在加工站完成一次加工": [
+  "game/story.gd:45",
+  "\"goals\": [[\"crafted\", \"在加工站完成一次加工\"], [\"researching\", \"建成科研部并开始一项研究\"]]},"
+ ],
+ "在医疗前台治疗重伤": [
+  "game/story.gd:26",
+  "\"goals\": [[\"crate\", \"在收货区打开一个货箱\"], [\"shelve\", \"把一件物品送上上架区\"], [\"order\", \"在出库区完成一张订单\"], [\"treat\", \"在医疗前台治疗重伤\"]],"
+ ],
+ "在可露希尔的商店买一瓶特供药剂": [
+  "game/story.gd:36",
+  "\"goals\": [[\"store_potion\", \"在可露希尔的商店买一瓶特供药剂\"], [\"camp\", \"到达前进据点\"]]},"
+ ],
  "在同一区段停留 100 秒后，防御 +120%、法抗 +30": [
   "game/relic_catalog.gd:116",
   "_r(\"古堡的子嗣\", \"defense\", 1, \"所有干员在场上停留100秒后防御力+300，法术抗性+30\", \"在同一区段停留 100 秒后，防御 +120%、法抗 +30\", {}, {\"linger\": 1.0}),"
+ ],
+ "在后勤柜台为一件装备投保": [
+  "game/story.gd:30",
+  "\"goals\": [[\"bench_equip\", \"在整备台穿上一件装备\"], [\"insure\", \"在后勤柜台为一件装备投保\"]]},"
+ ],
+ "在收货区打开一个货箱": [
+  "game/story.gd:26",
+  "\"goals\": [[\"crate\", \"在收货区打开一个货箱\"], [\"shelve\", \"把一件物品送上上架区\"], [\"order\", \"在出库区完成一张订单\"], [\"treat\", \"在医疗前台治疗重伤\"]],"
+ ],
+ "在整备台穿上一件装备": [
+  "game/story.gd:30",
+  "\"goals\": [[\"bench_equip\", \"在整备台穿上一件装备\"], [\"insure\", \"在后勤柜台为一件装备投保\"]]},"
+ ],
+ "在新的地区完成一份合同": [
+  "game/story.gd:42",
+  "\"goals\": [[\"sailed\", \"在沙盘上指挥罗德岛号航行\"], [\"away\", \"在新的地区完成一份合同\"]]},"
+ ],
+ "在沙盘上指挥罗德岛号航行": [
+  "game/story.gd:42",
+  "\"goals\": [[\"sailed\", \"在沙盘上指挥罗德岛号航行\"], [\"away\", \"在新的地区完成一份合同\"]]},"
  ],
  "在矿里，它买不到任何东西。": [
   "game/gear_catalog.gd:189",
   "\"icon\": \"mine_x18\", \"text\": \"在矿里，它买不到任何东西。\"},"
  ],
+ "在背包里右键一件装备即可穿上，也可以拖到左侧人偶的格子上；右键已穿的装备会卸回背包。属性需求不足的装备无法穿戴。": [
+  "ui/tutorial_card.gd:27",
+  "[\"equip\", \"换装\", \"在背包里右键一件装备即可穿上，也可以拖到左侧人偶的格子上；右键已穿的装备会卸回背包。属性需求不足的装备无法穿戴。\", \"穿上一件装备\", \"field\"],"
+ ],
  "地图": [
-  "game/keybinds.gd:48",
+  "game/keybinds.gd:47",
   "[\"toggle_map\", \"地图\", \"界面\", {\"key\": KEY_M}, null],"
+ ],
+ "地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。": [
+  "ui/tutorial_card.gd:32",
+  "[\"map\", \"作战地图\", \"地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。\", \"打开地图\", \"field\"],"
  ],
  "地图特色累计 −10%": [
   "game/research_catalog.gd:57",
@@ -3842,6 +4062,14 @@
  "地层回波测绘": [
   "game/research_catalog.gd:71",
   "\"intel_6\": [\"地层回波测绘\", 6, \"vault_map\", \"密室范围上小地图\", [\"intel_5\", \"personnel_3\"], {}],"
+ ],
+ "地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。": [
+  "ui/tutorial_card.gd:25",
+  "[\"pickup\", \"物资回收\", \"地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。\", \"拾取一件物品\", \"field\"],"
+ ],
+ "场地里布置有干扰地雷。站在旁边按交互键布雷，敌人踏入时会被炸伤，之后一段时间受到的伤害提高。每个只能用一次。": [
+  "ui/tutorial_spotlight.gd:38",
+  "\"mine\": [\"干扰地雷\", \"场地里布置有干扰地雷。站在旁边按交互键布雷，敌人踏入时会被炸伤，之后一段时间受到的伤害提高。每个只能用一次。\", 44.0],"
  ],
  "坍缩侵入林线": [
   "game/market/market_events.gd:322",
@@ -3856,7 +4084,7 @@
   "\"bg_eikthyrnir_4\": {\"name\": \"坍缩纹皮甲\", \"kind\": \"boss\", \"category\": Item.Category.CHEST, \"size\": Vector2i(2, 2), \"power\": 2.0, \"region\": \"snow\", \"source_enemy\": \"eikthyrnir\","
  ],
  "坎诺特": [
-  "game/game_manager.gd:1148",
+  "game/game_manager.gd:1156",
   "\"trader\": return \"坎诺特\""
  ],
  "坎诺特 · E": [
@@ -3924,7 +4152,7 @@
   "_p(\"hard\", 1, T, \"坚硬的\", \"Hard\", {\"def\": 25.0})"
  ],
  "垂直同步": [
-  "ui/base_screens.gd:760",
+  "ui/base_screens.gd:764",
   "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
  ],
  "型号停产很多年了，刃口没停过。": [
@@ -3952,20 +4180,24 @@
   "\"form\": \"polearm\", \"icon\": \"vineyard_billhook\", \"text\": \"城外的葡萄园也分家族，修枝的人也是。\"},"
  ],
  "基地": [
-  "ui/base_screens.gd:693",
+  "ui/base_screens.gd:697",
   "const SETTING_TABS := [\"画面\", \"界面\", \"音频\", \"基地\"]"
  ],
  "基地形象": [
-  "ui/system_screens.gd:255",
+  "ui/system_screens.gd:261",
   "row.add_child(AK.label(\"基地形象\", 14, AK.FG))"
  ],
  "基建": [
-  "ui/base_hud.gd:32",
-  "for entry in [[\"基建\", \"construction\"], [\"合同\", \"contracts\"], [\"菜单\", \"pause\"]]:"
+  "game/story.gd:31",
+  "{\"id\": \"hub\", \"title\": \"基建\", \"after\": [\"outfit\"],"
  ],
  "基建总控台": [
   "game/base_catalog.gd:44",
   "\"hub\": {\"name\": \"基建总控台\", \"start\": 0, \"levels\": ["
+ ],
+ "基建总控台需要先建成。之后，每个设施接入总控台，就能在这里远程查看和购买它的升级。": [
+  "ui/tutorial_spotlight.gd:70",
+  "\"base_hub\": [\"基建总控台\", \"基建总控台需要先建成。之后，每个设施接入总控台，就能在这里远程查看和购买它的升级。\", 64.0],"
  ],
  "基建材料": [
   "game/material_catalog.gd:133",
@@ -3976,12 +4208,16 @@
   "var groups := [[\"基础\", [[\"生命\", \"hp\"], [\"攻击\", \"atk\"], [\"法术攻击\", \"arts\"], [\"防御\", \"def\"], [\"法术抗性\", \"res\"]]],"
  ],
  "基础作战记录": [
-  "game/game_manager.gd:4824",
+  "game/game_manager.gd:4873",
   "elif rng.randf() < RECORD_NORMAL_ODDS: record = \"基础作战记录\""
  ],
  "基础加固建材": [
   "game/base_catalog.gd:49",
   "{\"price\": 30000, \"materials\": {\"碳\": 3, \"螺栓\": 6, \"基础加固建材\": 1}, \"opens\": \"中排货架 · 订单栏 +1\"},"
+ ],
+ "基础操作确认完毕。PRTS 将持续为您提供支援，博士。": [
+  "ui/tutorial_card.gd:40",
+  "const DONE_TEXT := \"基础操作确认完毕。PRTS 将持续为您提供支援，博士。\""
  ],
  "基础研究": [
   "ui/research_screen.gd:11",
@@ -4015,12 +4251,16 @@
   "ui/event_screens.gd:473",
   "var tabs := [\"商店\", \"出售赤金\", \"换汇\", \"贷款\", \"随队物资\"] if at_base else [\"商店\", \"寄存\", \"出售赤金\", \"换汇\", \"交割\", \"补给\", \"处理\"]"
  ],
+ "备齐电线×2、继电器×1、灯泡×2": [
+  "game/story.gd:33",
+  "\"goals\": [[\"hub_parts\", \"备齐电线×2、继电器×1、灯泡×2\"], [\"hub_built\", \"建成基建总控台\"], [\"hub_link\", \"把仓储部接入总控台\"]]},"
+ ],
  "复位": [
   "ui/research_screen.gd:49",
   "var reset := AK.button(\"复位\", \"plain\", 12)"
  ],
  "复位视角": [
-  "game/keybinds.gd:42",
+  "game/keybinds.gd:41",
   "[\"camera_reset\", \"复位视角\", \"视角\", {\"key\": KEY_HOME}, null],"
  ],
  "复合护具": [
@@ -4044,7 +4284,7 @@
   "_r(\"复还之手\", \"life\", 2, \"范围内干员受到致命伤时回复所有生命（每名干员每场1次）\", \"每个区段一次：受到致命伤害时回满生命\", {}, {\"death_full\": 1.0}),"
  ],
  "复还之手：受到致命伤时回满生命（本区段已用）": [
-  "entities/player.gd:1150",
+  "entities/player.gd:1127",
   "message_requested.emit(\"复还之手：受到致命伤时回满生命（本区段已用）\")"
  ],
  "外勤出发升降梯": [
@@ -4066,6 +4306,10 @@
  "外勤部": [
   "game/research_catalog.gd:19",
   "\"field\": \"外勤部\", \"commerce\": \"商务部\", \"personnel\": \"人事部\", \"joint\": \"联合研究\"}"
+ ],
+ "外勤队已归舰。带回的物资已送往收货区，博士。": [
+  "game/story.gd:24",
+  "\"lines\": [[\"PRTS\", \"外勤队已归舰。带回的物资已送往收货区，博士。\"]],"
  ],
  "外卖员跑鞋": [
   "game/gear_catalog.gd:439",
@@ -4116,7 +4360,7 @@
   "const CARGO_NAME := \"大宗货箱\""
  ],
  "大宗货箱已送到暂存区。": [
-  "game/game_manager.gd:1883",
+  "game/game_manager.gd:1916",
   "set_message(\"大宗货箱已送到暂存区。\")"
  ],
  "大宗贸易协议": [
@@ -4144,7 +4388,7 @@
   "\"改量装置\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"大量私自改造的装置，扩容提速但牺牲了稳定性。\"},"
  ],
  "天": [
-  "game/game_manager.gd:1797",
+  "game/game_manager.gd:1829",
   "(\"%.1f 小时\" % hours) if hours < 48 else (\"%d 天\" % roundi(hours / 24)), int(c.get(\"fill\", 0)), int(c.get(\"liquidation\", 0)),"
  ],
  "天灾": [
@@ -4192,7 +4436,7 @@
   "_p(\"inaccurate\", -1, W, \"失准的\", \"Inaccurate\", {\"crit\": -0.03})"
  ],
  "失控": [
-  "entities/player.gd:650",
+  "entities/player.gd:627",
   "interrupt_actions_for(\"失控\")"
  ],
  "失活的": [
@@ -4243,6 +4487,14 @@
   "game/relic_catalog.gd:110",
   "_r(\"女皇之愿\", \"defense\", 2, \"所有我方单位获得15%物理与法术闪避\", \"物理与法术闪避 15%\", {\"evasion\": 0.15, \"evasion_arts\": 0.15}),"
  ],
+ "威胁值": [
+  "ui/tutorial_spotlight.gd:46",
+  "\"threat\": [\"威胁值\", \"敌对势力正在锁定博士的位置。屏幕上方的细条就是威胁值：停留越久涨得越快，涨满时会有巡逻队前来搜捕；进入下一层后保留一部分。\", 0.0],"
+ ],
+ "威胁值涨满后，敌方会派出巡逻队搜捕博士。同一层里，后来的巡逻队会更强。": [
+  "ui/tutorial_spotlight.gd:42",
+  "\"patrol\": [\"巡逻队\", \"威胁值涨满后，敌方会派出巡逻队搜捕博士。同一层里，后来的巡逻队会更强。\", 60.0],"
+ ],
  "威胁值累计": [
   "game/research_catalog.gd:160",
   "\"threat\": [\"威胁值累计\", -0.005],"
@@ -4268,7 +4520,7 @@
   "var dep := AK.button(\"存入\", \"blue\", 13)"
  ],
  "存入安全袋": [
-  "game/keybinds.gd:50",
+  "game/keybinds.gd:49",
   "[\"stash_item\", \"存入安全袋\", \"界面\", {\"key\": KEY_B}, null],"
  ],
  "存回仓库": [
@@ -4276,11 +4528,11 @@
   "button(row, \"存回仓库\", func(): game.store_item(item); _refresh())"
  ],
  "存档写入失败：当前会话仍可继续。": [
-  "game/game_manager.gd:4998",
+  "game/game_manager.gd:5047",
   "notice(\"存档写入失败：当前会话仍可继续。\")"
  ],
  "存档替换失败，旧存档保留。": [
-  "game/game_manager.gd:5004",
+  "game/game_manager.gd:5053",
   "notice(\"存档替换失败，旧存档保留。\")"
  ],
  "孤注的": [
@@ -4316,11 +4568,11 @@
   "name = \"守卫_\" + name"
  ],
  "守卫者全部倒下：密室的封印解除。": [
-  "game/game_manager.gd:4770",
+  "game/game_manager.gd:4819",
   "set_message(\"守卫者全部倒下：密室的封印解除。\")"
  ],
  "守在入口前。击破守卫者，入口才会开放。": [
-  "game/game_manager.gd:4238",
+  "game/game_manager.gd:4282",
   "return \"PRTS：%s守在入口前。击破守卫者，入口才会开放。\" % BossCatalog.display_name(str(BossCatalog.WARDENS.get(region_id, \"\")))"
  ],
  "守望者战斧": [
@@ -4336,7 +4588,7 @@
   "\"set_fire_watch_1\": {\"name\": \"守望者皮甲\", \"kind\": \"set\", \"set_id\": \"fire_watch\", \"category\": Item.Category.CHEST, \"size\": Vector2i(2, 2), \"power\": 1.6, \"region\": \"snow\","
  ],
  "安全袋": [
-  "game/keybinds.gd:56",
+  "game/keybinds.gd:55",
   "const FIXED := [[\"攻击 / 移动 / 拾取 / 选择\", \"左键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
  ],
  "安全袋 +1 行": [
@@ -4344,7 +4596,7 @@
   "\"field_4\": [\"加固安全袋\", 4, \"safe_row\", \"安全袋 +1 行\", [\"field_3\", \"logistics_3\", \"@safe_2\"], {}],"
  ],
  "安全袋保全": [
-  "game/game_manager.gd:1660",
+  "game/game_manager.gd:1692",
   "elif safe_bag.items.has(item): reason = \"安全袋保全\""
  ],
  "安全袋扩容 3×3": [
@@ -4356,8 +4608,12 @@
   "\"safe_2\": \"安全袋扩容二\", \"exchange\": \"交易所\", \"roster_3\": \"名册 3 人\", \"lungmen_r5\": \"龙门商会 R5\"}"
  ],
  "安全袋扩容到": [
-  "game/game_manager.gd:2470",
+  "game/game_manager.gd:2506",
   "set_message(\"安全袋扩容到 %d×%d。\" % [safe_bag.width, safe_bag.height])"
+ ],
+ "安全袋由博士随身携带，即使行动失败，袋中的物品也会保留。在背包中 Ctrl + 左键点击物品放入，或按安全袋键放入最近拾取的物品。": [
+  "ui/tutorial_card.gd:28",
+  "[\"safe_bag\", \"安全袋\", \"安全袋由博士随身携带，即使行动失败，袋中的物品也会保留。在背包中 Ctrl + 左键点击物品放入，或按安全袋键放入最近拾取的物品。\", \"放入安全袋\", \"field\"],"
  ],
  "安全袋由博士随身携带，撤退时也会带回。": [
   "ui/system_screens.gd:11",
@@ -4368,7 +4624,7 @@
   "var line := MarketWidgets.live(func(): return \"%s ×%d  ·  %s\" % [job.output, int(job.count), \"完成\" if int(job.due) <= BaseState.now() else ExchangeScreen._left(int(job.due) - BaseState.now())], 13)"
  ],
  "完整": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "完美的": [
@@ -4472,16 +4728,20 @@
   "right.add_child(AK.section(\"寄给罗德岛小队\", \"COLD CHAIN  R%d\" % game.exchange.rank(\"penguin\")))"
  ],
  "密室": [
-  "game/game_manager.gd:1243",
+  "game/game_manager.gd:1254",
   "set_message(\"密室\" if not guarded else \"密室：守卫者 %d\" % _vault_guardians.size())"
  ],
  "密室仍有": [
-  "game/game_manager.gd:4771",
+  "game/game_manager.gd:4820",
   "else: set_message(\"密室仍有 %d 名守卫者，宝箱尚未解封。\" % _vault_guardians.size())"
  ],
  "密室出现率 ×1.5": [
   "game/research_catalog.gd:142",
   "\"vaults\": [\"密室测绘\", \"M\", \"密室出现率 ×1.5\"],"
+ ],
+ "密室守卫者": [
+  "ui/tutorial_spotlight.gd:23",
+  "\"sealed\": [\"密室守卫者\", \"密室里的宝箱和藏品已被封印。击败全部守卫者后才能打开，守卫者中有一名精英。\", 64.0],"
  ],
  "密室宝箱": [
   "entities/loot_container.gd:112",
@@ -4508,7 +4768,7 @@
   "\"intel_6\": [\"地层回波测绘\", 6, \"vault_map\", \"密室范围上小地图\", [\"intel_5\", \"personnel_3\"], {}],"
  ],
  "密室藏品": [
-  "game/game_manager.gd:1540",
+  "game/game_manager.gd:1566",
   "if cache.game == self and near(cache): return \"密室藏品\" if cache.source == \"vault\" else \"战斗缴获\""
  ],
  "密室藏品 [E]": [
@@ -4520,15 +4780,19 @@
   "_label.text = (\"密室藏品 · 封印中\" if sealed else \"密室藏品 [E]\") if source == \"vault\" else \"战斗缴获 [E]\""
  ],
  "密室藏品仍被封印：先击败全部守卫者。": [
-  "game/game_manager.gd:1171",
+  "game/game_manager.gd:1179",
   "notice(\"密室藏品仍被封印：先击败全部守卫者。\")"
  ],
  "密室装备箱": [
   "entities/loot_container.gd:112",
   "if vault: return {\"vault_weapon\": \"密室武器箱\", \"vault_gear\": \"密室装备箱\", \"vault_base\": \"密室物资箱\"}.get(kind, \"密室宝箱\")"
  ],
+ "密室里的宝箱和藏品已被封印。击败全部守卫者后才能打开，守卫者中有一名精英。": [
+  "ui/tutorial_spotlight.gd:23",
+  "\"sealed\": [\"密室守卫者\", \"密室里的宝箱和藏品已被封印。击败全部守卫者后才能打开，守卫者中有一名精英。\", 64.0],"
+ ],
  "密室：守卫者": [
-  "game/game_manager.gd:1243",
+  "game/game_manager.gd:1254",
   "set_message(\"密室\" if not guarded else \"密室：守卫者 %d\" % _vault_guardians.size())"
  ],
  "密封泡沫": [
@@ -4596,8 +4860,12 @@
   "const CONTRACT_NAMES := {\"deep\": \"深入\", \"recover\": \"回收\", \"hunt\": \"猎杀\", \"search\": \"搜索\", \"recruit\": \"寻访\", \"deliver\": \"运送\"}"
  ],
  "寻访 ·": [
-  "game/game_manager.gd:4577",
+  "game/game_manager.gd:4626",
   "set_message(\"寻访 · %s 同意随行\" % name)"
+ ],
+ "寻访目标": [
+  "ui/tutorial_spotlight.gd:25",
+  "\"recruit\": [\"寻访目标\", \"博士，寻访目标就在前方，身边有守卫。击败守卫后按交互键与她会面；成功撤离后，她才会正式加入罗德岛。\", 60.0],"
  ],
  "封装矿料": [
   "game/field_catalog.gd:315",
@@ -4608,7 +4876,7 @@
   "\"text\": \"射程 +%s 米。\"},"
  ],
  "将带入": [
-  "ui/base_screens.gd:358",
+  "ui/base_screens.gd:362",
   "_section(stage, \"将带入\", \"CARRY-IN\", Vector2(16, carry_y + 14))"
  ],
  "小": [
@@ -4620,7 +4888,7 @@
   "\"微型电机\": {\"star\": 4, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"stack\": 3, \"size\": Vector2i(2, 2), \"value\": 60, \"text\": \"小型电动机，驱动无人机和机械臂。\"},"
  ],
  "小时": [
-  "game/game_manager.gd:1797",
+  "game/game_manager.gd:1829",
   "(\"%.1f 小时\" % hours) if hours < 48 else (\"%d 天\" % roundi(hours / 24)), int(c.get(\"fill\", 0)), int(c.get(\"liquidation\", 0)),"
  ],
  "小腿扎紧，跑起来不绊脚。": [
@@ -4628,7 +4896,7 @@
   "\"icon\": \"mine_legs_2\", \"text\": \"小腿扎紧，跑起来不绊脚。\"},"
  ],
  "小队不在附近": [
-  "game/game_manager.gd:1562",
+  "game/game_manager.gd:1588",
   "if in_base or encounter != \"squad\" or encounter_used or not near(world_map.encounter_node): return \"小队不在附近\""
  ],
  "小队价格倍率 −": [
@@ -4684,11 +4952,11 @@
   "stats.add_child(_pair(\"层\", str(game.floor_number), AK.FG))"
  ],
  "层 ·": [
-  "game/game_manager.gd:1272",
+  "game/game_manager.gd:1296",
   "set_message(\"进入第 %d 层 · %s；上一层已无法返回。\" % [floor_number, FieldCatalog.ROUTES[route].name])"
  ],
  "层数": [
-  "ui/base_screens.gd:136",
+  "ui/base_screens.gd:140",
   "_section(stage, \"层数\", \"FLOORS\", Vector2(248, TOP + 8))"
  ],
  "层营地": [
@@ -4696,7 +4964,7 @@
   "if deepest_camp() < ResearchCatalog.camp_needed(id): return \"需要第 %d 层营地\" % ResearchCatalog.camp_needed(id)"
  ],
  "层）": [
-  "entities/player.gd:1193",
+  "entities/player.gd:1170",
   "message_requested.emit(\"圆石祭坛：攻击力与防御 +5%%（%d 层）\" % altar_stacks)"
  ],
  "屏幕上的你一直在原地。": [
@@ -4707,6 +4975,10 @@
   "game/gear_catalog.gd:235",
   "\"icon\": \"city_x19\", \"text\": \"屏幕上还有信号，飞机不知道在哪。\"},"
  ],
+ "屏幕下方是快捷栏：闪避、技能和药剂都在这里。左键点击一个格子可以更换其中的内容；最右侧的自动格放急救剂，生命过低时会自动饮用。": [
+  "ui/tutorial_card.gd:33",
+  "[\"hotbar\", \"快捷栏\", \"屏幕下方是快捷栏：闪避、技能和药剂都在这里。左键点击一个格子可以更换其中的内容；最右侧的自动格放急救剂，生命过低时会自动饮用。\", \"\", \"field\"],"
+ ],
  "屏息": [
   "game/skill_trees.gd:170",
   "\"steady\": {\"name\": \"屏息\", \"type\": \"passive\", \"tier\": 0, \"max\": 5,"
@@ -4716,7 +4988,7 @@
   "\"grey_order\": {\"name\": \"灰色秩序\", \"region\": \"city\", \"pieces\": [\"set_grey_order_0\", \"set_grey_order_1\", \"set_grey_order_2\"], \"two\": \"法抗 +8；生命低于 50% 时获得 20% 生命上限的屏障（冷却 20 秒）\", \"three\": \"屏障破碎时，半径 2.5 内 120%"
  ],
  "属实": [
-  "game/game_manager.gd:2860",
+  "game/game_manager.gd:2901",
   "headline[\"peek\"] = \"属实\" if bool(_rumor_of(headline).rumor.truth) else \"不实\""
  ],
  "属性": [
@@ -4755,6 +5027,10 @@
   "game/field_catalog.gd:253",
   "{\"name\": \"巡检支路\", \"detail\": \"低危险 / 常规掉落 / 敌人较少\", \"danger\": -3.0, \"reward\": 0.0},"
  ],
+ "巡逻队": [
+  "ui/tutorial_spotlight.gd:42",
+  "\"patrol\": [\"巡逻队\", \"威胁值涨满后，敌方会派出巡逻队搜捕博士。同一层里，后来的巡逻队会更强。\", 60.0],"
+ ],
  "工业补给箱": [
   "game/base_catalog.gd:153",
   "\"proc_crate\": {\"dept\": \"加工部\", \"count\": 1, \"material\": \"工业补给箱\", \"mult\": 1.5, \"weight\": 1},"
@@ -4779,8 +5055,12 @@
   "game/base_catalog.gd:132",
   "\"starter\": {\"dept\": \"工程部\", \"count\": 4, \"category\": Item.Category.MATERIAL, \"mult\": 1.3, \"weight\": 0},"
  ],
+ "工程部与科研部申请恢复运转，博士。": [
+  "game/story.gd:44",
+  "\"lines\": [[\"PRTS\", \"工程部与科研部申请恢复运转，博士。\"]],"
+ ],
  "工程部的搬运无人机到位：在货箱前可以全部开箱并归类。": [
-  "game/game_manager.gd:3178",
+  "game/game_manager.gd:3222",
   "set_message(\"工程部的搬运无人机到位：在货箱前可以全部开箱并归类。\")"
  ],
  "工程部说它能挡住大多数东西，医疗部说别信。": [
@@ -4788,8 +5068,12 @@
   "\"icon\": \"rhodes_protective_vest\", \"text\": \"工程部说它能挡住大多数东西，医疗部说别信。\"},"
  ],
  "左键": [
-  "game/keybinds.gd:56",
+  "game/keybinds.gd:55",
   "const FIXED := [[\"攻击 / 移动 / 拾取 / 选择\", \"左键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
+ ],
+ "左键 /": [
+  "ui/tutorial_card.gd:305",
+  "\"pickup\": return \"左键 / %s\" % Keybinds.short_label(\"show_items\")"
  ],
  "巨型的": [
   "game/prefix_catalog.gd:111",
@@ -4816,7 +5100,7 @@
   "if take_l + take_g > 0.0: _say(\"差价合约待入账 %s 龙门币已到账\" % Economy.format(roundi(take_l + take_g)), \"cap\")"
  ],
  "已上架：": [
-  "game/game_manager.gd:2632",
+  "game/game_manager.gd:2671",
   "set_message(\"已上架：%s（%s区 %d/%d）\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[category], base.shelf_count(category), base.capacity(category)])"
  ],
  "已习得": [
@@ -4824,7 +5108,7 @@
   "if str(data.get(\"type\", \"\")) == \"transmuter\": return \"已习得\" if rank > 0 else \"未习得\""
  ],
  "已交付": [
-  "game/game_manager.gd:3126",
+  "game/game_manager.gd:3170",
   "else: set_message(\"已交付 %s ×%d：%s 还差 %d\" % [item.item_name, int(result.used), text, base.orders.remaining(slot)])"
  ],
  "已交接": [
@@ -4832,11 +5116,11 @@
   "if str(order.state) == \"delivered\": return \"已交接\""
  ],
  "已使用": [
-  "game/game_manager.gd:2873",
+  "game/game_manager.gd:2914",
   "if job.get(\"flux\", false): return \"已使用\""
  ],
  "已入职": [
-  "ui/base_screens.gd:278",
+  "ui/base_screens.gd:282",
   "var status := \"已入职\""
  ],
  "已到收货区": [
@@ -4844,11 +5128,15 @@
   "_say(\"收货完成：%s ×%d 已到收货区\" % [f.material, int(f.count)], \"delivery\")"
  ],
  "已升级": [
-  "game/game_manager.gd:2313",
+  "game/game_manager.gd:2349",
   "if base.camp_upgraded: return \"已升级\""
  ],
+ "已发现撤离信标。进入撤离区域并停留数秒即可撤离，携带的物品将一同带回罗德岛。": [
+  "ui/tutorial_spotlight.gd:30",
+  "\"extraction\": [\"撤离信标\", \"已发现撤离信标。进入撤离区域并停留数秒即可撤离，携带的物品将一同带回罗德岛。\", 72.0],"
+ ],
  "已售出": [
-  "game/game_manager.gd:2106",
+  "game/game_manager.gd:2140",
   "if entry.sold: return \"已售出\""
  ],
  "已在境内": [
@@ -4860,11 +5148,11 @@
   "if not to in VoyageCatalog.ANCHORS or to == place(): return \"已在此地\""
  ],
  "已处理": [
-  "game/game_manager.gd:3964",
+  "game/game_manager.gd:4008",
   "if features.camp_cleansed: return \"已处理\""
  ],
  "已存回": [
-  "game/game_manager.gd:2479",
+  "game/game_manager.gd:2515",
   "if stored > 0: set_message(\"已存回 %d 件材料。\" % stored)"
  ],
  "已完成": [
@@ -4872,31 +5160,35 @@
   "if is_done(id): return \"已完成\""
  ],
  "已完成撤离。": [
-  "game/game_manager.gd:1753",
-  "broadcast(\"PRTS：博士与%s已完成撤离。\" % who if extracted else \"PRTS：回收队已接回博士与%s。\" % who)"
+  "game/game_manager.gd:1785",
+  "broadcast(\"PRTS：博士与%s已完成撤离。\" % who if extracted else \"PRTS：罗德岛小队已接回博士与%s。\" % who)"
  ],
  "已寄存": [
-  "game/game_manager.gd:2298",
+  "game/game_manager.gd:2334",
   "set_message(\"已寄存 %s：送到基地暂存区。\" % item.display_name())"
  ],
  "已就位": [
-  "game/game_manager.gd:2448",
+  "game/game_manager.gd:2484",
   "if base.drone: return \"已就位\""
  ],
  "已就位。": [
-  "game/game_manager.gd:993",
+  "game/game_manager.gd:995",
   "broadcast(\"PRTS：博士，%s已就位。\" % Operators.info(player.operator_id).name)"
  ],
  "已投保": [
-  "game/game_manager.gd:1564",
+  "game/game_manager.gd:1590",
   "if service == \"insure\" and item.insured: return \"已投保\""
  ],
  "已投保。": [
-  "game/game_manager.gd:1577",
+  "game/game_manager.gd:1603",
   "set_message(\"罗德岛小队：%s 已投保。\" % item.item_name)"
  ],
+ "已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。": [
+  "ui/tutorial_card.gd:21",
+  "[\"kill\", \"接敌\", \"已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。\", \"击败一个敌人\", \"field\"],"
+ ],
  "已拥有": [
-  "game/game_manager.gd:2108",
+  "game/game_manager.gd:2142",
   "if entry.kind == \"relic\" and builds.has(entry.relic.id): return \"已拥有\""
  ],
  "已探索": [
@@ -4904,23 +5196,23 @@
   "var explored := \"已探索 %d%%\" % roundi(game.fog.revealed_fraction() * 100.0)"
  ],
  "已接入": [
-  "game/game_manager.gd:3199",
+  "game/game_manager.gd:3243",
   "if base.is_connected_to_hub(id): return \"已接入\""
  ],
  "已接入基建总控台。": [
-  "game/game_manager.gd:3212",
+  "game/game_manager.gd:3256",
   "set_message(\"%s已接入基建总控台。\" % BaseCatalog.facility_name(id))"
  ],
  "已放弃订单：下次结算后补上新订单。": [
-  "game/game_manager.gd:3132",
+  "game/game_manager.gd:3176",
   "set_message(\"已放弃订单：下次结算后补上新订单。\")"
  ],
  "已是该族": [
-  "game/game_manager.gd:2810",
+  "game/game_manager.gd:2851",
   "if PrefixFamilies.family_of(str(entry.id)) == family: return \"已是该族\""
  ],
  "已有寄出的补给": [
-  "game/provisions.gd:265",
+  "game/provisions.gd:267",
   "if not mailed().is_empty(): return \"已有寄出的补给\""
  ],
  "已满": [
@@ -4928,11 +5220,11 @@
   "if r >= SkillTrees.max_rank(data): return \"已满\""
  ],
  "已满级": [
-  "game/base_state.gd:231",
+  "game/base_state.gd:238",
   "if step.is_empty(): return \"已满级\""
  ],
  "已满配": [
-  "game/base_state.gd:377",
+  "game/base_state.gd:385",
   "if level + 1 >= prices.size(): return \"已满配\""
  ],
  "已种植": [
@@ -4940,7 +5232,7 @@
   "if not plot(i).is_empty(): return \"已种植\""
  ],
  "已签订": [
-  "game/research.gd:157",
+  "game/research.gd:158",
   "if projects().has(project): return \"已签订\""
  ],
  "已精英 2": [
@@ -4960,7 +5252,7 @@
   "if not headline.is_empty(): headline.status = \"已证实\""
  ],
  "已转移：": [
-  "game/game_manager.gd:2515",
+  "game/game_manager.gd:2551",
   "set_message(\"已转移：%s\" % item.item_name)"
  ],
  "已辟谣": [
@@ -4976,7 +5268,7 @@
   "_stop_stay(\"已达上限\")"
  ],
  "已送回基地暂存区。": [
-  "game/game_manager.gd:1592",
+  "game/game_manager.gd:1618",
   "set_message(\"罗德岛小队：%s 已送回基地暂存区。\" % item.item_name)"
  ],
  "巷子太窄，长刀转不开身。": [
@@ -5040,16 +5332,36 @@
   "\"icon\": \"mine_head_1\", \"text\": \"帽檐的灯夹空着，灯早就换了钱。\"},"
  ],
  "干员": [
-  "game/keybinds.gd:46",
+  "game/keybinds.gd:45",
   "[\"toggle_operator\", \"干员\", \"界面\", {\"key\": KEY_C}, null],"
  ],
  "干员 C": [
   "ui/inventory_panel.gd:229",
   "var train := AK.button(\"干员 C\" + (\" · %d\" % points if points > 0 else \"\"), \"yellow\" if points > 0 else \"plain\", 11)"
  ],
+ "干员倒下，罗德岛小队已接回博士。安全袋里的物品全部保留；身上和背包里没有投保的物品遗失；投保的装备会在 2 到 4 小时后由罗德岛小队送回收货区。倒下的干员带着重伤，可在医疗前台治疗。": [
+  "ui/tutorial_spotlight.gd:51",
+  "\"death\": [\"撤退\", \"干员倒下，罗德岛小队已接回博士。安全袋里的物品全部保留；身上和背包里没有投保的物品遗失；投保的装备会在 2 到 4 小时后由罗德岛小队送回收货区。倒下的干员带着重伤，可在医疗前台治疗。\", 0.0],"
+ ],
  "干员名册": [
   "ui/base_hud.gd:134",
   "return \"可寻访 %d\" % ready if ready > 0 else \"干员名册\""
+ ],
+ "干员技能": [
+  "ui/tutorial_card.gd:23",
+  "[\"skill\", \"干员技能\", \"每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。\", \"施放一次技能\", \"field\"],"
+ ],
+ "干员档案": [
+  "ui/tutorial_card.gd:29",
+  "[\"operator\", \"干员档案\", \"干员档案里可以查看属性，并分配升级获得的属性点和技能点。\", \"打开干员面板\", \"field\"],"
+ ],
+ "干员档案里可以查看属性，并分配升级获得的属性点和技能点。": [
+  "ui/tutorial_card.gd:29",
+  "[\"operator\", \"干员档案\", \"干员档案里可以查看属性，并分配升级获得的属性点和技能点。\", \"打开干员面板\", \"field\"],"
+ ],
+ "干员正在污染区中暴露。污染达到 60 时生命上限降低、自然回复减半，90 时开始持续掉血。抑制喷剂、净化喷淋和营地都可以降低污染。": [
+  "ui/tutorial_spotlight.gd:47",
+  "\"contamination\": [\"源石污染\", \"干员正在污染区中暴露。污染达到 60 时生命上限降低、自然回复减半，90 时开始持续掉血。抑制喷剂、净化喷淋和营地都可以降低污染。\", 0.0],"
  ],
  "干员每使用过一次技能，自身攻击力+5%，最多叠加40层": [
   "game/relic_catalog.gd:68",
@@ -5072,7 +5384,7 @@
   "_r(\"《光耀卡西米尔》\", \"attack\", 1, \"干员触发闪避后6秒内攻击力+70%\", \"闪避一次攻击后 6 秒内攻击力 +70%\", {}, {\"evade_atk\": 0.70}),"
  ],
  "干扰地雷": [
-  "game/game_manager.gd:1546",
+  "game/game_manager.gd:1572",
   "if is_instance_valid(arena) and not arena.mine_near(player.global_position).is_empty(): return \"干扰地雷\""
  ],
  "平仓": [
@@ -5124,7 +5436,7 @@
   "\"L\": {\"name\": \"应急强心针\", \"price\": 5000, \"store\": 5, \"line\": \"closure\", \"cap\": 1, \"text\": \"放在背包里即生效：受到致命伤害时保留 1 点生命并回复生命上限的 25%；每份合同 1 次，之后 30 秒生命回复停止\","
  ],
  "应急强心针放在背包里就会生效": [
-  "game/game_manager.gd:3373",
+  "game/game_manager.gd:3417",
   "notice(\"应急强心针放在背包里就会生效\")"
  ],
  "应急强心针生效": [
@@ -5136,8 +5448,28 @@
   "_p(\"abandoned\", -2, W, \"废弃的\", \"Abandoned\", {\"atk_pct\": -0.10, \"crit\": -0.02}, {\"region\": \"mine\"})"
  ],
  "建成": [
-  "ui/base_screens.gd:483",
+  "ui/base_screens.gd:487",
   "func(): return game.upgrade_facility(id, remote)], redraw, width, \"建成\" if level == 0 else \"升级\", \"facility\", id)"
+ ],
+ "建成交易所": [
+  "game/story.gd:51",
+  "\"goals\": [[\"exchange\", \"建成交易所\"]]},"
+ ],
+ "建成农业部并播种一次": [
+  "game/story.gd:48",
+  "\"goals\": [[\"lift\", \"乘升降梯去二层\"], [\"sowed\", \"建成农业部并播种一次\"], [\"meal\", \"建成食堂，出发前用一次餐\"]]},"
+ ],
+ "建成基建总控台": [
+  "game/story.gd:33",
+  "\"goals\": [[\"hub_parts\", \"备齐电线×2、继电器×1、灯泡×2\"], [\"hub_built\", \"建成基建总控台\"], [\"hub_link\", \"把仓储部接入总控台\"]]},"
+ ],
+ "建成科研部并开始一项研究": [
+  "game/story.gd:45",
+  "\"goals\": [[\"crafted\", \"在加工站完成一次加工\"], [\"researching\", \"建成科研部并开始一项研究\"]]},"
+ ],
+ "建成食堂，出发前用一次餐": [
+  "game/story.gd:48",
+  "\"goals\": [[\"lift\", \"乘升降梯去二层\"], [\"sowed\", \"建成农业部并播种一次\"], [\"meal\", \"建成食堂，出发前用一次餐\"]]},"
  ],
  "建材": [
   "game/material_catalog.gd:71",
@@ -5148,11 +5480,11 @@
   "\"construction\": {\"name\": \"建材堆\", \"color\": Color(\"8a7a5c\"), \"region\": {\"mine\": 2.0, \"city\": 1.0, \"snow\": 1.0, \"siracusa\": 0.5}, \"base\": true},"
  ],
  "建造": [
-  "ui/base_screens.gd:518",
+  "ui/base_screens.gd:522",
   "static func _project_row(menu: FieldMenu, stage: Control, at: Vector2, row: Array, redraw: Callable, width: float = 396.0, verb: String = \"建造\", meta_key: String = \"project\", meta_value: Variant = null"
  ],
  "开": [
-  "ui/base_screens.gd:760",
+  "ui/base_screens.gd:764",
   "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
  ],
  "开仓": [
@@ -5176,7 +5508,7 @@
   "var go := AK.button(\"开始加工\", \"blue\" if refusal.is_empty() else \"plain\", 15)"
  ],
  "开始加工。": [
-  "game/game_manager.gd:1912",
+  "game/game_manager.gd:1945",
   "set_message(\"加工部：%s ×%d 开始加工。\" % [output, count])"
  ],
  "开始唤醒": [
@@ -5200,7 +5532,7 @@
   "1: {\"enemies\": 0, \"elites\": 0, \"note\": \"开局层，照地区基准\"},"
  ],
  "开箱": [
-  "ui/base_screens.gd:1022",
+  "ui/base_screens.gd:1031",
   "AK.put(stage, AK.label(\"开箱\", 24, AK.FG), Vector2(284, 166))"
  ],
  "开箱（": [
@@ -5238,6 +5570,10 @@
  "弓是自己做的，弦是猎物给的。": [
   "game/gear_catalog.gd:332",
   "\"form\": \"bow\", \"icon\": \"sami_hunting_bow\", \"text\": \"弓是自己做的，弦是猎物给的。\"},"
+ ],
+ "引导完成": [
+  "ui/tutorial_card.gd:204",
+  "_title.text = \"引导完成\""
  ],
  "张口": [
   "game/enemy_attacks.gd:45",
@@ -5312,8 +5648,12 @@
   "\"medical_c4\": [\"强化体质\", 4, \"\", \"生命 +3%\", [\"medical_c2\", \"medical_2\", \"personnel_c1\"], {\"hp\": 0.03}],"
  ],
  "强化装置": [
-  "game/game_manager.gd:1547",
+  "game/game_manager.gd:1573",
   "if near(world_map.buff_device_node) and not _buff_taken: return \"强化装置\""
+ ],
+ "强化装置可以使用一次。按交互键从几件藏品中选择一件，效果持续到本次行动结束。": [
+  "ui/tutorial_spotlight.gd:32",
+  "\"device\": [\"强化装置\", \"强化装置可以使用一次。按交互键从几件藏品中选择一件，效果持续到本次行动结束。\", 56.0],"
  ],
  "强平": [
   "ui/exchange_screen.gd:562",
@@ -5330,6 +5670,10 @@
  "强韧的": [
   "game/prefix_catalog.gd:160",
   "_p(\"tough\", 2, T, \"强韧的\", \"Tough\", {\"hp_pct\": 0.11})"
+ ],
+ "归舰": [
+  "game/story.gd:23",
+  "{\"id\": \"return\", \"title\": \"归舰\", \"after\": [\"wake\"],"
  ],
  "当了三回，赎了三回。": [
   "game/gear_catalog.gd:448",
@@ -5384,7 +5728,7 @@
   "body.add_child(MarketWidgets.live(func(): return \"今日额度 %s / %s   待入账 %s\" % [Economy.format(roundi(ex.cfd_day.used)), Economy.format(roundi(ex.cfd_cap())), Economy.format(roundi(ex.cfd_pending()))], 11"
  ],
  "待证实": [
-  "game/game_manager.gd:2854",
+  "game/game_manager.gd:2895",
   "if str(headline.get(\"status\", \"\")) != \"待证实\" or headline.has(\"peek\") or _rumor_of(headline).is_empty(): return \"无法查证\""
  ],
  "待调弦的怒火": [
@@ -5424,39 +5768,39 @@
   "\"mi_brawler_10\": {\"name\": \"快拳绑带\", \"kind\": \"exclusive\", \"category\": Item.Category.AMULET, \"size\": Vector2i(1, 1), \"power\": 1.6, \"region\": \"city\", \"source_enemy\": \"brawler\","
  ],
  "快捷栏": [
-  "game/keybinds.gd:18",
+  "game/keybinds.gd:21",
   "[\"hotbar_1\", \"快捷栏 1\", \"快捷栏\", {\"mouse\": MOUSE_BUTTON_RIGHT}, null],"
  ],
  "快捷栏 1": [
-  "game/keybinds.gd:18",
+  "game/keybinds.gd:21",
   "[\"hotbar_1\", \"快捷栏 1\", \"快捷栏\", {\"mouse\": MOUSE_BUTTON_RIGHT}, null],"
  ],
  "快捷栏 2": [
-  "game/keybinds.gd:19",
+  "game/keybinds.gd:22",
   "[\"hotbar_2\", \"快捷栏 2\", \"快捷栏\", {\"key\": KEY_SPACE}, null],"
  ],
  "快捷栏 3": [
-  "game/keybinds.gd:20",
+  "game/keybinds.gd:23",
   "[\"hotbar_3\", \"快捷栏 3\", \"快捷栏\", {\"key\": KEY_Q}, null],"
  ],
  "快捷栏 4": [
-  "game/keybinds.gd:21",
+  "game/keybinds.gd:24",
   "[\"hotbar_4\", \"快捷栏 4\", \"快捷栏\", {\"key\": KEY_1}, null],"
  ],
  "快捷栏 5": [
-  "game/keybinds.gd:22",
+  "game/keybinds.gd:25",
   "[\"hotbar_5\", \"快捷栏 5\", \"快捷栏\", {\"key\": KEY_2}, null],"
  ],
  "快捷栏 6": [
-  "game/keybinds.gd:23",
+  "game/keybinds.gd:26",
   "[\"hotbar_6\", \"快捷栏 6\", \"快捷栏\", {\"key\": KEY_3}, null],"
  ],
  "快捷栏 7": [
-  "game/keybinds.gd:24",
+  "game/keybinds.gd:27",
   "[\"hotbar_7\", \"快捷栏 7\", \"快捷栏\", {\"key\": KEY_4}, null],"
  ],
  "快捷栏 8": [
-  "game/keybinds.gd:25",
+  "game/keybinds.gd:28",
   "[\"hotbar_8\", \"快捷栏 8\", \"快捷栏\", {\"key\": KEY_5}, null],"
  ],
  "快讯": [
@@ -5492,7 +5836,7 @@
   "ExchangeScreen._number(stage, \"总花费\", budget, 0, BUDGET_STEP, 0,"
  ],
  "恢复默认": [
-  "ui/base_screens.gd:833",
+  "ui/base_screens.gd:842",
   "var reset := AK.button(\"恢复默认\", \"plain\", 12)"
  ],
  "恶魔的": [
@@ -5508,7 +5852,7 @@
   "\"prefixes\": [[\"knightly\", \"骑士的\", \"Knightly\", \"W\"], [\"hunter_a\", \"猎首的\", \"Headhunting\", \"A\"], [\"hunter_t\", \"悬赏的\", \"Bountied\", \"T\"]],"
  ],
  "悬赏目标在本层。": [
-  "game/game_manager.gd:1275",
+  "game/game_manager.gd:1299",
   "if is_bounty_floor(): broadcast(\"悬赏目标在本层。\")"
  ],
  "悬赏：精英死亡时技能冷却清零，5 秒内攻速 +20": [
@@ -5560,7 +5904,7 @@
   "\"icon\": \"city_ring_3\", \"text\": \"戒面上的盾什么也没刻。\"},"
  ],
  "战利品仍被封印：先击败全部守卫者。": [
-  "game/game_manager.gd:5424",
+  "game/game_manager.gd:5490",
   "notice(\"战利品仍被封印：先击败全部守卫者。\")"
  ],
  "战地包扎": [
@@ -5600,7 +5944,7 @@
   "_r(\"友谊之证\", \"fortune\", 0, \"战斗掉落的源石锭+30%\", \"掉落的赤金 +30%\", {\"gold_pct\": 0.30}),"
  ],
  "战斗缴获": [
-  "game/game_manager.gd:1540",
+  "game/game_manager.gd:1566",
   "if cache.game == self and near(cache): return \"密室藏品\" if cache.source == \"vault\" else \"战斗缴获\""
  ],
  "战斗缴获 [E]": [
@@ -5608,7 +5952,7 @@
   "_label.text = (\"密室藏品 · 封印中\" if sealed else \"密室藏品 [E]\") if source == \"vault\" else \"战斗缴获 [E]\""
  ],
  "战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。": [
-  "game/game_manager.gd:4762",
+  "game/game_manager.gd:4811",
   "set_message(\"战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。\")"
  ],
  "战术兴奋剂": [
@@ -5908,15 +6252,15 @@
   "if base.hand: set_message(\"手上拿着 %s：走到%s区的地面框里按 E 上架，或放进暂存区。\" % [base.hand.item_name, BaseCatalog.CATEGORY_NAMES[base.hand.category]])"
  ],
  "手上没有东西。": [
-  "game/base_state.gd:572",
+  "game/base_state.gd:580",
   "if hand == null: return \"手上没有东西。\""
  ],
  "手上的": [
-  "game/game_manager.gd:3274",
+  "game/game_manager.gd:3318",
   "if base.hand: out.append(\"手上的 %s 会放回原处\" % base.hand.item_name)"
  ],
  "手上的物品已放回原处。": [
-  "game/game_manager.gd:984",
+  "game/game_manager.gd:986",
   "if base.return_hand(): set_message(\"手上的物品已放回原处。\")"
  ],
  "手持定位仪": [
@@ -5947,6 +6291,26 @@
   "game/enemy_attacks.gd:16",
   "\"slug\": {\"name\": \"源石虫\", \"attack\": \"扑咬\", \"row\": 2, \"windup\": 0.8, \"interval\": 1.15, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.2, \"width\": 1.2, \"dash\": 1.6, \"recoil\": 1.2, \"recovery\": 0.25},"
  ],
+ "打开合同面板": [
+  "ui/tutorial_card.gd:31",
+  "[\"journal\", \"合同目标\", \"合同面板显示本次合同的目标进度，以及基地各部门的订单需求。\", \"打开合同面板\", \"field\"],"
+ ],
+ "打开地图": [
+  "ui/tutorial_card.gd:32",
+  "[\"map\", \"作战地图\", \"地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。\", \"打开地图\", \"field\"],"
+ ],
+ "打开干员面板": [
+  "ui/tutorial_card.gd:29",
+  "[\"operator\", \"干员档案\", \"干员档案里可以查看属性，并分配升级获得的属性点和技能点。\", \"打开干员面板\", \"field\"],"
+ ],
+ "打开背包": [
+  "ui/tutorial_card.gd:26",
+  "[\"inventory\", \"携带物品\", \"物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。\", \"打开背包\", \"field\"],"
+ ],
+ "打开藏品面板": [
+  "ui/tutorial_card.gd:30",
+  "[\"relics\", \"藏品\", \"本次行动获得的藏品都记录在这里，点击即可查看效果；图鉴页收录全部藏品。\", \"打开藏品面板\", \"field\"],"
+ ],
  "托运": [
   "ui/exchange_screen.gd:695",
   "_go(right, \"托运\", q.ok, func():"
@@ -5972,11 +6336,11 @@
   "var label := \"%s扩容 %d×%d → %d×%d  %d + %s\" % [title, now.x, now.y, next.x, next.y, int(prices[level + 1]), BaseCatalog.cost_text(game.upgrade_cost(kind))] + (\"\" if refusal.is_empty() else \"（%s）\" % ref"
  ],
  "扩建第": [
-  "ui/base_screens.gd:398",
+  "ui/base_screens.gd:402",
   "label = \"扩建第 %d 个货架  %s%s\" % [slot + 1, Economy.format(BaseCatalog.RACK_PRICES[slot]), \"\" if cost.is_empty() else \" + \" + BaseCatalog.cost_text(cost)]"
  ],
  "扩建货架": [
-  "ui/base_screens.gd:401",
+  "ui/base_screens.gd:405",
   "build.set_meta(\"label\", \"扩建货架\")"
  ],
  "扭转醇": [
@@ -6103,6 +6467,14 @@
   "ui/inventory_panel.gd:460",
   "_confirm.dialog_text = \"把 %s 丢到地面？\" % item.display_name()"
  ],
+ "把一件物品送上上架区": [
+  "game/story.gd:26",
+  "\"goals\": [[\"crate\", \"在收货区打开一个货箱\"], [\"shelve\", \"把一件物品送上上架区\"], [\"order\", \"在出库区完成一张订单\"], [\"treat\", \"在医疗前台治疗重伤\"]],"
+ ],
+ "把仓储部接入总控台": [
+  "game/story.gd:33",
+  "\"goals\": [[\"hub_parts\", \"备齐电线×2、继电器×1、灯泡×2\"], [\"hub_built\", \"建成基建总控台\"], [\"hub_link\", \"把仓储部接入总控台\"]]},"
+ ],
  "抑": [
   "ui/hud.gd:122",
   "if game._suppress_timer > 0.0: badges.append([\"抑\", AK.ORI, \"%ds\" % ceili(game._suppress_timer)])"
@@ -6120,7 +6492,7 @@
   "{\"price\": 25000, \"materials\": {\"家具零件\": 3, \"灯泡\": 2}, \"opens\": \"抑制喷剂 · 镇静合剂 · 战术兴奋剂 · 精制随队物资\"},"
  ],
  "抑制喷剂：回复": [
-  "game/game_manager.gd:3397",
+  "game/game_manager.gd:3441",
   "set_message(\"抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半\" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])"
  ],
  "抑制的": [
@@ -6132,7 +6504,7 @@
   "var services := [[\"投保\", \"INSURE\", \"insure\", AK.HP], [\"送回\", \"SEND HOME\", \"send\", AK.GREEN]]"
  ],
  "投保物品送回": [
-  "game/game_manager.gd:1749",
+  "game/game_manager.gd:1781",
   "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
  ],
  "投保的装备没带出局就会在 2–4 小时后送回；带出来保险不失效。": [
@@ -6140,7 +6512,7 @@
   "\"投保的装备没带出局就会在 2–4 小时后送回；带出来保险不失效。\","
  ],
  "投保送回": [
-  "game/game_manager.gd:1661",
+  "game/game_manager.gd:1693",
   "elif item.insured: reason = \"投保送回\""
  ],
  "投币玩具": [
@@ -6220,7 +6592,7 @@
   "\"text\": \"抱住它的人会后悔。\", \"source\": \"坚壁 4 共鸣的荆棘\"},"
  ],
  "抵挡": [
-  "entities/player.gd:1099",
+  "entities/player.gd:1076",
   "if is_instance_valid(game): DamageNumber.spawn(game, global_position, \"抵挡\", \"shield\")"
  ],
  "抵达": [
@@ -6228,7 +6600,7 @@
   "\"deep\": return \"抵达 %s 后撤离\" % AK.floor_code(region, start_floor + int(contract.steps))"
  ],
  "抵达营地": [
-  "game/game_manager.gd:2174",
+  "game/game_manager.gd:2209",
   "set_message(\"抵达营地 %d|%d。\" % [floor_number, floor_number + 1])"
  ],
  "押运员护腕": [
@@ -6296,11 +6668,11 @@
   "\"city_r3\": {\"name\": \"拉特兰走私手铳\", \"region\": \"city\", \"category\": W, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.CRIT_DMG, 0.10], [S.CRIT_RATE, 0.03]],"
  ],
  "拉近视角": [
-  "game/keybinds.gd:35",
+  "game/keybinds.gd:34",
   "[\"camera_zoom_in\", \"拉近视角\", \"视角\", {\"mouse\": MOUSE_BUTTON_WHEEL_UP}, null],"
  ],
  "拉远视角": [
-  "game/keybinds.gd:36",
+  "game/keybinds.gd:35",
   "[\"camera_zoom_out\", \"拉远视角\", \"视角\", {\"mouse\": MOUSE_BUTTON_WHEEL_DOWN}, null],"
  ],
  "拓荒者合同大批到期": [
@@ -6308,7 +6680,7 @@
   "\"C19\": {\"region\": \"哥伦比亚\", \"kind\": \"breaking\", \"hours\": 48, \"weight\": 2, \"title\": \"拓荒者合同大批到期\", \"effects\": [{\"sel\": \"rhine:medical\", \"mult\": 0.9}, {\"sel\": \"kazimierz:build\", \"mult\": 0.95}]},"
  ],
  "拖动旋转视角": [
-  "game/keybinds.gd:41",
+  "game/keybinds.gd:40",
   "[\"camera_drag\", \"拖动旋转视角\", \"视角\", {\"mouse\": MOUSE_BUTTON_MIDDLE}, null],"
  ],
  "招架的": [
@@ -6368,11 +6740,15 @@
   "\"mine_x09\": {\"name\": \"拼装轻甲\", \"region\": \"mine\", \"category\": A, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.DEF_FLAT, 10.0]],"
  ],
  "拾取": [
-  "game/game_manager.gd:2489",
+  "game/game_manager.gd:2525",
   "set_message(\"拾取 %s ×%d\" % [item.display_name(), before])"
  ],
+ "拾取一件物品": [
+  "ui/tutorial_card.gd:25",
+  "[\"pickup\", \"物资回收\", \"地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。\", \"拾取一件物品\", \"field\"],"
+ ],
  "拾取过滤：": [
-  "game/game_manager.gd:2339",
+  "game/game_manager.gd:2375",
   "set_message(\"拾取过滤：%s\" % PICKUP_FILTER_NAMES[pickup_filter])"
  ],
  "拾荒者伪装衫": [
@@ -6380,15 +6756,19 @@
   "\"city_x12\": {\"name\": \"拾荒者伪装衫\", \"region\": \"city\", \"category\": A, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.DEF_FLAT, 10.0], [S.EVASION, 0.01]],"
  ],
  "拿到手上": [
-  "ui/base_screens.gd:1068",
+  "ui/base_screens.gd:1077",
   "var hand := AK.button(\"拿到手上\", \"blue\", 14)"
  ],
+ "拿着物品走进同类别的地面框，按交互键即可上架。空手站进框里按交互键，可以查看这一区的货架、扩建货架。": [
+  "ui/tutorial_spotlight.gd:58",
+  "\"base_zone\": [\"上架区\", \"拿着物品走进同类别的地面框，按交互键即可上架。空手站进框里按交互键，可以查看这一区的货架、扩建货架。\", 60.0],"
+ ],
  "拿起": [
-  "game/game_manager.gd:2620",
+  "game/game_manager.gd:2658",
   "set_message(\"拿起 %s：去%s区上架。\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[item.category]])"
  ],
  "拿起 ·": [
-  "ui/base_screens.gd:1028",
+  "ui/base_screens.gd:1037",
   "var take := AK.button(\"拿起 · %s %d/%d\" % [BaseCatalog.CATEGORY_NAMES[item.category], base.shelf_count(item.category), base.capacity(item.category)], \"blue\", 14)"
  ],
  "持仓": [
@@ -6452,11 +6832,11 @@
   "\"form\": \"blade\", \"icon\": \"switchblade\", \"text\": \"按一下就弹出来，像一句收不回去的话。\"},"
  ],
  "按下按键…": [
-  "ui/base_screens.gd:855",
+  "ui/base_screens.gd:864",
   "var text := \"按下按键…\" if waiting else Keybinds.label(binds[f[0]][which])"
  ],
  "按键设置": [
-  "ui/base_screens.gd:692",
+  "ui/base_screens.gd:696",
   "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
  ],
  "挡下来的，原样还回去。": [
@@ -6508,11 +6888,11 @@
   "const WORKBENCH_TABS := [\"换装\", \"改造\"]"
  ],
  "换装空间不足，物品均已保留。": [
-  "game/game_manager.gd:2531",
+  "game/game_manager.gd:2567",
   "notice(\"换装空间不足，物品均已保留。\")"
  ],
  "据点": [
-  "game/game_manager.gd:1149",
+  "game/game_manager.gd:1157",
   "\"post\": return FactionCatalog.name_of(post_faction) + \"据点\""
  ],
  "据点 · E": [
@@ -6520,19 +6900,19 @@
   "encounter_node = _set_piece(\"据点 · E\", encounter_position, Color(\"c48cff\"), ENCOUNTER_MODELS.trader)"
  ],
  "据点头目还在：入口封锁中。": [
-  "game/game_manager.gd:1196",
+  "game/game_manager.gd:1204",
   "notice(\"据点头目还在：入口封锁中。\")"
  ],
  "据点已击破，深入入口解封。": [
-  "game/game_manager.gd:4671",
+  "game/game_manager.gd:4720",
   "broadcast(\"据点已击破，深入入口解封。\")"
  ],
  "据点已击破：入口解封。": [
-  "game/game_manager.gd:4670",
+  "game/game_manager.gd:4719",
   "set_message(\"据点已击破：入口解封。\")"
  ],
  "掉落": [
-  "ui/base_screens.gd:189",
+  "ui/base_screens.gd:193",
   "_section(stage, \"掉落\", \"DROPS\", Vector2(x + 18, TOP + 154))"
  ],
  "掉落加成": [
@@ -6563,13 +6943,21 @@
   "game/skill_trees.gd:97",
   "\"true_after_kill\": {\"name\": \"接下来的伤害类型变为真实\", \"type\": \"modifier\", \"tier\": 1, \"max\": 1, \"parent\": \"shadow\","
  ],
+ "接下第一份合同出击": [
+  "game/story.gd:22",
+  "\"goals\": [[\"first_contract\", \"接下第一份合同出击\"]]},"
+ ],
  "接入": [
-  "ui/base_screens.gd:474",
+  "ui/base_screens.gd:478",
   "func(): return game.connect_facility(id)], redraw, width, \"接入\")"
  ],
  "接入基建总控台": [
-  "ui/base_screens.gd:473",
+  "ui/base_screens.gd:477",
   "_project_row(menu, stage, Vector2(at.x, y), [\"接入基建总控台\", \"\", int(BaseCatalog.CONNECT_COST.price), BaseCatalog.connect_materials(id), c_refusal,"
+ ],
+ "接敌": [
+  "ui/tutorial_card.gd:21",
+  "[\"kill\", \"接敌\", \"已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。\", \"击败一个敌人\", \"field\"],"
  ],
  "推土肩甲": [
   "game/special_gear.gd:81",
@@ -6627,6 +7015,10 @@
   "game/field_catalog.gd:23",
   "const CONTRACT_NAMES := {\"deep\": \"深入\", \"recover\": \"回收\", \"hunt\": \"猎杀\", \"search\": \"搜索\", \"recruit\": \"寻访\", \"deliver\": \"运送\"}"
  ],
+ "搜索一个容器": [
+  "ui/tutorial_card.gd:24",
+  "[\"search\", \"搜索\", \"作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。\", \"搜索一个容器\", \"field\"],"
+ ],
  "搜索仓库（名称或词缀，如“攻击力”“稀有”）": [
   "ui/field_menu.gd:295",
   "search.placeholder_text = \"搜索仓库（名称或词缀，如“攻击力”“稀有”）\""
@@ -6646,6 +7038,10 @@
  "携带时每块每秒污染 +0.06；安全袋也不能隔绝污染。": [
   "game/field_catalog.gd:271",
   "item.description = \"携带时每块每秒污染 +0.06；安全袋也不能隔绝污染。\""
+ ],
+ "携带物品": [
+  "ui/tutorial_card.gd:26",
+  "[\"inventory\", \"携带物品\", \"物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。\", \"打开背包\", \"field\"],"
  ],
  "摇一下，沙子就开始唱。": [
   "game/special_gear.gd:180",
@@ -6680,7 +7076,7 @@
   "exit_node = _marker(\"撤离 · E\", _grounded(exit_at, 0.15), Color(\"63eca7\"))"
  ],
  "撤离 · 可露希尔": [
-  "ui/base_screens.gd:171",
+  "ui/base_screens.gd:175",
   "camp.add_child(AK.label(\"撤离 · 可露希尔\", 11, AK.INK))"
  ],
  "撤离保障": [
@@ -6696,8 +7092,12 @@
   "\"logistics_6\": [\"自动分拣系统\", 6, \"auto_sort\", \"撤离后自动上架\", [\"logistics_4\", \"logistics_5\", \"intel_3\", \"@drone\"], {}],"
  ],
  "撤离带回": [
-  "game/game_manager.gd:1659",
+  "game/game_manager.gd:1691",
   "if extracted: reason = \"撤离带回\""
+ ],
+ "撤离带回的物资会装成货箱送到收货区。按交互键开箱，拿起物品送去对应的上架区，或者先放进暂存区。": [
+  "ui/tutorial_spotlight.gd:57",
+  "\"base_crate\": [\"收货区\", \"撤离带回的物资会装成货箱送到收货区。按交互键开箱，拿起物品送去对应的上架区，或者先放进暂存区。\", 52.0],"
  ],
  "撤离点": [
   "ui/field_panels.gd:235",
@@ -6706,6 +7106,10 @@
  "撤离点上小地图": [
   "game/research_catalog.gd:70",
   "\"intel_5\": [\"信标追踪\", 5, \"exit_map\", \"撤离点上小地图\", [\"intel_3\", \"field_3\"], {}],"
+ ],
+ "撤退": [
+  "ui/tutorial_spotlight.gd:51",
+  "\"death\": [\"撤退\", \"干员倒下，罗德岛小队已接回博士。安全袋里的物品全部保留；身上和背包里没有投保的物品遗失；投保的装备会在 2 到 4 小时后由罗德岛小队送回收货区。倒下的干员带着重伤，可在医疗前台治疗。\", 0.0],"
  ],
  "播种": [
   "ui/provision_screens.gd:108",
@@ -6723,12 +7127,16 @@
   "game/market/exchange.gd:540",
   "_log({\"kind\": \"forward\", \"what\": \"%s %s ×%d\" % [\"交货\" if deliver else \"收货\", material, count], \"faction\": faction, \"amount\": margin, \"currency\": currency})"
  ],
+ "收货区": [
+  "ui/tutorial_spotlight.gd:57",
+  "\"base_crate\": [\"收货区\", \"撤离带回的物资会装成货箱送到收货区。按交互键开箱，拿起物品送去对应的上架区，或者先放进暂存区。\", 52.0],"
+ ],
  "收货区仍有": [
-  "game/game_manager.gd:3279",
+  "game/game_manager.gd:3323",
   "if sealed > 0: parts.append(\"收货区仍有 %d 只未开货箱\" % sealed)"
  ],
  "收货区货箱有": [
-  "game/game_manager.gd:1754",
+  "game/game_manager.gd:1786",
   "if new_finds > 0: broadcast(\"收货区货箱有 %d 件新物品待开箱。\" % new_finds)"
  ],
  "收货合约": [
@@ -6780,7 +7188,7 @@
   "if m.has(\"atk\"): parts.append(\"攻击 +%d%%\" % roundi(float(m.atk) * 100))"
  ],
  "攻击 / 移动 / 拾取 / 选择": [
-  "game/keybinds.gd:56",
+  "game/keybinds.gd:55",
   "const FIXED := [[\"攻击 / 移动 / 拾取 / 选择\", \"左键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
  ],
  "攻击 · 法术 +1%": [
@@ -6935,12 +7343,16 @@
   "ui/inventory_panel.gd:491",
   "game.notice(\"放不下：位置被占用或超出边界。\")"
  ],
+ "放入安全袋": [
+  "ui/tutorial_card.gd:28",
+  "[\"safe_bag\", \"安全袋\", \"安全袋由博士随身携带，即使行动失败，袋中的物品也会保留。在背包中 Ctrl + 左键点击物品放入，或按安全袋键放入最近拾取的物品。\", \"放入安全袋\", \"field\"],"
+ ],
  "放入暂存区": [
-  "ui/base_screens.gd:1032",
+  "ui/base_screens.gd:1041",
   "var stage_it := AK.button(\"放入暂存区 %d/%d\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY], \"plain\", 14)"
  ],
  "放回了": [
-  "game/game_manager.gd:2650",
+  "game/game_manager.gd:2689",
   "set_message(\"%s 放回了%s。\" % [item.item_name, \"暂存区\" if base.location_of(item) == \"staging\" else \"货箱\"])"
  ],
  "放回货箱": [
@@ -6952,11 +7364,11 @@
   "\"L\": {\"name\": \"应急强心针\", \"price\": 5000, \"store\": 5, \"line\": \"closure\", \"cap\": 1, \"text\": \"放在背包里即生效：受到致命伤害时保留 1 点生命并回复生命上限的 25%；每份合同 1 次，之后 30 秒生命回复停止\","
  ],
  "放弃": [
-  "ui/base_screens.gd:624",
+  "ui/base_screens.gd:628",
   "var drop := AK.button(\"放弃\", \"plain\", 12)"
  ],
  "放弃合同": [
-  "ui/base_screens.gd:692",
+  "ui/base_screens.gd:696",
   "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
  ],
  "放弃这张订单": [
@@ -6964,11 +7376,11 @@
   "button(box, \"放弃这张订单\", func(): game.abandon_order(i); _refresh())"
  ],
  "放进了暂存区。": [
-  "game/game_manager.gd:2594",
+  "game/game_manager.gd:2631",
   "if base.store(item) == \"staging\": set_message(\"%s区已满：%s 放进了暂存区。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
  ],
  "放进了暂存区（": [
-  "game/game_manager.gd:2642",
+  "game/game_manager.gd:2681",
   "set_message(\"%s 放进了暂存区（%d/%d）。\" % [item.item_name, base.staging.size(), BaseCatalog.STAGING_CAPACITY])"
  ],
  "放进暂存区（": [
@@ -6976,8 +7388,16 @@
   "return {\"kind\": \"staging\", \"label\": \"放进暂存区（%d/%d）\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]}"
  ],
  "放进背包": [
-  "ui/base_screens.gd:1072",
+  "ui/base_screens.gd:1081",
   "var pack := AK.button(\"放进背包\", \"plain\", 14)"
+ ],
+ "敌人出手前，地面会出现攻击预警。按闪避键可以快速脱离预警区域，每次闪避消耗体力。": [
+  "ui/tutorial_card.gd:22",
+  "[\"dodge\", \"闪避\", \"敌人出手前，地面会出现攻击预警。按闪避键可以快速脱离预警区域，每次闪避消耗体力。\", \"闪避一次\", \"field\"],"
+ ],
+ "敌人掉落了治疗球。靠近即可吸取，立即回复生命。": [
+  "ui/tutorial_spotlight.gd:43",
+  "\"heal_orb\": [\"治疗球\", \"敌人掉落了治疗球。靠近即可吸取，立即回复生命。\", 36.0],"
  ],
  "敌人攻击力 −12%": [
   "game/relic_catalog.gd:105",
@@ -7002,6 +7422,10 @@
  "敌人赤金 +20%": [
   "game/research_catalog.gd:138",
   "\"refine\": [\"赤金精炼\", \"S\", \"敌人赤金 +20%\"],"
+ ],
+ "敌对势力正在锁定博士的位置。屏幕上方的细条就是威胁值：停留越久涨得越快，涨满时会有巡逻队前来搜捕；进入下一层后保留一部分。": [
+  "ui/tutorial_spotlight.gd:46",
+  "\"threat\": [\"威胁值\", \"敌对势力正在锁定博士的位置。屏幕上方的细条就是威胁值：停留越久涨得越快，涨满时会有巡逻队前来搜捕；进入下一层后保留一部分。\", 0.0],"
  ],
  "敌方单位被击倒时，使周围的我方单位回复300点生命值": [
   "game/relic_catalog.gd:130",
@@ -7115,8 +7539,12 @@
   "game/gear_catalog.gd:95",
   "\"mine_reunion_mask\": {\"name\": \"整合运动面具\", \"region\": \"mine\", \"category\": T, \"tier\": 1, \"factor\": 1.00, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.0375]],"
  ],
+ "整备": [
+  "game/story.gd:28",
+  "{\"id\": \"outfit\", \"title\": \"整备\", \"after\": [\"return\"],"
+ ],
  "整备中": [
-  "ui/base_screens.gd:286",
+  "ui/base_screens.gd:290",
   "status = \"整备中\""
  ],
  "整备台": [
@@ -7126,6 +7554,10 @@
  "整备台 / 装备": [
   "ui/field_menu.gd:169",
   "\"loadout\": [\"整备台 / 装备\", \"装备、卸下或存回仓库\"],"
+ ],
+ "整备台用于换装与改造。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀。": [
+  "ui/tutorial_spotlight.gd:54",
+  "\"base_loadout\": [\"整备台\", \"整备台用于换装与改造。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀。\", 60.0],"
  ],
  "整备台：装备": [
   "world/base_map.gd:845",
@@ -7140,7 +7572,7 @@
   "var sort := AK.button(\"整理\", \"plain\", 11)"
  ],
  "整理失败：当前摆放已是最紧凑，物品未移动。": [
-  "game/game_manager.gd:2367",
+  "game/game_manager.gd:2403",
   "else: notice(\"整理失败：当前摆放已是最紧凑，物品未移动。\")"
  ],
  "斧刃上的漆是南边的颜色。": [
@@ -7171,6 +7603,10 @@
   "game/gear_catalog.gd:81",
   "\"mine_pickaxe\": {\"name\": \"断镐战斧\", \"region\": \"mine\", \"category\": W, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.ATK_PCT, 0.04], [S.MOVE_SPEED_PCT, -0.04]],"
  ],
+ "新手引导": [
+  "ui/base_screens.gd:765",
+  "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
+ ],
  "新春将近，备货旺季": [
   "game/market/market_events.gd:37",
   "\"L5\": {\"region\": \"龙门\", \"kind\": \"announce\", \"hours\": 168, \"weight\": 0, \"title\": \"新春将近，备货旺季\", \"season\": \"spring\","
@@ -7196,12 +7632,20 @@
   "AK.put(stage, AK.section(\"新闻中心\", \"NEWS  %d\" % game.market.news.size()), Vector2(16, TOP + 40))"
  ],
  "方进入。": [
-  "game/game_manager.gd:4025",
+  "game/game_manager.gd:4069",
   "broadcast(\"PRTS：博士，巡逻队即将从%s方进入。\" % _direction_name(_next_patrol_entry - player.global_position))"
  ],
  "方面有异动": [
   "game/market/market_state.gd:823",
   "var headline := {\"t\": t, \"id\": \"omen\", \"kind\": \"rumor\", \"title\": \"传闻：%s方面有异动\" % str(MarketEvents.EVENTS[swan.id].region), \"region\": MarketEvents.EVENTS[swan.id].region, \"cred\": \"低\", \"status\": \"\", \"unr"
+ ],
+ "施工点": [
+  "ui/tutorial_spotlight.gd:71",
+  "\"base_build_site\": [\"施工点\", \"这里是尚未建成的设施。按交互键查看建造需要的龙门币和材料；没有接入总控台的设施也可以在现场升级。\", 64.0],"
+ ],
+ "施放一次技能": [
+  "ui/tutorial_card.gd:23",
+  "[\"skill\", \"干员技能\", \"每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。\", \"施放一次技能\", \"field\"],"
  ],
  "施术短刃": [
   "game/gear_catalog.gd:164",
@@ -7232,7 +7676,7 @@
   "\"city_x19\": {\"name\": \"无人机遥控器\", \"region\": \"city\", \"category\": T, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.SKILL_PCT, 0.0625], [S.ATTACK_SPEED_PCT, 0.0125]],"
  ],
  "无人负伤": [
-  "game/game_manager.gd:2913",
+  "game/game_manager.gd:2954",
   "if base.injured_operators().is_empty(): return \"无人负伤\""
  ],
  "无力的": [
@@ -7272,7 +7716,7 @@
   "_p(\"ruthless\", 1, W, \"无情的\", \"Ruthless\", {\"atk_pct\": 0.10, \"aspd\": -4.0})"
  ],
  "无效": [
-  "game/game_manager.gd:2872",
+  "game/game_manager.gd:2913",
   "if not in_base or not workshop.jobs.has(job): return \"无效\""
  ],
  "无法使用": [
@@ -7280,15 +7724,15 @@
   "return \"%s无法使用%s\" % [Operators.display_name(operator_id), GearCatalog.FORM_NAMES.get(GearCatalog.form_of(item), \"这件武器\")]"
  ],
  "无法改造": [
-  "game/game_manager.gd:2744",
+  "game/game_manager.gd:2785",
   "if not in_base or not PrefixCatalog.eligible_item(item): return \"无法改造\""
  ],
  "无法查证": [
-  "game/game_manager.gd:2854",
+  "game/game_manager.gd:2895",
   "if str(headline.get(\"status\", \"\")) != \"待证实\" or headline.has(\"peek\") or _rumor_of(headline).is_empty(): return \"无法查证\""
  ],
  "无法读取存档；原文件保留，请检查备份。": [
-  "game/game_manager.gd:5047",
+  "game/game_manager.gd:5096",
   "notice(\"无法读取存档；原文件保留，请检查备份。\")"
  ],
  "无胄盟袭击了接受治疗的感染者骑士。": [
@@ -7360,11 +7804,11 @@
   "_r(\"显圣吊坠\", \"wave\", 0, \"所有我方远程单位攻击力+15%\", \"技能伤害 +15%\", {\"wave_pct\": 0.15}),"
  ],
  "显示": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "显示全部地面物品": [
-  "game/keybinds.gd:51",
+  "game/keybinds.gd:50",
   "[\"show_items\", \"显示全部地面物品\", \"界面\", {\"key\": KEY_ALT}, null],"
  ],
  "晋升": [
@@ -7404,7 +7848,7 @@
   "\"slug\": {\"common\": [[\"源岩\", 1, 3]], \"uncommon\": [[\"固源岩\", 1, 1]], \"rare\": [[\"晶体元件\", 1, 1]]},"
  ],
  "暂停": [
-  "game/keybinds.gd:56",
+  "game/keybinds.gd:55",
   "const FIXED := [[\"攻击 / 移动 / 拾取 / 选择\", \"左键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
  ],
  "暂停开新仓": [
@@ -7420,19 +7864,23 @@
   "_say(\"企鹅物流：%s暂停收货，货物退回\" % FactionCatalog.name_of(faction), \"arrival\")"
  ],
  "暂存区": [
-  "game/game_manager.gd:2650",
+  "game/game_manager.gd:2689",
   "set_message(\"%s 放回了%s。\" % [item.item_name, \"暂存区\" if base.location_of(item) == \"staging\" else \"货箱\"])"
  ],
  "暂存区 → 上架": [
   "ui/field_menu.gd:389",
   "if not result.revealed.has(item): lines.append([item, \"暂存区 → 上架\"])"
  ],
+ "暂存区可以临时存放物品。想带进下一份合同，就在这里把物品放进背包；加工站的产出也会送到这里。": [
+  "ui/tutorial_spotlight.gd:60",
+  "\"base_staging\": [\"暂存区\", \"暂存区可以临时存放物品。想带进下一份合同，就在这里把物品放进背包；加工站的产出也会送到这里。\", 60.0],"
+ ],
  "暂存区已满": [
-  "game/game_manager.gd:1565",
+  "game/game_manager.gd:1591",
   "if service == \"send\" and not base.staging_has_room(): return \"暂存区已满\""
  ],
  "暂存区已满（": [
-  "game/game_manager.gd:2639",
+  "game/game_manager.gd:2678",
   "set_message(\"暂存区已满（%d/%d）。\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY])"
  ],
  "暂存区（": [
@@ -7440,7 +7888,7 @@
   "return {\"kind\": \"staging\", \"label\": \"暂存区（%d/%d）\" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]}"
  ],
  "暂无回收记录": [
-  "ui/base_screens.gd:654",
+  "ui/base_screens.gd:658",
   "if game.settlement.is_empty(): holder.add_child(AK.label(\"暂无回收记录\", 14, AK.MUTE))"
  ],
  "暂无回收记录。": [
@@ -7508,7 +7956,7 @@
   "\"螺栓\": {\"star\": 1, \"kind\": \"base\", \"group\": \"建材\", \"source\": \"common\", \"stack\": 30, \"text\": \"最常见的紧固件，盖什么都用得上。\"},"
  ],
  "最终准备": [
-  "ui/base_screens.gd:235",
+  "ui/base_screens.gd:239",
   "var go := AK.go_button(\"最终准备\", \"FINAL PREP\")"
  ],
  "最近结算": [
@@ -7580,7 +8028,7 @@
   "if str(data.get(\"type\", \"\")) == \"transmuter\": return \"已习得\" if rank > 0 else \"未习得\""
  ],
  "未发现": [
-  "ui/base_screens.gd:282",
+  "ui/base_screens.gd:286",
   "status = \"未发现\" if have == 0 else (\"可寻访\" if game.base.recruit_ready(id) else \"追踪中\")"
  ],
  "未完成": [
@@ -7604,11 +8052,11 @@
   "var rows := [[\"已投保\", str(insured)], [\"未投保\", str(pieces.size() - insured)], [\"全部投保需\", Economy.format(due)]]"
  ],
  "未接入": [
-  "game/game_manager.gd:3184",
+  "game/game_manager.gd:3228",
   "if remote and not base.is_connected_to_hub(id): return \"未接入\""
  ],
  "未支付，本次不生效。": [
-  "game/research.gd:185",
+  "game/research.gd:186",
   "game.broadcast(\"课题%s未支付，本次不生效。\" % ResearchCatalog.PROJECTS[project][0])"
  ],
  "未知仪器": [
@@ -7616,7 +8064,7 @@
   "_r(\"未知仪器\", \"life\", 2, \"所有我方单位生命+50%\", \"生命上限 +50%\", {\"hp_pct\": 0.50}),"
  ],
  "未装备该族": [
-  "game/game_manager.gd:2808",
+  "game/game_manager.gd:2849",
   "if not player.families.worn.has(family): return \"未装备该族\""
  ],
  "本合同一次：受到致命伤害时保留 1 生命并无敌 2 秒": [
@@ -7624,11 +8072,11 @@
   "_r(\"\\\"时光之末\\\"\", \"life\", 2, \"仅一次，在非区域最终战斗中失败时不结束探索，目标生命+1并继续\", \"本合同一次：受到致命伤害时保留 1 生命并无敌 2 秒\", {}, {\"death_cling\": 1.0}),"
  ],
  "本地区可选藏品不足三件：装置休眠。已有藏品跨区段保留。": [
-  "game/game_manager.gd:1291",
+  "game/game_manager.gd:1315",
   "notice(\"本地区可选藏品不足三件：装置休眠。已有藏品跨区段保留。\")"
  ],
  "本层已使用": [
-  "game/game_manager.gd:2998",
+  "game/game_manager.gd:3039",
   "if guide_floor == floor_number: return \"本层已使用\""
  ],
  "本日": [
@@ -7658,6 +8106,10 @@
  "本次藏品 /": [
   "ui/field_menu.gd:525",
   "text(parent, \"本次藏品 / %d 件\" % game.builds.size(), 18, GOLD)"
+ ],
+ "本次行动获得的藏品都记录在这里，点击即可查看效果；图鉴页收录全部藏品。": [
+  "ui/tutorial_card.gd:30",
+  "[\"relics\", \"藏品\", \"本次行动获得的藏品都记录在这里，点击即可查看效果；图鉴页收录全部藏品。\", \"打开藏品面板\", \"field\"],"
  ],
  "术师": [
   "game/enemy_attacks.gd:26",
@@ -7692,7 +8144,7 @@
   "const CATEGORY_NAMES := [\"武器\", \"防具\", \"饰品\", \"材料\", \"防具\", \"防具\", \"防具\", \"防具\", \"防具\", \"饰品\", \"饰品\"]"
  ],
  "材料不足": [
-  "ui/base_screens.gd:536",
+  "ui/base_screens.gd:540",
   "return \"材料不足\" if refusal.begins_with(\"缺少\") else refusal"
  ],
  "材料全部存回仓库": [
@@ -7715,6 +8167,10 @@
   "game/gear_catalog.gd:340",
   "\"form\": \"staff\", \"icon\": \"snowpriest_staff\", \"text\": \"杖指向哪里，雪就落向哪里。\"},"
  ],
+ "杜宾": [
+  "game/story.gd:29",
+  "\"lines\": [[\"杜宾\", \"博士，外勤不是郊游。备齐装备，贵重的东西先投保，如果投保的装备遗落在外勤区域，罗德岛小队会去回收。\"]],"
+ ],
  "束缚": [
   "game/skill_trees.gd:196",
   "\"pin_dot\": {\"name\": \"束缚\", \"type\": \"passive\", \"tier\": 0, \"max\": 5,"
@@ -7732,11 +8188,11 @@
   "body.add_child(AK.label(\"条件：%s ≥ %.2f\" % [FactionCatalog.market_name(w), game.market.price(w) * (1.0 + order_offset / 100.0)], 11, AK.FG))"
  ],
  "来得越快。": [
-  "game/game_manager.gd:3761",
+  "game/game_manager.gd:3805",
   "if not own.is_empty(): broadcast(\"PRTS：博士，越往深处，%s来得越快。\" % FeatureCatalog.NAMES[own])"
  ],
  "来路不明，携带时污染缓慢上升。": [
-  "game/game_manager.gd:1963",
+  "game/game_manager.gd:1997",
   "stack.description += \" 来路不明，携带时污染缓慢上升。\""
  ],
  "松垮的": [
@@ -7864,7 +8320,7 @@
   "\"A\": {\"name\": \"标准急救剂\", \"price\": 0, \"store\": 1, \"line\": \"pharmacy\", \"text\": \"立即回复 %d 生命\"},"
  ],
  "标准急救剂：回复": [
-  "game/game_manager.gd:3400",
+  "game/game_manager.gd:3444",
   "set_message(\"标准急救剂：回复 %d 生命\" % roundi(amount))"
  ],
  "标签上写的温度，这里早就低过了。": [
@@ -7908,8 +8364,16 @@
   "\"Z14\": {\"region\": \"卡西米尔\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"梅什科集团承建新赛场\", \"effects\": [{\"sel\": \"kazimierz:build\", \"mult\": 1.25}, {\"sel\": \"kazimierz:electronic\", \"mult\": 1.1}]},"
  ],
  "检测到中断合同：按撤退规则回收出发物品，保险结果不会反复重掷。": [
-  "game/game_manager.gd:5085",
+  "game/game_manager.gd:5134",
   "set_message(\"检测到中断合同：按撤退规则回收出发物品，保险结果不会反复重掷。\")"
+ ],
+ "检测到头目级敌对单位，威胁较高。请留意地面的攻击预警，必要时闪避。": [
+  "ui/tutorial_spotlight.gd:39",
+  "\"leader\": [\"头目\", \"检测到头目级敌对单位，威胁较高。请留意地面的攻击预警，必要时闪避。\", 64.0],"
+ ],
+ "检测到干员留下的踪迹。靠近后按交互键调查；同一名干员的踪迹集齐 6 条后，调度台会出现寻访合同。": [
+  "ui/tutorial_spotlight.gd:24",
+  "\"trace\": [\"踪迹\", \"检测到干员留下的踪迹。靠近后按交互键调查；同一名干员的踪迹集齐 6 条后，调度台会出现寻访合同。\", 48.0],"
  ],
  "棘轮扳手，拆装设备的常用工具。": [
   "game/material_catalog.gd:90",
@@ -7954,6 +8418,10 @@
  "次": [
   "game/provisions.gd:113",
   "if tier >= SQUAD_USES_TIER: parts.append(\"小队服务 %d 次\" % SQUAD_USES)"
+ ],
+ "欢迎回来，博士。PRTS 已完成同步。请先确认行动能力：左键点击地面即可前往目标位置，按住左键可以持续移动。": [
+  "ui/tutorial_card.gd:18",
+  "[\"move\", \"行动确认\", \"欢迎回来，博士。PRTS 已完成同步。请先确认行动能力：左键点击地面即可前往目标位置，按住左键可以持续移动。\", \"移动\", \"base\"],"
  ],
  "欺凌者": [
   "game/enemy_attacks.gd:35",
@@ -8098,6 +8566,10 @@
  "每十层之后是营地，营地里有固定撤离点。": [
   "ui/system_screens.gd:13",
   "\"每十层之后是营地，营地里有固定撤离点。\","
+ ],
+ "每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。": [
+  "ui/tutorial_card.gd:23",
+  "[\"skill\", \"干员技能\", \"每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。\", \"施放一次技能\", \"field\"],"
  ],
  "每对一个单位造成伤害就使自身攻击力+15%，最高+150%，5秒未造成伤害则清空": [
   "game/relic_catalog.gd:63",
@@ -8256,7 +8728,7 @@
   "row.add_child(AK.tag(\"污染\", AK.ORI))"
  ],
  "污染 −": [
-  "game/game_manager.gd:3896",
+  "game/game_manager.gd:3940",
   "set_message(\"污染 −%d\" % int(FeatureCatalog.SHOWER_CUT))"
  ],
  "污染 −4；带“脏”标记": [
@@ -8264,7 +8736,7 @@
   "\"reunion\": {\"name\": \"自制抑制剂\", \"bars\": 2, \"store\": 1, \"line\": \"reunion\", \"text\": \"污染 −4；带“脏”标记\", \"dirty\": true,"
  ],
  "污染升到": [
-  "game/game_manager.gd:3476",
+  "game/game_manager.gd:3520",
   "set_message(\"污染升到 %d（%s）\" % [roundi(current_contamination()), BaseCatalog.CONTAMINATION_TIER_NAMES[tier]])"
  ],
  "污染累积": [
@@ -8307,20 +8779,24 @@
   "ui/base_hud.gd:19",
   "[\"人事部\", \"personnel\", Color(\"0098dc\")], [\"沙盘\", \"sand_table\", Color(\"5fd0d8\")], [\"科研部\", \"research\", Color(\"e0782a\")],"
  ],
+ "沙盘上可以指挥罗德岛号航行到各地，开启医疗驻留提升当地关系，或者提交、装箱大宗订单。航行按现实时间进行。": [
+  "ui/tutorial_spotlight.gd:68",
+  "\"base_sand_table\": [\"沙盘\", \"沙盘上可以指挥罗德岛号航行到各地，开启医疗驻留提升当地关系，或者提交、装箱大宗订单。航行按现实时间进行。\", 72.0],"
+ ],
  "没收": [
   "game/market/exchange.gd:644",
   "_say(\"%s强制了结：保证金 %s 没收\" % [what, format_money(str(p.currency), float(p.margin))], \"liquidation\")"
  ],
  "没有寄来的补给": [
-  "game/game_manager.gd:3063",
+  "game/game_manager.gd:3104",
   "if provisions.mailed().is_empty(): return \"没有寄来的补给\""
  ],
  "没有这个配方": [
-  "game/game_manager.gd:1894",
+  "game/game_manager.gd:1927",
   "if count <= 0 or Workshop.recipe(output).is_empty(): return \"没有这个配方\""
  ],
  "没有这件": [
-  "game/game_manager.gd:2104",
+  "game/game_manager.gd:2138",
   "if encounter != \"trader\" or slot < 0 or slot >= trader_stock.size(): return \"没有这件\""
  ],
  "没有释放技能时，攻击力在 60 秒内逐渐提升至 +60%；释放技能后归零": [
@@ -8332,12 +8808,20 @@
   "_r(\"鸣脊兽\", \"tempo\", 1, \"所有我方单位技能未开启时40秒内攻速逐渐提升至最高+40，每次技能结束时失去该加成\", \"没有释放技能时，攻速在 40 秒内逐渐提升至 +40；释放技能后归零\", {}, {\"build_aspd\": 40.0}),"
  ],
  "没有需要开箱或归类的物品。": [
-  "game/game_manager.gd:3256",
+  "game/game_manager.gd:3300",
   "else: set_message(\"没有需要开箱或归类的物品。\")"
+ ],
+ "治疗球": [
+  "ui/tutorial_spotlight.gd:43",
+  "\"heal_orb\": [\"治疗球\", \"敌人掉落了治疗球。靠近即可吸取，立即回复生命。\", 36.0],"
  ],
  "治疗重伤（": [
   "ui/field_menu.gd:484",
   "button(body, \"治疗重伤（%s 龙门币）\" % Economy.format(game.injury_price(id)), func(): game.treat_injury(id); _refresh(), game.gold < game.injury_price(id))"
+ ],
+ "沿道路寻找深入入口，按交互键选择路线进入下一层。越往深处，敌人越强，收获也越好。": [
+  "ui/tutorial_card.gd:34",
+  "[\"descend\", \"深入\", \"沿道路寻找深入入口，按交互键选择路线进入下一层。越往深处，敌人越强，收获也越好。\", \"进入下一层\", \"field\"],"
  ],
  "法印的": [
   "game/prefix_families.gd:79",
@@ -8776,19 +9260,19 @@
   "\"bg_zaro_6\": {\"name\": \"溶血骇惧之石\", \"kind\": \"boss\", \"category\": Item.Category.AMULET, \"size\": Vector2i(1, 1), \"power\": 2.0, \"region\": \"siracusa\", \"source_enemy\": \"zaro\","
  ],
  "滚轮上": [
-  "game/keybinds.gd:152",
+  "game/keybinds.gd:149",
   "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
  ],
  "滚轮下": [
-  "game/keybinds.gd:152",
+  "game/keybinds.gd:149",
   "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
  ],
  "滚轮右": [
-  "game/keybinds.gd:152",
+  "game/keybinds.gd:149",
   "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
  ],
  "滚轮左": [
-  "game/keybinds.gd:152",
+  "game/keybinds.gd:149",
   "MOUSE_BUTTON_WHEEL_UP: \"滚轮上\", MOUSE_BUTTON_WHEEL_DOWN: \"滚轮下\", MOUSE_BUTTON_WHEEL_LEFT: \"滚轮左\", MOUSE_BUTTON_WHEEL_RIGHT: \"滚轮右\"}"
  ],
  "满月": [
@@ -8864,7 +9348,7 @@
   "if fire != null: badges.append([\"火\", FIRE_COLOUR, \"%ds\" % ceili(fire.burn_left)])"
  ],
  "火堆": [
-  "game/game_manager.gd:1542",
+  "game/game_manager.gd:1568",
   "if near_fire() != null and not pack_fuels().is_empty(): return \"火堆\""
  ],
  "灭迹弯刃": [
@@ -9047,6 +9531,14 @@
   "game/field_catalog.gd:254",
   "{\"name\": \"物资作业面\", \"detail\": \"中危险 / 更多搜刮 / 更多守卫\", \"danger\": 0.0, \"reward\": 0.25},"
  ],
+ "物资回收": [
+  "ui/tutorial_card.gd:25",
+  "[\"pickup\", \"物资回收\", \"地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。\", \"拾取一件物品\", \"field\"],"
+ ],
+ "物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。": [
+  "ui/tutorial_card.gd:26",
+  "[\"inventory\", \"携带物品\", \"物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。\", \"打开背包\", \"field\"],"
+ ],
  "特别督察组": [
   "game/special_gear.gd:227",
   "\"inspectors\": {\"name\": \"特别督察组\", \"region\": \"city\", \"pieces\": [\"set_inspectors_0\", \"set_inspectors_1\", \"set_inspectors_2\"], \"two\": \"防御 +40；受击时 10% 格挡一半伤害\", \"three\": \"招牌发动时 3 秒受伤 −20%，半径 3 内敌人停顿 0.5 秒（冷却"
@@ -9072,7 +9564,7 @@
   "var quality: String = {\"special\": \"特殊\", \"exclusive\": \"专属\", \"set\": \"套装\", \"boss\": \"首领\"}.get(named_kind(), RARITY_NAMES[clampi(rarity, 0, 2)])"
  ],
  "特殊材料不能寄存": [
-  "game/game_manager.gd:2283",
+  "game/game_manager.gd:2319",
   "if not item.exclusive_region.is_empty() or not item.effect.is_empty(): return \"特殊材料不能寄存\""
  ],
  "特里蒙港区大火": [
@@ -9184,7 +9676,7 @@
   "\"wave_fang\": {\"name\": \"獠牙\", \"type\": \"transmuter\", \"group\": \"wave\", \"tier\": 2, \"max\": 1,"
  ],
  "玄纹墨": [
-  "game/game_manager.gd:2787",
+  "game/game_manager.gd:2828",
   "const DIRECTED_MATERIAL := \"玄纹墨\""
  ],
  "玉门关隘封闭": [
@@ -9276,7 +9768,7 @@
   "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"fx\": \"kill_fire\", \"fx_text\": \"击杀时：倒下处留 3 秒火区，每 0.5 秒 15% 法术攻击力\", \"req\": \"arts\", \"text\": \"瓶子都空了，包还是一股味。\"},"
  ],
  "瓶留在了可露希尔那里。": [
-  "game/game_manager.gd:2259",
+  "game/game_manager.gd:2294",
   "if left > 0: notice(\"背包放不下的 %d 瓶留在了可露希尔那里。\" % left)"
  ],
  "生于冰寒": [
@@ -9320,7 +9812,7 @@
   "_r(\"未知仪器\", \"life\", 2, \"所有我方单位生命+50%\", \"生命上限 +50%\", {\"hp_pct\": 0.50}),"
  ],
  "生命上限 −": [
-  "game/game_manager.gd:3273",
+  "game/game_manager.gd:3317",
   "if base.injured: out.append(\"生命上限 −%d%%（重伤）\" % roundi(base.hp_penalty() * 100))"
  ],
  "生命上限；药剂与自动回血效果减半。": [
@@ -9339,6 +9831,10 @@
   "game/special_gear.gd:225",
   "\"nameless\": {\"name\": \"无名者\", \"region\": \"mine\", \"pieces\": [\"set_nameless_0\", \"set_nameless_1\", \"set_nameless_2\"], \"two\": \"生命低于 50% 时攻速 +12\", \"three\": \"击杀叠「接替」最多 3 层；招牌发动时消耗，每层招牌伤害 +30%\"},"
  ],
+ "生命告急": [
+  "ui/tutorial_spotlight.gd:45",
+  "\"low_hp\": [\"生命告急\", \"博士，干员生命偏低。快捷栏上的急救剂可以立即回复；最右侧的自动格会在生命低于下限时自动喝药，上下限可在设置里调整。应急强心针放在背包里，会在致命一击时自动生效。\", 34.0],"
+ ],
  "生命回复": [
   "ui/field_menu.gd:539",
   "text(parent, \"攻速 %d（间隔 %.2f 秒）   暴击 %d%% × %d%%   吸血 %d%%   闪避 %d%%   生命回复 %d/秒\" % [roundi(p.current_aspd()), p.current_cooldown(),"
@@ -9356,7 +9852,7 @@
   "\"number\": \"生命高于 90% 时攻击力 %s\","
  ],
  "生命，污染 −": [
-  "game/game_manager.gd:3397",
+  "game/game_manager.gd:3441",
   "set_message(\"抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半\" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])"
  ],
  "生命，污染 −6，之后 30 秒污染累积减半": [
@@ -9448,15 +9944,15 @@
   "{\"price\": 60000, \"materials\": {\"碳素组\": 1, \"电路板\": 2}, \"opens\": \"安全袋扩容 3×3\"},"
  ],
  "画面": [
-  "ui/base_screens.gd:693",
+  "ui/base_screens.gd:697",
   "const SETTING_TABS := [\"画面\", \"界面\", \"音频\", \"基地\"]"
  ],
  "界面": [
-  "game/keybinds.gd:43",
+  "game/keybinds.gd:42",
   "[\"interact\", \"交互\", \"界面\", {\"key\": KEY_E}, null],"
  ],
  "界面动效": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "留在箱里": [
@@ -9464,7 +9960,7 @@
   "var where := \"上架\" if result.shelved.has(item) else (\"暂存区\" if result.staged.has(item) else \"留在箱里\")"
  ],
  "留在身上。": [
-  "game/game_manager.gd:2589",
+  "game/game_manager.gd:2626",
   "set_message(\"%s区和暂存区都满了：%s 留在身上。\" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])"
  ],
  "疗养体验卡": [
@@ -9516,11 +10012,11 @@
   "_say(\"%s的买入额度不足\" % FactionCatalog.name_of(faction), \"refused\")"
  ],
  "的战场。击破之后，入口才会开放。": [
-  "game/game_manager.gd:4237",
+  "game/game_manager.gd:4281",
   "return \"PRTS：前方是%s的战场。击破之后，入口才会开放。\" % BossCatalog.display_name(str(BossCatalog.BOSSES.get(region_id, \"\")))"
  ],
  "的接头人。": [
-  "game/game_manager.gd:4611",
+  "game/game_manager.gd:4660",
   "broadcast(\"PRTS：大宗货箱已交给%s的接头人。\" % FactionCatalog.name_of(str(contract.faction)))"
  ],
  "的法术伤害并晕眩 1 秒。": [
@@ -9532,11 +10028,11 @@
   "\"text\": \"被钉住的敌人每秒受到攻击力 %s 的物理伤害。\"},"
  ],
  "的行踪已经确认。调度台可以接寻访合同了。": [
-  "game/game_manager.gd:4496",
+  "game/game_manager.gd:4545",
   "broadcast(\"PRTS：博士，%s的行踪已经确认。调度台可以接寻访合同了。\" % Operators.display_name(id))"
  ],
  "的重伤已治愈。": [
-  "game/game_manager.gd:3513",
+  "game/game_manager.gd:3557",
   "set_message(\"%s的重伤已治愈。\" % Operators.display_name(id))"
  ],
  "皇帝的恩宠": [
@@ -9604,11 +10100,11 @@
   "_r(\"魔王的床榻\", \"defense\", 0, \"目标生命值达到上限时，所有干员防御力+20%，法术抗性+10\", \"满血时防御 +20%、法抗 +10\", {}, {\"full_def\": 1.0}),"
  ],
  "盯盘小窗（基地）": [
-  "game/keybinds.gd:52",
+  "game/keybinds.gd:51",
   "[\"toggle_watch\", \"盯盘小窗（基地）\", \"界面\", {\"key\": KEY_K}, null],"
  ],
  "直接交付": [
-  "ui/base_screens.gd:558",
+  "ui/base_screens.gd:562",
   "var stage := shell(menu, \"出库区\", \"OUTBOUND\", [\"订单\", \"直接交付\"], tab, func(i): menu.outbound_tab = i; menu.pick = null; outbound(menu), \"ORDERS\","
  ],
  "直接交付 / 只换龙门币": [
@@ -9660,7 +10156,7 @@
   "\"icon\": \"mine_x08\", \"text\": \"矛杆上的编号是一个营。\"},"
  ],
  "知道了": [
-  "game/game_manager.gd:895",
+  "game/game_manager.gd:896",
   "var close := AK.button(\"知道了\", \"blue\", 14)"
  ],
  "短小的": [
@@ -9740,7 +10236,7 @@
   "\"mine_hands_3\": {\"name\": \"矿镐护腕\", \"region\": \"mine\", \"category\": HANDS, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.ATK_PCT, 0.02], [S.DEF_FLAT, 5.0]],"
  ],
  "研磨石": [
-  "game/game_manager.gd:2712",
+  "game/game_manager.gd:2753",
   "const REFRESH_MATERIALS := {\"reforge\": {}, \"calibrate\": {\"研磨石\": 1}, \"tune\": {\"改量装置\": 1}}"
  ],
  "研究": [
@@ -9764,7 +10260,7 @@
   "if active().size() >= slots(): return \"研究位已满\""
  ],
  "研究完成：": [
-  "game/research.gd:124",
+  "game/research.gd:125",
   "game.broadcast(\"研究完成：%s · %s。\" % [ResearchCatalog.name_of(id), ResearchCatalog.effect_text(id)])"
  ],
  "破冰刀": [
@@ -9800,7 +10296,7 @@
   "_p(\"exposed\", -1, A, \"破绽的\", \"Exposed\", {\"dmg_reduce\": -0.04})"
  ],
  "确定": [
-  "ui/system_screens.gd:236",
+  "ui/system_screens.gd:242",
   "var done := AK.button(\"确定\", \"blue\", 15)"
  ],
  "确认": [
@@ -9808,7 +10304,7 @@
   "var yes := AK.button(\"确认\", \"blue\", 15)"
  ],
  "确认放弃": [
-  "ui/base_screens.gd:709",
+  "ui/base_screens.gd:713",
   "b.text = \"确认放弃\" if i == 3 and menu.pause_confirm else PAUSE_ITEMS[i]"
  ],
  "碎了一半，另一半还认得主人。": [
@@ -9876,12 +10372,16 @@
   "_footer(stage, Vector2(470, 622), 770, \"离开\", \"补给\", game.close_modal, func():"
  ],
  "离线": [
-  "game/game_manager.gd:1796",
+  "game/game_manager.gd:1828",
   "var text := \"离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "科研终端": [
   "art/rhodes_runtime/room_lab.json",
   "科研终端"
+ ],
+ "科研终端用龙门币和材料推进研究，按现实时间进行。研究可以带来各种长期加成，部分课题需要先完成前置研究。": [
+  "ui/tutorial_spotlight.gd:69",
+  "\"base_research\": [\"科研部\", \"科研终端用龙门币和材料推进研究，按现实时间进行。研究可以带来各种长期加成，部分课题需要先完成前置研究。\", 60.0],"
  ],
  "科研部": [
   "game/base_catalog.gd:66",
@@ -9936,7 +10436,7 @@
   "\"text\": \"光标附近持续落下冰锥，每根 %s 并附加寒冷，持续 %s 秒。冷却 20 秒。\"},"
  ],
  "秒内回复": [
-  "game/game_manager.gd:3392",
+  "game/game_manager.gd:3436",
   "set_message(\"缓释凝胶：%.0f 秒内回复 %d 生命\" % [BaseCatalog.POTION_B_SECONDS, roundi(amount)])"
  ],
  "秒内无敌。": [
@@ -9944,7 +10444,7 @@
   "\"text\": \"每个区段一次：受到致命伤害时保留 1 点生命，%s 秒内无敌。\"},"
  ],
  "秒内累积减半": [
-  "game/game_manager.gd:3397",
+  "game/game_manager.gd:3441",
   "set_message(\"抑制喷剂：回复 %d 生命，污染 −%d，%d 秒内累积减半\" % [roundi(amount), int(BaseCatalog.POTION_C_CLEANSE), int(BaseCatalog.POTION_C_SUPPRESS_SECONDS)])"
  ],
  "秒后重新生成。": [
@@ -9984,8 +10484,8 @@
   "var move := AK.button(\"移到安全袋\" if selected_container == game.inventory else \"移回背包\", \"plain\", 12)"
  ],
  "移动": [
-  "game/keybinds.gd:31",
-  "[\"move_up\", \"向上移动\", \"移动\", {\"key\": KEY_W}, {\"key\": KEY_UP}],"
+  "ui/tutorial_card.gd:18",
+  "[\"move\", \"行动确认\", \"欢迎回来，博士。PRTS 已完成同步。请先确认行动能力：左键点击地面即可前往目标位置，按住左键可以持续移动。\", \"移动\", \"base\"],"
  ],
  "移动城市": [
   "game/market/market_links.gd:299",
@@ -10068,8 +10568,12 @@
   "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"fx\": \"idle_barrier\", \"fx_text\": \"空闲 8 秒（未受伤）：获得 15% 生命上限的屏障；破碎时移速 +30% 3 秒\", \"req\": \"arts\", \"text\": \"碎掉的时候，人就该跑了。\"},"
  ],
  "空间不足，物品留在原处；物品不能旋转。": [
-  "game/game_manager.gd:2512",
+  "game/game_manager.gd:2548",
   "notice(\"空间不足，物品留在原处；物品不能旋转。\")"
+ ],
+ "穿上一件装备": [
+  "ui/tutorial_card.gd:27",
+  "[\"equip\", \"换装\", \"在背包里右键一件装备即可穿上，也可以拖到左侧人偶的格子上；右键已穿的装备会卸回背包。属性需求不足的装备无法穿戴。\", \"穿上一件装备\", \"field\"],"
  ],
  "穿上它就不用跑了，反正也跑不动。": [
   "game/gear_catalog.gd:225",
@@ -10108,11 +10612,11 @@
   "\"shattered_champion\": {\"name\": \"木裂战士\", \"attack\": \"突进两段斩\", \"row\": -1, \"windup\": 0.9, \"interval\": 2.0, \"damage\": 0.85, \"shape\": \"circle\", \"reach\": 2.6, \"radius\": 1.7, \"recovery\": 0.3, \"elite\": true, \"co"
  ],
  "窗口": [
-  "ui/base_screens.gd:760",
+  "ui/base_screens.gd:764",
   "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
  ],
  "窗口模式": [
-  "ui/base_screens.gd:760",
+  "ui/base_screens.gd:764",
   "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
  ],
  "立体货架": [
@@ -10128,7 +10632,7 @@
   "_text(Vector2(16, 86), \"站点总览\", 13, AK.FG)"
  ],
  "站点总览（基地）": [
-  "game/keybinds.gd:53",
+  "game/keybinds.gd:52",
   "[\"toggle_stations\", \"站点总览（基地）\", \"界面\", {\"key\": KEY_TAB}, null],"
  ],
  "符文的": [
@@ -10162,6 +10666,10 @@
  "第 3 发大冰球溅射伤害": [
   "game/skill_trees.gd:247",
   "\"text\": \"第 3 发大冰球溅射伤害 %s。\"},"
+ ],
+ "第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。": [
+  "ui/tutorial_card.gd:36",
+  "[\"extract\", \"撤离\", \"第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。\", \"从撤离信标撤离\", \"field\"],"
  ],
  "第一下是给城墙的。": [
   "game/special_gear.gd:154",
@@ -10216,7 +10724,7 @@
   "const SEALED_ORE_NAME := \"简易封装的源石原矿\""
  ],
  "简易封装：携带时每块每秒污染 +0.01。": [
-  "game/game_manager.gd:3940",
+  "game/game_manager.gd:3984",
   "ore.description = \"简易封装：携带时每块每秒污染 +0.01。\""
  ],
  "箭雨同时落在标记目标 2.5 米内的敌人身上。": [
@@ -10292,7 +10800,7 @@
   "\"lappland\": {\"name\": \"精神摧毁\", \"text\": \"剑气命中使目标的特殊能力失效 %s 秒（精英与首领 %s 秒）%s。\"},"
  ],
  "精简": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "精良": [
@@ -10331,6 +10839,14 @@
   "ui/event_screens.gd:199",
   "if game.region_id == \"mine\": detail = detail.replace(\"精英增援\", \"敌群增援\")"
  ],
+ "精英敌人": [
+  "ui/tutorial_spotlight.gd:40",
+  "\"elite\": [\"精英敌人\", \"精英敌人比普通敌人更强韧，击败后的物资也更好。\", 52.0],"
+ ],
+ "精英敌人比普通敌人更强韧，击败后的物资也更好。": [
+  "ui/tutorial_spotlight.gd:40",
+  "\"elite\": [\"精英敌人\", \"精英敌人比普通敌人更强韧，击败后的物资也更好。\", 52.0],"
+ ],
  "精英重击": [
   "game/enemy_attacks.gd:21",
   "\"elite\": {\"name\": \"精英重击\", \"attack\": \"重击\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.1, \"damage\": 1.0, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.65, \"recovery\": 0.3, \"elite\": true},"
@@ -10362,6 +10878,10 @@
  "糖聚块": [
   "game/market/faction_catalog.gd:123",
   "const MEDICAL := [\"代糖\", \"糖\", \"糖组\", \"糖聚块\", \"医用耗材包\", \"林地草药\"]"
+ ],
+ "系统同步完成。欢迎回来，博士。": [
+  "game/story.gd:21",
+  "\"lines\": [[\"PRTS\", \"系统同步完成。欢迎回来，博士。\"], [\"阿米娅\", \"博士，您终于醒了……罗德岛的情况不太好，我们需要您。\"]],"
  ],
  "紧急活性剂": [
   "game/relic_catalog.gd:91",
@@ -10512,7 +11032,7 @@
   "var on := AK.button(\"继续 · %s\" % AK.floor_code(game.region_id, game.floor_number + 1), \"plain\", 15)"
  ],
  "继续作业": [
-  "ui/base_screens.gd:692",
+  "ui/base_screens.gd:696",
   "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
  ],
  "绳子的另一头，通常没有人。": [
@@ -10564,7 +11084,7 @@
   "\"B\": {\"name\": \"缓释凝胶\", \"price\": 600, \"store\": 1, \"line\": \"pharmacy\", \"text\": \"6 秒内共回复 %d 生命；再用一瓶会覆盖剩余回复\"},"
  ],
  "缓释凝胶：": [
-  "game/game_manager.gd:3392",
+  "game/game_manager.gd:3436",
   "set_message(\"缓释凝胶：%.0f 秒内回复 %d 生命\" % [BaseCatalog.POTION_B_SECONDS, roundi(amount)])"
  ],
  "缠了一圈又一圈，里面那根红线是谁系的？": [
@@ -10580,7 +11100,7 @@
   "\"form\": \"blade\", \"icon\": \"standard_dagger\", \"text\": \"缴获来的，编号被锉掉了。\"},"
  ],
  "缺少": [
-  "game/game_manager.gd:2411",
+  "game/game_manager.gd:2447",
   "return \"\" if missing.is_empty() else \"缺少 \" + \"、\".join(missing)"
  ],
  "缺货": [
@@ -10600,15 +11120,15 @@
   "\"texas\": {\"region\": \"siracusa\", \"place\": \"罗塞蒂家族的旧宅\"},"
  ],
  "罗德岛": [
-  "ui/field_menu.gd:222",
-  "var info: Array = STATIONS.get(kind, [\"罗德岛\", \"\"])"
+  "game/story.gd:49",
+  "{\"id\": \"finale\", \"title\": \"罗德岛\", \"after\": [\"deck2\"],"
  ],
  "罗德岛 / 外勤合同": [
   "ui/field_menu.gd:192",
   "clear(\"罗德岛 / 外勤合同\", \"龙门币 %s\" % Economy.format(game.gold))"
  ],
  "罗德岛 · 外勤": [
-  "ui/system_screens.gd:138",
+  "ui/system_screens.gd:144",
   "var name_cn := AK.label(\"罗德岛 · 外勤\", 22, AK.MUTE)"
  ],
  "罗德岛 · 第二层": [
@@ -10618,6 +11138,10 @@
  "罗德岛 · 舰桥大厅": [
   "ui/base_hud.gd:65",
   "_text(Vector2(18, 46), \"罗德岛 · 舰桥大厅\", 20, AK.FG)"
+ ],
+ "罗德岛全部部门恢复运转。博士，接下来的航程，由你决定。": [
+  "game/story.gd:50",
+  "\"lines\": [[\"PRTS\", \"罗德岛全部部门恢复运转。博士，接下来的航程，由你决定。\"]],"
  ],
  "罗德岛制式信标": [
   "game/gear_catalog.gd:365",
@@ -10680,7 +11204,7 @@
   "\"rhodes_legs\": {\"name\": \"罗德岛外勤长裤\", \"region\": \"rhodes\", \"value\": 1.5, \"category\": LEGS, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.MAX_HP_PCT, 0.02]],"
  ],
  "罗德岛小队": [
-  "game/game_manager.gd:1150",
+  "game/game_manager.gd:1158",
   "return \"罗德岛小队\""
  ],
  "罗德岛小队 · E": [
@@ -10691,8 +11215,20 @@
   "ui/system_screens.gd:14",
   "\"罗德岛小队可以为一件装备投保，或直接送回基地。\","
  ],
+ "罗德岛小队在此待命。支付赤金可以为一件装备投保，或者直接把它送回基地。小队附近威胁值不会上涨。": [
+  "ui/tutorial_spotlight.gd:34",
+  "\"squad\": [\"罗德岛小队\", \"罗德岛小队在此待命。支付赤金可以为一件装备投保，或者直接把它送回基地。小队附近威胁值不会上涨。\", 56.0],"
+ ],
+ "罗德岛小队归来": [
+  "game/game_manager.gd:1780",
+  "set_message(\"%s：%d 件新物品已送到仓储区收货区。%s%s\" % [\"合同交付\" if extracted else \"罗德岛小队归来\", new_finds,"
+ ],
+ "罗德岛小队找回了投保的装备，已送到仓储区的收货区货箱。保险随之用掉，需要的话请在后勤柜台重新投保。": [
+  "ui/tutorial_spotlight.gd:52",
+  "\"insured_back\": [\"投保送回\", \"罗德岛小队找回了投保的装备，已送到仓储区的收货区货箱。保险随之用掉，需要的话请在后勤柜台重新投保。\", 0.0],"
+ ],
  "罗德岛小队：": [
-  "game/game_manager.gd:1577",
+  "game/game_manager.gd:1603",
   "set_message(\"罗德岛小队：%s 已投保。\" % item.item_name)"
  ],
  "罗德岛干员指环": [
@@ -10784,7 +11320,7 @@
   "\"icon\": \"lgd_vest\", \"text\": \"肩上的局徽被刮过，但没刮干净。\"},"
  ],
  "背包": [
-  "game/keybinds.gd:44",
+  "game/keybinds.gd:43",
   "[\"toggle_inventory\", \"背包\", \"界面\", {\"key\": KEY_I}, null],"
  ],
  "背包与安全袋的材料全部存回仓库": [
@@ -10792,15 +11328,15 @@
   "button(body, \"背包与安全袋的材料全部存回仓库\", func(): game.store_all_materials(); _refresh())"
  ],
  "背包只装下": [
-  "game/game_manager.gd:2494",
+  "game/game_manager.gd:2530",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "背包已整理。": [
-  "game/game_manager.gd:2366",
+  "game/game_manager.gd:2402",
   "if sorted: set_message(\"背包已整理。\")"
  ],
  "背包已满": [
-  "game/game_manager.gd:1984",
+  "game/game_manager.gd:2018",
   "if not inventory.can_take(BaseCatalog.create_potion(type, Economy.tier_of(floor_number))): return \"背包已满\""
  ],
  "背包扩容 10×8": [
@@ -10812,35 +11348,35 @@
   "{\"price\": 30000, \"materials\": {\"帆布\": 3, \"密封泡沫\": 2}, \"opens\": \"背包扩容 12×8 · 安全袋扩容 3×2\"},"
  ],
  "背包扩容到": [
-  "game/game_manager.gd:2460",
+  "game/game_manager.gd:2496",
   "set_message(\"背包扩容到 %d×%d。\" % [inventory.width, inventory.height])"
  ],
  "背包放不下": [
-  "game/game_manager.gd:2109",
+  "game/game_manager.gd:2143",
   "if entry.kind == \"item\" and not inventory.can_take(entry.item): return \"背包放不下\""
  ],
  "背包放不下的": [
-  "game/game_manager.gd:2259",
+  "game/game_manager.gd:2294",
   "if left > 0: notice(\"背包放不下的 %d 瓶留在了可露希尔那里。\" % left)"
  ],
  "背包材料全部存回": [
-  "ui/base_screens.gd:319",
+  "ui/base_screens.gd:323",
   "var store_all := AK.button(\"背包材料全部存回\", \"plain\", 12)"
  ],
  "背包空间不足。": [
-  "game/game_manager.gd:3955",
+  "game/game_manager.gd:3999",
   "notice(\"背包空间不足。\")"
  ],
  "背包空间不足，": [
-  "game/game_manager.gd:1391",
+  "game/game_manager.gd:1415",
   "if left > 0: notice(\"背包空间不足，%d 件物品留在容器里。\" % left)"
  ],
  "背包空间不足：": [
-  "game/game_manager.gd:2496",
+  "game/game_manager.gd:2532",
   "notice(\"背包空间不足：%s ×%d 仍留在地上。\" % [item.item_name, left])"
  ],
  "背包空间不足：药剂要占一格。": [
-  "game/game_manager.gd:2257",
+  "game/game_manager.gd:2292",
   "notice(\"背包空间不足：药剂要占一格。\")"
  ],
  "背包药剂": [
@@ -10860,7 +11396,7 @@
   "_r(\"金酒之杯\", \"tempo\", 2, \"每有5源石锭，所有我方单位攻击速度+7\", \"背包里每有 5 赤金，攻速 +7（至多 +70）\", {}, {\"gold_aspd\": 7.0}),"
  ],
  "背包里没有这张订单的大宗货箱。": [
-  "game/game_manager.gd:4604",
+  "game/game_manager.gd:4653",
   "notice(\"背包里没有这张订单的大宗货箱。\")"
  ],
  "胶带": [
@@ -10944,11 +11480,11 @@
   "\"logistics_6\": [\"自动分拣系统\", 6, \"auto_sort\", \"撤离后自动上架\", [\"logistics_4\", \"logistics_5\", \"intel_3\", \"@drone\"], {}],"
  ],
  "自动喝药上限": [
-  "ui/base_screens.gd:762",
+  "ui/base_screens.gd:766",
   "[\"自动喝药下限\", [], \"auto_potion_low\", 0.05, 0.95], [\"自动喝药上限\", [], \"auto_potion_high\", 0.05, 0.95]]"
  ],
  "自动喝药下限": [
-  "ui/base_screens.gd:762",
+  "ui/base_screens.gd:766",
   "[\"自动喝药下限\", [], \"auto_potion_low\", 0.05, 0.95], [\"自动喝药上限\", [], \"auto_potion_high\", 0.05, 0.95]]"
  ],
  "自动追加": [
@@ -10987,6 +11523,10 @@
   "game/research_catalog.gd:81",
   "\"commerce_4\": [\"航线补给优化\", 4, \"voyage_supply\", \"航行物资 −15%\", [\"commerce_3\", \"logistics_2\"], {}],"
  ],
+ "航行": [
+  "game/story.gd:40",
+  "{\"id\": \"voyage\", \"title\": \"航行\", \"after\": [\"supply\"],"
+ ],
  "航行 ·": [
   "ui/sand_table_screen.gd:33",
   "return \"航行 · %s → %s · %s · %s\" % [v.sailing.from, v.sailing.to, VoyageCatalog.MODE_NAMES[v.sailing.mode], ExchangeScreen._left(int(v.sailing.due) - BaseState.now())]"
@@ -11019,6 +11559,10 @@
   "game/skill_trees.gd:321",
   "\"hoshiguma\": {\"name\": \"般若之盾\", \"type\": \"PRO-X\", \"stats\": {\"hp_pct\": 0.104, \"def_pct\": 0.30}},"
  ],
+ "舰体修复到这个程度，罗德岛可以离开切尔诺伯格了。博士，航线由你决定。": [
+  "game/story.gd:41",
+  "\"lines\": [[\"凯尔希\", \"舰体修复到这个程度，罗德岛可以离开切尔诺伯格了。博士，航线由你决定。\"]],"
+ ],
  "舰内口粮": [
   "game/material_catalog.gd:117",
   "\"舰内口粮\": {\"star\": 2, \"kind\": \"base\", \"source\": \"meal\", \"stack\": 5, \"text\": \"食堂压制的口粮块。\"},"
@@ -11046,6 +11590,10 @@
  "苍白花冠": [
   "game/relic_catalog.gd:125",
   "_r(\"苍白花冠\", \"life\", 1, \"受到的治疗和生命回复效果+30%\", \"受到的治疗与生命回复 +30%\", {\"heal_pct\": 0.30}),"
+ ],
+ "苏醒": [
+  "game/story.gd:20",
+  "{\"id\": \"wake\", \"title\": \"苏醒\", \"after\": [],"
  ],
  "英雄的鹿角坠": [
   "game/special_gear.gd:197",
@@ -11110,6 +11658,10 @@
  "药剂每格 +1": [
   "game/research_catalog.gd:120",
   "\"logistics_c1\": [\"随身药包\", 3, \"\", \"药剂每格 +1\", [\"logistics_2\", \"medical_c1\"], {\"potion_stack\": 1.0}],"
+ ],
+ "药房出售标准急救剂和缓释凝胶。每份合同出发时还会免费配发 3 瓶急救剂。": [
+  "ui/tutorial_spotlight.gd:63",
+  "\"base_pharmacy\": [\"药房窗口\", \"药房出售标准急救剂和缓释凝胶。每份合同出发时还会免费配发 3 瓶急救剂。\", 56.0],"
  ],
  "药房扩编": [
   "game/research_catalog.gd:54",
@@ -11184,11 +11736,11 @@
   "\"H\": {\"name\": \"源石护盾凝胶\", \"price\": 1800, \"store\": 4, \"line\": \"closure\", \"cap\": 2, \"text\": \"获得生命上限 15% 的护盾，持续 20 秒\","
  ],
  "获得藏品": [
-  "game/game_manager.gd:1336",
+  "game/game_manager.gd:1360",
   "set_message(\"获得藏品 %s — %s\" % [offer.name, offer.effect])"
  ],
  "获得赤金 ×": [
-  "game/game_manager.gd:4940",
+  "game/game_manager.gd:4989",
   "set_message(\"获得赤金 ×%d\" % given)"
  ],
  "莽撞的": [
@@ -11200,7 +11752,7 @@
   "for entry in [[\"基建\", \"construction\"], [\"合同\", \"contracts\"], [\"菜单\", \"pause\"]]:"
  ],
  "营地": [
-  "game/game_manager.gd:994",
+  "game/game_manager.gd:996",
   "route_history = [{\"floor\": start_floor, \"name\": \"营地\" if from_camp else \"入口\"}]"
  ],
  "营地前一层，压力与回报同时抬高": [
@@ -11212,7 +11764,7 @@
   "const REQUIREMENT_NAMES := {\"racks_3\": \"每区 3 个货架\", \"drone\": \"搬运无人机\", \"stayed\": \"医疗驻留\", \"camp_upgrade\": \"营地升级\","
  ],
  "营地升级完成：在营地停留不再累积污染。": [
-  "game/game_manager.gd:2323",
+  "game/game_manager.gd:2359",
   "set_message(\"营地升级完成：在营地停留不再累积污染。\")"
  ],
  "营地寄存手续费 20% → 10%": [
@@ -11226,6 +11778,10 @@
  "萨卡兹哨兵": [
   "game/enemy_attacks.gd:53",
   "\"sentinel\": {\"name\": \"萨卡兹哨兵\", \"attack\": \"警报\", \"art\": \"crossbow\", \"tint\": Color(\"e07a6a\"), \"windup\": 1.0, \"interval\": 1.0, \"damage\": 0.0, \"shape\": \"none\", \"reach\": 0.0, \"recovery\": 0.0, \"alarm\": true},"
+ ],
+ "萨卡兹哨兵发现博士后会发出警报，使威胁值加速上涨。建议优先将其击倒。": [
+  "ui/tutorial_spotlight.gd:41",
+  "\"sentinel\": [\"萨卡兹哨兵\", \"萨卡兹哨兵发现博士后会发出警报，使威胁值加速上涨。建议优先将其击倒。\", 52.0],"
  ],
  "萨卢佐家族的宅邸": [
   "game/recruit_catalog.gd:36",
@@ -11268,7 +11824,7 @@
   "button(body, \"萨米冰原苔 ×%d：全部痊愈\" % game.material_count(GameManager.SPECIAL_MOSS), func(): game.moss_cure(); _refresh(), not game.moss_refusal().is_empty())"
  ],
  "萨米冰原苔：所有干员已痊愈。": [
-  "game/game_manager.gd:2921",
+  "game/game_manager.gd:2962",
   "set_message(\"萨米冰原苔：所有干员已痊愈。\")"
  ],
  "萨米寒灾": [
@@ -11332,7 +11888,7 @@
   "\"K14\": {\"region\": \"谢拉格\", \"kind\": \"announce\", \"hours\": 24, \"weight\": 1, \"title\": \"蔓珠院举行祈福仪式\", \"effects\": [{\"sel\": \"karlan:*\", \"halt_hours\": 4}, {\"sel\": \"karlan:trinket\", \"mult\": 1.1}]},"
  ],
  "藏品": [
-  "game/keybinds.gd:47",
+  "game/keybinds.gd:46",
   "[\"toggle_relics\", \"藏品\", \"界面\", {\"key\": KEY_R}, null],"
  ],
  "藏品 /": [
@@ -11396,8 +11952,12 @@
   "AK.put(stage, AK.label(\"行动结束\" if ok else \"行动失败\", 52, AK.FG if ok else AK.RED), Vector2(48, 76))"
  ],
  "行动开始": [
-  "ui/system_screens.gd:176",
+  "ui/system_screens.gd:182",
   "var title := AK.label(\"行动开始\", 34, AK.FG)"
+ ],
+ "行动确认": [
+  "ui/tutorial_card.gd:18",
+  "[\"move\", \"行动确认\", \"欢迎回来，博士。PRTS 已完成同步。请先确认行动能力：左键点击地面即可前往目标位置，按住左键可以持续移动。\", \"移动\", \"base\"],"
  ],
  "行动结束": [
   "ui/event_screens.gd:674",
@@ -11442,6 +12002,10 @@
  "补给点": [
   "entities/guard_post.gd:22",
   "var title := \"补给点\""
+ ],
+ "补给线": [
+  "game/story.gd:34",
+  "{\"id\": \"supply\", \"title\": \"补给线\", \"after\": [\"hub\"],"
  ],
  "补货": [
   "ui/trader_screen.gd:114",
@@ -11516,7 +12080,7 @@
   "\"intel_2\": [\"装备鉴定协议\", 2, \"appraisal\", \"装备鉴定：范围位置\", [\"intel_1\"], {}],"
  ],
  "装备需求未达标：": [
-  "game/game_manager.gd:2522",
+  "game/game_manager.gd:2558",
   "notice(\"装备需求未达标：%s。\" % refusal)"
  ],
  "装满的金属燃料罐，发电机的口粮。": [
@@ -11548,15 +12112,15 @@
   "\"ice_warrior\": {\"common\": [[\"双酮\", 1, 2]], \"uncommon\": [[\"酮凝集\", 1, 1], [\"轻锰矿\", 1, 1]], \"rare\": [[\"褐素纤维\", 1, 1]]},"
  ],
  "西": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "西北": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "西南": [
-  "game/game_manager.gd:4123",
+  "game/game_manager.gd:4167",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "要害训练": [
@@ -11564,31 +12128,35 @@
   "\"intel_c2\": [\"要害训练\", 3, \"\", \"暴击率 +2%\", [\"intel_c1\", \"personnel_c1\"], {\"crit\": 0.02}],"
  ],
  "要放到": [
-  "game/base_state.gd:574",
+  "game/base_state.gd:582",
   "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[Item.group_of(category)], hand.item_name, BaseCatalog.CATEGORY_NAMES[Item.group_of(hand.category)]]"
+ ],
+ "观察视角": [
+  "ui/tutorial_card.gd:19",
+  "[\"camera\", \"观察视角\", \"可以按需调整观察视角：滚轮缩放，旋转键每次转动 45°，翻页键调整俯角，按住中键拖动自由旋转，复位键恢复默认视角。\", \"调整一次视角\", \"base\"],"
  ],
  "视窗只留一条缝，够看清前面的人倒下。": [
   "game/gear_catalog.gd:380",
   "\"icon\": \"mine_head_4\", \"text\": \"视窗只留一条缝，够看清前面的人倒下。\"},"
  ],
  "视角": [
-  "game/keybinds.gd:35",
+  "game/keybinds.gd:34",
   "[\"camera_zoom_in\", \"拉近视角\", \"视角\", {\"mouse\": MOUSE_BUTTON_WHEEL_UP}, null],"
  ],
  "视角压低": [
-  "game/keybinds.gd:40",
+  "game/keybinds.gd:39",
   "[\"camera_tilt_down\", \"视角压低\", \"视角\", {\"key\": KEY_PAGEDOWN}, null],"
  ],
  "视角右转": [
-  "game/keybinds.gd:38",
+  "game/keybinds.gd:37",
   "[\"camera_turn_right\", \"视角右转\", \"视角\", {\"key\": KEY_X}, null],"
  ],
  "视角左转": [
-  "game/keybinds.gd:37",
+  "game/keybinds.gd:36",
   "[\"camera_turn_left\", \"视角左转\", \"视角\", {\"key\": KEY_Z}, null],"
  ],
  "视角抬高": [
-  "game/keybinds.gd:39",
+  "game/keybinds.gd:38",
   "[\"camera_tilt_up\", \"视角抬高\", \"视角\", {\"key\": KEY_PAGEUP}, null],"
  ],
  "角兽自己脱下来的角，比砍下来的重。": [
@@ -11684,11 +12252,11 @@
   "if o.is_empty() or str(o.state) != \"open\": return \"订单不可装箱\""
  ],
  "订单完成：": [
-  "game/game_manager.gd:3125",
+  "game/game_manager.gd:3169",
   "set_message(\"订单完成：%s  ·  龙门币 +%s\" % [text, Economy.format(result.gold)])"
  ],
  "订单已刷新。": [
-  "game/game_manager.gd:3139",
+  "game/game_manager.gd:3183",
   "set_message(\"订单已刷新。\")"
  ],
  "订单板 +1 栏": [
@@ -11700,12 +12268,16 @@
   "text(box, \"订单栏 %d / 空，下次结算后补上\" % (i + 1), 16, Color(\"99aab8\"))"
  ],
  "订单追踪": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "订单速递": [
   "game/research_catalog.gd:48",
   "\"logistics_1\": [\"订单速递\", 1, \"order_slot\", \"订单板 +1 栏\", [], {}],"
+ ],
+ "让一名干员入职": [
+  "game/story.gd:39",
+  "\"goals\": [[\"personnel\", \"在人事部查看寻访进度\"], [\"joined\", \"让一名干员入职\"]]},"
  ],
  "让开的不是它。": [
   "game/special_gear.gd:106",
@@ -11736,7 +12308,7 @@
   "\"近卫芯片\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"记录近卫干员特殊训练数据的存储芯片，用于干员晋升。\"},"
  ],
  "设施": [
-  "ui/base_screens.gd:421",
+  "ui/base_screens.gd:425",
   "_section(stage, \"设施\", \"FACILITIES\", Vector2(16, TOP + 4))"
  ],
  "设施 · 扩建": [
@@ -11744,7 +12316,7 @@
   "return \"可升级 %d\" % ready if ready > 0 else \"设施 · 扩建\""
  ],
  "设置": [
-  "ui/base_screens.gd:692",
+  "ui/base_screens.gd:696",
   "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"回到标题\"]"
  ],
  "设计师量尺": [
@@ -11787,6 +12359,10 @@
   "ui/trader_screen.gd:439",
   "\"title\": \"诡意行商\", \"en\": \"ROGUE TRADER · \" + AK.floor_code(game.region_id, game.floor_number), \"accent\": Color(\"c8643c\"),"
  ],
+ "诡意行商坎诺特。可以用赤金购买藏品、装备与药剂，也可以把物品卖给他；货架可以付费刷新。": [
+  "ui/tutorial_spotlight.gd:33",
+  "\"trader\": [\"坎诺特\", \"诡意行商坎诺特。可以用赤金购买藏品、装备与药剂，也可以把物品卖给他；货架可以付费刷新。\", 56.0],"
+ ],
  "诡秘的": [
   "game/prefix_families.gd:49",
   "\"prefixes\": [[\"fickle_w\", \"诡变的\", \"Shifting\", \"W\"], [\"fickle_a\", \"诡秘的\", \"Cryptic\", \"A\"], [\"fickle\", \"诡意的\", \"Fickle\", \"T\"]],"
@@ -11800,7 +12376,7 @@
   "\"诡运：诡意属性 ×2；每次换属性后的 3 秒内，攻击必定暴击\"]},"
  ],
  "语言 / Language": [
-  "ui/system_screens.gd:268",
+  "ui/system_screens.gd:274",
   "row.add_child(AK.label(\"语言 / Language\", 14, AK.FG))"
  ],
  "读不懂上面的字，但它好像读得懂你。": [
@@ -11808,7 +12384,7 @@
   "\"icon\": \"cipher_fragment\", \"text\": \"读不懂上面的字，但它好像读得懂你。\"},"
  ],
  "课题": [
-  "game/research.gd:185",
+  "game/research.gd:186",
   "game.broadcast(\"课题%s未支付，本次不生效。\" % ResearchCatalog.PROJECTS[project][0])"
  ],
  "课题位": [
@@ -11816,11 +12392,11 @@
   "list.add_child(AK.section(\"课题位\", \"PROJECTS  %d / %d   ·   %s\" % [r.projects().size(), r.project_slots(), Economy.roman(tier)]))"
  ],
  "课题位已满": [
-  "game/research.gd:158",
+  "game/research.gd:159",
   "if projects().size() >= project_slots(): return \"课题位已满\""
  ],
  "课题经费": [
-  "game/game_manager.gd:992",
+  "game/game_manager.gd:994",
   "if project_paid > 0: broadcast(\"课题经费 %s 龙门币：%s。\" % [Economy.format(project_paid), \"、\".join(base.research.run.map(func(p): return str(ResearchCatalog.PROJECTS[p][0])))])"
  ],
  "课题费用": [
@@ -11843,9 +12419,21 @@
   "ui/field_menu.gd:167",
   "\"contracts\": [\"调度台 / 外勤合同\", \"选择地区接下合同 · 每 3 区段固定撤离\"],"
  ],
+ "调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。": [
+  "ui/tutorial_card.gd:20",
+  "[\"contract\", \"合同委托\", \"调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。\", \"调度台接合同出击\", \"base\"],"
+ ],
+ "调度台接合同出击": [
+  "ui/tutorial_card.gd:20",
+  "[\"contract\", \"合同委托\", \"调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。\", \"调度台接合同出击\", \"base\"],"
+ ],
  "调度台：接单": [
   "art/rhodes_runtime/room_hall.json",
   "调度台：接单"
+ ],
+ "调整一次视角": [
+  "ui/tutorial_card.gd:19",
+  "[\"camera\", \"观察视角\", \"可以按需调整观察视角：滚轮缩放，旋转键每次转动 45°，翻页键调整俯角，按住中键拖动自由旋转，复位键恢复默认视角。\", \"调整一次视角\", \"base\"],"
  ],
  "谢拉格": [
   "game/voyage_catalog.gd:8",
@@ -11888,7 +12476,7 @@
   "\"logistics_3\": [\"立体货架\", 3, \"rack_cells\", \"货架 12 → 14 格\", [\"logistics_1\", \"@racks_3\"], {}],"
  ],
  "货架已满配": [
-  "ui/base_screens.gd:393",
+  "ui/base_screens.gd:397",
   "var label := \"货架已满配\""
  ],
  "货物": [
@@ -11896,7 +12484,7 @@
   "_picker(right, \"货物\", item.display_name() + item.stack_suffix(), func(): ship_pick -= 1; build(menu), func(): ship_pick += 1; build(menu))"
  ],
  "货箱": [
-  "game/game_manager.gd:2650",
+  "game/game_manager.gd:2689",
   "set_message(\"%s 放回了%s。\" % [item.item_name, \"暂存区\" if base.location_of(item) == \"staging\" else \"货箱\"])"
  ],
  "货箱不在仓库": [
@@ -11932,7 +12520,7 @@
   "var tabs := [\"商店\", \"出售赤金\", \"换汇\", \"贷款\", \"随队物资\"] if at_base else [\"商店\", \"寄存\", \"出售赤金\", \"换汇\", \"交割\", \"补给\", \"处理\"]"
  ],
  "贷款逾期：合同报酬先还款": [
-  "game/game_manager.gd:1755",
+  "game/game_manager.gd:1787",
   "if repaid > 0: broadcast(\"贷款逾期：合同报酬先还款 %s 龙门币。\" % Economy.format(repaid))"
  ],
  "贷款额度 100,000": [
@@ -11988,7 +12576,7 @@
   "return \"%d 赤金 (%.2f)\" % [field_bars(amount, buying), amount]"
  ],
  "赤金不足": [
-  "game/game_manager.gd:1566",
+  "game/game_manager.gd:1592",
   "if gold_bars() < squad_price(item): return \"赤金不足\""
  ],
  "赤金与金币": [
@@ -12091,12 +12679,16 @@
   "game/market/market_links.gd:300",
   "\"跨线\": [\"U7\", \"U13\", \"U19\", \"U21\", \"U6\", \"X7\", \"X2\", \"X18\", \"X25\", \"S20\", \"S5\", \"X21\", \"C25\", \"S3\", \"L33\", \"C16\", \"Z9\", \"V18\", \"L28\", \"L9\", \"K21\", \"Z26\", \"X9\", \"C8\", \"V15\", \"V13\", \"L4\", \"C11\", \"K2\", \"K"
  ],
+ "跳过引导": [
+  "ui/tutorial_card.gd:123",
+  "var skip := AK.button(\"跳过引导\", \"ghost\", 11)"
+ ],
  "踪迹": [
-  "game/game_manager.gd:1545",
+  "game/game_manager.gd:1571",
   "if is_instance_valid(trace_point) and near(trace_point): return \"踪迹\""
  ],
  "踪迹 ·": [
-  "game/game_manager.gd:4499",
+  "game/game_manager.gd:4548",
   "set_message(\"踪迹 · %s %d/%d\" % [Operators.display_name(id), have, RecruitCatalog.CLUES_NEEDED])"
  ],
  "踪迹档案": [
@@ -12195,8 +12787,12 @@
   "ui/sand_table_screen.gd:169",
   "AK.put(stage, AK.label(\"运送 · \" + \"  \".join(floors), 13, AK.BLUE), Vector2(680, y + 80))"
  ],
+ "运送合同的交接点。背包或安全袋里带着这张订单的大宗货箱时，按交互键交付；报酬在结算时到账。": [
+  "ui/tutorial_spotlight.gd:26",
+  "\"handover\": [\"交接点\", \"运送合同的交接点。背包或安全袋里带着这张订单的大宗货箱时，按交互键交付；报酬在结算时到账。\", 56.0],"
+ ],
  "运送完成 ·": [
-  "game/game_manager.gd:4610",
+  "game/game_manager.gd:4659",
   "set_message(\"运送完成 · %s\" % FactionCatalog.name_of(str(contract.faction)))"
  ],
  "近代工业的关键材料之一，但这只是原料。": [
@@ -12308,7 +12904,7 @@
   "var b := AK.button(\"还 %s\" % (\"全部\" if n < 0 else Economy.format(amount)), \"plain\", 14)"
  ],
  "还差": [
-  "game/game_manager.gd:3126",
+  "game/game_manager.gd:3170",
   "else: set_message(\"已交付 %s ×%d：%s 还差 %d\" % [item.item_name, int(result.used), text, base.orders.remaining(slot)])"
  ],
  "还没有藏品。强化装置、战斗缴获和密室都会给出藏品选择。": [
@@ -12328,16 +12924,40 @@
   "\"implicit\": [[ItemModifier.Stat.DEF_FLAT, 30.0], [ItemModifier.Stat.MAX_HP_PCT, 0.05]], \"fx\": \"hurt_def_stack\", \"fx_text\": \"受击时：3 秒内防御 +15%，叠 3 层\", \"req\": \"phy\", \"text\": \"这副甲比穿它的人更早认得冬天。\"},"
  ],
  "这是": [
-  "game/base_state.gd:574",
+  "game/base_state.gd:582",
   "return \"这是%s区。%s要放到%s区，已为你高亮。\" % [BaseCatalog.CATEGORY_NAMES[Item.group_of(category)], hand.item_name, BaseCatalog.CATEGORY_NAMES[Item.group_of(hand.category)]]"
+ ],
+ "这是一处势力据点。只收购该势力需要的货物，按当前价格当面成交。": [
+  "ui/tutorial_spotlight.gd:35",
+  "\"post\": [\"势力据点\", \"这是一处势力据点。只收购该势力需要的货物，按当前价格当面成交。\", 56.0],"
+ ],
+ "这是通往下一层的入口。按交互键选择路线：路线越危险，敌人越强，收获也越丰厚。": [
+  "ui/tutorial_spotlight.gd:31",
+  "\"route\": [\"深入入口\", \"这是通往下一层的入口。按交互键选择路线：路线越危险，敌人越强，收获也越丰厚。\", 56.0],"
  ],
  "这身护甲的上一任主人，任期没满两年。": [
   "game/gear_catalog.gd:117",
   "\"icon\": \"inspector_armor\", \"text\": \"这身护甲的上一任主人，任期没满两年。\"},"
  ],
+ "这里是尚未建成的设施。按交互键查看建造需要的龙门币和材料；没有接入总控台的设施也可以在现场升级。": [
+  "ui/tutorial_spotlight.gd:71",
+  "\"base_build_site\": [\"施工点\", \"这里是尚未建成的设施。按交互键查看建造需要的龙门币和材料；没有接入总控台的设施也可以在现场升级。\", 64.0],"
+ ],
+ "这里有一份战斗缴获。按交互键打开，从中选择一件藏品。": [
+  "ui/tutorial_spotlight.gd:36",
+  "\"cache\": [\"战斗缴获\", \"这里有一份战斗缴获。按交互键打开，从中选择一件藏品。\", 48.0],"
+ ],
+ "这里有一处火堆。点燃时站在旁边寒冷会持续下降；熄灭了就按交互键，从背包里选燃料添进去。": [
+  "ui/tutorial_spotlight.gd:27",
+  "\"fire\": [\"火堆\", \"这里有一处火堆。点燃时站在旁边寒冷会持续下降；熄灭了就按交互键，从背包里选燃料添进去。\", 56.0],"
+ ],
  "进入": [
-  "game/game_manager.gd:1273",
+  "game/game_manager.gd:1297",
   "broadcast(\"进入 %s · %s。\" % [AK.floor_code(region_id, floor_number), FieldCatalog.ROUTES[route].name])"
+ ],
+ "进入下一层": [
+  "ui/tutorial_card.gd:34",
+  "[\"descend\", \"深入\", \"沿道路寻找深入入口，按交互键选择路线进入下一层。越往深处，敌人越强，收获也越好。\", \"进入下一层\", \"field\"],"
  ],
  "进入每个区段时技能充能 +1": [
   "game/relic_catalog.gd:79",
@@ -12356,7 +12976,7 @@
   "_r(\"活木甲\", \"defense\", 1, \"所有我方近战单位部署时获得相当于最大生命50%的屏障\", \"进入每个区段时获得 50% 最大生命的屏障\", {}, {\"segment_shield\": 0.50}),"
  ],
  "进入第": [
-  "game/game_manager.gd:1272",
+  "game/game_manager.gd:1296",
   "set_message(\"进入第 %d 层 · %s；上一层已无法返回。\" % [floor_number, FieldCatalog.ROUTES[route].name])"
  ],
  "进层播报兴趣点 · 精英": [
@@ -12512,19 +13132,19 @@
   "\"set_warrant_0\": {\"name\": \"追缉令·钩刀\", \"kind\": \"set\", \"set_id\": \"warrant\", \"category\": Item.Category.WEAPON, \"size\": Vector2i(2, 1), \"power\": 1.6, \"region\": \"mine\","
  ],
  "追踪中": [
-  "ui/base_screens.gd:282",
+  "ui/base_screens.gd:286",
   "status = \"未发现\" if have == 0 else (\"可寻访\" if game.base.recruit_ready(id) else \"追踪中\")"
  ],
  "退出": [
-  "ui/system_screens.gd:153",
+  "ui/system_screens.gd:159",
   "var quit := AK.button(\"退出\", \"plain\", 15)"
  ],
  "送回": [
-  "game/game_manager.gd:2358",
+  "game/game_manager.gd:2394",
   "elif outcome.begins_with(\"送回\"): summary.insured += item.value"
  ],
  "送回（投保）": [
-  "game/game_manager.gd:2345",
+  "game/game_manager.gd:2381",
   "if item.insured: return \"送回（投保）\""
  ],
  "送往": [
@@ -12588,7 +13208,7 @@
   "_r(\"\\\"复仇者\\\"\", \"attack\", 2, \"所有敌方单位受到的物理伤害+35%\", \"造成的物理伤害 +35%\", {\"phys_dmg_pct\": 0.35}),"
  ],
  "遇到": [
-  "game/game_manager.gd:2042",
+  "game/game_manager.gd:2076",
   "set_message(\"遇到%s：赤金 +%d\" % [encounter_name(), bonus])"
  ],
  "道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +": [
@@ -12596,7 +13216,7 @@
   "\"text\": \"每放出 %s 道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +%s，剑气蓄力降为 1 次。\"},"
  ],
  "遗失": [
-  "game/game_manager.gd:1658",
+  "game/game_manager.gd:1690",
   "var reason := \"遗失\""
  ],
  "遗留的矿工背包": [
@@ -12668,7 +13288,7 @@
   "const FORM_NAMES := {\"blade\": \"刃\", \"heavy\": \"重\", \"fist\": \"拳\", \"polearm\": \"长柄\", \"crossbow\": \"弩\", \"bow\": \"弓\", \"gun\": \"铳\", \"staff\": \"法杖\"}"
  ],
  "重伤": [
-  "game/game_manager.gd:3307",
+  "game/game_manager.gd:3351",
   "if not injured.is_empty(): parts.append(\"重伤 \" + \"、\".join(injured.map(func(id): return Operators.display_name(id))))"
  ],
  "重伤治疗费 −50%": [
@@ -12688,7 +13308,7 @@
   "const CONTAMINATION_TIER_NAMES := [\"无\", \"中度\", \"重度\"]"
  ],
  "重抽": [
-  "ui/base_screens.gd:231",
+  "ui/base_screens.gd:235",
   "var reroll := AK.button(\"重抽\", \"ghost\", 11)"
  ],
  "重构后解决了主板空间问题，但能耗更高。": [
@@ -12968,12 +13588,16 @@
   "_p(\"sidestep\", 0, A, \"闪身的\", \"Sidestepping\", {\"evasion\": 0.06, \"def\": -30.0})"
  ],
  "闪避": [
-  "entities/player.gd:692",
+  "entities/player.gd:669",
   "interrupt_actions_for(\"闪避\")"
  ],
  "闪避 +1%": [
   "game/research_catalog.gd:113",
   "\"field_c3\": [\"闪避训练\", 3, \"\", \"闪避 +1%\", [\"field_c2\", \"personnel_c1\"], {\"evasion\": 0.01}],"
+ ],
+ "闪避一次": [
+  "ui/tutorial_card.gd:22",
+  "[\"dodge\", \"闪避\", \"敌人出手前，地面会出现攻击预警。按闪避键可以快速脱离预警区域，每次闪避消耗体力。\", \"闪避一次\", \"field\"],"
  ],
  "闪避一次攻击后 6 秒内攻击力 +130%": [
   "game/relic_catalog.gd:67",
@@ -13048,7 +13672,7 @@
   "right.add_child(AK.section(\"队列\", \"QUEUE  %d / %d\" % [game.workshop.busy(), game.workshop_slots()]))"
  ],
  "队列已满": [
-  "game/provisions.gd:214",
+  "game/provisions.gd:215",
   "if jobs().size() >= kitchen_slots(): return \"队列已满\""
  ],
  "防具": [
@@ -13152,7 +13776,7 @@
   "\"name\": \"阿米娅\", \"form\": \"剑兔\", \"class\": \"近卫\", \"branch\": \"GUARD · ARTS FIGHTER\", \"stars\": 5,"
  ],
  "附近有人留下了踪迹。": [
-  "game/game_manager.gd:4494",
+  "game/game_manager.gd:4543",
   "broadcast(\"PRTS：博士，%s附近有人留下了踪迹。\" % RecruitCatalog.RECRUITS[id].place)"
  ],
  "陆龟特快开通新线路": [
@@ -13183,6 +13807,10 @@
   "game/enemy_attacks.gd:49",
   "\"fallen_snowpriest\": {\"name\": \"陷落雪祀\", \"attack\": \"冰弹\", \"art\": \"ice_hunter\", \"tint\": Color(\"eef4ff\"), \"windup\": 1.2, \"interval\": 2.4, \"damage\": 1.1, \"shape\": \"projectile\", \"reach\": 11.0, \"projectile\": \""
  ],
+ "陷阱": [
+  "ui/tutorial_spotlight.gd:28",
+  "\"trap\": [\"陷阱\", \"前方地面有陷阱。踩中会受到固定伤害并提高威胁值；重型陷阱触发后有短暂引信，及时闪避可以躲开。\", 40.0],"
+ ],
  "陷阱不涨威胁值": [
   "game/research_catalog.gd:143",
   "\"traps\": [\"陷阱预警\", \"M\", \"陷阱不涨威胁值\"],"
@@ -13208,7 +13836,7 @@
   "\"prefixes\": [[\"stealthy\", \"潜伏的\", \"Stealthy\", \"W\"], [\"stealth_a\", \"隐匿的\", \"Hidden\", \"A\"], [\"stealth_t\", \"无声的\", \"Silent\", \"T\"]],"
  ],
  "隐藏": [
-  "ui/base_screens.gd:761",
+  "ui/base_screens.gd:765",
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "隔着一臂远，猎物才不会回头咬你。": [
@@ -13260,7 +13888,7 @@
   "_r(\"雪牝的护手\", \"defense\", 2, \"阻挡3名及以上敌人后，攻速+80，获得50%物理和法术闪避，持续30秒\", \"3 米内有 3 名及以上敌人时，攻速 +80、物理与法术闪避 50%，持续 30 秒（之后 30 秒冷却）\", {}, {\"crowd_dance\": 1.0}),"
  ],
  "雪牝的护手：攻速 +80、闪避 50%，持续 30 秒": [
-  "entities/player.gd:618",
+  "entities/player.gd:595",
   "message_requested.emit(\"雪牝的护手：攻速 +80、闪避 50%，持续 30 秒\")"
  ],
  "雪祀主持冬季祭典": [
@@ -13344,27 +13972,27 @@
   "\"C9\": {\"region\": \"哥伦比亚\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"雷神工业拿下军工大单\","
  ],
  "需要": [
-  "game/game_manager.gd:1982",
+  "game/game_manager.gd:2016",
   "if material_count(id) < int(p.barter[id]): return \"需要 %s ×%d\" % [id, int(p.barter[id])]"
  ],
  "需要仓储部 Lv": [
-  "game/base_state.gd:394",
+  "game/base_state.gd:402",
   "if facility_level(\"warehouse\") < int(BaseCatalog.RACK_LEVELS[slot]): return \"需要仓储部 Lv%d。\" % BaseCatalog.RACK_LEVELS[slot]"
  ],
  "需要企鹅专递单": [
-  "game/game_manager.gd:2961",
+  "game/game_manager.gd:3002",
   "if carried_count(SPECIAL_SLIP) <= 0: return \"需要企鹅专递单\""
  ],
  "需要企鹅物流关系 R": [
-  "game/provisions.gd:264",
+  "game/provisions.gd:266",
   "if game.exchange.rank(\"penguin\") < MAIL_RANK: return \"需要企鹅物流关系 R%d\" % MAIL_RANK"
  ],
  "需要停靠龙门": [
-  "game/game_manager.gd:2806",
+  "game/game_manager.gd:2847",
   "if base.ship_at != DIRECTED_ANCHOR or not voyage.sailing.is_empty(): return \"需要停靠龙门\""
  ],
  "需要关系 R": [
-  "game/game_manager.gd:2927",
+  "game/game_manager.gd:2968",
   "if exchange.rank(\"penguin\") < FactionSpecials.rank_needed(SPECIAL_SLIP): return \"需要关系 R%d\" % FactionSpecials.rank_needed(SPECIAL_SLIP)"
  ],
  "需要农业部 Lv1": [
@@ -13376,15 +14004,15 @@
   "if i < 0 or i >= basins(): return \"需要农业部升级\""
  ],
  "需要基建总控台": [
-  "game/game_manager.gd:3200",
+  "game/game_manager.gd:3244",
   "if not base.hub_built(): return \"需要基建总控台\""
  ],
  "需要整备部 Lv": [
-  "game/base_state.gd:378",
+  "game/base_state.gd:386",
   "if facility_level(\"outfit\") < int(needs[level + 1]): return \"需要整备部 Lv%d\" % int(needs[level + 1])"
  ],
  "需要残党向导": [
-  "game/game_manager.gd:2999",
+  "game/game_manager.gd:3040",
   "if carried_count(SPECIAL_GUIDE) <= 0: return \"需要残党向导\""
  ],
  "需要科研部 Lv": [
@@ -13404,7 +14032,7 @@
   "if elite < 2: return \"需要精英 2\""
  ],
  "需要罗德岛小队或营地": [
-  "game/game_manager.gd:2962",
+  "game/game_manager.gd:3003",
   "if not in_camp and not (encounter == \"squad\" and near(world_map.encounter_node)): return \"需要罗德岛小队或营地\""
  ],
  "需要莱茵生命关系 R": [
@@ -13412,11 +14040,11 @@
   "return \"需要莱茵生命关系 R%d\" % FactionSpecials.rank_needed(str(c.seed))"
  ],
  "需要食堂": [
-  "game/provisions.gd:250",
+  "game/provisions.gd:251",
   "if game.base.facility_level(\"canteen\") < 1: return \"需要食堂\""
  ],
  "需要食堂 Lv": [
-  "game/provisions.gd:213",
+  "game/provisions.gd:214",
   "if game.base.facility_level(\"canteen\") < int(RECIPES[meal].level): return \"需要食堂 Lv%d\" % int(RECIPES[meal].level)"
  ],
  "需要食堂 Lv1": [
@@ -13424,7 +14052,7 @@
   "AK.put(stage, AK.label(\"需要食堂 Lv1\", 16, AK.MUTE), Vector2(32, TOP + 24))"
  ],
  "需要龙门商会关系 R": [
-  "game/game_manager.gd:2807",
+  "game/game_manager.gd:2848",
   "if exchange.rank(DIRECTED_FACTION) < Exchange.RANK_AT.size() - 1: return \"需要龙门商会关系 R%d\" % (Exchange.RANK_AT.size() - 1)"
  ],
  "震荡护符": [
@@ -13436,7 +14064,7 @@
   "_r(\"霜牡的肩甲\", \"defense\", 1, \"阻挡2名及以上敌人后，攻击力+40%，防御力+40%，持续30秒\", \"3 米内有 2 名及以上敌人时，攻击力与防御 +40%，持续 30 秒（之后 30 秒冷却）\", {}, {\"crowd_guard\": 1.0}),"
  ],
  "霜牡的肩甲：攻击力与防御 +40%，持续 30 秒": [
-  "entities/player.gd:614",
+  "entities/player.gd:591",
   "message_requested.emit(\"霜牡的肩甲：攻击力与防御 +40%，持续 30 秒\")"
  ],
  "霜纹护符": [
@@ -13456,7 +14084,7 @@
   "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], \"fx\": \"idle_strike\", \"fx_text\": \"空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力\", \"req\": \"arts\", \"text\": \"静下来的时候，它"
  ],
  "静音": [
-  "ui/system_screens.gd:223",
+  "ui/system_screens.gd:229",
   "mute.text = \"静音\""
  ],
  "静默喷剂": [
@@ -13500,11 +14128,11 @@
   "\"taoguang\": {\"name\": \"韬光\", \"type\": \"passive\", \"tier\": 1, \"max\": 5,"
  ],
  "音量": [
-  "ui/system_screens.gd:212",
+  "ui/system_screens.gd:218",
   "volume_row.add_child(AK.label(\"音量\", 14, AK.FG))"
  ],
  "音频": [
-  "ui/base_screens.gd:693",
+  "ui/base_screens.gd:697",
   "const SETTING_TABS := [\"画面\", \"界面\", \"音频\", \"基地\"]"
  ],
  "项链": [
@@ -13512,7 +14140,7 @@
   "const CATEGORY_NAMES := [\"武器\", \"防具\", \"饰品\", \"材料\", \"头部\", \"胸甲\", \"手部\", \"腿部\", \"脚部\", \"项链\", \"戒指\"]"
  ],
  "项，已送到暂存区。": [
-  "game/game_manager.gd:1934",
+  "game/game_manager.gd:1968",
   "if in_base: set_message(\"加工部完成 %d 项，已送到暂存区。\" % done.size())"
  ],
  "颁给它的国家，已经不认它了。": [
@@ -13566,6 +14194,10 @@
  "食堂开放 · 舰内口粮 · 食堂便当": [
   "game/base_catalog.gd:87",
   "{\"price\": 20000, \"materials\": {\"家具零件\": 3, \"金属板\": 2, \"燃料罐\": 1}, \"opens\": \"食堂开放 · 舰内口粮 · 食堂便当\"},"
+ ],
+ "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。": [
+  "ui/tutorial_spotlight.gd:74",
+  "\"base_canteen\": [\"食堂\", \"食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。\", 60.0],"
  ],
  "食堂终端": [
   "art/rhodes_runtime/room_mess.json",
@@ -13680,7 +14312,7 @@
   "\"medical_5\": [\"高浓度配方\", 5, \"potion_grade\", \"免费药剂 +1 档\", [\"medical_1\", \"logistics_2\"], {}],"
  ],
  "高级作战记录": [
-  "game/game_manager.gd:4821",
+  "game/game_manager.gd:4870",
   "if enemy is Boss or enemy == _bounty: record = \"高级作战记录\""
  ],
  "高纯源岩助熔剂": [
@@ -13772,7 +14404,7 @@
   "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05]], \"req\": \"arts\", \"text\": \"鼓面上一棵树、三个人，鼓声替他们说话。\"},"
  ],
  "鼠标": [
-  "game/keybinds.gd:156",
+  "game/keybinds.gd:153",
   "if binding.has(\"mouse\"): return MOUSE_NAMES.get(int(binding.mouse), \"鼠标 %d\" % int(binding.mouse))"
  ],
  "鼠王手下线人的一次口信，传闻是真是假，他们比报纸先知道。": [
@@ -13792,7 +14424,7 @@
   "\"snow_x17\": {\"name\": \"鼷兽毛团\", \"region\": \"snow\", \"category\": T, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.STAMINA_REGEN_PCT, 0.075]],"
  ],
  "龙门": [
-  "game/game_manager.gd:2785",
+  "game/game_manager.gd:2826",
   "const DIRECTED_ANCHOR := \"龙门\""
  ],
  "龙门中心医院扩大采购": [
@@ -13840,15 +14472,15 @@
   "lines.append(\"[color=#d8c27a]交付价 %s 龙门币[/color]\" % Economy.format(Economy.price(item)))"
  ],
  "龙门币。": [
-  "game/game_manager.gd:1749",
+  "game/game_manager.gd:1781",
   "\"合同报酬 %s 龙门币。\" % Economy.format(reward) if reward > 0 else \"\", \"投保物品送回 %d 件。\" % returned.size() if not returned.is_empty() else \"\"])"
  ],
  "龙门币不足": [
-  "game/base_state.gd:232",
+  "game/base_state.gd:239",
   "if money < int(step.price): return \"龙门币不足\""
  ],
  "龙门币不足（": [
-  "game/base_state.gd:395",
+  "game/base_state.gd:403",
   "if gold < int(BaseCatalog.RACK_PRICES[slot]): return \"龙门币不足（%s）。\" % Economy.format(BaseCatalog.RACK_PRICES[slot])"
  ],
  "龙门币为交付价 ×": [
@@ -13876,7 +14508,7 @@
   "button(body, \"治疗重伤（%s 龙门币）\" % Economy.format(game.injury_price(id)), func(): game.treat_injury(id); _refresh(), game.gold < game.injury_price(id))"
  ],
  "龙门币：": [
-  "game/game_manager.gd:992",
+  "game/game_manager.gd:994",
   "if project_paid > 0: broadcast(\"课题经费 %s 龙门币：%s。\" % [Economy.format(project_paid), \"、\".join(base.research.run.map(func(p): return str(ResearchCatalog.PROJECTS[p][0])))])"
  ],
  "龙门感染者纠察队扩编": [
@@ -13912,11 +14544,11 @@
   "\"city_ring_4\": {\"name\": \"龙门老字号金戒\", \"region\": \"city\", \"category\": RING, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.CRIT_RATE, 0.015], [S.CRIT_DMG, 0.05]],"
  ],
  "（": [
-  "entities/player.gd:1193",
+  "entities/player.gd:1170",
   "message_requested.emit(\"圆石祭坛：攻击力与防御 +5%%（%d 层）\" % altar_stacks)"
  ],
  "（不影响出发）": [
-  "game/game_manager.gd:3281",
+  "game/game_manager.gd:3325",
   "out.append(\"，\".join(parts) + \"（不影响出发）\")"
  ],
  "（产地：": [
@@ -13956,7 +14588,7 @@
   "_say(\"企鹅物流送达：%s → %s，%s%s\" % [item.display_name(), FactionCatalog.name_of(faction), format_money(str(q.currency), net), \"（途中遇险，部分损失）\" if lost else \"\"], \"arrival\")"
  ],
  "（重伤）": [
-  "game/game_manager.gd:3273",
+  "game/game_manager.gd:3317",
   "if base.injured: out.append(\"生命上限 −%d%%（重伤）\" % roundi(base.hp_penalty() * 100))"
  ],
  "（间隔": [
@@ -13968,7 +14600,7 @@
   "if t.has(\"region\") and not t.has(\"effect\"): where = \"（产地：%s）\" % FieldCatalog.REGIONS[t.region].name.split(\" · \")[0]"
  ],
  "）。": [
-  "game/base_state.gd:395",
+  "game/base_state.gd:403",
   "if gold < int(BaseCatalog.RACK_PRICES[slot]): return \"龙门币不足（%s）。\" % Economy.format(BaseCatalog.RACK_PRICES[slot])"
  ],
  "）：[/color]": [
@@ -13976,11 +14608,11 @@
   "lines.append(\"[color=#99aab8]装备后（对比%s）：[/color]\" % (\"当前 \" + worn.item_name if worn != null else \"空槽\"))"
  ],
  "）：放进暂存区，或在仓管台扩建。": [
-  "game/base_state.gd:497",
+  "game/base_state.gd:505",
   "return \"%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。\" % ["
  ],
  "，": [
-  "game/game_manager.gd:3073",
+  "game/game_manager.gd:3114",
   "set_message(\"罗德岛小队：%s，%s。\" % [meal_id, Provisions.meal_text(meal_id)])"
  ],
  "，保证金没收，关系下降": [
@@ -14000,11 +14632,11 @@
   "\"text\": \"每放出 %s 道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +%s，剑气蓄力降为 1 次。\"},"
  ],
  "，剩余": [
-  "game/game_manager.gd:2494",
+  "game/game_manager.gd:2530",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "，已放回仓库。": [
-  "game/game_manager.gd:5013",
+  "game/game_manager.gd:5062",
   "notice(\"%s无法使用%s，已放回仓库。\" % [Operators.display_name(player.operator_id), weapon.item_name])"
  ],
  "，并使其受到伤害 +": [
@@ -14020,7 +14652,7 @@
   "\"text\": \"身边一圈落剑，两段法术伤害各 %s，并晕眩 1.5 秒；冷却 %s 秒。\"},"
  ],
  "，强制了结": [
-  "game/game_manager.gd:1796",
+  "game/game_manager.gd:1828",
   "var text := \"离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，持续": [
@@ -14048,7 +14680,7 @@
   "\"text\": \"空格开启日晷 8 秒：攻击力 +%s，物理闪避 +%s；期间闪避物理攻击立即蓄满剑气。脚下日晷的时针走完一圈即结束。冷却 %s 秒。\"},"
  ],
  "，精英": [
-  "game/game_manager.gd:1277",
+  "game/game_manager.gd:1301",
   "broadcast(\"PRTS：本层兴趣点 %d，精英 %d。\" % [world_map.cache_positions.size(), floor_enemies().filter(func(e): return e.elite).size()])"
  ],
  "，绝影期间及之后 3 秒效果加倍。": [
@@ -14056,23 +14688,23 @@
   "\"amiya_guard\": {\"name\": \"青色怒火\", \"text\": \"攻击力与防御力 +%s，绝影期间及之后 3 秒效果加倍。\"},"
  ],
  "，账户总值": [
-  "game/game_manager.gd:1796",
+  "game/game_manager.gd:1828",
   "var text := \"离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，赤金 +": [
-  "game/game_manager.gd:2143",
+  "game/game_manager.gd:2177",
   "set_message(\"卖给坎诺特：%s，赤金 +%d\" % [item.display_name(), pay])"
  ],
  "，违约": [
-  "game/game_manager.gd:1796",
+  "game/game_manager.gd:1828",
   "var text := \"离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，送达": [
-  "game/game_manager.gd:1796",
+  "game/game_manager.gd:1828",
   "var text := \"离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，附带副产物": [
-  "game/game_manager.gd:1933",
+  "game/game_manager.gd:1967",
   "broadcast(\"PRTS：加工部完成 %s ×%d%s。\" % [job.output, int(job.count), \"，附带副产物\" if not job.get(\"byproducts\", {}).is_empty() else \"\"])"
  ],
  "：": [
@@ -14084,15 +14716,15 @@
   "button(body, \"萨米冰原苔 ×%d：全部痊愈\" % game.material_count(GameManager.SPECIAL_MOSS), func(): game.moss_cure(); _refresh(), not game.moss_refusal().is_empty())"
  ],
  "：去": [
-  "game/game_manager.gd:2620",
+  "game/game_manager.gd:2658",
   "set_message(\"拿起 %s：去%s区上架。\" % [item.item_name, BaseCatalog.CATEGORY_NAMES[item.category]])"
  ],
  "：挂单成交": [
-  "game/game_manager.gd:1796",
+  "game/game_manager.gd:1828",
   "var text := \"离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "：赤金 +": [
-  "game/game_manager.gd:2042",
+  "game/game_manager.gd:2076",
   "set_message(\"遇到%s：赤金 +%d\" % [encounter_name(), bonus])"
  ],
  "：走到": [
@@ -14100,11 +14732,11 @@
   "if base.hand: set_message(\"手上拿着 %s：走到%s区的地面框里按 E 上架，或放进暂存区。\" % [base.hand.item_name, BaseCatalog.CATEGORY_NAMES[base.hand.category]])"
  ],
  "：送到基地暂存区。": [
-  "game/game_manager.gd:2298",
+  "game/game_manager.gd:2334",
   "set_message(\"已寄存 %s：送到基地暂存区。\" % item.display_name())"
  ],
  "：龙门币 +": [
-  "game/game_manager.gd:2308",
+  "game/game_manager.gd:2344",
   "set_message(\"卖出赤金 ×%d：龙门币 +%s\" % [bars, Economy.format(paid)])"
  ],
  "；8 秒不射击清零。": [
@@ -14112,7 +14744,7 @@
   "\"text\": \"连续射击同一目标时每箭多无视 %s 防御，最多 %s；8 秒不射击清零。\"},"
  ],
  "；上一层已无法返回。": [
-  "game/game_manager.gd:1272",
+  "game/game_manager.gd:1296",
   "set_message(\"进入第 %d 层 · %s；上一层已无法返回。\" % [floor_number, FieldCatalog.ROUTES[route].name])"
  ],
  "；冷却": [
@@ -14140,7 +14772,7 @@
   "\"text\": \"连斩第 2 段攻击力 +%s；第 2 段后 2 秒内法术闪避 +15%%。\"},"
  ],
  "？？？": [
-  "ui/base_screens.gd:273",
+  "ui/base_screens.gd:277",
   "AK.put(stage, AK.label(Operators.display_name(id) if known else \"？？？\", 18, AK.FG), at + Vector2(188, 12))"
  ]
 }

@@ -171,6 +171,15 @@ func _protection() -> void:
 # --- 撤离与营地修订案 -------------------------------------------------------------
 
 func _camps() -> void:
+	# 用户 2026-10-22: the first floor 5 ever reached has one for sure, once.
+	game.base.first_extract_given = false
+	game.floor_number = 4
+	game._block_random_found = true
+	game._roll_random_extraction()
+	game.floor_number = 5
+	game._roll_random_extraction()
+	check("the first floor 5 always has a random extraction", game.is_extraction_floor() and game.base.first_extract_given)
+	check("and it is saved", bool(game.base.to_data().get("first_extract_given", false)))
 	# Random extraction: at most one per ten floors, on 4–6, 1/6 each, 1/2 in all.
 	var hits := {}
 	var blocks := 6000

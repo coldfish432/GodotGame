@@ -1,0 +1,30 @@
+[
+  {
+    "id": "dobermann",
+    "kind": "avatar",
+    "page": "https://prts.wiki/w/杜宾",
+    "image_url": "https://media.prts.wiki/a/a1/头像_杜宾.png",
+    "role": "identity and costume reference only"
+  },
+  {
+    "id": "dobermann",
+    "kind": "standing",
+    "page": "https://prts.wiki/w/杜宾",
+    "image_url": "https://media.prts.wiki/2/25/立绘_杜宾_1.png",
+    "role": "identity and costume reference only"
+  },
+  {
+    "id": "kaltsit",
+    "kind": "avatar",
+    "page": "https://prts.wiki/w/凯尔希",
+    "image_url": "https://media.prts.wiki/c/c5/头像_凯尔希.png",
+    "role": "identity and costume reference only"
+  },
+  {
+    "id": "kaltsit",
+    "kind": "standing",
+    "page": "https://prts.wiki/w/凯尔希",
+    "image_url": "https://media.prts.wiki/7/72/立绘_凯尔希_1.png",
+    "role": "identity and costume reference only"
+  }
+]

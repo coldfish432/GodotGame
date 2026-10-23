@@ -23,8 +23,8 @@ func run() -> void:
 	root.add_child(game)
 	check("eight slots: dodge, 绝影, three flasks, three empty", Hotbar.SLOTS == 8 and Hotbar.slots().map(func(s): return s.action) == ["dash", "shadow", "potion_A", "potion_B", "potion_C", "", "", ""])
 	check("slot keys default to right mouse, Space, Q, 1–5 (用户 2026-10-20)", ["hotbar_1", "hotbar_2", "hotbar_3", "hotbar_4", "hotbar_8"].map(func(id): return codes(id)) == [[-MOUSE_BUTTON_RIGHT], [KEY_SPACE], [KEY_Q], [KEY_1], [KEY_5]])
-	check("every function is rebindable with a primary and a secondary", Keybinds.FUNCTIONS.size() >= 24 and Keybinds.all().values().all(func(p): return p.size() == 2))
-	check("movement keeps WASD plus the arrows", codes("move_up") == [KEY_W, KEY_UP] and codes("move_right") == [KEY_D, KEY_RIGHT])
+	check("every function is rebindable with a primary and a secondary", Keybinds.FUNCTIONS.size() >= 20 and Keybinds.all().values().all(func(p): return p.size() == 2))
+	check("no movement keys (用户 2026-10-22: 移除 wasd 移动方式)", Keybinds.FUNCTIONS.all(func(f): return not str(f[0]).begins_with("move_")) and not InputMap.has_action("move_up"))
 	check("dedicated skill and flask keys start unbound", codes("potion_A").is_empty() and codes("operator_skill").is_empty() and codes("dash").is_empty())
 	# A flask on a mouse side button, as its own key.
 	check("a flask can take a mouse side button", Keybinds.bind("potion_A", 0, {"mouse": MOUSE_BUTTON_XBUTTON1}) and codes("potion_A") == [-MOUSE_BUTTON_XBUTTON1])
@@ -36,7 +36,7 @@ func run() -> void:
 	Keybinds.bind("interact", 1, null)
 	check("clearing leaves the other binding", codes("interact") == [KEY_E])
 	SystemScreens.settings["keybinds"] = {"interact": [{"key": KEY_ESCAPE}, "junk"], "nonsense": [{"key": KEY_K}]}
-	check("bad saved bindings fall back per binding", Keybinds.get_pair("interact") == [null, null] and Keybinds.get_pair("move_up")[0].key == KEY_W)
+	check("bad saved bindings fall back per binding", Keybinds.get_pair("interact") == [null, null] and Keybinds.get_pair("toggle_map")[0].key == KEY_M)
 	Keybinds.reset()
 	check("恢复默认 restores every binding", codes("hotbar_3") == [KEY_Q] and codes("toggle_map") == [KEY_M] and codes("potion_A").is_empty())
 	# Slot contents.

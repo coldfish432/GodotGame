@@ -1,0 +1,591 @@
+{
+  "result": "PASS",
+  "cells_checked": 96,
+  "breath_pairs": 16,
+  "portrait_files": 2,
+  "manifest_discovery": "Both characters found by prepare_crew_atlas.sources(); no runtime bake run.",
+  "checks": [
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 0,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 0,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 0,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 0,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 1,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 1,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 1,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 1,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 2,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 2,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 2,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 2,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 3,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 3,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 3,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 3,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 4,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 4,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 4,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 4,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 5,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 5,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 5,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 5,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 6,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 6,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 6,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 6,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 7,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 7,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 7,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_walk_source.png",
+      "row": 7,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 0,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 0,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 1,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 1,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 2,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 2,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 3,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 3,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 4,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 4,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 5,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 5,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 6,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 6,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 7,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "dobermann_idle_source.png",
+      "row": 7,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 0,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 0,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 0,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 0,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 1,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 1,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 1,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 1,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 2,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 2,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 2,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 2,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 3,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 3,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 3,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 3,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 4,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 4,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 4,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 4,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 5,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 5,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 5,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 5,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 6,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 6,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 6,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 6,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 7,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 7,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 7,
+      "col": 2,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_walk_source.png",
+      "row": 7,
+      "col": 3,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 0,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 0,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 1,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 1,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 2,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 2,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 3,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 3,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 4,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 4,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 5,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 5,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 6,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 6,
+      "col": 1,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 7,
+      "col": 0,
+      "major_components": 1
+    },
+    {
+      "file": "kaltsit_idle_source.png",
+      "row": 7,
+      "col": 1,
+      "major_components": 1
+    }
+  ],
+  "not_proven": [
+    "art acceptance",
+    "Godot import",
+    "in-game animation playback",
+    "UI display"
+  ]
+}
