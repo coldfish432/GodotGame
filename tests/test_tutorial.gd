@@ -51,7 +51,11 @@ func run() -> void:
 	game.player.teleport(game.player.global_position + Vector3(5, 0, 0))
 	var ticked := await tick_through()
 	check("walking ticks the box first", ticked)
-	check("then the next step: the camera", at_step("camera"))
+	check("then the dodge, on board (用户 2026-10-24: 左键移动、右键闪现)", at_step("dodge") and card._keys.text == Keybinds.short_label(TutorialCard.dodge_action()) and card._keys.text != "")
+	game.player.dash_remaining = 0.2
+	await tick_through()
+	game.player.dash_remaining = 0.0
+	check("a dodge in the base ticks it off; then the camera", at_step("camera"))
 	game.zoom_camera(1)
 	await tick_through()
 	check("zooming ticks it off", at_step("contract"))
@@ -64,10 +68,7 @@ func run() -> void:
 	check("starting a contract ticks it off", at_step("kill") and card.visible)
 	game.run_kills["normal"] = int(game.run_kills.get("normal", 0)) + 1
 	await tick_through()
-	check("a kill ticks it off", at_step("dodge") and card._keys.text == Keybinds.short_label(TutorialCard.dodge_action()) and card._keys.text != "")
-	game.player.dash_remaining = 0.2
-	await tick_through()
-	check("a dodge ticks it off", at_step("skill") and card._keys.text == Keybinds.short_label(TutorialCard.skill_action()))
+	check("a kill ticks it off", at_step("skill") and card._keys.text == Keybinds.short_label(TutorialCard.skill_action()))
 	game.player.dash_remaining = 0.0
 	game.player._dash_cooldown = 0.0
 	if game.player.has_skill():
@@ -233,5 +234,34 @@ func run() -> void:
 	game.close_modal()
 	check("the warehouse's old tips are gone", ["base_crate", "base_zone", "base_shelf_zone", "base_staging"].all(func(k): return not TutorialSpotlight.TIPS.has(k)))
 	card.skip_all()
+	# The first visit's order (用户 2026-10-24): the waking talk, then at once the
+	# three departure stations, then the card's move and dodge — nothing before.
+	TutorialCard.set_on(true)
+	SystemScreens.settings.tutorial_step = 0
+	SystemScreens.settings.tutorial_seen = []
+	game.close_modal()
+	game.base.story = Story.fresh()
+	game.story_card.forced = true
+	SystemScreens.settings.story_guide = true
+	for i in range(120):
+		if game.story_card.speaking == "wake": break
+		await step()
+	check("first the waking talk", game.story_card.speaking == "wake" and not card.visible and spot.showing.is_empty())
+	var from := game.player.global_position
+	game.player.teleport(from + Vector3(6, 0, 0))
+	await step(5)
+	check("moving under it counts for nothing", TutorialCard.step() == 0)
+	game.story_card.go_back()
+	await wait_tip("base_departure")
+	check("right after it, the three stations", spot.showing == "base_departure" and not card.visible)
+	await step(5)
+	check("still nothing counted, the card hidden", TutorialCard.step() == 0 and not card.visible)
+	spot.dismiss()
+	await step(10)
+	check("then the card: left-click to move", card.visible and at_step("move") and card._keys.text == "左键")
+	game.player.teleport(game.player.global_position + Vector3(5, 0, 0))
+	await tick_through()
+	check("then the dodge on the right button", at_step("dodge") and card._keys.text == Keybinds.short_label(TutorialCard.dodge_action()))
+	game.story_card.forced = false
 	print("TUTORIAL FAILURES: %d" % failures)
 	quit(1 if failures > 0 else 0)

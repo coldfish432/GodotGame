@@ -16,10 +16,11 @@ extends PanelContainer
 ## [id, title, what PRTS says, objective ("" = read it, 下一步), where: "base" / "field"]
 const STEPS := [
 	["move", "行动确认", "欢迎回来，博士。PRTS 已完成同步。请先确认行动能力：左键点击地面即可前往目标位置，按住左键可以持续移动。", "移动", "base"],
+	# 用户 2026-10-24: 三个台的介绍之后，介绍左键移动、右键闪现 — both on board.
+	["dodge", "闪避", "按闪避键沿移动方向快速闪避，站着时朝面向闪避，每次消耗体力。外勤时敌人出手前，地面会出现攻击预警，及时闪避就能脱离。", "闪避一次", "base"],
 	["camera", "观察视角", "可以按需调整观察视角：滚轮缩放，旋转键每次转动 45°，翻页键调整俯角，按住中键拖动自由旋转，复位键恢复默认视角。", "调整一次视角", "base"],
 	["contract", "合同委托", "调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。", "调度台接合同出击", "base"],
 	["kill", "接敌", "已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。", "击败一个敌人", "field"],
-	["dodge", "闪避", "敌人出手前，地面会出现攻击预警。按闪避键可以快速脱离预警区域，每次闪避消耗体力。", "闪避一次", "field"],
 	["skill", "干员技能", "每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。", "施放一次技能", "field"],
 	["search", "搜索", "作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。", "搜索一个容器", "field"],
 	["pickup", "物资回收", "地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。", "拾取一件物品", "field"],
@@ -146,6 +147,12 @@ static func skill_action() -> String:
 		if bar[i].action == "shadow": return Hotbar.input_of(i)
 	return Hotbar.input_of(1)
 
+func waiting_for_intro(at: int) -> bool:
+	if not game.in_base or at > TutorialCard.index_of("contract") or not TutorialSpotlight.tips_on(): return false
+	var spot := game.tutorial_spotlight
+	if not is_instance_valid(spot) or not (spot.forced or is_instance_valid(game.system_screens)): return false
+	return not TutorialSpotlight.seen("base_departure") or not spot.showing.is_empty()
+
 static func step() -> int:
 	return int(SystemScreens.settings.get("tutorial_step", 0))
 
@@ -175,6 +182,13 @@ func _process(delta: float) -> void:
 		return
 	var at := step()
 	if at >= STEPS.size():
+		visible = false
+		_index = -1
+		return
+	# The first base visit goes: the waking talk, the three departure stations
+	# (TutorialSpotlight), then this card. Until those are past, it waits and
+	# counts nothing (用户 2026-10-24).
+	if waiting_for_intro(at):
 		visible = false
 		_index = -1
 		return

@@ -22,7 +22,6 @@
  "观察视角": "Camera",
  "调整一次视角": "Adjust the camera once",
  "闪避一次": "Dodge once",
- "敌人出手前，地面会出现攻击预警。按闪避键可以快速脱离预警区域，每次闪避消耗体力。": "Before an enemy strikes, a warning appears on the ground. Press the dodge key to get clear of it quickly; each dodge costs stamina.",
  "搜索一个容器": "Search a container",
  "作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。": "There are crates and lockers to search in the area. Walk up and press the interact key to open one, then click or drag items out.",
  "左键 /": "LMB /",
@@ -119,5 +118,6 @@
  "升降梯连接舰桥大厅与二层，二层是农业部和食堂。": "The lift links the Bridge Hall with Deck 2, home of Agriculture and the Canteen.",
  "农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。": "Agriculture's hydroponic trays grow crops in real time; ripe crops never wither. The Canteen cooks them.",
  "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。": "The Canteen cooks crops into meals. Eat one before you leave and your operator gains HP, regeneration or attack on the next contract.",
- "博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。走到墙前按 E 即可破开；室内有稀有物资，也可能有守卫者。": "Doctor, this wall has cracks and a faint glow at its base; there may be a vault behind it. Walk up to it and press E to break it open. Inside are rare supplies, and possibly guardians."
+ "博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。走到墙前按 E 即可破开；室内有稀有物资，也可能有守卫者。": "Doctor, this wall has cracks and a faint glow at its base; there may be a vault behind it. Walk up to it and press E to break it open. Inside are rare supplies, and possibly guardians.",
+ "按闪避键沿移动方向快速闪避，站着时朝面向闪避，每次消耗体力。外勤时敌人出手前，地面会出现攻击预警，及时闪避就能脱离。": "Press the dodge key to dash in the direction you are moving, or the way you face when standing still; each dodge costs stamina. In the field, a warning appears on the ground before an enemy strikes: dodge in time to get clear."
 }

@@ -10,9 +10,10 @@ extends Control
 ## A base screen's card comes up the first time that screen opens (用户
 ## 2026-10-23: 其他界面第一次打开的时候也介绍); the dispatch desk's comes in two,
 ## the contract on the right first, then the floors in the middle. Before the
-## first contract, once the waking talk is over, the three departure stations
-## are ringed at once (DEPARTURE), each with its own card beside it: 调度台
-## (出击, with 知道了), 整备台 and 后勤柜台.
+## first contract, as soon as the waking talk is over (用户 2026-10-24: 这个页面
+## 之后立即跳三个台的介绍), the three departure stations are ringed at once
+## (DEPARTURE), each with its own card beside it: 调度台 (出击, with 知道了),
+## 整备台 and 后勤柜台; TutorialCard's move and dodge come after it.
 ## Some come from events instead (low life, the first camp, a retreat, gear
 ## sent back): `request`, shown over whatever screen is up, with no ring when
 ## there is nothing to point at. Each kind once, ever
@@ -261,7 +262,7 @@ func _process(delta: float) -> void:
 	if _check_left > 0.0: return
 	_check_left = CHECK_SECONDS
 	if not tips_on() or game.transitioning: return
-	if not seen("base_departure") and game.in_base and game.modal.is_empty() and game.base_walk_active() and TutorialCard.step() == TutorialCard.index_of("contract") \
+	if not seen("base_departure") and game.in_base and game.modal.is_empty() and game.base_walk_active() and TutorialCard.step() <= TutorialCard.index_of("contract") \
 			and (not Story.is_on() or "wake" in game.base.story.seen):
 		_show_departure()
 		return
