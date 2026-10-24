@@ -11,7 +11,10 @@ extends Label
 
 const COLORS := {"phys": Color("f2efe6"), "arts": Color("c79bff"), "true": Color("ffffff"),
 	"crit": Color("ffcf4a"), "heal": Color("7fe38f"), "hurt": Color("ff6b5b"), "shield": Color("8fd0ff"),
-	"evade": Color("b8c4cc")}
+	"evade": Color("b8c4cc"),
+	# 属性伤害与地区装备策划案 v1.1 §3.2: the elements, bleeding and 凋亡.
+	"burn": Elements.COLORS.burn, "cold": Elements.COLORS.cold, "corr": Elements.COLORS.corr, "nerve": Elements.COLORS.nerve,
+	"bleed": Elements.COLORS.bleed, "necro": Elements.COLORS.necro}
 const LIFE := 0.8
 var game: GameManager
 var world_point := Vector3.ZERO

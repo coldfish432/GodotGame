@@ -1,7 +1,7 @@
 class_name ItemTooltip
 extends RefCounted
 
-## 情报部Ⅱ (龙门币平衡与科研部策划案): show where a piece sits in its rarity's band.
+## 情报部 2 阶 (龙门币平衡与科研部策划案): show where a piece sits in its rarity's band.
 static var show_band := false
 
 ## Tooltip text for an item, top to bottom (装备与背包界面调研 §4.3): name in its
@@ -42,7 +42,7 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		var parts: Array[String] = []
 		if int(req.elite) > 0: parts.append("[color=#%s]%s[/color]" % ["e9e9e9" if p.elite >= int(req.elite) else DOWN, Progression.ELITE_NAMES[int(req.elite)]])
 		if int(req.value) > 0: parts.append("[color=#%s]%s %d[/color]" % ["e9e9e9" if p.attribute(str(req.attribute)) >= int(req.value) else DOWN, Progression.ATTRIBUTE_NAMES[req.attribute], int(req.value)])
-		lines.append("等级 %s%s" % [Progression.GRADE_MARKS[int(req.grade)], ("  ·  需求 " + " · ".join(parts)) if not parts.is_empty() else ""])
+		lines.append("%s%s%s" % [Progression.grade_label(int(req.grade)), ("  ·  抵 " + Progression.grade_label(int(req.grade) + 1)) if Scaling.crosses_tier(item) else "", ("  ·  需求 " + " · ".join(parts)) if not parts.is_empty() else ""])
 	var worn: Item = game.player.equipped.get(item.category) if item.is_equippable() else null
 	if item.is_equippable():
 		if worn == item:
@@ -82,7 +82,7 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		var affixes := item.modifiers.filter(func(m): return m.trigger == ItemModifier.Trigger.NONE and m.tier != GearCatalog.IMPLICIT_TIER)
 		if not affixes.is_empty():
 			lines.append("[color=#c9d3db]── 词缀 ──[/color]")
-			for mod in affixes: lines.append("  " + mod.describe_detailed(detailed))
+			for mod in affixes: lines.append("  " + _affix_mark(item, mod) + mod.describe_detailed(detailed))
 		var named: Dictionary = SpecialGear.GEAR.get(item.special, {}) if not item.special.is_empty() else {}
 		if named.has("fx_text"):
 			lines.append("[color=#ee8a24]── 专属效果 ──[/color]")
@@ -142,3 +142,22 @@ static func stats_text(game: GameManager, preview: Item) -> String:
 	lines.append("吸血 %d%%  闪避 %d%%  回复 %d/秒" % [roundi(p.lifesteal() * 100), roundi(p.evasion() * 100), roundi(p.regen_rate())])
 	lines.append("生命 %d / %d%s" % [roundi(maxf(p.hp, 0)), roundi(p.max_hp), ("  护盾 %d" % roundi(p.shield)) if p.shield > 0 else ""])
 	return "\n".join(lines)
+
+## The mark in front of an affix line (属性伤害与地区装备策划案 v1.1 §13): ◆ for
+## an orange signature, the region's character for its own lines, the
+## element's character for a resistance. The line itself stays plain.
+const REGION_MARKS := {"mine": "矿", "city": "龙", "snow": "萨", "siracusa": "叙"}
+const RESIST_MARKS := {ItemModifier.Stat.RES_BURN: "burn", ItemModifier.Stat.RES_COLD: "cold", ItemModifier.Stat.RES_CORR: "corr",
+	ItemModifier.Stat.RES_NERVE: "nerve", ItemModifier.Stat.RES_BLEED: "bleed"}
+
+static func _affix_mark(item: Item, mod: ItemModifier) -> String:
+	var region := item.origin_region
+	if ItemModifier.is_signature(mod.stat) and REGION_MARKS.has(region):
+		return "[color=#%s]◆ %s[/color] " % [Item.RARITY_COLORS[Item.ORANGE].to_html(false), REGION_MARKS[region]]
+	if RESIST_MARKS.has(mod.stat):
+		var kind: String = RESIST_MARKS[mod.stat]
+		return "[color=#%s]%s[/color] " % [Elements.COLORS[kind].to_html(false), Elements.BADGES[kind]]
+	if REGION_MARKS.has(region) and FieldCatalog.region_of_affix(mod.stat, item.category, region) == region:
+		var colour: Color = (FieldCatalog.REGIONS[region].color as Color).lightened(0.45)
+		return "[color=#%s]%s[/color] " % [colour.to_html(false), REGION_MARKS[region]]
+	return ""

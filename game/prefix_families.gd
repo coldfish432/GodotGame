@@ -90,8 +90,18 @@ const FAMILIES := {
 		"values": [0.05, 0.10, 0.15, 0.22, 0.30],
 		"number": "污染累积 −%s；法抗 +%d",
 		"specials": ["净化：污染造成的生命上限惩罚减半", "隔离：每进一层清除 10 点污染", "反噬：污染不再流失生命；每 10 点污染攻击力 +4%"]},
+	# 属性伤害与地区装备策划案 v1.1 §10.2: the elemental gauges (Enemy._burst).
+	"burst": {"name": "爆发", "region": "",
+		"prefixes": [["burst_w", "迸发的", "Bursting", "W"], ["burst_a", "积蓄的", "Brimming", "A"], ["burst_t", "共振的", "Resonant", "T"]],
+		"values": [0.10, 0.15, 0.20, 0.30, 0.40],
+		"number": "损伤累积 %s",
+		"specials": ["迸发：爆发冷却 −2 秒", "连锁：爆发时，3 米内的敌人获得 30% 同类损伤", "双响：每次爆发再触发一次，效果减半"]},
 }
-const ORDER: Array[String] = ["riot", "familial", "guerrilla", "forest", "fickle", "shadow", "rampart", "blood", "hunter", "rite", "stealth", "inhibit"]
+const ORDER: Array[String] = ["riot", "familial", "guerrilla", "forest", "fickle", "shadow", "rampart", "blood", "hunter", "rite", "stealth", "inhibit", "burst"]
+## 爆发 (4) / (6) / (8).
+const BURST_COOLDOWN_CUT := 2.0
+const BURST_SPREAD := 0.30
+const BURST_ECHO := 0.5
 ## 抑制's 法抗 by the same five steps.
 const INHIBIT_RES := [1.0, 2.0, 3.0, 5.0, 7.0]
 
@@ -230,6 +240,7 @@ func static_sheet() -> Dictionary:
 	if tier("blood") > 0: s["lifesteal"] = value("blood", tier("blood"))
 	if tier("hunter") > 0: s["elite_pct"] = value("hunter", tier("hunter"))
 	if tier("rite") > 0: s["skill_pct"] = value("rite", tier("rite"))
+	if tier("burst") > 0: s["build_pct"] = value("burst", tier("burst"))
 	if tier("stealth") > 0: s["pressure_pct"] = -value("stealth", tier("stealth"))
 	if tier("inhibit") > 0:
 		s["contam_pct"] = -value("inhibit", tier("inhibit"))

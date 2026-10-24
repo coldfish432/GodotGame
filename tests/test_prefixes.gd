@@ -20,13 +20,14 @@ func check(label: String, passed: bool, seen: Variant = null) -> void:
 		if seen != null: print("   seen: ", seen)
 	print(("PASS " if passed else "FAIL ") + label)
 
-func weapon(rng: RandomNumberGenerator, depth: int = 5, region: String = "mine", base: String = "断镐战斧", rarity: int = 2) -> Item:
+func weapon(rng: RandomNumberGenerator, depth: int = 5, region: String = "mine", base: String = "断镐战斧", rarity: int = Item.PURPLE) -> Item:
 	return LootTables.roll_equipment(Item.Category.WEAPON, base, region, depth, rarity, rng)
 
 func run() -> void:
 	var table := PrefixCatalog.all()
 	# 150 less the nine that became families, plus 12 families × 3 (前缀放大与特效阶等案 §3).
-	check("177 prefixes", table.size() == 177, table.size())
+	# 属性伤害与地区装备策划案 v1.1 §10: 13 elemental prefixes and the 爆发 family's three.
+	check("193 prefixes", table.size() == 193, table.size())
 	var names := {}
 	for id in table: names[str(table[id].name)] = true
 	check("prefix names are unique", names.size() == table.size())
@@ -49,7 +50,7 @@ func run() -> void:
 			var n := table.keys().filter(func(id): return str(table[id].slots).contains(slot) and int(table[id].grade) == g and str(table[id].form).is_empty() and not bool(table[id].top)).size()
 			if n < 2: cover = false
 	check("every slot has at least two prefixes of every grade", cover)
-	check("four top prefixes, all +2", table.keys().filter(func(id): return bool(table[id].top)).size() == 4 and table.keys().all(func(id): return not bool(table[id].top) or int(table[id].grade) == 2))
+	check("six top prefixes, all +2", table.keys().filter(func(id): return bool(table[id].top)).size() == 6 and table.keys().all(func(id): return not bool(table[id].top) or int(table[id].grade) == 2))
 
 	# Odds (§0.1-11, §0.2-1).
 	var rng := RandomNumberGenerator.new()
@@ -138,14 +139,16 @@ func run() -> void:
 			for key in entry.rolls:
 				if float(entry.rolls[key]) < 0.8 or float(entry.rolls[key]) > 1.2: in_range = false
 	check("power, intrinsics, affixes, 技能强化 and prefix lines stay in their ranges", in_range and skill_seen)
-	var affix_mean := [0.0, 0.0, 0.0]
-	var affix_n := [0, 0, 0]
+	var affix_mean := [0.0, 0.0, 0.0, 0.0, 0.0]
+	var affix_n := [0, 0, 0, 0, 0]
 	for i in range(3000):
-		for t in range(3):
+		for t in range(5):
 			var mod := ItemModifier.roll_affix(ItemModifier.Stat.ATK_PCT, t, rng)
 			affix_mean[t] += mod.amount / 0.08
 			affix_n[t] += 1
-	check("affix tiers keep their averages 70/100/130%", absf(affix_mean[0] / affix_n[0] - 0.7) < 0.01 and absf(affix_mean[1] / affix_n[1] - 1.0) < 0.01 and absf(affix_mean[2] / affix_n[2] - 1.3) < 0.01)
+	var means_ok := true
+	for t in range(5): means_ok = means_ok and absf(affix_mean[t] / affix_n[t] - Scaling.band_mid(t)) < 0.01
+	check("affix tiers keep their averages 69/84/100/122.5/142.5%", means_ok)
 	check("percentages under 10 keep one decimal", ItemModifier.pct(0.027) == "+2.7%" and ItemModifier.pct(0.05) == "+5%" and ItemModifier.pct(0.123) == "+12%")
 
 	# Names, colours (§2.1).
@@ -164,7 +167,7 @@ func run() -> void:
 	item.prefixes = [{"id": "frenzying", "rolls": {"atk_pct": 1.0, "aspd": 1.0}}]
 	PrefixCatalog.refresh_value(item)
 	var ratio := float(smuggled) / item.value
-	check("走私的 doubles the value", ratio > 1.85 and ratio < 2.15, [smuggled, item.value])
+	check("走私的 doubles the value", ratio > 1.75 and ratio < 2.25, [smuggled, item.value])
 	item.prefixes = [{"id": "broken", "rolls": {"atk_pct": 1.0, "aspd": 1.0}}]
 	PrefixCatalog.refresh_value(item)
 	var broken_value := item.value

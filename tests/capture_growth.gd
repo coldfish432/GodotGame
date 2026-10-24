@@ -46,7 +46,7 @@ func run() -> void:
 		x += 4.0
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4
-	game.try_collect(LootTables.roll_equipment(Item.Category.WEAPON, "警用链锤", "city", 21, 1, rng))
+	game.try_collect(LootTables.roll_equipment(Item.Category.WEAPON, "警用链锤", "city", 21, Item.BLUE, rng))
 	game.try_collect(SpecialGear.create("set_inspectors_1", 3, rng))
 	await capture("hud")
 	game.toggle_panel("inventory")

@@ -9,7 +9,9 @@ extends RefCounted
 ## PRTS rarity -> stack size, unit value, colour (掉落物策划案 §2.1).
 const STACK := {1: 20, 2: 20, 3: 10, 4: 5, 5: 3}
 const UNIT_VALUE := {1: 4, 2: 8, 3: 18, 4: 40, 5: 90}
-const STAR_COLORS := {1: Color("b8b8b8"), 2: Color("cbd75a"), 3: Color("4fb3f6"), 4: Color("c48af0"), 5: Color("f3b04a")}
+## ★1–★5 on the rarity ladder, grey to orange, as 明日方舟 tints its materials
+## (属性伤害与地区装备策划案 v1.1 §2.6); the ★ itself is no longer shown.
+const STAR_COLORS := {1: Item.RARITY_COLORS[0], 2: Item.RARITY_COLORS[1], 3: Item.RARITY_COLORS[2], 4: Item.RARITY_COLORS[3], 5: Item.RARITY_COLORS[4]}
 
 ## kind: "craft" (养成材料, enemy drops) or "base" (基建材料, points of interest).
 ## Common supplies (基建资源策划案 §1, after Tarkov's barter items and Duckov's

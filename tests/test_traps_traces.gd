@@ -67,6 +67,8 @@ func run() -> void:
 	await step(40)
 	# Its fixed 600 × the floor's 档位系数 (复利数值改造清单 E; 1 on floor 1).
 	var blow := float(FieldTrap.KINDS.heavy.damage) * Scaling.tier_coef(game.floor_number)
+	# It is its region's element now: her resistance to it cuts it (属性伤害与地区装备策划案 v1.1 §11).
+	blow *= Elements.multiplier(game.player.elements.res(str(Elements.LOCAL.get(game.region_id, "true"))))
 	check("then it strikes once for its fixed %d" % roundi(blow), absf(hp - game.player.hp - blow) < 1.0, [hp, game.player.hp, game.player.max_hp])
 	check("and its sprung model takes its place", (trap.get_node("Look") as MeshInstance3D).mesh != TerraceDressing.kit_mesh(load(FieldTrap.MODEL % [trap.region, "heavy"])))
 	var after := game.player.hp

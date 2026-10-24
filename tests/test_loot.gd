@@ -101,8 +101,9 @@ func run() -> void:
 	var guard_empty := 0
 	for i in range(1000):
 		if LootTables.enemy_drops("thug", false, true, c).is_empty(): guard_empty += 1
-	# 62.5% from the table, a little more with chips, books and exclusives.
-	check("guards drop something about 2/3 of the time", 1.0 - guard_empty / 1000.0 > 0.6 and 1.0 - guard_empty / 1000.0 < 0.73)
+	# 用户 2026-10-24 (材料掉率压低): 51% from the table, a little more with chips,
+	# books and exclusives (GameManager thins guards again by guard_drop_share).
+	check("guards drop something about half the time", 1.0 - guard_empty / 1000.0 > 0.47 and 1.0 - guard_empty / 1000.0 < 0.62, 1.0 - guard_empty / 1000.0)
 
 	# 用户 2026-10-17: 一个敌人最多爆一个材料 + 一件装备，材料只会 ×1 — elites,
 	# guards, normal enemies and bosses alike (赤金 and flasks apart).
@@ -128,13 +129,14 @@ func run() -> void:
 			if item.category == Item.Category.WEAPON and item.special.is_empty() and item.item_name != "冰原猎铳": named = false
 	check("ice hunters drop 冰原猎铳", named)
 
-	# Quality distribution for equipment boxes: 50 / 38 / 12.
-	var q := [0, 0, 0]
+	# Quality distribution for equipment boxes on the ladder (属性伤害与地区装备策划案 v1.1 §2.3).
+	var q := [0, 0, 0, 0, 0, 0]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 15
 	for i in range(5000): q[LootTables.roll_quality("box", 0.0, rng)] += 1
-	# 稀有概率 ÷10 (用户 2026-10-18): 12% rare → 1.2%, common and fine keep their 50:38.
-	check("box quality ≈ 56.1/42.7/1.2", absf(q[0] / 5000.0 - 0.561) < 0.03 and absf(q[2] / 5000.0 - 0.012) < 0.006, q)
+	# 稀有概率 ÷10 (用户 2026-10-18): purple + orange + red 12% → 1.2%, the others keep theirs.
+	var shares := LootTables.quality_shares("box", 0.0, 1)
+	check("box quality ≈ 49.4/20.2/29.2/1.1/0.1", absf(q[0] / 5000.0 - float(shares[0])) < 0.03 and absf((q[3] + q[4] + q[5]) / 5000.0 - 0.012) < 0.006 and absf(float(shares[0]) - 0.494) < 0.01, q)
 	var vault_common := 0
 	for i in range(1000): if LootTables.roll_quality("vault", 0.0, rng) == 0: vault_common += 1
 	check("vault chests never roll common", vault_common == 0)
@@ -145,12 +147,12 @@ func run() -> void:
 	var early := 0.0
 	var late := 0.0
 	for i in range(600):
-		var first := LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 11, 2, rng)
-		var tenth := LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 20, 2, rng)
-		for mod in first.modifiers: if mod.is_random_affix(): gold_bands = gold_bands and mod.tier == 2
+		var first := LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 11, Item.PURPLE, rng)
+		var tenth := LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", 20, Item.PURPLE, rng)
+		for mod in first.modifiers: if mod.is_random_affix(): gold_bands = gold_bands and mod.tier == Item.PURPLE
 		early += first.power_position()
 		late += tenth.power_position()
-	check("gold affixes roll in the gold band; a tier's tenth floor rolls higher than its first", gold_bands and late > early * 1.5, [early / 600.0, late / 600.0])
+	check("purple affixes roll in the purple band; a tier's tenth floor rolls higher than its first", gold_bands and late > early * 1.5, [early / 600.0, late / 600.0])
 
 	# 掉落阶梯 (用户 2026-10-18): deeper floors drop better gear and materials.
 	var stairs := []
@@ -165,7 +167,7 @@ func run() -> void:
 		var r := RandomNumberGenerator.new()
 		r.seed = 31
 		var hits := 0
-		for i in range(40000): if LootTables.roll_quality(table, 0.0, r, depth) == 2: hits += 1
+		for i in range(40000): if LootTables.roll_quality(table, 0.0, r, depth) >= Item.PURPLE: hits += 1
 		return hits / 40000.0
 	var shallow_rare: float = rare_share.call(1, "normal")
 	var mid_rare: float = rare_share.call(15, "normal")
@@ -173,7 +175,7 @@ func run() -> void:
 	# 用户 2026-10-18: 以普通敌人装备稀有 5% 为顶 — 2.5% on floor 40, 5% from floor 90.
 	var top_rare: float = rare_share.call(90, "normal")
 	var mid_top: float = rare_share.call(65, "normal")
-	check("a normal enemy's gear is rare ~0.5% on floor 1, ~2.5% on floor 40, 5% from floor 90 on", absf(shallow_rare - 0.005) < 0.0015 and absf(deep_rare - 0.0247) < 0.004
+	check("a normal enemy's gear is rare ~0.5% on floor 1, ~2.5% on floor 40, 5% from floor 90 on", absf(shallow_rare - 0.004) < 0.0015 and absf(deep_rare - 0.0247) < 0.004
 		and mid_rare > shallow_rare and mid_rare < deep_rare and mid_top > deep_rare and mid_top < top_rare and absf(top_rare - 0.05) < 0.005
 		and absf(rare_share.call(150, "normal") - top_rare) < 0.005, [shallow_rare, mid_rare, deep_rare, mid_top, top_rare])
 	# Along the S curve (复利数值改造清单 B): same ends, slow early, fast mid.
@@ -194,7 +196,7 @@ func run() -> void:
 		var good := 0
 		var seen_n := 0
 		for i in range(3000):
-			for entry in LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", depth, 1, r).prefixes:
+			for entry in LootTables.roll_equipment(Item.Category.WEAPON, "x", "city", depth, Item.BLUE, r).prefixes:
 				# Effect families do not follow the grade odds (前缀放大与特效阶等案 §3).
 				if not PrefixFamilies.family_of(str(entry.id)).is_empty(): continue
 				seen_n += 1
@@ -213,7 +215,8 @@ func run() -> void:
 		return hits / 30000.0
 	var m1: float = mat_rare.call(1)
 	var m40: float = mat_rare.call(40)
-	check("an enemy's rare material: ~0.3% on floor 1, ~2% from floor 40", absf(m1 - 0.003) < 0.0015 and absf(m40 - 0.0205) < 0.004, [m1, m40])
+	# 用户 2026-10-24: high tiers rarer (was ~0.3% / ~2%).
+	check("an enemy's rare material: ~0.15% on floor 1, ~0.8% from floor 40", absf(m1 - 0.0015) < 0.001 and absf(m40 - 0.008) < 0.0025, [m1, m40])
 	var finds := func(depth: int) -> int:
 		var cb := ctx("mine", depth, 33)
 		var found := 0
@@ -222,7 +225,8 @@ func run() -> void:
 		return found
 	var f1: int = finds.call(1)
 	var f40: int = finds.call(40)
-	check("an ore vein's 源石碎片: ~0.3% on floor 1, ~0.9% from floor 40", absf(f1 / 20000.0 - 0.003) < 0.0015 and absf(f40 / 20000.0 - 0.009) < 0.003, [f1, f40])
+	# 用户 2026-10-24: a point keeps a ★5 material 1% of the time, so all but gone.
+	check("an ore vein's ★5 源石碎片: almost never (kept at 1%)", f1 + f40 <= 12, [f1, f40])
 
 	# Points of interest.
 	var box_ok := true
@@ -239,17 +243,31 @@ func run() -> void:
 			if not Item.is_armor_slot(item.category) and item.exclusive_region.is_empty(): box_ok = false
 	check("weapon boxes give weapons, armour boxes armour", box_ok)
 	check("construction piles give only base materials", base_ok)
-	var hardware := true
+	# 用户 2026-10-24: each material a point rolls is kept at its ★'s share
+	# (BOX_MATERIAL_KEEP: ★1 90% … ★3 20%), so the sure ones are usual, not sure.
+	var hardware := 0
 	var cabinet := true
-	var medic := true
-	for i in range(100):
-		if not items_of(LootTables.container_drops("construction", c)).any(func(x): return x.material_id in ["螺栓", "螺母", "钉子"]): hardware = false
+	var wire := 0
+	var medic := 0
+	for i in range(400):
+		if items_of(LootTables.container_drops("construction", c)).any(func(x): return x.material_id in ["螺栓", "螺母", "钉子"]): hardware += 1
 		var e := items_of(LootTables.container_drops("electronics", c))
-		if not e.any(func(x): return x.material_id == "电线") or not e.all(func(x): return MaterialCatalog.group(x.material_id) == "电子" or x.material_id in ["芯片助剂", "技巧概要·卷1"]): cabinet = false
-		if not items_of(LootTables.container_drops("medical", c)).any(func(x): return x.material_id == "医用耗材包"): medic = false
-	check("construction piles always give hardware", hardware)
-	check("electronics cabinets give only electronics (and the odd 芯片助剂 / 技巧概要), always wire", cabinet)
-	check("medical cabinets always give 医用耗材包", medic)
+		if e.any(func(x): return x.material_id == "电线"): wire += 1
+		if not e.all(func(x): return MaterialCatalog.group(x.material_id) == "电子" or x.material_id in ["芯片助剂", "技巧概要·卷1"]): cabinet = false
+		if items_of(LootTables.container_drops("medical", c)).any(func(x): return x.material_id == "医用耗材包"): medic += 1
+	check("construction piles give hardware ~90% of the time (★1)", absf(hardware / 400.0 - 0.9) < 0.05, hardware)
+	check("electronics cabinets give only electronics (and the odd 芯片助剂 / 技巧概要), wire ~90%", cabinet and absf(wire / 400.0 - 0.9) < 0.05, wire)
+	check("medical cabinets give the ★3 医用耗材包 ~20% of the time", absf(medic / 400.0 - 0.2) < 0.06, medic)
+	# 用户 2026-10-24: 医疗柜能出任意药剂，20% 一瓶、5% 两瓶，按价值分布.
+	var flask_kinds := {}
+	var flasks := 0
+	for i in range(4000):
+		for item in items_of(LootTables.container_drops("medical", c)):
+			if item.is_potion():
+				flasks += 1
+				flask_kinds[item.potion_type] = int(flask_kinds.get(item.potion_type, 0)) + 1
+	check("a medical cabinet holds a flask by chance: 0.3 a cabinet (20% one, 5% two)", absf(flasks / 4000.0 - 0.3) < 0.03, flasks)
+	check("of any kind, the cheap ones far likelier (标准急救剂 well over 应急强心针)", flask_kinds.size() >= 10 and int(flask_kinds.get("A", 0)) > 5 * maxi(1, int(flask_kinds.get("L", 0))), flask_kinds)
 	var vein := items_of(LootTables.container_drops("ore_vein", c))
 	check("ore veins always give 源岩 and 固源岩", vein.any(func(x): return x.material_id == "源岩") and vein.any(func(x): return x.material_id == "固源岩"))
 	var quota := true
@@ -283,8 +301,8 @@ func run() -> void:
 	var reset := false
 	for i in range(3000):
 		var rarity := LootTables._quality_with_pity("box", c, 0.0, true)
-		if rarity < 2 and pity.rare_gear > 0.0: rose = true
-		if rarity == 2:
+		if rarity < Item.PURPLE and pity.rare_gear > 0.0: rose = true
+		if rarity >= Item.PURPLE:
 			reset = pity.rare_gear == 0.0
 			break
 	check("rare gear resets the pity counter", reset)

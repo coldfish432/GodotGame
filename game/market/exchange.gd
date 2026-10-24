@@ -142,7 +142,7 @@ static func drift(value: int, expected: int) -> int:
 
 func relation_drift(faction: String) -> int:
 	var d := drift(relation(faction), int(FactionCatalog.RELATION_EXPECTED.get(faction, RELATION_MAX)))
-	return roundi(d * 0.7) if game.base.researched("relation_drift") else d   # 商务部Ⅲ
+	return roundi(d * 0.7) if game.base.researched("relation_drift") else d   # 商务部 3 阶
 
 ## Where the next rank starts (RELATION_MAX at R5).
 static func next_rank_at(value: int) -> int:
@@ -162,7 +162,7 @@ func add_relation(faction: String, delta: int) -> void:
 
 ## The remote fee (§5.4): 4%, −0.5% a rank, at least 1%, plus the market's own.
 func remote_fee(faction: String, market_id: String = "") -> float:
-	var base_fee := REMOTE_FEE - FEE_STEP * rank(faction) - (0.01 if game.base.researched("remote_fee") else 0.0)   # 商务部Ⅰ
+	var base_fee := REMOTE_FEE - FEE_STEP * rank(faction) - (0.01 if game.base.researched("remote_fee") else 0.0)   # 商务部 1 阶
 	var fee := maxf(FEE_MIN, base_fee) + float(FactionCatalog.info(faction).get("fee_extra", 0.0))
 	return fee + (market.fee_extra(market_id) if not market_id.is_empty() else 0.0)
 
@@ -365,7 +365,7 @@ func _deliver_goods(material: String, count: int) -> void:
 	while left > 0:
 		var stack := MaterialCatalog.create(material, mini(left, MaterialCatalog.stack_size(material)))
 		left -= stack.quantity
-		# 商务部Ⅵ: straight onto the shelves when there is room.
+		# 商务部 6 阶: straight onto the shelves when there is room.
 		if not (game.base.researched("forward_dock") and not game.base.store(stack).is_empty()): game.base.receive(stack)
 
 # --- Flash offers (§6.1) ---------------------------------------------------------------
@@ -824,7 +824,7 @@ func _correct_relations(days: int) -> void:
 
 # --- Loans (§10) --------------------------------------------------------------------------
 
-## LOAN_STEP per 交易所 level; 商务部Ⅴ: ×1.5 and a point off the rate.
+## LOAN_STEP per 交易所 level; 商务部 5 阶: ×1.5 and a point off the rate.
 func loan_limit() -> int:
 	var limit := mini(LOAN_CAP, LOAN_STEP * maxi(1, game.base.facility_level("exchange")))
 	return roundi(limit * 1.5) if game.base.researched("loan_terms") else limit
@@ -913,7 +913,7 @@ func withdraw_bars(count: int) -> bool:
 # --- 企鹅物流 (§11) -------------------------------------------------------------------------
 
 func ship_fee(item: Item) -> int:
-	if game.base.researched("forward_dock"): return 0   # 商务部Ⅵ
+	if game.base.researched("forward_dock"): return 0   # 商务部 6 阶
 	var rate := maxf(SHIP_FEE_MIN, SHIP_FEE - 0.01 * rank("penguin")) * market.penguin_fee()
 	return ceili(Economy.price(item) * rate)
 

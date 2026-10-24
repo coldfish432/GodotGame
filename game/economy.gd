@@ -20,7 +20,7 @@ static var fx := 1000.0
 ## 可露希尔 changes money at the live rate with this spread (§1.3); the
 ## exchange terminal at EXCHANGE_FX_SPREAD.
 const CLOSURE_FX_SPREAD := 0.03
-## What 可露希尔 charges now: 2% with 商务部Ⅱ (Research.apply_globals).
+## What 可露希尔 charges now: 2% with 商务部 2 阶 (Research.apply_globals).
 static var closure_spread := CLOSURE_FX_SPREAD
 const EXCHANGE_FX_SPREAD := 0.005
 ## Plain delivery at the base is Rhodes Island's internal buy-back (§13).
@@ -32,14 +32,13 @@ const OLD_REWARD_PER_BAR := 10.0
 const STARTING_LMD := 6000
 
 ## The yardstick for anything priced by depth (龙门币平衡与科研部策划案 v1.1 §1):
-## a tier's drop income per floor, tier Ⅰ = 1 (tools/economy_model.py). Prices
+## a tier's drop income per floor, tier 1 = 1 (tools/economy_model.py). Prices
 ## follow income, not the tier coefficient 1.48^(tier − 1), because item values
 ## stay linear in depth (复利数值改造清单 G).
 const INCOME_INDEX := [1.0, 1.49, 1.99, 2.57, 3.28, 4.06, 4.79, 5.46, 6.10, 6.73]
 const FLOORS_PER_TIER := 10
-const ROMAN := ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"]
 
-## Floors 1–10 are tier 1, 11–20 tier 2 … capped at Ⅹ.
+## Floors 1–10 are tier 1, 11–20 tier 2 … capped at 10.
 static func tier_of(floor_number: int) -> int:
 	return clampi((maxi(floor_number, 1) - 1) / FLOORS_PER_TIER + 1, 1, INCOME_INDEX.size())
 
@@ -49,9 +48,6 @@ static func income_index(tier: int) -> float:
 ## `base` at tier 1, scaled to `tier` and rounded to 100.
 static func tiered(base: int, tier: int) -> int:
 	return roundi(base * income_index(tier) / 100.0) * 100
-
-static func roman(tier: int) -> String:
-	return str(ROMAN[clampi(tier, 1, ROMAN.size()) - 1])
 
 ## The contract reward (v1.1 §2.2, 用户: 合同报酬在接取时就算好，之后不改变):
 ## the random share is rolled with the offer, the card shows the pay for the

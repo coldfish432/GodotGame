@@ -114,7 +114,7 @@ func _rules() -> void:
 	var tec := Progression.attribute_sheet({"phy": 10, "tec": 22, "agi": 10, "arts": 18}, Progression.START.lappland)
 	check("技巧 and 源石技艺 points are shares too", is_equal_approx(float(tec.atk_pct), 10 * 0.0028) and is_equal_approx(float(tec.crit), 10 * 0.0007)
 		and is_equal_approx(float(tec.arts_pct), 10 * 0.0038) and is_equal_approx(float(tec.res), 10 * 0.1) and not tec.has("atk") and not tec.has("arts"), tec)
-	check("grades are the ten-floor tiers Ⅰ–Ⅹ, whatever the layer", Progression.GRADE_MAX == 10 and Progression.grade_for(0, 1) == 1 and Progression.grade_for(2, 1) == 1
+	check("grades are the ten-floor tiers 1–10, whatever the layer", Progression.GRADE_MAX == 10 and Progression.grade_for(0, 1) == 1 and Progression.grade_for(2, 1) == 1
 		and Progression.grade_for(1, 15) == 2 and Progression.grade_for(2, 25) == 3 and Progression.grade_for(2, 40, 1) == 5 and Progression.grade_for(0, 91) == 10
 		and Progression.grade_for(0, 200, 3) == 10 and Progression.grade_for(0, 37) == Scaling.tier_of(37))
 	var climbs := true
@@ -123,7 +123,7 @@ func _rules() -> void:
 		climbs = climbs and row.size() == 11 and int(row[1]) == 0
 		for t in range(2, 11): climbs = climbs and int(row[t]) > int(row[t - 1])
 	for t in range(2, 11): climbs = climbs and Progression.REQ_TABLE.heavy[t] > Progression.REQ_TABLE.light[t] and Progression.REQ_TABLE.light[t] > Progression.REQ_TABLE.gear[t]
-	check("requirement table: Ⅰ asks nothing, every column climbs, heavy > light > gear; Ⅲ–Ⅳ need 精英 1, Ⅴ on 精英 2", climbs and Progression.REQ_TABLE.light[4] == 28
+	check("requirement table: 1 asks nothing, every column climbs, heavy > light > gear; 3–4 need 精英 1, 5 on 精英 2", climbs and Progression.REQ_TABLE.light[4] == 28
 		and Progression.REQ_TABLE.heavy[4] == 34 and Progression.REQ_TABLE.gear[4] == 23 and Progression.REQ_ELITE.slice(1) == [0, 0, 1, 1, 2, 2, 2, 2, 2, 2])
 	var sundial := SkillTrees.node(Operators.LAPPLAND, "sundial")
 	var tx := SkillTrees.node(Operators.LAPPLAND, "wave_pack")
@@ -224,18 +224,18 @@ func _requirements() -> void:
 	var g := fresh(Operators.LAPPLAND)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
-	var blade := LootTables.roll_equipment(Item.Category.WEAPON, "纠察队佩刀", "mine", 21, 1, rng)
-	check("a blade on floor 21 is Ⅲ (its ten-floor tier)", blade.grade == 3 and blade.display_name().begins_with("Ⅲ · "), blade.display_name())
+	var blade := LootTables.roll_equipment(Item.Category.WEAPON, "纠察队佩刀", "mine", 21, Item.BLUE, rng)
+	check("a blade on floor 21 is 21–30 层 (its ten-floor tier), not in its name", blade.grade == 3 and Progression.grade_label(blade.grade) == "21–30 层" and blade.display_name().begins_with("精良 · "), blade.display_name())
 	var req := Progression.requirement(blade)
 	var need: int = Progression.REQ_TABLE.light[3]
-	check("Ⅲ 刃 asks 精英 1 and 技巧 on the light column", req.elite == 1 and req.attribute == "tec" and req.value == need and need == 21, req)
+	check("3 刃 asks 精英 1 and 技巧 on the light column", req.elite == 1 and req.attribute == "tec" and req.value == need and need == 21, req)
 	check("an E0 operator is refused", Progression.refusal(blade, g) == "需要精英 1")
 	g.elite = 1
 	check("then by 技巧", Progression.refusal(blade, g) == "需要技巧 %d" % need)
 	g.attributes.tec = need
 	check("and accepted when both are met", Progression.refusal(blade, g) == "")
 	var axe := LootTables.roll_equipment(Item.Category.WEAPON, "断镐战斧", "mine", 11, 0, rng)
-	check("a heavy weapon on floor 11 is Ⅱ and asks 体魄 on the heavy column", axe.grade == 2 and Progression.requirement(axe).attribute == "phy"
+	check("a heavy weapon on floor 11 is 2 and asks 体魄 on the heavy column", axe.grade == 2 and Progression.requirement(axe).attribute == "phy"
 		and Progression.requirement(axe).value == Progression.REQ_TABLE.heavy[2] and Progression.REQ_TABLE.heavy[2] > Progression.REQ_TABLE.light[2])
 	var suit := LootTables.roll_equipment(Item.Category.ARMOR, "矿场重型防护服", "mine", 11, 0, rng)
 	check("heavy armour (移速 −4%) asks 体魄 on the heavy column", Progression.requirement(suit).attribute == "phy" and Progression.requirement(suit).value == Progression.REQ_TABLE.heavy_armor[2])
@@ -243,19 +243,22 @@ func _requirements() -> void:
 	# A chest asks on the heavy column (装备部位拆分与数值案 §9); its 法抗 asks 源石技艺.
 	check("法抗 chest asks 源石技艺 on the heavy column", Progression.requirement(coat).attribute == "arts" and Progression.requirement(coat).value == Progression.REQ_TABLE.heavy_armor[2])
 	var early := LootTables.roll_equipment(Item.Category.WEAPON, "断镐战斧", "mine", 1, 0, rng)
-	check("tier Ⅰ gear asks no attribute", early.grade == 1 and Progression.requirement(early).value == 0 and Progression.refusal(early, OperatorProgress.create(Operators.LAPPLAND)) == "")
+	check("tier 1 gear asks no attribute", early.grade == 1 and Progression.requirement(early).value == 0 and Progression.refusal(early, OperatorProgress.create(Operators.LAPPLAND)) == "")
 	var flask := LootTables.roll_equipment(Item.Category.TRINKET, "烈酒扁壶", "mine", 1, 0, rng)
 	check("a T1 trinket asks nothing", flask.grade == 1 and Progression.requirement(flask).value == 0 and Progression.refusal(flask, OperatorProgress.create(Operators.LAPPLAND)) == "")
 	var copy := Item.from_data(blade.to_data())
 	check("grade survives a save round trip", copy.grade == blade.grade and copy.grade == 3)
 	var old := blade.to_data()
 	old.erase("grade")
+	# A save that old is from before the ladder too: white / blue / gold.
+	old.erase("ladder")
+	old["rarity"] = 1
 	check("gear saved before grades gets one from its layer and power", Item.from_data(old).grade >= 2)
 	var hunter := LootTables.roll_equipment(Item.Category.WEAPON, "林线猎矛", "snow", 11, 0, rng)
 	check("a polearm asks 技巧 on the heavy column", Progression.requirement(hunter).attribute == "tec" and Progression.requirement(hunter).value == Progression.REQ_TABLE.heavy[2])
 	game.inventory.items.clear()
 	fresh(Operators.LAPPLAND)
-	var deep := LootTables.roll_equipment(Item.Category.WEAPON, "纠察队佩刀", "mine", 21, 1, rng)
+	var deep := LootTables.roll_equipment(Item.Category.WEAPON, "纠察队佩刀", "mine", 21, Item.BLUE, rng)
 	game.inventory.try_add(deep)
 	check("equipping from the pack refuses unmet requirements", not game.equip_from(deep, game.inventory) and game.player.equipped.get(Item.Category.WEAPON) != deep)
 	game.inventory.items.clear()

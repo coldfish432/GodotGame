@@ -49,6 +49,7 @@ func run() -> void:
 	while game.booting: await step(1)
 	check("a new save on slot 1 starts the game on its file", game.is_inside_tree() and game.save_path == SaveSlots.path(0) and screens.slot == 0 and not screens._title.visible)
 	check("the slot picked is remembered", int(SystemScreens.settings.save_slot) == 0)
+	check("a new save deploys Amiya, not the Player's default", game.player.operator_id == Operators.AMIYA_GUARD and game.base.operator == Operators.AMIYA_GUARD)
 	game.save_base()
 	var s := SaveSlots.summary(0)
 	check("saved: slot 1 used, the title reads its 龙门币 and operators", SaveSlots.used(0) and int(s.lmd) == game.gold and int(s.operators) == 1 and int(s.saved) > 0)

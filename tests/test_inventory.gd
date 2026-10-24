@@ -63,20 +63,20 @@ func run() -> void:
 	# --- Affix tiers and saves.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 9
-	var tiers := {0: 0, 1: 0, 2: 0}
+	var tiers := {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 	var in_range := true
 	for i in range(400):
 		var item := FieldCatalog.roll_item("snow", 3, rng, 1.0)
 		for mod in item.modifiers:
 			if not mod.is_random_affix(): continue
 			tiers[mod.tier] += 1
-			# Each rarity rolls in its band (复利数值改造清单 B): 60–80 / 90–110 / 120–140%;
-			# white has no random affixes, so its band shows on the panel instead.
+			# Each rarity rolls in its band on the ladder (Scaling.BANDS); grey has no
+			# random affixes, so its band shows on the panel instead.
 			var band: Array = ItemModifier.TIER_RANGES[mod.tier]
 			in_range = in_range and mod.tier == item.rarity
 			var ratio := mod.amount / (float(FieldCatalog.AFFIX_AMOUNTS[mod.stat]) * mod.scale)
 			in_range = in_range and ratio >= float(band[0]) - 0.0001 and ratio <= float(band[1]) + 0.0001
-	check("affixes roll in their rarity's 90–110/120–140% band", tiers[1] > 0 and tiers[2] > 0 and in_range, tiers)
+	check("affixes roll in their rarity's band (green / blue / purple)", tiers[1] > 0 and tiers[2] > 0 and tiers[3] > 0 and in_range, tiers)
 	var tiered := weapon(2.0)
 	var atk := ItemModifier.stat_mod(ItemModifier.Stat.ATK_PCT, 0.104)
 	atk.tier = 2
@@ -88,7 +88,7 @@ func run() -> void:
 	check("Alt shows the range", "范围" in atk.describe_detailed(true) and not "范围" in atk.describe_detailed(false))
 
 	# --- Rarity colours are one palette.
-	check("rarity colours match the relic palette", Item.RARITY_COLORS[1] != Item.RARITY_COLORS[0] and Item.RARITY_COLORS[2] == RelicCatalog.RARITY_COLORS[2])
+	check("rarity colours match the relic palette", Item.RARITY_COLORS[1] != Item.RARITY_COLORS[0] and Item.RARITY_COLORS[Item.PURPLE] == RelicCatalog.RARITY_COLORS[2])
 
 	# --- Side-effect-free preview (no 战力: 用户 2026-10-06).
 	var p := game.player

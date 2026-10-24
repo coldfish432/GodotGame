@@ -91,7 +91,7 @@ const ATTRIBUTES := ["phy", "tec", "agi", "arts"]
 const ATTRIBUTE_NAMES := {"phy": "体魄", "tec": "技巧", "agi": "敏捷", "arts": "源石技艺"}
 ## What one point adds, in CombatStats keys (复利数值改造清单 J: shares now, and
 ## 41/119 of the old point, so 119 points give what 41 did). 体魄's regeneration
-## is tier Ⅰ, × the floor's 档位系数 (Player.bonus_regen).
+## is tier 1, × the floor's 档位系数 (Player.bonus_regen).
 const PER_POINT := {
 	"phy": {"hp_pct": 0.0035, "def_pct": 0.0035, "regen": 0.17},
 	"tec": {"atk_pct": 0.0028, "crit": 0.0007, "crit_dmg": 0.0035},
@@ -122,11 +122,23 @@ static func respec_cost(points: int, elite: int) -> int:
 	return points * 560 * (elite + 1)
 
 # --- Gear grades and requirements (§7) --------------------------------------
-## Grades are the ten-floor tiers Ⅰ–Ⅹ (复利数值改造清单 B, Scaling.tier_of).
+## Grades are the ten-floor tiers 1–10 (复利数值改造清单 B, Scaling.tier_of),
+## shown as the floors they come from (属性伤害与地区装备策划案 v1.1 §12, 用户
+## 2026-10-24: 删除罗马数字): "31–40 层", and "40" in a grid cell's corner.
 const GRADE_MAX := 10
-const GRADE_MARKS := ["", "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"]
-## Per tier Ⅰ..Ⅹ (index 1..10). 精英 1 lands near floor 18 and 精英 2 near floor
-## 40 (tools/economy_model.py), so tiers Ⅲ–Ⅳ ask 精英 1 and Ⅴ on 精英 2.
+
+static func grade_label(grade: int) -> String:
+	var g := clampi(grade, 1, GRADE_MAX)
+	if g >= GRADE_MAX: return "%d+ 层" % ((g - 1) * Scaling.TIER_FLOORS + 1)
+	return "%d–%d 层" % [(g - 1) * Scaling.TIER_FLOORS + 1, g * Scaling.TIER_FLOORS]
+
+static func grade_corner(grade: int) -> String:
+	var g := clampi(grade, 1, GRADE_MAX)
+	if g >= GRADE_MAX: return "%d+" % ((g - 1) * Scaling.TIER_FLOORS + 1)
+	return str(g * Scaling.TIER_FLOORS)
+
+## Per tier 1..10 (index 1..10). 精英 1 lands near floor 18 and 精英 2 near floor
+## 40 (tools/economy_model.py), so tiers 3–4 ask 精英 1 and 5 on 精英 2.
 const REQ_ELITE := [0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 2]
 ## Finer points (119 over a career) let each kind ask its own (清单 J): heavy
 ## pieces climb toward half of a specialised build, light ones a third.

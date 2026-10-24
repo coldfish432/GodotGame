@@ -28,7 +28,21 @@ const KEYS := ["hp", "hp_pct", "atk", "atk_pct", "arts", "arts_pct", "def", "def
 	# melee / ranged dodge, overall damage reduction, dodge stamina.
 	"reach_pct", "skill_pct", "skill_cd_pct", "evasion_melee", "evasion_ranged", "dmg_reduce", "dash_cost_pct",
 	# 底材固有属性表 v1.0: operator experience, the gear share of drops.
-	"exp_pct", "drop_pct"]
+	"exp_pct", "drop_pct",
+	# 属性伤害与地区装备策划案 v1.1 (Elements): resistances, elemental damage
+	# added to and converted from her hits, its bonuses, damage over time.
+	"res_burn", "res_cold", "res_corr", "res_nerve", "res_bleed", "res_all_elem", "res_cap",
+	"add_burn", "add_cold", "add_corr", "add_nerve", "conv_burn", "conv_cold", "conv_corr", "conv_nerve",
+	"burn_dmg_pct", "cold_dmg_pct", "corr_dmg_pct", "nerve_dmg_pct", "bleed_dmg_pct", "necro_dmg_pct",
+	"bleed_chance", "burnout_chance", "frost_chance", "rot_chance", "necro_chance", "dot_pct", "dot_dur_pct", "build_pct",
+	# Regional affixes (§8): conditional damage and defence she reads in combat.
+	"crowd_dmg", "crowd_dr", "blast_taken", "rot_full_aspd", "kill_heal", "ore_atk",
+	"ambush_dmg", "melee_taken", "dash_def", "chain_dmg", "dot_taken_dur",
+	"full_hp_dmg", "cold_pct", "fire_regen", "lone_evasion", "freeze_taken", "lone_skill",
+	"stunned_dmg", "low_hp_dmg", "debt_pct", "elite_taken", "back_taken", "elite_kill_aspd", "debt_dmg",
+	# Orange signatures (§8): 1 when worn.
+	"sig_cascade", "sig_carrier", "sig_resonance", "sig_blaze", "sig_shieldwall", "sig_escort",
+	"sig_shatter", "sig_treeline", "sig_firstblood", "sig_reckoning", "sig_silence", "sig_bloodprice"]
 ## 技能冷却 can at most halve the skill's cooldown (or charge needed).
 const SKILL_CD_CAP := 0.5
 
@@ -75,12 +89,15 @@ static func physical(raw: float, defence: float, k: float = -1.0) -> float:
 static func arts(raw: float, resistance: float) -> float:
 	return raw * maxf(1.0 - minf(resistance, RES_CAP) / 100.0, DAMAGE_FLOOR)
 
-## kind: "phys", "arts" or "true".
+## kind: "phys", "arts", "true", an element ("burn" / "cold" / "corr" /
+## "nerve") or "bleed". Elements and bleeding ignore DEF: `resistance` is then
+## that kind's own (Elements.multiplier: 10–150%).
 static func mitigate(raw: float, kind: String, defence: float, resistance: float) -> float:
 	if raw <= 0.0: return 0.0
 	match kind:
 		"phys": return physical(raw, defence)
 		"arts": return arts(raw, resistance)
+	if Elements.is_element(kind) or kind == "bleed": return raw * Elements.multiplier(resistance)
 	return raw
 
 ## What an equipment piece's power gives, as the sheet keys it adds to.

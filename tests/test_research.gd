@@ -3,7 +3,7 @@ extends SceneTree
 ## taken, 作战记录 as loot, 可露希尔's flask bundles, tiered kits, the new
 ## prices, and 科研部 — its nodes, projects, endless lines, the effects, the
 ## terminal and the room. 科研树状化策划案_v1_0.md: the tree, its
-## prerequisites across departments, Ⅶ, and the combat nodes' zone.
+## prerequisites across departments, 7, and the combat nodes' zone.
 var game: GameManager
 var checks := 0
 var failures := 0
@@ -50,11 +50,11 @@ func run() -> void:
 # --- §1, §2 -------------------------------------------------------------------------------
 
 func _economy() -> void:
-	check("tiers are ten floors: 1 → Ⅰ, 10 → Ⅰ, 11 → Ⅱ, 95 → Ⅹ, 300 → Ⅹ",
+	check("tiers are ten floors: 1 → 1, 10 → 1, 11 → 2, 95 → 10, 300 → 10",
 		Economy.tier_of(1) == 1 and Economy.tier_of(10) == 1 and Economy.tier_of(11) == 2 and Economy.tier_of(95) == 10 and Economy.tier_of(300) == 10)
 	check("the income index runs 1 → 6.73", Economy.income_index(1) == 1.0 and is_equal_approx(Economy.income_index(10), 6.73))
-	check("tiered prices round to 100: 300 at Ⅴ → 1,000; 3,000 at Ⅹ → 20,200", Economy.tiered(300, 5) == 1000 and Economy.tiered(3000, 10) == 20200, [Economy.tiered(300, 5), Economy.tiered(3000, 10)])
-	check("Roman tier marks", Economy.roman(4) == "Ⅳ" and Economy.roman(10) == "Ⅹ")
+	check("tiered prices round to 100: 300 at 5 → 1,000; 3,000 at 10 → 20,200", Economy.tiered(300, 5) == 1000 and Economy.tiered(3000, 10) == 20200, [Economy.tiered(300, 5), Economy.tiered(3000, 10)])
+	check("tier labels", ResearchCatalog.tier_label(4) == "4 阶" and Progression.grade_label(4) == "31–40 层" and Progression.grade_label(10) == "91+ 层" and Progression.grade_corner(10) == "91+")
 
 func _prices() -> void:
 	# 仓库修订 (用户 2026-10-23): no racks, console or drone to buy; 仓储部 levels give cells and stack size.
@@ -66,16 +66,16 @@ func _prices() -> void:
 		int(Progression.PROMOTION[1].lmd) == 22000 and int(Progression.PROMOTION[2].lmd) == 168000
 		and SkillTrees.MODULE_COST.map(func(c): return int(c.lmd)) == [56000, 84000, 112000])
 	game.base.injuries = {Operators.LAPPLAND: 5}
-	check("treatment × the index of the floor she fell on: Ⅴ → 27,600", game.injury_price(Operators.LAPPLAND) == Economy.tiered(BaseCatalog.INJURY_TREATMENT, 5)
+	check("treatment × the index of the floor she fell on: 5 → 27,600", game.injury_price(Operators.LAPPLAND) == Economy.tiered(BaseCatalog.INJURY_TREATMENT, 5)
 		and game.injury_price(Operators.LAPPLAND) == 27600, game.injury_price(Operators.LAPPLAND))
 	game.base.settle_medical(true, 3)
 	check("a fall records its tier", int(game.base.injuries.get(game.base.operator, 0)) == 3)
 	game.base.injuries = {}
 
 func _kits() -> void:
-	check("a kit's cut grows 3% a tier: plain mask Ⅰ 30%, Ⅹ 57%", is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 1), 0.3) and is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 10), 0.57))
+	check("a kit's cut grows 3% a tier: plain mask 1 30%, 10 57%", is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 1), 0.3) and is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 10), 0.57))
 	check("used a tier short it loses 5% a tier", is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 2, 4), 0.33 - 0.1))
-	check("kit price × index: mask Ⅹ 94,200", FeatureCatalog.kit_price("dust_mask", 10) == 94200, FeatureCatalog.kit_price("dust_mask", 10))
+	check("kit price × index: mask 10 94,200", FeatureCatalog.kit_price("dust_mask", 10) == 94200, FeatureCatalog.kit_price("dust_mask", 10))
 	game.base.kits = {}
 	game.base.camps = {"snow": 30}
 	game.gold = 200000
@@ -84,15 +84,15 @@ func _kits() -> void:
 	check("stock counts every tier; the best is taken first", game.base.kit_stock("sami_lining") == 2 and game.base.take_kit("sami_lining") == 4 and game.base.kit_best_tier("sami_lining") == 1)
 	var copy := BaseState.new()
 	copy.load_data({"kits": {"dust_mask": 2}}, {})
-	check("saves from before tiers load their kits as tier Ⅰ", copy.kits == {"dust_mask@1": 2}, copy.kits)
+	check("saves from before tiers load their kits as tier 1", copy.kits == {"dust_mask@1": 2}, copy.kits)
 	game.base.kits = {}
 	game.base.camps = {}
 
 func _closure() -> void:
 	var per_bar := maxi(1, floori(Economy.bar_lmd() / float(BaseCatalog.POTION_A_PRICE)))
-	check("one 赤金 buys as many 标准急救剂 Ⅰ as its 龙门币 covers (%d at the base)" % per_bar, game.closure_potion_bundle("A") == per_bar, game.closure_potion_bundle("A"))
+	check("one 赤金 buys as many 标准急救剂 1 as its 龙门币 covers (%d at the base)" % per_bar, game.closure_potion_bundle("A") == per_bar, game.closure_potion_bundle("A"))
 	game.base.camps = {"mine": 40}
-	check("at tier Ⅴ a bar buys one", game.closure_potion_bundle("A") == 1)
+	check("at tier 5 a bar buys one", game.closure_potion_bundle("A") == 1)
 	check("the pharmacy's price follows the deepest tier", game.potion_price("B") == Economy.tiered(int(BaseCatalog.POTIONS["B"].price), 5))
 	game.base.camps = {}
 
@@ -129,7 +129,7 @@ func _research_rules() -> void:
 	check("第二加工线 needs 订单速递 first", r.refusal("logistics_2") == "需要订单速递", r.refusal("logistics_2"))
 	check("materials are checked", r.refusal("logistics_1").begins_with("缺少"))
 	_stock({"电路板": 20, "继电器": 20, "微型电机": 10, "装置": 20})
-	check("tier Ⅰ can start", r.refusal("logistics_1").is_empty(), r.refusal("logistics_1"))
+	check("tier 1 can start", r.refusal("logistics_1").is_empty(), r.refusal("logistics_1"))
 	var gold := game.gold
 	check("starting pays 56,000 and the materials", r.start("logistics_1") and gold - game.gold == int(ResearchCatalog.TIER_PRICE[0]) and game.material_count("电路板") == 18)
 	check("one slot at Lv1", r.refusal("medical_1") == "研究位已满")
@@ -138,8 +138,8 @@ func _research_rules() -> void:
 	var slots := game.base.order_slot_count()
 	later(1800)
 	check("an hour in it is done", r.tick() == ["logistics_1"] and r.is_done("logistics_1"))
-	check("后勤部Ⅰ adds an order slot at once", game.base.order_slot_count() == slots + 1 and game.base.orders.slots.size() == slots + 1)
-	check("tier Ⅱ needs the camp at floor 10", r.refusal("logistics_2") == "需要第 10 层营地")
+	check("后勤部 1 阶 adds an order slot at once", game.base.order_slot_count() == slots + 1 and game.base.orders.slots.size() == slots + 1)
+	check("tier 2 needs the camp at floor 10", r.refusal("logistics_2") == "需要第 10 层营地")
 	game.base.camps = {"mine": 10}
 	check("…then it can start", r.refusal("logistics_2").is_empty(), r.refusal("logistics_2"))
 	game.base.set_facility("lab", 2)
@@ -189,12 +189,12 @@ func _tree() -> void:
 	game.base.set_facility("warehouse", wh_level)
 	check("combat nodes cost 1.5 × the tier: 武器校准 84,000; joint 6.72M", ResearchCatalog.price("engineering_c1") == roundi(ResearchCatalog.TIER_PRICE[0] * 1.5)
 		and ResearchCatalog.price("engineering_c1") == 84000 and ResearchCatalog.price("joint_elite") == 6720000)
-	# Ⅶ: the two late reforge nodes, after 龙门's 定向重铸.
-	check("词条锚定 and 平行重铸 sit at Ⅶ: camp 90, 5.6M / 36 h and 8.4M / 48 h",
+	# 7: the two late reforge nodes, after 龙门's 定向重铸.
+	check("词条锚定 and 平行重铸 sit at 7: camp 90, 5.6M / 36 h and 8.4M / 48 h",
 		ResearchCatalog.tier_of("engineering_5") == 7 and ResearchCatalog.camp_needed("engineering_5") == 90
 		and ResearchCatalog.price("engineering_5") == 5600000 and ResearchCatalog.hours("engineering_5") == 36
 		and ResearchCatalog.price("engineering_6") == 8400000 and ResearchCatalog.hours("engineering_6") == 48)
-	check("Ⅶ asks 玄纹墨", int(ResearchCatalog.materials("engineering_5").get("玄纹墨", 0)) == 3)
+	check("7 asks 玄纹墨", int(ResearchCatalog.materials("engineering_5").get("玄纹墨", 0)) == 3)
 	check("词条锚定 needs 龙门商会 R5", "lungmen_r5" in ResearchCatalog.conditions("engineering_5"))
 	var standing: int = game.exchange.relation(GameManager.DIRECTED_FACTION)
 	game.exchange.relations[GameManager.DIRECTED_FACTION] = 0
@@ -253,62 +253,62 @@ func _effects() -> void:
 	var base := game.base
 	var cells := base.capacity()
 	_finish("rack_cells")
-	check("后勤部Ⅲ: warehouse capacity +20%", base.capacity() == roundi(cells * 1.2) and base.capacity(Item.Category.WEAPON) == base.capacity(), [cells, base.capacity()])
+	check("后勤部 3 阶: warehouse capacity +20%", base.capacity() == roundi(cells * 1.2) and base.capacity(Item.Category.WEAPON) == base.capacity(), [cells, base.capacity()])
 	var slots := game.workshop_slots()
 	_finish("workshop_slot")
-	check("后勤部Ⅱ: a workshop slot", game.workshop_slots() == slots + 1)
+	check("后勤部 2 阶: a workshop slot", game.workshop_slots() == slots + 1)
 	_finish("workshop_speed")
-	check("后勤部Ⅳ: work 25% faster", is_equal_approx(game.research.workshop_time_factor(), 0.75))
+	check("后勤部 4 阶: work 25% faster", is_equal_approx(game.research.workshop_time_factor(), 0.75))
 	_finish("bulk_orders")
-	check("后勤部Ⅴ: five bulk orders, every 4 h", game.voyage.order_slots() == 5 and game.voyage.order_refill() == 4 * 3600)
+	check("后勤部 5 阶: five bulk orders, every 4 h", game.voyage.order_slots() == 5 and game.voyage.order_refill() == 4 * 3600)
 	_finish("free_potion")
-	check("医疗部Ⅰ: four free flasks", base.free_potion_count() == 4)
+	check("医疗部 1 阶: four free flasks", base.free_potion_count() == 4)
 	base.injuries = {Operators.LAPPLAND: 1}
 	_finish("injury_fee")
-	check("医疗部Ⅱ: treatment halved", game.injury_price(Operators.LAPPLAND) == Economy.tiered(BaseCatalog.INJURY_TREATMENT, 1) / 2, game.injury_price(Operators.LAPPLAND))
+	check("医疗部 2 阶: treatment halved", game.injury_price(Operators.LAPPLAND) == Economy.tiered(BaseCatalog.INJURY_TREATMENT, 1) / 2, game.injury_price(Operators.LAPPLAND))
 	base.injuries = {}
 	_finish("isolation_ward")
-	check("医疗部Ⅵ: contamination steps at 70 / 100", BaseCatalog.contamination_tier(65.0) == 0 and BaseCatalog.contamination_tier(70.0) == 1)
-	var item := LootTables.roll_equipment(Item.Category.WEAPON, GearCatalog.BASES[GearCatalog.BASES.keys()[0]].name, "mine", 10, 1, game.rng)
+	check("医疗部 6 阶: contamination steps at 70 / 100", BaseCatalog.contamination_tier(65.0) == 0 and BaseCatalog.contamination_tier(70.0) == 1)
+	var item := LootTables.roll_equipment(Item.Category.WEAPON, GearCatalog.BASES[GearCatalog.BASES.keys()[0]].name, "mine", 10, Item.BLUE, game.rng)
 	var cost := game.refresh_cost("reforge", item)
 	_finish("refresh_fee")
-	check("工程部Ⅰ: 重铸 15% cheaper", game.refresh_cost("reforge", item) == roundi(cost * 0.85))
+	check("工程部 1 阶: 重铸 15% cheaper", game.refresh_cost("reforge", item) == roundi(cost * 0.85))
 	_finish("rhodes_blue")
-	check("工程部Ⅱ: Rhodes gear turns blue", base.rhodes_rarity == 1)
+	check("工程部 2 阶: Rhodes gear turns blue", base.rhodes_rarity == 1)
 	_finish("rhodes_gold")
-	check("工程部Ⅳ: then gold", base.rhodes_rarity == 2)
+	check("工程部 4 阶: then blue", base.rhodes_rarity == Item.BLUE)
 	var offers := game.contract_offer_count()
 	_finish("offer_slot")
-	check("外勤部Ⅰ: four offers", game.contract_offer_count() == offers + 1)
+	check("外勤部 1 阶: four offers", game.contract_offer_count() == offers + 1)
 	base.contract_offers.erase("city")
 	var four := game.contract_offers("city").filter(func(c): return c.type in FieldCatalog.CONTRACT_TYPES)
 	check("…all four kinds", four.size() == 4, four.size())
 	base.contract_reroll = true
 	var was: Dictionary = (base.contract_offers["city"][0] as Dictionary).duplicate()
-	check("外勤部Ⅱ: one free reroll", game.reroll_contract("city", 0) and not base.contract_reroll and not game.reroll_contract("city", 0))
+	check("外勤部 2 阶: one free reroll", game.reroll_contract("city", 0) and not base.contract_reroll and not game.reroll_contract("city", 0))
 	check("…the card changed", base.contract_offers["city"][0] != was)
 	_finish("deposit_fee")
-	check("外勤部Ⅲ: the deposit fee halves", is_equal_approx(game.research.deposit_fee_factor(), 0.5))
+	check("外勤部 3 阶: the deposit fee halves", is_equal_approx(game.research.deposit_fee_factor(), 0.5))
 	var safe := game.safe_bag.height
 	_finish("safe_row")
-	check("外勤部Ⅳ: one more safe-bag row", game.safe_bag.height == safe + 1)
+	check("外勤部 4 阶: one more safe-bag row", game.safe_bag.height == safe + 1)
 	var limit := game.exchange.loan_limit()
 	_finish("loan_terms")
-	check("商务部Ⅴ: loans ×1.5, a point off", game.exchange.loan_limit() == roundi(limit * 1.5) and is_equal_approx(game.exchange.loan_rate_now(5000), 0.0))
+	check("商务部 5 阶: loans ×1.5, a point off", game.exchange.loan_limit() == roundi(limit * 1.5) and is_equal_approx(game.exchange.loan_rate_now(5000), 0.0))
 	_finish("closure_spread")
-	check("商务部Ⅱ: 可露希尔's spread 2%", is_equal_approx(Economy.closure_spread, 0.02))
+	check("商务部 2 阶: 可露希尔's spread 2%", is_equal_approx(Economy.closure_spread, 0.02))
 	_finish("feed_fee")
-	check("人事部Ⅰ: records 20% cheaper", game.record_price("基础作战记录") == ceili(int(Progression.RECORD_EXP["基础作战记录"]) * Progression.LMD_PER_EXP * 0.8), game.record_price("基础作战记录"))
+	check("人事部 1 阶: records 20% cheaper", game.record_price("基础作战记录") == ceili(int(Progression.RECORD_EXP["基础作战记录"]) * Progression.LMD_PER_EXP * 0.8), game.record_price("基础作战记录"))
 	_finish("bench_exp")
-	check("人事部Ⅳ: the bench learns 20%", is_equal_approx(game.research.bench_share(), 0.2))
+	check("人事部 4 阶: the bench learns 20%", is_equal_approx(game.research.bench_share(), 0.2))
 	_finish("glow_range")
-	check("情报部Ⅰ: glows 50% wider", is_equal_approx(game.research.glow_factor(), 1.5))
+	check("情报部 1 阶: glows 50% wider", is_equal_approx(game.research.glow_factor(), 1.5))
 	_finish("appraisal")
-	check("情报部Ⅱ: the tooltip shows the band", ItemTooltip.show_band)
+	check("情报部 2 阶: the tooltip shows the band", ItemTooltip.show_band)
 
 func _projects() -> void:
 	var r := game.research
-	check("a project costs base × index: M at Ⅴ = 72,200", r.project_price("threat", 5) == Economy.tiered(int(ResearchCatalog.PROJECT_BASE["M"]), 5)
+	check("a project costs base × index: M at 5 = 72,200", r.project_price("threat", 5) == Economy.tiered(int(ResearchCatalog.PROJECT_BASE["M"]), 5)
 		and r.project_price("threat", 5) == 72200, r.project_price("threat", 5))
 	check("sign two", r.sign("threat") and r.sign("records") and r.project_refusal("deep") == "课题位已满")
 	var gold := game.gold
@@ -330,7 +330,7 @@ func _projects() -> void:
 	check("after three sorties both end", not r.projects().has("threat") and not r.projects().has("records"))
 	check("cancel", r.sign("scan") and r.cancel("scan") and r.projects().is_empty())
 	_finish("project_slot")
-	check("外勤部Ⅵ: a third slot", r.project_slots() == 3)
+	check("外勤部 6 阶: a third slot", r.project_slots() == 3)
 	r.sign("deep")
 	r.sign("appraise")
 	r.sign("vaults")

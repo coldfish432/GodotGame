@@ -107,7 +107,7 @@ func is_notable() -> bool:
 	if item == null: return false
 	if not item.special.is_empty() or not item.exclusive_region.is_empty(): return true
 	if not item.material_id.is_empty(): return MaterialCatalog.star(item.material_id) >= 4
-	return item.is_equippable() and item.rarity >= 2
+	return item.is_rare()
 
 func _add_beam(color: Color) -> void:
 	var beam := MeshInstance3D.new()

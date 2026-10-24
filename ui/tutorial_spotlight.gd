@@ -10,8 +10,9 @@ extends Control
 ## A base screen's card comes up the first time that screen opens (用户
 ## 2026-10-23: 其他界面第一次打开的时候也介绍); the dispatch desk's comes in two,
 ## the contract on the right first, then the floors in the middle. Before the
-## first contract the camera tours the departure stations (tour): 整备台 to
-## the right, the 调度台 below, the 后勤柜台 to the left.
+## first contract, once the waking talk is over, the three departure stations
+## are ringed at once (DEPARTURE), each with its own card beside it: 调度台
+## (出击, with 知道了), 整备台 and 后勤柜台.
 ## Some come from events instead (low life, the first camp, a retreat, gear
 ## sent back): `request`, shown over whatever screen is up, with no ring when
 ## there is nothing to point at. Each kind once, ever
@@ -58,7 +59,7 @@ const TIPS := {
 	# --- 基地设施（第一次走到旁边） ---
 	"base_loadout": ["整备台", "整备台用于换装、改造和领取制式装备。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀；制式页可以免费领取罗德岛制式装备，合同结束时收回。", 60.0],
 	"base_insurance": ["后勤柜台", "出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。罗德岛制式装备合同结束时会收回，无需投保。", 60.0],
-	"base_contracts": ["调度台", "调度台是出击的地方。在这里选择地区和合同，确认出发准备后即可出击。", 60.0],
+	"base_departure": ["调度台", "出击的地方：在这里选择地区和合同，确认出发准备后即可出击。", 60.0],
 	"base_stash": ["仓管台", "仓管台管理仓库。所有物品共用仓库容量，一格放一件装备或一组材料；仓储部升级会提高容量和材料的单格堆叠数量。点击物品带入背包，拖动背包里的物品即可存回。", 60.0],
 	# The dispatch desk's screen, in two (BaseScreens.contracts' columns).
 	"dispatch_contract": ["合同委托", "右侧是这份合同的详情：地区、掉落和合同目标。选好一项目标后点击最终准备，确认干员与装备即可出击。完成目标并撤离可以获得对应的龙门币报酬。", 0.0],
@@ -81,9 +82,11 @@ const TIPS := {
 ## The dispatch desk's columns, in screen pixels (BaseScreens.contracts).
 const DISPATCH_CONTRACT := Rect2(884, 60, 396, 660)
 const DISPATCH_FLOORS := Rect2(236, 64, 640, 440)
-## Before the first contract (TutorialCard's contract step): [tip, station id].
-const TOUR := [["base_loadout", "workbench"], ["base_contracts", "dispatch"], ["base_insurance", "logistics"]]
-const TOUR_SETTLE := 1.2
+## Before the first contract (TutorialCard's contract step), rung together:
+## the first is base_departure's card, the others [station, title, text] a
+## card each beside their rings.
+const DEPARTURE := [["dispatch"], ["workbench", "整备台", "换装、改造装备，免费领取罗德岛制式装备。"],
+	["logistics", "后勤柜台", "出发前为装备投保。罗德岛制式装备合同结束时会收回，无需投保。"]]
 ## Seen counts within this far of her, and inside the screen by INSET px.
 const SEE_RANGE := 16.0
 const TRAP_RANGE := 7.0
@@ -91,6 +94,7 @@ const INSET := 48.0
 const SCREEN := Vector2(1280, 720)
 const CHECK_SECONDS := 0.2
 const CARD_WIDTH := 300.0
+const NOTE_WIDTH := 220.0
 const DIM := 0.72
 
 var game: GameManager
@@ -108,11 +112,10 @@ var _queue: Array = []
 ## Whether the field was stopped for it (modal "tutorial"); a tip over a
 ## screen that already stops it (the camp, the settlement) leaves that as is.
 var _owns_modal := false
-## The camera tour: stops still to come, and how long the camera has had
-## to reach the current one.
-var _tour: Array = []
-var _tour_wait := 0.0
-var _touring := false
+## Rings beyond the first, for a tip round several places at once (screen
+## points), and the cards beside them.
+var more_rings: Array[Vector2] = []
+var _notes: Array[Control] = []
 var _mask: ColorRect
 var _ring: Control
 var _card: PanelContainer
@@ -132,9 +135,13 @@ uniform float radius;
 uniform vec4 box;
 uniform vec2 extent;
 uniform float dim;
+uniform vec3 more_a;
+uniform vec3 more_b;
 void fragment() {
 	vec2 at = UV * extent;
 	float d = distance(at, centre) - radius;
+	if (more_a.z > 0.0) d = min(d, distance(at, more_a.xy) - more_a.z);
+	if (more_b.z > 0.0) d = min(d, distance(at, more_b.xy) - more_b.z);
 	if (box.z > 0.0) {
 		vec2 q = abs(at - (box.xy + box.zw * 0.5)) - box.zw * 0.5;
 		d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
@@ -196,9 +203,10 @@ func dismiss() -> void:
 	if showing.is_empty(): return
 	showing = ""
 	visible = false
+	for note in _notes: note.queue_free()
+	_notes.clear()
 	if _owns_modal and game.modal == "tutorial": game.close_modal()
 	_owns_modal = false
-	if _touring and _tour.is_empty(): _end_tour()
 
 ## A base screen opened (GameManager.open_station): its card, the first time.
 func screen_opened(kind: String) -> void:
@@ -208,34 +216,19 @@ func screen_opened(kind: String) -> void:
 		return
 	request("base_" + kind)
 
-func _start_tour() -> void:
-	_touring = true
-	_tour = TOUR.duplicate()
-	_tour_wait = 0.0
-	game.open_modal("tutorial")
-
-func _end_tour() -> void:
-	_touring = false
-	game.camera_look = Vector3.INF
-	if game.modal == "tutorial": game.close_modal()
-
-## The next stop: the camera goes there, and its card comes up once it has.
-func _tick_tour(delta: float) -> void:
-	if _tour.is_empty():
-		_end_tour()
-		return
-	var stop: Array = _tour[0]
-	var station: Dictionary = game.base_map.station(str(stop[1]))
-	if station.is_empty() or seen(str(stop[0])):
-		_tour.pop_front()
-		return
-	var at: Vector3 = station.position
-	game.camera_look = at
-	_tour_wait += delta
-	if _tour_wait < TOUR_SETTLE: return
-	_tour_wait = 0.0
-	_tour.pop_front()
-	show_tip(str(stop[0]), at + Vector3.UP * 0.6)
+## The three departure stations in one card; the 后勤柜台's own card is then
+## not needed (it says the same).
+func _show_departure() -> void:
+	var main: Dictionary = game.base_map.station(str(DEPARTURE[0][0]))
+	if main.is_empty(): return
+	var more: Array = []
+	for entry in DEPARTURE.slice(1):
+		var station: Dictionary = game.base_map.station(str(entry[0]))
+		if not station.is_empty(): more.append([(station.position as Vector3) + Vector3.UP * 0.6, entry[1], entry[2]])
+	var list: Array = SystemScreens.settings.get("tutorial_seen", []).duplicate()
+	if not "base_insurance" in list: list.append("base_insurance")
+	SystemScreens.set_setting("tutorial_seen", list)
+	show_tip("base_departure", (main.position as Vector3) + Vector3.UP * 0.6, more)
 
 ## Esc on a tip: it closes (GameManager.go_back asks here first).
 func go_back() -> bool:
@@ -264,15 +257,13 @@ func _process(delta: float) -> void:
 			_owns_modal = false
 		return
 	visible = false
-	if _touring:
-		_tick_tour(delta)
-		return
 	_check_left -= delta
 	if _check_left > 0.0: return
 	_check_left = CHECK_SECONDS
 	if not tips_on() or game.transitioning: return
-	if game.in_base and game.modal.is_empty() and game.base_walk_active() and TutorialCard.step() == TutorialCard.index_of("contract") and not TOUR.all(func(t): return seen(str(t[0]))):
-		_start_tour()
+	if not seen("base_departure") and game.in_base and game.modal.is_empty() and game.base_walk_active() and TutorialCard.step() == TutorialCard.index_of("contract") \
+			and (not Story.is_on() or "wake" in game.base.story.seen):
+		_show_departure()
 		return
 	for i in range(_queue.size()):
 		var q: Array = _queue[i]
@@ -384,8 +375,9 @@ func candidates() -> Array:
 
 ## Stops the game and shows `id`'s card beside a ring round `at`: a world
 ## point (Vector3), a screen point (Vector2), a screen box (Rect2), or null
-## for no ring and the card in the middle.
-func show_tip(id: String, at: Variant) -> void:
+## for no ring and the card in the middle. `more`: further places ringed with
+## it, [world point, title, text], each with a card of its own beside it.
+func show_tip(id: String, at: Variant, more: Array = []) -> void:
 	var list: Array = SystemScreens.settings.get("tutorial_seen", []).duplicate()
 	list.append(id)
 	SystemScreens.set_setting("tutorial_seen", list)
@@ -407,6 +399,20 @@ func show_tip(id: String, at: Variant) -> void:
 	material.set_shader_parameter("box", Vector4(ring_box.position.x, ring_box.position.y, ring_box.size.x, ring_box.size.y))
 	material.set_shader_parameter("extent", SCREEN)
 	material.set_shader_parameter("dim", DIM)
+	more_rings.clear()
+	for note in _notes: note.queue_free()
+	_notes.clear()
+	for entry in more:
+		var point := game.screen_point(entry[0])
+		more_rings.append(point)
+		var note := _note_card(str(entry[1]), str(entry[2]))
+		add_child(note)
+		note.reset_size()
+		note.position = _beside(point, ring_radius, note.size)
+		_notes.append(note)
+	for k in range(2):
+		var extra := Vector3(more_rings[k].x, more_rings[k].y, ring_radius) if k < more_rings.size() else Vector3.ZERO
+		material.set_shader_parameter("more_a" if k == 0 else "more_b", extra)
 	_card.reset_size()
 	if at == null:
 		_card.position = (SCREEN - _card.size) * 0.5
@@ -419,14 +425,35 @@ func show_tip(id: String, at: Variant) -> void:
 		var y := ring_box.end.y + 18.0 if ring_box.get_center().y < SCREEN.y * 0.5 else ring_box.position.y - 18.0 - _card.size.y
 		var x := ring_box.get_center().x - _card.size.x * 0.5
 		_card.position = Vector2(clampf(x, 16.0, SCREEN.x - _card.size.x - 16.0), clampf(y, 16.0, SCREEN.y - _card.size.y - 16.0))
-	else:
-		# Beside the ring, on the side with more room, kept on screen.
-		var gap := ring_radius + 24.0
-		var x := ring_at.x + gap if ring_at.x < SCREEN.x * 0.5 else ring_at.x - gap - _card.size.x
-		var y := ring_at.y - _card.size.y * 0.5
-		_card.position = Vector2(clampf(x, 16.0, SCREEN.x - _card.size.x - 16.0), clampf(y, 16.0, SCREEN.y - _card.size.y - 16.0))
+	else: _card.position = _beside(ring_at, ring_radius, _card.size)
 	visible = true
 	_ring.queue_redraw()
+
+## Beside a ring, on the side with more room, kept on screen.
+func _beside(centre: Vector2, radius: float, card: Vector2) -> Vector2:
+	var gap := radius + 24.0
+	var x := centre.x + gap if centre.x < SCREEN.x * 0.5 else centre.x - gap - card.x
+	var y := centre.y - card.y * 0.5
+	return Vector2(clampf(x, 16.0, SCREEN.x - card.x - 16.0), clampf(y, 16.0, SCREEN.y - card.y - 16.0))
+
+## A card with no button, for a place ringed alongside the tip's own.
+func _note_card(title: String, text: String) -> PanelContainer:
+	var note := PanelContainer.new()
+	note.custom_minimum_size = Vector2(NOTE_WIDTH, 0)
+	note.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var plate := AK.box(AK.PLATE, AK.BLUE, 0, 12)
+	plate.border_width_left = 3
+	note.add_theme_stylebox_override("panel", plate)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 6)
+	note.add_child(column)
+	column.add_child(AK.label(title, 15, AK.FG))
+	var body := AK.label(text, 13, AK.FG)
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.custom_minimum_size = Vector2(NOTE_WIDTH - 24, 0)
+	body.remove_meta("fit_size")
+	column.add_child(body)
+	return note
 
 func _draw_ring() -> void:
 	if showing.is_empty(): return
@@ -435,5 +462,6 @@ func _draw_ring() -> void:
 		_ring.draw_rect(ring_box.grow(6.0), Color(AK.BLUE, 0.35), false, 1.0)
 		return
 	if ring_radius <= 0.0: return
-	_ring.draw_arc(ring_at, ring_radius, 0.0, TAU, 64, AK.BLUE, 2.0, true)
-	_ring.draw_arc(ring_at, ring_radius + 6.0, 0.0, TAU, 64, Color(AK.BLUE, 0.35), 1.0, true)
+	for centre in [ring_at] + more_rings:
+		_ring.draw_arc(centre, ring_radius, 0.0, TAU, 64, AK.BLUE, 2.0, true)
+		_ring.draw_arc(centre, ring_radius + 6.0, 0.0, TAU, 64, Color(AK.BLUE, 0.35), 1.0, true)

@@ -287,12 +287,12 @@ func _contract_meal_and_squad() -> void:
 	check("the meal goes with her and the plate clears", game.run_meal == "变种盛宴" and game.provisions.meal().is_empty())
 	check("变种盛宴: max HP +12%%: %.0f → %.0f" % [plain_hp, game.player.max_hp], game.player.max_hp > plain_hp * 1.10)
 	check("attack +10%, speed +5% as a lasting hex", is_equal_approx(game.player.hex("atk"), 0.10) and is_equal_approx(game.player.hex("aspd"), 0.05) and float(game.player.hexes.meal.time) < 0.0)
-	# Ⅲ+: more squads; Ⅱ+: a step cheaper; Ⅳ: two services.
+	# 3+: more squads; 2+: a step cheaper; 4: two services.
 	var met := 0
 	for i in range(3000):
 		game._roll_encounter()
 		if game.encounter == "squad": met += 1
-	check("squads on ~40%% of floors with Ⅲ or better (%d/3000)" % met, absf(met / 3000.0 - Provisions.SQUAD_CHANCE) < 0.03)
+	check("squads on ~40%% of floors with 3 or better (%d/3000)" % met, absf(met / 3000.0 - Provisions.SQUAD_CHANCE) < 0.03)
 	var lows := 0
 	for i in range(200):
 		game._roll_encounter()
@@ -311,7 +311,7 @@ func _contract_meal_and_squad() -> void:
 	b.value = 50
 	game.inventory.try_add(a)
 	game.inventory.try_add(b)
-	check("Ⅳ: the squad serves twice", game.squad_max_uses() == 2 and game.squad_insure(a) and not game.encounter_used and game.squad_insure(b) and game.encounter_used)
+	check("4: the squad serves twice", game.squad_max_uses() == 2 and game.squad_insure(a) and not game.encounter_used and game.squad_insure(b) and game.encounter_used)
 	check("its 补给 service stays open while one is mailed", game.squad_extras() and game.interaction_prompt() == "罗德岛小队")
 	check("the mailed 补给 is eaten there and replaces the canteen's", game.squad_supply() and game.run_meal == "舰内口粮" and game.provisions.mailed().is_empty() and game.player.hex("atk") == 0.0)
 	check("then the squad has nothing more", not game.squad_extras())

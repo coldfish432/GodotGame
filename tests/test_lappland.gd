@@ -61,7 +61,7 @@ func run() -> void:
 	p._sprite.set_process(false)
 	p.teleport(origin)
 	var weapon := Item.create("测试幼狼之牙", Item.Category.WEAPON, 2, 1)
-	weapon.rarity = 2
+	weapon.rarity = Item.PURPLE
 	weapon.modifiers = [ItemModifier.trigger_mod(ItemModifier.Trigger.SWORD_WAVE), ItemModifier.stat_mod(ItemModifier.Stat.ATTACK_SPEED_PCT, 0.10)]
 	p.equip(weapon)
 	check("wave affix and attack speed stack", p.has_sword_wave() and is_equal_approx(p.blade_cooldown, Player.BASE_BLADE_COOLDOWN / 1.1))
@@ -260,7 +260,9 @@ func run() -> void:
 				speed_rolls[item.category] = int(speed_rolls.get(item.category, 0)) + 1
 		if item.category == Item.Category.WEAPON and item.rarity > 0: eligible += 1
 		if count > 0: rolled += 1
-		valid = valid and count <= 1 and rolled_mods.size() <= item.rarity and (count == 0 or (item.category == Item.Category.WEAPON and item.rarity >= 1))
+		# Lines per rarity on the ladder; the resistance line and orange's signature come on top (属性伤害与地区装备策划案 v1.1 §2.2).
+		var lines := rolled_mods.filter(func(mod: ItemModifier) -> bool: return not mod.stat in ItemModifier.RESISTS and not ItemModifier.is_signature(mod.stat))
+		valid = valid and count <= 1 and lines.size() <= int(LootTables.AFFIX_LINES[clampi(item.rarity, 0, Item.RARITY_MAX)]) and (count == 0 or (item.category == Item.Category.WEAPON and item.rarity >= 1))
 	check("loot only rolls one wave on eligible weapons within affix budget", valid and rolled > 0)
 	# 装备部位拆分与数值案 §4: attack speed leans to the weapon and the hands.
 	check("attack speed rolls on the weapon and the hands only, cooldown affix retired", cooldown_rolls == 0 and speed_rolls.has(Item.Category.WEAPON)

@@ -11,11 +11,26 @@ enum Category { WEAPON, ARMOR, TRINKET, MATERIAL, HEAD, CHEST, HANDS, LEGS, FEET
 const SLOTS := [Category.WEAPON, Category.HEAD, Category.CHEST, Category.HANDS, Category.LEGS, Category.FEET, Category.AMULET, Category.RING]
 const ARMOR_SLOTS := [Category.HEAD, Category.CHEST, Category.HANDS, Category.LEGS, Category.FEET]
 const JEWEL_SLOTS := [Category.AMULET, Category.RING]
-## One palette for rarity everywhere (grid borders, names, ground drops), the
-## same as relics: grey-white, blue, gold — 明日方舟's 3★ / 4★-5★ feel
-## (装备与背包界面调研 §5.2).
-const RARITY_COLORS := [Color("c9d3db"), Color("5aa9ff"), Color("f3b04a")]
-const RARITY_NAMES := ["普通", "精良", "稀有"]
+## One ladder for rarity and for good and bad everywhere (属性伤害与地区装备
+## 策划案 v1.1 §2, 用户 2026-10-24: 灰、绿、蓝、紫、橙、红): grid borders,
+## names, ground drops, prefixes, relics and materials all read it the same
+## way. Random drops run grey to red (用户 2026-10-24: 其他装备也有红色稀有度);
+## every named piece is red too.
+const GREY := 0
+const GREEN := 1
+const BLUE := 2
+const PURPLE := 3
+const ORANGE := 4
+const RED := 5
+const RARITY_MAX := RED
+const RARITY_COLORS := [Color("a3aab0"), Color("5fcf6e"), Color("4f9dff"), Color("b273ff"), Color("ff9a2e"), Color("ff4f4f")]
+const RARITY_NAMES := ["普通", "优秀", "精良", "稀有", "史诗", "传说"]
+const LEGEND_COLOR := Color("ff4f4f")
+## Saves before the ladder kept white / blue / gold as 0 / 1 / 2; gold whose
+## panel sat in the top quarter of its old band (1.35 of 1.2–1.4) is orange.
+const OLD_RARITY := [GREY, BLUE, PURPLE]
+const OLD_GOLD_ORANGE := 0.75
+const OLD_BANDS := [[0.6, 0.8], [0.9, 1.1], [1.2, 1.4]]
 const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料", "头部", "胸甲", "手部", "腿部", "脚部", "项链", "戒指"]
 
 static func slot_name(category: int) -> String:
@@ -71,7 +86,7 @@ static func is_jewel_slot(category: int) -> bool:
 ## A flask ("A" / "B" / "C", BaseCatalog.POTIONS) — flasks are pack items; one kind
 ## stacks in a cell up to BaseCatalog.POTION_STACK (用户 2026-10-17); "" for everything else.
 @export var potion_type: String = ""
-## 档位 Ⅰ–Ⅹ (复利数值改造清单 B): the ten-floor tier it dropped in, which fixes
+## 档位 1–10 (复利数值改造清单 B): the ten-floor tier it dropped in, which fixes
 ## its value range and its requirement. Flasks carry it too (E). 0 for
 ## materials and gear saved before grades (filled in on load).
 @export var grade: int = 0
@@ -132,13 +147,6 @@ static func create(p_name: String, p_category: Category, p_width: int, p_height:
 	item.power = p_power
 	return item
 
-const SPECIAL_COLOR := Color("ff7a45")
-## Enemy exclusives (Grim Dawn's MI) and set pieces (装备扩充策划案 §1).
-const EXCLUSIVE_COLOR := Color("ee8a24")
-const SET_COLOR := Color("4fd18b")
-## A region boss's own pieces wear the boss bar's lavender (Boss与守卫者策划案 §10).
-const BOSS_COLOR := Color("b49ae8")
-
 ## "special" / "exclusive" / "set" for named gear, "" for everything else.
 func named_kind() -> String:
 	if special.is_empty(): return ""
@@ -177,10 +185,10 @@ func stack_suffix() -> String:
 	return " ×%d" % quantity if is_stackable() else ""
 
 func display_name() -> String:
-	if not material_id.is_empty(): return "★%d · %s" % [MaterialCatalog.star(material_id), item_name]
-	var quality: String = {"special": "特殊", "exclusive": "专属", "set": "套装", "boss": "首领"}.get(named_kind(), RARITY_NAMES[clampi(rarity, 0, 2)])
-	var mark: String = (str(Progression.GRADE_MARKS[clampi(grade, 0, Progression.GRADE_MAX)]) + " · ") if grade > 0 else ""
-	return mark + quality + " · " + PrefixCatalog.name_part(self) + item_name
+	# Materials read their rarity off the ladder's colour, not a ★ (§2.6).
+	if not material_id.is_empty(): return item_name
+	var quality: String = {"special": "特殊", "exclusive": "专属", "set": "套装", "boss": "首领"}.get(named_kind(), "专属" if is_legend() else RARITY_NAMES[clampi(rarity, 0, RARITY_MAX)])
+	return quality + " · " + PrefixCatalog.name_part(self) + item_name
 
 ## The name as coloured runs: [text, colour] — the quality and base name in
 ## the item's colour, each prefix in its grade's colour, "·" dim (§2.1).
@@ -203,12 +211,17 @@ func name_bbcode() -> String:
 
 func rarity_color() -> Color:
 	if not material_id.is_empty(): return MaterialCatalog.color(material_id)
-	match named_kind():
-		"special": return SPECIAL_COLOR
-		"exclusive": return EXCLUSIVE_COLOR
-		"set": return SET_COLOR
-		"boss": return BOSS_COLOR
-	return RARITY_COLORS[clampi(rarity, 0, 2)]
+	if is_legend(): return LEGEND_COLOR
+	return RARITY_COLORS[clampi(rarity, 0, RARITY_MAX)]
+
+## Named gear (special, exclusive, set, boss) and a region's exclusive find:
+## red like the rarest random drops (§2.2).
+func is_legend() -> bool:
+	return not named_kind().is_empty() or (not exclusive_region.is_empty() and is_equippable())
+
+## Whether it counts as rare (purple, orange or red): beams, packs, filters.
+func is_rare() -> bool:
+	return is_equippable() and (rarity >= PURPLE or is_legend())
 
 func details() -> String:
 	var parts: Array[String] = [description]
@@ -231,7 +244,7 @@ func to_data() -> Dictionary:
 		"description": description, "mods": mods, "insured": insured, "carried_in": carried_in, "special": special, "base": base_id,
 		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type, "grade": grade,
 		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count, "atk_share": atk_share,
-		"tiers": 2, "slots": 3}
+		"tiers": 2, "slots": 3, "ladder": 1}
 
 static func from_data(data: Dictionary) -> Item:
 	var item := create(str(data.get("name", "物品")), int(data.get("category", 3)) as Category,
@@ -258,10 +271,10 @@ static func from_data(data: Dictionary) -> Item:
 	item.quantity = clampi(int(data.get("quantity", 1)), 1, item.max_stack)
 	item.grade = clampi(int(data.get("grade", 0)), 0, Progression.GRADE_MAX)
 	# Gear saved before ten-floor tiers kept T1–T6 of layer + block; its tier
-	# comes from its power instead (复利数值改造清单 B). Flasks were all tier Ⅰ.
-	if int(data.get("tiers", 1)) < 2:
-		item.grade = 1 if item.is_potion() else 0
-		if item.is_potion(): item.item_name = BaseCatalog.potion_name(item.potion_type, 1)
+	# comes from its power instead (复利数值改造清单 B). Flasks were all tier 1.
+	if int(data.get("tiers", 1)) < 2: item.grade = 1 if item.is_potion() else 0
+	# Flask names carried their tier as 1–10 before the ladder (§12).
+	if item.is_potion() and BaseCatalog.POTIONS.has(item.potion_type): item.item_name = BaseCatalog.potion_name(item.potion_type, item.grade)
 	item.atk_share = clampf(float(data.get("atk_share", 0.0)), 0.0, 1.0)
 	for data_mod in data.get("mods", []):
 		var mod := ItemModifier.new()
@@ -302,7 +315,25 @@ static func from_data(data: Dictionary) -> Item:
 	Progression.backfill_grade(item)
 	# Gear saved before prefixes rolls them once (装备前缀策划案 §0.2-6).
 	if not data.has("prefixes"): PrefixCatalog.backfill(item)
+	if int(data.get("ladder", 0)) < 1: _migrate_ladder(item)
 	return item
+
+## White / blue / gold onto the ladder (§15.1): its affixes' and intrinsics'
+## bands move with it; numbers stay as they were.
+static func _migrate_ladder(item: Item) -> void:
+	var old := clampi(item.rarity, 0, 2)
+	var to: int = OLD_RARITY[old]
+	var old_band: Array = OLD_BANDS[old]
+	var old_mid := (float(old_band[0]) + float(old_band[1])) * 0.5
+	if old == 2 and item.special.is_empty() and item.power_mid > 0.0:
+		var at := (item.power / item.power_mid * old_mid - float(old_band[0])) / (float(old_band[1]) - float(old_band[0]))
+		if at >= OLD_GOLD_ORANGE: to = ORANGE
+	item.rarity = to
+	# The band's middle moves (white .7 → grey .69, gold 1.3 → purple 1.225 / orange 1.425).
+	if item.power_mid > 0.0: item.power_mid *= Scaling.band_mid(to) / old_mid
+	for mod in item.modifiers:
+		if mod.tier >= 0 and mod.tier <= 2: mod.tier = OLD_RARITY[mod.tier] if not (mod.tier == 2 and to == ORANGE) else ORANGE
+		if mod.band >= 0 and mod.band <= 2: mod.band = OLD_RARITY[mod.band] if not (mod.band == 2 and to == ORANGE) else ORANGE
 
 ## Gear saved under the slot multiplier (部位词条数值表 v1.0, 用户 2026-10-21):
 ## a non-weapon piece's affixes move to its slot's own sizes at the same

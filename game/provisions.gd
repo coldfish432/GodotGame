@@ -8,7 +8,7 @@ extends RefCounted
 ## real time, the game closed or not, and never wither. The kitchen cooks
 ## them into 补给, eaten at the canteen before a contract: one at a time, for
 ## that contract, like a flask (the base itself still adds no combat stats).
-## From Ⅱ up a 补给 also helps the Rhodes squads met on that contract; 企鹅物流
+## From 2 up a 补给 also helps the Rhodes squads met on that contract; 企鹅物流
 ## can carry one out to the next squad met, as its 补给 service.
 
 ## crop -> {hours, yield (per basin), seed: 龙门币 for Rhodes' own, or the seed item}.
@@ -72,8 +72,8 @@ const MEALS := {
 	"闪耀定食": {"tier": 3, "hp_pct": 0.10, "atk": 0.06},
 	"变种盛宴": {"tier": 4, "hp_pct": 0.12, "atk": 0.10, "aspd": 0.05},
 }
-## For the squads, by the tier eaten (cumulative): Ⅱ its price one step
-## lower, Ⅲ squads more often, Ⅳ two services from one squad.
+## For the squads, by the tier eaten (cumulative): 2 its price one step
+## lower, 3 squads more often, 4 two services from one squad.
 const SQUAD_STEP_DOWN_TIER := 2
 const SQUAD_STEP := 0.1
 const SQUAD_CHANCE_TIER := 3

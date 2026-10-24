@@ -76,7 +76,7 @@ static func _detail(menu: FieldMenu, stage: Control) -> void:
 			b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 			b.pressed.connect(func(): game.use_patent(running); build(menu))
 			right.add_child(b)
-	right.add_child(AK.section(ResearchCatalog.name_of(pick), "%s · %s" % [ResearchCatalog.DEPARTMENT_NAMES[ResearchCatalog.department_of(pick)], Economy.roman(ResearchCatalog.tier_of(pick))]))
+	right.add_child(AK.section(ResearchCatalog.name_of(pick), "%s · %s" % [ResearchCatalog.DEPARTMENT_NAMES[ResearchCatalog.department_of(pick)], ResearchCatalog.tier_label(ResearchCatalog.tier_of(pick))]))
 	right.add_child(AK.label(ResearchCatalog.effect_text(pick), 18, AK.FG))
 	var before := ResearchCatalog.prerequisite_nodes(pick)
 	if not before.is_empty():
@@ -127,7 +127,7 @@ static func _projects(menu: FieldMenu, stage: Control) -> void:
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 6)
 	AK.put(stage, list, Vector2(16, TOP + 10), Vector2(1248, 0))
-	list.add_child(AK.section("课题位", "PROJECTS  %d / %d   ·   %s" % [r.projects().size(), r.project_slots(), Economy.roman(tier)]))
+	list.add_child(AK.section("课题位", "PROJECTS  %d / %d   ·   %s" % [r.projects().size(), r.project_slots(), ResearchCatalog.tier_label(tier)]))
 	for project in ResearchCatalog.PROJECTS:
 		var info: Array = ResearchCatalog.PROJECTS[project]
 		var row := HBoxContainer.new()

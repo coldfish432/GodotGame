@@ -135,6 +135,27 @@ const STATS := {
 	"sentinel": {"hp": 900.0, "atk": 0.0, "def": 60.0, "res": 20.0, "kind": "phys"},
 }
 
+## 属性伤害与地区装备策划案 v1.1 §11: the share of an enemy's damage that is
+## elemental (taken out of what it deals, not added), and the damage over time
+## its hits may leave. Elements.enemy_share_mult halves the share on floors
+## 1–10 and takes three quarters on 11–20.
+const ELEMENTS := {
+	"caster": {"kind": "corr", "share": 0.5}, "distorted_caster": {"kind": "corr", "share": 0.5},
+	"slug_volatile": {"kind": "burn", "share": 1.0},
+	"thrower": {"kind": "burn", "share": 0.7, "dot": "burnout", "chance": 0.5},
+	"ice_hunter": {"kind": "cold", "share": 0.4},
+	"ice_warrior": {"kind": "cold", "share": 0.2, "dot": "frost", "chance": 0.3},
+	"fallen_snowpriest": {"dot": "necro", "chance": 0.4},
+	"family_crossbow": {"kind": "nerve", "share": 0.3}, "family_caster": {"kind": "nerve", "share": 0.5},
+	"family_soldier": {"dot": "bleed", "chance": 0.2}, "family_eraser": {"dot": "bleed", "chance": 0.2},
+	"thug": {"dot": "bleed", "chance": 0.15}, "greytail": {"dot": "bleed", "chance": 0.15},
+	# Bosses (§10): each its region's element.
+	"patriot": {"kind": "corr", "share": 0.4, "dot": "rot", "chance": 0.3},
+	"rat_king": {"kind": "burn", "share": 0.4, "dot": "burnout", "chance": 0.3},
+	"eikthyrnir": {"kind": "cold", "share": 0.4, "dot": "frost", "chance": 0.3},
+	"zaro": {"kind": "nerve", "share": 0.3, "dot": "bleed", "chance": 0.3},
+}
+
 ## Region pools for the new enemies (装备扩充策划案 §2.1). Ordinary slots draw
 ## from `normal` / `ranged`; elite slots from `elite`.
 const REGION_POOLS := {

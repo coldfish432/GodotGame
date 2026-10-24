@@ -177,9 +177,9 @@ func run() -> void:
 	card.skip_all()
 	await step(1)
 	check("skip ends the basic steps, first-sight cards stay on", TutorialCard.finished() and TutorialSpotlight.tips_on())
-	# The base (用户 2026-10-23): before the first contract the camera tours the
-	# departure stations — 整备台, 调度台, 后勤柜台 — a card at each; after it a
-	# station's card comes the first time its screen opens, not on walking up.
+	# The base (用户 2026-10-23): before the first contract, once the waking talk
+	# is over, one card rings 整备台, 调度台 (出击) and 后勤柜台 together; after
+	# it a station's card comes the first time its screen opens, not on walking up.
 	TutorialCard.set_on(true)
 	SystemScreens.settings.tutorial_step = TutorialCard.index_of("contract")
 	SystemScreens.settings.tutorial_seen = []
@@ -188,23 +188,19 @@ func run() -> void:
 		if game.in_base and not game.transitioning: break
 		await step()
 	game.close_modal()
-	check("the tour's stops are all in the base", TutorialSpotlight.TOUR.all(func(t): return not game.base_map.station(str(t[1])).is_empty()))
-	for i in range(30):
-		if game.modal == "tutorial": break
-		await step()
-	check("before the first contract a camera tour holds the base", game.modal == "tutorial" and spot.showing.is_empty())
-	for stop in TutorialSpotlight.TOUR:
-		var at: Vector3 = game.base_map.station(str(stop[1])).get("position", Vector3.INF)
-		for i in range(600):
-			if spot.showing == stop[0]: break
-			await step()
-		check("the camera goes to %s and its card comes up" % stop[1], spot.showing == stop[0] and game.camera_look.distance_to(at) < 0.01 and game.modal == "tutorial")
-		if stop[0] == "base_insurance": check("后勤柜台: Rhodes standard gear needs no insurance", "无需投保" in spot._text.text)
-		spot.dismiss()
-		await step(2)
-		if stop[0] != "base_insurance": check("the tour holds the base between stops", game.modal == "tutorial")
+	if not "wake" in game.base.story.seen: game.base.story.seen.append("wake")
+	check("the departure stations are all in the base", TutorialSpotlight.DEPARTURE.all(func(e): return not game.base_map.station(str(e[0])).is_empty()))
+	await wait_tip("base_departure")
+	check("before the first contract one card rings all three at once", spot.showing == "base_departure" and spot.more_rings.size() == 2 and game.modal == "tutorial")
+	check("each has its own card: 调度台 is where to sortie, 后勤柜台 says 制式 needs no insurance", "出击" in spot._text.text and spot._notes.size() == 2
+		and spot._notes.any(func(n): return "整备台" in str(n.find_children("*", "Label", true, false).map(func(l): return l.text)))
+		and spot._notes.any(func(n): return "无需投保" in str(n.find_children("*", "Label", true, false).map(func(l): return l.text))))
+	var screen := Rect2(Vector2.ZERO, TutorialSpotlight.SCREEN)
+	check("all three rings are on screen, a card beside each", screen.has_point(spot.ring_at) and spot.more_rings.all(func(p): return screen.has_point(p))
+		and spot._notes.all(func(n): return screen.encloses(Rect2(n.position, n.size))))
+	spot.dismiss()
 	await step(4)
-	check("after the last card the camera comes back and the base walks on", game.modal.is_empty() and game.camera_look == Vector3.INF and spot.showing.is_empty())
+	check("after it the base walks on, the cards gone, and the 后勤柜台's own card is not repeated", game.modal.is_empty() and spot.showing.is_empty() and spot._notes.is_empty() and TutorialSpotlight.seen("base_insurance"))
 	SystemScreens.settings.tutorial_step = TutorialCard.index_of("contract") + 1
 	game.player.teleport(game.base_map.station("lift").position)
 	await step(20)

@@ -47,9 +47,9 @@ func rules() -> void:
 	check("fire numbers (用户 2026-10-19): −3 a second within 4.5 m", is_equal_approx(FeatureCatalog.FIRE_WARM, 3.0) and is_equal_approx(FeatureCatalog.FIRE_RADIUS, 4.5) and is_equal_approx(FeatureCatalog.COLD_RATE, 0.1))
 	var m := FeatureMeter.new()
 	m.kits = {"cold": ["sami_lining", 3]}
-	check("a tier Ⅲ kit takes 36% off its feature's growth on a tier Ⅲ floor, depth on top", is_equal_approx(m.growth_mult("cold", 25), 1.1 * 0.64) and is_equal_approx(m.growth_mult("debt", 25), 1.1))
+	check("a tier 3 kit takes 36% off its feature's growth on a tier 3 floor, depth on top", is_equal_approx(m.growth_mult("cold", 25), 1.1 * 0.64) and is_equal_approx(m.growth_mult("debt", 25), 1.1))
 	m.kits = {"cold": ["sami_lining", 1]}
-	check("a tier Ⅰ kit there loses 5% a tier short (30% → 20%)", is_equal_approx(m.growth_mult("cold", 25), 1.1 * 0.8))
+	check("a tier 1 kit there loses 5% a tier short (30% → 20%)", is_equal_approx(m.growth_mult("cold", 25), 1.1 * 0.8))
 	m.add("cold", 150.0)
 	check("a meter tops out at 100", is_equal_approx(m.value("cold"), 100.0))
 	m.enter_camp()

@@ -267,7 +267,7 @@ func on_hurt(amount: float, _attacker: Enemy) -> void:
 	since_hurt = 0.0
 	_idle_barrier_given = false
 	if amount <= 0.0 or not is_instance_valid(player.game): return
-	if has("hurt_shards") and randf() < 0.20: _burst(player.global_position, 2.0, player.arts_power() * 0.6, "arts")
+	if has("hurt_shards") and randf() < 0.20: _burst(player.global_position, 2.0, player.arts_power() * 0.6, "corr")
 	if has("hurt_shockwave") and _ready_cd("shockwave") and randf() < 0.20:
 		_use_cd("shockwave", 3.0)
 		_burst(player.global_position, 1.6, player.attack_power() * 0.6, "phys")
@@ -307,6 +307,7 @@ func on_shield_broken() -> void:
 ## meets (may be null).
 func on_signature(direction: Vector3, first: Enemy) -> void:
 	if not is_instance_valid(player.game): return
+	if player.elements != null: player.elements.on_signature(first)
 	var game := player.game
 	if has("signature_spike") and is_instance_valid(first) and not first._dead:
 		_disc(first.global_position, 0.8, Color(1.0, 0.6, 0.3, 0.4), 0.4)
@@ -327,7 +328,7 @@ func on_signature(direction: Vector3, first: Enemy) -> void:
 			if next == null: break
 			done[next.get_instance_id()] = true
 			CombatVfx.spawn(game, next.global_position, next.global_position - from.global_position, "spark", 0, true)
-			player._deal(next, damage, "arts", false, 0.0, false)
+			player._deal(next, damage, "nerve", false, 0.0, false)
 			from = next
 	if set_bonus("inspectors", 3) and _ready_cd("inspect"):
 		_use_cd("inspect", 8.0)
@@ -378,10 +379,16 @@ func tick(delta: float) -> void:
 		if float(zone.tick) <= 0.0:
 			zone.tick = 0.5
 			for enemy in _enemies_near(zone.pos, float(zone.radius)):
-				if str(zone.kind) == "fire": player._deal(enemy, float(zone.damage), "arts", false, 0.0, false)
+				# The fire is 灼燃 (属性伤害与地区装备策划案 v1.1 §15.3).
+				if str(zone.kind) == "fire": player._deal(enemy, float(zone.damage), "burn", false, 0.0, false)
 				elif str(zone.kind) == "snow": enemy.apply_status("slow", 0.6, 0.30)
 			if str(zone.kind) == "snow": player.heal(player.max_hp * 0.02 * 0.5)
 		if float(zone.time) <= 0.0: _zones.remove_at(i)
+
+## A patch of fire (地火, 火场): 灼燃 every 0.5 s to whoever stands in it.
+func add_fire_zone(at: Vector3, radius: float, seconds: float, damage: float) -> void:
+	_zones.append({"pos": at, "radius": radius, "time": seconds, "tick": 0.5, "damage": damage, "kind": "fire"})
+	_disc(at, radius, Color(1.0, 0.5, 0.15, 0.3), seconds)
 
 # --- Helpers -------------------------------------------------------------------
 

@@ -80,7 +80,7 @@ func run() -> void:
 		if int(plan.packs) == 0: continue
 		worst = maxi(worst, int(plan.overflow) - best_spill(units, Packs.face("武器包")))
 	check("one-key spill is within 5 points of the best: worst +%d" % worst, worst <= 5)
-	var top := gear(Item.Category.WEAPON, 500, 2)
+	var top := gear(Item.Category.WEAPON, 500, Item.PURPLE)
 	check("one-key packing leaves top-quality gear alone", int(Packs.auto_pick("武器包", [top], 1).packs) == 0 and int(Packs.auto_pick("武器包", [top], 1, false).packs) == 1)
 	# --- Packing at the 加工部 ------------------------------------------------------
 	var bolts := stash_add(MaterialCatalog.create("螺栓", 20))       # ★1, 4 points each
@@ -135,7 +135,7 @@ func run() -> void:
 	game.voyage.sailing = {}
 	var shelf := cs.goods("萨米")
 	check("萨米 sells its own gear only", shelf.filter(func(e): return e.kind == "gear").all(func(e): return Item.from_data(e.item).origin_region == "snow"))
-	check("never the top quality or a named piece", shelf.filter(func(e): return e.kind == "gear").all(func(e): var it := Item.from_data(e.item); return it.rarity < 2 and it.named_kind().is_empty()))
+	check("never the top quality or a named piece", shelf.filter(func(e): return e.kind == "gear").all(func(e): var it := Item.from_data(e.item); return not it.is_rare()))
 	check("its 特产 is there", shelf.any(func(e): return e.kind == "specialty" and Item.from_data(e.item).effect == "frozen_relic"))
 	check("its factions' goods are there", shelf.any(func(e): return e.kind == "loose" and Item.from_data(e.item).material_id == "林地草药"))
 	check("卡西米尔 has no map: no gear, its 特供 instead", cs.goods("卡西米尔").all(func(e): return e.kind != "gear") and cs.goods("卡西米尔").any(func(e): return e.kind == "special"))

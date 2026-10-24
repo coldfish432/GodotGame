@@ -4,7 +4,7 @@ extends Node3D
 ## 用户 2026-10-14: 敌人概率掉落治疗球立即回复血量. A green orb pops out of a
 ## fallen enemy (LootTables.HEAL_ORBS); it drifts to her when she comes near
 ## and heals the moment it touches her. Fades after LIFETIME.
-## 复利数值改造清单 E: a fixed amount (`fraction` holds the tier-Ⅰ figure, the
+## 复利数值改造清单 E: a fixed amount (`fraction` holds the tier-1 figure, the
 ## name kept for the drop code) times the floor's 档位系数, not a share of life.
 
 const LIFETIME := 25.0

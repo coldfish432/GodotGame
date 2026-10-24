@@ -36,7 +36,7 @@ func wear_all(fam: String, pieces: int) -> void:
 
 func run() -> void:
 	# --- The table ---------------------------------------------------------------
-	check("twelve families", PrefixFamilies.FAMILIES.size() == 12 and PrefixFamilies.ORDER.size() == 12)
+	check("thirteen families (爆发 joined)", PrefixFamilies.FAMILIES.size() == 13 and PrefixFamilies.ORDER.size() == 13)
 	var table_ok := true
 	for fam in PrefixFamilies.FAMILIES:
 		var kinds := {}

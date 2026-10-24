@@ -130,14 +130,14 @@ func _named() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 3
 	var axe := SpecialGear.roll_exclusive("breacher", "city", 1, rng)
-	check("an exclusive: fixed 稀有, the floor's ten-floor grade (Ⅰ on floor 1), its intrinsic, one random affix, its name colour", axe != null and axe.rarity == 2 and axe.grade == Scaling.tier_of(1) and axe.grade == 1
+	check("an exclusive: fixed 稀有, the floor's ten-floor grade (1 on floor 1), its intrinsic, one random affix, its name colour", axe != null and axe.rarity == Item.PURPLE and axe.grade == Scaling.tier_of(1) and axe.grade == 1
 		and is_equal_approx(axe.power, float(SpecialGear.GEAR[axe.special].power) * Scaling.tier_base(1))
 		and axe.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER).size() == 2 and axe.modifiers.filter(func(m): return m.tier >= 0).size() == 1
-		and axe.rarity_color() == Item.EXCLUSIVE_COLOR and axe.display_name().contains("专属"))
+		and axe.rarity_color() == Item.LEGEND_COLOR and axe.display_name().contains("专属"))
 	var boss_axe := SpecialGear.roll_exclusive("breacher", "city", 1, rng, true)
 	check("a boss's exclusive is one grade higher, its power one tier base up", boss_axe.grade == 2 and is_equal_approx(boss_axe.power, float(SpecialGear.GEAR[boss_axe.special].power) * Scaling.tier_base(2)))
 	var deep_axe := SpecialGear.roll_exclusive("breacher", "city", 21, rng)
-	check("on floor 21 an exclusive is grade Ⅲ", deep_axe.grade == 3 and is_equal_approx(deep_axe.power, float(SpecialGear.GEAR[deep_axe.special].power) * Scaling.tier_base(3)))
+	check("on floor 21 an exclusive is grade 3", deep_axe.grade == 3 and is_equal_approx(deep_axe.power, float(SpecialGear.GEAR[deep_axe.special].power) * Scaling.tier_base(3)))
 	check("exclusive weapons keep their form", Progression.requirement(axe).attribute == "phy")
 	var copy := Item.from_data(axe.to_data())
 	check("named gear survives a save", copy.special == axe.special and copy.named_kind() == "exclusive" and copy.grade == axe.grade and is_equal_approx(copy.power, axe.power))

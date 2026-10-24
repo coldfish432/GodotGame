@@ -241,7 +241,7 @@ func workshop_time_factor() -> float:
 func feed_factor() -> float:
 	return maxf(0.1, (0.8 if game.base.researched("feed_fee") else 1.0) * (1.0 + endless_value("feed")))
 
-## Free flasks one tier higher (医疗部Ⅴ): 0 or 1.
+## Free flasks one tier higher (医疗部 5 阶): 0 or 1.
 func free_potion_tier_bonus() -> int: return 1 if game.base.researched("potion_grade") else 0
 
 ## What raises every map feature on this contract.
@@ -266,7 +266,7 @@ func bench_share() -> float:
 
 func glow_factor() -> float: return 1.5 if game.base.researched("glow_range") else 1.0
 
-## 重铸 and 校准 price (工程部Ⅰ).
+## 重铸 and 校准 price (工程部 1 阶).
 func refresh_factor() -> float: return 0.85 if game.base.researched("refresh_fee") else 1.0
 
 func tune_step() -> float: return 1.3 if game.base.researched("tune_step") else 1.5

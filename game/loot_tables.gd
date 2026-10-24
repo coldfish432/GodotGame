@@ -22,7 +22,8 @@ const ENEMY_MATERIALS := {
 	"elite": {"common": [["固源岩组", 1, 1]], "uncommon": [["轻锰矿", 1, 1], ["全新装置", 1, 1]], "rare": [["改量装置", 1, 1], ["提纯源岩", 1, 1]],
 		"guaranteed": ["固源岩组", 1, 1], "ultra": ["D32钢", 0.01]},
 }
-const MATERIAL_TIER_WEIGHTS := {"common": 85.0, "uncommon": 12.0, "rare": 3.0}
+## 用户 2026-10-24: 低等级材料提高，高等级材料降低 (was 85 / 12 / 3).
+const MATERIAL_TIER_WEIGHTS := {"common": 90.0, "uncommon": 8.5, "rare": 1.5}
 const RARE_MATERIAL_PITY_STEP := 0.005
 const RARE_MATERIAL_PITY_CAP := 0.15
 
@@ -32,10 +33,12 @@ const RARE_MATERIAL_PITY_CAP := 0.15
 ## 用户 2026-10-17: 爆率太高、3 层背包就满 — about 1.5× the enemies, so a normal
 ## one drops something 37% of the time (was 88%), a guard 62% (was 100%), an
 ## elite rolls twice (was three times): roughly 60% of the old loot per floor.
+## 用户 2026-10-24: 进一步压低材料掉率 — the material pick a third lower, into
+## nothing (was 54 / 58 / 47).
 const ENEMY_SOURCE := {
-	"normal": {"picks": 1, "weights": [150.0, 54.0, 18.0, 16.0]},
-	"guard": {"picks": 1, "weights": [60.0, 58.0, 20.0, 22.0]},
-	"elite": {"picks": 2, "weights": [15.0, 47.0, 18.0, 35.0]},
+	"normal": {"picks": 1, "weights": [168.0, 36.0, 18.0, 16.0]},
+	"guard": {"picks": 1, "weights": [78.0, 40.0, 20.0, 22.0]},
+	"elite": {"picks": 2, "weights": [30.0, 32.0, 18.0, 35.0]},
 }
 ## 用户 2026-10-14: 敌人概率掉落治疗球立即回复血量，小概率掉治疗药水. Per source:
 ## the chance of healing orbs (HealOrb), how many, and what each gives back; and the chance of a 标准急救剂 in the drop.
@@ -57,11 +60,18 @@ static func source_of(elite: bool, guard: bool) -> String:
 ## the old weapon : armour : trinket = 6 : 1 : 1 is gone with the three slots.
 const ENEMY_GOLD := {"normal": [8, 14], "guard": [8, 14], "elite": [25, 40]}
 
-# --- Equipment quality (§3.2, §4.1): common / fine / rare weights ------------
+# --- Equipment quality: grey / green / blue / purple / orange / red weights ----
+## 属性伤害与地区装备策划案 v1.1 §2.3, fitted in §17 (tools/element_model.py) so a
+## piece's expected panel and affixes stay within a few percent of the old
+## white / blue / gold. Purple, orange and red are the rare three (RARE_SCALE);
+## red is a tenth of orange.
 const QUALITY := {
-	"normal": [70.0, 25.0, 5.0], "guard": [60.0, 32.0, 8.0], "elite": [25.0, 50.0, 25.0],
-	"box": [50.0, 38.0, 12.0], "vault": [0.0, 45.0, 55.0],
+	"normal": [66.0, 16.0, 14.0, 3.6, 0.4, 0.04], "guard": [57.0, 16.0, 19.0, 7.2, 0.8, 0.08], "elite": [20.0, 14.0, 41.0, 22.5, 2.5, 0.25],
+	"box": [44.0, 18.0, 26.0, 10.8, 1.2, 0.12], "vault": [0.0, 8.0, 37.0, 49.5, 5.5, 0.55],
 }
+## Of a route / guard / pity bonus to the rare weight, orange's and red's shares.
+const ORANGE_SHARE := 0.1
+const RED_SHARE := 0.01
 const RARE_GEAR_PITY_STEP := 0.015
 const RARE_GEAR_PITY_CAP := 0.30
 
@@ -106,15 +116,18 @@ const STAIR_STEP_ENDS := [3, 6, 9, 10]
 const STAIR_BLOCKS := 9
 const DEEP_TOP := 15
 const STAIR_TOP := 35
-## Quality weights [common, fine, rare] at step 15, as multipliers of the
-## table's own (QUALITY); in between they move linearly with `deep`.
-const DEEP_QUALITY := [0.3, 1.6, 4.0]
-## From step 15 to 35 the rare multiplier alone goes on from 4 to this: a
-## normal enemy's rare share reaches 50% before RARE_SCALE, so 5% on floor 90
-## (elites 7.8%, boxes 6.6%, vaults 9%).
-const RARE_TOP_QUALITY := 12.2
-## Enemy material tiers [common, uncommon, rare] at the top step, likewise.
-const DEEP_MATERIAL := [0.4, 3.0, 6.0]
+## Quality weights [grey, green, blue] at the stair's top, as multipliers of
+## the table's own (QUALITY), along the S curve.
+const DEEP_QUALITY := [0.3, 1.0, 2.0]
+## The rare pair's multipliers at the top: a normal enemy's purple + orange
+## share reaches 50% before RARE_SCALE, so 5% on floor 90 as gold did (用户
+## 2026-10-18: 以普通敌人装备稀有 5% 为顶); orange climbs half as fast again.
+const RARE_TOP_QUALITY := 15.2
+const ORANGE_TOP_QUALITY := 22.8
+const RED_TOP_QUALITY := 30.4
+## Enemy material tiers [common, uncommon, rare] at the top step, likewise
+## (用户 2026-10-24: the deep shift toward high tiers smaller, was 0.4 / 3 / 6).
+const DEEP_MATERIAL := [0.6, 2.2, 4.0]
 ## Rare finds at the top step: named gear (exclusive, set, special) ×2.5,
 ## growth drops (chips, books, module data) ×2, D32钢 ×5, a box's rare
 ## materials (the ones at 12% or less) ×3, at most 60%.
@@ -172,28 +185,52 @@ static func _rare(ctx: Dictionary, base: float, extra: float) -> bool:
 static func _rare_find(ctx: Dictionary, chance: float) -> bool:
 	return ctx.rng.randf() < minf(BOX_RARE_CAP, deeper(ctx, chance, DEEP_BOX_RARE)) * RARE_SCALE
 
-## Weights whose last entry is the rare one, with its share of the total
-## scaled by `scale` and the others keeping their proportions.
-static func _scale_rare(weights: Array, scale: float) -> Array:
+## Weights whose last `rare` entries are the rare ones, with their share of
+## the total scaled by `scale`, keeping their proportions to each other and
+## the others theirs.
+static func _scale_rare(weights: Array, scale: float, rare: int = 1) -> Array:
 	var others := 0.0
-	for i in range(weights.size() - 1): others += float(weights[i])
-	var share := float(weights[-1]) / maxf(others + float(weights[-1]), 0.0001)
-	var target := share * scale
-	if others <= 0.0: return weights   # nothing else to roll (never happens with these tables)
-	weights[-1] = target * others / (1.0 - target)
+	var rares := 0.0
+	for i in range(weights.size()):
+		if i < weights.size() - rare: others += float(weights[i])
+		else: rares += float(weights[i])
+	if others <= 0.0 or rares <= 0.0: return weights   # nothing else to roll
+	var target := rares / (others + rares) * scale
+	var total := target * others / (1.0 - target)
+	for i in range(weights.size() - rare, weights.size()): weights[i] = float(weights[i]) / rares * total
 	return weights
+
+## The chance of each quality, grey to red, on `depth` (tests and tools).
+static func quality_shares(table: String, rare_bonus: float, depth: int) -> Array:
+	var weights := _quality_weights(table, rare_bonus, depth)
+	var total := 0.0
+	for w in weights: total += float(w)
+	return weights.map(func(w): return float(w) / total)
+
+static func _quality_weights(table: String, rare_bonus: float, depth: int) -> Array:
+	var weights: Array = QUALITY[table].duplicate()
+	var s := Scaling.s_curve(depth)
+	for i in range(3): weights[i] = float(weights[i]) * lerpf(1.0, float(DEEP_QUALITY[i]), s)
+	weights[3] = float(weights[3]) * lerpf(1.0, RARE_TOP_QUALITY, s)
+	weights[4] = float(weights[4]) * lerpf(1.0, ORANGE_TOP_QUALITY, s)
+	weights[5] = float(weights[5]) * lerpf(1.0, RED_TOP_QUALITY, s)
+	var bonus := maxf(rare_bonus, 0.0) * 100.0
+	weights[3] = float(weights[3]) + bonus * (1.0 - ORANGE_SHARE - RED_SHARE)
+	weights[4] = float(weights[4]) + bonus * ORANGE_SHARE
+	weights[5] = float(weights[5]) + bonus * RED_SHARE
+	return _scale_rare(weights, RARE_SCALE, 3)
 
 ## Quality on floor `depth`: the table's weights moved along the stair, then
 ## the rare weight gets `rare_bonus` × 100 points (route reward, guards, pity).
 static func roll_quality(table: String, rare_bonus: float, rng: RandomNumberGenerator, depth: int = 1) -> int:
-	# White / blue / gold move along the shared S curve (复利数值改造清单 B):
-	# slow to floor 30, steep around 35–60, flat from 70; same end as before.
-	var weights: Array = QUALITY[table].duplicate()
-	var s := Scaling.s_curve(depth)
-	for i in range(2): weights[i] = float(weights[i]) * lerpf(1.0, float(DEEP_QUALITY[i]), s)
-	weights[2] = float(weights[2]) * lerpf(1.0, RARE_TOP_QUALITY, s)
-	weights[2] = float(weights[2]) + maxf(rare_bonus, 0.0) * 100.0
-	return _pick_weighted(_scale_rare(weights, RARE_SCALE), rng)
+	# The five move along the shared S curve (复利数值改造清单 B): slow to
+	# floor 30, steep around 35–60, flat from 70.
+	return _pick_weighted(_quality_weights(table, rare_bonus, depth), rng)
+
+## Affix lines per quality, grey to red (§2.2), and the delivery value's
+## multiplier (white ×1 / blue ×2 / gold ×3 before the ladder).
+const AFFIX_LINES := [0, 1, 1, 2, 2, 3]
+const VALUE_MULT := [1.0, 1.5, 2.0, 3.0, 4.5, 7.0]
 
 ## One piece of equipment. Its panel and every affix roll inside its rarity's
 ## band on the floor's tier (复利数值改造清单 B), and it gets its prefixes last
@@ -208,24 +245,69 @@ static func roll_equipment(category: int, title: String, region: String, depth: 
 	item.origin_region = region
 	item.rarity = rarity
 	item.grade = tier
-	item.value = (10 + depth * 4) * (1 + item.rarity)
+	item.value = roundi((10 + depth * 4) * float(VALUE_MULT[clampi(rarity, 0, Item.RARITY_MAX)]))
 	if Item.is_jewel_slot(category): item.atk_share = Item.roll_atk_share(rng)
 	var possible: Array = FieldCatalog.AFFIX_POOLS[category].duplicate()
-	var wave_slot := category == Item.Category.WEAPON and item.rarity >= 1 and rng.randf() < FieldCatalog.SWORD_WAVE_CHANCE
+	possible.append_array((FieldCatalog.GENERAL_EXTRA.get(category, {}) as Dictionary).keys())
+	# 属性伤害与地区装备策划案 v1.1 §8: the region it is found in has lines of
+	# its own; half of the lines come from there, a purple or orange has one.
+	var base_id := GearCatalog.id_for_name(title)
+	var form := str(GearCatalog.BASES[base_id].get("form", "blade")) if not base_id.is_empty() and category == Item.Category.WEAPON else ""
+	var regional := FieldCatalog.region_pool(region, category, form)
+	var wave_slot := category == Item.Category.WEAPON and item.rarity >= Item.GREEN and rng.randf() < FieldCatalog.SWORD_WAVE_CHANCE
 	if wave_slot: item.modifiers.append(ItemModifier.roll_skill_boost(rng))
-	for i in range(item.rarity - (1 if wave_slot else 0)):
-		var index := rng.randi_range(0, possible.size() - 1)
-		var stat: int = possible[index]
-		possible.remove_at(index)
+	var lines := int(AFFIX_LINES[clampi(rarity, 0, Item.RARITY_MAX)]) - (1 if wave_slot else 0)
+	var got_regional := false
+	for i in range(lines):
+		var last := i == lines - 1
+		var from_region := not regional.is_empty() and (rng.randf() < FieldCatalog.REGION_SHARE or possible.is_empty()
+			or (last and not got_regional and rarity >= Item.PURPLE))
+		var pool: Array = regional if from_region else possible
+		if pool.is_empty(): break
+		var index := rng.randi_range(0, pool.size() - 1)
+		var stat: int = pool[index]
+		pool.remove_at(index)
+		got_regional = got_regional or from_region
 		item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, item.rarity, rng, Scaling.roll_position(depth, rng), tier, category))
+	# Orange and red: the region's signature (fixed); the resistance line on armour and jewels (§7.2).
+	if rarity >= Item.ORANGE:
+		var sig := FieldCatalog.signature_for(region, category)
+		if sig >= 0:
+			var mod := ItemModifier.stat_mod(sig as ItemModifier.Stat, 1.0)
+			mod.tier = rarity
+			item.modifiers.append(mod)
+	if category != Item.Category.WEAPON and rng.randf() < float(FieldCatalog.RESIST_CHANCE[clampi(rarity, 0, Item.RARITY_MAX)]):
+		item.modifiers.append_array(roll_resist(rarity, region, rng, Scaling.roll_position(depth, rng)))
 	item.power_mid = Scaling.gear_power(tier, rarity, 0.5)
 	# A base name gets the base's factor and intrinsic stats (装备策划案 §2.1).
-	var base_id := GearCatalog.id_for_name(title)
 	if not base_id.is_empty() and int(GearCatalog.BASES[base_id].category) == category:
 		GearCatalog.apply(item, base_id, rng)
 		item.power_mid *= float(GearCatalog.BASES[base_id].factor)
 	PrefixCatalog.roll_onto(item, region, depth, rng)
 	return item
+
+## The resistance line of a piece found in `region` (§7.2): one element, two
+## at 60% each, or all five at a third of one; its own region's element is
+## three times as likely. As affixes they roll in the rarity's band.
+static func roll_resist(rarity: int, region: String, rng: RandomNumberGenerator, position: float = -1.0) -> Array[ItemModifier]:
+	var out: Array[ItemModifier] = []
+	var kind := str(FieldCatalog.RESIST_KINDS[_pick_weighted(FieldCatalog.RESIST_KINDS.map(func(k): return float(k[0])), rng)][1])
+	if kind == "all":
+		out.append(ItemModifier.roll_affix(ItemModifier.Stat.RES_ALL_ELEM, rarity, rng, position, 1, Item.Category.CHEST))
+		return out
+	var local: Array = FieldCatalog.RESIST_LOCAL.get(region, [])
+	var kinds: Array = FieldCatalog.RESIST_OF.keys()
+	var picks: Array = []
+	for n in range(1 if kind == "single" else 2):
+		var weights: Array = kinds.map(func(k): return 0.0 if k in picks else (FieldCatalog.RESIST_LOCAL_WEIGHT if k in local else 1.0))
+		picks.append(kinds[_pick_weighted(weights, rng)])
+	for k in picks:
+		var mod := ItemModifier.roll_affix(FieldCatalog.RESIST_OF[k] as ItemModifier.Stat, rarity, rng, position, 1, Item.Category.CHEST)
+		if kind == "dual":
+			mod.amount *= FieldCatalog.RESIST_DUAL
+			mod.scale *= FieldCatalog.RESIST_DUAL
+		out.append(mod)
+	return out
 
 ## Quality roll with the rare-gear pity (only on "effective" sources: elites,
 ## equipment boxes, vault chests). Updates the counter.
@@ -234,7 +316,7 @@ static func _quality_with_pity(table: String, ctx: Dictionary, extra_bonus: floa
 	var bonus := float(ctx.get("reward", 0.0)) * 0.2 + extra_bonus + (float(pity.get("rare_gear", 0.0)) if effective else 0.0)
 	var rarity := roll_quality(table, bonus, ctx.rng, int(ctx.get("depth", 1)))
 	if effective:
-		if rarity >= 2: pity.rare_gear = 0.0
+		if rarity >= Item.PURPLE: pity.rare_gear = 0.0
 		else: pity.rare_gear = minf(RARE_GEAR_PITY_CAP, float(pity.get("rare_gear", 0.0)) + RARE_GEAR_PITY_STEP)
 	return rarity
 
@@ -354,8 +436,17 @@ static func _mat(id: String, low: int, high: int, ctx: Dictionary) -> Dictionary
 ## 用户 2026-10-18: 兴趣点里刷的材料不堆叠，一个最多一个 — every material entry,
 ## 赤金 included, is a single one; the same material can turn up more than
 ## once, each in its own cell (they stack again once in the pack).
+## 用户 2026-10-24: 进一步压低材料掉率，低等级材料提高，高等级材料降低 — each
+## material entry is kept at its ★'s share (★1 most, ★5 least); 赤金, region
+## exclusives and field supplies are not materials here and always stay. 用户
+## 2026-10-24: ★3 20%, ★4 5%, ★5 1%.
+const BOX_MATERIAL_KEEP := [1.0, 0.9, 0.75, 0.20, 0.05, 0.01]
+
 static func container_drops(kind: String, ctx: Dictionary, guarded: bool = false) -> Array:
-	var out := _container_rolled(kind, ctx, guarded)
+	var out := _container_rolled(kind, ctx, guarded).filter(func(drop) -> bool:
+		var item: Item = drop.get("item")
+		if item == null or item.material_id.is_empty() or item.material_id == Economy.GOLD_ID or not MaterialCatalog.MATERIALS.has(item.material_id): return true
+		return ctx.rng.randf() < float(BOX_MATERIAL_KEEP[clampi(MaterialCatalog.star(item.material_id), 0, BOX_MATERIAL_KEEP.size() - 1)]))
 	for drop in out:
 		if drop.has("gold"): drop.single = true
 		elif drop.item.is_stackable() and not drop.item.is_potion(): drop.item.set_quantity(1)
@@ -437,6 +528,10 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			out.append(_mat("胶带", 1, 3, ctx))
 			if rng.randf() < 0.30: out.append(_mat("帆布", 1, 1, ctx))
 			if rng.randf() < 0.25: out.append(_mat("糖", 1, 2, ctx))
+			# 用户 2026-10-24: 医疗柜能出任意药剂，20% 一瓶、5% 两瓶，按价值分布 —
+			# of any kind there is, each as likely as it is cheap.
+			for n in range(_pick_weighted(MEDICAL_FLASKS, rng)):
+				out.append({"item": BaseCatalog.create_potion(_any_potion(rng), Scaling.tier_of(int(ctx.depth)))})
 		"vault_weapon", "vault_gear":
 			var category := Item.Category.WEAPON if kind == "vault_weapon" else (Item.Category.ARMOR if rng.randf() < 0.5 else Item.Category.TRINKET)
 			out.append({"item": _gear(category, "", "vault", ctx, 0.0, true)})
@@ -452,6 +547,16 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 	for entry in FeatureCatalog.SUPPLY_DROPS.get(kind, []):
 		if ctx.region == entry[2] and rng.randf() < float(entry[1]): out.append({"item": FeatureCatalog.create_supply(entry[0])})
 	return out
+
+## A medical cabinet's flasks: none / one / two.
+const MEDICAL_FLASKS := [75.0, 20.0, 5.0]
+
+## Any flask type (BaseCatalog.POTIONS), weighted by one over its value:
+## 标准急救剂 (800) about 17× as likely as 应急强心针 (14,000).
+static func _any_potion(rng: RandomNumberGenerator) -> String:
+	var types: Array = BaseCatalog.POTIONS.keys()
+	var weights: Array = types.map(func(t): return 1000.0 / maxf(1.0, float(Economy.price(BaseCatalog.create_potion(str(t), 1)))))
+	return str(types[_pick_weighted(weights, rng)])
 
 static func _one(ids: Array, rng: RandomNumberGenerator) -> String:
 	return ids[rng.randi_range(0, ids.size() - 1)]

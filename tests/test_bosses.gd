@@ -128,7 +128,7 @@ func _gear() -> void:
 		for id in ids: by_cat[int(SpecialGear.GEAR[id].category)] = int(by_cat.get(int(SpecialGear.GEAR[id].category), 0)) + 1
 		check("%s drops nine pieces of its own, three of each kind (用户 Q8)" % boss, ids.size() == 9 and by_cat.values().all(func(n): return n == 3), by_cat)
 	var item := SpecialGear.create("bg_patriot_0", 20, RandomNumberGenerator.new(), true)
-	check("a boss piece reads as 首领 in the boss lavender", item.named_kind() == "boss" and item.display_name().contains("首领") and item.rarity_color() == Item.BOSS_COLOR)
+	check("a boss piece reads as 首领 in the ladder's red", item.named_kind() == "boss" and item.display_name().contains("首领") and item.rarity_color() == Item.LEGEND_COLOR)
 	var fx_ok := true
 	for id in SpecialGear.GEAR:
 		if SpecialGear.kind(id) != "boss": continue

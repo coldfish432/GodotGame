@@ -263,7 +263,7 @@ static func lay_out(items: Array[Item]) -> Array[Item]:
 static func search_seconds(item: Item) -> float:
 	if item.material_id == Economy.GOLD_ID: return 0.5
 	if item.category == Item.Category.MATERIAL: return 0.7
-	return [1.0, 1.6, 2.4][clampi(item.rarity, 0, 2)]
+	return [1.0, 1.3, 1.6, 2.4, 3.0, 3.6][clampi(item.rarity, 0, Item.RARITY_MAX)]
 
 ## Rolls the contents and spills them all at once (tests, and anything that
 ## opens a box without searching it).

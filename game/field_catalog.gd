@@ -94,14 +94,125 @@ const AFFIX_AMOUNTS := {
 	ItemModifier.Stat.ATTACK_SPEED_PCT: 0.10, ItemModifier.Stat.ATK_PCT: 0.08,
 	ItemModifier.Stat.ARTS_PCT: 0.10, ItemModifier.Stat.DEF_FLAT: 40.0,
 	ItemModifier.Stat.RES_FLAT: 8.0, ItemModifier.Stat.CRIT_RATE: 0.05, ItemModifier.Stat.CRIT_DMG: 0.20,
-	# Flat affixes at tier Ⅰ, a blue's middle (复利数值改造清单 C): about 12% of a
+	# Flat affixes at tier 1, a blue's middle (复利数值改造清单 C): about 12% of a
 	# floor-1 Doctor's ATK / arts / HP; DEF 40 about 16%. ×1.30 a tier.
 	ItemModifier.Stat.ATK_FLAT: 95.0, ItemModifier.Stat.ARTS_FLAT: 95.0, ItemModifier.Stat.HP_FLAT: 390.0,
 	# Slot leanings (装备部位拆分与数值案 §4); their slots' own sizes are in
 	# SLOT_AFFIX_AMOUNTS. Lower is better for the two negatives.
 	ItemModifier.Stat.EVASION: 0.08, ItemModifier.Stat.SKILL_CD_PCT: -0.15, ItemModifier.Stat.SKILL_PCT: 0.25,
 	ItemModifier.Stat.STAMINA_REGEN_PCT: 0.30, ItemModifier.Stat.DASH_COST_PCT: -0.25,
+	# 属性伤害与地区装备策划案 v1.1 §7–§8, a weapon's (or the main slot's) size;
+	# the other slots' are in REGION_AFFIXES. Shares: none grows with the tier.
+	ItemModifier.Stat.ADD_BURN: 0.06, ItemModifier.Stat.ADD_COLD: 0.06, ItemModifier.Stat.ADD_CORR: 0.06, ItemModifier.Stat.ADD_NERVE: 0.06,
+	ItemModifier.Stat.BURN_DMG_PCT: 0.15, ItemModifier.Stat.COLD_DMG_PCT: 0.15, ItemModifier.Stat.CORR_DMG_PCT: 0.15,
+	ItemModifier.Stat.NERVE_DMG_PCT: 0.15, ItemModifier.Stat.NECRO_DMG_PCT: 0.15,
+	ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.BURNOUT_CHANCE: 0.15, ItemModifier.Stat.FROST_CHANCE: 0.15,
+	ItemModifier.Stat.ROT_CHANCE: 0.15, ItemModifier.Stat.NECRO_CHANCE: 0.18,
+	ItemModifier.Stat.DOT_PCT: 0.15, ItemModifier.Stat.DOT_DUR_PCT: 0.12,
+	ItemModifier.Stat.RES_BURN: 10.0, ItemModifier.Stat.RES_COLD: 10.0, ItemModifier.Stat.RES_CORR: 10.0,
+	ItemModifier.Stat.RES_NERVE: 10.0, ItemModifier.Stat.RES_BLEED: 10.0, ItemModifier.Stat.RES_ALL_ELEM: 3.0,
+	ItemModifier.Stat.CROWD_DMG: 0.03, ItemModifier.Stat.CROWD_DR: 0.015, ItemModifier.Stat.CONTAM_SLOW: -0.15,
+	ItemModifier.Stat.BLAST_TAKEN: -0.25, ItemModifier.Stat.ROT_FULL_ASPD: 0.08, ItemModifier.Stat.KILL_HEAL: 0.012, ItemModifier.Stat.ORE_ATK: 0.06,
+	ItemModifier.Stat.AMBUSH_DMG: 0.40, ItemModifier.Stat.MELEE_TAKEN: -0.06, ItemModifier.Stat.HEAL_PCT: 0.12, ItemModifier.Stat.DASH_DEF: 0.30,
+	ItemModifier.Stat.CHAIN_DMG: 0.02, ItemModifier.Stat.DOT_TAKEN_DUR: -0.30,
+	ItemModifier.Stat.FULL_HP_DMG: 0.25, ItemModifier.Stat.COLD_SLOW: -0.15, ItemModifier.Stat.FIRE_REGEN: 0.01,
+	ItemModifier.Stat.LONE_EVASION: 0.02, ItemModifier.Stat.FREEZE_TAKEN: -0.40, ItemModifier.Stat.LONE_SKILL: 0.12,
+	ItemModifier.Stat.STUNNED_DMG: 0.20, ItemModifier.Stat.LOW_HP_DMG: 0.30, ItemModifier.Stat.DEBT_SLOW: -0.15,
+	ItemModifier.Stat.ELITE_TAKEN: -0.08, ItemModifier.Stat.BACK_TAKEN: -0.20, ItemModifier.Stat.ELITE_KILL_ASPD: 0.15,
+	ItemModifier.Stat.DEBT_DMG: 0.10,
 }
+
+## --- Regional affixes (属性伤害与地区装备策划案 v1.1 §8) ---------------------------
+## Each region's own lines, only on gear found there (Item.origin_region):
+## half of a green's or blue's lines are drawn from here, and a purple or
+## orange has at least one. Sizes are a blue's middle per slot.
+const REGION_SHARE := 0.5
+const REGION_AFFIXES := {
+	"mine": {
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_CORR: 0.06, ItemModifier.Stat.ROT_CHANCE: 0.15, ItemModifier.Stat.CROWD_DMG: 0.03},
+		Item.Category.CHEST: {ItemModifier.Stat.CROWD_DR: 0.015, ItemModifier.Stat.CONTAM_SLOW: -0.15},
+		Item.Category.LEGS: {ItemModifier.Stat.CROWD_DR: 0.015, ItemModifier.Stat.BLAST_TAKEN: -0.25},
+		Item.Category.HEAD: {ItemModifier.Stat.CONTAM_SLOW: -0.15},
+		Item.Category.FEET: {ItemModifier.Stat.BLAST_TAKEN: -0.25},
+		Item.Category.HANDS: {ItemModifier.Stat.ROT_FULL_ASPD: 0.08},
+		Item.Category.AMULET: {ItemModifier.Stat.CORR_DMG_PCT: 0.15, ItemModifier.Stat.ORE_ATK: 0.06},
+		Item.Category.RING: {ItemModifier.Stat.ADD_CORR: 0.025, ItemModifier.Stat.KILL_HEAL: 0.012, ItemModifier.Stat.ORE_ATK: 0.06},
+	},
+	"city": {
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_BURN: 0.06, ItemModifier.Stat.BURNOUT_CHANCE: 0.15, ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.AMBUSH_DMG: 0.40},
+		Item.Category.CHEST: {ItemModifier.Stat.MELEE_TAKEN: -0.06},
+		Item.Category.LEGS: {ItemModifier.Stat.MELEE_TAKEN: -0.06},
+		Item.Category.HEAD: {ItemModifier.Stat.HEAL_PCT: 0.12},
+		Item.Category.FEET: {ItemModifier.Stat.DASH_DEF: 0.30},
+		Item.Category.HANDS: {ItemModifier.Stat.CHAIN_DMG: 0.02},
+		Item.Category.AMULET: {ItemModifier.Stat.BURN_DMG_PCT: 0.15, ItemModifier.Stat.DOT_TAKEN_DUR: -0.30},
+		Item.Category.RING: {ItemModifier.Stat.ADD_BURN: 0.025, ItemModifier.Stat.DOT_TAKEN_DUR: -0.30},
+	},
+	"snow": {
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_COLD: 0.06, ItemModifier.Stat.FROST_CHANCE: 0.15, ItemModifier.Stat.NECRO_CHANCE: 0.18, ItemModifier.Stat.FULL_HP_DMG: 0.25},
+		Item.Category.CHEST: {ItemModifier.Stat.COLD_SLOW: -0.15, ItemModifier.Stat.FIRE_REGEN: 0.01},
+		Item.Category.LEGS: {ItemModifier.Stat.LONE_EVASION: 0.02},
+		Item.Category.HEAD: {ItemModifier.Stat.COLD_SLOW: -0.15},
+		Item.Category.FEET: {ItemModifier.Stat.FREEZE_TAKEN: -0.40},
+		Item.Category.HANDS: {ItemModifier.Stat.FULL_HP_DMG: 0.08},
+		Item.Category.AMULET: {ItemModifier.Stat.COLD_DMG_PCT: 0.15, ItemModifier.Stat.NECRO_DMG_PCT: 0.15, ItemModifier.Stat.LONE_SKILL: 0.12},
+		Item.Category.RING: {ItemModifier.Stat.ADD_COLD: 0.025},
+	},
+	"siracusa": {
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_NERVE: 0.06, ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.STUNNED_DMG: 0.20, ItemModifier.Stat.LOW_HP_DMG: 0.30},
+		Item.Category.CHEST: {ItemModifier.Stat.DEBT_SLOW: -0.15, ItemModifier.Stat.ELITE_TAKEN: -0.08},
+		Item.Category.LEGS: {ItemModifier.Stat.BACK_TAKEN: -0.20},
+		Item.Category.HEAD: {ItemModifier.Stat.DEBT_SLOW: -0.15},
+		Item.Category.FEET: {ItemModifier.Stat.BACK_TAKEN: -0.20},
+		Item.Category.HANDS: {ItemModifier.Stat.ELITE_KILL_ASPD: 0.15},
+		Item.Category.AMULET: {ItemModifier.Stat.NERVE_DMG_PCT: 0.15, ItemModifier.Stat.DEBT_DMG: 0.10},
+		Item.Category.RING: {ItemModifier.Stat.ADD_NERVE: 0.025, ItemModifier.Stat.DEBT_DMG: 0.10},
+	},
+}
+## Weapon-only lines by form (§8): bleeding wants an edge or fists, 凋亡 a staff.
+const REGION_FORMS := {ItemModifier.Stat.BLEED_CHANCE: ["blade", "fist"], ItemModifier.Stat.NECRO_CHANCE: ["staff"]}
+## Orange's signature line, by region and group (weapon / armour / jewel).
+const REGION_SIGNATURES := {
+	"mine": [ItemModifier.Stat.SIG_CASCADE, ItemModifier.Stat.SIG_CARRIER, ItemModifier.Stat.SIG_RESONANCE],
+	"city": [ItemModifier.Stat.SIG_BLAZE, ItemModifier.Stat.SIG_SHIELDWALL, ItemModifier.Stat.SIG_ESCORT],
+	"snow": [ItemModifier.Stat.SIG_SHATTER, ItemModifier.Stat.SIG_TREELINE, ItemModifier.Stat.SIG_FIRSTBLOOD],
+	"siracusa": [ItemModifier.Stat.SIG_RECKONING, ItemModifier.Stat.SIG_SILENCE, ItemModifier.Stat.SIG_BLOODPRICE],
+}
+## The general new lines any region rolls (§7.1): amulet DoT, hands duration.
+const GENERAL_EXTRA := {Item.Category.AMULET: {ItemModifier.Stat.DOT_PCT: 0.15}, Item.Category.HANDS: {ItemModifier.Stat.DOT_DUR_PCT: 0.12}}
+
+## The resistance line (§7.2): outside the combat budget, on the seven
+## non-weapon slots; its chance by rarity, then single / dual / all.
+const RESIST_CHANCE := [0.25, 0.40, 0.60, 1.0, 1.0, 1.0]
+const RESIST_KINDS := [[70.0, "single"], [22.0, "dual"], [8.0, "all"]]
+const RESIST_DUAL := 0.6
+## A single resistance is its region's own three times as often.
+const RESIST_LOCAL_WEIGHT := 3.0
+const RESIST_OF := {"burn": ItemModifier.Stat.RES_BURN, "cold": ItemModifier.Stat.RES_COLD, "corr": ItemModifier.Stat.RES_CORR,
+	"nerve": ItemModifier.Stat.RES_NERVE, "bleed": ItemModifier.Stat.RES_BLEED}
+## Which resistance a region's gear leans to (its own element; 龙门 and 叙拉古 bleed too).
+const RESIST_LOCAL := {"mine": ["corr"], "city": ["burn", "bleed"], "snow": ["cold"], "siracusa": ["nerve", "bleed"]}
+
+## The region whose table holds `stat` for `slot` ("" for none).
+static func region_of_affix(stat: int, slot: int, region: String = "") -> String:
+	if not region.is_empty() and (REGION_AFFIXES.get(region, {}).get(slot, {}) as Dictionary).has(stat): return region
+	for r in REGION_AFFIXES:
+		if (REGION_AFFIXES[r].get(slot, {}) as Dictionary).has(stat): return r
+	return ""
+
+## The regional lines `region` offers on `slot` for a weapon of `form`.
+static func region_pool(region: String, slot: int, form: String = "") -> Array:
+	var out: Array = []
+	for stat in (REGION_AFFIXES.get(region, {}).get(slot, {}) as Dictionary):
+		if REGION_FORMS.has(stat) and not form in REGION_FORMS[stat]: continue
+		out.append(stat)
+	return out
+
+## The signature for an orange piece of `slot` found in `region` (-1: none).
+static func signature_for(region: String, slot: int) -> int:
+	if not REGION_SIGNATURES.has(region): return -1
+	var group := 0 if slot == Item.Category.WEAPON else (2 if Item.is_jewel_slot(slot) else 1)
+	return int(REGION_SIGNATURES[region][group])
 ## Each slot leans toward its own stats (装备部位拆分与数值案 §4). ARMOR and
 ## TRINKET are the old pools, kept for old saves' rerolls.
 const AFFIX_POOLS := {
@@ -122,7 +233,7 @@ const AFFIX_POOLS := {
 }
 
 ## Each slot's own affix sizes, as players see them (部位词条数值表 v1.0, 用户
-## 2026-10-21: no slot multiplier): a blue's middle at tier Ⅰ. Combat stats
+## 2026-10-21: no slot multiplier): a blue's middle at tier 1. Combat stats
 ## keep a full set's sum (the seven non-weapon slots 2.00 full affixes); a
 ## slot's own stat (legs' dodge, head's cooldown, amulet's skill damage) is
 ## larger than the shared ones; feet's movement, stamina and dodge cost are
@@ -143,8 +254,13 @@ const SLOT_AFFIX_AMOUNTS := {
 ## stat a slot's table leaves out.
 static func slot_ratio(stat: int, slot: int) -> float:
 	var table: Dictionary = SLOT_AFFIX_AMOUNTS.get(slot, {})
-	if not table.has(stat): return GearSlots.affix(slot)
-	return float(table[stat]) / float(AFFIX_AMOUNTS[stat])
+	if table.has(stat): return float(table[stat]) / float(AFFIX_AMOUNTS[stat])
+	var region := region_of_affix(stat, slot)
+	if not region.is_empty(): return float(REGION_AFFIXES[region][slot][stat]) / float(AFFIX_AMOUNTS[stat])
+	if (GENERAL_EXTRA.get(slot, {}) as Dictionary).has(stat): return float(GENERAL_EXTRA[slot][stat]) / float(AFFIX_AMOUNTS[stat])
+	# Resistances are the same size on every slot (§7.2).
+	if stat in ItemModifier.RESISTS: return 1.0
+	return GearSlots.affix(slot)
 
 ## Per-depth authoring, in the manner of 贪婪洞窟's level_N.plist, where every
 ## floor is its own record rather than a point on a curve. Before this, depth
@@ -261,7 +377,7 @@ static func builds() -> Array[Dictionary]:
 	return RelicCatalog.all()
 
 ## `depth` sets the gear's tier (复利数值改造清单 D): the written power is its
-## tier-Ⅰ size, multiplied by the tier's base.
+## tier-1 size, multiplied by the tier's base.
 static func exclusive(region: String, depth: int = 1) -> Item:
 	var item: Item
 	match region:
@@ -288,7 +404,7 @@ static func exclusive(region: String, depth: int = 1) -> Item:
 			item.value = 150
 	item.exclusive_region = region
 	item.origin_region = region
-	item.rarity = 2
+	item.rarity = Item.PURPLE
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	if item.is_equippable():
@@ -318,8 +434,8 @@ static func roll_item(region: String, depth: int, rng: RandomNumberGenerator, re
 		return ore
 	# Equipment rolls the way drops do (复利数值改造清单 B): its tier, its
 	# rarity's band, its affixes and prefixes.
-	var rarity := 2 if rng.randf() < (0.1 + reward * 0.2 + (0.2 if region == "snow" else 0.0)) else (1 if rng.randf() < 0.45 else 0)
-	if region == "city" and category == Item.Category.ARMOR: rarity = maxi(1, rarity)
+	var rarity := Item.PURPLE if rng.randf() < (0.1 + reward * 0.2 + (0.2 if region == "snow" else 0.0)) else (Item.BLUE if rng.randf() < 0.3 else (Item.GREEN if rng.randf() < 0.25 else Item.GREY))
+	if region == "city" and category == Item.Category.ARMOR: rarity = maxi(Item.BLUE, rarity)
 	# The old armour / trinket roll picks one of its slots (装备部位拆分与数值案 §6).
 	if category == Item.Category.ARMOR or category == Item.Category.TRINKET: category = GearSlots.roll(rng, category)
 	var id := GearCatalog.pick(category, region, depth, "box", "", rng)

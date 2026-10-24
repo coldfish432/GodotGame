@@ -29,6 +29,14 @@ var damage_kind := "phys"
 ## burn (value = arts damage per tick), slow / def_down (fractions), res_down (points).
 var statuses: Dictionary = {}
 var _burn_tick := 0.0
+## 损伤 gauges and damage over time (属性伤害与地区装备策划案 v1.1 §5, §6).
+var elements := ElementState.new()
+## Its elemental resistances, from its region, rank and kind (Elements.enemy_resists).
+var _eres: Dictionary = {}
+## 侵蚀爆发's permanent DEF cut, 15% a stack (3 at most).
+var corr_stacks := 0
+## Bursts waiting for the next tick, so a burst's own damage never runs inside the hit that filled it.
+var _pending_bursts: Array[String] = []
 ## Relics that act on the first hit against an enemy (冻土绊索).
 var hit_by_player := false
 var move_speed: float = 2.1
@@ -1362,9 +1370,10 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 		if _incite_hits >= EnemyAttacks.INCITE_BREAK_HITS: _end_incite()
 	if attack_profile.has("front_guard") and is_instance_valid(game) and is_instance_valid(game.player) and _facing_point(game.player.global_position):
 		damage *= 1.0 - float(attack_profile.front_guard)
-	var dealt := CombatStats.mitigate(damage, kind, effective_defense() * (1.0 - clampf(pierce, 0.0, 1.0)), effective_res())
+	var dealt := CombatStats.mitigate(damage, kind, effective_defense() * (1.0 - clampf(pierce, 0.0, 1.0)), res_against(kind))
 	dealt *= 1.0 + status_value("fragile")
 	health -= dealt
+	_on_elemental(kind, dealt)
 	if barrier_hp > 0.0:
 		barrier_hp -= dealt
 		if barrier_hp <= 0.0: _break_barrier()
@@ -1400,7 +1409,116 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 	return dealt
 
 func effective_defense() -> float:
-	return defense * (1.0 - clampf(status_value("def_down"), 0.0, 1.0))
+	var cut := status_value("def_down") + Elements.BURST.corr.def_down * corr_stacks + Elements.ROT_DEF * rot_stacks()
+	return defense * (1.0 - clampf(cut, 0.0, 1.0))
+
+# --- Elements (属性伤害与地区装备策划案 v1.1) ---------------------------------------
+
+## The resistance a hit of `kind` meets: 法抗 for arts, its own for an element
+## or bleeding.
+func res_against(kind: String) -> float:
+	if Elements.is_element(kind) or kind == "bleed": return elem_res(kind)
+	return effective_res()
+
+func elem_res(kind: String) -> float:
+	if _eres.is_empty():
+		var region := game.region_id if is_instance_valid(game) else ""
+		_eres = Elements.enemy_resists(region, elite, boss or self is Boss)
+	return float(_eres.get(kind, 0.0))
+
+## The life a gauge has to take before it bursts.
+func gauge_threshold() -> float:
+	return max_health * Elements.threshold_share(elite, boss or self is Boss)
+
+func _on_elemental(kind: String, dealt: float) -> void:
+	if not Elements.is_element(kind): return
+	var mult := game.player.elements.fill_mult() if is_instance_valid(game) and is_instance_valid(game.player) and game.player.elements != null else 1.0
+	if elements.fill(kind, dealt * mult, gauge_threshold(), burst_cooldown()): _pending_bursts.append(kind)
+
+## Her 爆发 family's 阶等 (0 without one), and the cooldown it shortens at (4).
+func _burst_tier() -> int:
+	if not is_instance_valid(game) or not is_instance_valid(game.player) or game.player.families == null: return 0
+	return game.player.families.tier("burst")
+
+func burst_cooldown() -> float:
+	return Elements.BURST_COOLDOWN - (PrefixFamilies.BURST_COOLDOWN_CUT if _burst_tier() >= 4 else 0.0)
+
+## A damage over time from her (Player._proc_dots): `total` over `seconds`.
+func apply_dot(dot: String, total: float, seconds: float) -> void:
+	if _dead or not Elements.DOTS.has(dot): return
+	if dot == "rot": _rot_stacks = mini(Elements.ROT_STACKS, _rot_stacks + 1)
+	elements.apply_dot(dot, total, seconds, str(Elements.DOTS[dot][0]))
+
+var _rot_stacks := 0
+func rot_stacks() -> int:
+	return _rot_stacks if elements.has_dot("rot") else 0
+
+func _tick_elements(delta: float) -> void:
+	for kind in _pending_bursts.duplicate():
+		_pending_bursts.erase(kind)
+		_burst(kind)
+		if _dead: return
+	if elements.dots.is_empty() and elements.gauges.is_empty() and elements.cooldowns.is_empty(): return
+	if not elements.has_dot("rot"): _rot_stacks = 0
+	if elements.has_dot("frost"): apply_status("slow", 0.6, Elements.FROST_SLOW)
+	for due in elements.tick(delta, gauge_threshold()):
+		var damage := float(due.damage)
+		if str(due.dot) == "bleed" and walking: damage *= 1.0 + Elements.BLEED_MOVING
+		var dealt := take_hit(damage, str(due.kind), false, 0.0, true)
+		if _dead: return
+		if str(due.dot) == "necro" and elements.fill("necro", dealt, gauge_threshold(), burst_cooldown()): _pending_bursts.append("necro")
+
+## A full gauge (§5.1). The 爆发 family spreads it at (6) and repeats its
+## damage at half at (8).
+func _burst(kind: String) -> void:
+	if _dead or not is_instance_valid(game): return
+	var family := _burst_tier()
+	if family >= 6:
+		for node in get_tree().get_nodes_in_group("enemies"):
+			var other := node as Enemy
+			if other == null or other == self or other._dead or other.game != game: continue
+			if _flat_distance(other.global_position, global_position) > 3.0: continue
+			if other.elements.fill(kind, other.gauge_threshold() * PrefixFamilies.BURST_SPREAD, other.gauge_threshold(), other.burst_cooldown()): other._pending_bursts.append(kind)
+	_burst_once(kind, 1.0)
+	if family >= 8 and not _dead: _burst_once(kind, PrefixFamilies.BURST_ECHO)
+
+func _burst_once(kind: String, scale: float) -> void:
+	if _dead or not is_instance_valid(game): return
+	var t := gauge_threshold() * scale
+	var big := self is Boss or boss
+	var spec: Dictionary = Elements.BURST[kind]
+	CombatVfx.spawn(game, global_position, Vector3.FORWARD, "spark", 0, true)
+	if is_instance_valid(game.player) and game.player.elements != null: game.player.elements.on_enemy_burst(self, kind)
+	match kind:
+		"burn":
+			apply_status("res_down", float(spec.secs), float(spec.res_down))
+			_burst_hit(t * float(spec.damage), "burn")
+		"cold":
+			if big: apply_status("slow", float(spec.boss_secs), float(spec.boss_slow))
+			else:
+				var secs := float(spec.elite_freeze) if elite else float(spec.freeze)
+				stun(secs)
+				# 碎冰 (萨米 signature) reads it on the next hit.
+				apply_status("frozen", secs, 1.0)
+			_burst_hit(0.0, "cold")
+		"corr":
+			corr_stacks = mini(int(spec.stacks), corr_stacks + 1)
+			_burst_hit(t * float(spec.damage), "phys")
+		"nerve":
+			if big: apply_status("slow", 3.0, 0.3)
+			else: stun(float(spec.elite_stun) if elite else float(spec.stun))
+			_burst_hit(t * float(spec.damage), "true")
+		"necro":
+			apply_status("weaken", float(spec.secs), float(spec.weaken))
+			elements.apply_dot("necro_burst", t * float(spec.tick) * float(spec.secs), float(spec.secs), "arts")
+
+## The burst's own number, big in its element's colour.
+func _burst_hit(damage: float, kind: String) -> void:
+	var dealt := take_hit(damage, kind, false, 0.0, true) if damage > 0.0 else 0.0
+	if is_instance_valid(game): DamageNumber.spawn(game, global_position + Vector3.UP * 0.6, str(roundi(dealt)) if dealt > 0.0 else Elements.NAMES[kind], _burst_colour_kind(kind), true)
+
+func _burst_colour_kind(kind: String) -> String:
+	return kind if DamageNumber.COLORS.has(kind) else "true"
 
 func effective_res() -> float:
 	return res - status_value("res_down") + (50.0 if barrier_up() else 0.0)
@@ -1664,7 +1782,8 @@ func _provoke_herd() -> void:
 			other.begin_chase()
 
 func _tick_statuses(delta: float) -> void:
-	if statuses.is_empty(): return
+	_tick_elements(delta)
+	if _dead or statuses.is_empty(): return
 	if statuses.has("burn"):
 		_burn_tick -= delta
 		if _burn_tick <= 0.0:

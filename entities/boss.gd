@@ -292,8 +292,9 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 		_channel.hits = int(_channel.hits) + 1
 		if int(_channel.hits) >= int(_channel.breaks): _end_channel(false)
 	damage *= 1.0 - shield_share()
-	var dealt := CombatStats.mitigate(damage * taken_mult(), kind, effective_defense() * (1.0 - clampf(pierce, 0.0, 1.0)), effective_res())
+	var dealt := CombatStats.mitigate(damage * taken_mult(), kind, effective_defense() * (1.0 - clampf(pierce, 0.0, 1.0)), res_against(kind))
 	dealt *= 1.0 + status_value("fragile")
+	_on_elemental(kind, dealt)
 	if not curse.is_empty():
 		curse.dealt = float(curse.dealt) + dealt
 		if float(curse.dealt) >= float(curse.need): _lift_curse()

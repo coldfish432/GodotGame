@@ -281,12 +281,12 @@ static func drop_chance(reward: float) -> float:
 static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: bool = false) -> Item:
 	var data: Dictionary = GEAR[id]
 	var size: Vector2i = data.size
-	# The written power is its size on tier Ⅰ; it takes the floor's tier, a
+	# The written power is its size on tier 1; it takes the floor's tier, a
 	# boss piece one tier higher (复利数值改造清单 D). It does not roll.
 	var tier := mini(Scaling.TIER_MAX, Scaling.tier_of(depth) + (1 if boss else 0))
 	var item := Item.create(data.name, data.category, size.x, size.y, float(data.power) * Scaling.tier_base(tier))
 	item.special = id
-	item.rarity = 2
+	item.rarity = Item.PURPLE
 	item.value = 60 + depth * 10
 	item.description = data.text
 	item.grade = tier
@@ -305,10 +305,42 @@ static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: boo
 		item.modifiers.append(cost)
 	var pool: Array = FieldCatalog.AFFIX_POOLS[data.category]
 	var stat: int = pool[rng.randi_range(0, pool.size() - 1)]
-	item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, 2, rng, Scaling.roll_position(depth, rng), tier, int(data.category)))
+	item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, Item.PURPLE, rng, Scaling.roll_position(depth, rng), tier, int(data.category)))
+	if kind(id) == "boss": _boss_lines(item, id, data, rng, depth, tier)
 	# Special and exclusive gear carry prefixes; set pieces do not (装备前缀策划案 §0.1-5).
 	PrefixCatalog.roll_onto(item, str(data.get("region", "")), depth, rng)
 	return item
+
+## 属性伤害与地区装备策划案 v1.1 §10: a boss's three weapons convert 35% to
+## its region's element; its first chest and amulet lift the elemental cap by
+## 5; every piece has one of its region's own lines and resists its element.
+const BOSS_CONVERT := 0.35
+const BOSS_RES_CAP := 5.0
+const BOSS_CAP_PIECES := [3, 6]
+
+static func _boss_lines(item: Item, id: String, data: Dictionary, rng: RandomNumberGenerator, depth: int, tier: int) -> void:
+	var region := str(data.get("region", ""))
+	if not Elements.LOCAL.has(region): return
+	var element: String = Elements.LOCAL[region]
+	var index := int(id.get_slice("_", id.get_slice_count("_") - 1))
+	var category := int(data.category)
+	if category == Item.Category.WEAPON:
+		var conv := ItemModifier.stat_mod(GearCatalog.CONVERT_OF[element], BOSS_CONVERT)
+		conv.tier = GearCatalog.IMPLICIT_TIER
+		item.modifiers.append(conv)
+	else:
+		var resist := ItemModifier.stat_mod(FieldCatalog.RESIST_OF[element], GearCatalog.DEEP_RESIST)
+		resist.tier = GearCatalog.IMPLICIT_TIER
+		item.modifiers.append(resist)
+		if index in BOSS_CAP_PIECES:
+			var cap := ItemModifier.stat_mod(ItemModifier.Stat.RES_CAP, BOSS_RES_CAP)
+			cap.tier = GearCatalog.IMPLICIT_TIER
+			item.modifiers.append(cap)
+	var regional := FieldCatalog.region_pool(region, category, str(data.get("form", "blade")))
+	if not regional.is_empty():
+		var stat: int = regional[rng.randi_range(0, regional.size() - 1)]
+		item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, Item.PURPLE, rng, Scaling.roll_position(depth, rng), tier, category))
+	item.origin_region = region
 
 ## A region's own special gear is REGION_WEIGHT times as likely.
 static func roll(region: String, depth: int, rng: RandomNumberGenerator) -> Item:

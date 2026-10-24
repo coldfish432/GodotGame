@@ -383,6 +383,7 @@ func _stats_column() -> Control:
 			if not is_zero_approx(delta) and not (ItemTooltip._value(key, absf(delta)) in ["0", "0%", "0.0"]):
 				row.add_child(AK.label(" %s%s" % ["+" if delta > 0 else "−", ItemTooltip._value(key, absf(delta))], 12, Color("9fe04a") if delta > 0 else AK.RED, AK.en()))
 			column.add_child(row)
+	column.add_child(_resist_row(p))
 	var regen := HBoxContainer.new()
 	regen.add_child(AK.label("生命回复", 12, AK.MUTE))
 	var gap := Control.new()
@@ -391,6 +392,25 @@ func _stats_column() -> Control:
 	regen.add_child(AK.label("%d / 秒" % roundi(p.regen_rate()), 14, AK.FG, AK.en()))
 	column.add_child(regen)
 	return margin
+
+## Her five elemental resistances after the floor's 压制 (属性伤害与地区装备
+## 策划案 v1.1 §13): "灼 32 · 寒 −5 …", each in its element's colour, red when
+## below zero; hovering one shows gear and 压制.
+static func _resist_row(p: Player) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	if p.elements == null: return row
+	var penalty := Elements.penalty(p.game.floor_number) if is_instance_valid(p.game) and not p.game.in_base else 0.0
+	for kind in ["burn", "cold", "corr", "nerve", "bleed"]:
+		var value := roundi(clampf(p.elements.res_gear(kind) - penalty, Elements.RES_MIN, Elements.RES_CAP_MAX))
+		var cell := HBoxContainer.new()
+		cell.add_theme_constant_override("separation", 2)
+		cell.add_child(AK.label(Elements.BADGES[kind], 12, Elements.COLORS[kind]))
+		cell.add_child(AK.label(("−%d" % -value) if value < 0 else str(value), 13, AK.RED if value < 0 else AK.FG, AK.en()))
+		cell.tooltip_text = "%d · %d" % [roundi(p.elements.res_gear(kind)), -roundi(penalty)]
+		cell.mouse_filter = Control.MOUSE_FILTER_PASS
+		row.add_child(cell)
+	return row
 
 # --- Floating tooltip ---------------------------------------------------------------------
 
@@ -643,9 +663,7 @@ class ItemTile extends Button:
 
 	static func tier_color(shown: Item) -> Color:
 		if shown.is_potion(): return AK.GREEN
-		if not shown.special.is_empty(): return AK.SPECIAL
-		if not shown.material_id.is_empty(): return shown.rarity_color()
-		return AK.TIER[clampi(shown.rarity, 0, 2)]
+		return shown.rarity_color()
 
 	static func style_for(button: Button, shown: Item) -> void:
 		for state in ["normal", "hover", "pressed"]:
@@ -675,6 +693,7 @@ class ItemTile extends Button:
 		var s := control.size
 		if shown.insured:
 			control.draw_colored_polygon(PackedVector2Array([Vector2(3, 3), Vector2(13, 3), Vector2(13, 9), Vector2(8, 14), Vector2(3, 9)]), InventoryPanel.INSURED)
+		AK.draw_grade_corner(control, shown, 16.0 if shown.insured else 3.0)
 		if in_safe:
 			control.draw_rect(Rect2(3, s.y - 13, 9, 7), AK.GREEN)
 			control.draw_arc(Vector2(7.5, s.y - 13), 3.0, PI, TAU, 8, AK.GREEN, 1.5)

@@ -22,7 +22,7 @@ const DEPARTMENT_COLORS := {"logistics": Color("0098dc"), "medical": Color("dfe4
 	"joint": Color("ff6a6a")}
 
 ## By tier (1–7): price, hours, the deepest camp needed, materials (§5.5;
-## 科研树状化策划案 §3 for Ⅶ, whose two nodes carry their own prices).
+## 科研树状化策划案 §3 for 7, whose two nodes carry their own prices).
 const TIER_PRICE := [56000, 140000, 280000, 616000, 1260000, 2520000, 5600000]
 const TIER_HOURS := [1, 2, 4, 8, 16, 24, 36]
 const TIER_CAMP := [0, 10, 20, 40, 60, 80, 90]
@@ -43,7 +43,7 @@ const JOINT_PRICE := 6720000
 ## price override (0: by tier), hours override (0: by tier)]. A
 ## prerequisite is a node id or a base condition "@key" (REQUIREMENT_NAMES).
 ## The economy nodes keep their v1.1 ids, so saves carry over; 工程部's two
-## late reforge nodes keep theirs at Ⅶ.
+## late reforge nodes keep theirs at 7.
 const NODES := {
 	"logistics_1": ["订单速递", 1, "order_slot", "订单板 +1 栏", [], {}],
 	"logistics_2": ["第二加工线", 2, "workshop_slot", "加工部队列 +1", ["logistics_1"], {}],
@@ -58,9 +58,9 @@ const NODES := {
 	"medical_5": ["高浓度配方", 5, "potion_grade", "免费药剂 +1 档", ["medical_1", "logistics_2"], {}],
 	"medical_6": ["源石隔离病房", 6, "isolation_ward", "污染阶梯 60/90 → 70/100", ["medical_4", "medical_5", "engineering_3"], {}],
 	"engineering_1": ["精密校具", 1, "refresh_fee", "重铸 · 校准 −15%", [], {}],
-	"engineering_2": ["制式换代计划", 2, "rhodes_blue", "制式换代：白 → 蓝", ["engineering_1", "logistics_1"], {}],
+	"engineering_2": ["制式换代计划", 2, "rhodes_blue", "制式换代：灰 → 绿", ["engineering_1", "logistics_1"], {}],
 	"engineering_3": ["精调工艺", 3, "tune_step", "精调递增 1.5 → 1.3", ["engineering_1", "intel_2"], {}],
-	"engineering_4": ["精英制式装备", 4, "rhodes_gold", "制式换代：蓝 → 金", ["engineering_2", "logistics_2", "intel_2"], {}],
+	"engineering_4": ["精英制式装备", 4, "rhodes_gold", "制式换代：绿 → 蓝", ["engineering_2", "logistics_2", "intel_2"], {}],
 	"engineering_5": ["词条锚定", 7, "prefix_lock", "重铸锁定 1 条前缀", ["engineering_3", "intel_4", "engineering_c6", "@lungmen_r5"], {}, 5600000, 36],
 	"engineering_6": ["平行重铸", 7, "reforge_pick", "重铸 2 选 1", ["engineering_5", "joint_eye", "logistics_6"], {}, 8400000, 48],
 	"intel_1": ["痕迹增强滤镜", 1, "glow_range", "密室线索 · 踪迹幽光 +50%", [], {}],
@@ -175,6 +175,8 @@ static func valid(id: String) -> bool: return NODES.has(id)
 
 static func department_of(id: String) -> String: return id.rsplit("_", true, 1)[0]
 static func tier_of(id: String) -> int: return int(NODES[id][1])
+## "5 阶" (用户 2026-10-24: 删除罗马数字).
+static func tier_label(tier: int) -> String: return "%d 阶" % tier
 static func name_of(id: String) -> String: return str(NODES[id][0])
 
 ## The node's effect key ("rack_cells"; "" for a combat node).

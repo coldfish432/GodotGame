@@ -548,7 +548,8 @@ func _special() -> void:
 	wear("ember_fang")
 	var target := dummy(Vector3(3, 0, 0))
 	p.on_wave_hit(target, 100, null)
-	check("余烬之牙 sets a 4 s burn", target.statuses.has("burn") and is_equal_approx(target.statuses.burn.time, 4.0))
+	# 余烬 is a 灼烧 now (属性伤害与地区装备策划案 v1.1 §15.3).
+	check("余烬之牙 sets a 4 s 灼烧", target.elements.dots.has("burnout") and is_equal_approx(float(target.elements.dots.burnout.left), 4.0))
 	var life := target.health
 	target._tick_statuses(0.51)
 	check("burn ticks arts damage every half second", target.health < life)

@@ -515,13 +515,15 @@ const BASES := {
 ## Rhodes standard gear (制式保底修订, 用户 2026-10-23): never dropped, never
 ## made. The workbench issues it free into empty slots for one contract and
 ## takes it back when the contract ends, whether she comes home or not. Fixed
-## numbers: tier Ⅰ, the band's middle, the base's intrinsics, no affixes, no
+## numbers: tier 1, the band's middle, the base's intrinsics, no affixes, no
 ## prefixes. White until 科研部's 制式换代 makes it blue, then gold
 ## (BaseState.rhodes_rarity). Bound: no selling, packing, insuring or refitting.
 const RHODES := "rhodes"
 const RHODES_TIER := 1
 const RHODES_RARITY := 0
 const RHODES_VALUE := 5
+## Everything it gives, panel and intrinsics, at 80% (用户 2026-10-23: 再保守一些).
+const RHODES_SCALE := 0.8
 ## The choices per slot, in Item.SLOTS order.
 const RHODES_KIT := [
 	["rhodes_dual_blades", "rhodes_sword", "rhodes_crossbow", "rhodes_staff"],
@@ -554,6 +556,8 @@ static func make_rhodes(id: String, rarity: int = RHODES_RARITY, operator_id: St
 	item.grade = RHODES_TIER
 	if Item.is_jewel_slot(category): item.atk_share = 0.0 if "staff" in _forms(operator_id) else 1.0
 	apply(item, id)
+	item.power *= RHODES_SCALE
+	for mod in item.modifiers: mod.amount *= RHODES_SCALE
 	item.value = RHODES_VALUE
 	item.value_base = RHODES_VALUE
 	return item
@@ -676,7 +680,7 @@ static func apply(item: Item, id: String, rng: RandomNumberGenerator = null) -> 
 ## Without `rng` they sit at the blue middle.
 static func implicits_for(item: Item, id: String, rng: RandomNumberGenerator, position: float = -1.0) -> Array[ItemModifier]:
 	var implicit: Array[ItemModifier] = []
-	for pair in BASES[id].implicit:
+	for pair in BASES[id].implicit + extra_implicit(id):
 		var scale := Scaling.flat_scale(maxi(item.grade, 1)) if int(pair[0]) in ItemModifier.FLAT_STATS else 1.0
 		var mod: ItemModifier
 		if rng != null: mod = ItemModifier.roll_intrinsic(pair[0], float(pair[1]) * scale, rng, item.rarity, position)
@@ -686,6 +690,23 @@ static func implicits_for(item: Item, id: String, rng: RandomNumberGenerator, po
 		mod.scale = scale
 		implicit.append(mod)
 	return implicit
+
+## 属性伤害与地区装备策划案 v1.1 §10: a region's deep weapons convert a
+## quarter of each hit to its element, its deep armour and jewels resist it;
+## Rhodes standard gear resists every element a little (§8.6).
+const DEEP_CONVERT := 0.25
+const DEEP_RESIST := 8.0
+const RHODES_RESIST := 1.0
+const CONVERT_OF := {"burn": ItemModifier.Stat.CONV_BURN, "cold": ItemModifier.Stat.CONV_COLD, "corr": ItemModifier.Stat.CONV_CORR, "nerve": ItemModifier.Stat.CONV_NERVE}
+
+static func extra_implicit(id: String) -> Array:
+	var b: Dictionary = BASES[id]
+	var region := str(b.region)
+	if region == RHODES: return [[ItemModifier.Stat.RES_ALL_ELEM, RHODES_RESIST]]
+	if int(b.tier) < 2 or not Elements.LOCAL.has(region): return []
+	var element: String = Elements.LOCAL[region]
+	if int(b.category) == Item.Category.WEAPON: return [[CONVERT_OF[element], DEEP_CONVERT]]
+	return [[FieldCatalog.RESIST_OF[element], DEEP_RESIST]]
 
 ## For loading: fills `base_id` on gear saved before it existed (name only;
 ## old items keep their stats).

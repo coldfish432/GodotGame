@@ -166,7 +166,7 @@ func _depth(region: String) -> int:
 func _roll_gear(region: String) -> Item:
 	for attempt in range(40):
 		var item := FieldCatalog.roll_item(region, _depth(region), game.rng, 0.0)
-		if item.is_equippable() and item.rarity < 2 and item.named_kind().is_empty() and item.exclusive_region.is_empty(): return item
+		if item.is_equippable() and not item.is_rare(): return item
 	return null
 
 ## Why entry `i` cannot be bought ("" = it can).

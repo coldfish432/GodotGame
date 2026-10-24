@@ -58,7 +58,7 @@ func run() -> void:
 	await step(3)
 	var p := game.player
 	var origin := p.global_position
-	var sword := LootTables.roll_equipment(Item.Category.WEAPON, "x", "mine", 1, 2, game.rng)
+	var sword := LootTables.roll_equipment(Item.Category.WEAPON, "x", "mine", 1, Item.PURPLE, game.rng)
 	var gold := MaterialCatalog.create(Economy.GOLD_ID, 7, "mine")
 	var ore := MaterialCatalog.create(MaterialCatalog.MATERIALS.keys()[0], 2, "mine")
 	var source := origin + Vector3(3, 0.6, 0)

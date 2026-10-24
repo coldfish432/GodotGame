@@ -46,7 +46,7 @@ func rules() -> void:
 	var b := board_with(["eng_mine_materials", "log_fine_weapon", "eng_raw_ore"])
 	check("material from the mine fits, from elsewhere does not", b.matches(0, item("矿料", Item.Category.MATERIAL, 10, "mine")) and not b.matches(0, item("雪料", Item.Category.MATERIAL, 10, "snow")))
 	check("old items without an origin do not fit a regional order", not b.matches(0, item("旧料", Item.Category.MATERIAL)))
-	check("fine weapon order refuses a common weapon", not b.matches(1, item("普通刀", Item.Category.WEAPON)) and b.matches(1, item("精良刀", Item.Category.WEAPON, 10, "", 1)))
+	check("fine weapon order refuses a common weapon", not b.matches(1, item("普通刀", Item.Category.WEAPON)) and b.matches(1, item("精良刀", Item.Category.WEAPON, 10, "", Item.BLUE)))
 	check("exclusive orders want that exact exclusive", b.matches(2, FieldCatalog.exclusive("mine")) and not b.matches(2, FieldCatalog.exclusive("city")))
 
 	# Partial delivery, then payout on completion.
@@ -105,7 +105,7 @@ func through_game() -> void:
 	var shelf_mat := stack(2, 10)
 	var pack_mat := stack(2, 15)
 	var safe_mat := item("安全袋材料", Item.Category.MATERIAL, 50)
-	var worn := item("装备着的精良刀", Item.Category.WEAPON, 40, "", 1)
+	var worn := item("装备着的精良刀", Item.Category.WEAPON, 40, "", Item.BLUE)
 	game.base.shelf.append(shelf_mat)
 	game.inventory.try_add(pack_mat)
 	game.safe_bag.try_add(safe_mat)
@@ -143,7 +143,7 @@ func through_game() -> void:
 	game.base.set_facility("warehouse", 4)
 	check("仓储部 adds no order slot any more", game.base.order_slot_count() == 3 and game.base.orders.slots.size() == 3)
 	game.base.research.done.append(ResearchCatalog.id_of_key("order_slot"))
-	check("后勤部Ⅰ still adds one", game.base.order_slot_count() == 4)
+	check("后勤部 1 阶 still adds one", game.base.order_slot_count() == 4)
 	game.base.research.done.erase(ResearchCatalog.id_of_key("order_slot"))
 	await game.start_contract("mine")
 	game.settle(true)

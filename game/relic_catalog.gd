@@ -16,7 +16,8 @@ extends RefCounted
 
 enum Rarity { COMMON, RARE, LEGEND }
 const RARITY_NAMES := ["低", "中", "高"]
-const RARITY_COLORS := [Color("c9d3db"), Color("72b8ff"), Color("f3b04a")]
+## Low / mid / high on the rarity ladder: green, blue, purple (属性伤害与地区装备策划案 v1.1 §2.6).
+const RARITY_COLORS := [Item.RARITY_COLORS[Item.GREEN], Item.RARITY_COLORS[Item.BLUE], Item.RARITY_COLORS[Item.PURPLE]]
 ## Offer weights per rarity (low / mid / high), by where the offer comes from.
 const RARITY_WEIGHTS := {"device": [60.0, 30.0, 10.0], "cache": [65.0, 30.0, 5.0], "vault": [25.0, 50.0, 25.0]}
 ## How much more often each region offers a kind of relic (策划案 §7: the mine
@@ -155,7 +156,7 @@ static func _r(title: String, kind: String, rarity: int, original: String, effec
 
 static var _index: Dictionary = {}
 
-## 复利数值改造清单 E: heals and regeneration are written at tier Ⅰ and given ×
+## 复利数值改造清单 E: heals and regeneration are written at tier 1 and given ×
 ## the current floor's 档位系数 (Player reads the coefficient itself); their
 ## text shows the converted number. set_floor() refreshes it.
 static var coef := 1.0

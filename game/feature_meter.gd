@@ -11,7 +11,7 @@ var values := {"contamination": 0.0, "debt": 0.0, "cold": 0.0}
 var announced := {"contamination": 0, "debt": 0, "cold": 0}
 ## Base kits on this contract: feature -> [kit id, tier] (FeatureCatalog.KITS).
 var kits := {}
-## 科研部 (医疗部Ⅳ, the 源石尘抑制 project): what raises every feature is also × this.
+## 科研部 (医疗部 4 阶, the 源石尘抑制 project): what raises every feature is also × this.
 var research_mult := 1.0
 ## 清算 (血债 90): seconds before another reckoning may be sent, and how many
 ## have been sent this contract (each stronger than the last).

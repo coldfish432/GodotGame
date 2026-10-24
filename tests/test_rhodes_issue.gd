@@ -45,13 +45,13 @@ func _issue() -> void:
 	game.player.reset_stats()
 	check("bare: no Rhodes set is waiting in the warehouse", _kept_anywhere().is_empty())
 	check("补齐空槽 fills all eight slots", game.fill_rhodes() == 8 and _worn_bound().size() == 8, _worn_bound().size())
-	check("…white, tier Ⅰ", _worn_bound().all(func(it): return it.rarity == 0 and it.grade == 1))
+	check("…grey, tier 1", _worn_bound().all(func(it): return it.rarity == 0 and it.grade == 1))
 	check("nothing left to fill", game.fill_rhodes() == 0)
 	check("a slot's other choice replaces the piece", game.issue_rhodes("rhodes_vest") and game.player.equipped[Item.Category.CHEST].base_id == "rhodes_vest" and _kept_anywhere().is_empty())
 	check("a weapon she cannot wield is refused", not game.issue_rhodes("rhodes_staff"))
 	game.base.rhodes_rarity = 2
 	game.refresh_rhodes()
-	check("after 制式换代 the worn set turns gold", _worn_bound().all(func(it): return it.rarity == 2))
+	check("after 制式换代 the worn set turns blue", _worn_bound().all(func(it): return it.rarity == Item.BLUE))
 	game.base.rhodes_rarity = 0
 	game.refresh_rhodes()
 
@@ -68,7 +68,7 @@ func _bound() -> void:
 	game.fill_rhodes()
 
 func _own_gear() -> void:
-	var own := LootTables.roll_equipment(Item.Category.WEAPON, "矿区制式刀", "mine", 4, 1, game.rng)
+	var own := LootTables.roll_equipment(Item.Category.WEAPON, "矿区制式刀", "mine", 4, Item.BLUE, game.rng)
 	game.base.store(own)
 	check("her own weapon replaces the Rhodes one, which is not stored", game.equip_from_stash(own) and game.player.equipped[Item.Category.WEAPON] == own and _kept_anywhere().is_empty())
 	check("…and a Rhodes weapon sends hers back to the shelf", game.issue_rhodes("rhodes_dual_blades") and game.stash.has(own))

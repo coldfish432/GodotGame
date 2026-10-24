@@ -18,15 +18,18 @@ const FLAT_GROWTH := 1.30
 ## 600 rather than the checklist's 400: with tiers the gear sits still for ten
 ## floors, and armour cut physical hits too hard against arts (balance_model.py).
 const K0 := 600.0
-## 基础效能 of a blue piece at its band's middle, tier Ⅰ (B). The panel is
+## 基础效能 of a blue piece at its band's middle, tier 1 (B). The panel is
 ## power × CombatStats' per-power figures. 3.1 puts a tier's gear level with
 ## the enemies of its fifth floor rather than its first, so the ten floors
 ## run from a little easier to a little harder (tools/balance_model.py).
 const POWER_BASE := 3.1
 
-## Each rarity rolls inside its own share of the tier's base value (B):
-## white / blue / gold, gaps between, top 140%.
-const BANDS := [[0.6, 0.8], [0.9, 1.1], [1.2, 1.4]]
+## Each rarity rolls inside its own share of the tier's base value (B), grey
+## to red on the ladder (属性伤害与地区装备策划案 v1.1 §2.2, checked in §17:
+## a body's panel stays within 1–4% of the old white / blue / gold). Orange's
+## and red's floors are above the next tier's blue floor (0.9 × 1.48), so they
+## always cross.
+const BANDS := [[0.62, 0.76], [0.78, 0.90], [0.90, 1.10], [1.15, 1.30], [1.35, 1.50], [1.55, 1.70]]
 ## The S curve both rolls follow (B): midpoint floor 45, width 8, 0 on floor 1,
 ## 1 on floor 90, read on the loot stair so it only climbs.
 const S_MID := 45.0
@@ -46,7 +49,7 @@ static func floor_growth(floor_number: int) -> float:
 static func tier_of(floor_number: int) -> int:
 	return clampi((maxi(floor_number, 1) - 1) / TIER_FLOORS + 1, 1, TIER_MAX)
 
-## A tier's base value: 1 for Ⅰ, ×1.48 each tier after.
+## A tier's base value: 1 for tier 1, ×1.48 each tier after.
 static func tier_base(tier: int) -> float:
 	return pow(TIER_GROWTH, clampi(tier, 1, TIER_MAX) - 1)
 
@@ -54,7 +57,7 @@ static func tier_base(tier: int) -> float:
 static func tier_coef(floor_number: int) -> float:
 	return tier_base(tier_of(floor_number))
 
-## What a flat affix written at tier Ⅰ is worth at `tier` (C).
+## What a flat affix written at tier 1 is worth at `tier` (C).
 static func flat_scale(tier: int) -> float:
 	return pow(FLAT_GROWTH, clampi(tier, 1, TIER_MAX) - 1)
 
@@ -79,7 +82,7 @@ static func roll_position(floor_number: int, rng: RandomNumberGenerator) -> floa
 	return pow(rng.randf(), roll_exponent(floor_number))
 
 static func band(rarity: int) -> Array:
-	return BANDS[clampi(rarity, 0, 2)]
+	return BANDS[clampi(rarity, 0, BANDS.size() - 1)]
 
 static func band_value(rarity: int, position: float) -> float:
 	var b := band(rarity)
@@ -97,10 +100,10 @@ static func gear_power(tier: int, rarity: int, position: float) -> float:
 static func band_position(item: Item) -> float:
 	return item.power_position() if item != null else 0.5
 
-## A gold piece whose panel reaches the next tier's blue minimum (清单 B: the
-## only way to cross a tier).
+## A piece whose panel reaches the next tier's blue minimum (清单 B: the only
+## way to cross a tier); on the ladder that is every orange.
 static func crosses_tier(item: Item) -> bool:
-	if item == null or item.rarity < 2 or item.grade <= 0 or item.grade >= TIER_MAX or not item.special.is_empty(): return false
+	if item == null or item.rarity < Item.PURPLE or item.grade <= 0 or item.grade >= TIER_MAX or not item.special.is_empty(): return false
 	var factor := float(GearCatalog.base(item.base_id).get("factor", 1.0)) if not item.base_id.is_empty() else 1.0
 	var at := item.power / (POWER_BASE * tier_base(item.grade) * factor)
 	return at >= float(BANDS[1][0]) * TIER_GROWTH

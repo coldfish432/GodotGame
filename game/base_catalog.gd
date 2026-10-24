@@ -19,7 +19,7 @@ const STARTING_RACKS := 1
 ## times a stack's own limit one cell holds.
 const WAREHOUSE_CELLS := [0, 60, 120, 220, 360]
 const WAREHOUSE_STACK := [0, 1, 2, 3, 5]
-## 立体货架 (后勤部Ⅲ): this share more cells.
+## 立体货架 (后勤部 3 阶): this share more cells.
 const RESEARCH_CELLS := 0.2
 ## Staging: unsorted holding next to receiving. Not part of the warehouse: its
 ## items cannot be delivered, and are brought along only by taking them out
@@ -149,7 +149,7 @@ const ORDERS := {
 	"med_supplies": {"dept": "医疗部", "count": 3, "material": "医用耗材包", "mult": 1.6, "weight": 2},
 	"log_fuel": {"dept": "后勤部", "count": 10, "material": "固体燃料", "mult": 1.5, "weight": 2},
 	"med_city_armor": {"dept": "医疗部", "count": 1, "category": Item.Category.ARMOR, "region": "city", "mult": 1.4, "weight": 2},
-	"log_fine_weapon": {"dept": "后勤部", "count": 1, "category": Item.Category.WEAPON, "min_rarity": 1, "mult": 1.5, "weight": 2},
+	"log_fine_weapon": {"dept": "后勤部", "count": 1, "category": Item.Category.WEAPON, "min_rarity": Item.BLUE, "mult": 1.5, "weight": 2},
 	"log_trinkets": {"dept": "后勤部", "count": 2, "category": Item.Category.TRINKET, "mult": 1.3, "weight": 2},
 	"eng_raw_ore": {"dept": "工程部", "count": 1, "effect": "raw_ore", "region": "mine", "gold": 16000, "weight": 1},
 	"log_riot_shield": {"dept": "后勤部", "count": 1, "effect": "riot_shield", "region": "city", "gold": 14000, "weight": 1},
@@ -174,7 +174,7 @@ static func order_text(id: String) -> String:
 		what = "★%d %s" % [MaterialCatalog.star(t.material), t.material]
 	else:
 		what = CATEGORY_NAMES[t.category]
-		if int(t.get("min_rarity", 0)) >= 1: what = "精良及以上" + what
+		if int(t.get("min_rarity", 0)) >= Item.BLUE: what = "精良及以上" + what
 	var where := ""
 	if t.has("region") and not t.has("effect"): where = "（产地：%s）" % FieldCatalog.REGIONS[t.region].name.split(" · ")[0]
 	return "%s：%s ×%d%s" % [t.dept, what, t.count, where]
@@ -219,7 +219,7 @@ static func contamination_regen_factor(value: float) -> float:
 ## Share of max HP lost a second at this contamination.
 static func contamination_drain(value: float) -> float:
 	return float(CONTAMINATION_TIERS[contamination_tier(value)][5])
-## At tier Ⅰ; × Economy.income_index of the floor she fell on (v1.1 §4.1).
+## At tier 1; × Economy.income_index of the floor she fell on (v1.1 §4.1).
 const INJURY_TREATMENT := 8400
 const HP_PENALTY_CAP := 0.40              # injury and contamination add up to at most this
 
@@ -299,18 +299,18 @@ static func create_potion(type: String, tier: int = 1) -> Item:
 	item.max_stack = POTION_STACK + potion_stack_bonus
 	item.set_quantity(1)
 	return item
-## "标准急救剂 · Ⅲ"; a flask that does not heal has no tier in its name.
-static func potion_name(type: String, tier: int) -> String:
-	if potion_heal(type, 1) <= 0.0: return str(POTIONS[type].name)
-	return "%s · %s" % [str(POTIONS[type].name), Progression.GRADE_MARKS[clampi(tier, 1, Scaling.TIER_MAX)]]
+## "标准急救剂": the tier is the floors on its tooltip and the cell's corner
+## (属性伤害与地区装备策划案 v1.1 §12), not part of the name.
+static func potion_name(type: String, _tier: int = 1) -> String:
+	return str(POTIONS[type].name)
 
-## What one flask of `type` and `tier` heals (清单 E): tier Ⅰ × the tier's base.
+## What one flask of `type` and `tier` heals (清单 E): tier 1 × the tier's base.
 ## The new 特供 and regional ones heal nothing (药剂与商人界面策划案 §2).
 static func potion_heal(type: String, tier: int) -> float:
 	var base: float = {"A": POTION_A_HEAL, "B": POTION_B_HEAL, "C": POTION_C_HEAL}.get(type, 0.0)
 	return base * Scaling.tier_base(tier)
 
-## Tier Ⅰ amounts (局内构筑与数值策划案 §5.5: once 40% / 70% / 20% of 2400; about
+## Tier 1 amounts (局内构筑与数值策划案 §5.5: once 40% / 70% / 20% of 2400; about
 ## 30% / 50% / 15% of a floor-1 Doctor in matching gear now).
 const POTION_A_HEAL := 960.0
 const POTION_B_HEAL := 1680.0
@@ -319,7 +319,7 @@ const POTION_C_HEAL := 480.0
 const POTION_C_CLEANSE := 6.0
 const POTION_C_SUPPRESS_SECONDS := 30.0
 
-## 医疗部Ⅵ moves the steps up by this (60/90 → 70/100; Research.apply_globals).
+## 医疗部 6 阶 moves the steps up by this (60/90 → 70/100; Research.apply_globals).
 static var contamination_shift := 0.0
 
 static func contamination_tier(value: float) -> int:

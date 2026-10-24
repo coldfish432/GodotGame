@@ -25,7 +25,7 @@ var orders := OrderBoard.new()
 ## Medical (§4). An injury belongs to the operator who fell and stays on her
 ## until it is treated (博士主角叙事修订案 §5, 用户 2026-10-15); contamination
 ## does not leave the field (用户 2026-10-15: 污染不带出局外). id -> the tier
-## of the floor she fell on (true in saves from before tiers: tier Ⅰ).
+## of the floor she fell on (true in saves from before tiers: tier 1).
 var injuries := {}
 ## Whether the operator who deploys next is injured.
 var injured: bool:
@@ -130,11 +130,11 @@ var records := {}
 var research := {"done": [], "active": [], "projects": {}, "endless": {}, "run": []}
 ## 农业部 and 食堂 (Provisions): basins, the kitchen queue, the 补给 eaten and the one mailed.
 var farm := Provisions.fresh_state()
-## Rhodes standard gear's rarity, raised by 工程部Ⅱ/Ⅳ (复利清单 D): 0 white, 1 blue, 2 gold.
+## Rhodes standard gear's rarity, raised by 工程部 2/4 阶 (复利清单 D): 0 white, 1 blue, 2 gold.
 var rhodes_rarity := 0
-## 外勤部Ⅱ: one free contract reroll per return.
+## 外勤部 2 阶: one free contract reroll per return.
 var contract_reroll := false
-## A medical stay has run at least an hour (医疗部Ⅲ's requirement).
+## A medical stay has run at least an hour (医疗部 3 阶's requirement).
 var stayed := false
 
 ## Whether research node `key` ("rack_cells") or id ("logistics_3") is done.
@@ -150,11 +150,11 @@ func project_on(project: String) -> bool:
 	return project in (research.run as Array)
 
 ## The order board: 3 (仓库修订 moved 仓储部's extra slot to everyone), one
-## more with 后勤部Ⅰ.
+## more with 后勤部 1 阶.
 func order_slot_count() -> int:
 	return BaseCatalog.ORDER_SLOTS + 1 + (1 if researched("order_slot") else 0)
 
-## Free 标准急救剂 per contract: 4 with 医疗部Ⅰ.
+## Free 标准急救剂 per contract: 4 with 医疗部 1 阶.
 func free_potion_count() -> int:
 	return BaseCatalog.FREE_POTIONS + (1 if researched("free_potion") else 0)
 
@@ -604,7 +604,7 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	kits = {}
 	var saved_kits: Dictionary = data.get("kits", {})
 	for id in saved_kits:
-		# Saves from before tiers hold plain ids: tier Ⅰ.
+		# Saves from before tiers hold plain ids: tier 1.
 		var kit_id := str(id).get_slice("@", 0)
 		var tier := clampi(int(str(id).get_slice("@", 1)) if "@" in str(id) else 1, 1, Economy.INCOME_INDEX.size())
 		if FeatureCatalog.KITS.has(kit_id) and int(saved_kits[id]) > 0: kits["%s@%d" % [kit_id, tier]] = int(saved_kits[id])

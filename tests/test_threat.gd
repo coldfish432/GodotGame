@@ -151,11 +151,11 @@ func _drops() -> void:
 		drops += game.get_children().filter(func(c): return c is Loot).size() - count
 	await step(2)
 	var new_loot: Array = game.get_children().filter(func(c): return c is Loot and not loot_before.has(c))
-	check("patrols drop no ordinary loot: only rare gear, and rarely", new_loot.all(func(l): return l.item != null and l.item.is_equippable() and l.item.rarity == 2) and drops <= 10, drops)
+	check("patrols drop no ordinary loot: only rare gear, and rarely", new_loot.all(func(l): return l.item != null and l.item.is_equippable() and l.item.rarity == Item.PURPLE) and drops <= 10, drops)
 	check("patrols never leave a combat cache", of_game("relic_caches").size() == caches_before)
 	var gear := game._rare_gear()
 	# value_base: before prefixes and roll quality (装备前缀策划案 §2.5).
-	check("the rare piece is graded by the floor", gear.rarity == 2 and gear.value_base == roundi((10 + game.floor_number * 4) * 3 * float(GearCatalog.BASES[gear.base_id].get("value", 1.0))), [gear.value_base, game.floor_number])
+	check("the rare piece is graded by the floor", gear.rarity == Item.PURPLE and gear.value_base == roundi((10 + game.floor_number * 4) * 3 * float(GearCatalog.BASES[gear.base_id].get("value", 1.0))), [gear.value_base, game.floor_number])
 
 ## 用户 2026-10-14: seen her -> red "!" and the meter fills faster -> runs to a
 ## reachable spot -> stands there a while, not running -> if it sees her again,

@@ -155,8 +155,9 @@ func _strike() -> void:
 	var blow := float(KINDS[kind].damage) * Scaling.tier_coef(game.floor_number)
 	var player := game.player
 	if is_instance_valid(player) and _flat(player.global_position, global_position) <= reach and not player.invulnerable and player.invuln_timer <= 0.0:
-		# Written at tier Ⅰ, × the floor's 档位系数 (复利数值改造清单 E).
-		player.take_damage(blow, "true")
+		# Written at tier 1, × the floor's 档位系数 (复利数值改造清单 E); its
+		# region's element, so that resistance cuts it (属性伤害与地区装备策划案 v1.1 §11).
+		player.take_damage(blow, str(Elements.LOCAL.get(game.region_id, "true")))
 		var fx := effect()
 		if fx.has("stun"): player.apply_control("stun", Vector3.ZERO, 0.0, float(fx.stun))
 		if fx.has("knock"):

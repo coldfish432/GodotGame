@@ -29,7 +29,10 @@ const ORI := Color("e0782a")        # contamination and originium only
 const GREEN := Color("8fc31f")      # extraction, kept
 const CYAN := Color("5fd0d8")       # Rhodes squad, base markers
 const TRADER := Color("e6c25a")     # 坎诺特
-const TIER := [Color("9a9a9a"), Color("16a2e8"), Color("ffc400")]
+## The rarity ladder (Item.RARITY_COLORS), grey to orange; red is Item.LEGEND_COLOR.
+const TIER := Item.RARITY_COLORS
+## Vaults and caches on the map (the old gold tier colour, kept for them).
+const VAULT := Color("ffc400")
 const SPECIAL := Color("c48cff")
 ## Region codes on the floor plate (LG-04).
 const REGION_CODE := {"mine": "CH", "city": "LG", "snow": "SM", "siracusa": "SR"}
@@ -247,9 +250,18 @@ static func rect(color: Color, at: Vector2, size: Vector2) -> ColorRect:
 ## their own star colour, gear by grade.
 static func tier_color(item: Item) -> Color:
 	if item.is_potion(): return GREEN
-	if not item.special.is_empty(): return SPECIAL
-	if not item.material_id.is_empty(): return item.rarity_color()
-	return TIER[clampi(item.rarity, 0, 2)]
+	if not item.material_id.is_empty() or item.is_legend(): return item.rarity_color()
+	return TIER[clampi(item.rarity, 0, Item.RARITY_MAX)]
+
+## The floors a piece or flask comes from, small in a cell's top-left corner
+## ("40", "91+"; 属性伤害与地区装备策划案 v1.1 §12), after the insured shield.
+static func draw_grade_corner(control: Control, item: Item, x: float = 3.0) -> void:
+	if item == null or item.grade <= 0 or not (item.is_equippable() or item.is_potion()): return
+	if control.size.x < 30.0: return
+	var text := Progression.grade_corner(item.grade)
+	var w := en().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
+	control.draw_rect(Rect2(x - 1, 2, w + 4, 11), Color(0, 0, 0, 0.55))
+	control.draw_string(en(), Vector2(x + 1, 11), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, MUTE)
 
 ## A depot-style item square of `box` size: rarity glow from the bottom, the icon
 ## scaled to fit (nearest), or the name when there is no icon; stack count box.
@@ -382,6 +394,7 @@ class ItemSquare extends Control:
 			var cw := AK.en().get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 			draw_rect(Rect2(s.x - cw - 6, s.y - 18, cw + 6, 14), Color.BLACK)
 			draw_string(AK.en(), Vector2(s.x - cw - 3, s.y - 7), count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
+		AK.draw_grade_corner(self, item)
 		if dim: draw_rect(Rect2(Vector2.ZERO, s), Color(0, 0, 0, 0.62))
 
 

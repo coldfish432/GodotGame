@@ -210,6 +210,8 @@ var _shadow_next := 0.0
 var gear_fx: GearEffects
 ## Effect prefix families and their 阶等 (前缀放大与特效阶等案 §3).
 var families: PrefixFamilies
+## Elemental damage, resistances, gauges and regional affixes (PlayerElements).
+var elements: PlayerElements
 ## Where her last skill was aimed, for 大术式's recast.
 var _last_skill_point := Vector3.ZERO
 var wolf_timer := 0.0        # 狼魂 running
@@ -243,6 +245,7 @@ func _ready() -> void:
 	add_child(_navigation)
 	gear_fx = GearEffects.new(self)
 	families = PrefixFamilies.new(self)
+	elements = PlayerElements.new(self)
 	_build_visual()
 	collision_layer = 2
 	collision_mask = 1
@@ -467,6 +470,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_tick_combat(delta)
 	_tick_hexes(delta)
+	if elements != null and is_instance_valid(game) and game.simulation_active(): elements.tick(delta)
 	_tick_amiya(delta)
 	if kit != null and hitstop_remaining <= 0.0: kit.tick(delta)
 	if is_instance_valid(_shell):
@@ -616,6 +620,8 @@ func apply_control(kind: String, direction: Vector3, distance: float, seconds: f
 		if share <= 0.0: return false
 		if kind == "stun": seconds *= share
 		else: distance *= share
+	# 神经抗性 shortens every stun (属性伤害与地区装备策划案 v1.1 §4.3).
+	if kind == "stun" and elements != null: seconds *= elements.stun_factor()
 	var duration := seconds
 	if kind == "stun":
 		while not _stun_times.is_empty() and _clock - _stun_times[0] > STUN_WINDOW: _stun_times.pop_front()
@@ -688,6 +694,7 @@ func _start_dash(direction: Vector3) -> void:
 	if not can_dash(): return
 	interrupt_actions()
 	if families == null or not families.free_dash(): stamina -= dash_cost()
+	if elements != null: elements.on_dash()
 	_dash_cooldown = maxf(0.15, DASH_COOLDOWN * (1.0 + float(stats.get("dash_cd_pct", 0.0))) * (families.dash_cd_mult() if families != null else 1.0))
 	invulnerable = true
 	dash_remaining = DASH_INVULN_DURATION
@@ -1017,12 +1024,18 @@ func _spawn_wave(direction: Vector3, damage: float, crit: bool, extra: bool) -> 
 ## Deals a hit and returns what landed. `direct` hits feed lifesteal.
 func _deal(target: Enemy, raw: float, kind: String, crit: bool, pierce: float = 0.0, direct: bool = true) -> float:
 	if not is_instance_valid(target) or target._dead: return 0.0
+	raw *= maxf(0.1, 1.0 + hex("atk"))
+	if elements != null: raw *= elements.damage_mult(target)
+	# 转化 (属性伤害与地区装备策划案 v1.1 §3.4): that share of a direct hit leaves
+	# as elements (PlayerElements.on_hit) and the hit keeps the rest.
+	var whole := raw
+	if direct and elements != null and kind in ["phys", "arts"]: raw *= 1.0 - elements.convert_share()
 	if kind == "arts": raw *= 1.0 + float(stats.get("arts_dmg_pct", 0.0))
 	elif kind == "phys": raw *= 1.0 + float(stats.get("phys_dmg_pct", 0.0))
-	raw *= maxf(0.1, 1.0 + hex("atk"))
 	var dealt := target.take_hit(raw, kind, crit, pierce)
 	if direct and dealt > 0.0: _lifesteal(dealt)
 	if direct: OperatorVfx.hit(self, target, kind, crit)
+	if direct and elements != null and kind != "true": elements.on_hit(target, whole, crit)
 	return dealt
 
 ## Called by a sword wave for each enemy it passes through.
@@ -1033,11 +1046,14 @@ func _lifesteal(dealt: float) -> void:
 	if families != null: families.on_lifesteal(amount, maxf(0.0, max_hp - hp))
 	heal(amount)
 
-func on_wave_hit(enemy: Enemy, dealt: float, _wave: SwordWave) -> void:
+func on_wave_hit(enemy: Enemy, dealt: float, wave: SwordWave) -> void:
 	if dealt > 0.0: _lifesteal(dealt)
 	if not is_instance_valid(enemy): return
+	if elements != null and not enemy._dead and is_instance_valid(wave): elements.on_hit(enemy, wave.damage * wave_bonus_against(enemy), wave.crit)
+	if not is_instance_valid(enemy): return
 	if operator_id == Operators.LAPPLAND and not enemy._dead: _mind_break(enemy)
-	if has_trigger(ItemModifier.Trigger.EMBER): enemy.apply_status("burn", 4.0, arts_power() * 0.10 * (1.0 + float(stats.get("arts_dmg_pct", 0.0))))
+	# 余烬 is a 灼烧 now (§15.3): 10% arts power every 0.5 s for 4 s.
+	if has_trigger(ItemModifier.Trigger.EMBER) and not enemy._dead: enemy.apply_dot("burnout", arts_power() * 0.80 * (1.0 + float(stats.get("burn_dmg_pct", 0.0))), 4.0)
 	_try_execute(enemy)
 
 ## Per-target multiplier for a wave about to hit `enemy` (its arts bonus is
@@ -1078,7 +1094,9 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 		if is_instance_valid(game): DamageNumber.spawn(game, global_position, "抵挡", "shield")
 		return
 	if gear_fx != null: amount = gear_fx.incoming(amount, attacker)
-	amount = CombatStats.mitigate(amount, kind, defense_value(), resistance())
+	var raw_hit := amount
+	amount = elements.mitigate(amount, kind, attacker) if elements != null else CombatStats.mitigate(amount, kind, defense_value(), resistance())
+	if elements != null: amount *= elements.taken_mult(attacker)
 	var reduction := 0.25 if equipped_effect("riot_shield") else 0.0
 	if is_instance_valid(attacker) and attacker.ranged: reduction -= f("ranged_taken")
 	reduction += float(stats.get("dmg_reduce", 0.0))
@@ -1112,10 +1130,25 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 		DamageNumber.spawn(game, global_position, str(roundi(amount)), "hurt")
 	var before_ratio := hp_ratio()
 	hp -= amount
+	if elements != null: elements.after_hurt(raw_hit, attacker)
 	if gear_fx != null: gear_fx.on_hurt(amount, attacker)
 	if families != null: families.on_hurt(before_ratio)
 	if is_instance_valid(_sprite): _sprite.play_hurt()
 	message_requested.emit("受到伤害！观察敌人的蓄力姿势与武器方向，及时侧移或闪避。")
+	stats_changed.emit()
+
+## One tick of a damage over time on her (PlayerElements.tick): already cut
+## by her resistance; no dodge, no block, a shield takes it first.
+func take_dot(amount: float, _kind: String) -> void:
+	if invulnerable or invuln_timer > 0.0 or amount <= 0.0: return
+	if shield > 0.0:
+		var absorbed := minf(shield, amount)
+		shield -= absorbed
+		amount -= absorbed
+	if amount <= 0.0: return
+	if hp - amount <= 0.0 and _survive_lethal(): return
+	hp -= amount
+	if is_instance_valid(game): DamageNumber.spawn(game, global_position, str(roundi(amount)), "hurt")
 	stats_changed.emit()
 
 ## 复还之手 (once a segment, back to full) then "时光之末" (once a contract, 1 life).
@@ -1139,6 +1172,7 @@ func _survive_lethal() -> bool:
 	return false
 
 func _on_evade() -> void:
+	if elements != null: elements.on_evade()
 	if f("evade_atk") > 0.0: evade_timer = 6.0
 	if f("avenge") > 0.0: avenge_ready = true
 
@@ -1157,6 +1191,7 @@ func _has_low_hp_ward() -> bool:
 ## Entering a segment: the per-segment relics reset, the opening ones fire.
 func reset_floor_state() -> void:
 	reset_combat_state(false)
+	if elements != null: elements.reset()
 	# 诡意 lifts different stats on every floor; 城垣 and 隔离 start over.
 	if families != null: families.on_floor()
 	_low_hp_ward_used_this_floor = false
@@ -1287,6 +1322,9 @@ func _recompute_stats() -> void:
 				sheet.aspd += mod.amount * 100.0
 			elif MODIFIER_KEYS.has(mod.stat):
 				sheet[MODIFIER_KEYS[mod.stat]] += mod.amount
+			elif ItemModifier.SHEET_KEYS.has(mod.stat):
+				var key: String = ItemModifier.SHEET_KEYS[mod.stat]
+				sheet[key] = float(sheet.get(key, 0.0)) + mod.amount
 		CombatStats.add(sheet, PrefixCatalog.stats_of(item))
 	if is_instance_valid(game):
 		CombatStats.add(sheet, RelicCatalog.stat_sheet(game.builds))
@@ -1451,6 +1489,7 @@ func defense_value() -> float:
 	pct += _cyan_fury()
 	if kit != null: pct += kit.def_pct()
 	if gear_fx != null: pct += gear_fx.def_pct()
+	if elements != null: pct += elements.def_pct()
 	return flat * maxf(0.0, 1.0 + pct) * maxf(0.1, 1.0 + hex("def")) * Operators.stat_mult(operator_id, "def") * research_mult("def")
 
 func resistance() -> float:
@@ -1473,6 +1512,7 @@ func lifesteal() -> float:
 func evasion() -> float:
 	var value := float(stats.get("evasion", 0.0)) + (0.5 if dance_timer > 0.0 else 0.0)
 	if kit != null: value += kit.evasion_bonus()
+	if elements != null: value += elements.evasion_bonus()
 	return clampf(value, 0.0, CombatStats.EVASION_CAP if dance_timer <= 0.0 else 0.75)
 
 ## The chance to dodge one hit (装备前缀策划案 §2.7): its damage type's
@@ -1492,7 +1532,7 @@ func arts_evasion() -> float:
 
 ## Self-regeneration per second (paid out every HP_REGEN_INTERVAL once out of combat).
 ## 复利数值改造清单 E: her own is 0.1% of max HP a second and no bonus touches
-## it; flat regeneration (relics, 体魄) is written at tier Ⅰ, takes the floor's
+## it; flat regeneration (relics, 体魄) is written at tier 1, takes the floor's
 ## 档位系数, and the regeneration bonuses apply to that part only.
 func natural_regen() -> float:
 	return max_hp * CombatStats.BASE.regen_max_pct
@@ -1539,6 +1579,7 @@ func current_aspd() -> float:
 	if kit != null: aspd += kit.aspd_bonus()
 	if gear_fx != null: aspd += gear_fx.aspd_bonus()
 	if families != null: aspd += families.aspd_bonus()
+	if elements != null: aspd += elements.aspd_bonus()
 	return clampf(aspd * FeatureCatalog.cold_aspd(cold) * maxf(0.2, 1.0 + hex("aspd")), CombatStats.ASPD_MIN, CombatStats.ASPD_MAX)
 
 func current_cooldown() -> float:
@@ -1554,7 +1595,7 @@ func physical_pierce() -> float:
 ## Skill damage: 剑气 for Lappland, 绝影 for Amiya (both read this). 技能伤害
 ## from gear (装备前缀策划案 §6) adds to the relics' wave damage.
 func wave_multiplier() -> float:
-	return 1.0 + float(stats.get("wave_pct", 0.0)) + float(stats.get("skill_pct", 0.0))
+	return 1.0 + float(stats.get("wave_pct", 0.0)) + float(stats.get("skill_pct", 0.0)) + (elements.skill_bonus() if elements != null else 0.0)
 
 ## 技能冷却 as a multiplier on the cooldown (or on the charge a wave needs).
 func skill_cd_factor() -> float:
@@ -1585,6 +1626,7 @@ func target_multiplier(enemy: Enemy) -> float:
 ## Called by GameManager whenever an enemy dies.
 func on_kill(enemy: Enemy) -> void:
 	if not is_instance_valid(game) or enemy == null: return
+	if elements != null: elements.on_kill(enemy)
 	if f("kill_heal") > 0.0: heal(f("kill_heal") * tier_coef())
 	if f("kill_charge") > 0.0:
 		add_charge(int(f("kill_charge")))

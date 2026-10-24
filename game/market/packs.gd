@@ -60,7 +60,7 @@ static func packable(item: Item) -> bool:
 ## What one-key packing leaves alone in gear packs (§3.4): the top quality and
 ## named pieces (set, boss, special, exclusive) only go in by hand.
 static func quick_skips(item: Item) -> bool:
-	return item.is_equippable() and (item.rarity >= 2 or not item.named_kind().is_empty())
+	return item.is_rare()
 
 ## Points one unit of `item` brings (a stack counts unit by unit).
 static func unit_points(item: Item) -> int:

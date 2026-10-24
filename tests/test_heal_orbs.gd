@@ -35,7 +35,7 @@ func run() -> void:
 	p.hp = p.max_hp * 0.5
 	var orb := HealOrb.new()
 	orb.game = game
-	# 复利数值改造清单 E: a fixed tier-Ⅰ amount, × the floor's 档位系数.
+	# 复利数值改造清单 E: a fixed tier-1 amount, × the floor's 档位系数.
 	orb.fraction = float(LootTables.HEAL_ORBS.normal.heal)
 	var orb_heal := orb.fraction * Scaling.tier_coef(game.floor_number)
 	game.add_child(orb)

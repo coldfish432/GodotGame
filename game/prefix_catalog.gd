@@ -40,14 +40,17 @@ const TOP_GRADE := 1
 const ROLL_LOW := 0.8
 const ROLL_HIGH := 1.2
 
-## Prefix text colours by grade (§0.2-3); the item's own colour is untouched.
-const GRADE_COLORS := {-2: Color("7d858c"), -1: Color("eef1f3"), 0: Color("6fcf7f"), 1: Color("5aa9ff"), 2: Color("f3b04a")}
+## Prefix text colours by grade on the same ladder as rarity (属性伤害与地区装备
+## 策划案 v1.1 §2.4): −2 dark grey, −1 grey, 0 green, +1 blue, +2 purple, the
+## top prefixes orange. The item's own colour is untouched.
+const GRADE_COLORS := {-2: Color("5f666c"), -1: Color("a3aab0"), 0: Color("5fcf6e"), 1: Color("4f9dff"), 2: Color("b273ff")}
+const TOP_COLOR := Color("ff9a2e")
 const DOT_COLOR := Color("6d6d6d")
 
 ## Stats where a smaller number is the better one (for value and positions).
 const LOWER_BETTER := ["taken_pct", "contam_pct", "pressure_pct", "skill_cd_pct", "dash_cd_pct", "dash_cost_pct"]
 ## Flat stats; everything else is a fraction shown as a percentage.
-const FLAT := ["aspd", "def", "res"]
+const FLAT := ["aspd", "def", "res", "res_burn", "res_cold", "res_corr", "res_nerve", "res_bleed", "res_all_elem"]
 const LABELS := {
 	"atk_pct": "攻击力", "aspd": "攻速", "crit": "暴击率", "crit_dmg": "暴击伤害", "move_pct": "移速",
 	"hp_pct": "生命上限", "def": "防御", "res": "法抗", "arts_pct": "法术攻击力", "reach_pct": "攻击范围",
@@ -56,6 +59,9 @@ const LABELS := {
 	"skill_pct": "技能伤害", "skill_cd_pct": "技能冷却", "dash_cd_pct": "闪避冷却", "dash_cost_pct": "闪避体力",
 	"stamina_regen_pct": "体力回复", "heal_pct": "受到治疗", "gold_pct": "赤金获取", "pressure_pct": "威胁累积",
 	"contam_pct": "污染累积", "taken_pct": "受到伤害",
+	"add_burn": "命中附加灼燃伤害", "add_cold": "命中附加寒冷伤害", "add_corr": "命中附加侵蚀伤害", "add_nerve": "命中附加神经伤害",
+	"bleed_chance": "流血几率", "necro_chance": "凋亡几率", "dot_dur_pct": "持续时间",
+	"res_burn": "灼燃抗性", "res_cold": "寒冷抗性", "res_corr": "侵蚀抗性", "res_nerve": "神经抗性", "res_bleed": "流血抗性", "res_all_elem": "全元素抗性",
 }
 ## 诡意: what its stats are drawn from (PrefixFamilies scales them by 阶等).
 const FICKLE := {"atk_pct": 0.12, "aspd": 15.0, "crit": 0.075, "arts_pct": 0.15, "move_pct": 0.12}
@@ -76,7 +82,8 @@ static func _p(id: String, grade: int, slots: String, name: String, en: String, 
 	var entry := {"name": name, "en": en, "grade": grade, "slots": slots, "stats": stats,
 		"fx": extra.get("fx", {}), "form": extra.get("form", ""), "region": extra.get("region", ""),
 		"group": extra.get("group", "reach" if stats.has("reach_pct") else ""),
-		"value": float(extra.get("value", 1.0)), "top": bool(extra.get("top", false)), "family": extra.get("family", "")}
+		"value": float(extra.get("value", 1.0)), "top": bool(extra.get("top", false)), "family": extra.get("family", ""),
+		"only": bool(extra.get("only", false))}
 	_table[id] = entry
 
 static func _build() -> void:
@@ -232,6 +239,21 @@ static func _build() -> void:
 	_p("collapsed", -2, A, "坍缩的", "Collapsed", {"def": -30.0, "res": -5.0})
 	# --- §4.7 顶级 --------------------------------------------------------------
 	_p("court", 2, W, "王庭的", "Royal Court", {"atk_pct": 0.10, "crit": 0.03, "crit_dmg": 0.15}, {"top": true})
+	# --- 属性伤害与地区装备策划案 v1.1 §10.1: elements and resistances. The table
+	# is the small pieces' size; a weapon shows ×1.6, a chest or amulet ×1.5.
+	_p("searing", 1, W, "炽燃的", "Searing", {"add_burn": 0.025}, {"region": "city", "only": true})
+	_p("frostbitten", 1, W, "霜蚀的", "Frostbitten", {"add_cold": 0.025}, {"region": "snow", "only": true})
+	_p("crystalline", 1, W, "晶蚀的", "Crystal-Etched", {"add_corr": 0.025}, {"region": "mine", "only": true})
+	_p("numbing", 1, W, "麻痹的", "Numbing", {"add_nerve": 0.025}, {"region": "siracusa", "only": true})
+	_p("bleeding", 1, W, "放血的", "Bloodletting", {"bleed_chance": 0.0625}, {"form": "blade"})
+	_p("withering", 1, W, "衰朽的", "Withering", {"necro_chance": 0.075}, {"form": "staff"})
+	_p("heatproof", 0, A + T, "隔热的", "Heat-Proof", {"res_burn": 6.0}, {"region": "city"})
+	_p("winterized", 0, A + T, "防寒的", "Winterized", {"res_cold": 6.0}, {"region": "snow"})
+	_p("sealed_res", 0, A + T, "密封的", "Sealed", {"res_corr": 6.0}, {"region": "mine"})
+	_p("grounded", 0, A + T, "接地的", "Grounded", {"res_nerve": 6.0}, {"region": "siracusa"})
+	_p("stitched", 0, A + T, "缝合的", "Stitched", {"res_bleed": 6.0})
+	_p("immune", 2, A + T, "百毒不侵的", "Immune", {"res_all_elem": 3.5}, {"top": true})
+	_p("smoldering", 2, W, "余烬不熄的", "Ever-Smoldering", {"dot_dur_pct": 0.16}, {"top": true})
 	# --- Effect families (前缀放大与特效阶等案 §3): a W, an A and a T name each,
 	# grade +1, no stats of their own; PrefixFamilies counts and runs them.
 	for fam in PrefixFamilies.FAMILIES:
@@ -289,6 +311,8 @@ static func roll_one(item: Item, region: String, top_open: bool, taken: Array, r
 	var by_grade := {}
 	var family_ids: Array = []
 	for id in all():
+		# A region's elemental prefixes appear only there (§10.1).
+		if bool(all()[id].get("only", false)) and str(all()[id].region) != region: continue
 		if not str(all()[id].family).is_empty():
 			if fits(id, item, taken, top_open): family_ids.append(id)
 			continue
@@ -343,7 +367,7 @@ static func backfill(item: Item) -> void:
 	refresh_value(item, true)
 
 ## 重铸: the whole set again, the same odds as a drop (§2.5).
-## `keep` ≥ 0 keeps that prefix and rolls only the other slot (工程部Ⅴ,
+## `keep` ≥ 0 keeps that prefix and rolls only the other slot (工程部 5 阶,
 ## 龙门币平衡与科研部策划案).
 static func reforge(item: Item, rng: RandomNumberGenerator, keep: int = -1) -> void:
 	if not eligible_item(item): return
@@ -399,6 +423,7 @@ static func is_top(entry: Dictionary) -> bool:
 	return bool(get_entry(str(entry.id)).get("top", false))
 
 static func color_of(entry: Dictionary) -> Color:
+	if is_top(entry): return TOP_COLOR
 	return GRADE_COLORS[clampi(grade_of(entry), -2, 2)]
 
 ## "致命的·狂暴的·" (empty without prefixes).

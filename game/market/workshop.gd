@@ -80,7 +80,7 @@ func busy() -> int:
 
 ## Starts `count` of `output` (materials are taken by the caller). The queue
 ## runs jobs one after another per slot, so a new job starts after the last.
-## `time_factor` shortens the job (科研部: 后勤部Ⅳ, the endless 加工时长 line).
+## `time_factor` shortens the job (科研部: 后勤部 4 阶, the endless 加工时长 line).
 func start(output: String, count: int, now: int, rng: RandomNumberGenerator, time_factor := 1.0) -> Dictionary:
 	var r := recipe(output)
 	var job := {"id": _next_id, "output": output, "count": count, "due": now + maxi(60, roundi(int(r.minutes) * 60 * count * time_factor)), "byproducts": {}}

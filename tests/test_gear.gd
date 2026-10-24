@@ -99,15 +99,17 @@ func run() -> void:
 
 	# Intrinsic stats, factor, price (§2.1).
 	rng.seed = 24
-	var plain := LootTables.roll_equipment(Item.Category.WEAPON, "x", "mine", 3, 1, rng)
+	var plain := LootTables.roll_equipment(Item.Category.WEAPON, "x", "mine", 3, Item.BLUE, rng)
 	rng.seed = 24
-	var axe := LootTables.roll_equipment(Item.Category.WEAPON, "断镐战斧", "mine", 3, 1, rng)
+	var axe := LootTables.roll_equipment(Item.Category.WEAPON, "断镐战斧", "mine", 3, Item.BLUE, rng)
 	var implicit := axe.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER)
 	var random := axe.modifiers.filter(func(m): return m.tier != GearCatalog.IMPLICIT_TIER)
 	# Intrinsics roll in the item's rarity band, a blue's 90–110% of the table;
 	# its cost stays fixed (底材固有属性表 v1.0).
-	check("断镐战斧 has its two intrinsic stats", implicit.size() == 2
-		and implicit.any(func(m): return m.stat == ItemModifier.Stat.ATK_PCT and is_equal_approx(m.mid, 0.04) and m.band == 1 and m.amount >= 0.036 - 0.0001 and m.amount <= 0.044 + 0.0001)
+	# A deep weapon also converts a quarter to its region's element (属性伤害与地区装备策划案 v1.1 §10).
+	check("断镐战斧 has its two intrinsic stats and the mine's conversion", implicit.size() == 3
+		and implicit.any(func(m): return m.stat == ItemModifier.Stat.CONV_CORR and is_equal_approx(m.mid, GearCatalog.DEEP_CONVERT))
+		and implicit.any(func(m): return m.stat == ItemModifier.Stat.ATK_PCT and is_equal_approx(m.mid, 0.04) and m.band == Item.BLUE and m.amount >= 0.036 - 0.0001 and m.amount <= 0.044 + 0.0001)
 		and implicit.any(func(m): return m.stat == ItemModifier.Stat.MOVE_SPEED_PCT and is_equal_approx(m.amount, -0.04) and not m.is_rollable()))
 	check("intrinsics do not use the rarity's affix slots", random.size() == plain.modifiers.size(), [random.size(), plain.modifiers.size()])
 	check("the power factor applies (×1.15)", is_equal_approx(axe.power_mid, plain.power_mid * 1.15), [axe.power_mid, plain.power_mid])
@@ -122,7 +124,7 @@ func run() -> void:
 
 	# Saves (§2.3).
 	var back := Item.from_data(axe.to_data())
-	check("base id and intrinsics survive a save", back.base_id == "mine_pickaxe" and back.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER).size() == 2)
+	check("base id and intrinsics survive a save", back.base_id == "mine_pickaxe" and back.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER).size() == 3)
 	var migrated := Item.from_data(Item.create("镐柄战刃", Item.Category.WEAPON, 2, 1, 2.0).to_data())
 	check("an old 镐柄战刃 loads as 断镐战斧 with a base id", migrated.item_name == "断镐战斧" and migrated.base_id == "mine_pickaxe")
 	var generic := Item.create("外勤战刃", Item.Category.WEAPON, 2, 1, 2.0)
@@ -185,19 +187,25 @@ func run() -> void:
 		var slot := GearSlots.roll(srng)
 		drops[slot] = int(drops.get(slot, 0)) + 1
 	check("drops cover every slot, the weapon about a third", drops.size() == 8 and absf(float(drops[Item.Category.WEAPON]) / 4000.0 - 3.0 / 9.2) < 0.03, drops)
-	# 制式保底修订 (用户 2026-10-23): fixed numbers — tier Ⅰ, the band's middle,
+	# 制式保底修订 (用户 2026-10-23): fixed numbers — tier 1, the band's middle,
 	# intrinsics only, no prefixes — white until 制式换代; bound to the contract.
-	check("kit pieces are white Rhodes bases of tier Ⅰ", kit.all(func(i): return i.rarity == 0 and i.grade == 1 and GearCatalog.is_rhodes(i.base_id)))
+	check("kit pieces are grey Rhodes bases of tier 1", kit.all(func(i): return i.rarity == 0 and i.grade == 1 and GearCatalog.is_rhodes(i.base_id)))
 	check("…with no prefixes and no rolled affixes", kit.all(func(i): return i.prefixes.is_empty() and i.modifiers.all(func(m): return m.tier == GearCatalog.IMPLICIT_TIER)))
 	var twin := GearCatalog.rhodes_kit(Operators.AMIYA_GUARD)
 	var fixed := true
 	for i in range(kit.size()):
 		if not is_equal_approx(kit[i].power, twin[i].power) or kit[i].modifiers.map(func(m): return m.amount) != twin[i].modifiers.map(func(m): return m.amount): fixed = false
 	check("the numbers are fixed: two sets are the same", fixed)
+	var unscaled := Item.create("x", Item.Category.CHEST, 1, 1, Scaling.gear_power(1, 0, 0.5))
+	unscaled.grade = 1
+	GearCatalog.apply(unscaled, "rhodes_vest")
+	var vest := GearCatalog.make_rhodes("rhodes_vest")
+	check("everything at 80%: the panel and the intrinsics", is_equal_approx(vest.power, unscaled.power * 0.8) and is_equal_approx(vest.modifiers[0].amount, unscaled.modifiers[0].amount * 0.8),
+		[vest.power, unscaled.power, vest.modifiers[0].amount, unscaled.modifiers[0].amount])
 	var badge := GearCatalog.make_rhodes("rhodes_badge")
 	check("Rhodes gear is worth a fixed 5", badge.value == GearCatalog.RHODES_VALUE and badge.value_base == GearCatalog.RHODES_VALUE)
 	var gold_set := GearCatalog.rhodes_kit(Operators.AMIYA_GUARD, 2)
-	check("after 换代 the set is gold, still tier Ⅰ, stronger, still without prefixes", gold_set.all(func(i): return i.grade == 1 and i.rarity == 2 and i.prefixes.is_empty())
+	check("after 换代 the set is blue, still tier 1, stronger, still without prefixes", gold_set.all(func(i): return i.grade == 1 and i.rarity == Item.BLUE and i.prefixes.is_empty())
 		and gold_set[0].power > kit[0].power, [gold_set[0].power, kit[0].power])
 	var unmarketable := kit.all(func(i): return GearCatalog.bound(i) and FactionCatalog.category_of(i).is_empty() and not Packs.packable(i) and not Consignment.takes(i) and not PrefixCatalog.eligible_item(i))
 	check("Rhodes gear is bound: no market, pack, consignment or refit takes it", unmarketable)
@@ -219,9 +227,9 @@ func run() -> void:
 		check("%s has 3 ranged weapons and 2 staves" % region, ranged.size() == 3 and staves.size() == 2, [ranged.size(), staves.size()])
 	check("a crossbowman carries his crossbow", GearCatalog.pick(Item.Category.WEAPON, "mine", 1, "normal", "crossbow", srng) == "mine_r1")
 	check("an ice hunter carries the hunting gun", GearCatalog.pick(Item.Category.WEAPON, "snow", 1, "normal", "ice_hunter", srng) == "snow_r2")
-	var gun := LootTables.roll_equipment(Item.Category.WEAPON, "冰原猎铳", "snow", 4, 1, srng)
-	var staff := LootTables.roll_equipment(Item.Category.WEAPON, "雪祀仪杖", "snow", 4, 1, srng)
-	var blade := LootTables.roll_equipment(Item.Category.WEAPON, "猎刀", "snow", 4, 1, srng)
+	var gun := LootTables.roll_equipment(Item.Category.WEAPON, "冰原猎铳", "snow", 4, Item.BLUE, srng)
+	var staff := LootTables.roll_equipment(Item.Category.WEAPON, "雪祀仪杖", "snow", 4, Item.BLUE, srng)
+	var blade := LootTables.roll_equipment(Item.Category.WEAPON, "猎刀", "snow", 4, Item.BLUE, srng)
 	check("a sniper wields a gun, not a blade or a staff", GearCatalog.can_wield("rosa", gun) and not GearCatalog.can_wield("rosa", blade) and not GearCatalog.can_wield("rosa", staff))
 	check("a caster wields a staff only", GearCatalog.can_wield("lin", staff) and not GearCatalog.can_wield("lin", gun) and not GearCatalog.can_wield("lin", blade))
 	check("a guard wields a blade, not a gun", GearCatalog.can_wield(Operators.LAPPLAND, blade) and not GearCatalog.can_wield(Operators.LAPPLAND, gun))
@@ -246,13 +254,14 @@ func run() -> void:
 			if not (FieldCatalog.SLOT_AFFIX_AMOUNTS[slot] as Dictionary).has(stat): tables_cover = false
 	check("the seven non-weapon slots' combat affixes still sum to 2.00 full affixes", absf(budget - 2.0) < 0.02, budget)
 	check("every slot's pool has its own sizes", tables_cover)
-	var boots := LootTables.roll_equipment(Item.Category.FEET, "外卖员跑鞋", "city", 1, 2, srng)
+	var boots := LootTables.roll_equipment(Item.Category.FEET, "外卖员跑鞋", "city", 1, Item.PURPLE, srng)
 	var boot_affix := boots.modifiers.filter(func(m): return m.is_random_affix())
-	var boots_ok := boot_affix.size() == 2
+	# Two lines (one may be 龙门's own) and a purple's resistance line (§7.2, §8).
+	var boots_ok := boot_affix.size() >= 3
 	for m in boot_affix:
-		var size := absf(float(FieldCatalog.SLOT_AFFIX_AMOUNTS[Item.Category.FEET][m.stat]))
-		if absf(m.amount) < size * 1.2 - 0.0001 or absf(m.amount) > size * 1.4 + 0.0001: boots_ok = false
-	check("feet roll their own sizes in the gold band", boots_ok, boot_affix.map(func(m): return [m.stat, m.amount]))
+		var size := absf(float(FieldCatalog.AFFIX_AMOUNTS[m.stat]) * m.scale)
+		if absf(m.amount) < size * 1.15 - 0.0001 or absf(m.amount) > size * 1.30 + 0.0001: boots_ok = false
+	check("feet roll their own sizes in the purple band", boots_ok, boot_affix.map(func(m): return [m.stat, m.amount]))
 	var boot_cost := boots.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER and m.stat == ItemModifier.Stat.DEF_FLAT)
 	check("外卖员跑鞋's cost is a fixed 防御 −5", boot_cost.size() == 1 and is_equal_approx(boot_cost[0].amount, -5.0) and not boot_cost[0].is_rollable())
 	var same := []
@@ -264,7 +273,7 @@ func run() -> void:
 		if seen_sig.has(sig): same.append([seen_sig[sig], id])
 		seen_sig[sig] = id
 	check("no two bases of one region, slot and layer share their intrinsics", same.is_empty(), same)
-	var dice := LootTables.roll_equipment(Item.Category.AMULET, "老千骰子", "city", 1, 1, srng)
+	var dice := LootTables.roll_equipment(Item.Category.AMULET, "老千骰子", "city", 1, Item.BLUE, srng)
 	check("老千骰子 rolls 装备掉率 in the blue band", dice.modifiers.any(func(m): return m.stat == ItemModifier.Stat.DROP_RATE_PCT and m.amount >= 0.075 * 0.9 - 0.0001 and m.amount <= 0.075 * 1.1 + 0.0001))
 	check("…and reads 装备掉率", dice.modifiers.any(func(m): return m.describe().begins_with("装备掉率")))
 	var gear_counts := {}

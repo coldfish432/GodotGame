@@ -36,5 +36,8 @@
  "大宗货箱已入库。": "The bulk cargo crate is in the depot.",
  "干员倒下，罗德岛小队已接回博士。安全袋里的物品全部保留；身上和背包里没有投保的物品遗失；投保的装备会在 2 到 4 小时后由罗德岛小队送回仓库。倒下的干员带着重伤，可在医疗前台治疗。": "The operator fell; the Rhodes squad brought the Doctor back. Everything in the Secure Pouch is kept; uninsured items worn or in the pack are lost; insured gear is returned to the depot by the Rhodes squad 2 to 4 hours later. The fallen operator is badly injured and can be treated at the Medical front desk.",
  "罗德岛小队找回了投保的装备，已送回仓库。保险随之用掉，需要的话请在后勤柜台重新投保。": "The Rhodes squad recovered the insured gear and returned it to the depot. The insurance is used up; insure it again at Logistics if you need to.",
- "项，已入库。": " jobs; now in the depot."
+ "项，已入库。": " jobs; now in the depot.",
+ "出击的地方：在这里选择地区和合同，确认出发准备后即可出击。": "Where you sortie: pick a region and a contract here, confirm departure prep, and you are off.",
+ "换装、改造装备，免费领取罗德岛制式装备。": "Change and modify gear, and draw Rhodes standard gear for free.",
+ "出发前为装备投保。罗德岛制式装备合同结束时会收回，无需投保。": "Insure gear before you leave. Rhodes standard gear is taken back after a contract and needs no insurance."
 }

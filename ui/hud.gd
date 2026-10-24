@@ -227,24 +227,24 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 	draw_set_transform(Vector2.ZERO)
 	var k := 1.6 if big else 1.0
 	var markers: Array = [game.world_map.buff_device_node, game.world_map.encounter_node, game.world_map.exit_node, game.world_map.vault_node]
-	var colours := [Color("ef9b42"), AK.TRADER if game.encounter == "trader" else (AK.SPECIAL if game.encounter == "post" else AK.CYAN), AK.GREEN, AK.TIER[2]]
-	# 情报部Ⅵ: a sealed vault's ground as a ring of VAULT_HINT metres before it is found.
+	var colours := [Color("ef9b42"), AK.TRADER if game.encounter == "trader" else (AK.SPECIAL if game.encounter == "post" else AK.CYAN), AK.GREEN, AK.VAULT]
+	# 情报部 6 阶: a sealed vault's ground as a ring of VAULT_HINT metres before it is found.
 	if game.base.researched("vault_map") and game.world_map.has_vault and not (is_instance_valid(game.world_map.vault_node) and game.world_map.vault_node.visible):
 		# Off-centre by a fixed amount per floor, so the ring narrows it down without pointing at it.
 		var spin := game.world_map.vault_position.x * 0.37 + game.world_map.vault_position.z * 0.11
 		var hint: Vector3 = game.world_map.vault_position + Vector3(cos(spin), 0.0, sin(spin)) * VAULT_HINT * 0.5
-		draw_arc(map_point(hint, rect), VAULT_HINT * _map_scale(rect), 0.0, TAU, 40, Color(AK.TIER[2], 0.8), 1.5 * k)
+		draw_arc(map_point(hint, rect), VAULT_HINT * _map_scale(rect), 0.0, TAU, 40, Color(AK.VAULT, 0.8), 1.5 * k)
 	# 残党向导 (势力特供策划案 §二): this floor's vault and trace, fog or not.
 	if game.guide_active():
 		if game.world_map.has_vault:
 			var vault_at := map_point(game.world_map.vault_position, rect)
-			draw_colored_polygon(AK.diamond(vault_at, 4.5 * k), AK.TIER[2])
+			draw_colored_polygon(AK.diamond(vault_at, 4.5 * k), AK.VAULT)
 			if big: _text(vault_at + Vector2(12, 5), "密室", 12, AK.FG)
 		if is_instance_valid(game.trace_point):
 			var trace_at := map_point(game.trace_point.global_position, rect)
 			draw_colored_polygon(AK.diamond(trace_at, 4.0 * k), AK.SPECIAL)
 			if big: _text(trace_at + Vector2(12, 5), "踪迹", 12, AK.FG)
-	# 情报部Ⅴ: the extraction beacon shows through the fog.
+	# 情报部 5 阶: the extraction beacon shows through the fog.
 	var exits_known: bool = game.base.researched("exit_map")
 	for i in range(markers.size()):
 		if is_instance_valid(markers[i]) and markers[i].visible and (game.fog.is_point_revealed(markers[i].position) or (i == 2 and exits_known)):
@@ -264,7 +264,7 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 	for node in get_tree().get_nodes_in_group("relic_caches"):
 		var cache := node as RelicCache
 		if cache.game == game and game.fog.is_point_revealed(cache.position):
-			draw_colored_polygon(AK.diamond(map_point(cache.position, rect), 3 * k), Color("8a8f96") if cache.sealed else (AK.TIER[2] if cache.source == "vault" else AK.HP))
+			draw_colored_polygon(AK.diamond(map_point(cache.position, rect), 3 * k), Color("8a8f96") if cache.sealed else (AK.VAULT if cache.source == "vault" else AK.HP))
 			if big and cache.source != "vault": _text(map_point(cache.position, rect) + Vector2(10, 5), "战斗缴获", 12, AK.FG)
 	for node in get_tree().get_nodes_in_group("loot_containers"):
 		var box := node as LootContainer
@@ -697,6 +697,23 @@ func _draw_glyph(c: Vector2, card: Dictionary) -> void:
 				draw_texture_rect(texture, Rect2(c - size * 0.5, size), false)
 			else: draw_colored_polygon(AK.diamond(c, 10), AK.SPECIAL)
 
+## 损伤 rings at the feet (属性伤害与地区装备策划案 v1.1 §13, 用户 2026-10-24:
+## 圆环形式，都放脚下): one ring per filling gauge, its element's colour
+## sweeping clockwise from the top; a gauge cooling after its burst is a dim
+## full ring. `gauges` is ElementState.top: [[kind, ratio, cooling]].
+func _draw_gauges(centre: Vector2, gauges: Array, radius: float) -> void:
+	if gauges.is_empty(): return
+	var step := radius * 2.0 + 4.0
+	var x := centre.x - step * (gauges.size() - 1) * 0.5
+	for g in gauges:
+		var c := Vector2(x, centre.y)
+		var colour: Color = Elements.COLORS[str(g[0])]
+		draw_circle(c, radius + 1.5, Color(0, 0, 0, 0.75))
+		draw_arc(c, radius, 0.0, TAU, 24, Color(colour, 0.22), 2.0, true)
+		if bool(g[2]): draw_arc(c, radius, 0.0, TAU, 24, Color(colour, 0.45), 2.0, true)
+		elif float(g[1]) > 0.0: draw_arc(c, radius, -PI / 2.0, -PI / 2.0 + TAU * float(g[1]), 24, colour, 2.0, true)
+		x += step
+
 # --- Centre: transient messages ------------------------------------------------------
 
 # --- The world: her bars, enemy bars, names, the E prompt ------------------------------
@@ -729,6 +746,12 @@ func _draw_world_marks() -> void:
 			draw_colored_polygon(AK.star(Vector2(r.position.x - 11, r.get_center().y), 5.5), AK.SP)
 		else:
 			AK.draw_bar(self, Rect2(head.x - 20, head.y - 1.5, 40, 3), ratio, AK.RED, Color(0, 0, 0, 0.85))
+	# 损伤 rings at every enemy's feet (用户 2026-10-24: 圆环都放脚下).
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var foe := node as Enemy
+		if foe.game != game or foe._dead or (foe.elements.gauges.is_empty() and foe.elements.cooldowns.is_empty()): continue
+		var big := foe is Boss or foe.boss
+		_draw_gauges(game.screen_point(foe.global_position - Vector3.UP * Enemy.GROUND_LIFT) + Vector2(0, 8), foe.elements.top(foe.gauge_threshold()), 5.0 if big else 4.0)
 	# A 萨卡兹哨兵 that has seen her: a red "!" over its head while it is alerted.
 	for node in get_tree().get_nodes_in_group("sentinels"):
 		var sentinel := node as Enemy
@@ -742,6 +765,7 @@ func _draw_world_marks() -> void:
 	var feet := game.screen_point(p.global_position) + Vector2(0, 14)
 	AK.draw_bar(self, Rect2(feet.x - 27, feet.y, 54, 5), p.hp / maxf(p.max_hp, 1.0), AK.RED if p.hp < p.max_hp * 0.3 else AK.HP, Color(0, 0, 0, 0.8))
 	_blocked_life(Rect2(feet.x - 27, feet.y, 54, 5), p.life_cap_ratio())
+	if p.elements != null: _draw_gauges(Vector2(feet.x, feet.y + (18.0 if p.has_sword_wave() else 11.0)), p.elements.state.top(p.max_hp * Elements.HER_THRESHOLD), 4.0)
 	if p.has_sword_wave():
 		var need := p.wave_hits_needed()
 		var seg := (54.0 - (need - 1) * 2.0) / need
@@ -827,9 +851,9 @@ func _draw_ground_names() -> void:
 		draw_rect(rect, Color(0, 0, 0, (0.82 if entry[1] else 0.6) * fade))
 		draw_rect(Rect2(rect.position, Vector2(3, rect.size.y)), colour)
 		if lit: draw_rect(rect, colour, false, 1.0)
-		# 情报部Ⅳ: a lower-tier gold piece that reaches the next tier's blue gets a mark.
+		# 情报部 4 阶: a lower-tier gold piece that reaches the next tier's blue gets a mark.
 		if marks_tiers and Scaling.crosses_tier(loot.item):
-			draw_colored_polygon(AK.diamond(Vector2(rect.end.x + 6, rect.get_center().y), 4.0), Color(AK.TIER[2], fade))
+			draw_colored_polygon(AK.diamond(Vector2(rect.end.x + 6, rect.get_center().y), 4.0), Color(AK.VAULT, fade))
 		var runs: Array = loot.item.name_runs()
 		runs.append([loot.item.stack_suffix() + ("（封印）" if loot.sealed else ""), colour])
 		var x := rect.position.x + PLATE_PAD

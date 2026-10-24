@@ -17,7 +17,7 @@ func find_game(node: Node) -> GameManager:
 
 func sample(rng: RandomNumberGenerator, base: String, ids: Array) -> Item:
 	var category := int(GearCatalog.BASES[GearCatalog.id_for_name(base)].category)
-	var item := LootTables.roll_equipment(category, base, "mine", 5, 2, rng)
+	var item := LootTables.roll_equipment(category, base, "mine", 5, Item.PURPLE, rng)
 	item.prefixes = ids.map(func(id): return PrefixCatalog.roll_entry(id, rng))
 	PrefixCatalog.refresh_value(item)
 	return item

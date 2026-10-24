@@ -178,9 +178,9 @@ static func kit_cut(id: String, tier: int, floor_tier: int = 0) -> float:
 static func kit_price(id: String, tier: int) -> int:
 	return Economy.tiered(int(KITS[id].price), tier)
 
-## "防尘过滤面罩 · Ⅳ".
+## "防尘过滤面罩 · 31–40 层".
 static func kit_name(id: String, tier: int) -> String:
-	return "%s · %s" % [KITS[id].name, Economy.roman(tier)]
+	return "%s · %s" % [KITS[id].name, Progression.grade_label(tier)]
 
 ## The kits that can go on a contract in `region`: its own feature's, and the
 ## mask everywhere (the deep route and ore raise contamination anywhere).

@@ -232,7 +232,7 @@ static func contracts(menu: FieldMenu) -> void:
 		for child in card.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var index := i
 		card.pressed.connect(func(): menu.contract_pick = index; contracts(menu))
-	# 外勤部Ⅱ: one free reroll of the chosen ordinary card per return.
+	# 外勤部 2 阶: one free reroll of the chosen ordinary card per return.
 	if game.base.contract_reroll and chosen < (game.base.contract_offers.get(region, []) as Array).size():
 		var reroll := AK.button("重抽", "ghost", 11)
 		AK.put(stage, reroll, Vector2(x + 318, TOP + 252), Vector2(60, 24))

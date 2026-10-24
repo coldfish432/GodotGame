@@ -149,7 +149,7 @@ func _hunt() -> void:
 	kill(bounty)
 	await step(2)
 	check("hunt: killing it completes the objective", game.bounty_killed and game.contract_progress().done)
-	var dropped := get_nodes_in_group("loot").filter(func(n): return n.item != null and n.item.rarity == 2 and n.item.is_equippable())
+	var dropped := get_nodes_in_group("loot").filter(func(n): return n.item != null and n.item.rarity == Item.PURPLE and n.item.is_equippable())
 	check("hunt: the bounty drops the rare piece on the spot (no settlement gift)", not dropped.is_empty())
 	game.settle(true)
 	await step(2)

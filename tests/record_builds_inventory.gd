@@ -151,7 +151,7 @@ func run() -> void:
 		if i == 3: loot.insured = true
 		game.inventory.try_add(loot)
 	var blade := Item.create("精工战刃", Item.Category.WEAPON, 2, 1, 3.2)
-	blade.rarity = 2
+	blade.rarity = Item.PURPLE
 	var crit := ItemModifier.stat_mod(ItemModifier.Stat.CRIT_RATE, 0.065)
 	crit.tier = 2
 	var atk_pct := ItemModifier.stat_mod(ItemModifier.Stat.ATK_PCT, 0.08)

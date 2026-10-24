@@ -282,7 +282,7 @@ func _camps() -> void:
 	check("difficulty there is the depth's own (3.5 × 20 − 3)", is_equal_approx(game.pressure, 67.0))
 	lmd = game.gold
 	var fixed := int(game.contract.get("reward", 0))
-	check("a camp start fixes the pay at that tier (Ⅲ)", fixed == Economy.contract_reward(game.contract, 21) and fixed > 0, fixed)
+	check("a camp start fixes the pay at that tier (3)", fixed == Economy.contract_reward(game.contract, 21) and fixed > 0, fixed)
 	var done: bool = game.contract_progress().get("done", false)
 	game.settle(true)
 	await step(2)

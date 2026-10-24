@@ -134,7 +134,7 @@ func _draw() -> void:
 	for t in range(1, 8):
 		var x := LABEL_W + (t - 1) * COLUMN
 		draw_rect(Rect2(Vector2(x - 23, 0), Vector2(2, _extent.y)), Color(AK.LINE, 0.35))
-		draw_string(AK.en(), Vector2(x, 30), Economy.roman(t), HORIZONTAL_ALIGNMENT_LEFT, -1, 24, AK.MUTE)
+		draw_string(AK.en(), Vector2(x, 30), ResearchCatalog.tier_label(t), HORIZONTAL_ALIGNMENT_LEFT, -1, 24, AK.MUTE)
 	# Department bands.
 	for band in ResearchCatalog.BANDS:
 		var span: Vector2 = _bands[band]

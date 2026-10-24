@@ -314,7 +314,7 @@ func _new_order(now: int) -> Dictionary:
 	_next_id += 1
 	return order
 
-## Bulk-order slots and refill time: 5 and 4 h with 后勤部Ⅴ.
+## Bulk-order slots and refill time: 5 and 4 h with 后勤部 5 阶.
 func order_slots() -> int:
 	return VoyageCatalog.ORDER_SLOTS + (1 if game.base.researched("bulk_orders") else 0)
 
@@ -399,7 +399,7 @@ static func make_cargo(o: Dictionary) -> Item:
 	var crate := Item.create(VoyageCatalog.CARGO_NAME, Item.Category.MATERIAL, size.x, size.y)
 	crate.effect = VoyageCatalog.CARGO_EFFECT
 	crate.value = 0
-	crate.rarity = 2
+	crate.rarity = Item.PURPLE
 	crate.description = "%s · %s" % [FactionCatalog.name_of(str(o.faction)), "、".join((o.lines as Dictionary).keys().map(func(k): return "%s×%d" % [k, int(o.lines[k])]))]
 	return crate
 
