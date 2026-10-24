@@ -45,4 +45,19 @@ func run() -> void:
 	game.player.teleport(game.player.global_position + Vector3(5, 0, 0))
 	await step(80)
 	await capture("4-dodge")
+	# The workbench's cards (用户 2026-10-24): the depot, the 制式 tab, the 制式 page.
+	var spot := game.tutorial_spotlight
+	game.open_station("loadout")
+	for id in ["loadout_depot", "loadout_issue_tab"]:
+		for i in range(120):
+			if spot.showing == id: break
+			await step(1)
+		await capture("5-" + id)
+		spot.dismiss()
+	game.menu.workbench_tab = 2
+	LoadoutScreens.workbench(game.menu)
+	for i in range(120):
+		if spot.showing == "loadout_issue": break
+		await step(1)
+	await capture("6-loadout_issue")
 	quit(0)

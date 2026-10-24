@@ -19,6 +19,8 @@ const STEPS := [
 	# 用户 2026-10-24: 三个台的介绍之后，介绍左键移动、右键闪现 — both on board.
 	["dodge", "闪避", "按闪避键沿移动方向快速闪避，站着时朝面向闪避，每次消耗体力。外勤时敌人出手前，地面会出现攻击预警，及时闪避就能脱离。", "闪避一次", "base"],
 	["camera", "观察视角", "可以按需调整观察视角：滚轮缩放，旋转键每次转动 45°，翻页键调整俯角，按住中键拖动自由旋转，复位键恢复默认视角。", "调整一次视角", "base"],
+	# 用户 2026-10-24: 合同委托之前加一个整备台选装备.
+	["outfit", "整备", "出发前先到整备台备好装备：仓库里的装备可以直接穿上，缺的部位可以在制式页免费领取罗德岛制式装备。", "在整备台穿上一件装备", "base"],
 	["contract", "合同委托", "调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。", "调度台接合同出击", "base"],
 	["kill", "接敌", "已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。", "击败一个敌人", "field"],
 	["skill", "干员技能", "每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。", "施放一次技能", "field"],
@@ -37,7 +39,7 @@ const STEPS := [
 	["extract", "撤离", "第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。", "从撤离信标撤离", "field"],
 ]
 ## Steps that can stall on what the floor gives (no gear to put on yet): 下一步 too.
-const OPTIONAL := ["equip"]
+const OPTIONAL := ["equip", "outfit"]
 const DONE_TEXT := "基础操作确认完毕。PRTS 将持续为您提供支援，博士。"
 ## The ticked box shows this long before the next step comes up.
 const TICK_SECONDS := 0.8
@@ -269,6 +271,7 @@ func _met(id: String) -> bool:
 			_cooldown = left
 			return cast
 		"equip": return _gear_now() != _gear or _next_pressed
+		"outfit": return (game.in_base and _gear_now() != _gear) or _next_pressed
 		"operator": return game.modal == "training"
 		"relics": return game.modal == "relics"
 		"journal": return game.modal == "journal"
@@ -308,7 +311,7 @@ func _key_text(id: String) -> String:
 	match id:
 		"move": return "左键"
 		"camera": return "%s / %s %s / %s %s" % [Keybinds.short_label("camera_zoom_in"), Keybinds.short_label("camera_turn_left"), Keybinds.short_label("camera_turn_right"), Keybinds.short_label("camera_tilt_up"), Keybinds.short_label("camera_tilt_down")]
-		"contract", "search": return Keybinds.short_label("interact")
+		"contract", "search", "outfit": return Keybinds.short_label("interact")
 		"dodge": return Keybinds.short_label(TutorialCard.dodge_action())
 		"skill": return Keybinds.short_label(TutorialCard.skill_action())
 		"equip": return "右键"

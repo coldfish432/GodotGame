@@ -204,7 +204,7 @@
   "const FIXED := [[\"攻击 / 移动 / 拾取 / 选择\", \"左键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
  ],
  "Ctrl + 左键 /": [
-  "ui/tutorial_card.gd:320",
+  "ui/tutorial_card.gd:323",
   "\"safe_bag\": return \"Ctrl + 左键 / %s\" % Keybinds.short_label(\"stash_item\")"
  ],
  "D32钢": [
@@ -399,6 +399,10 @@
   "ui/item_tooltip.gd:71",
   "lines.append(\"  [color=#%s]前缀[/color] · %s%s\" % [colour, line[0], line[1] if detailed else \"\"])"
  ],
+ "button:制式": [
+  "ui/tutorial_spotlight.gd:231",
+  "request(\"loadout_issue_tab\", \"button:制式\")"
+ ],
  "https://prts.wiki/w/萨卡兹的无终奇语/想象实体图鉴": [
   "game/field_catalog.gd:325",
   "const SOURCE := \"https://prts.wiki/w/萨卡兹的无终奇语/想象实体图鉴\""
@@ -495,6 +499,10 @@
   "ui/field_menu.gd:441",
   "text(body, \"%s  ·  重伤  ·  生命上限 −%d%%\" % [Operators.display_name(id), roundi(BaseCatalog.INJURY_HP_PENALTY * 100)], 15, AK.RED)"
  ],
+ "·  重启后生效": [
+  "ui/system_screens.gd:468",
+  "var note := AK.label(GpuChoice.current() + (\"  ·  重启后生效\" if pending else \"\"), 11, AK.SP if pending else AK.MUTE)"
+ ],
  "·  需求": [
   "ui/item_tooltip.gd:45",
   "lines.append(\"%s%s%s\" % [Progression.grade_label(int(req.grade)), (\"  ·  抵 \" + Progression.grade_label(int(req.grade) + 1)) if Scaling.crosses_tier(item) else \"\", (\"  ·  需求 \" + \" · \".join(parts)) if n"
@@ -552,7 +560,7 @@
   "if sealed: text += \" · 封印中\""
  ],
  "· 干员": [
-  "ui/system_screens.gd:139",
+  "ui/system_screens.gd:143",
   "return [\"龙门币 %d · 干员 %d\" % [s.lmd, s.operators], \"%02d-%02d %02d:%02d\" % [t.month, t.day, t.hour, t.minute]]"
  ],
  "· 撤离": [
@@ -560,7 +568,7 @@
   "if current and game.is_extraction_floor(): name += \" · 撤离\""
  ],
  "· 改量装置×1": [
-  "ui/loadout_screens.gd:392",
+  "ui/loadout_screens.gd:394",
   "AK.put(stage, AK.section(\"精调\", \"%s · 改量装置×1\" % Economy.format(game.refresh_cost(\"tune\", pick))), Vector2(864, TOP + 14))"
  ],
  "· 未生效": [
@@ -796,7 +804,7 @@
   "\"pharmacy\": [\"药房窗口 / 配药\", \"下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂\"],"
  ],
  "下一步": [
-  "ui/tutorial_card.gd:121",
+  "ui/tutorial_card.gd:123",
   "_next = AK.button(\"下一步\", \"blue\", 11)"
  ],
  "下城": [
@@ -1016,7 +1024,7 @@
   "const CONTAMINATION_TIER_NAMES := [\"无\", \"中度\", \"重度\"]"
  ],
  "中文": [
-  "ui/system_screens.gd:437",
+  "ui/system_screens.gd:442",
   "row.add_child(AK.toggle([\"中文\", \"English\"], current, func(i):"
  ],
  "中级作战记录": [
@@ -1040,7 +1048,7 @@
   "\"broker_letter\": {\"name\": \"中间人的担保函\", \"feature\": \"debt\", \"cut\": 0.3, \"price\": 20000, \"store\": 1},"
  ],
  "中间是本次行动的层数，每 10 层为一段。标黄的第": [
-  "ui/tutorial_spotlight.gd:67",
+  "ui/tutorial_spotlight.gd:71",
   "\"dispatch_floors\": [\"层数与撤离\", \"中间是本次行动的层数，每 10 层为一段。标黄的第 %d–%d 层会随机出现一个撤离点；第 10 层之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。\", 0.0],"
  ],
  "临界护盾化解了这次伤害": [
@@ -1056,7 +1064,7 @@
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "主键": [
-  "ui/base_screens.gd:911",
+  "ui/base_screens.gd:916",
   "AK.put(stage, AK.label(\"主键\", 11, AK.MUTE), Vector2(334 + col * 470 + 196, 54))"
  ],
  "主音量": [
@@ -1212,7 +1220,7 @@
   "\"outbound\": [\"出库区 / 订单与交付\", \"交付个人仓库或背包里的物品：按订单或直接换龙门币\"],"
  ],
  "交付价": [
-  "ui/loadout_screens.gd:363",
+  "ui/loadout_screens.gd:365",
   "EventScreens._info(stage, game, pick, \"交付价\", Economy.format(Economy.direct_price(pick)), Vector2(412, TOP + 270), BOTTOM - TOP - 270 - 120)"
  ],
  "交割": [
@@ -1248,7 +1256,7 @@
   "const STATION_LABELS := {\"exchange\": [\"exchange\", \"交易所终端\"], \"sand_table\": [\"sand_table\", \"沙盘\"], \"personnel\": [\"personnel\", \"人事部终端\"], \"lift\": [\"lift\", \"升降梯\"],"
  ],
  "交易所终端可以买卖九大势力的商品，查看行情与新闻，下现货、挂单、远期和差价合约。交易所需要先建成才能使用。": [
-  "ui/tutorial_spotlight.gd:72",
+  "ui/tutorial_spotlight.gd:76",
   "\"base_exchange\": [\"交易所\", \"交易所终端可以买卖九大势力的商品，查看行情与新闻，下现货、挂单、远期和差价合约。交易所需要先建成才能使用。\", 64.0],"
  ],
  "交易确认": [
@@ -1256,7 +1264,7 @@
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "交易终端与盯盘小窗": [
-  "ui/base_screens.gd:891",
+  "ui/base_screens.gd:896",
   "AK.put(stage, AK.label(\"交易终端与盯盘小窗\", 14, AK.FG), Vector2(334, y + 12))"
  ],
  "交货": [
@@ -1272,7 +1280,7 @@
   "if not any: box.add_child(AK.label(\"交货合约 0\", 14, AK.MUTE))"
  ],
  "交还制式": [
-  "ui/loadout_screens.gd:300",
+  "ui/loadout_screens.gd:302",
   "var back := AK.button(\"交还制式\", \"plain\", 14)"
  ],
  "产业": [
@@ -1288,7 +1296,7 @@
   "const STATION_LABELS := {\"exchange\": [\"exchange\", \"交易所终端\"], \"sand_table\": [\"sand_table\", \"沙盘\"], \"personnel\": [\"personnel\", \"人事部终端\"], \"lift\": [\"lift\", \"升降梯\"],"
  ],
  "人事部记录各位干员的寻访进度：从发现踪迹到可以寻访、正式入职。": [
-  "ui/tutorial_spotlight.gd:74",
+  "ui/tutorial_spotlight.gd:78",
   "\"base_personnel\": [\"人事部\", \"人事部记录各位干员的寻访进度：从发现踪迹到可以寻访、正式入职。\", 56.0],"
  ],
  "人人都知道它的主人，没人提起它的主人。": [
@@ -1332,7 +1340,7 @@
   "\"stash\": [\"仓管台 / 仓库\", \"从个人仓库带入下一份合同\"],"
  ],
  "从撤离信标撤离": [
-  "ui/tutorial_card.gd:37",
+  "ui/tutorial_card.gd:39",
   "[\"extract\", \"撤离\", \"第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。\", \"从撤离信标撤离\", \"field\"],"
  ],
  "从膝盖缠到脚踝，冻原的老规矩。": [
@@ -1387,6 +1395,10 @@
   "game/game_manager.gd:2968",
   "if not quiet: set_message(\"仓库已满（%d/%d）：%s 留在身上。\" % [base.shelf_count(), base.capacity(), item.item_name])"
  ],
+ "仓库里存放着带回的物品。右键装备直接穿上，右键药剂放进背包；也可以把物品拖到人偶、背包或安全袋里。": [
+  "ui/tutorial_spotlight.gd:62",
+  "\"loadout_depot\": [\"仓库\", \"仓库里存放着带回的物品。右键装备直接穿上，右键药剂放进背包；也可以把物品拖到人偶、背包或安全袋里。\", 0.0],"
+ ],
  "仓管台": [
   "ui/base_hud.gd:16",
   "[\"调度台\", \"contracts\", Color(\"ffffff\")], [\"整备台\", \"loadout\", Color(\"0098dc\")], [\"仓管台\", \"stash\", Color(\"0098dc\")],"
@@ -1396,7 +1408,7 @@
   "\"stash\": [\"仓管台 / 仓库\", \"从个人仓库带入下一份合同\"],"
  ],
  "仓管台管理仓库。所有物品共用仓库容量，一格放一件装备或一组材料；仓储部升级会提高容量和材料的单格堆叠数量。点击物品带入背包，拖动背包里的物品即可存回。": [
-  "ui/tutorial_spotlight.gd:64",
+  "ui/tutorial_spotlight.gd:68",
   "\"base_stash\": [\"仓管台\", \"仓管台管理仓库。所有物品共用仓库容量，一格放一件装备或一组材料；仓储部升级会提高容量和材料的单格堆叠数量。点击物品带入背包，拖动背包里的物品即可存回。\", 60.0],"
  ],
  "仓管台：仓库": [
@@ -1816,11 +1828,11 @@
   "Trigger.EMBER: \"余烬：技能命中使敌人灼烧 4 秒，每 0.5 秒受到 10% 法术攻击力的法术伤害\","
  ],
  "作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。": [
-  "ui/tutorial_card.gd:25",
+  "ui/tutorial_card.gd:27",
   "[\"search\", \"搜索\", \"作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。\", \"搜索一个容器\", \"field\"],"
  ],
  "作战地图": [
-  "ui/tutorial_card.gd:33",
+  "ui/tutorial_card.gd:35",
   "[\"map\", \"作战地图\", \"地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。\", \"打开地图\", \"field\"],"
  ],
  "作战记录": [
@@ -1860,7 +1872,7 @@
   "var use := AK.button(\"使用\", \"blue\", 12)"
  ],
  "使用中": [
-  "ui/system_screens.gd:125",
+  "ui/system_screens.gd:129",
   "var side := AK.button(\"使用中\" if busy else ((\"确认\" if _deleting == i else \"删除\") if used else \"新存档\"), \"plain\" if used else \"green\", 12)"
  ],
  "侧边一道白线，站岗时最显眼。": [
@@ -2057,7 +2069,7 @@
  ],
  "全屏": [
   "ui/base_screens.gd:822",
-  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"], [\"gpu\"]]"
  ],
  "全新装置": [
   "game/base_catalog.gd:69",
@@ -2076,11 +2088,11 @@
   "const PICKUP_FILTER_NAMES := [\"全部\", \"精良以上\", \"稀有以上\"]"
  ],
  "全部投保": [
-  "ui/loadout_screens.gd:503",
+  "ui/loadout_screens.gd:505",
   "var all := AK.go_button(\"全部投保\", \"INSURE ALL\", \"blue\", 18)"
  ],
  "全部投保需": [
-  "ui/loadout_screens.gd:499",
+  "ui/loadout_screens.gd:501",
   "var rows := [[\"已投保\", str(insured)], [\"未投保\", str(pieces.size() - insured)], [\"全部投保需\", Economy.format(due)]]"
  ],
  "全部拿取": [
@@ -2113,7 +2125,7 @@
  ],
  "关": [
   "ui/base_screens.gd:822",
-  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"], [\"gpu\"]]"
  ],
  "关系 +": [
   "ui/sand_table_screen.gd:164",
@@ -2208,7 +2220,7 @@
   "\"舰载麦\": {\"star\": 1, \"kind\": \"base\", \"source\": \"farm\", \"value\": 2, \"text\": \"农业部水培槽里长的麦子，舰上每顿饭的底料。\"},"
  ],
  "农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。": [
-  "ui/tutorial_spotlight.gd:80",
+  "ui/tutorial_spotlight.gd:84",
   "\"base_farm\": [\"农业部\", \"农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。\", 60.0],"
  ],
  "农业部终端": [
@@ -2436,7 +2448,7 @@
   "_p(\"murderous\", 2, W, \"凶残的\", \"Murderous\", {\"atk_pct\": 0.04, \"aspd\": 5.0, \"crit\": 0.02})"
  ],
  "出击的地方：在这里选择地区和合同，确认出发准备后即可出击。": [
-  "ui/tutorial_spotlight.gd:63",
+  "ui/tutorial_spotlight.gd:67",
   "\"base_departure\": [\"调度台\", \"出击的地方：在这里选择地区和合同，确认出发准备后即可出击。\", 60.0],"
  ],
  "出发": [
@@ -2448,15 +2460,19 @@
   "\"supply\": [\"战地补给\", \"L\", \"出发 +2 瓶标准急救剂\"],"
  ],
  "出发准备": [
-  "ui/loadout_screens.gd:516",
+  "ui/loadout_screens.gd:518",
   "var stage := BaseScreens.shell(menu, \"出发准备\", \"SQUAD\", [], 0, Callable(), AK.REGION_CODE.get(region, \"\"))"
  ],
  "出发前为装备投保。罗德岛制式装备合同结束时会收回，无需投保。": [
-  "ui/tutorial_spotlight.gd:90",
+  "ui/tutorial_spotlight.gd:94",
   "[\"logistics\", \"后勤柜台\", \"出发前为装备投保。罗德岛制式装备合同结束时会收回，无需投保。\"]]"
  ],
+ "出发前先到整备台备好装备：仓库里的装备可以直接穿上，缺的部位可以在制式页免费领取罗德岛制式装备。": [
+  "ui/tutorial_card.gd:23",
+  "[\"outfit\", \"整备\", \"出发前先到整备台备好装备：仓库里的装备可以直接穿上，缺的部位可以在制式页免费领取罗德岛制式装备。\", \"在整备台穿上一件装备\", \"base\"],"
+ ],
  "出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。罗德岛制式装备合同结束时会收回，无需投保。": [
-  "ui/tutorial_spotlight.gd:62",
+  "ui/tutorial_spotlight.gd:66",
   "\"base_insurance\": [\"后勤柜台\", \"出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。罗德岛制式装备合同结束时会收回，无需投保。\", 60.0],"
  ],
  "出售": [
@@ -2484,7 +2500,7 @@
   "text(body, \"出战准备 / 投保\", 18)"
  ],
  "出战干员": [
-  "ui/system_screens.gd:409",
+  "ui/system_screens.gd:414",
   "var names: Array = [\"出战干员\"]"
  ],
  "出拳够快的人，刀只需要很短。": [
@@ -2552,7 +2568,7 @@
   "\"hunt\": return \"击破悬赏目标 · %s\" % AK.floor_code(region, start_floor + int(contract.offset))"
  ],
  "击败一个敌人": [
-  "ui/tutorial_card.gd:23",
+  "ui/tutorial_card.gd:25",
   "[\"kill\", \"接敌\", \"已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。\", \"击败一个敌人\", \"field\"],"
  ],
  "击退与拉拽的距离也减半。": [
@@ -2672,7 +2688,7 @@
   "\"implicit\": [[ItemModifier.Stat.CRIT_DMG, 0.1]], \"req\": \"tec\", \"text\": \"划掉的比没划掉的多。\"},"
  ],
  "创建桌面快捷方式": [
-  "ui/base_screens.gd:892",
+  "ui/base_screens.gd:897",
   "var links := AK.button(\"创建桌面快捷方式\", \"plain\", 13)"
  ],
  "初级作战记录": [
@@ -2734,6 +2750,10 @@
  "制式短刀": [
   "game/gear_catalog.gd:75",
   "\"mine_shortblade\": {\"name\": \"制式短刀\", \"region\": \"mine\", \"category\": W, \"tier\": 0, \"factor\": 0.95, \"implicit\": [[S.ATTACK_SPEED_PCT, 0.05]],"
+ ],
+ "制式选择": [
+  "ui/tutorial_spotlight.gd:64",
+  "\"loadout_issue\": [\"制式选择\", \"每个部位列出可选的罗德岛制式装备，点击即可换上；补齐空槽会给所有空着的部位各配一件，交还制式则全部收回。\", 0.0],"
  ],
  "制式防暴用具": [
   "game/relic_catalog.gd:77",
@@ -2856,7 +2876,7 @@
   "var left := AK.label(\"剩余 %d 次\" % int(r.projects()[project]) if r.projects().has(project) else \"\", 13, AK.SP)"
  ],
  "副键": [
-  "ui/base_screens.gd:912",
+  "ui/base_screens.gd:917",
   "AK.put(stage, AK.label(\"副键\", 11, AK.MUTE), Vector2(334 + col * 470 + 342, 54))"
  ],
  "劈冰": [
@@ -2924,7 +2944,7 @@
   "[\"可露希尔的商店\", \"store\", Color(\"8fc31f\")], [\"交易所\", \"exchange\", Color(\"c48cff\")], [\"加工站\", \"workshop\", Color(\"e0782a\")],"
  ],
  "加工站用材料和龙门币加工成品，按现实时间计时，完成后直接入库。": [
-  "ui/tutorial_spotlight.gd:73",
+  "ui/tutorial_spotlight.gd:77",
   "\"base_workshop\": [\"加工站\", \"加工站用材料和龙门币加工成品，按现实时间计时，完成后直接入库。\", 60.0],"
  ],
  "加工部": [
@@ -3068,7 +3088,7 @@
   "\"report\": [\"医疗前台 / 回收报告与治疗\", \"上一份合同的回收明细，以及重伤治疗\"],"
  ],
  "医疗前台会给出上一份合同的回收报告。倒下的干员带有重伤、生命上限降低，在这里支付龙门币治疗。": [
-  "ui/tutorial_spotlight.gd:69",
+  "ui/tutorial_spotlight.gd:73",
   "\"base_report\": [\"医疗前台\", \"医疗前台会给出上一份合同的回收报告。倒下的干员带有重伤、生命上限降低，在这里支付龙门币治疗。\", 60.0],"
  ],
  "医疗前台：回收报告与治疗": [
@@ -3136,7 +3156,7 @@
   "AK.put(panel, AK.label(\"升降梯\", 24, AK.FG), Vector2(28, 34))"
  ],
  "升降梯连接舰桥大厅与二层，二层是农业部和食堂。": [
-  "ui/tutorial_spotlight.gd:79",
+  "ui/tutorial_spotlight.gd:83",
   "\"base_lift\": [\"升降梯\", \"升降梯连接舰桥大厅与二层，二层是农业部和食堂。\", 56.0],"
  ],
  "协同训练": [
@@ -3180,7 +3200,7 @@
   "\"form\": \"blade\", \"icon\": \"expedition_machete\", \"text\": \"南边城市造的刀，走到这里已经不像南边的了。\"},"
  ],
  "博士": [
-  "ui/system_screens.gd:412",
+  "ui/system_screens.gd:417",
   "names.append(\"博士\")"
  ],
  "博士，二层的农业舱修好了！大家说想吃点热的……": [
@@ -3676,7 +3696,7 @@
   "[\"可露希尔的商店\", \"store\", Color(\"8fc31f\")], [\"交易所\", \"exchange\", Color(\"c48cff\")], [\"加工站\", \"workshop\", Color(\"e0782a\")],"
  ],
  "可露希尔的商店用赤金出售特供药剂，每小时补货。这里还可以出售赤金、换汇、贷款，以及购买减缓地图特色的随队物资。": [
-  "ui/tutorial_spotlight.gd:71",
+  "ui/tutorial_spotlight.gd:75",
   "\"base_store\": [\"可露希尔的商店\", \"可露希尔的商店用赤金出售特供药剂，每小时补货。这里还可以出售赤金、换汇、贷款，以及购买减缓地图特色的随队物资。\", 60.0],"
  ],
  "史诗": [
@@ -3684,7 +3704,7 @@
   "const RARITY_NAMES := [\"普通\", \"优秀\", \"精良\", \"稀有\", \"史诗\", \"传说\"]"
  ],
  "右侧是这份合同的详情：地区、掉落和合同目标。选好一项目标后点击最终准备，确认干员与装备即可出击。完成目标并撤离可以获得对应的龙门币报酬。": [
-  "ui/tutorial_spotlight.gd:66",
+  "ui/tutorial_spotlight.gd:70",
   "\"dispatch_contract\": [\"合同委托\", \"右侧是这份合同的详情：地区、掉落和合同目标。选好一项目标后点击最终准备，确认干员与装备即可出击。完成目标并撤离可以获得对应的龙门币报酬。\", 0.0],"
  ],
  "右键": [
@@ -3700,7 +3720,7 @@
   "\"X22\": {\"region\": \"泰拉\", \"kind\": \"announce\", \"hours\": 24, \"weight\": 1, \"title\": \"各国协调源石运输标准\", \"effects\": [{\"sel\": \"*:originium\", \"spread\": 0.85}, {\"sel\": \"*:contraband\", \"mult\": 0.9}]},"
  ],
  "各部门把需要的物资写成订单挂在这里。交付货架或背包里的物品完成订单，就能获得龙门币；也可以把物品直接卖给可露希尔。": [
-  "ui/tutorial_spotlight.gd:68",
+  "ui/tutorial_spotlight.gd:72",
   "\"base_outbound\": [\"出库区\", \"各部门把需要的物资写成订单挂在这里。交付货架或背包里的物品完成订单，就能获得龙门币；也可以把物品直接卖给可露希尔。\", 60.0],"
  ],
  "合同": [
@@ -3724,7 +3744,7 @@
   "\"field_1\": [\"合同中介网\", 1, \"offer_slot\", \"合同可选 3 → 4\", [], {}],"
  ],
  "合同委托": [
-  "ui/tutorial_card.gd:22",
+  "ui/tutorial_card.gd:24",
   "[\"contract\", \"合同委托\", \"调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。\", \"调度台接合同出击\", \"base\"],"
  ],
  "合同开始：": [
@@ -3752,7 +3772,7 @@
   "broadcast(\"合同目标：%s。\" % FieldCatalog.contract_goal(contract, region_id, start_floor))"
  ],
  "合同面板显示本次合同的目标进度，以及基地各部门的订单需求。": [
-  "ui/tutorial_card.gd:32",
+  "ui/tutorial_card.gd:34",
   "[\"journal\", \"合同目标\", \"合同面板显示本次合同的目标进度，以及基地各部门的订单需求。\", \"打开合同面板\", \"field\"],"
  ],
  "合成": [
@@ -3772,7 +3792,7 @@
   "_say(\"合约违约：%s，保证金没收，关系下降\" % FactionCatalog.name_of(faction), \"default\")"
  ],
  "合计": [
-  "ui/loadout_screens.gd:498",
+  "ui/loadout_screens.gd:500",
   "AK.put(stage, AK.section(\"合计\", \"SUMMARY\"), Vector2(868, TOP + 14))"
  ],
  "同意随博士返回罗德岛。撤离后完成入职。": [
@@ -4152,7 +4172,7 @@
   "\"log_fuel\": {\"dept\": \"后勤部\", \"count\": 10, \"material\": \"固体燃料\", \"mult\": 1.5, \"weight\": 2},"
  ],
  "固定": [
-  "ui/base_screens.gd:936",
+  "ui/base_screens.gd:941",
   "AK.put(stage, AK.label(\"固定\", 13, AK.SP), Vector2(804, fy + 4))"
  ],
  "固源岩": [
@@ -4248,7 +4268,7 @@
   "\"icon\": \"mine_x18\", \"text\": \"在矿里，它买不到任何东西。\"},"
  ],
  "在背包里右键一件装备即可穿上，也可以拖到左侧人偶的格子上；右键已穿的装备会卸回背包。属性需求不足的装备无法穿戴。": [
-  "ui/tutorial_card.gd:28",
+  "ui/tutorial_card.gd:30",
   "[\"equip\", \"换装\", \"在背包里右键一件装备即可穿上，也可以拖到左侧人偶的格子上；右键已穿的装备会卸回背包。属性需求不足的装备无法穿戴。\", \"穿上一件装备\", \"field\"],"
  ],
  "地图": [
@@ -4256,7 +4276,7 @@
   "[\"toggle_map\", \"地图\", \"界面\", {\"key\": KEY_M}, null],"
  ],
  "地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。": [
-  "ui/tutorial_card.gd:33",
+  "ui/tutorial_card.gd:35",
   "[\"map\", \"作战地图\", \"地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。\", \"打开地图\", \"field\"],"
  ],
  "地图特色累计 −10%": [
@@ -4272,7 +4292,7 @@
   "\"intel_6\": [\"地层回波测绘\", 6, \"vault_map\", \"密室范围上小地图\", [\"intel_5\", \"personnel_3\"], {}],"
  ],
  "地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。": [
-  "ui/tutorial_card.gd:26",
+  "ui/tutorial_card.gd:28",
   "[\"pickup\", \"物资回收\", \"地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。\", \"拾取一件物品\", \"field\"],"
  ],
  "场地里布置有干扰地雷。站在旁边按交互键布雷，敌人踏入时会被炸伤，之后一段时间受到的伤害提高。每个只能用一次。": [
@@ -4361,7 +4381,7 @@
  ],
  "垂直同步": [
   "ui/base_screens.gd:822",
-  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"], [\"gpu\"]]"
  ],
  "型号停产很多年了，刃口没停过。": [
   "game/gear_catalog.gd:163",
@@ -4392,7 +4412,7 @@
   "const SETTING_TABS := [\"画面\", \"界面\", \"音频\", \"基地\"]"
  ],
  "基地形象": [
-  "ui/system_screens.gd:419",
+  "ui/system_screens.gd:424",
   "row.add_child(AK.label(\"基地形象\", 14, AK.FG))"
  ],
  "基建": [
@@ -4404,7 +4424,7 @@
   "\"hub\": {\"name\": \"基建总控台\", \"start\": 0, \"levels\": ["
  ],
  "基建总控台需要先建成。之后，每个设施接入总控台，就能在这里远程查看和购买它的升级。": [
-  "ui/tutorial_spotlight.gd:77",
+  "ui/tutorial_spotlight.gd:81",
   "\"base_hub\": [\"基建总控台\", \"基建总控台需要先建成。之后，每个设施接入总控台，就能在这里远程查看和购买它的升级。\", 64.0],"
  ],
  "基建材料": [
@@ -4424,7 +4444,7 @@
   "{\"price\": 84000, \"materials\": {\"碳\": 9, \"螺栓\": 18, \"基础加固建材\": 3}, \"opens\": \"仓库 220 格 · 单格堆叠 ×3\"},"
  ],
  "基础操作确认完毕。PRTS 将持续为您提供支援，博士。": [
-  "ui/tutorial_card.gd:41",
+  "ui/tutorial_card.gd:43",
   "const DONE_TEXT := \"基础操作确认完毕。PRTS 将持续为您提供支援，博士。\""
  ],
  "基础研究": [
@@ -4656,7 +4676,7 @@
   "const TIER_NAMES := {\"contamination\": [\"无\", \"中度\", \"重度\"], \"debt\": [\"无\", \"仇家\", \"清算\"], \"cold\": [\"无\", \"失温\", \"冻僵\"]}"
  ],
  "头": [
-  "ui/loadout_screens.gd:210",
+  "ui/loadout_screens.gd:212",
   "const DEPOT_TABS := [\"全部\", \"武器\", \"头\", \"胸\", \"手\", \"腿\", \"脚\", \"项链\", \"戒指\", \"药剂\"]"
  ],
  "头戴矿灯": [
@@ -4736,7 +4756,7 @@
   "button(row, \"存回仓库\", func(): game.store_item(item); _refresh())"
  ],
  "存档": [
-  "ui/system_screens.gd:111",
+  "ui/system_screens.gd:115",
   "var name := AK.label(\"存档 %d\" % (i + 1), 15, AK.FG)"
  ],
  "存档写入失败：当前会话仍可继续。": [
@@ -4824,7 +4844,7 @@
   "set_message(\"安全袋扩容到 %d×%d。\" % [safe_bag.width, safe_bag.height])"
  ],
  "安全袋由博士随身携带，即使行动失败，袋中的物品也会保留。在背包中 Ctrl + 左键点击物品放入，或按安全袋键放入最近拾取的物品。": [
-  "ui/tutorial_card.gd:29",
+  "ui/tutorial_card.gd:31",
   "[\"safe_bag\", \"安全袋\", \"安全袋由博士随身携带，即使行动失败，袋中的物品也会保留。在背包中 Ctrl + 左键点击物品放入，或按安全袋键放入最近拾取的物品。\", \"放入安全袋\", \"field\"],"
  ],
  "安全袋由博士随身携带，撤退时也会带回。": [
@@ -4844,7 +4864,7 @@
   "_p(\"perfect\", 2, T, \"完美的\", \"Perfect\", {\"arts_pct\": 0.08, \"crit_dmg\": 0.15, \"aspd\": 6.0, \"skill_pct\": 0.10}, {\"top\": true})"
  ],
  "定向重铸": [
-  "ui/loadout_screens.gd:435",
+  "ui/loadout_screens.gd:437",
   "AK.put(stage, AK.label(\"定向重铸\", 20, AK.FG), Vector2(880, y + 10))"
  ],
  "实时": [
@@ -5212,7 +5232,7 @@
   "set_message(\"进入第 %d 层 · %s；上一层已无法返回。\" % [floor_number, FieldCatalog.ROUTES[route].name])"
  ],
  "层会随机出现一个撤离点；第 10 层之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。": [
-  "ui/tutorial_spotlight.gd:67",
+  "ui/tutorial_spotlight.gd:71",
   "\"dispatch_floors\": [\"层数与撤离\", \"中间是本次行动的层数，每 10 层为一段。标黄的第 %d–%d 层会随机出现一个撤离点；第 10 层之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。\", 0.0],"
  ],
  "层数": [
@@ -5220,7 +5240,7 @@
   "_section(stage, \"层数\", \"FLOORS\", Vector2(248, TOP + 8))"
  ],
  "层数与撤离": [
-  "ui/tutorial_spotlight.gd:67",
+  "ui/tutorial_spotlight.gd:71",
   "\"dispatch_floors\": [\"层数与撤离\", \"中间是本次行动的层数，每 10 层为一段。标黄的第 %d–%d 层会随机出现一个撤离点；第 10 层之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。\", 0.0],"
  ],
  "层营地": [
@@ -5240,7 +5260,7 @@
   "\"icon\": \"city_x19\", \"text\": \"屏幕上还有信号，飞机不知道在哪。\"},"
  ],
  "屏幕下方是快捷栏：闪避、技能和药剂都在这里。左键点击一个格子可以更换其中的内容；最右侧的自动格放急救剂，生命过低时会自动饮用。": [
-  "ui/tutorial_card.gd:34",
+  "ui/tutorial_card.gd:36",
   "[\"hotbar\", \"快捷栏\", \"屏幕下方是快捷栏：闪避、技能和药剂都在这里。左键点击一个格子可以更换其中的内容；最右侧的自动格放急救剂，生命过低时会自动饮用。\", \"\", \"field\"],"
  ],
  "屏息": [
@@ -5332,7 +5352,7 @@
   "const FIXED := [[\"攻击 / 移动 / 拾取 / 选择\", \"左键\"], [\"安全袋\", \"Ctrl + 左键\"], [\"暂停\", \"Esc\"]]"
  ],
  "左键 /": [
-  "ui/tutorial_card.gd:319",
+  "ui/tutorial_card.gd:322",
   "\"pickup\": return \"左键 / %s\" % Keybinds.short_label(\"show_items\")"
  ],
  "巨型的": [
@@ -5436,7 +5456,7 @@
   "set_message(\"罗德岛小队：%s 已投保。\" % item.item_name)"
  ],
  "已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。": [
-  "ui/tutorial_card.gd:23",
+  "ui/tutorial_card.gd:25",
   "[\"kill\", \"接敌\", \"已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。\", \"击败一个敌人\", \"field\"],"
  ],
  "已拆开，物品已入库。": [
@@ -5608,15 +5628,15 @@
   "return \"可寻访 %d\" % ready if ready > 0 else \"干员名册\""
  ],
  "干员技能": [
-  "ui/tutorial_card.gd:24",
+  "ui/tutorial_card.gd:26",
   "[\"skill\", \"干员技能\", \"每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。\", \"施放一次技能\", \"field\"],"
  ],
  "干员档案": [
-  "ui/tutorial_card.gd:30",
+  "ui/tutorial_card.gd:32",
   "[\"operator\", \"干员档案\", \"干员档案里可以查看属性，并分配升级获得的属性点和技能点。\", \"打开干员面板\", \"field\"],"
  ],
  "干员档案里可以查看属性，并分配升级获得的属性点和技能点。": [
-  "ui/tutorial_card.gd:30",
+  "ui/tutorial_card.gd:32",
   "[\"operator\", \"干员档案\", \"干员档案里可以查看属性，并分配升级获得的属性点和技能点。\", \"打开干员面板\", \"field\"],"
  ],
  "干员正在污染区中暴露。污染达到 60 时生命上限降低、自然回复减半，90 时开始持续掉血。抑制喷剂、净化喷淋和营地都可以降低污染。": [
@@ -5749,7 +5769,7 @@
  ],
  "开": [
   "ui/base_screens.gd:822",
-  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"], [\"gpu\"]]"
  ],
  "开仓": [
   "ui/exchange_screen.gd:512",
@@ -5780,7 +5800,7 @@
   "set_message(\"加工部：%s ×%d 开始打包。\" % [pack, made])"
  ],
  "开始游戏": [
-  "ui/system_screens.gd:304",
+  "ui/system_screens.gd:308",
   "var start := AK.button(\"开始游戏\", \"blue\", 18)"
  ],
  "开始烹饪": [
@@ -5792,7 +5812,7 @@
   "var go := AK.button(\"开始研究\", \"blue\" if refusal.is_empty() else \"plain\", 15)"
  ],
  "开始行动": [
-  "ui/loadout_screens.gd:581",
+  "ui/loadout_screens.gd:583",
   "var go := AK.go_button(\"开始行动\", \"OPERATION START\")"
  ],
  "开局层，照地区基准": [
@@ -5832,7 +5852,7 @@
   "\"form\": \"bow\", \"icon\": \"sami_hunting_bow\", \"text\": \"弓是自己做的，弦是猎物给的。\"},"
  ],
  "引导完成": [
-  "ui/tutorial_card.gd:218",
+  "ui/tutorial_card.gd:220",
   "_title.text = \"引导完成\""
  ],
  "张口": [
@@ -6092,7 +6112,7 @@
   "ExchangeScreen._number(stage, \"总花费\", budget, 0, BUDGET_STEP, 0,"
  ],
  "恢复默认": [
-  "ui/base_screens.gd:907",
+  "ui/base_screens.gd:912",
   "var reset := AK.button(\"恢复默认\", \"plain\", 12)"
  ],
  "恶魔的": [
@@ -6504,7 +6524,7 @@
   "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"fx\": \"kill_barrier\", \"fx_text\": \"击杀时：获得 10% 生命上限的屏障 5 秒（刷新不叠加）\", \"req\": \"agi\", \"form\": \"fist\", \"text\": \"扇面是纸，扇骨不是。\"},"
  ],
  "手": [
-  "ui/loadout_screens.gd:210",
+  "ui/loadout_screens.gd:212",
   "const DEPOT_TABS := [\"全部\", \"武器\", \"头\", \"胸\", \"手\", \"腿\", \"脚\", \"项链\", \"戒指\", \"药剂\"]"
  ],
  "手持定位仪": [
@@ -6544,15 +6564,15 @@
   "_go(right, (\"打包 ×%d\" % int(manual.packs)) if by_hand.is_empty() else by_hand, by_hand.is_empty(), func():"
  ],
  "打开合同面板": [
-  "ui/tutorial_card.gd:32",
+  "ui/tutorial_card.gd:34",
   "[\"journal\", \"合同目标\", \"合同面板显示本次合同的目标进度，以及基地各部门的订单需求。\", \"打开合同面板\", \"field\"],"
  ],
  "打开地图": [
-  "ui/tutorial_card.gd:33",
+  "ui/tutorial_card.gd:35",
   "[\"map\", \"作战地图\", \"地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。\", \"打开地图\", \"field\"],"
  ],
  "打开干员面板": [
-  "ui/tutorial_card.gd:30",
+  "ui/tutorial_card.gd:32",
   "[\"operator\", \"干员档案\", \"干员档案里可以查看属性，并分配升级获得的属性点和技能点。\", \"打开干员面板\", \"field\"],"
  ],
  "打开终端": [
@@ -6560,11 +6580,11 @@
   "var open := AK.button(\"打开终端\", \"blue\", 13)"
  ],
  "打开背包": [
-  "ui/tutorial_card.gd:27",
+  "ui/tutorial_card.gd:29",
   "[\"inventory\", \"携带物品\", \"物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。\", \"打开背包\", \"field\"],"
  ],
  "打开藏品面板": [
-  "ui/tutorial_card.gd:31",
+  "ui/tutorial_card.gd:33",
   "[\"relics\", \"藏品\", \"本次行动获得的藏品都记录在这里，点击即可查看效果；图鉴页收录全部藏品。\", \"打开藏品面板\", \"field\"],"
  ],
  "托运": [
@@ -7008,7 +7028,7 @@
   "set_message(\"拾取 %s ×%d\" % [item.display_name(), before])"
  ],
  "拾取一件物品": [
-  "ui/tutorial_card.gd:26",
+  "ui/tutorial_card.gd:28",
   "[\"pickup\", \"物资回收\", \"地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。\", \"拾取一件物品\", \"field\"],"
  ],
  "拾取过滤：": [
@@ -7088,7 +7108,7 @@
   "\"form\": \"blade\", \"icon\": \"switchblade\", \"text\": \"按一下就弹出来，像一句收不回去的话。\"},"
  ],
  "按下按键…": [
-  "ui/base_screens.gd:929",
+  "ui/base_screens.gd:934",
   "var text := \"按下按键…\" if waiting else Keybinds.label(binds[f[0]][which])"
  ],
  "按价值封装的一箱武器，加了封条，拆不开。": [
@@ -7164,7 +7184,7 @@
   "const WORKBENCH_TABS := [\"换装\", \"改造\", \"制式\"]"
  ],
  "换装、改造装备，免费领取罗德岛制式装备。": [
-  "ui/tutorial_spotlight.gd:89",
+  "ui/tutorial_spotlight.gd:93",
   "const DEPARTURE := [[\"dispatch\"], [\"workbench\", \"整备台\", \"换装、改造装备，免费领取罗德岛制式装备。\"],"
  ],
  "换装空间不足，物品均已保留。": [
@@ -7240,7 +7260,7 @@
   "_p(\"grounded\", 0, A + T, \"接地的\", \"Grounded\", {\"res_nerve\": 6.0}, {\"region\": \"siracusa\"})"
  ],
  "接敌": [
-  "ui/tutorial_card.gd:23",
+  "ui/tutorial_card.gd:25",
   "[\"kill\", \"接敌\", \"已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。\", \"击败一个敌人\", \"field\"],"
  ],
  "推土肩甲": [
@@ -7300,7 +7320,7 @@
   "const CONTRACT_NAMES := {\"deep\": \"深入\", \"recover\": \"回收\", \"hunt\": \"猎杀\", \"search\": \"搜索\", \"recruit\": \"寻访\", \"deliver\": \"运送\"}"
  ],
  "搜索一个容器": [
-  "ui/tutorial_card.gd:25",
+  "ui/tutorial_card.gd:27",
   "[\"search\", \"搜索\", \"作业区域内有可以搜索的箱柜。靠近后按交互键打开，点击或拖动即可取出其中的物品。\", \"搜索一个容器\", \"field\"],"
  ],
  "搜索仓库（名称或词缀，如“攻击力”“稀有”）": [
@@ -7316,7 +7336,7 @@
   "Stat.KILL_HEAL: \"击杀回复 %s 最大生命\", Stat.ORE_ATK: \"携带源石原矿时，伤害 %s\","
  ],
  "携带物品": [
-  "ui/tutorial_card.gd:27",
+  "ui/tutorial_card.gd:29",
   "[\"inventory\", \"携带物品\", \"物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。\", \"打开背包\", \"field\"],"
  ],
  "摇一下，沙子就开始唱。": [
@@ -7600,7 +7620,7 @@
   "game.notice(\"放不下：位置被占用或超出边界。\")"
  ],
  "放入安全袋": [
-  "ui/tutorial_card.gd:29",
+  "ui/tutorial_card.gd:31",
   "[\"safe_bag\", \"安全袋\", \"安全袋由博士随身携带，即使行动失败，袋中的物品也会保留。在背包中 Ctrl + 左键点击物品放入，或按安全袋键放入最近拾取的物品。\", \"放入安全袋\", \"field\"],"
  ],
  "放在背包里即生效：受到致命伤害时保留 1 点生命并回复生命上限的 25%；每份合同 1 次，之后 30 秒生命回复停止": [
@@ -7784,7 +7804,7 @@
   "\"loadout\": [\"整备台 / 装备\", \"装备、卸下或存回仓库\"],"
  ],
  "整备台用于换装、改造和领取制式装备。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀；制式页可以免费领取罗德岛制式装备，合同结束时收回。": [
-  "ui/tutorial_spotlight.gd:61",
+  "ui/tutorial_spotlight.gd:65",
   "\"base_loadout\": [\"整备台\", \"整备台用于换装、改造和领取制式装备。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀；制式页可以免费领取罗德岛制式装备，合同结束时收回。\", 60.0],"
  ],
  "整备台：装备": [
@@ -7832,7 +7852,7 @@
   "\"mine_pickaxe\": {\"name\": \"断镐战斧\", \"region\": \"mine\", \"category\": W, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.ATK_PCT, 0.04], [S.MOVE_SPEED_PCT, -0.04]],"
  ],
  "新存档": [
-  "ui/system_screens.gd:125",
+  "ui/system_screens.gd:129",
   "var side := AK.button(\"使用中\" if busy else ((\"确认\" if _deleting == i else \"删除\") if used else \"新存档\"), \"plain\" if used else \"green\", 12)"
  ],
  "新手引导": [
@@ -7872,11 +7892,11 @@
   "var headline := {\"t\": t, \"id\": \"omen\", \"kind\": \"rumor\", \"title\": \"传闻：%s方面有异动\" % str(MarketEvents.EVENTS[swan.id].region), \"region\": MarketEvents.EVENTS[swan.id].region, \"cred\": \"低\", \"status\": \"\", \"unr"
  ],
  "施工点": [
-  "ui/tutorial_spotlight.gd:78",
+  "ui/tutorial_spotlight.gd:82",
   "\"base_build_site\": [\"施工点\", \"这里是尚未建成的设施。按交互键查看建造需要的龙门币和材料；没有接入总控台的设施也可以在现场升级。\", 64.0],"
  ],
  "施放一次技能": [
-  "ui/tutorial_card.gd:24",
+  "ui/tutorial_card.gd:26",
   "[\"skill\", \"干员技能\", \"每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。\", \"施放一次技能\", \"field\"],"
  ],
  "施术短刃": [
@@ -8030,6 +8050,10 @@
  "星熊": [
   "game/operators.gd:34",
   "\"hoshiguma\": {\"name\": \"星熊\", \"class\": \"重装\", \"branch\": \"DEFENDER · PROTECTOR\", \"stars\": 6,"
+ ],
+ "显卡": [
+  "ui/system_screens.gd:454",
+  "row.add_child(AK.label(\"显卡\", 14, AK.FG))"
  ],
  "显圣吊坠": [
   "game/relic_catalog.gd:73",
@@ -8272,7 +8296,7 @@
   "if not game.research.is_open(): return \"未建成\""
  ],
  "未投保": [
-  "ui/loadout_screens.gd:499",
+  "ui/loadout_screens.gd:501",
   "var rows := [[\"已投保\", str(insured)], [\"未投保\", str(pieces.size() - insured)], [\"全部投保需\", Economy.format(due)]]"
  ],
  "未接入": [
@@ -8340,7 +8364,7 @@
   "text(parent, \"本次藏品 / %d 件\" % game.builds.size(), 18, GOLD)"
  ],
  "本次行动获得的藏品都记录在这里，点击即可查看效果；图鉴页收录全部藏品。": [
-  "ui/tutorial_card.gd:31",
+  "ui/tutorial_card.gd:33",
   "[\"relics\", \"藏品\", \"本次行动获得的藏品都记录在这里，点击即可查看效果；图鉴页收录全部藏品。\", \"打开藏品面板\", \"field\"],"
  ],
  "术师": [
@@ -8380,7 +8404,7 @@
   "return \"材料不足\" if refusal.begins_with(\"缺少\") else refusal"
  ],
  "材料全部存回仓库": [
-  "ui/loadout_screens.gd:241",
+  "ui/loadout_screens.gd:243",
   "var all := AK.button(\"材料全部存回仓库\", \"plain\", 13)"
  ],
  "材料多，装备少": [
@@ -8580,11 +8604,11 @@
   "\"bg_eikthyrnir_0\": {\"name\": \"树痕战锤\", \"kind\": \"boss\", \"category\": Item.Category.WEAPON, \"size\": Vector2i(2, 1), \"power\": 2.0, \"region\": \"snow\", \"source_enemy\": \"eikthyrnir\","
  ],
  "校准": [
-  "ui/loadout_screens.gd:414",
+  "ui/loadout_screens.gd:416",
   "for entry in [[\"reforge\", \"重铸\", \"REFORGE\"], [\"calibrate\", \"校准\", \"CALIBRATE\"], [\"tune\", \"精调\", \"TUNE\"]]:"
  ],
  "桌面上已创建：罗德岛交易终端、罗德岛盯盘。": [
-  "ui/base_screens.gd:895",
+  "ui/base_screens.gd:900",
   "menu.game.set_message(\"桌面上已创建：罗德岛交易终端、罗德岛盯盘。\"))"
  ],
  "桦木巫杖": [
@@ -8791,6 +8815,10 @@
   "game/skill_trees.gd:161",
   "\"text\": \"每个区段一次：生命归零后 5 秒内生命不会低于 1。\"},"
  ],
+ "每个部位列出可选的罗德岛制式装备，点击即可换上；补齐空槽会给所有空着的部位各配一件，交还制式则全部收回。": [
+  "ui/tutorial_spotlight.gd:64",
+  "\"loadout_issue\": [\"制式选择\", \"每个部位列出可选的罗德岛制式装备，点击即可换上；补齐空槽会给所有空着的部位各配一件，交还制式则全部收回。\", 0.0],"
+ ],
  "每击杀一名精英，本合同攻速 +5（至多 15 层）": [
   "game/relic_catalog.gd:142",
   "_r(\"Friston.P\", \"tempo\", 1, \"每通过一场紧急作战，所有我方单位攻击速度永久+5（最多15层）\", \"每击杀一名精英，本合同攻速 +5（至多 15 层）\", {}, {\"elite_aspd_stack\": 5.0}),"
@@ -8808,7 +8836,7 @@
   "\"每十层之后是营地，营地里有固定撤离点。\","
  ],
  "每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。": [
-  "ui/tutorial_card.gd:24",
+  "ui/tutorial_card.gd:26",
   "[\"skill\", \"干员技能\", \"每名干员都有一个主动技能，冷却完毕后按技能键施放；快捷栏上的技能格会显示冷却进度。\", \"施放一次技能\", \"field\"],"
  ],
  "每对一个单位造成伤害就使自身攻击力+15%，最高+150%，5秒未造成伤害则清空": [
@@ -9020,7 +9048,7 @@
   "[\"人事部\", \"personnel\", Color(\"0098dc\")], [\"沙盘\", \"sand_table\", Color(\"5fd0d8\")], [\"科研部\", \"research\", Color(\"e0782a\")],"
  ],
  "沙盘上可以指挥罗德岛号航行到各地，开启医疗驻留提升当地关系，或者提交、装箱大宗订单。航行按现实时间进行。": [
-  "ui/tutorial_spotlight.gd:75",
+  "ui/tutorial_spotlight.gd:79",
   "\"base_sand_table\": [\"沙盘\", \"沙盘上可以指挥罗德岛号航行到各地，开启医疗驻留提升当地关系，或者提交、装箱大宗订单。航行按现实时间进行。\", 72.0],"
  ],
  "没收": [
@@ -9060,7 +9088,7 @@
   "button(body, \"治疗重伤（%s 龙门币）\" % Economy.format(game.injury_price(id)), func(): game.treat_injury(id); _refresh(), game.gold < game.injury_price(id))"
  ],
  "沿道路寻找深入入口，按交互键选择路线进入下一层。越往深处，敌人越强，收获也越好。": [
-  "ui/tutorial_card.gd:35",
+  "ui/tutorial_card.gd:37",
   "[\"descend\", \"深入\", \"沿道路寻找深入入口，按交互键选择路线进入下一层。越往深处，敌人越强，收获也越好。\", \"进入下一层\", \"field\"],"
  ],
  "法印的": [
@@ -9852,11 +9880,11 @@
   "{\"name\": \"物资作业面\", \"detail\": \"中危险 / 更多搜刮 / 更多守卫\", \"danger\": 0.0, \"reward\": 0.25},"
  ],
  "物资回收": [
-  "ui/tutorial_card.gd:26",
+  "ui/tutorial_card.gd:28",
   "[\"pickup\", \"物资回收\", \"地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。\", \"拾取一件物品\", \"field\"],"
  ],
  "物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。": [
-  "ui/tutorial_card.gd:27",
+  "ui/tutorial_card.gd:29",
   "[\"inventory\", \"携带物品\", \"物资已收入背包。打开背包可检查携带物品与装备；背包装满后将无法继续拾取。\", \"打开背包\", \"field\"],"
  ],
  "特别督察组": [
@@ -10644,11 +10672,11 @@
   "_p(\"exposed\", -1, A, \"破绽的\", \"Exposed\", {\"dmg_reduce\": -0.04})"
  ],
  "确定": [
-  "ui/system_screens.gd:400",
+  "ui/system_screens.gd:405",
   "var done := AK.button(\"确定\", \"blue\", 15)"
  ],
  "确认": [
-  "ui/system_screens.gd:125",
+  "ui/system_screens.gd:129",
   "var side := AK.button(\"使用中\" if busy else ((\"确认\" if _deleting == i else \"删除\") if used else \"新存档\"), \"plain\" if used else \"green\", 12)"
  ],
  "确认放弃": [
@@ -10748,7 +10776,7 @@
   "科研终端"
  ],
  "科研终端用龙门币和材料推进研究，按现实时间进行。研究可以带来各种长期加成，部分课题需要先完成前置研究。": [
-  "ui/tutorial_spotlight.gd:76",
+  "ui/tutorial_spotlight.gd:80",
   "\"base_research\": [\"科研部\", \"科研终端用龙门币和材料推进研究，按现实时间进行。研究可以带来各种长期加成，部分课题需要先完成前置研究。\", 60.0],"
  ],
  "科研部": [
@@ -10948,7 +10976,7 @@
   "notice(\"空间不足，物品留在原处；物品不能旋转。\")"
  ],
  "穿上一件装备": [
-  "ui/tutorial_card.gd:28",
+  "ui/tutorial_card.gd:30",
   "[\"equip\", \"换装\", \"在背包里右键一件装备即可穿上，也可以拖到左侧人偶的格子上；右键已穿的装备会卸回背包。属性需求不足的装备无法穿戴。\", \"穿上一件装备\", \"field\"],"
  ],
  "穿上它就不用跑了，反正也跑不动。": [
@@ -10989,11 +11017,11 @@
  ],
  "窗口": [
   "ui/base_screens.gd:822",
-  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"], [\"gpu\"]]"
  ],
  "窗口模式": [
   "ui/base_screens.gd:822",
-  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"]]"
+  "0: rows = [[\"窗口模式\", [\"窗口\", \"全屏\"], \"fullscreen\"], [\"垂直同步\", [\"关\", \"开\"], \"vsync\"], [\"gpu\"]]"
  ],
  "立体货架": [
   "game/research_catalog.gd:50",
@@ -11044,7 +11072,7 @@
   "\"text\": \"第 3 发大冰球溅射伤害 %s。\"},"
  ],
  "第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。": [
-  "ui/tutorial_card.gd:37",
+  "ui/tutorial_card.gd:39",
   "[\"extract\", \"撤离\", \"第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。\", \"从撤离信标撤离\", \"field\"],"
  ],
  "第一下是给城墙的。": [
@@ -11216,7 +11244,7 @@
   "\"elite\": {\"name\": \"精英重击\", \"attack\": \"重击\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.1, \"damage\": 1.0, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.65, \"recovery\": 0.3, \"elite\": true},"
  ],
  "精调": [
-  "ui/loadout_screens.gd:392",
+  "ui/loadout_screens.gd:394",
   "AK.put(stage, AK.section(\"精调\", \"%s · 改量装置×1\" % Economy.format(game.refresh_cost(\"tune\", pick))), Vector2(864, TOP + 14))"
  ],
  "精调工艺": [
@@ -11475,6 +11503,10 @@
   "game/game_manager.gd:2783",
   "return \"\" if missing.is_empty() else \"缺少 \" + \"、\".join(missing)"
  ],
+ "缺装备时，到制式页免费领取罗德岛制式装备：每个部位选一件，合同结束时收回，无需投保。": [
+  "ui/tutorial_spotlight.gd:63",
+  "\"loadout_issue_tab\": [\"罗德岛制式\", \"缺装备时，到制式页免费领取罗德岛制式装备：每个部位选一件，合同结束时收回，无需投保。\", 0.0],"
+ ],
  "缺货": [
   "ui/sand_table_screen.gd:188",
   "return \"缺货\" if why.begins_with(\"缺少\") else why"
@@ -11500,7 +11532,7 @@
   "clear(\"罗德岛 / 外勤合同\", \"龙门币 %s\" % Economy.format(game.gold))"
  ],
  "罗德岛 · 外勤": [
-  "ui/system_screens.gd:293",
+  "ui/system_screens.gd:297",
   "var name_cn := AK.label(\"罗德岛 · 外勤\", 22, AK.MUTE)"
  ],
  "罗德岛 · 第二层": [
@@ -11820,7 +11852,7 @@
   "{\"price\": 28000, \"materials\": {\"帆布\": 6, \"胶带\": 6}, \"opens\": \"背包扩容 10×8\"},"
  ],
  "胸": [
-  "ui/loadout_screens.gd:210",
+  "ui/loadout_screens.gd:212",
   "const DEPOT_TABS := [\"全部\", \"武器\", \"头\", \"胸\", \"手\", \"腿\", \"脚\", \"项链\", \"戒指\", \"药剂\"]"
  ],
  "胸口缝着矿场的编号。": [
@@ -11840,7 +11872,7 @@
   "_p(\"fragile\", -1, T, \"脆弱的\", \"Fragile\", {\"hp_pct\": -0.06})"
  ],
  "脚": [
-  "ui/loadout_screens.gd:210",
+  "ui/loadout_screens.gd:212",
   "const DEPOT_TABS := [\"全部\", \"武器\", \"头\", \"胸\", \"手\", \"腿\", \"脚\", \"项链\", \"戒指\", \"药剂\"]"
  ],
  "脚下施法": [
@@ -11864,7 +11896,7 @@
   "_p(\"rotten\", -2, A, \"腐朽的\", \"Rotten\", {\"res\": -7.0, \"hp_pct\": -0.04})"
  ],
  "腿": [
-  "ui/loadout_screens.gd:210",
+  "ui/loadout_screens.gd:212",
   "const DEPOT_TABS := [\"全部\", \"武器\", \"头\", \"胸\", \"手\", \"腿\", \"脚\", \"项链\", \"戒指\", \"药剂\"]"
  ],
  "腿部": [
@@ -12044,7 +12076,7 @@
   "\"lin_shelter\": {\"name\": \"荫庇\", \"type\": \"transmuter\", \"group\": \"surge\", \"tier\": 2, \"max\": 1,"
  ],
  "药剂": [
-  "ui/loadout_screens.gd:210",
+  "ui/loadout_screens.gd:212",
   "const DEPOT_TABS := [\"全部\", \"武器\", \"头\", \"胸\", \"手\", \"腿\", \"脚\", \"项链\", \"戒指\", \"药剂\"]"
  ],
  "药剂 · 换汇 · 贷款": [
@@ -12076,7 +12108,7 @@
   "\"logistics_c1\": [\"随身药包\", 3, \"\", \"药剂每格 +1\", [\"logistics_2\", \"medical_c1\"], {\"potion_stack\": 1.0}],"
  ],
  "药房出售标准急救剂和缓释凝胶。每份合同出发时还会免费配发 3 瓶急救剂。": [
-  "ui/tutorial_spotlight.gd:70",
+  "ui/tutorial_spotlight.gd:74",
   "\"base_pharmacy\": [\"药房窗口\", \"药房出售标准急救剂和缓释凝胶。每份合同出发时还会免费配发 3 瓶急救剂。\", 56.0],"
  ],
  "药房扩编": [
@@ -12392,7 +12424,7 @@
   "AK.put(stage, AK.label(\"行动结束\" if ok else \"行动失败\", 52, AK.FG if ok else AK.RED), Vector2(48, 76))"
  ],
  "行动开始": [
-  "ui/system_screens.gd:335",
+  "ui/system_screens.gd:339",
   "var title := AK.label(\"行动开始\", 34, AK.FG)"
  ],
  "行动确认": [
@@ -12452,7 +12484,7 @@
   "restock.add_child(AK.label(\"补货\", 12, mute))"
  ],
  "补齐空槽": [
-  "ui/loadout_screens.gd:296",
+  "ui/loadout_screens.gd:298",
   "var fill := AK.button(\"补齐空槽\", \"blue\", 14)"
  ],
  "衰朽的": [
@@ -12820,7 +12852,7 @@
   "\"诡运：诡意属性 ×2；每次换属性后的 3 秒内，攻击必定暴击\"]},"
  ],
  "语言 / Language": [
-  "ui/system_screens.gd:432",
+  "ui/system_screens.gd:437",
   "row.add_child(AK.label(\"语言 / Language\", 14, AK.FG))"
  ],
  "读不懂上面的字，但它好像读得懂你。": [
@@ -12864,11 +12896,11 @@
   "\"contracts\": [\"调度台 / 外勤合同\", \"选择地区接下合同 · 每 3 区段固定撤离\"],"
  ],
  "调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。": [
-  "ui/tutorial_card.gd:22",
+  "ui/tutorial_card.gd:24",
   "[\"contract\", \"合同委托\", \"调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。\", \"调度台接合同出击\", \"base\"],"
  ],
  "调度台接合同出击": [
-  "ui/tutorial_card.gd:22",
+  "ui/tutorial_card.gd:24",
   "[\"contract\", \"合同委托\", \"调度台已收到新的合同委托。请前往调度台按交互键，选择地区和合同，在出发准备里确认干员后即可出击。\", \"调度台接合同出击\", \"base\"],"
  ],
  "调度台：接单": [
@@ -13072,7 +13104,7 @@
   "\"icon\": \"rhodes_feet\", \"text\": \"走过的路比舰上任何人都远。\"},"
  ],
  "起点": [
-  "ui/loadout_screens.gd:540",
+  "ui/loadout_screens.gd:542",
   "var cells := [[\"起点\", game.camp_label(start) if start > 0 else AK.floor_code(region, 1), AK.GREEN if start > 0 else AK.FG],"
  ],
  "越挨打，越硬。": [
@@ -13112,7 +13144,7 @@
   "\"跨线\": [\"U7\", \"U13\", \"U19\", \"U21\", \"U6\", \"X7\", \"X2\", \"X18\", \"X25\", \"S20\", \"S5\", \"X21\", \"C25\", \"S3\", \"L33\", \"C16\", \"Z9\", \"V18\", \"L28\", \"L9\", \"K21\", \"Z26\", \"X9\", \"C8\", \"V15\", \"V13\", \"L4\", \"C11\", \"K2\", \"K"
  ],
  "跳过引导": [
-  "ui/tutorial_card.gd:124",
+  "ui/tutorial_card.gd:126",
   "var skip := AK.button(\"跳过引导\", \"ghost\", 11)"
  ],
  "踪迹": [
@@ -13140,7 +13172,7 @@
   "_p(\"restless\", 0, T, \"躁动的\", \"Restless\", {\"aspd\": 10.0, \"arts_pct\": -0.06})"
  ],
  "身上": [
-  "ui/loadout_screens.gd:341",
+  "ui/loadout_screens.gd:343",
   "var where := \"身上\" if game.player.equipped.values().has(it) else (\"仓库\" if game.stash.has(it) else \"背包\")"
  ],
  "身边一圈落剑，两段法术伤害各": [
@@ -13388,7 +13420,7 @@
   "\"icon\": \"inspector_armor\", \"text\": \"这身护甲的上一任主人，任期没满两年。\"},"
  ],
  "这里是尚未建成的设施。按交互键查看建造需要的龙门币和材料；没有接入总控台的设施也可以在现场升级。": [
-  "ui/tutorial_spotlight.gd:78",
+  "ui/tutorial_spotlight.gd:82",
   "\"base_build_site\": [\"施工点\", \"这里是尚未建成的设施。按交互键查看建造需要的龙门币和材料；没有接入总控台的设施也可以在现场升级。\", 64.0],"
  ],
  "这里有一份战斗缴获。按交互键打开，从中选择一件藏品。": [
@@ -13404,7 +13436,7 @@
   "broadcast(\"进入 %s · %s。\" % [AK.floor_code(region_id, floor_number), FieldCatalog.ROUTES[route].name])"
  ],
  "进入下一层": [
-  "ui/tutorial_card.gd:35",
+  "ui/tutorial_card.gd:37",
   "[\"descend\", \"深入\", \"沿道路寻找深入入口，按交互键选择路线进入下一层。越往深处，敌人越强，收获也越好。\", \"进入下一层\", \"field\"],"
  ],
  "进入每个区段时技能充能 +1": [
@@ -13604,7 +13636,7 @@
   "status = \"未发现\" if have == 0 else (\"可寻访\" if game.base.recruit_ready(id) else \"追踪中\")"
  ],
  "退出": [
-  "ui/system_screens.gd:312",
+  "ui/system_screens.gd:316",
   "var quit := AK.button(\"退出\", \"plain\", 15)"
  ],
  "送回": [
@@ -13808,7 +13840,7 @@
   "\"mine_head_4\": {\"name\": \"重装防爆头盔\", \"region\": \"mine\", \"category\": HEAD, \"tier\": 2, \"factor\": 1.15, \"implicit\": [[S.DEF_FLAT, 15.0], [S.RES_FLAT, 2.0], [S.MOVE_SPEED_PCT, -0.01]],"
  ],
  "重铸": [
-  "ui/loadout_screens.gd:414",
+  "ui/loadout_screens.gd:416",
   "for entry in [[\"reforge\", \"重铸\", \"REFORGE\"], [\"calibrate\", \"校准\", \"CALIBRATE\"], [\"tune\", \"精调\", \"TUNE\"]]:"
  ],
  "重铸 2 选 1": [
@@ -13820,7 +13852,7 @@
   "\"engineering_1\": [\"精密校具\", 1, \"refresh_fee\", \"重铸 · 校准 −15%\", [], {}],"
  ],
  "重铸结果": [
-  "ui/loadout_screens.gd:379",
+  "ui/loadout_screens.gd:381",
   "AK.put(stage, AK.section(\"重铸结果\", \"PICK ONE\"), Vector2(864, TOP + 14))"
  ],
  "重铸锁定 1 条前缀": [
@@ -13956,7 +13988,7 @@
   "_r(\"银餐叉\", \"wave\", 1, \"所有我方远程单位攻击力+25%\", \"技能伤害 +25%\", {\"wave_pct\": 0.25}),"
  ],
  "锁定": [
-  "ui/loadout_screens.gd:370",
+  "ui/loadout_screens.gd:372",
   "var lock := AK.button(\"%s 锁定 %s\" % [\"■\" if on else \"□\", str(PrefixCatalog.get_entry(str(pick.prefixes[i].id)).name)], \"blue\" if on else \"plain\", 12)"
  ],
  "锈蚀刀片": [
@@ -14584,7 +14616,7 @@
   "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], \"fx\": \"idle_strike\", \"fx_text\": \"空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力\", \"req\": \"arts\", \"text\": \"静下来的时候，它"
  ],
  "静音": [
-  "ui/system_screens.gd:387",
+  "ui/system_screens.gd:391",
   "mute.text = \"静音\""
  ],
  "静默喷剂": [
@@ -14632,7 +14664,7 @@
   "\"taoguang\": {\"name\": \"韬光\", \"type\": \"passive\", \"tier\": 1, \"max\": 5,"
  ],
  "音量": [
-  "ui/system_screens.gd:376",
+  "ui/system_screens.gd:380",
   "volume_row.add_child(AK.label(\"音量\", 14, AK.FG))"
  ],
  "音频": [
@@ -14704,7 +14736,7 @@
   "{\"price\": 56000, \"materials\": {\"家具零件\": 9, \"金属板\": 6, \"燃料罐\": 3}, \"opens\": \"食堂开放 · 舰内口粮 · 食堂便当\"},"
  ],
  "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。": [
-  "ui/tutorial_spotlight.gd:81",
+  "ui/tutorial_spotlight.gd:85",
   "\"base_canteen\": [\"食堂\", \"食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。\", 60.0],"
  ],
  "食堂终端": [

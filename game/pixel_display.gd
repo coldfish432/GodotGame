@@ -14,6 +14,11 @@ const RENDER_HEIGHT := 720
 @export var persist_sessions := true
 
 func _ready() -> void:
+	# A card picked in 设置 → 画面 → 显卡 (GpuChoice): before anything is built,
+	# the real game restarts once on it.
+	if get_tree().current_scene == self:
+		SystemScreens.load_settings()
+		if GpuChoice.apply_at_start(get_tree()): return
 	var world_viewport := SubViewport.new()
 	world_viewport.size = Vector2i(RENDER_WIDTH, RENDER_HEIGHT)
 	world_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS

@@ -58,6 +58,10 @@ const TIPS := {
 	"death": ["撤退", "干员倒下，罗德岛小队已接回博士。安全袋里的物品全部保留；身上和背包里没有投保的物品遗失；投保的装备会在 2 到 4 小时后由罗德岛小队送回仓库。倒下的干员带着重伤，可在医疗前台治疗。", 0.0],
 	"insured_back": ["投保送回", "罗德岛小队找回了投保的装备，已送回仓库。保险随之用掉，需要的话请在后勤柜台重新投保。", 0.0],
 	# --- 基地设施（第一次走到旁边） ---
+	# 用户 2026-10-24: 进入整备台后介绍仓库和制式选择.
+	"loadout_depot": ["仓库", "仓库里存放着带回的物品。右键装备直接穿上，右键药剂放进背包；也可以把物品拖到人偶、背包或安全袋里。", 0.0],
+	"loadout_issue_tab": ["罗德岛制式", "缺装备时，到制式页免费领取罗德岛制式装备：每个部位选一件，合同结束时收回，无需投保。", 0.0],
+	"loadout_issue": ["制式选择", "每个部位列出可选的罗德岛制式装备，点击即可换上；补齐空槽会给所有空着的部位各配一件，交还制式则全部收回。", 0.0],
 	"base_loadout": ["整备台", "整备台用于换装、改造和领取制式装备。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀；制式页可以免费领取罗德岛制式装备，合同结束时收回。", 60.0],
 	"base_insurance": ["后勤柜台", "出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。罗德岛制式装备合同结束时会收回，无需投保。", 60.0],
 	"base_departure": ["调度台", "出击的地方：在这里选择地区和合同，确认出发准备后即可出击。", 60.0],
@@ -209,11 +213,25 @@ func dismiss() -> void:
 	if _owns_modal and game.modal == "tutorial": game.close_modal()
 	_owns_modal = false
 
+## The workbench's depot column (LoadoutScreens._change) and its 制式 page's
+## choices (LoadoutScreens._issue), in screen pixels.
+const BENCH_DEPOT := Rect2(392, 76, 440, 608)
+const BENCH_ISSUE := Rect2(392, 76, 440, 608)
+
 ## A base screen opened (GameManager.open_station): its card, the first time.
+## The workbench's come in two, the depot and then the 制式 tab (a tab button,
+## found when its card comes up); its 制式 page has one more the first time.
 func screen_opened(kind: String) -> void:
 	if kind == "contracts":
 		request("dispatch_contract", DISPATCH_CONTRACT)
 		request("dispatch_floors", DISPATCH_FLOORS)
+		return
+	if kind == "loadout":
+		request("loadout_depot", BENCH_DEPOT)
+		request("loadout_issue_tab", "button:制式")
+		return
+	if kind == "loadout_issue":
+		request("loadout_issue", BENCH_ISSUE)
 		return
 	request("base_" + kind)
 
@@ -230,6 +248,14 @@ func _show_departure() -> void:
 	if not "base_insurance" in list: list.append("base_insurance")
 	SystemScreens.set_setting("tutorial_seen", list)
 	show_tip("base_departure", (main.position as Vector3) + Vector3.UP * 0.6, more)
+
+## The visible menu button reading `text` (its own text, before translation), or null.
+func _button_rect(text: String) -> Variant:
+	if not is_instance_valid(game.menu): return null
+	for node in game.menu.find_children("*", "Button", true, false):
+		var b := node as Button
+		if b.is_visible_in_tree() and b.text == text: return b.get_global_rect()
+	return null
 
 ## Esc on a tip: it closes (GameManager.go_back asks here first).
 func go_back() -> bool:
@@ -270,7 +296,7 @@ func _process(delta: float) -> void:
 		var q: Array = _queue[i]
 		# A tip with no ring, or a screen box, goes over any screen; one round
 		# a world point waits for the field.
-		if q[1] == null or q[1] is Rect2 or (game.simulation_active() and game.modal.is_empty()):
+		if q[1] == null or q[1] is Rect2 or q[1] is String or (game.simulation_active() and game.modal.is_empty()):
 			_queue.remove_at(i)
 			if not seen(q[0]): show_tip(q[0], q[1])
 			return
@@ -385,6 +411,8 @@ func show_tip(id: String, at: Variant, more: Array = []) -> void:
 	showing = id
 	_owns_modal = game.modal.is_empty()
 	if _owns_modal: game.open_modal("tutorial")
+	# "button:<text>": that button's rectangle on the screen now up.
+	if at is String: at = _button_rect(str(at).trim_prefix("button:"))
 	ring_box = at.grow(6.0) if at is Rect2 else Rect2()
 	ring_at = game.screen_point(at) if at is Vector3 else (at if at is Vector2 else (ring_box.get_center() if at is Rect2 else SCREEN * 0.5))
 	ring_radius = float(TIPS[id][2]) if at is Vector3 or at is Vector2 else 0.0

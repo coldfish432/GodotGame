@@ -114,7 +114,9 @@ static func workbench(menu: FieldMenu) -> void:
 	match tab:
 		0: _change(menu, stage)
 		1: _refit(menu, stage)
-		_: _issue(menu, stage)
+		_:
+			_issue(menu, stage)
+			if is_instance_valid(menu.game.tutorial_spotlight): menu.game.tutorial_spotlight.screen_opened("loadout_issue")
 
 static func _change(menu: FieldMenu, stage: Control) -> void:
 	var game := menu.game

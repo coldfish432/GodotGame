@@ -59,6 +59,8 @@ static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false
 	# 新手引导: the step reached (TutorialCard.STEPS.size() = done or off).
 	"tutorial_step": 0,
 	# The first-sight cards (TutorialSpotlight): on or not, and the ids already shown.
+	# 显卡 (GpuChoice): "" = 自动 (D3D12 takes the high-performance card), or a card's name.
+	"gpu": "",
 	"tutorial_tips": true, "tutorial_seen": [],
 	# 主线引导 (Story): on or off; off, every region is open from the start.
 	"story_guide": true,
@@ -397,6 +399,7 @@ func _build_settings() -> Control:
 	column.add_child(full)
 	column.add_child(look_toggle(_rebuild_settings))
 	column.add_child(language_toggle(_rebuild_settings))
+	column.add_child(gpu_toggle(_rebuild_settings))
 	var done := AK.button("确定", "blue", 15)
 	done.pressed.connect(func(): SystemScreens.save_settings(); screen.hide())
 	column.add_child(done)
@@ -438,6 +441,32 @@ static func language_toggle(after: Callable) -> Control:
 		SystemScreens.set_setting("language", "en" if i == 1 else "zh")
 		after.call(), 13))
 	return row
+
+## 显卡 (GpuChoice): 自动 or one of the cards; under it the card drawing now,
+## and 重启后生效 while the pick is not yet the one in use.
+static func gpu_toggle(after: Callable) -> Control:
+	var names: Array = GpuChoice.adapters()
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 2)
+	var row := HBoxContainer.new()
+	row.add_child(AK.label("显卡", 14, AK.FG))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+	var options: Array = ["自动"] + names.map(func(n): return GpuChoice.short_name(n))
+	var current := names.find(GpuChoice.chosen()) + 1
+	var toggle := AK.toggle(options, current, func(i):
+		SystemScreens.set_setting("gpu", "" if i == 0 else str(names[i - 1]))
+		after.call(), 13)
+	toggle.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	row.add_child(toggle)
+	column.add_child(row)
+	var want := GpuChoice.chosen()
+	var pending := not want.is_empty() and want != GpuChoice.current()
+	var note := AK.label(GpuChoice.current() + ("  ·  重启后生效" if pending else ""), 11, AK.SP if pending else AK.MUTE)
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	column.add_child(note)
+	return column
 
 ## After a language pick: the panel again, so the picked button is lit.
 func _rebuild_settings() -> void:

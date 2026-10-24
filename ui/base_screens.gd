@@ -819,7 +819,7 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 	var s := SystemScreens.settings
 	var rows: Array = []
 	match tab:
-		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"]]
+		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"], ["gpu"]]
 		1: rows = [["界面动效", ["精简", "完整"], "ui_motion"], ["交易确认", ["关", "开"], "trade_confirm"], ["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["新手引导", ["关", "开"], "tutorial"], ["主线引导", ["关", "开"], "story_guide"], ["language"],
 			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95]]
 		2: rows = [["主音量", [], "master_volume"]]
@@ -832,6 +832,11 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 			AK.put(stage, SystemScreens.language_toggle(func(): pause(menu)), Vector2(334, y + 6), Vector2(886, 38))
 			stage.add_child(AK.rect(AK.LINE, Vector2(334, y + 49), Vector2(886, 1)))
 			y += 50
+			continue
+		if row[0] == "gpu":
+			AK.put(stage, SystemScreens.gpu_toggle(func(): pause(menu)), Vector2(334, y + 6), Vector2(886, 56))
+			stage.add_child(AK.rect(AK.LINE, Vector2(334, y + 67), Vector2(886, 1)))
+			y += 68
 			continue
 		AK.put(stage, AK.label(row[0], 14, AK.FG), Vector2(334, y + 12))
 		var key: String = row[2]

@@ -119,5 +119,14 @@
  "农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。": "Agriculture's hydroponic trays grow crops in real time; ripe crops never wither. The Canteen cooks them.",
  "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。": "The Canteen cooks crops into meals. Eat one before you leave and your operator gains HP, regeneration or attack on the next contract.",
  "博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。走到墙前按 E 即可破开；室内有稀有物资，也可能有守卫者。": "Doctor, this wall has cracks and a faint glow at its base; there may be a vault behind it. Walk up to it and press E to break it open. Inside are rare supplies, and possibly guardians.",
- "按闪避键沿移动方向快速闪避，站着时朝面向闪避，每次消耗体力。外勤时敌人出手前，地面会出现攻击预警，及时闪避就能脱离。": "Press the dodge key to dash in the direction you are moving, or the way you face when standing still; each dodge costs stamina. In the field, a warning appears on the ground before an enemy strikes: dodge in time to get clear."
+ "按闪避键沿移动方向快速闪避，站着时朝面向闪避，每次消耗体力。外勤时敌人出手前，地面会出现攻击预警，及时闪避就能脱离。": "Press the dodge key to dash in the direction you are moving, or the way you face when standing still; each dodge costs stamina. In the field, a warning appears on the ground before an enemy strikes: dodge in time to get clear.",
+ "button:制式": "button:制式",
+ "制式选择": "Standard Gear",
+ "仓库里存放着带回的物品。右键装备直接穿上，右键药剂放进背包；也可以把物品拖到人偶、背包或安全袋里。": "The depot holds what you have brought back. Right-click gear to put it on, or a potion to pack it; you can also drag items onto the figure, the pack or the Secure Pouch.",
+ "出发前先到整备台备好装备：仓库里的装备可以直接穿上，缺的部位可以在制式页免费领取罗德岛制式装备。": "Before you leave, gear up at the Loadout Bench: put on gear from the depot, and fill any empty slot with free Rhodes Island Standard gear on the Standard page.",
+ "每个部位列出可选的罗德岛制式装备，点击即可换上；补齐空槽会给所有空着的部位各配一件，交还制式则全部收回。": "Each slot lists the Rhodes Island Standard gear you can take; click one to put it on. Fill Empty Slots gives every empty slot a piece, and Return Standard Gear takes them all back.",
+ "缺装备时，到制式页免费领取罗德岛制式装备：每个部位选一件，合同结束时收回，无需投保。": "Short of gear? Take free Rhodes Island Standard gear on the Standard page, one piece per slot. It is taken back when the contract ends and needs no insurance.",
+ "显卡": "Graphics Card",
+ "·  重启后生效": "·  Applies after restart",
+ "  ·  重启后生效": "  ·  Applies after restart"
 }
