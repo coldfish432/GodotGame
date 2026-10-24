@@ -244,7 +244,7 @@ func run() -> void:
 	var lines := PrefixCatalog.rollable_lines(gear)
 	var first_cost := game.refresh_cost("tune", gear)
 	check("精调 one line", game.refresh_gear("tune", gear, lines[0]) and gear.tune_count == 1 and game.material_count("改量装置") == 4)
-	check("each 精调 costs half as much again", game.refresh_cost("tune", gear) == roundi(maxi(GameManager.REFRESH_MIN_LMD, ceili(Economy.price(gear) / 3.0)) * 1.5))
+	check("each 精调 costs half as much again", game.refresh_cost("tune", gear) == roundi(maxi(GameManager.REFRESH_MIN_LMD, ceili(Economy.price(gear) * GameManager.REFRESH_SHARE)) * GameManager.TUNE_STEP))
 	check("重铸 rolls the prefixes again", game.refresh_gear("reforge", gear) and not gear.prefixes.is_empty())
 	game.in_base = false
 	check("nothing is refreshed outside the base", not game.refresh_gear("calibrate", gear))

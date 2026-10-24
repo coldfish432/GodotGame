@@ -11,6 +11,7 @@ extends RefCounted
 const PACKS := {
 	"源石包": {"category": "originium", "face": 120, "open": true},
 	"医疗包": {"category": "medical", "face": 100, "open": true},
+	"作物包": {"category": "crop", "face": 100, "open": false},
 	"建材包": {"category": "build", "face": 100, "open": true},
 	"电子包": {"category": "electronic", "face": 120, "open": true},
 	"燃料包": {"category": "fuel", "face": 100, "open": true},
@@ -21,9 +22,9 @@ const PACKS := {
 	"防具包": {"category": "armor", "face": 400, "open": false},
 	"饰品包": {"category": "trinket", "face": 400, "open": false},
 }
-const ORDER: Array[String] = ["建材包", "电子包", "医疗包", "燃料包", "寒地物资包", "源石包", "养成材料包", "违禁品包", "武器包", "防具包", "饰品包"]
+const ORDER: Array[String] = ["建材包", "电子包", "医疗包", "作物包", "燃料包", "寒地物资包", "源石包", "养成材料包", "违禁品包", "武器包", "防具包", "饰品包"]
 ## Per pack: 100 龙门币 and a minute in the 加工部 queue (§3.1).
-const PACK_LMD := 100
+const PACK_LMD := 300
 const PACK_MINUTES := 1
 ## Unpacking costs value × this in points (§4): the round trip always loses.
 const OPEN_COST := 1.1

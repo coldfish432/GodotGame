@@ -23,7 +23,7 @@ const DEPARTMENT_COLORS := {"logistics": Color("0098dc"), "medical": Color("dfe4
 
 ## By tier (1–7): price, hours, the deepest camp needed, materials (§5.5;
 ## 科研树状化策划案 §3 for Ⅶ, whose two nodes carry their own prices).
-const TIER_PRICE := [20000, 50000, 100000, 220000, 450000, 900000, 2000000]
+const TIER_PRICE := [56000, 140000, 280000, 616000, 1260000, 2520000, 5600000]
 const TIER_HOURS := [1, 2, 4, 8, 16, 24, 36]
 const TIER_CAMP := [0, 10, 20, 40, 60, 80, 90]
 const TIER_MATERIALS := [
@@ -37,7 +37,7 @@ const TIER_MATERIALS := [
 ]
 ## Combat nodes cost this much more than the same tier's economy node.
 const COMBAT_PREMIUM := 1.5
-const JOINT_PRICE := 2400000
+const JOINT_PRICE := 6720000
 
 ## id -> [name, tier, effect key, shown effect, prerequisites, combat stats,
 ## price override (0: by tier), hours override (0: by tier)]. A
@@ -47,10 +47,10 @@ const JOINT_PRICE := 2400000
 const NODES := {
 	"logistics_1": ["订单速递", 1, "order_slot", "订单板 +1 栏", [], {}],
 	"logistics_2": ["第二加工线", 2, "workshop_slot", "加工部队列 +1", ["logistics_1"], {}],
-	"logistics_3": ["立体货架", 3, "rack_cells", "货架 12 → 14 格", ["logistics_1", "@racks_3"], {}],
+	"logistics_3": ["立体货架", 3, "rack_cells", "仓库容量 +20%", ["logistics_1", "@racks_3"], {}],
 	"logistics_4": ["流水线优化", 4, "workshop_speed", "加工时长 −25%", ["logistics_2", "engineering_1"], {}],
 	"logistics_5": ["大宗贸易协议", 5, "bulk_orders", "大宗订单栏 +1 · 补单 6 → 4 小时", ["logistics_3", "field_1"], {}],
-	"logistics_6": ["自动分拣系统", 6, "auto_sort", "撤离后自动上架", ["logistics_4", "logistics_5", "intel_3", "@drone"], {}],
+	"logistics_6": ["自动分拣系统", 6, "auto_sort", "撤离后背包物品自动入库", ["logistics_4", "logistics_5", "intel_3", "@drone"], {}],
 	"medical_1": ["药房扩编", 1, "free_potion", "免费药剂 3 → 4 瓶", [], {}],
 	"medical_2": ["重症监护", 2, "injury_fee", "重伤治疗费 −50%", ["medical_1"], {}],
 	"medical_3": ["巡回医疗", 3, "stay_care", "医疗驻留费用 −20% · 关系 +20%", ["medical_2", "field_1", "@stayed"], {}],
@@ -61,8 +61,8 @@ const NODES := {
 	"engineering_2": ["制式换代计划", 2, "rhodes_blue", "制式换代：白 → 蓝", ["engineering_1", "logistics_1"], {}],
 	"engineering_3": ["精调工艺", 3, "tune_step", "精调递增 1.5 → 1.3", ["engineering_1", "intel_2"], {}],
 	"engineering_4": ["精英制式装备", 4, "rhodes_gold", "制式换代：蓝 → 金", ["engineering_2", "logistics_2", "intel_2"], {}],
-	"engineering_5": ["词条锚定", 7, "prefix_lock", "重铸锁定 1 条前缀", ["engineering_3", "intel_4", "engineering_c6", "@lungmen_r5"], {}, 2000000, 36],
-	"engineering_6": ["平行重铸", 7, "reforge_pick", "重铸 2 选 1", ["engineering_5", "joint_eye", "logistics_6"], {}, 3000000, 48],
+	"engineering_5": ["词条锚定", 7, "prefix_lock", "重铸锁定 1 条前缀", ["engineering_3", "intel_4", "engineering_c6", "@lungmen_r5"], {}, 5600000, 36],
+	"engineering_6": ["平行重铸", 7, "reforge_pick", "重铸 2 选 1", ["engineering_5", "joint_eye", "logistics_6"], {}, 8400000, 48],
 	"intel_1": ["痕迹增强滤镜", 1, "glow_range", "密室线索 · 踪迹幽光 +50%", [], {}],
 	"intel_2": ["装备鉴定协议", 2, "appraisal", "装备鉴定：范围位置", ["intel_1"], {}],
 	"intel_3": ["PRTS 层级预报", 3, "floor_report", "进层播报兴趣点 · 精英", ["intel_1"], {}],
@@ -124,14 +124,14 @@ const NODES := {
 }
 
 ## Base conditions -> shown text (data only).
-const REQUIREMENT_NAMES := {"racks_3": "每区 3 个货架", "drone": "搬运无人机", "stayed": "医疗驻留", "camp_upgrade": "营地升级",
+const REQUIREMENT_NAMES := {"racks_3": "仓储部 Lv3", "drone": "仓储部 Lv4", "stayed": "医疗驻留", "camp_upgrade": "营地升级",
 	"safe_2": "安全袋扩容二", "exchange": "交易所", "roster_3": "名册 3 人", "lungmen_r5": "龙门商会 R5"}
 
 ## Timed projects (§5.7): id -> [name, size, shown effect]. Signed for
 ## PROJECT_SORTIES sorties, charged at every departure.
 const PROJECT_SORTIES := 3
 const PROJECT_SLOTS := 2
-const PROJECT_BASE := {"S": 4000, "M": 8000, "L": 14000}
+const PROJECT_BASE := {"S": 11000, "M": 22000, "L": 39000}
 const PROJECTS := {
 	"dust": ["源石尘抑制", "S", "地图特色累计 −20%"],
 	"scan": ["低频扫描", "S", "踪迹点 20% → 30%"],
@@ -149,7 +149,7 @@ const PROJECTS := {
 
 ## Endless lines (§5.8): id -> [name, per level, cap text]. Level k costs
 ## ENDLESS_BASE × ENDLESS_GROWTH^(k − 1), up to ENDLESS_CAP.
-const ENDLESS_BASE := 50000
+const ENDLESS_BASE := 140000
 const ENDLESS_GROWTH := 1.25
 const ENDLESS_CAP := 30
 const ENDLESS := {

@@ -156,12 +156,12 @@ static func is_supply(item: Item) -> bool:
 ## per contract when ticked at departure. A kind's plain and refined versions
 ## do not stack: one of them a contract.
 const KITS := {
-	"dust_mask": {"name": "防尘过滤面罩", "feature": "contamination", "cut": 0.3, "price": 5000, "store": 1},
-	"dust_mask_plus": {"name": "精制防尘过滤面罩", "feature": "contamination", "cut": 0.5, "price": 12000, "store": 3},
-	"broker_letter": {"name": "中间人的担保函", "feature": "debt", "cut": 0.3, "price": 7000, "store": 1},
-	"broker_letter_plus": {"name": "精制中间人的担保函", "feature": "debt", "cut": 0.5, "price": 16000, "store": 3},
-	"sami_lining": {"name": "萨米防寒内衬", "feature": "cold", "cut": 0.3, "price": 5000, "store": 1},
-	"sami_lining_plus": {"name": "精制萨米防寒内衬", "feature": "cold", "cut": 0.5, "price": 12000, "store": 3},
+	"dust_mask": {"name": "防尘过滤面罩", "feature": "contamination", "cut": 0.3, "price": 14000, "store": 1},
+	"dust_mask_plus": {"name": "精制防尘过滤面罩", "feature": "contamination", "cut": 0.5, "price": 34000, "store": 3},
+	"broker_letter": {"name": "中间人的担保函", "feature": "debt", "cut": 0.3, "price": 20000, "store": 1},
+	"broker_letter_plus": {"name": "精制中间人的担保函", "feature": "debt", "cut": 0.5, "price": 45000, "store": 3},
+	"sami_lining": {"name": "萨米防寒内衬", "feature": "cold", "cut": 0.3, "price": 14000, "store": 1},
+	"sami_lining_plus": {"name": "精制萨米防寒内衬", "feature": "cold", "cut": 0.5, "price": 34000, "store": 3},
 }
 
 ## Kits come in ten tiers (龙门币平衡与科研部策划案 v1.1 §4.1): each tier cuts

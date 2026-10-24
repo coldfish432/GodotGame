@@ -41,8 +41,9 @@ func requirement_refusal(id: String) -> String:
 	for need in ResearchCatalog.conditions(id):
 		var met := true
 		match need:
-			"racks_3": met = base.racks.values().all(func(n): return int(n) >= 3)
-			"drone": met = base.drone
+			# 仓库修订: the warehouse's own levels stand in for the racks and the drone.
+			"racks_3": met = base.facility_level("warehouse") >= 3
+			"drone": met = base.facility_level("warehouse") >= 4
 			"stayed": met = base.stayed
 			"camp_upgrade": met = base.camp_upgraded
 			"safe_2": met = base.safe_level >= 2
@@ -118,7 +119,7 @@ func _on_done(id: String) -> void:
 		"rhodes_gold": base.rhodes_rarity = maxi(base.rhodes_rarity, 2)
 		"safe_row": game.apply_container_sizes()
 		"closure_spread", "isolation_ward", "appraisal": apply_globals()
-	if ResearchCatalog.key_of(id) in ["rhodes_blue", "rhodes_gold"]: game.issue_kits()
+	if ResearchCatalog.key_of(id) in ["rhodes_blue", "rhodes_gold"]: game.refresh_rhodes()
 	if ResearchCatalog.is_combat(id):
 		apply_globals()
 		if is_instance_valid(game.player): game.player._recompute_stats()

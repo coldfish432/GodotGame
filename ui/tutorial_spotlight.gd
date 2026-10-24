@@ -7,6 +7,11 @@ extends Control
 ## the first time she walks up to a station — the game stops (modal
 ## "tutorial"), the screen dims but for a ring (or a box, for a bar or a slot)
 ## round it, and a PRTS card beside it says what it is; 知道了 (or Esc) and on.
+## A base screen's card comes up the first time that screen opens (用户
+## 2026-10-23: 其他界面第一次打开的时候也介绍); the dispatch desk's comes in two,
+## the contract on the right first, then the floors in the middle. Before the
+## first contract the camera tours the departure stations (tour): 整备台 to
+## the right, the 调度台 below, the 后勤柜台 to the left.
 ## Some come from events instead (low life, the first camp, a retreat, gear
 ## sent back): `request`, shown over whatever screen is up, with no ring when
 ## there is nothing to point at. Each kind once, ever
@@ -48,22 +53,22 @@ const TIPS := {
 	"cold": ["寒冷", "冰原的寒冷正在累积。达到 60 时移动和体力回复变慢，90 时攻速下降并开始掉血。站在点燃的火堆旁、使用热能饮剂或自热罐头都能驱寒。", 0.0],
 	"debt": ["血债", "击杀家族成员会积累血债。达到 60 时家族敌人更凶狠，90 时会派出清算小队。中间人信物、镇静合剂和营地赔偿都可以降低血债。", 0.0],
 	"camp": ["前进据点", "前进据点已确认，博士。这里没有敌人：可以在可露希尔处补给、处理污染或血债，也可以从这里撤离。到过的据点以后可以直接作为出发点。", 0.0],
-	"death": ["撤退", "干员倒下，罗德岛小队已接回博士。安全袋里的物品全部保留；身上和背包里没有投保的物品遗失；投保的装备会在 2 到 4 小时后由罗德岛小队送回收货区。倒下的干员带着重伤，可在医疗前台治疗。", 0.0],
-	"insured_back": ["投保送回", "罗德岛小队找回了投保的装备，已送到仓储区的收货区货箱。保险随之用掉，需要的话请在后勤柜台重新投保。", 0.0],
+	"death": ["撤退", "干员倒下，罗德岛小队已接回博士。安全袋里的物品全部保留；身上和背包里没有投保的物品遗失；投保的装备会在 2 到 4 小时后由罗德岛小队送回仓库。倒下的干员带着重伤，可在医疗前台治疗。", 0.0],
+	"insured_back": ["投保送回", "罗德岛小队找回了投保的装备，已送回仓库。保险随之用掉，需要的话请在后勤柜台重新投保。", 0.0],
 	# --- 基地设施（第一次走到旁边） ---
-	"base_loadout": ["整备台", "整备台用于换装与改造。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀。", 60.0],
-	"base_insurance": ["后勤柜台", "出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。", 60.0],
-	"base_stash": ["仓管台", "仓管台管理仓储部。建成仓库总控台后，可以在这里查看全部货架、搜索物品并直接带走。", 60.0],
-	"base_crate": ["收货区", "撤离带回的物资会装成货箱送到收货区。按交互键开箱，拿起物品送去对应的上架区，或者先放进暂存区。", 52.0],
-	"base_zone": ["上架区", "拿着物品走进同类别的地面框，按交互键即可上架。空手站进框里按交互键，可以查看这一区的货架、扩建货架。", 60.0],
-	"base_shelf_zone": ["上架区", "拿着物品走进同类别的地面框，按交互键即可上架。空手站进框里按交互键，可以查看这一区的货架、扩建货架。", 60.0],
-	"base_staging": ["暂存区", "暂存区可以临时存放物品。想带进下一份合同，就在这里把物品放进背包；加工站的产出也会送到这里。", 60.0],
+	"base_loadout": ["整备台", "整备台用于换装、改造和领取制式装备。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀；制式页可以免费领取罗德岛制式装备，合同结束时收回。", 60.0],
+	"base_insurance": ["后勤柜台", "出发前可以在这里为装备投保。投保的装备若没能带回，罗德岛小队会在 2 到 4 小时后送回；保费等于装备的交付价。罗德岛制式装备合同结束时会收回，无需投保。", 60.0],
+	"base_contracts": ["调度台", "调度台是出击的地方。在这里选择地区和合同，确认出发准备后即可出击。", 60.0],
+	"base_stash": ["仓管台", "仓管台管理仓库。所有物品共用仓库容量，一格放一件装备或一组材料；仓储部升级会提高容量和材料的单格堆叠数量。点击物品带入背包，拖动背包里的物品即可存回。", 60.0],
+	# The dispatch desk's screen, in two (BaseScreens.contracts' columns).
+	"dispatch_contract": ["合同委托", "右侧是这份合同的详情：地区、掉落和合同目标。选好一项目标后点击最终准备，确认干员与装备即可出击。完成目标并撤离可以获得对应的龙门币报酬。", 0.0],
+	"dispatch_floors": ["层数与撤离", "中间是本次行动的层数，每 10 层为一段。标黄的第 %d–%d 层会随机出现一个撤离点；第 10 层之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。", 0.0],
 	"base_outbound": ["出库区", "各部门把需要的物资写成订单挂在这里。交付货架或背包里的物品完成订单，就能获得龙门币；也可以把物品直接卖给可露希尔。", 60.0],
 	"base_report": ["医疗前台", "医疗前台会给出上一份合同的回收报告。倒下的干员带有重伤、生命上限降低，在这里支付龙门币治疗。", 60.0],
 	"base_pharmacy": ["药房窗口", "药房出售标准急救剂和缓释凝胶。每份合同出发时还会免费配发 3 瓶急救剂。", 56.0],
 	"base_store": ["可露希尔的商店", "可露希尔的商店用赤金出售特供药剂，每小时补货。这里还可以出售赤金、换汇、贷款，以及购买减缓地图特色的随队物资。", 60.0],
 	"base_exchange": ["交易所", "交易所终端可以买卖九大势力的商品，查看行情与新闻，下现货、挂单、远期和差价合约。交易所需要先建成才能使用。", 64.0],
-	"base_workshop": ["加工站", "加工站用材料和龙门币加工成品，按现实时间计时，完成后送到暂存区。", 60.0],
+	"base_workshop": ["加工站", "加工站用材料和龙门币加工成品，按现实时间计时，完成后直接入库。", 60.0],
 	"base_personnel": ["人事部", "人事部记录各位干员的寻访进度：从发现踪迹到可以寻访、正式入职。", 56.0],
 	"base_sand_table": ["沙盘", "沙盘上可以指挥罗德岛号航行到各地，开启医疗驻留提升当地关系，或者提交、装箱大宗订单。航行按现实时间进行。", 72.0],
 	"base_research": ["科研部", "科研终端用龙门币和材料推进研究，按现实时间进行。研究可以带来各种长期加成，部分课题需要先完成前置研究。", 60.0],
@@ -73,6 +78,12 @@ const TIPS := {
 	"base_farm": ["农业部", "农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。", 60.0],
 	"base_canteen": ["食堂", "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。", 60.0],
 }
+## The dispatch desk's columns, in screen pixels (BaseScreens.contracts).
+const DISPATCH_CONTRACT := Rect2(884, 60, 396, 660)
+const DISPATCH_FLOORS := Rect2(236, 64, 640, 440)
+## Before the first contract (TutorialCard's contract step): [tip, station id].
+const TOUR := [["base_loadout", "workbench"], ["base_contracts", "dispatch"], ["base_insurance", "logistics"]]
+const TOUR_SETTLE := 1.2
 ## Seen counts within this far of her, and inside the screen by INSET px.
 const SEE_RANGE := 16.0
 const TRAP_RANGE := 7.0
@@ -97,6 +108,11 @@ var _queue: Array = []
 ## Whether the field was stopped for it (modal "tutorial"); a tip over a
 ## screen that already stops it (the camp, the settlement) leaves that as is.
 var _owns_modal := false
+## The camera tour: stops still to come, and how long the camera has had
+## to reach the current one.
+var _tour: Array = []
+var _tour_wait := 0.0
+var _touring := false
 var _mask: ColorRect
 var _ring: Control
 var _card: PanelContainer
@@ -182,6 +198,44 @@ func dismiss() -> void:
 	visible = false
 	if _owns_modal and game.modal == "tutorial": game.close_modal()
 	_owns_modal = false
+	if _touring and _tour.is_empty(): _end_tour()
+
+## A base screen opened (GameManager.open_station): its card, the first time.
+func screen_opened(kind: String) -> void:
+	if kind == "contracts":
+		request("dispatch_contract", DISPATCH_CONTRACT)
+		request("dispatch_floors", DISPATCH_FLOORS)
+		return
+	request("base_" + kind)
+
+func _start_tour() -> void:
+	_touring = true
+	_tour = TOUR.duplicate()
+	_tour_wait = 0.0
+	game.open_modal("tutorial")
+
+func _end_tour() -> void:
+	_touring = false
+	game.camera_look = Vector3.INF
+	if game.modal == "tutorial": game.close_modal()
+
+## The next stop: the camera goes there, and its card comes up once it has.
+func _tick_tour(delta: float) -> void:
+	if _tour.is_empty():
+		_end_tour()
+		return
+	var stop: Array = _tour[0]
+	var station: Dictionary = game.base_map.station(str(stop[1]))
+	if station.is_empty() or seen(str(stop[0])):
+		_tour.pop_front()
+		return
+	var at: Vector3 = station.position
+	game.camera_look = at
+	_tour_wait += delta
+	if _tour_wait < TOUR_SETTLE: return
+	_tour_wait = 0.0
+	_tour.pop_front()
+	show_tip(str(stop[0]), at + Vector3.UP * 0.6)
 
 ## Esc on a tip: it closes (GameManager.go_back asks here first).
 func go_back() -> bool:
@@ -210,14 +264,21 @@ func _process(delta: float) -> void:
 			_owns_modal = false
 		return
 	visible = false
+	if _touring:
+		_tick_tour(delta)
+		return
 	_check_left -= delta
 	if _check_left > 0.0: return
 	_check_left = CHECK_SECONDS
 	if not tips_on() or game.transitioning: return
+	if game.in_base and game.modal.is_empty() and game.base_walk_active() and TutorialCard.step() == TutorialCard.index_of("contract") and not TOUR.all(func(t): return seen(str(t[0]))):
+		_start_tour()
+		return
 	for i in range(_queue.size()):
 		var q: Array = _queue[i]
-		# A tip with no ring goes over any screen; one with a ring waits for the field.
-		if q[1] == null or (game.simulation_active() and game.modal.is_empty()):
+		# A tip with no ring, or a screen box, goes over any screen; one round
+		# a world point waits for the field.
+		if q[1] == null or q[1] is Rect2 or (game.simulation_active() and game.modal.is_empty()):
 			_queue.remove_at(i)
 			if not seen(q[0]): show_tip(q[0], q[1])
 			return
@@ -225,9 +286,6 @@ func _process(delta: float) -> void:
 	if game.simulation_active() and game.modal.is_empty():
 		var found := first_in_sight()
 		if not found.is_empty(): show_tip(found.id, found.at)
-	elif game.base_walk_active() and TutorialCard.step() > TutorialCard.index_of("contract"):
-		var station := base_station()
-		if not station.is_empty(): show_tip(station.id, station.at)
 
 ## What is watched rather than seen: life, the 威胁值 and the region's meter in
 ## the field, the first camp. Each queues its tip once.
@@ -339,6 +397,9 @@ func show_tip(id: String, at: Variant) -> void:
 	ring_radius = float(TIPS[id][2]) if at is Vector3 or at is Vector2 else 0.0
 	_title.text = TIPS[id][0]
 	_text.text = TIPS[id][1]
+	if "%d" in _text.text:
+		var floors: Array = FieldCatalog.RANDOM_EXTRACTION_ODDS.keys()
+		_text.text = TIPS[id][1] % [floors.min(), floors.max()]
 	var material := _mask.material as ShaderMaterial
 	material.set_shader_parameter("centre", ring_at)
 	# No ring: the whole screen dims.
@@ -349,6 +410,10 @@ func show_tip(id: String, at: Variant) -> void:
 	_card.reset_size()
 	if at == null:
 		_card.position = (SCREEN - _card.size) * 0.5
+	elif at is Rect2 and ring_box.size.y > SCREEN.y * 0.6:
+		# A tall box (a screen's column): beside it, on the side with more room.
+		var x := ring_box.position.x - 18.0 - _card.size.x if ring_box.get_center().x > SCREEN.x * 0.5 else ring_box.end.x + 18.0
+		_card.position = Vector2(clampf(x, 16.0, SCREEN.x - _card.size.x - 16.0), clampf(ring_box.position.y + 40.0, 16.0, SCREEN.y - _card.size.y - 16.0))
 	elif at is Rect2:
 		# Under a box at the top, over one at the bottom, lined up with it.
 		var y := ring_box.end.y + 18.0 if ring_box.get_center().y < SCREEN.y * 0.5 else ring_box.position.y - 18.0 - _card.size.y

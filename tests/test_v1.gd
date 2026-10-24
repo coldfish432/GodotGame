@@ -97,9 +97,10 @@ func run() -> void:
 	check("the end of floor 10 leads into camp 10|11", game.in_camp and game.modal == "camp" and game.floor_number == 10 and not game.transitioning)
 	game.camp_extract()
 	await step(2)
-	# Gear she set out with stays on her; finds arrive as receiving crates (基地玩法策划案 §3.2).
-	check("extraction keeps carried-in gear on her and crates the finds", game.in_base and game.player.equipped.get(armor.category) == armor
-		and game.inventory.items.has(weapon) and game.safe_bag.items.has(material) and game.base.location_of(oversized) == "crate_sealed")
+	# 仓库修订 (用户 2026-10-23): everything brought out stays in her bags, finds
+	# included; settlement's 仓库 page puts it away.
+	check("extraction keeps carried-in gear and the finds on her", game.in_base and game.player.equipped.get(armor.category) == armor
+		and game.inventory.items.has(weapon) and game.safe_bag.items.has(material) and game.inventory.items.has(oversized) and game.base.location_of(oversized) == "")
 	check("settlement clears run builds; insured gear carried out stays insured (用户 2026-10-15)", game.builds.is_empty() and armor.insured and not armor.carried_in)
 	var count := game.base.all_items().size() + game.carried_items().size()
 	game.settle(true)
@@ -113,9 +114,11 @@ func run() -> void:
 	armor.insured = true
 	game.player.hp = -1
 	await step(2)
-	check("death returns to base with safe finds crated and insured gear queued", game.in_base and game.base.location_of(safe) == "crate_sealed"
+	check("death returns to base with safe finds still in the safe bag and insured gear queued", game.in_base and game.safe_bag.items.has(safe) and game.base.location_of(safe) == ""
 		and game.base.insurance_queue.any(func(e): return e.item == armor) and game.base.location_of(doomed) == "" and not game.carried_items().has(doomed))
 	check("each uid settles once", game.settlement.filter(func(e): return e.uid == armor.uid).size() == 1)
+	# 一键入库 on settlement's 仓库 page: the pack and the safe bag go into the warehouse.
+	check("一键入库 moves the safe bag into the warehouse", game.store_all_carried() >= 1 and game.base.location_of(safe) == "shelf" and not game.safe_bag.items.has(safe))
 	game.base.insurance_queue.clear()  # the riot shield would skew the damage checks below
 	# 用户 2026-10-15: whatever insured gear does not come out comes back, and only
 	# that return uses the insurance up.
@@ -136,6 +139,8 @@ func run() -> void:
 	await game.start_contract("city")
 	await clean()
 	var insured_items: Array[Item] = []
+	# 仓库修订: what earlier contracts brought out is still in her pack; make room for all forty.
+	game.inventory.items.clear()
 	for i in range(40):
 		var insured := Item.create("测试保险%d" % i, Item.Category.WEAPON, 1, 1)
 		insured.insured = true
@@ -157,16 +162,16 @@ func run() -> void:
 	var due_by_three := waits.filter(func(w): return w <= 3 * 3600).size()
 	game._insurance_check = 0.0
 	game._tick_insurance_clock(0.1)
-	check("at the base, what is due arrives by the clock alone, as sealed crates", game.base.insurance_queue.size() == 40 - due_by_three
-		and insured_items.filter(func(x): return game.base.location_of(x) == "crate_sealed").size() == due_by_three)
+	check("at the base, what is due arrives by the clock alone, straight into the warehouse", game.base.insurance_queue.size() == 40 - due_by_three
+		and insured_items.filter(func(x): return game.base.location_of(x) == "shelf").size() == due_by_three)
 	BaseState.clock_offset = 4 * 3600 + 5
 	await game.start_contract("city")
 	await clean()
 	game.settle(true)
 	check("after four hours everything insured is back (a settlement checks too)", game.base.insurance_queue.is_empty()
-		and insured_items.all(func(x): return game.base.location_of(x) == "crate_sealed"))
+		and insured_items.all(func(x): return game.base.location_of(x) == "shelf"))
 	BaseState.clock_offset = 0
-	for x in insured_items: game.base._take(x)
+	for x in insured_items: game.base.remove_item(x)
 	# Regional loot distributions and exclusive provenance.
 	var counts := {}
 	var local_rng := RandomNumberGenerator.new()

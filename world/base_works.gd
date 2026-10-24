@@ -135,7 +135,7 @@ func _process(_delta: float) -> void:
 ## What decides the drawing: facility levels, links and the projects.
 func _signature() -> String:
 	var base: BaseState = game.base
-	return "%s|%s|%s%s" % [str(base.facilities), str(base.connected), base.console, base.drone]
+	return "%s|%s" % [str(base.facilities), str(base.connected)]
 
 ## Whether part `i` is built.
 func built(i: int) -> bool:

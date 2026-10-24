@@ -8,14 +8,14 @@ var stage: Control
 ## What the current stage screen has selected (an index, an Item, a type …).
 var pick: Variant = null
 var camp_tab := 0
+## Settlement's page: 结算 or 仓库 (EventScreens.SETTLE_TABS).
+var settle_tab := 0
 var region_pick := ""
 ## The contract card picked at the dispatch desk (局内节奏与目标策划案 §6 B1).
 var contract_pick := 0
 var stash_tab := 0
 ## The facility picked on the 基建总控台's list.
 var build_pick := "hub"
-## The zone whose shelves are open at its floor frame (station "shelves"), or -1.
-var shelf_zone := -1
 var outbound_tab := 0
 var pause_page := 1
 var pause_confirm := false
@@ -205,7 +205,6 @@ func show_station(kind: String) -> void:
 		"contracts": BaseScreens.contracts(self); return
 		"stash": BaseScreens.stash(self); return
 		"construction": BaseScreens.construction(self); return
-		"shelves": BaseScreens.stash(self, shelf_zone); return
 		"outbound": BaseScreens.outbound(self); return
 		"pharmacy": BaseScreens.medical(self, 0); return
 		"report": BaseScreens.medical(self, 1); return
@@ -244,7 +243,7 @@ var quick_pack_panel: Control = null
 ## Where the key works: the warehouse console and its shelves. Not the
 ## workshop: its 打包 page has the same form on the right (用户 2026-10-23).
 func quick_pack_here() -> bool:
-	return visible and _station in ["stash", "shelves"]
+	return visible and _station == "stash"
 
 func open_quick_pack() -> void:
 	if not quick_pack_here(): return
@@ -309,10 +308,7 @@ func _loadout_section() -> void:
 
 func _stash_section() -> void:
 	var base: BaseState = game.base
-	var load_by_zone: Array[String] = []
-	for category in range(Item.Category.size()):
-		load_by_zone.append("%s %d/%d" % [BaseCatalog.CATEGORY_NAMES[category], base.shelf_count(category), base.capacity(category)])
-	text(body, "个人仓库 / %s" % "  ·  ".join(load_by_zone), 18)
+	text(body, "个人仓库 %d/%d  ·  单格堆叠 ×%d" % [base.shelf_count(), base.capacity(), base.stack_mult()], 18)
 	_expansion_section()
 	var search := LineEdit.new()
 	search.placeholder_text = "搜索仓库（名称或词缀，如“攻击力”“稀有”）"
@@ -362,18 +358,6 @@ func _expansion_section() -> void:
 		var refusal := game.facility_refusal(id)
 		button(levels, "%s Lv%d → Lv%d  %s + %s%s" % [BaseCatalog.facility_name(id), level, level + 1, Economy.format(step.price), BaseCatalog.cost_text(step.materials), "" if refusal.is_empty() else "（%s）" % refusal],
 			func(): game.upgrade_facility(id); _refresh(), not refusal.is_empty())
-	var machines := HBoxContainer.new()
-	body.add_child(machines)
-	if base.console: button(machines, "仓库总控面板 · 已就位", func(): pass, true)
-	else:
-		var console_refusal := game.console_refusal()
-		button(machines, "仓库总控面板 %s + %s%s" % [Economy.format(BaseCatalog.CONSOLE_PRICE), BaseCatalog.cost_text(BaseCatalog.CONSOLE_MATERIALS), "" if console_refusal.is_empty() else "（%s）" % console_refusal],
-			func(): game.buy_console(); _refresh(), not console_refusal.is_empty())
-	if base.drone: button(machines, "搬运无人机 · 已就位", func(): pass, true)
-	else:
-		var drone_refusal := game.drone_refusal()
-		button(machines, "搬运无人机 %s + %s%s" % [Economy.format(BaseCatalog.DRONE_PRICE), BaseCatalog.cost_text(BaseCatalog.DRONE_MATERIALS), "" if drone_refusal.is_empty() else "（%s）" % drone_refusal],
-			func(): game.buy_drone(); _refresh(), not drone_refusal.is_empty())
 	var upgrades := HBoxContainer.new()
 	body.add_child(upgrades)
 	for kind in ["pack", "safe"]:
@@ -396,41 +380,6 @@ func _expansion_section() -> void:
 	button(body, "营地升级 %s + %s%s" % [Economy.format(BaseCatalog.CAMP_UPGRADE_PRICE), BaseCatalog.cost_text(BaseCatalog.CAMP_UPGRADE_MATERIALS), "" if camp_refusal.is_empty() else "（%s）" % camp_refusal],
 		func(): game.buy_camp_upgrade(); _refresh(), not camp_refusal.is_empty())
 
-## The drone's "open and sort everything" (§3.5): each revealed item appears in
-## turn, rare and exclusive ones lingering; any key or the button shows the rest.
-func show_sort_result(result: Dictionary) -> void:
-	_station = ""
-	clear("一键分类 / 开箱与归类", "开出 %d 件  ·  上架 %d 件  ·  放进暂存区 %d 件  ·  未能放下 %d 件" % [
-		result.revealed.size(), result.shelved.size(), result.staged.size(), result.left.size()])
-	var list := VBoxContainer.new()
-	body.add_child(list)
-	var lines: Array = []
-	for item: Item in result.revealed:
-		var where := "上架" if result.shelved.has(item) else ("暂存区" if result.staged.has(item) else "留在箱里")
-		lines.append([item, where])
-	for item: Item in result.shelved:
-		if not result.revealed.has(item): lines.append([item, "暂存区 → 上架"])
-	var skip := button(body, "全部显示", func(): pass)
-	skip.pressed.connect(func():
-		for line in lines.slice(list.get_child_count()): _reveal_line(list, line)
-		skip.disabled = true)
-	button(body, "关闭", game.close_modal)
-	_play_reveal(list, lines, skip)
-
-func _play_reveal(list: VBoxContainer, lines: Array, skip: Button) -> void:
-	for line in lines:
-		if not is_instance_valid(list) or list.get_child_count() >= lines.size(): return
-		_reveal_line(list, line)
-		var item: Item = line[0]
-		var linger := 0.6 + (0.6 if item.rarity >= 2 or not item.exclusive_region.is_empty() else 0.0)
-		await get_tree().create_timer(linger).timeout
-	if is_instance_valid(skip): skip.disabled = true
-
-func _reveal_line(list: VBoxContainer, line: Array) -> void:
-	var item: Item = line[0]
-	var rare := item.rarity >= 2 or not item.exclusive_region.is_empty()
-	text(list, "%s  ·  %s  →  %s" % [item.display_name(), BaseCatalog.CATEGORY_NAMES[item.category], line[1]], 17 if rare else 15, GOLD if rare else INK).tooltip_text = item.details()
-
 ## 干员养成 (精英化与加点策划案 §10): at the base everything; in the field only
 ## the points (`in_field`).
 func show_training(in_field: bool = false) -> void:
@@ -444,23 +393,8 @@ func show_departure(region: String) -> void:
 	_enter("departure", null)
 	BaseScreens.departure(self, region)
 
-## What a crate held, shown when it is opened (基地玩法策划案 §3.7): pick it up
-## to carry to its zone, or put it straight into staging. Closing leaves it in
-## the opened crate.
-func show_item_card(item: Item) -> void:
-	_station = ""
-	_enter("item_card", null)
-	BaseScreens.item_card(self, item)
-
-## Staging (§3.4a): the only place its items can be taken out, either into her
-## hands to shelve or straight into the pack for the next contract.
-func show_staging() -> void:
-	_station = ""
-	_enter("staging", null)
-	BaseScreens.staging(self)
-
-## Orders and plain delivery (§3.8). Only the warehouse proper (shelves) and the
-## pack or safe bag can supply items; crates, staging and equipped gear cannot.
+## Orders and plain delivery (§3.8). Only the warehouse and the pack or safe
+## bag can supply items; equipped gear cannot.
 func _outbound_section() -> void:
 	var orders: OrderBoard = game.base.orders
 	var deliverable := game.deliverable_items()
@@ -489,12 +423,13 @@ func _outbound_section() -> void:
 		button(box, "放弃这张订单", func(): game.abandon_order(i); _refresh())
 	body.add_child(HSeparator.new())
 	text(body, "直接交付 / 只换龙门币", 18)
-	if deliverable.is_empty(): text(body, "可交付 0", 15, AK.MUTE)
-	for item in deliverable:
+	var sellable := deliverable.filter(func(x: Item) -> bool: return game.can_sell(x))
+	if sellable.is_empty(): text(body, "可交付 0", 15, AK.MUTE)
+	for item in sellable:
 		var row := HBoxContainer.new()
 		body.add_child(row)
 		text(row, "%s%s  ·  %s" % [item.display_name(), item.stack_suffix(), "个人仓库" if game.stash.has(item) else "背包"], 15).tooltip_text = item.details()
-		button(row, "交付 +%s" % Economy.format(Economy.price(item)), func(): game.sell(item); _refresh())
+		button(row, "交付 +%s" % Economy.format(Economy.direct_price(item)), func(): game.sell(item); _refresh())
 
 ## The injury, with its treatment (§4.2, §4.4).
 func _medical_summary() -> void:
@@ -613,7 +548,7 @@ func _closure_shop() -> void:
 	var have := game.gold_available()
 	for n in [1, 10, have]:
 		if n <= 0: continue
-		button(sell, "卖出赤金 ×%d → %s 龙门币" % [n, Economy.format(n * Economy.GOLD_BAR_LMD)], func(): game.sell_gold_bars(n); _refresh_closure(), have < n)
+		button(sell, "卖出赤金 ×%d → %s 龙门币" % [n, Economy.format(n * Economy.closure_bar_price())], func(): game.sell_gold_bars(n); _refresh_closure(), have < n)
 
 func _refresh_closure() -> void:
 	if game.in_camp: show_camp()

@@ -49,5 +49,7 @@
  "饰品包": "Trinket Pack",
  "持有": "Held",
  "航行中": "Under way",
- "开仓费": "Entry fee"
+ "开仓费": "Entry fee",
+ "作物包": "Crop Pack",
+ "加工部封装的农业部作物，加了封条，拆不开。": "Agriculture's crops sealed by Processing; the seal cannot be opened."
 }

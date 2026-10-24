@@ -161,6 +161,8 @@ var charge_idle := 0.0
 var hitstop_remaining := 0.0
 var dash_remaining := 0.0
 var _dash_buffered := false
+## At the base she walks half again as fast (用户 2026-10-23).
+const BASE_MOVE_MULT := 1.5
 var _navigation: NavigationAgent3D
 
 # Relic runtime state. Per-contract values clear at settlement; per-segment
@@ -537,7 +539,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -2.0
 	else:
 		velocity.y += GRAVITY * delta
-	var speed := move_speed * (gear_fx.move_mult() if gear_fx != null else 1.0) * (kit.move_mult() if kit != null else 1.0) * FeatureCatalog.cold_move(cold) * maxf(0.2, 1.0 + hex("move"))
+	var speed := move_speed * (BASE_MOVE_MULT if is_instance_valid(game) and game.in_base else 1.0) * (gear_fx.move_mult() if gear_fx != null else 1.0) * (kit.move_mult() if kit != null else 1.0) * FeatureCatalog.cold_move(cold) * maxf(0.2, 1.0 + hex("move"))
 	velocity.x = move_vec.x * speed
 	velocity.z = move_vec.z * speed
 	move_and_slide()

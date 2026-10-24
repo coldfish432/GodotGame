@@ -55,9 +55,9 @@ const MASTERY := [
 ]
 ## Modules (模组, §8): 模组数据块 ×2 each level plus 龙门币 (v1.1 §4.2: 2/3/4 万).
 const MODULE_COST := [
-	{"lmd": 20000, "materials": {"模组数据块": 2}},
-	{"lmd": 30000, "materials": {"模组数据块": 2}},
-	{"lmd": 40000, "materials": {"模组数据块": 2}},
+	{"lmd": 56000, "materials": {"模组数据块": 2}},
+	{"lmd": 84000, "materials": {"模组数据块": 2}},
+	{"lmd": 112000, "materials": {"模组数据块": 2}},
 ]
 
 const TREES := {

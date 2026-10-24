@@ -17,6 +17,16 @@ const TIPS := [
 
 var game: GameManager
 var _title: Control
+## The title's save slots (SaveSlots): the one loaded now (-1 before any), the
+## one asked to be deleted, and how pixel_display starts the game on one.
+var _slots: Control
+var _menu: Control
+var _deleting := -1
+var slot := -1
+var launch: Callable
+## A slot picked while another was in play: the reloaded scene goes straight in.
+static var pending_slot := -1
+static var _window_applied := false
 var _loading: Control
 var _tip: Label
 ## The region's load card (art/ui/key/load_*.png) over the loading screen, and
@@ -51,7 +61,9 @@ static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false
 	# The first-sight cards (TutorialSpotlight): on or not, and the ids already shown.
 	"tutorial_tips": true, "tutorial_seen": [],
 	# 主线引导 (Story): on or off; off, every region is open from the start.
-	"story_guide": true}
+	"story_guide": true,
+	# The save slot last played (SaveSlots); the terminal and ticker open it.
+	"save_slot": 0}
 static var _game: GameManager
 
 func _ready() -> void:
@@ -60,7 +72,9 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	SystemScreens.load_settings()
 	SystemScreens.apply_settings()
-	SystemScreens.apply_window()
+	# Once per launch: a reload onto another save keeps the window as it is.
+	if not _window_applied: SystemScreens.apply_window()
+	_window_applied = true
 	_title = _build_title()
 	_loading = _build_loading()
 	_settings = _build_settings()
@@ -69,8 +83,104 @@ func _ready() -> void:
 	_settings.hide()
 
 func show_title() -> void:
+	_deleting = -1
+	_show_slots(false)
 	_title.show()
-	if is_instance_valid(game): game.open_modal("title")
+	if is_instance_valid(game) and game.is_inside_tree(): game.open_modal("title")
+
+## 开始游戏 swaps the title's buttons for the slots; 返回 (or Esc) swaps back.
+func _show_slots(on: bool) -> void:
+	_deleting = -1
+	_menu.visible = not on
+	_slots.visible = on
+	if on: _fill_slots()
+
+## The three slots, a narrow column left of the landship: a used one enters
+## (or 删除, twice to be sure), an empty one starts a new save there.
+func _fill_slots() -> void:
+	for child in _slots.get_children(): child.queue_free()
+	var last := int(settings.get("save_slot", 0))
+	for i in range(SaveSlots.COUNT):
+		var used := SaveSlots.used(i)
+		var row := Control.new()
+		row.position = Vector2(0, i * 70)
+		_slots.add_child(row)
+		var pick := AK.button("", "blue" if used and i == last else "plain", 14)
+		pick.pressed.connect(_pick.bind(i))
+		AK.put(row, pick, Vector2.ZERO, Vector2(200, 64))
+		var name := AK.label("存档 %d" % (i + 1), 15, AK.FG)
+		name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		AK.put(row, name, Vector2(14, 5))
+		var colour := AK.FG if used and i == last else AK.MUTE
+		var lines := _slot_lines(i) if used else ["空", ""]
+		for n in range(2):
+			var info := AK.label(lines[n], 11, colour)
+			info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			AK.put(row, info, Vector2(14, 28 + n * 16))
+		if i == slot:
+			var tag := AK.tag("当前", AK.PAPER)
+			tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			AK.put(row, tag, Vector2(152, 7))
+		var busy := used and SaveSlots.busy(i)
+		var side := AK.button("使用中" if busy else (("确认" if _deleting == i else "删除") if used else "新存档"), "plain" if used else "green", 12)
+		side.disabled = busy
+		side.pressed.connect((_delete if used else _pick).bind(i))
+		if used and _deleting == i: side.add_theme_color_override("font_color", AK.RED)
+		AK.put(row, side, Vector2(206, 0), Vector2(64, 64))
+	var back := AK.button("返回", "plain", 14)
+	back.pressed.connect(_show_slots.bind(false))
+	AK.put(_slots, back, Vector2(0, 3 * 70), Vector2(270, 36))
+
+func _slot_lines(i: int) -> Array:
+	var s := SaveSlots.summary(i)
+	if s.is_empty(): return ["—", ""]
+	var bias := int(Time.get_time_zone_from_system().get("bias", 0)) * 60
+	var t := Time.get_datetime_dict_from_unix_time(int(s.saved) + bias)
+	return ["龙门币 %d · 干员 %d" % [s.lmd, s.operators], "%02d-%02d %02d:%02d" % [t.month, t.day, t.hour, t.minute]]
+
+func _pick(i: int) -> void:
+	_deleting = -1
+	SystemScreens.set_setting("save_slot", i)
+	if not game.is_inside_tree():
+		slot = i
+		_title.hide()
+		await show_loading_now()
+		launch.call(i)
+	elif i == slot:
+		_start()
+	else:
+		# Another save: the whole scene starts again on it (as quitting would).
+		if game.in_base and not game.transitioning: game.save_base()
+		pending_slot = i
+		get_tree().reload_current_scene()
+
+func _delete(i: int) -> void:
+	if _deleting != i:
+		_deleting = i
+		_fill_slots()
+		return
+	_deleting = -1
+	if i == slot and game.is_inside_tree():
+		# The save in play: it stops writing first, then the scene starts over.
+		game.save_enabled = false
+		if game.save_lock != null: game.save_lock.leave()
+		if SaveSlots.delete(i):
+			pending_slot = -1
+			get_tree().reload_current_scene()
+		return
+	SaveSlots.delete(i)
+	_fill_slots()
+
+## The loading screen up and drawn before a save is loaded: the game's own
+## _ready holds the frame while it builds.
+func show_loading_now() -> void:
+	begin_loading()
+	_target = 0.3
+	_progress = 0.3
+	_draw_bar()
+	# Two frames: the first one ends drawn (frame_post_draw never comes headless).
+	await get_tree().process_frame
+	await get_tree().process_frame
 
 func _start() -> void:
 	_title.hide()
@@ -85,11 +195,11 @@ func _process(delta: float) -> void:
 		_show_card()
 		_loading_left -= delta
 		# Waiting on the navigation creeps on to just short of full; done fills it.
-		if game.transitioning: _target = maxf(_target, minf(_target + delta * 0.05, 0.95))
+		if game.transitioning or game.booting: _target = maxf(_target, minf(_target + delta * 0.05, 0.95))
 		else: _target = 1.0
 		_progress = move_toward(_progress, _target, delta * BAR_SPEED)
 		_draw_bar()
-		if _loading_left <= 0.0 and not game.transitioning and _progress >= 1.0: _loading.hide()
+		if _loading_left <= 0.0 and not game.transitioning and not game.booting and _progress >= 1.0: _loading.hide()
 
 func _flash_loading() -> void:
 	_tip.text = TIPS[randi() % TIPS.size()]
@@ -183,13 +293,17 @@ func _build_title() -> Control:
 	var name_cn := AK.label("罗德岛 · 外勤", 22, AK.MUTE)
 	name_cn.position = Vector2(128, 318)
 	screen.add_child(name_cn)
+	_slots = Control.new()
+	_slots.position = Vector2(128, 380)
+	screen.add_child(_slots)
 	var buttons := VBoxContainer.new()
 	buttons.position = Vector2(128, 430)
 	buttons.add_theme_constant_override("separation", 8)
 	screen.add_child(buttons)
-	var start := AK.button("开始唤醒", "blue", 18)
+	_menu = buttons
+	var start := AK.button("开始游戏", "blue", 18)
 	start.custom_minimum_size = Vector2(240, 48)
-	start.pressed.connect(_start)
+	start.pressed.connect(_show_slots.bind(true))
 	buttons.add_child(start)
 	var open_settings := AK.button("设置", "plain", 15)
 	open_settings.custom_minimum_size = Vector2(240, 40)
@@ -341,6 +455,7 @@ func go_back() -> bool:
 		SystemScreens.save_settings()
 		_settings.hide()
 		return true
+	if _title.visible and _slots.visible: _show_slots(false)
 	return _title.visible
 
 static func load_settings() -> void:
@@ -380,5 +495,8 @@ static func apply_settings() -> void:
 
 static func apply_window() -> void:
 	if _game == null: return
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+	# Windowed leaves a maximised window as it is; only fullscreen is undone.
+	var mode := DisplayServer.window_get_mode()
+	if settings.fullscreen: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	elif mode in [DisplayServer.WINDOW_MODE_FULLSCREEN, DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if settings.vsync else DisplayServer.VSYNC_DISABLED)

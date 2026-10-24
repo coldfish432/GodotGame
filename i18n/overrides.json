@@ -351,5 +351,11 @@
  "未接入": "Not linked",
  "需要基建总控台": "Needs the Construction Hub",
  "需要%s关系 R%d": "Needs %s relation R%d",
- "%s 关系 R%d": "%s relation R%d"
+ "%s 关系 R%d": "%s relation R%d",
+ "制式": "Standard",
+ "罗德岛制式": "Rhodes Island Standard",
+ "补齐空槽": "Fill Empty Slots",
+ "交还制式": "Return Standard Gear",
+ "制式收回": "Returned to Logistics",
+ "整备台用于换装、改造和领取制式装备。换装页可以把仓库里的装备穿上、把物品放进背包或安全袋带走；改造页可以重铸、校准、精调装备的前缀；制式页可以免费领取罗德岛制式装备，合同结束时收回。": "The Loadout Bench is for changing, modifying and drawing standard gear. The loadout page puts on gear from the depot and packs items into the pack or pouch; the modify page reforges, calibrates and fine-tunes gear prefixes; the standard page issues Rhodes Island standard gear for free, taken back when the contract ends."
 }

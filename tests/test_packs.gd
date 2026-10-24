@@ -44,14 +44,21 @@ func run() -> void:
 	game.rng.seed = 77
 	game.gold = 500000
 	# --- The packs ------------------------------------------------------------------
-	check("eleven packs, one per category", Packs.ORDER.size() == 11 and Packs.PACKS.size() == 11)
+	check("twelve packs, one per category", Packs.ORDER.size() == 12 and Packs.PACKS.size() == 12)
 	var cats := {}
 	for pack in Packs.ORDER:
 		cats[Packs.category_of(pack)] = true
 		check("%s is a material of its category" % pack, MaterialCatalog.MATERIALS.has(pack) and FactionCatalog.material_category(pack) == Packs.category_of(pack)
 			and MaterialCatalog.create(pack, 1).unit_value == Packs.face(pack))
 	check("every market category has a pack", FactionCatalog.CATEGORIES.keys().all(func(c): return cats.has(c)))
-	check("gear and contraband packs do not open", not Packs.can_open("武器包") and not Packs.can_open("违禁品包") and Packs.can_open("建材包"))
+	check("gear, contraband and crop packs do not open", not Packs.can_open("武器包") and not Packs.can_open("违禁品包") and not Packs.can_open("作物包") and Packs.can_open("建材包"))
+	# 作物包 (用户 2026-10-23): crops go one way, at about delivery price.
+	check("crops go into 作物包, 补给 into 医疗包", Packs.pack_for(FactionCatalog.category_of(MaterialCatalog.create("舰载麦", 1))) == "作物包"
+		and Packs.pack_for(FactionCatalog.category_of(MaterialCatalog.create("舰内口粮", 1))) == "医疗包")
+	check("nobody sells 作物包", FactionCatalog.ORDER.all(func(f): return not FactionCatalog.packs_sold(f).has("作物包")))
+	for f in FactionCatalog.trading():
+		var p := FactionCatalog.preference(f, "crop")
+		if p > 0.0: check("%s takes crops below its medical rate: %.2f" % [f, p], p < 1.0 and not FactionCatalog.info(f).get("field_only", false))
 	check("a pack is never packed again; 赤金 and flasks neither", not Packs.packable(MaterialCatalog.create("建材包", 1)) and not Packs.packable(MaterialCatalog.create(Economy.GOLD_ID, 1)))
 	check("势力特供 do not go into packs", not Packs.packable(MaterialCatalog.create("高能燃料", 1)))
 	var insured := gear(Item.Category.WEAPON, 100)
@@ -80,11 +87,12 @@ func run() -> void:
 	var plates := stash_add(MaterialCatalog.create("金属板", 20))    # ★2, 8 points each
 	check("the most packs from the shelf: %d" % Packs.max_packs("建材包", game.stash), Packs.max_packs("建材包", game.stash) == (20 * 4 + 20 * 8) / 100)
 	var lmd := game.gold
-	check("one-key packing queues the packs and charges 100 each", game.pack_quick("建材包", 2) and game.gold == lmd - 200 and game.workshop.jobs.size() == 1)
+	check("one-key packing queues the packs and charges %d each" % Packs.PACK_LMD, game.pack_quick("建材包", 2) and game.gold == lmd - 2 * Packs.PACK_LMD and game.workshop.jobs.size() == 1)
 	check("it took the cheap bolts first and spilled little: %d 金属板 left" % plates.quantity, not game.stash.has(bolts) and plates.quantity >= 20 - 16)
+	var packed := game.material_count("建材包")
 	BaseState.clock_offset += 300
 	game._tick_workshop()
-	check("the packs come out at staging", game.base.staging.any(func(i): return i.material_id == "建材包" and i.quantity == 2))
+	check("the packs go straight into the warehouse (仓库修订)", game.material_count("建材包") == packed + 2)
 	game.workshop.jobs.clear()
 	var a := stash_add(gear(Item.Category.ARMOR, 300))
 	var b := stash_add(gear(Item.Category.ARMOR, 150))
@@ -100,8 +108,9 @@ func run() -> void:
 	var pick := {"金属板": 11}       # 9 points each (8 × 1.1, up)
 	check("a pick costs value × 1.1 in points: %d" % Packs.pick_cost("建材包", pick), Packs.pick_cost("建材包", pick) == 99)
 	check("more than the pack refuses", game.unpack_refusal("建材包", {"金属板": 12}) == "点数不足")
-	var staged := game.base.staging.size()
-	check("opening one pack", game.unpack("建材包", pick) and game.material_count("建材包") == 1 and game.base.staging.size() > staged)
+	var plates_before := game.material_count("金属板")
+	var packs_before := game.material_count("建材包")
+	check("opening one pack puts the pick in the warehouse", game.unpack("建材包", pick) and game.material_count("建材包") == packs_before - 1 and game.material_count("金属板") == plates_before + 11)
 	check("the point left waits for the next pack of its kind", int(game.workshop.points.get("build", 0)) == 1 and game.open_points("建材包") == 101)
 	check("gear packs never open", game.unpack_refusal("武器包", {}) == "拆不开")
 	# Packing then opening always loses.
@@ -133,6 +142,9 @@ func run() -> void:
 	check("the shelf stays within the hour", cs.goods("萨米") == shelf)
 	BaseState.clock_offset += 3600
 	check("and restocks on the next", cs.goods("萨米") != shelf)
+	var wheat := MaterialCatalog.create("舰载麦", 6)
+	var near := cs.sell_quote("龙门", wheat) / float(Economy.direct_price(wheat))
+	check("she pays for crops about what delivery does: ×%.2f" % near, near > 0.9 and near < 1.1)
 	check("龙门 is in 龙门币, the rest in 赤金", Consignment.currency("龙门") == "lmd" and Consignment.currency("萨米") == "gold")
 	check("she takes loose goods and gear, never packs", Consignment.takes(MaterialCatalog.create("帆布", 2)) and Consignment.takes(gear(Item.Category.WEAPON, 50)) and not Consignment.takes(MaterialCatalog.create("建材包", 1)))
 	# Prices follow the packs' books there.
@@ -176,7 +188,6 @@ func run() -> void:
 	game.menu.open_quick_pack()
 	check("P opens no window over the workshop (its page has the form)", not is_instance_valid(game.menu.quick_pack_panel))
 	game.close_modal()
-	game.base.console = true
 	game.open_station("stash")
 	game.menu.open_quick_pack()
 	check("P opens the window over the warehouse console", is_instance_valid(game.menu.quick_pack_panel))

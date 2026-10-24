@@ -252,7 +252,7 @@ func run() -> void:
 	game.settle(true)
 	await step(2)
 	check("starts at 10×6 and 2×2", game.inventory.width == 10 and game.inventory.height == 6 and game.safe_bag.width == 2 and game.safe_bag.height == 2)
-	game.gold = 100000
+	game.gold = 500000
 	check("pack expansion needs 整备部 Lv2", not game.buy_pack_upgrade() and game.upgrade_refusal("pack") == "需要整备部 Lv2")
 	game.base.set_facility("outfit", 3)
 	check("expansions also need base materials", not game.buy_pack_upgrade() and "缺少" in game.upgrade_refusal("pack"))
@@ -266,7 +266,7 @@ func run() -> void:
 			game.base.shelf.append(m)
 			left -= m.quantity
 	check("at 整备部 Lv3 the pack grows to 10×8 then 12×8", game.buy_pack_upgrade() and game.inventory.height == 8 and game.buy_pack_upgrade() and game.inventory.width == 12)
-	check("then it is fully expanded", not game.buy_pack_upgrade() and game.gold == 100000 - 15000 - 40000)
+	check("then it is fully expanded", not game.buy_pack_upgrade() and game.gold == 500000 - int(BaseCatalog.PACK_PRICES[1]) - int(BaseCatalog.PACK_PRICES[2]))
 	check("safe bag grows to 3×2 at Lv3, 3×3 needs Lv4", game.buy_safe_upgrade() and game.safe_bag.width == 3 and not game.buy_safe_upgrade())
 	check("and every material was used", needed.keys().all(func(id): return game.material_count(id) == 0))
 	var data_out := game.base.to_data()
@@ -277,8 +277,15 @@ func run() -> void:
 	for i in range(3):
 		mats.append(Item.create("封装矿料", Item.Category.MATERIAL, 1, 1))
 		game.inventory.try_add(mats[-1])
-	check("store-all sends every carried material to the warehouse", game.store_all_materials() == 3 and mats.all(func(x): return game.stash.has(x) or game.base.staging.has(x)))
-	game.base.console = true   # search lives on the master console (用户 2026-10-07)
+	var stored := game.store_all_materials()
+	check("store-all sends every carried material to the warehouse", stored >= 3 and mats.all(func(x): return game.stash.has(x))
+		and not game.carried_items().any(func(x): return not x.is_equippable()))
+	# 一键入库 (仓库修订): the pack and the safe bag go in, gear included; what she wears stays on.
+	var worn_before: Array = game.player.equipped.values().filter(func(x): return x != null)
+	var packed := game.inventory.items.duplicate() + game.safe_bag.items.duplicate()
+	check("一键入库 puts the pack and the safe bag into the warehouse, worn stays on", game.store_all_carried() == packed.size()
+		and packed.all(func(x): return game.stash.has(x)) and game.inventory.items.is_empty() and game.safe_bag.items.is_empty()
+		and worn_before.all(func(x): return game.player.equipped.values().has(x) and not game.stash.has(x)))
 	game.open_station("stash")
 	await step()
 	game.menu.stash_query = "不存在的名字"

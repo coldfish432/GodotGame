@@ -36,7 +36,6 @@ func _day(who: String, seed_value: int) -> float:
 	game.exchange = ex
 	ex.setup(game, market)
 	ex.relations = {"karlan": Exchange.RANK_AT[3], "kazimierz": Exchange.RANK_AT[3]}
-	ex.cfd_day.used = -1e12        # no cap while measuring
 	game.gold = 1000000
 	var start_gold := float(game.gold)
 	# Lambdas capture by value: the headline time goes through a dictionary.

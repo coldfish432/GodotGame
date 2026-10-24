@@ -42,12 +42,20 @@ func _ready() -> void:
 	# `-- --exchange` / `-- --ticker` (交易终端与盯盘小窗策划案_v1_0.md §1): the
 	# exchange alone, no world drawn, no title, no sound.
 	var user_args := OS.get_cmdline_user_args()
+	var real := get_tree().current_scene == self
+	# The slot last played (SaveSlots); the title picks one in the real game.
+	if real:
+		SystemScreens.load_settings()
+		game.save_path = SaveSlots.path(clampi(int(SystemScreens.settings.get("save_slot", 0)), 0, SaveSlots.COUNT - 1))
+	var own_save := false
 	# Checking aids: `--save=user://x.json` plays another save, `--shot=path.png`
 	# saves the window after a few seconds (`--shot=path.png@20` after 20).
 	for arg in user_args:
-		if arg.begins_with("--save="): game.save_path = arg.substr(7)
+		if arg.begins_with("--save="):
+			game.save_path = arg.substr(7)
+			own_save = true
 		if arg.begins_with("--shot="): _shot_later(arg.substr(7))
-	if get_tree().current_scene == self and ("--exchange" in user_args or "--ticker" in user_args):
+	if real and ("--exchange" in user_args or "--ticker" in user_args):
 		game.app_mode = "exchange" if "--exchange" in user_args else "ticker"
 		world_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 		container.hide()
@@ -66,18 +74,38 @@ func _ready() -> void:
 			window.title = "罗德岛交易终端"
 		world_viewport.add_child(game)
 		return
-	world_viewport.add_child(game)
 	# Title, loading and settings only in the real game; tests instantiate this
 	# scene under their own SceneTree and go straight in.
-	if get_tree().current_scene == self:
-		var system_layer := CanvasLayer.new()
-		system_layer.layer = 30
-		add_child(system_layer)
-		var screens := SystemScreens.new()
-		screens.game = game
-		system_layer.add_child(screens)
-		game.system_screens = screens
-		screens.show_title()
+	if not real:
+		world_viewport.add_child(game)
+		return
+	var system_layer := CanvasLayer.new()
+	system_layer.layer = 30
+	add_child(system_layer)
+	var screens := SystemScreens.new()
+	screens.game = game
+	system_layer.add_child(screens)
+	game.system_screens = screens
+	# Picked on the title while another save was in play: straight in on it.
+	if SystemScreens.pending_slot >= 0 or own_save:
+		if not own_save: game.save_path = SaveSlots.path(SystemScreens.pending_slot)
+		screens.slot = SystemScreens.pending_slot
+		SystemScreens.pending_slot = -1
+		await screens.show_loading_now()
+		world_viewport.add_child(game)
+		return
+	# Nothing loads until a slot is picked on the title.
+	_game = game
+	screens.launch = func(slot: int):
+		game.save_path = SaveSlots.path(slot)
+		world_viewport.add_child(game)
+	screens.show_title()
+
+var _game: GameManager
+
+func _exit_tree() -> void:
+	# Quit from the title: the game was never added.
+	if is_instance_valid(_game) and not _game.is_inside_tree(): _game.free()
 
 ## `path.png` or `path.png@seconds` (6 by default); several can be given.
 func _shot_later(spec: String) -> void:

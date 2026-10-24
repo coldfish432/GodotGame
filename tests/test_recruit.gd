@@ -39,7 +39,7 @@ func run() -> void:
 
 func _catalog() -> void:
 	var state := BaseState.new()
-	check("a new Doctor has Amiya, and the debug build Lappland too", state.roster == BaseState.starting_roster() and state.roster[0] == Operators.AMIYA_GUARD and (Operators.LAPPLAND in state.roster) == OS.is_debug_build())
+	check("a new Doctor has only Amiya", state.roster == [Operators.AMIYA_GUARD] and state.operator == Operators.AMIYA_GUARD)
 	check("every recruit has a region the game has", RecruitCatalog.RECRUITS.keys().all(func(id): return FieldCatalog.REGIONS.has(RecruitCatalog.region_of(id))))
 	check("two recruits per region", FieldCatalog.REGIONS.keys().all(func(r): return RecruitCatalog.in_region(r).size() == 2))
 	check("every operator has its sheets and portrait", Operators.ORDER.all(func(id): return LapplandAnimator3D.CHARACTERS.has(id) and LapplandAnimator3D.sheet(id, "walk") != null and LapplandAnimator3D.sheet(id, "idle") != null and Operators.portrait(id) != null))

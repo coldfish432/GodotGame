@@ -101,6 +101,7 @@ const MATERIALS := {
 	"建材包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准建材包，交易所按包报价。"},
 	"电子包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 120, "text": "加工部封装的标准电子包，交易所按包报价。"},
 	"医疗包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准医疗包，交易所按包报价。"},
+	"作物包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的农业部作物，加了封条，拆不开。"},
 	"燃料包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准燃料包，交易所按包报价。"},
 	"寒地物资包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准寒地物资包，交易所按包报价。"},
 	"源石包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 120, "text": "加工部封装的标准源石包，交易所按包报价。"},
@@ -122,14 +123,16 @@ const MATERIALS := {
 	"残党向导": {"star": 3, "kind": "base", "source": "special", "stack": 5, "text": "整合运动残党里熟悉地形的人，愿意指出这一层藏东西的地方。"},
 	"闪耀作物种子": {"star": 4, "kind": "base", "source": "special", "stack": 10, "text": "莱茵生命生态科培育的种子，长成后会在暗处发光。"},
 	"闪耀作物·变种种子": {"star": 5, "kind": "base", "source": "special", "stack": 5, "text": "生态科还在观察的变种，长得慢，光更亮。"},
-	# 农业部 and 食堂 (§四–§五): crops and the 补给 cooked from them.
-	"舰载麦": {"star": 1, "kind": "base", "source": "farm", "text": "农业部水培槽里长的麦子，舰上每顿饭的底料。"},
-	"块茎薯": {"star": 1, "kind": "base", "source": "farm", "text": "耐储存的块茎，食堂的主食。"},
-	"温室豆": {"star": 2, "kind": "base", "source": "farm", "text": "补光灯下长的豆子，蛋白质的来源。"},
-	"闪耀作物": {"star": 4, "kind": "base", "source": "farm", "stack": 5, "text": "莱茵生命的闪耀作物，收下来还在微微发光。"},
-	"闪耀作物·变种": {"star": 5, "kind": "base", "source": "farm", "stack": 3, "text": "变种的闪耀作物，光很亮，味道也更浓。"},
-	"舰内口粮": {"star": 2, "kind": "base", "source": "meal", "stack": 5, "text": "食堂压制的口粮块。"},
-	"食堂便当": {"star": 3, "kind": "base", "source": "meal", "stack": 5, "text": "主食、配菜和豆子装成的便当。"},
+	# 农业部 and 食堂 (§四–§五): crops and the 补给 cooked from them. Crops sell for
+	# about their seed × 1.25 a basin (用户 2026-10-23), so the farm is a side
+	# income; 口粮 and 便当 are priced so cooking does not beat selling the crops.
+	"舰载麦": {"star": 1, "kind": "base", "source": "farm", "value": 2, "text": "农业部水培槽里长的麦子，舰上每顿饭的底料。"},
+	"块茎薯": {"star": 1, "kind": "base", "source": "farm", "value": 2, "text": "耐储存的块茎，食堂的主食。"},
+	"温室豆": {"star": 2, "kind": "base", "source": "farm", "value": 4, "text": "补光灯下长的豆子，蛋白质的来源。"},
+	"闪耀作物": {"star": 4, "kind": "base", "source": "farm", "value": 22, "stack": 5, "text": "莱茵生命的闪耀作物，收下来还在微微发光。"},
+	"闪耀作物·变种": {"star": 5, "kind": "base", "source": "farm", "value": 74, "stack": 3, "text": "变种的闪耀作物，光很亮，味道也更浓。"},
+	"舰内口粮": {"star": 2, "kind": "base", "source": "meal", "value": 6, "stack": 5, "text": "食堂压制的口粮块。"},
+	"食堂便当": {"star": 3, "kind": "base", "source": "meal", "value": 14, "stack": 5, "text": "主食、配菜和豆子装成的便当。"},
 	"闪耀定食": {"star": 4, "kind": "base", "source": "meal", "stack": 3, "text": "闪耀作物做主菜的定食，盘子里也亮着。"},
 	"变种盛宴": {"star": 5, "kind": "base", "source": "meal", "stack": 3, "text": "变种闪耀作物做的大餐，食堂一天只做得出几份。"},
 }

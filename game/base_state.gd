@@ -1,30 +1,20 @@
 class_name BaseState
 extends RefCounted
 
-## Where every item at the base is, and the rules for moving it between those
-## places (基地玩法策划案_v1_0.md §3.1). An item is in exactly one place:
-##
-##   crate_sealed  a receiving crate, not yet opened
-##   crate_open    an opened crate, not yet shelved or staged
-##   staging       unsorted holding; not the warehouse: no delivery, and it
-##                 reaches the pack only by being taken out at staging
-##   shelf         personal storage, the warehouse proper (was GameManager.stash)
-##   hand          carried by Lappland across the warehouse, one item at most;
-##                 never leaves the base (returned on departure, saved as where it came from)
+## Where every item at the base is, and the rules for moving it
+## (基地玩法策划案_v1_0.md §3.1, 仓库修订 用户 2026-10-23): the warehouse
+## (`shelf`, was GameManager.stash) is one count of cells for every kind of
+## item, a stack of one material per cell up to its limit × stack_mult().
+## What comes home stays in the bags until it is put away (at settlement's
+## 仓库 page or the 仓管台); what the base itself brings back (insured gear,
+## the workshop, a parcel) goes straight in. No crates, staging or carrying.
 ##
 ## Equipped and packed items (the loadout) belong to GameManager and the player;
 ## they are not tracked here. Every move checks first and changes nothing when
 ## it fails, so a refused move never loses or duplicates an item.
 
 var shelf: Array[Item] = []
-## {"item": Item, "opened": bool}, in arrival order. The first
-## BaseCatalog.RECEIVING_BAYS sit on the numbered bays.
-var crates: Array[Dictionary] = []
-var staging: Array[Item] = []
-var hand: Item = null
-## Where the carried item was picked up: "crate" or "staging". Put back there.
-var hand_from := ""
-## Category -> racks built.
+## Category -> racks drawn in the warehouse room (by 仓储部 level, racks_shown).
 var racks := {}
 ## Facility id -> level (BaseCatalog.FACILITIES). Levels unlock convenience and
 ## capacity only, never combat strength.
@@ -54,18 +44,16 @@ var closure_restock_at := 0
 ## left an injury. Unread until she opens it.
 var medical_report := {}
 var report_unread := false
-## The engineering drone (§3.5): bought once from 仓储部 Lv2, sorts on command and empties
-## staging onto the shelves at every return.
+## Saves from before 仓库修订 bought a drone; it only lifts their 仓储部 level now.
 var drone := false
-## The warehouse master console (BaseCatalog.CONSOLE_PRICE): browse, search and
-## bring from every zone at the 仓管台. Saves from before it existed load with it.
-var console := false
+## The 仓管台 always browses the whole warehouse (仓库修订: no console to buy).
+var console := true
 ## Contract offers at the dispatch desk, region -> [contract] (局内节奏与目标策划案 §6 B1).
 var contract_offers := {}
 ## Expansion levels into BaseCatalog.PACK_SIZES / SAFE_SIZES.
 var pack_level := 0
 var safe_level := 0
-## 仓储部 Lv4: one free order reroll per settlement.
+## A free order reroll (仓库修订 took 仓储部 Lv4's away; nothing grants one now).
 var reroll_available := false
 ## Bad-luck protection for drops (掉落物策划案 §5.2), kept across contracts.
 var loot_pity := {"rare_gear": 0.0, "rare_material": 0.0}
@@ -127,8 +115,6 @@ var operator := default_operator()
 ## Who has joined (干员寻访策划案 §9): a new Doctor has only Amiya; the debug
 ## build keeps Lappland too (用户 2026-10-16: debug版本先保留).
 var roster: Array[String] = []
-## Who has been issued her set of Rhodes standard gear (装备策划案 §10).
-var kitted: Array[String] = []
 ## 踪迹 per operator (§2.1): a counter, never an item; a fall loses none.
 var recruit_clues := {}
 ## id -> the trace keys of hers found so far (RecruitCatalog.TRACE_SMALL/BIG).
@@ -146,8 +132,6 @@ var research := {"done": [], "active": [], "projects": {}, "endless": {}, "run":
 var farm := Provisions.fresh_state()
 ## Rhodes standard gear's rarity, raised by 工程部Ⅱ/Ⅳ (复利清单 D): 0 white, 1 blue, 2 gold.
 var rhodes_rarity := 0
-## The last Rhodes set issued to each operator: id -> [tier, rarity] (复利清单 D reissues).
-var kit_issued := {}
 ## 外勤部Ⅱ: one free contract reroll per return.
 var contract_reroll := false
 ## A medical stay has run at least an hour (医疗部Ⅲ's requirement).
@@ -165,13 +149,10 @@ func endless_level(line: String) -> int:
 func project_on(project: String) -> bool:
 	return project in (research.run as Array)
 
-## The order board: 2, 3 from 仓储部 Lv3, one more with 后勤部Ⅰ.
+## The order board: 3 (仓库修订 moved 仓储部's extra slot to everyone), one
+## more with 后勤部Ⅰ.
 func order_slot_count() -> int:
-	return BaseCatalog.ORDER_SLOTS + (1 if facility_level("warehouse") >= BaseCatalog.ORDER_SLOTS_LEVEL else 0) + (1 if researched("order_slot") else 0)
-
-## Cells on one rack: 14 with 后勤部Ⅲ.
-func rack_cells() -> int:
-	return BaseCatalog.RACK_CELLS + (2 if researched("rack_cells") else 0)
+	return BaseCatalog.ORDER_SLOTS + 1 + (1 if researched("order_slot") else 0)
 
 ## Free 标准急救剂 per contract: 4 with 医疗部Ⅰ.
 func free_potion_count() -> int:
@@ -202,11 +183,18 @@ func _init() -> void:
 		racks[category] = BaseCatalog.STARTING_RACKS
 	orders.start_fresh()
 	reset_facilities()
+	orders.resize(order_slot_count())
 
 func reset_facilities() -> void:
 	facilities = {}
 	for id in BaseCatalog.FACILITY_ORDER: facilities[id] = BaseCatalog.facility_start(id)
 	connected = []
+	_show_racks()
+
+## The racks the warehouse room draws: three a level, every zone alike.
+func _show_racks() -> void:
+	for category in range(Item.Category.size()):
+		racks[category] = clampi(facility_level("warehouse") * 3 - 2, BaseCatalog.STARTING_RACKS, BaseCatalog.RACK_SLOTS)
 
 func hub_built() -> bool:
 	return facility_level("hub") >= 1
@@ -221,12 +209,14 @@ func connect_facility(id: String) -> void:
 func set_facility(id: String, level: int) -> void:
 	facilities[id] = clampi(level, BaseCatalog.facility_start(id), BaseCatalog.facility_max(id))
 	orders.resize(order_slot_count())
+	_show_racks()
 
 ## Every facility at its top level (tools and tests).
 func max_facilities() -> void:
 	for id in BaseCatalog.FACILITY_ORDER: facilities[id] = BaseCatalog.facility_max(id)
 	connected.assign(BaseCatalog.connectable())
 	orders.resize(order_slot_count())
+	_show_racks()
 
 func facility_level(id: String) -> int:
 	return int(facilities.get(id, BaseCatalog.facility_start(id)))
@@ -243,6 +233,7 @@ func facility_refusal(id: String, money: int) -> String:
 func raise_facility(id: String) -> int:
 	facilities[id] = mini(facility_level(id) + 1, BaseCatalog.facility_max(id))
 	orders.resize(order_slot_count())
+	_show_racks()
 	return facility_level(id)
 
 ## Max HP lost on the next contract: the injury's.
@@ -257,13 +248,13 @@ func potion_price(type: String) -> int:
 	if type == "A": return 0 if free_potions > 0 else BaseCatalog.POTION_A_PRICE
 	return int(p.price)
 
-## Who deploys on a new save: Lappland in the debug build, else Amiya.
+## Who deploys on a new save: Amiya, the only operator a new Doctor has.
 static func default_operator() -> String:
-	return Operators.LAPPLAND if OS.is_debug_build() else Operators.AMIYA_GUARD
+	return Operators.AMIYA_GUARD
 
+## Everyone else is recruited (干员寻访策划案).
 static func starting_roster() -> Array[String]:
 	var out: Array[String] = [Operators.AMIYA_GUARD]
-	if OS.is_debug_build(): out.append(Operators.LAPPLAND)
 	return out
 
 func recruited(id: String) -> bool:
@@ -369,13 +360,12 @@ func tick_insurance() -> Array[Item]:
 func queue_insured(item: Item, seconds: int) -> void:
 	insurance_queue.append({"item": item, "due": now() + maxi(seconds, 1)})
 
-## Straight into staging (the squad's 送回, §4). False when staging is full.
+## 送回 and other arrivals (the squad, the workshop, a parcel): straight into
+## the warehouse, full or not — nothing that comes home is lost.
 func receive_to_staging(item: Item) -> bool:
-	if item == null or not location_of(item).is_empty() or not staging_has_room(): return false
-	staging.append(item)
-	return true
+	return receive(item)
 
-# --- Expansion and the drone (§3.5, §3.6) ---------------------------------------
+# --- Expansion (§3.5) -------------------------------------------------------------
 
 ## "" when the next pack ("pack") or safe-bag ("safe") level can be bought.
 func upgrade_refusal(kind: String, money: int) -> String:
@@ -390,279 +380,149 @@ func upgrade_refusal(kind: String, money: int) -> String:
 func can_upgrade(kind: String, money: int) -> bool:
 	return upgrade_refusal(kind, money).is_empty()
 
-## The next rack slot for `category`, or -1 when all nine are built.
-func next_rack_slot(category: int) -> int:
-	var built := int(racks[category])
-	return built if built < BaseCatalog.RACK_SLOTS else -1
-
-## Why the next rack cannot be built now ("" if it can, given the gold).
-func rack_refusal(category: int, gold: int) -> String:
-	var slot := next_rack_slot(category)
-	if slot < 0: return "%s区的 9 个货架位都建好了。" % BaseCatalog.CATEGORY_NAMES[category]
-	if facility_level("warehouse") < int(BaseCatalog.RACK_LEVELS[slot]): return "需要仓储部 Lv%d。" % BaseCatalog.RACK_LEVELS[slot]
-	if gold < int(BaseCatalog.RACK_PRICES[slot]): return "龙门币不足（%s）。" % Economy.format(BaseCatalog.RACK_PRICES[slot])
-	return ""
-
-## Builds the next rack; the caller pays BaseCatalog.RACK_PRICES[slot].
-func build_rack(category: int) -> int:
-	var slot := next_rack_slot(category)
-	if slot < 0: return -1
-	racks[category] = slot + 1
-	return slot
-
-## "Open and sort everything" (§3.5): opens every sealed crate, then shelves
-## everything opened or staged that has room. What does not fit goes to staging
-## (from crates) or stays (in staging, or in a crate once staging is full).
-## Returns {"revealed": [Item], "shelved": [Item], "staged": [Item], "left": [Item]}.
+## Nothing to sort any more (仓库修订): kept so old callers read an empty result.
 func sort_all() -> Dictionary:
-	var revealed: Array[Item] = []
-	for crate in crates:
-		if not crate.opened:
-			crate.opened = true
-			revealed.append(crate.item)
-	var result := sort_staging()
-	result.revealed = revealed
-	for crate in crates.duplicate():
-		var item: Item = crate.item
-		if shelf_has_room(item.category):
-			shelve(item)
-			result.shelved.append(item)
-		elif stage(item): result.staged.append(item)
-		else: result.left.append(item)
-	return result
+	return {"revealed": [], "shelved": [], "staged": [], "left": []}
 
-## Staging onto the shelves where there is room (also what the drone does on
-## every return).
 func sort_staging() -> Dictionary:
-	var result := {"revealed": [], "shelved": [], "staged": [], "left": []}
-	for item in staging.duplicate():
-		if shelf_has_room(item.category):
-			shelve(item)
-			result.shelved.append(item)
-		else: result.left.append(item)
-	return result
+	return sort_all()
 
 # --- Queries -----------------------------------------------------------------
 
-## Racks hold a group: the five armour slots share the armour racks, the
-## amulet and ring the trinket racks (装备部位拆分与数值案, Item.group_of).
-func capacity(category: int) -> int:
-	return int(racks[Item.group_of(category)]) * rack_cells()
+## The warehouse's cells (仓库修订: one count for every kind of item). The
+## category argument is kept for old callers and ignored.
+func capacity(_category: int = 0) -> int:
+	var cells := int(BaseCatalog.WAREHOUSE_CELLS[clampi(facility_level("warehouse"), 1, BaseCatalog.WAREHOUSE_CELLS.size() - 1)])
+	if researched("rack_cells"): cells = roundi(cells * (1.0 + BaseCatalog.RESEARCH_CELLS))
+	return cells
 
-func shelf_count(category: int) -> int:
-	return shelf.filter(func(x): return Item.group_of(x.category) == Item.group_of(category)).size()
+## How many times a stack's own limit one warehouse cell holds.
+func stack_mult() -> int:
+	return int(BaseCatalog.WAREHOUSE_STACK[clampi(facility_level("warehouse"), 1, BaseCatalog.WAREHOUSE_STACK.size() - 1)])
 
-func shelf_has_room(category: int) -> bool:
-	return shelf_count(category) < capacity(category)
+## Cells in use (one per item or stack).
+func shelf_count(_category: int = 0) -> int:
+	return shelf.size()
+
+func shelf_has_room(_category: int = 0) -> bool:
+	return shelf.size() < capacity()
+
+## Cells on one rack, for the racks drawn in the warehouse room.
+func rack_cells() -> int:
+	return BaseCatalog.RACK_CELLS
 
 func staging_has_room() -> bool:
-	return staging.size() < BaseCatalog.STAGING_CAPACITY
+	return false
 
 func location_of(item: Item) -> String:
 	if item == null: return ""
 	if shelf.has(item): return "shelf"
-	if hand == item: return "hand"
-	if staging.has(item): return "staging"
-	var crate := _crate_of(item)
-	if not crate.is_empty(): return "crate_open" if crate.opened else "crate_sealed"
 	return ""
 
 ## Every item at the base, each exactly once.
 func all_items() -> Array[Item]:
 	var out: Array[Item] = []
 	out.append_array(shelf)
-	out.append_array(staging)
-	for crate in crates: out.append(crate.item)
-	if hand: out.append(hand)
 	return out
 
 func sealed_count() -> int:
-	return crates.filter(func(c): return not c.opened).size()
-
-func _crate_of(item: Item) -> Dictionary:
-	for crate in crates:
-		if crate.item == item: return crate
-	return {}
+	return 0
 
 # --- Moves -------------------------------------------------------------------
 
-## Something brought back: it arrives as a sealed crate. False if already here.
+## Rhodes standard gear is never kept (制式保底修订): pieces a save from before
+## holds in the warehouse or on the way back are handed back. Returns how many.
+func purge_bound() -> int:
+	var before := shelf.size() + insurance_queue.size()
+	shelf.assign(shelf.filter(func(it): return not GearCatalog.bound(it)))
+	insurance_queue.assign(insurance_queue.filter(func(e): return not GearCatalog.bound(e.item)))
+	return before - (shelf.size() + insurance_queue.size())
+
+## Something brought back by the base itself: into the warehouse over its
+## cells if need be. False if already here.
 func receive(item: Item) -> bool:
 	if item == null or not location_of(item).is_empty(): return false
-	crates.append({"item": item, "opened": false})
-	return true
-
-func open_crate(item: Item) -> bool:
-	var crate := _crate_of(item)
-	if crate.is_empty() or crate.opened: return false
-	crate.opened = true
-	return true
-
-## Why `item` cannot go on its shelf right now, or "" if it can.
-func shelve_refusal(item: Item) -> String:
-	if not location_of(item) in ["crate_open", "staging"]: return "只能上架已开箱或暂存区里的物品。"
-	if not shelf_has_room(item.category) and shelf_merge_room(item) < item.quantity:
-		return "%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。" % [
-			BaseCatalog.CATEGORY_NAMES[Item.group_of(item.category)], shelf_count(item.category), capacity(item.category)]
-	return ""
-
-func shelve(item: Item) -> bool:
-	if not shelve_refusal(item).is_empty(): return false
-	_take(item)
 	if not _merge_onto_shelf(item): shelf.append(item)
 	return true
 
-## Units of `item`'s material that the shelf's matching stacks still take.
+## Units of `item`'s material that the warehouse's matching stacks still take.
 func shelf_merge_room(item: Item) -> int:
 	if not item.is_stackable(): return 0
 	var room := 0
 	for other in shelf:
-		if other.can_stack_with(item): room += other.room()
+		if other.can_stack_with(item): room += _cell_room(other)
 	return room
 
-## Pours a stack onto the shelf's matching stacks (materials stack, 掉落物策划案
-## §2.1). True when nothing is left of it.
+## What one warehouse cell's stack still takes (its limit × stack_mult()).
+func _cell_room(stack: Item) -> int:
+	return maxi(0, stack.max_stack * stack_mult() - stack.quantity)
+
+## Pours a stack onto the warehouse's matching stacks. True when nothing is left of it.
 func _merge_onto_shelf(item: Item) -> bool:
 	if not item.is_stackable(): return false
 	for other in shelf:
-		if other.can_stack_with(item): other.absorb(item)
+		if not other.can_stack_with(item): continue
+		var moved := mini(_cell_room(other), item.quantity)
+		if moved <= 0: continue
+		other.set_quantity(other.quantity + moved)
+		item.set_quantity(item.quantity - moved)
 		if item.quantity <= 0: return true
 	return false
 
-## From an opened crate into staging.
-func stage(item: Item) -> bool:
-	if location_of(item) != "crate_open" or not staging_has_room(): return false
-	_take(item)
-	staging.append(item)
-	return true
-
-## Out of staging, for the caller to put in the pack. Only callable at staging.
-func unstage(item: Item) -> bool:
-	if not staging.has(item): return false
-	staging.erase(item)
-	return true
-
-## Off the shelf, for the caller to put in the pack (bring into a contract).
+## Out of the warehouse, for the caller to put in the pack. A cell holding more
+## than one stack gives one stack (the rest stays in the cell).
 func take_from_shelf(item: Item) -> bool:
 	if not shelf.has(item): return false
 	shelf.erase(item)
 	return true
 
-## Where an item from the loadout would be stored: its shelf, or staging when
-## that is full, or "" when neither has room.
+## The piece of a warehouse stack that fits a bag: the stack itself, or one
+## bag-sized stack split off it (仓库修订: cells stack past a bag's limit).
+func bag_piece(item: Item) -> Item:
+	if not shelf.has(item) or item.quantity <= item.max_stack: return item
+	return item.split(item.max_stack)
+
+## Where an item from the loadout would be stored: "shelf", or "" when the
+## warehouse has no room for it.
 func store_target(item: Item) -> String:
 	if item == null or not location_of(item).is_empty(): return ""
-	if shelf_has_room(item.category) or shelf_merge_room(item) >= item.quantity: return "shelf"
-	if staging_has_room(): return "staging"
+	if shelf_has_room() or shelf_merge_room(item) >= item.quantity: return "shelf"
 	return ""
 
 func store(item: Item) -> String:
 	var target := store_target(item)
-	match target:
-		"shelf": if not _merge_onto_shelf(item): shelf.append(item)
-		"staging": staging.append(item)
+	if target == "shelf" and not _merge_onto_shelf(item): shelf.append(item)
 	return target
 
-# --- Carrying ------------------------------------------------------------------
-
-## From an opened crate or staging into her hands. One item at a time.
-func pick_up(item: Item) -> bool:
-	if hand != null: return false
-	var from := location_of(item)
-	if not from in ["crate_open", "staging"]: return false
-	_take(item)
-	hand = item
-	hand_from = "staging" if from == "staging" else "crate"
-	return true
-
-## Why the carried item cannot go into `category`'s zone, or "" if it can.
-func shelve_hand_refusal(category: int) -> String:
-	if hand == null: return "手上没有东西。"
-	if Item.group_of(hand.category) != Item.group_of(category):
-		return "这是%s区。%s要放到%s区，已为你高亮。" % [BaseCatalog.CATEGORY_NAMES[Item.group_of(category)], hand.item_name, BaseCatalog.CATEGORY_NAMES[Item.group_of(hand.category)]]
-	if not shelf_has_room(category) and shelf_merge_room(hand) < hand.quantity:
-		return "%s区已满（%d/%d）：放进暂存区，或在仓管台扩建。" % [BaseCatalog.CATEGORY_NAMES[category], shelf_count(category), capacity(category)]
-	return ""
-
-func shelve_hand(category: int) -> bool:
-	if not shelve_hand_refusal(category).is_empty(): return false
-	if not _merge_onto_shelf(hand): shelf.append(hand)
-	_drop_hand()
-	return true
-
-func stage_hand() -> bool:
-	if hand == null or not staging_has_room(): return false
-	staging.append(hand)
-	_drop_hand()
-	return true
-
-## Back where it came from: staging, or an opened crate at receiving. Used when
-## she sets it down at receiving, and when she leaves the base holding it.
-func return_hand() -> bool:
-	if hand == null: return false
-	if hand_from == "staging" and staging_has_room(): staging.append(hand)
-	else: crates.append({"item": hand, "opened": true})
-	_drop_hand()
-	return true
-
-func _drop_hand() -> void:
-	hand = null
-	hand_from = ""
-
-## Out of the base from wherever it is (a crate, staging, the shelf, her hands).
+## Out of the base.
 func remove_item(item: Item) -> bool:
 	if location_of(item).is_empty(): return false
-	if hand == item: _drop_hand()
-	else: _take(item)
+	shelf.erase(item)
 	return true
 
-## Undo of take_from_shelf / unstage when the pack refuses the item.
-func put_back(item: Item, where: String) -> void:
+## Undo of take_from_shelf when the pack refuses the item.
+func put_back(item: Item, _where: String = "shelf") -> void:
 	if not location_of(item).is_empty(): return
-	if where == "staging": staging.append(item)
-	else: shelf.append(item)
+	if not _merge_onto_shelf(item): shelf.append(item)
 
-func _take(item: Item) -> void:
-	shelf.erase(item)
-	staging.erase(item)
-	for i in range(crates.size()):
-		if crates[i].item == item:
-			crates.remove_at(i)
-			return
-
-## Puts loose items away the way a migration or load must: shelf while its
-## category has room, then staging, then an opened crate. Never drops one.
+## Loose items from a load or a migration: all into the warehouse. Never drops one.
 func place_loose(items: Array) -> void:
 	for item: Item in items:
-		if not location_of(item).is_empty(): continue
-		if _merge_onto_shelf(item): continue
-		if shelf_has_room(item.category): shelf.append(item)
-		elif staging_has_room(): staging.append(item)
-		else: crates.append({"item": item, "opened": true})
+		receive(item)
 
 # --- Save --------------------------------------------------------------------
 
 func to_data() -> Dictionary:
-	var crate_data: Array = []
-	for crate in crates: crate_data.append({"item": crate.item.to_data(), "opened": crate.opened})
-	# The carried item is saved where it would go back to; a save never holds a hand.
-	var staging_data: Array = staging.map(func(x): return x.to_data())
-	if hand:
-		if hand_from == "staging" and staging_has_room(): staging_data.append(hand.to_data())
-		else: crate_data.append({"item": hand.to_data(), "opened": true})
-	var rack_data := {}
-	for category in racks: rack_data[str(category)] = racks[category]
-	return {"shelf": shelf.map(func(x): return x.to_data()), "crates": crate_data,
-		"staging": staging_data, "racks": rack_data, "facilities": facilities.duplicate(), "connected": connected.duplicate(), "orders": orders.to_data(),
+	return {"shelf": shelf.map(func(x): return x.to_data()), "facilities": facilities.duplicate(), "connected": connected.duplicate(), "orders": orders.to_data(),
 		"injuries": injuries.duplicate(), "free_potions": free_potions, "closure_stock": closure_stock.duplicate(), "closure_restock_at": closure_restock_at,
 		"medical_report": medical_report, "report_unread": report_unread,
-		"drone": drone, "console": console, "contract_offers": contract_offers.duplicate(true), "reroll_available": reroll_available,
+		"contract_offers": contract_offers.duplicate(true),
 		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(), "directed_fails": directed_fails,
 		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "due": e.due}),
 		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "first_extract_given": first_extract_given, "extracted_once": extracted_once, "story": story.duplicate(true), "kits": kits.duplicate(), "operator": operator,
 		"roster": roster.duplicate(), "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
-		"kitted": kitted.duplicate(), "progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(),
-		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "kit_issued": kit_issued.duplicate(true), "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true)}
+		"progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(),
+		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true)}
 
 func _progress_data() -> Dictionary:
 	var out := {}
@@ -673,9 +533,6 @@ func _progress_data() -> Dictionary:
 ## skipped and new uids are added to it.
 func load_data(data: Dictionary, seen: Dictionary) -> void:
 	shelf.clear()
-	staging.clear()
-	crates.clear()
-	_drop_hand()
 	boss_falls = (data.get("boss_falls", {}) as Dictionary).duplicate()
 	injuries = {}
 	var saved_injuries: Variant = data.get("injuries", [])
@@ -690,8 +547,8 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	closure_restock_at = int(data.get("closure_restock_at", 0))
 	medical_report = data.get("medical_report", {})
 	report_unread = bool(data.get("report_unread", false))
+	# Saves from before 仓库修订 had a drone (it counts toward 仓储部 below).
 	drone = bool(data.get("drone", false))
-	console = bool(data.get("console", true))
 	contract_offers = (data.get("contract_offers", {}) as Dictionary).duplicate(true)
 	pack_level = clampi(int(data.get("pack_level", 0)), 0, BaseCatalog.PACK_SIZES.size() - 1)
 	safe_level = clampi(int(data.get("safe_level", 0)), 0, BaseCatalog.SAFE_SIZES.size() - 1)
@@ -703,9 +560,6 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	roster = starting_roster()
 	for id in data.get("roster", [Operators.AMIYA_GUARD, Operators.LAPPLAND]):
 		if Operators.valid(str(id)) and not str(id) in roster: roster.append(str(id))
-	kitted = []
-	for id in data.get("kitted", []):
-		if Operators.valid(str(id)) and not str(id) in kitted: kitted.append(str(id))
 	recruit_clues = {}
 	var saved_clues: Dictionary = data.get("recruit_clues", {})
 	for id in saved_clues:
@@ -763,20 +617,19 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	for category in racks:
 		racks[category] = clampi(int(racks_in.get(str(category), BaseCatalog.STARTING_RACKS)), BaseCatalog.STARTING_RACKS, BaseCatalog.RACK_SLOTS)
 	_load_facilities(data)
-	reroll_available = bool(data.get("reroll_available", false)) and facility_level("warehouse") >= BaseCatalog.REROLL_LEVEL
+	_show_racks()
 	if data.has("orders"): orders.load_data(data.orders)
 	else: orders.start_fresh()
 	orders.resize(order_slot_count())
+	# Saves from before 仓库修订: crates and staging go into the warehouse too.
+	var loose: Array[Item] = []
 	for entry in data.get("crates", []):
 		var item := _fresh(entry.get("item", {}), seen)
-		if item: crates.append({"item": item, "opened": bool(entry.get("opened", false))})
-	var loose: Array[Item] = []
+		if item: loose.append(item)
 	for key in ["shelf", "staging"]:
 		for entry in data.get(key, []):
 			var item := _fresh(entry, seen)
-			if item:
-				if key == "staging" and staging_has_room(): staging.append(item)
-				else: loose.append(item)
+			if item: loose.append(item)
 	place_loose(loose)
 
 ## Saves from before facilities had prestige ranks: each facility gets the
@@ -827,22 +680,14 @@ func _load_research(data: Dictionary) -> void:
 	for id in saved.get("run", []):
 		if ResearchCatalog.PROJECTS.has(str(id)): research.run.append(str(id))
 	rhodes_rarity = clampi(int(data.get("rhodes_rarity", 0)), 0, 2)
-	kit_issued = {}
-	var issued: Dictionary = data.get("kit_issued", {})
-	for id in issued:
-		var grade: Array = issued[id] if issued[id] is Array else []
-		if Operators.valid(str(id)) and grade.size() == 2: kit_issued[str(id)] = [int(grade[0]), int(grade[1])]
 	contract_reroll = bool(data.get("contract_reroll", false))
 	stayed = bool(data.get("stayed", false))
 
 ## Version 1 had one flat warehouse list; it goes on the shelves, overflow to staging.
 func migrate_v1(stash_data: Array, seen: Dictionary) -> void:
 	reset_facilities()
-	console = true
 	orders.start_fresh()
 	shelf.clear()
-	staging.clear()
-	crates.clear()
 	var loose: Array[Item] = []
 	for entry in stash_data:
 		var item := _fresh(entry, seen)

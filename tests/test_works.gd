@@ -83,7 +83,7 @@ func run() -> void:
 	check("now a link can be bought", game.connect_refusal("outfit").begins_with("缺少"))
 	give(game, BaseCatalog.connect_materials("outfit"))
 	var gold := game.gold
-	check("linking costs 5,000 and its materials", game.connect_facility("outfit") and gold - game.gold == 5000 and base.is_connected_to_hub("outfit"))
+	check("linking costs %s and its materials" % int(BaseCatalog.CONNECT_COST.price), game.connect_facility("outfit") and gold - game.gold == int(BaseCatalog.CONNECT_COST.price) and base.is_connected_to_hub("outfit"))
 	await step(2)
 	var trunk: int = range(BaseWorks.PARTS.size()).filter(func(i): return BaseWorks.PARTS[i][1] == "cable_trunk" and BaseWorks.PARTS[i][5] == "link:outfit")[0]
 	check("its trunk to the hub lights up", works.built(trunk) and (works._drawn[trunk].pieces as Array).size() == 1)
@@ -106,7 +106,7 @@ func run() -> void:
 	give(game, BaseCatalog.facility_step("exchange", 1).materials)
 	check("at R2 it is built on site", game.facility_refusal("exchange").is_empty() and game.upgrade_facility("exchange"))
 	check("and opens for trading", game.exchange.unlocked())
-	check("its loan limit is 20,000 at Lv1", game.exchange.loan_limit() == 20000 or base.researched("loan_terms"))
+	check("its loan limit is %d at Lv1" % Exchange.LOAN_STEP, game.exchange.loan_limit() == Exchange.LOAN_STEP or base.researched("loan_terms"))
 
 	# Saves.
 	var copy := BaseState.new()

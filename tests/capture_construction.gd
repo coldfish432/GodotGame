@@ -30,13 +30,9 @@ func run() -> void:
 	await frames(20)
 	game = find_game(rig)
 	game.gold = 86500
-	game.base.console = true
 	game.base.set_facility("warehouse", 2)
 	game.base.set_facility("store", 3)
 	game.base.set_facility("exchange", 2)
-	game.base.drone = true
-	game.base.racks[Item.Category.WEAPON] = 3
-	game.base.racks[Item.Category.MATERIAL] = 2
 	game.base.pack_level = 1
 	give({"螺栓": 6, "金属板": 2, "碳": 3, "帆布": 3, "胶带": 2, "电路板": 2, "继电器": 2, "家具零件": 1, "灯泡": 1})
 	game.open_station("construction")

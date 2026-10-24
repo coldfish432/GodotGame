@@ -241,9 +241,10 @@ static func _build() -> void:
 
 # --- Rolling ----------------------------------------------------------------------
 
-## Gear that carries prefixes: everything equippable but set pieces (§0.1-5).
+## Gear that carries prefixes: everything equippable but set pieces (§0.1-5)
+## and Rhodes standard gear (制式保底修订).
 static func eligible_item(item: Item) -> bool:
-	return item != null and item.is_equippable() and item.material_id.is_empty() and item.named_kind() != "set"
+	return item != null and item.is_equippable() and item.material_id.is_empty() and item.named_kind() != "set" and not GearCatalog.bound(item)
 
 ## The prefix table's three kinds: the five armour slots take armour
 ## prefixes, the amulet and the ring trinket ones (装备部位拆分与数值案 §5).

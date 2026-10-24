@@ -23,7 +23,7 @@ func run() -> void:
 	await step(8)
 	var base := game.base_map
 	check("all nineteen rooms load (加工部 and 科研部 rooms of their own; the second deck's twelve)", base.rooms.size() == 19 and base.rooms.has("lab") and base.rooms.has("farm"))
-	check("eighteen stations: the exported ones (no scan gate), the exchange, 人事部, 加工站, the sand table and 科研终端, the second deck's terminals and both lifts, plus the construction sites", base.interactables.size() == 18 + BaseWorks.POSTS.size() and not base.station("exchange").is_empty()
+	check("seventeen stations: the exported ones (no scan gate), the exchange, 人事部, 加工站, the sand table and 科研终端, the second deck's terminals and both lifts (the gate is the first deck's), plus the construction sites", base.interactables.size() == 17 + BaseWorks.POSTS.size() and not base.station("exchange").is_empty()
 		and not base.station("personnel").is_empty() and not base.station("workshop").is_empty())
 	check("the departure cluster: 整备台 and 后勤柜台 either side of the lift, arrival at it (基地布局调研_v2)",
 		flat(base.station("workbench").position).distance_to(flat(base.station("lift").position)) < 18.0
@@ -31,6 +31,25 @@ func run() -> void:
 		and flat(base.spawn_point("arrival")).distance_to(flat(base.station("lift").position)) < 4.0)
 	check("boot spawns at the hall arrival point", flat(game.player.global_position).distance_to(flat(base.spawn_point("arrival"))) < 0.1)
 	check("base is walkable, no menu", game.base_walk_active() and not game.menu.visible and not game.simulation_active())
+	# 用户 2026-10-23: at the base she walks 50% faster and can dodge.
+	var p := game.player
+	p.set_move_target(p.global_position + Vector3(-8, 0, 0))
+	await step(3)
+	var pace := Vector2(p.velocity.x, p.velocity.z).length()
+	check("at the base she walks half again as fast (%.2f)" % pace, absf(pace - p.move_speed * 1.5) < 0.2)
+	p.clear_move_target()
+	await step(2)
+	var dodge_slot := -1
+	for i in range(Hotbar.SLOTS):
+		if Hotbar.slots()[i].action == "dash": dodge_slot = i
+	var stamina_before := p.stamina
+	Input.action_press(Hotbar.input_of(dodge_slot))
+	await step(1)
+	Input.action_release(Hotbar.input_of(dodge_slot))
+	await step(2)
+	check("its dodge key dodges at the base", dodge_slot >= 0 and p.stamina < stamina_before - 1.0)
+	p.teleport(base.spawn_point("arrival"))
+	await step(2)
 	# 站点总览 (用户 2026-10-18): closed until its key opens it; the settings pick its stations.
 	check("the station overview starts closed, its key is Tab", not BaseHud.panel_open() and Keybinds.short_label("toggle_stations") == "Tab")
 	game.toggle_station_panel()

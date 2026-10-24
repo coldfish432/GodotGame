@@ -124,16 +124,21 @@ func _catalog() -> void:
 		for m in FactionSpecials.plain_shelf(f) + game.exchange.forward_materials(f):
 			if FactionSpecials.is_special(m): leaked = true
 	check("no special in flash sales or forwards (they skip the rank)", not leaked)
-	check("specials are not bought back; crops and 补给 sell as medical goods",
-		FactionCatalog.material_category("高能燃料") == "" and FactionCatalog.material_category("舰载麦") == "medical" and FactionCatalog.material_category("食堂便当") == "medical")
+	check("specials are not bought back; crops are their own goods, 补给 medical",
+		FactionCatalog.material_category("高能燃料") == "" and FactionCatalog.material_category("舰载麦") == "crop" and FactionCatalog.material_category("食堂便当") == "medical")
+	# 用户 2026-10-23: a basin of Rhodes' own crops delivers for about its seed × 1.25.
+	for crop in ["舰载麦", "块茎薯", "温室豆"]:
+		var c: Dictionary = Provisions.CROPS[crop]
+		var margin := float(Economy.direct_price(MaterialCatalog.create(crop, 1)) * int(c.yield)) / float(c.seed_lmd) - 1.0
+		check("%s pays about 25%% a basin: %+.1f%%" % [crop, margin * 100.0], absf(margin - 0.25) < 0.02)
 	rank("sami", 2)
 	check("萨米 barters no 冰原苔 below R3", game.barter_count(MaterialCatalog.create("帆布", 5), "萨米冰原苔") == 0)
 	rank("penguin", 1)
 	check("企鹅专递单 needs 企鹅物流 R2", game.slip_refusal() == "需要关系 R2")
 	rank("penguin", 2)
-	var crates := game.base.crates.size()
+	var slips := game.material_count("企鹅专递单")
 	var gold := game.gold
-	check("bought for 龙门币, delivered to receiving", game.buy_slip() and game.gold == gold - FactionSpecials.SLIP_PRICE and game.base.crates.size() == crates + 1)
+	check("bought for 龙门币, delivered into the warehouse (仓库修订)", game.buy_slip() and game.gold == gold - FactionSpecials.SLIP_PRICE and game.material_count("企鹅专递单") == slips + 1)
 
 func _voyage_fuel() -> void:
 	var v := game.voyage
@@ -151,6 +156,8 @@ func _rumor_ears() -> void:
 	game.market.fire("C2")
 	var headline: Dictionary = game.market.news.filter(func(n): return n.id == "C2")[-1]
 	check("a rumor waits to be settled", headline.status == "待证实")
+	# The one bought from the rat king went straight into the warehouse (仓库修订).
+	for it in game.base.shelf.filter(func(i): return i.material_id == "下城区耳目"): game.base.remove_item(it)
 	check("耳目 needs one in the warehouse", game.peek_refusal(headline).begins_with("缺少"))
 	give("下城区耳目", 1)
 	var truth := bool(game._rumor_of(headline).rumor.truth)
@@ -214,7 +221,7 @@ func _farm() -> void:
 	game.base.set_facility("farm", 6)
 	check("Lv6: all 72 in three swirls", p.basins() == 72)
 	var gold := game.gold
-	check("sowing Rhodes' own wheat costs its seed in 龙门币", p.sow(0, "舰载麦") and game.gold == gold - 300)
+	check("sowing Rhodes' own wheat costs its seed in 龙门币: %d" % int(Provisions.CROPS["舰载麦"].seed_lmd), p.sow(0, "舰载麦") and game.gold == gold - int(Provisions.CROPS["舰载麦"].seed_lmd))
 	check("a sown basin takes nothing more", p.sow_refusal(0, "块茎薯") == "已种植")
 	check("half way after an hour", absf(p.growth(0) - 0.0) < 0.01)
 	later(3600)
@@ -233,8 +240,8 @@ func _farm() -> void:
 	check("sow all with wheat fills the other 70", p.sow_all("舰载麦") == 70)
 	later(3600 * 8)
 	check("everything ripe after 8 h", p.ripe_count() == 72)
-	# 72 basins' worth needs the material racks built out.
-	game.base.racks[Item.Category.MATERIAL] = BaseCatalog.RACK_SLOTS
+	# 72 basins' worth needs room: the warehouse upgraded (仓库修订: capacity by 仓储部 level).
+	game.base.set_facility("warehouse", BaseCatalog.WAREHOUSE_CELLS.size() - 1)
 	var got := p.harvest_all()
 	check("harvest all: 70 × 6 wheat + 2 × 3 闪耀作物", got == 70 * 6 + 2 * 3, got)
 	check("the shining crops are in the warehouse", game.material_count("闪耀作物") == 6)
@@ -332,12 +339,15 @@ func _field_slip_and_guide() -> void:
 	game.player.teleport(game.world_map.encounter_position)
 	check("a used squad still takes a parcel", game.parcel_refusal().is_empty() and game.squad_extras())
 	check("the slip itself is not sent", not game.parcel_items().any(func(i): return i.material_id == "企鹅专递单"))
-	# Fill the material racks but one place, so the rest goes to staging.
-	var room := game.base.capacity(Item.Category.MATERIAL) - game.base.shelf_count(Item.Category.MATERIAL)
+	# Fill the warehouse but one cell: 仓库修订 — what the base brings in goes
+	# into the warehouse even over capacity (no staging any more).
+	var room := game.base.capacity() - game.base.shelf_count()
 	for i in range(maxi(0, room - 1)): game.base.shelf.append(MaterialCatalog.create("木板", 1))
-	var staged := game.base.staging.size()
+	var before := {}
+	for m in things: before[m.material_id] = game.material_count(m.material_id) - game.carried_count(m.material_id)
 	var sent := game.parcel_send(things)
-	check("four things home for one slip: shelf first, then staging (%s)" % str(sent), int(sent.shelf) + int(sent.staging) == 4 and int(sent.staging) >= 1 and game.base.staging.size() == staged + int(sent.staging))
+	var home: bool = things.all(func(m): return game.material_count(m.material_id) == int(before[m.material_id]) + 3)
+	check("four things home for one slip, all into the warehouse (%s)" % str(sent), int(sent.shelf) + int(sent.receiving) == 4 and int(sent.staging) == 0 and home)
 	check("the slip is used and the pack is empty", game.carried_count("企鹅专递单") == 0 and game.inventory.items.is_empty())
 	check("not without another", game.parcel_refusal() == "需要企鹅专递单")
 	game.inventory.add_stack(MaterialCatalog.create("残党向导", 2))
@@ -369,8 +379,8 @@ func _scene() -> void:
 	check("the second deck keeps the first's outline, the rest sealed", BaseMap.DECK2_ROOMS.size() == 12 and BaseMap.SEALED_DOORS.size() == 4)
 	check("农业部 is the east wing, its two rooms open into one", map.rooms.has("farm2") and map.room_contains("farm", map.to_world(470.0, -20.0)) and BaseMap.FARM_CENTRES.size() == 3)
 	check("its stations: the farm and canteen terminals, the lifts", not map.station("farm").is_empty() and not map.station("canteen").is_empty()
-		and not map.station("deck_lift").is_empty() and not map.station("lift2").is_empty())
-	check("the departure lift is still the contracts station", str(map.station("lift").kind) == "contracts")
+		and not map.station("lift2").is_empty())
+	check("the gate is the lift to the second deck, the old lift spot has no E (用户 2026-10-23)", str(map.station("lift").kind) == "lift" and map.station("deck_lift").is_empty())
 	check("72 basins in twelve groups of six", map.farm_basins.size() == 12 and map.farm_basins.all(func(g): return g.size() == 6))
 	check("construction sites for both rooms", BaseWorks.POSTS.has("farm") and BaseWorks.POSTS.has("canteen") and BaseCatalog.FACILITY_ORDER.has("farm") and BaseCatalog.FACILITY_ORDER.has("canteen"))
 	game.ride_lift(2)

@@ -449,15 +449,22 @@ func run() -> void:
 	check("back at the base", game.in_base)
 	var base: BaseState = game.base
 	base.shelf.clear()
-	base.staging.clear()
-	base.crates.clear()
+	base.set_facility("warehouse", 1)
 	base.shelf.append(MaterialCatalog.create("碳", 15))
 	var more := MaterialCatalog.create("碳", 8)
 	check("storing merges onto the shelf stack", base.store(more) == "shelf" and base.shelf.filter(func(x): return x.material_id == "碳").size() == 2
 		and game.material_count("碳") == 23)
-	base.staging.append(MaterialCatalog.create("碳", 2))
-	var staged: Item = base.staging[0]
-	check("shelving from staging merges too", base.shelve(staged) and base.shelf.filter(func(x): return x.material_id == "碳").size() == 2 and game.material_count("碳") == 25)
+	# 仓库修订: arrivals go straight into the warehouse and merge like anything stored.
+	check("an arrival merges too", base.receive(MaterialCatalog.create("碳", 2)) and base.shelf.filter(func(x): return x.material_id == "碳").size() == 2 and game.material_count("碳") == 25)
+	# A warehouse cell holds a stack × stack_mult(): at 仓储部 Lv2 one cell takes two bag stacks.
+	var wide := BaseState.new()
+	wide.set_facility("warehouse", 2)
+	var first := MaterialCatalog.create("碳", 20)
+	wide.shelf.append(first)
+	check("at 仓储部 Lv2 a cell stacks past a bag's limit", wide.store(MaterialCatalog.create("碳", 20)) == "shelf" and wide.shelf.size() == 1 and first.quantity == 40
+		and wide.store(MaterialCatalog.create("碳", 1)) == "shelf" and wide.shelf.size() == 2)
+	var piece := wide.bag_piece(first)
+	check("and a bag-sized piece comes off it for the pack", piece != first and piece.quantity == 20 and first.quantity == 20)
 	var save := base.to_data()
 	base.loot_pity.rare_gear = 0.12
 	save = base.to_data()
@@ -482,19 +489,18 @@ func run() -> void:
 	game.gold = 500000
 	game.base.max_facilities()
 	base.shelf.clear()
-	check("racks need their materials", not game.build_rack(Item.Category.WEAPON) and "缺少" in game.rack_refusal(Item.Category.WEAPON))
-	base.shelf.append(MaterialCatalog.create("螺栓", 10))
-	base.shelf.append(MaterialCatalog.create("金属板", 2))
+	# 仓库修订: no racks or drone to buy; 仓储部's level is the warehouse's size.
+	base.set_facility("warehouse", 1)
+	var ware_cost: Dictionary = game.facility_cost("warehouse")
+	check("仓储部 needs its materials", not game.upgrade_facility("warehouse") and "缺少" in game.facility_refusal("warehouse"))
+	give({"螺栓": int(ware_cost["螺栓"]) + 6, "金属板": int(ware_cost["金属板"])})
 	var g := game.gold
-	check("with 螺栓×4 + 金属板×2 the rack is built", game.build_rack(Item.Category.WEAPON) and game.gold == g - BaseCatalog.RACK_PRICES[1]
+	check("with %s 仓储部 goes to Lv2: 120 cells, ×2" % BaseCatalog.cost_text(ware_cost), game.upgrade_facility("warehouse")
+		and game.gold == g - int(BaseCatalog.facility_step("warehouse", 2).price) and base.capacity() == 120 and base.stack_mult() == 2
 		and game.material_count("螺栓") == 6 and game.material_count("金属板") == 0)
-	check("the drone needs a micro motor", not game.buy_drone() and "微型电机" in game.drone_refusal())
-	give({"电路板": 2, "蓄电池": 2, "家具零件": 2})
-	game.inventory.try_add(MaterialCatalog.create("微型电机", 1))
-	check("with them it is bought, taking the motor from the pack", game.buy_drone() and game.material_count("微型电机") == 0
-		and game.material_count("电路板") == 0 and not game.inventory.items.any(func(x): return x.material_id == "微型电机"))
-	give({"帆布": 3, "胶带": 2, "碳": 4})
-	check("the pack expansion uses 帆布×3 + 胶带×2 + 碳×2", game.buy_pack_upgrade() and game.material_count("碳") == 2 and game.material_count("帆布") == 0)
+	var pack_cost: Dictionary = BaseCatalog.PACK_MATERIALS[1]
+	give({"帆布": int(pack_cost["帆布"]), "胶带": int(pack_cost["胶带"]), "碳": int(pack_cost["碳"]) + 2})
+	check("the pack expansion uses %s" % BaseCatalog.cost_text(pack_cost), game.buy_pack_upgrade() and game.material_count("碳") == 2 and game.material_count("帆布") == 0)
 
 	# Common supplies (基建资源策划案).
 	var battery := MaterialCatalog.create("车用蓄电池", 5)

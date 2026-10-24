@@ -24,6 +24,12 @@ func tick_through() -> bool:
 	card._process(TutorialCard.TICK_SECONDS + 0.05)
 	await step(2)
 	return ticked
+## Waits (up to a few seconds) for `id`'s card; the spotlight checks every
+## CHECK_SECONDS of real time.
+func wait_tip(id: String) -> void:
+	for i in range(600):
+		if spot.showing == id: return
+		await step()
 func at_step(id: String) -> bool:
 	return TutorialCard.step() < TutorialCard.STEPS.size() and TutorialCard.STEPS[TutorialCard.step()][0] == id
 func run() -> void:
@@ -171,25 +177,65 @@ func run() -> void:
 	card.skip_all()
 	await step(1)
 	check("skip ends the basic steps, first-sight cards stay on", TutorialCard.finished() and TutorialSpotlight.tips_on())
-	# The base: a station's card the first time she walks up to it, after the first contract.
+	# The base (用户 2026-10-23): before the first contract the camera tours the
+	# departure stations — 整备台, 调度台, 后勤柜台 — a card at each; after it a
+	# station's card comes the first time its screen opens, not on walking up.
 	TutorialCard.set_on(true)
 	SystemScreens.settings.tutorial_step = TutorialCard.index_of("contract")
+	SystemScreens.settings.tutorial_seen = []
 	game.settle(true)
 	for i in range(240):
 		if game.in_base and not game.transitioning: break
 		await step()
 	game.close_modal()
-	SystemScreens.settings.tutorial_seen = []
-	var desk: Dictionary = game.base_map.station("workbench")
-	game.player.teleport(desk.position)
-	await step(20)
-	check("before the first contract, the base does not stop her", spot.showing.is_empty())
+	check("the tour's stops are all in the base", TutorialSpotlight.TOUR.all(func(t): return not game.base_map.station(str(t[1])).is_empty()))
+	for i in range(30):
+		if game.modal == "tutorial": break
+		await step()
+	check("before the first contract a camera tour holds the base", game.modal == "tutorial" and spot.showing.is_empty())
+	for stop in TutorialSpotlight.TOUR:
+		var at: Vector3 = game.base_map.station(str(stop[1])).get("position", Vector3.INF)
+		for i in range(600):
+			if spot.showing == stop[0]: break
+			await step()
+		check("the camera goes to %s and its card comes up" % stop[1], spot.showing == stop[0] and game.camera_look.distance_to(at) < 0.01 and game.modal == "tutorial")
+		if stop[0] == "base_insurance": check("后勤柜台: Rhodes standard gear needs no insurance", "无需投保" in spot._text.text)
+		spot.dismiss()
+		await step(2)
+		if stop[0] != "base_insurance": check("the tour holds the base between stops", game.modal == "tutorial")
+	await step(4)
+	check("after the last card the camera comes back and the base walks on", game.modal.is_empty() and game.camera_look == Vector3.INF and spot.showing.is_empty())
 	SystemScreens.settings.tutorial_step = TutorialCard.index_of("contract") + 1
+	game.player.teleport(game.base_map.station("lift").position)
 	await step(20)
-	check("after it, the 整备台's card comes up at the desk", spot.showing == "base_loadout" and game.modal == "tutorial")
+	check("walking up to a station shows nothing (the lift, not a deck_lift)", spot.showing.is_empty() and game.modal.is_empty() and game.base_map.station("deck_lift").is_empty())
+	game.open_station("stash")
+	await wait_tip("base_stash")
+	check("the 仓管台's card comes up the first time its screen opens, over it", spot.showing == "base_stash" and game.modal == "station")
 	spot.dismiss()
 	await step(2)
-	check("and the base walks on", game.modal.is_empty())
+	check("dismissing it leaves the screen up", game.modal == "station" and spot.showing.is_empty())
+	game.close_modal()
+	game.open_station("stash")
+	await step(30)
+	check("the second time it does not", spot.showing.is_empty() and spot._queue.is_empty())
+	game.close_modal()
+	game.open_station("contracts")
+	await wait_tip("dispatch_contract")
+	check("the dispatch desk: first the contract, a box round the right column", spot.showing == "dispatch_contract" and spot.ring_box.encloses(TutorialSpotlight.DISPATCH_CONTRACT))
+	spot.dismiss()
+	await wait_tip("dispatch_floors")
+	var floors: Array = FieldCatalog.RANDOM_EXTRACTION_ODDS.keys()
+	check("then the floors, a box round the middle, the random-extraction range filled in", spot.showing == "dispatch_floors" and spot.ring_box.encloses(TutorialSpotlight.DISPATCH_FLOORS)
+		and ("%d–%d" % [floors.min(), floors.max()]) in spot._text.text)
+	spot.dismiss()
+	game.close_modal()
+	game.open_build_site("lab")
+	await wait_tip("base_build_site")
+	check("a construction site's card when its screen opens", spot.showing == "base_build_site")
+	spot.dismiss()
+	game.close_modal()
+	check("the warehouse's old tips are gone", ["base_crate", "base_zone", "base_shelf_zone", "base_staging"].all(func(k): return not TutorialSpotlight.TIPS.has(k)))
 	card.skip_all()
 	print("TUTORIAL FAILURES: %d" % failures)
 	quit(1 if failures > 0 else 0)

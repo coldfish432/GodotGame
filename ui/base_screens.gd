@@ -301,15 +301,12 @@ const UNPACK_TAB := 5
 static var unpack_pick := ""
 static var unpack_counts := {}
 
-## At the 仓管台 (zone -1): the 基建 page until the master console is bought,
-## then every zone. At a zone's floor frame (zone = its category): that zone's
-## shelves and its next rack (用户 2026-10-07).
+## The 仓管台: the whole warehouse, one count of cells (仓库修订, 用户 2026-10-23);
+## `zone` is kept for old callers and ignored.
 static func stash(menu: FieldMenu, zone: int = -1) -> void:
+	zone = -1
 	var game := menu.game
 	var base: BaseState = game.base
-	if zone < 0 and not base.console:
-		construction(menu, "仓管台", "warehouse")
-		return
 	var currencies := [["lmd", Economy.format(game.gold)]]
 	var tab: int = clampi(menu.stash_tab, 0, STASH_TABS.size() - 1) if zone < 0 else zone + 1
 	var stage: Control
@@ -320,8 +317,7 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 		if tab == UNPACK_TAB:
 			_unpack_page(menu, stage)
 			return
-	if zone >= 0: _rack_button(menu, stage, zone)
-	else:
+	if true:
 		var search := LineEdit.new()
 		search.placeholder_text = "搜索"
 		search.text = menu.stash_query
@@ -333,37 +329,35 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 		AK.put(stage, store_all, Vector2(244 if zone < 0 else 420, TOP + 4), Vector2(150, 34))
 		store_all.disabled = not game.carried_items().any(func(x): return not x.is_equippable())
 		store_all.pressed.connect(func(): game.store_all_materials(); stash(menu, zone))
-	# Zone loads (red when full).
-	var loads := HBoxContainer.new()
-	loads.add_theme_constant_override("separation", 14)
-	for category in range(Item.Category.size()):
-		if zone >= 0 and category != zone: continue
-		var have := base.shelf_count(category)
-		var room := base.capacity(category)
-		var cell := VBoxContainer.new()
-		cell.custom_minimum_size.x = 70
-		var row := HBoxContainer.new()
-		row.add_child(AK.label(BaseCatalog.CATEGORY_NAMES[category], 12, AK.MUTE))
-		var fill := Control.new()
-		fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(fill)
-		row.add_child(AK.label("%d/%d" % [have, room], 12, AK.RED if have >= room else AK.FG, AK.en()))
-		cell.add_child(row)
-		var bar := FieldPanels.Bar.new()
-		bar.ratio = float(have) / maxf(room, 1)
-		bar.colour = AK.RED if have >= room else Color("cfcfcf")
-		bar.custom_minimum_size.y = 3
-		cell.add_child(bar)
-		loads.add_child(cell)
-	AK.put(stage, loads, Vector2(560, TOP + 6))
+	# The warehouse's load (red when full) and its stack size.
+	var have := base.shelf_count()
+	var room := base.capacity()
+	var cell := VBoxContainer.new()
+	cell.custom_minimum_size.x = 300
+	var row := HBoxContainer.new()
+	row.add_child(AK.label("仓库", 12, AK.MUTE))
+	var fill := Control.new()
+	fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(fill)
+	row.add_child(AK.label("%d/%d  ·  ×%d" % [have, room, base.stack_mult()], 12, AK.RED if have >= room else AK.FG, AK.en()))
+	cell.add_child(row)
+	var bar := FieldPanels.Bar.new()
+	bar.ratio = float(have) / maxf(room, 1)
+	bar.colour = AK.RED if have >= room else Color("cfcfcf")
+	bar.custom_minimum_size.y = 3
+	cell.add_child(bar)
+	AK.put(stage, cell, Vector2(560, TOP + 6))
 	# The shelves as one 16-wide grid, items flowed in.
-	var shown: Array = game.stash.filter(func(x: Item): return (tab == 0 or x.category == tab - 1) and (zone >= 0 or menu._matches(x)))
+	var shown: Array = game.stash.filter(func(x: Item): return (tab == 0 or Item.group_of(x.category) == tab - 1) and menu._matches(x))
 	# Drag: shelf → carry-in brings it, carry-in → shelf stores it.
 	var stores := func(item: Item) -> bool: return game.carried_items().has(item)
 	var brings := func(item: Item) -> bool: return game.stash.has(item)
-	var grid := FlowGrid.make(shown, 16, 10, func(item: Item): game.bring_item(item); stash(menu, zone), func(item: Item): _show_detail(game, item))
+	var grid := FlowGrid.make(shown, 16, maxi(10, ceili(shown.size() / 16.0)), func(item: Item): game.bring_item(item); stash(menu, zone), func(item: Item): _show_detail(game, item))
 	grid.dragging(stores, func(item: Item): game.store_item(item); stash(menu, zone))
-	AK.put(stage, grid, Vector2(16, TOP + 50))
+	var depot := ScrollContainer.new()
+	depot.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	depot.add_child(grid)
+	AK.put(stage, depot, Vector2(16, TOP + 50), Vector2(16 * 40 + 12, 10 * 40))
 	# What goes out with her next.
 	var carry_y := TOP + 50 + 10 * 40 + 12
 	var bring_drop := func(item: Item): game.bring_item(item); stash(menu, zone)
@@ -478,23 +472,6 @@ static func _unpack_page(menu: FieldMenu, stage: Control) -> void:
 		stash(menu))
 	right.add_child(go)
 
-## The zone's next rack: the front row first, then further back.
-static func _rack_button(menu: FieldMenu, stage: Control, zone: int) -> void:
-	var game := menu.game
-	var slot := game.base.next_rack_slot(zone)
-	var label := "货架已满配"
-	var refusal := "已满配"
-	if slot >= 0:
-		refusal = game.rack_refusal(zone)
-		var cost: Dictionary = BaseCatalog.RACK_MATERIALS[slot]
-		label = "扩建第 %d 个货架  %s%s" % [slot + 1, Economy.format(BaseCatalog.RACK_PRICES[slot]), "" if cost.is_empty() else " + " + BaseCatalog.cost_text(cost)]
-		if not refusal.is_empty(): label += "（%s）" % refusal.trim_suffix("。")
-	var build := AK.button(label, "blue" if refusal.is_empty() else "plain", 13)
-	build.set_meta("label", "扩建货架")
-	AK.put(stage, build, Vector2(16, TOP + 4), Vector2(396, 34))
-	build.disabled = not refusal.is_empty()
-	build.pressed.connect(func(): game.build_rack(zone); stash(menu, zone))
-
 # --- 基建 ---------------------------------------------------------------------------
 
 ## The 基建总控台 (基建设施修订案 v1.1 §四, 用户 2026-10-22): the facilities down
@@ -585,14 +562,6 @@ static func _projects(game: GameManager, id: String) -> Array:
 	match id:
 		"hub":
 			rows.append(["营地升级", "已升级" if base.camp_upgraded else "", BaseCatalog.CAMP_UPGRADE_PRICE, BaseCatalog.CAMP_UPGRADE_MATERIALS, game.camp_upgrade_refusal(), game.buy_camp_upgrade])
-		"warehouse":
-			rows.append(["仓库总控面板", "已就位" if base.console else "", BaseCatalog.CONSOLE_PRICE, BaseCatalog.CONSOLE_MATERIALS, game.console_refusal(), game.buy_console])
-			rows.append(["搬运无人机", "已就位" if base.drone else "", BaseCatalog.DRONE_PRICE, BaseCatalog.DRONE_MATERIALS, game.drone_refusal(), game.buy_drone])
-			for category in GameManager.RACK_ZONES:
-				var slot := base.next_rack_slot(category)
-				var zone: int = category
-				rows.append(["%s区货架 %d/%d" % [BaseCatalog.CATEGORY_NAMES[category], int(base.racks[category]), BaseCatalog.RACK_SLOTS], "已满配" if slot < 0 else "",
-					int(BaseCatalog.RACK_PRICES[slot]) if slot >= 0 else 0, game.rack_cost(category), game.rack_refusal(category).trim_suffix("。"), func(): return game.build_rack(zone)])
 		"outfit":
 			for kind in ["pack", "safe"]:
 				var level := base.pack_level if kind == "pack" else base.safe_level
@@ -661,13 +630,13 @@ static func outbound(menu: FieldMenu) -> void:
 		list.add_theme_constant_override("h_separation", 6)
 		list.add_theme_constant_override("v_separation", 6)
 		scroll.add_child(list)
-		for item in deliverable:
-			var row := EventScreens._item_row(item, Economy.format(Economy.price(item)), "个人仓库" if game.stash.has(item) else "背包", true, item == pick)
+		for item in deliverable.filter(func(x: Item) -> bool: return game.can_sell(x)):
+			var row := EventScreens._item_row(item, Economy.format(Economy.direct_price(item)), "个人仓库" if game.stash.has(item) else "背包", true, item == pick)
 			row.custom_minimum_size.x = 306
 			var chosen: Item = item
 			row.pressed.connect(func(): menu.pick = chosen; outbound(menu))
 			list.add_child(row)
-		EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, "", "交付" + (" +%s" % Economy.format(Economy.price(pick)) if pick != null else ""), Callable(), func():
+		EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, "", "交付" + (" +%s" % Economy.format(Economy.direct_price(pick)) if pick != null else ""), Callable(), func():
 			if pick != null: game.sell(pick)
 			menu.pick = null
 			outbound(menu), pick != null)
@@ -1114,73 +1083,5 @@ class FlowGrid extends Control:
 		for gx in range(columns + 1): draw_line(Vector2(gx * CELL, 0), Vector2(gx * CELL, rows * CELL), Color(1, 1, 1, 0.07))
 		for gy in range(rows + 1): draw_line(Vector2(0, gy * CELL), Vector2(columns * CELL, gy * CELL), Color(1, 1, 1, 0.07))
 
-# --- 开箱卡片 / 暂存区 (界面策划案 §6: reuse the item tile and detail) ---------------
+# --- Item tile and detail (界面策划案 §6) ---------------------------------------------
 
-static func item_card(menu: FieldMenu, item: Item) -> void:
-	var game := menu.game
-	var base: BaseState = game.base
-	var stage := menu.stage_begin(0.85)
-	var panel := AK.rect(Color("0d1012"), Vector2(260, 130), Vector2(760, 460))
-	stage.add_child(panel)
-	stage.add_child(AK.rect(AK.tier_color(item), Vector2(260, 130), Vector2(760, 4)))
-	AK.put(stage, AK.label("CRATE", 10, AK.MUTE, AK.en()), Vector2(284, 152))
-	AK.put(stage, AK.label("开箱", 24, AK.FG), Vector2(284, 166))
-	AK.put(stage, AK.item_icon(item, Vector2(item.width, item.height) * 80), Vector2(284, 214))
-	EventScreens._info(stage, game, item, "交付价", Economy.format(Economy.price(item)), Vector2(620, 152))
-	var holding := base.hand != null
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
-	var take := AK.button("拿起 · %s %d/%d" % [BaseCatalog.CATEGORY_NAMES[item.category], base.shelf_count(item.category), base.capacity(item.category)], "blue", 14)
-	take.disabled = holding
-	take.pressed.connect(func(): game.pick_up_item(item); game.close_modal())
-	row.add_child(take)
-	var stage_it := AK.button("放入暂存区 %d/%d" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY], "plain", 14)
-	stage_it.disabled = not base.staging_has_room()
-	stage_it.pressed.connect(func(): game.stage_item(item); game.close_modal())
-	row.add_child(stage_it)
-	if base.drone:
-		var sort := AK.button("全部开箱并归类", "plain", 14)
-		sort.pressed.connect(func(): game.close_modal(); game.sort_everything())
-		row.add_child(sort)
-	var later := AK.button("先留在箱里", "plain", 14)
-	later.pressed.connect(game.close_modal)
-	row.add_child(later)
-	for b in row.get_children(): b.custom_minimum_size.y = 48
-	AK.put(stage, row, Vector2(284, 520))
-
-static func staging(menu: FieldMenu) -> void:
-	var game := menu.game
-	var base: BaseState = game.base
-	var stage := shell(menu, "暂存区", "STAGING", [], 0, Callable(), "STAGING", [["lmd", Economy.format(game.gold)]])
-	var pick: Item = menu.pick if menu.pick is Item else null
-	AK.put(stage, AK.section("暂存区", "%d / %d" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]), Vector2(16, TOP + 8))
-	var list := GridContainer.new()
-	list.columns = 3
-	list.add_theme_constant_override("h_separation", 6)
-	list.add_theme_constant_override("v_separation", 6)
-	AK.put(stage, list, Vector2(16, TOP + 40))
-	for item in base.staging:
-		var row := EventScreens._item_row(item, "", BaseCatalog.CATEGORY_NAMES[item.category], true, item == pick)
-		row.custom_minimum_size.x = 290
-		var chosen: Item = item
-		row.pressed.connect(func(): menu.pick = chosen; staging(menu))
-		list.add_child(row)
-	var x := 924.0
-	if pick != null and base.staging.has(pick):
-		EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.price(pick)), Vector2(x, TOP + 8))
-	var actions := VBoxContainer.new()
-	actions.add_theme_constant_override("separation", 6)
-	var hand := AK.button("拿到手上", "blue", 14)
-	hand.disabled = pick == null or base.hand != null
-	hand.pressed.connect(func(): game.pick_up_item(pick); game.close_modal())
-	actions.add_child(hand)
-	var pack := AK.button("放进背包", "plain", 14)
-	pack.disabled = pick == null
-	pack.pressed.connect(func(): game.unstage_to_pack(pick); menu.pick = null; staging(menu))
-	actions.add_child(pack)
-	if base.drone and (base.sealed_count() > 0 or not base.staging.is_empty()):
-		var sort := AK.button("全部开箱并归类", "plain", 14)
-		sort.pressed.connect(func(): game.close_modal(); game.sort_everything())
-		actions.add_child(sort)
-	for b in actions.get_children(): b.custom_minimum_size = Vector2(340, 44)
-	AK.put(stage, actions, Vector2(x, BOTTOM - actions.get_child_count() * 50))

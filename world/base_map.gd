@@ -429,16 +429,18 @@ const PROP_CLEAR := {"hall": [[0.0, -23.6, 44.0, 0.0], [0.0, -55.0, 44.0, -28.5]
 ## workshop gets the old cargo bay.)
 const STATION_SPOTS := {
 	"workbench": ["hall", 78.5, -5.0], "logistics": ["hall", 49.5, -5.0], "exchange": ["hall", 25.5, -21.2],
-	# The lift up to the second deck, by the departure lift's gate.
-	"deck_lift": ["hall", 71.5, -1.8],
+	# The departure gate is the lift up to the second deck now (用户 2026-10-23:
+	# 这里从出击改为升降梯); contracts are taken at the 调度台 only, and the old
+	# lift spot east of the gate has no E.
+	"lift": ["hall", 64.0, -1.2],
 	# The sand table's near edge, off the main street (沙盘航行策划案 §6).
 	"sand_table": ["hall", 64.0, -30.6],
 	"personnel": ["armory", 113.0, 7.5],
 }
-const STATION_LABELS := {"exchange": ["exchange", "交易所终端"], "sand_table": ["sand_table", "沙盘"], "personnel": ["personnel", "人事部终端"], "deck_lift": ["lift", "升降梯"],
+const STATION_LABELS := {"exchange": ["exchange", "交易所终端"], "sand_table": ["sand_table", "沙盘"], "personnel": ["personnel", "人事部终端"], "lift": ["lift", "升降梯"],
 	"logistics": ["insurance", "后勤柜台：投保"]}
 ## Spawns placed by the layout: she comes back up the lift, so she arrives at it.
-const SPAWN_SPOTS := {"arrival": [64.0, -4.0], "deck_lift": [71.5, -4.4]}
+const SPAWN_SPOTS := {"arrival": [64.0, -4.0], "deck_lift": [64.0, -4.4]}
 ## Lanes painted on a room's deck: [layout x from, x to, z].
 const LANES := {"warehouse": [[-63.0, -24.0, -25.8], [-63.0, -24.0, -29.6]],
 	# The hall's main street, west door to east door, broken at the axis.

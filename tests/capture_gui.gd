@@ -118,6 +118,11 @@ func run() -> void:
 	game.menu.workbench_tab = 1
 	game.open_station("loadout")
 	await capture("base-refit")
+	game.fill_rhodes()
+	game.menu.pick = game.player.equipped.get(Item.Category.CHEST)
+	game.menu.workbench_tab = 2
+	game.open_station("loadout")
+	await capture("base-issue")
 	game.menu.workbench_tab = 0
 	game.open_station("insurance")
 	await capture("base-insurance")

@@ -722,6 +722,12 @@ static func settlement(menu: FieldMenu) -> void:
 	var back := AK.go_button("返回罗德岛", "RETURN")
 	AK.put(stage, back, Vector2(48, 624), Vector2(330, 60))
 	back.pressed.connect(game.close_modal)
+	# 仓库修订 (用户 2026-10-23): a 仓库 page beside the bags, to put away what came home.
+	var tab: int = clampi(menu.settle_tab, 0, SETTLE_TABS.size() - 1)
+	AK.put(stage, AK.toggle(SETTLE_TABS, tab, func(i): menu.settle_tab = i; settlement(menu), 13), Vector2(1100, 14))
+	if tab == 1:
+		_settle_store(menu, stage)
+		return
 	# The bags as they came out, enlarged, items where they were.
 	var worn: Array = view.worn
 	var worn_h := 1
@@ -743,6 +749,37 @@ static func settlement(menu: FieldMenu) -> void:
 	y += 28 + maxi(worn_h, safe_size.y) * 40 * scale + 16
 	AK.put(stage, AK.section("背包", "PACK %d×%d" % [pack_size.x, pack_size.y]), Vector2(420, y))
 	AK.put(stage, FateGrid.make(pack_size, view.pack, ok, scale), Vector2(420, y + 28))
+
+const SETTLE_TABS := ["结算", "仓库"]
+
+## Settlement's 仓库 page: the warehouse on the left, the pack and safe bag on
+## the right; a click or a drag puts an item away, 一键入库 puts all of them.
+static func _settle_store(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var base: BaseState = game.base
+	var redraw := func(): settlement(menu)
+	var full := base.shelf_count() >= base.capacity()
+	AK.put(stage, AK.section("仓库", "DEPOT  %d / %d" % [base.shelf_count(), base.capacity()]), Vector2(420, 44))
+	if full: AK.put(stage, AK.tag("已满", AK.RED, false), Vector2(640, 46))
+	var stores := func(item: Item) -> bool: return game.carried_items().has(item) and not game.player.equipped.values().has(item)
+	var depot := ScrollContainer.new()
+	depot.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var depot_rows := maxi(12, ceili(game.stash.size() / 10.0))
+	var grid := BaseScreens.FlowGrid.make(game.stash, 10, depot_rows, func(_it): pass, func(_it): pass)
+	grid.dragging(stores, func(item: Item): game.store_item(item); redraw.call())
+	grid.cards = true
+	depot.add_child(grid)
+	AK.put(stage, depot, Vector2(420, 76), Vector2(414, 12 * 40))
+	var carried: Array = game.inventory.items + game.safe_bag.items
+	AK.put(stage, AK.section("背包 · 安全袋", "CARRIED  %d" % carried.size()), Vector2(860, 44))
+	var bag := BaseScreens.FlowGrid.make(carried, 9, 10, func(item: Item): game.store_item(item); redraw.call(), func(_it): pass)
+	bag.dragging(func(_it): return false, func(_it): pass)
+	bag.cards = true
+	AK.put(stage, bag, Vector2(860, 76))
+	var all := AK.go_button("一键入库", "STORE ALL")
+	all.disabled = carried.is_empty() or (full and not carried.any(func(it): return base.shelf_merge_room(it) >= it.quantity))
+	all.pressed.connect(func(): game.store_all_carried(); redraw.call())
+	AK.put(stage, all, Vector2(860, 624), Vector2(360, 60))
 
 static func _at_origin(entry: Dictionary) -> Dictionary:
 	var copy := entry.duplicate()

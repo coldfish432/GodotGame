@@ -82,7 +82,10 @@ func _economy() -> void:
 	var reward := game.gold - before
 	check("extracting with the objective done pays the fixed pay, and nothing more", reward == 8000, reward)
 	var crated := func(): return game.base.all_items().filter(func(x): return x.material_id == Economy.GOLD_ID).reduce(func(n, x): return n + x.quantity, 0)
-	check("赤金 found on the contract comes home in a receiving crate", game.gold_bars() == 0 and crated.call() == 4, crated.call())
+	# 仓库修订 (用户 2026-10-23): it stays in her pack; 一键入库 puts it in the warehouse.
+	check("赤金 found on the contract comes home in her pack", game.gold_bars() == 4 and crated.call() == 0, crated.call())
+	game.store_all_carried()
+	check("一键入库 puts the 赤金 into the warehouse", game.gold_bars() == 0 and crated.call() == 4, crated.call())
 	await game.start_contract("city")
 	await step(2)
 	game._clear_field()
@@ -142,15 +145,15 @@ func _protection() -> void:
 	check("insure: pays 赤金, insures, uses the squad up", game.squad_insure(blade) and blade.insured and game.gold_bars() == 15 and game.encounter_used)
 	check("one service per squad", not game.squad_send_home(vest) and not game.squad_insure(vest))
 	game.encounter_used = false
-	var staged := game.base.staging.size()
-	check("send home: the item leaves her for staging at once", game.squad_send_home(blade) and not game.carried_items().has(blade)
-		and game.base.location_of(blade) == "staging" and game.base.staging.size() == staged + 1)
+	var stored := game.base.shelf.size()
+	check("send home: the item leaves her for the warehouse at once", game.squad_send_home(blade) and not game.carried_items().has(blade)
+		and game.base.location_of(blade) == "shelf" and game.base.shelf.size() == stored + 1)
 	check("an insured item can be sent and stays insured (it was not lost)", blade.insured and game.gold_bars() == 0)
 	game.encounter_used = false
 	game.run_gold = 10
 	game.player.equip(vest)
 	game.inventory.remove(vest)
-	check("equipped gear can be sent home too", game.squad_send_home(vest) and game.player.equipped.get(Item.Category.ARMOR) == null and game.base.location_of(vest) == "staging")
+	check("equipped gear can be sent home too", game.squad_send_home(vest) and game.player.equipped.get(Item.Category.ARMOR) == null and game.base.location_of(vest) == "shelf")
 	game.open_modal("squad")
 	game.menu.show_squad()
 	check("the squad menu opens", game.menu.visible)
@@ -230,8 +233,11 @@ func _camps() -> void:
 	check("an unupgraded camp adds contamination", game.run_contamination > dose)
 	check("no squad or 坎诺特 in a camp, and nothing to fight", get_nodes_in_group("enemies").is_empty() and not is_instance_valid(game.world_map.encounter_node))
 	game.run_gold = 12
-	check("可露希尔's flasks cost the pharmacy price in 赤金, rounded up", game.closure_potion_price("A") == 1 and game.closure_potion_price("B") == 1)
-	check("buying one puts it in the pack", game.closure_buy_potion("B") and game.potions == 1 and game.gold_bars() == 11)
+	var bar := maxf(1.0, Economy.bar_lmd())
+	var price_a := maxi(1, ceili(game._closure_lmd("A") / bar))
+	var price_b := maxi(1, ceili(game._closure_lmd("B") / bar))
+	check("可露希尔's flasks cost the pharmacy price in 赤金, rounded up: %d / %d" % [price_a, price_b], game.closure_potion_price("A") == price_a and game.closure_potion_price("B") == price_b and price_a >= 1 and price_b >= price_a)
+	check("buying one puts it in the pack", game.closure_buy_potion("B") and game.potions == 1 and game.gold_bars() == 12 - price_b)
 	var bolts := MaterialCatalog.create("螺栓", 12)
 	var ore := FieldCatalog.exclusive("mine")
 	var blade := Item.create("营地刀", Item.Category.WEAPON, 2, 1, 1.0)
@@ -241,10 +247,10 @@ func _camps() -> void:
 	check("寄存 takes materials only, never special ones", game.deposit_refusal(blade) == "只收材料" and game.deposit_refusal(ore) == "特殊材料不能寄存")
 	var fee := game.deposit_fee(bolts)
 	check("the fee is 20% of the 交付价 in 赤金 at the live rate, rounded up", fee == maxi(1, ceili(Economy.price(bolts) * 0.2 / Economy.bar_lmd())))
-	check("deposited materials go straight to staging", game.deposit_item(bolts) and game.base.location_of(bolts) == "staging" and game.gold_bars() == 11 - fee)
+	check("deposited materials go straight into the warehouse", game.deposit_item(bolts) and game.base.location_of(bolts) == "shelf" and game.gold_bars() == 12 - price_b - fee)
 	var gold_before := game.gold
 	# The live rate less her 3% (势力与交易所策划案 §1.3), no longer a fixed 1000.
-	check("可露希尔 buys 赤金 at the live rate less 3%", game.sell_gold_bars(3) and game.gold == gold_before + 3 * Economy.closure_bar_price() and game.gold_bars() == 8 - fee)
+	check("可露希尔 buys 赤金 at the live rate less 3%", game.sell_gold_bars(3) and game.gold == gold_before + 3 * Economy.closure_bar_price() and game.gold_bars() == 9 - price_b - fee)
 	check("not more than she carries", not game.sell_gold_bars(99))
 	game.inventory.remove(ore)
 	game.close_modal()

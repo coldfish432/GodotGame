@@ -1,8 +1,9 @@
 extends SceneTree
 
 ## B1 of 基地玩法策划案_v1_0.md: where every item at the base is (§3.1), what
-## settlement sends where (§3.2), staging (§3.4a), shelf capacity (§3.6), and
-## save version 2 with migration from version 1 (§6.2).
+## settlement sends where (§3.2), warehouse capacity (§3.6, as 仓库修订 用户
+## 2026-10-23 made it: one count of cells, no crates or staging), and save
+## version 2 with migration from version 1 (§6.2).
 
 var failures := 0
 func _initialize() -> void: call_deferred("run")
@@ -37,79 +38,57 @@ func rules() -> void:
 	var base := BaseState.new()
 	var sword := item("剑", Item.Category.WEAPON, 2, 1)
 	var plate := item("甲", Item.Category.ARMOR, 2, 2)
-	var ring := item("戒", Item.Category.TRINKET)
-	check("starts with one 12-cell rack per category", range(4).all(func(c): return base.capacity(c) == 12))
-	check("crate sizes follow the footprint: 1 small, 2 medium, 3+ large",
-		BaseCatalog.crate_size(ring) == 0 and BaseCatalog.crate_size(sword) == 1 and BaseCatalog.crate_size(plate) == 2)
-	check("an item arrives once as a sealed crate", base.receive(sword) and not base.receive(sword) and base.location_of(sword) == "crate_sealed")
-	check("a sealed crate cannot be shelved or staged", not base.shelve(sword) and not base.stage(sword) and base.location_of(sword) == "crate_sealed")
-	check("opening reveals it in place", base.open_crate(sword) and not base.open_crate(sword) and base.location_of(sword) == "crate_open")
-	check("shelving takes it out of its crate", base.shelve(sword) and base.location_of(sword) == "shelf" and base.crates.is_empty())
-	base.receive(plate)
-	base.open_crate(plate)
-	check("staging takes an opened crate's item", base.stage(plate) and base.location_of(plate) == "staging")
-	check("shelf items cannot be staged directly", not base.stage(sword))
-	check("staging items can be shelved later", base.shelve(plate) and base.location_of(plate) == "shelf")
-	check("unstaging only works on staging", not base.unstage(sword))
+	# 仓库修订 (用户 2026-10-23): one warehouse, its cells set by 仓储部, any kind in any cell.
+	check("starts with 60 cells, the same for every kind", range(4).all(func(c): return base.capacity(c) == 60) and base.capacity() == 60)
+	check("an item arrives once, straight into the warehouse", base.receive(sword) and not base.receive(sword) and base.location_of(sword) == "shelf")
+	check("arrivals are counted one cell each", base.receive(plate) and base.shelf_count() == 2 and base.all_items().size() == 2)
+	check("taking it out and putting it back", base.take_from_shelf(sword) and base.location_of(sword) == "" and base.store(sword) == "shelf" and base.location_of(sword) == "shelf")
+	check("removing takes it out of the base", base.remove_item(plate) and base.location_of(plate) == "" and not base.remove_item(plate))
 
-	# A full category refuses with a reason, and the item stays where it was.
+	# A full warehouse refuses from the loadout; the item stays where it was.
 	var full := BaseState.new()
-	for i in range(12): full.shelf.append(item("武器%d" % i, Item.Category.WEAPON))
-	var extra := item("第13把", Item.Category.WEAPON)
-	full.receive(extra)
-	full.open_crate(extra)
-	check("a full zone refuses and says how full: %s" % full.shelve_refusal(extra), not full.shelve(extra) and "12/12" in full.shelve_refusal(extra) and full.location_of(extra) == "crate_open")
-	check("other zones are unaffected", full.shelf_has_room(Item.Category.ARMOR))
-	full.racks[Item.Category.WEAPON] = 2
-	check("a second rack adds 12 cells", full.capacity(Item.Category.WEAPON) == 24 and full.shelve(extra))
+	for i in range(60): full.shelf.append(item("库存%d" % i, Item.Category.WEAPON))
+	var extra := item("第61件", Item.Category.TRINKET)
+	check("a full warehouse refuses to store", full.store_target(extra) == "" and full.store(extra) == "" and full.location_of(extra) == "")
+	check("arrivals still come in over the count, nothing that comes home is lost", full.receive(extra) and full.shelf_count() == 61)
+	full.set_facility("warehouse", 2)
+	check("仓储部 Lv2 doubles the room", full.capacity() == 120 and full.shelf_has_room())
 
-	# Storing from the loadout: shelf, else staging, else refused.
-	var store := BaseState.new()
-	for i in range(12): store.shelf.append(item("饰%d" % i, Item.Category.TRINKET))
-	var spare := item("多余饰品", Item.Category.TRINKET)
-	check("storing into a full zone falls back to staging", store.store_target(spare) == "staging" and store.store(spare) == "staging")
-	for i in range(BaseCatalog.STAGING_CAPACITY - 1): store.staging.append(item("堆%d" % i, Item.Category.MATERIAL))
-	var refused := item("放不下", Item.Category.TRINKET)
-	check("staging holds about three hauls (%d) and then refuses" % BaseCatalog.STAGING_CAPACITY, store.staging.size() == 72 and store.store(refused) == "" and store.location_of(refused) == "")
+	# Stacks: a matching stack takes a stack even when the cells are full.
+	var stacks := BaseState.new()
+	var bolts := MaterialCatalog.create("螺栓", 1)
+	stacks.shelf.append(bolts)
+	for i in range(59): stacks.shelf.append(item("填%d" % i, Item.Category.TRINKET))
+	var more := MaterialCatalog.create("螺栓", 1)
+	check("a full warehouse still merges onto a stack with room", stacks.store(more) == "shelf" and bolts.quantity == 2 and stacks.shelf_count() == 60)
+	bolts.set_quantity(bolts.max_stack)
+	var over := MaterialCatalog.create("螺栓", 1)
+	check("at ×1 a full stack takes no more", stacks.store(over) == "")
 
-	# Save round trip keeps every place, rack count and uid.
+	# Save round trip keeps every item and uid.
 	var saved := BaseState.new()
 	var a := item("A", Item.Category.WEAPON)
 	var b := item("B", Item.Category.MATERIAL)
-	var c := item("C", Item.Category.ARMOR)
-	var d := item("D", Item.Category.TRINKET)
 	saved.shelf.append(a)
-	saved.staging.append(b)
-	saved.receive(c)
-	saved.receive(d)
-	saved.open_crate(d)
-	saved.racks[Item.Category.MATERIAL] = 3
+	saved.receive(b)
+	saved.set_facility("warehouse", 3)
 	var loaded := BaseState.new()
 	var seen := {}
 	loaded.load_data(JSON.parse_string(JSON.stringify(saved.to_data())), seen)
 	var places := loaded.all_items().map(func(x): return [x.uid, loaded.location_of(x)])
-	check("save round trip keeps each item's place and the racks",
-		places.has([a.uid, "shelf"]) and places.has([b.uid, "staging"]) and places.has([c.uid, "crate_sealed"]) and places.has([d.uid, "crate_open"])
-		and loaded.racks[Item.Category.MATERIAL] == 3 and loaded.all_items().size() == 4)
+	check("save round trip keeps each item and 仓储部's level",
+		places.has([a.uid, "shelf"]) and places.has([b.uid, "shelf"]) and loaded.all_items().size() == 2 and loaded.capacity() == 220)
 	var again := BaseState.new()
 	again.load_data(JSON.parse_string(JSON.stringify(saved.to_data())), seen)
 	check("already-loaded uids are not loaded twice", again.all_items().is_empty())
 
-	# Version 1 migration: shelves first, overflow to staging, then opened crates.
+	# Version 1 migration: everything into the warehouse, over its count if need be.
 	var old: Array = []
-	for i in range(30): old.append(item("旧武器%d" % i, Item.Category.WEAPON).to_data())
+	for i in range(70): old.append(item("旧武器%d" % i, Item.Category.WEAPON).to_data())
 	old.append(item("旧材料", Item.Category.MATERIAL).to_data())
 	var migrated := BaseState.new()
 	migrated.migrate_v1(old, {})
-	check("v1 stash migrates: 12 weapons shelved, 18 staged, material shelved, none lost",
-		migrated.shelf_count(Item.Category.WEAPON) == 12 and migrated.staging.size() == 18
-		and migrated.shelf_count(Item.Category.MATERIAL) == 1 and migrated.all_items().size() == 31)
-	var flood: Array = []
-	for i in range(12 + BaseCatalog.STAGING_CAPACITY + 5): flood.append(item("洪%d" % i, Item.Category.ARMOR).to_data())
-	var flooded := BaseState.new()
-	flooded.migrate_v1(flood, {})
-	check("migration overflow beyond staging lands in opened crates, nothing dropped",
-		flooded.crates.size() == 5 and flooded.crates.all(func(x): return x.opened) and flooded.all_items().size() == flood.size())
+	check("v1 stash migrates into the warehouse, none lost", migrated.shelf_count() == 71 and migrated.all_items().size() == 71)
 
 func through_game() -> void:
 	var game := GameManager.new()
@@ -139,16 +118,17 @@ func through_game() -> void:
 	var everything := [blade, charm, kit, found, found_safe, found_gear]
 	check("extraction: gear she set out with stays on her, equipped stays equipped",
 		game.player.equipped.get(Item.Category.WEAPON) == blade and game.inventory.items.has(charm) and game.inventory.items.has(kit))
-	check("extraction: everything found arrives as sealed crates, including gear equipped on the way",
-		[found, found_safe, found_gear].all(func(x): return game.base.location_of(x) == "crate_sealed")
-		and game.player.equipped.get(Item.Category.ARMOR) == null)
+	# 仓库修订: finds stay in her bags (and on her) until settlement's 仓库 page puts them away.
+	check("extraction: everything found stays where she carried it, including gear equipped on the way",
+		game.inventory.items.has(found) and game.safe_bag.items.has(found_safe) and game.player.equipped.get(Item.Category.ARMOR) == found_gear
+		and [found, found_safe, found_gear].all(func(x): return game.base.location_of(x) == ""))
 	check("extraction: every item in exactly one place", each_once(game, everything))
 	check("protections and run flags are cleared", everything.all(func(x): return not x.insured and not x.carried_in))
-	check("nothing goes straight onto the shelves", game.stash.is_empty())
+	check("nothing goes straight into the warehouse", game.stash.is_empty())
 	game.settle(true)
-	check("settling again changes nothing", each_once(game, everything) and game.base.crates.size() == 3)
+	check("settling again changes nothing", each_once(game, everything) and game.stash.is_empty())
 
-	# Death: kept carried-in gear stays on her; kept finds become crates; the rest is lost.
+	# Death: kept things stay on her; insured gear waits in the queue; the rest is lost.
 	await game.start_contract("city")
 	var safe_find := item("安全袋新物", Item.Category.MATERIAL)
 	var lost_find := item("遗失新物", Item.Category.TRINKET)
@@ -159,32 +139,30 @@ func through_game() -> void:
 	await step(2)
 	check("death: insured gear she carried in waits in the insurance queue (保全系统修订案 §3)", game.in_base and game.player.equipped.get(Item.Category.WEAPON) == null
 		and game.base.insurance_queue.any(func(e): return e.item == blade and int(e.due) - BaseState.now() >= 2 * 3600 - 5 and int(e.due) - BaseState.now() <= 4 * 3600) and not blade.insured)
-	check("death: a find in the safe bag arrives as a crate", game.base.location_of(safe_find) == "crate_sealed")
+	check("death: a find in the safe bag stays in the safe bag", game.safe_bag.items.has(safe_find) and game.base.location_of(safe_find) == "")
 	check("death: unprotected items are gone from everywhere",
 		game.base.location_of(lost_find) == "" and not game.carried_items().has(lost_find)
 		and game.base.location_of(charm) == "" and not game.carried_items().has(charm))
 	check("death: kit in the pack was not protected and is lost", not game.carried_items().has(kit))
+	for e in game.base.insurance_queue: e.due = 0
+	check("death: insured gear arrives in the warehouse when its time comes", game.base.tick_insurance().has(blade) and game.base.location_of(blade) == "shelf"
+		and game.base.insurance_queue.is_empty())
+	game.base.shelf.erase(blade)
 
-	# Receiving through the game, and the staging rules.
-	var crate_item: Item = game.base.crates[0].item
-	check("game opens a crate", game.open_crate(crate_item) and game.base.location_of(crate_item) == "crate_open")
-	check("a crate's item cannot be brought or sold", not game.bring_item(crate_item) and not game.sell(crate_item))
-	check("staging it works", game.stage_item(crate_item) and game.base.location_of(crate_item) == "staging")
-	check("staged items cannot be sold (delivered)", not game.sell(crate_item) and game.base.location_of(crate_item) == "staging")
-	check("staged items cannot be brought from the warehouse terminal", not game.bring_item(crate_item))
-	check("taking it out at staging puts it in the pack", game.unstage_to_pack(crate_item) and game.inventory.items.has(crate_item) and game.base.location_of(crate_item) == "")
-	check("storing it again goes to its shelf", game.store_item(crate_item) and game.base.location_of(crate_item) == "shelf")
-	check("a shelved item can be brought and sold", game.bring_item(crate_item) and game.store_item(crate_item) and game.sell(crate_item) and game.base.location_of(crate_item) == "")
+	# Storing, bringing and selling through the game.
+	check("storing from the safe bag goes into the warehouse", game.store_item(safe_find) and game.base.location_of(safe_find) == "shelf" and not game.safe_bag.items.has(safe_find))
+	check("bringing it puts it in the pack", game.bring_item(safe_find) and game.inventory.items.has(safe_find) and game.base.location_of(safe_find) == "")
+	check("a stored item can be sold", game.store_item(safe_find) and game.sell(safe_find) and game.base.location_of(safe_find) == "")
 
-	# A pack too full to take a staged item: the item stays staged.
+	# A pack too full to take an item: it stays in the warehouse.
 	var bulky := item("大件", Item.Category.ARMOR, 2, 2)
-	game.base.staging.append(bulky)
+	game.base.shelf.append(bulky)
 	var fillers: Array[Item] = []
 	while true:
 		var f := item("填充", Item.Category.MATERIAL)
 		if not game.inventory.try_add(f): break
 		fillers.append(f)
-	check("a full pack refuses and the item stays in staging", not game.unstage_to_pack(bulky) and game.base.location_of(bulky) == "staging")
+	check("a full pack refuses and the item stays in the warehouse", not game.bring_item(bulky) and game.base.location_of(bulky) == "shelf")
 	for f in fillers: game.inventory.remove(f)
 
 	# Save version 2 round trip through the game, then a version 1 file.
@@ -206,7 +184,7 @@ func through_game() -> void:
 	file.store_string(JSON.stringify(v1))
 	file.close()
 	game.load_base()
-	check("a version 1 save loads onto the shelves (资金 ×100 → 龙门币)", game.gold == 9900 and game.stash.size() == 2 and game.base.crates.is_empty() and game.base.staging.is_empty())
+	check("a version 1 save loads onto the shelves (资金 ×100 → 龙门币)", game.gold == 9900 and game.stash.size() == 2 and game.base.all_items().size() == 2)
 	game.save_enabled = false
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(game.save_path + suffix): DirAccess.remove_absolute(game.save_path + suffix)

@@ -14,10 +14,10 @@ const CATEGORIES := {
 	"weapon": "武器", "armor": "防具", "trinket": "饰品",
 	"elite": "养成材料", "originium": "源石类", "medical": "医疗物资",
 	"build": "建材", "electronic": "电子", "fuel": "燃料",
-	"cold": "寒地物资", "contraband": "违禁品",
+	"cold": "寒地物资", "contraband": "违禁品", "crop": "作物",
 }
-## Categories nobody sells to the player (gear only goes one way).
-const SELL_ONLY := ["weapon", "armor", "trinket", "contraband"]
+## Categories nobody sells to the player (gear and crops only go one way).
+const SELL_ONLY := ["weapon", "armor", "trinket", "contraband", "crop"]
 
 ## currency: "lmd" 龙门币 / "gold" 赤金 (its 赤金账户). active: "day" 08–20,
 ## "night" 20–08, "all". spread: full bid/ask gap in the active hours. depth:
@@ -26,13 +26,13 @@ const SELL_ONLY := ["weapon", "armor", "trinket", "contraband"]
 ## its shelf. field_only: only traded at its posts in the field or by 企鹅物流.
 const FACTIONS := {
 	"lungmen": {"name": "龙门商会", "region": "龙门", "currency": "lmd", "active": "day", "spread": 0.03, "depth": 1.0, "noise": 1.0,
-		"prefs": {"armor": 1.25, "medical": 1.2, "build": 1.1, "electronic": 1.0, "fuel": 1.0, "weapon": 0.9, "trinket": 0.9, "elite": 0.9},
+		"prefs": {"armor": 1.25, "medical": 1.2, "crop": 0.9, "build": 1.1, "electronic": 1.0, "fuel": 1.0, "weapon": 0.9, "trinket": 0.9, "elite": 0.9},
 		"sells": ["螺栓", "金属板", "胶带", "电线", "灯泡", "蓄电池", "医用耗材包", "代糖", "糖", "玄纹墨"]},
 	"rat": {"name": "鼠王的下城区", "region": "龙门", "currency": "lmd", "active": "night", "spread": 0.10, "depth": 0.5, "noise": 1.5, "black": true,
-		"prefs": {"contraband": 1.6, "weapon": 1.2, "armor": 0.95, "trinket": 1.0, "elite": 0.95, "electronic": 1.0, "medical": 1.05, "originium": 1.1},
+		"prefs": {"contraband": 1.6, "weapon": 1.2, "crop": 0.95, "armor": 0.95, "trinket": 1.0, "elite": 0.95, "electronic": 1.0, "medical": 1.05, "originium": 1.1},
 		"sells": ["装置", "全新装置", "研磨石", "化合切削液", "电路板", "继电器", "下城区耳目"]},
 	"rhine": {"name": "莱茵生命", "region": "哥伦比亚", "currency": "gold", "active": "all", "spread": 0.04, "depth": 0.8, "noise": 1.0,
-		"prefs": {"originium": 1.5, "medical": 1.2, "elite": 1.25, "electronic": 1.15, "cold": 1.3, "trinket": 0.9},
+		"prefs": {"originium": 1.5, "medical": 1.2, "crop": 0.9, "elite": 1.25, "electronic": 1.15, "cold": 1.3, "trinket": 0.9},
 		"sells": ["全新装置", "凝胶", "晶体元件", "糖", "聚酸酯", "闪耀作物种子", "闪耀作物·变种种子"]},
 	"karlan": {"name": "喀兰贸易", "region": "谢拉格", "currency": "gold", "active": "all", "spread": 0.03, "depth": 1.0, "noise": 1.0,
 		"prefs": {"trinket": 1.3, "weapon": 1.1, "armor": 1.05, "cold": 1.4, "build": 0.9, "fuel": 1.05},
@@ -130,7 +130,8 @@ static func preference(faction: String, category: String) -> float:
 
 ## The market category of an item, "" when no market takes it (potions, 赤金).
 static func category_of(item: Item) -> String:
-	if item == null or item.is_potion(): return ""
+	# Rhodes standard gear is issued, not owned (制式保底修订): no market takes it.
+	if item == null or item.is_potion() or GearCatalog.bound(item): return ""
 	match item.effect:
 		"raw_ore", "sealed_ore": return "contraband"
 		"frozen_relic": return "cold"
@@ -153,9 +154,11 @@ static func material_category(id: String) -> String:
 	var data: Dictionary = MaterialCatalog.MATERIALS[id]
 	if str(data.get("source", "")) == "pack": return Packs.category_of(id)
 	if str(data.get("source", "")) == "trade": return Packs.category_of(str(Packs.LEGACY.get(id, "")))
-	# 势力特供 are not traded back; crops and 补给 go with the medical goods.
+	# 势力特供 are not traded back. Crops have their own 作物包, priced so it pays
+	# no more than delivery (用户 2026-10-23); 补给 go with the medical goods.
 	if str(data.get("source", "")) == "special": return ""
-	if str(data.get("source", "")) in ["farm", "meal"]: return "medical"
+	if str(data.get("source", "")) == "farm": return "crop"
+	if str(data.get("source", "")) == "meal": return "medical"
 	match str(data.get("group", "")):
 		"电子", "能源": return "electronic"
 		"燃料": return "fuel"

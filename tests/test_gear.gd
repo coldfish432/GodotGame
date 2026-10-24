@@ -143,14 +143,14 @@ func run() -> void:
 	check("a Siracusa elite drops a deep Siracusa weapon", int(B[GearCatalog.pick(Item.Category.WEAPON, "siracusa", 1, "elite", "family_eraser", srng)].tier) == 2)
 	check("each Siracusa tier is open", [0, 1, 2].all(func(t): return sira.any(func(id): return int(B[id].tier) == t)))
 
-	# 罗德岛制式装备 (§10): never dropped; a set per operator; 加工部 makes them.
+	# 罗德岛制式装备 (§10, 制式保底修订): never dropped, never made; issued free.
 	var never := true
 	for region in ["mine", "city", "snow", "siracusa"]:
 		for category in [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET]:
 			for source in ["normal", "elite", "vault"]:
 				if GearCatalog.eligible(category, region, 30, source).any(func(id): return GearCatalog.is_rhodes(id)): never = false
 	check("Rhodes gear never drops", never)
-	var kit := GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD)
+	var kit := GearCatalog.rhodes_kit(Operators.AMIYA_GUARD)
 	check("a kit fills all eight slots", kit.map(func(i): return i.category) == Item.SLOTS, kit.map(func(i): return i.category))
 	# 装备部位拆分与数值案 (用户 2026-10-21): eight slots, the same totals.
 	var armour_share := 0.0
@@ -185,21 +185,32 @@ func run() -> void:
 		var slot := GearSlots.roll(srng)
 		drops[slot] = int(drops.get(slot, 0)) + 1
 	check("drops cover every slot, the weapon about a third", drops.size() == 8 and absf(float(drops[Item.Category.WEAPON]) / 4000.0 - 3.0 / 9.2) < 0.03, drops)
-	# 复利数值改造清单 D: white until 制式换代, two tiers below the deepest camp, a fixed value.
+	# 制式保底修订 (用户 2026-10-23): fixed numbers — tier Ⅰ, the band's middle,
+	# intrinsics only, no prefixes — white until 制式换代; bound to the contract.
 	check("kit pieces are white Rhodes bases of tier Ⅰ", kit.all(func(i): return i.rarity == 0 and i.grade == 1 and GearCatalog.is_rhodes(i.base_id)))
-	var badge := GearCatalog.make_rhodes("rhodes_badge", srng)
+	check("…with no prefixes and no rolled affixes", kit.all(func(i): return i.prefixes.is_empty() and i.modifiers.all(func(m): return m.tier == GearCatalog.IMPLICIT_TIER)))
+	var twin := GearCatalog.rhodes_kit(Operators.AMIYA_GUARD)
+	var fixed := true
+	for i in range(kit.size()):
+		if not is_equal_approx(kit[i].power, twin[i].power) or kit[i].modifiers.map(func(m): return m.amount) != twin[i].modifiers.map(func(m): return m.amount): fixed = false
+	check("the numbers are fixed: two sets are the same", fixed)
+	var badge := GearCatalog.make_rhodes("rhodes_badge")
 	check("Rhodes gear is worth a fixed 5", badge.value == GearCatalog.RHODES_VALUE and badge.value_base == GearCatalog.RHODES_VALUE)
-	var late := GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD, GearCatalog.rhodes_tier(50), 2)
-	check("from the floor-50 camp the kit is tier Ⅳ, gold after 换代", late.all(func(i): return i.grade == 4 and i.rarity == 2))
-	var made := Workshop.GEAR.values().map(func(r): return str(r.base))
+	var gold_set := GearCatalog.rhodes_kit(Operators.AMIYA_GUARD, 2)
+	check("after 换代 the set is gold, still tier Ⅰ, stronger, still without prefixes", gold_set.all(func(i): return i.grade == 1 and i.rarity == 2 and i.prefixes.is_empty())
+		and gold_set[0].power > kit[0].power, [gold_set[0].power, kit[0].power])
+	var unmarketable := kit.all(func(i): return GearCatalog.bound(i) and FactionCatalog.category_of(i).is_empty() and not Packs.packable(i) and not Consignment.takes(i) and not PrefixCatalog.eligible_item(i))
+	check("Rhodes gear is bound: no market, pack, consignment or refit takes it", unmarketable)
 	var rhodes_ids := B.keys().filter(func(id): return GearCatalog.is_rhodes(id))
-	check("every Rhodes base has a 加工部 recipe", made.size() == rhodes_ids.size() and rhodes_ids.all(func(id): return id in made), [made.size(), rhodes_ids.size()])
-	var heavy := {}
-	for i in range(200):
-		for piece in GearCatalog.rhodes_kit(srng, Operators.AMIYA_GUARD):
-			if piece.base_id.ends_with("_heavy") or piece.base_id == "rhodes_ring_monitor": heavy[piece.base_id] = true
-	check("kits also hand out the E16 protective line", heavy.size() == 5, heavy.keys())
-	check("recipes use known materials", Workshop.GEAR.values().all(func(r): return r["in"].keys().all(func(m): return MaterialCatalog.MATERIALS.has(m))))
+	check("加工部 no longer makes Rhodes gear", rhodes_ids.all(func(id): return not Workshop.RECIPES.has(str(B[id].name))))
+	var retired := Workshop.RETIRED_GEAR.values().map(func(r): return str(r.base))
+	check("a job queued before still knows every Rhodes base's cost", rhodes_ids.all(func(id): return id in retired))
+	var offered := {}
+	for slot in Item.SLOTS:
+		for id in GearCatalog.rhodes_choices(slot, Operators.AMIYA_GUARD): offered[id] = true
+	check("the workbench offers the E16 protective line too", ["rhodes_head_heavy", "rhodes_hands_heavy", "rhodes_legs_heavy", "rhodes_feet_heavy", "rhodes_ring_monitor"].all(func(id): return offered.has(id)))
+	check("every slot has a choice for every class", Operators.ORDER.all(func(op): return Item.SLOTS.all(func(slot): return not GearCatalog.rhodes_choices(slot, op).is_empty())))
+	check("a caster's ring is all arts, a guard's all ATK", is_equal_approx(GearCatalog.make_rhodes("rhodes_ring", 0, "lin").atk_share, 0.0) and is_equal_approx(GearCatalog.make_rhodes("rhodes_ring").atk_share, 1.0))
 
 	# 远程与法杖 (§12): each region has 3 ranged and 2 staves; classes wield their own forms.
 	for region in ["mine", "city", "snow", "siracusa"]:
@@ -215,9 +226,9 @@ func run() -> void:
 	check("a caster wields a staff only", GearCatalog.can_wield("lin", staff) and not GearCatalog.can_wield("lin", gun) and not GearCatalog.can_wield("lin", blade))
 	check("a guard wields a blade, not a gun", GearCatalog.can_wield(Operators.LAPPLAND, blade) and not GearCatalog.can_wield(Operators.LAPPLAND, gun))
 	check("armour fits everyone", GearCatalog.can_wield("lin", kit[1]))
-	check("a sniper's kit carries the Rhodes crossbow", GearCatalog.rhodes_kit(srng, "rosa")[0].base_id == "rhodes_crossbow")
-	check("a caster's kit carries the Rhodes staff", GearCatalog.rhodes_kit(srng, "santalla")[0].base_id == "rhodes_staff")
-	check("a guard's kit carries a blade", GearCatalog.form_of(GearCatalog.rhodes_kit(srng, "hellagur")[0]) == "blade")
+	check("a sniper's kit carries the Rhodes crossbow", GearCatalog.rhodes_kit("rosa")[0].base_id == "rhodes_crossbow")
+	check("a caster's kit carries the Rhodes staff", GearCatalog.rhodes_kit("santalla")[0].base_id == "rhodes_staff")
+	check("a guard's kit carries a blade", GearCatalog.form_of(GearCatalog.rhodes_kit("hellagur")[0]) == "blade")
 
 	# Each slot's own sizes (部位词条数值表 v1.0) and intrinsics by look
 	# (底材固有属性表 v1.0).

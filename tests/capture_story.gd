@@ -41,7 +41,7 @@ func run() -> void:
 	game.open_station("contracts")
 	await capture("regions")
 	game.close_modal()
-	for g in ["first_contract", "crate", "shelve", "order", "treat"]: game.base.story.done.append(g)
+	for g in ["first_contract", "shelve", "order", "treat"]: game.base.story.done.append(g)
 	game.base.story.seen.append("return")
 	game.base.story.counts["contract"] = 1
 	await step(20)

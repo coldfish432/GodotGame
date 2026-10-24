@@ -507,7 +507,6 @@ static func _cfd_form(menu: FieldMenu, body: VBoxContainer) -> void:
 		func(): return ex.gold_account if currency == "gold" else float(game.gold))
 	var issuer := Exchange.cfd_issuer(underlying)
 	body.add_child(AK.label("名义 %s   持仓 %s / %s" % [Exchange.format_money(currency, cfd_margin * lev), Economy.format(roundi(ex.cfd_notional_used(issuer))), Economy.format(roundi(ex.cfd_notional_cap(issuer)))], 11, AK.MUTE))
-	body.add_child(MarketWidgets.live(func(): return "今日额度 %s / %s   待入账 %s" % [Economy.format(roundi(ex.cfd_day.used)), Economy.format(roundi(ex.cfd_cap())), Economy.format(roundi(ex.cfd_pending()))], 11, AK.MUTE))
 	var refusal := ex.cfd_refusal(underlying, lev, cfd_margin)
 	if not refusal.is_empty(): body.add_child(AK.label(refusal, 12, AK.RED))
 	_go(body, "开仓", refusal.is_empty(), func():
@@ -754,7 +753,7 @@ static func workshop(menu: FieldMenu) -> void:
 	if workshop_tab == 1:
 		_pack_page(menu, stage)
 		return
-	var names: Array = Workshop.RECIPES.keys() + Workshop.GEAR.keys()
+	var names: Array = Workshop.RECIPES.keys()
 	if workshop_pick.is_empty(): workshop_pick = names[0]
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 4)

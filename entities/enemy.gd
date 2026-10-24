@@ -369,9 +369,13 @@ func _build_pick_area() -> void:
 	area.collision_mask = 0
 	var shape := CollisionShape3D.new()
 	var box_shape := BoxShape3D.new()
-	var size := (1.0 if own_art() else (1.4 if elite else 1.0)) * figure_scale()
-	box_shape.size = Vector3.ONE * size
+	# Generous to click: from the feet (-0.65) to a little over the head, and
+	# wider than the figure, so a click on any of its drawn body lands.
+	var width := (1.7 if own_art() else (2.2 if elite else 1.7)) * figure_scale()
+	var top := maxf(head_height(), 1.0) + 0.25
+	box_shape.size = Vector3(width, top + 0.65, width)
 	shape.shape = box_shape
+	shape.position.y = (top - 0.65) * 0.5
 	area.add_child(shape)
 	add_child(area)
 	_pick_area = area

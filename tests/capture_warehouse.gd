@@ -1,7 +1,7 @@
 extends SceneTree
 ## Engine screenshots of the warehouse in use (evidence/rhodes-engine/b2-*, b3-*):
-## crates at receiving, the item card, carrying to a lit zone, a shelved item,
-## loaded staging pallets, the order board and the outbound menu.
+## the filled racks, the 仓管台 screen, the order board and the outbound menu.
+## 仓库修订 (用户 2026-10-23): no crates, staging or carrying any more.
 var game: GameManager
 func _initialize() -> void: call_deferred("run")
 func find_game(node: Node) -> GameManager:
@@ -30,26 +30,14 @@ func run() -> void:
 	game = find_game(rig)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 11
-	for i in range(9): game.base.receive(FieldCatalog.roll_item(["mine", "city", "snow"][i % 3], 3, rng))
-	for i in range(30): game.base.staging.append(FieldCatalog.roll_item("mine", 2, rng))
-	var a: Dictionary = game.warehouse_view.anchors
-	place([a.bays[1][0], a.bays[1][1] + 1.2])
+	for i in range(30): game.base.receive(FieldCatalog.roll_item(["mine", "city", "snow"][i % 3], 3, rng))
+	place([-43.5, -27.7])
 	await wait(3.0)  # lights and shelves settle
-	await shot("receiving")
-	game._base_interact()
-	await shot("item-card")
-	var opened: Item = game.base.crates[1].item
-	game.close_modal()
-	game.pick_up_item(opened)
-	var zone: Array = a.zones[WarehouseView.CATEGORY_KEYS[opened.category]]
-	place([(zone[0] + zone[2]) * 0.5, (zone[1] + zone[3]) * 0.5])
-	await wait(2.5)
-	await shot("carrying")
-	game.shelve_carried(opened.category)
-	await shot("shelved")
-	place([(a.staging[0] + a.staging[2]) * 0.5, a.staging[1] - 1.0])
+	await shot("racks")
+	game.open_station("stash")
 	await wait(0.5)
-	await shot("staging")
+	await shot("stash-screen")
+	game.close_modal()
 	# B3: the order board over the outbound pallets, and the outbound menu.
 	game.base.orders.slots = [{"id": "starter", "state": "open", "delivered": []}, {"id": "log_fine_weapon", "state": "open", "delivered": []}]
 	var spare := Item.create("封装矿料", Item.Category.MATERIAL, 1, 1)

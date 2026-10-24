@@ -100,8 +100,8 @@ func _rules() -> void:
 	check("records by kill count: 10 normals → 1 basic, elite → 初级, leader → 中级, boss → 高级 (零头作废)",
 		r == {"基础作战记录": 2, "初级作战记录": 3, "中级作战记录": 1, "高级作战记录": 2}, r)
 	check("record exp is PRTS halved", Progression.RECORD_EXP == {"基础作战记录": 100, "初级作战记录": 200, "中级作战记录": 500, "高级作战记录": 1000})
-	check("promotion recipes are PRTS 拉普兰德's (龙门币 ×0.3)", Progression.PROMOTION[1] == {"lmd": 8000, "materials": {"近卫芯片": 4, "装置": 3, "固源岩": 4}}
-		and Progression.PROMOTION[2] == {"lmd": 60000, "materials": {"近卫双芯片": 3, "改量装置": 6, "异铁组": 10}})
+	check("promotion recipes are PRTS 拉普兰德's (龙门币 ×0.84)", Progression.PROMOTION[1] == {"lmd": 22000, "materials": {"近卫芯片": 4, "装置": 3, "固源岩": 4}}
+		and Progression.PROMOTION[2] == {"lmd": 168000, "materials": {"近卫双芯片": 3, "改量装置": 6, "异铁组": 10}})
 	var sums := []
 	for id in Progression.START:
 		var total := 0
@@ -176,7 +176,8 @@ func _base_actions() -> void:
 	game.gold = 100000
 	game.base.records = {"基础作战记录": 3}
 	var fed := game.feed_record("基础作战记录", 5)
-	check("feeding stops when the records run out, pays 0.5 龙门币 per exp", fed == 3 and game.gold == 100000 - 150 and g.level == 2 and g.exp == 300 - Progression.exp_to_next(0, 1), [fed, game.gold, g.level, g.exp])
+	var feed_cost := 3 * game.record_price("基础作战记录")
+	check("feeding stops when the records run out, pays %s 龙门币 per exp" % Progression.LMD_PER_EXP, fed == 3 and feed_cost == roundi(300 * Progression.LMD_PER_EXP) and game.gold == 100000 - feed_cost and g.level == 2 and g.exp == 300 - Progression.exp_to_next(0, 1), [fed, game.gold, g.level, g.exp])
 	check("records are counters, not shelf items", game.base.shelf.filter(func(x): return x.item_name.contains("作战记录")).is_empty() and int(game.base.records.get("基础作战记录", 0)) == 0)
 	check("promotion needs the level cap", game.promotion_refusal() == "需要等级 60")
 	g.add_exp(100000000)
@@ -184,7 +185,7 @@ func _base_actions() -> void:
 	stock("近卫芯片", 4)
 	stock("装置", 3)
 	stock("固源岩", 4)
-	check("promotion takes 龙门币 and materials", game.promote_operator() and g.elite == 1 and game.gold == 100000 - 150 - 8000 and game.material_count("近卫芯片") == 0)
+	check("promotion takes 龙门币 and materials", game.promote_operator() and g.elite == 1 and game.gold == 100000 - feed_cost - int(Progression.PROMOTION[1].lmd) and game.material_count("近卫芯片") == 0)
 	stock("近卫芯片组", 2)
 	stock("芯片助剂", 1)
 	check("双芯片 is crafted from 芯片组 ×2 + 芯片助剂", game.craft("近卫双芯片") and game.material_count("近卫双芯片") == 1 and game.material_count("近卫芯片组") == 0)
@@ -198,7 +199,7 @@ func _base_actions() -> void:
 	game.add_skill_rank("sundial")
 	var cost := Progression.respec_cost(g.refundable_points(), g.elite)
 	var gold := game.gold
-	check("respec costs 200 × (stage + 1) a point", game.respec_skills() and game.gold == gold - cost and cost == 2 * 400 and g.skill_points == 3)
+	check("respec costs 560 × (stage + 1) a point", game.respec_skills() and game.gold == gold - cost and cost == 2 * 1120 and g.skill_points == 3)
 	g.elite = 2
 	g.module_level = 0
 	stock("模组数据块", 2)
@@ -411,4 +412,5 @@ func _settlement() -> void:
 	await step(2)
 	check("records brought out go to the counters", game.base.records == {"初级作战记录": 2}, game.base.records)
 	check("the settlement view lists them", game.settlement_view.get("records", {}) == game.base.records)
-	check("nothing of them landed in the crates", game.base.crates.filter(func(c): return str(c.item.item_name).contains("作战记录")).is_empty())
+	# 仓库修订: finds stay in her bags now, but 作战记录 still go only to the counters.
+	check("nothing of them stayed in her bags or landed in the warehouse", (game.base.all_items() + game.carried_items()).filter(func(x): return str(x.item_name).contains("作战记录")).is_empty())

@@ -308,7 +308,6 @@ func _ready() -> void:
 	_init_market()
 	if save_enabled:
 		load_base()
-		if app_mode.is_empty() and issue_kits() > 0: save_base()
 	_catch_up_market()
 	if not app_mode.is_empty():
 		# Deferred: the main scene may still be adding its children.
@@ -317,6 +316,7 @@ func _ready() -> void:
 		show_base()
 	else:
 		await start_contract(region_id)
+	booting = false
 
 func _setup_input() -> void:
 	# Every function the player can rebind (Keybinds, 用户 2026-10-10: 主键＋副键,
@@ -491,6 +491,10 @@ func _process(delta: float) -> void:
 		if Input.is_action_just_pressed("stash_item"): _move_last_item_to_safe_bag()
 	elif base_walk_active():
 		_handle_base_pointer()
+		# She dodges at the base too (用户 2026-10-23); the other slots wait for the field.
+		var base_slots := Hotbar.slots()
+		for i in range(Hotbar.SLOTS):
+			if base_slots[i].action == "dash" and Input.is_action_just_pressed(Hotbar.input_of(i)): perform_hotbar_action("dash")
 		if Input.is_action_just_pressed("interact"): _base_interact()
 		if Input.is_action_just_pressed("toggle_watch") and is_instance_valid(watch_widget): watch_widget.set_meta("on", not watch_widget.get_meta("on", false))
 		if Input.is_action_just_pressed("toggle_stations"): toggle_station_panel()
@@ -547,9 +551,13 @@ func _snap_to_pixels(position: Vector3) -> Vector3:
 	return basis.x * across + basis.y * up + basis.z * position.dot(basis.z)
 
 ## Where the camera looks: the player, kept inside the base's walls while at home.
+## Where the tutorial's tour points the camera (INF: at her).
+var camera_look := Vector3.INF
+
 func camera_target() -> Vector3:
+	var focus := player.global_position if camera_look == Vector3.INF else camera_look
 	if in_base and is_instance_valid(base_map) and base_map.visible:
-		return base_map.clamp_camera(player.global_position, camera.size / CAMERA_SIZE if is_instance_valid(camera) else 1.0, camera_yaw, sin(CAMERA_PITCH) / sin(camera_pitch))
+		return base_map.clamp_camera(focus, camera.size / CAMERA_SIZE if is_instance_valid(camera) else 1.0, camera_yaw, sin(CAMERA_PITCH) / sin(camera_pitch))
 	return player.global_position
 
 ## Any container channel in progress is broken off (a dodge, 用户 2026-10-10).
@@ -817,26 +825,13 @@ func nearby_station() -> Dictionary:
 func _base_interact() -> void:
 	var station := nearby_station()
 	if station.is_empty():
-		if base.hand: set_message("手上拿着 %s：走到%s区的地面框里按 E 上架，或放进暂存区。" % [base.hand.item_name, BaseCatalog.CATEGORY_NAMES[base.hand.category]])
-		else: set_message("走到发光的站点旁按 E：调度台接单、后勤柜台投保、仓管台、收货区货箱、整备台、医疗前台。")
+		set_message("走到发光的站点旁按 E：调度台接单、后勤柜台投保、仓管台、整备台、医疗前台。")
 		return
 	match station.kind:
-		"crate": inspect_crate(station.item)
-		"zone": shelve_carried(station.category)
-		"shelf_zone":
-			open_modal("station")
-			menu.shelf_zone = station.category
-			menu.show_station("shelves")
-		"putback": put_back_carried()
 		"build_site": open_build_site(str(station.facility))
 		"hub":
 			if base.hub_built(): open_station("construction")
 			else: open_build_site("hub")
-		"staging":
-			if base.hand: stage_carried()
-			else:
-				open_modal("station")
-				menu.show_staging()
 		_: open_station(station.kind)
 
 ## A facility's construction site: its upgrades on the spot, connected or not.
@@ -844,6 +839,7 @@ func open_build_site(facility: String) -> void:
 	if not in_base or transitioning or not BaseCatalog.FACILITIES.has(facility): return
 	open_modal("station")
 	menu.show_build_site(facility)
+	if is_instance_valid(tutorial_spotlight): tutorial_spotlight.screen_opened("build_site")
 
 func open_station(kind: String) -> void:
 	if not in_base or transitioning: return
@@ -853,6 +849,7 @@ func open_station(kind: String) -> void:
 		save_base()
 	open_modal("station")
 	menu.show_station(kind)
+	if is_instance_valid(tutorial_spotlight): tutorial_spotlight.screen_opened(kind)
 
 func _handle_base_pointer() -> void:
 	if _pointer_gate:
@@ -996,8 +993,6 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	_apply_medical_state()
 	guide_floor = -1
 	_apply_meal(provisions.take_for_run())
-	# Whatever she is carrying around the warehouse stays at the base.
-	if base.return_hand(): set_message("手上的物品已放回原处。")
 	_issue_free_potions()
 	if research.on("supply"):   # 课题 战地补给
 		for i in range(2): inventory.add_stack(BaseCatalog.create_potion("A", Economy.tier_of(start_floor)))
@@ -1636,8 +1631,8 @@ func squad_price(item: Item) -> int:
 func squad_refusal(item: Item, service: String) -> String:
 	if in_base or encounter != "squad" or encounter_used or not near(world_map.encounter_node): return "小队不在附近"
 	if item == null or not carried_items().has(item) or not item.is_equippable(): return "只收装备"
+	if GearCatalog.bound(item): return "罗德岛制式"
 	if service == "insure" and item.insured: return "已投保"
-	if service == "send" and not base.staging_has_room(): return "暂存区已满"
 	if gold_bars() < squad_price(item): return "赤金不足"
 	return ""
 
@@ -1664,7 +1659,7 @@ func squad_send_home(item: Item) -> bool:
 	base.receive_to_staging(item)
 	_use_squad()
 	save_base(true)
-	set_message("罗德岛小队：%s 已送回基地暂存区。" % item.item_name)
+	set_message("罗德岛小队：%s 已送回基地仓库。" % item.item_name)
 	return true
 
 func carried_items() -> Array[Item]:
@@ -1737,12 +1732,17 @@ func settle(extracted: bool) -> void:
 	for item in on_her:
 		var where := "safe" if safe_bag.items.has(item) else ("worn" if player.equipped.values().has(item) else "pack")
 		var reason := "遗失"
-		if extracted: reason = "撤离带回"
+		# Rhodes standard gear goes back to logistics either way (制式保底修订).
+		if GearCatalog.bound(item): reason = "制式收回"
+		elif extracted: reason = "撤离带回"
 		elif safe_bag.items.has(item): reason = "安全袋保全"
 		elif item.insured: reason = "投保送回"
 		var entry := {"uid": item.uid, "name": item.item_name, "reason": reason}
 		var kept := reason in ["撤离带回", "安全袋保全"]
-		var stays_on_her := kept and item.carried_in
+		# 仓库修订: what she brings out stays in her bags (settlement's 仓库 page
+		# puts it away); only 作战记录 go to their counters.
+		var stays_on_her := kept and not Progression.RECORD_EXP.has(item.material_id)
+		if stays_on_her and not item.carried_in: new_finds += 1
 		if stays_on_her and player.equipped.get(item.category) == item: still_equipped.append(item)
 		if not stays_on_her:
 			inventory.remove(item)
@@ -1756,7 +1756,6 @@ func settle(extracted: bool) -> void:
 			if Progression.RECORD_EXP.has(item.material_id) and not stays_on_her:
 				base.add_records({item.material_id: item.quantity})
 				brought_records[item.material_id] = int(brought_records.get(item.material_id, 0)) + item.quantity
-			elif not stays_on_her and base.receive(item): new_finds += 1
 		settlement.append(entry)
 		var shown := {"item": item, "reason": reason, "x": item.grid_x, "y": item.grid_y, "w": item.width, "h": item.height}
 		settlement_view[where].append(shown)
@@ -1788,11 +1787,10 @@ func settle(extracted: bool) -> void:
 	research.settle()
 	research.apply_run(false)
 	base.contract_reroll = base.researched("offer_reroll")
-	base.reroll_available = base.facility_level("warehouse") >= BaseCatalog.REROLL_LEVEL
-	# The drone empties staging onto the shelves at every return (§3.4a).
-	if base.drone: base.sort_staging()
-	# 后勤部Ⅵ: everything that came home goes straight onto the shelves.
-	if base.researched("auto_sort"): base.sort_all()
+	# 后勤部Ⅵ: the pack's finds go straight into the warehouse where it has room.
+	if base.researched("auto_sort"):
+		for item in inventory.items.duplicate():
+			if not GearCatalog.bound(item): store_item(item, true)
 	features.reset()
 	player.cold = 0.0
 	_slow_heal_left = 0.0
@@ -1813,7 +1811,6 @@ func settle(extracted: bool) -> void:
 	if achieved:
 		if str(contract.type) == "recruit":
 			base.recruit(str(contract.operator))
-			new_finds += issue_kits()
 	if not contract.is_empty(): base.contract_offers.erase(region_id)
 	contract = {}
 	gold += reward
@@ -1826,17 +1823,17 @@ func settle(extracted: bool) -> void:
 	in_base = true
 	transitioning = false
 	save_base()
-	set_message("%s：%d 件新物品已送到仓储区收货区。%s%s" % ["合同交付" if extracted else "罗德岛小队归来", new_finds,
+	set_message("%s：带回 %d 件新物品。%s%s" % ["合同交付" if extracted else "罗德岛小队归来", new_finds,
 		"合同报酬 %s 龙门币。" % Economy.format(reward) if reward > 0 else "", "投保物品送回 %d 件。" % returned.size() if not returned.is_empty() else ""])
 	base_spawn = "arrival" if extracted else "death"
 	show_base()
 	var who := str(Operators.info(player.operator_id).name)
 	broadcast("PRTS：博士与%s已完成撤离。" % who if extracted else "PRTS：罗德岛小队已接回博士与%s。" % who)
-	if new_finds > 0: broadcast("收货区货箱有 %d 件新物品待开箱。" % new_finds)
 	if repaid > 0: broadcast("贷款逾期：合同报酬先还款 %s 龙门币。" % Economy.format(repaid))
 	_tick_workshop()
 	if show_settlement_screen:
 		open_modal("settlement")
+		menu.settle_tab = 0
 		menu.show_settlement()
 
 # --- The standalone terminal and ticker (交易终端与盯盘小窗策划案_v1_0.md) ----------
@@ -1848,6 +1845,9 @@ var app_mode := ""
 var save_lock: SaveLock = null
 var _lock_left := 0.0
 var _claiming := false
+## Until _ready has claimed and loaded the save and shown the base (the
+## loading screen stays up over it).
+var booting := true
 var _seen_seq := ""
 ## A terminal or ticker follows this save: the market is saved every few seconds.
 var _followed := false
@@ -2103,7 +2103,7 @@ func submit_bulk(id: int) -> bool:
 func pack_bulk(id: int) -> bool:
 	if not in_base or not voyage.pack(id): return false
 	save_base()
-	set_message("大宗货箱已送到暂存区。")
+	set_message("大宗货箱已入库。")
 	return true
 
 func open_exchange() -> void:
@@ -2198,7 +2198,7 @@ func unpack_refusal(pack: String, pick: Dictionary) -> String:
 	if cost > open_points(pack): return "点数不足"
 	return ""
 
-## Opens one pack at the warehouse console (§4): the pick goes to staging, the
+## Opens one pack at the warehouse console (§4): the pick goes to the warehouse, the
 ## points left wait for the next pack of the category.
 func unpack(pack: String, pick: Dictionary) -> bool:
 	if not in_base or not unpack_refusal(pack, pick).is_empty(): return false
@@ -2210,9 +2210,9 @@ func unpack(pack: String, pick: Dictionary) -> bool:
 		while n > 0:
 			var stack := MaterialCatalog.create(id, mini(n, MaterialCatalog.stack_size(id)))
 			n -= stack.quantity
-			if not base.receive_to_staging(stack): base.receive(stack)
+			base.receive(stack)
 	save_base()
-	set_message("%s 已拆开，物品在暂存区。" % pack)
+	set_message("%s 已拆开，物品已入库。" % pack)
 	return true
 
 ## Buys shelf entry `i` of the 代售 open here (§5): bars or 龙门币, into the
@@ -2259,7 +2259,7 @@ func consign_sell(item: Item) -> bool:
 		while left > 0:
 			var stack := MaterialCatalog.create(Economy.GOLD_ID, mini(left, MaterialCatalog.stack_size(Economy.GOLD_ID)))
 			left -= stack.quantity
-			if not base.receive_to_staging(stack): base.receive(stack)
+			base.receive(stack)
 	save_base(not in_base)
 	return true
 
@@ -2285,20 +2285,21 @@ func _tick_workshop() -> void:
 	for job in done:
 		var made := {str(job.output): int(job.count)}
 		for by in job.get("byproducts", {}): made[by] = int(made.get(by, 0)) + int(job.byproducts[by])
-		if Workshop.GEAR.has(str(job.output)):
+		# A Rhodes piece queued before it was issued free gives back what it cost.
+		if Workshop.RETIRED_GEAR.has(str(job.output)):
+			var r: Dictionary = Workshop.RETIRED_GEAR[job.output]
 			made.erase(str(job.output))
-			for k in range(int(job.count)):
-				var piece := GearCatalog.make_rhodes(str(Workshop.GEAR[job.output].base), rng, GearCatalog.rhodes_tier(research.deepest_camp()), base.rhodes_rarity)
-				if not base.receive_to_staging(piece): base.receive(piece)
+			for id in r["in"]: made[id] = int(made.get(id, 0)) + int(r["in"][id]) * int(job.count)
+			gold += int(r.lmd) * int(job.count)
 		for id in made:
 			var left := int(made[id])
 			while left > 0:
 				var stack := MaterialCatalog.create(id, mini(left, MaterialCatalog.stack_size(id)))
 				left -= stack.quantity
-				if not base.receive_to_staging(stack): base.receive(stack)
+				base.receive(stack)
 		story_note("crafted")
 		broadcast("PRTS：加工部完成 %s ×%d%s。" % [job.output, int(job.count), "，附带副产物" if not job.get("byproducts", {}).is_empty() else ""])
-	if in_base: set_message("加工部完成 %d 项，已送到暂存区。" % done.size())
+	if in_base: set_message("加工部完成 %d 项，已入库。" % done.size())
 	save_base(not in_base)
 
 # --- Field posts (§12) -----------------------------------------------------------
@@ -2496,7 +2497,7 @@ func trader_buy(slot: int) -> bool:
 ## What he pays for `item` in 赤金 (§3: 交付价 × 50%), or 0 when he will not buy it:
 ## gear and materials only — no flasks, no 原矿, nothing insured, no 赤金.
 func trader_offer(item: Item) -> int:
-	if item == null or item.is_potion() or item.insured or item.effect in ["raw_ore", SEALED_ORE, VoyageCatalog.CARGO_EFFECT] or item.material_id == Economy.GOLD_ID: return 0
+	if item == null or item.is_potion() or item.insured or item.effect in ["raw_ore", SEALED_ORE, VoyageCatalog.CARGO_EFFECT] or item.material_id == Economy.GOLD_ID or GearCatalog.bound(item): return 0
 	return maxi(1, floori(item.value * FieldCatalog.TRADER_BUYBACK / 10.0))
 
 func trader_sell(item: Item) -> bool:
@@ -2650,7 +2651,6 @@ func deposit_refusal(item: Item) -> String:
 	if item == null or not (inventory.items.has(item) or safe_bag.items.has(item)): return "不在背包里"
 	if item.category != Item.Category.MATERIAL or item.is_potion(): return "只收材料"
 	if not item.exclusive_region.is_empty() or not item.effect.is_empty(): return "特殊材料不能寄存"
-	if not base.staging_has_room(): return "暂存区已满"
 	var others := gold_bars() - (item.quantity if item.material_id == Economy.GOLD_ID else 0)
 	if others < deposit_fee(item): return "赤金不足"
 	return ""
@@ -2664,7 +2664,7 @@ func deposit_item(item: Item) -> bool:
 	item.carried_in = false
 	base.receive_to_staging(item)
 	save_base(true)
-	set_message("已寄存 %s：送到基地暂存区。" % item.display_name())
+	set_message("已寄存 %s：送到基地仓库。" % item.display_name())
 	return true
 
 ## 可露希尔 buys 赤金 for 龙门币 at the live rate less her spread (§1.3).
@@ -2805,20 +2805,6 @@ func upgrade_refusal(kind: String) -> String:
 	var refusal := base.upgrade_refusal(kind, gold)
 	return refusal if not refusal.is_empty() else materials_refusal(upgrade_cost(kind))
 
-func rack_cost(category: int) -> Dictionary:
-	var slot := base.next_rack_slot(category)
-	return BaseCatalog.RACK_MATERIALS[slot] if slot >= 0 else {}
-
-func rack_refusal(category: int) -> String:
-	var refusal := base.rack_refusal(category, gold)
-	return refusal if not refusal.is_empty() else materials_refusal(rack_cost(category))
-
-func drone_refusal() -> String:
-	if base.drone: return "已就位"
-	if base.facility_level("warehouse") < BaseCatalog.DRONE_LEVEL: return "需要仓储部 Lv%d" % BaseCatalog.DRONE_LEVEL
-	if gold < BaseCatalog.DRONE_PRICE: return "龙门币不足"
-	return materials_refusal(BaseCatalog.DRONE_MATERIALS)
-
 func buy_pack_upgrade() -> bool:
 	if not upgrade_refusal("pack").is_empty(): return false
 	consume_materials(upgrade_cost("pack"))
@@ -2893,6 +2879,10 @@ func equip_from(item: Item, from: ItemContainer) -> bool:
 	var old_pos := Vector2i(item.grid_x, item.grid_y)
 	from.remove(item)
 	var previous: Item = player.equipped.get(item.category)
+	# At the base a Rhodes piece is worn or handed back.
+	if in_base and GearCatalog.bound(previous):
+		player.unequip(previous.category)
+		previous = null
 	if previous != null and not from.try_add(previous):
 		item.grid_x = old_pos.x
 		item.grid_y = old_pos.y
@@ -2904,7 +2894,12 @@ func equip_from(item: Item, from: ItemContainer) -> bool:
 	return true
 
 func unequip_to_pack(item: Item) -> bool:
-	if item == null or player.equipped.get(item.category) != item or not inventory.try_add(item): return false
+	if item == null or player.equipped.get(item.category) != item: return false
+	if in_base and GearCatalog.bound(item):
+		return_rhodes(item)
+		save_base()
+		return true
+	if not inventory.try_add(item): return false
 	player.unequip(item.category)
 	save_base(not in_base)
 	return true
@@ -2925,10 +2920,14 @@ func drop_item(item: Item, from: ItemContainer) -> bool:
 
 ## Off the shelf into the pack, to take on the next contract.
 func bring_item(item: Item) -> bool:
-	if not in_base or not base.take_from_shelf(item): return false
-	if not inventory.try_add(item):
-		base.put_back(item, "shelf")
-		notice("背包空间不足：%s 仍在货架上。" % item.item_name)
+	if not in_base or not stash.has(item): return false
+	# A cell can hold more than a bag stack: one bag stack comes off it.
+	var piece := base.bag_piece(item)
+	if piece == item: base.take_from_shelf(item)
+	if not inventory.try_add(piece):
+		if piece == item: base.put_back(item)
+		else: item.set_quantity(item.quantity + piece.quantity)
+		notice("背包空间不足：%s 仍在仓库。" % item.item_name)
 		return false
 	save_base()
 	return true
@@ -2942,6 +2941,7 @@ func equip_from_stash(item: Item) -> bool:
 		return false
 	base.take_from_shelf(item)
 	var previous: Item = player.unequip(item.category)
+	if GearCatalog.bound(previous): previous = null
 	if previous != null and base.store(previous).is_empty() and not inventory.try_add(previous):
 		player.equip(previous)
 		base.put_back(item, "shelf")
@@ -2952,108 +2952,36 @@ func equip_from_stash(item: Item) -> bool:
 	save_base()
 	return true
 
-## From the loadout back to the base: its shelf, or staging when the shelf is full.
-func store_item(item: Item) -> bool:
+## From the loadout into the warehouse (仓库修订: at the 仓管台, the workbench
+## or settlement's 仓库 page). `quiet` skips the save and the full message,
+## for 一键入库 doing many at once.
+func store_item(item: Item, quiet := false) -> bool:
 	if not in_base or not carried_items().has(item): return false
+	if GearCatalog.bound(item):
+		return_rhodes(item)
+		if not quiet: save_base()
+		return true
 	if base.store_target(item).is_empty():
-		set_message("%s区和暂存区都满了：%s 留在身上。" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])
+		if not quiet: set_message("仓库已满（%d/%d）：%s 留在身上。" % [base.shelf_count(), base.capacity(), item.item_name])
 		return false
 	inventory.remove(item)
 	safe_bag.remove(item)
 	if player.equipped.get(item.category) == item: player.unequip(item.category)
-	if base.store(item) == "staging": set_message("%s区已满：%s 放进了暂存区。" % [BaseCatalog.CATEGORY_NAMES[item.category], item.item_name])
-	save_base()
-	return true
-
-# Receiving, carrying and staging (基地玩法策划案 §3.3–3.4a). The warehouse
-# spots that call these come from WarehouseView.target_at().
-
-## At a crate: open it if sealed, then show what is inside.
-func inspect_crate(item: Item) -> void:
-	if not in_base: return
-	if base.location_of(item) == "crate_sealed":
-		base.open_crate(item)
-		sound.play("loot")
-		save_base()
-	if base.location_of(item) != "crate_open": return
-	story_note("crate")
-	open_modal("station")
-	menu.show_item_card(item)
-
-## From an opened crate or staging into her hands.
-func pick_up_item(item: Item) -> bool:
-	if not in_base: return false
-	if base.hand:
-		set_message("先放下手上的 %s。" % base.hand.item_name)
-		return false
-	if not base.pick_up(item): return false
-	save_base()
-	set_message("拿起 %s：去%s区上架。" % [item.item_name, BaseCatalog.CATEGORY_NAMES[item.category]])
-	return true
-
-func shelve_carried(category: int) -> bool:
-	if not in_base or base.hand == null: return false
-	var refusal := base.shelve_hand_refusal(category)
-	if not refusal.is_empty():
-		set_message(refusal)
-		return false
-	var item := base.hand
-	base.shelve_hand(category)
+	base.store(item)
 	story_note("shelve")
-	save_base()
-	set_message("已上架：%s（%s区 %d/%d）" % [item.item_name, BaseCatalog.CATEGORY_NAMES[category], base.shelf_count(category), base.capacity(category)])
+	if not quiet: save_base()
 	return true
 
-func stage_carried() -> bool:
-	if not in_base or base.hand == null: return false
-	var item := base.hand
-	if not base.stage_hand():
-		set_message("暂存区已满（%d/%d）。" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY])
-		return false
+## 一键入库: the pack and the safe bag into the warehouse, as far as it has
+## room (what she wears stays on). Returns how many went in.
+func store_all_carried() -> int:
+	var stored := 0
+	for item in inventory.items.duplicate() + safe_bag.items.duplicate():
+		if store_item(item, true): stored += 1
 	save_base()
-	set_message("%s 放进了暂存区（%d/%d）。" % [item.item_name, base.staging.size(), BaseCatalog.STAGING_CAPACITY])
-	return true
-
-func put_back_carried() -> bool:
-	if not in_base or base.hand == null: return false
-	var item := base.hand
-	base.return_hand()
-	save_base()
-	set_message("%s 放回了%s。" % [item.item_name, "暂存区" if base.location_of(item) == "staging" else "货箱"])
-	return true
-
-func open_crate(item: Item) -> bool:
-	if not in_base or not base.open_crate(item): return false
-	save_base()
-	return true
-
-func shelve_item(item: Item) -> bool:
-	if not in_base: return false
-	var refusal := base.shelve_refusal(item)
-	if not refusal.is_empty():
-		set_message(refusal)
-		return false
-	base.shelve(item)
-	story_note("shelve")
-	save_base()
-	return true
-
-func stage_item(item: Item) -> bool:
-	if not in_base or not base.stage(item):
-		if in_base and not base.staging_has_room(): set_message("暂存区已满（%d/%d）。" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY])
-		return false
-	save_base()
-	return true
-
-## Taking an item out of staging straight into the pack (only at staging).
-func unstage_to_pack(item: Item) -> bool:
-	if not in_base or not base.unstage(item): return false
-	if not inventory.try_add(item):
-		base.put_back(item, "staging")
-		notice("背包空间不足：%s 仍在暂存区。" % item.item_name)
-		return false
-	save_base()
-	return true
+	var left := inventory.items.size() + safe_bag.items.size()
+	if stored > 0 or left > 0: set_message("已入库 %d 件%s。" % [stored, "" if left == 0 else "，仓库已满，%d 件留在身上" % left])
+	return stored
 
 ## At the base, insured gear arrives at receiving when its time comes, whether
 ## or not a contract is running out there (用户 2026-10-15: 时钟计时).
@@ -3064,7 +2992,7 @@ func _tick_insurance_clock(delta: float) -> void:
 	var arrived := base.tick_insurance()
 	if arrived.is_empty(): return
 	save_base()
-	set_message("投保物品送回 %d 件，已到收货区。" % arrived.size())
+	set_message("投保物品送回 %d 件，已入库。" % arrived.size())
 	if is_instance_valid(tutorial_spotlight): tutorial_spotlight.request("insured_back")
 
 ## Insured gear that did not come out: back 2–4 hours later, and the
@@ -3081,14 +3009,16 @@ func insurance_price(item: Item) -> int:
 	return Economy.price(item)
 
 ## 重铸 / 校准 / 精调 at the base workbench only (装备前缀策划案 §2.5, §2.8):
-## 龙门币 a third of the delivery price (at least 100), 校准 also a 研磨石,
+## 龙门币 REFRESH_SHARE of the delivery price (a third × 2.8, 龙门币数值重算
+## 2026-10-23; at least 300), 校准 also a 研磨石,
 ## 精调 an 改量装置 and half as much again for every 精调 the piece has had.
 const REFRESH_MATERIALS := {"reforge": {}, "calibrate": {"研磨石": 1}, "tune": {"改量装置": 1}}
-const REFRESH_MIN_LMD := 100
+const REFRESH_MIN_LMD := 300
+const REFRESH_SHARE := 0.93
 const TUNE_STEP := 1.5
 
 func refresh_cost(kind: String, item: Item) -> int:
-	var base_cost := maxi(REFRESH_MIN_LMD, ceili(Economy.price(item) / 3.0))
+	var base_cost := maxi(REFRESH_MIN_LMD, ceili(Economy.price(item) * REFRESH_SHARE))
 	if kind == "tune": return roundi(base_cost * pow(research.tune_step(), item.tune_count))
 	var cost := base_cost * research.refresh_factor()
 	if kind == "reforge":
@@ -3172,7 +3102,7 @@ static func directed_chance(fails: int) -> float:
 	return DIRECTED_BASE + (1.0 - DIRECTED_BASE) * share
 
 func directed_cost(item: Item) -> int:
-	return roundi(maxi(REFRESH_MIN_LMD, ceili(Economy.price(item) / 3.0)) * DIRECTED_LMD)
+	return roundi(maxi(REFRESH_MIN_LMD, ceili(Economy.price(item) * REFRESH_SHARE)) * DIRECTED_LMD)
 
 ## "" when 定向重铸 of `item` into `family` can be done now, else why not.
 func directed_refusal(item: Item, family: String) -> String:
@@ -3309,7 +3239,7 @@ func buy_slip() -> bool:
 	gold -= FactionSpecials.SLIP_PRICE
 	exchange._deliver_goods(SPECIAL_SLIP, 1)
 	exchange.add_relation("penguin", 1)
-	set_message("企鹅专递单已送到收货区。")
+	set_message("企鹅专递单已入库。")
 	return true
 
 func carried_count(material: String) -> int:
@@ -3461,7 +3391,7 @@ func ride_lift(to_deck: int) -> void:
 	camera.global_position = camera_target() + camera_offset()
 
 func insure(item: Item) -> bool:
-	if not in_base or not carried_items().has(item) or not item.is_equippable() or item.insured or gold < insurance_price(item): return false
+	if not in_base or not carried_items().has(item) or not item.is_equippable() or item.insured or GearCatalog.bound(item) or gold < insurance_price(item): return false
 	gold -= insurance_price(item)
 	item.insured = true
 	story_note("insure")
@@ -3485,8 +3415,13 @@ func _hand_over(item: Item) -> bool:
 	return true
 
 ## Plain delivery for money, outside any order.
+## Whether `item` can go for 龙门币 by direct delivery: not a 运送 crate, and
+## not a trade pack (交易包修订案: packs sell at the exchange only).
+func can_sell(item: Item) -> bool:
+	return item.effect != VoyageCatalog.CARGO_EFFECT and not Packs.is_pack(item.material_id) and not GearCatalog.bound(item)
+
 func sell(item: Item) -> bool:
-	if not in_base or not deliverable_items().has(item) or item.effect == VoyageCatalog.CARGO_EFFECT or not _hand_over(item): return false
+	if not in_base or not deliverable_items().has(item) or not can_sell(item) or not _hand_over(item): return false
 	gold += Economy.direct_price(item)
 	save_base()
 	return true
@@ -3517,44 +3452,6 @@ func reroll_order(slot: int) -> bool:
 	base.reroll_available = false
 	set_message("订单已刷新。")
 	save_base()
-	return true
-
-# --- Expansion and the drone (§3.5, §3.6) --------------------------------------
-
-func build_rack(category: int) -> bool:
-	if not in_base: return false
-	var refusal := rack_refusal(category)
-	if not refusal.is_empty():
-		set_message(refusal)
-		return false
-	consume_materials(rack_cost(category))
-	var slot := base.build_rack(category)
-	gold -= int(BaseCatalog.RACK_PRICES[slot])
-	save_base()
-	set_message("%s区新货架已就位：容量 %d。" % [BaseCatalog.CATEGORY_NAMES[category], base.capacity(category)])
-	return true
-
-func console_refusal() -> String:
-	if base.console: return "已就位"
-	if gold < BaseCatalog.CONSOLE_PRICE: return "龙门币不足"
-	return materials_refusal(BaseCatalog.CONSOLE_MATERIALS)
-
-func buy_console() -> bool:
-	if not in_base or not console_refusal().is_empty(): return false
-	consume_materials(BaseCatalog.CONSOLE_MATERIALS)
-	gold -= BaseCatalog.CONSOLE_PRICE
-	base.console = true
-	save_base()
-	set_message("仓库总控面板上线：仓管台可以查看和调取所有分区。")
-	return true
-
-func buy_drone() -> bool:
-	if not in_base or not drone_refusal().is_empty(): return false
-	consume_materials(BaseCatalog.DRONE_MATERIALS)
-	gold -= BaseCatalog.DRONE_PRICE
-	base.drone = true
-	save_base()
-	set_message("工程部的搬运无人机到位：在货箱前可以全部开箱并归类。")
 	return true
 
 ## The facility's next level (BaseCatalog.FACILITIES): gold, then materials.
@@ -3594,18 +3491,13 @@ func connect_facility(id: String) -> bool:
 func facility_cost(id: String) -> Dictionary:
 	return BaseCatalog.facility_step(id, base.facility_level(id) + 1).get("materials", {})
 
-## The warehouse zones that build racks (one per Item.group_of).
-const RACK_ZONES := [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET, Item.Category.MATERIAL]
-
 ## How many base upgrades could be bought right now from the hub (the 基建 marker).
 func construction_ready() -> int:
 	var n := 0
 	for id in BaseCatalog.FACILITY_ORDER:
 		if facility_refusal(id, true).is_empty() or connect_refusal(id).is_empty(): n += 1
-	for refusal in [console_refusal(), drone_refusal(), upgrade_refusal("pack"), upgrade_refusal("safe"), camp_upgrade_refusal()]:
+	for refusal in [upgrade_refusal("pack"), upgrade_refusal("safe"), camp_upgrade_refusal()]:
 		if refusal.is_empty(): n += 1
-	for zone in RACK_ZONES:
-		if rack_refusal(zone).is_empty(): n += 1
 	return n
 
 func upgrade_facility(id: String, remote := false) -> bool:
@@ -3618,27 +3510,9 @@ func upgrade_facility(id: String, remote := false) -> bool:
 	set_message("%s升到 Lv%d：%s。" % [BaseCatalog.facility_name(id), level, step.opens])
 	return true
 
-## Opens every crate and puts everything that fits on its shelf (§3.5); the
-## reveal plays as a list in the menu and the drone flies the deliveries.
-func sort_everything() -> Dictionary:
-	if not in_base or not base.drone: return {}
-	var result := base.sort_all()
-	var zones: Array = []
-	for item: Item in result.shelved:
-		if not zones.has(item.category): zones.append(item.category)
-	zones.sort()
-	if is_instance_valid(warehouse_view): warehouse_view.fly_drone(zones)
-	save_base()
-	if not result.revealed.is_empty() or not result.shelved.is_empty():
-		open_modal("station")
-		menu.show_sort_result(result)
-	else: set_message("没有需要开箱或归类的物品。")
-	return result
-
 ## Stations with something to do get a yellow marker (§5.2).
 func station_needs_attention(id: String) -> bool:
 	match id:
-		"receiving_bays": return base.sealed_count() > 0
 		"outbound": return is_instance_valid(warehouse_view) and warehouse_view.orders_fillable()
 		"reception": return base.report_unread or base.any_injured()
 		"exchange": return not market.flash.is_empty() or not swan_popup.is_empty()
@@ -3650,14 +3524,6 @@ func station_needs_attention(id: String) -> bool:
 func departure_warnings() -> Array[String]:
 	var out: Array[String] = []
 	if base.injured: out.append("生命上限 −%d%%（重伤）" % roundi(base.hp_penalty() * 100))
-	if base.hand: out.append("手上的 %s 会放回原处" % base.hand.item_name)
-	var sealed := base.sealed_count()
-	var staging_full := base.staging.size() >= BaseCatalog.STAGING_CAPACITY * BaseCatalog.STAGING_WARNING
-	if sealed > 0 or staging_full:
-		var parts: Array[String] = []
-		if sealed > 0: parts.append("收货区仍有 %d 只未开货箱" % sealed)
-		if staging_full: parts.append("暂存区 %d/%d" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY])
-		out.append("，".join(parts) + "（不影响出发）")
 	return out
 
 ## What the contract buttons call: leaves at once, or shows the departure card
@@ -3906,7 +3772,12 @@ func _spawn_wave() -> void:
 	# deck); once there are more enemies than points, they share them in
 	# groups, spread evenly along the route.
 	var profile := FieldCatalog.depth_profile(floor_number)
-	var count: int = 9 + route_index * 3 + int(profile.enemies)
+	# 用户 2026-10-23: 根据层数增加外勤敌人数量，但要保持掉落不过于波动 — one
+	# more ordinary enemy every DEPTH_ENEMY_STEP floors; their loot is thinned
+	# so the floor's total stays where it was (drop_share).
+	var deeper := depth_enemies(floor_number)
+	_extra_ordinary = deeper
+	var count: int = 9 + route_index * 3 + int(profile.enemies) + deeper
 	var extra_elites: int = int(profile.elites)
 	var slots := maxi(1, world_map.main_path.size() / 2)
 	var at_slot := {}
@@ -3976,6 +3847,7 @@ func _spawn_wave() -> void:
 		work_lights.append({"at": at + Vector3.UP * 1.2, "color": Color(0.75, 0.6, 0.38), "radius": 4.5})
 	_spawn_sentinels()
 	_spawn_wanderers()
+	_set_drop_share()
 	if is_outpost_floor(): _spawn_outpost()
 	if is_bounty_floor(): _spawn_bounty()
 	if is_recruit_floor(): _spawn_recruit()
@@ -4460,6 +4332,28 @@ func _spawn_squad(wave: int, reckoning_squad: bool) -> void:
 ## whatever they see: never the first rooms, so the entry is quiet.
 ## 用户 2026-10-17: 3–5 groups (was 2–4).
 const WANDER_GROUPS := Vector2i(3, 5)
+
+## Enemies by depth (用户 2026-10-23): one more on the main route every
+## DEPTH_ENEMY_STEP floors (up to DEPTH_ENEMY_MAX), one more wandering group
+## every DEPTH_WANDER_STEP (up to DEPTH_WANDER_MAX); ordinary ones only.
+const DEPTH_ENEMY_STEP := 10
+const DEPTH_ENEMY_MAX := 6
+const DEPTH_WANDER_STEP := 20
+const DEPTH_WANDER_MAX := 3
+## The ordinary enemies this floor has over the old count, and the share of
+## ordinary kills that roll loot so the floor's total holds (spawn_enemy_drops).
+var _extra_ordinary := 0
+var drop_share := 1.0
+
+static func depth_enemies(depth: int) -> int:
+	return mini(DEPTH_ENEMY_MAX, (maxi(depth, 1) - 1) / DEPTH_ENEMY_STEP)
+
+static func depth_wanderers(depth: int) -> int:
+	return mini(DEPTH_WANDER_MAX, (maxi(depth, 1) - 1) / DEPTH_WANDER_STEP)
+
+func _set_drop_share() -> void:
+	var ordinary := floor_enemies().filter(func(e: Enemy) -> bool: return not e.elite and not e.boss).size()
+	drop_share = clampf(1.0 - float(_extra_ordinary) / maxf(1.0, float(ordinary)), 0.3, 1.0) if ordinary > 0 else 1.0
 ## Guards at a point of interest and their odds: 15% none, 20% one, 35% two, 30% three
 ## (用户 2026-10-17, was 30/20/30/20).
 const POI_GUARDS := [0, 1, 2, 3]
@@ -4475,6 +4369,8 @@ func _spawn_wanderers() -> void:
 	if spots.is_empty(): return
 	var rid := world_map.navigation_map_rid()
 	var groups := rng.randi_range(WANDER_GROUPS.x, WANDER_GROUPS.y)
+	var extra_groups := depth_wanderers(floor_number)
+	groups += extra_groups
 	while groups > 0 and not spots.is_empty():
 		var at: Vector2 = spots.pop_at(rng.randi_range(0, spots.size() - 1))
 		# Only ground she can walk to from the entry (not a deck over the road).
@@ -4483,6 +4379,7 @@ func _spawn_wanderers() -> void:
 		if walk.size() < 2 or walk[walk.size() - 1].distance_to(start) > 1.5: continue
 		groups -= 1
 		var size := 1 if rng.randf() < 0.3 else 2
+		if groups < extra_groups: _extra_ordinary += size
 		for k in range(size):
 			var ranged := k == 1 and region_id != "mine"
 			var point := start if k == 0 else world_map.nearest_walkable(start + Vector3(1.4, 0.0, 0.0))
@@ -5174,6 +5071,9 @@ func spawn_enemy_drops(enemy: Enemy) -> void:
 		if rng.randf() < ThreatMeter.rare_chance(enemy.patrol_wave, enemy.elite):
 			_drop_at(enemy.global_position, [{"item": _rare_gear()}], 0.7)
 		return
+	# Deeper floors field more ordinary enemies, each a little leaner, so the
+	# floor's loot stays steady (drop_share); the bounty always pays.
+	if not enemy.elite and not enemy.boss and enemy != _bounty and drop_share < 1.0 and rng.randf() > drop_share: return
 	_drop_records(enemy)
 	# The hunt's bounty carries the contract's rare piece (v1.1 §2.1: no settlement gifts).
 	if enemy == _bounty and str(contract.get("type", "")) == "hunt":
@@ -5418,32 +5318,60 @@ func save_base(active_contract: bool = false) -> void:
 func shed_unusable_weapon() -> bool:
 	var weapon: Item = player.equipped.get(Item.Category.WEAPON)
 	if weapon == null or GearCatalog.can_wield(player.operator_id, weapon): return false
+	# A Rhodes weapon is swapped for the one she can wield.
+	if GearCatalog.bound(weapon):
+		return_rhodes(weapon)
+		var choices := GearCatalog.rhodes_choices(Item.Category.WEAPON, player.operator_id)
+		if not choices.is_empty(): player.equip(GearCatalog.make_rhodes(str(choices[0]), base.rhodes_rarity, player.operator_id))
+		return true
 	if base.store(weapon).is_empty() and not base.receive(weapon): return false
 	player.unequip(Item.Category.WEAPON)
 	notice("%s无法使用%s，已放回仓库。" % [Operators.display_name(player.operator_id), weapon.item_name])
 	return true
 
-## Rhodes standard gear (装备策划案 §10, 用户 2026-10-18): every operator on
-## the roster is issued one set, once, to the receiving bays. Returns the
-## pieces sent.
-## Rhodes standard gear (复利数值改造清单 D): each operator gets a set two tiers
-## below the deepest camp's, at BaseState.rhodes_rarity; a fresh set whenever
-## that tier or the rarity rises past the last one she was given.
-func issue_kits() -> int:
-	var deepest := 0
-	for region in base.camps: deepest = maxi(deepest, int(base.camps[region]))
-	var tier := GearCatalog.rhodes_tier(deepest)
-	var rarity := clampi(int(base.rhodes_rarity), 0, 2)
-	var sent := 0
-	for id in base.roster:
-		var last: Array = base.kit_issued.get(id, [])
-		if last.size() >= 2 and int(last[0]) >= tier and int(last[1]) >= rarity: continue
-		if last.is_empty() and id in base.kitted and tier == 1 and rarity == 0: continue
-		base.kit_issued[id] = [tier, rarity]
-		if not id in base.kitted: base.kitted.append(id)
-		for piece in GearCatalog.rhodes_kit(rng, id, tier, rarity):
-			if base.receive(piece): sent += 1
-	return sent
+## Rhodes standard gear (制式保底修订, 用户 2026-10-23): free at the workbench
+## into a slot for this contract, at BaseState.rhodes_rarity. What she wore
+## there goes to its shelf (or the pack); a Rhodes piece is simply replaced.
+func issue_rhodes(id: String) -> bool:
+	if not in_base or not GearCatalog.is_rhodes(id): return false
+	var piece := GearCatalog.make_rhodes(id, base.rhodes_rarity, player.operator_id)
+	if not player.equip_refusal(piece).is_empty(): return false
+	var previous: Item = player.equipped.get(piece.category)
+	if previous != null and not GearCatalog.bound(previous):
+		if base.store(previous).is_empty() and not inventory.try_add(previous):
+			notice("仓库和背包都满了：%s 留在身上。" % previous.item_name)
+			return false
+	player.unequip(piece.category)
+	player.equip(piece)
+	save_base()
+	return true
+
+## Every empty slot gets its first Rhodes choice. Returns how many were issued.
+func fill_rhodes() -> int:
+	if not in_base: return 0
+	var issued := 0
+	for slot in Item.SLOTS:
+		if player.equipped.get(slot) != null: continue
+		var choices := GearCatalog.rhodes_choices(slot, player.operator_id)
+		if not choices.is_empty() and issue_rhodes(str(choices[0])): issued += 1
+	return issued
+
+## A Rhodes piece goes back to logistics: off her and out of her bags.
+func return_rhodes(item: Item) -> void:
+	if not GearCatalog.bound(item): return
+	inventory.remove(item)
+	safe_bag.remove(item)
+	if player.equipped.get(item.category) == item: player.unequip(item.category)
+
+## The worn Rhodes pieces again at today's rarity (制式换代, an old save's
+## pieces); Rhodes pieces in the bags are handed back.
+func refresh_rhodes() -> void:
+	for item in inventory.items.duplicate() + safe_bag.items.duplicate():
+		if GearCatalog.bound(item): return_rhodes(item)
+	for slot in Item.SLOTS:
+		var worn: Item = player.equipped.get(slot)
+		if GearCatalog.bound(worn):
+			player.equip(GearCatalog.make_rhodes(worn.base_id, base.rhodes_rarity, player.operator_id))
 
 func load_base() -> void:
 	if not FileAccess.file_exists(save_path): return
@@ -5483,6 +5411,8 @@ func load_base() -> void:
 			"equipped": player.equip(item)
 			"safe": safe_bag.try_add(item)
 			_: inventory.try_add(item)
+	base.purge_bound()
+	refresh_rhodes()
 	shed_unusable_weapon()
 	settlement.assign(parsed.get("settlement", []))
 	_insured_left_behind.clear()

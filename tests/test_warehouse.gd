@@ -1,8 +1,10 @@
 extends SceneTree
 
-## B2 of 基地玩法策划案_v1_0.md: receiving crates in the warehouse, opening
-## them, carrying an item to its zone, staging, and what she is standing at
-## (§3.3–3.6). Uses the real base map and walks with real navigation.
+## B2 of 基地玩法策划案_v1_0.md as changed by 仓库修订 (用户 2026-10-23): the
+## warehouse room is for show (rack faces, the order board), nothing in it takes
+## the E key; the warehouse is one count of cells set by 仓储部's level, with a
+## per-cell stack multiplier; the 仓管台 and settlement's 仓库 page put things away.
+## Uses the real base map.
 
 var game: GameManager
 var view: WarehouseView
@@ -34,15 +36,6 @@ func find_text(node: Node, needle: String) -> bool:
 		if find_text(child, needle): return true
 	return false
 func centre(rect: Array) -> Array: return [(rect[0] + rect[2]) * 0.5, (rect[1] + rect[3]) * 0.5]
-func walk_to(p: Array) -> bool:
-	var goal := game.base_map.to_world(p[0], p[1], BaseMap.PLAYER_Y)
-	game.player.set_move_target(goal)
-	var frames := 0
-	while frames < 1800 and Vector2(game.player.global_position.x - goal.x, game.player.global_position.z - goal.z).length() > 0.6:
-		await physics_frame
-		frames += 1
-	game.player.clear_move_target()
-	return frames < 1800
 
 func run() -> void:
 	game = GameManager.new()
@@ -52,11 +45,10 @@ func run() -> void:
 	await step(8)
 	view = game.warehouse_view
 	var a: Dictionary = view.anchors
-	check("warehouse view has its anchors, the board and the drone", view.ready() and a.bays.size() == 6 and a.overflow.size() == 6
-		and view._board != null and view.drone != null and view.tex.has("carried_frame"))
-	check("no demo crates are drawn on an empty base", view._crates.is_empty())
+	check("warehouse view has its anchors and the board", view.ready() and a.bays.size() == 6 and view._board != null)
+	check("no crates are drawn on an empty base", view._crates.is_empty())
 
-	# Crates appear on the bays, then along the wall, sized by the item.
+	# Arrivals go straight into the warehouse (仓库修订: no crates, no staging).
 	var sword := item("长剑", Item.Category.WEAPON, 2, 1)
 	var plate := item("重甲", Item.Category.ARMOR, 2, 2)
 	var ring := item("指环", Item.Category.TRINKET)
@@ -64,148 +56,105 @@ func run() -> void:
 	for i in range(5): finds.append(item("矿料%d" % i, Item.Category.MATERIAL))
 	for x in finds: game.base.receive(x)
 	await step(2)
-	check("eight crates: six on the bays, two along the wall", view._crates.size() == 8
-		and is_equal_approx(view._crates[0].position.z, a.bays[0][1]) and is_equal_approx(view._crates[6].position.z, a.overflow[0][1]))
-	check("crate model follows size and state", view._crates[0].get_meta("model") == "crate_medium_sealed"
-		and view._crates[1].get_meta("model") == "crate_large_sealed" and view._crates[2].get_meta("model") == "crate_small_sealed")
+	check("eight arrivals: all in the warehouse, no crate drawn", finds.all(func(x): return game.base.location_of(x) == "shelf")
+		and game.stash.size() == 8 and game.base.shelf_count() == 8 and view._crates.is_empty())
+	check("the weapon rack face shows one filled cell", view._cell_layers[0][0].filter(func(c): return c.visible).size() == 1 and view._cell_layers[0][0][0].visible)
+	check("the material rack face shows five", view._cell_layers[Item.Category.MATERIAL][0].filter(func(c): return c.visible).size() == 5)
+	check("zone frames stay hidden", view._zone_lights[0].all(func(d): return not d.visible) and view._zone_frames[0].all(func(d): return not d.visible))
 
-	# Open a crate where it stands.
-	await stand([a.bays[0][0], a.bays[0][1] + 1.0])
-	var spot := game.nearby_station()
-	check("standing at a crate offers to open it: " + str(spot.get("label", "")), spot.get("kind", "") == "crate" and spot.item == sword and "中箱" in spot.label)
-	game._base_interact()
-	await step(1)
-	check("E opens it and shows the item card", game.base.location_of(sword) == "crate_open" and game.modal == "station" and game.menu.visible)
-	await step(1)
-	check("the open crate is drawn open", view._crates[0].get_meta("model") == "crate_medium_open")
-	game.close_modal()
-	check("the opened crate now offers to look again", game.nearby_station().get("label", "").begins_with("查看"))
+	# Nothing in the room answers E: not the bays, the zones or staging.
+	for spot_at in [[a.bays[0][0], a.bays[0][1] + 1.0], centre(view.zone_rect(0)), centre(a.staging)]:
+		await stand(spot_at)
+		var spot := game.nearby_station()
+		check("nothing to do at %s: %s" % [str(spot_at), str(spot.get("kind", ""))],
+			view.target_at(game.player.global_position).is_empty() and not str(spot.get("kind", "")) in ["crate", "zone", "shelf_zone", "staging", "putback"])
 
-	# Carry it: icon over her head, its zone lights up, the others do not.
-	check("pick up", game.pick_up_item(sword) and game.base.hand == sword and game.base.location_of(sword) == "hand")
-	await step(2)
-	check("a crate disappears once its item is out", view._crates.size() == 7)
-	check("the carried icon shows over her", view._hand_icon.visible and view._hand_icon.texture != null)
-	check("only the weapon zone is highlighted, over its built column", view._zone_lights[0][0].visible
-		and not view._zone_lights[0][1].visible and not view._zone_lights[0][2].visible
-		and [1, 2, 3].all(func(c): return view._zone_lights[c].all(func(d): return not d.visible)))
-	check("one thing at a time", not game.pick_up_item(game.base.crates[0].item) or game.base.hand == sword)
+	# Capacity: one count for every kind, set by 仓储部; the stack multiplier too.
+	var expect := {1: [60, 1], 2: [120, 2], 3: [220, 3], 4: [360, 5]}
+	for level in expect:
+		game.base.set_facility("warehouse", level)
+		check("仓储部 Lv%d: %d cells, stacks ×%d" % [level, expect[level][0], expect[level][1]],
+			game.base.capacity() == expect[level][0] and game.base.stack_mult() == expect[level][1]
+			and range(4).all(func(c): return game.base.capacity(c) == expect[level][0]))
+		await step(1)
+		check("仓储部 Lv%d draws its racks" % level, int(game.base.racks[0]) == clampi(level * 3 - 2, BaseCatalog.STARTING_RACKS, BaseCatalog.RACK_SLOTS))
+	game.base.research.done.append(ResearchCatalog.id_of_key("rack_cells"))
+	check("立体货架 adds 20%", game.base.capacity() == 432)
+	game.base.research.done.erase(ResearchCatalog.id_of_key("rack_cells"))
 
-	# The wrong zone refuses and keeps it in her hands; the right one shelves it.
-	await stand(centre(view.zone_rect(1)))
-	spot = game.nearby_station()
-	check("in the armor zone with a sword: " + str(spot.get("label", "")), spot.get("kind", "") == "zone" and spot.category == Item.Category.ARMOR and "类别不对" in spot.label)
-	game._base_interact()
-	check("wrong zone refuses, says where it goes, keeps it in hand", game.base.hand == sword and "武器区" in game.message)
-	check("the walk to the weapon zone works with real navigation", await walk_to(centre(view.zone_rect(0))))
-	spot = game.nearby_station()
-	check("in the weapon zone: " + str(spot.get("label", "")), spot.get("kind", "") == "zone" and "上架到武器区（0/12）" == spot.label)
-	game._base_interact()
-	await step(2)
-	check("shelved: off her hands, on the shelf", game.base.hand == null and game.base.location_of(sword) == "shelf" and game.stash.has(sword))
-	check("the rack face shows one filled cell", view._cell_layers[0][0].filter(func(c): return c.visible).size() == 1 and view._cell_layers[0][0][0].visible)
-	check("icon and highlight are gone", not view._hand_icon.visible and view._zone_lights[0].all(func(d): return not d.visible))
+	# A warehouse stack holds a bag stack × stack_mult(); bringing one out takes a bag-sized piece.
+	game.base.set_facility("warehouse", 2)
+	var bolts := MaterialCatalog.create("螺栓", 1)
+	var per_bag := bolts.max_stack
+	bolts.set_quantity(per_bag)
+	var more := MaterialCatalog.create("螺栓", per_bag)
+	game.inventory.try_add(bolts)
+	game.inventory.try_add(more)
+	check("storing two bag stacks of one material fills one cell at ×2", game.store_item(bolts) and game.store_item(more)
+		and game.stash.filter(func(x): return x.material_id == "螺栓").size() == 1 and game.base.location_of(bolts) == "shelf" and bolts.quantity == per_bag * 2)
+	check("bringing it takes one bag stack, the rest stays", game.bring_item(bolts) and bolts.quantity == per_bag and game.base.location_of(bolts) == "shelf"
+		and game.inventory.items.any(func(x): return x.material_id == "螺栓" and x.quantity == per_bag))
 
-	# Full zone: refused with the count, item stays in hand.
-	for i in range(11): game.base.shelf.append(item("库存武器%d" % i, Item.Category.WEAPON))
-	var spare := item("第13把", Item.Category.WEAPON)
-	game.base.receive(spare)
-	game.base.open_crate(spare)
-	game.pick_up_item(spare)
-	await step(2)
-	check("a full rack shows all twelve cells", view._cell_layers[0][0].all(func(c): return c.visible))
-	check("a full zone refuses with its count", not game.shelve_carried(Item.Category.WEAPON) and "12/12" in game.message and game.base.hand == spare)
+	# Full warehouse: storing from the loadout refuses, base arrivals still come in.
+	game.base.set_facility("warehouse", 1)
+	while game.base.shelf_count() < game.base.capacity(): game.base.shelf.append(item("库存%d" % game.base.shelf_count(), Item.Category.TRINKET))
+	var spare := item("第61件", Item.Category.WEAPON)
+	game.inventory.try_add(spare)
+	check("a full warehouse refuses to store and says how full", not game.store_item(spare) and "60/60" in game.message and game.inventory.items.has(spare))
+	var parcel := item("送回的装备", Item.Category.ARMOR)
+	check("arrivals still come in over the count", game.base.receive(parcel) and game.base.location_of(parcel) == "shelf" and game.base.shelf_count() == 61)
 
-	# Staging: drop it there, pallets load up, take it back out.
-	await stand(centre(a.staging))
-	spot = game.nearby_station()
-	check("carrying into staging offers to put it down: " + str(spot.get("label", "")), spot.get("kind", "") == "staging" and "放进暂存区" in spot.label)
-	game._base_interact()
-	await step(2)
-	check("staged", game.base.location_of(spare) == "staging" and game.base.hand == null)
-	check("one pallet loaded for one item", view._pallet_loads.filter(func(s): return s.visible).size() == 1)
-	for i in range(40): game.base.staging.append(item("堆%d" % i, Item.Category.MATERIAL))
-	await step(2)
-	check("pallets load in four steps (41 items -> 3)", view._pallet_loads.filter(func(s): return s.visible).size() == 3)
-	for i in range(40): game.base.staging.pop_back()
-	game._base_interact()
-	check("E at staging with empty hands lists it", game.modal == "station" and game.menu.visible)
-	game.close_modal()
-	check("taking it out at staging", game.pick_up_item(spare) and game.base.hand_from == "staging")
-	await stand([a.bays[1][0], a.bays[1][1] + 1.0])
-	spot = game.nearby_station()
-	check("at receiving while carrying offers to put it back", spot.get("kind", "") == "putback")
-	game._base_interact()
-	check("putting it back returns it to staging, where it came from", game.base.location_of(spare) == "staging")
-
-	# Leaving or saving never takes the carried item away.
-	game.pick_up_item(spare)
-	game.save_path = "user://warehouse_TEST_ONLY.json"
-	game.save_enabled = true
-	game.save_base()
-	var everyone := game.base.all_items().size()
-	game.base = BaseState.new()
-	game.load_base()
-	check("a save made while carrying keeps it, back where it came from", game.base.hand == null and game.base.location_of(game.base.staging.back()) == "staging"
-		and game.base.all_items().size() == everyone and game.base.staging.any(func(x): return x.uid == spare.uid))
-	game.save_enabled = false
-	for suffix in ["", ".bak", ".tmp"]:
-		if FileAccess.file_exists(game.save_path + suffix): DirAccess.remove_absolute(game.save_path + suffix)
-	var held: Item = game.base.crates[0].item
-	game.base.open_crate(held)
-	game.pick_up_item(held)
-	await game.start_contract("mine")
-	check("leaving with something in hand puts it back in a crate", game.base.hand == null and game.base.location_of(held) == "crate_open"
-		and not game.carried_items().has(held))
-	game.settle(true)
-	await step(2)
-	check("back at base the crates are drawn again", view._crates.size() == mini(game.base.crates.size(), 12))
-
-	# Zones grow with their racks; empty-handed in a zone opens its shelves; the
-	# 仓管台 sells upgrades until its master console is bought (用户 2026-10-07).
-	game.base.max_facilities()
-	game.gold = 1000000
-	# The material zone is full from the checks above: the costs ride in the pack.
-	for id in ["螺栓", "金属板", "电源线", "继电器", "灯泡"]:
-		game.inventory.try_add(MaterialCatalog.create(id, 10))
-	await step(2)
-	check("one rack, one frame column", view.zone_columns(0) == 1 and view._zone_frames[0][0].visible and not view._zone_frames[0][1].visible)
-	var third_column: Array = a.zone_decals.weapon[2]
-	await stand([third_column[0], centre(a.zones.weapon)[1]])
-	check("past the built racks the zone does not answer", game.nearby_station().get("kind", "") != "shelf_zone")
-	await stand(centre(view.zone_rect(0)))
-	spot = game.nearby_station()
-	check("empty-handed in the zone offers its shelves", spot.get("kind", "") == "shelf_zone" and spot.get("category", -1) == 0)
-	game._base_interact()
-	await step(1)
-	check("E opens the weapon shelves", game.modal == "station" and game.menu._station == "shelves" and game.menu.shelf_zone == 0)
-	var build := find_label(game.menu, "扩建货架")
-	check("the shelves offer the next rack", build != null and not build.disabled)
-	if build: build.pressed.emit()
-	await step(2)
-	check("building from the zone adds a rack and a frame column", int(game.base.racks[0]) == 2 and view.zone_columns(0) == 2 and view._zone_frames[0][1].visible)
-	game.build_rack(0)
-	await step(2)
-	await stand([third_column[0], centre(a.zones.weapon)[1]])
-	check("the front row fills first: three racks reach the third column", int(game.base.racks[0]) == 3
-		and game.nearby_station().get("kind", "") == "shelf_zone")
-	game.close_modal()
-
-	game.base.console = false
+	# The 仓管台: the whole warehouse with one load bar; no console to buy.
 	game.open_station("stash")
 	await step(1)
-	check("without the console the 仓管台 only sells upgrades", find_text(game.menu, "仓库总控面板") and not find_text(game.menu, "背包材料全部存回"))
-	check("the console can be bought", game.buy_console() and game.base.console)
-	game.open_station("stash")
-	await step(1)
-	check("with the console the 仓管台 shows every zone", find_text(game.menu, "背包材料全部存回") or find_text(game.menu, "将带入"))
+	check("the 仓管台 shows the load and stack size", find_text(game.menu, "%d/%d  ·  ×%d" % [game.base.shelf_count(), game.base.capacity(), game.base.stack_mult()]))
+	check("and the carry-in row", find_text(game.menu, "将带入"))
 	game.close_modal()
-	check("a new base starts without the console", not BaseState.new().console)
+	check("a new base has its console from the start", BaseState.new().console)
 	var old := game.base.to_data()
 	old.erase("console")
 	var reloaded := BaseState.new()
 	reloaded.load_data(old, {})
-	check("a save from before the console keeps the 仓管台 working", reloaded.console)
+	check("a save from before keeps the 仓管台 working", reloaded.console)
+
+	# A save from before 仓库修订: its crates and staging fold into the warehouse.
+	var legacy := BaseState.new().to_data()
+	var in_crate := item("箱中物", Item.Category.WEAPON)
+	var staged := item("暂存物", Item.Category.ARMOR)
+	var shelved := item("架上物", Item.Category.TRINKET)
+	legacy.shelf = [shelved.to_data()]
+	legacy.crates = [{"item": in_crate.to_data(), "opened": false}]
+	legacy.staging = [staged.to_data()]
+	var folded := BaseState.new()
+	folded.load_data(JSON.parse_string(JSON.stringify(legacy)), {})
+	var uids := folded.shelf.map(func(x): return x.uid)
+	check("old crates and staging load into the warehouse", folded.shelf.size() == 3 and uids.has(in_crate.uid) and uids.has(staged.uid) and uids.has(shelved.uid))
+
+	# Settlement's 仓库 page: what came home stays in the bags until put away.
+	game.base.shelf.clear()
+	for x in game.inventory.items.duplicate(): game.inventory.remove(x)
+	await game.start_contract("mine")
+	var found := item("带回的饰品", Item.Category.TRINKET)
+	var found_safe := item("袋中材料", Item.Category.MATERIAL)
+	var worn := item("现场换上的甲", Item.Category.ARMOR, 2, 2)
+	game.inventory.try_add(found)
+	game.safe_bag.try_add(found_safe)
+	game.player.equip(worn)
+	game.settle(true)
+	await step(2)
+	check("extracted finds stay in her bags, worn stays worn", game.inventory.items.has(found) and game.safe_bag.items.has(found_safe)
+		and game.player.equipped.get(Item.Category.ARMOR) == worn and game.base.location_of(found) == "")
+	check("the settlement screen is open on its first tab", game.modal == "settlement" and game.menu.settle_tab == 0)
+	game.menu.settle_tab = 1
+	game.menu.show_settlement()
+	await step(1)
+	var all := find_label(game.menu, "一键入库")
+	check("the 仓库 tab offers 一键入库", all != null and not all.disabled)
+	if all: all.pressed.emit()
+	await step(1)
+	check("一键入库 puts the pack and the safe bag away, worn stays on", game.base.location_of(found) == "shelf" and game.base.location_of(found_safe) == "shelf"
+		and not game.carried_items().has(found) and game.player.equipped.get(Item.Category.ARMOR) == worn and game.base.location_of(worn) == "")
+	game.close_modal()
 
 	print("WAREHOUSE FAILURES: %d" % failures)
 	quit(1 if failures else 0)

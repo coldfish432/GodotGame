@@ -192,6 +192,8 @@ func _mine() -> void:
 	game.settle(true)
 
 func _siracusa() -> void:
+	# 仓库修订: what came home is still in her bags (an ore would show 污染); put it away.
+	game.store_all_carried()
 	await game.start_contract("siracusa")
 	check("叙拉古 shows 血债", game.shown_features() == ["debt"])
 	var expected := clampf(game.floor_enemies().size() * float(ThreatMeter.SECONDS_PER_ENEMY.siracusa) / ThreatMeter.TARGET_WAVES, ThreatMeter.FILL_MIN, ThreatMeter.FILL_MAX)
@@ -239,9 +241,10 @@ func _siracusa() -> void:
 	check("gone at settlement", game.features.value("debt") == 0.0)
 
 func _kits() -> void:
-	game.gold = 100000
+	game.gold = 280000
 	game.base.set_facility("store", 1)
-	check("a plain kit for 龙门币", game.buy_kit("sami_lining") and game.base.kits == {"sami_lining@1": 1} and game.gold == 95000)
+	var kit_price := FeatureCatalog.kit_price("sami_lining", game.deepest_tier())
+	check("a plain kit for 龙门币: %d" % kit_price, game.buy_kit("sami_lining") and game.base.kits == {"sami_lining@1": 1} and game.gold == 280000 - kit_price)
 	check("the refined one waits for 商店 Lv3", not game.buy_kit("sami_lining_plus") and game.kit_refusal("sami_lining_plus") == "商店 Lv3")
 	game.base.set_facility("store", 3)
 	check("at Lv3 it is sold", game.buy_kit("sami_lining_plus"))

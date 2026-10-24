@@ -1,7 +1,7 @@
 extends SceneTree
 ## Engine screenshots of B5 (evidence/rhodes-engine/b5-*): station markers and
-## the base's top bar, the warehouse terminal's expansion menu, a newly built
-## rack in place, the drone's sort reveal, and the departure card.
+## the base's top bar, the warehouse terminal, a bigger warehouse (仓库修订:
+## only capacity and stack size are upgraded), and the departure card.
 var game: GameManager
 func _initialize() -> void: call_deferred("run")
 func find_game(node: Node) -> GameManager:
@@ -37,24 +37,15 @@ func run() -> void:
 	await shot("hall-markers")
 	place(game.base_map.station("stash").position + Vector3(0, 0, -1.5))
 	await wait(3.0)
-	await shot("receiving-markers")
+	await shot("stash-markers")
 	game.open_station("stash")
 	await shot("terminal")
-	game.build_rack(Item.Category.ARMOR)
-	game.build_rack(Item.Category.ARMOR)
-	game.buy_drone()
 	game.close_modal()
-	var zone: Array = game.warehouse_view.anchors.zones.armor
-	place(game.base_map.to_world((zone[0] + zone[2]) * 0.5, zone[3] + 2.0, BaseMap.PLAYER_Y))
-	await wait(3.5)
-	await shot("new-racks")
-	game.sort_everything()
-	await wait(1.0)
-	await shot("sort-reveal")
-	await wait(4.0)
+	game.base.set_facility("warehouse", 4)
+	game.open_station("stash")
+	await wait(0.5)
+	await shot("warehouse-lv4")
 	game.close_modal()
-	await wait(0.4)
-	await shot("drone")
 	game.base.receive(Item.create("未开的货", Item.Category.MATERIAL, 1, 1))
 	game.request_contract("mine")
 	await shot("departure")

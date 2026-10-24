@@ -46,16 +46,14 @@ const DELIVERY_RELATION := 10
 const CFD_FEE := 0.005
 const CFD_OVERNIGHT := 0.003
 const CFD_NOTIONAL_STEP := 50000.0
-const CFD_CAP_BASE := 10000.0
-const CFD_CAP_REWARD := 0.5
 ## Orders (§7).
 const ORDER_FEE := 0.005
 const ORDER_SLOTS := 3
 const ORDER_TERMS := {"session": -1, "1d": 1, "3d": 3, "7d": 7, "settle": 0}
 ## Loans (§10, 先照用).
-const LOAN_STEP := 20000
-const LOAN_CAP := 200000
-const LOAN_TIERS := [[10000, 0.01], [50000, 0.02], [100000, 0.03], [INF, 0.04]]
+const LOAN_STEP := 56000
+const LOAN_CAP := 560000
+const LOAN_TIERS := [[28000, 0.01], [140000, 0.02], [280000, 0.03], [INF, 0.04]]
 const LOAN_OVERDUE := 1.5
 ## 企鹅物流 (§11).
 const SHIP_FEE := 0.10
@@ -81,7 +79,7 @@ var shipments: Array = []
 var history: Array = []
 var watch: Array[String] = []
 var alerts: Array = []        # {id, market, op: ">=" / "<=", price}
-var cfd_day := {"day": 0, "used": 0.0, "pending_lmd": 0.0, "pending_gold": 0.0, "rewards": 0.0}
+var cfd_day := {"day": 0, "pending_lmd": 0.0, "pending_gold": 0.0}
 var recent_sales := {}        # faction -> 龙门币 sold recently, for news weights
 var counters := {}            # offline summary: fills, liquidations, defaults, arrivals
 var _next_id := 1
@@ -602,7 +600,7 @@ func take_forward(id: int) -> bool:
 		_deliver_goods(str(f.material), int(f.count))
 		add_relation(str(f.faction), DELIVERY_RELATION)
 		_log({"kind": "delivered", "what": "%s ×%d" % [f.material, f.count], "faction": f.faction, "amount": rest, "currency": f.currency})
-		_say("收货完成：%s ×%d 已到收货区" % [f.material, int(f.count)], "delivery")
+		_say("收货完成：%s ×%d 已入库" % [f.material, int(f.count)], "delivery")
 		return true
 	return false
 
@@ -755,7 +753,8 @@ func set_cfd_limits(id: int, tp: float, sl: float) -> void:
 			c.tp = tp
 			c.sl = sl
 
-## Closes a CFD: the margin back plus the result, profit under the day's cap.
+## Closes a CFD: the margin back plus the whole result; profit has no daily cap
+## (用户 2026-10-23: 不设上限，玩的就是心跳).
 func close_cfd(id: int, reason: String = "") -> bool:
 	if blocked(): return false
 	for c in cfds:
@@ -766,26 +765,14 @@ func close_cfd(id: int, reason: String = "") -> bool:
 		var currency := str(c.currency)
 		var profit := pnl - fee
 		var paid := float(c.margin) + minf(profit, 0.0)
-		if profit > 0.0:
-			var eq := lmd_eq(currency, profit)
-			var room := maxf(0.0, cfd_cap() - float(cfd_day.used))
-			var now_part := minf(eq, room)
-			cfd_day.used = float(cfd_day.used) + now_part
-			paid += from_lmd(currency, now_part)
-			var later := eq - now_part
-			if later > 0.0:
-				if currency == "gold": cfd_day.pending_gold = float(cfd_day.pending_gold) + from_lmd("gold", later)
-				else: cfd_day.pending_lmd = float(cfd_day.pending_lmd) + later
+		if profit > 0.0: paid += profit
 		credit(currency, maxf(0.0, paid))
 		_log({"kind": "closed", "what": cfd_name(str(c.underlying)), "faction": c.issuer, "amount": profit, "currency": currency})
 		if not reason.is_empty(): _say("%s：%s %s" % [reason, cfd_name(str(c.underlying)), format_money(currency, profit)], "fill")
 		return true
 	return false
 
-## Today's cap on CFD profit (§9.2, 按交易日计): 10,000 + half of today's contract rewards.
-func cfd_cap() -> float:
-	return CFD_CAP_BASE + CFD_CAP_REWARD * float(cfd_day.rewards)
-
+## Profit held back by the old daily cap, from saves before it went.
 func cfd_pending() -> float:
 	return float(cfd_day.pending_lmd) + float(cfd_day.pending_gold) * Economy.GOLD_BAR_LMD
 
@@ -800,7 +787,7 @@ func _tick_cfds() -> void:
 		if float(c.tp) > 0.0 and ((dir > 0 and price >= float(c.tp)) or (dir < 0 and price <= float(c.tp))): close_cfd(int(c.id), "止盈")
 		elif float(c.sl) > 0.0 and ((dir > 0 and price <= float(c.sl)) or (dir < 0 and price >= float(c.sl))): close_cfd(int(c.id), "止损")
 
-## The 08:00 boundary: overnight fees, the cap resets, pending profit comes in.
+## The 08:00 boundary: overnight fees; profit an old save held back comes in.
 func _new_day() -> void:
 	for c in cfds.duplicate():
 		var fee := float(c.notional) * CFD_OVERNIGHT
@@ -809,28 +796,14 @@ func _new_day() -> void:
 			cfds.erase(c)
 			_say("差价合约保证金被隔夜费耗尽，已了结", "liquidation")
 	cfd_day.day = _day
-	cfd_day.used = 0.0
-	cfd_day.rewards = 0.0
 	var pend_l := float(cfd_day.pending_lmd)
 	var pend_g := float(cfd_day.pending_gold)
 	cfd_day.pending_lmd = 0.0
 	cfd_day.pending_gold = 0.0
-	var room := cfd_cap()
-	var take_l := minf(pend_l, room)
-	room -= take_l
-	var take_g := minf(pend_g * Economy.GOLD_BAR_LMD, room)
-	cfd_day.used = take_l + take_g
-	credit("lmd", take_l)
-	credit("gold", take_g / Economy.GOLD_BAR_LMD)
-	cfd_day.pending_lmd = pend_l - take_l
-	cfd_day.pending_gold = pend_g - take_g / Economy.GOLD_BAR_LMD
-	if take_l + take_g > 0.0: _say("差价合约待入账 %s 龙门币已到账" % Economy.format(roundi(take_l + take_g)), "cap")
+	credit("lmd", pend_l)
+	credit("gold", pend_g)
+	if pend_l + pend_g > 0.0: _say("差价合约待入账 %s 龙门币已到账" % Economy.format(roundi(pend_l + pend_g * Economy.GOLD_BAR_LMD)), "cap")
 	for f in recent_sales.keys(): recent_sales[f] = float(recent_sales[f]) * 0.5
-
-## A contract reward raises today's CFD cap (§9.2).
-func note_contract_reward(lmd: int) -> void:
-	_roll_day()
-	cfd_day.rewards = float(cfd_day.rewards) + lmd
 
 func _roll_day() -> void:
 	var day := MarketState.day_key(market.t)
@@ -899,7 +872,6 @@ func _settle(reward: int) -> int:
 			loan -= taken
 			game.gold -= taken
 	quota_used.clear()
-	if reward > 0: note_contract_reward(reward)
 	for o in orders.duplicate():
 		if int(o.expires) == 0: cancel_order(int(o.id))
 	return taken

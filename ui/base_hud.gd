@@ -114,12 +114,7 @@ func _status(kind: String) -> String:
 		"contracts": return "外勤合同"
 		"loadout": return "装备 · 投保"
 		"stash":
-			var have := 0
-			var room := 0
-			for category in range(Item.Category.size()):
-				have += base.shelf_count(category)
-				room += base.capacity(category)
-			return "仓库 %d/%d" % [have, room]
+			return "仓库 %d/%d" % [base.shelf_count(), base.capacity()]
 		"outbound":
 			var ready := _ready_orders()
 			return "订单 · 可交付 %d" % ready if ready > 0 else "订单"

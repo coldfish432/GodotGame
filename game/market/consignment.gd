@@ -23,6 +23,9 @@ const PREFS := {
 	"萨米": {"cold": 0.8},
 	"叙拉古": {"trinket": 0.8},
 }
+## Leanings every anchor shares: crops fetch about their delivery price, so the
+## farm pays its seed × 1.25 whichever way they are sold (用户 2026-10-23).
+const CATEGORY_PREFS := {"crop": 0.85}
 ## Loose goods on each shelf besides the local factions' own (§5.3).
 const LOCAL_GOODS := {
 	"切尔诺伯格": ["源岩", "固源岩", "破损装置", "异铁碎片", "异铁", "燃料罐", "金属板"],
@@ -78,7 +81,7 @@ func index(anchor: String, category: String) -> float:
 	return 1.0
 
 func pref(anchor: String, category: String) -> float:
-	return float(PREFS.get(anchor, {}).get(category, 1.0))
+	return float(PREFS.get(anchor, {}).get(category, CATEGORY_PREFS.get(category, 1.0)))
 
 ## What she gets for `item` at `anchor`, in its currency (unrounded); 0 if she does not take it.
 func sell_quote(anchor: String, item: Item) -> float:

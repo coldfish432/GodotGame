@@ -52,19 +52,14 @@ func run() -> void:
 		p.skill_points = SPARE_POINTS
 		p.attribute_points = SPARE_POINTS
 	base.max_facilities()
-	for category in base.racks: base.racks[category] = BaseCatalog.RACK_SLOTS
 	base.pack_level = BaseCatalog.PACK_SIZES.size() - 1
 	base.safe_level = BaseCatalog.SAFE_SIZES.size() - 1
-	base.drone = true
-	base.console = true
-	base.reroll_available = true
 	for region in FieldCatalog.REGIONS: base.unlock_camp(region, CAMP_DEPTH)
 	for faction in FactionCatalog.FACTIONS: game.exchange.relations[faction] = Exchange.RELATION_MAX
 	game.gold = GOLD
 	var stocked := 0
 	for id in MaterialCatalog.MATERIALS:
 		if not base.store(MaterialCatalog.create(id, MaterialCatalog.stack_size(id))).is_empty(): stocked += 1
-	game.issue_kits()
 	base.operator = Operators.LAPPLAND
 	game.player.set_operator(base.operator)
 	game.save_path = dir.path_join(NAME)

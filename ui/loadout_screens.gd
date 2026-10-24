@@ -4,6 +4,7 @@ extends RefCounted
 ## The workbench split in four (界面美术与布局策划案 v2 §3 S2, §5.3–§5.6):
 ##   整备台 · 换装   — the doll, the depot's gear and flasks, the pack
 ##   整备台 · 改造   — 重铸 / 校准 / 精调 on one piece, in a fixture
+##   整备台 · 制式   — Rhodes standard gear, free into any slot for one contract
 ##   后勤柜台 · 投保 — every carried piece with its insurance
 ##   出发准备        — who goes (operator chips), a read-only loadout, the target
 ## Operators are picked on these screens (用户 2026-10-21: 还是得在准备出发的这几个界面能选择干员).
@@ -105,13 +106,15 @@ class DollSlot extends Button:
 
 # --- 整备台 ------------------------------------------------------------------------
 
-const WORKBENCH_TABS := ["换装", "改造"]
+const WORKBENCH_TABS := ["换装", "改造", "制式"]
 
 static func workbench(menu: FieldMenu) -> void:
-	var tab: int = clampi(menu.workbench_tab, 0, 1)
+	var tab: int = clampi(menu.workbench_tab, 0, WORKBENCH_TABS.size() - 1)
 	var stage := BaseScreens.shell(menu, "整备台", "WORKBENCH", WORKBENCH_TABS, tab, func(i): menu.workbench_tab = i; menu.pick = null; workbench(menu), "LOADOUT")
-	if tab == 0: _change(menu, stage)
-	else: _refit(menu, stage)
+	match tab:
+		0: _change(menu, stage)
+		1: _refit(menu, stage)
+		_: _issue(menu, stage)
 
 static func _change(menu: FieldMenu, stage: Control) -> void:
 	var game := menu.game
@@ -240,6 +243,69 @@ static func _pack_column(menu: FieldMenu, stage: Control, r: Rect2, pick: Item, 
 		all.pressed.connect(func(): game.store_all_materials(); redraw.call())
 		AK.put(stage, all, Vector2(r.position.x + 16, r.end.y - 56), Vector2(r.size.x - 32, 40))
 
+# --- 整备台 · 制式 -------------------------------------------------------------------
+
+## 制式保底修订 (用户 2026-10-23): the doll on the left, each slot's Rhodes
+## choices in the middle (a click wears it), the picked piece and 补齐空槽 /
+## 交还制式 on the right.
+static func _issue(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var redraw := func(): workbench(menu)
+	var pick: Item = menu.pick if menu.pick is Item and game.player.equipped.values().has(menu.pick) else null
+	_panel(stage, Rect2(16, TOP, 360, BOTTOM - TOP), LOG)
+	AK.put(stage, AK.label(Operators.display_name(game.player.operator_id), 22, AK.FG), Vector2(32, TOP + 12))
+	doll(game, stage, Vector2(24, TOP + 66), 0.88, pick, func(item: Item): menu.pick = item; redraw.call())
+	AK.put(stage, AK.section("干员", "OPERATOR"), Vector2(32, TOP + 446))
+	operator_chips(menu, stage, Vector2(30, TOP + 472), Vector2(34, 40), redraw)
+	_panel(stage, Rect2(392, TOP, 440, BOTTOM - TOP), LOG)
+	AK.put(stage, AK.section("罗德岛制式", "RHODES STANDARD"), Vector2(412, TOP + 14))
+	var y := TOP + 46
+	for slot in Item.SLOTS:
+		var worn: Item = game.player.equipped.get(slot)
+		AK.put(stage, AK.label(Item.slot_name(slot), 13, AK.MUTE), Vector2(412, y + 22))
+		var x := 470.0
+		for id in GearCatalog.rhodes_choices(slot, game.player.operator_id):
+			var piece := GearCatalog.make_rhodes(str(id), game.base.rhodes_rarity, game.player.operator_id)
+			var on := GearCatalog.bound(worn) and worn.base_id == str(id)
+			var b := Button.new()
+			b.focus_mode = Control.FOCUS_NONE
+			b.tooltip_text = piece.item_name
+			b.set_meta("rhodes", str(id))
+			for s in ["normal", "hover", "pressed"]:
+				b.add_theme_stylebox_override(s, AK.box(AK.PLATE_3 if s == "hover" or on else AK.PLATE_2, AK.HOLO if on else Color.TRANSPARENT, 1 if on else 0))
+			AK.put(stage, b, Vector2(x, y), Vector2(116, 62))
+			AK.put(b, AK.item_icon(piece, Vector2(40, 40)), Vector2(4, 11))
+			var name := AK.label(piece.item_name, 11, piece.rarity_color())
+			name.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+			AK.put(b, name, Vector2(48, 8), Vector2(64, 46))
+			for child in b.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var chosen: String = id
+			b.pressed.connect(func():
+				if game.issue_rhodes(chosen): menu.pick = game.player.equipped.get(slot)
+				redraw.call())
+			x += 120.0
+		y += 66.0
+	_panel(stage, Rect2(848, TOP, 416, BOTTOM - TOP), LOG)
+	if pick != null:
+		var card := RichTextLabel.new()
+		card.bbcode_enabled = true
+		card.add_theme_font_override("normal_font", AK.cn())
+		card.add_theme_font_size_override("normal_font_size", 13)
+		card.text = ItemTooltip.text(game, pick, false, false)
+		AK.put(stage, card, Vector2(864, TOP + 16), Vector2(384, BOTTOM - TOP - 136))
+	var fill := AK.button("补齐空槽", "blue", 14)
+	fill.disabled = Item.SLOTS.all(func(s): return game.player.equipped.get(s) != null)
+	fill.pressed.connect(func(): game.fill_rhodes(); redraw.call())
+	AK.put(stage, fill, Vector2(864, BOTTOM - 104), Vector2(384, 40))
+	var back := AK.button("交还制式", "plain", 14)
+	back.disabled = not game.player.equipped.values().any(func(it): return GearCatalog.bound(it))
+	back.pressed.connect(func():
+		for it in game.player.equipped.values().duplicate(): game.return_rhodes(it)
+		game.save_base()
+		menu.pick = null
+		redraw.call())
+	AK.put(stage, back, Vector2(864, BOTTOM - 56), Vector2(384, 40))
+
 # --- 整备台 · 改造 -------------------------------------------------------------------
 
 static func _refit(menu: FieldMenu, stage: Control) -> void:
@@ -294,7 +360,7 @@ static func _refit(menu: FieldMenu, stage: Control) -> void:
 		AK.put(stage, AK.item_icon(pick, Vector2(184, 184)), Vector2(520, TOP + 32))
 		var title := AK.item_name(pick, 15)
 		AK.put(stage, title, Vector2(412, TOP + 240))
-		EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.price(pick)), Vector2(412, TOP + 270), BOTTOM - TOP - 270 - 120)
+		EventScreens._info(stage, game, pick, "交付价", Economy.format(Economy.direct_price(pick)), Vector2(412, TOP + 270), BOTTOM - TOP - 270 - 120)
 		if game.base.researched("prefix_lock") and pick.prefixes.size() == 2:
 			var locks := HBoxContainer.new()
 			locks.add_theme_constant_override("separation", 6)

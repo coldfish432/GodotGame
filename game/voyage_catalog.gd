@@ -23,8 +23,8 @@ const DELIVERY_MAPS := {
 # --- Voyages (§3) ---------------------------------------------------------------------------
 
 ## What a voyage burns: a fixed fitting-out, and so much per unit of distance.
-const VOYAGE_FIXED := {"燃料罐": 6, "金属板": 50, "医用耗材包": 20}
-const VOYAGE_PER_DISTANCE := {"燃料罐": 80, "金属板": 60}
+const VOYAGE_FIXED := {"燃料罐": 17, "金属板": 140, "医用耗材包": 56}
+const VOYAGE_PER_DISTANCE := {"燃料罐": 224, "金属板": 168}
 ## Real hours: HOURS_BASE + HOURS_PER_DISTANCE × d at the standard pace.
 const HOURS_BASE := 1.0
 const HOURS_PER_DISTANCE := 6.0
@@ -40,7 +40,7 @@ const COST_ROUND := 100
 const STAY_KINDS: Array[String] = ["injured", "infected"]
 const STAY_NAMES := {"injured": "伤员", "infected": "感染者"}
 ## 龙门币 an hour (用户 2026-10-19: 3000/6000).
-const STAY_COST := {"injured": 3000, "infected": 6000}
+const STAY_COST := {"injured": 8400, "infected": 17000}
 ## Relation an hour before the anchor's multiplier (用户 2026-10-19: +1/+2).
 const STAY_BASE := {"injured": 1.0, "infected": 2.0}
 ## faction -> [injured ×, infected ×]. A faction missing a column gains nothing from it.
@@ -68,7 +68,7 @@ const KAZ_CHANCE := 0.05
 const KAZ_LOSS := -10
 ## Siracusa: the families' insurance an hour of infected care, and the 血债
 ## rate of the next Siracusa contract per CONFLICT_HOURS, down to the floor.
-const SIRACUSA_INSURANCE := 2000
+const SIRACUSA_INSURANCE := 5600
 const SIRACUSA_DEBT_STEP := 0.9
 const SIRACUSA_DEBT_FLOOR := 0.6
 ## A day's stay at an anchor makes its field posts likelier while she stays (§3.3 v1 草案).

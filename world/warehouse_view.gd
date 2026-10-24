@@ -3,15 +3,10 @@ extends Node
 
 ## The warehouse drawn from GameManager.base (基地玩法策划案_v1_0.md §3.3–3.6),
 ## in models since B-M2 (基地建模改造案_v1):
-##   - one crate per item at receiving, sealed or open, sized by the item
-##     (bays R01-R06 first, then stacked along the south wall);
-##   - staging pallets that fill up in four steps;
-##   - the cells on each rack's face, filled as items are shelved;
-##   - a zone's floor frame, one column per built rack column, lit while she
-##     carries something that belongs there;
-##   - the carried item's icon over Lappland's head;
+##   - the cells on each rack's face, filled by the items of its kind;
 ##   - the order board's state: open, completed, or empty (§3.8).
-## It also answers what she is standing at (target_at), for the E key.
+## 仓库修订 (用户 2026-10-23) took the crates, staging, the floor frames and
+## carrying away: the room is for show, and nothing in it takes the E key.
 ##
 ## Everything is redrawn when the base changes, detected by a cheap signature
 ## each frame, so any code path that moves an item shows up without extra hooks.
@@ -117,12 +112,7 @@ func _process(_delta: float) -> void:
 	if not ready() or not is_instance_valid(game): return
 	var signature := _signature_of(game.base) + board_state()
 	if signature != _signature: refresh()
-	var hand: Item = game.base.hand
-	_hand_icon.visible = hand != null and game.in_base
-	if _hand_icon.visible:
-		var p := _layout(game.player.global_position)
-		map.place_billboard(_hand_icon, p.x, p.y, HAND_LIFT_PX)
-		_hand_icon.modulate = Color.WHITE
+	_hand_icon.visible = false
 
 func refresh() -> void:
 	if not ready(): return
@@ -131,35 +121,23 @@ func refresh() -> void:
 	if _board:
 		_board.set_meta("state", board_state())
 		(_board_screen.material_override as StandardMaterial3D).albedo_color = BOARD_LOOK[board_state()]
-	# Receiving crates.
-	for piece in _crates: map.remove_model(ROOM, piece)
-	_crates.clear()
-	var spots: Array = anchors.bays + anchors.overflow
-	for i in range(mini(base.crates.size(), spots.size())):
-		var crate: Dictionary = base.crates[i]
-		var look := "crate_%s_%s" % [BaseCatalog.CRATE_SIZES[BaseCatalog.crate_size(crate.item)], "open" if crate.opened else "sealed"]
-		var piece := map.add_model(ROOM, look, spots[i][0], spots[i][1])
-		piece.set_meta("item", crate.item)
-		_crates.append(piece)
-	# Staging: four pallets, one more loaded per quarter of capacity in use.
-	var quarter := BaseCatalog.STAGING_CAPACITY / 4.0
-	for k in range(_pallet_loads.size()):
-		_pallet_loads[k].visible = base.staging.size() > k * quarter
+	for k in range(_pallet_loads.size()): _pallet_loads[k].visible = false
 	# Newly built racks: shown by the reveal, given a footprint the first time they appear.
 	_sync_racks(base)
 	# Rack faces: cells fill west rack first, left to right, front to back.
 	for c in _cell_layers:
-		var count := base.shelf_count(c)
+		var count := _kind_count(base, c)
 		for r in range(_cell_layers[c].size()):
 			var filled := clampi(count - r * base.rack_cells(), 0, base.rack_cells())
 			var cells: Array = _cell_layers[c][r]
 			for k in range(cells.size()): cells[k].visible = k < filled
-	# Zone frames cover the built columns; they light up for the category she is carrying.
 	for c in _zone_lights:
-		var columns := zone_columns(c)
-		for k in range(_zone_frames[c].size()): _zone_frames[c][k].visible = k < columns
-		for k in range(_zone_lights[c].size()): _zone_lights[c][k].visible = k < columns and base.hand != null and base.hand.category == c
-	if base.hand: _hand_icon.texture = _hand_texture(base.hand.category)
+		for k in range(_zone_frames[c].size()): _zone_frames[c][k].visible = false
+		for k in range(_zone_lights[c].size()): _zone_lights[c][k].visible = false
+
+## Items of a rack zone's kind (Item.group_of), for its racks' faces.
+static func _kind_count(base: BaseState, category: int) -> int:
+	return base.shelf.filter(func(x): return Item.group_of(x.category) == category).size()
 
 func _sync_racks(base: BaseState) -> void:
 	var changed := false
@@ -204,46 +182,8 @@ func orders_fillable() -> bool:
 		if order != null and order.state == "open" and deliverable.any(func(x): return orders.matches(i, x)): return true
 	return false
 
-## What Lappland is standing at, for the E key: {kind, label, ...} or {}.
-##   crate    a crate within reach: open it, or look at what is in it
-##   zone     a category's shelving area, while carrying something
-##   shelf_zone  the same area empty-handed: that zone's shelves (用户 2026-10-07)
-##   staging  the staging area: put the carried item down, or take one out
-##   putback  receiving, while carrying: put it back in a crate
-func target_at(global: Vector3) -> Dictionary:
-	if not ready(): return {}
-	var base: BaseState = game.base
-	var p := _layout(global)
-	if base.hand != null:
-		for c in range(CATEGORY_KEYS.size()):
-			if _inside(p, zone_rect(c)):
-				var refusal := base.shelve_hand_refusal(c)
-				var zone: String = BaseCatalog.CATEGORY_NAMES[c]
-				return {"kind": "zone", "category": c,
-					"label": ("上架到%s区（%d/%d）" % [zone, base.shelf_count(c), base.capacity(c)]) if refusal.is_empty() else ("%s区：%s" % [zone, "放不下" if c == base.hand.category else "类别不对"])}
-		if _inside(p, anchors.staging):
-			return {"kind": "staging", "label": "放进暂存区（%d/%d）" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]}
-		if _near_receiving(p):
-			return {"kind": "putback", "label": "把 %s 放回货箱" % base.hand.item_name}
-		return {}
-	var best: MeshInstance3D = null
-	var best_distance := CRATE_REACH
-	for piece in _crates:
-		var d := Vector2(piece.position.x * BaseMap.EAST, piece.position.z).distance_to(p)
-		if d < best_distance:
-			best_distance = d
-			best = piece
-	if best:
-		var item: Item = best.get_meta("item")
-		var sealed := base.location_of(item) == "crate_sealed"
-		return {"kind": "crate", "item": item,
-			"label": ("开箱（%s箱）" % BaseCatalog.CRATE_SIZE_NAMES[BaseCatalog.crate_size(item)]) if sealed else ("查看 %s" % item.item_name)}
-	if _inside(p, anchors.staging):
-		return {"kind": "staging", "label": "暂存区（%d/%d）" % [base.staging.size(), BaseCatalog.STAGING_CAPACITY]}
-	for c in range(CATEGORY_KEYS.size()):
-		if _inside(p, zone_rect(c)):
-			return {"kind": "shelf_zone", "category": c,
-				"label": "%s区货架（%d/%d）" % [BaseCatalog.CATEGORY_NAMES[c], base.shelf_count(c), base.capacity(c)]}
+## Nothing in the warehouse room takes the E key any more (仓库修订).
+func target_at(_global: Vector3) -> Dictionary:
 	return {}
 
 ## Rack columns built in a zone: the front row fills first, left to right
@@ -275,9 +215,7 @@ func _near_receiving(p: Vector2) -> bool:
 
 static func _signature_of(base: BaseState) -> String:
 	var parts: Array[String] = []
-	for crate in base.crates: parts.append("%s%s" % [crate.item.uid, "o" if crate.opened else "s"])
-	parts.append("|%d|%s|" % [base.staging.size(), base.hand.uid if base.hand else ""])
-	for c in base.racks: parts.append("%d:%d/%d" % [c, base.shelf_count(c), base.racks[c]])
+	for c in base.racks: parts.append("%d:%d/%d" % [c, _kind_count(base, c), base.racks[c]])
 	return ",".join(parts)
 
 func _hand_texture(category: int) -> Texture2D:

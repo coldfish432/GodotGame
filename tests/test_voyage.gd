@@ -91,7 +91,7 @@ func _voyages() -> void:
 	var expected := 0.0
 	for id in supplies: expected += v.supply_price(id) * int(supplies[id])
 	var standard := v.voyage_cost("切尔诺伯格", "standard")
-	check("the cost is the supplies at the live price: %d" % standard, absi(standard - roundi(expected)) <= 100 and standard > 100000 and standard < 400000)
+	check("the cost is the supplies at the live price: %d" % standard, absi(standard - roundi(expected)) <= 100 and standard > 280000 and standard < 1120000)
 	check("全速 costs ×1.25, 边走边补 ×0.75",
 		absi(v.voyage_cost("切尔诺伯格", "fast") - roundi(expected * 1.25)) <= 100 and absi(v.voyage_cost("切尔诺伯格", "resupply") - roundi(expected * 0.75)) <= 100)
 	var hours := VoyageCatalog.HOURS_BASE + VoyageCatalog.HOURS_PER_DISTANCE * d
@@ -136,30 +136,34 @@ func _stays() -> void:
 	ex.relations["rat"] = 0
 	game.gold = 1000000
 	v.relation_frac.clear()
-	check("care costs 3000 / 6000 an hour", VoyageCatalog.STAY_COST.injured == 3000 and VoyageCatalog.STAY_COST.infected == 6000)
+	var inj := int(VoyageCatalog.STAY_COST.injured)
+	var inf := int(VoyageCatalog.STAY_COST.infected)
+	check("care costs %d / %d an hour" % [inj, inf], inj == 8400 and inf == 17000)
 	v.set_stay("injured", true, now())
 	later(3600)
-	check("an hour of injured care: −3000, 龙门商会 +1, 鼠王 half a point", game.gold == 1000000 - 3000 and ex.relation("lungmen") == 1 and ex.relation("rat") == 0, [game.gold, ex.relations])
+	check("an hour of injured care: −%d, 龙门商会 +1, 鼠王 half a point" % inj, game.gold == 1000000 - inj and ex.relation("lungmen") == 1 and ex.relation("rat") == 0, [game.gold, ex.relations])
 	later(3600)
 	check("鼠王's halves make a point", ex.relation("rat") == 1 and ex.relation("lungmen") == 2)
 	later(1800)
 	check("half an hour settles nothing", ex.relation("lungmen") == 2)
 	# Medical supplies pay at most half an hour's cost, whole units, cheapest first.
-	var sugar := _shelf("代糖", 10)
+	var sugar := _shelf("代糖", 20)
+	var stocked := sugar.quantity
 	v.set_supplies(true)
 	var gold := game.gold
 	later(1800)
 	var unit := Economy.lmd(sugar.unit_value)
-	var used := mini(10, floori(1500.0 / unit))
-	check("supplies pay up to half: %d 代糖 used" % (10 - sugar.quantity), sugar.quantity == 10 - used and gold - game.gold == 3000 - used * unit, [gold - game.gold, sugar.quantity])
+	var used := mini(stocked, floori(inj * VoyageCatalog.SUPPLY_SHARE / unit))
+	check("supplies pay up to half: %d 代糖 used" % (stocked - sugar.quantity), sugar.quantity == stocked - used and used < stocked and gold - game.gold == inj - used * unit, [gold - game.gold, sugar.quantity])
 	v.set_supplies(false)
 	game.base.take_from_shelf(sugar)
 	# A budget stops the stay.
 	v.set_stay("injured", false, now())
-	v.set_budget(5000)
+	var budget := inj * 3 / 2
+	v.set_budget(budget)
 	v.set_stay("injured", true, now())
 	later(3600 * 3)
-	check("a 5000 budget allows one hour, then stops", not v.stay_on() and int(v.stay.spent) == 3000)
+	check("a %d budget allows one hour, then stops" % budget, not v.stay_on() and int(v.stay.spent) == inj)
 	v.set_budget(0)
 	# A target stops it.
 	v.set_target("lungmen", ex.relation("lungmen") + 2)
@@ -185,7 +189,7 @@ func _stays() -> void:
 	v.set_stay("infected", true, now())
 	gold = game.gold
 	later(3600 * 10)
-	check("ten hours away settle ten hours", gold - game.gold == 60000 and ex.relation("rat") == 30 and ex.relation("lungmen") == 10, [gold - game.gold, ex.relations])
+	check("ten hours away settle ten hours", gold - game.gold == inf * 10 and ex.relation("rat") == 30 and ex.relation("lungmen") == 10, [gold - game.gold, ex.relations])
 	v.set_stay("infected", false, now())
 
 func _conflicts() -> void:
@@ -217,10 +221,11 @@ func _conflicts() -> void:
 	game.base.ship_at = "叙拉古"
 	v.set_stay("injured", true, now())
 	v.set_stay("infected", true, now())
-	check("叙拉古: infected care pays the families' insurance", v.hour_cost() == 3000 + 6000 + 2000)
+	var hour := int(VoyageCatalog.STAY_COST.injured) + int(VoyageCatalog.STAY_COST.infected) + VoyageCatalog.SIRACUSA_INSURANCE
+	check("叙拉古: infected care pays the families' insurance", v.hour_cost() == hour)
 	var gold := game.gold
 	later(3600 * 6)
-	check("six hours: 11000 an hour, 血债 ×0.9", gold - game.gold == 66000 and is_equal_approx(v.debt_mult("siracusa"), 0.9), [gold - game.gold, v.siracusa_debt])
+	check("six hours: %d an hour, 血债 ×0.9" % hour, gold - game.gold == hour * 6 and is_equal_approx(v.debt_mult("siracusa"), 0.9), [gold - game.gold, v.siracusa_debt])
 	v.set_stay("injured", false, now())
 	v.set_stay("infected", false, now())
 	v.contract_done("siracusa")
@@ -285,7 +290,7 @@ func _orders() -> void:
 	game.base.camps["snow"] = 30
 	check("packing takes the goods", game.pack_bulk(int(o.id)) and game.material_count("螺栓") == 5 and str(o.state) == "packed")
 	var crate := v.cargo_item(o)
-	check("the crate is at staging, 4×3, worth nothing to sell", crate != null and game.base.location_of(crate) == "staging" and crate.width == 4 and crate.height == 3
+	check("the crate is in the warehouse, 4×3, worth nothing to sell", crate != null and game.base.location_of(crate) == "shelf" and crate.width == 4 and crate.height == 3
 		and game.trader_offer(crate) == 0 and Economy.price(crate) == 0 and not game.sell(crate))
 	check("too big for any safe bag", BaseCatalog.SAFE_SIZES.all(func(s): return s.x < crate.width or s.y < crate.height))
 	var floors: Dictionary = o.floors
@@ -349,6 +354,9 @@ func _delivery() -> void:
 	for enemy in game.floor_enemies(): enemy.take_hit(99999999.0, "true")
 	for trap in game.traps: trap.spent = true
 	await step(3)
+	# Killing everything can drop combat caches (战斗缴获) beside the point; they outrank it.
+	for cache in get_nodes_in_group("relic_caches"): cache.queue_free()
+	await step(1)
 	game.player.teleport(game.handover_node.global_position + Vector3(0.6, 0, 0))
 	await step(2)
 	check("the prompt names the buyer", game.interaction_prompt() == FactionCatalog.name_of("karlan"), game.interaction_prompt())

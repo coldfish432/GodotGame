@@ -512,16 +512,17 @@ const BASES := {
 		"icon": "rhodes_ring_monitor", "text": "那一点青光还亮着，医疗部就还在等你回去。"},
 }
 
-## Rhodes standard gear (§10): never dropped. 复利数值改造清单 D: made two tiers
-## below the deepest camp's (at least Ⅰ), white until 科研部's 制式换代 makes it
-## blue, then gold (BaseState.rhodes_rarity). Its value is fixed, so selling an
-## old set is never a profit (龙门币平衡与科研部策划案 v1.1 §2.3).
+## Rhodes standard gear (制式保底修订, 用户 2026-10-23): never dropped, never
+## made. The workbench issues it free into empty slots for one contract and
+## takes it back when the contract ends, whether she comes home or not. Fixed
+## numbers: tier Ⅰ, the band's middle, the base's intrinsics, no affixes, no
+## prefixes. White until 科研部's 制式换代 makes it blue, then gold
+## (BaseState.rhodes_rarity). Bound: no selling, packing, insuring or refitting.
 const RHODES := "rhodes"
-const RHODES_DEPTH := 4
+const RHODES_TIER := 1
 const RHODES_RARITY := 0
 const RHODES_VALUE := 5
-const RHODES_TIER_LAG := 2
-## One set per operator: a weapon she can wield and one piece for each of the other seven slots.
+## The choices per slot, in Item.SLOTS order.
 const RHODES_KIT := [
 	["rhodes_dual_blades", "rhodes_sword", "rhodes_crossbow", "rhodes_staff"],
 	["rhodes_head", "rhodes_head_heavy"],
@@ -536,28 +537,45 @@ const RHODES_KIT := [
 static func is_rhodes(id: String) -> bool:
 	return str(base(id).get("region", "")) == RHODES
 
-## The tier a kit is made at when the deepest camp is on `deepest_camp`.
-static func rhodes_tier(deepest_camp: int) -> int:
-	return maxi(1, Scaling.tier_of(deepest_camp + 1) - RHODES_TIER_LAG)
+## Issued for one contract: kept off the shelves, the markets and the workbench's refits.
+static func bound(item: Item) -> bool:
+	return item != null and not item.base_id.is_empty() and is_rhodes(item.base_id)
 
-## One piece of Rhodes standard gear of `tier` and `rarity`.
-static func make_rhodes(id: String, rng: RandomNumberGenerator, tier: int = 1, rarity: int = RHODES_RARITY) -> Item:
+## One piece of Rhodes standard gear at `rarity`. A ring or amulet is all ATK,
+## or all arts for an operator who fights with a staff.
+static func make_rhodes(id: String, rarity: int = RHODES_RARITY, operator_id: String = Operators.AMIYA_GUARD) -> Item:
 	var b := base(id)
-	var item := LootTables.roll_equipment(int(b.category), str(b.name), RHODES, (clampi(tier, 1, Scaling.TIER_MAX) - 1) * Scaling.TIER_FLOORS + RHODES_DEPTH, clampi(rarity, 0, 2), rng)
+	var category := Item.slot_of(int(b.category))
+	var size := GearSlots.size(category)
+	rarity = clampi(rarity, 0, 2)
+	var item := Item.create(str(b.name), category as Item.Category, size.x, size.y, Scaling.gear_power(RHODES_TIER, rarity, 0.5))
+	item.origin_region = RHODES
+	item.rarity = rarity
+	item.grade = RHODES_TIER
+	if Item.is_jewel_slot(category): item.atk_share = 0.0 if "staff" in _forms(operator_id) else 1.0
+	apply(item, id)
 	item.value = RHODES_VALUE
 	item.value_base = RHODES_VALUE
 	return item
 
-## The set an operator is issued; the weapon is one of her forms.
-static func rhodes_kit(rng: RandomNumberGenerator, operator_id: String = Operators.AMIYA_GUARD, tier: int = 1, rarity: int = RHODES_RARITY) -> Array[Item]:
+## The choices for `slot` (Item.SLOTS) that `operator_id` can use.
+static func rhodes_choices(slot: int, operator_id: String) -> Array:
+	var i := Item.SLOTS.find(slot)
+	if i < 0: return []
+	var forms := _forms(operator_id)
+	return (RHODES_KIT[i] as Array).filter(func(id): return int(BASES[id].category) != W or str(BASES[id].form) in forms)
+
+## A whole set, the first choice in each slot.
+static func rhodes_kit(operator_id: String = Operators.AMIYA_GUARD, rarity: int = RHODES_RARITY) -> Array[Item]:
 	var out: Array[Item] = []
-	var cls := str(Operators.DATA.get(operator_id, {}).get("class", "近卫"))
-	var forms: Array = CLASS_FORMS.get(cls, CLASS_FORMS["近卫"])
-	for choices in RHODES_KIT:
-		var fit: Array = choices.filter(func(id): return int(BASES[id].category) != W or str(BASES[id].form) in forms)
-		if fit.is_empty(): fit = choices
-		out.append(make_rhodes(str(fit[rng.randi_range(0, fit.size() - 1)]), rng, tier, rarity))
+	for slot in Item.SLOTS:
+		var fit := rhodes_choices(slot, operator_id)
+		if not fit.is_empty(): out.append(make_rhodes(str(fit[0]), rarity, operator_id))
 	return out
+
+static func _forms(operator_id: String) -> Array:
+	var cls := str(Operators.DATA.get(operator_id, {}).get("class", "近卫"))
+	return CLASS_FORMS.get(cls, CLASS_FORMS["近卫"])
 
 ## Names that changed (they follow the art, §2.3), and the generic names of
 ## gear saved before bases existed, mapped by region to the shallow baseline.

@@ -103,7 +103,8 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 	if item.insured: state.append("[color=#4fd1c5]已投保[/color]")
 	if item.carried_in: state.append("带入")
 	if not state.is_empty(): lines.append(" · ".join(state))
-	lines.append("[color=#d8c27a]交付价 %s 龙门币[/color]" % Economy.format(Economy.price(item)))
+	# What delivering it actually pays (用户 2026-10-23: 界面显示到手的数字).
+	if not GearCatalog.bound(item): lines.append("[color=#d8c27a]交付价 %s 龙门币[/color]" % Economy.format(Economy.direct_price(item)))
 	if show_worn and worn != null and worn != item:
 		lines.append("\n[color=#99aab8]── 当前装备（Shift）──[/color]")
 		lines.append(text(game, worn, detailed, false))

@@ -29,6 +29,7 @@ func rules() -> void:
 	check("90: max HP −30%, no regeneration, 0.1% lost a second, potions −25%", BaseCatalog.contamination_hp_cut(90) == 0.30 and BaseCatalog.contamination_regen_factor(90) == 0.0 and BaseCatalog.contamination_potion_penalty(90) == 0.25 and BaseCatalog.contamination_drain(90) == 0.001)
 	check("injury and heavy contamination add up but cap at 40%", is_equal_approx(BaseCatalog.hp_penalty(95, true), 0.40))
 	var base := BaseState.new()
+	base.operator = Operators.LAPPLAND
 	base.injured = true
 	check("at the base only the injury counts (污染不带出局外): 25%", is_equal_approx(base.hp_penalty(), 0.25))
 	base.free_potions = 0
@@ -46,11 +47,11 @@ func rules() -> void:
 	legacy.load_data({"injured": true, "operator": Operators.AMIYA_GUARD}, {})
 	check("an old save's single injury goes to whoever deploys", legacy.injured_operators() == [Operators.AMIYA_GUARD])
 	check("the base keeps no contamination at all", not "contamination" in base and not base.to_data().has("contamination"))
-	check("the inhibitor needs 商店 Lv3; a standard flask is free while the free issue lasts", base.potion_price("C") == -1 and base.potion_price("B") == 600 and base.potion_price("A") == 0)
+	check("the inhibitor needs 商店 Lv3; a standard flask is free while the free issue lasts", base.potion_price("C") == -1 and base.potion_price("B") == int(BaseCatalog.POTIONS.B.price) and base.potion_price("A") == 0)
 	base.free_potions = 0
-	check("after the free issue a standard flask costs 300", base.potion_price("A") == BaseCatalog.POTION_A_PRICE)
+	check("after the free issue a standard flask costs %d" % BaseCatalog.POTION_A_PRICE, base.potion_price("A") == BaseCatalog.POTION_A_PRICE)
 	base.set_facility("store", 3)
-	check("at 商店 Lv3 it is sold", base.potion_price("C") == 1000)
+	check("at 商店 Lv3 it is sold", base.potion_price("C") == int(BaseCatalog.POTIONS.C.price))
 	var copy := BaseState.new()
 	base.free_potions = 1
 	copy.load_data(JSON.parse_string(JSON.stringify(base.to_data())), {})
@@ -68,6 +69,7 @@ func through_game() -> void:
 
 	# 基地形象 (用户 2026-10-15): the base walker is a setting; the field is always the deployed operator.
 	SystemScreens.settings.base_look = Operators.AMIYA_GUARD
+	game.base.recruit(Operators.LAPPLAND)
 	game.choose_operator(Operators.LAPPLAND)
 	check("the base shows the picked look while Lappland deploys", game.player._sprite.character == Operators.AMIYA_GUARD and game.player.operator_id == Operators.LAPPLAND)
 	await game.start_contract("snow")
@@ -93,6 +95,8 @@ func through_game() -> void:
 	check("a dose builds up over time (100 s -> 16)", is_equal_approx(game.run_contamination, 16.0))
 	game.settle(true)
 	check("settlement drops the dose: nothing is carried out (污染不带出局外)", game.run_contamination == 0.0 and game.current_contamination() == 0.0)
+	# 仓库修订: the ore comes home in her bags; stored, it adds nothing next time.
+	game.store_all_carried()
 	await game.start_contract("mine")
 	check("every contract starts clean", game.current_contamination() == 0.0)
 	game.run_contamination = 55.0
@@ -172,9 +176,11 @@ func through_game() -> void:
 	game.base.free_potions = 3
 	check("the inhibitor is locked below 商店 Lv3", not game.buy_potion("C"))
 	check("a free standard flask goes into the pack", game.buy_potion("A") and game.gold == 10000 and game.base.free_potions == 2 and game.potions == 1)
-	check("a gel costs 600 and takes a cell", game.buy_potion("B") and game.gold == 9400 and game.inventory.occupied_cells() == 2)
+	var gel_price := int(BaseCatalog.POTIONS.B.price)
+	var inhibitor_price := int(BaseCatalog.POTIONS.C.price)
+	check("a gel costs %d and takes a cell" % gel_price, game.buy_potion("B") and game.gold == 10000 - gel_price and game.inventory.occupied_cells() == 2)
 	game.base.set_facility("store", 3)
-	check("at Lv3 the inhibitor costs 1000", game.buy_potion("C") and game.gold == 8400)
+	check("at Lv3 the inhibitor costs %d" % inhibitor_price, game.buy_potion("C") and game.gold == 10000 - gel_price - inhibitor_price)
 	await game.start_contract("city")
 	check("departure adds the free flasks still owed (1 + 1 + 1 bought, + 2 issued)", game.potions == 5 and game.base.free_potions == 0)
 	# 用户 2026-10-17: 药剂可堆叠 — one kind shares a cell.
@@ -234,8 +240,8 @@ func through_game() -> void:
 	game.open_station("report")
 	check("opening the report marks it read", not game.base.report_unread)
 	game.close_modal()
-	game.gold = 3000
-	check("injury treatment costs 3000", game.treat_injury() and game.gold == 0 and not game.base.injured)
+	game.gold = BaseCatalog.INJURY_TREATMENT
+	check("injury treatment costs %d" % BaseCatalog.INJURY_TREATMENT, game.treat_injury() and game.gold == 0 and not game.base.injured)
 	await step(2)
 	check("desk back to idle", not view._reception.visible)
 	check("the gate stands, scenery only", view._gate != null and view._gate.visible)

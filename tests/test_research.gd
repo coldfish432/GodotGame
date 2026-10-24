@@ -57,15 +57,17 @@ func _economy() -> void:
 	check("Roman tier marks", Economy.roman(4) == "Ⅳ" and Economy.roman(10) == "Ⅹ")
 
 func _prices() -> void:
-	check("racks cost 8k, 12k, 25k×3, 45k×3", BaseCatalog.RACK_PRICES == [0, 8000, 12000, 25000, 25000, 25000, 45000, 45000, 45000])
-	check("pack 15k / 40k, safe 20k / 50k, console 10k, drone 20k, camp 60k",
-		BaseCatalog.PACK_PRICES == [0, 15000, 40000] and BaseCatalog.SAFE_PRICES == [0, 20000, 50000] and BaseCatalog.CONSOLE_PRICE == 10000
-		and BaseCatalog.DRONE_PRICE == 20000 and BaseCatalog.CAMP_UPGRADE_PRICE == 60000)
-	check("promotion 8,000 / 60,000; modules 20k / 30k / 40k",
-		int(Progression.PROMOTION[1].lmd) == 8000 and int(Progression.PROMOTION[2].lmd) == 60000
-		and SkillTrees.MODULE_COST.map(func(c): return int(c.lmd)) == [20000, 30000, 40000])
+	# 仓库修订 (用户 2026-10-23): no racks, console or drone to buy; 仓储部 levels give cells and stack size.
+	check("仓储部 Lv1–4: 60 / 120 / 220 / 360 cells, stacks ×1 / ×2 / ×3 / ×5",
+		BaseCatalog.WAREHOUSE_CELLS == [0, 60, 120, 220, 360] and BaseCatalog.WAREHOUSE_STACK == [0, 1, 2, 3, 5])
+	check("pack 42k / 112k, safe 56k / 140k, camp 168k",
+		BaseCatalog.PACK_PRICES == [0, 42000, 112000] and BaseCatalog.SAFE_PRICES == [0, 56000, 140000] and BaseCatalog.CAMP_UPGRADE_PRICE == 168000)
+	check("promotion 22,000 / 168,000; modules 56k / 84k / 112k",
+		int(Progression.PROMOTION[1].lmd) == 22000 and int(Progression.PROMOTION[2].lmd) == 168000
+		and SkillTrees.MODULE_COST.map(func(c): return int(c.lmd)) == [56000, 84000, 112000])
 	game.base.injuries = {Operators.LAPPLAND: 5}
-	check("treatment × the index of the floor she fell on: Ⅴ → 9,800", game.injury_price(Operators.LAPPLAND) == 9800, game.injury_price(Operators.LAPPLAND))
+	check("treatment × the index of the floor she fell on: Ⅴ → 27,600", game.injury_price(Operators.LAPPLAND) == Economy.tiered(BaseCatalog.INJURY_TREATMENT, 5)
+		and game.injury_price(Operators.LAPPLAND) == 27600, game.injury_price(Operators.LAPPLAND))
 	game.base.settle_medical(true, 3)
 	check("a fall records its tier", int(game.base.injuries.get(game.base.operator, 0)) == 3)
 	game.base.injuries = {}
@@ -73,7 +75,7 @@ func _prices() -> void:
 func _kits() -> void:
 	check("a kit's cut grows 3% a tier: plain mask Ⅰ 30%, Ⅹ 57%", is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 1), 0.3) and is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 10), 0.57))
 	check("used a tier short it loses 5% a tier", is_equal_approx(FeatureCatalog.kit_cut("dust_mask", 2, 4), 0.33 - 0.1))
-	check("kit price × index: mask Ⅹ 33,700", FeatureCatalog.kit_price("dust_mask", 10) == 33700, FeatureCatalog.kit_price("dust_mask", 10))
+	check("kit price × index: mask Ⅹ 94,200", FeatureCatalog.kit_price("dust_mask", 10) == 94200, FeatureCatalog.kit_price("dust_mask", 10))
 	game.base.kits = {}
 	game.base.camps = {"snow": 30}
 	game.gold = 200000
@@ -87,10 +89,11 @@ func _kits() -> void:
 	game.base.camps = {}
 
 func _closure() -> void:
-	check("one 赤金 buys three 标准急救剂 Ⅰ at the base", game.closure_potion_bundle("A") == 3, game.closure_potion_bundle("A"))
+	var per_bar := maxi(1, floori(Economy.bar_lmd() / float(BaseCatalog.POTION_A_PRICE)))
+	check("one 赤金 buys as many 标准急救剂 Ⅰ as its 龙门币 covers (%d at the base)" % per_bar, game.closure_potion_bundle("A") == per_bar, game.closure_potion_bundle("A"))
 	game.base.camps = {"mine": 40}
 	check("at tier Ⅴ a bar buys one", game.closure_potion_bundle("A") == 1)
-	check("the pharmacy's price follows the deepest tier", game.potion_price("B") == Economy.tiered(600, 5))
+	check("the pharmacy's price follows the deepest tier", game.potion_price("B") == Economy.tiered(int(BaseCatalog.POTIONS["B"].price), 5))
 	game.base.camps = {}
 
 func _contract_and_records() -> void:
@@ -111,7 +114,7 @@ func _contract_and_records() -> void:
 	await step(2)
 	check("extracting without the objective pays nothing", game.gold == gold, game.gold - gold)
 	check("records brought out go to 人事部's counters", int(game.base.records.get("初级作战记录", 0)) == before + 2)
-	check("and no crate is made of them", game.base.all_items().filter(func(x): return x.material_id == "初级作战记录").is_empty())
+	check("and none of them stays in her bags or the warehouse", (game.base.all_items() + game.carried_items()).filter(func(x): return x.material_id == "初级作战记录").is_empty())
 	check("records are loot: ★3 初级, worth 80 to sell", MaterialCatalog.star("初级作战记录") == 3 and Economy.direct_price(MaterialCatalog.create("初级作战记录", 1)) == 80)
 
 # --- §5 -----------------------------------------------------------------------------------
@@ -128,7 +131,7 @@ func _research_rules() -> void:
 	_stock({"电路板": 20, "继电器": 20, "微型电机": 10, "装置": 20})
 	check("tier Ⅰ can start", r.refusal("logistics_1").is_empty(), r.refusal("logistics_1"))
 	var gold := game.gold
-	check("starting pays 20,000 and the materials", r.start("logistics_1") and gold - game.gold == 20000 and game.material_count("电路板") == 18)
+	check("starting pays 56,000 and the materials", r.start("logistics_1") and gold - game.gold == int(ResearchCatalog.TIER_PRICE[0]) and game.material_count("电路板") == 18)
 	check("one slot at Lv1", r.refusal("medical_1") == "研究位已满")
 	later(1800)
 	check("half an hour in: half done, not finished", is_equal_approx(r.progress("logistics_1"), 0.5) and r.tick().is_empty())
@@ -174,12 +177,23 @@ func _tree() -> void:
 	check("…all three done, it can start", r.refusal("medical_c4").is_empty() or r.refusal("medical_c4").begins_with("缺少") or r.refusal("medical_c4") == "研究位已满", r.refusal("medical_c4"))
 	for p in ["medical_1", "medical_c1", "field_1", "field_c1", "medical_c2", "medical_2", "personnel_1", "personnel_c1"]: done.erase(p)
 	game.base.camps = {"mine": 10}
-	check("combat nodes cost 1.5 × the tier: 武器校准 30,000; joint 2.4M", ResearchCatalog.price("engineering_c1") == 30000 and ResearchCatalog.price("joint_elite") == 2400000)
+	# 仓库修订: 仓储部's levels stand in for the racks and the drone.
+	var wh_level := game.base.facility_level("warehouse")
+	game.base.set_facility("warehouse", 3)
+	check("立体货架: 仓储部 Lv3 is enough", r.requirement_refusal("logistics_3").is_empty(), r.requirement_refusal("logistics_3"))
+	check("自动分拣系统 needs 仓储部 Lv4", r.requirement_refusal("logistics_6") == "仓储部 Lv4", r.requirement_refusal("logistics_6"))
+	game.base.set_facility("warehouse", 2)
+	check("…Lv2 is refused", r.requirement_refusal("logistics_3") == "仓储部 Lv3")
+	game.base.set_facility("warehouse", 4)
+	check("…and Lv4 opens 自动分拣", r.requirement_refusal("logistics_6").is_empty())
+	game.base.set_facility("warehouse", wh_level)
+	check("combat nodes cost 1.5 × the tier: 武器校准 84,000; joint 6.72M", ResearchCatalog.price("engineering_c1") == roundi(ResearchCatalog.TIER_PRICE[0] * 1.5)
+		and ResearchCatalog.price("engineering_c1") == 84000 and ResearchCatalog.price("joint_elite") == 6720000)
 	# Ⅶ: the two late reforge nodes, after 龙门's 定向重铸.
-	check("词条锚定 and 平行重铸 sit at Ⅶ: camp 90, 2.0M / 36 h and 3.0M / 48 h",
+	check("词条锚定 and 平行重铸 sit at Ⅶ: camp 90, 5.6M / 36 h and 8.4M / 48 h",
 		ResearchCatalog.tier_of("engineering_5") == 7 and ResearchCatalog.camp_needed("engineering_5") == 90
-		and ResearchCatalog.price("engineering_5") == 2000000 and ResearchCatalog.hours("engineering_5") == 36
-		and ResearchCatalog.price("engineering_6") == 3000000 and ResearchCatalog.hours("engineering_6") == 48)
+		and ResearchCatalog.price("engineering_5") == 5600000 and ResearchCatalog.hours("engineering_5") == 36
+		and ResearchCatalog.price("engineering_6") == 8400000 and ResearchCatalog.hours("engineering_6") == 48)
 	check("Ⅶ asks 玄纹墨", int(ResearchCatalog.materials("engineering_5").get("玄纹墨", 0)) == 3)
 	check("词条锚定 needs 龙门商会 R5", "lungmen_r5" in ResearchCatalog.conditions("engineering_5"))
 	var standing: int = game.exchange.relation(GameManager.DIRECTED_FACTION)
@@ -237,9 +251,9 @@ func _finish(key: String) -> void:
 
 func _effects() -> void:
 	var base := game.base
-	var cells := base.capacity(Item.Category.WEAPON)
+	var cells := base.capacity()
 	_finish("rack_cells")
-	check("后勤部Ⅲ: 14 cells a rack", base.capacity(Item.Category.WEAPON) == cells / 12 * 14)
+	check("后勤部Ⅲ: warehouse capacity +20%", base.capacity() == roundi(cells * 1.2) and base.capacity(Item.Category.WEAPON) == base.capacity(), [cells, base.capacity()])
 	var slots := game.workshop_slots()
 	_finish("workshop_slot")
 	check("后勤部Ⅱ: a workshop slot", game.workshop_slots() == slots + 1)
@@ -251,7 +265,7 @@ func _effects() -> void:
 	check("医疗部Ⅰ: four free flasks", base.free_potion_count() == 4)
 	base.injuries = {Operators.LAPPLAND: 1}
 	_finish("injury_fee")
-	check("医疗部Ⅱ: treatment halved", game.injury_price(Operators.LAPPLAND) == 1500)
+	check("医疗部Ⅱ: treatment halved", game.injury_price(Operators.LAPPLAND) == Economy.tiered(BaseCatalog.INJURY_TREATMENT, 1) / 2, game.injury_price(Operators.LAPPLAND))
 	base.injuries = {}
 	_finish("isolation_ward")
 	check("医疗部Ⅵ: contamination steps at 70 / 100", BaseCatalog.contamination_tier(65.0) == 0 and BaseCatalog.contamination_tier(70.0) == 1)
@@ -284,7 +298,7 @@ func _effects() -> void:
 	_finish("closure_spread")
 	check("商务部Ⅱ: 可露希尔's spread 2%", is_equal_approx(Economy.closure_spread, 0.02))
 	_finish("feed_fee")
-	check("人事部Ⅰ: records 20% cheaper", game.record_price("基础作战记录") == 40)
+	check("人事部Ⅰ: records 20% cheaper", game.record_price("基础作战记录") == ceili(int(Progression.RECORD_EXP["基础作战记录"]) * Progression.LMD_PER_EXP * 0.8), game.record_price("基础作战记录"))
 	_finish("bench_exp")
 	check("人事部Ⅳ: the bench learns 20%", is_equal_approx(game.research.bench_share(), 0.2))
 	_finish("glow_range")
@@ -294,7 +308,8 @@ func _effects() -> void:
 
 func _projects() -> void:
 	var r := game.research
-	check("a project costs base × index: M at Ⅴ = 26,200", r.project_price("threat", 5) == 26200, r.project_price("threat", 5))
+	check("a project costs base × index: M at Ⅴ = 72,200", r.project_price("threat", 5) == Economy.tiered(int(ResearchCatalog.PROJECT_BASE["M"]), 5)
+		and r.project_price("threat", 5) == 72200, r.project_price("threat", 5))
 	check("sign two", r.sign("threat") and r.sign("records") and r.project_refusal("deep") == "课题位已满")
 	var gold := game.gold
 	var paid := r.charge_departure(41)
@@ -329,9 +344,10 @@ func _projects() -> void:
 
 func _endless() -> void:
 	var r := game.research
-	check("level 1 costs 50,000, level 10 about 373k", ResearchCatalog.endless_price(0) == 50000 and ResearchCatalog.endless_price(9) == 373000, ResearchCatalog.endless_price(9))
+	check("level 1 costs 140,000, level 10 about 1,043k", ResearchCatalog.endless_price(0) == ResearchCatalog.ENDLESS_BASE and ResearchCatalog.endless_price(0) == 140000
+		and ResearchCatalog.endless_price(9) == 1043000, ResearchCatalog.endless_price(9))
 	var gold := game.gold
-	check("buying a level", r.buy_endless("contract") and gold - game.gold == 50000 and r.endless_level("contract") == 1)
+	check("buying a level", r.buy_endless("contract") and gold - game.gold == ResearchCatalog.endless_price(0) and r.endless_level("contract") == 1, [gold - game.gold, game.gold])
 	check("合同报酬 +1% a level", is_equal_approx(r.contract_bonus(), 101.0))
 	game.base.research.endless["threat"] = ResearchCatalog.ENDLESS_CAP
 	check("capped at 30", r.endless_refusal("threat") == "已满级")
@@ -343,7 +359,7 @@ func _save() -> void:
 	check("research survives a save", copy.research.done == game.base.research.done and copy.research.endless == game.base.research.endless and copy.rhodes_rarity == game.base.rhodes_rarity)
 	var old := BaseState.new()
 	old.load_data({}, {})
-	check("saves from before 科研部 start empty", old.research.done.is_empty() and old.rhodes_rarity == 0 and old.kit_issued.is_empty())
+	check("saves from before 科研部 start empty", old.research.done.is_empty() and old.rhodes_rarity == 0)
 
 func _terminal_and_room() -> void:
 	check("the lab is a room with the research terminal", game.base_map.rooms.has("lab") and game.base_map.interactables.any(func(s): return s.kind == "research"))

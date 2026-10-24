@@ -58,6 +58,7 @@ func run() -> void:
 	game.save_enabled = false
 	game.fixed_map_seed = 1729
 	root.add_child(game)
+	game.base.recruit(Operators.LAPPLAND)
 	game.choose_operator(Operators.AMIYA_GUARD)
 	var data := game.base.to_data()
 	var copy := BaseState.new()
@@ -66,7 +67,7 @@ func run() -> void:
 	var bad := data.duplicate()
 	bad["operator"] = "nobody"
 	copy.load_data(bad, {})
-	check("unknown operator falls back to Lappland", copy.operator == Operators.LAPPLAND)
+	check("unknown operator falls back to Amiya", copy.operator == Operators.AMIYA_GUARD)
 	check("player switched to Amiya with her sheets", game.player.is_amiya() and game.player._sprite.character == Operators.AMIYA_GUARD
 		and game.player._sprite.sprite_frames.has_animation(&"shadow_south") and game.player._sprite.sprite_frames.get_frame_count(&"idle_south") == 2)
 	# Standing attack frames keep the idle foot line and body size in every

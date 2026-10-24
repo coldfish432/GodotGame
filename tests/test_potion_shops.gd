@@ -34,12 +34,15 @@ func run() -> void:
 func _base_shelf() -> void:
 	game.base.max_facilities()
 	check("at the base she shows her 特供 line", game.closure_goods() == BaseCatalog.CLOSURE_LINE)
-	check("A and B still cost one bar", game.closure_potion_price("A") == 1 and game.closure_potion_price("B") == 1)
+	var gel_bars := maxi(1, ceili(Economy.tiered(int(BaseCatalog.POTIONS.B.price), game.closure_potion_tier()) / Economy.bar_lmd()))
+	check("A costs one bar, B as many bars as its 龙门币 needs (%d)" % gel_bars, game.closure_potion_price("A") == 1 and game.closure_potion_price("B") == gel_bars, [game.closure_potion_price("A"), game.closure_potion_price("B")])
 	game.base.closure_restock_at = 0
 	var cap := int(BaseCatalog.POTIONS["F"].cap)
 	check("a fresh window fills her line to its caps", game.closure_stock_left("F") == cap and game.base.closure_restock_in() > 3500)
 	check("强心针 is one a window", game.closure_stock_left("L") == 1)
-	game.inventory.add_stack(MaterialCatalog.create(Economy.GOLD_ID, 60))
+	# 赤金 stacks ten to a slot: enough bars for every bottle of the window and more.
+	for i in range(ceili(game.closure_potion_price("F") * (cap + 2) / 10.0)):
+		game.inventory.add_stack(MaterialCatalog.create(Economy.GOLD_ID, 10))
 	var bought := 0
 	for i in range(cap + 2):
 		if game.closure_buy_potion("F"): bought += 1
@@ -148,9 +151,13 @@ func _effects() -> void:
 	game.potion_fx.emergency_used = false
 	p.hp = 5
 	p.shield = 0.0
+	# The camp may have drawn (and sold) a 强心针 too, so it can stack to two:
+	# the save uses up exactly one.
+	var shots := game.potion_count("L")
 	# True damage: an evasion roll must not make this flaky.
 	p.take_damage(p.max_hp * 3.0, "true")
-	check("强心针 saves a killing blow once", p.hp > 0 and game.potion_count("L") == 0, [p.hp, game.potion_count("L"), game.in_base])
+	check("强心针 saves a killing blow once", shots >= 1 and is_equal_approx(p.hp, 1.0 + p.max_hp * PotionEffects.EMERGENCY_HEAL)
+		and game.potion_count("L") == shots - 1 and game.potion_fx.emergency_used, [p.hp, shots, game.potion_count("L"), game.in_base])
 
 func _reloaded() -> BaseState:
 	var copy := BaseState.new()

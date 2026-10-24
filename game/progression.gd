@@ -64,7 +64,7 @@ const RECORD_EXP := {"基础作战记录": 100, "初级作战记录": 200, "中�
 const RECORD_STAR := {"基础作战记录": 2, "初级作战记录": 3, "中级作战记录": 4, "高级作战记录": 5}
 ## How many ordinary kills make one basic record (零头作废).
 const NORMALS_PER_RECORD := 10
-const LMD_PER_EXP := 0.5
+const LMD_PER_EXP := 1.4
 
 ## What a contract's kills pay out: {record name: count}.
 static func records_for(kills: Dictionary) -> Dictionary:
@@ -80,8 +80,8 @@ static func records_for(kills: Dictionary) -> Dictionary:
 # --- Promotion (§3.2): PRTS 拉普兰德's recipe; 龙门币 raised in 龙门币平衡与科研部策划案 v1.1 §4.2 --
 const PROMOTION := [
 	{},
-	{"lmd": 8000, "materials": {"近卫芯片": 4, "装置": 3, "固源岩": 4}},
-	{"lmd": 60000, "materials": {"近卫双芯片": 3, "改量装置": 6, "异铁组": 10}},
+	{"lmd": 22000, "materials": {"近卫芯片": 4, "装置": 3, "固源岩": 4}},
+	{"lmd": 168000, "materials": {"近卫双芯片": 3, "改量装置": 6, "异铁组": 10}},
 ]
 ## PRTS 10 → 15 at 精英 2.
 const E2_RES := 5.0
@@ -119,7 +119,7 @@ static func attribute_sheet(attributes: Dictionary, start: Dictionary) -> Dictio
 
 # --- Respec (§10) --------------------------------------------------------------
 static func respec_cost(points: int, elite: int) -> int:
-	return points * 200 * (elite + 1)
+	return points * 560 * (elite + 1)
 
 # --- Gear grades and requirements (§7) --------------------------------------
 ## Grades are the ten-floor tiers Ⅰ–Ⅹ (复利数值改造清单 B, Scaling.tier_of).

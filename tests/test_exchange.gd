@@ -76,11 +76,11 @@ func run() -> void:
 	ex.relations["karlan"] = Exchange.RANK_AT[5]
 	check("the remote fee falls 0.5%% a rank: %.3f, %.3f" % [fee_r1, ex.remote_fee("karlan")], is_equal_approx(fee_r1, 0.035) and is_equal_approx(ex.remote_fee("karlan"), 0.015))
 	ex.relations["karlan"] = Exchange.RANK_AT[1]
-	var crates := game.base.crates.size()
+	var packs := game.material_count("建材包")
 	var lmd := game.gold
 	check("the terminal sells no loose goods", not ex.buy_material("lungmen", "螺栓", 5) and game.gold == lmd)
 	check("龙门商会 sells the packs of its shelf, never gear", FactionCatalog.packs_sold("lungmen").has("建材包") and not FactionCatalog.packs_sold("lungmen").has("武器包"))
-	check("buying a pack pays and lands at receiving", ex.buy_material("lungmen", "建材包", 1) and game.gold < lmd and game.base.crates.size() == crates + 1)
+	check("buying a pack pays and goes straight into the warehouse (仓库修订)", ex.buy_material("lungmen", "建材包", 1) and game.gold < lmd and game.material_count("建材包") == packs + 1)
 	check("and uses the buy quota", ex.quota_left("lungmen") < ex.quota_cap("lungmen"))
 	ex.quota_used["lungmen"] = ex.quota_cap("lungmen")
 	check("a full quota refuses", not ex.buy_material("lungmen", "建材包", 1))
@@ -98,7 +98,7 @@ func run() -> void:
 	check("and fills when the market reaches it", ex.orders.is_empty() and ex.gold_account > acct)
 	var shield := stash_add(MaterialCatalog.create("防具包", 1))
 	ex.place_sell_order(shield, "karlan", "stop", 50.0)
-	check("cancelling returns the item to staging", ex.cancel_order(ex.orders[-1].id) and game.base.staging.any(func(i): return i.material_id == "防具包"))
+	check("cancelling returns the item to the warehouse", ex.cancel_order(ex.orders[-1].id) and game.base.shelf.any(func(i): return i.material_id == "防具包"))
 	# --- Forwards -----------------------------------------------------------------
 	ex.relations["lungmen"] = Exchange.RANK_AT[3]
 	set_index("lungmen:build", 1.0)
@@ -120,10 +120,10 @@ func run() -> void:
 	ex.relations["karlan"] = Exchange.RANK_AT[3]
 	ex.gold_account += 500.0
 	check("gear packs only go one way: no 收货合约", not ex.open_forward("karlan", "武器包", 1, 0, false, 1) and Exchange.forward_side_refusal("karlan", "武器包", false) == "只能交货")
-	crates = game.base.crates.size()
+	var cold := game.material_count("寒地物资包")
 	check("a 收货合约 opens", ex.open_forward("karlan", "寒地物资包", 1, 0, false, 1))
 	later(3700)
-	check("and at expiry pays the rest and the goods arrive", ex.forwards.is_empty() and game.base.crates.size() == crates + 1)
+	check("and at expiry pays the rest and the goods arrive", ex.forwards.is_empty() and game.material_count("寒地物资包") == cold + 1)
 	ex.open_forward("karlan", "建材包", 5, 1, false, 3)
 	var fwd: Dictionary = ex.forwards[-1]
 	set_index("karlan:build", 0.3)
@@ -135,20 +135,18 @@ func run() -> void:
 	set_index("fx", 1.0)
 	check("a CFD on the rate opens long 2×", ex.open_cfd("fx", 1, 2, 20000.0))
 	var c: Dictionary = ex.cfds[-1]
-	set_index("fx", 1.5)
+	set_index("fx", 2.0)   # profit about 40,000
 	check("a rising rate shows profit: %.0f" % ex.cfd_pnl(c), ex.cfd_pnl(c) > 19000.0)
 	balance = game.gold
-	var cap := ex.cfd_cap()
-	ex.cfd_day.used = 0.0
+	var profit := ex.cfd_pnl(c) - float(c.notional) * Exchange.CFD_FEE
 	ex.close_cfd(c.id)
-	check("closing pays the margin plus profit up to today's cap: +%d" % (game.gold - balance), game.gold - balance <= 20000 + cap + 1)
-	check("the rest waits for the next trading day", ex.cfd_pending() > 0.0)
-	var pending := ex.cfd_pending()
+	# 用户 2026-10-23: no daily cap on CFD profit.
+	check("closing pays the margin plus the whole profit: +%d" % (game.gold - balance), absf(game.gold - balance - (20000.0 + profit)) <= 1.0)
+	check("nothing waits for the next trading day", ex.cfd_pending() == 0.0)
+	ex.cfd_day.pending_lmd = 5000.0   # held back on a save from before the cap went
 	balance = game.gold
 	later(MarketState.next_day_start(market.t) - market.t + 4)
-	check("and comes in at 08:00", ex.cfd_pending() < pending and game.gold > balance)
-	ex.note_contract_reward(20000)
-	check("today's contract rewards raise the cap by half", is_equal_approx(ex.cfd_cap(), 10000.0 + 10000.0))
+	check("an old save's held-back profit comes in at 08:00", ex.cfd_pending() == 0.0 and game.gold >= balance + 5000)
 	game.gold = 30000
 	ex.loan = 25000
 	check("borrowed money is not margin (贷款不能当保证金)", not ex.open_cfd("fx", 1, 1, 10000.0) and ex.cfd_refusal("fx", 1, 10000.0) == "保证金不足")
@@ -163,17 +161,17 @@ func run() -> void:
 	later(MarketState.next_day_start(market.t) - market.t + 4)
 	check("an overnight fee comes off the margin at 08:00", float(short.margin) < margin_before)
 	ex.set_cfd_limits(short.id, 0.0, ex.cfd_price("fx") * 1.01)
-	set_index("fx", 1.5)
+	set_index("fx", 3.0)   # up from 2.0: past the short's stop
 	later(4)
 	check("a stop-loss closes the short", not ex.cfds.has(short))
 	# --- Loans --------------------------------------------------------------------
 	game.gold = 0
-	check("the loan limit follows 交易所's level: %d" % ex.loan_limit(), ex.loan_limit() == 20000 * maxi(1, game.base.facility_level("exchange")))
+	check("the loan limit follows 交易所's level: %d" % ex.loan_limit(), ex.loan_limit() == Exchange.LOAN_STEP * maxi(1, game.base.facility_level("exchange")))
 	check("borrowing adds to the balance", ex.borrow(10000) and game.gold == 10000 and ex.loan == 10000)
 	check("not past the limit", not ex.borrow(ex.loan_limit()))
 	ex.on_settlement(0)
-	check("interest once a settlement: 1% under 10,000", ex.loan == 10100)
-	check("tiers", is_equal_approx(Exchange.loan_rate(40000), 0.02) and is_equal_approx(Exchange.loan_rate(90000), 0.03) and is_equal_approx(Exchange.loan_rate(150000), 0.04))
+	check("interest once a settlement: 1%% under %d" % Exchange.LOAN_TIERS[0][0], ex.loan == 10100)
+	check("tiers", is_equal_approx(Exchange.loan_rate(112000), 0.02) and is_equal_approx(Exchange.loan_rate(252000), 0.03) and is_equal_approx(Exchange.loan_rate(420000), 0.04))
 	ex.loan = 200000
 	game.gold = 10000
 	var taken := ex.on_settlement(8000)
@@ -192,7 +190,7 @@ func run() -> void:
 	stash_add(MaterialCatalog.create(Economy.GOLD_ID, 3))
 	acct = ex.gold_account
 	check("bars go into the account", ex.deposit_bars(3) and absf(ex.gold_account - acct - 3.0) < 0.01)
-	check("whole bars come out to staging", ex.withdraw_bars(2) and game.base.staging.any(func(i): return i.material_id == Economy.GOLD_ID))
+	check("whole bars come out to the warehouse", ex.withdraw_bars(2) and game.base.shelf.any(func(i): return i.material_id == Economy.GOLD_ID))
 	var fee_item := MaterialCatalog.create("螺栓", 10)
 	check("the camp's deposit fee uses the live rate", game.deposit_fee(fee_item) == maxi(1, ceili(Economy.price(fee_item) * FieldCatalog.DEPOSIT_FEE / Economy.fx)))
 	# --- Direct delivery ----------------------------------------------------------
@@ -219,12 +217,12 @@ func run() -> void:
 	game.gold = 10000
 	stash_add(MaterialCatalog.create("源岩", 15))
 	check("a recipe needs its inputs", game.workshop_refusal("固源岩", 6).begins_with("缺少"))
-	check("five 固源岩 from fifteen 源岩", game.workshop_start("固源岩", 5) and game.material_count("源岩") == 0 and game.gold == 10000 - 500)
+	check("five 固源岩 from fifteen 源岩", game.workshop_start("固源岩", 5) and game.material_count("源岩") == 0 and game.gold == 10000 - 5 * int(Workshop.recipe("固源岩").lmd))
 	check("the queue is full with one job at R0", game.workshop_refusal("糖", 1) == "加工队列已满")
-	var staged := game.base.staging.size()
+	var made := game.material_count("固源岩")
 	BaseState.clock_offset += 11 * 60
 	game._tick_workshop()
-	check("finished goods go to staging", game.base.staging.size() > staged and game.base.staging.any(func(i): return i.material_id == "固源岩" and i.quantity == 5))
+	check("finished goods go into the warehouse", game.material_count("固源岩") == made + 5)
 	check("packs are not a recipe (they are packed by value)", game.workshop_refusal("建材包", 1) == "没有这个配方" and not FactionCatalog.CATEGORIES.has("trade"))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1
@@ -232,7 +230,7 @@ func run() -> void:
 	var bys := 0
 	for k in range(200): bys += w.start("异铁", 10, 0, rng).byproducts.values().reduce(func(a, b): return a + b, 0)
 	check("byproducts about 10%% (PRTS): %d / 2000" % bys, absi(bys - 200) < 50)
-	check("PRTS costs: 100 / 200 / 300, carbon 800", Workshop.recipe("固源岩").lmd == 100 and Workshop.recipe("固源岩组").lmd == 200 and Workshop.recipe("提纯源岩").lmd == 300 and Workshop.recipe("碳素").lmd == 800)
+	check("PRTS costs ×2.8: 300 / 600 / 800, carbon 2200", Workshop.recipe("固源岩").lmd == 300 and Workshop.recipe("固源岩组").lmd == 600 and Workshop.recipe("提纯源岩").lmd == 800 and Workshop.recipe("碳素").lmd == 2200)
 	check("固源岩组 is five to one", Workshop.recipe("固源岩组")["in"]["固源岩"] == 5)
 	check("加工部 posts orders", BaseCatalog.ORDERS.values().any(func(o): return o.dept == "加工部"))
 	# --- Saving -------------------------------------------------------------------
@@ -269,6 +267,9 @@ func run() -> void:
 	ex.forward_cooldown.clear()
 	game.gold = 100000
 	ex.open_forward("lungmen", "建材包", 1, 0, true, 1)
+	# The packs bought above now sit in the warehouse (仓库修订): clear them, so
+	# the only one is in her pack.
+	for it in game.base.shelf.filter(func(i): return i.material_id == "建材包"): game.base.remove_item(it)
 	game.inventory.try_add(MaterialCatalog.create("建材包", 1))
 	BaseState.clock_offset += 3700
 	game.market.advance_to(BaseState.now())

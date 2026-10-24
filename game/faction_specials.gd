@@ -31,7 +31,7 @@ const FLUX_TIME := 0.7
 ## 骑士工坊专利授权 on a running research: the rest of its time halved.
 const PATENT_TIME := 0.5
 ## 企鹅专递单: bought from 企鹅物流's desk at the exchange for 龙门币.
-const SLIP_PRICE := 8000
+const SLIP_PRICE := 22000
 
 static func is_special(material: String) -> bool:
 	return ITEMS.has(material)

@@ -55,12 +55,7 @@ func run() -> void:
 	trap.kind = "heavy"
 	# Ungeared she has 600 HP, which a heavy trap's 600 takes whole: dress her
 	# in the Rhodes issue so the blow can be measured.
-	var kit_rng := RandomNumberGenerator.new()
-	kit_rng.seed = 2718
-	# Prefixes off: one like 受到伤害 +x% would change the measured blow.
-	for piece in GearCatalog.rhodes_kit(kit_rng, game.player.operator_id):
-		piece.prefixes.clear()
-		game.player.equip(piece)
+	for piece in GearCatalog.rhodes_kit(game.player.operator_id): game.player.equip(piece)
 	game.player.hp = game.player.max_hp
 	game.player.shield = 0.0
 	game.threat.value = 0.0

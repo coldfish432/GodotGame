@@ -12,10 +12,11 @@ extends RefCounted
 ## can carry one out to the next squad met, as its 补给 service.
 
 ## crop -> {hours, yield (per basin), seed: 龙门币 for Rhodes' own, or the seed item}.
+## A basin's crop delivers for about its seed × 1.25 (用户 2026-10-23).
 const CROPS := {
-	"舰载麦": {"hours": 2, "yield": 6, "seed_lmd": 300},
-	"块茎薯": {"hours": 3, "yield": 8, "seed_lmd": 400},
-	"温室豆": {"hours": 4, "yield": 5, "seed_lmd": 600},
+	"舰载麦": {"hours": 2, "yield": 6, "seed_lmd": 770},
+	"块茎薯": {"hours": 3, "yield": 8, "seed_lmd": 1020},
+	"温室豆": {"hours": 4, "yield": 5, "seed_lmd": 1280},
 	"闪耀作物": {"hours": 8, "yield": 3, "seed": "闪耀作物种子"},
 	"闪耀作物·变种": {"hours": 16, "yield": 2, "seed": "闪耀作物·变种种子"},
 }
@@ -83,7 +84,7 @@ const SQUAD_USES := 2
 const KITCHEN_SLOTS_LEVEL := 3
 ## 企鹅物流's cold chain: from this rank, for this much a parcel.
 const MAIL_RANK := 2
-const MAIL_LMD := 3000
+const MAIL_LMD := 8400
 
 var game: GameManager
 

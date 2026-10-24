@@ -36,7 +36,7 @@ func open_orders() -> Array:
 ## Whether `item` is what order `slot` asks for.
 func matches(slot: int, item: Item) -> bool:
 	var order = slots[slot]
-	if order == null or order.state != "open" or item == null or item.is_potion(): return false
+	if order == null or order.state != "open" or item == null or item.is_potion() or GearCatalog.bound(item): return false
 	var t: Dictionary = BaseCatalog.ORDERS[order.id]
 	# A sealed ore is still the ore (地图特色策划案 §3.3).
 	if t.has("effect"): return item.effect == t.effect or (t.effect == "raw_ore" and item.effect == GameManager.SEALED_ORE)
