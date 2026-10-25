@@ -216,5 +216,5 @@ func _card(id: String, box: Rect2, r: Research, font: Font) -> void:
 		foot_colour = AK.SP
 		draw_rect(Rect2(box.position + Vector2(0, box.size.y - 4), Vector2(box.size.x * r.progress(id), 4)), AK.SP)
 	else:
-		foot = "%s   %d h" % [Economy.format(ResearchCatalog.price(id)), ResearchCatalog.hours(id)]
+		foot = "%s   %s" % [Economy.format(ResearchCatalog.price(id)), ResearchCatalog.duration_text(id)]
 	draw_string(AK.en(), box.position + Vector2(16, 64), foot, HORIZONTAL_ALIGNMENT_LEFT, box.size.x - 22, 12, foot_colour)

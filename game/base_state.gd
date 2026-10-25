@@ -156,7 +156,8 @@ func order_slot_count() -> int:
 
 ## Free 标准急救剂 per contract: 4 with 医疗部 1 阶.
 func free_potion_count() -> int:
-	return BaseCatalog.FREE_POTIONS + (1 if researched("free_potion") else 0)
+	# 高浓度配方 gave a tier higher; flasks have no tiers now (§19), so two more.
+	return BaseCatalog.FREE_POTIONS + (1 if researched("free_potion") else 0) + (2 if researched("potion_grade") else 0)
 
 func progress_for(id: String) -> OperatorProgress:
 	if not progress.has(id): progress[id] = OperatorProgress.create(id)
@@ -440,10 +441,93 @@ func purge_bound() -> int:
 
 ## Something brought back by the base itself: into the warehouse over its
 ## cells if need be. False if already here.
-func receive(item: Item) -> bool:
+func receive(item: Item, keep_cell: bool = false) -> bool:
 	if item == null or not location_of(item).is_empty(): return false
-	if not _merge_onto_shelf(item): shelf.append(item)
+	if not _merge_onto_shelf(item): _shelf_add(item, keep_cell)
 	return true
+
+# --- The warehouse grid (用户 2026-10-24: 仓库自动整理不留空隙，但玩家可以随意
+# 摆放，物体可以旋转) -------------------------------------------------------------
+
+## The warehouse is SHELF_COLUMNS wide and as tall as its items need; every
+## item keeps its cell (Item.grid_x / grid_y, saved), the player moves and
+## turns them, 整理 packs them without gaps.
+const SHELF_COLUMNS := 16
+
+## Whether `item` could lie at (x, y) on the warehouse grid, ignoring itself.
+func shelf_fits(item: Item, x: int, y: int) -> bool:
+	if x < 0 or y < 0 or x + item.width > SHELF_COLUMNS: return false
+	for other in shelf:
+		if other == item or other.grid_x < 0: continue
+		if x < other.grid_x + other.width and other.grid_x < x + item.width and y < other.grid_y + other.height and other.grid_y < y + item.height: return false
+	return true
+
+## The first free cell for `item`, row by row (the grid grows downward).
+func shelf_first_free(item: Item) -> Vector2i:
+	var y := 0
+	while true:
+		for x in range(SHELF_COLUMNS - item.width + 1):
+			if shelf_fits(item, x, y): return Vector2i(x, y)
+		y += 1
+	return Vector2i.ZERO
+
+## A new arrival goes to the first free cell; a loaded one keeps its own
+## (`keep_cell`) when it is still free.
+func _shelf_add(item: Item, keep_cell: bool = false) -> void:
+	shelf.append(item)
+	if item.width > SHELF_COLUMNS: item.rotate()
+	if not keep_cell or not shelf_fits(item, item.grid_x, item.grid_y):
+		item.grid_x = -1
+		var at := shelf_first_free(item)
+		item.grid_x = at.x
+		item.grid_y = at.y
+
+## The player puts `item` at (x, y); false (and nothing moves) if it does not fit.
+func shelf_move(item: Item, x: int, y: int) -> bool:
+	if not shelf.has(item) or not shelf_fits(item, x, y): return false
+	item.grid_x = x
+	item.grid_y = y
+	return true
+
+## Turns `item` a quarter where it lies, if it fits so.
+func shelf_rotate(item: Item) -> bool:
+	if not shelf.has(item): return false
+	item.rotate()
+	if shelf_fits(item, item.grid_x, item.grid_y): return true
+	item.rotate()
+	return false
+
+## Items without a cell (put on the list directly) get the first free one.
+func shelf_normalize() -> void:
+	for item in shelf:
+		if item.grid_x < 0 or not shelf_fits(item, item.grid_x, item.grid_y):
+			item.grid_x = -1
+			var at := shelf_first_free(item)
+			item.grid_x = at.x
+			item.grid_y = at.y
+
+## Rows the warehouse grid takes now.
+func shelf_rows() -> int:
+	var rows := 0
+	for item in shelf: rows = maxi(rows, item.grid_y + item.height)
+	return rows
+
+## 整理: tallest first, then widest, then by kind and rarity, each at the
+## first cell it fits, so the small pieces fill the gaps and nothing is left
+## open between them.
+func shelf_sort() -> void:
+	var order := shelf.duplicate()
+	order.sort_custom(func(a: Item, b: Item) -> bool:
+		if a.height != b.height: return a.height > b.height
+		if a.width != b.width: return a.width > b.width
+		if Item.group_of(a.category) != Item.group_of(b.category): return Item.group_of(a.category) < Item.group_of(b.category)
+		if a.rarity != b.rarity: return a.rarity > b.rarity
+		return a.item_name < b.item_name)
+	for item: Item in shelf: item.grid_x = -1
+	for item: Item in order:
+		var at := shelf_first_free(item)
+		item.grid_x = at.x
+		item.grid_y = at.y
 
 ## Units of `item`'s material that the warehouse's matching stacks still take.
 func shelf_merge_room(item: Item) -> int:
@@ -491,7 +575,7 @@ func store_target(item: Item) -> String:
 
 func store(item: Item) -> String:
 	var target := store_target(item)
-	if target == "shelf" and not _merge_onto_shelf(item): shelf.append(item)
+	if target == "shelf" and not _merge_onto_shelf(item): _shelf_add(item)
 	return target
 
 ## Out of the base.
@@ -503,12 +587,12 @@ func remove_item(item: Item) -> bool:
 ## Undo of take_from_shelf when the pack refuses the item.
 func put_back(item: Item, _where: String = "shelf") -> void:
 	if not location_of(item).is_empty(): return
-	if not _merge_onto_shelf(item): shelf.append(item)
+	if not _merge_onto_shelf(item): _shelf_add(item)
 
 ## Loose items from a load or a migration: all into the warehouse. Never drops one.
 func place_loose(items: Array) -> void:
 	for item: Item in items:
-		receive(item)
+		receive(item, true)
 
 # --- Save --------------------------------------------------------------------
 

@@ -60,15 +60,29 @@ static func source_of(elite: bool, guard: bool) -> String:
 ## the old weapon : armour : trinket = 6 : 1 : 1 is gone with the three slots.
 const ENEMY_GOLD := {"normal": [8, 14], "guard": [8, 14], "elite": [25, 40]}
 
-# --- Equipment quality: grey / green / blue / purple / orange / red weights ----
-## 属性伤害与地区装备策划案 v1.1 §2.3, fitted in §17 (tools/element_model.py) so a
-## piece's expected panel and affixes stay within a few percent of the old
-## white / blue / gold. Purple, orange and red are the rare three (RARE_SCALE);
-## red is a tenth of orange.
+# --- Equipment quality: grey / green / blue / purple / orange / red -----------
+## 属性伤害与地区装备策划案 v1.1 §19 (用户 2026-10-24: 不按层解锁，只用掉率限制，
+## 概率低但刷十万百万只也能刷出来): each source's shares (%) on floor 1 and at
+## the loot stair's top (floor 90). In between every rarity's weight moves
+## log-linearly along the S curve; nothing is ever locked, so a normal
+## enemy's red is one piece in a million on floor 1 and one in a thousand deep.
 const QUALITY := {
-	"normal": [66.0, 16.0, 14.0, 3.6, 0.4, 0.04], "guard": [57.0, 16.0, 19.0, 7.2, 0.8, 0.08], "elite": [20.0, 14.0, 41.0, 22.5, 2.5, 0.25],
-	"box": [44.0, 18.0, 26.0, 10.8, 1.2, 0.12], "vault": [0.0, 8.0, 37.0, 49.5, 5.5, 0.55],
+	"normal": [80.0, 19.0, 1.0, 0.01, 0.001, 0.0001],
+	"guard": [72.0, 23.0, 5.0, 0.03, 0.003, 0.0003],
+	"elite": [55.0, 38.0, 7.0, 0.1, 0.01, 0.001],
+	"box": [70.0, 25.0, 5.0, 0.05, 0.005, 0.0005],
+	"vault": [0.0, 70.0, 30.0, 0.3, 0.03, 0.003],
 }
+const QUALITY_DEEP := {
+	"normal": [29.5, 23.8, 41.7, 4.2, 0.7, 0.1],
+	"guard": [21.4, 23.4, 49.3, 5.0, 0.8, 0.1],
+	"elite": [5.4, 12.6, 74.0, 6.7, 1.1, 0.15],
+	"box": [14.8, 20.2, 58.4, 5.6, 0.9, 0.12],
+	"vault": [0.0, 8.9, 82.2, 7.7, 1.3, 0.17],
+}
+## A route / guard / pity bonus adds this many share points per 0.01 to
+## purple, orange and red (ORANGE_SHARE / RED_SHARE of it).
+const BONUS_POINTS := 10.0
 ## Of a route / guard / pity bonus to the rare weight, orange's and red's shares.
 const ORANGE_SHARE := 0.1
 const RED_SHARE := 0.01
@@ -116,15 +130,6 @@ const STAIR_STEP_ENDS := [3, 6, 9, 10]
 const STAIR_BLOCKS := 9
 const DEEP_TOP := 15
 const STAIR_TOP := 35
-## Quality weights [grey, green, blue] at the stair's top, as multipliers of
-## the table's own (QUALITY), along the S curve.
-const DEEP_QUALITY := [0.3, 1.0, 2.0]
-## The rare pair's multipliers at the top: a normal enemy's purple + orange
-## share reaches 50% before RARE_SCALE, so 5% on floor 90 as gold did (用户
-## 2026-10-18: 以普通敌人装备稀有 5% 为顶); orange climbs half as fast again.
-const RARE_TOP_QUALITY := 15.2
-const ORANGE_TOP_QUALITY := 22.8
-const RED_TOP_QUALITY := 30.4
 ## Enemy material tiers [common, uncommon, rare] at the top step, likewise
 ## (用户 2026-10-24: the deep shift toward high tiers smaller, was 0.4 / 3 / 6).
 const DEEP_MATERIAL := [0.6, 2.2, 4.0]
@@ -208,22 +213,24 @@ static func quality_shares(table: String, rare_bonus: float, depth: int) -> Arra
 	return weights.map(func(w): return float(w) / total)
 
 static func _quality_weights(table: String, rare_bonus: float, depth: int) -> Array:
-	var weights: Array = QUALITY[table].duplicate()
+	var shallow: Array = QUALITY[table]
+	var deep: Array = QUALITY_DEEP[table]
 	var s := Scaling.s_curve(depth)
-	for i in range(3): weights[i] = float(weights[i]) * lerpf(1.0, float(DEEP_QUALITY[i]), s)
-	weights[3] = float(weights[3]) * lerpf(1.0, RARE_TOP_QUALITY, s)
-	weights[4] = float(weights[4]) * lerpf(1.0, ORANGE_TOP_QUALITY, s)
-	weights[5] = float(weights[5]) * lerpf(1.0, RED_TOP_QUALITY, s)
-	var bonus := maxf(rare_bonus, 0.0) * 100.0
+	var weights: Array = []
+	for i in range(shallow.size()):
+		var a := float(shallow[i])
+		var b := float(deep[i])
+		weights.append(0.0 if a <= 0.0 and b <= 0.0 else exp(log(maxf(a, 1e-9)) * (1.0 - s) + log(maxf(b, 1e-9)) * s))
+	var bonus := maxf(rare_bonus, 0.0) * BONUS_POINTS
 	weights[3] = float(weights[3]) + bonus * (1.0 - ORANGE_SHARE - RED_SHARE)
 	weights[4] = float(weights[4]) + bonus * ORANGE_SHARE
 	weights[5] = float(weights[5]) + bonus * RED_SHARE
-	return _scale_rare(weights, RARE_SCALE, 3)
+	return weights
 
-## Quality on floor `depth`: the table's weights moved along the stair, then
-## the rare weight gets `rare_bonus` × 100 points (route reward, guards, pity).
+## Quality on floor `depth`: the source's shares moved along the stair, then
+## the rare ones get `rare_bonus` × BONUS_POINTS points (route reward, guards, pity).
 static func roll_quality(table: String, rare_bonus: float, rng: RandomNumberGenerator, depth: int = 1) -> int:
-	# The five move along the shared S curve (复利数值改造清单 B): slow to
+	# The six move along the shared S curve (复利数值改造清单 B): slow to
 	# floor 30, steep around 35–60, flat from 70.
 	return _pick_weighted(_quality_weights(table, rare_bonus, depth), rng)
 
@@ -233,14 +240,13 @@ const AFFIX_LINES := [0, 1, 1, 2, 2, 3]
 const VALUE_MULT := [1.0, 1.5, 2.0, 3.0, 4.5, 7.0]
 
 ## One piece of equipment. Its panel and every affix roll inside its rarity's
-## band on the floor's tier (复利数值改造清单 B), and it gets its prefixes last
-## (装备前缀策划案 §2.3).
+## band — the floor only sets how high in the band (§19: no tiers) — and it
+## gets its prefixes last (装备前缀策划案 §2.3).
 static func roll_equipment(category: int, title: String, region: String, depth: int, rarity: int, rng: RandomNumberGenerator) -> Item:
 	category = Item.slot_of(category)
 	var size := GearSlots.size(category)
-	# The floor's ten-floor tier fixes the range; the rarity's band and the
-	# floor's roll exponent place it inside (复利数值改造清单 B).
-	var tier := Scaling.tier_of(depth)
+	# The rarity's band fixes the range; the floor's roll exponent places it inside.
+	var tier := 1
 	var item := Item.create(title, category as Item.Category, size.x, size.y, Scaling.gear_power(tier, rarity, Scaling.roll_position(depth, rng)))
 	item.origin_region = region
 	item.rarity = rarity
@@ -327,6 +333,16 @@ static func _gear(category: int, enemy_type: String, table: String, ctx: Diction
 	if category == Item.Category.ARMOR or category == Item.Category.TRINKET: category = GearSlots.roll(ctx.rng, category)
 	var rarity := _quality_with_pity(table, ctx, extra_bonus, effective)
 	var id := GearCatalog.pick(category, ctx.region, int(ctx.depth), table, enemy_type, ctx.rng)
+	return roll_equipment(category, GearCatalog.BASES[id].name, ctx.region, int(ctx.depth), rarity, ctx.rng)
+
+## One piece of gear of any slot at `min_rarity` or better (险路恶敌,
+## 肉鸽路线图策划案 v0.2 §4.1): rolled on the elite table, raised if short.
+static func gear_at_least(ctx: Dictionary, min_rarity: int) -> Item:
+	var groups := [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET]
+	var category: int = groups[ctx.rng.randi() % groups.size()]
+	if category != Item.Category.WEAPON: category = GearSlots.roll(ctx.rng, category)
+	var rarity := maxi(min_rarity, _quality_with_pity("elite", ctx, 0.0, false))
+	var id := GearCatalog.pick(category, ctx.region, int(ctx.depth), "elite", "", ctx.rng)
 	return roll_equipment(category, GearCatalog.BASES[id].name, ctx.region, int(ctx.depth), rarity, ctx.rng)
 
 ## One enemy-material pick: common / uncommon / rare, with the rare pity.
@@ -443,10 +459,16 @@ static func _mat(id: String, low: int, high: int, ctx: Dictionary) -> Dictionary
 const BOX_MATERIAL_KEEP := [1.0, 0.9, 0.75, 0.20, 0.05, 0.01]
 
 static func container_drops(kind: String, ctx: Dictionary, guarded: bool = false) -> Array:
-	var out := _container_rolled(kind, ctx, guarded).filter(func(drop) -> bool:
+	var rolled := _container_rolled(kind, ctx, guarded)
+	var out := rolled.filter(func(drop) -> bool:
 		var item: Item = drop.get("item")
 		if item == null or item.material_id.is_empty() or item.material_id == Economy.GOLD_ID or not MaterialCatalog.MATERIALS.has(item.material_id): return true
 		return ctx.rng.randf() < float(BOX_MATERIAL_KEEP[clampi(MaterialCatalog.star(item.material_id), 0, BOX_MATERIAL_KEEP.size() - 1)]))
+	# 用户 2026-10-24: 兴趣点里必须有物品 — never only money that may round to
+	# nothing: one of what was rolled comes back, or a bar of 赤金.
+	if not out.any(func(drop) -> bool: return drop.get("item") != null):
+		var items := rolled.filter(func(drop) -> bool: return drop.get("item") != null)
+		out.append(items[ctx.rng.randi() % items.size()] if not items.is_empty() else {"item": MaterialCatalog.create(Economy.GOLD_ID, 1, str(ctx.get("region", "")))})
 	for drop in out:
 		if drop.has("gold"): drop.single = true
 		elif drop.item.is_stackable() and not drop.item.is_potion(): drop.item.set_quantity(1)

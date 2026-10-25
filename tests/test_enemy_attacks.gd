@@ -66,7 +66,7 @@ func run() -> void:
 		var e := enemy(EnemyAttacks.ORDER[i])
 		e._begin_telegraphed_attack()
 		var p := e.attack_profile
-		check(e.enemy_type + " authored timings and damage", is_equal_approx(p.windup, expected[i][0]) and is_equal_approx(p.interval, expected[i][1]) and is_equal_approx(e.atk * float(p.damage), expected[i][2]) and e.damage_kind == "phys")
+		check(e.enemy_type + " authored timings and damage", is_equal_approx(p.windup, expected[i][0]) and is_equal_approx(p.interval, expected[i][1]) and is_equal_approx(e.atk * float(p.damage) / game.contract_attack(), expected[i][2]) and e.damage_kind == "phys")
 		check(e.enemy_type + " starts with physical pose, no warning", e.pose_frame == 1 and markers().is_empty() and e._warning_markers.is_empty())
 		e._tick_attack(0.15)
 		check(e.enemy_type + " holds distinct charge pose", e.pose_frame == 2 and e.preparing_attack)

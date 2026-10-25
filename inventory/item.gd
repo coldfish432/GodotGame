@@ -33,6 +33,12 @@ const OLD_GOLD_ORANGE := 0.75
 const OLD_BANDS := [[0.6, 0.8], [0.9, 1.1], [1.2, 1.4]]
 const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料", "头部", "胸甲", "手部", "腿部", "脚部", "项链", "戒指"]
 
+## What its tooltip and shop rows call it: flasks are 医疗品 (用户 2026-10-24:
+## 药的标签现在是材料，改为医疗品), everything else its category.
+func kind_name() -> String:
+	if is_potion(): return "医疗品"
+	return CATEGORY_NAMES[clampi(category, 0, CATEGORY_NAMES.size() - 1)]
+
 static func slot_name(category: int) -> String:
 	return CATEGORY_NAMES[clampi(category, 0, CATEGORY_NAMES.size() - 1)]
 
@@ -103,6 +109,16 @@ static func is_jewel_slot(category: int) -> bool:
 @export var value_base: int = 0
 ## How many times 精调 has been used on it (each one costs more).
 @export var tune_count: int = 0
+## Turned a quarter in a grid (用户 2026-10-24: 物体可以旋转): width and height
+## are the turned footprint; the icon is drawn turned too.
+@export var rotated: bool = false
+
+## Turns it a quarter: the footprint swaps, the icon turns with it.
+func rotate() -> void:
+	var w := width
+	width = height
+	height = w
+	rotated = not rotated
 
 const POWER_LOW := 0.9
 const POWER_HIGH := 1.1
@@ -243,8 +259,8 @@ func to_data() -> Dictionary:
 		"power": power, "rarity": rarity, "value": value, "region": exclusive_region, "origin": origin_region, "effect": effect,
 		"description": description, "mods": mods, "insured": insured, "carried_in": carried_in, "special": special, "base": base_id,
 		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type, "grade": grade,
-		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count, "atk_share": atk_share,
-		"tiers": 2, "slots": 3, "ladder": 1}
+		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count, "atk_share": atk_share, "rot": rotated, "gx": grid_x, "gy": grid_y,
+		"tiers": 3, "slots": 3, "ladder": 1}
 
 static func from_data(data: Dictionary) -> Item:
 	var item := create(str(data.get("name", "物品")), int(data.get("category", 3)) as Category,
@@ -273,6 +289,8 @@ static func from_data(data: Dictionary) -> Item:
 	# Gear saved before ten-floor tiers kept T1–T6 of layer + block; its tier
 	# comes from its power instead (复利数值改造清单 B). Flasks were all tier 1.
 	if int(data.get("tiers", 1)) < 2: item.grade = 1 if item.is_potion() else 0
+	# Flasks have no tiers any more (§19): every one stacks with its kind.
+	if item.is_potion(): item.grade = 1
 	# Flask names carried their tier as 1–10 before the ladder (§12).
 	if item.is_potion() and BaseCatalog.POTIONS.has(item.potion_type): item.item_name = BaseCatalog.potion_name(item.potion_type, item.grade)
 	item.atk_share = clampf(float(data.get("atk_share", 0.0)), 0.0, 1.0)
@@ -294,6 +312,9 @@ static func from_data(data: Dictionary) -> Item:
 	item.power_mid = float(data.get("power_mid", 0.0))
 	item.value_base = int(data.get("value_base", 0))
 	item.tune_count = int(data.get("tunes", 0))
+	item.rotated = bool(data.get("rot", false))
+	item.grid_x = int(data.get("gx", -1))
+	item.grid_y = int(data.get("gy", -1))
 	for entry in data.get("prefixes", []):
 		if entry is Dictionary and PrefixCatalog.all().has(str(entry.get("id", ""))):
 			var rolls := {}
@@ -316,7 +337,26 @@ static func from_data(data: Dictionary) -> Item:
 	# Gear saved before prefixes rolls them once (装备前缀策划案 §0.2-6).
 	if not data.has("prefixes"): PrefixCatalog.backfill(item)
 	if int(data.get("ladder", 0)) < 1: _migrate_ladder(item)
+	if int(data.get("tiers", 1)) == 2: _fold_tier(item)
 	return item
+
+## Gear saved in ten-floor tiers (×1.48 a tier, flat affixes ×1.30) folded
+## back to tier 1 (属性伤害与地区装备策划案 v1.1 §19: depth no longer sets the
+## numbers, only the rarity's odds).
+static func _fold_tier(item: Item) -> void:
+	if not item.is_equippable() or item.grade <= 1:
+		if item.is_equippable(): item.grade = maxi(item.grade, 1)
+		return
+	var panel := Scaling.old_tier_base(item.grade)
+	var flat := Scaling.old_flat_scale(item.grade)
+	item.power /= panel
+	item.power_mid /= panel
+	for mod in item.modifiers:
+		if mod.trigger != ItemModifier.Trigger.NONE or not mod.stat in ItemModifier.FLAT_STATS: continue
+		mod.amount /= flat
+		mod.mid /= flat
+		mod.scale /= flat
+	item.grade = 1
 
 ## White / blue / gold onto the ladder (§15.1): its affixes' and intrinsics'
 ## bands move with it; numbers stay as they were.

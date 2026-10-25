@@ -80,9 +80,9 @@ func _snow() -> void:
 	game.player.global_position = game.fires[0].global_position + Vector3(20, 0, 20)
 	game._tick_features(100.0)
 	check("100 s out in the cold: 10", is_equal_approx(game.features.value("cold"), 10.0), game.features.value("cold"))
-	game.route_index = 2
+	game.route_kind = "deep"
 	check("the deep route adds 0.05", is_equal_approx(game.cold_rate(), 0.15))
-	game.route_index = 0
+	game.route_kind = "patrol"
 	game.floor_number = 21
 	check("from floor 21 it is ×1.1", is_equal_approx(game.cold_rate(), 0.11))
 	game.floor_number = 1

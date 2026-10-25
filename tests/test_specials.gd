@@ -289,10 +289,12 @@ func _contract_meal_and_squad() -> void:
 	check("attack +10%, speed +5% as a lasting hex", is_equal_approx(game.player.hex("atk"), 0.10) and is_equal_approx(game.player.hex("aspd"), 0.05) and float(game.player.hexes.meal.time) < 0.0)
 	# 3+: more squads; 2+: a step cheaper; 4: two services.
 	var met := 0
+	game.route_kind = "supply"
 	for i in range(3000):
 		game._roll_encounter()
 		if game.encounter == "squad": met += 1
-	check("squads on ~40%% of floors with 3 or better (%d/3000)" % met, absf(met / 3000.0 - Provisions.SQUAD_CHANCE) < 0.03)
+	# On a fight floor the squad comes 2/3 as often as before the route map (40% -> 27%).
+	check("squads on ~27%% of fight floors with 3 or better (%d/3000)" % met, absf(met / 3000.0 - Provisions.SQUAD_CHANCE * GameManager.ROUTE_SQUAD_SHARE) < 0.03)
 	var lows := 0
 	for i in range(200):
 		game._roll_encounter()

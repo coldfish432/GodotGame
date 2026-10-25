@@ -40,13 +40,9 @@ func _physics_process(delta: float) -> void:
 		return
 	var distance := _player_distance()
 	if active:
-		if distance > release_radius:
-			active = false
-			_cooldown = 0.8
-			for guard in guards: guard.begin_return()
-		else:
-			for guard in guards:
-				if guard.state == Enemy.State.IDLE: guard.begin_chase()
+		# The squad keeps after her on its 仇恨值 (Enemy.aggro); it lets go together.
+		for guard in guards:
+			if guard.state == Enemy.State.IDLE: guard.begin_chase()
 	else:
 		var returning := guards.any(func(enemy: Enemy) -> bool: return enemy.state == Enemy.State.RETURNING or enemy._rearm_timer > 0)
 		if not returning and _cooldown <= 0 and distance <= trigger_radius: _activate()
@@ -56,8 +52,14 @@ func _player_distance() -> float:
 	return Vector2(offset.x, offset.z).length()
 
 func alert_from_hit() -> void:
-	if _player_distance() > release_radius: return
+	if _player_distance() > leash_radius: return
 	_activate()
+
+## One guard out of 仇恨值 resets the whole squad (a camp's small monsters follow the large).
+func release() -> void:
+	active = false
+	_cooldown = 0.8
+	for guard in guards: guard.begin_return()
 
 ## The whole post at once, those on their way home included.
 func _activate() -> void:

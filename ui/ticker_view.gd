@@ -83,6 +83,10 @@ func _draw() -> void:
 	var state := game.trade_block() if not game.writer() else "实时"
 	draw_string(font, Vector2(size.x - 160 - PAD, 24), I18n.t(state), HORIZONTAL_ALIGNMENT_RIGHT, 160, 11, AK.MUTE)
 	var y := HEAD + 6
+	# Started from its shortcut before the exchange is built: nothing to watch yet.
+	if not game.exchange.unlocked():
+		draw_string(font, Vector2(PAD, y + 40), I18n.t(GameManager.EXCHANGE_LOCKED), HORIZONTAL_ALIGNMENT_CENTER, size.x - PAD * 2, 15, AK.MUTE)
+		return
 	for id in ids():
 		var price := game.exchange.cfd_price(id)
 		var change := MarketWidgets.change_of(game, id)

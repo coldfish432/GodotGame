@@ -83,6 +83,20 @@ func run() -> void:
 				var path := NavigationServer3D.map_get_path(game.world_map.navigation_map_rid(), ContinuousWorldMap.ENTRY_POSITION, guard.home_position, true)
 				if path.size() < 2 or path[-1].distance_to(guard.home_position) > 1: reachable = false
 		check(region + " guard stations are reachable and separated", reachable and posts.all(func(p): return p.guards.size() < 2 or p.guards[0].home_position.distance_to(p.guards[1].home_position) >= 2))
+		# 用户 2026-10-24: 守卫站位随机 — not one ring at even angles round the point.
+		var reaches := {}
+		for post in posts:
+			for guard in post.guards:
+				reaches[snappedf(Vector2(guard.home_position.x - post.global_position.x, guard.home_position.z - post.global_position.z).length(), 0.1)] = true
+		check(region + " guards stand at many distances from their point, not a ring", reaches.size() >= 6)
+		# 物品堆: a point with more of its kind round it, on its level.
+		var first: LootContainer = get_nodes_in_group("loot_containers").filter(func(b): return b.game == game)[0]
+		var before := get_nodes_in_group("loot_containers").size()
+		game._spawn_pile(first)
+		await step(1)
+		var pile: Array = get_nodes_in_group("loot_containers").filter(func(b): return b != first and b.kind == first.kind and Vector2(b.global_position.x - first.global_position.x, b.global_position.z - first.global_position.z).length() <= GameManager.PILE_REACH.y + 0.6)
+		var added := get_nodes_in_group("loot_containers").size() - before
+		check(region + " a pile adds 3–5 more of the same kind close by", added >= GameManager.PILE_EXTRA.x and added <= GameManager.PILE_EXTRA.y and pile.size() >= added)
 		await exercise_guards(region)
 		game.settle(true)
 		await step(3)
@@ -129,7 +143,11 @@ func exercise_guards(region: String) -> void:
 	check(region + " active squad follows into hysteresis band", post.active and post.guards.all(func(e): return e.state == Enemy.State.CHASING))
 	game.player.teleport(walkable(anchor + approach * 16))
 	await step(1)
-	check(region + " leaving the search point sends squad home", not post.active and post.guards.all(func(e): return not e.preparing_attack and (e.state == Enemy.State.RETURNING or (e.state == Enemy.State.IDLE and e.position.distance_to(e.home_position) < 0.31))))
+	check(region + " out of its ring the squad keeps after her while 仇恨值 lasts", post.active and post.guards.all(func(e): return e.state == Enemy.State.CHASING and e.aggro < Enemy.AGGRO_MAX))
+	for tick in range(400):
+		await step()
+		if not post.active: break
+	check(region + " 仇恨值 run out sends the whole squad home", not post.active and post.guards.all(func(e): return not e.preparing_attack and (e.state == Enemy.State.RETURNING or (e.state == Enemy.State.IDLE and e.position.distance_to(e.home_position) < 0.31))))
 	# Run right back through the trigger during the return: no boundary jitter.
 	game.player.teleport(walkable(anchor + approach * 6))
 	await step(2)
@@ -184,21 +202,36 @@ func exercise_normal() -> void:
 	await step(90)
 	game.player.teleport(walkable(Vector3(game.world_map.main_path[2].x, 0.7, game.world_map.main_path[2].y)))
 	await step(1)
-	check("normal enemy leashes against its original spawn", enemy.state == Enemy.State.RETURNING and not enemy.preparing_attack)
+	check("past its ring it still chases, 仇恨值 draining", enemy.state == Enemy.State.CHASING and enemy.aggro < Enemy.AGGRO_MAX)
+	check("far out of its ring her hits add less 仇恨值", enemy.hit_aggro() < Enemy.AGGRO_HIT)
+	for tick in range(300):
+		enemy.take_hit(0.01, "phys", false, 0.0, true)
+		await step()
+		if enemy.state != Enemy.State.CHASING: break
+	check("normal enemy leashes against its original spawn", enemy.state == Enemy.State.RETURNING and not enemy.preparing_attack and enemy.aggro <= 0.0)
+	check("resetting it runs home fast", is_equal_approx(enemy.current_speed(), enemy.move_speed * Enemy.RESET_SPEED))
+	enemy.health = enemy.max_health * 0.3
 	enemy.take_hit(0.1)
 	check("being hit does not interrupt the trip home", enemy.state == Enemy.State.RETURNING)
 	var damaged_health := enemy.health
+	await step(10)
+	check("resetting it heals fast", enemy.state != Enemy.State.RETURNING or enemy.health > damaged_health + enemy.max_health * Enemy.RESET_HEAL * 0.1)
 	for tick in range(400):
 		await step()
 		if enemy.state == Enemy.State.IDLE: break
-	check("normal return reaches home and preserves remaining health", enemy.state == Enemy.State.IDLE and enemy.position.distance_to(enemy.home_position) < 0.31 and is_equal_approx(enemy.health, damaged_health))
+	check("normal return reaches home whole", enemy.state == Enemy.State.IDLE and enemy.position.distance_to(enemy.home_position) < 0.31 and is_equal_approx(enemy.health, enemy.max_health))
 	await step(50)
 	game.player.teleport(home + Vector3(6, 0, 0))
 	enemy.take_hit(0.1)
 	check("being hit is perception inside the home leash", enemy.state == Enemy.State.CHASING)
 	enemy.perception_radius = 0.1
-	enemy.sight_memory = 0.15
-	await step(45)
+	await step(30)
+	check("unseen inside its ring it keeps chasing while 仇恨值 lasts", enemy.state == Enemy.State.CHASING and enemy.aggro < Enemy.AGGRO_MAX)
+	var before := enemy.aggro
+	enemy.take_hit(0.1)
+	check("her hit tops 仇恨值 up", enemy.aggro > before and is_equal_approx(enemy.hit_aggro(), Enemy.AGGRO_HIT))
+	enemy.aggro = 3.0
+	await step(30)
 	check("lost contact expires instead of tracking forever", enemy.state != Enemy.State.CHASING)
 	await clear()
 	var pillar: Vector3 = game.world_map._closed_circles[0]
@@ -230,7 +263,9 @@ func exercise_normal() -> void:
 	check("perceived ordinary ranged target winds up without warnings", enemy.preparing_attack and enemy._warning_markers.is_empty())
 	var warnings := enemy._warning_markers.duplicate()
 	game.player.teleport(walkable(Vector3(game.world_map.main_path[2].x, 0.7, game.world_map.main_path[2].y)))
-	await step(3)
+	for tick in range(300):
+		await step()
+		if enemy.state == Enemy.State.RETURNING: break
 	check("leashing cancels windup and removes its warnings", not enemy.preparing_attack and warnings.all(func(w): return not is_instance_valid(w)))
 	await step(75)
 	check("cancelled ranged attack never emits a projectile", game.get_children().filter(func(n): return n is EnemyProjectile).is_empty())

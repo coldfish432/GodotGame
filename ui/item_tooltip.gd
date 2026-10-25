@@ -23,7 +23,8 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 	if not icon.is_empty() and ResourceLoader.exists(icon): lines.append("[img]%s[/img]" % icon)
 	# Prefixes in their grade colours, the rest in the item's (装备前缀策划案 §2.1).
 	lines.append("[font_size=19]%s[/font_size]" % item.name_bbcode())
-	var kind := "%s · %d×%d" % [Item.CATEGORY_NAMES[item.category], item.width, item.height]
+	var kind := "%s · %d×%d" % [item.kind_name(), item.width, item.height]
+	if item.is_potion(): kind += " · 堆叠 %d/%d" % [item.quantity, item.max_stack]
 	if not item.material_id.is_empty():
 		kind = "%s · ★%d · %d×%d" % [MaterialCatalog.group(item.material_id), MaterialCatalog.star(item.material_id), item.width, item.height]
 		kind += " · 堆叠 %d/%d" % [item.quantity, item.max_stack] if item.is_stackable() else " · 不可堆叠"
@@ -35,14 +36,15 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		"set": kind += " · [color=#4fd18b]套装[/color]"
 		"boss": kind += " · [color=#b49ae8]◆ 首领专属[/color]"
 	lines.append("[color=#99aab8]%s[/color]" % kind)
-	# Grade and requirement (精英化与加点策划案 §7.4): white when met, red when not.
+	# Requirement (精英化与加点策划案 §7.4): white when met, red when not. The tier
+	# itself is not shown (用户 2026-10-24: 不标层数).
 	var req := Progression.requirement(item)
 	if not req.is_empty():
 		var p: OperatorProgress = game.progress()
 		var parts: Array[String] = []
 		if int(req.elite) > 0: parts.append("[color=#%s]%s[/color]" % ["e9e9e9" if p.elite >= int(req.elite) else DOWN, Progression.ELITE_NAMES[int(req.elite)]])
 		if int(req.value) > 0: parts.append("[color=#%s]%s %d[/color]" % ["e9e9e9" if p.attribute(str(req.attribute)) >= int(req.value) else DOWN, Progression.ATTRIBUTE_NAMES[req.attribute], int(req.value)])
-		lines.append("%s%s%s" % [Progression.grade_label(int(req.grade)), ("  ·  抵 " + Progression.grade_label(int(req.grade) + 1)) if Scaling.crosses_tier(item) else "", ("  ·  需求 " + " · ".join(parts)) if not parts.is_empty() else ""])
+		if not parts.is_empty(): lines.append("需求 " + " · ".join(parts))
 	var worn: Item = game.player.equipped.get(item.category) if item.is_equippable() else null
 	if item.is_equippable():
 		if worn == item:

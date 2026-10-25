@@ -52,7 +52,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(game) or not is_instance_valid(game.player): return
-	visible = not game.in_base and not game.in_camp and game.modal not in ["build", "route", "squad", "trader", "camp", "pause", "settlement"]
+	visible = not game.in_base and not game.in_camp and not game.in_event and game.modal not in ["build", "route", "event", "squad", "trader", "camp", "pause", "settlement"]
 	_buttons.visible = visible and game.modal in ["", "inventory", "training", "relics", "journal"]
 	# Right-aligned: English names make the row wider than the Chinese one.
 	_buttons.position.x = 1268.0 - _buttons.size.x
@@ -205,12 +205,12 @@ func _map_scale(rect: Rect2) -> float:
 func map_point(position: Vector3, rect: Rect2 = MAP_RECT) -> Vector2:
 	var scale := _map_scale(rect)
 	var centre: Vector3 = game.world_map.map_center
-	return rect.get_center() - Vector2((position.x - centre.x) * scale, (position.z - centre.z) * scale)
+	return rect.get_center() - Vector2((position.x - centre.x) * scale, (position.z - centre.z) * scale).rotated(game.camera_yaw)
 
-## The map stays north up; a wedge from her marker shows which way is up the
-## screen, the way the camera looks (GameManager.camera_yaw).
+## The map turns with the view (GameManager.camera_yaw), so up the map is up
+## the screen; the wedge from her marker always points up.
 func _draw_view_pointer(at: Vector2, reach: float) -> void:
-	var up := Vector2(-sin(game.camera_yaw), -cos(game.camera_yaw))
+	var up := Vector2.UP
 	var side := Vector2(-up.y, up.x)
 	draw_colored_polygon(PackedVector2Array([at + up * reach, at + up * reach * 0.4 + side * reach * 0.35, at + up * reach * 0.4 - side * reach * 0.35]), Color(1, 1, 1, 0.55))
 
@@ -221,7 +221,7 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 	# The cache is in world x / z; one transform places it in either rect.
 	var scale := _map_scale(rect)
 	var centre: Vector3 = game.world_map.map_center
-	draw_set_transform(rect.get_center() + Vector2(centre.x, centre.z) * scale, 0.0, Vector2(-scale, -scale))
+	draw_set_transform(rect.get_center() + (Vector2(centre.x, centre.z) * scale).rotated(game.camera_yaw), game.camera_yaw, Vector2(-scale, -scale))
 	if _map_mesh.get_surface_count() > 0: draw_mesh(_map_mesh, null, Transform2D.IDENTITY, Color(0.745, 0.902, 1.0, 0.07) if big else Color("272f35"))
 	if _map_outline.size() >= 2: draw_multiline(_map_outline, MAP_LINE if big else Color("8a8a8a"), 2.0 / scale if big else -1.0)
 	draw_set_transform(Vector2.ZERO)
@@ -245,7 +245,7 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 			draw_colored_polygon(AK.diamond(trace_at, 4.0 * k), AK.SPECIAL)
 			if big: _text(trace_at + Vector2(12, 5), "踪迹", 12, AK.FG)
 	# 情报部 5 阶: the extraction beacon shows through the fog.
-	var exits_known: bool = game.base.researched("exit_map")
+	var exits_known: bool = game.base.researched("exit_map") or game.route_exit_map
 	for i in range(markers.size()):
 		if is_instance_valid(markers[i]) and markers[i].visible and (game.fog.is_point_revealed(markers[i].position) or (i == 2 and exits_known)):
 			var at := map_point(markers[i].position, rect)
@@ -257,6 +257,12 @@ func _draw_map(rect: Rect2, big: bool) -> void:
 			var at := map_point(leader.global_position, rect)
 			draw_colored_polygon(AK.diamond(at, 5 * k), AK.RED)
 			if big: _text(at + Vector2(12, 5), "头目", 12, AK.FG)
+	# 雨夜目击者: this floor's 灭迹人 wherever they are.
+	if game.witness_marked:
+		for node in get_tree().get_nodes_in_group("enemies"):
+			var eraser := node as Enemy
+			if eraser.game == game and not eraser._dead and eraser.attack_profile.get("stealth", false):
+				draw_colored_polygon(AK.diamond(map_point(eraser.global_position, rect), 4 * k), AK.RED)
 	for node in game.world_map.route_nodes:
 		if is_instance_valid(node) and game.fog.is_point_revealed(node.position):
 			draw_colored_polygon(AK.diamond(map_point(node.position, rect), 3.5 * k), Color("72b8ff"))
@@ -324,6 +330,7 @@ func _draw_map_info() -> void:
 		_text(Vector2(right - w + (w - lw) * 0.5, y + 13), label, 12, AK.INK if current or camp else (AK.DIM if n < game.floor_number else AK.FG), _en() if not camp else _font(), false)
 		var name: String = names.get(n, "")
 		if current and game.is_extraction_floor(): name += " · 撤离"
+		elif n > game.floor_number and game.route_exit_floor() == n: name = "撤离信标"
 		if not name.is_empty():
 			var nw := _font().get_string_size(I18n.t(name), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 			_text(Vector2(right - w - 8 - nw, y + 13), name, 11, AK.DIM if n < game.floor_number else AK.FG)
@@ -486,6 +493,12 @@ func _config_rect(index: int) -> Rect2:
 ## special gear), -2 off the bar.
 func hotbar_slot_at(point: Vector2) -> int:
 	if not visible or not is_instance_valid(game) or not game.simulation_active(): return -2
+	return hotbar_slot_under(point)
+
+## The same while a panel is open over the field (an item dragged out of the
+## pack onto the bar).
+func hotbar_slot_under(point: Vector2) -> int:
+	if not visible or not is_instance_valid(game) or game.in_base: return -2
 	if not hotbar_rect().grow(6).has_point(point): return -2
 	for i in range(Hotbar.SLOTS):
 		if _slot_rect(i + 1).has_point(point): return i

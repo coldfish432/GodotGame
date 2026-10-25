@@ -144,6 +144,13 @@ static func texture_for(item: Item) -> Texture2D:
 static func draw(control: CanvasItem, item: Item, area: Rect2) -> bool:
 	var texture := texture_for(item)
 	if texture == null: return false
+	if item.rotated:
+		# Turned a quarter about the cell's centre (Item.rotate).
+		var centre := area.get_center().floor()
+		control.draw_set_transform(centre, PI * 0.5)
+		control.draw_texture(texture, (-texture.get_size() * 0.5).floor())
+		control.draw_set_transform(Vector2.ZERO)
+		return true
 	var at := (area.position + ((area.size - texture.get_size()) * 0.5).floor())
 	control.draw_texture(texture, at)
 	return true

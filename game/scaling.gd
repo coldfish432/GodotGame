@@ -1,27 +1,32 @@
 class_name Scaling
 extends RefCounted
 
-## The compound numbers (复利数值改造清单.md, 用户 2026-10-20): enemies grow
-## ×1.04 a floor; gear comes in ten-floor tiers ×1.48, each rarity rolling
-## inside its own band; flat affixes grow ×1.30 a tier; heals, flasks and
-## traps carry the current tier's coefficient. Pure arithmetic, no state.
+## The numbers by depth (属性伤害与地区装备策划案 v1.1 §19, 用户 2026-10-24:
+## 层数只决定稀有度). Gear no longer grows with depth: a piece's numbers are
+## its rarity's band alone, and depth only moves the odds of each rarity
+## (LootTables). Enemies follow her expected growth (ENEMY_CURVE, from
+## tools/depth_model.py); heals, flasks and traps follow the enemies.
 
-## Enemy growth per floor below the first (A: HP, ATK and DEF alike).
-const GROWTH := 1.04
-## A tier spans a camp's ten floors; its base value is ×1.48 the last one's (B).
+## Enemy life, attack and defence ×floor 1, every ten floors from floor 1 to
+## 90: the geometric mean of her ATK and HP growth in the depth model (she
+## keeps the best piece found per slot, attribute points, research, prefix
+## families). Between points: geometric interpolation; past 90 ×1.003 a floor.
+const ENEMY_CURVE := [1.00, 1.37, 1.69, 2.02, 2.40, 2.89, 3.46, 4.01, 4.61, 4.94]
+const CURVE_STEP := 10
+const PAST_CURVE := 1.003
+## The ten-floor blocks still count for 随队物资 and the 龙门币 economy; gear
+## and flasks no longer have tiers (tier 1 is all there is).
 const TIER_FLOORS := 10
-const TIER_GROWTH := 1.48
 const TIER_MAX := 10
-## Flat affixes grow slower than the panel (C): worth more early, less deep.
-const FLAT_GROWTH := 1.30
+## Saves before §19 kept gear in tiers: ×1.48 a tier, flat affixes ×1.30.
+const OLD_TIER_GROWTH := 1.48
+const OLD_FLAT_GROWTH := 1.30
 ## Physical mitigation: damage × K / (K + DEF), K = K0 × the floor's growth (A).
-## 600 rather than the checklist's 400: with tiers the gear sits still for ten
-## floors, and armour cut physical hits too hard against arts (balance_model.py).
+## 600 rather than the checklist's 400: armour cut physical hits too hard
+## against arts (balance_model.py).
 const K0 := 600.0
-## 基础效能 of a blue piece at its band's middle, tier 1 (B). The panel is
-## power × CombatStats' per-power figures. 3.1 puts a tier's gear level with
-## the enemies of its fifth floor rather than its first, so the ten floors
-## run from a little easier to a little harder (tools/balance_model.py).
+## 基础效能 of a blue piece at its band's middle (B). The panel is power ×
+## CombatStats' per-power figures.
 const POWER_BASE := 3.1
 
 ## Each rarity rolls inside its own share of the tier's base value (B), grey
@@ -34,8 +39,8 @@ const BANDS := [[0.62, 0.76], [0.78, 0.90], [0.90, 1.10], [1.15, 1.30], [1.35, 1
 ## 1 on floor 90, read on the loot stair so it only climbs.
 const S_MID := 45.0
 const S_WIDTH := 8.0
-## In-band roll u = randf()^e (B): e from 12 on a block's first floor to 4 on
-## its tenth, divided by (1 + 0.6 × S).
+## In-band roll u = randf()^e (B): e from 12 on floor 1 to 4 at the loot
+## stair's top along the S curve, divided by (1 + 0.6 × S): deeper rolls higher.
 const E_START := 12.0
 const E_END := 4.0
 const E_DEEP := 0.6
@@ -44,22 +49,55 @@ const E_DEEP := 0.6
 static var band_exponent_mult := 1.0
 
 static func floor_growth(floor_number: int) -> float:
-	return pow(GROWTH, maxi(floor_number, 1) - 1)
+	var f := maxi(floor_number, 1)
+	var last := (ENEMY_CURVE.size() - 1) * CURVE_STEP
+	if f >= last: return float(ENEMY_CURVE.back()) * pow(PAST_CURVE, f - last)
+	var i := (f - 1) / CURVE_STEP
+	var lo := 1 if i == 0 else i * CURVE_STEP
+	var hi := (i + 1) * CURVE_STEP
+	var t := float(f - lo) / float(hi - lo)
+	return float(ENEMY_CURVE[i]) * pow(float(ENEMY_CURVE[i + 1]) / float(ENEMY_CURVE[i]), t)
+
+## 合同深入系数 (藏品数值修订案 v1.0 §4): relics pile up within a contract and
+## ENEMY_CURVE does not count them, so enemies also grow with the floors this
+## contract has gone, n = 1 on its first floor (tools/relic_model.py: half the
+## median player's relic gain, s = 0.5). Defence does not take it.
+const CONTRACT_HP := 1.045
+const CONTRACT_ATK := 1.018
+const CONTRACT_CAP := 30
+
+static func contract_floors(floor_number: int, start_floor: int) -> int:
+	return clampi(floor_number - start_floor + 1, 1, CONTRACT_CAP)
+
+static func contract_hp(n: int) -> float:
+	return pow(CONTRACT_HP, clampi(n, 0, CONTRACT_CAP))
+
+static func contract_atk(n: int) -> float:
+	return pow(CONTRACT_ATK, clampi(n, 0, CONTRACT_CAP))
 
 static func tier_of(floor_number: int) -> int:
 	return clampi((maxi(floor_number, 1) - 1) / TIER_FLOORS + 1, 1, TIER_MAX)
 
-## A tier's base value: 1 for tier 1, ×1.48 each tier after.
-static func tier_base(tier: int) -> float:
-	return pow(TIER_GROWTH, clampi(tier, 1, TIER_MAX) - 1)
+## Gear has no tiers now (§19): every tier's base is 1.
+static func tier_base(_tier: int) -> float:
+	return 1.0
 
-## 档位系数 (D, E): the current floor's tier base; heals, flasks, traps.
+## A save's old tier `tier`: what it multiplied the panel (×1.48 a tier) and a
+## flat affix (×1.30) by, for folding old gear back to tier 1.
+static func old_tier_base(tier: int) -> float:
+	return pow(OLD_TIER_GROWTH, clampi(tier, 1, TIER_MAX) - 1)
+
+static func old_flat_scale(tier: int) -> float:
+	return pow(OLD_FLAT_GROWTH, clampi(tier, 1, TIER_MAX) - 1)
+
+## 档位系数 (D, E): heals, flasks and traps on `floor_number` follow the
+## enemies' growth there (§19).
 static func tier_coef(floor_number: int) -> float:
-	return tier_base(tier_of(floor_number))
+	return floor_growth(floor_number)
 
-## What a flat affix written at tier 1 is worth at `tier` (C).
-static func flat_scale(tier: int) -> float:
-	return pow(FLAT_GROWTH, clampi(tier, 1, TIER_MAX) - 1)
+## Flat affixes no longer grow with depth (§19).
+static func flat_scale(_tier: int) -> float:
+	return 1.0
 
 static func physical_k(floor_number: int) -> float:
 	return K0 * floor_growth(floor_number)
@@ -74,8 +112,8 @@ static func s_curve(floor_number: int) -> float:
 
 ## The in-band exponent on `floor_number` (higher: harder to roll high).
 static func roll_exponent(floor_number: int) -> float:
-	var place := float((maxi(floor_number, 1) - 1) % TIER_FLOORS) / float(TIER_FLOORS - 1)
-	return lerpf(E_START, E_END, place) / (1.0 + E_DEEP * s_curve(floor_number)) * band_exponent_mult
+	var s := s_curve(floor_number)
+	return lerpf(E_START, E_END, s) / (1.0 + E_DEEP * s) * band_exponent_mult
 
 ## Where in its band a roll lands, 0 (bottom) to 1 (top).
 static func roll_position(floor_number: int, rng: RandomNumberGenerator) -> float:
@@ -92,18 +130,14 @@ static func band_value(rarity: int, position: float) -> float:
 static func band_mid(rarity: int) -> float:
 	return band_value(rarity, 0.5)
 
-## 基础效能 of an ordinary piece: tier base × the rarity's band at `position`.
-static func gear_power(tier: int, rarity: int, position: float) -> float:
-	return POWER_BASE * tier_base(tier) * band_value(rarity, position)
+## 基础效能 of an ordinary piece: the rarity's band at `position` (no tier, §19).
+static func gear_power(_tier: int, rarity: int, position: float) -> float:
+	return POWER_BASE * band_value(rarity, position)
 
 ## Where a piece's panel sits in its rarity's band, 0 to 1 (0.5 if it does not roll).
 static func band_position(item: Item) -> float:
 	return item.power_position() if item != null else 0.5
 
-## A piece whose panel reaches the next tier's blue minimum (清单 B: the only
-## way to cross a tier); on the ladder that is every orange.
-static func crosses_tier(item: Item) -> bool:
-	if item == null or item.rarity < Item.PURPLE or item.grade <= 0 or item.grade >= TIER_MAX or not item.special.is_empty(): return false
-	var factor := float(GearCatalog.base(item.base_id).get("factor", 1.0)) if not item.base_id.is_empty() else 1.0
-	var at := item.power / (POWER_BASE * tier_base(item.grade) * factor)
-	return at >= float(BANDS[1][0]) * TIER_GROWTH
+## Crossing a tier is gone with the tiers (§19).
+static func crosses_tier(_item: Item) -> bool:
+	return false

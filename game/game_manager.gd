@@ -163,7 +163,29 @@ var modal := ""
 var pressure := 0.0
 ## 威胁值 (ThreatMeter): fills by itself on a floor, a full meter sends a patrol.
 var threat := ThreatMeter.new()
-var route_index := 0
+## 肉鸽路线图 (RouteMap, 肉鸽路线图策划案 v0.2): this block's map, where she
+## stands on it ((-1, 0) before its first column: a camp) and the kind of the
+## floor she is on.
+var route_map: Dictionary = {}
+var route_node := Vector2i(-1, 0)
+var route_kind := "entry"
+## The row walked in each column of this block so far (-1 where she started deeper).
+var route_trail: Array = []
+## Tests: fight floors only besides the contract's marks (RouteMap ctx.plain).
+var route_plain := false
+## PRTS 中继站 (不期而遇): two more columns seen for the rest of the block; the
+## block's extraction on the minimap; 近卫局检查站: the block's meter 30% slower.
+var route_peek := false
+var route_exit_map := false
+var route_threat_cut := false
+const ROUTE_THREAT_CUT := 0.7
+## What an event or a 临时休整 left for the next floor ("threat", "cache",
+## "trace", "calm"), and what this floor was entered with.
+var next_floor_mods := {}
+var floor_mods := {}
+## 不期而遇: this floor's event settled. 临时休整: its campfire used.
+var event_done := false
+var campfire_used := false
 ## 赤金 carried in the pack and safe bag: the in-run money (经济修订案 §1).
 ## Setting it replaces the bars she carries (tests and debug use).
 var run_gold: int:
@@ -173,10 +195,9 @@ var run_gold: int:
 var start_floor := 1
 ## In a camp between two floors (撤离与营地修订案): no fight, 可露希尔, extraction.
 var in_camp := false
-## The route chosen at the end of the floor before a camp, taken on leaving it.
-var _camp_route := 0
-## This block of ten already had its random extraction.
-var _block_random_found := false
+## On a 不期而遇 with no fight (用户 2026-10-24: 不期而遇无敌人的事件不加载地图):
+## the floor is its card alone, then the route map, like a camp's counter.
+var in_event := false
 ## The start point picked at the dispatch desk (0 = floor 1, else a camp).
 var _pending_start_camp := 0
 ## The contract's objective (局内节奏与目标策划案 §6 B1), chosen at the dispatch
@@ -196,6 +217,8 @@ var recruit_node: Node3D
 var _recruit_post: GuardPost
 var _contract_announced := false
 var builds: Array[String] = []
+## The floor each relic was taken on (登天斧 fades from there: 藏品数值修订案 §3.1).
+var relic_floors := {}
 ## This contract's kills by kind (normal / elite / leader / boss): kill EXP is
 ## paid on the spot, 作战记录 by count at settlement (精英化案 §4.2).
 var run_kills := {}
@@ -319,6 +342,8 @@ func _ready() -> void:
 	if not app_mode.is_empty():
 		# Deferred: the main scene may still be adding its children.
 		_open_app.call_deferred()
+	elif not _resume.is_empty():
+		await resume_run()
 	elif start_at_base:
 		show_base()
 	else:
@@ -503,7 +528,9 @@ func _process(delta: float) -> void:
 		for i in range(Hotbar.SLOTS):
 			if base_slots[i].action == "dash" and Input.is_action_just_pressed(Hotbar.input_of(i)): perform_hotbar_action("dash")
 		if Input.is_action_just_pressed("interact"): _base_interact()
-		if Input.is_action_just_pressed("toggle_watch") and is_instance_valid(watch_widget): watch_widget.set_meta("on", not watch_widget.get_meta("on", false))
+		if Input.is_action_just_pressed("toggle_watch") and is_instance_valid(watch_widget):
+			if exchange.unlocked(): watch_widget.set_meta("on", not watch_widget.get_meta("on", false))
+			else: set_message(EXCHANGE_LOCKED)
 		if Input.is_action_just_pressed("toggle_stations"): toggle_station_panel()
 	_update_base_prompt()
 	# The snowfall rides above her view (TerraceDressing.weather).
@@ -919,7 +946,7 @@ var _swan_label: Label
 func _update_base_prompt() -> void:
 	if not is_instance_valid(_base_prompt): return
 	_base_prompt.visible = base_walk_active()
-	if is_instance_valid(watch_widget): watch_widget.visible = _base_prompt.visible and watch_widget.get_meta("on", false)
+	if is_instance_valid(watch_widget): watch_widget.visible = _base_prompt.visible and watch_widget.get_meta("on", false) and exchange.unlocked()
 	if is_instance_valid(_swan_panel):
 		_swan_panel.visible = in_base and not transitioning and not swan_popup.is_empty() and (modal.is_empty() or modal == "station")
 		_swan_label.text = swan_popup
@@ -950,6 +977,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	apply_scene_look(false)
 	settlement.clear()
 	builds.clear()
+	relic_floors.clear()
 	build_offers.clear()
 	reroll_count = 0
 	run_kills = {}
@@ -964,9 +992,12 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	# 纠察队 heard of the infected Rhodes treated at Chernobog (沙盘航行策划案 §4.4).
 	threat.value = ThreatMeter.FULL * voyage.threat_start(region)
 	_tracked_warned = -1
-	route_index = 0
+	route_kind = "entry"
+	route_map = {}
+	next_floor_mods = {}
+	floor_mods = {}
 	in_camp = false
-	_block_random_found = false
+	in_event = false
 	# From an unlocked camp the contract begins in that camp (§3); the reward
 	# counts the floors walked from the one after it.
 	var from_camp := start_camp > 0 and base.camp_unlocked(region, start_camp)
@@ -1005,7 +1036,13 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 	broadcast("合同目标：%s。" % FieldCatalog.contract_goal(contract, region_id, start_floor))
 	if project_paid > 0: broadcast("课题经费 %s 龙门币：%s。" % [Economy.format(project_paid), "、".join(base.research.run.map(func(p): return str(ResearchCatalog.PROJECTS[p][0])))])
 	broadcast("PRTS：博士，%s已就位。" % Operators.info(player.operator_id).name)
-	route_history = [{"floor": start_floor, "name": "营地" if from_camp else "入口"}]
+	route_history = [{"floor": start_floor, "name": "小队营地" if from_camp else RouteMap.kind_name("entry")}]
+	if not from_camp:
+		_roll_route_block(RouteMap.block_of(floor_number))
+		route_node = Vector2i(RouteMap.col_of(floor_number), 0)
+		_walk_trail()
+		route_kind = str(RouteMap.node_at(route_map, route_node).get("kind", "entry"))
+		if test_floor > 0: route_history[0].name = RouteMap.kind_name(route_kind)
 	for item in carried_items():
 		item.carried_in = true
 	player.hp = player.max_hp
@@ -1015,12 +1052,15 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 		transitioning = false
 		_enter_camp()
 		return
+	_floor_dice()
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	if test_floor > 0: player.teleport(_boss_test_spot())
 	camera.global_position = player.global_position + camera_offset()
 	await _await_navigation_sync()
+	_wave_dice()
 	_spawn_wave()
+	_floor_built()
 	_end_loading()
 	transitioning = false
 	set_message("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
@@ -1058,6 +1098,8 @@ func _clear_field() -> void:
 func _build_world() -> void:
 	_clear_field()
 	_buff_taken = false
+	_floor_relics.clear()
+	witness_marked = bool(floor_mods.get("witness", false))
 	vault_opened = false
 	_vault_guardians.clear()
 	traps.clear()
@@ -1072,7 +1114,17 @@ func _build_world() -> void:
 	var boss_floor := BossCatalog.is_boss_floor(floor_number) and is_outpost_floor()
 	if boss_floor: encounter = ""
 	world_map.boss_layout = boss_floor
+	world_map.compact_layout = not boss_floor and bool(RouteMap.info(route_kind).get("compact", false))
+	world_map.route_vault = route_kind == "vault"
+	world_map.route_marks = _route_mark_colours()
 	world_map.encounter_kind = encounter
+	event_node = null
+	event_done = false
+	campfire_used = false
+	rest_fire = null
+	dire_foe = null
+	_wish_posts.clear()
+	_event_guards.clear()
 	build_offers.clear()
 	_device_offers.clear()
 	_active_cache = null
@@ -1102,6 +1154,31 @@ func _build_world() -> void:
 func _floor_seed() -> int:
 	return _run_seed + floor_number * 7919
 
+## 局内存档 (RunSave): a floor is built again from the dice it was built with.
+## On entering one, the run as it stands and GameManager's dice are kept
+## (`replay` empty); rebuilding a saved one, its dice are put back. The global
+## dice (shuffles, a box's tilt) are fixed for the build too.
+var _floor_entry := {}
+## What the floor was built with, in order (RunSave.tag_floor).
+var _floor_made: Array = []
+## A saved run to go on with, read by load_base.
+var _resume := {}
+
+func _floor_dice(replay: Dictionary = {}) -> void:
+	if replay.is_empty(): _floor_entry = {"run": RunSave.run_data(self), "base": RunSave.base_inputs(base), "rng": str(rng.state)}
+	else: rng.state = int(replay.rng)
+	seed(_floor_seed())
+
+## Before the floor's enemies: navigation settles over a few frames between.
+func _wave_dice(replay: Dictionary = {}) -> void:
+	if replay.is_empty(): _floor_entry["wave"] = str(rng.state)
+	else: rng.state = int(replay.wave)
+	seed(_floor_seed() + 1)
+
+func _floor_built() -> void:
+	_floor_made = RunSave.tag_floor(self)
+	randomize()
+
 ## 加载界面 (用户 2026-10-23: 点了就立刻切到加载界面并读条): the real game
 ## shows the loading screen and lets it draw before the floor is built, and the
 ## map's stages move its bar. Tests have no SystemScreens and build at once.
@@ -1130,41 +1207,41 @@ func is_outpost_floor() -> bool:
 func is_extraction_floor() -> bool:
 	return _random_extraction_available
 
-## At most one random extraction per block of ten, on floor 4, 5 or 6, each with
-## exactly 1/6 (撤离与营地修订案 §2). The first floor 5 she ever reaches has
-## one for sure (BaseState.first_extract_given).
+## The random extraction (肉鸽路线图策划案 v0.2 §6.2, 用户 2026-10-24: 4~6必刷一个
+## 撤离节点): the node carrying the block's beacon has it. The first one she
+## ever reaches is floor 5's (BaseState.first_extract_given, RouteMap first_exit).
 func _roll_random_extraction() -> void:
-	var place := (floor_number - 1) % FieldCatalog.CAMP_INTERVAL + 1
-	if place == 1: _block_random_found = false
-	_random_extraction_available = false
-	if floor_number == 5 and not base.first_extract_given:
-		base.first_extract_given = true
-		_random_extraction_available = true
-		_block_random_found = true
-		return
-	if _block_random_found or not FieldCatalog.RANDOM_EXTRACTION_ODDS.has(place): return
-	# 课题 撤离保障: one every block, each of the three floors a third.
-	var odds := float(FieldCatalog.RANDOM_EXTRACTION_ODDS[place])
-	if research.on("extract"): odds = 1.0 / float(7 - place)
-	if rng.randf() < odds:
-		_random_extraction_available = true
-		_block_random_found = true
+	_random_extraction_available = bool(RouteMap.node_at(route_map, route_node).get("exit", false))
+	if _random_extraction_available and RouteMap.block_of(floor_number) == 0: base.first_extract_given = true
 
 func is_buff_available() -> bool: return not _buff_taken
+## On a fight floor the squad comes this share as often as before the route map
+## (30% -> 20%), a post half as often (40% -> 20%).
+const ROUTE_SQUAD_SHARE := 2.0 / 3.0
+const ROUTE_POST_SHARE := 0.5
 ## Who stands at this floor's encounter spot (保全系统修订案 §2).
+## 坎诺特 only at 诡异行商, the squad always at 临时休整, a post always at
+## 势力据点; on a fight floor the squad and a post less often than before the
+## route map (肉鸽路线图策划案 v0.2 §6.3).
 func _roll_encounter() -> void:
+	var node := RouteMap.node_at(route_map, route_node)
 	var roll := rng.randf()
-	var trader := FieldCatalog.TRADER_CHANCE * (1.5 if base.researched("trader_odds") else 1.0)
-	var squad := squad_chance()
-	encounter = "squad" if roll < squad else ("trader" if roll < squad + trader else "")
-	# 课题 商队联络: 坎诺特 waits on the third floor of the contract if not met before.
-	if research.on("trader") and not _trader_met and floor_number - start_floor >= 2: encounter = "trader"
+	encounter = ""
+	match route_kind:
+		"trader": encounter = "trader"
+		"rest": encounter = "squad"
+		"event", "relic": pass
+		_: if roll < squad_chance() * ROUTE_SQUAD_SHARE: encounter = "squad"
 	if encounter == "trader": _trader_met = true
 	# A faction's post (势力与交易所策划案 §12) takes some of the empty spots.
 	post_faction = ""
-	if encounter.is_empty():
-		var posts: Array = FactionCatalog.POSTS.get(region_id, [])
-		var chance := POST_CHANCE * (2.0 if posts.any(func(f): return market.post_boosted(f)) else 1.0)
+	var posts: Array = FactionCatalog.POSTS.get(region_id, [])
+	if route_kind == "post" and not posts.is_empty():
+		encounter = "post"
+		post_faction = str(node.get("faction", ""))
+		if not posts.has(post_faction): post_faction = posts[rng.randi() % posts.size()]
+	elif encounter.is_empty() and not route_kind in ["event", "relic", "trader", "rest"]:
+		var chance := POST_CHANCE * ROUTE_POST_SHARE * (2.0 if posts.any(func(f): return market.post_boosted(f)) else 1.0)
 		if voyage.post_boost(region_id): chance *= VoyageCatalog.POST_BOOST
 		if not posts.is_empty() and rng.randf() < chance:
 			encounter = "post"
@@ -1206,7 +1283,7 @@ func _interact() -> void:
 		var cache := node as RelicCache
 		if cache.game != self or not near(cache): continue
 		if cache.sealed:
-			notice("密室藏品仍被封印：先击败全部守卫者。")
+			notice("密室藏品仍被封印：先击败全部守卫者。" if cache.source == "vault" else "藏品仍被封印：先击败守卫。")
 		else:
 			open_relic_offer(cache.source, cache)
 		return
@@ -1217,6 +1294,10 @@ func _interact() -> void:
 	var fire := near_fire()
 	if _recruit_nearby():
 		_meet_recruit()
+	elif _event_nearby():
+		_open_event()
+	elif _campfire_nearby():
+		_use_campfire()
 	elif fire != null and not pack_fuels().is_empty():
 		_open_fuel(fire)
 	elif is_instance_valid(shower) and not shower.used and near(shower):
@@ -1250,6 +1331,8 @@ func _interact() -> void:
 ## VAULT_GUARDED of them a guard of one elite and VAULT_GUARD_NORMALS more,
 ## and then the chests stay sealed until it is down.
 const VAULT_GUARDED := 0.5
+## On a 暗墙密室 floor (肉鸽路线图策划案 v0.2 §4.1).
+const VAULT_GUARDED_ROUTE := 0.75
 const VAULT_GUARD_NORMALS := 2
 ## 1 / 0 overrides the guard roll (tests).
 var force_vault_guard := -1
@@ -1273,7 +1356,7 @@ func _open_vault() -> void:
 	vault_opened = true
 	contract_vaults += 1
 	world_map.vault_seal.open()
-	var guarded := rng.randf() < VAULT_GUARDED if force_vault_guard < 0 else force_vault_guard == 1
+	var guarded := rng.randf() < (VAULT_GUARDED_ROUTE if route_kind == "vault" else VAULT_GUARDED) if force_vault_guard < 0 else force_vault_guard == 1
 	if guarded:
 		_vault_guardians.append(_spawn_enemy(world_map.vault_position, true, false))
 		for i in range(VAULT_GUARD_NORMALS):
@@ -1309,37 +1392,154 @@ func region_open(region: String) -> bool:
 func near(node: Node3D) -> bool:
 	return is_instance_valid(node) and node.visible and player.global_position.distance_to(node.global_position) < 2.8
 
+## On along line `route` of the ones leading from this node (out of a camp,
+## to the first column's node `route`); the end of a block leads into its camp.
 func advance(route: int) -> void:
-	if in_base or in_camp or transitioning or route < 0 or route >= FieldCatalog.ROUTES.size(): return
+	if in_base or transitioning or route < 0: return
+	_ensure_route()
 	# The end of a block of ten leads into its camp first (§1).
-	if floor_number % FieldCatalog.CAMP_INTERVAL == 0:
+	if not in_camp and floor_number % FieldCatalog.CAMP_INTERVAL == 0:
 		close_modal()
-		_camp_route = route
 		_enter_camp()
 		return
-	await _advance_floor(route)
+	var rows := RouteMap.next_rows(route_map, route_node)
+	if rows.is_empty(): return
+	in_camp = false
+	in_event = false
+	await _advance_floor(int(rows[mini(route, rows.size() - 1)]))
 
-func _advance_floor(route: int) -> void:
+## The rows the floor's route markers lead to (one marker each); the camp's
+## one at the end of a block.
+func route_choices() -> Array:
+	_ensure_route()
+	if not in_camp and floor_number % FieldCatalog.CAMP_INTERVAL == 0: return [0]
+	return RouteMap.next_rows(route_map, route_node)
+
+func _route_mark_colours() -> Array[Color]:
+	var out: Array[Color] = []
+	if floor_number % FieldCatalog.CAMP_INTERVAL == 0:
+		out.append(AK.GREEN)
+		return out
+	for row in RouteMap.next_rows(route_map, route_node):
+		out.append(RouteMap.info(str(RouteMap.node_at(route_map, Vector2i(route_node.x + 1, int(row))).get("kind", ""))).color)
+	if out.is_empty(): out.append(AK.FG)
+	return out
+
+## The block's map, rolled when the block is entered (肉鸽路线图策划案 v0.2 §3.4).
+func _roll_route_block(block: int) -> void:
+	var posts: Array = FactionCatalog.POSTS.get(region_id, [])
+	var ctx := {"region": region_id, "seed": _run_seed, "first_exit": not base.first_extract_given,
+		"extract_all": research.on("extract"), "trader_col": research.on("trader"),
+		"mult": {"trader": 1.5 if base.researched("trader_odds") else 1.0, "vault": 1.5 if research.on("vaults") else 1.0,
+			"fate": 1.25 if base.researched("trace_odds") else 1.0},
+		"fate_ok": not _sought_here().is_empty(), "post_ok": not posts.is_empty(), "posts": posts, "plain": route_plain}
+	match str(contract.get("type", "")):
+		"hunt": if not bounty_killed: ctx["bounty"] = start_floor + int(contract.offset)
+		"search": ctx["search"] = true
+		"deliver": ctx["deliver"] = [int(contract.floor), str(contract.faction)]
+	route_map = RouteMap.roll(block, ctx)
+	route_trail = []
+	route_peek = false
+	route_exit_map = false
+	route_threat_cut = false
+
+## The map matches the floor she is on (tests and old saves set floors directly).
+func _ensure_route() -> void:
+	var block := RouteMap.block_of(floor_number + 1 if in_camp else floor_number)
+	if route_map.is_empty() or int(route_map.get("block", -1)) != block:
+		_roll_route_block(block)
+		route_node = Vector2i(-1, 0) if in_camp else Vector2i(RouteMap.col_of(floor_number), 0)
+		if not in_camp: _walk_trail()
+	elif not in_camp and route_node.x != RouteMap.col_of(floor_number):
+		route_node = Vector2i(RouteMap.col_of(floor_number), 0)
+		_walk_trail()
+
+func _walk_trail() -> void:
+	while route_trail.size() < route_node.x: route_trail.append(-1)
+	route_trail.resize(route_node.x)
+	route_trail.append(route_node.y)
+
+## Columns seen clearly ahead (科研 路线测绘 +1; PRTS 中继站 +2 for the block).
+func route_sight() -> int:
+	return RouteMap.SIGHT + (1 if base.researched("route_scan") else 0) + (2 if route_peek else 0)
+
+## The floor of this block's extraction (-1 before a map).
+func route_exit_floor() -> int:
+	return RouteMap.floor_of(int(route_map.block), int(route_map.exit_col)) if not route_map.is_empty() else -1
+
+func route_node_info() -> Dictionary:
+	return RouteMap.info(route_kind)
+
+## The 深部 modifiers: contamination, cold, guarded boxes, one more elite.
+func route_deep() -> bool:
+	return bool(route_node_info().get("deep", false))
+
+func _advance_floor(row: int) -> void:
 	transitioning = true
 	close_modal()
-	route_index = route
+	route_node = Vector2i(route_node.x + 1, row)
+	_walk_trail()
+	route_kind = str(RouteMap.node_at(route_map, route_node).get("kind", "supply"))
 	floor_number += 1
 	threat.next_floor()
+	floor_mods = next_floor_mods
+	next_floor_mods = {}
+	# 临时休整: the meter is not carried on (§6.4); an event's signal starts it high.
+	if bool(floor_mods.get("calm", false)): threat.value = 0.0
+	if floor_mods.has("threat"): threat.value = maxf(threat.value, ThreatMeter.FULL * float(floor_mods.threat))
+	if route_kind == "rest": next_floor_mods["calm"] = true
 	_tracked_warned = -1
-	route_history.append({"floor": floor_number, "name": FieldCatalog.ROUTES[route].name})
+	route_history.append({"floor": floor_number, "name": RouteMap.kind_name(route_kind)})
+	if route_kind == "event" and not RouteEvents.fights(event_id()):
+		_enter_event_room()
+		return
 	await _begin_loading()
+	_floor_dice()
 	_build_world()
 	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
 	await _await_navigation_sync()
+	_wave_dice()
 	_spawn_wave()
+	_floor_built()
 	_end_loading()
 	transitioning = false
-	set_message("进入第 %d 层 · %s；上一层已无法返回。" % [floor_number, FieldCatalog.ROUTES[route].name])
-	broadcast("进入 %s · %s。" % [AK.floor_code(region_id, floor_number), FieldCatalog.ROUTES[route].name])
+	# What an event handed her that the pack had no room for lands at her feet.
+	for item in _event_spill: drop_at_feet(item)
+	_event_spill.clear()
+	set_message("进入第 %d 层 · %s；上一层已无法返回。" % [floor_number, RouteMap.kind_name(route_kind)])
+	broadcast("进入 %s · %s。" % [AK.floor_code(region_id, floor_number), RouteMap.kind_name(route_kind)])
 	if is_outpost_floor(): broadcast(_outpost_line())
 	if is_bounty_floor(): broadcast("悬赏目标在本层。")
 	if base.researched("floor_report"):   # 情报部 3 阶
 		broadcast("PRTS：本层兴趣点 %d，精英 %d。" % [world_map.cache_positions.size(), floor_enemies().filter(func(e): return e.elite).size()])
+
+## A 不期而遇 with no fight: no map, its card at once; what the last floor left
+## for the next one waits for the floor after (肉鸽路线图策划案 v0.2 §5.1).
+func _enter_event_room() -> void:
+	_clear_field()
+	world_map._clear_generated_map()
+	player.clear_move_target()
+	in_event = true
+	event_done = false
+	event_node = null
+	# The last floor's pieces are gone with it.
+	traps.clear()
+	fires.clear()
+	shower = null
+	trace_point = null
+	rest_fire = null
+	dire_foe = null
+	_buff_taken = false
+	_device_offers.clear()
+	_floor_relics.clear()
+	for key in floor_mods:
+		if key != "calm": next_floor_mods[key] = floor_mods[key]
+	transitioning = false
+	save_base(true)
+	open_modal("event")
+	menu.show_event()
+	set_message("进入第 %d 层 · %s；上一层已无法返回。" % [floor_number, RouteMap.kind_name(route_kind)])
+	broadcast("进入 %s · %s。" % [AK.floor_code(region_id, floor_number), RouteMap.kind_name(route_kind)])
 
 func _offer_builds() -> void:
 	open_relic_offer("device")
@@ -1352,7 +1552,7 @@ func open_relic_offer(source: String, cache: RelicCache = null) -> void:
 		stored = _roll_relics(source)
 		if cache == null: _device_offers = stored
 		else: cache.offers = stored
-	if stored.size() < 3:
+	if stored.size() < (2 if source == "echo" else 3):
 		notice("本地区可选藏品不足三件：装置休眠。已有藏品跨区段保留。")
 		return
 	offer_source = source
@@ -1362,8 +1562,8 @@ func open_relic_offer(source: String, cache: RelicCache = null) -> void:
 	menu.show_builds()
 
 func _roll_relics(source: String) -> Array[Dictionary]:
-	# 罗德岛战术电台: one more option.
-	return RelicCatalog.roll_offers(region_id, builds, source, rng, 3 + int(player.f("radio")))
+	# 罗德岛战术电台: one more option. 旧日回响 offers two.
+	return RelicCatalog.roll_offers(region_id, builds, source, rng, (2 if source == "echo" else 3) + int(player.f("radio")))
 
 func reroll_cost() -> int:
 	return RelicCatalog.REROLL_BASE + RelicCatalog.REROLL_STEP * reroll_count
@@ -1389,7 +1589,13 @@ func choose_build(id: String) -> bool:
 		if offer.id == id:
 			var enemy_hp_before := player.f("enemy_hp")
 			builds.append(id)
+			relic_floors[id] = floor_number
+			_floor_relics.append(id)
 			if is_instance_valid(_active_cache):
+				# 得偿所愿: taking one closes the other two.
+				if _active_cache.source == "wish":
+					for entry in _wish_posts:
+						if is_instance_valid(entry[0]) and entry[0] != _active_cache: entry[0].claim()
 				_active_cache.claim()
 				_active_cache = null
 			else:
@@ -1424,6 +1630,13 @@ func _rescale_enemy_life(before: float, after: float) -> void:
 
 static func enemy_life_multiplier(enemy_hp: float) -> float:
 	return maxf(0.3, 1.0 + enemy_hp)
+
+## 合同深入系数 (Scaling.contract_hp / contract_atk): 1 in the base.
+func contract_life() -> float:
+	return 1.0 if in_base else Scaling.contract_hp(Scaling.contract_floors(floor_number, start_floor))
+
+func contract_attack() -> float:
+	return 1.0 if in_base else Scaling.contract_atk(Scaling.contract_floors(floor_number, start_floor))
 
 ## Relic effects on enemy attack (开裂的束缚带 … 死仇时代的恨意).
 func enemy_attack_multiplier() -> float:
@@ -1481,6 +1694,10 @@ func close_modal() -> void:
 	if in_camp and not transitioning and not in_base:
 		modal = "camp"
 		if is_instance_valid(menu): menu.show_camp()
+	# A 不期而遇 with no map: whatever closes leaves the route map up.
+	elif in_event and not transitioning and not in_base:
+		modal = "route"
+		if is_instance_valid(menu): menu.show_routes(0)
 
 # --- HUD support (界面策划案 v1.1 §3) ----------------------------------------
 
@@ -1532,7 +1749,7 @@ func toggle_panel(kind: String) -> void:
 	if modal == kind:
 		close_modal()
 		return
-	if not (modal.is_empty() or modal in PANELS or (in_camp and modal == "camp")): return
+	if not (modal.is_empty() or modal in PANELS or (in_camp and modal == "camp") or (in_event and modal in ["route", "event"])): return
 	if is_instance_valid(_inventory_panel): _inventory_panel.hide()
 	if is_instance_valid(field_panels): field_panels.hide_all()
 	open_modal(kind)
@@ -1553,9 +1770,6 @@ func go_back() -> void:
 		focus.release_focus()
 		return
 	if is_instance_valid(system_screens) and system_screens.go_back(): return
-	if is_instance_valid(_inventory_panel) and is_instance_valid(_inventory_panel._confirm) and _inventory_panel._confirm.visible:
-		_inventory_panel._confirm.hide()
-		return
 	if is_instance_valid(menu) and menu.close_quick_pack(): return
 	match modal:
 		"":
@@ -1612,6 +1826,8 @@ func interaction_prompt() -> String:
 		if cache.game == self and near(cache): return "密室藏品" if cache.source == "vault" else "战斗缴获"
 	if _vault_nearby(): return "密室"
 	if _recruit_nearby(): return Operators.display_name(str(contract.operator))
+	if _event_nearby(): return RouteEvents.info(event_id()).get("name", "不期而遇")
+	if _campfire_nearby(): return "营火"
 	if near_fire() != null and not pack_fuels().is_empty(): return "火堆"
 	if is_instance_valid(shower) and not shower.used and near(shower) and shower_progress < 0.0: return "净化喷淋"
 	if _handover_nearby(): return FactionCatalog.name_of(str(contract.faction))
@@ -1715,6 +1931,7 @@ func settle(extracted: bool) -> void:
 	transitioning = true
 	var in_camp_before_settle := in_camp
 	in_camp = false
+	in_event = false
 	settlement.clear()
 	music.end_run(extracted)
 	# What comes back: gear she set out with stays on her (equipped, packed or
@@ -1775,6 +1992,7 @@ func settle(extracted: bool) -> void:
 		settlement.append({"uid": item.uid, "name": item.item_name, "reason": "投保送回"})
 	_insured_left_behind.clear()
 	builds.clear()
+	relic_floors.clear()
 	build_offers.clear()
 	_device_offers.clear()
 	# 作战记录 are field drops now: only what came home counts (v1.1 §2.1).
@@ -1973,7 +2191,13 @@ static func app_args(mode: String) -> PackedStringArray:
 	args.append_array(["--", "--" + mode])
 	return args
 
+## 用户 2026-10-24: 未解锁时，小窗也改为不可开启，提示先解锁.
+const EXCHANGE_LOCKED := "先解锁交易所"
+
 func launch_app(mode: String) -> void:
+	if mode == "ticker" and not exchange.unlocked():
+		set_message(EXCHANGE_LOCKED)
+		return
 	OS.create_process(OS.get_executable_path(), app_args(mode))
 
 # --- The exchange (势力与交易所策划案_v0_7.md) ------------------------------------
@@ -2011,7 +2235,8 @@ func _catch_up_market() -> void:
 	_tick_kitchen()
 	if not research.tick().is_empty(): save_base()
 	voyage.tick(BaseState.now())
-	if gap < 600: return
+	# Before the exchange is built PRTS has nothing of it to report (用户 2026-10-24).
+	if gap < 600 or not exchange.unlocked(): return
 	var c := exchange.counters
 	var hours := gap / 3600.0
 	var text := "离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。" % [
@@ -2049,6 +2274,8 @@ func _tick_market(delta: float) -> void:
 ## for flash offers, and the one popup for a black swan (§5.5).
 func _on_market_news(headline: Dictionary, event: Dictionary) -> void:
 	if not event.is_empty(): exchange.on_event(event)
+	# The market moves all the same; its news reaches her once the exchange is built (用户 2026-10-24).
+	if not exchange.unlocked(): return
 	var line := "PRTS 快讯：" + str(headline.title)
 	broadcast(line)
 	if str(headline.kind) == "swan":
@@ -2488,6 +2715,7 @@ func trader_buy(slot: int) -> bool:
 	if entry.kind == "relic":
 		var enemy_hp_before := player.f("enemy_hp")
 		builds.append(entry.relic.id)
+		relic_floors[entry.relic.id] = floor_number
 		player._recompute_stats()
 		_rescale_enemy_life(enemy_hp_before, player.f("enemy_hp"))
 		set_message("获得藏品 %s — %s" % [entry.relic.name, entry.relic.effect])
@@ -2535,6 +2763,9 @@ func _enter_camp() -> void:
 	world_map._clear_generated_map()
 	player.clear_move_target()
 	base.unlock_camp(region_id, floor_number)
+	# The next block's map, from before its first column (§3.4).
+	_roll_route_block(floor_number / FieldCatalog.CAMP_INTERVAL)
+	route_node = Vector2i(-1, 0)
 	features.enter_camp()
 	player.cold = 0.0
 	# 营地里污染照涨，升级后不涨: a flat dose for the time spent there.
@@ -2550,11 +2781,26 @@ func _enter_camp() -> void:
 func camp_extract() -> void:
 	if in_camp and not transitioning: settle(true)
 
-## On from the camp to the next floor, by the route chosen at the end of the last.
+## On from the camp: the next block's map to pick its first floor from, or
+## straight on when it has only one.
 func leave_camp() -> void:
 	if not in_camp or transitioning: return
-	in_camp = false
-	await _advance_floor(_camp_route)
+	if route_choices().size() <= 1:
+		await advance(0)
+		return
+	open_modal("route")
+	menu.show_routes(0)
+
+## The route map's back button: to the camp's counter in a camp, else the field.
+func close_routes() -> void:
+	if in_camp:
+		open_modal("camp")
+		menu.show_camp()
+	elif in_event:
+		if not event_done:
+			open_modal("event")
+			menu.show_event()
+	else: close_modal()
 
 func camp_label(depth: int) -> String:
 	return "营地 %d|%d" % [depth, depth + 1]
@@ -2698,7 +2944,7 @@ func buy_camp_upgrade() -> bool:
 ## Hidden difficulty (§4, after 贪婪洞窟's per-floor tables): a curve by floor plus
 ## the chosen route's modifier for this floor only. Never shown as a number.
 func difficulty() -> float:
-	var d := minf(EnemyAttacks.PRESSURE_DEPTH_MAX, FieldCatalog.DIFFICULTY_PER_FLOOR * (floor_number - 1)) + float(FieldCatalog.ROUTES[route_index].danger)
+	var d := minf(EnemyAttacks.PRESSURE_DEPTH_MAX, FieldCatalog.DIFFICULTY_PER_FLOOR * (floor_number - 1)) + float(route_node_info().danger)
 	return maxf(0.0, d * pressure_multiplier())
 
 func passes_pickup_filter(item: Item) -> bool:
@@ -3631,7 +3877,7 @@ func drink(item: Item) -> bool:
 		set_message(potion_fx.apply(type))
 		save_base(true)
 		return true
-	var amount := BaseCatalog.potion_heal(type, maxi(item.grade, 1)) * player.potion_heal_multiplier
+	var amount := BaseCatalog.potion_heal(type) * Scaling.tier_coef(floor_number) * player.potion_heal_multiplier
 	match type:
 		"B":
 			# A new gel replaces what was left of the last one.
@@ -3679,7 +3925,7 @@ func contamination_rate() -> float:
 	if in_base: return 0.0
 	var rate := 0.0
 	if region_id == "mine": rate += BaseCatalog.CONTAMINATION_MINE
-	if route_index == 2: rate += BaseCatalog.CONTAMINATION_DEEP_ROUTE
+	if route_deep(): rate += BaseCatalog.CONTAMINATION_DEEP_ROUTE
 	rate += count_effect("raw_ore") * BaseCatalog.CONTAMINATION_PER_ORE
 	rate += count_effect(SEALED_ORE) * FeatureCatalog.SEALED_ORE_RATE
 	rate += count_effect("dirty") * CONTAMINATION_PER_DIRTY
@@ -3689,7 +3935,7 @@ func contamination_rate() -> float:
 ## Shown on the field HUD only when it is moving or could: the mine, the deep
 ## route, or ore in the pack.
 func contamination_visible() -> bool:
-	return not in_base and (region_id == "mine" or route_index == 2 or count_effect("raw_ore") > 0 or count_effect(SEALED_ORE) > 0)
+	return not in_base and (region_id == "mine" or route_deep() or count_effect("raw_ore") > 0 or count_effect(SEALED_ORE) > 0)
 
 ## At departure: injury and contamination set max HP, potion healing and
 ## self-regeneration for the whole contract; the pharmacy fills the belt.
@@ -3780,12 +4026,14 @@ func _spawn_wave() -> void:
 	# so the floor's total stays where it was (drop_share).
 	var deeper := depth_enemies(floor_number)
 	_extra_ordinary = deeper
-	var count: int = 9 + route_index * 3 + int(profile.enemies) + deeper
-	var extra_elites: int = int(profile.elites)
+	var info := route_node_info()
+	var calm := bool(info.get("calm", false))
+	var count: int = roundi((9 + int(info.enemies) + int(profile.enemies) + deeper) * float(info.get("mult", 1.0)))
+	var extra_elites: int = int(profile.elites) + int(info.get("elites", 0))
 	var slots := maxi(1, world_map.main_path.size() / 2)
 	var at_slot := {}
 	for i in range(count):
-		var elite := (i % 3 == 2 if region_id == "snow" else i == count - 1) or (route_index == 2 and i == count - 2)
+		var elite := (i % 3 == 2 if region_id == "snow" else i == count - 1) or (route_deep() and i == count - 2)
 		if not elite and extra_elites > 0 and i % 3 == 1:
 			elite = true
 			extra_elites -= 1
@@ -3804,13 +4052,19 @@ func _spawn_wave() -> void:
 		else: type = _pick_enemy_type(elite, ranged)
 		_spawn_enemy(Vector3(point.x, 0, point.y), elite, ranged, type)
 	# 萨米: a herd of 岩角兽 grazing off the route half the time (装备扩充 §2.1).
-	if region_id == "snow" and world_map.main_path.size() > 8 and rng.randf() < 0.5:
+	if region_id == "snow" and not calm and world_map.main_path.size() > 8 and rng.randf() < 0.5:
 		_herd_count += 1
 		var spot: Vector2 = world_map.main_path[world_map.main_path.size() / 2]
 		for h in range(rng.randi_range(3, 5)):
 			var beast := _spawn_enemy(Vector3(spot.x + (h % 3 - 1) * 1.4, 0, spot.y + (h / 3) * 1.4 + 2.0), false, false, "rock_hornbeast")
 			beast.herd = _herd_count
-	_spawn_guard_post(world_map.buff_position, "强化装置", false)
+	# 临时休整 has no device and nobody standing guard (§4.1).
+	if info.get("no_device", false):
+		_buff_taken = true
+		if is_instance_valid(world_map.buff_device_node): world_map.buff_device_node.visible = false
+	else: _spawn_guard_post(world_map.buff_position, "强化装置", false)
+	# 得偿所愿: two more points of interest (§4.1).
+	if int(info.get("pois", 0)) > 0: _add_wish_points(int(info.pois))
 	# Every authored supply pocket pays off, including the optional loop.
 	# Each is a typed point of interest (掉落物策划案 §4.1).
 	var places: Array = world_map.cache_positions.map(func(at: Vector3) -> String: return world_map.district_at(Vector2(at.x, at.z)))
@@ -3829,10 +4083,10 @@ func _spawn_wave() -> void:
 		box.kind = kinds[i]
 		# 用户 2026-10-14: 兴趣点旁边随机刷新守卫 — two to six (2026-10-23), a big
 		# squad now and then led by an elite (and paying for it).
-		var guards: int = POI_GUARDS[LootTables._pick_weighted(POI_GUARD_WEIGHTS, rng)]
+		var guards: int = POI_GUARDS[LootTables._pick_weighted(POI_GUARD_WEIGHTS, rng)] if not calm else 0
 		if region_id == "snow" and kinds[i] == "camp": guards = maxi(guards, 2)
 		if mansions[i]: guards = maxi(guards, 2)
-		box.guarded = guards > 0 and (route_index == 2 or rng.randf() < (0.45 if guards >= 5 else 0.12))
+		box.guarded = guards > 0 and (route_deep() or rng.randf() < (0.45 if guards >= 5 else 0.12))
 		# 巨壳藤蔓 waits inside one weapon or tool box now and then (萨米).
 		if region_id == "snow" and not mimic_placed and kinds[i] in ["weapon_box", "tool_box"] and rng.randf() < 0.25:
 			box.mimic = true
@@ -3840,6 +4094,7 @@ func _spawn_wave() -> void:
 		box.variant = _poi_variant(kinds[i], world_map.cache_positions[i])
 		add_child(box)
 		box.global_position = world_map.cache_positions[i]
+		if rng.randf() < PILE_CHANCE: _spawn_pile(box)
 		# 陷落雪祀 guards the tundra camps.
 		if guards > 0:
 			_spawn_guard_post(box.global_position, box.title(), box.guarded, "fallen_snowpriest" if region_id == "snow" and kinds[i] == "camp" else "", guards)
@@ -3848,15 +4103,16 @@ func _spawn_wave() -> void:
 	var work_lights: Array[Dictionary] = []
 	for at in world_map.cache_positions:
 		work_lights.append({"at": at + Vector3.UP * 1.2, "color": Color(0.75, 0.6, 0.38), "radius": 4.5})
-	_spawn_sentinels()
-	_spawn_wanderers()
+	if not calm and route_kind != "trader": _spawn_sentinels()
+	if not calm: _spawn_wanderers()
 	_set_drop_share()
 	if is_outpost_floor(): _spawn_outpost()
-	if is_bounty_floor(): _spawn_bounty()
+	_spawn_route_content()
+	if is_bounty_floor() and not is_instance_valid(_bounty) and not _bounty_on_map(): _spawn_bounty()
 	if is_recruit_floor(): _spawn_recruit()
 	if is_handover_floor(): _spawn_handover()
 	if floor_number % FieldCatalog.CAMP_INTERVAL != 0:
-		_spawn_traps()
+		if not calm: _spawn_traps()
 		_spawn_trace()
 	# The faint glow (用户 2026-10-17: 幽幽的光) of a trace and of a sealed vault's
 	# edge, baked with the work lights in one pass.
@@ -3868,10 +4124,308 @@ func _spawn_wave() -> void:
 		lamp.radius = float(lamp.radius) * research.glow_factor()   # 情报部 1 阶
 		work_lights.append(lamp)
 	if is_instance_valid(world_map.terrace_dressing): world_map.terrace_dressing.add_lamps(work_lights)
-	if not world_map.roadblock.is_empty() and floor_number % FieldCatalog.CAMP_INTERVAL != 0: _spawn_car()
+	if not calm and not world_map.roadblock.is_empty() and floor_number % FieldCatalog.CAMP_INTERVAL != 0: _spawn_car()
 	_spawn_fires()
 	_spawn_shower()
+	if route_kind == "rest": _spawn_rest_pieces()
 	threat.plan_floor(region_id, floor_enemies().size())
+
+# --- The route map's floors (肉鸽路线图策划案 v0.2 §4) -----------------------------
+
+## 不期而遇's piece at the encounter spot; 临时休整's campfire.
+var event_node: Node3D
+var rest_fire: FirePit
+## 险路恶敌's foe; 得偿所愿's caches and the guards each waits on.
+var dire_foe: Enemy
+var _wish_posts: Array = []
+## An event's fight still standing, and what it leaves when it falls.
+var _event_guards: Array[Enemy] = []
+var _event_prize: Array = []
+## Given on a map-less 不期而遇 with no room in the pack: dropped on the next floor.
+var _event_spill: Array[Item] = []
+## Relics taken on this floor (旧日回响 takes an older one).
+var _floor_relics: Array = []
+## 雨夜目击者: this floor's 灭迹人 on the minimap.
+var witness_marked := false
+## 险路恶敌 (§4.1, 用户 2026-10-24: 命 ×2.5，伤害 ×1.75).
+const DIRE_HP := 2.5
+const DIRE_ATK := 1.75
+const DIRE_GUARDS := 2
+const DIRE_EXCLUSIVE := 0.25
+## 临时休整's campfire (用户 2026-10-24: 回复 20% 生命上限，不受任何加成/减益影响).
+const CAMPFIRE_HEAL := 0.2
+const EVENT_MODEL := "res://art/kit/base_cargo_cart.glb"
+
+## The pieces of this floor's node: the event, the foe, the wish caches, an
+## event's leftover cache.
+func _spawn_route_content() -> void:
+	var path: PackedVector2Array = world_map.main_path
+	match route_kind:
+		"event":
+			event_node = world_map._set_piece("不期而遇 · E", world_map.encounter_position, RouteMap.info("event").color, EVENT_MODEL)
+		"elite": _spawn_dire_foe()
+		"relic":
+			for share in [0.4, 0.6, 0.8]:
+				var at := _beside_path(share, 4.0)
+				var cache := _spawn_relic_cache(at, "wish", true)
+				var post := _spawn_guard_post(cache.global_position, "得偿所愿", true, "", 3)
+				_wish_posts.append([cache, post.guards.duplicate()])
+	if bool(floor_mods.get("cache", false)) and path.size() > 2:
+		_spawn_relic_cache(_beside_path(0.5, 3.0), "cache", false)
+
+## A walkable spot `side` metres off the main path, `share` of the way along it.
+func _beside_path(share: float, side: float) -> Vector3:
+	var path: PackedVector2Array = world_map.main_path
+	var i := clampi(int(path.size() * share), 1, path.size() - 2)
+	var along := (path[i + 1] - path[i - 1]).normalized()
+	var off := Vector2(-along.y, along.x) * side * (1.0 if rng.randf() < 0.5 else -1.0)
+	return world_map.nearest_walkable(Vector3(path[i].x + off.x, 0, path[i].y + off.y))
+
+## 得偿所愿's two more points of interest, before the boxes are laid.
+func _add_wish_points(count: int) -> void:
+	for k in range(count):
+		var at := _beside_path((k + 1.0) / (count + 1.0), 5.0)
+		world_map.cache_positions.append(Vector3(at.x, ground_y(at) + 0.5, at.z))
+
+func _spawn_dire_foe() -> void:
+	var path: PackedVector2Array = world_map.main_path
+	var spot: Vector2 = path[clampi(path.size() * 2 / 3, 0, path.size() - 1)]
+	var at := world_map.nearest_walkable(Vector3(spot.x, 0, spot.y))
+	dire_foe = _spawn_enemy(at, true, false)
+	dire_foe.boss = true
+	dire_foe.max_health *= DIRE_HP
+	dire_foe.health = dire_foe.max_health
+	dire_foe.atk *= DIRE_ATK
+	for i in range(DIRE_GUARDS):
+		var side := Vector3(cos(TAU * i / DIRE_GUARDS), 0, sin(TAU * i / DIRE_GUARDS)) * 1.8
+		_spawn_enemy(world_map.nearest_walkable(at + side), false, false)
+	# The hunt contract's bounty is this foe (§6.1).
+	if is_bounty_floor(): _bounty = dire_foe
+
+## The bounty stands at its floor's 险路恶敌 (§6.1): a way past that node misses it.
+func _bounty_on_map() -> bool:
+	if route_map.is_empty() or RouteMap.block_of(floor_number) != int(route_map.block): return false
+	return (route_map.cols[RouteMap.col_of(floor_number)] as Array).any(func(n): return str(n.mark) == "bounty")
+
+## The foe's spoils: one piece blue or better; now and then a regional exclusive.
+func _dire_spoils(at: Vector3) -> void:
+	var drops: Array = [{"item": LootTables.gear_at_least(loot_ctx(), Item.BLUE)}]
+	if rng.randf() < DIRE_EXCLUSIVE:
+		var ids := SpecialGear.GEAR.keys().filter(func(id): return SpecialGear.kind(id) == "exclusive" and str(SpecialGear.GEAR[id].region) == region_id)
+		if not ids.is_empty():
+			var item := SpecialGear.create(ids[rng.randi() % ids.size()], floor_number, rng, true)
+			item.origin_region = region_id
+			drops.append({"item": item})
+	_drop_at(at, drops, 0.7)
+
+## 临时休整: the campfire and the shower beside the squad.
+func _spawn_rest_pieces() -> void:
+	var centre := world_map.encounter_position
+	var fire_at := world_map.nearest_walkable(centre + Vector3(-3.5, 0, 2.0))
+	rest_fire = FirePit.new()
+	rest_fire.name = "FirePit"
+	world_map._generated_root.add_child(rest_fire)
+	rest_fire.global_position = Vector3(fire_at.x, ground_y(fire_at), fire_at.z)
+	rest_fire.feed(FeatureCatalog.FIRE_MAX)
+	fires.append(rest_fire)
+	var shower_at := world_map.nearest_walkable(centre + Vector3(3.5, 0, 2.0))
+	shower = ShowerPoint.new()
+	shower.name = "ShowerPoint"
+	world_map._generated_root.add_child(shower)
+	shower.global_position = Vector3(shower_at.x, ground_y(shower_at), shower_at.z)
+
+func _campfire_nearby() -> bool:
+	return route_kind == "rest" and not campfire_used and is_instance_valid(rest_fire) and near(rest_fire)
+
+## A flat share of her life (no bonus or malus applies) and the cold gone.
+func _use_campfire() -> void:
+	campfire_used = true
+	player.hp = minf(player.max_hp, player.hp + player.max_hp * CAMPFIRE_HEAL)
+	player.cold = 0.0
+	set_message("营火 · 生命 +%d%%" % roundi(CAMPFIRE_HEAL * 100))
+
+# --- 不期而遇 (§5) ------------------------------------------------------------------
+
+func event_id() -> String:
+	return str(RouteMap.node_at(route_map, route_node).get("event", ""))
+
+func _event_nearby() -> bool:
+	return route_kind == "event" and not event_done and is_instance_valid(event_node) and near(event_node) and not event_id().is_empty()
+
+func _open_event() -> void:
+	open_modal("event")
+	menu.show_event()
+
+## The card's choices as shown: {text, refusal}. Item names and 赤金 sums filled in.
+func event_options() -> Array:
+	var out: Array = []
+	var ev := RouteEvents.info(event_id())
+	for opt: Dictionary in ev.get("options", []):
+		var cost := str(opt.cost)
+		var gain := str(opt.gain)
+		var bars := RouteEvents.scaled_bars(int(opt.get("bars", 0)), floor_number) if opt.has("bars") else 0
+		if cost.contains("%d"): cost = cost % bars
+		if gain.contains("%d"): gain = gain % RouteEvents.scaled_bars(int(opt.get("win", 0)), floor_number)
+		match str(opt.do):
+			"give_potion": gain = gain % FactionCatalog.name_of(str(RouteEvents.HOME_FACTION.get(region_id, "lungmen")))
+			"locker": cost = cost % (_locker_item().item_name if _locker_item() != null else "装备")
+			"uninsure": cost = cost % (_smuggled_item().item_name if _smuggled_item() != null else "装备")
+			"echo": cost = cost % (str(RelicCatalog.get_relic(_echo_relic()).get("name", "藏品")) if not _echo_relic().is_empty() else "藏品")
+		out.append({"text": "%s → %s" % [cost, gain], "refusal": _event_refusal(opt, bars), "do": str(opt.do), "bars": bars})
+	return out
+
+func _event_refusal(opt: Dictionary, bars: int) -> String:
+	if bars > 0 and gold_bars() < bars: return "赤金不足"
+	match str(opt.do):
+		"give_potion": if _pack_potion("A") == null: return "没有标准急救剂"
+		"locker": if _locker_item() == null: return "没有可交出的装备"
+		"uninsure": if _smuggled_item() == null: return "没有投保装备"
+		"echo": if _echo_relic().is_empty(): return "没有可失去的藏品"
+		"give_fuel": if pack_fuels().is_empty(): return "没有燃料"
+		"buy_rest": if _rest_target().is_empty(): return "下一层不能改"
+	return ""
+
+## The pack's equipment the locker would take: the least valuable piece not worn.
+func _locker_item() -> Item:
+	var best: Item = null
+	for item in inventory.items:
+		if item.is_equippable() and not GearCatalog.bound(item) and item.rarity < Item.RARITY_MAX and (best == null or item.value < best.value): best = item
+	return best
+
+## The insured piece the smuggler takes: the least valuable one carried.
+func _smuggled_item() -> Item:
+	var best: Item = null
+	for item in carried_items():
+		if item.is_equippable() and item.insured and (best == null or item.value < best.value): best = item
+	return best
+
+## The relic 旧日回响 takes: the first one not taken on this floor.
+func _echo_relic() -> String:
+	for id in builds:
+		if not _floor_relics.has(id): return str(id)
+	return ""
+
+func _pack_potion(type: String) -> Item:
+	for item in inventory.items:
+		if item.potion_type == type: return item
+	return null
+
+## A fight floor of the next column to turn into 临时休整 (罗德岛补给信标).
+func _rest_target() -> Dictionary:
+	for row in RouteMap.next_rows(route_map, route_node):
+		var node := RouteMap.node_at(route_map, Vector2i(route_node.x + 1, int(row)))
+		if RouteMap.is_fight(str(node.get("kind", ""))) and not node.exit and str(node.mark).is_empty() and not str(node.kind) in ["outpost", "boss"]: return node
+	return {}
+
+## Choice `index` of the card; true when it was carried out.
+func event_choose(index: int) -> bool:
+	if modal != "event" or event_done: return false
+	var options := event_options()
+	if index < 0 or index >= options.size() or not str(options[index].refusal).is_empty(): return false
+	var opt: Dictionary = options[index]
+	var bars := int(opt.bars)
+	if bars > 0 and not spend_gold_bars(bars): return false
+	var at := event_node.global_position if is_instance_valid(event_node) else player.global_position
+	var tier := Economy.tier_of(floor_number)
+	var relic_after := ""
+	match str(opt.do):
+		"hurt_relic":
+			player.hp = maxf(1.0, player.hp - player.max_hp * 0.25)
+			relic_after = "event"
+		"give_potion":
+			var potion := _pack_potion("A")
+			if potion.quantity > 1: potion.set_quantity(potion.quantity - 1)
+			else: inventory.remove(potion)
+			exchange.add_relation(str(RouteEvents.HOME_FACTION.get(region_id, "lungmen")), 10)
+		"pay_trace": next_floor_mods["trace"] = true
+		"fight_potions":
+			var prize: Array = []
+			for i in range(3): prize.append({"item": BaseCatalog.create_potion("A", tier)})
+			_event_fight(at, 3, 0, prize)
+		"gamble":
+			if rng.randf() < 0.5:
+				give_gold_bars(RouteEvents.scaled_bars(8, floor_number))
+				set_message("赌徒：你赢了。")
+			else: set_message("赌徒：运气不在你这边。")
+		"signal":
+			next_floor_mods["threat"] = 0.6
+			next_floor_mods["cache"] = true
+		"locker":
+			var old := _locker_item()
+			var better := LootTables.roll_equipment(old.category, old.item_name, region_id, floor_number, mini(old.rarity + 1, Item.RARITY_MAX), rng)
+			inventory.remove(old)
+			_event_give(better)
+		"peek": route_peek = true
+		"exit_map": route_exit_map = true
+		"uninsure":
+			_smuggled_item().insured = false
+			give_gold_bars(RouteEvents.scaled_bars(5, floor_number))
+		"echo":
+			var lost := _echo_relic()
+			var before := player.f("enemy_hp")
+			builds.erase(lost)
+			player._recompute_stats()
+			_rescale_enemy_life(before, player.f("enemy_hp"))
+			relic_after = "echo"
+		"buy_potions":
+			for i in range(2): _event_give(BaseCatalog.create_potion("A", tier))
+		"buy_rest": _rest_target().kind = "rest"
+		"fight_reunion":
+			var prize: Array = []
+			for entry in LootTables.container_drops("vault_base", loot_ctx()):
+				var item: Item = entry.item
+				if item.category == Item.Category.MATERIAL:
+					item.effect = "dirty"
+					item.description += " 来路不明，携带时污染缓慢上升。"
+				prize.append(entry)
+			_event_fight(at, 2, 6, prize)
+		"surge":
+			run_contamination += 20.0
+			next_floor_mods["weak"] = 0.7
+		"bribe": route_threat_cut = true
+		"fight_guard": _event_fight(at, 1, 4, LootTables.container_drops("vault_gear", loot_ctx()))
+		"give_fuel":
+			var fuel: String = pack_fuels().keys()[0]
+			for item in inventory.items:
+				if item.material_id != fuel: continue
+				if item.quantity > 1: item.set_quantity(item.quantity - 1)
+				else: inventory.remove(item)
+				break
+			exchange.add_relation("karlan", 10)
+			_event_give(FeatureCatalog.create_supply("自热罐头"))
+		"invitation":
+			features.add("debt", 20.0)
+			for entry in LootTables.container_drops("vault_weapon", loot_ctx()): _event_give(entry.item)
+		"witness": next_floor_mods["witness"] = true
+	event_done = true
+	if is_instance_valid(event_node): event_node.visible = false
+	sound.play("build")
+	close_modal()
+	# 废弃的强化装置 / 旧日回响: the choice of relics at once.
+	if not relic_after.is_empty(): open_relic_offer(relic_after)
+	save_base(true)
+	return true
+
+## Into the pack; with no room, at her feet — or, with no floor under her (a
+## map-less 不期而遇), on the next floor.
+func _event_give(item: Item) -> void:
+	if inventory.add_stack(item) <= 0: return
+	if in_event: _event_spill.append(item)
+	else: drop_at_feet(item)
+
+## An event's fight round `at`: `elites` and `normals` stronger than the
+## floor's own (RouteEvents.FIGHT_HP / FIGHT_ATK); `prize` drops when it falls.
+func _event_fight(at: Vector3, elites: int, normals: int, prize: Array) -> void:
+	var count := elites + normals
+	for i in range(count):
+		var side := Vector3(cos(TAU * i / count), 0, sin(TAU * i / count)) * (2.0 + (i % 2) * 1.2)
+		var enemy := _spawn_enemy(world_map.nearest_walkable(at + side), i < elites, false)
+		enemy.max_health *= RouteEvents.FIGHT_HP
+		enemy.health = enemy.max_health
+		enemy.atk *= RouteEvents.FIGHT_ATK
+		_event_guards.append(enemy)
+	_event_prize = prize
+	set_message("战斗：%d 名敌人" % count)
 
 ## A boss floor (Boss战场地策划案 Q5): the boss in its arena and nothing else —
 ## no enemies, posts, boxes, traps or traces in the other rooms. A contract's
@@ -3978,7 +4532,7 @@ func feature_rate(kind: String) -> float:
 func cold_rate() -> float:
 	if in_base or in_camp or region_id != "snow": return 0.0
 	if warm_fire() != null: return -FeatureCatalog.FIRE_WARM
-	var rate := FeatureCatalog.COLD_RATE + (FeatureCatalog.COLD_DEEP if route_index == 2 else 0.0)
+	var rate := FeatureCatalog.COLD_RATE + (FeatureCatalog.COLD_DEEP if route_deep() else 0.0)
 	# 埃克提尔尼尔's blizzard from tier 5 (Boss与守卫者策划案 §6).
 	if boss_fight() and outpost_boss.figure_id == "eikthyrnir" and outpost_boss.tier >= 5: rate *= BossCatalog.BLIZZARD
 	return rate * features.growth_mult("cold", floor_number) * (player.elements.feature_mult("cold") if is_instance_valid(player) and player.elements != null else 1.0)
@@ -4258,8 +4812,9 @@ func feud_sight(enemy: Enemy) -> float:
 ## Whether the meter fills right now: on a floor while the field runs, and
 ## while 坎诺特's shop is open; never in a camp or near the Rhodes squad.
 func threat_rising() -> bool:
-	if in_base or in_camp or transitioning or _settled or not is_instance_valid(player): return false
+	if in_base or in_camp or in_event or transitioning or _settled or not is_instance_valid(player): return false
 	if not simulation_active() and modal != "trader": return false
+	if bool(route_node_info().get("calm", false)): return false
 	return not near_squad()
 
 func near_squad() -> bool:
@@ -4269,7 +4824,7 @@ func near_squad() -> bool:
 var _tracked_warned := -1
 
 func _tick_threat(delta: float) -> void:
-	var boost := (1.0 + ThreatMeter.SENTINEL_BOOST * alerted_sentinels()) * market.threat_mult(region_id) * research.threat_factor() * potion_fx.threat_mult() * player.families.threat_mult()
+	var boost := (1.0 + ThreatMeter.SENTINEL_BOOST * alerted_sentinels()) * market.threat_mult(region_id) * research.threat_factor() * potion_fx.threat_mult() * player.families.threat_mult() * (ROUTE_THREAT_CUT if route_threat_cut else 1.0)
 	if threat.add(threat.per_second() * boost * delta):
 		_spawn_patrol()
 	elif player.families.tier("stealth") >= 4 and threat.ratio() >= STEALTH_WARN_AT and _patrol_warned != threat.wave:
@@ -4416,6 +4971,11 @@ func _direction_name(offset: Vector3) -> String:
 func cleanse_contamination(amount: float) -> void:
 	run_contamination = maxf(0.0, current_contamination() - amount)
 
+## How near her a hunting patrol aims, and how far she may move off that
+## point before it aims again (Enemy._wander).
+const PATROL_NEAR := Vector2(2.0, 7.0)
+const PATROL_RETARGET := 10.0
+
 func _patrol_entry() -> Vector3:
 	var keep_clear: Array[Node3D] = [world_map.exit_node, world_map.encounter_node]
 	keep_clear.append_array(world_map.route_nodes)
@@ -4435,8 +4995,13 @@ func _patrol_entry() -> Vector3:
 			farthest = at
 	return fits[rng.randi() % fits.size()] if not fits.is_empty() else farthest
 
-## Where a patrol walks next: anywhere on the main path or at a search point.
-func patrol_waypoint(_from: Vector3) -> Vector3:
+## Where a wanderer walks next: anywhere on the main path or at a search
+## point. A patrol hunting her (用户 2026-10-24: 巡逻队寻路改为朝玩家方向)
+## heads for the ground a few metres round where she is now.
+func patrol_waypoint(_from: Vector3, toward_player: bool = false) -> Vector3:
+	if toward_player and is_instance_valid(player):
+		var off := Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(PATROL_NEAR.x, PATROL_NEAR.y)
+		return world_map.nearest_walkable(player.global_position + Vector3(off.x, 0.0, off.y))
 	var count := world_map.main_path.size() + world_map.cache_positions.size()
 	if count == 0: return _from
 	var pick := rng.randi() % count
@@ -4455,6 +5020,35 @@ func _spawn_sentinels() -> void:
 	var along := (path[index + 1] - path[index - 1]).normalized()
 	var side := Vector2(-along.y, along.x) * 2.0
 	_spawn_enemy(Vector3(path[index].x + side.x, 0.0, path[index].y + side.y), false, true, "sentinel")
+
+## 物品堆 (用户 2026-10-24): now and then a point of interest has more of its
+## kind round it, PILE_EXTRA of them a few metres off, on its own level.
+const PILE_CHANCE := 0.05
+const PILE_EXTRA := Vector2i(3, 5)
+const PILE_REACH := Vector2(1.8, 4.5)
+const PILE_GAP := 1.6
+
+func _spawn_pile(first: LootContainer) -> void:
+	var at := first.global_position
+	var lift := at.y - ground_y(at)
+	var placed: Array[Vector3] = [at]
+	var want := rng.randi_range(PILE_EXTRA.x, PILE_EXTRA.y)
+	for probe in range(want * 24):
+		if placed.size() > want: break
+		var off := Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(PILE_REACH.x, PILE_REACH.y)
+		var spot := world_map.nearest_walkable(Vector3(at.x + off.x, 0.0, at.z + off.y))
+		var flat := Vector2(spot.x, spot.z)
+		if flat.distance_to(Vector2(at.x, at.z)) > PILE_REACH.y + 0.5 or not world_map._is_open(flat.x, flat.y, -0.8): continue
+		if absf(ground_y(spot) - ground_y(at)) > 0.6: continue
+		if placed.any(func(p: Vector3) -> bool: return Vector2(p.x, p.z).distance_to(flat) < PILE_GAP): continue
+		var box := LootContainer.new()
+		box.game = self
+		box.kind = first.kind
+		box.variant = first.variant
+		box.guarded = first.guarded
+		add_child(box)
+		box.global_position = Vector3(spot.x, ground_y(spot) + lift, spot.z)
+		placed.append(box.global_position)
 
 ## A mine search point dressed for where it stands (兴趣点策划案_v1.md §3): the
 ## loot is the kind's own, only the look and the name follow the place.
@@ -4503,8 +5097,8 @@ func _spawn_boss(id: String, tier: int, at: Vector3) -> Boss:
 	figure.setup_boss(self, id, tier)
 	var growth := Scaling.floor_growth(floor_number)
 	figure.max_health *= growth * (1.0 + (EnemyAttacks.SNOW_HP_BONUS if region_id == "snow" else 0.0))
-	figure.max_health *= enemy_life_multiplier(player.f("enemy_hp"))
-	figure.atk *= growth
+	figure.max_health *= enemy_life_multiplier(player.f("enemy_hp")) * contract_life()
+	figure.atk *= growth * contract_attack()
 	figure.defense *= growth
 	figure.finish_setup()
 	figure.died.connect(_on_enemy_died)
@@ -4758,7 +5352,8 @@ func _spawn_trace() -> void:
 	if sought.is_empty(): return
 	var p := progress()
 	var suited := RecruitCatalog.suited_floor(p.elite, p.level) if p != null else 1
-	if not force_trace and rng.randf() >= RecruitCatalog.trace_chance(floor_number, suited) * research.trace_factor(): return
+	var sure := force_trace or route_kind == "fate" or bool(floor_mods.get("trace", false))
+	if not sure and rng.randf() >= RecruitCatalog.trace_chance(floor_number, suited) * research.trace_factor(): return
 	var ends: Array[Vector2] = []
 	ends.append_array(world_map.niche_centres)
 	for centre in world_map.branch_centres: ends.append(Vector2(centre.x, centre.y))
@@ -4977,10 +5572,16 @@ func _spawn_enemy(position: Vector3, elite: bool, ranged: bool, type: String = "
 	# ×1.04 a floor for life, attack and defence alike (复利数值改造清单 A).
 	var growth := Scaling.floor_growth(floor_number)
 	enemy.max_health *= growth * (1.0 + (EnemyAttacks.SNOW_HP_BONUS if region_id == "snow" else 0.0))
-	enemy.max_health *= enemy_life_multiplier(player.f("enemy_hp"))
+	enemy.max_health *= enemy_life_multiplier(player.f("enemy_hp")) * contract_life()
 	enemy.health = enemy.max_health
-	enemy.atk *= growth
+	enemy.atk *= growth * contract_attack()
 	enemy.defense *= growth
+	# The floor's node: 物资作业 ×1.25, 深部污染 ×1.6 life and attack (RouteMap stat).
+	var stat := float(route_node_info().get("stat", 1.0)) if not in_base and not in_camp else 1.0
+	# 源石活性异常 (不期而遇): the next floor's enemies with less life.
+	enemy.max_health *= stat * float(floor_mods.get("weak", 1.0))
+	enemy.health = enemy.max_health
+	enemy.atk *= stat
 	enemy.died.connect(_on_enemy_died)
 	return enemy
 
@@ -4991,6 +5592,9 @@ func _pick_enemy_type(elite: bool, ranged: bool) -> String:
 	var pool: Array = pools.get("elite" if elite else ("ranged" if ranged else "normal"), [])
 	if pool.is_empty(): return ""
 	return str(pool[rng.randi_range(0, pool.size() - 1)])
+
+## How far from its point a guard stands: anywhere between.
+const GUARD_REACH := Vector2(2.0, 5.6)
 
 func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false, first_type: String = "", count: int = 2) -> GuardPost:
 	var post := GuardPost.new()
@@ -5008,8 +5612,9 @@ func _spawn_guard_post(anchor: Vector3, title: String, elite_guard: bool = false
 	for strict in [true, false]:
 		for index in range(count - stations.size()):
 			for probe in range(160):
-				var angle := TAU * float(index + stations.size()) / float(count) + TAU * float(probe % 32) / 32
-				var ring: float = [2.7, 3.6, 2.0, 4.6, 5.6][probe / 32]
+				# 用户 2026-10-24: 守卫站位随机 — any side, any distance, not a ring.
+				var angle := rng.randf() * TAU
+				var ring := rng.randf_range(GUARD_REACH.x, GUARD_REACH.y)
 				var offset := Vector2.from_angle(angle) * ring
 				var candidate := Vector3(anchor.x + offset.x, 0.0, anchor.z + offset.y)
 				candidate.y = ground_y(candidate) + Enemy.GROUND_LIFT
@@ -5048,6 +5653,24 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 	if _enemy == _bounty:
 		bounty_killed = true
 		_bounty = null
+	if _enemy == dire_foe:
+		dire_foe = null
+		_dire_spoils(_enemy.global_position)
+	if _enemy in _event_guards:
+		_event_guards.erase(_enemy)
+		if _event_guards.is_empty() and not _event_prize.is_empty():
+			_drop_at(_enemy.global_position, _event_prize, 0.9)
+			_event_prize = []
+	for entry in _wish_posts:
+		var guards: Array = entry[1]
+		if not guards.has(_enemy): continue
+		guards.erase(_enemy)
+		# A floor read back from a save holds no fallen guards (RunSave).
+		guards = guards.filter(func(e): return is_instance_valid(e) and not e._dead and not e.is_queued_for_deletion())
+		entry[1] = guards
+		if guards.is_empty() and is_instance_valid(entry[0]):
+			entry[0].sealed = false
+			set_message("得偿所愿：一个藏品箱的封印解除。")
 	if _enemy in _outpost_squad:
 		_outpost_squad.erase(_enemy)
 		if _outpost_squad.is_empty() and not outpost_cleared: _clear_outpost(_enemy.global_position)
@@ -5071,7 +5694,7 @@ func _on_enemy_died(_enemy: Enemy) -> void:
 ## the base so they carry across contracts.
 func loot_ctx() -> Dictionary:
 	# Depth works through LootTables.stair (掉落阶梯); the route adds its own reward.
-	var reward := float(FieldCatalog.ROUTES[route_index].reward)
+	var reward := float(route_node_info().reward)
 	return {"region": region_id, "depth": floor_number, "reward": reward, "rng": rng, "pity": base.loot_pity, "set_seen": run_sets_seen,
 		"drop_pct": player.drop_rate_bonus if is_instance_valid(player) else 0.0}
 
@@ -5299,7 +5922,7 @@ func _set_gold_bars(bars: int) -> void:
 		left -= stack.quantity
 		if inventory.add_stack(stack) > 0: break
 
-func save_base(active_contract: bool = false) -> void:
+func save_base(active_contract: bool = false, run: Dictionary = {}) -> void:
 	if not save_enabled or not writer(): return
 	var loadout: Array = []
 	for item in carried_items():
@@ -5312,6 +5935,7 @@ func save_base(active_contract: bool = false) -> void:
 	var data := {"version": 3, "gold": gold, "base": base.to_data(), "loadout": loadout, "left_behind": left_behind,
 		"active_contract": active_contract, "settlement": settlement, "rng_state": str(rng.state), "pickup_filter": pickup_filter,
 		"exchange": exchange.to_data(), "workshop": workshop.to_data(), "voyage": voyage.to_data(), "consign": consign.to_data()}
+	if not run.is_empty(): data["run"] = run
 	# The terminal and ticker only touch these three (交易终端策划案 §3.4):
 	# the rest of the save stays as the game left it.
 	if not app_mode.is_empty() and FileAccess.file_exists(save_path):
@@ -5441,9 +6065,108 @@ func load_base() -> void:
 	# The terminal and ticker never settle a run in progress: only the game does.
 	if _saved_active and app_mode.is_empty():
 		rng.state = int(parsed.get("rng_state", "1"))
+		# Saved and quit in the field (RunSave): she goes on where she was.
+		var run: Variant = parsed.get("run")
+		if run is Dictionary and int(run.get("version", 0)) == RunSave.VERSION:
+			_resume = run
+			return
 		_settled = false
 		settle(false)
 		set_message("检测到中断合同：按撤退规则回收出发物品，保险结果不会反复重掷。")
+
+# --- 局内存档 (用户 2026-10-24: 局内保存并退出，读档仍在局内) -----------------------
+
+func can_save_run() -> bool:
+	return save_enabled and app_mode.is_empty() and not in_base and not _settled and not transitioning and player.hp > 0.0
+
+func run_snapshot() -> Dictionary:
+	var data := {"version": RunSave.VERSION, "now": RunSave.run_data(self), "player": RunSave.player_data(player), "rng": str(rng.state)}
+	if not in_camp and not in_event:
+		data["entry"] = _floor_entry
+		data["floor"] = RunSave.floor_data(self)
+	return data
+
+## Written into the save; the contract stays open (RunSave).
+func save_run() -> bool:
+	if not can_save_run(): return false
+	close_modal()
+	save_base(true, run_snapshot())
+	return true
+
+## 保存并退出: written, then back to the title.
+func save_and_quit() -> void:
+	if not save_run() or not is_instance_valid(system_screens): return
+	SystemScreens.pending_slot = -1
+	# Deferred: the scene leaves the tree at once, and this is still running.
+	get_tree().reload_current_scene.call_deferred()
+
+## A saved run picked up again: the floor rebuilt from its dice, then what
+## changed on it since laid over it (RunSave.apply_floor).
+func resume_run() -> void:
+	var saved := _resume
+	_resume = {}
+	var now: Dictionary = saved.get("now", {})
+	var her: Dictionary = (saved.get("player", {}) as Dictionary).duplicate()
+	in_base = false
+	_settled = false
+	transitioning = true
+	close_modal()
+	base_map.set_active(false)
+	research.apply_run(true)
+	# Used up: should the game stop before the next save, the contract is
+	# settled on loading as before.
+	save_base(true)
+	if str_to_var(str(now.get("game", {}).get("in_camp", "false"))) == true:
+		RunSave.apply_run(self, now)
+		refresh_look()
+		apply_scene_look(false)
+		her.erase("at")
+		RunSave.apply_player(self, her)
+		transitioning = false
+		open_modal("camp")
+		menu.show_camp()
+		set_message("继续合同：%s。" % camp_label(floor_number))
+		return
+	# A map-less 不期而遇: its card again, or the route map once it is settled.
+	if str_to_var(str(now.get("game", {}).get("in_event", "false"))) == true:
+		RunSave.apply_run(self, now)
+		refresh_look()
+		apply_scene_look(false)
+		her.erase("at")
+		RunSave.apply_player(self, her)
+		transitioning = false
+		if event_done:
+			modal = "route"
+			menu.show_routes(0)
+		else:
+			open_modal("event")
+			menu.show_event()
+		return
+	var entry: Dictionary = saved.get("entry", {})
+	if entry.has("run"): RunSave.apply_run(self, entry.run)
+	else: RunSave.apply_run(self, now)
+	refresh_look()
+	apply_scene_look(false)
+	var base_now := RunSave.base_inputs(base)
+	if entry.has("base"): RunSave.set_base_inputs(base, entry.base)
+	await _begin_loading()
+	_floor_dice(entry if entry.has("rng") else {})
+	_build_world()
+	player.teleport(ContinuousWorldMap.ENTRY_POSITION)
+	await _await_navigation_sync()
+	_wave_dice(entry if entry.has("wave") else {})
+	_spawn_wave()
+	_floor_built()
+	if entry.has("rng"): _floor_entry = entry
+	RunSave.set_base_inputs(base, base_now)
+	RunSave.apply_run(self, now)
+	rng.state = int(saved.get("rng", str(rng.state)))
+	if not RunSave.apply_floor(self, saved.get("floor", {})): notice("本层未能按存档复原，已重新布置。")
+	RunSave.apply_player(self, her)
+	camera.global_position = player.global_position + camera_offset()
+	_end_loading()
+	transitioning = false
+	set_message("继续合同：%s。" % AK.floor_code(region_id, floor_number))
 
 func _configure_camera_and_light() -> void:
 	camera = Camera3D.new()
@@ -5798,6 +6521,19 @@ static func release_static_caches() -> void:
 	LapplandAnimator3D._contact = null
 
 ## The pointer in HUD (UI viewport) coordinates, where the name plates are drawn.
+## Which hotbar slot the pointer is over for a drop from the pack (Hud.hotbar_slot_under).
+func hotbar_drop_slot() -> int:
+	return _hud.hotbar_slot_under(pointer_ui()) if is_instance_valid(_hud) else -2
+
+## An item dropped on hotbar slot `slot` (用户 2026-10-24: 移到快捷键不是丢弃):
+## a flask binds its kind there; anything else stays where it was.
+func bind_to_hotbar(item: Item, slot: int) -> void:
+	if item == null or slot < 0 or not item.is_potion(): return
+	var action := "potion_%s" % item.potion_type
+	if not Hotbar.ACTIONS.has(action) or (slot == Hotbar.AUTO and not Hotbar.AUTO_CHOICES.has(action)): return
+	Hotbar.set_action(slot, action)
+	set_message("快捷栏：%s" % Hotbar.CHOICE_NAMES.get(action, item.item_name))
+
 func pointer_ui() -> Vector2:
 	var viewport := get_viewport()
 	var at := _pointer_position if _has_pointer_position else viewport.get_mouse_position()

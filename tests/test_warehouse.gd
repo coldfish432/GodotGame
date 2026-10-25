@@ -37,6 +37,45 @@ func find_text(node: Node, needle: String) -> bool:
 	return false
 func centre(rect: Array) -> Array: return [(rect[0] + rect[2]) * 0.5, (rect[1] + rect[3]) * 0.5]
 
+## 用户 2026-10-24: 仓库自动整理不留空隙，但玩家可以随意摆放，物体可以旋转.
+func _grid() -> void:
+	var base := BaseState.new()
+	var pieces: Array[Item] = [item("大件", Item.Category.ARMOR, 2, 2), item("长件", Item.Category.WEAPON, 3, 1), item("竖件", Item.Category.WEAPON, 1, 2)]
+	for i in range(13): pieces.append(item("小件%d" % i, Item.Category.MATERIAL))
+	for x in pieces: base.receive(x)
+	var overlap := false
+	for a in base.shelf:
+		for b in base.shelf:
+			if a != b and a.grid_x < b.grid_x + b.width and b.grid_x < a.grid_x + a.width and a.grid_y < b.grid_y + b.height and b.grid_y < a.grid_y + a.height: overlap = true
+	check("every warehouse item has its own cell, none overlap", not overlap and base.shelf.all(func(x): return x.grid_x >= 0 and x.grid_x + x.width <= BaseState.SHELF_COLUMNS))
+	var long: Item = pieces[1]
+	check("the player puts an item where she likes", base.shelf_move(long, 10, 4) and long.grid_x == 10 and long.grid_y == 4)
+	check("…but not over another", not base.shelf_move(pieces[2], 11, 4))
+	check("an item turns a quarter where it lies (3×1 → 1×3)", base.shelf_rotate(long) and long.width == 1 and long.height == 3 and long.rotated)
+	var back := Item.from_data(long.to_data())
+	check("its cell and its turn survive a save", back.rotated and back.width == 1 and back.height == 3 and back.grid_x == 10 and back.grid_y == 4)
+	base.shelf_sort()
+	# 2×2 + 1×3 + 1×2 + 13×1 = 22 cells: two rows of 16 after packing, nothing open before the last item.
+	var used := {}
+	for x in base.shelf:
+		for dy in range(x.height):
+			for dx in range(x.width): used[Vector2i(x.grid_x + dx, x.grid_y + dy)] = true
+	var gaps := 0
+	for y in range(base.shelf_rows()):
+		for x in range(BaseState.SHELF_COLUMNS):
+			if not used.has(Vector2i(x, y)): gaps += 1
+	check("整理 packs with no gaps but the last row's tail", base.shelf_rows() == 3 and gaps == BaseState.SHELF_COLUMNS * 3 - 22 and used.has(Vector2i(0, 0)) and used.has(Vector2i(15, 0)))
+	var pack := ItemContainer.new(4, 2)
+	var bar := item("棍", Item.Category.WEAPON, 2, 1)
+	pack.try_add(bar)
+	check("the pack turns an item in place too when it fits", pack.rotate_in_place(bar) and bar.width == 1 and bar.height == 2)
+
+## The other 2026-10-24 asks: the ticker stays shut until the exchange is built.
+func _requests() -> void:
+	var locked := not game.exchange.unlocked()
+	game.launch_app("ticker")
+	check("the ticker does not open before the exchange is built, and says so", locked and game.message.contains(GameManager.EXCHANGE_LOCKED))
+
 func run() -> void:
 	game = GameManager.new()
 	game.save_enabled = false
@@ -155,6 +194,8 @@ func run() -> void:
 	check("一键入库 puts the pack and the safe bag away, worn stays on", game.base.location_of(found) == "shelf" and game.base.location_of(found_safe) == "shelf"
 		and not game.carried_items().has(found) and game.player.equipped.get(Item.Category.ARMOR) == worn and game.base.location_of(worn) == "")
 	game.close_modal()
+	_grid()
+	_requests()
 
 	print("WAREHOUSE FAILURES: %d" % failures)
 	quit(1 if failures else 0)

@@ -2,8 +2,8 @@ class_name ItemContainer
 extends RefCounted
 
 ## Grid-based inventory container: the pack (10x6) and the safe bag (2x2)
-## are two instances of this, per the design doc's "2D grid pack, sized by
-## footprint, no rotation" hard rule.
+## are two instances of this, a 2D grid sized by footprint; an item may be
+## turned a quarter (用户 2026-10-24: 物体可以旋转, Item.rotate).
 
 var width: int
 var height: int
@@ -165,6 +165,14 @@ func sort_items() -> bool:
 				items.append(kept)
 			return false
 	return true
+
+## Turns `item` a quarter where it lies, if the turned footprint fits there.
+func rotate_in_place(item: Item) -> bool:
+	if not items.has(item): return false
+	item.rotate()
+	if can_place(item, item.grid_x, item.grid_y): return true
+	item.rotate()
+	return false
 
 ## Grows the grid (base expansions). Never shrinks under existing items.
 func resize(p_width: int, p_height: int) -> void:

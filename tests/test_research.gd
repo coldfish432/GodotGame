@@ -54,7 +54,7 @@ func _economy() -> void:
 		Economy.tier_of(1) == 1 and Economy.tier_of(10) == 1 and Economy.tier_of(11) == 2 and Economy.tier_of(95) == 10 and Economy.tier_of(300) == 10)
 	check("the income index runs 1 → 6.73", Economy.income_index(1) == 1.0 and is_equal_approx(Economy.income_index(10), 6.73))
 	check("tiered prices round to 100: 300 at 5 → 1,000; 3,000 at 10 → 20,200", Economy.tiered(300, 5) == 1000 and Economy.tiered(3000, 10) == 20200, [Economy.tiered(300, 5), Economy.tiered(3000, 10)])
-	check("tier labels", ResearchCatalog.tier_label(4) == "4 阶" and Progression.grade_label(4) == "31–40 层" and Progression.grade_label(10) == "91+ 层" and Progression.grade_corner(10) == "91+")
+	check("tier labels", ResearchCatalog.tier_label(4) == "4 阶" and Progression.grade_label(4) == "31–40 层" and Progression.grade_label(10) == "91+ 层")
 
 func _prices() -> void:
 	# 仓库修订 (用户 2026-10-23): no racks, console or drone to buy; 仓储部 levels give cells and stack size.
@@ -125,7 +125,7 @@ func _research_rules() -> void:
 	check("科研部 opens once it is built", not r.is_open() and r.refusal("logistics_1") == "需要科研部 Lv1")
 	game.base.set_facility("lab", 1)
 	game.gold = 10000000
-	check("71 nodes in seven departments and the joint research", ResearchCatalog.all_ids().size() == 71)
+	check("72 nodes in seven departments and the joint research", ResearchCatalog.all_ids().size() == 72)
 	check("第二加工线 needs 订单速递 first", r.refusal("logistics_2") == "需要订单速递", r.refusal("logistics_2"))
 	check("materials are checked", r.refusal("logistics_1").begins_with("缺少"))
 	_stock({"电路板": 20, "继电器": 20, "微型电机": 10, "装置": 20})
@@ -133,11 +133,13 @@ func _research_rules() -> void:
 	var gold := game.gold
 	check("starting pays 56,000 and the materials", r.start("logistics_1") and gold - game.gold == int(ResearchCatalog.TIER_PRICE[0]) and game.material_count("电路板") == 18)
 	check("one slot at Lv1", r.refusal("medical_1") == "研究位已满")
-	later(1800)
-	check("half an hour in: half done, not finished", is_equal_approx(r.progress("logistics_1"), 0.5) and r.tick().is_empty())
+	# 用户 2026-10-24: 科研部时间全部变为原先的20% — tier 1 (1 h) runs 12 minutes.
+	check("a research runs 20% of its written hours", ResearchCatalog.seconds("logistics_1") == 720 and ResearchCatalog.duration_text("logistics_1") == "12 分钟")
+	later(360)
+	check("six minutes in: half done, not finished", is_equal_approx(r.progress("logistics_1"), 0.5) and r.tick().is_empty())
 	var slots := game.base.order_slot_count()
-	later(1800)
-	check("an hour in it is done", r.tick() == ["logistics_1"] and r.is_done("logistics_1"))
+	later(360)
+	check("twelve minutes in it is done", r.tick() == ["logistics_1"] and r.is_done("logistics_1"))
 	check("后勤部 1 阶 adds an order slot at once", game.base.order_slot_count() == slots + 1 and game.base.orders.slots.size() == slots + 1)
 	check("tier 2 needs the camp at floor 10", r.refusal("logistics_2") == "需要第 10 层营地")
 	game.base.camps = {"mine": 10}
@@ -157,7 +159,7 @@ func _tree() -> void:
 			known = known and ResearchCatalog.valid(p)
 			lower = lower and ResearchCatalog.valid(p) and ResearchCatalog.tier_of(p) <= ResearchCatalog.tier_of(id)
 		for c in ResearchCatalog.conditions(id): known = known and ResearchCatalog.REQUIREMENT_NAMES.has(c)
-	check("every node has its own name", names.size() == 71)
+	check("every node has its own name", names.size() == 72)
 	check("every prerequisite exists and sits no higher", known and lower)
 	var acyclic := true
 	for id in ResearchCatalog.all_ids(): acyclic = acyclic and _reaches(id, id, {}) == false

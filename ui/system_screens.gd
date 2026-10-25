@@ -13,6 +13,8 @@ const TIPS := [
 	"每十层之后是营地，营地里有固定撤离点。",
 	"罗德岛小队可以为一件装备投保，或直接送回基地。",
 	"坎诺特的货架可以刷新，也收购物品。",
+	"每十层的第 4–6 层中，必有一层设有撤离信标。",
+	"路线图只看得清下一层，情报部的路线测绘能多看一层。",
 ]
 
 var game: GameManager
@@ -493,7 +495,20 @@ static func load_settings() -> void:
 	for key in settings: settings[key] = config.get_value("game", key, settings[key])
 	Keybinds.apply()
 
+## Set just before a save that starts the tutorial over (TutorialCard.set_on).
+static var tutorial_reset := false
+
 static func save_settings() -> void:
+	# 教程只出现一次 (用户 2026-10-24): an older copy written by another window
+	# (the terminal, the ticker) never takes back a step or a card already shown.
+	var disk := ConfigFile.new()
+	if not tutorial_reset and disk.load(SETTINGS_PATH) == OK:
+		settings.tutorial_step = maxi(int(settings.tutorial_step), int(disk.get_value("game", "tutorial_step", 0)))
+		var seen: Array = (settings.tutorial_seen as Array).duplicate()
+		for id in disk.get_value("game", "tutorial_seen", []):
+			if not id in seen: seen.append(id)
+		settings.tutorial_seen = seen
+	tutorial_reset = false
 	var config := ConfigFile.new()
 	for key in settings: config.set_value("game", key, settings[key])
 	config.save(SETTINGS_PATH)

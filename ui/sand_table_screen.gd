@@ -12,11 +12,16 @@ const TARGET_STEP := 50
 
 static var destination := ""
 static var use_fuel := false
+## 0 航行, 1 势力 (RelationsScreen).
+static var tab := 0
 
 static func build(menu: FieldMenu) -> void:
 	var game := menu.game
-	var stage := BaseScreens.shell(menu, "沙盘", "SAND TABLE · RHODES ISLAND", [], 0, Callable(), "TERRA",
+	var stage := BaseScreens.shell(menu, "沙盘", "SAND TABLE · RHODES ISLAND", ["航行", "势力"], tab, func(i): tab = i; build(menu), "TERRA",
 		[["lmd", Economy.format(game.gold)], ["gold", "%.2f" % game.exchange.gold_account]])
+	if tab == 1:
+		RelationsScreen.page(menu, stage)
+		return
 	_ship_panel(menu, stage)
 	_stay_panel(menu, stage)
 	_orders_panel(menu, stage)

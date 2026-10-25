@@ -142,10 +142,19 @@ func _hunt() -> void:
 	await step(2)
 	check("hunt: no bounty before its floor", game._bounty == null and not game.is_bounty_floor())
 	game.floor_number = 3
-	await game.advance(0)
+	game._ensure_route()
+	# The bounty is LG-04's 险路恶敌 on the route map (肉鸽路线图策划案 v0.2 §6.1): walk the line to it.
+	var col: Array = game.route_map.cols[3]
+	var row: int = range(col.size()).filter(func(r): return col[r].mark == "bounty")[0]
+	check("hunt: LG-04 has a 险路恶敌 marked for it", col[row].kind == "elite")
+	var lines: Array = game.route_map.edges[2][game.route_node.y]
+	if not lines.has(row):
+		lines.append(row)
+		lines.sort()
+	await game.advance(lines.find(row))
 	await step(2)
 	var bounty := game._bounty
-	check("hunt: the bounty waits on LG-04, marked as a boss", game.floor_number == 4 and is_instance_valid(bounty) and bounty.boss and bounty.elite)
+	check("hunt: the bounty waits on LG-04, marked as a boss", game.floor_number == 4 and is_instance_valid(bounty) and bounty.boss and bounty.elite and bounty == game.dire_foe)
 	kill(bounty)
 	await step(2)
 	check("hunt: killing it completes the objective", game.bounty_killed and game.contract_progress().done)

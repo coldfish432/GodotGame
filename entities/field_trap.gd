@@ -174,6 +174,13 @@ func _strike() -> void:
 	if ResourceLoader.exists(sprung): _look.mesh = TerraceDressing.kit_mesh(load(sprung))
 	else: _look.position.y -= 0.03
 
+## Sprung before a save (RunSave): spent, its sprung model, nothing struck.
+func mark_spent() -> void:
+	spent = true
+	var sprung := SPRUNG % [region, kind]
+	if ResourceLoader.exists(sprung): _look.mesh = TerraceDressing.kit_mesh(load(sprung))
+	else: _look.position.y -= 0.03
+
 func _foes_within(reach: float) -> Array:
 	var out := []
 	for e in game.get_tree().get_nodes_in_group("enemies"):

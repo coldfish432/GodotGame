@@ -55,7 +55,7 @@ const NODES := {
 	"medical_2": ["重症监护", 2, "injury_fee", "重伤治疗费 −50%", ["medical_1"], {}],
 	"medical_3": ["巡回医疗", 3, "stay_care", "医疗驻留费用 −20% · 关系 +20%", ["medical_2", "field_1", "@stayed"], {}],
 	"medical_4": ["环境防护", 4, "feature_cut", "地图特色累计 −10%", ["medical_2", "intel_1"], {}],
-	"medical_5": ["高浓度配方", 5, "potion_grade", "免费药剂 +1 档", ["medical_1", "logistics_2"], {}],
+	"medical_5": ["高浓度配方", 5, "potion_grade", "免费药剂 +2", ["medical_1", "logistics_2"], {}],
 	"medical_6": ["源石隔离病房", 6, "isolation_ward", "污染阶梯 60/90 → 70/100", ["medical_4", "medical_5", "engineering_3"], {}],
 	"engineering_1": ["精密校具", 1, "refresh_fee", "重铸 · 校准 −15%", [], {}],
 	"engineering_2": ["制式换代计划", 2, "rhodes_blue", "制式换代：灰 → 绿", ["engineering_1", "logistics_1"], {}],
@@ -66,6 +66,8 @@ const NODES := {
 	"intel_1": ["痕迹增强滤镜", 1, "glow_range", "密室线索 · 踪迹幽光 +50%", [], {}],
 	"intel_2": ["装备鉴定协议", 2, "appraisal", "装备鉴定：范围位置", ["intel_1"], {}],
 	"intel_3": ["PRTS 层级预报", 3, "floor_report", "进层播报兴趣点 · 精英", ["intel_1"], {}],
+	# 肉鸽路线图策划案 v0.2 §6.7 (用户 2026-10-24: 可在科研部延申一层).
+	"intel_route": ["路线测绘", 3, "route_scan", "路线视野 +1 列", ["intel_1"], {}],
 	"intel_4": ["跨档识别", 4, "tier_mark", "跨档标记", ["intel_2", "engineering_1"], {}],
 	"intel_5": ["信标追踪", 5, "exit_map", "撤离点上小地图", ["intel_3", "field_3"], {}],
 	"intel_6": ["地层回波测绘", 6, "vault_map", "密室范围上小地图", ["intel_5", "personnel_3"], {}],
@@ -73,7 +75,7 @@ const NODES := {
 	"field_2": ["调度优先权", 2, "offer_reroll", "每次回港免费重抽 1 张合同", ["field_1"], {}],
 	"field_3": ["营地联络站", 3, "deposit_fee", "营地寄存手续费 20% → 10%", ["field_1", "@camp_upgrade"], {}],
 	"field_4": ["加固安全袋", 4, "safe_row", "安全袋 +1 行", ["field_3", "logistics_3", "@safe_2"], {}],
-	"field_5": ["商队情报", 5, "trader_odds", "坎诺特出现率 +50% · 刷新 −1 赤金", ["field_2", "commerce_2", "intel_3"], {}],
+	"field_5": ["商队情报", 5, "trader_odds", "诡异行商出现率 +50% · 刷新 −1 赤金", ["field_2", "commerce_2", "intel_3"], {}],
 	"field_6": ["联合课题组", 6, "project_slot", "第 3 个课题位", ["field_4", "field_5", "personnel_3"], {}],
 	"commerce_1": ["远端结算", 1, "remote_fee", "远端手续费 −1%", ["@exchange"], {}],
 	"commerce_2": ["赤金对冲", 2, "closure_spread", "赤金差价 3% → 2%", ["commerce_1"], {}],
@@ -83,7 +85,7 @@ const NODES := {
 	"commerce_6": ["期货直送", 6, "forward_dock", "远期交割直接入仓 · 免运费", ["commerce_4", "commerce_5", "logistics_4"], {}],
 	"personnel_1": ["作战记录归档", 1, "feed_fee", "喂作战记录 −20%", ["@roster_3"], {}],
 	"personnel_2": ["技能再训练", 2, "respec_fee", "技能重置 −50%", ["personnel_1"], {}],
-	"personnel_3": ["踪迹档案", 3, "trace_odds", "踪迹点 20% → 25%", ["personnel_1", "intel_1"], {}],
+	"personnel_3": ["踪迹档案", 3, "trace_odds", "踪迹点 20% → 25% · 命运所指 ×1.25", ["personnel_1", "intel_1"], {}],
 	"personnel_4": ["后备轮训", 4, "bench_exp", "后备经验 20%", ["personnel_2", "medical_2"], {}],
 	"personnel_5": ["晋升评审", 5, "promotion_fee", "精英化费用 −25%", ["personnel_4", "field_2"], {}],
 	"personnel_6": ["全员轮训", 6, "bench_exp_2", "后备经验 20% → 40%", ["personnel_4", "personnel_5", "medical_5"], {}],
@@ -139,12 +141,12 @@ const PROJECTS := {
 	"records": ["作战记录整理", "S", "作战记录掉落 +30%"],
 	"threat": ["威胁抑制", "M", "威胁值累计 −15%"],
 	"appraise": ["鉴定协议", "M", "波动指数 ×0.85"],
-	"vaults": ["密室测绘", "M", "密室出现率 ×1.5"],
+	"vaults": ["密室测绘", "M", "密室出现率 ×1.5 · 暗墙密室 ×1.5"],
 	"traps": ["陷阱预警", "M", "陷阱不涨威胁值"],
 	"deep": ["深层勘测", "L", "掉落阶梯 +1 阶"],
 	"supply": ["战地补给", "L", "出发 +2 瓶标准急救剂"],
-	"trader": ["商队联络", "L", "坎诺特必定出现一次"],
-	"extract": ["撤离保障", "L", "每 10 层必有随机撤离点"],
+	"trader": ["商队联络", "L", "第 3 层必有诡异行商"],
+	"extract": ["撤离保障", "L", "撤离信标前一层全部连通"],
 }
 
 ## Endless lines (§5.8): id -> [name, per level, cap text]. Level k costs
@@ -222,6 +224,20 @@ static func hours(id: String) -> int:
 	var row: Array = NODES[id]
 	if row.size() > 7 and int(row[7]) > 0: return int(row[7])
 	return int(TIER_HOURS[tier_of(id) - 1])
+
+## 用户 2026-10-24: 科研部时间全部变为原先的20% — the written hours stay the
+## design's; a research runs this share of them.
+const TIME_SHARE := 0.2
+
+static func seconds(id: String) -> int:
+	return roundi(hours(id) * 3600 * TIME_SHARE)
+
+## "12 分钟" / "1.6 小时": the run time as shown.
+static func duration_text(id: String) -> String:
+	var minutes := seconds(id) / 60
+	if minutes < 60: return "%d 分钟" % minutes
+	var h := minutes / 60.0
+	return ("%d 小时" % roundi(h)) if is_equal_approx(h, roundf(h)) else ("%.1f 小时" % h)
 
 static func camp_needed(id: String) -> int: return int(TIER_CAMP[tier_of(id) - 1])
 static func materials(id: String) -> Dictionary: return TIER_MATERIALS[tier_of(id) - 1]

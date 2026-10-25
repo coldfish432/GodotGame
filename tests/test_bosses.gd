@@ -155,7 +155,7 @@ func _warden_floors() -> void:
 	check("tier 1 has no affix", figure.affixes.is_empty())
 	check("the warden keeps the lavender head bar (boss flag)", figure.boss and figure.elite)
 	var depth := Scaling.floor_growth(10)
-	check("its life is its own, times the floor's growth (1.04^9)", is_equal_approx(figure.max_health, 17000.0 * depth * GameManager.enemy_life_multiplier(game.player.f("enemy_hp"))), figure.max_health)
+	check("its life is its own, times the floor's growth (1.04^9)", is_equal_approx(figure.max_health, 17000.0 * depth * GameManager.enemy_life_multiplier(game.player.f("enemy_hp")) * game.contract_life()), figure.max_health)
 	await near(figure)
 	check("a warden does not stop the threat meter", not game.boss_fight())
 	# 碎骨's grenade lowers her defence a while (an operation debuff, not a build one).
@@ -275,7 +275,7 @@ func _patriot() -> void:
 	await go_to("mine", 40)
 	figure = game.outpost_boss
 	check("floor 40 holds the same boss one tier up", figure.figure_id == "patriot" and figure.tier == 2)
-	check("stronger than at tier 1 beyond the depth", is_equal_approx(figure.max_health / Scaling.floor_growth(40) / GameManager.enemy_life_multiplier(game.player.f("enemy_hp")), 32000.0 * 1.2), figure.max_health)
+	check("stronger than at tier 1 beyond the depth", is_equal_approx(figure.max_health / Scaling.floor_growth(40) / GameManager.enemy_life_multiplier(game.player.f("enemy_hp")) / game.contract_life(), 32000.0 * 1.2), figure.max_health)
 
 # --- 扎罗 -----------------------------------------------------------------------------------
 

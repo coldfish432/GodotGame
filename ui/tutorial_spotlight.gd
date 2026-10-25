@@ -35,9 +35,12 @@ const TIPS := {
 	"trap": ["陷阱", "前方地面有陷阱。踩中会受到固定伤害并提高威胁值；重型陷阱触发后有短暂引信，及时闪避可以躲开。", 40.0],
 	"shower": ["净化喷淋", "净化喷淋点仍可使用。在旁边按住交互键约 3 秒，可以降低污染，仅限一次。", 52.0],
 	"extraction": ["撤离信标", "已发现撤离信标。进入撤离区域并停留数秒即可撤离，携带的物品将一同带回罗德岛。", 72.0],
-	"route": ["深入入口", "这是通往下一层的入口。按交互键选择路线：路线越危险，敌人越强，收获也越丰厚。", 56.0],
+	"route": ["深入入口", "这是通往下一层的入口，每条路线一个，颜色对应下一层的节点。按交互键打开路线图选择去向。", 56.0],
 	"device": ["强化装置", "强化装置可以使用一次。按交互键从几件藏品中选择一件，效果持续到本次行动结束。", 56.0],
-	"trader": ["坎诺特", "诡意行商坎诺特。可以用赤金购买藏品、装备与药剂，也可以把物品卖给他；货架可以付费刷新。", 56.0],
+	"trader": ["坎诺特", "诡异行商坎诺特，只在路线图上的“诡异行商”节点出现。可以用赤金购买藏品、装备与药剂，也可以把物品卖给他；货架可以付费刷新。", 56.0],
+	# 肉鸽路线图策划案 v0.2 §4–5.
+	"event": ["不期而遇", "这一层有一件不期而遇的事。走近按交互键查看，每个选择都写明代价与收获；也可以不理会直接离开。", 56.0],
+	"campfire": ["营火", "临时休整的营火。按交互键休息一次，回复 20% 生命上限并驱散寒冷。旁边的冲淋装置可以降低污染。", 56.0],
 	"squad": ["罗德岛小队", "罗德岛小队在此待命。支付赤金可以为一件装备投保，或者直接把它送回基地。小队附近威胁值不会上涨。", 56.0],
 	"post": ["势力据点", "这是一处势力据点。只收购该势力需要的货物，按当前价格当面成交。", 56.0],
 	"cache": ["战斗缴获", "这里有一份战斗缴获。按交互键打开，从中选择一件藏品。", 48.0],
@@ -68,7 +71,9 @@ const TIPS := {
 	"base_stash": ["仓管台", "仓管台管理仓库。所有物品共用仓库容量，一格放一件装备或一组材料；仓储部升级会提高容量和材料的单格堆叠数量。点击物品带入背包，拖动背包里的物品即可存回。", 60.0],
 	# The dispatch desk's screen, in two (BaseScreens.contracts' columns).
 	"dispatch_contract": ["合同委托", "右侧是这份合同的详情：地区、掉落和合同目标。选好一项目标后点击最终准备，确认干员与装备即可出击。完成目标并撤离可以获得对应的龙门币报酬。", 0.0],
-	"dispatch_floors": ["层数与撤离", "中间是本次行动的层数，每 10 层为一段。标黄的第 %d–%d 层会随机出现一个撤离点；第 10 层之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。", 0.0],
+	"dispatch_floors": ["层数与撤离", "中间是本次行动的层数，每 10 层为一段。标黄的第 %d–%d 层中必有一层设有撤离信标；第 10 层是前哨据点（每 20 层是首领战场），之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。", 0.0],
+	# The route map (肉鸽路线图策划案 v0.2 §7), the first time it opens.
+	"route_map": ["路线图", "每 10 层是一张路线图，每一列是一层。只看得清下一层；再下一层只显示是作战还是遭遇，更远的只标出撤离信标与合同目标。不同节点的层内内容不同，选好后点击前进。", 0.0],
 	"base_outbound": ["出库区", "各部门把需要的物资写成订单挂在这里。交付货架或背包里的物品完成订单，就能获得龙门币；也可以把物品直接卖给可露希尔。", 60.0],
 	"base_report": ["医疗前台", "医疗前台会给出上一份合同的回收报告。倒下的干员带有重伤、生命上限降低，在这里支付龙门币治疗。", 60.0],
 	"base_pharmacy": ["药房窗口", "药房出售标准急救剂和缓释凝胶。每份合同出发时还会免费配发 3 瓶急救剂。", 56.0],
@@ -87,6 +92,8 @@ const TIPS := {
 ## The dispatch desk's columns, in screen pixels (BaseScreens.contracts).
 const DISPATCH_CONTRACT := Rect2(884, 60, 396, 660)
 const DISPATCH_FLOORS := Rect2(236, 64, 640, 440)
+## The route map's scrolling columns (EventScreens.routes).
+const ROUTE_MAP := Rect2(0, 90, 970, 590)
 ## Before the first contract (TutorialCard's contract step), rung together:
 ## the first is base_departure's card, the others [station, title, text] a
 ## card each beside their rings.
@@ -232,6 +239,9 @@ func screen_opened(kind: String) -> void:
 		return
 	if kind == "loadout_issue":
 		request("loadout_issue", BENCH_ISSUE)
+		return
+	if kind == "route_map":
+		request("route_map", ROUTE_MAP)
 		return
 	request("base_" + kind)
 
@@ -381,6 +391,8 @@ func candidates() -> Array:
 	for trap in game.traps:
 		if is_instance_valid(trap) and not trap.spent: out.append(["trap", trap.global_position])
 	if is_instance_valid(game.shower) and not game.shower.used: out.append(["shower", game.shower.global_position])
+	if is_instance_valid(game.event_node) and game.event_node.visible and not game.event_done: out.append(["event", game.event_node.global_position])
+	if is_instance_valid(game.rest_fire) and not game.campfire_used: out.append(["campfire", game.rest_fire.global_position])
 	if game.is_extraction_floor() and is_instance_valid(map.exit_node) and map.exit_node.visible: out.append(["extraction", map.exit_node.global_position])
 	for node in map.route_nodes:
 		if is_instance_valid(node) and node.visible: out.append(["route", node.global_position])
@@ -419,7 +431,7 @@ func show_tip(id: String, at: Variant, more: Array = []) -> void:
 	_title.text = TIPS[id][0]
 	_text.text = TIPS[id][1]
 	if "%d" in _text.text:
-		var floors: Array = FieldCatalog.RANDOM_EXTRACTION_ODDS.keys()
+		var floors: Array = FieldCatalog.EXTRACTION_FLOORS
 		_text.text = TIPS[id][1] % [floors.min(), floors.max()]
 	var material := _mask.material as ShaderMaterial
 	material.set_shader_parameter("centre", ring_at)

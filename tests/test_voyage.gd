@@ -376,7 +376,29 @@ func _station() -> void:
 	game.open_station("sand_table")
 	await step(2)
 	check("it opens the sand table", game.modal == "station")
+	# 势力 tab: every faction's rank, progress and what the next rank opens.
+	game.exchange.relations["rat"] = 342
+	game.exchange.relations["lungmen"] = 5000
+	SandTableScreen.tab = 1
+	SandTableScreen.build(game.menu)
+	await step(1)
+	var texts := _texts(game.menu.stage)
+	check("the 势力 tab lists every faction", FactionCatalog.ORDER.all(func(f): return texts.has(FactionCatalog.name_of(f))))
+	check("ranks and progress show: R1 342 / 500, R5 5000 / 5000",
+		texts.has("R1") and texts.has("R5") and texts.has("342 / 500") and texts.any(func(t): return t.begins_with("5000 / 5000")))
+	var rat := RelationsScreen.unlocks(game.exchange, "rat")
+	check("what ranks open: 鼠王 R2 下城区耳目, 喀兰 R2 交易所, 龙门 R5 定向重铸",
+		"下城区耳目" in rat.get(2, []) and "交易所" in RelationsScreen.unlocks(game.exchange, "karlan").get(2, [])
+		and "定向重铸" in RelationsScreen.unlocks(game.exchange, "lungmen").get(5, []))
+	check("the rank lines show", texts.any(func(t): return t.begins_with("R2  ") and "下城区耳目" in t))
+	SandTableScreen.tab = 0
 	game.close_modal()
+
+func _texts(node: Node) -> Array[String]:
+	var out: Array[String] = []
+	if node is Label: out.append((node as Label).text)
+	for child in node.get_children(): out.append_array(_texts(child))
+	return out
 
 func _save() -> void:
 	var v := game.voyage

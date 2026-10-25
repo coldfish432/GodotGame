@@ -89,7 +89,7 @@ func through_game() -> void:
 	game.inventory.try_add(FieldCatalog.exclusive("mine"))
 	game.safe_bag.try_add(FieldCatalog.exclusive("mine"))
 	check("each ore adds 0.06/s, safe bag included", is_equal_approx(game.contamination_rate(), 0.14))
-	game.route_index = 2
+	game.route_kind = "deep"
 	check("the deep route adds 0.02/s", is_equal_approx(game.contamination_rate(), 0.16))
 	game._tick_medical(100.0)
 	check("a dose builds up over time (100 s -> 16)", is_equal_approx(game.run_contamination, 16.0))

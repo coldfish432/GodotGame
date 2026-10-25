@@ -73,10 +73,9 @@ static func contract_bonus_text(contract: Dictionary) -> String:
 		"recruit": return "%s 入职" % Operators.display_name(str(contract.operator))
 		"deliver": return "%s · 关系 +%d" % [Exchange.format_money(str(contract.currency), float(contract.pay)), int(contract.relation)]
 	return ""
-## Random extraction (§2): at most one in each block of ten, on floor 4, 5 or 6,
-## 50% in all. Rolled floor by floor with these conditional odds, so each of the
-## three floors carries exactly 1/6.
-const RANDOM_EXTRACTION_ODDS := {4: 1.0 / 6.0, 5: 1.0 / 5.0, 6: 1.0 / 4.0}
+## Random extraction (肉鸽路线图策划案 v0.2 §6.2, 用户 2026-10-24: 4~6必刷一个撤离
+## 节点): one in every block of ten, on floor 4, 5 or 6, a third each (RouteMap).
+const EXTRACTION_FLOORS := [4, 5, 6]
 ## The random extraction is a green zone (用户 2026-10-14): standing in it runs
 ## the extraction; hits do not stop it, only stepping out does.
 const EXTRACT_RADIUS := 2.2
@@ -408,8 +407,8 @@ static func exclusive(region: String, depth: int = 1) -> Item:
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	if item.is_equippable():
-		item.grade = Scaling.tier_of(depth)
-		item.power *= Scaling.tier_base(item.grade)
+		# No tiers (§19): an exclusive is the same at every depth.
+		item.grade = 1
 		if Item.is_jewel_slot(item.category): item.atk_share = Item.roll_atk_share(rng)
 	PrefixCatalog.roll_onto(item, region, depth, rng)
 	return item

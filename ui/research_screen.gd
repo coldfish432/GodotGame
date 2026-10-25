@@ -88,7 +88,7 @@ static func _detail(menu: FieldMenu, stage: Control) -> void:
 	if r.is_done(pick):
 		right.add_child(AK.tag("已完成", AK.GREEN))
 		return
-	right.add_child(AK.label("%s 龙门币   ·   %d 小时" % [Economy.format(ResearchCatalog.price(pick)), ResearchCatalog.hours(pick)], 14, AK.FG if game.gold >= ResearchCatalog.price(pick) else AK.RED))
+	right.add_child(AK.label("%s 龙门币   ·   %s" % [Economy.format(ResearchCatalog.price(pick)), ResearchCatalog.duration_text(pick)], 14, AK.FG if game.gold >= ResearchCatalog.price(pick) else AK.RED))
 	var mats: Array[String] = []
 	var cost := ResearchCatalog.materials(pick)
 	for id in cost: mats.append("%s ×%d（%d）" % [id, int(cost[id]), game.material_count(id)])

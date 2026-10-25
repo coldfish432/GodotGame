@@ -44,6 +44,14 @@ var route_guard_position := Vector3.ZERO
 ## else — the entry, a neck with two empty alcoves, the arena, the exit room.
 ## Set by GameManager before generate().
 var boss_layout := false
+## 肉鸽路线图 (策划案 v0.2 §6.6): 诡异行商, 临时休整 and 不期而遇 floors are
+## dug like a boss floor (entry, neck and alcoves, a big room, the exit room)
+## with no arena in the big room. Set by GameManager before generate().
+var compact_layout := false
+## 暗墙密室: this floor always has its vault (searched for as hard as a forced one).
+var route_vault := false
+## One route marker per line out of this node, in its node's colour.
+var route_marks: Array[Color] = [Color("69b7ea"), Color("69b7ea"), Color("69b7ea")]
 var arena_centre := Vector3.INF
 var arena_radius := 0.0
 ## Where the arena opens onto the neck (the way in) and onto the exit room.
@@ -290,10 +298,10 @@ func generate(p_seed: int, _depth: int) -> void:
 	_vault_link = -1
 	var lot := RandomNumberGenerator.new()
 	lot.seed = p_seed ^ 0x7a0175
-	has_vault = lot.randf() < VAULT_CHANCE * vault_chance_mult if force_vault < 0 else force_vault == 1
+	has_vault = (lot.randf() < VAULT_CHANCE * vault_chance_mult or route_vault) if force_vault < 0 else force_vault == 1
 	arena_centre = Vector3.INF
 	arena_radius = 0.0
-	if boss_layout: has_vault = false
+	if boss_layout or compact_layout: has_vault = false
 	_plan_terrain()
 	_plan_old_town()
 	_roll_districts()
@@ -435,7 +443,7 @@ func _add_circle(point: Vector2, radius: float, kind: String, trunk_level: int) 
 	return _open_circles.size() - 1
 
 func _plan_terrain() -> void:
-	if boss_layout:
+	if boss_layout or compact_layout:
 		_plan_boss_arena()
 		return
 	var entry := Vector2(ENTRY_POSITION.x, ENTRY_POSITION.z)
@@ -549,12 +557,13 @@ func _plan_boss_arena() -> void:
 	for point in [entry, neck, arena, exit]: main_path.append(point)
 	_add_circle(entry, 9.0, "trunk", 0)
 	_add_circle(neck, 5.0, "trunk", 0)
-	_add_circle(arena, radius, "arena", 0)
+	_add_circle(arena, radius, "arena" if boss_layout else "trunk", 0)
 	_add_circle(exit, ARENA_EXIT_ROOM, "trunk", 0)
 	for i in range(1, 4): _link(i - 1, i, _corridor_width(), TRAIL_TRUNK)
 	for side in [-1.0, 1.0]:
 		var alcove := _add_circle(neck + Vector2(side * ARENA_ALCOVE.x, 1.0), ARENA_ALCOVE.y, "spur", 0)
 		_link(1, alcove, _corridor_width(), TRAIL_BRANCH)
+	if not boss_layout: return
 	arena_radius = radius
 	arena_centre = Vector3(arena.x, 0.0, arena.y)
 	arena_entry = Vector3(arena.x, 0.0, arena.y - radius)
@@ -704,7 +713,7 @@ func _dig_extras(node_count: int) -> void:
 			for flank in [1.0, -1.0]:
 				tries.append(Vector2(vault_base.x + (vault.x - vault_base.x) * push * flank, vault.y))
 		# A forced vault (tests, debug) looks further: up and down the flank too.
-		if force_vault == 1:
+		if force_vault == 1 or route_vault:
 			for push in [1.0, 1.3, 1.6, 1.9]:
 				for flank in [1.0, -1.0]:
 					for rise in [-10.0, 10.0, -18.0, 18.0]:
@@ -802,7 +811,7 @@ func _assign_levels(attempt: int) -> void:
 	if _overlap.is_empty(): _measure_overlaps()
 	for link in _links: link.alive = true
 	for i in range(levels.size()): levels[i] = 0
-	if attempt >= 2 or boss_layout: return
+	if attempt >= 2 or boss_layout or compact_layout: return
 	var tier_rng := RandomNumberGenerator.new()
 	tier_rng.seed = seed_value ^ (0x5f3759df + attempt * 104729)
 	var rooms := _open_circles.size()
@@ -1244,7 +1253,7 @@ func _centre(i: int) -> Vector2:
 ## move. Each becomes a link (so walk distances, the exit choice and the
 ## guards see the way over) whose two stubs _build_segments digs.
 func _plan_bridges() -> void:
-	if not region_id in BRIDGE_REGIONS or boss_layout: return
+	if not region_id in BRIDGE_REGIONS or boss_layout or compact_layout: return
 	# The crossings dug for bridges first, then any other pair that happens to
 	# have a corridor between them.
 	var planned: Array[Dictionary] = []
@@ -1937,7 +1946,7 @@ var landmarks: Array[Dictionary] = []
 func _plan_old_town() -> void:
 	mansion_rooms.clear()
 	landmarks.clear()
-	if region_id != "siracusa" or boss_layout: return
+	if region_id != "siracusa" or boss_layout or compact_layout: return
 	var roll := RandomNumberGenerator.new()
 	roll.seed = seed_value ^ 0x5112a
 	var dead_ends: Array[int] = []
@@ -1988,7 +1997,7 @@ const ROADBLOCK_SHARE := 0.5
 
 func _plan_roadblock() -> void:
 	roadblock = {}
-	if region_id != "siracusa" or boss_layout: return
+	if region_id != "siracusa" or boss_layout or compact_layout: return
 	var roll := RandomNumberGenerator.new()
 	roll.seed = seed_value ^ 0xca5
 	if roll.randf() >= ROADBLOCK_SHARE: return
@@ -2162,10 +2171,18 @@ func _place_content() -> void:
 		var from := _open_circles[parent[exit_chamber]]
 		arrival = (route_centre - Vector2(from.x, from.y)).normalized()
 	var across := arrival.orthogonal()
-	for i in range(3):
-		var wanted: Vector2 = route_centre + across * (i - 1) * 5.5 + arrival * 2.5
+	var marks := route_marks.size()
+	for i in range(marks):
+		var wanted: Vector2 = route_centre + across * (i - (marks - 1) * 0.5) * 5.5 + arrival * 2.5
 		var spot := _safe_spot(wanted, route_centre, route_room.z)
-		route_nodes.append(_modelled(_marker(FieldCatalog.ROUTES[i].name + " · E", _grounded(spot, 0.15), Color("69b7ea")), "res://art/kit/route_marker.glb", arrival))
+		var mark := _modelled(_marker("去向 · E", _grounded(spot, 0.15), route_marks[i]), "res://art/kit/route_marker.glb", arrival) as MeshInstance3D
+		# Tinted the colour of the node it leads to (the route map's line under its name).
+		var tint := StandardMaterial3D.new()
+		tint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		tint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		tint.albedo_color = Color(route_marks[i], 0.35)
+		mark.material_overlay = tint
+		route_nodes.append(mark)
 	var hold := _open_circles[maxi(0, parent[exit_chamber])]
 	var hold_at := Vector2(hold.x, hold.y).lerp(route_centre, 0.35) if parent[exit_chamber] > 0 else route_centre - arrival * 8.0
 	route_guard_position = _grounded(_safe_spot(hold_at, Vector2(hold.x, hold.y), hold.z), 0.0)
@@ -2201,7 +2218,8 @@ func _place_content() -> void:
 		cache_positions.append(_grounded(_poi_spot(centre, _open_circles[i].z), 0.5))
 	# An absent extraction must not turn its room into an empty dead end.
 	var exit_centre := Vector2(exit_spot.x, exit_spot.y)
-	cache_positions.append(_grounded(_safe_spot(exit_centre + Vector2(2.0, 0.0), exit_centre, exit_spot.z), 0.5))
+	# (A small map's extraction room can be the encounter's alcove: no box beside 不期而遇's piece.)
+	if extraction_chamber != encounter_room: cache_positions.append(_grounded(_safe_spot(exit_centre + Vector2(2.0, 0.0), exit_centre, exit_spot.z), 0.5))
 	# Nor the trunk's end, when the markers went elsewhere.
 	if exit_chamber != trunk_end and extraction_chamber != trunk_end:
 		cache_positions.append(_grounded(_safe_spot(main_path[trunk_end], main_path[trunk_end], 8.0), 0.5))

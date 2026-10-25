@@ -73,6 +73,8 @@ func run() -> void:
 	# The first run: a floor with a random extraction lets her go no deeper.
 	game.system_screens = SystemScreens.new()
 	game.floor_number = 5
+	game._ensure_route()
+	game.route_node = Vector2i(4, 0)
 	game._roll_random_extraction()
 	check("the first floor 5 has its extraction", game.is_extraction_floor())
 	check("and until she extracts, no deeper", game.first_run_lock())

@@ -68,7 +68,9 @@ static func build(menu: FieldMenu) -> void:
 	_account_bar(stage, game)
 	_app_corner(menu, stage)
 	if not ex.unlocked():
-		AK.put(stage, AK.label("喀兰贸易关系 R1", 18, AK.MUTE), Vector2(560, 360))
+		# The standing the exchange waits for, as at its build site (用户 2026-10-24).
+		var gate: Dictionary = BaseCatalog.FACILITIES.exchange.gate
+		BaseScreens.gate_bar(stage, game, str(gate.faction), int(gate.rank), Vector2(240, 330), 800)
 		return
 	match tab:
 		0: _market_page(menu, stage)

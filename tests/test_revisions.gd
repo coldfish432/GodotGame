@@ -158,12 +158,17 @@ func _protection() -> void:
 	game.menu.show_squad()
 	check("the squad menu opens", game.menu.visible)
 	game.close_modal()
-	# A squad turns up on about 30% of floors.
+	# A squad turns up on about 20% of fight floors (肉鸽路线图策划案 v0.2 §6.3: 30% before the map).
 	var met := 0
+	game.route_kind = "supply"
 	for i in range(3000):
 		game._roll_encounter()
 		if game.encounter == "squad": met += 1
-	check("a squad stands on ~30%% of floors (%d/3000)" % met, absf(met / 3000.0 - FieldCatalog.SQUAD_CHANCE) < 0.03, met)
+	check("a squad stands on ~20%% of fight floors (%d/3000)" % met, absf(met / 3000.0 - FieldCatalog.SQUAD_CHANCE * GameManager.ROUTE_SQUAD_SHARE) < 0.03, met)
+	game.route_kind = "rest"
+	game._roll_encounter()
+	check("and always at 临时休整", game.encounter == "squad")
+	game.route_kind = "supply"
 	game.encounter = "squad"
 	game._build_world()
 	var shown_with: bool = game.world_map.encounter_node.visible == (game.encounter != "")
@@ -176,40 +181,43 @@ func _protection() -> void:
 func _camps() -> void:
 	# 用户 2026-10-22: the first floor 5 ever reached has one for sure, once.
 	game.base.first_extract_given = false
-	game.floor_number = 4
-	game._block_random_found = true
-	game._roll_random_extraction()
+	game._roll_route_block(0)
 	game.floor_number = 5
+	game.route_node = Vector2i(4, 0)
 	game._roll_random_extraction()
 	check("the first floor 5 always has a random extraction", game.is_extraction_floor() and game.base.first_extract_given)
 	check("and it is saved", bool(game.base.to_data().get("first_extract_given", false)))
-	# Random extraction: at most one per ten floors, on 4–6, 1/6 each, 1/2 in all.
+	# Random extraction (肉鸽路线图策划案 v0.2 §6.2, 用户 2026-10-24: 4~6必刷一个):
+	# exactly one beacon per block, on floor 4, 5 or 6, a third each.
 	var hits := {}
-	var blocks := 6000
+	var blocks := 3000
 	var doubled := false
 	for b in range(blocks):
+		game._run_seed = b * 7 + 1
+		game._roll_route_block(b % 5 + 1)
 		var found := 0
-		for f in range(1, 11):
-			game.floor_number = b * 10 + f
-			game._roll_random_extraction()
-			if game.is_extraction_floor():
-				hits[f] = int(hits.get(f, 0)) + 1
-				found += 1
-		if found > 1: doubled = true
+		for c in range(10):
+			for r in range((game.route_map.cols[c] as Array).size()):
+				game.route_node = Vector2i(c, r)
+				game.floor_number = RouteMap.floor_of(b % 5 + 1, c)
+				game._roll_random_extraction()
+				if game.is_extraction_floor():
+					hits[c + 1] = int(hits.get(c + 1, 0)) + 1
+					found += 1
+		if found != 1: doubled = true
 	var share := func(f: int) -> float: return int(hits.get(f, 0)) / float(blocks)
-	check("never more than one random extraction in a block of ten", not doubled)
+	check("exactly one random extraction in every block of ten", not doubled)
 	check("only floors 4, 5 and 6 ever have one", hits.keys().all(func(f): return f in [4, 5, 6]), hits)
-	check("each of floors 4–6 carries 1/6", [4, 5, 6].all(func(f): return absf(share.call(f) - 1.0 / 6.0) < 0.015), [share.call(4), share.call(5), share.call(6)])
-	check("50% of blocks have one", absf((share.call(4) + share.call(5) + share.call(6)) - 0.5) < 0.02)
+	check("each of floors 4–6 carries a third", [4, 5, 6].all(func(f): return absf(share.call(f) - 1.0 / 3.0) < 0.03), [share.call(4), share.call(5), share.call(6)])
 
 	# Hidden difficulty: by floor, plus the route for that floor only; kills do nothing.
 	await game.start_contract("mine")
 	await step(2)
 	check("floor 1 starts at difficulty 0", game.pressure == 0.0)
 	game.floor_number = 11
-	game.route_index = 2
+	game.route_kind = "deep"
 	check("floor 11 on the dangerous route: 3.5 × 10 + 5 = 40", is_equal_approx(game.difficulty(), 40.0))
-	game.route_index = 0
+	game.route_kind = "patrol"
 	check("the safe route takes 3 off (32)", is_equal_approx(game.difficulty(), 32.0))
 	game.floor_number = 1
 	game._build_world()
@@ -225,9 +233,9 @@ func _camps() -> void:
 	game.safe_bag.items.clear()
 	game.base.camp_upgraded = false
 	game.floor_number = 10
-	game.route_index = 2
+	game.route_kind = "outpost"
 	var dose: float = game.run_contamination
-	await game.advance(1)
+	await game.advance(0)
 	check("advancing from floor 10 enters camp 10|11", game.in_camp and game.modal == "camp" and game.floor_number == 10)
 	check("the camp is unlocked for this region only", game.base.camp_unlocked("mine", 10) and not game.base.camp_unlocked("city", 10) and game.base.unlocked_camps("mine") == [10])
 	check("an unupgraded camp adds contamination", game.run_contamination > dose)
@@ -255,9 +263,9 @@ func _camps() -> void:
 	game.inventory.remove(ore)
 	game.close_modal()
 	check("closing anything in a camp comes back to the camp screen", game.modal == "camp")
-	await game.leave_camp()
+	await game.advance(1)
 	await step(2)
-	check("leaving the camp walks into floor 11 by the route chosen before it", not game.in_camp and game.floor_number == 11 and game.route_index == 1)
+	check("leaving the camp walks into floor 11 on the node picked from the next block's map", not game.in_camp and game.floor_number == 11 and game.route_node == Vector2i(0, 1))
 	# An upgraded camp does not add contamination.
 	game.base.camp_upgraded = true
 	game.floor_number = 20
@@ -276,7 +284,9 @@ func _camps() -> void:
 	await game.start_contract("mine", 20)
 	await step(2)
 	check("a contract can start in an unlocked camp", game.in_camp and game.floor_number == 20 and game.start_floor == 21 and game.modal == "camp")
-	await game.leave_camp()
+	check("the camp holds the next block's map", int(game.route_map.block) == 2 and game.route_node == Vector2i(-1, 0))
+	for node in game.route_map.cols[0]: node.kind = "patrol"
+	await game.advance(0)
 	await step(2)
 	check("and goes on to the floor after it", game.floor_number == 21 and not game.in_camp)
 	check("difficulty there is the depth's own (3.5 × 20 − 3)", is_equal_approx(game.pressure, 67.0))
@@ -309,11 +319,16 @@ func _camps() -> void:
 func _trader() -> void:
 	var squads := 0
 	var traders := 0
+	game.route_kind = "supply"
 	for i in range(4000):
 		game._roll_encounter()
 		if game.encounter == "squad": squads += 1
 		elif game.encounter == "trader": traders += 1
-	check("坎诺特 on ~20%% of floors, squads still ~30%%, never both (%d / %d)" % [traders, squads], absf(traders / 4000.0 - 0.2) < 0.025 and absf(squads / 4000.0 - 0.3) < 0.025)
+	check("坎诺特 never on a fight floor, squads ~20%% (%d / %d)" % [traders, squads], traders == 0 and absf(squads / 4000.0 - 0.2) < 0.025)
+	game.route_kind = "trader"
+	game._roll_encounter()
+	check("坎诺特 always at 诡异行商", game.encounter == "trader")
+	game.route_kind = "supply"
 	await game.start_contract("city")
 	await step(2)
 	game._clear_field()

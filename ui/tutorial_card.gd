@@ -34,7 +34,7 @@ const STEPS := [
 	["journal", "合同目标", "合同面板显示本次合同的目标进度，以及基地各部门的订单需求。", "打开合同面板", "field"],
 	["map", "作战地图", "地图上可查看本层已探明的区域，深入入口、撤离信标等标记也会显示在上面。", "打开地图", "field"],
 	["hotbar", "快捷栏", "屏幕下方是快捷栏：闪避、技能和药剂都在这里。左键点击一个格子可以更换其中的内容；最右侧的自动格放急救剂，生命过低时会自动饮用。", "", "field"],
-	["descend", "深入", "沿道路寻找深入入口，按交互键选择路线进入下一层。越往深处，敌人越强，收获也越好。", "进入下一层", "field"],
+	["descend", "深入", "沿道路寻找深入入口，按交互键打开路线图，选择下一层的去向。越往深处，敌人越强，收获也越好。", "进入下一层", "field"],
 	# 用户 2026-10-22: 第一次外勤必须从随机撤离点撤离 (GameManager.first_run_lock).
 	["extract", "撤离", "第 5 层设有撤离信标。进入撤离区域停留数秒即可返回罗德岛，携带的物品一同带回。首次外勤请从撤离信标撤离。", "从撤离信标撤离", "field"],
 ]
@@ -164,8 +164,9 @@ static func finished() -> bool:
 ## Settings: on starts over from the first step, off skips it all.
 static func set_on(on: bool) -> void:
 	SystemScreens.settings["tutorial_seen"] = []
+	SystemScreens.settings["tutorial_step"] = 0 if on else STEPS.size()
+	SystemScreens.tutorial_reset = true
 	SystemScreens.set_setting("tutorial_tips", on)
-	SystemScreens.set_setting("tutorial_step", 0 if on else STEPS.size())
 
 ## 跳过引导 skips the basic steps; the first-sight cards keep coming.
 func skip_all() -> void:

@@ -26,6 +26,8 @@ func run() -> void:
 	game = GameManager.new()
 	game.save_enabled = false
 	game.fixed_map_seed = 4242
+	# Fight floors only: her floor must not be a small 不期而遇 / 临时休整 map (肉鸽路线图).
+	game.route_plain = true
 	root.add_child(game)
 	await step(8)
 	await _traces_and_card()

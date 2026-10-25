@@ -166,9 +166,17 @@ static func contracts(menu: FieldMenu) -> void:
 		var node := AK.label("%s-%02d" % [code, start + n], 14, AK.FG, AK.en())
 		node.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		var style := AK.box(Color("3b3b2a") if FieldCatalog.RANDOM_EXTRACTION_ODDS.has(n) else AK.PLATE_3)
+		# The extraction's band (one of its floors has the beacon) and the block's
+		# last floor, the 前哨据点 or 首领战场 (肉鸽路线图策划案 v0.2).
+		var last := n == FieldCatalog.CAMP_INTERVAL
+		var style := AK.box(Color("3b3b2a") if n in FieldCatalog.EXTRACTION_FLOORS else (Color("3a2224") if last else AK.PLATE_3))
+		if last:
+			style.border_color = AK.RED
+			style.border_width_bottom = 2
 		node.add_theme_stylebox_override("normal", style)
 		AK.put(stage, node, at, Vector2(84, 34))
+		if n == FieldCatalog.EXTRACTION_FLOORS[1]: AK.put(stage, AK.tag("撤离信标", AK.SP), at + Vector2(10, -24))
+		if last: AK.put(stage, AK.tag(RouteMap.kind_name("boss" if BossCatalog.is_boss_floor(start + n) else "outpost"), AK.RED, false), at + Vector2(10, 38))
 		chain.points.append(at - Vector2(232, chain_top) + Vector2(42, 17))
 	var camp := HBoxContainer.new()
 	camp.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -347,13 +355,41 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 	bar.custom_minimum_size.y = 3
 	cell.add_child(bar)
 	AK.put(stage, cell, Vector2(560, TOP + 6))
-	# The shelves as one 16-wide grid, items flowed in.
+	# The warehouse grid (用户 2026-10-24: 仓库自动整理不留空隙，但玩家可以随意
+	# 摆放，物体可以旋转): on 全部 every item lies in its own cell and can be
+	# dragged to any free one or turned (旋转物品); 整理 packs them without gaps.
+	# A filtered tab packs what it shows.
+	base.shelf_normalize()
 	var shown: Array = game.stash.filter(func(x: Item): return (tab == 0 or Item.group_of(x.category) == tab - 1) and menu._matches(x))
+	var free_layout := tab == 0 and menu.stash_query.is_empty()
+	var sort := AK.button("整理", "plain", 12)
+	AK.put(stage, sort, Vector2(402, TOP + 4), Vector2(80, 34))
+	sort.disabled = not free_layout
+	sort.pressed.connect(func(): base.shelf_sort(); game.save_base(); stash(menu, zone))
 	# Drag: shelf → carry-in brings it, carry-in → shelf stores it.
 	var stores := func(item: Item) -> bool: return game.carried_items().has(item)
 	var brings := func(item: Item) -> bool: return game.stash.has(item)
-	var grid := FlowGrid.make(shown, 16, maxi(10, ceili(shown.size() / 16.0)), func(item: Item): game.bring_item(item); stash(menu, zone), func(item: Item): _show_detail(game, item))
-	grid.dragging(stores, func(item: Item): game.store_item(item); stash(menu, zone))
+	var grid: FlowGrid
+	if free_layout:
+		grid = FlowGrid.make(shown, BaseState.SHELF_COLUMNS, maxi(10, base.shelf_rows() + 1), func(item: Item): game.bring_item(item); stash(menu, zone), func(item: Item): _show_detail(game, item))
+		for item: Item in shown: grid.places[item] = Vector2i(item.grid_x, item.grid_y)
+		grid.dragging(stores, func(item: Item): game.store_item(item); stash(menu, zone))
+		grid.move_to = func(item: Item, cell: Vector2i):
+			if game.carried_items().has(item):
+				game.store_item(item)
+				if base.shelf.has(item): base.shelf_move(item, cell.x, cell.y)
+			elif base.shelf.has(item): base.shelf_move(item, cell.x, cell.y)
+			game.save_base()
+			stash(menu, zone)
+		grid.on_rotate = func(item: Item):
+			if base.shelf_rotate(item):
+				game.save_base()
+				stash(menu, zone)
+	else:
+		grid = FlowGrid.packed(shown, BaseState.SHELF_COLUMNS, 10, func(item: Item): game.bring_item(item); stash(menu, zone))
+		grid.cards = false
+		grid.on_hover = func(item: Item): _show_detail(game, item)
+		grid.dragging(stores, func(item: Item): game.store_item(item); stash(menu, zone))
 	var depot := ScrollContainer.new()
 	depot.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	depot.add_child(grid)
@@ -516,6 +552,18 @@ static func construction(menu: FieldMenu, title: String = "基建总控台", sit
 		y += 70
 	_facility_page(menu, stage, menu.build_pick, true, Vector2(336, TOP + 4), 928, redraw)
 
+## A faction standing a facility waits for: the rank, relation / needed, its bar.
+static func gate_bar(stage: Control, game: GameManager, faction: String, rank: int, at: Vector2, width: float) -> void:
+	var rel := game.exchange.relation(faction)
+	var need: int = Exchange.RANK_AT[rank]
+	stage.add_child(AK.rect(AK.PLATE_2, at, Vector2(width, 54)))
+	AK.put(stage, AK.label("%s 关系 R%d" % [FactionCatalog.name_of(faction), rank], 14, AK.FG), at + Vector2(14, 8))
+	AK.put(stage, AK.label("%d / %d" % [rel, need], 12, AK.MUTE, AK.en()), at + Vector2(14, 30))
+	var bar := FieldPanels.Bar.new()
+	bar.ratio = float(rel) / maxf(need, 1)
+	bar.colour = AK.SP
+	AK.put(stage, bar, at + Vector2(160, 36), Vector2(width - 180, 4))
+
 ## One facility's upgrades: its link to the hub, its next level, then the
 ## projects it owns. `remote`: seen from the hub, where an unconnected one
 ## shows only its link.
@@ -527,15 +575,7 @@ static func _facility_page(menu: FieldMenu, stage: Control, id: String, remote: 
 	var gate := game.gate_refusal(id)
 	if not gate.is_empty():
 		var g: Dictionary = BaseCatalog.FACILITIES[id].gate
-		var rel := game.exchange.relation(str(g.faction))
-		var need: int = Exchange.RANK_AT[int(g.rank)]
-		stage.add_child(AK.rect(AK.PLATE_2, Vector2(at.x, y), Vector2(width, 54)))
-		AK.put(stage, AK.label("%s 关系 R%d" % [FactionCatalog.name_of(str(g.faction)), int(g.rank)], 14, AK.FG), Vector2(at.x + 14, y + 8))
-		AK.put(stage, AK.label("%d / %d" % [rel, need], 12, AK.MUTE, AK.en()), Vector2(at.x + 14, y + 30))
-		var bar := FieldPanels.Bar.new()
-		bar.ratio = float(rel) / maxf(need, 1)
-		bar.colour = AK.SP
-		AK.put(stage, bar, Vector2(at.x + 160, y + 36), Vector2(width - 180, 4))
+		gate_bar(stage, game, str(g.faction), int(g.rank), Vector2(at.x, y), width)
 		return
 	if id != "hub" and not base.is_connected_to_hub(id) and (remote or base.hub_built()):
 		var c_refusal := game.connect_refusal(id)
@@ -597,13 +637,20 @@ static func _short_refusal(refusal: String) -> String:
 	return "材料不足" if refusal.begins_with("缺少") else refusal
 
 ## 龙门币 then each material, red where the warehouse is short.
+## What a build or upgrade costs, as what she has over what it needs (用户
+## 2026-10-24: 显示差多少 — 9/10 red while short, 10/9 white once enough),
+## 龙门币 the same way.
 static func _cost_line(game: GameManager, stage: Control, at: Vector2, price: int, materials: Dictionary, size: int = 12) -> void:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 10)
-	line.add_child(AK.money("lmd", Economy.format(price), size + 2))
+	var money := AK.money("lmd", "%s/%s" % [Economy.format(game.gold), Economy.format(price)], size + 2)
+	if game.gold < price:
+		for child in money.get_children(): if child is Label: child.add_theme_color_override("font_color", AK.RED)
+	line.add_child(money)
 	for mat in materials:
-		var short := game.material_count(mat) < int(materials[mat])
-		line.add_child(AK.label("%s×%d" % [mat, int(materials[mat])], size, AK.RED if short else AK.MUTE))
+		var have := game.material_count(mat)
+		var need := int(materials[mat])
+		line.add_child(AK.label("%s %d/%d" % [mat, have, need], size, AK.RED if have < need else AK.FG))
 	AK.put(stage, line, at)
 
 static func _show_detail(game: GameManager, item: Item) -> void:
@@ -641,6 +688,11 @@ static func outbound(menu: FieldMenu) -> void:
 			menu.pick = null
 			outbound(menu), pick != null)
 		return
+	# Picking what goes to one order (用户 2026-10-24: 玩家能够选择交什么材料).
+	if order_choosing >= 0 and order_choosing < orders.slots.size() and orders.slots[order_choosing] != null and orders.slots[order_choosing].state == "open":
+		_order_choice(menu, stage, order_choosing, deliverable)
+		return
+	order_choosing = -1
 	# The order strips.
 	var y := TOP + 8
 	for i in range(orders.slots.size()):
@@ -687,12 +739,47 @@ static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, slot: int
 	drop.pressed.connect(func(): game.abandon_order(slot); outbound(menu))
 	small.add_child(drop)
 	AK.put(stage, small, at + Vector2(980, 20))
-	var deliver := AK.button("交付" if fits.is_empty() or not fits[0].is_stackable() else "交付 ×%d" % orders.takes(slot, fits[0]), "blue" if not fits.is_empty() else "plain", 14)
+	var deliver := AK.button("交付", "blue" if not fits.is_empty() else "plain", 14)
 	deliver.disabled = fits.is_empty()
 	AK.put(stage, deliver, at + Vector2(1140, 0), Vector2(108, 72))
 	deliver.pressed.connect(func():
-		if not fits.is_empty(): game.deliver_to_order(slot, fits[0])
+		order_choosing = slot
+		menu.pick = null
 		outbound(menu))
+
+## The order being filled by hand, -1 for the board (用户 2026-10-24).
+static var order_choosing := -1
+
+## Everything that fits order `slot`: she picks one, and hands it over.
+static func _order_choice(menu: FieldMenu, stage: Control, slot: int, deliverable: Array[Item]) -> void:
+	var game := menu.game
+	var orders: OrderBoard = game.base.orders
+	var order: Dictionary = orders.slots[slot]
+	var t: Dictionary = BaseCatalog.ORDERS[order.id]
+	var head := AK.label("%s  ·  已交付 %d / %d" % [BaseCatalog.order_text(order.id), orders.delivered_count(slot), int(t.count)], 15, AK.FG)
+	AK.put(stage, head, Vector2(16, TOP + 8))
+	var pick: Item = menu.pick if menu.pick is Item and orders.matches(slot, menu.pick) else null
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	AK.put(stage, scroll, Vector2(16, TOP + 40), Vector2(1248, 500))
+	var list := GridContainer.new()
+	list.columns = 4
+	list.add_theme_constant_override("h_separation", 6)
+	list.add_theme_constant_override("v_separation", 6)
+	scroll.add_child(list)
+	for item in deliverable.filter(func(x: Item) -> bool: return orders.matches(slot, x)):
+		var row := EventScreens._item_row(item, "×%d" % orders.takes(slot, item), "个人仓库" if game.stash.has(item) else "背包", true, item == pick)
+		row.custom_minimum_size.x = 306
+		var chosen: Item = item
+		row.pressed.connect(func(): menu.pick = chosen; outbound(menu))
+		list.add_child(row)
+	EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, "返回", "交付" + (" ×%d" % orders.takes(slot, pick) if pick != null else ""), func():
+		order_choosing = -1
+		menu.pick = null
+		outbound(menu), func():
+		if pick != null: game.deliver_to_order(slot, pick)
+		menu.pick = null
+		outbound(menu), pick != null)
 
 # --- #16 医疗部 -----------------------------------------------------------------------
 
@@ -751,7 +838,7 @@ static func store(menu: FieldMenu) -> void:
 
 # --- #11 暂停与设置 ------------------------------------------------------------------
 
-const PAUSE_ITEMS := ["继续作业", "设置", "按键设置", "放弃合同", "回到标题"]
+const PAUSE_ITEMS := ["继续作业", "设置", "按键设置", "放弃合同", "保存并退出", "回到标题"]
 const SETTING_TABS := ["画面", "界面", "音频", "基地"]
 
 static func pause(menu: FieldMenu) -> void:
@@ -764,7 +851,8 @@ static func pause(menu: FieldMenu) -> void:
 	var y := 110.0
 	for i in range(PAUSE_ITEMS.size()):
 		if i == 3 and game.in_base: continue
-		if i == 4 and not is_instance_valid(game.system_screens): continue
+		if i == 4 and not (game.can_save_run() and is_instance_valid(game.system_screens)): continue
+		if i == 5 and not is_instance_valid(game.system_screens): continue
 		var on := i == page
 		var b := Button.new()
 		b.focus_mode = Control.FOCUS_NONE
@@ -804,6 +892,8 @@ static func _pause_pick(menu: FieldMenu, index: int) -> void:
 			game.player.hp = 0
 			game._on_player_died()
 		4:
+			game.save_and_quit()
+		5:
 			game.close_modal()
 			game.system_screens.show_title()
 
@@ -998,6 +1088,30 @@ class FlowGrid extends Control:
 	## Right click (a quick action) and the item's full hover card.
 	var on_alt: Callable
 	var cards := false
+	## The warehouse's free layout: a drop lands `item` at the cell under the
+	## pointer (move_to(item, cell)); 旋转物品 over a tile calls on_rotate(item).
+	var move_to: Callable
+	var on_rotate: Callable
+	var _hovered: Item
+
+	func cell_at(point: Vector2) -> Vector2i:
+		return Vector2i(floori(point.x / CELL), floori(point.y / CELL))
+
+	func _unhandled_key_input(event: InputEvent) -> void:
+		if on_rotate.is_valid() and _hovered != null and is_visible_in_tree() and event.is_action_pressed("rotate_item"):
+			get_viewport().set_input_as_handled()
+			on_rotate.call(_hovered)
+
+	## Drag forwarding for the free layout: `offset` is the control's place on the grid.
+	func _wire_free(control: Control, item: Item, offset: Vector2) -> void:
+		var drag := (func(_at: Vector2) -> Variant: return ItemDrag.start(control, item)) if item != null else Callable()
+		var can := func(_at: Vector2, data: Variant) -> bool:
+			var it := ItemDrag.item_of(data)
+			return it != null and (items.has(it) or (accept.is_valid() and bool(accept.call(it))))
+		var drop := func(at: Vector2, data: Variant) -> void: move_to.call(ItemDrag.item_of(data), cell_at(offset + at))
+		control.set_drag_forwarding(drag, can, drop)
+		control.set_meta("drop_can", can)
+		control.set_meta("drop_take", drop)
 
 	static func make(shown: Array, w: int, h: int, pick: Callable, hover: Callable) -> FlowGrid:
 		var grid := FlowGrid.new()
@@ -1051,7 +1165,8 @@ class FlowGrid extends Control:
 		return self
 
 	func _ready() -> void:
-		if accept.is_valid(): ItemDrag.wire(self, null, accept, take)
+		if move_to.is_valid(): _wire_free(self, null, Vector2.ZERO)
+		elif accept.is_valid(): ItemDrag.wire(self, null, accept, take)
 		var x := 0
 		var y := 0
 		var row_h := 0
@@ -1074,11 +1189,15 @@ class FlowGrid extends Control:
 			tile.add_child(AK.item_icon(item, tile.size))
 			var shown := item
 			tile.pressed.connect(func(): on_pick.call(shown))
-			tile.mouse_entered.connect(func(): on_hover.call(shown))
+			tile.mouse_entered.connect(func():
+				_hovered = shown
+				on_hover.call(shown))
+			tile.mouse_exited.connect(func(): if _hovered == shown: _hovered = null)
 			if on_alt.is_valid():
 				tile.gui_input.connect(func(e: InputEvent):
 					if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_RIGHT: on_alt.call(shown))
-			if drag or accept.is_valid(): ItemDrag.wire(tile, shown if drag else null, accept, take)
+			if move_to.is_valid(): _wire_free(tile, shown, tile.position)
+			elif drag or accept.is_valid(): ItemDrag.wire(tile, shown if drag else null, accept, take)
 			add_child(tile)
 			x += item.width
 			row_h = maxi(row_h, item.height)

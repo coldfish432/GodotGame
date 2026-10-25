@@ -85,7 +85,10 @@ func run() -> void:
 	abandoned.game = game
 	game.add_child(abandoned)
 	var old_builds := game.builds.duplicate()
-	await game.advance(2)
+	# The dangerous route's floor next (肉鸽路线图: the next column turned into 深部污染).
+	game._ensure_route()
+	for node in game.route_map.cols[1]: node.kind = "deep"
+	await game.advance(0)
 	await step(2)
 	check("one way progression destroys prior map and drops", not is_instance_valid(old_map) and not is_instance_valid(abandoned) and game.floor_number == 2)
 	check("builds persist and new devices are available", game.builds == old_builds and game.is_buff_available())

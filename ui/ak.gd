@@ -253,16 +253,6 @@ static func tier_color(item: Item) -> Color:
 	if not item.material_id.is_empty() or item.is_legend(): return item.rarity_color()
 	return TIER[clampi(item.rarity, 0, Item.RARITY_MAX)]
 
-## The floors a piece or flask comes from, small in a cell's top-left corner
-## ("40", "91+"; 属性伤害与地区装备策划案 v1.1 §12), after the insured shield.
-static func draw_grade_corner(control: Control, item: Item, x: float = 3.0) -> void:
-	if item == null or item.grade <= 0 or not (item.is_equippable() or item.is_potion()): return
-	if control.size.x < 30.0: return
-	var text := Progression.grade_corner(item.grade)
-	var w := en().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
-	control.draw_rect(Rect2(x - 1, 2, w + 4, 11), Color(0, 0, 0, 0.55))
-	control.draw_string(en(), Vector2(x + 1, 11), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, MUTE)
-
 ## A depot-style item square of `box` size: rarity glow from the bottom, the icon
 ## scaled to fit (nearest), or the name when there is no icon; stack count box.
 static func item_icon(item: Item, box: Vector2) -> ItemSquare:
@@ -372,10 +362,17 @@ class ItemSquare extends Control:
 		draw_rect(Rect2(0, s.y - 3, s.x, 3), c)
 		var texture := ItemIcons.texture_for(item)
 		if texture != null:
-			var k := minf(1.0, minf((s.x - 6) / texture.get_width(), (s.y - 8) / texture.get_height()))
-			if s.x >= texture.get_width() * 2 + 6 and s.y >= texture.get_height() * 2 + 8: k = 2.0
+			# A turned item (Item.rotate) fits its art the other way round.
+			var art := Vector2(texture.get_height(), texture.get_width()) if item.rotated else texture.get_size()
+			var k := minf(1.0, minf((s.x - 6) / art.x, (s.y - 8) / art.y))
+			if s.x >= art.x * 2 + 6 and s.y >= art.y * 2 + 8: k = 2.0
 			var shown := texture.get_size() * k
-			draw_texture_rect(texture, Rect2(((s - shown) * 0.5).floor(), shown), false)
+			if item.rotated:
+				draw_set_transform((s * 0.5).floor(), PI * 0.5)
+				draw_texture_rect(texture, Rect2((-shown * 0.5).floor(), shown), false)
+				draw_set_transform(Vector2.ZERO)
+			else:
+				draw_texture_rect(texture, Rect2(((s - shown) * 0.5).floor(), shown), false)
 		else:
 			# No icon yet: as many characters of the name as fit.
 			var font_size := 12 if s.x < 60 else 14
@@ -394,7 +391,6 @@ class ItemSquare extends Control:
 			var cw := AK.en().get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 			draw_rect(Rect2(s.x - cw - 6, s.y - 18, cw + 6, 14), Color.BLACK)
 			draw_string(AK.en(), Vector2(s.x - cw - 3, s.y - 7), count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
-		AK.draw_grade_corner(self, item)
 		if dim: draw_rect(Rect2(Vector2.ZERO, s), Color(0, 0, 0, 0.62))
 
 

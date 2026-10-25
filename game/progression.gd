@@ -123,8 +123,8 @@ static func respec_cost(points: int, elite: int) -> int:
 
 # --- Gear grades and requirements (§7) --------------------------------------
 ## Grades are the ten-floor tiers 1–10 (复利数值改造清单 B, Scaling.tier_of),
-## shown as the floors they come from (属性伤害与地区装备策划案 v1.1 §12, 用户
-## 2026-10-24: 删除罗马数字): "31–40 层", and "40" in a grid cell's corner.
+## not shown on gear or flasks (用户 2026-10-24: 不标层数); a 随队物资 kit still
+## names its floors ("31–40 层"), since one is bought per tier.
 const GRADE_MAX := 10
 
 static func grade_label(grade: int) -> String:
@@ -132,22 +132,6 @@ static func grade_label(grade: int) -> String:
 	if g >= GRADE_MAX: return "%d+ 层" % ((g - 1) * Scaling.TIER_FLOORS + 1)
 	return "%d–%d 层" % [(g - 1) * Scaling.TIER_FLOORS + 1, g * Scaling.TIER_FLOORS]
 
-static func grade_corner(grade: int) -> String:
-	var g := clampi(grade, 1, GRADE_MAX)
-	if g >= GRADE_MAX: return "%d+" % ((g - 1) * Scaling.TIER_FLOORS + 1)
-	return str(g * Scaling.TIER_FLOORS)
-
-## Per tier 1..10 (index 1..10). 精英 1 lands near floor 18 and 精英 2 near floor
-## 40 (tools/economy_model.py), so tiers 3–4 ask 精英 1 and 5 on 精英 2.
-const REQ_ELITE := [0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 2]
-## Finer points (119 over a career) let each kind ask its own (清单 J): heavy
-## pieces climb toward half of a specialised build, light ones a third.
-const REQ_TABLE := {
-	"light": [0, 0, 16, 21, 28, 34, 40, 45, 48, 51, 54],
-	"heavy": [0, 0, 18, 25, 34, 42, 50, 56, 60, 64, 68],
-	"gear": [0, 0, 14, 18, 23, 28, 32, 36, 39, 42, 45],
-	"heavy_armor": [0, 0, 18, 25, 34, 42, 50, 56, 60, 64, 68],
-}
 
 ## The tier of a piece found on `floor_number` (the base layer only decides
 ## which bases drop there now), `bonus` tiers higher.
@@ -201,8 +185,30 @@ static func requirement(item: Item) -> Dictionary:
 					attribute = STAT_ATTRIBUTE[int(pair[0])]
 					break
 			if attribute.is_empty(): attribute = "phy" if Item.is_armor_slot(item.category) else "tec"
-	var grade := clampi(item.grade, 1, GRADE_MAX)
-	return {"grade": grade, "elite": REQ_ELITE[grade], "attribute": attribute, "value": int(REQ_TABLE[column][grade])}
+	var row := requirement_row(item)
+	return {"row": row, "elite": int(REQ_ELITE[row]), "attribute": attribute, "value": int(REQ_TABLE[column][row])}
+
+## What a piece asks, by rarity (属性伤害与地区装备策划案 v1.1 §19: not by depth;
+## 用户 2026-10-24: 某种属性的点数需求不超过 35). Row 0 asks nothing (grey,
+## green, blue, named pieces, Rhodes standard gear); purple row 1 (精英 1),
+## orange row 2, red row 3 (精英 2); a boss's piece as purple. Heavy pieces
+## ask the most, REQ_CAP at most.
+const REQ_ROW_BY_RARITY := [0, 0, 0, 1, 2, 3]
+const REQ_ROW_BOSS := 1
+const REQ_ELITE := [0, 1, 2, 2]
+const REQ_TABLE := {
+	"light": [0, 16, 24, 30],
+	"heavy": [0, 20, 28, 35],
+	"gear": [0, 14, 20, 26],
+	"heavy_armor": [0, 20, 28, 35],
+}
+const REQ_CAP := 35
+
+static func requirement_row(item: Item) -> int:
+	if GearCatalog.is_rhodes(item.base_id): return 0
+	if item.named_kind() == "boss": return REQ_ROW_BOSS
+	if item.is_legend(): return 0
+	return int(REQ_ROW_BY_RARITY[clampi(item.rarity, 0, Item.RARITY_MAX)])
 
 ## Why `progress` cannot wear `item`, or "" when she can.
 static func refusal(item: Item, progress: OperatorProgress) -> String:

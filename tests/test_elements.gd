@@ -67,7 +67,7 @@ func _ladder() -> void:
 	var bands_climb := true
 	for i in range(1, Scaling.BANDS.size()): bands_climb = bands_climb and float(Scaling.BANDS[i][0]) >= float(Scaling.BANDS[i - 1][1]) - 0.0001
 	check("six bands climb without overlap; blue stays 90–110%", bands_climb and is_equal_approx(Scaling.band_mid(Item.BLUE), 1.0))
-	check("orange's floor is above the next tier's blue floor (always crosses)", float(Scaling.BANDS[Item.ORANGE][0]) > float(Scaling.BANDS[Item.BLUE][0]) * Scaling.TIER_GROWTH)
+	check("gear has no tiers: crossing one is gone", not Scaling.crosses_tier(LootTables.roll_equipment(Item.Category.WEAPON, "x", "mine", 50, Item.RED, RandomNumberGenerator.new())) and is_equal_approx(Scaling.tier_base(7), 1.0))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
 	var lines_ok := true
@@ -108,7 +108,6 @@ func _ladder() -> void:
 
 func _labels() -> void:
 	check("tiers read as floors", Progression.grade_label(1) == "1–10 层" and Progression.grade_label(4) == "31–40 层" and Progression.grade_label(10) == "91+ 层")
-	check("a cell's corner shows the tier's last floor", Progression.grade_corner(4) == "40" and Progression.grade_corner(10) == "91+")
 	check("names carry no tier mark", not LootTables.roll_equipment(Item.Category.WEAPON, "x", "mine", 35, Item.BLUE, RandomNumberGenerator.new()).display_name().contains("4"))
 	check("flasks are named without their tier", BaseCatalog.potion_name(BaseCatalog.POTIONS.keys()[0], 5) == str(BaseCatalog.POTIONS[BaseCatalog.POTIONS.keys()[0]].name))
 	check("research tiers read 5 阶", ResearchCatalog.tier_label(5) == "5 阶")

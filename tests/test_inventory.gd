@@ -187,25 +187,39 @@ func run() -> void:
 	panel().right_click(blade, null)
 	await step()
 	check("right click on the worn item unequips", p.equipped.get(Item.Category.WEAPON) == null and game.inventory.items.has(blade))
+	# 用户 2026-10-24: 不再询问是否丢弃物品 — a drop goes to the ground at once.
 	panel().ask_drop(loose, game.inventory)
-	check("dropping asks first", panel()._confirm.visible and game.inventory.items.has(loose))
-	panel()._confirm.confirmed.emit()
-	panel()._confirm.hide()
 	await step()
-	check("confirming drops it on the ground", not game.inventory.items.has(loose) and get_nodes_in_group("loot").any(func(n): return n.item == loose))
+	check("dropping puts it on the ground at once, no question", not game.inventory.items.has(loose) and get_nodes_in_group("loot").any(func(n): return n.item == loose))
 	panel()._drag_item = small
 	panel()._drag_from = game.inventory
 	panel()._last_pointer = panel().panel.get_global_rect().get_center()
 	panel()._notification(Control.NOTIFICATION_DRAG_END)
-	check("a refused drop inside the panel is just cancelled", not panel()._confirm.visible and game.inventory.items.has(small))
-	panel()._drag_item = small
+	check("a refused drop inside the panel is just cancelled", game.inventory.items.has(small))
+	# 用户 2026-10-24: 移到快捷键的时候判定为丢弃了 — over the hotbar it binds, never drops.
+	var flask := BaseCatalog.create_potion("C")
+	game.inventory.add_stack(flask)
+	var hud: Hud = game._hud
+	var ui_at := hud._slot_rect(6).get_center()
+	var world_size := game.get_viewport().get_visible_rect().size
+	var ui_size := game.number_layer.get_viewport().get_visible_rect().size
+	game._pointer_position = ui_at * (world_size / ui_size)
+	game._has_pointer_position = true
+	panel()._drag_item = flask
 	panel()._drag_from = game.inventory
 	panel()._last_pointer = Vector2(-50, -50)
 	panel()._notification(Control.NOTIFICATION_DRAG_END)
-	check("a drag released outside the panel asks to drop", panel()._confirm.visible)
-	panel().hide()
+	check("a flask dragged onto a hotbar slot is bound there and stays in the pack", game.inventory.items.has(flask) and Hotbar.slots()[5].action == "potion_C", [game.hotbar_drop_slot(), Hotbar.slots()[5]])
+	game._has_pointer_position = false
+	panel()._drag_item = small
+	panel()._drag_from = game.inventory
+	panel()._last_pointer = Vector2(-50, -50)
+	game._pointer_position = Vector2(5, 5)
+	game._has_pointer_position = true
+	panel()._notification(Control.NOTIFICATION_DRAG_END)
 	await step()
-	check("closing the inventory closes the drop dialog", not panel()._confirm.visible)
+	check("a drag released outside the panel and the bar drops it at once", not game.inventory.items.has(small))
+	game._has_pointer_position = false
 	panel().show()
 	panel()._rebuild()
 	await step()

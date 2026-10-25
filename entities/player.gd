@@ -63,6 +63,16 @@ const ALTAR_MAX := 10
 const LINGER_SECONDS := 100.0
 const CROWD_SECONDS := 30.0
 const CROWD_COOLDOWN := 60.0
+## 雪牝的护手's dodge while it runs; the usual cap still holds (藏品数值修订案 §2).
+const DANCE_EVASION := 0.3
+const EVADE_ATK_SECONDS := 6.0
+## 金酒之杯 / 骑士戒律 / 投币玩具: one step per this many 赤金, at most GOLD_STEPS.
+const GOLD_PER_STEP := 10.0
+const GOLD_STEPS := 10.0
+## 登天斧 loses 10% every AXE_FLOORS floors after it is taken (§3.1).
+const AXE_ID := "登天斧"
+const AXE_FLOORS := 2
+const AXE_STEP := 0.10
 ## Amiya (Guard), 阿米娅攻击动作与特效设计案 §五 with the 2026-10-09 changes:
 ## every hit is arts damage off ATK (术战者); stage 2 is 奔夜's double cut.
 ## 数值平衡案_v1_0.md §4 (用户 2026-10-20): arts past armour plus 绝影 put her
@@ -184,7 +194,8 @@ var guard_timer := 0.0      # 霜牡的肩甲
 var guard_cooldown := 0.0
 var dance_timer := 0.0      # 雪牝的护手
 var dance_cooldown := 0.0
-var death_full_used := false   # 复还之手, this segment
+var death_full_block := -1     # 复还之手: the route map (10 floors) it was used on
+var evade_lock := 0.0          # 《归来》/《光耀卡西米尔》: no new trigger until it runs out
 var death_cling_used := false  # "时光之末", this contract
 var elite_kills := 0        # 米诺斯颂诗 / Friston.P, this contract
 var altar_stacks := 0       # 圆石祭坛, this contract
@@ -563,6 +574,7 @@ func _tick_relic_timers(delta: float) -> void:
 	hurt_timer = maxf(0, hurt_timer - delta)
 	engage_timer = maxf(0, engage_timer - delta)
 	evade_timer = maxf(0, evade_timer - delta)
+	evade_lock = maxf(0, evade_lock - delta)
 	wave_burst_timer = maxf(0, wave_burst_timer - delta)
 	invuln_timer = maxf(0, invuln_timer - delta)
 	bash_timer = maxf(0, bash_timer - delta)
@@ -598,7 +610,7 @@ func _tick_relics_in_field(delta: float) -> void:
 	if f("crowd_dance") > 0.0 and dance_cooldown <= 0.0 and nearby_enemy_count(3.0) >= 3:
 		dance_timer = CROWD_SECONDS
 		dance_cooldown = CROWD_COOLDOWN
-		message_requested.emit("雪牝的护手：攻速 +80、闪避 50%，持续 30 秒")
+		message_requested.emit("雪牝的护手：攻速 +80、闪避 +30%，持续 30 秒")
 
 # --- Loss of control (装备扩充策划案 §7.1) ----------------------------------------
 
@@ -1151,15 +1163,17 @@ func take_dot(amount: float, _kind: String) -> void:
 	if is_instance_valid(game): DamageNumber.spawn(game, global_position, str(roundi(amount)), "hurt")
 	stats_changed.emit()
 
-## 复还之手 (once a segment, back to full) then "时光之末" (once a contract, 1 life).
+## 复还之手 (once a route map, back to full: 藏品数值修订案 §2) then "时光之末"
+## (once a contract, 1 life).
 func _survive_lethal() -> bool:
 	if is_instance_valid(game) and game.potion_fx.emergency_save(self): return true
 	if kit != null and kit.survive_lethal(): return true
-	if f("death_full") > 0.0 and not death_full_used:
-		death_full_used = true
+	var block := RouteMap.block_of(game.floor_number) if is_instance_valid(game) else 0
+	if f("death_full") > 0.0 and death_full_block != block:
+		death_full_block = block
 		hp = max_hp
 		invuln_timer = 1.0
-		message_requested.emit("复还之手：受到致命伤时回满生命（本区段已用）")
+		message_requested.emit("复还之手：受到致命伤时回满生命（本张路线图已用）")
 		stats_changed.emit()
 		return true
 	if f("death_cling") > 0.0 and not death_cling_used:
@@ -1173,7 +1187,10 @@ func _survive_lethal() -> bool:
 
 func _on_evade() -> void:
 	if elements != null: elements.on_evade()
-	if f("evade_atk") > 0.0: evade_timer = 6.0
+	# 6 s of ATK, then 6 s before a dodge can start it again (藏品数值修订案 §2).
+	if f("evade_atk") > 0.0 and evade_lock <= 0.0:
+		evade_timer = EVADE_ATK_SECONDS
+		evade_lock = EVADE_ATK_SECONDS * 2.0
 	if f("avenge") > 0.0: avenge_ready = true
 
 func _on_block() -> void:
@@ -1195,7 +1212,6 @@ func reset_floor_state() -> void:
 	# 诡意 lifts different stats on every floor; 城垣 and 隔离 start over.
 	if families != null: families.on_floor()
 	_low_hp_ward_used_this_floor = false
-	death_full_used = false
 	hurt_stacks = 0
 	segment_time = 0.0
 	blocks_left = int(f("segment_blocks"))
@@ -1244,7 +1260,8 @@ func reset_stats() -> void:
 	guard_cooldown = 0
 	dance_timer = 0
 	dance_cooldown = 0
-	death_full_used = false
+	death_full_block = -1
+	evade_lock = 0
 	death_cling_used = false
 	elite_kills = 0
 	altar_stacks = 0
@@ -1355,7 +1372,8 @@ func _recompute_stats() -> void:
 		if meal.has(key): sheet[key] = float(sheet.get(key, 0.0)) + float(meal[key])
 	stats = sheet
 	var hp_pct := float(sheet.hp_pct) + (kit.hp_pct() if kit != null else 0.0) + f("elite_hp_stack") * mini(ELITE_STACK_MAX, elite_kills) + _axe_and_route_bonus()
-	max_hp = maxf(1.0, (CombatStats.BASE.hp + _buff_max_hp_bonus + float(sheet.hp)) * maxf(0.1, 1.0 + hp_pct) * Operators.stat_mult(operator_id, "hp") * research_mult("hp"))
+	# 残弩 / 断杖 / "断剑" cut life on their own (藏品数值修订案 §3.4): no life bonus dilutes them.
+	max_hp = maxf(1.0, (CombatStats.BASE.hp + _buff_max_hp_bonus + float(sheet.hp)) * maxf(0.1, 1.0 + hp_pct) * float(fx.get("hp_mult", 1.0)) * Operators.stat_mult(operator_id, "hp") * research_mult("hp"))
 	damage_bonus = 1.0 + _buff_damage_bonus + float(sheet.dmg_pct)
 	move_speed = BASE_MOVE_SPEED * maxf(0.3, 1.0 + float(sheet.move_pct))
 	# 攻速 divides the interval (明日方舟: interval / (攻速 / 100)), so stacking it
@@ -1370,13 +1388,15 @@ func _recompute_stats() -> void:
 	hp = minf(hp, max_hp)
 	stats_changed.emit()
 
-## 登天斧 fades with depth; 统帅肖像's extra share needs the deep route. Both
+## 登天斧 fades from the floor it was taken on; 统帅肖像's extra share needs the deep route. Both
 ## count toward ATK and max life.
 func _axe_and_route_bonus() -> float:
 	if not is_instance_valid(game): return 0.0
 	var bonus := 0.0
-	if f("axe") > 0.0: bonus += maxf(0.0, f("axe") - 0.10 * (game.floor_number - 1))
-	if f("route_bonus") > 0.0 and game.route_index == 2: bonus += f("route_bonus")
+	if f("axe") > 0.0:
+		var gone := maxi(0, game.floor_number - int(game.relic_floors.get(AXE_ID, game.start_floor))) / AXE_FLOORS
+		bonus += maxf(0.0, f("axe") - AXE_STEP * gone)
+	if f("route_bonus") > 0.0 and game.route_deep(): bonus += f("route_bonus")
 	return bonus
 
 func has_build(id: String) -> bool:
@@ -1510,10 +1530,10 @@ func lifesteal() -> float:
 	return clampf(float(stats.get("lifesteal", 0.0)), 0.0, CombatStats.LIFESTEAL_CAP)
 
 func evasion() -> float:
-	var value := float(stats.get("evasion", 0.0)) + (0.5 if dance_timer > 0.0 else 0.0)
+	var value := float(stats.get("evasion", 0.0)) + (DANCE_EVASION if dance_timer > 0.0 else 0.0)
 	if kit != null: value += kit.evasion_bonus()
 	if elements != null: value += elements.evasion_bonus()
-	return clampf(value, 0.0, CombatStats.EVASION_CAP if dance_timer <= 0.0 else 0.75)
+	return clampf(value, 0.0, CombatStats.EVASION_CAP)
 
 ## The chance to dodge one hit (装备前缀策划案 §2.7): its damage type's
 ## evasion plus its attack mode's — melee, or ranged for enemies that keep
@@ -1523,22 +1543,23 @@ func evasion_against(kind: String, attacker: Enemy = null) -> float:
 	var chance := evasion() if kind == "phys" else (arts_evasion() if kind == "arts" else 0.0)
 	if kind != "true" and is_instance_valid(attacker):
 		chance += float(stats.get("evasion_ranged" if attacker.keeps_distance else "evasion_melee", 0.0))
-	return clampf(chance, 0.0, CombatStats.EVASION_CAP if dance_timer <= 0.0 else 0.75)
+	return clampf(chance, 0.0, CombatStats.EVASION_CAP)
 
 func arts_evasion() -> float:
-	var value := float(stats.get("evasion_arts", 0.0)) + (0.5 if dance_timer > 0.0 else 0.0)
+	var value := float(stats.get("evasion_arts", 0.0)) + (DANCE_EVASION if dance_timer > 0.0 else 0.0)
 	if nightrun_timer > 0.0: value += 0.15
-	return clampf(value, 0.0, CombatStats.EVASION_CAP if dance_timer <= 0.0 else 0.75)
+	return clampf(value, 0.0, CombatStats.EVASION_CAP)
 
 ## Self-regeneration per second (paid out every HP_REGEN_INTERVAL once out of combat).
 ## 复利数值改造清单 E: her own is 0.1% of max HP a second and no bonus touches
 ## it; flat regeneration (relics, 体魄) is written at tier 1, takes the floor's
-## 档位系数, and the regeneration bonuses apply to that part only.
+## 档位系数, and the regeneration bonuses apply to that part only — 治疗效果
+## (活玫瑰, 苍白花冠) among them (藏品数值修订案 §3.2).
 func natural_regen() -> float:
 	return max_hp * CombatStats.BASE.regen_max_pct
 
 func bonus_regen() -> float:
-	return (float(stats.get("regen", 0.0)) * tier_coef() + max_hp * float(stats.get("regen_max_pct", 0.0))) * (1.0 + float(stats.get("regen_pct", 0.0)))
+	return (float(stats.get("regen", 0.0)) * tier_coef() + max_hp * float(stats.get("regen_max_pct", 0.0))) * (1.0 + float(stats.get("regen_pct", 0.0))) * (1.0 + float(stats.get("heal_pct", 0.0)))
 
 ## The current floor's 档位系数 (Scaling.tier_coef): fixed heals scale by it.
 func tier_coef() -> float:
@@ -1571,7 +1592,7 @@ func current_aspd() -> float:
 	aspd += f("low_hp_aspd") * clampf((1.0 - hp_ratio()) / 0.7, 0.0, 1.0)
 	if hp_ratio() < 0.25: aspd += f("critical_aspd")
 	if full_hp(): aspd += f("full_aspd")
-	if f("gold_aspd") > 0.0 and is_instance_valid(game): aspd += f("gold_aspd") * minf(10.0, floorf(game.gold_bars() / 5.0))
+	if f("gold_aspd") > 0.0 and is_instance_valid(game): aspd += f("gold_aspd") * minf(GOLD_STEPS, floorf(game.gold_bars() / GOLD_PER_STEP))
 	aspd += f("elite_aspd_stack") * mini(ELITE_STACK_MAX, elite_kills)
 	if dance_timer > 0.0: aspd += 80.0
 	# 狂暴攻势: the second and third stages of an unbroken combo come faster.

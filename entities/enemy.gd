@@ -4,7 +4,7 @@ extends Node3D
 ## Body centre above the ground it stands on.
 const GROUND_LIFT := 0.65
 
-## Perception and anchored guard squads drive idle/chase/return states.
+## Perception and 仇恨值 (aggro, LoL camp style) drive idle/chase/reset states.
 ## Movement follows NavigationAgent3D with terrain-checked final steps.
 ## Ordinary attacks read through poses, facing and sounds; elites telegraph.
 
@@ -49,8 +49,22 @@ var home_position := Vector3.ZERO
 var guard_post: Node3D
 var perception_radius := 10.0
 var leash_radius := 22.0
-var sight_memory := 3.0
-var _lost_sight_time := 0.0
+## 仇恨值 (LoL 野怪的 patience, 用户 2026-10-24): full while it sees her inside its
+## ring, topped up by her hits, draining while she is unseen and faster the
+## farther out of its ring the chase is. Until it empties it chases her; empty,
+## it resets: runs home RESET_SPEED× fast, healing RESET_HEAL of its HP a second,
+## deaf to her until it is home.
+var aggro := 0.0
+const AGGRO_MAX := 100.0
+## A second, while she is unseen inside its ring (about 6.5 s from full).
+const AGGRO_DECAY := 15.0
+## A second, while she or it is out of its ring, plus AGGRO_LEASH_PER_M for each metre out.
+const AGGRO_LEASH_DECAY := 30.0
+const AGGRO_LEASH_PER_M := 5.0
+const AGGRO_HIT := 35.0
+const AGGRO_HIT_FADE := 10.0
+const RESET_SPEED := 2.5
+const RESET_HEAL := 0.12
 var _last_seen_position := Vector3.ZERO
 var _rearm_timer := 0.0
 var _warning_markers: Array[Node] = []
@@ -480,49 +494,32 @@ func _physics_process(delta: float) -> void:
 	if attack_profile.get("roadblock", false):
 		_tick_roadblock(delta, player_position)
 		return
-	if behavior == Behavior.GUARD:
-		if not is_instance_valid(guard_post):
-			if state == State.CHASING: begin_return()
-		elif state == State.CHASING and (not guard_post.active or _flat_distance(global_position, guard_post.global_position) > guard_post.leash_radius):
-			begin_return()
-	elif behavior == Behavior.PATROL:
-		if state == State.IDLE and _rearm_timer <= 0 and (hunts() or _can_perceive(player_position)):
-			begin_chase()
-		elif state == State.CHASING:
-			if hunts() or _can_perceive(player_position):
-				_last_seen_position = player_position
-				_lost_sight_time = 0
-			else:
-				_lost_sight_time += delta
-				if _lost_sight_time >= sight_memory: _resume_patrol()
-	else:
-		if state == State.IDLE and _rearm_timer <= 0 and (provoked or not attack_profile.get("neutral", false)) and _can_perceive(player_position):
-			begin_chase()
-		elif state == State.CHASING:
-			if _flat_distance(player_position, home_position) > leash_radius or _flat_distance(global_position, home_position) > leash_radius:
-				begin_return()
-			elif _can_perceive(player_position):
-				_last_seen_position = player_position
-				_lost_sight_time = 0
-			else:
-				_lost_sight_time += delta
-				if _lost_sight_time >= sight_memory: begin_return()
+	if state == State.IDLE and _rearm_timer <= 0:
+		if behavior == Behavior.PATROL:
+			if hunts() or _can_perceive(player_position): begin_chase()
+		elif behavior == Behavior.NORMAL:
+			if (provoked or not attack_profile.get("neutral", false)) and _can_perceive(player_position): begin_chase()
+	elif state == State.CHASING:
+		if behavior == Behavior.GUARD and not is_instance_valid(guard_post): begin_return()
+		else: _tick_aggro(delta, player_position)
 	if behavior == Behavior.PATROL and state == State.IDLE:
 		_wander(delta)
 		return
 	if state == State.RETURNING:
+		health = minf(max_health, health + max_health * RESET_HEAL * delta)
 		if _flat_distance(global_position, home_position) <= 0.3:
 			global_position = home_position
+			# Home is whole again, as a camp is.
+			health = max_health
 			state = State.IDLE
 			_rearm_timer = 0.6
 			_repath_timer = 0
+			_wander_target = Vector3.INF
 		else:
 			_move_toward_target(home_position, delta)
 		return
 	if state != State.CHASING: return
 	var visible_player := game.line_of_sight(global_position, player_position)
-	if behavior == Behavior.GUARD or hunts() or _can_perceive(player_position):
-		_last_seen_position = player_position
 	var target := _last_seen_position
 	# 残影: for a moment it goes for the afterimage and does not swing.
 	if _decoy_time > 0.0:
@@ -561,9 +558,12 @@ func decoy(point: Vector3, seconds: float) -> void:
 ## 萨卢佐家族的旧徽记: elites pick her out from further off.
 const CREST_SIGHT := 1.5
 
+## 林隐 / 无声 (前缀放大与特效阶等案 §3): she slips out of sight.
+func _concealed(point: Vector3) -> bool:
+	return game.player != null and game.player.families != null and game.player.families.concealed_from(_flat_distance(global_position, point))
+
 func _can_perceive(point: Vector3) -> bool:
-	# 林隐 / 无声 (前缀放大与特效阶等案 §3): she slips out of sight.
-	if game.player != null and game.player.families != null and game.player.families.concealed_from(_flat_distance(global_position, point)): return false
+	if _concealed(point): return false
 	var reach := perception_radius * (CREST_SIGHT if elite and game.player != null and game.player.equipped_effect("saluzzo_crest") else 1.0) * game.feud_sight(self)
 	return _flat_distance(global_position, point) <= reach and _flat_distance(home_position, point) <= leash_radius and game.line_of_sight(global_position, point)
 
@@ -574,21 +574,70 @@ func begin_chase(force: bool = false) -> void:
 		if not _dead and sentinel_mode == "watch": _spot()
 		return
 	if _dead: return
-	if not force and (state == State.RETURNING or _rearm_timer > 0): return
+	# Resetting, it hears nothing until it is home.
+	if state == State.RETURNING or (not force and _rearm_timer > 0): return
 	# One guard up wakes its whole post (用户 2026-10-18).
 	if not force and behavior == Behavior.GUARD and is_instance_valid(guard_post) and not guard_post.active:
 		guard_post._activate()
 		return
 	_rearm_timer = 0
 	if attack_profile.get("neutral", false) and not provoked: return
+	# A patrol's ring is wherever it took up the chase: that is where it resets to.
+	if behavior == Behavior.PATROL and state != State.CHASING: home_position = global_position
 	state = State.CHASING
+	aggro = AGGRO_MAX
 	_last_seen_position = game.player.global_position
-	_lost_sight_time = 0
 	_repath_timer = 0
+
+## Where its ring is centred and how wide: a guard's is its post's.
+func leash_centre() -> Vector3:
+	return guard_post.global_position if behavior == Behavior.GUARD and is_instance_valid(guard_post) else home_position
+
+func leash_ring() -> float:
+	return guard_post.leash_radius if behavior == Behavior.GUARD and is_instance_valid(guard_post) else leash_radius
+
+## Full while it holds her inside its ring (a guard holds her while she is on its
+## post's ground), draining otherwise; it chases where she is unless she is hidden.
+func _tick_aggro(delta: float, player_position: Vector3) -> void:
+	var centre := leash_centre()
+	var out := maxf(_flat_distance(player_position, centre), _flat_distance(global_position, centre)) - leash_ring()
+	if out > 0.0:
+		aggro -= (AGGRO_LEASH_DECAY + AGGRO_LEASH_PER_M * out) * delta
+	elif _holds(player_position):
+		aggro = AGGRO_MAX
+	else:
+		aggro -= AGGRO_DECAY * delta
+	if not _concealed(player_position): _last_seen_position = player_position
+	if aggro <= 0.0: _reset()
+
+func _holds(player_position: Vector3) -> bool:
+	if behavior == Behavior.GUARD:
+		return guard_post.active and _flat_distance(player_position, guard_post.global_position) <= guard_post.release_radius
+	return hunts() or _can_perceive(player_position)
+
+## What her hit adds: AGGRO_HIT inside its ring, fading to nothing AGGRO_HIT_FADE m
+## out, so she can drag it along by hitting it but not drag it off for ever (用户 2026-10-24).
+func hit_aggro() -> float:
+	var centre := leash_centre()
+	var out := maxf(_flat_distance(game.player.global_position, centre), _flat_distance(global_position, centre)) - leash_ring()
+	return AGGRO_HIT * clampf(1.0 - out / AGGRO_HIT_FADE, 0.0, 1.0)
+
+## Her hit tops it up; a guard's squad shares it, as a camp does.
+func feed_aggro(amount: float) -> void:
+	var squad: Array = guard_post.guards if behavior == Behavior.GUARD and is_instance_valid(guard_post) else [self]
+	for e in squad:
+		if is_instance_valid(e) and e.state == State.CHASING: e.aggro = minf(AGGRO_MAX, e.aggro + amount)
+
+## Out of 仇恨值: home it goes, its whole post with it.
+func _reset() -> void:
+	aggro = 0.0
+	if behavior == Behavior.GUARD and is_instance_valid(guard_post): guard_post.release()
+	else: begin_return()
 
 func begin_return() -> void:
 	if _dead or state == State.RETURNING: return
 	state = State.RETURNING
+	aggro = 0.0
 	_cancel_attack()
 	_repath_timer = 0
 	_last_destination = Vector3.INF
@@ -608,20 +657,15 @@ func configure_wander() -> void:
 	leash_radius = 1.0e6
 	add_to_group("wanderers")
 
-func _resume_patrol() -> void:
-	state = State.IDLE
-	_cancel_attack()
-	home_position = global_position
-	_wander_target = Vector3.INF
-	_rearm_timer = 0.6
-	_repath_timer = 0
-
 ## Walks from waypoint to waypoint (GameManager.patrol_waypoint), a new one on
 ## arrival or after a while stuck.
 func _wander(delta: float) -> void:
 	_wander_time += delta
-	if _wander_target == Vector3.INF or _flat_distance(global_position, _wander_target) < 0.8 or _wander_time > 20.0:
-		_wander_target = game.patrol_waypoint(global_position)
+	# A patrol hunts her: it aims again once she is well off where it was going.
+	var hunting := patrol_wave > 0 and is_instance_valid(game.player)
+	var lost := hunting and _wander_target != Vector3.INF and _flat_distance(game.player.global_position, _wander_target) > GameManager.PATROL_RETARGET
+	if _wander_target == Vector3.INF or lost or _flat_distance(global_position, _wander_target) < 0.8 or _wander_time > 20.0:
+		_wander_target = game.patrol_waypoint(global_position, hunting)
 		_wander_time = 0.0
 	_move_toward_target(_wander_target, delta)
 
@@ -1402,7 +1446,9 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 		queue_free()
 	elif is_instance_valid(game) and state != State.RETURNING:
 		# Being hit is also perception, but cannot pull enemies beyond home.
-		if behavior == Behavior.GUARD and is_instance_valid(guard_post):
+		if state == State.CHASING:
+			feed_aggro(hit_aggro())
+		elif behavior == Behavior.GUARD and is_instance_valid(guard_post):
 			guard_post.alert_from_hit()
 		elif _flat_distance(home_position, game.player.global_position) <= leash_radius:
 			begin_chase()
@@ -1650,6 +1696,7 @@ func own_art() -> bool:
 func current_speed() -> float:
 	var speed := move_speed
 	if behavior == Behavior.PATROL and state == State.IDLE: speed *= 0.7
+	if state == State.RETURNING: speed *= RESET_SPEED
 	if _run_timer > 0.0: speed *= 2.0
 	if gliding_now(): speed *= 3.0
 	if status_value("haste") > 0.0: speed *= 1.3

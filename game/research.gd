@@ -80,7 +80,7 @@ func start(id: String) -> bool:
 	game.gold -= ResearchCatalog.price(id)
 	game.consume_materials(ResearchCatalog.materials(id))
 	var now := BaseState.now()
-	active().append({"id": id, "start": now, "end": now + ResearchCatalog.hours(id) * 3600})
+	active().append({"id": id, "start": now, "end": now + ResearchCatalog.seconds(id)})
 	game.story_note("research")
 	game.save_base()
 	return true
@@ -241,8 +241,8 @@ func workshop_time_factor() -> float:
 func feed_factor() -> float:
 	return maxf(0.1, (0.8 if game.base.researched("feed_fee") else 1.0) * (1.0 + endless_value("feed")))
 
-## Free flasks one tier higher (医疗部 5 阶): 0 or 1.
-func free_potion_tier_bonus() -> int: return 1 if game.base.researched("potion_grade") else 0
+## Flasks have no tiers (§19); 高浓度配方 gives two more free ones instead (BaseState).
+func free_potion_tier_bonus() -> int: return 0
 
 ## What raises every map feature on this contract.
 func feature_factor() -> float:

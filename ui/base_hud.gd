@@ -65,14 +65,42 @@ func _draw() -> void:
 		_text(Vector2(18, 46), "罗德岛 · 舰桥大厅", 20, AK.FG)
 	_draw_stations()
 	# PRTS log.
+	# A line too long for the box goes on under itself (用户 2026-10-24: 超出的文字起第二行).
 	var lines: Array = game.prts_log.slice(maxi(0, game.prts_log.size() - 4))
 	if not lines.is_empty():
-		var box := Rect2(14, 706 - 22 - lines.size() * 18, 380, 22 + lines.size() * 18)
+		var stamp := AK.en().get_string_size("00:00", HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
+		var rows: Array = []
+		for line in lines:
+			var parts := wrap_text(I18n.t(str(line[1])), 12, LOG_WIDTH - 26 - stamp)
+			for k in range(parts.size()): rows.append([str(line[0]).left(5) if k == 0 else "", parts[k]])
+		var box := Rect2(14, 706 - 22 - rows.size() * 18, LOG_WIDTH, 22 + rows.size() * 18)
 		draw_rect(box, Color(0, 0, 0, 0.7))
-		for i in range(lines.size()):
+		for i in range(rows.size()):
 			var ly := box.position.y + 24 + i * 18
-			var w := _text(Vector2(box.position.x + 10, ly), str(lines[i][0]).left(5), 10, AK.DIM, AK.en())
-			_text(Vector2(box.position.x + 16 + w, ly), lines[i][1], 12, AK.FG)
+			if not str(rows[i][0]).is_empty(): _text(Vector2(box.position.x + 10, ly), rows[i][0], 10, AK.DIM, AK.en())
+			_text(Vector2(box.position.x + 16 + stamp, ly), rows[i][1], 12, AK.FG)
+
+const LOG_WIDTH := 380.0
+
+## `text` cut into lines no wider than `room` at `size`: at a space when the
+## line has one (English), else at any character (Chinese).
+static func wrap_text(text: String, size: int, room: float) -> Array[String]:
+	var font := AK.cn()
+	var out: Array[String] = []
+	var line := ""
+	for c in text:
+		if font.get_string_size(line + c, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x <= room or line.is_empty():
+			line += c
+			continue
+		var cut := line.rfind(" ")
+		if c != " " and cut > 0:
+			out.append(line.left(cut))
+			line = line.substr(cut + 1) + c
+		else:
+			out.append(line)
+			line = "" if c == " " else c
+	if not line.is_empty() or out.is_empty(): out.append(line)
+	return out
 
 ## The stations listed in the overview, in order (all but the ones hidden in the settings).
 static func shown_stations() -> Array:

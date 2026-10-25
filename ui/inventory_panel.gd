@@ -25,9 +25,6 @@ var _hover_rect := Rect2()
 var _float: HBoxContainer
 var _actions: HBoxContainer
 var _detail := false
-var _confirm: ConfirmationDialog
-var _pending_drop: Item
-var _pending_from: ItemContainer
 var _drag_item: Item
 var _drag_from: ItemContainer
 var _drag_from_equip := false
@@ -71,15 +68,6 @@ func _ready() -> void:
 	_notice.visible = false
 	_notice.z_index = 30
 	add_child(_notice)
-	_confirm = ConfirmationDialog.new()
-	_confirm.title = "丢弃物品"
-	_confirm.ok_button_text = "丢到地面"
-	_confirm.cancel_button_text = "取消"
-	_confirm.confirmed.connect(func():
-		if _pending_drop != null: game.drop_item(_pending_drop, _pending_from)
-		_pending_drop = null
-		_rebuild())
-	add_child(_confirm)
 
 func _title_bar() -> Control:
 	var bar := PanelContainer.new()
@@ -147,14 +135,17 @@ func _input(event: InputEvent) -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not visible or not event.pressed or event.echo: return
+	# 旋转物品 (T) turns the item under the pointer a quarter, where it lies (用户 2026-10-24).
+	if event.is_action_pressed("rotate_item") and hovered != null and hovered_container != null:
+		if hovered_container.rotate_in_place(hovered): _rebuild()
+		get_viewport().set_input_as_handled()
+		return
 	if event.keycode in [KEY_DELETE, KEY_X] and selected != null and selected_container != null:
 		ask_drop(selected, selected_container)
 		get_viewport().set_input_as_handled()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_VISIBILITY_CHANGED and not visible and is_instance_valid(_confirm):
-		_confirm.hide()
-		_pending_drop = null
+	if what == NOTIFICATION_VISIBILITY_CHANGED and not visible:
 		if is_instance_valid(_float): _float.visible = false
 	if what == NOTIFICATION_DRAG_END and _drag_item != null:
 		var item := _drag_item
@@ -162,6 +153,12 @@ func _notification(what: int) -> void:
 		var from_equip := _drag_from_equip
 		_drag_item = null
 		if not get_viewport().gui_is_drag_successful() and visible and not panel.get_global_rect().has_point(_last_pointer):
+			# Over the hotbar it is a binding, never a drop (用户 2026-10-24).
+			var slot := game.hotbar_drop_slot()
+			if slot >= -1:
+				game.bind_to_hotbar(item, slot)
+				_rebuild()
+				return
 			if from_equip:
 				if game.unequip_to_pack(item): ask_drop(item, game.inventory)
 			elif from != null: ask_drop(item, from)
@@ -473,12 +470,13 @@ func _tip_card(bbcode: String) -> PanelContainer:
 
 # --- Actions shared by tiles, slots and keys --------------------------------------
 
+## Drops `item` on the ground at once (用户 2026-10-24: 不再询问是否丢弃物品).
 func ask_drop(item: Item, from: ItemContainer) -> void:
 	if item == null: return
-	_pending_drop = item
-	_pending_from = from
-	_confirm.dialog_text = "把 %s 丢到地面？" % item.display_name()
-	_confirm.popup_centered()
+	game.drop_item(item, from)
+	selected = null
+	hovered = null
+	_rebuild()
 
 func right_click(item: Item, container: ItemContainer) -> void:
 	if container == null: game.unequip_to_pack(item)
@@ -656,6 +654,9 @@ class ItemTile extends Button:
 			image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			image.position = ((tile_size - texture.get_size()) * 0.5).floor()
 			image.size = texture.get_size()
+			if shown.rotated:
+				image.pivot_offset = image.size * 0.5
+				image.rotation = PI * 0.5
 			preview.add_child(image)
 		else:
 			preview.text = shown.item_name.left(2)
@@ -693,7 +694,6 @@ class ItemTile extends Button:
 		var s := control.size
 		if shown.insured:
 			control.draw_colored_polygon(PackedVector2Array([Vector2(3, 3), Vector2(13, 3), Vector2(13, 9), Vector2(8, 14), Vector2(3, 9)]), InventoryPanel.INSURED)
-		AK.draw_grade_corner(control, shown, 16.0 if shown.insured else 3.0)
 		if in_safe:
 			control.draw_rect(Rect2(3, s.y - 13, 9, 7), AK.GREEN)
 			control.draw_arc(Vector2(7.5, s.y - 13), 3.0, PI, TAU, 8, AK.GREEN, 1.5)

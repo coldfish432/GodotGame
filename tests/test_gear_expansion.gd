@@ -135,9 +135,10 @@ func _named() -> void:
 		and axe.modifiers.filter(func(m): return m.tier == GearCatalog.IMPLICIT_TIER).size() == 2 and axe.modifiers.filter(func(m): return m.tier >= 0).size() == 1
 		and axe.rarity_color() == Item.LEGEND_COLOR and axe.display_name().contains("专属"))
 	var boss_axe := SpecialGear.roll_exclusive("breacher", "city", 1, rng, true)
-	check("a boss's exclusive is one grade higher, its power one tier base up", boss_axe.grade == 2 and is_equal_approx(boss_axe.power, float(SpecialGear.GEAR[boss_axe.special].power) * Scaling.tier_base(2)))
+	# No tiers (属性伤害与地区装备策划案 v1.1 §19): a boss's is ×BOSS_POWER instead.
+	check("a boss's exclusive is ×1.3, still tier 1", boss_axe.grade == 1 and is_equal_approx(boss_axe.power, float(SpecialGear.GEAR[boss_axe.special].power) * SpecialGear.BOSS_POWER))
 	var deep_axe := SpecialGear.roll_exclusive("breacher", "city", 21, rng)
-	check("on floor 21 an exclusive is grade 3", deep_axe.grade == 3 and is_equal_approx(deep_axe.power, float(SpecialGear.GEAR[deep_axe.special].power) * Scaling.tier_base(3)))
+	check("on floor 21 an exclusive is the same as on floor 1", deep_axe.grade == 1 and is_equal_approx(deep_axe.power, float(SpecialGear.GEAR[deep_axe.special].power)))
 	check("exclusive weapons keep their form", Progression.requirement(axe).attribute == "phy")
 	var copy := Item.from_data(axe.to_data())
 	check("named gear survives a save", copy.special == axe.special and copy.named_kind() == "exclusive" and copy.grade == axe.grade and is_equal_approx(copy.power, axe.power))

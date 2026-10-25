@@ -8,8 +8,6 @@ extends RefCounted
 ## Data, state and buttons only — no rule text (用户 2026-10-05).
 
 const SOURCE_EN := {"device": "ENHANCEMENT DEVICE", "cache": "COMBAT CACHE", "vault": "SEALED VAULT"}
-const ROUTE_EN := ["INSPECTION", "SUPPLY FACE", "DEEP ZONE"]
-const ROUTE_COLOURS := [AK.FG, AK.SP, AK.RED]
 
 static func _title(stage: Control, at: Vector2, en_text: String, cn_text: String, sub: String = "", en_color: Color = AK.MUTE) -> void:
 	var column := VBoxContainer.new()
@@ -146,100 +144,244 @@ static func builds(menu: FieldMenu) -> void:
 
 # --- #8 路线选择 ---------------------------------------------------------------------
 
+## The block's route map (肉鸽路线图策划案 v0.2 §7): ten columns left to right
+## and the camp at the end. Walked columns and the next one show names; the one
+## after shows only "未知作战" / "未知遭遇"; further on, only floor codes, the
+## extraction's and the contract's tags, and the block's last floor. `index`
+## is the line picked first (the marker she stood at).
 static func routes(menu: FieldMenu, index: int) -> void:
 	var game := menu.game
 	var stage := menu.stage_begin(0.97)
-	var pick := int(menu.pick) if menu.pick is int else index
+	var map: Dictionary = game.route_map
+	var here: Vector2i = game.route_node
+	var rows: Array = game.route_choices()
+	var pick := clampi(int(menu.pick) if menu.pick is int else index, 0, maxi(0, rows.size() - 1))
 	_title(stage, Vector2(84, 18), "INTEGRATED ROUTE", "选择去向")
 	var back := AK.button("‹", "ghost", 24)
 	AK.put(stage, back, Vector2(24, 26), Vector2(48, 48))
-	back.pressed.connect(game.close_modal)
+	back.pressed.connect(game.close_routes)
 	var money := AK.money("gold", str(game.gold_bars()))
-	AK.put(stage, money, Vector2(1160, 30))
-	var map := Control.new()
-	AK.put(stage, map, Vector2(-180, 0), Vector2(1280, 720))
+	AK.put(stage, money, Vector2(860, 30))
+	var block := int(map.get("block", 0))
+	var cols: Array = map.get("cols", [])
+	var clear: int = game.route_sight()
+	# The map scrolls sideways when it is wider than its room (用户 2026-10-24:
+	# 一张图放不下就做可滑动的): drag or the wheel; it opens on the column ahead.
+	var view := RouteView.new()
+	AK.put(stage, view, Vector2(0, ROUTE_TOP), Vector2(970, 720 - ROUTE_TOP - 40))
+	var layer := Control.new()
+	layer.mouse_filter = Control.MOUSE_FILTER_PASS
+	var width := ROUTE_X0 * 2.0 + (cols.size() + 1) * ROUTE_STEP
+	layer.custom_minimum_size = Vector2(width, 720 - ROUTE_TOP - 52)
+	view.add_child(layer)
 	var lines := RouteLines.new()
-	AK.put(map, lines, Vector2.ZERO, Vector2(1280, 720))
-	# The floors walked (last three) and the current one in paper.
-	var history: Array = game.route_history if not game.route_history.is_empty() else [{"floor": game.floor_number, "name": "入口"}]
-	var walked: Array = history.slice(maxi(0, history.size() - 4), history.size() - 1)
-	var points: Array[Vector2] = []
-	for i in range(walked.size()):
-		var at := Vector2(600 - (walked.size() - i) * 200, 360)
-		points.append(at)
-		_node(map, at, AK.floor_code(game.region_id, walked[i].floor), walked[i].name, "done")
-	var here := Vector2(600, 360)
-	points.append(here)
-	_node(map, here, AK.floor_code(game.region_id, game.floor_number), history[-1].name, "here")
-	lines.walked = points
-	lines.from = here
-	var next := game.floor_number + 1
-	var camp_next := game.floor_number % FieldCatalog.CAMP_INTERVAL == 0
-	for i in range(FieldCatalog.ROUTES.size()):
-		var route: Dictionary = FieldCatalog.ROUTES[i]
-		var at := Vector2(820, [220, 360, 500][i])
-		lines.targets.append(at)
-		var node := _node(map, at, AK.floor_code(game.region_id, next), route.name, "next", ROUTE_COLOURS[i], i == pick)
-		node.set_meta("label", "进入 " + route.name)
-		var chosen := i
-		node.pressed.connect(func(): menu.pick = chosen; routes(menu, index))
-	var beyond := Vector2(1040, 360)
-	lines.beyond = beyond
-	_node(map, beyond, game.camp_label(game.floor_number) if camp_next else AK.floor_code(game.region_id, next + 1), "—", "far")
-	# The detail of the picked route, on the right.
-	var route: Dictionary = FieldCatalog.ROUTES[pick]
-	var colour: Color = ROUTE_COLORS_SAFE(pick)
+	AK.put(layer, lines, Vector2.ZERO, layer.custom_minimum_size)
+	var ahead_x := ROUTE_X0 + (here.x + 2) * ROUTE_STEP
+	var start: float = menu.get_meta("route_scroll", -1.0) if menu.pick is int else -1.0
+	if start < 0.0: start = clampf(ahead_x - 330.0, 0.0, maxf(0.0, width - 970.0))
+	view.set_deferred("scroll_horizontal", roundi(start))
+	view.get_h_scroll_bar().value_changed.connect(func(v: float): menu.set_meta("route_scroll", v))
+	var centres := {}   # Vector2i -> centre
+	for c in range(cols.size()):
+		var col: Array = cols[c]
+		for r in range(col.size()):
+			centres[Vector2i(c, r)] = Vector2(ROUTE_X0 + (c + 1) * ROUTE_STEP, ROUTE_MID + (r - (col.size() - 1) * 0.5) * ROUTE_ROW)
+	var origin := Vector2(ROUTE_X0, ROUTE_MID)
+	var camp_at := Vector2(ROUTE_X0 + (cols.size() + 1) * ROUTE_STEP, ROUTE_MID)
+	var trail: Array = game.route_trail
+	# The lines first, under the nodes.
+	for c in range(cols.size() - 1):
+		var near_sight := RouteMap.sight(c + 1, here.x, clear)
+		if near_sight == "dark" and c + 1 != cols.size() - 1: continue
+		for r in range(cols[c].size()):
+			for to in map.edges[c][r]:
+				var a: Vector2 = centres[Vector2i(c, r)]
+				var b: Vector2 = centres[Vector2i(c + 1, int(to))]
+				var walked := c + 1 < trail.size() and int(trail[c]) == r and int(trail[c + 1]) == int(to)
+				var ahead := c == here.x and r == here.y
+				if near_sight == "dark": continue
+				lines.links.append([a, b, "walked" if walked else ("ahead" if ahead else "faint")])
+	if here.x < 0 and block > 0:
+		for r in range(cols[0].size()): lines.links.append([origin, centres[Vector2i(0, r)], "ahead"])
+	for r in range(cols[cols.size() - 2].size() if cols.size() > 1 else 0):
+		if RouteMap.sight(cols.size() - 2, here.x, clear) != "dark": lines.links.append([centres[Vector2i(cols.size() - 2, r)], centres[Vector2i(cols.size() - 1, 0)], "faint"])
+	lines.links.append([centres.get(Vector2i(cols.size() - 1, 0), camp_at), camp_at, "faint"])
+	if block > 0: _route_node(layer, origin, "", "小队营地", "here" if here.x < 0 else "done", AK.GREEN)
+	# The floor codes along the foot, tags over the dark columns.
+	for c in range(cols.size()):
+		var x := ROUTE_X0 + (c + 1) * ROUTE_STEP
+		var code := AK.floor_code(game.region_id, RouteMap.floor_of(block, c))
+		var cell := AK.label(code, 10, AK.FG if c == here.x + 1 else AK.DIM, AK.en())
+		cell.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		AK.put(layer, cell, Vector2(x - 36, ROUTE_CODES), Vector2(72, 14))
+		if RouteMap.sight(c, here.x, clear) == "dark" and c != cols.size() - 1:
+			var tags := _route_tags(cols[c])
+			if not tags.is_empty(): AK.put(stage, AK.tag(" · ".join(PackedStringArray(tags.map(func(t): return str(t[0])))), tags[0][1]), Vector2(x - 34, ROUTE_CODES - 40))
+	for c in range(cols.size()):
+		var seen := RouteMap.sight(c, here.x, clear)
+		var last := c == cols.size() - 1
+		if seen == "dark" and not last: continue
+		for r in range(cols[c].size()):
+			var node: Dictionary = cols[c][r]
+			var at: Vector2 = centres[Vector2i(c, r)]
+			var kind := str(node.kind)
+			var info := RouteMap.info(kind)
+			var state := "far"
+			if c == here.x and r == here.y: state = "here"
+			elif c < here.x or (c == here.x): state = "walked" if c < trail.size() and int(trail[c]) == r else "done"
+			elif c == here.x + 1 and rows.has(r): state = "next"
+			var name := RouteMap.kind_name(kind)
+			if seen == "fuzzy" and not last:
+				name = "未知作战" if RouteMap.is_fight(kind) else "未知遭遇"
+				state = "fuzzy"
+			var tags := " · ".join(PackedStringArray(_route_tags([node]).map(func(t): return str(t[0]))))
+			var b := _route_node(layer, at, tags, name, state, info.color if seen != "fuzzy" else AK.DIM, state == "next" and rows.find(r) == pick)
+			if state == "next":
+				var line := rows.find(r)
+				b.set_meta("label", "进入 " + name)
+				b.pressed.connect(func(): menu.pick = line; routes(menu, index))
+	_route_node(layer, camp_at, "", "小队营地", "far", AK.GREEN)
+	lines.queue_redraw()
+	# The picked node's data on the right.
 	AK.put(stage, AK.rect(Color(0.055, 0.055, 0.055, 0.96), Vector2(980, 80), Vector2(300, 640)), Vector2(980, 80))
 	AK.put(stage, AK.rect(Color("090b0c"), Vector2(980, 80), Vector2(300, 150)), Vector2(980, 80))
+	var target := Vector2i(here.x + 1, int(rows[pick])) if not rows.is_empty() else Vector2i(-1, -1)
+	var camp_next := not game.in_camp and game.floor_number % FieldCatalog.CAMP_INTERVAL == 0
+	var picked := RouteMap.node_at(map, target) if not camp_next else {}
+	var kind := str(picked.get("kind", ""))
+	var info := RouteMap.info(kind)
+	var colour: Color = AK.GREEN if camp_next else info.color
 	AK.put(stage, AK.rect(colour, Vector2(980, 227), Vector2(300, 3)), Vector2(980, 227))
-	AK.put(stage, AK.label("0%d" % (pick + 1), 80, Color(1, 1, 1, 0.06), AK.en()), Vector2(988, 128))
-	AK.put(stage, AK.label(ROUTE_EN[pick], 10, AK.MUTE, AK.en()), Vector2(996, 96))
-	AK.put(stage, AK.label(route.name, 24, colour), Vector2(996, 112))
-	var detail: String = route.detail.replace(" / ", " · ")
-	if game.region_id == "mine": detail = detail.replace("精英增援", "敌群增援")
-	var detail_label := AK.label(detail, 13, AK.MUTE)
-	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	AK.put(stage, detail_label, Vector2(996, 246), Vector2(268, 40))
-	AK.put(stage, AK.label("掉落加成", 13, AK.MUTE), Vector2(996, 300))
-	AK.put(stage, AK.label("+%d%%" % roundi(float(route.reward) * 100), 20, AK.SP, AK.en()), Vector2(1200, 294))
-	AK.put(stage, AK.rect(AK.LINE, Vector2(996, 330), Vector2(268, 1)), Vector2(996, 330))
+	if camp_next:
+		AK.put(stage, AK.label("SQUAD CAMP", 10, AK.MUTE, AK.en()), Vector2(996, 96))
+		AK.put(stage, AK.label(game.camp_label(game.floor_number), 24, colour), Vector2(996, 112))
+	elif not picked.is_empty():
+		AK.put(stage, AK.label("%02d" % (RouteMap.col_of(RouteMap.floor_of(block, target.x)) + 1), 80, Color(1, 1, 1, 0.06), AK.en()), Vector2(988, 128))
+		AK.put(stage, AK.label(str(info.en), 10, AK.MUTE, AK.en()), Vector2(996, 96))
+		AK.put(stage, AK.label(RouteMap.kind_name(kind), 24, colour), Vector2(996, 112))
+		var y := 248.0
+		var calm := bool(info.get("calm", false))
+		var danger := float(info.danger)
+		var level := 0 if calm else (1 if danger <= -2.0 else (2 if danger < 3.0 else 3))
+		for row in [["危险", level], ["威胁", 0 if calm else 2]]:
+			AK.put(stage, AK.label(row[0], 13, AK.MUTE), Vector2(996, y))
+			for k in range(3): AK.put(stage, AK.rect(colour if k < int(row[1]) else AK.LINE, Vector2.ZERO, Vector2(22, 8)), Vector2(1196 + k * 26, y + 6))
+			y += 30
+		AK.put(stage, AK.label("掉落加成", 13, AK.MUTE), Vector2(996, y))
+		AK.put(stage, AK.label("+%d%%" % roundi(float(info.reward) * 100), 20, AK.SP, AK.en()), Vector2(1200, y - 6))
+		y += 34
+		AK.put(stage, AK.rect(AK.LINE, Vector2.ZERO, Vector2(268, 1)), Vector2(996, y))
+		y += 12
+		for entry in _route_contents(game, picked):
+			AK.put(stage, AK.label(entry[0], 14, entry[1]), Vector2(996, y))
+			y += 24
 	var go := AK.go_button("前进", "PROCEED")
 	AK.put(stage, go, Vector2(996, 634), Vector2(268, 66))
+	go.disabled = rows.is_empty()
 	go.pressed.connect(func(): menu.pick = null; game.advance(pick))
 
-static func ROUTE_COLORS_SAFE(i: int) -> Color:
-	return ROUTE_COLOURS[clampi(i, 0, ROUTE_COLOURS.size() - 1)]
+const ROUTE_X0 := 44.0
+const ROUTE_STEP := 104.0
+## The scrolling map's top on the stage; inside it, the nodes' middle row and the floor codes.
+const ROUTE_TOP := 90.0
+const ROUTE_MID := 270.0
+const ROUTE_CODES := 548.0
+const ROUTE_ROW := 92.0
+const ROUTE_HALF := 34.0
 
-## A node on the route map: code over name, a glyph square on the left.
-static func _node(parent: Control, centre: Vector2, code: String, name: String, state: String, colour: Color = AK.FG, selected: bool = false) -> Button:
+## The tags a column shows even in the dark: the extraction, the contract's marks.
+static func _route_tags(col: Array) -> Array:
+	var out: Array = []
+	for node in col:
+		if bool(node.get("exit", false)): out.append(["撤离信标", AK.GREEN])
+		match str(node.get("mark", "")):
+			"bounty": out.append(["悬赏", AK.SP])
+			"search": out.append(["合同", AK.SP])
+			"deliver": out.append(["交货", AK.SP])
+	return out
+
+## What a node holds, as words (no sentences): who stands there and what is found.
+static func _route_contents(game: GameManager, node: Dictionary) -> Array:
+	var kind := str(node.kind)
+	var out: Array = []
+	match kind:
+		"trader": out.append(["坎诺特", AK.SP])
+		"rest": out.append_array([["罗德岛小队", AK.CYAN], ["营火", AK.FG], ["冲淋装置", AK.FG]])
+		"relic": out.append_array([["藏品箱 ×3", Color("c48cff")], ["兴趣点 +2", AK.FG]])
+		"elite": out.append(["恶敌", AK.RED])
+		"vault": out.append(["密室", AK.SP])
+		"fate": out.append(["踪迹", Color("e0782a")])
+		"post": out.append([FactionCatalog.name_of(str(node.get("faction", ""))) if not str(node.get("faction", "")).is_empty() else "势力据点", AK.GREEN])
+		"event": out.append(["事件", AK.FG])
+		"outpost", "boss": out.append(["守卫者" if kind == "outpost" else "首领", AK.RED])
+	if not RouteMap.info(kind).get("no_device", false) and not kind in ["outpost", "boss"]: out.append(["强化装置", AK.MUTE])
+	for tag in _route_tags([node]): out.append(tag)
+	return out
+
+## A node: its tags over its name, the colour as its bottom line. No glyph
+## (用户 2026-10-24: 不要图标).
+static func _route_node(parent: Control, centre: Vector2, tags: String, name: String, state: String, colour: Color = AK.FG, selected: bool = false) -> Button:
 	var b := Button.new()
 	b.focus_mode = Control.FOCUS_NONE
-	var fill: Color = {"done": Color("181c1f"), "here": AK.PAPER, "next": AK.PLATE_2, "far": Color("181c1f")}[state]
+	var fill: Color = {"done": Color("181c1f"), "walked": Color("2a3034"), "here": AK.PAPER, "next": AK.PLATE_2, "far": Color("181c1f"), "fuzzy": Color("23282b")}[state]
 	for s in ["normal", "hover", "pressed", "disabled"]:
 		var style := AK.box(fill.lightened(0.08) if s == "hover" and state == "next" else fill)
-		if state == "next":
+		if state != "here":
 			style.border_color = colour
-			style.border_width_bottom = 3
+			style.border_width_bottom = 3 if state in ["next", "far", "walked"] else 1
 		b.add_theme_stylebox_override(s, style)
 	b.disabled = state != "next"
-	if state in ["done", "far"]: b.modulate.a = 0.6
-	AK.put(parent, b, centre - Vector2(75, 28), Vector2(150, 56))
-	var dark := state == "here"
-	var glyph := AK.rect(Color.BLACK if not dark else AK.INK, Vector2(8, 8), Vector2(40, 40))
-	b.add_child(glyph)
-	var letter := AK.label(I18n.t(name).left(1) if name != "—" else "·", 16, colour if state == "next" else (AK.PAPER if dark else AK.MUTE))
-	letter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	letter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	letter.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	AK.put(b, letter, Vector2(8, 8), Vector2(40, 40))
-	var code_label := AK.label(code, 10, Color("555555") if dark else AK.MUTE, AK.en())
-	code_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	AK.put(b, code_label, Vector2(56, 8))
-	var name_label := AK.label(name, 14, AK.INK if dark else AK.FG)
-	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	AK.put(b, name_label, Vector2(56, 24))
+	if state in ["done", "far"]: b.modulate.a = 0.55
+	AK.put(parent, b, centre - Vector2(ROUTE_HALF, 20), Vector2(ROUTE_HALF * 2.0, 40))
+	# The four characters on one line (用户 2026-10-24: 每个节点四个字在一行).
+	var label := AK.label(name, 13, AK.INK if state == "here" else (AK.MUTE if state == "fuzzy" else AK.FG))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	AK.put(b, label, Vector2.ZERO, Vector2(ROUTE_HALF * 2.0, 40))
+	if not tags.is_empty():
+		var tag := AK.label(tags, 10, AK.GREEN if tags.begins_with("撤离") else AK.SP)
+		tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		AK.put(b, tag, Vector2(ROUTE_HALF - 55, 43), Vector2(110, 14))
 	if selected: AK.frame(b, AK.SP, 2.0)
 	return b
+
+# --- 不期而遇 (肉鸽路线图策划案 v0.2 §5) ---------------------------------------------
+
+## The event's card: name, who speaks and the one line, then its choices as
+## cost → gain, a refused one with its reason. Leaving keeps it for later.
+static func event_card(menu: FieldMenu) -> void:
+	var game := menu.game
+	var stage := menu.stage_begin(0.8)
+	var ev := RouteEvents.info(game.event_id())
+	var options: Array = game.event_options()
+	var height := 250.0 + options.size() * 70.0
+	var top := (720.0 - height) * 0.5
+	AK.put(stage, AK.rect(AK.PLATE_SOLID, Vector2.ZERO, Vector2(640, height)), Vector2(320, top))
+	AK.put(stage, AK.rect(RouteMap.info("event").color, Vector2.ZERO, Vector2(640, 3)), Vector2(320, top))
+	_title(stage, Vector2(352, top + 24), "ENCOUNTER", str(ev.get("name", "")), "", AK.MUTE)
+	AK.put(stage, AK.label(str(ev.get("speaker", "")), 13, AK.SP), Vector2(352, top + 96))
+	var line := AK.label("“%s”" % str(ev.get("line", "")), 16, AK.FG)
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	AK.put(stage, line, Vector2(352, top + 118), Vector2(576, 48))
+	var y := top + 178.0
+	for i in range(options.size()):
+		var opt: Dictionary = options[i]
+		var b := AK.button(str(opt.text), "plain", 16)
+		b.disabled = not str(opt.refusal).is_empty()
+		b.set_meta("label", str(opt.text))
+		AK.put(stage, b, Vector2(352, y), Vector2(576, 56))
+		if b.disabled:
+			var why := AK.label(str(opt.refusal), 12, AK.RED)
+			why.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			AK.put(b, why, Vector2(440, 20), Vector2(130, 16))
+		var chosen := i
+		b.pressed.connect(func(): game.event_choose(chosen))
+		y += 70.0
+	var leave := AK.button("✕ 离开", "ghost", 16)
+	AK.put(stage, leave, Vector2(352, y), Vector2(576, 48))
+	leave.pressed.connect(game.close_modal)
 
 # --- #9 罗德岛小队 -------------------------------------------------------------------
 
@@ -307,7 +449,7 @@ static func squad(menu: FieldMenu) -> void:
 		if not item.is_equippable(): continue
 		var refusal := game.squad_refusal(item, service)
 		var price := game.squad_price(item)
-		var row := _item_row(item, str(price), "已投保" if item.insured else Item.CATEGORY_NAMES[item.category], refusal.is_empty(), item == pick, refusal == "赤金不足")
+		var row := _item_row(item, str(price), "已投保" if item.insured else item.kind_name(), refusal.is_empty(), item == pick, refusal == "赤金不足")
 		var chosen := item
 		row.pressed.connect(func(): menu.pick = chosen; squad(menu))
 		AK.put(list, row, Vector2((index % 3) * 258, (index / 3) * 66), Vector2(252, 60))
@@ -343,7 +485,7 @@ static func _parcel_list(menu: FieldMenu, stage: Control, at: Vector2, redraw: C
 	for item in game.parcel_items():
 		var chosen: Item = item
 		var on := picks.has(item)
-		var row := _item_row(item, "", Item.CATEGORY_NAMES[item.category], true, on)
+		var row := _item_row(item, "", item.kind_name(), true, on)
 		row.pressed.connect(func():
 			var now: Array = menu.pick if menu.pick is Array else []
 			if now.has(chosen): now.erase(chosen)
@@ -825,21 +967,78 @@ class FateGrid extends Control:
 		for y in range(cells.y + 1): draw_line(Vector2(0, y * CELL), Vector2(cells.x * CELL, y * CELL), Color(1, 1, 1, 0.07))
 
 
-## The links of the route map: walked solid, the three choices dashed white.
+## The route map's sideways scroll: the wheel and a drag on empty ground move it.
+class RouteView extends ScrollContainer:
+	const WHEEL := 80
+
+	func _ready() -> void:
+		vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+
+	func _gui_input(event: InputEvent) -> void:
+		var button := event as InputEventMouseButton
+		if button != null and button.pressed and button.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_LEFT]:
+			scroll_horizontal -= WHEEL
+			accept_event()
+		elif button != null and button.pressed and button.button_index in [MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_RIGHT]:
+			scroll_horizontal += WHEEL
+			accept_event()
+		var motion := event as InputEventMouseMotion
+		if motion != null and motion.button_mask & MOUSE_BUTTON_MASK_LEFT:
+			scroll_horizontal -= roundi(motion.relative.x)
+			accept_event()
+
+
+## The links of the route map (用户 2026-10-24: 做成这种弧线连接): each leaves
+## its node's right side level and bends into the next node's left side.
+## Walked solid grey, the lines on from here dashed white, the rest faint.
 class RouteLines extends Control:
-	var walked: Array[Vector2] = []
-	var from := Vector2.ZERO
-	var targets: Array[Vector2] = []
-	var beyond := Vector2.ZERO
+	var links: Array = []   # [from centre, to centre, "walked" / "ahead" / "faint"]
+	const HALF := 34.0
+	const SEGMENTS := 24
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		for i in range(1, walked.size()): draw_line(walked[i - 1], walked[i], Color("666666"), 2.0)
-		for t in targets:
-			draw_dashed_line(from, t, Color.WHITE, 2.0, 6.0)
-			draw_line(t, beyond, Color("444444"), 2.0)
+		for link in links:
+			var points := arc(link[0], link[1])
+			match str(link[2]):
+				"walked": draw_polyline(points, Color("8a949a"), 2.0, true)
+				"ahead": _dashed(points, Color.WHITE, 2.0, 6.0)
+				_: draw_polyline(points, Color("3a4246"), 1.5, true)
+
+	## A cubic curve from the right edge of `a` to the left edge of `b`, its
+	## handles level so it leaves and arrives flat.
+	static func arc(a: Vector2, b: Vector2) -> PackedVector2Array:
+		var from := a + Vector2(HALF, 0)
+		var to := b - Vector2(HALF, 0)
+		var reach := maxf(12.0, (to.x - from.x) * 0.55)
+		var c1 := from + Vector2(reach, 0)
+		var c2 := to - Vector2(reach, 0)
+		var out := PackedVector2Array()
+		for i in range(SEGMENTS + 1):
+			var t := float(i) / SEGMENTS
+			var u := 1.0 - t
+			out.append(from * u * u * u + c1 * 3.0 * u * u * t + c2 * 3.0 * u * t * t + to * t * t * t)
+		return out
+
+	func _dashed(points: PackedVector2Array, colour: Color, width: float, dash: float) -> void:
+		var on := true
+		var left := dash
+		for i in range(1, points.size()):
+			var a := points[i - 1]
+			var b := points[i]
+			var length := a.distance_to(b)
+			var at := 0.0
+			while at < length:
+				var run := minf(left, length - at)
+				if on: draw_line(a.lerp(b, at / length), a.lerp(b, (at + run) / length), colour, width, true)
+				at += run
+				left -= run
+				if left <= 0.0:
+					on = not on
+					left = dash
 
 
 ## A placeholder figure until the portraits are drawn (界面策划案 §8).

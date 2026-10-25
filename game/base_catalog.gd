@@ -285,9 +285,11 @@ const POTION_A_PRICE := 800
 ## each point is ±20%.
 const POTION_HEAL_PER_CAP := 0.2
 
-static func create_potion(type: String, tier: int = 1) -> Item:
+## Flasks have no tiers (§19): `_tier` is kept for callers; every flask heals
+## its fixed amount × the floor it is drunk on (Scaling.tier_coef).
+static func create_potion(type: String, _tier: int = 1) -> Item:
 	var p: Dictionary = POTIONS[type]
-	var t := clampi(tier, 1, Scaling.TIER_MAX)
+	var t := 1
 	var item := Item.create(potion_name(type, t), Item.Category.MATERIAL, 1, 1)
 	item.potion_type = type
 	item.grade = t
@@ -304,11 +306,11 @@ static func create_potion(type: String, tier: int = 1) -> Item:
 static func potion_name(type: String, _tier: int = 1) -> String:
 	return str(POTIONS[type].name)
 
-## What one flask of `type` and `tier` heals (清单 E): tier 1 × the tier's base.
-## The new 特供 and regional ones heal nothing (药剂与商人界面策划案 §2).
-static func potion_heal(type: String, tier: int) -> float:
-	var base: float = {"A": POTION_A_HEAL, "B": POTION_B_HEAL, "C": POTION_C_HEAL}.get(type, 0.0)
-	return base * Scaling.tier_base(tier)
+## What one flask of `type` heals on floor 1 (清单 E); drunk deeper it is ×
+## that floor's 档位系数 (§19). The new 特供 and regional ones heal nothing
+## (药剂与商人界面策划案 §2).
+static func potion_heal(type: String, _tier: int = 1) -> float:
+	return {"A": POTION_A_HEAL, "B": POTION_B_HEAL, "C": POTION_C_HEAL}.get(type, 0.0)
 
 ## Tier 1 amounts (局内构筑与数值策划案 §5.5: once 40% / 70% / 20% of 2400; about
 ## 30% / 50% / 15% of a floor-1 Doctor in matching gear now).

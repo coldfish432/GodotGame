@@ -243,7 +243,7 @@ func run() -> void:
 	check("the dispatch desk: first the contract, a box round the right column", spot.showing == "dispatch_contract" and spot.ring_box.encloses(TutorialSpotlight.DISPATCH_CONTRACT))
 	spot.dismiss()
 	await wait_tip("dispatch_floors")
-	var floors: Array = FieldCatalog.RANDOM_EXTRACTION_ODDS.keys()
+	var floors: Array = FieldCatalog.EXTRACTION_FLOORS
 	check("then the floors, a box round the middle, the random-extraction range filled in", spot.showing == "dispatch_floors" and spot.ring_box.encloses(TutorialSpotlight.DISPATCH_FLOORS)
 		and ("%d–%d" % [floors.min(), floors.max()]) in spot._text.text)
 	spot.dismiss()

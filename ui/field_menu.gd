@@ -561,8 +561,15 @@ func show_fuel() -> void:
 	EventScreens.fuel(self)
 
 func show_routes(index: int) -> void:
+	var first := _screen != "routes"
 	_enter("routes", index)
 	EventScreens.routes(self, index)
+	if first and is_instance_valid(game.tutorial_spotlight): game.tutorial_spotlight.screen_opened("route_map")
+
+## 不期而遇's card (肉鸽路线图策划案 v0.2 §5).
+func show_event() -> void:
+	_enter("event", null)
+	EventScreens.event_card(self)
 
 ## Esc / the II button (界面策划案 #12).
 func show_pause() -> void:

@@ -281,10 +281,10 @@ static func drop_chance(reward: float) -> float:
 static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: bool = false) -> Item:
 	var data: Dictionary = GEAR[id]
 	var size: Vector2i = data.size
-	# The written power is its size on tier 1; it takes the floor's tier, a
-	# boss piece one tier higher (复利数值改造清单 D). It does not roll.
-	var tier := mini(Scaling.TIER_MAX, Scaling.tier_of(depth) + (1 if boss else 0))
-	var item := Item.create(data.name, data.category, size.x, size.y, float(data.power) * Scaling.tier_base(tier))
+	# The written power is its size; no tiers (§19), a boss piece stronger
+	# by BOSS_POWER (it used to be a tier higher). It does not roll.
+	var tier := 1
+	var item := Item.create(data.name, data.category, size.x, size.y, float(data.power) * (BOSS_POWER if boss else 1.0))
 	item.special = id
 	item.rarity = Item.PURPLE
 	item.value = 60 + depth * 10
@@ -310,6 +310,9 @@ static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: boo
 	# Special and exclusive gear carry prefixes; set pieces do not (装备前缀策划案 §0.1-5).
 	PrefixCatalog.roll_onto(item, str(data.get("region", "")), depth, rng)
 	return item
+
+## What a boss's own piece's power is × (§19; it was one tier, ×1.48).
+const BOSS_POWER := 1.3
 
 ## 属性伤害与地区装备策划案 v1.1 §10: a boss's three weapons convert 35% to
 ## its region's element; its first chest and amulet lift the elemental cap by
