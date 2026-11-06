@@ -3,8 +3,8 @@ extends Node3D
 
 ## A trap on the floor (密室与陷阱修订案_v1 §2.2, 用户 2026-10-17: 能致死、扣固定
 ## 数值、涨威胁值). It goes off once when she steps over it: a fixed blow
-## (true damage, so armour and evasion do not change it; a shield still
-## takes it), and the 威胁值 rises. Seen if looked for: a region's own small
+## (× the floor's 档位系数, in the region's element; see _strike), and the
+## 威胁值 rises. Seen if looked for: a region's own small
 ## thing on the ground, no name, not on the minimap.
 ##
 ## 用户 2026-10-22 (优化陷阱的表现形式和效果，可以换建模):
@@ -95,15 +95,14 @@ func check(player: Player) -> void:
 		_burn(player, get_physics_process_delta_time())
 		return
 	if spent: return
-	var near := is_instance_valid(player) and _flat(player.global_position, global_position) <= radius()
+	var reach := radius()
+	var near := is_instance_valid(player) and _flat(player.global_position, global_position) <= reach
 	if near and not player.invulnerable and player.invuln_timer <= 0.0:
 		spring(player)
 		return
-	if not near:
-		for e in _chasers():
-			if _flat(e.global_position, global_position) <= radius():
-				spring(null)
-				return
+	if not near and _chaser_within(reach):
+		spring(null)
+		return
 	if is_instance_valid(player) and _flat(player.global_position, global_position) < TELL_REACH:
 		_tell_wait -= get_physics_process_delta_time()
 		if _tell_wait <= 0.0:
@@ -117,6 +116,13 @@ func _chasers() -> Array:
 	for e in game.get_tree().get_nodes_in_group("enemies"):
 		if is_instance_valid(e) and not e._dead and e.state == Enemy.State.CHASING: out.append(e)
 	return out
+
+## Any foe on her trail within `reach`: _chasers() without the list, every frame.
+func _chaser_within(reach: float) -> bool:
+	if not is_instance_valid(game) or not game.is_inside_tree(): return false
+	for e in game.get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(e) and not e._dead and e.state == Enemy.State.CHASING and _flat(e.global_position, global_position) <= reach: return true
+	return false
 
 ## Set off, by her (`player`) or by a foe (null). A heavy trap lights its fuse;
 ## a light one strikes now.

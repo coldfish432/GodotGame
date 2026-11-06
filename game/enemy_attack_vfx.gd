@@ -16,22 +16,52 @@ var spread := 100.0
 ## swing on screen always says whose it is.
 const TRAIL := Color("a24a36")
 
-static func part(parent: Node3D, point: Vector3, size: Vector3, color: Color) -> MeshInstance3D:
+## `shared`: the box and its material come from _shared and must never be
+## changed afterwards (the fragments this class builds only move and scale).
+## Callers that tint, fade or resize what they get keep their own.
+static func part(parent: Node3D, point: Vector3, size: Vector3, color: Color, shared: bool = false) -> MeshInstance3D:
 	var node := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	node.mesh = mesh
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = color
-	node.material_override = mat
+	if shared:
+		node.mesh = _shared_box(size)
+		node.material_override = _shared_material(color)
+	else:
+		var mesh := BoxMesh.new()
+		mesh.size = size
+		node.mesh = mesh
+		node.material_override = _unlit(color)
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(node)
 	node.position = point
 	return node
 
-static func stroke(parent: Node3D, start: Vector3, end: Vector3, width: float, color: Color) -> MeshInstance3D:
-	var line := part(parent, (start + end) * 0.5, Vector3(width, width, maxf(0.001, start.distance_to(end))), color)
+static func _unlit(color: Color) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = color
+	return mat
+
+## size -> BoxMesh, color -> material (GameManager.release_static_caches).
+static var _shared := {}
+
+static func _shared_box(size: Vector3) -> BoxMesh:
+	var key := size
+	if not _shared.has(key):
+		# Stroke lengths vary with reach; keep the table from growing without end.
+		if _shared.size() > 512: _shared.clear()
+		var mesh := BoxMesh.new()
+		mesh.size = size
+		_shared[key] = mesh
+	return _shared[key]
+
+static func _shared_material(color: Color) -> StandardMaterial3D:
+	var key := color
+	if not _shared.has(key):
+		if _shared.size() > 512: _shared.clear()
+		_shared[key] = _unlit(color)
+	return _shared[key]
+
+static func stroke(parent: Node3D, start: Vector3, end: Vector3, width: float, color: Color, shared: bool = false) -> MeshInstance3D:
+	var line := part(parent, (start + end) * 0.5, Vector3(width, width, maxf(0.001, start.distance_to(end))), color, shared)
 	if start.distance_squared_to(end) > 0.00001: line.basis = Basis.looking_at((end - start).normalized())
 	return line
 
@@ -54,51 +84,51 @@ func _build() -> void:
 			duration = 0.15
 			for i in range(3):
 				var start := side * (i - 1) * 0.22
-				stroke(self, start - direction * 0.3, start + direction * 0.5, 0.065, Color("6b2428"))
+				stroke(self, start - direction * 0.3, start + direction * 0.5, 0.065, Color("6b2428"), true)
 		"ice":
 			duration = 0.3
 			for i in range(6):
 				var ray := Vector3(cos(i * TAU / 6), 0, sin(i * TAU / 6))
-				stroke(self, Vector3.ZERO, ray * 0.8, 0.065, Color("bbdfea"))
-				part(self, ray * 0.6 + Vector3.UP * 0.15, Vector3(0.09, 0.14, 0.09), Color("e4eff4"))
+				stroke(self, Vector3.ZERO, ray * 0.8, 0.065, Color("bbdfea"), true)
+				part(self, ray * 0.6 + Vector3.UP * 0.15, Vector3(0.09, 0.14, 0.09), Color("e4eff4"), true)
 		"wood":
 			duration = 0.18
 			for i in range(4):
-				stroke(self, side * (i - 1.5) * 0.12, side * (i - 1.5) * 0.2 - direction * 0.18 + Vector3.UP * 0.12, 0.06, Color("bc9761"))
+				stroke(self, side * (i - 1.5) * 0.12, side * (i - 1.5) * 0.2 - direction * 0.18 + Vector3.UP * 0.12, 0.06, Color("bc9761"), true)
 		"muzzle":
 			duration = 0.06
-			stroke(self, Vector3.ZERO, direction * 0.27, 0.10, Color("fff3c7"))
+			stroke(self, Vector3.ZERO, direction * 0.27, 0.10, Color("fff3c7"), true)
 		"sector":
 			duration = 0.10
 			_arc(reach, spread, 0.065, TRAIL)
 		"thrust":
 			duration = 0.10
-			stroke(self, Vector3.ZERO, direction * reach, 0.07, TRAIL)
+			stroke(self, Vector3.ZERO, direction * reach, 0.07, TRAIL, true)
 		"bite":
 			# Slug connects: amber originium sparks spray from the jaws.
 			duration = 0.16
 			for i in range(5):
 				var ray := direction.rotated(Vector3.UP, deg_to_rad(-60 + i * 30))
-				stroke(self, ray * 0.1, ray * 0.45 + Vector3.UP * 0.1 * (i % 2), 0.07, Color("ffb347"))
+				stroke(self, ray * 0.1, ray * 0.45 + Vector3.UP * 0.1 * (i % 2), 0.07, Color("ffb347"), true)
 		"stab":
 			# Fist blade connects: a rust X at the point of impact.
 			duration = 0.14
 			for tilt in [-45.0, 45.0]:
 				var ray := direction.rotated(Vector3.UP, deg_to_rad(tilt))
-				stroke(self, -ray * 0.3, ray * 0.3, 0.08, TRAIL)
+				stroke(self, -ray * 0.3, ray * 0.3, 0.08, TRAIL, true)
 
 		# --- 新敌人攻击动画与预警设计案 §四 ------------------------------------------
 		"shield_flash":
 			# 机动盾兵: a white edge flashes along the shield face.
 			duration = 0.10
-			stroke(self, -side * 0.45, side * 0.45, P * 1.5, Color("f4f6f4"))
+			stroke(self, -side * 0.45, side * 0.45, P * 1.5, Color("f4f6f4"), true)
 		"claw_cracks":
 			# 高能源石虫: two orange cracks where the claws land, three sparks.
 			duration = 0.20
 			for tilt in [-18.0, 18.0]:
 				var ray := direction.rotated(Vector3.UP, deg_to_rad(tilt))
-				stroke(self, -ray * 0.15, ray * 0.45, P, Color("ff9a4a"))
-			for i in range(3): part(self, side * (i - 1) * 0.25 + Vector3.UP * 0.1, Vector3.ONE * P, Color("ffd875"))
+				stroke(self, -ray * 0.15, ray * 0.45, P, Color("ff9a4a"), true)
+			for i in range(3): part(self, side * (i - 1) * 0.25 + Vector3.UP * 0.1, Vector3.ONE * P, Color("ffd875"), true)
 		"ground_shock", "ground_shock_purple", "ground_shock_big":
 			# 武装人员 / 灰尾香主 / 粉碎攻坚手: a shock ring and cracks; the third
 			# blow's ring is wider and throws up stones.
@@ -108,9 +138,9 @@ func _build() -> void:
 			_ring(reach * (0.9 if big else 0.7), P * 1.5, colour)
 			for i in range(2):
 				var ray := direction.rotated(Vector3.UP, deg_to_rad(70 + i * 140))
-				stroke(self, Vector3.ZERO, ray * reach * 0.6, P, Color("4a4640"))
+				stroke(self, Vector3.ZERO, ray * reach * 0.6, P, Color("4a4640"), true)
 			if big:
-				for i in range(3): part(self, direction.rotated(Vector3.UP, i * TAU / 3) * 0.4 + Vector3.UP * 0.2, Vector3.ONE * P * 2, Color("8a8478"))
+				for i in range(3): part(self, direction.rotated(Vector3.UP, i * TAU / 3) * 0.4 + Vector3.UP * 0.2, Vector3.ONE * P * 2, Color("8a8478"), true)
 		"sand_burst":
 			# “鼠王”'s 唱沙 (用户 2026-10-20): yellow sand bursting up all along a
 			# strip of the cross, `reach` long (centred here), `spread` wide.
@@ -121,15 +151,15 @@ func _build() -> void:
 				var along := (float(i) / float(count - 1) - 0.5) * reach
 				var off := (randf() - 0.5) * spread * 0.8
 				var tall := P * (4.0 + randf() * 6.0)
-				part(self, direction * along + side * off + Vector3.UP * tall * 0.5, Vector3(P * 4.0, tall, P * 4.0), sand[i % sand.size()])
+				part(self, direction * along + side * off + Vector3.UP * tall * 0.5, Vector3(P * 4.0, tall, P * 4.0), sand[i % sand.size()], true)
 		"crystal_spikes":
 			# 术师: three black originium spikes lit orange inside; they shatter.
 			duration = 0.40
 			for i in range(3):
 				var at := direction.rotated(Vector3.UP, i * TAU / 3 + 0.4) * reach * 0.45
 				var tall := (4 + i) * P
-				part(self, at + Vector3.UP * tall * 0.5, Vector3(P * 2, tall, P * 2), Color("16161a"))
-				part(self, at + Vector3.UP * tall * 0.45, Vector3(P, tall * 0.6, P * 2.1), Color("ff8a2a"))
+				part(self, at + Vector3.UP * tall * 0.5, Vector3(P * 2, tall, P * 2), Color("16161a"), true)
+				part(self, at + Vector3.UP * tall * 0.45, Vector3(P, tall * 0.6, P * 2.1), Color("ff8a2a"), true)
 		"rune":
 			# 歪曲施法者: two dark blue rings and four rays, spreading out.
 			duration = 0.30
@@ -137,11 +167,11 @@ func _build() -> void:
 			_ring(reach * 0.85, P, Color("3a4ab0"))
 			for i in range(4):
 				var ray := direction.rotated(Vector3.UP, i * TAU / 4 + PI / 4)
-				stroke(self, ray * reach * 0.5, ray * reach * 0.85, P, Color("5a6ad0"))
+				stroke(self, ray * reach * 0.5, ray * reach * 0.85, P, Color("5a6ad0"), true)
 		"slash_line":
 			# 寻仇者's thrust: a straight rust stroke.
 			duration = 0.10
-			stroke(self, Vector3.ZERO, direction * reach, 0.07, TRAIL)
+			stroke(self, Vector3.ZERO, direction * reach, 0.07, TRAIL, true)
 		"slash_arc":
 			# ...and its back-cut: a short arc round itself.
 			duration = 0.12
@@ -157,40 +187,40 @@ func _build() -> void:
 			line.name = "Rope"
 		"dust", "snow_puff":
 			duration = 0.30
-			part(self, Vector3.ZERO, Vector3.ONE * P * 3, Color("9a948a") if kind == "dust" else Color("e8eef2"))
+			part(self, Vector3.ZERO, Vector3.ONE * P * 3, Color("9a948a") if kind == "dust" else Color("e8eef2"), true)
 		"splash":
 			# 家族灭迹人 unseen in the rain: two 2×1 px white flecks off the wet stone.
 			duration = 0.25
-			part(self, side * 0.08, Vector3(P * 2, P * 0.5, P), Color("eef2f6"))
-			part(self, -side * 0.1 + direction * 0.05, Vector3(P * 2, P * 0.5, P), Color("eef2f6"))
+			part(self, side * 0.08, Vector3(P * 2, P * 0.5, P), Color("eef2f6"), true)
+			part(self, -side * 0.1 + direction * 0.05, Vector3(P * 2, P * 0.5, P), Color("eef2f6"), true)
 		"ember_ring":
 			# 家族角头: an orange ring of sparks where the cigar's arts lands, or round its palm.
 			duration = 0.35
 			_ring(reach, P * 1.5, Color("f08a3a"))
 			for i in range(5):
 				var ray := direction.rotated(Vector3.UP, TAU * i / 5.0 + 0.4)
-				part(self, ray * reach * 0.6 + Vector3.UP * 0.1, Vector3.ONE * P, Color("ffc070"))
+				part(self, ray * reach * 0.6 + Vector3.UP * 0.1, Vector3.ONE * P, Color("ffc070"), true)
 		"glide_trail":
 			duration = 0.30
-			stroke(self, Vector3.ZERO, -direction * 0.3, P, Color("a8c8f0"))
+			stroke(self, Vector3.ZERO, -direction * 0.3, P, Color("a8c8f0"), true)
 		"wood_chip":
 			duration = 0.40
-			part(self, side * randf_range(-0.2, 0.2) + direction * 0.05, Vector3.ONE * P, Color("a8b8a0"))
+			part(self, side * randf_range(-0.2, 0.2) + direction * 0.05, Vector3.ONE * P, Color("a8b8a0"), true)
 		"vine_burst":
 			# 巨壳藤蔓: four leaves fly out.
 			duration = 0.30
 			for i in range(4):
 				var ray := direction.rotated(Vector3.UP, deg_to_rad(-60 + i * 40))
-				part(self, ray * 0.2 + Vector3.UP * 0.1 * (i % 2), Vector3(P * 2, P, P), Color("6aa84a"))
+				part(self, ray * 0.2 + Vector3.UP * 0.1 * (i % 2), Vector3(P * 2, P, P), Color("6aa84a"), true)
 		"horn_arc":
 			# 岩角兽: the horns flick up in a white arc; a puff of dust.
 			duration = 0.10
 			_arc(0.5, 120.0, P, Color("f4f6f4"))
-			part(self, Vector3.DOWN * 0.3, Vector3.ONE * P * 3, Color("9a948a"))
+			part(self, Vector3.DOWN * 0.3, Vector3.ONE * P * 3, Color("9a948a"), true)
 		"haste_link":
 			# 陷落雪祀: a thin purple line to the hastened ally, a ring round it.
 			duration = 0.30
-			stroke(self, Vector3.ZERO, direction * reach, P, Color("b070f0"))
+			stroke(self, Vector3.ZERO, direction * reach, P, Color("b070f0"), true)
 			var halo := Node3D.new()
 			halo.name = "Halo"
 			add_child(halo)
@@ -198,7 +228,7 @@ func _build() -> void:
 			for i in range(8):
 				var a := Vector3(cos(i * TAU / 8), 0, sin(i * TAU / 8)) * 0.5
 				var b := Vector3(cos((i + 1) * TAU / 8), 0, sin((i + 1) * TAU / 8)) * 0.5
-				stroke(halo, a, b, P, Color("c890ff"))
+				stroke(halo, a, b, P, Color("c890ff"), true)
 
 const P := 1.0 / 15.0
 
@@ -208,13 +238,13 @@ func _arc(radius: float, degrees: float, width: float, colour: Color) -> void:
 	for i in range(steps):
 		var a := direction.rotated(Vector3.UP, deg_to_rad(-degrees * 0.5 + i * degrees / steps)) * radius
 		var b := direction.rotated(Vector3.UP, deg_to_rad(-degrees * 0.5 + (i + 1) * degrees / steps)) * radius
-		stroke(self, a, b, width, colour)
+		stroke(self, a, b, width, colour, true)
 
 func _ring(radius: float, width: float, colour: Color) -> void:
 	for i in range(20):
 		var a := Vector3(cos(i * TAU / 20), 0, sin(i * TAU / 20)) * radius
 		var b := Vector3(cos((i + 1) * TAU / 20), 0, sin((i + 1) * TAU / 20)) * radius
-		stroke(self, a, b, width, colour)
+		stroke(self, a, b, width, colour, true)
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(game) or not game.simulation_active(): return
@@ -222,7 +252,7 @@ func _process(delta: float) -> void:
 	if kind == "thrust" and is_instance_valid(owner_enemy): global_position = owner_enemy.global_position + Vector3.UP * 0.2
 	age += delta
 	var t := clampf(age / duration, 0.0, 1.0)
-	if kind in ["ice", "wood"]:
+	if kind == "ice" or kind == "wood":
 		for child in get_children():
 			if child.position.y > 0.1: child.position += (Vector3.UP + child.position.normalized()) * delta
 	match kind:

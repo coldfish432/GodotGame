@@ -56,6 +56,11 @@ const MODELS := {
 	"ore_cart": "res://art/kit/poi_ore_cart.glb", "miner_locker": "res://art/kit/poi_miner_locker.glb",
 	"winch_box": "res://art/kit/poi_winch_box.glb", "miner_pack": "res://art/kit/poi_miner_pack.glb",
 	"depot": "res://art/kit/poi_depot.glb",
+	# 收藏品箱 (整理箱与收藏品策划案 v0.2 §3): each region's own box
+	# (tools/blender/kit/build_collector_box.py); the safe where none is made.
+	"collector_box": "res://art/kit/poi_safe.glb",
+	"collector_mine": "res://art/kit/poi_collector_mine.glb", "collector_city": "res://art/kit/poi_collector_city.glb",
+	"collector_snow": "res://art/kit/poi_collector_snow.glb", "collector_siracusa": "res://art/kit/poi_collector_siracusa.glb",
 }
 const MODEL_SCALE := 1.6
 const VARIANT_NAMES := {"ore_cart": "翻倒的源石矿车", "miner_locker": "矿工储物柜", "winch_box": "绞车控制箱", "miner_pack": "遗留的矿工背包"}
@@ -64,6 +69,7 @@ func _ready() -> void:
 	add_to_group("loot_containers")
 	add_to_group("search_points")
 	var model_key := "vault" if vault else (variant if not variant.is_empty() else kind)
+	if model_key == "collector_box" and is_instance_valid(game) and MODELS.has("collector_" + game.region_id): model_key = "collector_" + game.region_id
 	if MODELS.has(model_key):
 		_model = MeshInstance3D.new()
 		_model.name = "Model"
@@ -263,6 +269,7 @@ static func lay_out(items: Array[Item]) -> Array[Item]:
 static func search_seconds(item: Item) -> float:
 	if item.material_id == Economy.GOLD_ID: return 0.5
 	if item.category == Item.Category.MATERIAL: return 0.7
+	if item.is_collectible(): return 1.5 * [1.0, 1.3, 1.6, 2.4, 3.0, 3.6][clampi(item.rarity, 0, Item.RARITY_MAX)]
 	return [1.0, 1.3, 1.6, 2.4, 3.0, 3.6][clampi(item.rarity, 0, Item.RARITY_MAX)]
 
 ## Rolls the contents and spills them all at once (tests, and anything that

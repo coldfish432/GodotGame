@@ -30,10 +30,17 @@ var _press := Vector2.ZERO
 var _dragging := false
 var _moved := 0.0
 var _wait := 0.0
+var _drawn_key: Array = []
 
 static var _cards := {}
 static var _bands := {}
 static var _extent := Vector2.ZERO
+## Every prerequisite line [from, to, same tier], in drawing order, and the
+## nodes each node opens (ResearchCatalog.unlocks), built with the layout.
+static var _edges: Array = []
+static var _opens := {}
+## Canvas units round a card or a line its strokes, arrow and text stay in.
+const CULL_PAD := 24.0
 
 func _init() -> void:
 	clip_contents = true
@@ -61,6 +68,15 @@ static func _layout() -> void:
 			_cards[id] = Rect2(Vector2(LABEL_W + (t - 1) * COLUMN, y + BAND_PAD + k * (CARD.y + ROW_GAP)), CARD)
 		y += height + 8.0
 	_extent = Vector2(LABEL_W + 7 * COLUMN, y)
+	_edges = []
+	_opens = {}
+	for id in _cards:
+		for p in ResearchCatalog.prerequisite_nodes(str(id)):
+			_edges.append([p, str(id), ResearchCatalog.tier_of(p) == ResearchCatalog.tier_of(str(id))])
+
+static func _unlocks(id: String) -> Array[String]:
+	if not _opens.has(id): _opens[id] = ResearchCatalog.unlocks(id)
+	return _opens[id]
 
 ## The view on `id`: zoom kept, the card brought to the middle.
 func centre_on(id: String) -> void:
@@ -72,7 +88,18 @@ func _process(delta: float) -> void:
 	_wait -= delta
 	if _wait <= 0.0:
 		_wait = 0.5
-		queue_redraw()
+		# Running research always redraws: its bar moves with the clock.
+		if (game != null and not game.research.active().is_empty()) or _key() != _drawn_key: queue_redraw()
+
+## Everything the draw reads besides the clock.
+func _key() -> Array:
+	if game == null: return [null, size]
+	return [game.research.done().duplicate(), game.research.active().duplicate(true), pick, I18n.language, zoom, offset, size]
+
+## Whether a canvas rectangle shows in the view (the control clips the rest).
+func _shows(area: Rect2) -> bool:
+	var grown := area.grow(CULL_PAD)
+	return Rect2(offset + grown.position * zoom, grown.size * zoom).intersects(Rect2(Vector2.ZERO, size))
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -125,6 +152,7 @@ func card_at(at: Vector2) -> String:
 	return ""
 
 func _draw() -> void:
+	_drawn_key = _key()
 	draw_rect(Rect2(Vector2.ZERO, size), Color("0d1216"))
 	if game == null: return
 	var r := game.research
@@ -146,15 +174,20 @@ func _draw() -> void:
 	# node's own in gold, drawn under the cards.
 	var near := {}
 	for p in ResearchCatalog.prerequisite_nodes(pick): near[p + ">" + pick] = true
-	for u in ResearchCatalog.unlocks(pick): near[pick + ">" + u] = true
+	for u in _unlocks(pick): near[pick + ">" + u] = true
 	for pass_index in range(2):
-		for id in _cards:
-			for p in ResearchCatalog.prerequisite_nodes(str(id)):
-				var lit := near.has(p + ">" + str(id))
-				if lit != (pass_index == 1): continue
-				var colour: Color = AK.SP if lit else (Color(ResearchCatalog.DEPARTMENT_COLORS[ResearchCatalog.department_of(p)], 0.75) if r.is_done(p) else Color(AK.LINE_2, 0.45))
-				_link(_cards[p], _cards[id], colour, 4.0 if lit else 2.0, ResearchCatalog.tier_of(p) == ResearchCatalog.tier_of(str(id)))
-	for id in _cards: _card(str(id), _cards[id], r, font)
+		for edge in _edges:
+			var p: String = edge[0]
+			var id: String = edge[1]
+			var lit := near.has(p + ">" + id)
+			if lit != (pass_index == 1): continue
+			var from: Rect2 = _cards[p]
+			var to: Rect2 = _cards[id]
+			if not _shows(from.merge(to)): continue
+			var colour: Color = AK.SP if lit else (Color(ResearchCatalog.DEPARTMENT_COLORS[ResearchCatalog.department_of(p)], 0.75) if r.is_done(p) else Color(AK.LINE_2, 0.45))
+			_link(from, to, colour, 4.0 if lit else 2.0, edge[2])
+	for id in _cards:
+		if _shows(_cards[id]): _card(str(id), _cards[id], r, font)
 
 func _link(from: Rect2, to: Rect2, colour: Color, width: float, same_tier: bool) -> void:
 	var points: PackedVector2Array

@@ -3,8 +3,8 @@ extends Control
 
 ## The exchange's candlestick chart (势力与交易所策划案_v0_7.md §5.3, layout after
 ## 《FX 简单!》): candles, volume, MA5 / MA20, the base line, news marks, and
-## the lines of the Doctor's own positions on this market. Redraws itself from
-## MarketState twice a second; data only, no captions.
+## the lines of the Doctor's own positions on this market. Checks MarketState
+## twice a second and redraws only when what it shows changed; data only, no captions.
 
 const UP := Color("8fc31f")
 const DOWN := Color("e0782a")
@@ -18,6 +18,9 @@ var market_id := FactionCatalog.FX
 var period := "15m"
 var count := 90
 var _wait := 0.0
+var _drawn_key: Array = []
+## Material id -> unit value, for the forward lines (fixed by MaterialCatalog).
+static var _unit_values := {}
 
 func _ready() -> void:
 	clip_contents = true
@@ -27,7 +30,12 @@ func _process(delta: float) -> void:
 	_wait -= delta
 	if _wait <= 0.0:
 		_wait = 0.5
-		queue_redraw()
+		if _key() != _drawn_key: queue_redraw()
+
+## Everything the draw reads: the market, what is shown, the Doctor's positions.
+func _key() -> Array:
+	if game == null: return [null, size]
+	return [MarketWidgets.market_key(game), market_id, period, count, size, game.exchange.forwards.duplicate(true), game.exchange.cfds.duplicate(true)]
 
 ## Price of the selected underlying in display units.
 func _series() -> Array:
@@ -36,7 +44,7 @@ func _series() -> Array:
 		var faction := market_id.substr(5)
 		var all: Array = []
 		for m in game.market.books:
-			if FactionCatalog.split(m)[0] == faction: all.append(game.market.candles(m, period, count))
+			if (game.market.books[m] as MarketState.Book).faction == faction: all.append(game.market.candles(m, period, count))
 		if all.is_empty(): return []
 		var n: int = all.map(func(a): return a.size()).min()
 		var out: Array = []
@@ -50,6 +58,7 @@ func _series() -> Array:
 	return game.market.candles(market_id, period, count)
 
 func _draw() -> void:
+	_drawn_key = _key()
 	draw_rect(Rect2(Vector2.ZERO, size), Color("101214"))
 	if game == null: return
 	var data := _series()
@@ -63,7 +72,7 @@ func _draw() -> void:
 		lo = minf(lo, float(c[2]))
 		hi = maxf(hi, float(c[1]))
 		vmax = maxf(vmax, float(c[4]))
-	var base := 1000.0 if market_id == FactionCatalog.FX else 100.0
+	var base := MarketState.display_scale(market_id) if not Currencies.is_cross(market_id) else Economy.GOLD_BAR_LMD / Currencies.base(Currencies.cross_cur(market_id))
 	var marks := _position_lines()
 	# Entry lines widen the scale; a far liquidation line only shows when in range.
 	for label in marks:
@@ -139,7 +148,7 @@ func _position_lines() -> Dictionary:
 		var category := FactionCatalog.material_category(str(f.material))
 		if "%s:%s" % [f.faction, category] != market_id: continue
 		# The agreed unit price back on the index scale (×100) of this book.
-		var unit_lmd := float(MaterialCatalog.create(str(f.material), 1).unit_value * Economy.LMD_PER_VALUE)
+		var unit_lmd := float(_unit_value(str(f.material)) * Economy.LMD_PER_VALUE)
 		var unit := Exchange.from_lmd(str(f.currency), unit_lmd)
 		var pref := FactionCatalog.preference(str(f.faction), category) if f.dir == "deliver" else 1.0
 		if unit * pref <= 0.0: continue
@@ -149,21 +158,33 @@ func _position_lines() -> Dictionary:
 		if str(c.underlying) != market_id: continue
 		k += 1
 		out["开仓 %d" % k] = float(c.entry)
-		var liq := float(c.entry) * (1.0 - float(c.dir) * float(c.margin) / float(c.notional))
+		# Where the exchange closes it: 50% maintenance (§9.3), or the margin gone on an old one.
+		var cut := (float(c.margin) - (Exchange.CUT_RATIO * float(c.notional) / float(c.cap) if c.has("cap") else 0.0)) / float(c.notional)
+		var liq := float(c.entry) * (1.0 - float(c.dir) * cut)
 		out["强平 %d" % k] = liq
 	return out
+
+static func _unit_value(material: String) -> int:
+	if not _unit_values.has(material): _unit_values[material] = MaterialCatalog.create(material, 1).unit_value
+	return _unit_values[material]
 
 func _news_marks(n: int, plot: Rect2, step: float) -> void:
 	var seconds := {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400, "1d": 86400, "1w": 604800}
 	var span: int = seconds.get(period, 900)
 	var now := game.market.t
 	for headline in game.market.news:
-		if not market_id in headline.get("markets", []) and not (market_id == FactionCatalog.FX and headline.get("markets", []).has("fx")): continue
+		var touched: Array = headline.get("markets", [])
+		# A cross moves with either of its books.
+		var cross := Currencies.cross_cur(market_id)
+		if not cross.is_empty() and (touched.has(FactionCatalog.FX) or touched.has(Currencies.book(cross))): touched = [market_id]
+		if not market_id in touched: continue
 		var back := int((now - int(headline.t)) / span)
 		if back >= n: continue
 		var x := plot.position.x + step * (n - 1 - back + 0.5)
 		var col := AK.RED if headline.kind == "swan" else (AK.SP if headline.kind == "announce" else AK.CYAN)
 		draw_colored_polygon(AK.diamond(Vector2(x, plot.position.y + 6), 4.0), col)
 
+## Small quotes (卢布 or 里拉 in 龙门币) keep four places.
 static func _fmt(p: float) -> String:
-	return "%.1f" % p if p >= 100.0 else "%.2f" % p
+	if p >= 100.0: return "%.1f" % p
+	return "%.2f" % p if p >= 1.0 else "%.4f" % p

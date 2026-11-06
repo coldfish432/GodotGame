@@ -77,6 +77,8 @@ func supply_price(material: String, at: String = "") -> float:
 ## `fuel`: a 高能燃料 from 喀兰贸易 (势力特供策划案 §二) — 全速 costs no more
 ## than 标准, and the voyage takes FactionSpecials.FUEL_TIME of the time.
 func voyage_cost(to: String, mode: String, fuel := false) -> int:
+	# 喀兰贸易金卡: 谢拉格 is free (势力声望解锁策划案 §三).
+	if to == FactionRewards.KARLAN_PORT and FactionRewards.badge_on(game, "karlan"): return 0
 	var total := 0.0
 	var supplies := VoyageCatalog.voyage_supplies(VoyageCatalog.distance(place(), to))
 	for id in supplies: total += supply_price(id) * int(supplies[id])
@@ -90,6 +92,8 @@ func voyage_seconds(to: String, mode: String, fuel := false) -> int:
 
 func voyage_refusal(to: String, mode: String, fuel := false) -> String:
 	if is_sailing(): return "航行中"
+	var lost: String = game.dept_refusal("voyage")
+	if not lost.is_empty(): return lost
 	if not to in VoyageCatalog.ANCHORS or to == place(): return "已在此地"
 	if not mode in VoyageCatalog.MODES: return "航速无效"
 	if game.gold < voyage_cost(to, mode, fuel): return "龙门币不足"
@@ -213,7 +217,7 @@ func _settle_hour(at: int) -> bool:
 		else: game.base.take_from_shelf(item)
 	anchor_hours += 1
 	game.base.stayed = true
-	var struck := bool(stay.infected) and here == "卡西米尔" and game.rng.randf() < VoyageCatalog.KAZ_CHANCE
+	var struck := bool(stay.infected) and here == "卡西米尔" and game.rng_base.randf() < VoyageCatalog.KAZ_CHANCE
 	if struck:
 		game.exchange.add_relation("kazimierz", VoyageCatalog.KAZ_LOSS)
 		_say("无胄盟袭击了接受治疗的感染者骑士。")
@@ -288,7 +292,7 @@ static func order_factions() -> Array[String]:
 	return out
 
 func _new_order(now: int) -> Dictionary:
-	var rng := game.rng
+	var rng := game.rng_base
 	var factions := order_factions()
 	var faction: String = factions[rng.randi() % factions.size()]
 	var pool := order_materials(faction)
@@ -371,7 +375,7 @@ func pack_refusal(id: int) -> String:
 	if in_waters(str(o.faction)): return "已在境内"
 	return goods_refusal(o)
 
-## Packs the goods into the crate: it goes to staging (or receiving), and the
+## Packs the goods into the crate: it goes to the warehouse (or the PRTS mail), and the
 ## delivery floors are drawn from where she has been (§5.3).
 func pack(id: int) -> bool:
 	if not pack_refusal(id).is_empty(): return false
@@ -383,7 +387,7 @@ func pack(id: int) -> bool:
 	o.state = "packed"
 	var floors := {}
 	for region in VoyageCatalog.DELIVERY_MAPS.get(str(o.faction), []):
-		floors[region] = delivery_floor(int(game.base.camps.get(region, 0)), game.rng)
+		floors[region] = delivery_floor(int(game.base.camps.get(region, 0)), game.rng_base)
 	o.floors = floors
 	return true
 
@@ -445,7 +449,8 @@ func _complete(o: Dictionary) -> void:
 	game.exchange.add_relation(str(o.faction), int(o.relation))
 	_say("大宗订单完成：%s，%s，关系 +%d。" % [FactionCatalog.name_of(str(o.faction)), Exchange.format_money(str(o.currency), float(o.pay)), int(o.relation)])
 
-## Expired: a packed crate is unpacked and the goods go back to staging.
+## Expired: a packed crate is unpacked and the goods go back to the warehouse
+## (or the PRTS mail).
 func _expire(o: Dictionary) -> void:
 	orders.erase(o)
 	var crate := cargo_item(o)

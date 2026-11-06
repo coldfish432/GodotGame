@@ -1,0 +1,66 @@
+{
+  "col_reindeer_bell": {
+    "id": "col_reindeer_bell",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-2f716d46-d315-4395-ac63-7345f3be6504.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-2f716d46-d315-4395-ac63-7345f3be6504.png",
+    "prompt": "undefinedSubject: One small hand-hammered aged brass reindeer bell, rough dimpled metal dome and visible dark slit/clapper, short tied brown leather cord loop. Humble Sami tundra tribal craft. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_hide_charm": {
+    "id": "col_hide_charm",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-cd964541-0cf9-4ff2-b047-2322b066690b.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-cd964541-0cf9-4ff2-b047-2322b066690b.png",
+    "prompt": "undefinedSubject: One small roughly stitched reindeer-hide talisman, irregular tan leather pouch patch, tuft of pale reindeer fur and three simple red blue bone beads attached, short leather loop. Compact rugged handmade tribal keepsake. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_antler": {
+    "id": "col_antler",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-730a02aa-ef1f-4a02-bc76-e52584b9c926.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-730a02aa-ef1f-4a02-bc76-e52584b9c926.png",
+    "prompt": "undefinedSubject: One polished pale reindeer antler ornament lying HORIZONTALLY, several natural branching prongs extending sideways, three simple dark carved bands and small leather binding near end. Wide flat icon, not a standing skull. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_birch_basket": {
+    "id": "col_birch_basket",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f3d77f8-da6c-4522-a660-31fdb8c2dc22.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f3d77f8-da6c-4522-a660-31fdb8c2dc22.png",
+    "prompt": "undefinedSubject: One narrow upright handwoven birch bark basket, tall cylindrical tapered pale tan bark weave, dark horizontal grain markings, small open mouth and simple slim loop handle. Vertical slim silhouette. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_sami_carving": {
+    "id": "col_sami_carving",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3a6968ab-1dc3-4cbe-9d11-405536311ebc.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3a6968ab-1dc3-4cbe-9d11-405536311ebc.png",
+    "prompt": "undefinedSubject: One upright carved wooden statue of a SITTING FOX, clearly pointed ears and muzzle, tail curled around its feet, warm reddish wood with a few visible whittled planes and subtle tribal incised lines. Tall narrow full fox. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_snow_map": {
+    "id": "col_snow_map",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b50e61ad-55b0-4771-8409-e7d69f8c0f6e.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b50e61ad-55b0-4771-8409-e7d69f8c0f6e.png",
+    "prompt": "undefinedSubject: One square old map painted on a piece of tan animal hide, irregular rolled edges and two short leather ties, bold winding BLUE river and a few dark mountain marks, sparse tribal red landmarks. Clearly a map, no modern paper or text. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_bone_flute": {
+    "id": "col_bone_flute",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b8708ac3-a801-458c-8202-7d0bbebd900f.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b8708ac3-a801-458c-8202-7d0bbebd900f.png",
+    "prompt": "undefinedSubject: One long ivory bone shaman flute lying HORIZONTALLY with a clear row of five black finger holes, intricately carved end and brown leather wraps, tiny turquoise bead tied close. A single refined tribal instrument. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_aurora_amber": {
+    "id": "col_aurora_amber",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-28586955-7fbf-4ec1-9959-4988fb72737a.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-5373c0ef-7223-48ab-a4fe-a0599ba55bfe.png",
+    "prompt": "undefinedSubject: One polished teardrop of precious warm golden amber, INSIDE it a clearly visible bright GREEN flowing aurora ribbon, honey transparency and crisp broad highlight. This is solid amber, not a bottle; no stand. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": "Use case: background-extraction. Edit this exact golden amber teardrop inventory icon. Remove ALL red background, ALL exterior red light rays and ALL external glow outside its bold black outline. Output only this exact golden amber teardrop and its internal green aurora, unchanged, as an isolated PNG cutout on TRUE TRANSPARENT ALPHA background. Keep the black outline, golden amber interior and green ribbon intact. Every pixel outside the amber object must be transparent. No backdrop, no shadow, no checkerboard, no colored square or gradient, no new ornament. Maintain full object and small transparent margins on each side."
+  }
+}

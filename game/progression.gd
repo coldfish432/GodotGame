@@ -80,8 +80,8 @@ static func records_for(kills: Dictionary) -> Dictionary:
 # --- Promotion (§3.2): PRTS 拉普兰德's recipe; 龙门币 raised in 龙门币平衡与科研部策划案 v1.1 §4.2 --
 const PROMOTION := [
 	{},
-	{"lmd": 22000, "materials": {"近卫芯片": 4, "装置": 3, "固源岩": 4}},
-	{"lmd": 168000, "materials": {"近卫双芯片": 3, "改量装置": 6, "异铁组": 10}},
+	{"lmd": 22000, "materials": {"芯片": 4, "装置": 3, "固源岩": 4}},
+	{"lmd": 168000, "materials": {"双芯片": 3, "改量装置": 6, "异铁组": 10}},
 ]
 ## PRTS 10 → 15 at 精英 2.
 const E2_RES := 5.0

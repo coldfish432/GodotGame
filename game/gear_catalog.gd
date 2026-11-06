@@ -6,9 +6,9 @@ extends RefCounted
 ## ("固有") stat that does not use an affix slot. Random affixes still come
 ## from rarity, as before (LootTables.roll_equipment).
 ##
-## Tiers 0/1/2 (浅/中/深) unlock at segments 1/3/5 (§2.2); elites, guards and
-## vaults see them two segments early. The ranged bases (弩/铳) are designed
-## but stay out of the pool until there is a ranged operator (§2.4).
+## Tiers 0/1/2 (浅/中/深) open at the floors in TIER_DEPTH (§2.2); elites,
+## guards and vaults see them EARLY_BY floors early. Ranged and staff bases
+## (§12) drop like the rest; CLASS_FORMS decides who can wield them.
 
 ## Forms that shoot rather than swing: they cannot attack the air.
 const RANGED_FORMS := ["crossbow", "bow", "gun"]
@@ -66,8 +66,8 @@ const EARLY_BY := 2
 const IMPLICIT_TIER := -2
 
 ## id: name, region, category, tier, power factor, intrinsic stats, form,
-## enemies who carry it, icon, flavour text. `value` multiplies the delivery
-## price (龙门币钱夹 only).
+## enemies who carry it, icon, flavour text. `value` multiplies the item's
+## value (钱夹, 当铺铜牌, the Rhodes line).
 const BASES := {
 	# --- 切尔诺伯格 · 坍塌矿区 (§4.1)
 	"mine_cleaver": {"name": "改装砍刀", "region": "mine", "category": W, "tier": 0, "factor": 1.00, "implicit": [[S.CRIT_DMG, 0.10]],
@@ -352,8 +352,8 @@ const BASES := {
 		"form": "crossbow", "icon": "rhodes_crossbow", "text": "改装记录比它本身还厚。"},
 	"rhodes_staff": {"name": "罗德岛制式法杖", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ARTS_PCT, 0.05]],
 		"form": "staff", "icon": "rhodes_staff", "text": "医疗部和术师组吵了半年，吵出来这一根。"},
-	# --- 罗德岛制式装备 (§10, 用户 2026-10-18): never dropped. Each recruit
-	# comes with a set; 加工部 makes more; outside factions buy them.
+	# --- 罗德岛制式装备 (§10, 用户 2026-10-18): never dropped; issued and taken
+	# back by the workbench (RHODES below).
 	"rhodes_dual_blades": {"name": "罗德岛制式双刀", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.ATK_PCT, 0.04]],
 		"form": "blade", "icon": "rhodes_dual_blades", "text": "训练场上教的第一套刀，就是这一套。"},
 	"rhodes_sword": {"name": "罗德岛制式剑", "region": "rhodes", "value": 1.5, "category": W, "tier": 1, "factor": 1.05, "implicit": [[S.CRIT_RATE, 0.03]],
@@ -368,8 +368,8 @@ const BASES := {
 		"icon": "rhodes_medkit", "text": "绷带、止血钳，都是制式的；用的人不是。"},
 	"rhodes_badge": {"name": "罗德岛干员证章", "region": "rhodes", "value": 1.5, "category": T, "tier": 1, "factor": 1.05, "implicit": [[S.EXP_GAIN_PCT, 0.05]],
 		"icon": "rhodes_badge", "text": "特别颁发，以兹证明。"},
-	# --- E15 (装备部位拆分与数值案 §7): head, hands, legs, feet and rings; the art
-	# brief is art/items/E15_slot_split_brief_v1.md, placeholders until it lands.
+	# --- E15 (装备部位拆分与数值案 §7): head, hands, legs, feet and rings; icons
+	# in art/items/batch_E15*_v1.
 	"mine_head_1": {"name": "矿工安全帽", "region": "mine", "category": HEAD, "tier": 0, "factor": 1.00, "implicit": [[S.DEF_FLAT, 10.0]],
 		"icon": "mine_head_1", "text": "帽檐的灯夹空着，灯早就换了钱。"},
 	"mine_head_2": {"name": "整合运动兜帽", "region": "mine", "category": HEAD, "tier": 0, "factor": 1.00, "implicit": [[S.ARTS_PCT, 0.025]],
@@ -499,7 +499,7 @@ const BASES := {
 	"rhodes_ring": {"name": "罗德岛干员指环", "region": "rhodes", "value": 1.5, "category": RING, "tier": 1, "factor": 1.05, "implicit": [[S.SKILL_PCT, 0.0625]],
 		"icon": "rhodes_ring", "text": "一道蓝灰色的细线，就是证明。"},
 	# --- E16 (用户 2026-10-22): the protective line that goes with 制式防护背心;
-	# art brief art/items/E16_rhodes_heavy_brief_v1.md, placeholders until it lands.
+	# icons in art/items/batch_E16_v1.
 	"rhodes_head_heavy": {"name": "罗德岛制式防护头盔", "region": "rhodes", "value": 1.5, "category": HEAD, "tier": 1, "factor": 1.05, "implicit": [[S.RES_FLAT, 2.0]],
 		"icon": "rhodes_head_heavy", "text": "面罩放下来，谁也认不出是谁。"},
 	"rhodes_hands_heavy": {"name": "罗德岛制式防护臂甲", "region": "rhodes", "value": 1.5, "category": HANDS, "tier": 1, "factor": 1.05, "implicit": [[S.DEF_FLAT, 10.0]],
@@ -596,8 +596,9 @@ static func id_for_name(item_name: String) -> String:
 		for id in BASES: _by_name[BASES[id].name] = id
 	return _by_name.get(RENAMED.get(item_name, item_name), "")
 
-## Bases registered at run time (tests; later the ranged bases), looked up
-## after BASES.
+## Bases registered at run time (tests), looked up after BASES by base() only:
+## apply, implicits_for and extra_implicit read BASES directly, so they fail
+## on a registered id.
 static var extra_bases := {}
 
 static func base(id: String) -> Dictionary:

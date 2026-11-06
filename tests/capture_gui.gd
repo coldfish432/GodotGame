@@ -91,7 +91,7 @@ func run() -> void:
 	await capture("trader")
 	game.close_modal()
 	game.floor_number = 10
-	game._enter_camp()
+	await game._enter_camp()
 	await capture("camp")
 	game.camp_extract()
 	await capture("settlement")

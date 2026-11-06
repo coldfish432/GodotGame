@@ -6,8 +6,8 @@ extends Node3D
 ## collision, stations and spawns still come from the rooms' exported data
 ## (art/rhodes_runtime/room_*.json, once the pixel assemblies'): each old
 ## pixel prop stands as its model (PROP_MODELS), walls are laid round each
-## room's rectangle with doorways where its colliders leave gaps, and kit
-## pieces cut a checkerboard hole round Lappland while they cover her.
+## room's rectangle with doorways where its colliders leave gaps. Kit pieces
+## stay whole in front of her and simply hide her.
 ## Markers and the carried icon stay billboards (base_markers, warehouse_view).
 ## The layout is authored with x growing east (screen right). With the game's
 ## camera, screen right is world -X, so every layout x is mirrored.
@@ -42,14 +42,11 @@ const GROUND_PX_PER_UNIT := 12.7
 ## shift their image down to match; sorting then compares feet with feet.
 const SORT_PIVOT_Y := 0.96
 const PIVOT_SCREEN_PX := SORT_PIVOT_Y * 0.5300 * 15.0  # 0.53 = cos(58°), the screen rise per unit height
-## The same at the camera's tilt now (GameManager._keep_sprites_upright), for
+## The same at the camera's tilt now (GmCamera._keep_sprites_upright), for
 ## billboards placed every frame; ones placed once are kept by the camera's
 ## "upright_sprites" group instead.
 static var pivot_screen_px := PIVOT_SCREEN_PX
 const INTERACT_RANGE := 3.0
-## The game camera never yaws or pitches, so a quad turned to this basis once
-## is a billboard (same orientation Sprite3D's billboard mode produces).
-static var CAMERA_BASIS := Basis.looking_at(Vector3(0, -16, 10).normalized(), Vector3.UP)
 const PLAYER_Y := 0.7
 
 ## Every room is modelled (基地建模改造案_v1; 用户 2026-10-18: 先做大厅看效果,
@@ -491,7 +488,8 @@ var _textures := {}
 var player: Node3D
 ## The rooms' pieces' materials (walls and props).
 var _see_through_kit: Array[ShaderMaterial] = []
-## The modelled rooms' light (FieldLight over their rectangle).
+## The modelled rooms' FieldLight over their rectangle (light_at, for tests);
+## the lamps themselves are OmniLights (_build_lights).
 var light: FieldLight
 var _lamps: Array[Dictionary] = []
 var _model_bounds := Rect2()
@@ -577,8 +575,8 @@ func to_world(x: float, z: float, y: float = 0.0) -> Vector3:
 	return ORIGIN + Vector3(EAST * x, y, z)
 
 # --- Real lights (场景渲染统一改造案_v1 §4.3) ------------------------------------
-## The lamps the light texture used to carry are lights: ceiling lamps, the
-## screens' glow and the originium. The nearest SHADOW_LIGHTS ceiling lamps to
+## Every lamp is an OmniLight: ceiling lamps, the screens' glow and the
+## originium. The nearest SHADOW_LIGHTS ceiling lamps to
 ## her cast shadows, re-picked every SHADOW_PICK seconds as she walks.
 const SHADOW_LIGHTS := 6
 const SHADOW_PICK := 0.5
@@ -670,8 +668,9 @@ func spawn_point(name: String) -> Vector3:
 	var p: Array = spawns.get(name, spawns.get("arrival", [64.0, -53.0]))
 	return to_world(p[0], p[1], PLAYER_Y)
 
-## Keeps a 640×360 view from showing the void past the outer walls.
-## Half a screen is 320 px = 21.3 units across and 180 px ≈ 14.2 units down the ground.
+## Keeps the view from showing the void past the outer walls. At the default
+## zoom half a screen is 21.3 units across; down the ground the clamp keeps
+## 13.6 units below the target and 6 above.
 ## `zoom` is the camera's size over the default one; `yaw` its turn
 ## (GameManager.camera_yaw): the limits are taken across and up the screen,
 ## against the base's extent that way, so a turned view still stops at it.
@@ -745,7 +744,7 @@ func _light_sprite(sprite: Sprite3D, edges: Array, levels: Array) -> void:
 	var level: float = levels[strip]
 	sprite.modulate = Color(level, level, level)
 
-## A prop added at run time (a receiving crate, a staging pallet): a billboard
+## A prop added at run time (a station marker, the carried icon): a billboard
 ## standing on its feet at layout (x, z), lit like the rest of the room. Moving
 ## it later is the caller's business; it keeps the light of where it was added.
 func add_prop(room_id: String, texture: Texture2D, x: float, z: float, lift_px: float = 0.0) -> Sprite3D:
@@ -1055,7 +1054,7 @@ func _build_model_room(root: Node3D, room: Dictionary) -> void:
 ## The exchange's hologram wall over its pylons at layout (x, z): the live
 ## board (MarketBoard "wall") on a 24 m screen leaning back towards the
 ## camera, and the running quotes on a strip along its foot. Each is drawn in
-## a SubViewport that only renders while the base is shown.
+## a SubViewport that renders one frame each time its MarketBoard redraws.
 const MARKET_WALL := Vector2(24.0, 6.2)
 ## Leant back from upright so the whole screen stays in view from the floor.
 const MARKET_TILT := 42.0
@@ -1138,7 +1137,8 @@ func _board_viewport(root: Node3D, mode: String, px: Vector2i) -> SubViewport:
 	viewport.size = px
 	viewport.transparent_bg = true
 	viewport.disable_3d = true
-	viewport.render_target_update_mode = SubViewport.UPDATE_WHEN_PARENT_VISIBLE
+	# MarketBoard asks for a frame each time it redraws.
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var board := MarketBoard.new()
 	board.mode = mode
 	board.size = Vector2(px)
@@ -1740,7 +1740,7 @@ static func _kit_mesh(model: String) -> Mesh:
 
 ## One kit piece, turned `yaw` about the vertical and stretched by `scale` on
 ## its own axes. Its baked surfaces draw with the base's kit shader (lit by
-## the light map and the room's strips); glow parts stay self-lit.
+## the scene's lights, dimmed by the room's strips); glow parts stay self-lit.
 func _place_kit(root: Node3D, model: String, at: Vector3, yaw: float = 0.0, scale: Vector3 = Vector3.ONE) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	mi.name = model
@@ -1828,6 +1828,6 @@ func set_farm(provisions: Provisions) -> void:
 			root.add_child(light)
 			_crops[i].light = light
 
-## The camera's deck (GameManager.ride_lift).
+## The camera's deck (GmFacilities.ride_lift).
 func set_deck(value: int) -> void:
 	deck = value

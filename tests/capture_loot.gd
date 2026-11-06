@@ -47,7 +47,7 @@ func run() -> void:
 	boxes[2].begin_open()
 	await step(20)
 	await capture("01-points")
-	game.rng.seed = 7
+	game.seed_rng(7)
 	boxes[0].open_now()
 	boxes[1].open_now()
 	# A notable drop for the beam.

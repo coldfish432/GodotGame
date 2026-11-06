@@ -1,0 +1,27 @@
+{
+  "tool": "built-in image_gen",
+  "character": "raidian",
+  "kind": "walk",
+  "direction_order": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "assets": [
+    {
+      "key": "walk",
+      "source": "C:\\Users\\yuan\\.codex\\generated_images\\01a19ca1-6066-7912-9024-72b28c13dc09\\exec-98d40242-cc28-438e-bedd-7227cf7cafcc.png",
+      "prompt": "Use case: stylized-concept. Production game sprite WALK SHEET for Raidian / 电弧 from Arknights. Image 1 character identity only (normal-proportion portrait must be converted to CHIBI); image 2 Amiya sheet is exact SPRITE STYLE, framing, grid, walking pose reference; image 3 Pith sheet is secondary CR crew style reference. Draw ONLY RAIDIAN in all cells.\nOUTPUT EXACT 1024 wide by 2048 high transparent PNG. UNIFORM INVISIBLE GRID 4 columns x 8 rows, each cell 256x256. Exactly 32 separate complete small chibi painted sprites. Same scale each frame, head/body center at cell x128, soles at cell y240, top of feather tufts around y25. Each sprite about 210 pixels high. Generous empty transparent gutter all sides, no limb/plug touches cell borders.\nROWS EXACT: row1 S front walking toward viewer; row2 SW front three-quarter walking DOWN-LEFT; row3 W strict LEFT profile; row4 NW back three-quarter walking UP-LEFT NO FACE; row5 N straight BACK NO FACE; row6 NE back three-quarter walking UP-RIGHT NO FACE; row7 E strict RIGHT profile; row8 SE front three-quarter walking DOWN-RIGHT. Do NOT interchange directions. Four columns are four distinct phases of a smooth gentle walk: 1 left foot forward/right foot back, 2 legs passing feet close, 3 right foot forward/left foot back, 4 opposite passing. Actual alternating leg and opposite natural-arm movement, not identical static copies. Low motion everyday walking, no fighting.\nIdentity: silver-gray short bob, two tall BLACK BIRD FEATHER tufts with tiny pink/cyan accents (Liberi, not furry ears); friendly small face; oversized gray jacket over black chest rig with narrow cyan straps, short black skirt, bare legs, dark midcalf boots. EXACTLY 2 biological arms + 2 additional PINK-BLACK mechanical arms mounted on backpack at waist. Mechanical arms folded CLOSE at sides, distinct pink-black robotic hands visible, carry at rest in all views. Thin charcoal electric CABLE trailing from rear waist ending in visible small two-prong PLUG; gentle sway kept inside every cell. NO ANIMAL TAIL, NO RED/WHITE FLOWERS, NO REAR HEAD ORNAMENT. Back views show gray bob, equipment backpack and folded mechanical arms. Chibi proportions match Amiya/Pith references, oversized head about 45% height, small body and short legs, clean dark contours, painted flat/cel full colors. No pixel palette restriction, no pixelating yet. Transparent alpha, NO ground shadow/glow/text/grid lines/labels/badges/other characters."
+    },
+    {
+      "key": "back",
+      "source": "C:\\Users\\yuan\\.codex\\generated_images\\01a19ca1-6066-7912-9024-72b28c13dc09\\exec-af78af92-20a0-493b-aa9f-aff1da9c471e.png",
+      "prompt": "Create a corrective sprite strip for Raidian. Reference 1 is current chibi walk sheet: EXACT character design and painted sprite style to preserve. Reference 2 standing portrait is identity only. OUTPUT transparent landscape image in a uniform 4 columns by 2 rows grid, exactly EIGHT complete separated chibi walking sprites; no visible grid or labels. Square cells, generous 15% clear padding each side, top feather tips and plug and feet fully inside each cell. Match existing gray bob, black bird feather tufts tipped cyan/pink, gray jacket, black skirt, bare legs, black boots, backpack, TWO extra pink-black folded mechanical arms on sides with hands kept close to body. Thin electrical cable and two-prong plug trail from rear waist inside cell. No furry tail, no flowers or red/white hair ornament.\nCRITICAL TOP ROW all 4 sprites face NORTHWEST: back three-quarter view walking diagonally AWAY toward UPPER LEFT of screen. Visible back of gray bob and backpack, far side of head turning toward upper left, NO EYES, NO FACE, NO chest rig. Leftward profile silhouette but the back is dominant.\nCRITICAL BOTTOM ROW all 4 sprites face NORTHEAST: back three-quarter view walking diagonally AWAY toward UPPER RIGHT. Visible back of gray bob and backpack, far side of head turned upper right, NO EYES, NO FACE, NO chest rig. NOT right profile, NOT front three-quarter.\nEach row four DISTINCT sequential walk phases: left-foot contact, passing pose, right-foot contact, opposite passing. Clear alternating feet/leg silhouettes and small arm swing, everyday slow walk. Same size, centers and foot baseline in every cell. Oversized chibi head about 45% height, like reference. All eight characters complete with empty gutters. Transparent alpha background, no shadows, no floor, no text, no gridlines, no extra characters."
+    }
+  ]
+}

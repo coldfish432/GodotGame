@@ -1,0 +1,148 @@
+{
+  "stage": "ST2a step 1 review",
+  "assets": [
+    {
+      "id": "sharp",
+      "file": "paintings\\op_sharp_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 421692,
+      "sha256": "0f5b7106e4bf0ea2032fbdd7ecb8b38c595301c9756571453ad6111321425d2b",
+      "height_1024": true,
+      "has_transparency": true
+    },
+    {
+      "id": "stormeye",
+      "file": "paintings\\op_stormeye_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 464806,
+      "sha256": "0eda4d8d3cb8fa271bc51b247a3cba250c1e6759ecde277a746e380c24422f20",
+      "height_1024": true,
+      "has_transparency": true
+    },
+    {
+      "id": "pith",
+      "file": "paintings\\op_pith_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 424129,
+      "sha256": "a9689382b859f1a98e819a7b8b20dbfc746d5945d5561fb2149d5741615c6226",
+      "height_1024": true,
+      "has_transparency": true
+    },
+    {
+      "id": "touch",
+      "file": "paintings\\op_touch_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 444101,
+      "sha256": "e84f71e6aca13b29378616af470578b5fb886d86cfebb46708ad86ee09c0977a",
+      "height_1024": true,
+      "has_transparency": true
+    },
+    {
+      "id": "mechanist",
+      "file": "paintings\\op_mechanist_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 430001,
+      "sha256": "4ade0e89451233d91e21a5e232041fd1b211afc7c600616fa2283f55ddb7078e",
+      "height_1024": true,
+      "has_transparency": true
+    },
+    {
+      "id": "tulip",
+      "file": "paintings\\op_tulip_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 383115,
+      "sha256": "9f6eaa099271d80a8ada160809b9ee2ecc521ffb722646ee7b6cb40f57e2143d",
+      "height_1024": true,
+      "has_transparency": true
+    },
+    {
+      "id": "misery",
+      "file": "paintings\\op_misery_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 474112,
+      "sha256": "4996b03d7d6b734f938c0387860c813febf2cb7ab8f98e6f817c0e6ae5bbdf8d",
+      "height_1024": true,
+      "has_transparency": true
+    },
+    {
+      "id": "raidian",
+      "file": "paintings\\op_raidian_painting_1024.png",
+      "size": [
+        683,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_pixels": 531094,
+      "sha256": "95bf37745d7ebfb518f90fee611128b3af4ee3628a455b67746e7bfe8eb3aa91",
+      "height_1024": true,
+      "has_transparency": true
+    }
+  ],
+  "visual_acceptance": "pending user review; static checks do not prove likeness or strict one-shadow-step compliance",
+  "not_produced": [
+    "120x240 pixel portraits",
+    "CR4 walk and idle sheets",
+    "optional injured idle"
+  ],
+  "raidian_correction": "Liberi; no rear-head flowers; trailing electrical cable and plug; feather tufts; two mechanical arms"
+}

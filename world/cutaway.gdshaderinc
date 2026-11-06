@@ -3,7 +3,7 @@
 // part over her goes, with a soft edge, opening and closing over a moment).
 // A fragment above her feet by `above` metres and nearer the camera than she
 // is is dithered out inside `radius` metres of her on screen, thinning over
-// the outer `band`. field_cut (0..1, eased by GameManager while rock stands
+// the outer `band`. field_cut (0..1, eased by GmCamera while rock stands
 // between her and the camera) opens the hole. Needs field_light.gdshaderinc.
 global uniform float field_cut;
 

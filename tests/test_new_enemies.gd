@@ -37,6 +37,8 @@ func reset() -> void:
 	p.combat_timer = 0
 
 func run() -> void:
+	# The set pieces (BossShow) have their own suite; these check the fight itself.
+	BossShow.enabled = false
 	game = GameManager.new()
 	game.save_enabled = false
 	game.fixed_map_seed = 1729
@@ -69,6 +71,13 @@ func _data() -> void:
 	var elites := NEW.filter(func(t): return EnemyAttacks.is_elite_type(t))
 	check("elites: 武装人员, 灰尾香主, 欺凌者, 寻仇者, 粉碎攻坚手, 木裂战士", elites.size() == 6, elites)
 	check("mine elites are 武装人员 now, not thugs", EnemyAttacks.default_type("mine", true, false) == "armed")
+	# 2026-10-26: an elite spawned without a type is one of its region's own, never the boardless "elite".
+	var pick_rng := RandomNumberGenerator.new()
+	var picks := {}
+	for region in ["mine", "city", "snow", "siracusa"]:
+		for i in range(20): picks[EnemyAttacks.region_elite(region, pick_rng)] = region
+	check("typeless elites come from their region's elite pool, each with its own boards", not picks.has("elite") and not picks.has("")
+		and picks.keys().all(func(t): return EnemyAttacks.REGION_POOLS[picks[t]].elite.has(t) and FieldArt.has_directional(t)), picks.keys())
 	var borrowed := true
 	for type in NEW:
 		if EnemyAttacks.is_elite_type(type): continue
@@ -335,11 +344,11 @@ func _warnings() -> void:
 	for i in range(int(full * 30)): await step(1)
 	var half: float = circle[0].progress()
 	check("…and its rings spread from the middle as the countdown (about half way at half time)", half > 0.3 and half < 0.7, half)
-	check("…the circle is see-through: a plane the size of the radius, not a solid disc", (circle[0].mesh as PlaneMesh).size.is_equal_approx(Vector2.ONE * armed.pending_warning_radius * 2.0))
+	check("…the circle is see-through: a plane the size of the radius, not a solid disc", circle[0].footprint().is_equal_approx(Vector2.ONE * armed.pending_warning_radius * 2.0))
 	await reset()
 	var bully := _windup("bully", Vector3(4, 0, 0))
 	var lane: Array = markers()
-	var lane_size := (lane[0].mesh as PlaneMesh).size if lane.size() == 1 else Vector2.ZERO
+	var lane_size: Vector2 = lane[0].footprint() if lane.size() == 1 else Vector2.ZERO
 	var edge := CombatMarker.WHITE_RIM * 2.0
 	check("欺凌者: a 1.4 × 7.0 strip with the white edge of an unstoppable attack (§六第 2/7 条)", lane.size() == 1 and lane[0].unstoppable and lane_size.is_equal_approx(Vector2(1.4 + edge, 7.0 + edge)), lane_size)
 	bully._update_attack_visual()
@@ -359,7 +368,7 @@ func _warnings() -> void:
 	await reset()
 	var avenger := _windup("avenger", Vector3(2, 0, 0))
 	var thrust: Array = markers()
-	var thrust_size := (thrust[0].mesh as PlaneMesh).size if thrust.size() == 1 else Vector2.ZERO
+	var thrust_size: Vector2 = thrust[0].footprint() if thrust.size() == 1 else Vector2.ZERO
 	check("寻仇者 opens with a 0.9 × 3.0 strip (§六第 3 条)", avenger.warn_shape == "lane" and thrust_size.is_equal_approx(Vector2(0.9, 3.0)), thrust_size)
 	avenger._attack_elapsed = 99
 	avenger._windup_remaining = 0

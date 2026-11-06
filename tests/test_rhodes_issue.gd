@@ -24,7 +24,7 @@ func run() -> void:
 	game.fixed_market_seed = 77
 	root.add_child(game)
 	await step(8)
-	game.rng.seed = 91
+	game.seed_rng(91)
 	_issue()
 	_bound()
 	_own_gear()
@@ -57,7 +57,7 @@ func _issue() -> void:
 
 func _bound() -> void:
 	var weapon: Item = game.player.equipped[Item.Category.WEAPON]
-	check("not for sale, delivery or orders", not game.can_sell(weapon) and game.trader_offer(weapon) == 0
+	check("not for sale, delivery or orders", game.trader_offer(weapon) == 0
 		and range(game.base.orders.slots.size()).all(func(slot): return not game.base.orders.matches(slot, weapon)))
 	check("not insured, packed, consigned or refitted", not game.insure(weapon) and not weapon.insured and not Packs.packable(weapon)
 		and not Consignment.takes(weapon) and game.refresh_refusal("reforge", weapon) == "无法改造")

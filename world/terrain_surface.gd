@@ -55,7 +55,6 @@ var cliff_cuts: Array[PackedFloat32Array] = []
 var contour_edges: Array[PackedFloat32Array] = []
 ## Indices of the targets the last connects() found cut off.
 var stranded: Array[int] = []
-var _vertex_cache := {}
 var origin := Vector2.ZERO
 var columns := 0
 var rows := 0
@@ -84,8 +83,9 @@ func sample(map: Node3D) -> void:
 		for x in range(columns + 1):
 			var p := origin + Vector2(x, z) * CELL
 			var index := z * (columns + 1) + x
-			_distance[index] = distance_at(p)
-			_owner[index] = map._last_owner
+			var carved: Array = map.carved_owned(p)
+			_distance[index] = carved[0] + map.edge_noise_of(carved[1], noise.get_noise_2dv(p))
+			_owner[index] = carved[1]
 	_sampled = true
 	relevel()
 
@@ -159,20 +159,22 @@ func build(map: Node3D) -> void:
 	field = map
 	_build_top_grid()
 	map.mark("rock + mountain grids")
-	for tool in [floor_tool, mass_tool, wall_tool]:
-		tool.vertices.clear(); tool.normals.clear(); tool.colors.clear(); tool.uvs.clear(); tool.uv2s.clear()
+	var out := Bundle.new()
+	_memo_on = true
 	for z in range(rows):
-		for x in range(columns):
-			var a := origin + Vector2(x, z) * CELL
-			var b := a + Vector2(CELL, 0)
-			var c := a + Vector2(CELL, CELL)
-			var d := a + Vector2(0, CELL)
-			var ia := z * (columns + 1) + x
-			var ib := ia + 1
-			var ic := ia + columns + 2
-			var id := ia + columns + 1
-			_cut_triangle([a, b, c], [_distance[ia], _distance[ib], _distance[ic]], [_height_grid[ia], _height_grid[ib], _height_grid[ic]])
-			_cut_triangle([a, c, d], [_distance[ia], _distance[ic], _distance[id]], [_height_grid[ia], _height_grid[ic], _height_grid[id]])
+		for x in range(columns): _cut_cell(out, x, z)
+	_memo_on = false
+	_memo.clear()
+	floor_tool = out.floor_tool
+	mass_tool = out.mass_tool
+	wall_tool = out.wall_tool
+	collision_walls.append_array(out.collision_walls)
+	ground_faces.append_array(out.ground_faces)
+	minimap_faces.append_array(out.minimap_faces)
+	boundaries.append_array(out.boundaries)
+	cliff_cuts.append_array(out.cliff_cuts)
+	contour_edges.append_array(out.contour_edges)
+	cliff_count += out.cliff_count
 	map.mark("terrain triangles")
 	var ground := _finish(floor_tool, "WalkableTerrain")
 	# Floor and cliff faces collide as one sheet: a cliff face is too steep to
@@ -210,9 +212,17 @@ func distance_at(point: Vector2) -> float:
 		var nearest := cell.round()
 		if cell.distance_squared_to(nearest) < 0.000001 and nearest.x >= 0 and nearest.y >= 0 and nearest.x <= columns and nearest.y <= rows:
 			return _distance[int(nearest.y) * (columns + 1) + int(nearest.x)]
+	# While the triangles are cut the contour's points are read several times
+	# over (both sides' vertices, the bank's top): kept for the cut (_memo_on).
+	if _memo_on and _memo.has(point): return _memo[point]
 	# Small edge erosion only. Centre lines retain their guaranteed width.
-	var carved: float = field.carved_distance(point)
-	return carved + field.edge_noise(point, noise.get_noise_2dv(point))
+	var carved: Array = field.carved_owned(point)
+	var distance: float = carved[0] + field.edge_noise_of(carved[1], noise.get_noise_2dv(point))
+	if _memo_on: _memo[point] = distance
+	return distance
+
+var _memo := {}
+var _memo_on := false
 
 ## The shape that owns the grid vertex nearest x/z (ContinuousWorldMap's
 ## owner: a room index, or -1 - a corridor segment).
@@ -274,38 +284,38 @@ func _clip(points: Array, values: Array, inside: bool) -> PackedVector2Array:
 			output.append(points[i].lerp(points[j], values[i] / (values[i] - values[j])))
 	return output
 
-func _cut_triangle(points: Array, values: Array, heights: Array) -> void:
+func _cut_triangle(out: Bundle, points: Array, values: Array, heights: Array) -> void:
 	var inside := _clip(points, values, true)
 	var outside := _clip(points, values, false)
 	var low: float = heights.min()
 	var high: float = heights.max()
 	var cliff: bool = high - low > field.CLIFF_STEP
 	if inside.size() >= 3:
-		minimap_faces.append(inside)
-		if cliff: _cliff_split(inside, low, high)
+		out.minimap_faces.append(inside)
+		if cliff: _cliff_split(out, inside, low, high)
 		else:
-			_polygon(floor_tool, inside, 0)
-			_collide(inside)
-	if outside.size() >= 3: _polygon(mass_tool, outside, 1)
+			_polygon(out, out.floor_tool, inside, 0)
+			_collide(out, inside)
+	if outside.size() >= 3: _polygon(out, out.mass_tool, outside, 1)
 	var edge := PackedVector2Array()
 	for i in range(3):
 		var j := (i + 1) % 3
 		if (values[i] >= 0) != (values[j] >= 0):
 			edge.append(points[i].lerp(points[j], values[i] / (values[i] - values[j])))
 	if edge.size() != 2 or edge[0].distance_squared_to(edge[1]) < 0.00001: return
-	boundaries.append(edge)
-	contour_edges.append(PackedFloat32Array([edge[0].x, edge[0].y, edge[1].x, edge[1].y]))
+	out.boundaries.append(edge)
+	out.contour_edges.append(PackedFloat32Array([edge[0].x, edge[0].y, edge[1].x, edge[1].y]))
 	var a := Vector3(edge[0].x, ground_at(edge[0]), edge[0].y)
 	var b := Vector3(edge[1].x, ground_at(edge[1]), edge[1].y)
 	var up_a := Vector3(a.x, _height(edge[0], true), a.z)
 	var up_b := Vector3(b.x, _height(edge[1], true), b.z)
 	var color := Color(0.88, 0.88, 0.88)
-	_triangle(wall_tool, a, b, up_b, color * 0.62, color * 0.62, color)
-	_triangle(wall_tool, a, up_b, up_a, color * 0.62, color, color)
+	_triangle(out.wall_tool, a, b, up_b, color * 0.62, color * 0.62, color)
+	_triangle(out.wall_tool, a, up_b, up_a, color * 0.62, color, color)
 	# Full collision height blocks dashes and projectiles; the visible bank is
 	# low near the road, preserving the top-down view of the character.
 	for vertex in [a, b, b + Vector3.UP * 4, a, b + Vector3.UP * 4, a + Vector3.UP * 4]:
-		collision_walls.append(vertex)
+		out.collision_walls.append(vertex)
 
 ## A cliff triangle split along a fixed mid-tier height: the floor on each side
 ## stays level right up to the line, and a vertical rock face stands on it.
@@ -314,7 +324,7 @@ func _cut_triangle(points: Array, values: Array, heights: Array) -> void:
 ## and the face has no gaps. Along an edge whose ends are close in height (a
 ## ramp meeting the cliff's end) the cut point takes the field's own height on
 ## both sides, so the face tapers out instead of leaving a crack.
-func _cliff_split(polygon: PackedVector2Array, low: float, high: float) -> void:
+func _cliff_split(out: Bundle, polygon: PackedVector2Array, low: float, high: float) -> void:
 	var iso: float = (floorf((low + high) * 0.5 / field.TIER) + 0.5) * field.TIER
 	if iso <= low or iso >= high: iso = (low + high) * 0.5
 	var heights := PackedFloat32Array()
@@ -350,29 +360,29 @@ func _cliff_split(polygon: PackedVector2Array, low: float, high: float) -> void:
 		cut_bottom.append(bottom)
 	for part in [[upper, upper_h], [lower, lower_h]]:
 		if (part[0] as PackedVector2Array).size() < 3: continue
-		_polygon_at(floor_tool, part[0], part[1])
-		_collide_at(part[0], part[1])
+		_polygon_at(out, out.floor_tool, part[0], part[1])
+		_collide_at(out, part[0], part[1])
 	if cut.size() != 2 or cut[0].distance_squared_to(cut[1]) < 0.00001: return
 	var a0 := Vector3(cut[0].x, cut_bottom[0], cut[0].y)
 	var b0 := Vector3(cut[1].x, cut_bottom[1], cut[1].y)
 	var a1 := Vector3(cut[0].x, cut_top[0], cut[0].y)
 	var b1 := Vector3(cut[1].x, cut_top[1], cut[1].y)
 	var rock := _color(cut[0], 2)
-	_triangle(mass_tool, a0, b0, b1, rock * 0.8, rock * 0.8, rock)
-	_triangle(mass_tool, a0, b1, a1, rock * 0.8, rock, rock)
+	_triangle(out.mass_tool, a0, b0, b1, rock * 0.8, rock * 0.8, rock)
+	_triangle(out.mass_tool, a0, b1, a1, rock * 0.8, rock, rock)
 	if maxf(cut_top[0] - cut_bottom[0], cut_top[1] - cut_bottom[1]) <= field.CLIFF_STEP: return
 	# Collision along the face, from under the low floor to well over the high
 	# one: the high side cannot be walked off, the low side not climbed, and a
 	# shot across is stopped like at any other bank.
-	cliff_count += 1
-	cliff_cuts.append(PackedFloat32Array([cut[0].x, cut[0].y, cut[1].x, cut[1].y, minf(cut_bottom[0], cut_bottom[1]), maxf(cut_top[0], cut_top[1]), cut_bottom[0], cut_top[0], cut_bottom[1], cut_top[1]]))
-	boundaries.append(cut)
-	_cliff_wall(cut[0], cut[1], minf(cut_bottom[0], cut_bottom[1]) - 0.4, maxf(cut_top[0], cut_top[1]) + 4.0)
+	out.cliff_count += 1
+	out.cliff_cuts.append(PackedFloat32Array([cut[0].x, cut[0].y, cut[1].x, cut[1].y, minf(cut_bottom[0], cut_bottom[1]), maxf(cut_top[0], cut_top[1]), cut_bottom[0], cut_top[0], cut_bottom[1], cut_top[1]]))
+	out.boundaries.append(cut)
+	_cliff_wall(out, cut[0], cut[1], minf(cut_bottom[0], cut_bottom[1]) - 0.4, maxf(cut_top[0], cut_top[1]) + 4.0)
 
 ## A cliff's collision wall. Where a bridge's deck runs over the cliff it
 ## stops just under the deck: the road beneath is still walled, and the deck
 ## carries on over the cliff's top from the stub.
-func _cliff_wall(a: Vector2, b: Vector2, bottom: float, top: float) -> void:
+func _cliff_wall(out: Bundle, a: Vector2, b: Vector2, bottom: float, top: float) -> void:
 	var pieces := [Vector3(0.0, 1.0, top)]
 	for bridge in field.bridges:
 		if not bridge.has("centre"): continue
@@ -400,7 +410,7 @@ func _cliff_wall(a: Vector2, b: Vector2, bottom: float, top: float) -> void:
 		var wa := Vector3(pa.x, bottom, pa.y)
 		var wb := Vector3(pb.x, bottom, pb.y)
 		for vertex in [wa, wb, Vector3(wb.x, piece.z, wb.z), wa, Vector3(wb.x, piece.z, wb.z), Vector3(wa.x, piece.z, wa.z)]:
-			collision_walls.append(vertex)
+			out.collision_walls.append(vertex)
 
 ## The part of [0, 1] where a value running linearly from f0 to f1 stays
 ## within +-limit (empty: x >= y).
@@ -411,7 +421,8 @@ static func _band(f0: float, f1: float, limit: float) -> Vector2:
 	return Vector2(clampf(minf(t0, t1), 0.0, 1.0), clampf(maxf(t0, t1), 0.0, 1.0))
 
 ## A floor polygon at given heights (colour and light still from the cache).
-func _polygon_at(tool: MeshArrays, polygon: PackedVector2Array, heights: PackedFloat32Array) -> void:
+func _polygon_at(out: Bundle, tool: MeshArrays, polygon: PackedVector2Array, heights: PackedFloat32Array) -> void:
+	var cache := out.cache
 	for i in range(1, polygon.size() - 1):
 		var vertices: Array[Vector3] = []
 		var colors: Array[Color] = []
@@ -419,23 +430,23 @@ func _polygon_at(tool: MeshArrays, polygon: PackedVector2Array, heights: PackedF
 		for k in [0, i, i + 1]:
 			var p: Vector2 = polygon[k]
 			var key := Vector3(p.x, 0.0, p.y)
-			if not _vertex_cache.has(key):
-				_vertex_cache[key] = [Vector3(p.x, _height(p, false), p.y), _color(p, 0), _terrace_light(p)]
+			if not cache.has(key):
+				cache[key] = [Vector3(p.x, _height(p, false), p.y), _color(p, 0), _terrace_light(p)]
 			vertices.append(Vector3(p.x, heights[k], p.y))
-			colors.append(_vertex_cache[key][1])
-			lights.append(_vertex_cache[key][2])
+			colors.append(cache[key][1])
+			lights.append(cache[key][2])
 		_triangle(tool, vertices[0], vertices[1], vertices[2], colors[0], colors[1], colors[2], lights)
 
-func _collide_at(polygon: PackedVector2Array, heights: PackedFloat32Array) -> void:
+func _collide_at(out: Bundle, polygon: PackedVector2Array, heights: PackedFloat32Array) -> void:
 	for i in range(1, polygon.size() - 1):
 		for k in [0, i, i + 1]:
-			ground_faces.append(Vector3(polygon[k].x, heights[k], polygon[k].y))
+			out.ground_faces.append(Vector3(polygon[k].x, heights[k], polygon[k].y))
 
-func _collide(polygon: PackedVector2Array) -> void:
+func _collide(out: Bundle, polygon: PackedVector2Array) -> void:
 	for i in range(1, polygon.size() - 1):
 		# Same winding as the floor mesh: navigation baking reads it as up-facing.
 		for p in [polygon[0], polygon[i], polygon[i + 1]]:
-			ground_faces.append(Vector3(p.x, ground_at(p), p.y))
+			out.ground_faces.append(Vector3(p.x, ground_at(p), p.y))
 
 ## Rock height: the ground's own level there plus the regional bank profile.
 func _height(point: Vector2, mass: bool) -> float:
@@ -531,11 +542,41 @@ var _top_grid := PackedFloat32Array()
 const ROCK_REACH := 3
 const ROCK_BLUR := 6
 
+## The rock vertices off the grid's rim, in index order: what the blurs touch.
+var _inner := PackedInt32Array()
+
+## `passes` of the rock blur (floor vertices and the rim are left as they are).
+func _blur(grid: PackedFloat32Array, passes: int) -> PackedFloat32Array:
+	var width := columns + 1
+	for pass_index in range(passes):
+		var next := grid.duplicate()
+		for i in _inner:
+			next[i] = (grid[i] * 4.0 + grid[i - 1] + grid[i + 1] + grid[i - width] + grid[i + width]) / 8.0
+		grid = next
+	return grid
+
 func _build_top_grid() -> void:
 	var size := _height_grid.size()
+	_inner.clear()
+	for z in range(1, rows):
+		for x in range(1, columns):
+			if _distance[z * (columns + 1) + x] < 0.0: _inner.append(z * (columns + 1) + x)
 	var base := PackedFloat32Array()
 	base.resize(size)
 	var width := columns + 1
+	# The highest floor in the (2 ROCK_REACH + 1)² square round each vertex,
+	# as a max along the rows then along the columns (the same maximum).
+	var floor_only := PackedFloat32Array()
+	floor_only.resize(size)
+	for i in range(size): floor_only[i] = _height_grid[i] if _distance[i] >= 0.0 else -INF
+	var along := PackedFloat32Array()
+	along.resize(size)
+	for z in range(rows + 1):
+		for x in range(width):
+			var best := -INF
+			for xx in range(maxi(0, x - ROCK_REACH), mini(width, x + ROCK_REACH + 1)):
+				best = maxf(best, floor_only[z * width + xx])
+			along[z * width + x] = best
 	for z in range(rows + 1):
 		for x in range(width):
 			var i := z * width + x
@@ -543,25 +584,12 @@ func _build_top_grid() -> void:
 				base[i] = _height_grid[i]
 				continue
 			var best := -INF
-			for dz in range(-ROCK_REACH, ROCK_REACH + 1):
-				var zz := z + dz
-				if zz < 0 or zz > rows: continue
-				for dx in range(-ROCK_REACH, ROCK_REACH + 1):
-					var xx := x + dx
-					if xx < 0 or xx >= width: continue
-					var k := zz * width + xx
-					if _distance[k] >= 0.0: best = maxf(best, _height_grid[k])
+			for zz in range(maxi(0, z - ROCK_REACH), mini(rows + 1, z + ROCK_REACH + 1)):
+				best = maxf(best, along[zz * width + x])
 			base[i] = best if best > -INF else _height_grid[i]
 	# Deep rock with no floor in reach takes its neighbours' level as the
 	# blur spreads; rock vertices only, so the floor is never lifted.
-	for pass_index in range(ROCK_BLUR):
-		var next := base.duplicate()
-		for z in range(1, rows):
-			for x in range(1, width - 1):
-				var i := z * width + x
-				if _distance[i] >= 0.0: continue
-				next[i] = (base[i] * 4.0 + base[i - 1] + base[i + 1] + base[i - width] + base[i + width]) / 8.0
-		base = next
+	base = _blur(base, ROCK_BLUR)
 	base = _causeways(base)
 	_rock_grid.resize(size)
 	_top_grid.resize(size)
@@ -610,14 +638,7 @@ func _causeways(base: PackedFloat32Array) -> PackedFloat32Array:
 					any = true
 	if not any: return base
 	for i in range(base.size()): base[i] = minf(base[i], cap[i])
-	for pass_index in range(2):
-		var next := base.duplicate()
-		for z in range(1, rows):
-			for x in range(1, width - 1):
-				var i := z * width + x
-				if _distance[i] >= 0.0: continue
-				next[i] = (base[i] * 4.0 + base[i - 1] + base[i + 1] + base[i - width] + base[i + width]) / 8.0
-		base = next
+	base = _blur(base, 2)
 	return base
 
 ## Snow mountains on the rock off the road (用户 2026-10-12: 组成边界的区块做成
@@ -626,7 +647,7 @@ func _causeways(base: PackedFloat32Array) -> PackedFloat32Array:
 ## cut into contour steps (MOUNTAIN_STEP) and blurred, so the slopes come out
 ## as soft irregular terraces; the rise starts behind the drift at the rim.
 ## Rock that stands between the camera and a road is held down, by how far
-## the road lies to the north of it (the camera looks north, down 58°).
+## the road lies to the north of it (the default camera looks north, down 58°).
 ## Zero everywhere else.
 const MOUNTAIN_HEIGHT := 14.0
 const MOUNTAIN_STEP := 1.6
@@ -702,14 +723,7 @@ func _build_mountains() -> void:
 			var north := run[i + width] if z < rows else 100000
 			if north < 24: h = minf(h, float(north) * CELL * MOUNTAIN_SIGHT)
 			raw[i] = h
-	for pass_index in range(MOUNTAIN_BLUR):
-		var next := raw.duplicate()
-		for z in range(1, rows):
-			for x in range(1, width - 1):
-				var i := z * width + x
-				if _distance[i] >= 0.0: continue
-				next[i] = (raw[i] * 4.0 + raw[i - 1] + raw[i + 1] + raw[i - width] + raw[i + width]) / 8.0
-		raw = next
+	raw = _blur(raw, MOUNTAIN_BLUR)
 	if cave: _raise_pillars(raw)
 	_mountain_grid = raw
 
@@ -824,7 +838,8 @@ func _terrace_light(point: Vector2) -> float:
 	return light
 
 ## kind 0 floor, 1 rock mass, 2 cliff face.
-func _polygon(tool: MeshArrays, polygon: PackedVector2Array, kind: int) -> void:
+func _polygon(out: Bundle, tool: MeshArrays, polygon: PackedVector2Array, kind: int) -> void:
+	var cache := out.cache
 	for i in range(1, polygon.size() - 1):
 		var points := [polygon[0], polygon[i], polygon[i + 1]]
 		var vertices: Array[Vector3] = []
@@ -832,12 +847,12 @@ func _polygon(tool: MeshArrays, polygon: PackedVector2Array, kind: int) -> void:
 		var lights: Array[float] = []
 		for p: Vector2 in points:
 			var key := Vector3(p.x, float(kind), p.y)
-			if not _vertex_cache.has(key):
+			if not cache.has(key):
 				var height := _height(p, kind == 1)
-				_vertex_cache[key] = [Vector3(p.x, height, p.y), _color(p, kind, height if kind == 1 else NAN), _terrace_light(p) if kind == 0 else 1.0]
-			vertices.append(_vertex_cache[key][0])
-			colors.append(_vertex_cache[key][1])
-			lights.append(_vertex_cache[key][2])
+				cache[key] = [Vector3(p.x, height, p.y), _color(p, kind, height if kind == 1 else NAN), _terrace_light(p) if kind == 0 else 1.0]
+			vertices.append(cache[key][0])
+			colors.append(cache[key][1])
+			lights.append(cache[key][2])
 		_triangle(tool, vertices[0], vertices[1], vertices[2], colors[0], colors[1], colors[2], lights)
 
 ## `lights` reaches the floor shader as UV2.x (see FieldArt.terrain_material).
@@ -907,6 +922,17 @@ class Bundle:
 	var boundaries: Array[PackedVector2Array] = []
 	var cliff_cuts: Array[PackedFloat32Array] = []
 	var contour_edges: Array[PackedFloat32Array] = []
+	var cliff_count := 0
+	## Point -> its vertex values, while this bundle is cut.
+	var cache := {}
+	## The same for grid vertices in the all-floor and all-rock triangles
+	## (_corner), by slot: vertex * 4 + which corner of its cell reached it.
+	var known := PackedByteArray()
+	var at := PackedVector2Array()
+	var vertex := PackedVector3Array()
+	var color := PackedColorArray()
+	var light := PackedFloat32Array()
+	var mountain := PackedFloat32Array()
 
 ## Finds the patch: every grid vertex whose distance differs with the vault
 ## carved, grown by PATCH_MARGIN; and the dug grids.
@@ -978,7 +1004,6 @@ func use_grids(dug: bool) -> void:
 	_top_grid = (grids[3] as PackedFloat32Array).duplicate()
 	_rock_grid = (grids[4] as PackedFloat32Array).duplicate()
 	_mountain_grid = (grids[5] as PackedFloat32Array).duplicate()
-	_vertex_cache.clear()
 
 ## Where the vault changes what stands on the ground: the dug field differs
 ## there and the dug ground is within `reach` (a building's depth). Dressing is
@@ -1001,33 +1026,16 @@ func in_patch(point: Vector2) -> bool:
 func build_patch() -> Bundle:
 	use_grids(true)
 	var bundle := Bundle.new()
-	var kept := [floor_tool, mass_tool, wall_tool, collision_walls, ground_faces, minimap_faces, boundaries, cliff_cuts, contour_edges]
-	floor_tool = bundle.floor_tool
-	mass_tool = bundle.mass_tool
-	wall_tool = bundle.wall_tool
-	collision_walls = PackedVector3Array()
-	ground_faces = PackedVector3Array()
-	minimap_faces = bundle.minimap_faces
-	boundaries = bundle.boundaries
-	cliff_cuts = bundle.cliff_cuts
-	contour_edges = bundle.contour_edges
+	_memo_on = true
 	for cell in patch_cells:
-		_cut_cell(cell.x, cell.y)
-	bundle.collision_walls = collision_walls
-	bundle.ground_faces = ground_faces
-	floor_tool = kept[0]
-	mass_tool = kept[1]
-	wall_tool = kept[2]
-	collision_walls = kept[3]
-	ground_faces = kept[4]
-	minimap_faces = kept[5]
-	boundaries = kept[6]
-	cliff_cuts = kept[7]
-	contour_edges = kept[8]
+		_cut_cell(bundle, cell.x, cell.y)
+	_memo_on = false
+	_memo.clear()
+	cliff_count += bundle.cliff_count
 	use_grids(false)
 	return bundle
 
-func _cut_cell(x: int, z: int) -> void:
+func _cut_cell(out: Bundle, x: int, z: int) -> void:
 	var a := origin + Vector2(x, z) * CELL
 	var b := a + Vector2(CELL, 0)
 	var c := a + Vector2(CELL, CELL)
@@ -1036,8 +1044,106 @@ func _cut_cell(x: int, z: int) -> void:
 	var ib := ia + 1
 	var ic := ia + columns + 2
 	var id := ia + columns + 1
-	_cut_triangle([a, b, c], [_distance[ia], _distance[ib], _distance[ic]], [_height_grid[ia], _height_grid[ib], _height_grid[ic]])
-	_cut_triangle([a, c, d], [_distance[ia], _distance[ic], _distance[id]], [_height_grid[ia], _height_grid[ic], _height_grid[id]])
+	if out.known.is_empty():
+		var slots := _distance.size() * 4
+		out.known.resize(slots); out.at.resize(slots); out.vertex.resize(slots)
+		out.color.resize(slots); out.light.resize(slots); out.mountain.resize(slots)
+	# Wholly rock or wholly level floor (most cells): the same triangle
+	# _cut_triangle would emit, without its clipping.
+	var da := _distance[ia]
+	var db := _distance[ib]
+	var dc := _distance[ic]
+	var dd := _distance[id]
+	if not _whole(out, a, b, c, ia, ib, ic, 0, 1, 2, da, db, dc):
+		_cut_triangle(out, [a, b, c], [da, db, dc], [_height_grid[ia], _height_grid[ib], _height_grid[ic]])
+	if not _whole(out, a, c, d, ia, ic, id, 0, 2, 3, da, dc, dd):
+		_cut_triangle(out, [a, c, d], [da, dc, dd], [_height_grid[ia], _height_grid[ic], _height_grid[id]])
+
+## A triangle all on one side of the contour, and not a cliff if floor: what
+## _cut_triangle makes of it (one mass triangle; or a minimap face, a floor
+## triangle and its collision), from the corner slots. False if mixed.
+func _whole(out: Bundle, a: Vector2, b: Vector2, c: Vector2, ia: int, ib: int, ic: int, ka: int, kb: int, kc: int, da: float, db: float, dc: float) -> bool:
+	if da < 0 and db < 0 and dc < 0:
+		_emit(out, out.mass_tool, _corner(out, ia, ka, a, true), _corner(out, ib, kb, b, true), _corner(out, ic, kc, c, true))
+		return true
+	if da < 0 or db < 0 or dc < 0: return false
+	var ha := _height_grid[ia]
+	var hb := _height_grid[ib]
+	var hc := _height_grid[ic]
+	if maxf(maxf(ha, hb), hc) - minf(minf(ha, hb), hc) > field.CLIFF_STEP: return false
+	out.minimap_faces.append(PackedVector2Array([a, b, c]))
+	var sa := _corner(out, ia, ka, a, false)
+	var sb := _corner(out, ib, kb, b, false)
+	var sc := _corner(out, ic, kc, c, false)
+	_emit(out, out.floor_tool, sa, sb, sc)
+	out.ground_faces.append(out.vertex[sa])
+	out.ground_faces.append(out.vertex[sb])
+	out.ground_faces.append(out.vertex[sc])
+	return true
+
+## Grid vertex `v` read at `p`, as corner `k` (a, b, c, d) of the cell: each
+## corner reaches the vertex by its own float sums, so has its own slot;
+## a slot whose point equals one already read shares its values. The values
+## are those _polygon caches (rock: _height and _color of kind 1).
+func _corner(out: Bundle, v: int, k: int, p: Vector2, rock: bool) -> int:
+	var slot := v * 4 + k
+	if out.known[slot] == 1: return slot
+	for o in range(v * 4, v * 4 + 4):
+		if out.known[o] == 1 and out.at[o] == p:
+			out.vertex[slot] = out.vertex[o]; out.color[slot] = out.color[o]
+			out.light[slot] = out.light[o]; out.mountain[slot] = out.mountain[o]
+			out.at[slot] = p
+			out.known[slot] = 1
+			return slot
+	if rock:
+		var ground := ground_at(p)
+		var depth := maxf(0, -distance_at(p))
+		var mountain := mountain_at(p)
+		var height: float
+		# _height(p, true)
+		if field.region_id == "snow":
+			var top := rock_top_at(p)
+			var rise := smoothstep(0.0, 0.7 if top < ground - 0.3 else 2.6, depth)
+			height = lerpf(ground, top, rise) + mountain + noise.get_noise_2dv(p * 0.65) * minf(depth * 0.1, 0.25)
+		elif field.urban: height = rock_top_at(p)
+		elif field.region_id == "mine": height = rock_top_at(p) + mountain + noise.get_noise_2dv(p * 1.3) * minf(depth * 0.3, 0.9)
+		else: height = rock_top_at(p) + mountain + noise.get_noise_2dv(p * 0.65) * minf(depth * 0.1, 0.18)
+		# _color(p, 1, height)
+		var contact := 1.0 if field.urban else lerpf(0.78, 1.0, smoothstep(0.0, 3.0, depth))
+		var fade := lerpf(1.0, 0.4, smoothstep(0.15, 1.8, ground - height))
+		var color: Color
+		if field.region_id == "city": color = Color(contact, 0.0 if field.district_at(p) != "slum" else 1.0, contact, fade)
+		elif field.region_id == "siracusa": color = Color(contact, 0.0, contact, fade)
+		elif field.urban: color = Color(contact, 1.0, contact, fade)
+		else: color = Color(contact, contact, contact, fade)
+		out.vertex[slot] = Vector3(p.x, height, p.y)
+		out.color[slot] = color
+		out.light[slot] = 1.0
+		out.mountain[slot] = mountain
+	else:
+		out.vertex[slot] = Vector3(p.x, _height(p, false), p.y)
+		out.color[slot] = _color(p, 0)
+		out.light[slot] = _terrace_light(p)
+		out.mountain[slot] = mountain_at(p)
+	out.at[slot] = p
+	out.known[slot] = 1
+	return slot
+
+## _triangle for three corner slots.
+func _emit(out: Bundle, tool: MeshArrays, sa: int, sb: int, sc: int) -> void:
+	var a := out.vertex[sa]
+	var normal := (out.vertex[sc] - a).cross(out.vertex[sb] - a).normalized()
+	var shade := 0.74 + absf(normal.dot(Vector3(-0.4, 0.8, -0.4).normalized())) * 0.26
+	for s in [sa, sb, sc]:
+		tool.normals.append(normal)
+		var color := out.color[s]
+		var shaded := color * shade
+		shaded.a = color.a
+		tool.colors.append(shaded)
+		var v := out.vertex[s]
+		tool.uvs.append(Vector2(v.x, v.z) / 5.0)
+		tool.uv2s.append(Vector2(out.light[s], out.mountain[s]))
+		tool.vertices.append(v)
 
 ## A bundle's meshes and collision as nodes (not in the tree).
 func bundle_nodes(bundle: Bundle) -> Node3D:

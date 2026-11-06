@@ -221,18 +221,109 @@ def arena_sira_bench(seed=2303):
     return [(kit.join(slab + legs, "stone"), stone("arena_sira_bench_stone_p", seed, "a89a80"), "stone")]
 
 
+# --- Boss演出策划案_v0_2 (用户 2026-11-04): the set pieces' props ---------------------------
+
+def arena_mine_flag(seed=2004):
+    """The 游击队 flag's pole: an iron pole on a rubble foot, a crossbar and a finial (the cloth is its own piece)."""
+    pole = [d.cyl("pole", 0.05, 3.4, (0, 0, 1.7), vertices=8)]
+    bar = [d.cyl("bar", 0.025, 1.35, (0.68, 0, 3.3), rotation=(0, math.radians(90), 0), vertices=6)]
+    tip = [d.cyl("tip", 0.07, 0.16, (0, 0, 3.45), vertices=6)]
+    foot = [rough_rock(f"r{k}", 0.22 + 0.06 * k, (math.cos(k * 2.2) * 0.22, math.sin(k * 2.2) * 0.22, 0.08), seed + k, (1.0, 1.0, 0.55)) for k in range(4)]
+    return [(kit.join(pole + bar + tip, "iron"), steel("arena_mine_flag_iron_p", seed, "3a342e"), "iron"),
+            (kit.join(foot, "rock"), flat("arena_mine_flag_rock_p", "5a524a", "3a342e", 8.0), "rock")]
+
+
+def arena_mine_flag_cloth(seed=2005):
+    """The cloth: worn orange-red, torn at the fly end, hung from the crossbar (origin at the hoist top)."""
+    import bmesh
+    mesh = bpy.data.meshes.new("cloth")
+    bm = bmesh.new()
+    random.seed(seed)
+    cols, rows = 8, 5
+    verts = []
+    for j in range(rows + 1):
+        row = []
+        for i in range(cols + 1):
+            x = 1.3 * i / cols
+            z = -0.85 * j / rows
+            if i == cols and j % 2 == 1: x -= random.uniform(0.12, 0.25)   # torn fly end
+            if j == rows: z += random.uniform(0.0, 0.12) * (i / cols)
+            y = 0.06 * math.sin(i * 1.3) * (i / cols)
+            row.append(bm.verts.new((x, y, z)))
+        verts.append(row)
+    for j in range(rows):
+        for i in range(cols):
+            if i == cols - 1 and j == 2: continue   # a hole
+            bm.faces.new((verts[j][i], verts[j][i + 1], verts[j + 1][i + 1], verts[j + 1][i]))
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new("cloth", mesh)
+    bpy.context.collection.objects.link(obj)
+    stripe = [d.bbox("x1", (0.5, 0.012, 0.07), (0.62, 0.0, -0.42), rotation=(0, math.radians(35), 0), width=0.002),
+              d.bbox("x2", (0.5, 0.012, 0.07), (0.62, 0.0, -0.42), rotation=(0, math.radians(-35), 0), width=0.002)]
+    return [(kit.join([obj], "cloth"), flat("arena_mine_flag_cloth_p", "b8452a", "7a2a1a", 10.0), "cloth"),
+            (kit.join(stripe, "mark"), flat("arena_mine_flag_mark_p", "1a1614"), "mark")]
+
+
+def arena_snow_mound(seed=2204):
+    """The ice 木裂 waits in: a faceted mound of blue-white ice over a snow skirt, shards jutting out."""
+    random.seed(seed)
+    core = [rough_rock("core", 1.15, (0, 0, 0.55), seed, (1.0, 1.0, 0.85))]
+    shards = []
+    for k in range(9):
+        a = k * 0.7 + random.uniform(-0.2, 0.2)
+        r = random.uniform(0.6, 1.0)
+        shards.append(d.cyl(f"s{k}", random.uniform(0.12, 0.22), random.uniform(0.6, 1.2), (math.cos(a) * r, math.sin(a) * r, 0.5),
+                            rotation=(math.sin(a) * 0.5, -math.cos(a) * 0.5, 0), vertices=5))
+    skirt = [rough_rock(f"sk{k}", random.uniform(0.45, 0.65), (math.cos(k * 1.05) * 1.15, math.sin(k * 1.05) * 1.15, 0.05), seed + 10 + k, (1.4, 1.0, 0.3)) for k in range(6)]
+    return [(kit.join(core + shards, "ice"), flat("arena_snow_mound_ice_p", "bfe4f2", "7ab0cc", 6.0), "ice"),
+            (kit.join(skirt, "snow"), flat("arena_snow_mound_snow_p", "eef4f8", "c4d4e0", 5.0), "snow")]
+
+
+def arena_city_manhole(seed=2104):
+    """A 龙门 manhole lid: a round cast-iron lid with a cross-hatched face, set in a frame."""
+    lid = [d.cyl("lid", 0.42, 0.05, (0, 0, 0.025), vertices=20)]
+    ribs = [d.bbox(f"rx{k}", (0.7 - abs(k) * 0.14, 0.03, 0.02), (0, k * 0.12, 0.055), width=0.003) for k in range(-2, 3)]
+    ribs += [d.bbox(f"ry{k}", (0.03, 0.7 - abs(k) * 0.14, 0.02), (k * 0.12, 0, 0.055), width=0.003) for k in range(-2, 3)]
+    frame = [d.cyl("frame", 0.5, 0.03, (0, 0, 0.015), vertices=20)]
+    return [(kit.join(lid + ribs, "iron"), steel("arena_city_manhole_iron_p", seed, "3a3c40"), "iron"),
+            (kit.join(frame, "frame"), flat("arena_city_manhole_frame_p", "26282c"), "frame")]
+
+
+def arena_city_frenzy(seed=2105):
+    """源石狂暴地板 (用户 2026-11-05: 是这个，面上画着滴血的刀，周围有红色向上的光影):
+    明日方舟's bleeding tile, set flush in the floor (用户 2026-11-05: 嵌在地上不要凸出来;
+    2 cm thick) — a flat square in a steel frame, a dark red panel the
+    game paints the dripping-knife mark on, small red lamps at the corners. The
+    red light rising round it is the game's (world/frenzy_light.gdshader). 2 m across."""
+    side = 2.0
+    rim = 0.12
+    frame = []
+    for sx, sy, w, h in ((0, side / 2 - rim / 2, side, rim), (0, -side / 2 + rim / 2, side, rim),
+                         (side / 2 - rim / 2, 0, rim, side - 2 * rim), (-side / 2 + rim / 2, 0, rim, side - 2 * rim)):
+        frame.append(d.bbox(f"rim{sx}{sy}", (w, h, 0.02), (sx, sy, 0.01), width=0.004))
+    panel = [d.bbox("panel", (side - 2 * rim, side - 2 * rim, 0.012), (0, 0, 0.006), width=0.002)]
+    lamps = [d.bbox(f"l{i}", (0.14, 0.14, 0.022), (cx * (side / 2 - 0.07), cy * (side / 2 - 0.07), 0.011), width=0.003)
+             for i, (cx, cy) in enumerate(((1, 1), (1, -1), (-1, 1), (-1, -1)))]
+    return [(kit.join(frame, "frame"), steel("arena_city_frenzy_frame_p", seed, "34363c"), "frame"),
+            (kit.join(panel, "crust"), flat("arena_city_frenzy_crust_p", "3a1414", "220808", 8.0), "crust"),
+            (kit.join(lamps, "glow"), flat("arena_city_frenzy_glow_p", "ff3a2a"), "glow")]
+
+
 BUILDERS = [arena_mine_gate, arena_mine_shrine, arena_mine_mine, arena_mine_generator,
             arena_city_shutter, arena_city_cart, arena_city_rune,
             arena_snow_totem, arena_snow_stump, arena_snow_logs,
-            arena_sira_fountain, arena_sira_kiosk, arena_sira_bench]
+            arena_sira_fountain, arena_sira_kiosk, arena_sira_bench,
+            arena_mine_flag, arena_mine_flag_cloth, arena_snow_mound, arena_city_manhole, arena_city_frenzy]
 PREVIEW = {"arena_mine_gate": 7.0, "arena_mine_shrine": 3.0, "arena_mine_mine": 1.2, "arena_mine_generator": 3.0,
            "arena_city_shutter": 7.0, "arena_city_cart": 2.6, "arena_city_rune": 3.4,
            "arena_snow_totem": 3.4, "arena_snow_stump": 2.4, "arena_snow_logs": 7.0,
-           "arena_sira_fountain": 4.2, "arena_sira_kiosk": 2.8, "arena_sira_bench": 2.0}
+           "arena_sira_fountain": 4.2, "arena_sira_kiosk": 2.8, "arena_sira_bench": 2.0,
+           "arena_mine_flag": 4.0, "arena_mine_flag_cloth": 1.8, "arena_snow_mound": 3.0, "arena_city_manhole": 1.4, "arena_city_frenzy": 2.6}
 BAKE_SIZE = {"slab": 512, "frame": 256, "hazard": 128, "band": 64, "glow": 64, "plinth": 256, "rock": 256,
              "steel": 128, "drum": 256, "skid": 256, "pipe": 128, "shutter": 512, "tin": 256, "awning": 128,
              "wood": 256, "bone": 64, "bark": 256, "ice": 256, "snow": 256, "stone": 512, "water": 128,
-             "roof": 64, "paper": 64}
+             "roof": 64, "paper": 64, "iron": 128, "cloth": 256, "mark": 64, "crust": 256}
 
 
 def publish(name, parts):

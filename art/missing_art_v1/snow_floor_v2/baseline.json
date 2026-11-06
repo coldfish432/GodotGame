@@ -1,0 +1,10 @@
+{
+  "art\\kit\\textures\\painted\\mine_floor.png": "88ed9a41f8d766e414373c808d3646336cdde5af012e9fecb5afff37cfdd6d95",
+  "art\\kit\\textures\\painted\\mine_rock_top.png": "0c4814b9b56723b42cd0e932bca2ccfb4d8d3b6a87b9355b4bf2c0ceade705f8",
+  "art\\kit\\textures\\painted\\mine_rock_face.png": "6a9d763c4e98296bcf675e2c6d8f0657bb9b33c353d480b58f620ebbd99b6257",
+  "art\\kit\\textures\\painted\\snow_floor.png": "1a805926834d18dcbd79e1face4fe2bea9c72ae4f48a69294a1df05d11ae0ff9",
+  "art\\kit\\textures\\painted\\snow_rock_top.png": "b12b3096737edf9932a77e759d8b396893afd26d1479acbbddd04f674456f951",
+  "art\\kit\\textures\\painted\\snow_rock_face.png": "595d3382cdc2a5477b8c1983087b0f50ab8bd382aa77c9be6200370f43fba36d",
+  "art\\items\\runtime\\solid_fuel.png": "070539702295ccdd4978e43128c7a8f5a137c15873d6bb85ad9f1ae4615bb00d",
+  "art\\items\\runtime\\medical_supplies.png": "de376ef0d2443c3e5f2ef8b6b33fa564124ff996073a78540f1d0855ac9f6001"
+}

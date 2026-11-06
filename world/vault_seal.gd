@@ -15,7 +15,7 @@ extends RefCounted
 ## The tells: the region's own at the foot of the edge (TELLS: a heap of fresh
 ## fall at the mine's face, and the like), and a faint glow (用户 2026-10-17:
 ## 密室也发幽幽的光) the same as a trace's: the tell breathes a pale light, motes
-## seep from the face, and the glow is in the floor's light map until the edge
+## seep from the face, and the glow is one of the floor's lamps until the edge
 ## breaks. Nothing on the minimap until it is open; standing at the mouth
 ## shows E, which opens it (用户 2026-10-22: 密室还是不会开，改为靠近按e开启).
 
@@ -37,7 +37,7 @@ var _shine: StandardMaterial3D
 const GLOW_GAIN := 0.4
 const GLOW_RADIUS := 3.4
 
-## The glow's lamp for the floor's light map (GameManager bakes it with the rest).
+## The glow's lamp (GameManager adds it to the floor's lamps with the work lights).
 func glow_lamp() -> Dictionary:
 	var at: Vector2 = map.vault_mouth - map.vault_inward * 0.6
 	return {"at": Vector3(at.x, map.ground_height(at) + 0.8, at.y), "color": TracePoint.GLOW * GLOW_GAIN, "radius": GLOW_RADIUS, "vault": true}
@@ -288,7 +288,7 @@ func open() -> void:
 	map.minimap_faces = surface.minimap_faces
 	map.terrain_edges = surface.boundaries
 	map._generated_root.bake_navigation_mesh(false)
-	# Its glow goes out of the light map.
+	# Its glow goes out of the lamps; the room's lanterns come in.
 	var terrace: TerraceDressing = map.terrace_dressing
 	if terrace != null and terrace.field_light != null:
 		var lit: Array[Dictionary] = []

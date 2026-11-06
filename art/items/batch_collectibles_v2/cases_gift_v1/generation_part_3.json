@@ -1,0 +1,18 @@
+{
+  "case_gear_4": {
+    "id": "case_gear_4",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-8bfc7bb4-e546-4079-81c5-591ccb1492d8.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-8bfc7bb4-e546-4079-81c5-591ccb1492d8.png",
+    "prompt": "Use case: precise-object-edit. Edit this exact tier 4 Rhodes Island storage case into its GEAR variant. Keep the COMPLETE case body construction and silhouette unchanged: Tier 4: very large upright rolling STORAGE CABINET with double door seams, four clearly visible wheel/caster assemblies, stout handles, heavy reinforced corners and frame; distinctly a rolling cabinet rather than a small carry case. Preserve all panel shapes, hinges, handles, caster wheels, double doors, charcoal gray body, metal frame, paint shading, thick dark outlines, 3/4 perspective, and one central silver clasp.\nCHANGE ONLY the wrapping strap COLOR to STEEL BLUE, and REPLACE the front hex-bolt material emblem with two clear pale CROSSED KNIFE BLADES emblem. The strap is STEEL BLUE, cool desaturated blue. Emblem is TWO white-gray KNIFE BLADES crossed diagonally, with clear grips, not a hex bolt and not just two bars.\nKeep the small side Rhodes Island tower mark. No amber strap remains, no extra symbols or lettering, no new contents or separate objects. Maintain the original 2D PAINTED flat-color inventory icon style, no photorealism. This final icon is 192x232; no pixel palette restriction. Entire case and all handles/wheels completely visible with transparent clear margins. Output genuine fully TRANSPARENT ALPHA around object and inside handle openings, no colored backdrop, floor, external cast shadow, UI frame, text, labels or watermark.",
+    "reference": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-82ab7222-1eca-4751-98b9-befb12c717b7.png"
+  },
+  "gift_pack": {
+    "id": "gift_pack",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-ea91441c-1d02-420a-81ad-141d1d1721fa.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-ea91441c-1d02-420a-81ad-141d1d1721fa.png",
+    "prompt": "Use case: stylized-concept. Draw ONE isolated collectible gift pack as a painted 2D ARPG game inventory icon. Square composition, true transparent alpha background. Thick dark charcoal outer outline, clean hand-painted FLAT color regions, broad simple warm highlights and shading, unlimited palette; not a photoreal product render.\nOne CLOSED dark walnut WOODEN gift box with clearly visible lid seam, three-quarter slightly top-front view showing front, side and top. Tie it with a lustrous wide GOLD satin ribbon and a neatly tied gold bow on top. Hang ONE small pale Rhodes Island tag from the knot on a short cord, with a simple black Rhodes Island tower silhouette mark, no small lettering. The wood is dark brown, not gray metal; ribbon is elegant rich gold, no red ribbon. Warm luxurious collectible bundle, keep whole bow and tag in frame. Compact square silhouette designed for final 72x72 pixels; image occupied about 82% with generous transparent margins. No game rarity border or colored background, no extra items, no scene, no floor or external shadow, no writing or watermark. TRUE transparent ALPHA background, not a painted checkerboard.",
+    "reference": null
+  }
+}

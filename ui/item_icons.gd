@@ -26,8 +26,7 @@ const BY_NAME := {
 	"科考队开路刀": "expedition_machete", "雪祀礼刃": "snowpriest_blade",
 	"冰原毛皮外套": "tundra_fur_coat", "雪橇巡逻队斗篷": "sled_patrol_cloak", "科考队防寒服": "expedition_parka", "骨片札甲": "bone_lamellar",
 	"骨制护符": "bone_amulet", "角兽骨笛": "antler_flute", "兽骨鼓槌": "bone_drumstick", "密文板残片": "cipher_fragment",
-	# 装备扩充: the weapons (E7–E9, 37 icons) are Sol's art; armour and trinkets
-	# stay placeholder recolours until E10–E12.
+	# 装备扩充: Sol's art, the weapons from E7–E9, armour and trinkets from E10–E12.
 	"工兵锹": "mine_x01", "大号管钳": "mine_x02", "缠链指虎": "mine_x03", "纠察队钩刀": "mine_x04",
 	"游击队旧式刺刀": "mine_x05", "施术短刃": "mine_x06", "攻坚破门锤": "mine_x07", "帝国突击矛": "mine_x08",
 	"拼装轻甲": "mine_x09", "改装喷射背架": "mine_x10", "整合运动术师兜袍": "mine_x11", "伪装吉利服": "mine_x12",
@@ -94,19 +93,81 @@ const MATERIALS := {
 	"高能燃料": "battery", "下城区耳目": "relay", "高纯源岩助熔剂": "compound_cutting_fluid", "萨米冰原苔": "fuscous_fiber",
 	"骑士工坊专利授权": "module_data_block", "企鹅专递单": "duct_tape", "残党向导": "damaged_device",
 	"闪耀作物种子": "crystalline_component", "闪耀作物·变种种子": "crystalline_component",
+	# 势力声望解锁策划案 §三 (Sol, 势力声望物品图标美术需求_v1).
+	"近卫局通行证": "rank_lgd_pass", "下城区黑市名录": "rank_rat_directory", "莱茵实验抑制剂": "rank_rhine_suppressant",
+	"雪山向导绳": "rank_karlan_rope", "矿场勘探图": "rank_ursus_survey", "残党暗号": "rank_reunion_password",
+	"冰原熏肉": "rank_sami_meat", "商业联合会担保函": "rank_kaz_guarantee", "加急专递单": "rank_penguin_express",
+	"商会荣誉理事章": "badge_lungmen", "老鼠王的信物": "badge_rat", "莱茵合作研究员证": "badge_rhine",
+	"喀兰贸易金卡": "badge_karlan", "矿场主事铭牌": "badge_ursus", "残党联络人": "badge_reunion",
+	"萨米部族护符": "badge_sami", "骑士竞技场赞助证": "badge_kazimierz", "企鹅物流 VIP 卡": "badge_penguin",
 	"舰载麦": "sugar_substitute", "块茎薯": "orirock", "温室豆": "ester", "闪耀作物": "crystalline_component", "闪耀作物·变种": "originium_shard",
 	"舰内口粮": "sugar", "食堂便当": "grindstone", "闪耀定食": "coagulating_gel", "变种盛宴": "polyester",
 	# Growth (精英化与加点策划案 §3.2), placeholders until the M batch.
-	"近卫芯片": "guard_chip", "近卫芯片组": "guard_chip_pack", "芯片助剂": "chip_catalyst", "近卫双芯片": "guard_dualchip",
+	"芯片": "guard_chip", "芯片组": "guard_chip_pack", "芯片助剂": "chip_catalyst", "双芯片": "guard_dualchip",
 	"技巧概要·卷1": "skill_summary_1", "技巧概要·卷2": "skill_summary_2", "技巧概要·卷3": "skill_summary_3", "模组数据块": "module_data_block",
 	"基础作战记录": "record_basic", "初级作战记录": "record_drill", "中级作战记录": "record_frontline", "高级作战记录": "record_tactical",
 }
 ## Potions by potion type (M3).
 const POTIONS := {"A": "potion_a", "B": "potion_b", "C": "potion_c", "D": "potion_d", "E": "potion_e", "F": "potion_f", "G": "potion_g",
 	"H": "potion_h", "I": "potion_i", "J": "potion_j", "K": "potion_k", "L": "potion_l",
-	"rat": "potion_rat", "reunion": "potion_reunion", "ursus": "potion_ursus", "sami": "potion_sami"}
+	"rat": "potion_rat", "reunion": "potion_reunion", "ursus": "potion_ursus", "sami": "potion_sami",
+	"rhine": "rank_rhine_suppressant"}
 
 static var _cache := {}
+
+## 收藏品 (整理箱与收藏品策划案 v0.2; 美术需求 收藏品与整理箱图标_v1): Sol's file per piece.
+const COLLECTIBLES := {
+	"矿区通行证": "col_mine_pass",
+	"矿工护身符": "col_miner_charm",
+	"铁皮套娃": "col_tin_doll",
+	"旧矿灯": "col_old_lamp",
+	"旧式怀表": "col_pocket_watch",
+	"源石灯罩": "col_lamp_shade",
+	"学校纪念徽章": "col_school_badge",
+	"帝国勋章": "col_imperial_medal",
+	"茶楼筹码": "col_teahouse_chip",
+	"旧版龙门币样钞": "col_lmd_specimen",
+	"麻将牌匣": "col_mahjong",
+	"老式收音机": "col_radio",
+	"醒狮摆件": "col_lion_dance",
+	"炎国瓷茶壶": "col_yan_teapot",
+	"近卫局纪念章": "col_lgd_medal",
+	"古玉坠": "col_jade_pendant",
+	"驯鹿铃铛": "col_reindeer_bell",
+	"兽皮护符": "col_hide_charm",
+	"驯鹿角饰": "col_antler",
+	"桦树皮篓": "col_birch_basket",
+	"萨米木雕": "col_sami_carving",
+	"雪境古地图": "col_snow_map",
+	"萨满骨笛": "col_bone_flute",
+	"极光琥珀": "col_aurora_amber",
+	"街角咖啡杯": "col_coffee_cup",
+	"歌剧院旧海报": "col_opera_poster",
+	"银质餐刀匣": "col_silver_cutlery",
+	"黄铜打火机": "col_brass_lighter",
+	"陈年酒瓶": "col_vintage_bottle",
+	"陶瓷狼像": "col_porcelain_wolf",
+	"家族账本": "col_family_ledger",
+	"家族印章": "col_family_seal",
+	"芬手办": "fig_fang",
+	"克洛丝手办": "fig_kroos",
+	"杜宾手办": "fig_dobermann",
+	"古米手办": "fig_gummy",
+	"红豆手办": "fig_vigna",
+	"角峰手办": "fig_matterhorn",
+	"阿米娅手办": "fig_amiya",
+	"德克萨斯手办": "fig_texas",
+	"拉普兰德手办": "fig_lappland",
+	"白面鸮手办": "fig_ptilopsis",
+	"蓝毒手办": "fig_blue_poison",
+	"临光手办": "fig_nearl",
+	"能天使手办": "fig_exusiai",
+	"银灰手办": "fig_silverash",
+	"陈手办": "fig_chen",
+	"艾雅法拉手办": "fig_eyjafjalla",
+	"斯卡蒂手办": "fig_skadi",
+	"凯尔希手办": "fig_kaltsit",
+}
 
 ## E4: special gear uses its SpecialGear id as the icon id; regional
 ## exclusives are keyed by their effect.
@@ -116,6 +177,11 @@ static func icon_id(item: Item) -> String:
 	if item == null: return ""
 	if not item.material_id.is_empty(): return MATERIALS.get(item.material_id, "")
 	if item.is_potion(): return POTIONS.get(item.potion_type, "")
+	# 收藏品 and 整理箱 (整理箱与收藏品策划案 v0.2): Sol's file ("col_family_seal",
+	# "case_material_2"); a piece without its file shows the name.
+	if item.category == Item.Category.COLLECTIBLE: return COLLECTIBLES.get(item.base_id, "")
+	if item.category == Item.Category.CASE: return "%s_%d" % [item.base_id, item.case_tier]
+	if item.effect == GameManager.GIFT_PACK: return "gift_pack"
 	if not item.special.is_empty(): return item.special if SpecialGear.GEAR.has(item.special) else ""
 	if EXCLUSIVE_ICONS.has(item.effect): return EXCLUSIVE_ICONS[item.effect]
 	if not item.base_id.is_empty(): return str(GearCatalog.base(item.base_id).get("icon", ""))
@@ -137,8 +203,34 @@ static func texture_for(item: Item) -> Texture2D:
 	var path := path_for(item)
 	if path.is_empty(): return null
 	if not _cache.has(path):
-		_cache[path] = load(path) if ResourceLoader.exists(path) else null
+		var art: Texture2D = load(path) if ResourceLoader.exists(path) else null
+		if art != null and is_hires(art): art = _icon_sized(art, item)
+		_cache[path] = art
 	return _cache[path]
+
+## Hand-painted, not pixel art (用户 2026-10-26: 手办可以是高清图，需要有手办的3d感):
+## art this big is drawn smoothly — shrunk once to the icon size of its
+## footprint for the grids (40 n − 8 px a side), shown large on the hover card.
+const HIRES_TEXELS := 160
+
+static func is_hires(art: Texture2D) -> bool:
+	return art != null and maxi(art.get_width(), art.get_height()) > HIRES_TEXELS
+
+static func is_hires_path(path: String) -> bool:
+	return not path.is_empty() and ResourceLoader.exists(path) and is_hires(load(path))
+
+static func _icon_sized(art: Texture2D, item: Item) -> Texture2D:
+	var cells := Vector2i(item.height, item.width) if item.rotated else Vector2i(item.width, item.height)
+	var box := Vector2(cells * 40 - Vector2i(8, 8))
+	var k := minf(box.x / art.get_width(), box.y / art.get_height())
+	var image := art.get_image().duplicate()
+	if image.is_compressed(): image.decompress()
+	image.convert(Image.FORMAT_RGBA8)
+	image.resize(maxi(1, roundi(art.get_width() * k)), maxi(1, roundi(art.get_height() * k)), Image.INTERPOLATE_LANCZOS)
+	var icon := ImageTexture.create_from_image(image)
+	# Loot.ground_texture keys its cache by path.
+	icon.resource_name = art.resource_path
+	return icon
 
 ## Draws the icon centred in `area` of `control` at 1:1; false when there is no icon.
 static func draw(control: CanvasItem, item: Item, area: Rect2) -> bool:

@@ -50,3 +50,8 @@ art/**/*_prts.png
 # Local comparison sheet
 /叙拉古城景对照_v1.png
 /叙拉古城景对照_v1.png.import
+
+# Assignment 5 write-ups/sessions (go to the course repo), local evidence and test logs
+a5/
+evidence/
+logs/

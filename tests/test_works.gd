@@ -97,8 +97,8 @@ func run() -> void:
 
 	# The exchange waits for 喀兰贸易 R2.
 	game.exchange.relations["karlan"] = 499
-	check("below 喀兰贸易 R2 the exchange cannot be built or linked", game.facility_refusal("exchange") == "需要喀兰贸易关系 R2"
-		and game.connect_refusal("exchange") == "需要喀兰贸易关系 R2")
+	check("below 喀兰贸易 R2 the exchange cannot be built or linked", game.facility_refusal("exchange") == "需要喀兰贸易关系 友好"
+		and game.connect_refusal("exchange") == "需要喀兰贸易关系 友好")
 	game.open_build_site("exchange")
 	check("its page shows the relation only", find_meta(game.menu, "facility", "exchange") == null)
 	game.close_modal()

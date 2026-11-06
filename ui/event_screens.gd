@@ -580,7 +580,7 @@ static func _info(stage: Control, game: GameManager, item: Item, key: String, va
 ## In a camp, or (`at_base`) her counter at the base: the same shop and 赤金
 ## buying, no deposit and no way out there (用户：不区分).
 ## 可露希尔's tabs at the base and in a camp (代售 second, 交易包修订案 §5.1).
-const CLOSURE_TABS_BASE := ["商店", "代售", "出售赤金", "换汇", "贷款", "随队物资"]
+const CLOSURE_TABS_BASE := ["商店", "代售", "出售赤金", "换汇", "贷款", "随队物资", "整理箱"]
 const CLOSURE_TABS_CAMP := ["商店", "代售", "寄存", "出售赤金", "换汇", "交割", "补给", "处理"]
 
 static func camp(menu: FieldMenu, at_base: bool = false) -> void:
@@ -624,7 +624,10 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 	var tab: int = clampi(menu.camp_tab, 0, tabs.size() - 1)
 	var redraw := func(): camp(menu, at_base)
 	AK.put(stage, AK.toggle(tabs, tab, func(i): menu.camp_tab = i; menu.pick = null; camp(menu, at_base)), Vector2(410, 32))
-	tab = ([0, 9, 2, 3, 4, 6] if at_base else [0, 9, 1, 2, 3, 5, 7, 8])[tab]
+	tab = ([0, 9, 2, 3, 4, 6, 10] if at_base else [0, 9, 1, 2, 3, 5, 7, 8])[tab]
+	if tab == 10:
+		_closure_cases(menu, stage)
+		return
 	if tab in [3, 4, 5]:
 		_closure_money(menu, stage, tab, at_base)
 		return
@@ -683,8 +686,43 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 				redraw.call()
 	_footer(stage, Vector2(410, 630), 834, "", ["购买", "寄存", "出售"][tab], Callable(), confirm, ok)
 
-## 地图特色 at 可露希尔 (地图特色策划案 §9): the base kits (6), the camp's field
-## supplies (7) and its 处理 (8). One row each, bought on the spot.
+## 整理箱 (整理箱与收藏品策划案 v0.2 §2.3): a column a kind, a row a level;
+## each traded for goods, a level above 1 for the box one level down too.
+static func _closure_cases(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var cell := Vector2(204, 150)
+	for k in range(Collectibles.CASE_KINDS.size()):
+		var kind: String = Collectibles.CASE_KINDS[k]
+		for tier in range(1, Collectibles.TIERS + 1):
+			var at := Vector2(410 + k * (cell.x + 6), 84 + (tier - 1) * (cell.y + 4))
+			stage.add_child(AK.rect(AK.PLATE_2, at, cell))
+			var sample := Collectibles.create_case(kind, tier)
+			AK.put(stage, AK.item_icon(sample, Vector2(40, 40)), at + Vector2(6, 6))
+			var title := AK.label(sample.item_name, 12, sample.rarity_color())
+			title.clip_text = true
+			AK.put(stage, title, at + Vector2(52, 6), Vector2(cell.x - 58, 0))
+			AK.put(stage, AK.label("%d×%d · %d×%d" % [sample.width, sample.height, sample.contents.width, sample.contents.height], 10, AK.MUTE, AK.en()), at + Vector2(52, 26))
+			var lines := VBoxContainer.new()
+			lines.add_theme_constant_override("separation", 0)
+			AK.put(stage, lines, at + Vector2(8, 48), Vector2(cell.x - 16, 0))
+			var recipe: Dictionary = Collectibles.RECIPES[tier]
+			var need_rows: Array = []
+			if tier > 1: need_rows.append([Collectibles.case_name(kind, tier - 1), 1 if game.case_to_upgrade(kind, tier) != null else 0, 1])
+			for id in recipe:
+				if id == "collectible": need_rows.append(["%s收藏品" % Item.RARITY_NAMES[int(recipe[id])], 1 if game._collectible_for(int(recipe[id])) != null else 0, 1])
+				else: need_rows.append([id, game.material_count(id), int(recipe[id])])
+			for r in need_rows:
+				lines.add_child(AK.label("%s %d/%d" % [r[0], mini(int(r[1]), 9999), int(r[2])], 11, AK.RED if int(r[1]) < int(r[2]) else AK.FG))
+			var refusal := game.case_refusal(kind, tier)
+			var trade := AK.button("兑换", "blue" if refusal.is_empty() else "plain", 12)
+			trade.disabled = not refusal.is_empty()
+			trade.set_meta("case", "%s:%d" % [kind, tier])
+			var chosen := [kind, tier]
+			trade.pressed.connect(func(): game.trade_case(chosen[0], chosen[1]); camp(menu, true))
+			AK.put(stage, trade, at + Vector2(cell.x - 76, cell.y - 34), Vector2(70, 28))
+
+## 地图特色 at 可露希尔 (地图特色策划案 §9), by page code: the base kits (6), the
+## camp's field supplies (7) and its 处理 (8). One row each, bought on the spot.
 static func _closure_features(menu: FieldMenu, stage: Control, tab: int, at_base: bool) -> void:
 	var game := menu.game
 	var redraw := func(): camp(menu, at_base)
@@ -742,7 +780,7 @@ static func _closure_features(menu: FieldMenu, stage: Control, tab: int, at_base
 				pay.pressed.connect(func(): game.camp_pay_debt(); redraw.call())
 				row_of.call(null, FeatureCatalog.NAMES.debt, str(roundi(game.features.value("debt"))), AK.money("gold", str(game.features.camp_debt_price()), 16), pay)
 
-## 可露希尔's money desk: 换汇 (3), the loan (4), forward delivery in a camp (5).
+## 可露希尔's money desk, by page code: 换汇 (3), the loan (4), forward delivery in a camp (5).
 static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: bool) -> void:
 	var game := menu.game
 	var ex := game.exchange
@@ -875,8 +913,12 @@ static func settlement(menu: FieldMenu) -> void:
 	var worn_h := 1
 	for entry in worn: worn_h = maxi(worn_h, entry.h)
 	var pack_size: Vector2i = view.pack_size
+	# The main pack and its bags side by side, one cell apart.
+	var pages: Array = view.get("pack_pages", [pack_size])
+	var pages_w := -1
+	for page_size in pages: pages_w += (page_size as Vector2i).x + 1
 	var safe_size: Vector2i = view.safe_size
-	var scale := minf(820.0 / (pack_size.x * 40.0), 560.0 / ((maxi(worn_h, safe_size.y) + pack_size.y) * 40.0))
+	var scale := minf(820.0 / (pages_w * 40.0), 560.0 / ((maxi(worn_h, safe_size.y) + pack_size.y) * 40.0))
 	scale = minf(scale, 1.8)
 	var y := 44.0
 	var x := 420.0
@@ -889,8 +931,12 @@ static func settlement(menu: FieldMenu) -> void:
 	AK.put(stage, AK.section("安全袋", "SAFE"), Vector2(x, y))
 	AK.put(stage, FateGrid.make(safe_size, view.safe, ok, scale), Vector2(x, y + 28))
 	y += 28 + maxi(worn_h, safe_size.y) * 40 * scale + 16
-	AK.put(stage, AK.section("背包", "PACK %d×%d" % [pack_size.x, pack_size.y]), Vector2(420, y))
-	AK.put(stage, FateGrid.make(pack_size, view.pack, ok, scale), Vector2(420, y + 28))
+	AK.put(stage, AK.section("背包", "PACK %d" % pages.size()), Vector2(420, y))
+	var page_x := 420.0
+	for i in range(pages.size()):
+		var on_page: Array = view.pack.filter(func(entry): return int(entry.get("page", 0)) == i)
+		AK.put(stage, FateGrid.make(pages[i], on_page, ok, scale), Vector2(page_x, y + 28))
+		page_x += ((pages[i] as Vector2i).x + 1) * 40 * scale
 
 const SETTLE_TABS := ["结算", "仓库"]
 
@@ -1041,7 +1087,7 @@ class RouteLines extends Control:
 					left = dash
 
 
-## A placeholder figure until the portraits are drawn (界面策划案 §8).
+## The placeholder figure for a side panel without a portrait (界面策划案 §8).
 class Silhouette extends Control:
 	var colour := AK.FG
 

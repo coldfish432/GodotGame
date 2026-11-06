@@ -49,8 +49,16 @@ func run() -> void:
 		if not screens._loading.visible: break
 		await process_frame
 	check("it fills to 100% and goes", not screens._loading.visible and screens._progress >= 1.0, screens._progress)
-	# The next floor.
-	game.advance(0)
+	# The next floor: a route whose node builds a map (a 不期而遇 that does not
+	# fight opens its room with no loading screen).
+	var rows := RouteMap.next_rows(game.route_map, game.route_node)
+	var pick := 0
+	for k in rows.size():
+		var node := RouteMap.node_at(game.route_map, Vector2i(game.route_node.x + 1, int(rows[k])))
+		if str(node.get("kind", "")) != "event" or RouteEvents.fights(str(node.get("event", ""))):
+			pick = k
+			break
+	game.advance(pick)
 	check("the next floor's screen is up at once too", screens._loading.visible and screens._progress < 0.2, screens._progress)
 	for i in range(600):
 		if not game.transitioning and not screens._loading.visible: break

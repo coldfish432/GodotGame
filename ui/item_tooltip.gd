@@ -17,10 +17,14 @@ const LABELS := {"hp": "生命上限", "atk": "攻击力", "arts": "法术攻击
 	"aspd": "攻速", "crit": "暴击率", "crit_dmg": "暴击伤害", "move": "移速"}
 const PERCENT := ["crit", "crit_dmg"]
 
+const HIRES_CARD_WIDTH := 120
+
 static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool) -> String:
 	var lines: Array[String] = []
 	var icon := ItemIcons.path_for(item)
-	if not icon.is_empty() and ResourceLoader.exists(icon): lines.append("[img]%s[/img]" % icon)
+	# A hand-painted figurine shows large and smooth (ItemIcons.HIRES_TEXELS).
+	if ItemIcons.is_hires_path(icon): lines.append("[img width=%d]%s[/img]" % [HIRES_CARD_WIDTH * item.width, icon])
+	elif not icon.is_empty() and ResourceLoader.exists(icon): lines.append("[img]%s[/img]" % icon)
 	# Prefixes in their grade colours, the rest in the item's (装备前缀策划案 §2.1).
 	lines.append("[font_size=19]%s[/font_size]" % item.name_bbcode())
 	var kind := "%s · %d×%d" % [item.kind_name(), item.width, item.height]
@@ -101,12 +105,15 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 			lines.append("[color=#ff7a45]── 特殊效果 ──[/color]" if not item.special.is_empty() else "[color=#b48cff]── 触发 ──[/color]")
 			for mod in triggers: lines.append("  [color=#cdb4ff]✦ %s%s[/color]" % [mod.describe(), mod.range_text() if detailed else ""])
 	if not item.description.is_empty(): lines.append("[color=#e0d6b8]%s[/color]" % item.description)
+	# A 整理箱 or 收藏品礼包 (整理箱与收藏品策划案 v0.2): what it holds.
+	if item.contents != null: lines.append("[color=#99aab8]%d / %d  ·  %d[/color]" % [item.contents.occupied_cells(), item.contents.cell_count(), item.contents.items.size()])
+	if item.effect == GameManager.GIFT_PACK: lines.append("[color=#d8c27a]%s 龙门币[/color]" % Economy.format(Economy.price(item)))
 	var state: Array[String] = []
 	if item.insured: state.append("[color=#4fd1c5]已投保[/color]")
 	if item.carried_in: state.append("带入")
 	if not state.is_empty(): lines.append(" · ".join(state))
 	# What delivering it actually pays (用户 2026-10-23: 界面显示到手的数字).
-	if not GearCatalog.bound(item): lines.append("[color=#d8c27a]交付价 %s 龙门币[/color]" % Economy.format(Economy.direct_price(item)))
+	if not GearCatalog.bound(item) and item.contents == null: lines.append("[color=#d8c27a]交付价 %s 龙门币[/color]" % Economy.format(Economy.direct_price(item)))
 	if show_worn and worn != null and worn != item:
 		lines.append("\n[color=#99aab8]── 当前装备（Shift）──[/color]")
 		lines.append(text(game, worn, detailed, false))

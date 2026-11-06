@@ -1,5 +1,5 @@
 // Lamp glass and other self-lit parts of kit pieces: the baked texture at full
-// strength, ignoring the field light, so a lamp reads as the source of its pool.
+// strength, unshaded (no scene light on it), so a lamp reads as the source of its pool.
 // Neon tubes are baked white and take their colour per instance (MultiMesh
 // use_colors; CityDressing._place_neon).
 shader_type spatial;

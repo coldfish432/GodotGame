@@ -18,7 +18,9 @@ extends RefCounted
 ## hide_done: goals shown only while not done}
 const BEATS := [
 	{"id": "wake", "title": "苏醒", "after": [],
-		"lines": [["PRTS", "系统同步完成。欢迎回来，博士。"], ["阿米娅", "博士，您终于醒了……罗德岛的情况不太好，我们需要您。"]],
+		"lines": [["PRTS", "系统同步完成。欢迎回来，博士。"], ["阿米娅", "博士，您终于醒了……罗德岛的情况不太好，我们需要您。"],
+			["阿米娅", "突围的时候，Sharp 先生他们带队留在地面掩护我们……和罗德岛失散了。"],
+			["凯尔希", "他们负责的部门现在都停着。先学会活着回来，博士，然后再去把人找回来。"]],
 		"goals": [["first_contract", "接下第一份合同出击"]]},
 	{"id": "return", "title": "归舰", "after": ["wake"],
 		"lines": [["PRTS", "外勤队已归舰。带回的物资还在背包里，可以在结算的仓库页一键入库，博士。"]],
@@ -28,38 +30,70 @@ const BEATS := [
 	{"id": "outfit", "title": "整备", "after": ["return"],
 		"lines": [["杜宾", "博士，外勤不是郊游。备齐装备，贵重的东西先投保，如果投保的装备遗落在外勤区域，罗德岛小队会去回收。"]],
 		"goals": [["bench_equip", "在整备台穿上一件装备"], ["insure", "在后勤柜台为一件装备投保"]]},
-	{"id": "hub", "title": "基建", "after": ["outfit"],
+	# 失散干员与主线流程策划案 v0.2 §六: one beat for each operator found.
+	{"id": "lost", "title": "失散", "after": ["outfit"],
+		"lines": [["PRTS", "切尔诺伯格废墟内检测到一个罗德岛识别信号。来源：第 5 至 9 层之间。"],
+			["阿米娅", "是 Sharp 先生！近卫干员的训练一直是他在带……博士，我们去接他回来吧。"]],
+		"goals": [["found_sharp", "在切尔诺伯格第 5–9 层找到 Sharp"], ["outfit_up", "升级整备部"]]},
+	{"id": "hub", "title": "基建", "after": ["lost"],
 		"lines": [["可露希尔", "哟，博士！工程部那群人说总控台要是不修好，什么都升不了级。电线、继电器、灯泡，带回来我就给你装上——钱嘛，另算。"]],
-		"goals": [["hub_parts", "备齐电线×2、继电器×1、灯泡×2"], ["hub_built", "建成基建总控台"], ["hub_link", "把仓储部接入总控台"]]},
+		"goals": [["hub_parts", "备齐电线×6、继电器×3、灯泡×6"], ["hub_built", "建成基建总控台"], ["hub_link", "把仓储部接入总控台"]]},
 	{"id": "supply", "title": "补给线", "after": ["hub"],
 		"lines": [["可露希尔", "商店重新营业！不过我这儿只收赤金。"], ["PRTS", "博士，每十层之后设有前进据点，到达后可以在那里补给与撤离。"]],
 		"goals": [["store_potion", "在可露希尔的商店买一瓶特供药剂"], ["camp", "到达前进据点"]]},
+	{"id": "rearguard", "title": "断后", "after": ["supply"],
+		"lines": [["PRTS", "第二个信号，切尔诺伯格第 14 至 18 层之间。信号很弱，而且一直在移动。"],
+			["凯尔希", "Stormeye。他还在替我们拖住追兵。……罗德岛离开这座城之前，必须把他带回来。"]],
+		"goals": [["found_stormeye", "在切尔诺伯格第 14–18 层找到 Stormeye"]]},
 	{"id": "recruit", "title": "寻访", "after": ["supply"],
 		"lines": [["阿米娅", "博士，外勤区域里有干员留下的行动痕迹……她应该还在附近。把这些线索交给人事部，就能查到她的下落。"]],
 		"goals": [["personnel", "在人事部查看寻访进度"], ["joined", "让一名干员入职"]]},
-	{"id": "voyage", "title": "航行", "after": ["supply"],
-		"lines": [["凯尔希", "舰体修复到这个程度，罗德岛可以离开切尔诺伯格了。博士，航线由你决定。"]],
+	{"id": "voyage", "title": "航行", "after": ["rearguard"],
+		"lines": [["PRTS", "航线已确认。龙门、萨米、叙拉古方向各有一个识别信号。"]],
 		"goals": [["sailed", "在沙盘上指挥罗德岛号航行"], ["away", "在新的地区完成一份合同"]]},
-	{"id": "industry", "title": "产业", "after": ["voyage"],
+	{"id": "reunion", "title": "重聚", "after": ["voyage"], "lines": [],
+		"goals": [["found_misery", "在龙门第 5–9 层找到 Misery"], ["found_pith", "在萨米第 6–9 层找到 Pith"],
+			["found_mechanist", "在叙拉古第 7–11 层找到机械师"], ["warehouse_up", "升级仓储部"]]},
+	{"id": "industry", "title": "产业", "after": ["reunion"],
 		"lines": [["PRTS", "工程部与科研部申请恢复运转，博士。"]],
 		"goals": [["crafted", "在加工站完成一次加工"], ["researching", "建成科研部并开始一项研究"]]},
+	{"id": "comms", "title": "通讯", "after": ["industry"],
+		"lines": [["PRTS", "龙门方向出现新的识别信号，第 15 至 19 层之间。信号经过加密，是罗德岛的旧频段。"],
+			["阿米娅", "是电弧小姐……罗德岛的通讯一直是她在维护。难怪最近信号这么乱。"]],
+		"goals": [["found_raidian", "在龙门第 15–19 层找到电弧"], ["intel_research", "开始一项情报部研究"]]},
 	{"id": "deck2", "title": "二层", "after": ["industry"],
-		"lines": [["阿米娅", "博士，二层的农业舱修好了！大家说想吃点热的……"]],
-		"goals": [["lift", "乘升降梯去二层"], ["sowed", "建成农业部并播种一次"], ["meal", "建成食堂，出发前用一次餐"]]},
-	{"id": "finale", "title": "罗德岛", "after": ["deck2"],
-		"lines": [["PRTS", "罗德岛全部部门恢复运转。博士，接下来的航程，由你决定。"]],
-		"goals": [["exchange", "建成交易所"]]},
+		"lines": [["阿米娅", "博士，二层的农业舱修好了！可是没人会照顾作物……萨米那边，还有 Touch 小姐的信号。"]],
+		"goals": [["found_touch", "在萨米第 16–19 层找到 Touch"], ["lift", "乘升降梯去二层"], ["sowed", "建成农业部并播种一次"], ["meal", "建成食堂，出发前用一次餐"]]},
+	{"id": "finale", "title": "罗德岛", "after": ["deck2", "comms"],
+		"lines": [["PRTS", "最后一个信号，叙拉古第 25 至 29 层之间。信号源周围交火频繁。"],
+			["凯尔希", "郁金香。她习惯一个人扛着。……博士，你得亲自去。"]],
+		"goals": [["found_tulip", "在叙拉古第 25–29 层找到郁金香"], ["exchange", "建成交易所"]]},
 ]
+## The floors each find goal names, as LostCatalog.range_text gives them
+## (test_lost_operators checks they agree).
+const FIND_GOALS := {"found_sharp": "sharp", "found_stormeye": "stormeye", "found_misery": "misery", "found_pith": "pith",
+	"found_mechanist": "mechanist", "found_raidian": "raidian", "found_touch": "touch", "found_tulip": "tulip"}
 ## Who speaks with which standing art (UA/UB 120×240; 用户 2026-10-22: 头像位置
-## 改为画面左侧全身立绘). None yet (杜宾, 凯尔希 until ST1a; PRTS never): the
-## name in the box alone.
+## 改为画面左侧全身立绘). Anyone not listed (PRTS never has one): the name
+## in the box alone.
 const PORTRAITS := {
 	"阿米娅": "res://art/ui/portraits/op_amiya_guard.png",
 	"可露希尔": "res://art/ui/portraits/npc_closure.png",
 	"杜宾": "res://art/ui/portraits/npc_dobermann.png",
 	"凯尔希": "res://art/ui/portraits/npc_kaltsit.png",
+	# ST2a (失散干员): shown once they are in.
+	"Sharp": "res://art/ui/portraits/op_sharp.png",
+	"Stormeye": "res://art/ui/portraits/op_stormeye.png",
+	"Pith": "res://art/ui/portraits/op_pith.png",
+	"Touch": "res://art/ui/portraits/op_touch.png",
+	"机械师": "res://art/ui/portraits/op_mechanist.png",
+	"郁金香": "res://art/ui/portraits/op_tulip.png",
+	"Misery": "res://art/ui/portraits/op_misery.png",
+	"电弧": "res://art/ui/portraits/op_raidian.png",
 }
-const HUB_PARTS := {"电线": 2, "继电器": 1, "灯泡": 2}
+## The 基建总控台's Lv1 materials; the hub_parts goal text names the same counts
+## (test_story checks they agree).
+const HUB_PARTS: Dictionary = BaseCatalog.FACILITIES["hub"]["levels"][0]["materials"]
 
 static func fresh() -> Dictionary:
 	return {"done": [], "seen": [], "counts": {}, "fell": false}
@@ -106,6 +140,7 @@ static func count(state: Dictionary, event: String) -> int:
 ## Whether goal `id` is met now.
 static func check(game: GameManager, state: Dictionary, id: String) -> bool:
 	var base := game.base
+	if FIND_GOALS.has(id): return base.lost_back(str(FIND_GOALS[id]))
 	match id:
 		"first_contract": return count(state, "contract") > 0
 		"crate": return count(state, "crate") > 0
@@ -129,6 +164,9 @@ static func check(game: GameManager, state: Dictionary, id: String) -> bool:
 		"sowed": return base.facility_level("farm") >= 1 and count(state, "sowed") > 0
 		"meal": return base.facility_level("canteen") >= 1 and count(state, "meal") > 0
 		"exchange": return base.facility_level("exchange") >= 1
+		"outfit_up": return base.facility_level("outfit") > BaseCatalog.facility_start("outfit") or base.pack_level > 0 or base.safe_level > 0
+		"warehouse_up": return base.facility_level("warehouse") > BaseCatalog.facility_start("warehouse")
+		"intel_research": return (base.research.done as Array).any(func(r): return ResearchCatalog.department_of(str(r)) == "intel") 			or (base.research.active as Array).any(func(e): return ResearchCatalog.department_of(str(e.id)) == "intel")
 	return false
 
 ## Ticks off what is met now; true when something new was ticked.
@@ -146,6 +184,15 @@ static func update(game: GameManager, state: Dictionary) -> bool:
 static func lines_of(state: Dictionary, b: Dictionary) -> Array:
 	if bool(state.get("fell", false)) and b.has("lines_fell"): return b.lines_fell
 	return b.lines
+
+## The operators back on board whose return has not been talked through yet
+## (失散干员 §4.4): only on a save where departments wait for them.
+static func lost_back_talks(base: BaseState) -> Array[String]:
+	var out: Array[String] = []
+	if not base.dept_lock: return out
+	for id in base.lost_found:
+		if not "back_" + id in base.story.seen and LostCatalog.BASE_LINES.has(id): out.append(id)
+	return out
 
 ## Regions other than 切尔诺伯格 wait for the first voyage, while the thread runs.
 static func region_open(state: Dictionary, region: String) -> bool:

@@ -1,8 +1,5 @@
-// The exchange's quote ring (its outer face only; base_hologram.gdshader otherwise).
-// The sand table's hologram (基地建模改造案_v1 §八, 用户 2026-10-18: 经典的全息沙盘，
-// 蓝色数字罗德岛): added light, never occluding, with scanlines on the screen's
-// pixel rows and a slow flicker. The map of Terra is a texture; the little
-// Rhodes Island over it is a flat colour on its model.
+// The exchange's quote ring: base_hologram.gdshader (added light, scanlines,
+// flicker) drawn on its outer face only (cull_back).
 shader_type spatial;
 render_mode unshaded, blend_add, cull_back, depth_draw_never, fog_disabled;
 uniform sampler2D map_tex : source_color, filter_linear, repeat_disable;

@@ -36,7 +36,7 @@ func run() -> void:
 	await step(10)
 	game.give_gold_bars(12)
 	game.floor_number = 10
-	game._enter_camp()
+	await game._enter_camp()
 	await capture("closure-camp")
 	game.leave_camp()
 	await step(10)

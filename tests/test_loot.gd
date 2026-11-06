@@ -233,14 +233,15 @@ func run() -> void:
 	var base_ok := true
 	c = ctx("mine", 1, 16)
 	for i in range(100):
+		# Any point may hold a collectible (整理箱与收藏品策划案 v0.2 §3).
 		for item in items_of(LootTables.container_drops("weapon_box", c)):
-			if item.category != Item.Category.WEAPON: box_ok = false
+			if item.category != Item.Category.WEAPON and not item.is_collectible(): box_ok = false
 		for item in items_of(LootTables.container_drops("construction", c)):
 			# The mine's piles may hold a 源石矿封装器 too (地图特色策划案 §3.3).
-			if FeatureCatalog.is_supply(item): continue
+			if FeatureCatalog.is_supply(item) or item.is_collectible(): continue
 			if str(MaterialCatalog.MATERIALS[item.material_id].kind) != "base": base_ok = false
 		for item in items_of(LootTables.container_drops("armor_box", c)):
-			if not Item.is_armor_slot(item.category) and item.exclusive_region.is_empty(): box_ok = false
+			if not Item.is_armor_slot(item.category) and item.exclusive_region.is_empty() and not item.is_collectible(): box_ok = false
 	check("weapon boxes give weapons, armour boxes armour", box_ok)
 	check("construction piles give only base materials", base_ok)
 	# 用户 2026-10-24: each material a point rolls is kept at its ★'s share
@@ -253,7 +254,7 @@ func run() -> void:
 		if items_of(LootTables.container_drops("construction", c)).any(func(x): return x.material_id in ["螺栓", "螺母", "钉子"]): hardware += 1
 		var e := items_of(LootTables.container_drops("electronics", c))
 		if e.any(func(x): return x.material_id == "电线"): wire += 1
-		if not e.all(func(x): return MaterialCatalog.group(x.material_id) == "电子" or x.material_id in ["芯片助剂", "技巧概要·卷1"]): cabinet = false
+		if not e.all(func(x): return x.is_collectible() or MaterialCatalog.group(x.material_id) == "电子" or x.material_id in ["芯片助剂", "技巧概要·卷1"]): cabinet = false
 		if items_of(LootTables.container_drops("medical", c)).any(func(x): return x.material_id == "医用耗材包"): medic += 1
 	check("construction piles give hardware ~90% of the time (★1)", absf(hardware / 400.0 - 0.9) < 0.05, hardware)
 	check("electronics cabinets give only electronics (and the odd 芯片助剂 / 技巧概要), wire ~90%", cabinet and absf(wire / 400.0 - 0.9) < 0.05, wire)
@@ -436,7 +437,7 @@ func run() -> void:
 	# Enemy deaths use the enemy's table.
 	game._clear_field()
 	var enemy := game._spawn_enemy(game.player.global_position + Vector3(4, 0, 0), false, false, "brawler")
-	game.rng.seed = 3
+	game.seed_rng(3)
 	var before_loot := game.get_tree().get_nodes_in_group("loot").size()
 	for i in range(10): game.spawn_enemy_drops(enemy)
 	check("enemy deaths scatter drops", game.get_tree().get_nodes_in_group("loot").size() > before_loot)
@@ -523,8 +524,8 @@ func run() -> void:
 	check("仓储部 needs its materials", not game.upgrade_facility("warehouse") and "缺少" in game.facility_refusal("warehouse"))
 	give({"螺栓": int(ware_cost["螺栓"]) + 6, "金属板": int(ware_cost["金属板"])})
 	var g := game.gold
-	check("with %s 仓储部 goes to Lv2: 120 cells, ×2" % BaseCatalog.cost_text(ware_cost), game.upgrade_facility("warehouse")
-		and game.gold == g - int(BaseCatalog.facility_step("warehouse", 2).price) and base.capacity() == 120 and base.stack_mult() == 2
+	check("with %s 仓储部 goes to Lv2: 200 cells, ×2" % BaseCatalog.cost_text(ware_cost), game.upgrade_facility("warehouse")
+		and game.gold == g - int(BaseCatalog.facility_step("warehouse", 2).price) and base.capacity() == 200 and base.stack_mult() == 2
 		and game.material_count("螺栓") == 6 and game.material_count("金属板") == 0)
 	var pack_cost: Dictionary = BaseCatalog.PACK_MATERIALS[1]
 	give({"帆布": int(pack_cost["帆布"]), "胶带": int(pack_cost["胶带"]), "碳": int(pack_cost["碳"]) + 2})

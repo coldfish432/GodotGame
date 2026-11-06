@@ -3,8 +3,8 @@ extends RefCounted
 
 ## 局内存档 (用户 2026-10-24: 局内保存并退出，读档仍在局内，本层原地继续).
 ## A floor is not written out piece by piece: it is built again from what it
-## was built from (the run as it stood on entering it, GameManager's dice at
-## that moment and the base fields its rolls read), then what changed since is
+## was built from (the run as it stood on entering it, GameManager's RNG
+## streams at that moment (rng_states) and the base fields its rolls read), then what changed since is
 ## laid over it — the run's numbers, her, the fog, what was killed or taken
 ## (by the order the floor's pieces were made in, `floor_id`), the boxes'
 ## contents, the ground loot, the caches, chests and enemies that came later.
@@ -14,8 +14,8 @@ extends RefCounted
 const VERSION := 1
 
 ## GameManager's run fields, written with var_to_str (typed arrays, vectors).
-const GAME_KEYS := ["region_id", "floor_number", "start_floor", "route_map", "route_node", "route_kind", "route_trail", "route_peek", "route_exit_map", "route_threat_cut", "next_floor_mods", "floor_mods", "event_done", "campfire_used", "witness_marked", "_floor_relics", "route_history", "contract", "contract_vaults",
-	"bounty_killed", "recruit_met", "cargo_delivered", "_contract_announced", "builds", "relic_floors", "run_kills", "run_sets_seen", "reroll_count",
+const GAME_KEYS := ["region_id", "floor_number", "start_floor", "market_field", "route_map", "route_node", "route_kind", "route_trail", "route_peek", "route_exit_map", "route_threat_cut", "floor_kits", "post_gifted", "next_floor_mods", "floor_mods", "event_done", "campfire_used", "witness_marked", "_floor_relics", "route_history", "contract", "contract_vaults",
+	"bounty_killed", "recruit_met", "lost_floor", "cargo_delivered", "_contract_announced", "builds", "relic_floors", "run_kills", "run_sets_seen", "reroll_count",
 	"pressure", "run_meal", "squad_uses", "guide_floor", "_run_seed", "in_camp", "in_event",
 	"_random_extraction_available", "encounter", "encounter_used", "squad_mult", "post_faction", "trader_rerolls", "_trader_met",
 	"_encounter_greeted", "camp_closure_stock", "first_run_ore", "_buff_taken", "vault_opened", "outpost_cleared", "_device_offers",
@@ -23,7 +23,7 @@ const GAME_KEYS := ["region_id", "floor_number", "start_floor", "route_map", "ro
 	"_seen_encounter", "_seen_exit", "_slow_heal_left", "_slow_heal_rate", "_suppress_timer", "_potion_heal_factor", "_announced_tier"]
 const THREAT_KEYS := ["value", "fill_seconds", "wave"]
 const FEATURE_KEYS := ["values", "announced", "kits", "reckon_wait", "reckonings", "camp_cleansed", "camp_debt_paid", "depth_step"]
-const POTION_KEYS := ["cold_half", "debt_block", "quiet", "shield_left", "shield_amount", "regen_share", "regen_left", "regen_lock", "emergency_used", "_pending"]
+const POTION_KEYS := ["cold_half", "debt_block", "quiet", "shield_left", "shield_amount", "regen_share", "regen_left", "regen_lock", "emergency_used", "_pending", "contam_block", "contam_after"]
 ## Her numbers that last a floor or the contract (cooldowns start over).
 const PLAYER_KEYS := ["stamina", "shield", "cold", "hexes", "_buff_max_hp_bonus", "_buff_damage_bonus", "wave_count", "death_cling_used",
 	"elite_kills", "altar_stacks", "_low_hp_ward_used_this_floor", "death_full_block", "hurt_stacks", "blocks_left", "segment_time",
@@ -48,8 +48,15 @@ static func run_data(game: GameManager) -> Dictionary:
 		var entry: Dictionary = slot.duplicate()
 		if entry.get("item") is Item: entry["item"] = (entry.item as Item).to_data()
 		stock.append(var_to_str(entry))
+	var sold := {}
+	for shop in game.buyback:
+		sold[shop] = []
+		for slot in game.buyback[shop]:
+			var entry: Dictionary = slot.duplicate()
+			entry["item"] = (entry.item as Item).to_data()
+			sold[shop].append(var_to_str(entry))
 	return {"game": pack(game, GAME_KEYS), "threat": pack(game.threat, THREAT_KEYS), "features": pack(game.features, FEATURE_KEYS),
-		"potions": pack(game.potion_fx, POTION_KEYS), "trader": stock}
+		"potions": pack(game.potion_fx, POTION_KEYS), "trader": stock, "buyback": sold}
 
 static func apply_run(game: GameManager, data: Dictionary) -> void:
 	unpack(game, data.get("game", {}), GAME_KEYS)
@@ -61,6 +68,13 @@ static func apply_run(game: GameManager, data: Dictionary) -> void:
 		var entry: Dictionary = str_to_var(str(text))
 		if entry.get("item") is Dictionary: entry["item"] = Item.from_data(entry.item)
 		game.trader_stock.append(entry)
+	game.buyback.clear()
+	for shop in data.get("buyback", {}):
+		game.buyback[shop] = []
+		for text in data.buyback[shop]:
+			var entry: Dictionary = str_to_var(str(text))
+			entry["item"] = Item.from_data(entry.item)
+			game.buyback[shop].append(entry)
 	game.player._recompute_stats()
 
 static func base_inputs(base: BaseState) -> Dictionary:

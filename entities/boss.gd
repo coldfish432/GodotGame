@@ -18,7 +18,7 @@ const GAP := {"boss": 0.7, "warden": 0.9}
 const KEEP := {"skullshatterer": 6.0, "hollow_snowpriest": 7.0, "father_agnir": 7.0}
 const WARDEN_SIGHT := 12.0
 const WARDEN_LEASH := 22.0
-const STRIKE_POSE := 0.12
+const STRIKE_POSE := 0.18
 const RECOVER_POSE := 0.3
 const COMBO_WINDUP := 0.45
 ## Between moves it turns toward her this fast, so getting behind its shield is a real move.
@@ -79,13 +79,30 @@ var storm_steps := 0
 var _storm_tick := 0.0
 var _blood_time := 0.0
 var _hidden := false
+## The set pieces (Boss演出策划案_v0_2, BossShow): untouchable and idle while
+## one plays; the pose it holds (BossShowCatalog.SHOW_ROWS), its look before the
+## fight (鼠王 not there yet, 扎罗 asleep), 木裂's collapse (0..1).
+var staging_left := 0.0
+var show_row_name := ""
+var asleep := false
+var eyes_open := false
+var collapse := 0.0
+var _shown := true
+## The body's own motion (§1.3): the lunge, the punch of a hit, the stagger, steps.
+var _lunge_left := 0.0
+var _punch_left := 0.0
+var _stagger_left := 0.0
+var _step_mark := 0
+var _last_stand_shown := false
+var _clang_frame := 0
+var _struck_id := ""
 
 func setup_boss(p_game: GameManager, id: String, p_tier: int) -> void:
 	figure_id = id
 	fig = BossCatalog.figure(id)
 	rank = str(fig.rank)
 	tier = maxi(1, p_tier)
-	# Borrow an existing board until Sol's art lands, as every new enemy has.
+	# Starts on the shared board fig.art names; a figure with its own boards swaps below.
 	setup(p_game, true, false, str(fig.art))
 	enemy_type = id
 	name = str(fig.name)
@@ -125,11 +142,150 @@ func setup_boss(p_game: GameManager, id: String, p_tier: int) -> void:
 		if is_instance_valid(_outline): _outline.scale = Vector3.ONE * float(fig.get("scale", 1.0))
 	_reset_fight()
 	add_to_group("bosses")
+	_add_own_light()
+	_before_fight()
 
-## Called by GameManager once the depth and relic multipliers are on max_health.
+## Every move's warnings and effects built once, unseen, and thrown away
+## (用户 2026-11-05: 爱国者第一次投矛的时候游戏会卡一下): what a move makes the
+## first time — its meshes, gradients, shaders — is ready before it is needed.
+## Run by BossShow.intro while her hands are held.
+const REHEARSE_SKIP := ["summon", "family", "sandstorm", "backstep", "raise_shrine", "shrine_call", "channel", "blink", "dashes", "smoke"]
+const REHEARSE_OFFSET := Vector3(0.0, -400.0, 0.0)
+var rehearsed: Array = []
+func rehearse() -> void:
+	if not is_instance_valid(game) or not is_inside_tree(): return
+	var before := {}
+	for n in get_tree().get_nodes_in_group("boss_vfx"): before[n] = true
+	var saved_dir := attack_direction
+	var saved_ctx := _ctx
+	var saved_windup := _windup
+	var saved_markers := _markers.duplicate()
+	_markers.clear()
+	BossVfx.quiet = true
+	_windup = 1.0
+	var seen := {}
+	for ph in range(1, 4):
+		for move in BossCatalog.moves_for(figure_id, tier, ph):
+			if seen.has(move.id) or str(move.shape) in REHEARSE_SKIP: continue
+			seen[move.id] = true
+			_ctx = {}
+			attack_direction = (game.player.global_position - global_position).normalized() if game.player.global_position.distance_to(global_position) > 0.1 else Vector3.FORWARD
+			attack_direction.y = 0.0
+			_lay_warning(move)
+			if not _ctx.has("end"): _ctx.end = global_position + attack_direction * float(move.get("reach", 3.0))
+			if not _ctx.has("at"): _ctx.at = global_position + attack_direction * 2.0
+			if not _ctx.has("target"): _ctx.target = game.player.global_position
+			BossVfx.play(game, self, move, _ctx)
+			for m in _markers:
+				if is_instance_valid(m) and m is Node3D: rehearsed.append(m)
+			_markers.clear()
+	# The set pieces' own pieces too: the roar, help arriving, the shrines, and one of
+	# every BossVfx building block in this figure's colours (BossShow's intro and phases).
+	var c := BossVfx.colours(figure_id)
+	var edge := Color(c.main.r, c.main.g, c.main.b, 0.0)
+	# Away from everyone: crystals and shafts are not made where a figure stands.
+	var empty := global_position + Vector3(40.0, 0.0, 40.0)
+	BossVfx.roar(game, empty, figure_id, 3.0)
+	BossVfx.arrival(game, empty, figure_id)
+	if figure_id == "patriot":
+		BossVfx.shrine_rise(game, empty)
+		BossVfx.shrine_pulse(game, empty, 2.0)
+	var fx := BossVfx.make(game, empty)
+	fx.arc(Vector3.FORWARD, 2.0, 120.0, 0.2, c.hot, edge)
+	fx.ring(2.0, 0.2, c.hot, edge, {"additive": true})
+	fx.crack(Vector3.FORWARD, 3.0, c.dark, c.main)
+	fx.crystal(Vector3(1.5, 0, 0), 0.8, c.main, c.hot)
+	fx.splat(1.0, c.main, edge, {"additive": true})
+	fx.splat(1.0, c.main, edge)
+	fx.shaft(Vector3(3.0, 0, 0), 0.6, 3.0, c.main)
+	fx.glow(2.0, c.main, 1.0, 0.5)
+	fx.halo(Vector3.UP * 1.5, 1.0, c.hot)
+	fx.embers(Vector3.UP * 0.5, c.main, c.hot, 6)
+	fx.dust(Vector3.UP * 0.2, c.dust, 6)
+	fx.sparks(Vector3.UP * 0.5, c.main, c.hot, 6)
+	fx.chips(Vector3.UP * 0.3, 6, 0.5, c.dust)
+	BossVfx.quiet = false
+	_ctx = saved_ctx
+	attack_direction = saved_dir
+	_windup = saved_windup
+	_markers = saved_markers
+	for n in get_tree().get_nodes_in_group("boss_vfx"):
+		if not before.has(n): rehearsed.append(n)
+	# Far under the floor, where only BossShow's unseen camera draws them a few
+	# frames: a hidden node is never drawn, so its pipelines would not compile.
+	for n in rehearsed:
+		if not is_instance_valid(n): continue
+		var node := n as Node3D
+		# Gathered under the boss (the empty spot's pieces too), then dropped far below.
+		if node.global_position.distance_to(empty) < 12.0: node.global_position += global_position - empty
+		node.global_position += REHEARSE_OFFSET
+	if is_instance_valid(game): BossShow.of(game).warm_up(global_position + REHEARSE_OFFSET, rehearsed)
+	rehearsed = []
+
+## Its own light (§1.4): its colour, low; a flare on each blow it lands.
+var own_light: OmniLight3D
+func _add_own_light() -> void:
+	var spec: Array = BossShowCatalog.LIGHT.get(figure_id, [])
+	if spec.is_empty() or not BossShow.enabled: return
+	own_light = OmniLight3D.new()
+	own_light.name = "OwnLight"
+	own_light.light_color = spec[0]
+	own_light.light_energy = float(spec[1])
+	own_light.omni_range = 5.5
+	own_light.omni_attenuation = 1.4
+	own_light.light_specular = 0.1
+	own_light.position = Vector3(0, 1.8, 0)
+	add_child(own_light)
+
+func _flare_light() -> void:
+	if not is_instance_valid(own_light): return
+	var base := float((BossShowCatalog.LIGHT.get(figure_id, [Color.WHITE, 0.5]) as Array)[1])
+	own_light.light_energy = base * 2.6
+	var tween := own_light.create_tween()
+	tween.tween_property(own_light, "light_energy", base, 0.35)
+
+## How it waits before the fight (§2.4, §3.4, §4.4, §5.4).
+func _before_fight() -> void:
+	if not BossShow.enabled or rank != "boss": return
+	show_row_name = "kneel" if figure_id == "patriot" else ""
+	asleep = figure_id == "zaro"
+	eyes_open = false
+	if figure_id == "eikthyrnir" and is_instance_valid(game) and is_instance_valid(game.arena) and not game.base.boss_intro_seen.has("%s:%d" % [game.region_id, tier]):
+		game.arena.raise_mound(global_position)
+	set_shown(figure_id != "rat_king" and not (figure_id == "eikthyrnir" and is_instance_valid(game) and is_instance_valid(game.arena) and game.arena.has_mound()))
+	_rest_look()
+
+## Shown or not (鼠王 before he comes out of the sand, 木裂 in the ice).
+func set_shown(on: bool) -> void:
+	_shown = on
+	if is_instance_valid(_sprite): _sprite.visible = on
+	if not on and is_instance_valid(_outline): _outline.visible = false
+	if _shell != null: _shell.visible = on and barrier_up()
+
+## Its husk took over (BossShow.husk_of): the sprite and all it wears go.
+func hide_figure() -> void:
+	set_shown(false)
+	if is_instance_valid(own_light):
+		var tween := own_light.create_tween()
+		tween.tween_property(own_light, "light_energy", 0.0, 0.8)
+	if _shell != null: _shell.visible = false
+
+func _rest_look() -> void:
+	if is_instance_valid(_sprite): _sprite.modulate = _rest_tint()
+
+func _rest_tint() -> Color:
+	var t := _tint
+	if asleep: t = t.darkened(0.45)
+	if collapse > 0.0: t = t.lerp(Color("7a88a8"), collapse * 0.35)
+	return t
+
+## Called by GameManager._spawn_boss once the depth and relic multipliers are on max_health.
 func finish_setup() -> void:
 	health = max_health
 	_raise_start_barrier()
+	# Its moves' effects made once while the floor is still loading, so the first of
+	# each does not stall the fight (用户 2026-11-05: 第一次投矛的时候游戏会卡一下).
+	if BossShow.enabled and rank == "boss": call_deferred("rehearse")
 
 func _reset_fight() -> void:
 	phase = 1
@@ -175,7 +331,15 @@ const OUTLINE_DARK := Color("8a1c22")
 const OUTLINE_BRIGHT := Color("e8463a")
 
 func outline_colour() -> Color:
+	if rage_left > 0.0:
+		var k := 0.5 + 0.5 * sin(fight_time * 9.0)
+		return RAGE_OUTLINE.lerp(Color("ffd0a0"), 0.35 * k)
 	return OUTLINE_DARK.lerp(OUTLINE_BRIGHT, enrage() / BossCatalog.ENRAGE_CAP)
+
+## In a rage (用户 2026-11-05: 爱国者狂暴状态需要做视觉区分): outlined bright red all along.
+const RAGE_OUTLINE := Color("ff2a1a")
+func _outline_forced() -> bool:
+	return rage_left > 0.0
 
 func _sync_outline() -> void:
 	super._sync_outline()
@@ -186,21 +350,52 @@ func _sync_outline() -> void:
 func pose_row() -> int:
 	var poses: Dictionary = BossCatalog.POSES.get(figure_id, {})
 	if poses.is_empty(): return -1
+	if show_row_name != "":
+		var row := int((BossShowCatalog.SHOW_ROWS.get(figure_id, {}) as Dictionary).get(show_row_name, -1))
+		if row >= 0: return row
 	if down_left > 0.0: return int(poses.get("down", -1))
 	if roar_left > 0.0: return int(poses.get("roar", poses.get("down", -1)))
 	var moves: Dictionary = poses.get("moves", {})
 	if not _channel.is_empty(): return int(moves.get(str(_channel.move.id), -1))
 	if not _move.is_empty():
-		if _rampaging: return int(moves.get("rampage", -1))
-		return int(moves.get(str(_move.id), -1))
+		var id := "rampage" if _rampaging else str(_move.id)
+		var own := int(moves.get(id, -1))
+		if attack_phase == "windup":
+			var early := _attack_elapsed < minf(BossCatalog.ANIM_START, _windup * BossCatalog.ANIM_START_SHARE)
+			if early and _beat(id, "start") >= 0: return _beat(id, "start")
+			if _beat(id, "charge") >= 0: return _beat(id, "charge")
+		return own
+	if attack_phase in ["strike", "recovery"] and _struck_id != "" and BossCatalog.ANIM.get(figure_id, {}).has(_struck_id):
+		var hit := _beat(_struck_id, "strike")
+		if hit < 0: hit = int(moves.get(_struck_id, -1))
+		if attack_phase == "recovery" and _beat(_struck_id, "recover") >= 0: return _beat(_struck_id, "recover")
+		if hit >= 0: return hit
+	if attack_phase == "idle" and not walking and phase >= 2 and BossCatalog.UPRIGHT_ROW.has(figure_id): return int(BossCatalog.UPRIGHT_ROW[figure_id])
+	if not engaged and asleep and figure_id == "zaro": return int((BossShowCatalog.SHOW_ROWS.zaro as Dictionary).asleep)
 	return -1
+
+## A beat's row of a move (BossCatalog.ANIM), or -1 when it has none or its
+## row is not on the board yet (B4 rows before they are delivered).
+func _beat(move_id: String, beat: String) -> int:
+	var row := int(((BossCatalog.ANIM.get(figure_id, {}) as Dictionary).get(move_id, {}) as Dictionary).get(beat, -1))
+	return row if row >= 0 and row < board_rows() else -1
+
+var _board_rows := -1
+func board_rows() -> int:
+	if _board_rows < 0:
+		var t := FieldArt.enemy_dir_pose(sheet_type, 0, 0) if directional else null
+		_board_rows = int(((t as AtlasTexture).atlas.get_height()) / 64) if t is AtlasTexture else 0
+	return _board_rows
 
 func _update_attack_visual() -> void:
 	super._update_attack_visual()
 	if not own_art() or not is_instance_valid(_sprite): return
 	_own_pose()
+	_body_motion()
 	# The outline was traced from the shared row's frame; trace the one shown.
 	_sync_outline()
+	if is_instance_valid(_outline): _outline.scale = _sprite.scale
+	if not _shown and is_instance_valid(_outline): _outline.visible = false
 
 func _own_pose() -> void:
 	var poses: Dictionary = BossCatalog.POSES.get(figure_id, {})
@@ -216,6 +411,168 @@ func _own_pose() -> void:
 	# 扎罗 lies in his IDLE; up on his second life he stands on a walk frame.
 	elif poses.has("stand") and phase >= 2 and not walking:
 		_sprite.texture = FieldArt.enemy_walk_pose(sheet_type, dir_column, int(poses.stand))
+
+# --- The body's own motion (Boss演出策划案_v0_2 §1.3: 蓄 冲 顿 踉 息 步) ----------------------
+
+const LUNGE_SHAPES := ["sector", "lane", "self", "front_circle"]
+const LUNGE_TIME := 0.2
+const LUNGE_REACH := {"patriot": 0.25, "rat_king": 0.15, "eikthyrnir": 0.25, "zaro": 0.2}
+const PUNCH := 0.1
+const STAGGER := 0.4
+## A step every this much walked (two walk frames), for the heavy ones' dust.
+const STEP_EVERY := 2.0 / Enemy.WALK_FRAMES_PER_UNIT
+const BREATH := {"patriot": 3.0, "rat_king": 2.4, "eikthyrnir": 2.2, "zaro": 2.8}
+
+## Squash while it winds up, the lunge of a blow, a hit's punch, the stagger,
+## the breath; then the dust of its steps. Picture only: its body and its
+## blows' reach do not move.
+func _body_motion() -> void:
+	if not is_instance_valid(_sprite): return
+	var sy := 1.0
+	var sx := 1.0
+	var shift := Vector3.ZERO
+	var dt := get_physics_process_delta_time()
+	if attack_phase == "windup" and _windup > 0.0 and not _move.is_empty():
+		var p := clampf(_attack_elapsed / _windup, 0.0, 1.0)
+		sy -= 0.06 * sin(p * PI * 0.5)
+		sx += 0.02 * sin(p * PI * 0.5)
+		if _windup >= 2.0: shift.x += (PIXEL if int(_attack_elapsed * 30.0) % 2 else -PIXEL) * p
+	if _lunge_left > 0.0:
+		_lunge_left = maxf(0.0, _lunge_left - dt)
+		var u := 1.0 - _lunge_left / LUNGE_TIME
+		shift += global_basis.inverse() * attack_direction * float(LUNGE_REACH.get(figure_id, 0.15)) * sin(u * PI)
+	if _punch_left > 0.0:
+		_punch_left = maxf(0.0, _punch_left - dt)
+		var k := 1.0 + 0.04 * (_punch_left / PUNCH)
+		sx *= k
+		sy *= k
+	if _stagger_left > 0.0:
+		_stagger_left = maxf(0.0, _stagger_left - dt)
+		var v := sin((1.0 - _stagger_left / STAGGER) * PI)
+		shift -= global_basis.inverse() * _toward_her() * 0.15 * v
+		sy *= 1.0 - 0.04 * v
+	if attack_phase == "idle" and not walking and down_left <= 0.0:
+		var period := float(BREATH.get(figure_id, 2.4))
+		sy *= 1.0 + 0.015 * sin(_bob_time * TAU / period)
+	_sprite.scale = Vector3(sx, sy, 1.0)
+	_sprite.position = Vector3(shift.x, _sprite.position.y + shift.y, shift.z)
+	_tread()
+	_tick_marks()
+
+# --- What lies round it on the ground (§2.3 源石光斑, §3.3 长影子, §4.3 霜圈, §5.3 黑雾, §5.5 视线) ---
+
+var _ground_pool: MeshInstance3D
+var _stare: MeshInstance3D
+var _pool_kind := ""
+
+## Its pool on the ground for what it does now: 爱国者's originium light where
+## contamination climbs (毁灭姿态), 木裂's frost where his cold breath reaches,
+## 扎罗's black mist where 远古威慑 slows her (second life), 鼠王's long shadow
+## dragged toward the edge of the city. And 扎罗's stare while 溶血骇惧 winds up.
+func _tick_marks() -> void:
+	if not BossShow.enabled or rank != "boss" or not is_instance_valid(game): return
+	var kind := ""
+	var radius := 0.0
+	var colour := Color.WHITE
+	var additive := false
+	var stretch := 1.0
+	if _shown and engaged and not _dead and rage_left > 0.0:
+		kind = "rage"; radius = 1.9; colour = Color(1.0, 0.18, 0.1, 0.55); additive = true
+	elif _shown and engaged and not _dead:
+		match figure_id:
+			"patriot":
+				if phase >= 2: kind = "ori"; radius = 3.0; colour = Color(1.0, 0.5, 0.15, 0.35); additive = true
+			"eikthyrnir": kind = "frost"; radius = 2.5; colour = Color(0.85, 0.95, 1.0, 0.3)
+			"zaro":
+				if life >= 2: kind = "mist"; radius = BossCatalog.AWE_RADIUS; colour = Color(0.04, 0.03, 0.04, 0.55)
+			"rat_king": kind = "shadow"; radius = 1.2 if phase < 2 else 1.8; colour = Color(0.03, 0.02, 0.02, 0.5); stretch = 3.5 if phase < 2 else 5.0
+	if kind != _pool_kind:
+		_pool_kind = kind
+		if is_instance_valid(_ground_pool): _ground_pool.queue_free()
+		_ground_pool = null
+		if kind != "":
+			_ground_pool = MeshInstance3D.new()
+			var plane := PlaneMesh.new()
+			plane.size = Vector2(radius * 2.0, radius * 2.0)
+			_ground_pool.mesh = plane
+			var mat := StandardMaterial3D.new()
+			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			if additive: mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+			mat.albedo_texture = BossVfx.soft_texture()
+			mat.albedo_color = colour
+			mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+			mat.disable_receive_shadows = true
+			_ground_pool.material_override = mat
+			_ground_pool.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			_ground_pool.set_meta("stretch", stretch)
+			game.add_child(_ground_pool)
+	if is_instance_valid(_ground_pool):
+		var at := global_position
+		var y := game.ground_y(at) + 0.03
+		if _pool_kind == "shadow":
+			# Away from the arena's middle, whatever the lamps say.
+			var away := at - centre()
+			away.y = 0.0
+			away = away.normalized() if away.length_squared() > 0.01 else Vector3.BACK
+			var length := float(_ground_pool.get_meta("stretch", 3.5))
+			_ground_pool.global_basis = Basis.looking_at(away, Vector3.UP).scaled(Vector3(1.0, 1.0, length))
+			_ground_pool.global_position = Vector3(at.x, y, at.z) + away * (length - 1.0) * 0.55
+		else:
+			_ground_pool.global_basis = Basis.IDENTITY
+			_ground_pool.global_position = Vector3(at.x, y, at.z)
+			if _pool_kind == "rage":
+				var mat := _ground_pool.material_override as StandardMaterial3D
+				mat.albedo_color.a = 0.35 + 0.3 * (0.5 + 0.5 * sin(fight_time * 9.0))
+			if _pool_kind == "frost":
+				# Each breath of cold: the frost brightens a moment.
+				var mat := _ground_pool.material_override as StandardMaterial3D
+				var beat := 1.0 - clampf(fposmod(fight_time, 5.0) / 0.6, 0.0, 1.0)
+				mat.albedo_color.a = 0.22 + 0.3 * beat
+	# 溶血骇惧's stare: a thin dark-red line in the air, eyes to her, while it winds up.
+	var staring := figure_id == "zaro" and not _move.is_empty() and str(_move.get("id", "")) == "dread" and attack_phase == "windup"
+	if staring and is_instance_valid(game.player):
+		if not is_instance_valid(_stare):
+			_stare = MeshInstance3D.new()
+			var box := BoxMesh.new()
+			box.size = Vector3(PIXEL * 1.5, PIXEL * 1.5, 1.0)
+			_stare.mesh = box
+			var m := StandardMaterial3D.new()
+			m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			m.albedo_color = Color(0.55, 0.06, 0.09, 0.75)
+			_stare.material_override = m
+			_stare.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			game.add_child(_stare)
+		var from := global_position + Vector3.UP * 1.1
+		var to := game.player.global_position + Vector3.UP * 0.9
+		var mid := (from + to) * 0.5
+		_stare.global_position = mid
+		if from.distance_to(to) > 0.05:
+			_stare.global_basis = Basis.looking_at(to - from, Vector3.UP).scaled(Vector3(1, 1, from.distance_to(to)))
+	elif is_instance_valid(_stare):
+		_stare.queue_free()
+		_stare = null
+
+func _toward_her() -> Vector3:
+	if not is_instance_valid(game) or not is_instance_valid(game.player): return Vector3.FORWARD
+	var d := game.player.global_position - global_position
+	d.y = 0.0
+	return d.normalized() if d.length_squared() > 0.01 else Vector3.FORWARD
+
+## 爱国者 and 木裂 tread heavy (dust or snow, a slight shake); 鼠王's cane taps sand.
+func _tread() -> void:
+	if not _shown or not walking or not is_instance_valid(game) or rank != "boss": return
+	var mark := int(walk_distance / STEP_EVERY)
+	if mark == _step_mark: return
+	_step_mark = mark
+	if not BossShow.enabled: return
+	BossVfx.footstep(game, global_position, figure_id, mark)
+
+func _break_barrier() -> void:
+	var was := _barrier_broken
+	super._break_barrier()
+	if not was: _stagger_left = STAGGER
 
 func _has_move(shape: String) -> bool:
 	for move in BossCatalog.moves_for(figure_id, tier, 3):
@@ -233,11 +590,15 @@ func centre() -> Vector3:
 	return home_position
 
 ## 源石祭坛's pulse on it (7-18): a stack of attack for a while.
-var shrine_stacks := 0
-var _shrine_left := 0.0
+## A shrine's pulse reached him: 狂暴 for RAGE_TIME s (用户 2026-11-05), refreshed by another.
+var rage_left := 0.0
 func empower() -> void:
-	shrine_stacks = mini(BossCatalog.SHRINE_STACKS, shrine_stacks + 1)
-	_shrine_left = BossCatalog.SHRINE_TIME
+	var was := rage_left > 0.0
+	rage_left = BossCatalog.RAGE_TIME
+	if not was and is_instance_valid(game): BossVfx.rage(game, self)
+
+func raging() -> bool:
+	return rage_left > 0.0
 
 func her() -> Player:
 	return game.player
@@ -260,7 +621,19 @@ func shield_share() -> float:
 
 func dealt_mult() -> float:
 	var dealt: Array = fig.get("dealt", [1.0, 1.0, 1.0])
-	return float(dealt[clampi(phase - 1, 0, dealt.size() - 1)])
+	return float(dealt[clampi(phase - 1, 0, dealt.size() - 1)]) * (1.0 + BossCatalog.RAGE_DMG if rage_left > 0.0 else 1.0)
+
+## His rage shows: the body throbs dark red, embers rise off him.
+var _rage_tick := 0.0
+func _rage_glow() -> void:
+	if not is_instance_valid(_sprite) or not _shown or _sprite.modulate.r > 2.0: return
+	var k := 0.5 + 0.5 * sin(fight_time * 9.0)
+	_sprite.modulate = _rest_tint().lerp(Color(1.7, 0.45, 0.38), 0.5 + 0.3 * k) if rage_left > 0.05 else _rest_tint()
+	_rage_tick -= get_physics_process_delta_time()
+	if _rage_tick <= 0.0 and rage_left > 0.05:
+		_rage_tick = 0.22
+		var fx := BossVfx.make(game, Vector3(global_position.x, game.ground_y(global_position) + 0.01, global_position.z))
+		fx.embers(Vector3.UP * 1.0, Color("ff3a20"), Color("ffd0a0"), 10, 0.6, 0.0, 0.9)
 
 ## Attack speed from swiftness, the warden's last stand, 清算时刻 and the enrage.
 func speed_mult() -> float:
@@ -268,6 +641,7 @@ func speed_mult() -> float:
 	if affixes.has("swift"): mult /= 1.0 - BossCatalog.SWIFT_INTERVAL
 	if rank == "warden" and health < max_health * BossCatalog.LAST_STAND_AT: mult *= 1.0 + BossCatalog.LAST_STAND_ASPD
 	if reckoning_left > 0.0: mult *= 1.0 + BossCatalog.RECKONING_ASPD
+	if rage_left > 0.0: mult *= 1.0 + BossCatalog.RAGE_ASPD
 	return mult * (1.0 + enrage())
 
 ## The soft enrage (§3.5): nothing before ENRAGE_AFTER, then a step every ENRAGE_EVERY.
@@ -286,12 +660,19 @@ func phase_count() -> int:
 # --- Taking hits ---------------------------------------------------------------------
 
 func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: float = 0.0, quiet: bool = false) -> float:
-	if _dead or invuln > 0.0 or down_left > 0.0 or roar_left > 0.0: return 0.0
+	if _dead or invuln > 0.0 or down_left > 0.0 or roar_left > 0.0 or staging_left > 0.0: return 0.0
 	if not engaged: _engage()
+	if staging_left > 0.0: return 0.0
 	if not _channel.is_empty():
 		_channel.hits = int(_channel.hits) + 1
 		if int(_channel.hits) >= int(_channel.breaks): _end_channel(false)
-	damage *= 1.0 - shield_share()
+	var guarded := shield_share()
+	damage *= 1.0 - guarded
+	# 塔盾 (§2.5): a blow on the shield rings and sparks, and the shield's face lights.
+	if guarded > 0.0 and BossShow.enabled and is_instance_valid(game) and Engine.get_physics_frames() - _clang_frame > 6:
+		_clang_frame = Engine.get_physics_frames()
+		BossVfx.shield_clang(game, global_position, -global_basis.z)
+		if game.sound != null: game.sound.play("patriot_shield_clang")
 	var dealt := CombatStats.mitigate(damage * taken_mult(), kind, effective_defense() * (1.0 - clampf(pierce, 0.0, 1.0)), res_against(kind))
 	dealt *= 1.0 + status_value("fragile")
 	_on_elemental(kind, dealt)
@@ -301,11 +682,16 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 	var before := health
 	health -= dealt
 	if barrier_hp > 0.0:
-		barrier_hp -= dealt
+		# 源石狂暴地板: her frenzy strips a barrier harder (BossArena.barrier_mult).
+		barrier_hp -= dealt * (game.arena.barrier_mult() if is_instance_valid(game) and is_instance_valid(game.arena) else 1.0)
 		if barrier_hp <= 0.0: _break_barrier()
 	_flash()
+	_punch_left = PUNCH
 	if is_instance_valid(game) and not quiet:
-		DamageNumber.spawn(game, global_position + Vector3.UP * 0.8, str(roundi(dealt)) + ("!" if crit else ""), "crit" if crit else kind, crit)
+		DamageNumber.spawn(game, global_position + Vector3.UP * 0.8, str(roundi(dealt)) + ("!" if crit else ""), kind, crit)
+	if rank == "warden" and not _last_stand_shown and health < max_health * BossCatalog.LAST_STAND_AT and health > 0.0 and BossShow.enabled:
+		_last_stand_shown = true
+		BossShow.of(game).last_stand(self)
 	if health <= 0.0:
 		if life < lives:
 			health = 1.0
@@ -333,7 +719,7 @@ func _crossed(was: float, now: float) -> void:
 	for share in _marks.duplicate():
 		if was > share and now <= share:
 			_marks.erase(share)
-			_next_phase()
+			_next_phase(share)
 			break
 	if _rebarrier and was > 0.5 and now <= 0.5:
 		_rebarrier = false
@@ -343,6 +729,7 @@ func _die() -> void:
 	_dead = true
 	_cancel_move()
 	_clear_ground()
+	staging_left = 0.0
 	if affixes.has("last_rite") and is_instance_valid(game):
 		game.spawn_hazard(global_position, BossCatalog.LAST_RITE_RADIUS, BossCatalog.LAST_RITE_FUSE, 0.0, _raw(1.5), "phys", false, null)
 	# Its help leaves with it (§3.4: 援军一起撤退).
@@ -352,9 +739,25 @@ func _die() -> void:
 		game.player.clear_hex("boss_shred")
 	remove_from_group("enemies")
 	remove_from_group("guards")
+	# The fall plays first (BossShow.finale): frozen, slowed, gone its own way; then the loot.
+	if BossShow.enabled and is_instance_valid(game) and is_inside_tree():
+		BossShow.of(game).finale(self, _finish_die)
+		return
+	_finish_die()
+
+func _finish_die() -> void:
 	if is_instance_valid(game): game.spawn_enemy_drops(self)
 	died.emit(self)
 	queue_free()
+
+## A 干扰地雷 under it (BossArena): stunned whatever it was doing, the move
+## broken off — not while it kneels, roars or a set piece holds it.
+func mine_stun(seconds: float) -> void:
+	if _dead or down_left > 0.0 or roar_left > 0.0 or staging_left > 0.0: return
+	_cancel_move()
+	_channel = {}
+	stun_timer = maxf(stun_timer, seconds)
+	if is_instance_valid(game): BossVfx.stunned(game, self, seconds)
 
 func stun(seconds: float) -> void:
 	if affixes.has("steadfast") or down_left > 0.0 or roar_left > 0.0: return
@@ -367,6 +770,8 @@ func push(direction: Vector3, distance: float) -> void:
 
 func _exit_tree() -> void:
 	_clear_ground()
+	if is_instance_valid(_ground_pool): _ground_pool.queue_free()
+	if is_instance_valid(_stare): _stare.queue_free()
 	if is_instance_valid(game) and is_instance_valid(game.player):
 		for id in ["boss_shred", "boss_awe", "boss_curse", "boss_zone", "boss_grenade"]: game.player.clear_hex(id)
 
@@ -377,6 +782,7 @@ func _engage() -> void:
 	engaged = true
 	state = State.CHASING
 	if rank == "boss" and is_instance_valid(game): game.on_boss_engaged(self)
+	elif rank == "warden" and is_instance_valid(game) and BossShow.enabled: BossShow.of(game).warden_intro(self)
 
 func _physics_process(delta: float) -> void:
 	if _dead or not is_instance_valid(game) or not game.simulation_active(): return
@@ -394,11 +800,15 @@ func _physics_process(delta: float) -> void:
 		var near := _flat_distance(game.player.global_position, centre()) <= BossCatalog.ARENA_RADIUS if rank == "boss" else _flat_distance(game.player.global_position, global_position) <= WARDEN_SIGHT
 		if near and game.line_of_sight(global_position, game.player.global_position): _engage()
 		return
+	if staging_left > 0.0:
+		staging_left -= delta
+		_face_her(delta)
+		return
 	if _leash(delta): return
 	fight_time += delta
-	if _shrine_left > 0.0:
-		_shrine_left -= delta
-		if _shrine_left <= 0.0: shrine_stacks = 0
+	if rage_left > 0.0:
+		rage_left = maxf(0.0, rage_left - delta)
+		_rage_glow()
 	_tick_auras(delta)
 	_tick_curse(delta)
 	_tick_field(delta)
@@ -474,12 +884,20 @@ func reset_whole() -> void:
 	invuln = 0.0
 	_rampaging = false
 	health = max_health
-	shrine_stacks = 0
+	rage_left = 0.0
 	_reset_fight()
 	_raise_start_barrier()
 	global_position = Vector3(home_position.x, global_position.y, home_position.z)
 	if is_instance_valid(game) and is_instance_valid(game.arena): game.arena.reset()
 	if is_instance_valid(game): game.on_boss_reset(self)
+	if BossShow.enabled and is_instance_valid(game) and rank == "boss":
+		BossShow.of(game).reset(self)
+		collapse = 0.0
+		staging_left = 0.0
+		show_row_name = "kneel" if figure_id == "patriot" else ""
+		asleep = figure_id == "zaro"
+		eyes_open = false
+		_rest_look()
 
 func _close_in(delta: float, distance: float, seen: bool) -> void:
 	_turn_toward_her(delta)
@@ -522,7 +940,7 @@ func _face_her(delta: float) -> void:
 	if to.length_squared() > 0.0001: _face(to.normalized(), delta)
 
 func current_speed() -> float:
-	return move_speed * (1.15 if figure_id == "patriot" and phase >= 2 else 1.0) * (1.3 if status_value("haste") > 0.0 else 1.0)
+	return move_speed * (1.15 if figure_id == "patriot" and phase >= 2 else 1.0) * (1.3 if status_value("haste") > 0.0 else 1.0) * (1.0 + BossCatalog.RAGE_MOVE if rage_left > 0.0 else 1.0)
 
 # --- Choosing and running a move -----------------------------------------------------
 
@@ -536,17 +954,18 @@ func _choose(distance: float) -> Dictionary:
 		if float(_cooldowns.get(str(move.id), 0.0)) > 0.0: continue
 		var span: Array = move.get("range", [0.0, 99.0])
 		if distance < float(span[0]) or distance > float(span[1]): continue
-		# 爱国者 sets off a 源石祭坛 she stands by, on a chance; raises more while under the cap.
+		# 爱国者 sets off a 源石祭坛 she or he stands by, on a chance (用户 2026-11-05: 玩家在祭坛
+		# 或自身在祭坛范围内都会有几率启动祭坛 — his own sends him into his rage); raises more under the cap.
 		if str(move.shape) == "shrine_call":
-			if is_instance_valid(game.arena) and game.arena.shrine_over(game.player.global_position) != null and game.rng.randf() < float(move.chance): return move
+			if _callable_shrine() != null and game.rng_combat.randf() < float(move.chance): return move
 			continue
 		if str(move.shape) == "raise_shrine" and (not is_instance_valid(game.arena) or game.arena.region != "mine" or game.arena.raised.size() >= BossCatalog.SHRINE_RAISED_MAX): continue
 		if bool(move.get("big", false)): return move
 		ready.append(move)
 	if ready.is_empty(): return {}
 	var special := ready.filter(func(m): return float(m.get("cd", 0.0)) > 0.0)
-	var pool: Array = special if not special.is_empty() and game.rng.randf() < 0.6 else ready
-	return pool[game.rng.randi() % pool.size()]
+	var pool: Array = special if not special.is_empty() and game.rng_combat.randf() < 0.6 else ready
+	return pool[game.rng_combat.randi() % pool.size()]
 
 func _start(move: Dictionary) -> void:
 	_move = move
@@ -586,13 +1005,14 @@ func _begin_segment(chained: bool) -> void:
 	_clear_markers()
 	var w := float(seg.get("windup", 1.0))
 	if chained and str(seg.shape) != "charge": w = COMBO_WINDUP
-	_windup = w * BossCatalog.windup_mult(rank, tier)
+	_windup = w * BossCatalog.windup_mult(rank, tier) * (BossCatalog.RAGE_WINDUP if rage_left > 0.0 else 1.0)
 	attack_phase = "windup"
 	preparing_attack = true
 	_attack_elapsed = 0.0
 	attack_origin = global_position
 	_lock_toward(_aim_point(seg))
 	_lay_warning(seg)
+	if str(seg.get("id", "")) == "stampede" and is_instance_valid(game.arena): game.arena.rattle_manholes(_windup)
 	_update_attack_visual()
 
 ## Where a blow goes: at her, or — a 叙拉古平民 within its reach, on a chance —
@@ -603,7 +1023,7 @@ func _aim_point(seg: Dictionary) -> Vector3:
 	var reach := float(seg.get("reach", 2.0)) + 0.3
 	for c in get_tree().get_nodes_in_group("civilians"):
 		if not is_instance_valid(c) or c._dead or c.fleeing or _flat_distance(c.global_position, global_position) > reach: continue
-		if game.rng.randf() < BossCatalog.CIVILIAN_TARGET_CHANCE: return c.global_position
+		if game.rng_combat.randf() < BossCatalog.CIVILIAN_TARGET_CHANCE: return c.global_position
 		break
 	return her_at
 
@@ -702,7 +1122,7 @@ func _lay_warning(seg: Dictionary) -> void:
 			if seg.has("triple"):
 				var spots := []
 				for i in range(3):
-					var angle := TAU * i / 3.0 + game.rng.randf() * 0.5
+					var angle := TAU * i / 3.0 + game.rng_combat.randf() * 0.5
 					spots.append(her_at + Vector3(cos(angle), 0.0, sin(angle)) * float(seg.triple))
 				_ctx.spots = spots
 				for spot in spots: _mark_area(spot, float(seg.radius), _windup)
@@ -769,7 +1189,7 @@ func _lay_warning(seg: Dictionary) -> void:
 			for spot in spots: _mark_area(spot, 1.2, _windup)
 		"shrine_call":
 			# The shrine's own reach in red, then it pulses.
-			_ctx.node = game.arena.shrine_over(her_at) if is_instance_valid(game.arena) else null
+			_ctx.node = _callable_shrine()
 			if _ctx.node != null: _mark_area((_ctx.node as Node3D).global_position, BossCatalog.SHRINE_RADIUS, _windup)
 		"channel":
 			pass
@@ -796,13 +1216,13 @@ func _lane_set(seg: Dictionary) -> Array:
 	var out := []
 	var c := centre()
 	var r := BossCatalog.ARENA_RADIUS
-	var spin := game.rng.randf() * TAU
+	var spin := game.rng_combat.randf() * TAU
 	# 鼠潮 runs out of the market's alley mouths (Boss战场地策划案 §4.2).
 	if str(seg.mode) == "parallel" and figure_id == "rat_king" and is_instance_valid(game.arena):
 		var mouths := game.arena.mouths()
 		for i in range(mini(int(seg.count), mouths.size())):
-			var from: Vector3 = mouths.pop_at(game.rng.randi() % mouths.size())
-			var through := c + Vector3(game.rng.randf_range(-2.5, 2.5), 0.0, game.rng.randf_range(-2.5, 2.5))
+			var from: Vector3 = mouths.pop_at(game.rng_combat.randi() % mouths.size())
+			var through := c + Vector3(game.rng_combat.randf_range(-2.5, 2.5), 0.0, game.rng_combat.randf_range(-2.5, 2.5))
 			out.append([from, from + (through - from).normalized() * r * 2.0])
 		return out
 	match str(seg.mode):
@@ -821,16 +1241,30 @@ func _lane_set(seg: Dictionary) -> Array:
 			for i in range(int(seg.count)):
 				var a := spin + TAU * i / float(seg.count)
 				var from := c + Vector3(cos(a), 0.0, sin(a)) * r
-				var through := c + Vector3(cos(a + PI * 0.5), 0.0, sin(a + PI * 0.5)) * game.rng.randf_range(0.0, 3.0)
+				var through := c + Vector3(cos(a + PI * 0.5), 0.0, sin(a + PI * 0.5)) * game.rng_combat.randf_range(0.0, 3.0)
 				out.append([from, from + (through - from).normalized() * r * 2.0])
 	return out
 
 ## A walkable spot in the arena, `edge` in from its rim and `apart` from `others`.
+## The 源石祭坛 he would set off: one reaching both of them first, then hers, then his own.
+func _callable_shrine() -> Node3D:
+	if not is_instance_valid(game.arena): return null
+	var hers: Node3D = null
+	var his: Node3D = null
+	for node in game.arena.shrines():
+		var r := BossCatalog.SHRINE_RADIUS
+		var her_in := _flat_distance(game.player.global_position, node.global_position) <= r
+		var him_in := _flat_distance(global_position, node.global_position) <= r
+		if her_in and him_in: return node
+		if her_in and hers == null: hers = node
+		if him_in and his == null: his = node
+	return hers if hers != null else his
+
 func _arena_point(edge: float, others: Array = [], apart: float = 0.0) -> Vector3:
 	var best := centre()
 	for attempt in range(24):
-		var a := game.rng.randf() * TAU
-		var d := game.rng.randf_range(1.0, BossCatalog.ARENA_RADIUS - edge)
+		var a := game.rng_combat.randf() * TAU
+		var d := game.rng_combat.randf_range(1.0, BossCatalog.ARENA_RADIUS - edge)
 		var spot := game.world_map.nearest_walkable(centre() + Vector3(cos(a), 0.0, sin(a)) * d)
 		if others.all(func(o): return _flat_distance(o, spot) >= apart):
 			return spot
@@ -846,7 +1280,7 @@ func _set_hidden(hide: bool) -> void:
 ## What one hit is worth before her defences: ATK × the move, the phase's
 ## damage, the floor's pressure and the relic multiplier.
 func _raw(mult: float) -> float:
-	return atk * mult * dealt_mult() * (1.0 + BossCatalog.SHRINE_ATK * shrine_stacks) * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR) * game.enemy_attack_multiplier()
+	return atk * mult * dealt_mult() * (1.0 + game.pressure / EnemyAttacks.PRESSURE_DIVISOR) * game.enemy_attack_multiplier()
 
 ## Hits her once with `seg`'s damage (capped, §3.3) and its after-effects.
 func _hit_her(seg: Dictionary, mult: float = -1.0) -> void:
@@ -904,6 +1338,9 @@ func _break_cover(seg: Dictionary) -> void:
 			game.arena.break_cover(func(p, r): return _in_lane(p, attack_origin, global_position, float(seg.get("width", 1.0)) + 2.0 * r))
 
 func _resolve(seg: Dictionary) -> void:
+	_struck_id = str(seg.get("id", ""))
+	if str(seg.shape) in LUNGE_SHAPES: _lunge_left = LUNGE_TIME
+	_flare_light()
 	_break_cover(seg)
 	var her_at := game.player.global_position
 	var me := global_position
@@ -1083,7 +1520,7 @@ func _tick_channel(delta: float) -> void:
 	if seg.has("debt"): game.add_debt(float(seg.debt) * delta)
 	if float(_channel.left) <= 0.0: _end_channel(true)
 
-## 狂暴怒嗥 / 赦罪 ends; done (not broken) 赦罪 heals the guards.
+## A channel (狂暴怒嗥 howl, 赦罪 absolve) ends; 赦罪 run to the end (not broken) heals the guards.
 func _end_channel(done: bool) -> void:
 	var seg: Dictionary = _channel.get("move", {})
 	_channel = {}
@@ -1097,13 +1534,14 @@ func _end_channel(done: bool) -> void:
 
 # --- Phases ------------------------------------------------------------------------------
 
-func _next_phase() -> void:
+func _next_phase(share: float = -1.0) -> void:
 	_cancel_move()
 	phase += 1
 	if figure_id == "patriot" and phase == 2:
 		_go_down("")
 	else:
 		_roar()
+	if BossShow.enabled and is_instance_valid(game) and rank == "boss": BossShow.of(game).phase(self, phase, share)
 	if figure_id == "eikthyrnir":
 		_later.append({"t": BossCatalog.ROAR_TIME, "f": "rampage"})
 		if tier >= 5: _raise_barrier(BossCatalog.FROST_ARMOUR)
@@ -1132,10 +1570,14 @@ func _go_down(after: String) -> void:
 	down_left = BossCatalog.DOWN_TIME
 	if is_instance_valid(_sprite): _sprite.modulate = _tint.darkened(0.4)
 	_mark_area(global_position, BossCatalog.ROAR_RADIUS, BossCatalog.DOWN_TIME)
+	if BossShow.enabled and is_instance_valid(game):
+		if after == "next_life": BossShow.of(game).rebirth(self)
+		elif after == "revive": BossShow.of(game).patriot_revive(self)
 
 func _get_up() -> void:
 	_clear_markers()
-	if is_instance_valid(_sprite): _sprite.modulate = _tint
+	set_shown(true)
+	if is_instance_valid(_sprite): _sprite.modulate = _rest_tint()
 	match _after_down:
 		"next_life":
 			life += 1
@@ -1159,7 +1601,7 @@ func _get_up() -> void:
 
 # --- Help ------------------------------------------------------------------------------
 
-## The tier-4 summon (or the warden's 援军) at the next life share.
+## Help at a life share: its summon move's types, else the rally affix's region pack.
 func _call_help() -> void:
 	var types: Array = []
 	var boost := 0.0
@@ -1243,6 +1685,9 @@ func _tick_auras(delta: float) -> void:
 func begin_reckoning() -> void:
 	reckoning_left = BossCatalog.RECKONING_TIME
 	if is_instance_valid(_sprite): _sprite.modulate = Color("c04050")
+	# 清算时刻 (Boss演出策划案_v0_2 §5.3): the clock tower strikes three.
+	if BossShow.enabled and is_instance_valid(game) and game.sound != null:
+		for i in range(3): BossShow.of(game)._sfx("zaro_bell", 0.9 * i)
 	_later.append({"t": BossCatalog.RECKONING_TIME, "f": "tint"})
 
 func reckoning_active() -> bool:
@@ -1316,7 +1761,7 @@ func _rampage() -> void:
 
 # --- Ground it leaves ------------------------------------------------------------------
 
-## Ground from a move: [radius, time, tick (damage on its ATK every 0.5 s), …].
+## Ground from a move's `zone`: radius, time, tick (damage on its ATK every ZONE_TICK s), feature/rate, hex.
 func _zone_from(seg: Dictionary, at: Vector3) -> Dictionary:
 	var z: Dictionary = seg.zone
 	var colour := "sand" if z.has("hex") else ("contamination" if str(z.get("feature", "")) == "contamination" else "cold")

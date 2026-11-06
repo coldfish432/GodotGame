@@ -1,0 +1,331 @@
+B3 static validation. Visual acceptance and Godot runtime are separate.
+Old-row hashes below compare decoded RGBA pixels, including transparent RGB.
+Foot lines are max occupied alpha>128 y in local cell coordinates (0-based).
+One common scale per generated extension; no per-pose fit-to-cell shrinking.
+New artwork matte export: alpha>230 core, detached crumbs<12px omitted, 1px alpha>128 fringe; generated RGB kept. Old rows and copied Zaro body untouched.
+
+patriot: 9 -> 16 rows; raw (1340, 1174); shared scale=1.162337662
+old_reference_rgba_sha256=1cc542505f4afc3124147a08b815e98538258d677fc2d2a7eb9207203af72637
+old_delivery_rgba_sha256=1cc542505f4afc3124147a08b815e98538258d677fc2d2a7eb9207203af72637 MATCH
+row=9 REST S foot_y=247 bbox=(64, 85, 193, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 REST SW foot_y=247 bbox=(69, 88, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 REST W foot_y=247 bbox=(66, 91, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 REST NW foot_y=247 bbox=(66, 93, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 REST N foot_y=247 bbox=(65, 92, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 REST NE foot_y=247 bbox=(67, 86, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 REST E foot_y=247 bbox=(63, 86, 193, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 REST SE foot_y=247 bbox=(63, 90, 193, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE S foot_y=247 bbox=(72, 75, 185, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE SW foot_y=247 bbox=(66, 78, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE W foot_y=247 bbox=(71, 81, 186, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE NW foot_y=247 bbox=(67, 77, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE N foot_y=247 bbox=(70, 76, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE NE foot_y=247 bbox=(65, 82, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE E foot_y=247 bbox=(64, 75, 192, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 RISE SE foot_y=247 bbox=(70, 75, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND S foot_y=247 bbox=(35, 68, 221, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND SW foot_y=247 bbox=(37, 66, 220, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND W foot_y=247 bbox=(35, 65, 221, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND NW foot_y=247 bbox=(34, 64, 223, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND N foot_y=247 bbox=(33, 67, 223, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND NE foot_y=247 bbox=(42, 67, 214, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND E foot_y=247 bbox=(38, 67, 219, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 THRUST-WIND SE foot_y=247 bbox=(33, 66, 224, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND S foot_y=247 bbox=(62, 94, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND SW foot_y=247 bbox=(62, 101, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND W foot_y=247 bbox=(66, 100, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND NW foot_y=247 bbox=(65, 100, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND N foot_y=247 bbox=(62, 97, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND NE foot_y=247 bbox=(59, 96, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND E foot_y=247 bbox=(61, 98, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STOMP-LAND SE foot_y=247 bbox=(63, 97, 193, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM S foot_y=247 bbox=(45, 96, 211, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM SW foot_y=247 bbox=(49, 90, 208, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM W foot_y=247 bbox=(47, 94, 209, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM NW foot_y=247 bbox=(48, 93, 208, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM N foot_y=247 bbox=(47, 97, 210, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM NE foot_y=247 bbox=(47, 91, 210, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM E foot_y=247 bbox=(52, 96, 205, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 JAVELIN-AIM SE foot_y=247 bbox=(44, 92, 213, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH S foot_y=247 bbox=(56, 82, 201, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH SW foot_y=247 bbox=(64, 75, 192, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH W foot_y=247 bbox=(79, 83, 178, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH NW foot_y=247 bbox=(67, 77, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH N foot_y=247 bbox=(65, 81, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH NE foot_y=247 bbox=(67, 81, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH E foot_y=247 bbox=(66, 83, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 CLENCH SE foot_y=247 bbox=(59, 82, 197, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING S foot_y=247 bbox=(65, 71, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING SW foot_y=247 bbox=(67, 75, 189, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING W foot_y=247 bbox=(70, 72, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING NW foot_y=247 bbox=(66, 80, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING N foot_y=247 bbox=(69, 74, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING NE foot_y=247 bbox=(67, 77, 189, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING E foot_y=247 bbox=(69, 73, 188, 248) outside_assembly=0 edge_contact_pixels=0
+row=15 DIES STANDING SE foot_y=247 bbox=(64, 76, 192, 248) outside_assembly=0 edge_contact_pixels=0
+
+rat_king: 8 -> 14 rows; raw (1448, 1086); shared scale=1.184210526
+old_reference_rgba_sha256=cb0df6d704e91e407f5d86f0a93a0d6cad759fef6bc0bd671f1d369211547dc3
+old_delivery_rgba_sha256=cb0df6d704e91e407f5d86f0a93a0d6cad759fef6bc0bd671f1d369211547dc3 MATCH
+row=8 POISED S foot_y=247 bbox=(57, 69, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 POISED SW foot_y=247 bbox=(59, 70, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 POISED W foot_y=247 bbox=(51, 71, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 POISED NW foot_y=247 bbox=(56, 69, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 POISED N foot_y=247 bbox=(57, 72, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 POISED NE foot_y=247 bbox=(54, 72, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 POISED E foot_y=247 bbox=(51, 70, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 POISED SE foot_y=247 bbox=(58, 71, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP S foot_y=247 bbox=(49, 62, 207, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP SW foot_y=247 bbox=(49, 60, 208, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP W foot_y=247 bbox=(53, 63, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP NW foot_y=247 bbox=(49, 61, 207, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP N foot_y=247 bbox=(40, 62, 216, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP NE foot_y=247 bbox=(48, 64, 208, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP E foot_y=247 bbox=(53, 63, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 CUP SE foot_y=247 bbox=(44, 66, 212, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS S foot_y=247 bbox=(51, 58, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS SW foot_y=247 bbox=(47, 60, 209, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS W foot_y=247 bbox=(51, 58, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS NW foot_y=247 bbox=(45, 59, 211, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS N foot_y=247 bbox=(40, 60, 216, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS NE foot_y=247 bbox=(46, 60, 210, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS E foot_y=247 bbox=(53, 61, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 CANE ACROSS SE foot_y=247 bbox=(43, 61, 214, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT S foot_y=247 bbox=(58, 53, 199, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT SW foot_y=247 bbox=(55, 55, 201, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT W foot_y=247 bbox=(57, 57, 199, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT NW foot_y=247 bbox=(56, 57, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT N foot_y=247 bbox=(61, 57, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT NE foot_y=247 bbox=(58, 58, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT E foot_y=247 bbox=(58, 57, 199, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 UPRIGHT SE foot_y=247 bbox=(58, 56, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL S foot_y=247 bbox=(52, 68, 204, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL SW foot_y=247 bbox=(43, 71, 213, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL W foot_y=247 bbox=(43, 73, 213, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL NW foot_y=247 bbox=(43, 70, 213, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL N foot_y=247 bbox=(52, 73, 205, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL NE foot_y=247 bbox=(39, 71, 218, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL E foot_y=247 bbox=(45, 73, 211, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 KNEEL SE foot_y=247 bbox=(51, 72, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE S foot_y=247 bbox=(53, 53, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE SW foot_y=247 bbox=(57, 57, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE W foot_y=247 bbox=(59, 55, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE NW foot_y=247 bbox=(55, 54, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE N foot_y=247 bbox=(54, 56, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE NE foot_y=247 bbox=(54, 55, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE E foot_y=247 bbox=(58, 55, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 TIE SE foot_y=247 bbox=(55, 54, 202, 248) outside_assembly=0 edge_contact_pixels=0
+Rat King baked heights: {'IDLE': 36, 'UPRIGHT': 40}
+
+eikthyrnir: 9 -> 15 rows; raw (1448, 1086); shared scale=1.071428571
+old_reference_rgba_sha256=329a10d26ad7f51fc9680bdd6de7c3c4ff98ac9fe4c63123d1b0e090912a8048
+old_delivery_rgba_sha256=329a10d26ad7f51fc9680bdd6de7c3c4ff98ac9fe4c63123d1b0e090912a8048 MATCH
+row=9 BREAKOUT S foot_y=247 bbox=(40, 92, 216, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 BREAKOUT SW foot_y=247 bbox=(53, 91, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 BREAKOUT W foot_y=247 bbox=(54, 92, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 BREAKOUT NW foot_y=247 bbox=(35, 90, 221, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 BREAKOUT N foot_y=247 bbox=(62, 90, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 BREAKOUT NE foot_y=247 bbox=(54, 90, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 BREAKOUT E foot_y=247 bbox=(47, 91, 210, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 BREAKOUT SE foot_y=247 bbox=(46, 95, 211, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND S foot_y=247 bbox=(51, 84, 205, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND SW foot_y=247 bbox=(57, 86, 199, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND W foot_y=247 bbox=(56, 89, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND NW foot_y=247 bbox=(53, 85, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND N foot_y=247 bbox=(60, 86, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND NE foot_y=247 bbox=(58, 86, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND E foot_y=247 bbox=(53, 86, 204, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 SWEEP-WIND SE foot_y=247 bbox=(50, 86, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH S foot_y=247 bbox=(54, 68, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH SW foot_y=247 bbox=(55, 68, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH W foot_y=247 bbox=(58, 68, 198, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH NW foot_y=247 bbox=(57, 70, 199, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH N foot_y=247 bbox=(50, 69, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH NE foot_y=247 bbox=(53, 71, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH E foot_y=247 bbox=(60, 69, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CATCH SE foot_y=247 bbox=(54, 69, 203, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH S foot_y=247 bbox=(47, 69, 210, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH SW foot_y=247 bbox=(50, 71, 206, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH W foot_y=247 bbox=(63, 75, 193, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH NW foot_y=247 bbox=(49, 74, 207, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH N foot_y=247 bbox=(61, 82, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH NE foot_y=247 bbox=(49, 75, 208, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH E foot_y=247 bbox=(50, 71, 207, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 CLUTCH SE foot_y=247 bbox=(55, 74, 201, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL S foot_y=247 bbox=(67, 76, 189, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL SW foot_y=247 bbox=(56, 81, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL W foot_y=247 bbox=(57, 78, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL NW foot_y=247 bbox=(52, 82, 205, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL N foot_y=247 bbox=(71, 82, 186, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL NE foot_y=247 bbox=(51, 80, 205, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL E foot_y=247 bbox=(53, 78, 204, 248) outside_assembly=0 edge_contact_pixels=0
+row=13 KNEEL SE foot_y=247 bbox=(62, 80, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER S foot_y=247 bbox=(52, 68, 205, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER SW foot_y=247 bbox=(57, 69, 199, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER W foot_y=247 bbox=(58, 68, 199, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER NW foot_y=247 bbox=(56, 71, 201, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER N foot_y=247 bbox=(56, 71, 201, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER NE foot_y=247 bbox=(57, 71, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER E foot_y=247 bbox=(59, 68, 197, 248) outside_assembly=0 edge_contact_pixels=0
+row=14 SHOULDER SE foot_y=247 bbox=(52, 70, 204, 248) outside_assembly=0 edge_contact_pixels=0
+
+zaro: 9 -> 13 rows; raw (1774, 887); shared scale=1.057416268
+old_reference_rgba_sha256=355cd902f5883a19f1aea01c646d46fba57fbec1d9a046112705b75af4349c2e
+old_delivery_rgba_sha256=355cd902f5883a19f1aea01c646d46fba57fbec1d9a046112705b75af4349c2e MATCH
+row=9 SLUMBER S foot_y=247 bbox=(13, 104, 243, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 SLUMBER SW foot_y=247 bbox=(26, 110, 230, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 SLUMBER W foot_y=247 bbox=(17, 113, 238, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 SLUMBER NW foot_y=247 bbox=(35, 101, 220, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 SLUMBER N foot_y=246 bbox=(33, 107, 223, 247) outside_assembly=0 edge_contact_pixels=0
+row=9 SLUMBER NE foot_y=247 bbox=(39, 101, 217, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 SLUMBER E foot_y=247 bbox=(15, 110, 240, 248) outside_assembly=0 edge_contact_pixels=0
+row=9 SLUMBER SE foot_y=246 bbox=(28, 106, 227, 247) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT S foot_y=247 bbox=(13, 104, 243, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT SW foot_y=247 bbox=(26, 110, 230, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT W foot_y=247 bbox=(17, 113, 238, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT NW foot_y=247 bbox=(35, 101, 220, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT N foot_y=246 bbox=(33, 100, 223, 247) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT NE foot_y=247 bbox=(39, 101, 217, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT E foot_y=247 bbox=(15, 110, 240, 248) outside_assembly=0 edge_contact_pixels=0
+row=10 LIFT SE foot_y=246 bbox=(28, 106, 227, 247) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH S foot_y=247 bbox=(51, 88, 205, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH SW foot_y=247 bbox=(37, 90, 220, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH W foot_y=247 bbox=(24, 98, 233, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH NW foot_y=247 bbox=(35, 91, 222, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH N foot_y=247 bbox=(56, 91, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH NE foot_y=247 bbox=(39, 91, 218, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH E foot_y=247 bbox=(23, 100, 233, 248) outside_assembly=0 edge_contact_pixels=0
+row=11 CROUCH SE foot_y=247 bbox=(45, 88, 211, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE S foot_y=247 bbox=(25, 111, 232, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE SW foot_y=247 bbox=(23, 115, 234, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE W foot_y=247 bbox=(19, 121, 238, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE NW foot_y=247 bbox=(26, 112, 230, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE N foot_y=247 bbox=(44, 105, 212, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE NE foot_y=247 bbox=(27, 111, 230, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE E foot_y=247 bbox=(23, 122, 234, 248) outside_assembly=0 edge_contact_pixels=0
+row=12 STRUGGLE SE foot_y=247 bbox=(25, 115, 232, 248) outside_assembly=0 edge_contact_pixels=0
+Zaro SLUMBER full-cell changed pixels=[8293, 8793, 10997, 3915, 6676, 5482, 10394, 9312].
+Zaro SLUMBER S body outside explicit head mask sha256=133b397dd60ae81f5643d5ee337cbab826ee920b195cf32096cb2b7f8008886c MATCH; changed_body_pixels=0
+Zaro SLUMBER SW body outside explicit head mask sha256=3dce30efd9e0df5c0168d1a6caa3087bc5d1d9f9c5dbca5cfaad1444caeb3d2d MATCH; changed_body_pixels=0
+Zaro SLUMBER W body outside explicit head mask sha256=8f09bd8291b1138437f451c4420d1a68ee35dca4b51a72e0cb735499cfb9904d MATCH; changed_body_pixels=0
+Zaro SLUMBER NW body outside explicit head mask sha256=8302261017a58519674ce98c1c6e4020d04749069f05ebd46bc39c3b56372139 MATCH; changed_body_pixels=0
+Zaro SLUMBER N body outside explicit head mask sha256=371391ca0b7c4370462a51ede0316a01be6b1a606a18fb6108ea6aceec83eadf MATCH; changed_body_pixels=0
+Zaro SLUMBER NE body outside explicit head mask sha256=589c7dcf94ade258959a8569fa09f7b500542e13b48310bcf3c51bbe71a17c33 MATCH; changed_body_pixels=0
+Zaro SLUMBER E body outside explicit head mask sha256=35f5f1a3b4ed180e5e2409a796b61af3c4570cb7ebc9308e2ab7e38a296331c4 MATCH; changed_body_pixels=0
+Zaro SLUMBER SE body outside explicit head mask sha256=1aa7176aa5a98942cb76c6249e9984445bd0ee44fb441e5c6ff83ff048adffb0 MATCH; changed_body_pixels=0
+
+crownslayer: 7 -> 9 rows; raw (2172, 724); shared scale=0.746887967
+old_reference_rgba_sha256=c3d31fbc0a73b28c22c321e2f276319fa2249519433a3c7ab637b109734d9eac
+old_delivery_rgba_sha256=c3d31fbc0a73b28c22c321e2f276319fa2249519433a3c7ab637b109734d9eac MATCH
+row=7 GLINT S foot_y=247 bbox=(68, 69, 189, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 GLINT SW foot_y=247 bbox=(66, 68, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 GLINT W foot_y=247 bbox=(69, 66, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 GLINT NW foot_y=247 bbox=(68, 67, 189, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 GLINT N foot_y=247 bbox=(61, 67, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 GLINT NE foot_y=247 bbox=(68, 65, 188, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 GLINT E foot_y=247 bbox=(71, 68, 186, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 GLINT SE foot_y=247 bbox=(68, 71, 188, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN S foot_y=247 bbox=(66, 91, 190, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN SW foot_y=247 bbox=(56, 87, 200, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN W foot_y=247 bbox=(55, 88, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN NW foot_y=247 bbox=(54, 90, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN N foot_y=247 bbox=(68, 89, 188, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN NE foot_y=247 bbox=(53, 90, 204, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN E foot_y=247 bbox=(53, 88, 204, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 FALLEN SE foot_y=247 bbox=(62, 90, 195, 248) outside_assembly=0 edge_contact_pixels=0
+
+skullshatterer: 6 -> 8 rows; raw (2172, 724); shared scale=0.746887967
+old_reference_rgba_sha256=b3ca39982a24255a4d3c4a8b3b4f27935706cdb03d64d8c418ef14cbed01c097
+old_delivery_rgba_sha256=b3ca39982a24255a4d3c4a8b3b4f27935706cdb03d64d8c418ef14cbed01c097 MATCH
+row=6 RELOAD S foot_y=247 bbox=(74, 69, 183, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 RELOAD SW foot_y=247 bbox=(73, 66, 183, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 RELOAD W foot_y=247 bbox=(69, 66, 188, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 RELOAD NW foot_y=247 bbox=(62, 68, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 RELOAD N foot_y=247 bbox=(71, 68, 185, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 RELOAD NE foot_y=247 bbox=(64, 67, 192, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 RELOAD E foot_y=247 bbox=(65, 66, 191, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 RELOAD SE foot_y=247 bbox=(73, 68, 183, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN S foot_y=247 bbox=(55, 121, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN SW foot_y=247 bbox=(48, 129, 208, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN W foot_y=247 bbox=(35, 153, 221, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN NW foot_y=247 bbox=(40, 159, 217, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN N foot_y=247 bbox=(50, 128, 207, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN NE foot_y=247 bbox=(40, 157, 216, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN E foot_y=247 bbox=(37, 152, 219, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 DOWN SE foot_y=247 bbox=(53, 129, 204, 248) outside_assembly=0 edge_contact_pixels=0
+
+hollow_snowpriest: 7 -> 9 rows; raw (2172, 724); shared scale=0.743801653
+old_reference_rgba_sha256=177c6ad816610ba0bc1cf2e0cdd7f6be9c130be977ef5970a04aaa76548e3e50
+old_delivery_rgba_sha256=177c6ad816610ba0bc1cf2e0cdd7f6be9c130be977ef5970a04aaa76548e3e50 MATCH
+row=7 EMERGE S foot_y=247 bbox=(59, 69, 197, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 EMERGE SW foot_y=247 bbox=(60, 71, 197, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 EMERGE W foot_y=247 bbox=(64, 71, 192, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 EMERGE NW foot_y=247 bbox=(61, 71, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 EMERGE N foot_y=247 bbox=(55, 68, 202, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 EMERGE NE foot_y=247 bbox=(62, 74, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 EMERGE E foot_y=247 bbox=(64, 71, 192, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 EMERGE SE foot_y=247 bbox=(61, 70, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE S foot_y=247 bbox=(61, 188, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE SW foot_y=247 bbox=(63, 188, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE W foot_y=247 bbox=(62, 190, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE NW foot_y=247 bbox=(61, 189, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE N foot_y=247 bbox=(61, 99, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE NE foot_y=247 bbox=(63, 99, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE E foot_y=247 bbox=(62, 99, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=8 EMPTY ROBE SE foot_y=247 bbox=(62, 100, 195, 248) outside_assembly=0 edge_contact_pixels=0
+
+father_agnir: 6 -> 8 rows; raw (2172, 724); shared scale=0.681818182
+old_reference_rgba_sha256=18e73d66b715c8933b8c98da37bd9433a7562cb838fb940247923c36aa03bf34
+old_delivery_rgba_sha256=18e73d66b715c8933b8c98da37bd9433a7562cb838fb940247923c36aa03bf34 MATCH
+row=6 CHAMBER S foot_y=247 bbox=(69, 68, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 CHAMBER SW foot_y=247 bbox=(74, 67, 183, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 CHAMBER W foot_y=247 bbox=(70, 68, 186, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 CHAMBER NW foot_y=247 bbox=(71, 67, 186, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 CHAMBER N foot_y=247 bbox=(82, 66, 175, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 CHAMBER NE foot_y=247 bbox=(72, 67, 185, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 CHAMBER E foot_y=247 bbox=(69, 68, 187, 248) outside_assembly=0 edge_contact_pixels=0
+row=6 CHAMBER SE foot_y=247 bbox=(68, 67, 188, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER S foot_y=247 bbox=(68, 84, 189, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER SW foot_y=247 bbox=(67, 87, 189, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER W foot_y=247 bbox=(62, 88, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER NW foot_y=247 bbox=(60, 89, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER N foot_y=247 bbox=(63, 85, 194, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER NE foot_y=247 bbox=(61, 90, 195, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER E foot_y=247 bbox=(60, 87, 196, 248) outside_assembly=0 edge_contact_pixels=0
+row=7 PRAYER SE foot_y=247 bbox=(68, 84, 189, 248) outside_assembly=0 edge_contact_pixels=0
+
+CONTRACT VERIFICATION
+{
+  "old_rows_match": {
+    "patriot": true,
+    "rat_king": true,
+    "eikthyrnir": true,
+    "zaro": true,
+    "crownslayer": true,
+    "skullshatterer": true,
+    "hollow_snowpriest": true,
+    "father_agnir": true
+  },
+  "new_cells": 248,
+  "source_edge_contact_cells": [],
+  "baked_edge_contact_cells": [],
+  "rat_king_heights": {
+    "IDLE": 36,
+    "UPRIGHT": 40
+  },
+  "zaro_slumber_red_pixels": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "png_count": 36
+}
+All 248 new source cells are nonempty; no repeated direction images within any new row.
+No source edge-contact pixels; no assembly overflow. Baked edge contacts, if listed, are not source clipping.
+Zaro equality is measured outside the explicit head-edit masks listed in manifest, not a semantic body segmentation oracle.
+Visual review required for precise gestures, costume consistency, angular accuracy, and source transparency edges. Godot runtime/import not run.

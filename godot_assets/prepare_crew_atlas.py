@@ -32,7 +32,9 @@ HEIGHT = {"doctor": 30, "sharp": 31, "stormeye": 31, "pith": 29, "touch": 28, "t
 	"reserve_vanguard": 29, "reserve_guard": 28, "reserve_defender": 31, "reserve_sniper": 29, "reserve_caster": 28,
 	"reserve_medic": 27, "reserve_supporter": 29, "reserve_specialist": 28,
 	# ST1b (batch_CR3_v1): Dobermann tall and upright, Kal'tsit a little shorter.
-	"dobermann": 30, "kaltsit": 29}
+	"dobermann": 30, "kaltsit": 29,
+	# CR4 (失散干员): 电弧, her feathers over her head.
+	"raidian": 30}
 
 
 def sources() -> dict:

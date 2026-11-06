@@ -23,7 +23,7 @@ const KINDS := {
 	"supply": {"name": "物资作业", "en": "SUPPLY FACE", "color": Color("f5c000"), "danger": 0.0, "reward": 0.05, "enemies": 3, "stat": 1.25, "combat": true},
 	"deep": {"name": "深部污染", "en": "DEEP ZONE", "color": Color("ff4d4d"), "danger": 5.0, "reward": 0.15, "enemies": 6, "stat": 1.6, "deep": true, "combat": true},
 	"event": {"name": "不期而遇", "en": "ENCOUNTER", "color": Color("9aa0a6"), "danger": 4.0, "reward": 0.0, "enemies": 3, "mult": 1.3, "elites": 1, "compact": true},
-	"trader": {"name": "诡异行商", "en": "WANDERING TRADER", "color": Color("e6c25a"), "danger": -3.0, "reward": 0.0, "enemies": 0, "mult": 0.5, "compact": true},
+	"trader": {"name": "诡异行商", "en": "WANDERING TRADER", "color": Color("e6c25a"), "danger": -3.0, "reward": 0.0, "enemies": 0, "mult": 0.5, "compact": true, "no_device": true},
 	"rest": {"name": "临时休整", "en": "SAFE HOUSE", "color": Color("5fd0d8"), "danger": 0.0, "reward": 0.0, "enemies": 0, "mult": 0.0, "compact": true, "calm": true, "no_device": true},
 	"relic": {"name": "得偿所愿", "en": "WISH FULFILLED", "color": Color("c48cff"), "danger": 2.0, "reward": 0.0, "enemies": 3, "pois": 2},
 	"elite": {"name": "险路恶敌", "en": "DIRE FOE", "color": Color("b8242c"), "danger": 3.0, "reward": 0.25, "enemies": 3, "combat": true},
@@ -31,6 +31,9 @@ const KINDS := {
 	"fate": {"name": "命运所指", "en": "FATE'S CALL", "color": Color("e0782a"), "danger": 0.0, "reward": 0.05, "enemies": 3, "stat": 1.25, "combat": true},
 	"post": {"name": "势力据点", "en": "FACTION POST", "color": Color("8fc31f"), "danger": 0.0, "reward": 0.05, "enemies": 3, "stat": 1.25, "combat": true},
 	"outpost": {"name": "前哨据点", "en": "OUTPOST", "color": Color("dfe4e6"), "danger": 0.0, "reward": 0.05, "enemies": 3, "combat": true},
+	# The camp between blocks (用户 2026-10-31: 营地层也要有地图): a small calm map
+	# with 可露希尔, the fixed extraction and the way on. Never rolled on a block.
+	"camp": {"name": "营地", "en": "CAMP", "color": Color("63eca7"), "danger": 0.0, "reward": 0.0, "enemies": 0, "mult": 0.0, "compact": true, "calm": true, "no_device": true},
 	"boss": {"name": "首领战场", "en": "BOSS ARENA", "color": Color("ff4d4d"), "danger": 0.0, "reward": 0.05, "enemies": 3, "combat": true},
 }
 const COMBAT_KINDS := ["patrol", "supply", "deep"]
@@ -86,6 +89,8 @@ static func col_of(floor_number: int) -> int:
 ##   trader_col            课题 商队联络: a 诡异行商 on floor 3
 ##   mult                  kind -> weight multiplier (科研)
 ##   fate_ok, post_ok      a sought operator / a faction post in the region
+##   posts                 the factions a 势力据点 may belong to
+##   ensure_post           a faction that gets a post on every block ("" none)
 ##   bounty, search, deliver  the contract's marks: floor / true / [floor, faction]
 ##   plain                 tests: fight floors only (besides the marks)
 static func roll(block: int, ctx: Dictionary) -> Dictionary:
@@ -152,7 +157,8 @@ static func _exit_lines(n: int, m: int, exit_row: int, all_in: bool, rng: Random
 		for i in range(n): out[i].append(0)
 		return out
 	var into := n if all_in else maxi(1, ceili(n * EXIT_SHARE))
-	# The exit is the upper node: the top `into` lead to it; the lower one the rest.
+	# The `into` nodes on the exit's side (top if it is the upper node, else bottom)
+	# lead to it; the rest to the other node.
 	for i in range(n):
 		var to_exit := i < into if exit_row == 0 else i >= n - into
 		var other := 1 - exit_row
@@ -205,6 +211,13 @@ static func _fill(map: Dictionary, ctx: Dictionary, rng: RandomNumberGenerator) 
 	if not deliver.is_empty() and block_of(int(deliver[0])) == block and col_of(int(deliver[0])) < last:
 		var node := _place(map, col_of(int(deliver[0])), "post", "deliver", counts, rng)
 		if not node.is_empty(): node.faction = str(deliver[1])
+	# 残党联络人 (势力声望解锁策划案 §三): one of 整合运动残党's posts on every block.
+	if not str(ctx.get("ensure_post", "")).is_empty():
+		for attempt in range(last * 2):
+			var post := _place(map, rng.randi_range(1, last - 1), "post", "", counts, rng)
+			if not post.is_empty():
+				post.faction = str(ctx.ensure_post)
+				break
 	if bool(ctx.get("search", false)):
 		var tries := [2, 3, 4, 5, 6, 7]
 		tries.shuffle()

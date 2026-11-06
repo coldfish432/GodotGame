@@ -1,10 +1,13 @@
 class_name LoadoutScreens
 extends RefCounted
 
-## The workbench split in four (界面美术与布局策划案 v2 §3 S2, §5.3–§5.6):
+## The workbench's pages and the screens beside it (界面美术与布局策划案 v2 §3 S2, §5.3–§5.6):
 ##   整备台 · 换装   — the doll, the depot's gear and flasks, the pack
 ##   整备台 · 改造   — 重铸 / 校准 / 精调 on one piece, in a fixture
 ##   整备台 · 制式   — Rhodes standard gear, free into any slot for one contract
+##   整备台 · 投保   — the logistics counter's list, here too
+##   整备台 · 增益   — 补给, 课题, flasks and 随队物资 from their departments, in one place
+##                     (用户 2026-11-02: 作战增益统一到整备台，各部仍保留原入口)
 ##   后勤柜台 · 投保 — every carried piece with its insurance
 ##   出发准备        — who goes (operator chips), a read-only loadout, the target
 ## Operators are picked on these screens (用户 2026-10-21: 还是得在准备出发的这几个界面能选择干员).
@@ -57,18 +60,21 @@ static func operator_chips(menu: FieldMenu, stage: Control, at: Vector2, chip: V
 		x += chip.x + 4
 
 ## The 8-slot doll (PaperDoll) at `scale`; `on_pick` null = read-only. Returns its slots.
-static func doll(game: GameManager, stage: Control, at: Vector2, scale: float, pick: Item, on_pick: Callable) -> Array:
+## `wearer`: whose set (the deployed one when null; the C window shows others').
+static func doll(game: GameManager, stage: Control, at: Vector2, scale: float, pick: Item, on_pick: Callable, wearer: Player = null) -> Array:
 	var slots: Array = []
-	PaperDoll.decorate(game, stage, at, scale)
+	# Worn pieces show their hover card too (用户 2026-10-25: 身上和背包里的装备也鼠标悬停显示面板).
+	TraderScreen._game = game
+	PaperDoll.decorate(game, stage, at, scale, wearer)
 	for slot_category in PaperDoll.SPOTS:
 		var r: Rect2 = PaperDoll.SPOTS[slot_category]
 		var slot := DollSlot.new()
 		slot.category = slot_category
-		slot.item = PaperDoll.worn(game, slot_category)
+		slot.item = PaperDoll.worn(game, slot_category, wearer)
 		slot.picked = slot.item != null and slot.item == pick
 		slot.focus_mode = Control.FOCUS_NONE
 		slot.disabled = slot.item == null or not on_pick.is_valid()
-		slot.tooltip_text = Item.slot_name(slot_category) if slot.item == null else ""
+		slot.tooltip_text = Item.slot_name(slot_category) if slot.item == null else " "
 		AK.put(stage, slot, at + r.position * scale, r.size * scale)
 		if slot.item != null:
 			slot.set_meta("item", slot.item)
@@ -78,7 +84,7 @@ static func doll(game: GameManager, stage: Control, at: Vector2, scale: float, p
 	return slots
 
 
-## A doll slot outside the I window: silhouette when empty, the piece (the
+## A doll slot outside the B window: silhouette when empty, the piece (the
 ## weapon standing) in its rarity frame, a 保 mark when insured.
 class DollSlot extends Button:
 	var category := 0
@@ -88,6 +94,8 @@ class DollSlot extends Button:
 		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		for s in ["normal", "hover", "pressed", "disabled"]:
 			add_theme_stylebox_override(s, StyleBoxEmpty.new())
+	func _make_custom_tooltip(_for_text: String) -> Object:
+		return TraderScreen.item_card(item) if item != null else null
 	func _draw() -> void:
 		var r := Rect2(Vector2.ZERO, size)
 		draw_rect(r, Color(0, 0, 0, 0.5))
@@ -106,14 +114,19 @@ class DollSlot extends Button:
 
 # --- 整备台 ------------------------------------------------------------------------
 
-const WORKBENCH_TABS := ["换装", "改造", "制式"]
+const WORKBENCH_TABS := ["换装", "改造", "制式", "投保", "增益"]
 
 static func workbench(menu: FieldMenu) -> void:
 	var tab: int = clampi(menu.workbench_tab, 0, WORKBENCH_TABS.size() - 1)
-	var stage := BaseScreens.shell(menu, "整备台", "WORKBENCH", WORKBENCH_TABS, tab, func(i): menu.workbench_tab = i; menu.pick = null; workbench(menu), "LOADOUT")
+	var game := menu.game
+	var money := [["lmd", Economy.format(game.gold)]] + ([["gold", str(game.gold_available())]] if tab == 4 else [])
+	var stage := BaseScreens.shell(menu, "整备台", "WORKBENCH", WORKBENCH_TABS, tab, func(i): menu.workbench_tab = i; menu.pick = null; workbench(menu), "LOADOUT",
+		money if tab >= 3 else [])
 	match tab:
 		0: _change(menu, stage)
 		1: _refit(menu, stage)
+		3: _insurance(menu, stage, func(): workbench(menu))
+		4: _support(menu, stage)
 		_:
 			_issue(menu, stage)
 			if is_instance_valid(menu.game.tutorial_spotlight): menu.game.tutorial_spotlight.screen_opened("loadout_issue")
@@ -146,14 +159,13 @@ static func _change(menu: FieldMenu, stage: Control) -> void:
 		menu.show_station("workshop")
 		menu.back_to = func(): menu.show_station("loadout"))
 	AK.put(stage, shop, Vector2(194, BOTTOM - 56), Vector2(150, 40))
-	# Middle: the depot (用户 2026-10-21 图): a tab per slot and 药剂, the pieces
-	# packed into a 10-wide grid that runs the column's height and scrolls,
-	# the cells taken over the cells shown. Hover shows the card; drag moves;
-	# right click wears a piece or brings a flask.
+	# Middle: the whole warehouse (整理箱与收藏品策划案 v0.2 §1), on the
+	# 仓管台's tabs: 全部 is the warehouse as it lies there (ALL_CELL px a cell),
+	# the others pack what they show, boxed items too.
+	# Hover shows the card; drag moves; right click wears a piece or brings it.
 	_panel(stage, Rect2(392, TOP, 440, BOTTOM - TOP), LOG)
 	depot_tab = clampi(depot_tab, 0, DEPOT_TABS.size() - 1)
-	var tabs := AK.toggle(DEPOT_TABS, depot_tab, func(i): depot_tab = i; menu.pick = null; redraw.call(), 12)
-	# Ten tabs in the column: the text may not widen a button past its share.
+	var tabs := AK.toggle(DEPOT_TABS, depot_tab, func(i): depot_tab = i; menu.pick = null; BaseScreens.open_box = null; redraw.call(), 12)
 	for b: Button in tabs.get_children():
 		for state in ["normal", "hover", "pressed", "disabled", "focus"]:
 			var box := b.get_theme_stylebox(state)
@@ -162,25 +174,31 @@ static func _change(menu: FieldMenu, stage: Control) -> void:
 			box.content_margin_left = 2
 			box.content_margin_right = 2
 			b.add_theme_stylebox_override(state, box)
-		b.custom_minimum_size = Vector2(42, 30)
+		b.custom_minimum_size = Vector2(56, 30)
 	AK.put(stage, tabs, Vector2(406, TOP + 10))
-	var shown: Array = game.stash.filter(func(it: Item): return _depot_shows(it, depot_tab))
 	TraderScreen._game = game
-	var depot := BaseScreens.FlowGrid.packed(shown, 10, DEPOT_ROWS, pick_item)
+	var depot: BaseScreens.FlowGrid
+	if depot_tab == 0:
+		depot = BaseScreens.shelf_grid(game, ALL_CELL, DEPOT_ROWS + 6, redraw, pick_item)
+	else:
+		var shown: Array = game.stash.filter(func(it: Item): return BaseScreens.tab_shows(it, depot_tab))
+		depot = BaseScreens.FlowGrid.packed(shown, 10, DEPOT_ROWS, pick_item)
+		depot.dragging(func(item: Item) -> bool: return _where(game, item) in ["pack", "worn"],
+			func(item: Item): _store(game, item); menu.pick = null; redraw.call())
 	depot.on_alt = func(item: Item):
 		if item.is_equippable(): _wear(game, item)
 		else: game.bring_item(item)
 		menu.pick = null
 		redraw.call()
-	depot.dragging(func(item: Item) -> bool: return _where(game, item) in ["pack", "worn"],
-		func(item: Item): _store(game, item); menu.pick = null; redraw.call())
-	AK.put(stage, AK.section("仓库", "DEPOT · %d / %d" % [depot.used_cells(), depot.columns * depot.rows]), Vector2(412, TOP + 54))
+	var base: BaseState = game.base
+	AK.put(stage, AK.section("仓库", "DEPOT · %d / %d" % [base.shelf_count(), base.capacity()]), Vector2(412, TOP + 54))
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	AK.put(stage, scroll, Vector2(412, TOP + 82), Vector2(10 * 40 + 12, BOTTOM - TOP - 94))
+	AK.put(stage, scroll, Vector2(412, TOP + 82), Vector2(depot.columns * depot.cell + 12, BOTTOM - TOP - 94))
 	scroll.add_child(depot)
 	# Right: the pack and safe bag.
 	_pack_column(menu, stage, Rect2(848, TOP, 416, BOTTOM - TOP), pick, pick_item, redraw)
+	BaseScreens.case_window(game, stage, Rect2(392, TOP, 440, BOTTOM - TOP))
 
 ## Where a piece is on the workbench: "stash", "worn", "pack" (pack or safe bag).
 static func _where(game: GameManager, item: Item) -> String:
@@ -208,15 +226,12 @@ static func _store(game: GameManager, item: Item) -> void:
 	if _where(game, item) == "worn": game.unequip_to_pack(item)
 	game.store_item(item)
 
-## The depot's tabs: everything, each of the eight slots, the flasks.
-const DEPOT_TABS := ["全部", "武器", "头", "胸", "手", "腿", "脚", "项链", "戒指", "药剂"]
+## The depot's tabs: the 仓管台's, without 拆包 (§1).
+const DEPOT_TABS := ["全部", "武器", "防具", "饰品", "药剂", "材料", "收藏品"]
 const DEPOT_ROWS := 16
+## Pixels a cell on 全部: the warehouse's 10 columns in the 440-wide column.
+const ALL_CELL := 40
 static var depot_tab := 0
-
-static func _depot_shows(item: Item, tab: int) -> bool:
-	if tab == 0: return item.is_equippable() or item.is_potion()
-	if tab == DEPOT_TABS.size() - 1: return item.is_potion()
-	return item.is_equippable() and Item.slot_of(item.category) == Item.SLOTS[tab - 1]
 
 static func _act(text: String, kind: String, on: Callable) -> Button:
 	var b := AK.button(text, kind, 14)
@@ -231,10 +246,19 @@ static func _pack_column(menu: FieldMenu, stage: Control, r: Rect2, pick: Item, 
 	var pack := AK.BagGrid.make(game.inventory, Callable(), pick_item, pick)
 	var safe_y := r.position.y + 42 + game.inventory.height * 40 + 14
 	var safe := AK.BagGrid.make(game.safe_bag, Callable(), pick_item, pick)
+	TraderScreen._game = game
+	pack.cards = true
+	safe.cards = true
 	if redraw.is_valid():
+		# 用户 2026-11-04: 整备台可以将背包物品放仓库 — a right click stores it (a drag onto the depot too).
+		for grid in [pack, safe]:
+			grid.on_alt = func(item: Item):
+				_store(game, item)
+				menu.pick = null
+				redraw.call()
 		for pair in [[pack, game.inventory], [safe, game.safe_bag]]:
 			var bag: ItemContainer = pair[1]
-			ItemDrag.bag(pair[0], func(item: Item) -> bool: return not bag.items.has(item) and _where(game, item) != "",
+			ItemDrag.bag(pair[0], func(item: Item) -> bool: return not bag.items.has(item) and not item.is_case() and _where(game, item) != "",
 				func(item: Item): _carry(game, item, bag); menu.pick = null; redraw.call())
 	AK.put(stage, pack, r.position + Vector2(8, 42))
 	AK.put(stage, AK.section("安全袋"), Vector2(r.position.x + 16, safe_y))
@@ -391,7 +415,8 @@ static func _refit(menu: FieldMenu, stage: Control) -> void:
 		AK.put(stage, choices, Vector2(864, TOP + 44))
 		return
 	if BaseScreens._tuning == pick:
-		AK.put(stage, AK.section("精调", "%s · 改量装置×1" % Economy.format(game.refresh_cost("tune", pick))), Vector2(864, TOP + 14))
+		AK.put(stage, AK.section("精调", "TUNE"), Vector2(864, TOP + 14))
+		BaseScreens._cost_line(game, stage, Vector2(866, TOP + 50), game.refresh_cost("tune", pick), GameManager.refresh_materials("tune", pick))
 		var lines := VBoxContainer.new()
 		lines.add_theme_constant_override("separation", 4)
 		for line in PrefixCatalog.rollable_lines(pick):
@@ -406,7 +431,7 @@ static func _refit(menu: FieldMenu, stage: Control) -> void:
 		back.custom_minimum_size = Vector2(384, 40)
 		back.pressed.connect(func(): BaseScreens._tuning = null; redraw.call())
 		lines.add_child(back)
-		AK.put(stage, lines, Vector2(864, TOP + 44))
+		AK.put(stage, lines, Vector2(864, TOP + 84))
 		return
 	var y := TOP + 16
 	# 定向重铸 shows only where it can be done (龙门, 龙门商会 at the top rank).
@@ -416,15 +441,12 @@ static func _refit(menu: FieldMenu, stage: Control) -> void:
 	for entry in [["reforge", "重铸", "REFORGE"], ["calibrate", "校准", "CALIBRATE"], ["tune", "精调", "TUNE"]]:
 		var kind: String = entry[0]
 		var cost := game.refresh_cost(kind, pick)
-		var mats: Dictionary = GameManager.REFRESH_MATERIALS[kind]
 		stage.add_child(AK.rect(AK.PLATE_2, Vector2(864, y), Vector2(384, card_h)))
 		AK.put(stage, AK.label(entry[1], 20, AK.FG), Vector2(880, y + 10))
 		AK.put(stage, AK.label(entry[2], 10, AK.MUTE, AK.en()), Vector2(880, y + 40))
-		AK.put(stage, AK.money("lmd", Economy.format(cost), 16), Vector2(880, y + 66))
-		var parts := mats.keys().map(func(id): return "%s %d / %d" % [id, game.material_count(id), mats[id]])
-		AK.put(stage, AK.label("  ".join(parts), 12, AK.MUTE), Vector2(880, y + 92))
+		BaseScreens._cost_line(game, stage, Vector2(880, y + 66), cost, GameManager.refresh_materials(kind, pick), 13)
 		var refusal := game.refresh_refusal(kind, pick)
-		var go := AK.button(entry[1] if refusal.is_empty() else refusal, "blue", 14)
+		var go := AK.button(entry[1] if refusal.is_empty() else BaseScreens._short_refusal(refusal), "blue", 14)
 		go.disabled = not refusal.is_empty()
 		go.set_meta("label", entry[1])
 		if kind == "tune": go.pressed.connect(func(): BaseScreens._tuning = pick; redraw.call())
@@ -458,7 +480,11 @@ static func _refit(menu: FieldMenu, stage: Control) -> void:
 static func logistics(menu: FieldMenu) -> void:
 	var game := menu.game
 	var stage := BaseScreens.shell(menu, "后勤柜台", "LOGISTICS", [], 0, Callable(), "INSURANCE")
-	var redraw := func(): logistics(menu)
+	_insurance(menu, stage, func(): logistics(menu))
+
+## The insurance list and its summary: the logistics counter's page and the workbench's 投保 tab.
+static func _insurance(menu: FieldMenu, stage: Control, redraw: Callable) -> void:
+	var game := menu.game
 	_panel(stage, Rect2(16, TOP, 820, BOTTOM - TOP), LOG)
 	AK.put(stage, AK.section("投保", "INSURANCE"), Vector2(32, TOP + 14))
 	var pieces: Array = []
@@ -467,6 +493,9 @@ static func logistics(menu: FieldMenu) -> void:
 		if worn != null: pieces.append(worn)
 	for it in game.carried_items():
 		if it.is_equippable() and not pieces.has(it): pieces.append(it)
+	# Insured pieces in the warehouse, to take the insurance off (整理箱与收藏品策划案 v0.2 §4).
+	for it in game.stash:
+		if it.insured and not pieces.has(it): pieces.append(it)
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 6)
 	var scroll := ScrollContainer.new()
@@ -481,11 +510,16 @@ static func logistics(menu: FieldMenu) -> void:
 		row.add_child(AK.rect(AK.PLATE_2, Vector2.ZERO, Vector2(776, 64)))
 		AK.put(row, AK.item_icon(it, Vector2(60, 60)), Vector2(2, 2))
 		AK.put(row, AK.item_name(it, 14), Vector2(74, 10))
-		var where := "身上" if game.player.equipped.values().has(it) else ("安全袋" if game.safe_bag.items.has(it) else "背包")
+		var where := "身上" if game.player.equipped.values().has(it) else ("安全袋" if game.safe_bag.items.has(it) else ("仓库" if game.stash.has(it) else "背包"))
 		AK.put(row, AK.label("%s · %s" % [Item.slot_name(it.category), where], 12, AK.MUTE), Vector2(74, 36))
 		if it.insured:
 			insured += 1
-			AK.put(row, AK.tag("已投保", Color("4fd1c5")), Vector2(670, 22))
+			AK.put(row, AK.tag("已投保", Color("4fd1c5")), Vector2(520, 22))
+			var off := AK.button("撤销投保", "plain", 12)
+			var held: Item = it
+			off.set_meta("uninsure", true)
+			off.pressed.connect(func(): game.uninsure(held); redraw.call())
+			AK.put(row, off, Vector2(620, 14), Vector2(144, 36))
 		else:
 			var price := game.insurance_price(it)
 			due += price
@@ -509,6 +543,150 @@ static func logistics(menu: FieldMenu) -> void:
 			if not it.insured: game.insure(it)
 		redraw.call())
 	AK.put(stage, all, Vector2(868, BOTTOM - 72), Vector2(380, 56))
+
+# --- 整备台 · 增益 -------------------------------------------------------------------
+
+const SUPPORT_W := 302.0
+
+## Four columns, each the department's own call: 药房 and 可露希尔's flasks,
+## 可露希尔's 随队物资 (bought here, ticked here), 科研部 课题, 食堂 用餐.
+## The columns always stand; what fills them shows once it is open
+## (用户 2026-11-02): a department not built (or whose operator is still lost)
+## leaves its column empty, a flask or kit her store has not reached is not listed.
+## A locked column is greyed: thick grey diagonal stripes under a grey veil.
+static func _support(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var base: BaseState = game.base
+	var redraw := func(): workbench(menu)
+	var cols: Array = []
+	# 补给: what the canteen has in stock; the one eaten goes on the next contract.
+	var p := game.provisions
+	var meals: Array = []
+	var canteen_open := base.facility_level("canteen") >= 1 and base.dept_missing("canteen").is_empty()
+	if canteen_open:
+		var rows := meals
+		var eaten := p.meal()
+		for id in Provisions.MEAL_ORDER + Provisions.BOUGHT_MEALS:
+			var count := game.material_count(id)
+			if count <= 0 and id != eaten: continue
+			var meal: String = id
+			rows.append(_support_row(MaterialCatalog.create(id, 1), "%s ×%d" % [id, count], Provisions.meal_text(id), AK.GREEN,
+				"已用餐" if id == eaten else "用餐", "已用餐" if id == eaten else p.eat_refusal(id), func(): p.eat(meal); redraw.call()))
+	# 课题: signed for PROJECT_SORTIES sorties, paid at each departure.
+	var r := game.research
+	var tier := game.deepest_tier()
+	var projects: Array = []
+	var lab_open := r.is_open() and base.dept_missing("lab").is_empty()
+	if lab_open:
+		var rows := projects
+		rows.append(AK.label("%d / %d" % [r.projects().size(), r.project_slots()], 13, AK.MUTE, AK.en()))
+		for id in ResearchCatalog.PROJECTS:
+			var info: Array = ResearchCatalog.PROJECTS[id]
+			var project: String = id
+			var title := "%s · %s" % [info[0], Economy.format(r.project_price(id, tier))]
+			var sub: String = info[2]
+			if r.projects().has(id):
+				rows.append(_support_row(null, title, sub + " · " + "剩 %d 次" % int(r.projects()[id]), AK.CYAN, "取消", "", func(): r.cancel(project); redraw.call()))
+			else:
+				rows.append(_support_row(null, title, sub, AK.MUTE, "签订", r.project_refusal(id), func(): r.sign(project); redraw.call()))
+	# 药剂: the pharmacy's in 龙门币, 可露希尔's 特供 in 赤金.
+	var flasks: Array = []
+	for type in TraderScreen.PHARMACY_TYPES:
+		var price := game.potion_price(type)
+		if price < 0: continue
+		var flask := BaseCatalog.create_potion(type, game.deepest_tier())
+		var kind: String = type
+		var cost := ("免费 %d" % base.free_potions) if price == 0 else ("%s 龙门币" % Economy.format(price))
+		flasks.append(_support_row(flask, flask.display_name(), cost, AK.MUTE, "购买", "龙门币不足" if game.gold < price else "", func(): game.buy_potion(kind); redraw.call()))
+	for type in game.closure_goods():
+		var bars := game.closure_potion_price(type)
+		if type in TraderScreen.PHARMACY_TYPES or bars < 0: continue
+		var flask := BaseCatalog.create_potion(type, game.closure_potion_tier())
+		var left := game.closure_stock_left(type)
+		var kind: String = type
+		var sub := "赤金 %d · ×%d" % [bars, game.closure_potion_bundle(type)] + ("" if left < 0 else " · 余 %d" % left)
+		flasks.append(_support_row(flask, flask.display_name(), sub, AK.MUTE, "购买", "售罄" if left == 0 else ("赤金不足" if game.gold_available() < bars else ""),
+			func(): game.closure_buy_potion(kind); redraw.call()))
+	# 随队物资: bought from 可露希尔, ticked for the contracts of its region.
+	var kits: Array = []
+	for id in FeatureCatalog.KITS:
+		var kit: String = id
+		var stock := base.kit_stock(id)
+		var sold := base.facility_level("store") >= int(FeatureCatalog.KITS[id].store)
+		if not sold and stock <= 0: continue
+		var title := "%s ×%d" % [FeatureCatalog.KITS[id].name, stock]
+		if sold:
+			kits.append(_support_row(null, title, "%s 龙门币" % Economy.format(FeatureCatalog.kit_price(id, tier)), AK.MUTE,
+				"购买", game.kit_refusal(id), func(): game.buy_kit(kit); redraw.call()))
+		else:
+			kits.append(AK.label(title, 13, AK.FG))
+		if stock > 0:
+			var region := _kit_region(id)
+			var on := game.kit_on(id, region)
+			var toggle := AK.button("%s %s" % ["■" if on else "□", "随队"], "blue" if on else "plain", 12)
+			toggle.set_meta("kit", id)
+			toggle.custom_minimum_size = Vector2(SUPPORT_W - 28, 30)
+			toggle.pressed.connect(func(): game.toggle_kit(kit, region); redraw.call())
+			kits.append(toggle)
+	# In the order the story opens them (用户 2026-11-02): the store's from the start,
+	# 科研部 with Pith (萨米 8), 食堂 with Touch (萨米 18).
+	cols = [[["药剂", "FLASKS"], flasks, flasks.is_empty()], [["随队物资", "FIELD KITS"], kits, kits.is_empty()],
+		[["课题", "PROJECTS"], projects, not lab_open], [["补给", "CANTEEN"], meals, not canteen_open]]
+	for i in range(cols.size()):
+		var x := 16.0 + i * (SUPPORT_W + 14.0)
+		_panel(stage, Rect2(x, TOP, SUPPORT_W, BOTTOM - TOP), LOG)
+		AK.put(stage, AK.section(cols[i][0][0], cols[i][0][1]), Vector2(x + 14, TOP + 14))
+		var scroll := ScrollContainer.new()
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		AK.put(stage, scroll, Vector2(x + 8, TOP + 44), Vector2(SUPPORT_W - 16, BOTTOM - TOP - 52))
+		var list := VBoxContainer.new()
+		list.add_theme_constant_override("separation", 6)
+		scroll.add_child(list)
+		for row in cols[i][1]: list.add_child(row)
+		if list.get_child_count() == 0: list.add_child(AK.label("—", 14, AK.DIM))
+		if cols[i][2]: _locked_veil(stage, Rect2(x, TOP, SUPPORT_W, BOTTOM - TOP))
+
+## Grey diagonal stripes, thick, over a grey see-through veil: not open yet.
+static func _locked_veil(stage: Control, r: Rect2) -> void:
+	var veil := Control.new()
+	veil.set_meta("locked_veil", true)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	veil.clip_contents = true
+	AK.put(stage, veil, r.position, r.size)
+	veil.draw.connect(func():
+		var size := veil.size
+		veil.draw_rect(Rect2(Vector2.ZERO, size), Color(0.42, 0.43, 0.45, 0.38))
+		var step := 34.0
+		var x := -size.y
+		while x < size.x:
+			veil.draw_line(Vector2(x, size.y), Vector2(x + size.y, 0), Color(0.6, 0.61, 0.63, 0.32), 12.0)
+			x += step)
+
+## A region whose contracts take `id` (the mask goes everywhere).
+static func _kit_region(id: String) -> String:
+	for region in FieldCatalog.REGIONS:
+		if id in FeatureCatalog.kits_for(region): return region
+	return ""
+
+## One row of the 增益 page: icon (or none), name, a data line and its button
+## (a refusal disables it and shows as the tooltip).
+static func _support_row(icon_item: Item, title: String, sub: String, sub_colour: Color, action: String, refusal: String, on_press: Callable) -> Control:
+	var w := SUPPORT_W - 28
+	var row := Control.new()
+	row.custom_minimum_size = Vector2(w, 60)
+	row.add_child(AK.rect(AK.PLATE_2, Vector2.ZERO, Vector2(w, 60)))
+	var x := 8.0
+	if icon_item != null:
+		AK.put(row, AK.item_icon(icon_item, Vector2(48, 48)), Vector2(6, 6))
+		x = 60.0
+	AK.put(row, AK.label(title, 13, AK.FG), Vector2(x, 8))
+	AK.put(row, AK.label(sub, 11, sub_colour), Vector2(x, 34))
+	var b := AK.button(action, "blue" if refusal.is_empty() else "plain", 12)
+	b.disabled = not refusal.is_empty()
+	b.tooltip_text = refusal
+	b.pressed.connect(on_press)
+	AK.put(row, b, Vector2(w - 64, 14), Vector2(58, 32))
+	return row
 
 # --- 出发准备 ----------------------------------------------------------------------
 

@@ -139,21 +139,30 @@ static func button(text: String, kind: String = "plain", size: int = 14) -> Butt
 	fit(b, size)
 	return b
 
+## The button boxes per kind, shared by every button (nothing changes a
+## button's box in place: a screen that wants other margins duplicates it).
+static var _button_styles := {}
+
 static func style_button(b: Button, kind: String) -> void:
 	var base: Color = {"plain": PLATE_3, "blue": BLUE, "yellow": SP, "paper": PAPER, "ghost": Color(0, 0, 0, 0.55), "green": GREEN}.get(kind, PLATE_3)
 	var text_color := INK if kind in ["yellow", "paper", "green"] else FG
+	if not _button_styles.has(kind):
+		var styles := {}
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			var c := base
+			if state == "hover": c = base.lightened(0.12)
+			elif state == "pressed": c = base.darkened(0.15)
+			elif state == "disabled": c = Color(base.r, base.g, base.b, 0.35)
+			var style: StyleBox = box(c, Color.TRANSPARENT, 0, 0)
+			style.content_margin_left = 14
+			style.content_margin_right = 14
+			style.content_margin_top = 7
+			style.content_margin_bottom = 7
+			styles[state] = style
+		styles["focus"] = StyleBoxEmpty.new()
+		_button_styles[kind] = styles
 	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
-		var c := base
-		if state == "hover": c = base.lightened(0.12)
-		elif state == "pressed": c = base.darkened(0.15)
-		elif state == "disabled": c = Color(base.r, base.g, base.b, 0.35)
-		var style: StyleBox = box(c, Color.TRANSPARENT, 0, 0)
-		style.content_margin_left = 14
-		style.content_margin_right = 14
-		style.content_margin_top = 7
-		style.content_margin_bottom = 7
-		if state == "focus": style = StyleBoxEmpty.new()
-		b.add_theme_stylebox_override(state, style)
+		b.add_theme_stylebox_override(state, _button_styles[kind][state])
 	b.add_theme_color_override("font_color", text_color)
 	b.add_theme_color_override("font_hover_color", text_color)
 	b.add_theme_color_override("font_pressed_color", text_color)
@@ -246,8 +255,8 @@ static func rect(color: Color, at: Vector2, size: Vector2) -> ColorRect:
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return r
 
-## Tier colour of an item tile: potions green, special gear violet, materials by
-## their own star colour, gear by grade.
+## Tier colour of an item tile: potions green, materials and legend pieces
+## their own colour, gear by rarity.
 static func tier_color(item: Item) -> Color:
 	if item.is_potion(): return GREEN
 	if not item.material_id.is_empty() or item.is_legend(): return item.rarity_color()
@@ -308,6 +317,49 @@ static func toggle(names: Array, current: int, on_pick: Callable, size: int = 14
 		b.pressed.connect(func(): on_pick.call(index))
 		row.add_child(b)
 	return row
+
+## The page each paged container shows (the pack: main pack and bags,
+## 用户 2026-11-02, 恐怖黎明), kept across rebuilds.
+static var _shown_pages := {}
+
+static func shown_page(bag: ItemContainer) -> int:
+	return clampi(int(_shown_pages.get(bag.get_instance_id(), 0)), 0, bag.page_count() - 1)
+
+static func show_page(bag: ItemContainer, page: int) -> void:
+	_shown_pages[bag.get_instance_id()] = page
+
+## One numbered tab per page, the shown one lit. With `accept` (data, page)
+## -> bool and `take` (data, page), an item dragged onto a tab goes to that page.
+static func page_tabs(bag: ItemContainer, on_pick: Callable, accept: Callable = Callable(), take: Callable = Callable()) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 2)
+	var shown := shown_page(bag)
+	for i in range(bag.page_count()):
+		var tab := PageTab.new()
+		tab.text = str(i + 1)
+		tab.focus_mode = Control.FOCUS_NONE
+		style_button(tab, "blue" if i == shown else "ghost")
+		tab.add_theme_font_override("font", en())
+		tab.add_theme_font_size_override("font_size", 12)
+		tab.custom_minimum_size = Vector2(34, 26)
+		tab.page = i
+		tab.accept = accept
+		tab.take = take
+		var index := i
+		tab.pressed.connect(func(): show_page(bag, index); on_pick.call(index))
+		row.add_child(tab)
+	return row
+
+class PageTab extends Button:
+	var page := 0
+	var accept: Callable
+	var take: Callable
+
+	func _can_drop_data(_at: Vector2, data: Variant) -> bool:
+		return accept.is_valid() and bool(accept.call(data, page))
+
+	func _drop_data(_at: Vector2, data: Variant) -> void:
+		if take.is_valid(): take.call(data, page)
 
 ## 赤金 / 龙门币 amount with its glyph, for screen corners.
 static func money(kind: String, amount: String, size: int = 20) -> HBoxContainer:
@@ -408,6 +460,16 @@ class BagGrid extends Control:
 	var drag_out: Callable
 	var accept: Callable
 	var take: Callable
+	## Each tile shows the item's hover card (TraderScreen.ShelfTile); on_hover(item) on entering.
+	var cards := false
+	var on_hover: Callable
+	## Right click on a piece (the workbench: into the warehouse).
+	var on_alt: Callable
+	## The 出售 page: tag_of(item) -> its price ("" = no tag), in tag_currency.
+	var tag_of: Callable
+	var tag_currency := "gold"
+	## The page shown (the pack's pages: tabs above the grid's right end).
+	var page := 0
 
 	static func make(bag: ItemContainer, allow: Callable = Callable(), pick: Callable = Callable(), current: Item = null) -> BagGrid:
 		var grid := BagGrid.new()
@@ -415,13 +477,32 @@ class BagGrid extends Control:
 		grid.allowed = allow
 		grid.on_pick = pick
 		grid.selected = current
+		grid.page = AK.shown_page(bag)
 		grid.custom_minimum_size = Vector2(bag.width, bag.height) * CELL
 		return grid
 
 	func _ready() -> void:
-		for item in container.items:
+		_fill()
+
+	func _show(p_page: int) -> void:
+		page = p_page
+		for child in get_children():
+			remove_child(child)
+			child.queue_free()
+		_fill()
+		queue_redraw()
+
+	func _fill() -> void:
+		if container.page_count() > 1:
+			var tabs := AK.page_tabs(container, _show)
+			tabs.alignment = BoxContainer.ALIGNMENT_END
+			tabs.position = Vector2(0, -30)
+			tabs.size = Vector2(custom_minimum_size.x, 26)
+			add_child(tabs)
+		for item in container.items_on(page):
 			var ok: bool = not allowed.is_valid() or allowed.call(item)
-			var tile := Button.new()
+			var tile: Button = TraderScreen.ShelfTile.new() if cards else Button.new()
+			if cards: tile.item = item
 			tile.focus_mode = Control.FOCUS_NONE
 			tile.flat = true
 			tile.position = Vector2(item.grid_x, item.grid_y) * CELL
@@ -430,10 +511,27 @@ class BagGrid extends Control:
 			var square := AK.item_icon(item, tile.size)
 			square.dim = not ok
 			tile.add_child(square)
+			var price: String = str(tag_of.call(item)) if tag_of.is_valid() else ""
+			if not price.is_empty():
+				square.hide_count = true
+				var tag := TraderScreen.PriceTag.new()
+				tag.text = price
+				tag.currency = tag_currency
+				tag.stock = "×%d" % item.quantity if item.is_stackable() and item.quantity > 1 else ""
+				tag.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				tile.add_child(tag)
 			if item == selected: AK.frame(tile)
 			if ok and on_pick.is_valid():
 				var shown := item
 				tile.pressed.connect(func(): on_pick.call(shown))
+			if on_hover.is_valid():
+				var hovered := item
+				tile.mouse_entered.connect(func(): on_hover.call(hovered))
+			if ok and on_alt.is_valid():
+				var alt := item
+				tile.gui_input.connect(func(event: InputEvent):
+					if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT: on_alt.call(alt))
 			var dragged := item
 			tile.set_drag_forwarding((func(_at: Vector2) -> Variant: return _drag(dragged, tile.size)) if ok and drag_out.is_valid() else Callable(),
 				_can_drop_data if accept.is_valid() else Callable(), _drop_data if accept.is_valid() else Callable())
@@ -454,6 +552,7 @@ class BagGrid extends Control:
 		if take.is_valid(): take.call(data)
 
 	func _draw() -> void:
-		draw_rect(Rect2(Vector2.ZERO, Vector2(container.width, container.height) * CELL), Color(0, 0, 0, 0.55))
-		for x in range(container.width + 1): draw_line(Vector2(x * CELL, 0), Vector2(x * CELL, container.height * CELL), Color(1, 1, 1, 0.07))
-		for y in range(container.height + 1): draw_line(Vector2(0, y * CELL), Vector2(container.width * CELL, y * CELL), Color(1, 1, 1, 0.07))
+		var cells := container.page_size(page)
+		draw_rect(Rect2(Vector2.ZERO, Vector2(cells) * CELL), Color(0, 0, 0, 0.55))
+		for x in range(cells.x + 1): draw_line(Vector2(x * CELL, 0), Vector2(x * CELL, cells.y * CELL), Color(1, 1, 1, 0.07))
+		for y in range(cells.y + 1): draw_line(Vector2(0, y * CELL), Vector2(cells.x * CELL, y * CELL), Color(1, 1, 1, 0.07))

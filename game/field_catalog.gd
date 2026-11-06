@@ -3,7 +3,6 @@ extends RefCounted
 
 ## All numbers here are initial playtest tuning, not additional hard design rules.
 const SWORD_WAVE_CHANCE := 0.25 # provisional; rolled once per eligible weapon
-const ATTACK_SPEED_AFFIX := 0.10 # provisional; weapon and trinket loot only
 ## Camps (撤离与营地修订案 §1): after every ten floors, a squad camp with the
 ## fixed extraction and 可露希尔.
 const CAMP_INTERVAL := 10
@@ -295,9 +294,8 @@ const INSURANCE_DELAY_SECONDS := Vector2i(2 * 3600, 4 * 3600)
 ## A Rhodes squad on a floor (§2): one service, its price 物品价值 × 1.0–1.5 ÷ 10 in 赤金.
 const SQUAD_CHANCE := 0.3
 const SQUAD_PRICE_STEPS := [1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
-## 坎诺特 (坎诺特商店策划案 §1–3): on 20% of floors, never with a squad. Prices in
-## 赤金 (one 赤金 is one 源石锭: relics at their 集成战略 shop prices).
-const TRADER_CHANCE := 0.2
+## 坎诺特 (坎诺特商店策划案 §1–3): his floors are the route map's 诡异行商 nodes Prices in 赤金 (one 赤金 is
+## one 源石锭: relics at their 集成战略 shop prices).
 const TRADER_RELICS := 2
 const TRADER_GEAR := 3
 const TRADER_POTIONS := 2
@@ -353,8 +351,8 @@ const URBAN := ["city", "siracusa"]
 static func urban(region: String) -> bool:
 	return region in URBAN
 
-## The region whose art a region borrows until its own exists (叙拉古 S2: the
-## models, textures and enemy sheets are Lungmen's placeholders).
+## The region whose art a region borrows where it has none of its own (叙拉古
+## falls back to Lungmen's; callers with Siracusa art of their own skip this).
 static func art_region(region: String) -> String:
 	return "city" if region == "siracusa" else region
 
@@ -375,8 +373,9 @@ const ROUTES := [
 static func builds() -> Array[Dictionary]:
 	return RelicCatalog.all()
 
-## `depth` sets the gear's tier (复利数值改造清单 D): the written power is its
-## tier-1 size, multiplied by the tier's base.
+## The region's exclusive. An equippable one is always tier 1 (§19); `depth`
+## only feeds its prefix roll. It rolls on its own freshly randomized dice, not
+## a GameManager stream, so a fixed seed does not repeat it.
 static func exclusive(region: String, depth: int = 1) -> Item:
 	var item: Item
 	match region:

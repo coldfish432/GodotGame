@@ -18,6 +18,8 @@ func check(label: String, passed: bool, detail: Variant = null) -> void:
 	print(("PASS " if passed else "FAIL ") + label + ("" if detail == null or passed else "  %s" % str(detail)))
 
 func run() -> void:
+	# The set pieces (BossShow) have their own suite; these check the fight itself.
+	BossShow.enabled = false
 	game = GameManager.new()
 	game.save_enabled = false
 	game.fixed_map_seed = 4242
@@ -71,6 +73,9 @@ func _layout() -> void:
 		check("%s: no 坎诺特 or squad" % region, game.encounter.is_empty())
 		check("%s: the boss stands in the arena" % region, game.arena.inside(game.outpost_boss.global_position))
 		var marker: Vector3 = map.route_nodes[0].global_position
+		# 用户 2026-11-05: 不要门，直接加空气墙 — wider than the arena, so nothing gets round it.
+		var wall_box := (game.arena.gate.get_child(0) as CollisionShape3D).shape as BoxShape3D
+		check("%s: the way out is an unseen wall wider than the arena" % region, wall_box.size.x >= game.arena.radius * 2.0 and game.arena.gate.find_children("*", "MeshInstance3D", true, false).size() == 1)
 		check("%s: the route markers are past the shut gate" % region, not game.arena.inside(marker) and not game.arena.exit_open() and not game.line_of_sight(game.arena.centre + Vector3.UP, game.arena.gate.global_position + Vector3(0, 0, 1.0)))
 		check("%s: it has its cover" % region, game.arena.standing_cover() >= 2)
 
@@ -92,9 +97,10 @@ func _mine() -> void:
 	await into_arena()
 	figure._engage()
 	figure.global_position = Vector3(mine.node.global_position.x, figure.global_position.y, mine.node.global_position.z)
-	var hp := figure.health
 	await step(3)
-	check("he sets it off: hurt, and fragile for 15 s", mine.spent and figure.health < hp and is_equal_approx(figure.status_value("fragile"), BossCatalog.MINE_FRAGILE))
+	# 用户 2026-11-05: 地雷改为眩晕爱国者.
+	check("he sets it off: stunned, his move broken off", mine.spent and figure.stun_timer > BossCatalog.MINE_STUN - 0.2 and figure._move.is_empty(), [mine.spent, figure.stun_timer])
+	figure.stun_timer = 0.0
 	# The shrine pulses on whoever is by it.
 	figure.global_position = Vector3(arena.shrine.global_position.x + 1.0, figure.global_position.y, arena.shrine.global_position.z)
 	game.player.teleport(arena.shrine.global_position + Vector3(-1.0, 0, 0))
@@ -106,7 +112,19 @@ func _mine() -> void:
 	await step(4)
 	check("the pulse hits her for 12% of her life", her - game.player.hp >= game.player.max_hp * BossCatalog.SHRINE_HIT * 0.9, [her, game.player.hp])
 	check("…and raises her contamination", game.features.value("contamination") >= contamination + BossCatalog.SHRINE_CONTAM * 0.9)
-	check("…and empowers him", figure.shrine_stacks == 1)
+	# 用户 2026-11-05: 影响到爱国者后爱国者狂暴若干秒 — faster wind-ups, more often, quicker, harder.
+	check("…and sends him into a rage", figure.raging() and figure.rage_left > BossCatalog.RAGE_TIME - 0.2 and figure.speed_mult() > 1.3 and figure.current_speed() > figure.move_speed * 1.2, [figure.rage_left, figure.speed_mult()])
+	figure._cancel_move()
+	figure._start(BossCatalog.MOVES.patriot.filter(func(m): return m.id == "thrust")[0])
+	check("…his wind-ups shorter while it lasts", figure._windup < 0.9 * BossCatalog.windup_mult(figure.rank, figure.tier) * 0.8, figure._windup)
+	figure._cancel_move()
+	figure.rage_left = 0.0
+	# 用户 2026-11-05: 自身在祭坛范围内也会启动祭坛 — her far off, him by it.
+	game.player.teleport(game.world_map.nearest_walkable(arena.shrine.global_position + (arena.centre - arena.shrine.global_position).normalized() * 9.0) + Vector3.UP * 0.7)
+	figure.global_position = Vector3(arena.shrine.global_position.x + 1.0, figure.global_position.y, arena.shrine.global_position.z)
+	await step(1)
+	check("he can set off a shrine he stands by, with her far from it", figure._callable_shrine() == arena.shrine, [figure._callable_shrine(), figure._flat_distance(game.player.global_position, arena.shrine.global_position)])
+	check("the stage's shrine stands inside the arena, clear of his spot and the way in", arena.inside(arena.shrine.global_position) and arena.shrine.global_position.distance_to(arena.centre) >= 2.5 and arena.shrine.global_position.distance_to(game.world_map.arena_entry) >= 2.5)
 	# 用户 2026-10-20: he raises more at random spots, and sets one off at once with her by it.
 	figure._cancel_move()
 	var raise := BossCatalog.move_at(BossCatalog.MOVES.patriot.filter(func(m): return m.id == "raise_shrine")[0], 4)
@@ -153,16 +171,37 @@ func _mine() -> void:
 func _city() -> void:
 	await go_to("city", 20)
 	var arena := game.arena
-	check("龙门 has three 医疗符文 and four alley mouths", arena.runes.size() == 3 and arena.mouths().size() == 4)
+	# 用户 2026-11-05: 回血地板改为源石狂暴地板 … 地板位置随机并减少至一块.
+	check("龙门 has one 源石狂暴地板, inside the arena, and four alley mouths", arena.runes.size() == 1 and arena.inside(arena.runes[0].node.global_position) and arena.mouths().size() == 4)
 	var rune: Dictionary = arena.runes[0]
+	var figure := game.outpost_boss
+	figure._engage()
+	figure.staging_left = 0.0
+	game.player.invulnerable = false
+	game.player.invuln_timer = 0.0
+	for orb in game.get_tree().get_nodes_in_group("heal_orbs"): orb.queue_free()
 	game.player.teleport(rune.node.global_position)
+	await step(2)
 	game.player.hp = game.player.max_hp * 0.5
 	var hp := game.player.hp
 	await step(30)
-	check("a rune heals her", game.player.hp > hp + game.player.max_hp * 0.005, [hp, game.player.hp])
+	check("on it she burns: her life drains", game.player.hp < hp - game.player.max_hp * 0.01 and arena.her_frenzy > 0.0, [hp, game.player.hp, arena.her_frenzy])
+	check("…and her blows strip a barrier harder", is_equal_approx(arena.barrier_mult(), BossCatalog.FRENZY_SHIELD))
+	figure._raise_barrier(0.2)
+	var shell := figure.barrier_hp
+	figure.take_hit(1000.0, "true")
+	check("…a hit on 鼠王's barrier takes it ×%s" % BossCatalog.FRENZY_SHIELD, shell - figure.barrier_hp > 1000.0 * 1.5, [shell, figure.barrier_hp])
+	game.player.hp = 1.0
+	await step(30)
+	check("…never the last point", game.player.hp >= 1.0)
+	game.player.hp = game.player.max_hp
+	game.player.teleport(game.world_map.nearest_walkable(arena.centre + (arena.centre - rune.node.global_position).normalized() * 6.0) + Vector3.UP * 0.7)
+	figure.global_position = Vector3(rune.node.global_position.x, figure.global_position.y, rune.node.global_position.z)
+	await step(3)
+	check("鼠王 on it goes into a rage", figure.raging())
+	figure.rage_left = 0.0
 	arena.bury_runes(rune.node.global_position, 1.0)
 	check("沙狱 buries it", arena.rune_under(rune.node.global_position).is_empty())
-	var figure := game.outpost_boss
 	figure.tier = 3
 	var stampede: Dictionary = BossCatalog.moves_for("rat_king", 3, 3).filter(func(m): return m.id == "stampede")[0]
 	var lanes := figure._lane_set(stampede)

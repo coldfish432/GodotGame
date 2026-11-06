@@ -587,7 +587,7 @@ func _place_fences() -> void:
 
 ## Street lamps along her roads, at the back of the pavement with their arms
 ## out over the asphalt, each with its pool of sodium light (TerraceDressing
-## bakes `lamps` into the floor's light with its own).
+## hands `lamps` to FieldLight with its own).
 const LAMP_GAP := 14.0
 const LAMP_LIGHT := Color(1.0, 0.7, 0.38) * 0.95
 ## Each district lit its own way: sodium streets, the yards' cold floodlit
@@ -1616,7 +1616,7 @@ func _place_landmarks() -> void:
 				var p: Vector2 = centre + Vector2.from_angle(TAU * k / 12.0) * ring
 				if map.district_at(p) != "site": continue
 				var rect := Rect2(p - Vector2(1.8, 1.8), Vector2(3.6, 3.6))
-				if _taken(rect) or not _clear(rect): continue
+				if _taken(rect) or not _clear(rect) or _in_arena(p, 18.0): continue
 				_occupy(rect)
 				var yaw := Basis(Vector3.UP, rng.randf_range(0, TAU))
 				_add("city_tower_crane", Transform3D(yaw, Vector3(p.x, map._surface.top_at(p) - 0.1, p.y)))
@@ -1700,7 +1700,14 @@ func _place_gantries() -> void:
 		var room: Vector3 = map._open_circles[i]
 		var centre := Vector2(room.x, room.y)
 		if room.z < 9.0 or map.district_at(centre) != "yard": continue
+		# Not over a boss arena: its beam stood between the camera and the boss (用户 2026-11-04: 横梁去掉).
+		if _in_arena(centre, room.z): continue
 		_add("city_gantry", Transform3D(Basis(Vector3.UP, rng.randi_range(0, 1) * PI * 0.5), Vector3(centre.x, map.ground_height(centre), centre.y)))
+
+## Within `reach` of a boss floor's arena (its tall pieces would hide the boss).
+func _in_arena(p: Vector2, reach: float) -> bool:
+	if not map.boss_layout or map.arena_centre == Vector3.INF: return false
+	return Vector2(map.arena_centre.x, map.arena_centre.z).distance_to(p) < map.arena_radius + reach
 
 ## A box that stops her and her shots, standing on the road.
 func _collider(p: Vector2, across: Vector2, size: Vector3) -> void:

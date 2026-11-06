@@ -117,6 +117,25 @@ func run() -> void:
 	check("normal enemies drop an orb at the table's rate", absf(normal / 400.0 - LootTables.HEAL_ORBS.normal.chance) < 0.07, normal)
 	var e_orbs: Dictionary = LootTables.HEAL_ORBS.elite
 	check("elites drop orbs at the table's rate", absf(elite / 200.0 - e_orbs.chance * e_orbs.count) < 0.12, elite)
+	# 用户 2026-10-31: 治疗球会飞走. An enemy falling on a ramp, in a corridor
+	# or by a prop: its orb lands beside it, never pulled off into a room.
+	var falls: Array = []
+	for r in game.world_map.ramp_midpoints(): falls.append(Vector3(r.point.x, 0.0, r.point.y))
+	for q in game.world_map.main_path: falls.append(Vector3(q.x, 0.0, q.y))
+	var farthest := 0.0
+	for fell in falls:
+		fell.y = game.ground_y(fell)
+		for k in range(6):
+			var spot: Vector3 = game._drop_spot(fell)
+			farthest = maxf(farthest, Vector2(spot.x - fell.x, spot.z - fell.z).length())
+	check("orbs land within 1.2 m of where the enemy fell (ramps, corridors, rooms: %d spots)" % falls.size(), farthest <= 1.2 + 1e-4, farthest)
+	# …and a relic cache an enemy leaves stands where it fell or right beside it.
+	var cache_far := 0.0
+	for fell in falls:
+		fell.y = game.ground_y(fell)
+		var spot: Vector3 = game._drop_spot(fell, Vector2(0.0, 1.2))
+		cache_far = maxf(cache_far, Vector2(spot.x - fell.x, spot.z - fell.z).length())
+	check("an enemy's relic cache stands within 1.2 m of where it fell", cache_far <= 1.2 + 1e-4, cache_far)
 	print("HEAL ORBS RESULT: %d checks, %d failures" % [checks, failures])
 	game.queue_free()
 	await process_frame

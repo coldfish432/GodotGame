@@ -1,0 +1,290 @@
+[
+  {
+    "id": "col_mine_pass",
+    "name": "矿区通行证",
+    "w": 32,
+    "h": 32,
+    "region": "mine",
+    "rarity": "white",
+    "description": "A worn cracked laminated mine entry ID card, hanging from a short looped dark lanyard, a blurry tiny portrait and a few block markings; the entire lanyard must fit within a compact square. Austere Ursus industrial mining town."
+  },
+  {
+    "id": "col_miner_charm",
+    "name": "矿工护身符",
+    "w": 32,
+    "h": 32,
+    "region": "mine",
+    "rarity": "white",
+    "description": "A small patched brown cloth talisman pouch tied to a cord loop, stitches visible, one tiny orange Originium glow visible through its seam. Compact silhouette, humble miner keepsake."
+  },
+  {
+    "id": "col_tin_doll",
+    "name": "铁皮套娃",
+    "w": 32,
+    "h": 72,
+    "region": "mine",
+    "rarity": "green",
+    "description": "One upright tall slender Ursus tin nesting doll, traditional red and muted gold painted metal, simple friendly face and folk floral apron, dented worn edges. Full vertical doll."
+  },
+  {
+    "id": "col_old_lamp",
+    "name": "旧矿灯",
+    "w": 32,
+    "h": 72,
+    "region": "mine",
+    "rarity": "green",
+    "description": "An upright old industrial miner headlamp with yellowed circular glass in worn steel housing, its thick black electric cable coiled compactly below it, tall narrow composition."
+  },
+  {
+    "id": "col_pocket_watch",
+    "name": "旧式怀表",
+    "w": 32,
+    "h": 32,
+    "region": "mine",
+    "rarity": "blue",
+    "description": "One opened brass pocket watch, round white dial and hinged lid tilted to side, engraved simple skyline on lid, very short chain tucked close. Compact square composition, warm aged polished brass."
+  },
+  {
+    "id": "col_lamp_shade",
+    "name": "源石灯罩",
+    "w": 72,
+    "h": 72,
+    "region": "mine",
+    "rarity": "blue",
+    "description": "One old mining lantern glass shade inside a dark iron protective cage; no full lamp handle, a layer of clearly visible orange Originium crystal growing INSIDE yellowed glass. Squat broad square silhouette."
+  },
+  {
+    "id": "col_school_badge",
+    "name": "学校纪念徽章",
+    "w": 32,
+    "h": 32,
+    "region": "mine",
+    "rarity": "purple",
+    "description": "One shield-shaped blue-and-cream enamel school commemorative badge with silver rim, a simple open book school insignia, exquisite polished enamel pin, subtle signs of age. No ribbon, no outer game UI frame."
+  },
+  {
+    "id": "col_imperial_medal",
+    "name": "帝国勋章",
+    "w": 32,
+    "h": 32,
+    "region": "mine",
+    "rarity": "red",
+    "description": "One heavy gold Ursus imperial star-shaped medal, thick dimensional gold facets, simple dark eagle motif at center, short faded red ribbon folded behind star. Precious antique state decoration. Compact square."
+  },
+  {
+    "id": "col_teahouse_chip",
+    "name": "茶楼筹码",
+    "w": 32,
+    "h": 32,
+    "region": "lungmen",
+    "rarity": "white",
+    "description": "One round old wooden teahouse token, warm brown with dark edge and a single large carved Chinese character 茶 at center, slightly tilted three-quarter to show thickness. Humble worn token, no UI frame."
+  },
+  {
+    "id": "col_lmd_specimen",
+    "name": "旧版龙门币样钞",
+    "w": 32,
+    "h": 32,
+    "region": "lungmen",
+    "rarity": "white",
+    "description": "One old pale jade-green Lungmen banknote folded slightly into a compact square icon, visible architectural portrait block and large red Chinese stamp 样本 across its face. Paper only, no coins or extra objects."
+  },
+  {
+    "id": "col_mahjong",
+    "name": "麻将牌匣",
+    "w": 72,
+    "h": 32,
+    "region": "lungmen",
+    "rarity": "green",
+    "description": "One small long horizontal open dark wooden mahjong case, its shallow lid behind a single clear row of ivory mahjong tiles with simple green and red characters and dot patterns, tiny brass clasp. Wide low silhouette."
+  },
+  {
+    "id": "col_radio",
+    "name": "老式收音机",
+    "w": 72,
+    "h": 32,
+    "region": "lungmen",
+    "rarity": "green",
+    "description": "One squat horizontal vintage rectangular dark wood radio, one large woven warm gray speaker grille, two ivory tuning knobs and a small narrow tuning display, worn brass accents. Wide low silhouette."
+  },
+  {
+    "id": "col_lion_dance",
+    "name": "醒狮摆件",
+    "w": 32,
+    "h": 72,
+    "region": "lungmen",
+    "rarity": "blue",
+    "description": "One tall narrow ornamental Chinese lion dance miniature, oversized red and gold lion head with big round white-rimmed eyes, red mouth, short trailing red fabric body on a tiny integral wood stand. Expressive ornate traditional lion, upright."
+  },
+  {
+    "id": "col_yan_teapot",
+    "name": "炎国瓷茶壶",
+    "w": 72,
+    "h": 72,
+    "region": "lungmen",
+    "rarity": "blue",
+    "description": "One round Chinese blue-and-white porcelain teapot, short curved spout to left and loop handle to right, fitted lid, broad simple cobalt floral patterns on white ceramic, clean glazed highlights. Teapot only, no cups."
+  },
+  {
+    "id": "col_lgd_medal",
+    "name": "近卫局纪念章",
+    "w": 32,
+    "h": 32,
+    "region": "lungmen",
+    "rarity": "purple",
+    "description": "One fine silver Lungmen Guard Department commemorative badge, angular stylized dragon-police insignia in polished silver and dark blue enamel, short deep navy ribbon above. Compact square, elegant official workmanship."
+  },
+  {
+    "id": "col_jade_pendant",
+    "name": "古玉坠",
+    "w": 32,
+    "h": 32,
+    "region": "lungmen",
+    "rarity": "red",
+    "description": "One precious circular green jade bi-disc pendant with a clearly open round hole in the center, translucent mottled green jade and a short looped red silk cord threaded through it, polished antique workmanship. Compact square."
+  },
+  {
+    "id": "col_reindeer_bell",
+    "name": "驯鹿铃铛",
+    "w": 32,
+    "h": 32,
+    "region": "sami",
+    "rarity": "white",
+    "description": "One small hand-hammered aged brass reindeer bell, rough dimpled metal dome and visible dark slit/clapper, short tied brown leather cord loop. Humble Sami tundra tribal craft."
+  },
+  {
+    "id": "col_hide_charm",
+    "name": "兽皮护符",
+    "w": 32,
+    "h": 32,
+    "region": "sami",
+    "rarity": "white",
+    "description": "One small roughly stitched reindeer-hide talisman, irregular tan leather pouch patch, tuft of pale reindeer fur and three simple red blue bone beads attached, short leather loop. Compact rugged handmade tribal keepsake."
+  },
+  {
+    "id": "col_antler",
+    "name": "驯鹿角饰",
+    "w": 72,
+    "h": 32,
+    "region": "sami",
+    "rarity": "green",
+    "description": "One polished pale reindeer antler ornament lying HORIZONTALLY, several natural branching prongs extending sideways, three simple dark carved bands and small leather binding near end. Wide flat icon, not a standing skull."
+  },
+  {
+    "id": "col_birch_basket",
+    "name": "桦树皮篓",
+    "w": 32,
+    "h": 72,
+    "region": "sami",
+    "rarity": "green",
+    "description": "One narrow upright handwoven birch bark basket, tall cylindrical tapered pale tan bark weave, dark horizontal grain markings, small open mouth and simple slim loop handle. Vertical slim silhouette."
+  },
+  {
+    "id": "col_sami_carving",
+    "name": "萨米木雕",
+    "w": 32,
+    "h": 72,
+    "region": "sami",
+    "rarity": "blue",
+    "description": "One upright carved wooden statue of a SITTING FOX, clearly pointed ears and muzzle, tail curled around its feet, warm reddish wood with a few visible whittled planes and subtle tribal incised lines. Tall narrow full fox."
+  },
+  {
+    "id": "col_snow_map",
+    "name": "雪境古地图",
+    "w": 72,
+    "h": 72,
+    "region": "sami",
+    "rarity": "blue",
+    "description": "One square old map painted on a piece of tan animal hide, irregular rolled edges and two short leather ties, bold winding BLUE river and a few dark mountain marks, sparse tribal red landmarks. Clearly a map, no modern paper or text."
+  },
+  {
+    "id": "col_bone_flute",
+    "name": "萨满骨笛",
+    "w": 72,
+    "h": 32,
+    "region": "sami",
+    "rarity": "purple",
+    "description": "One long ivory bone shaman flute lying HORIZONTALLY with a clear row of five black finger holes, intricately carved end and brown leather wraps, tiny turquoise bead tied close. A single refined tribal instrument."
+  },
+  {
+    "id": "col_aurora_amber",
+    "name": "极光琥珀",
+    "w": 32,
+    "h": 32,
+    "region": "sami",
+    "rarity": "red",
+    "description": "One polished teardrop of precious warm golden amber, INSIDE it a clearly visible bright GREEN flowing aurora ribbon, honey transparency and crisp broad highlight. This is solid amber, not a bottle; no stand."
+  },
+  {
+    "id": "col_coffee_cup",
+    "name": "街角咖啡杯",
+    "w": 32,
+    "h": 32,
+    "region": "siracusa",
+    "rarity": "white",
+    "description": "One small ivory espresso coffee cup on matching saucer, dark coffee visible, one small red lipstick mark on cup rim, modest worn cafe crockery with a single thin brown stripe. Compact square, cup handle visible."
+  },
+  {
+    "id": "col_opera_poster",
+    "name": "歌剧院旧海报",
+    "w": 32,
+    "h": 72,
+    "region": "siracusa",
+    "rarity": "white",
+    "description": "One vertical half-curled aged opera poster, elegant art nouveau dark green and faded burgundy ornament around a simple woman singer portrait, rolled upper corner, large readable graphic forms, no need for legible small typography. Tall narrow poster only."
+  },
+  {
+    "id": "col_silver_cutlery",
+    "name": "银质餐刀匣",
+    "w": 72,
+    "h": 32,
+    "region": "siracusa",
+    "rarity": "green",
+    "description": "One long horizontal open burgundy leather cutlery case, cream inset holding TWO polished silver dinner knives aligned horizontally, and ONE visibly empty fitted knife slot. Lid open low behind, brass latch. Clearly narrow knife case, not weapon chest."
+  },
+  {
+    "id": "col_brass_lighter",
+    "name": "黄铜打火机",
+    "w": 32,
+    "h": 32,
+    "region": "siracusa",
+    "rarity": "green",
+    "description": "One compact rectangular engraved brass petrol flip-top lighter with lid OPEN, unlit wick and perforated chimney, simple initials V engraved on front, warm worn metallic broad highlights. Compact square silhouette."
+  },
+  {
+    "id": "col_vintage_bottle",
+    "name": "陈年酒瓶",
+    "w": 32,
+    "h": 72,
+    "region": "siracusa",
+    "rarity": "blue",
+    "description": "One upright tall dark green vintage wine bottle, dust on shoulders, intact burgundy red sealing wax over neck and cork, aged cream paper label with simple burgundy crest, faint glass highlight. Vertical slender bottle."
+  },
+  {
+    "id": "col_porcelain_wolf",
+    "name": "陶瓷狼像",
+    "w": 72,
+    "h": 72,
+    "region": "siracusa",
+    "rarity": "blue",
+    "description": "One elegant white porcelain statue of a SITTING WOLF, proud upright pointed muzzle and ears, tail curled alongside paws, fine GOLD edging along ears back and paws, glossy ceramic planes. Whole statue, no extra base or background."
+  },
+  {
+    "id": "col_family_ledger",
+    "name": "家族账本",
+    "w": 32,
+    "h": 32,
+    "region": "siracusa",
+    "rarity": "purple",
+    "description": "One thick closed dark burgundy leather family ledger, brass buckle on leather strap, several torn rough cream page edges sticking out, worn embossed gold corner flourishes. Three-quarter view compact square, luxurious antique accounting book."
+  },
+  {
+    "id": "col_family_seal",
+    "name": "家族印章",
+    "w": 32,
+    "h": 32,
+    "region": "siracusa",
+    "rarity": "red",
+    "description": "One precious small brass family signet stamp shown tilted with broad round seal face visible, seal face engraved with a bold WOLF HEAD silhouette, elegant short sculpted handle, one small red sealing-wax lump beside it. Compact square, golden gleam."
+  }
+]

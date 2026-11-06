@@ -19,8 +19,9 @@ const TIPS := [
 
 var game: GameManager
 var _title: Control
-## The title's save slots (SaveSlots): the one loaded now (-1 before any), the
-## one asked to be deleted, and how pixel_display starts the game on one.
+## The title's save slots (SaveSlots), the title's buttons, then: the slot asked
+## to be deleted, the one loaded now (-1 before any), and how pixel_display
+## starts the game on one.
 var _slots: Control
 var _menu: Control
 var _deleting := -1
@@ -53,16 +54,20 @@ static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false
 	"auto_potion": "potion_A", "auto_potion_low": 0.4, "auto_potion_high": 0.9, "base_look": "",
 	# 界面动效 (界面动态美术方案 v3 §2): the scan reveal, wipes and typing titles.
 	"ui_motion": true,
+	# Boss演出策划案_v0_2 §1.4: the camera's shake, and the boss intro after the first meeting.
+	"shake_strength": 1.0, "boss_intro": true,
 	# Ask before a dragged buy or sale goes through (TraderScreen.ask).
 	"trade_confirm": true,
+	# 拾取过滤 (GameManager.passes_pickup_filter): lowest rarity, prefix count, lowest prefix grade.
+	"loot_rarity": 0, "loot_prefixes": 0, "loot_prefix_grade": 0,
 	# 站点总览 (用户 2026-10-18: 不常驻，快捷键开启，设置里自定义显示哪些):
 	# open or not, and the station kinds left out of it.
 	"station_panel": false, "station_hidden": [],
 	# 新手引导: the step reached (TutorialCard.STEPS.size() = done or off).
 	"tutorial_step": 0,
-	# The first-sight cards (TutorialSpotlight): on or not, and the ids already shown.
 	# 显卡 (GpuChoice): "" = 自动 (D3D12 takes the high-performance card), or a card's name.
 	"gpu": "",
+	# The first-sight cards (TutorialSpotlight): on or not, and the ids already shown.
 	"tutorial_tips": true, "tutorial_seen": [],
 	# 主线引导 (Story): on or off; off, every region is open from the start.
 	"story_guide": true,
@@ -470,7 +475,7 @@ static func gpu_toggle(after: Callable) -> Control:
 	column.add_child(note)
 	return column
 
-## After a language pick: the panel again, so the picked button is lit.
+## After a pick (look, language, card): the panel again, so the picked button is lit.
 func _rebuild_settings() -> void:
 	_settings.queue_free()
 	_settings = _build_settings()

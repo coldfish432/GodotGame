@@ -100,6 +100,9 @@ const FACTORS := {
 	"lungmen_order": "龙门治安", "reunion": "整合运动", "ursus": "乌萨斯动荡", "kjerag": "谢拉格政局",
 	"kazimierz": "卡西米尔紧张", "sami": "北地威胁", "catastrophe": "天灾活跃", "originium": "源石紧张",
 	"arms": "军备", "medicine": "医药需求", "logistics": "物流紧张", "panic": "金融恐慌",
+	"lm_ursus": "龙门—乌萨斯", "lm_yan": "龙门—炎", "lm_sir": "龙门—叙拉古", "col_kaz": "哥伦比亚—卡西米尔",
+	"col_sami": "哥伦比亚—萨米", "ursus_kaz": "乌萨斯—卡西米尔", "vic_col": "维多利亚—哥伦比亚", "north_route": "北方商路",
+	"gold_flight": "资金避险", "fx_stress": "外汇压力",
 }
 const FACTOR_HALF_HOURS := 24.0
 const FACTOR_RANGE := Vector2(-3.0, 6.0)
@@ -131,6 +134,23 @@ const OVERRIDES := {
 	"V16": {"panic": 0.4}, "K19": {"kjerag": 0.4, "panic": -0.3}, "L12": {"logistics": 0.5}, "L26": {"logistics": 0.5},
 }
 
+## The region relations and the currency strains (地区货币策划案 §3.1): which
+## events push them, by how much; a negative weight eases the relation.
+const RELATIONS := {
+	"I1": {"lm_ursus": -0.6}, "I2": {"lm_ursus": 0.8}, "I3": {"lm_ursus": 1.0}, "I4": {"lm_ursus": -0.4}, "I19": {"lm_ursus": 0.6},
+	"I32": {"lm_ursus": 1.0}, "F22": {"lm_ursus": 0.4, "gold_flight": 0.6},
+	"I5": {"lm_yan": 0.6}, "I6": {"lm_yan": 0.8}, "I29": {"lm_yan": -0.5},
+	"I7": {"lm_sir": 0.8}, "I8": {"lm_sir": -0.5}, "I9": {"lm_sir": 0.8}, "L18": {"lm_sir": 0.6}, "F24": {"lm_sir": 0.5}, "F23": {"lm_sir": 0.4},
+	"I10": {"col_kaz": 0.8}, "I11": {"col_kaz": -0.4}, "I12": {"col_kaz": 0.6}, "C11": {"col_kaz": 0.5},
+	"I13": {"col_sami": 0.8}, "I14": {"col_sami": 0.8}, "S3": {"col_sami": 0.4}, "C13": {"col_sami": 0.5},
+	"I17": {"ursus_kaz": 0.8}, "I18": {"ursus_kaz": 1.0},
+	"I20": {"vic_col": 0.8}, "I33": {"vic_col": 1.0, "fx_stress": 0.8}, "F10": {"vic_col": 0.4, "fx_stress": 0.6},
+	"I30": {"north_route": -0.6}, "I31": {"north_route": 0.8}, "I16": {"north_route": -0.4}, "I34": {"north_route": 0.6},
+	"F16": {"gold_flight": 1.0}, "F9": {"gold_flight": 0.6}, "F28": {"gold_flight": 0.6}, "F3": {"gold_flight": 0.5, "fx_stress": 0.6}, "I15": {"gold_flight": 0.4},
+	"F7": {"fx_stress": 0.8}, "F12": {"fx_stress": 1.0}, "F13": {"fx_stress": 0.6}, "F27": {"fx_stress": 0.8}, "F30": {"fx_stress": 0.8},
+	"F0": {"fx_stress": 0.5}, "L9": {"fx_stress": 0.5}, "F26": {"fx_stress": 0.5}, "F21": {"fx_stress": 0.4},
+}
+
 static var _affinity := {}
 
 ## {factor: weight} of event `id`.
@@ -152,10 +172,12 @@ static func affinity(id: String) -> Dictionary:
 		var category := sel.get_slice(":", 1) if sel.contains(":") else ""
 		if CATEGORY_FACTOR.has(category): add.call(CATEGORY_FACTOR[category], 0.4)
 		if sel == "fx" and float(spec.get("jump", 0.0)) > 0.0: add.call("panic", 0.3)
+		if sel.begins_with("fx") and absf(float(spec.get("jump", 0.0))) >= 0.03: add.call("fx_stress", 0.3)
 		if spec.has("halt_hours"): add.call("panic", 0.3)
 	if float(ev.get("penguin_fee", 1.0)) > 1.0: add.call("logistics", 0.5)
 	if str(ev.get("kind", "")) == "swan": add.call("panic", 0.5)
 	for f in OVERRIDES.get(id, {}): out[f] = float(OVERRIDES[id][f])
+	for f in RELATIONS.get(id, {}): out[f] = float(RELATIONS[id][f])
 	_affinity[id] = out
 	return out
 

@@ -16,7 +16,6 @@ var contract_pick := 0
 var stash_tab := 0
 ## The facility picked on the 基建总控台's list.
 var build_pick := "hub"
-var outbound_tab := 0
 var pause_page := 1
 var pause_confirm := false
 ## The binding waiting for a key on the 按键设置 page (function index × 2 +
@@ -27,7 +26,7 @@ var hotbar_capture_frame := -1
 var settings_tab := 0
 ## The C window's page: 概览 / 属性 / 技能 (OperatorScreen).
 var operator_tab := 0
-## 整备台's page: 换装 / 改造 (LoadoutScreens).
+## 整备台's page: an index into LoadoutScreens.WORKBENCH_TABS.
 var workbench_tab := 0
 ## Where Esc / ‹ goes from this page when it is a sub-page (else the menu closes).
 var back_to := Callable()
@@ -218,6 +217,7 @@ func show_station(kind: String) -> void:
 		"farm": ProvisionScreens.farm(self); return
 		"canteen": ProvisionScreens.canteen(self); return
 		"lift": ProvisionScreens.lift(self); return
+		"prts": PrtsScreen.build(self); return
 	var info: Array = STATIONS.get(kind, ["罗德岛", ""])
 	clear(info[0], "%s    ·    龙门币 %s" % [info[1], Economy.format(game.gold)])
 	match kind:
@@ -322,8 +322,12 @@ func _stash_section() -> void:
 	if not stash_query.is_empty(): button(bar, "清除", func(): stash_query = ""; _refresh())
 	if game.carried_items().any(func(x): return not x.is_equippable()):
 		button(bar, "背包材料全部存回", func(): game.store_all_materials(); _refresh())
+	# One stock list and one details() per item for the whole page: the search
+	# and the tooltips read the same text.
+	var stock := game.stash
+	var details := {}
 	for category in range(Item.Category.size()):
-		var shown := game.stash.filter(func(x): return x.category == category and _matches(x))
+		var shown := stock.filter(func(x): return x.category == category and _matches(x, details))
 		if shown.is_empty(): continue
 		text(body, "%s（%d）" % [BaseCatalog.CATEGORY_NAMES[category], shown.size()], 16, GOLD)
 		for item: Item in shown:
@@ -331,13 +335,17 @@ func _stash_section() -> void:
 			body.add_child(row)
 			var name := AK.item_name(item, 15)
 			name.mouse_filter = Control.MOUSE_FILTER_PASS
-			name.tooltip_text = item.details()
+			name.tooltip_text = details[item] if details.has(item) else item.details()
 			row.add_child(name)
 			button(row, "带入", func(): game.bring_item(item); _refresh())
 
-func _matches(item: Item) -> bool:
+## `memo` keeps each item's details() for the caller (item -> text).
+func _matches(item: Item, memo: Variant = null) -> bool:
 	if stash_query.strip_edges().is_empty(): return true
-	var haystack := item.display_name() + " " + item.details()
+	var shown := item.display_name()
+	var text := item.details()
+	if memo is Dictionary: memo[item] = text
+	var haystack := shown + " " + text
 	for word in stash_query.split(" ", false):
 		if not word in haystack: return false
 	return true
@@ -362,16 +370,13 @@ func _expansion_section() -> void:
 	body.add_child(upgrades)
 	for kind in ["pack", "safe"]:
 		var level := base.pack_level if kind == "pack" else base.safe_level
-		var sizes: Array = BaseCatalog.PACK_SIZES if kind == "pack" else BaseCatalog.SAFE_SIZES
 		var prices: Array = BaseCatalog.PACK_PRICES if kind == "pack" else BaseCatalog.SAFE_PRICES
 		var title := "背包" if kind == "pack" else "安全袋"
-		var now: Vector2i = sizes[level]
-		if level + 1 >= sizes.size():
-			button(upgrades, "%s %d×%d（已满配）" % [title, now.x, now.y], func(): pass, true)
+		if level + 1 >= BaseCatalog.expansion_levels(kind):
+			button(upgrades, "%s %s（已满配）" % [title, BaseCatalog.capacity_text(kind, level)], func(): pass, true)
 			continue
-		var next: Vector2i = sizes[level + 1]
 		var refusal := game.upgrade_refusal(kind)
-		var label := "%s扩容 %d×%d → %d×%d  %d + %s" % [title, now.x, now.y, next.x, next.y, int(prices[level + 1]), BaseCatalog.cost_text(game.upgrade_cost(kind))] + ("" if refusal.is_empty() else "（%s）" % refusal)
+		var label := "%s扩容 %s → %s  %d + %s" % [title, BaseCatalog.capacity_text(kind, level), BaseCatalog.capacity_text(kind, level + 1), int(prices[level + 1]), BaseCatalog.cost_text(game.upgrade_cost(kind))] + ("" if refusal.is_empty() else "（%s）" % refusal)
 		button(upgrades, label, func():
 			if kind == "pack": game.buy_pack_upgrade()
 			else: game.buy_safe_upgrade()
@@ -393,7 +398,7 @@ func show_departure(region: String) -> void:
 	_enter("departure", null)
 	BaseScreens.departure(self, region)
 
-## Orders and plain delivery (§3.8). Only the warehouse and the pack or safe
+## Orders (§3.8; no plain delivery, 用户 2026-10-25: 只能在可露希尔处卖). Only the warehouse and the pack or safe
 ## bag can supply items; equipped gear cannot.
 func _outbound_section() -> void:
 	var orders: OrderBoard = game.base.orders
@@ -419,17 +424,9 @@ func _outbound_section() -> void:
 			box.add_child(row)
 			text(row, "%s%s  ·  %s" % [item.display_name(), item.stack_suffix(), "个人仓库" if game.stash.has(item) else "背包"], 15).tooltip_text = item.details()
 			button(row, "交付" if not item.is_stackable() else "交付 ×%d" % orders.takes(i, item), func(): game.deliver_to_order(i, item); _refresh())
+		# Never shown now: nothing sets reroll_available (BaseState).
 		if game.base.reroll_available: button(box, "免费刷新这张订单", func(): game.reroll_order(i); _refresh())
 		button(box, "放弃这张订单", func(): game.abandon_order(i); _refresh())
-	body.add_child(HSeparator.new())
-	text(body, "直接交付 / 只换龙门币", 18)
-	var sellable := deliverable.filter(func(x: Item) -> bool: return game.can_sell(x))
-	if sellable.is_empty(): text(body, "可交付 0", 15, AK.MUTE)
-	for item in sellable:
-		var row := HBoxContainer.new()
-		body.add_child(row)
-		text(row, "%s%s  ·  %s" % [item.display_name(), item.stack_suffix(), "个人仓库" if game.stash.has(item) else "背包"], 15).tooltip_text = item.details()
-		button(row, "交付 +%s" % Economy.format(Economy.direct_price(item)), func(): game.sell(item); _refresh())
 
 ## The injury, with its treatment (§4.2, §4.4).
 func _medical_summary() -> void:
@@ -446,7 +443,7 @@ func _medical_summary() -> void:
 	body.add_child(HSeparator.new())
 
 ## Flasks for the next contract (药剂进背包): each one bought goes straight into
-## the pack, stacking by kind. Three 标准急救剂 are issued free per contract.
+## the pack, stacking by kind. base.free_potions 标准急救剂 are issued free per contract.
 func _pharmacy_section() -> void:
 	var base: BaseState = game.base
 	var carried := game.carried_potions()
@@ -489,7 +486,7 @@ func build_summary(parent: Node) -> void:
 		if relic.is_empty(): continue
 		text(parent, "%s / %s" % [relic.name, relic.effect], 13, RelicCatalog.RARITY_COLORS[relic.rarity])
 
-## Lappland's sheet as it stands, in 明日方舟's terms.
+## The deployed operator's sheet as it stands, in 明日方舟's terms.
 func stat_lines(parent: Node) -> void:
 	var p := game.player
 	text(parent, "生命 %d / %d%s   攻击力 %d   法术攻击力 %d   防御 %d   法抗 %d" % [roundi(p.hp), roundi(p.max_hp),

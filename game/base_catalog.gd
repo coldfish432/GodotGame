@@ -2,14 +2,10 @@ class_name BaseCatalog
 extends RefCounted
 
 ## Rhodes Island base numbers (基地玩法策划案_v1_0.md, appendix A). Initial
-## playtest tuning, like FieldCatalog. Constants for later phases (orders,
-## facilities, contamination, pharmacy) are added with those phases.
+## playtest tuning, like FieldCatalog.
 
-## Receiving: one crate per item brought back; this many sit on numbered bays
-## (R01-R06), the rest stack along the south wall and move up as bays free.
-const RECEIVING_BAYS := 6
-## Personal storage: every rack holds this many items, one per cell, whatever
-## the item's size (the cells drawn on a rack's face).
+## The cells drawn on a rack's face in the warehouse room (BaseState.rack_cells);
+## decor only, capacity is WAREHOUSE_ROWS.
 const RACK_CELLS := 12
 const RACK_SLOTS := 9          # 3 rows x 3 per category, built front row first
 const STARTING_RACKS := 1
@@ -17,20 +13,17 @@ const STARTING_RACKS := 1
 ## 仓库容量不分种类): one warehouse of cells, any item in any cell, a stack of
 ## one material per cell. By 仓储部 level (index = level): cells, and how many
 ## times a stack's own limit one cell holds.
-const WAREHOUSE_CELLS := [0, 60, 120, 220, 360]
+const WAREHOUSE_CELLS := [0, 120, 200, 300, 500]
+## 仓库形状修订案 v1.0 (用户 2026-11-04: 最好是整数吧): the grid is
+## BaseState.SHELF_COLUMNS (10) wide and this many rows tall by level.
+const WAREHOUSE_ROWS := [0, 12, 20, 30, 50]
 const WAREHOUSE_STACK := [0, 1, 2, 3, 5]
 ## 立体货架 (后勤部 3 阶): this share more cells.
 const RESEARCH_CELLS := 0.2
-## Staging: unsorted holding next to receiving. Not part of the warehouse: its
-## items cannot be delivered, and are brought along only by taking them out
-## there. Sized for roughly three full hauls (a 64-cell pack and safe bag carry
-## 20-30 items once packing gaps are counted); a design figure, not a rule.
-const STAGING_CAPACITY := 72
 
 ## The warehouse zone of each Item.Category: the five armour slots sit in the
 ## armour zone, the amulet and ring in the trinket zone (Item.group_of).
-const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料", "防具", "防具", "防具", "防具", "防具", "饰品", "饰品"]
-const CRATE_SIZES := ["small", "medium", "large"]
+const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料", "防具", "防具", "防具", "防具", "防具", "饰品", "饰品", "收藏品", "整理箱"]
 const CRATE_SIZE_NAMES := ["小", "中", "大"]
 
 ## Crates show only their size: 1 cell small, 2 medium, 3 or more large.
@@ -53,9 +46,9 @@ const FACILITIES := {
 		{"price": 22000, "materials": {"电线": 6, "继电器": 3, "灯泡": 6}, "opens": "基建总控台"},
 	]},
 	"warehouse": {"name": "仓储部", "start": 1, "levels": [
-		{"price": 28000, "materials": {"螺栓": 12, "金属板": 6}, "opens": "仓库 120 格 · 单格堆叠 ×2"},
-		{"price": 84000, "materials": {"碳": 9, "螺栓": 18, "基础加固建材": 3}, "opens": "仓库 220 格 · 单格堆叠 ×3"},
-		{"price": 168000, "materials": {"碳素": 9, "金属板": 12, "进阶加固建材": 3}, "opens": "仓库 360 格 · 单格堆叠 ×5"},
+		{"price": 28000, "materials": {"螺栓": 12, "金属板": 6}, "opens": "仓库 10×20 · 单格堆叠 ×2"},
+		{"price": 84000, "materials": {"碳": 9, "螺栓": 18, "基础加固建材": 3}, "opens": "仓库 10×30 · 单格堆叠 ×3"},
+		{"price": 168000, "materials": {"碳素": 9, "金属板": 12, "进阶加固建材": 3}, "opens": "仓库 10×50 · 单格堆叠 ×5"},
 	]},
 	"outfit": {"name": "整备部", "start": 1, "levels": [
 		{"price": 28000, "materials": {"帆布": 6, "胶带": 6}, "opens": "背包扩容 10×8"},
@@ -126,9 +119,9 @@ static func facility_step(id: String, level: int) -> Dictionary:
 	var levels: Array = FACILITIES[id].levels
 	return levels[i] if i >= 0 and i < levels.size() else {}
 
-## Order board slots: two to start, a third from 仓储部 Lv3.
+## Order board base slots; BaseState.order_slot_count adds one for everyone
+## (仓库修订) and one with 后勤部 1 阶.
 const ORDER_SLOTS := 2
-const ORDER_SLOTS_LEVEL := 3
 
 ## Order templates. An item qualifies by `category` (with optional `min_rarity`
 ## and origin `region`), by a PRTS `material` id, or, for exclusives, by its
@@ -144,6 +137,10 @@ const ORDERS := {
 	"eng_device": {"dept": "工程部", "count": 3, "material": "装置", "mult": 1.6, "weight": 2},
 	"med_sugar": {"dept": "医疗部", "count": 4, "material": "糖", "mult": 1.6, "weight": 2},
 	"log_furniture": {"dept": "后勤部", "count": 4, "material": "家具零件", "mult": 1.5, "weight": 2},
+	# 收藏品 (整理箱与收藏品策划案 v0.2 §3.2).
+	"log_collectibles": {"dept": "后勤部", "count": 2, "category": Item.Category.COLLECTIBLE, "mult": 1.4, "weight": 2},
+	"log_city_collectible": {"dept": "后勤部", "count": 1, "category": Item.Category.COLLECTIBLE, "region": "city", "mult": 1.6, "weight": 1},
+	"log_siracusa_collectible": {"dept": "后勤部", "count": 1, "category": Item.Category.COLLECTIBLE, "region": "siracusa", "min_rarity": Item.BLUE, "mult": 1.8, "weight": 1},
 	"eng_bolts": {"dept": "工程部", "count": 12, "material": "螺栓", "mult": 1.5, "weight": 2},
 	"eng_wires": {"dept": "工程部", "count": 8, "material": "电线", "mult": 1.5, "weight": 2},
 	"med_supplies": {"dept": "医疗部", "count": 3, "material": "医用耗材包", "mult": 1.6, "weight": 2},
@@ -183,7 +180,7 @@ static func order_text(id: String) -> String:
 
 ## Contamination per second in the field, from each source.
 const CONTAMINATION_MINE := 0.02          # working in the mine at all
-const CONTAMINATION_DEEP_ROUTE := 0.02    # on the 深部污染带 route (route index 2), any region
+const CONTAMINATION_DEEP_ROUTE := 0.02    # on a 深部污染 floor (RouteMap "deep"), any region
 const CONTAMINATION_PER_ORE := 0.06       # each unsealed ore carried, pack or safe bag
 const CONTAMINATION_MAX := 100
 ## Contamination acts live, in the field (局内节奏与目标策划案 §6 D), in steps
@@ -223,10 +220,8 @@ static func contamination_drain(value: float) -> float:
 const INJURY_TREATMENT := 8400
 const HP_PENALTY_CAP := 0.40              # injury and contamination add up to at most this
 
-## Pharmacy. A is the free standard flask; B and C cost per bottle per contract.
-## 复利数值改造清单 E: each kind comes in ten tiers (one a camp), a fixed amount
-## × the tier's base, never changed by any bonus (赫拉格's 武者 trait aside);
-## the tier is Item.grade and shows in the name.
+## Pharmacy. A is the free standard flask; the others are bought by the bottle.
+## No tiers (§19, create_potion): a fixed heal × the floor it is drunk on.
 ## line: "pharmacy" (医疗部's 制式 restoratives), "closure" (可露希尔特供,
 ## 药剂与商人界面策划案 §2) or a faction for the regional ones (§3, sold only at
 ## its post, `bars` 赤金 each, or bartered). store: the 可露希尔商店 level that
@@ -265,6 +260,9 @@ const POTIONS := {
 		"fx": {"contamination": 4.0}},
 	"ursus": {"name": "矿工烈酒", "bars": 3, "store": 1, "line": "ursus", "text": "寒冷 −10，30 秒内攻击 +10%；同 30 秒内移速 −10%",
 		"fx": {"cold": 10.0, "hex": {"atk": 0.10, "move": -0.10}, "secs": 30.0}},
+	# 莱茵生命's 崇敬 good (势力声望解锁策划案 §三), bought as 莱茵实验抑制剂.
+	"rhine": {"name": "莱茵实验抑制剂", "price": 15000, "store": 1, "line": "rhine", "text": "60 秒内污染不增加，结束时污染 −20",
+		"fx": {"contam_block": 60.0, "contam_after": 20.0}},
 	"sami": {"name": "林地草药茶", "barter": {"林地草药": 2}, "store": 1, "line": "sami", "text": "60 秒内寒冷累积减半，每秒回复生命上限的 0.3%",
 		"fx": {"cold_half": 60.0, "regen_share": 0.003, "regen_secs": 60.0}},
 }
@@ -281,8 +279,9 @@ const POTION_STACK := 5
 ## 随身药包 (科研树状化策划案 §4.2): one more flask a cell (Research.apply_globals).
 static var potion_stack_bonus := 0
 const POTION_A_PRICE := 800
-## The old "flask capacity" stat (relics, affixes) now changes flask healing:
-## each point is ±20%.
+## The old "flask capacity" stat's healing per point. Only ItemModifier's text
+## reads it ("药剂回复 +x%"); the stat itself (potion_cap) is summed into the
+## sheet but nothing applies it, so it heals nothing.
 const POTION_HEAL_PER_CAP := 0.2
 
 ## Flasks have no tiers (§19): `_tier` is kept for callers; every flask heals
@@ -332,47 +331,47 @@ static func contamination_tier(value: float) -> int:
 
 # --- Facility unlocks, expansion, the drone (§2.2, §3.5, §3.6) -----------------
 
-## Price and 仓储部 level needed for each rack slot in build order (slot 0 is there from
-## the start): front row 2nd and 3rd, then the middle row, then the back row.
-## 龙门币平衡与科研部策划案 v1.1 §4.2: about 1.9× the first prices.
-const RACK_PRICES := [0, 22000, 34000, 70000, 70000, 70000, 126000, 126000, 126000]
+## Racks are no longer bought (BaseState._show_racks draws three a 仓储部 level);
+## RACK_LEVELS still maps an old save's racks to a 仓储部 level.
 const RACK_LEVELS := [1, 2, 2, 3, 3, 3, 4, 4, 4]
 ## Pack and safe-bag expansions (装备与背包界面调研 §5.11, after Grim Dawn's
 ## extra bags and Tarkov's secure containers). Level 0 is what she starts with;
 ## each level needs 整备部 at the level beside it.
-const PACK_SIZES := [Vector2i(10, 6), Vector2i(10, 8), Vector2i(12, 8)]
+## The pack's pages at each expansion (用户 2026-11-02, 恐怖黎明): the main pack,
+## then a bag each expansion adds.
+const PACK_PAGES := [[Vector2i(10, 6)], [Vector2i(10, 6), Vector2i(8, 6)], [Vector2i(10, 6), Vector2i(8, 6), Vector2i(8, 6)]]
 const PACK_PRICES := [0, 42000, 112000]
+
+## How the pack or the safe bag reads at an expansion level: pages for the
+## pack ("2 页"), the grid for the safe bag ("3×2").
+static func capacity_text(kind: String, level: int) -> String:
+	if kind == "pack": return "%d 页" % (PACK_PAGES[level] as Array).size()
+	var size: Vector2i = SAFE_SIZES[level]
+	return "%d×%d" % [size.x, size.y]
+
+static func expansion_levels(kind: String) -> int:
+	return PACK_PAGES.size() if kind == "pack" else SAFE_SIZES.size()
 const PACK_LEVELS := [1, 2, 3]
 const SAFE_SIZES := [Vector2i(2, 2), Vector2i(3, 2), Vector2i(3, 3)]
 const SAFE_PRICES := [0, 56000, 140000]
 const SAFE_LEVELS := [1, 3, 4]
-## The warehouse master console (用户 2026-10-07): until it is bought the 仓管台
-## only sells upgrades, and the shelves are reached zone by zone at their floor
-## frames. Bought in any order with the drone.
-const CONSOLE_PRICE := 28000
-const CONSOLE_MATERIALS := {"电源线": 6, "继电器": 3, "灯泡": 6}
-const DRONE_PRICE := 56000
+## The sorting drone (用户 2026-10-07) from before the facilities, no longer
+## sold: DRONE_LEVEL maps an old save's drone to a 仓储部 level.
 const DRONE_LEVEL := 2            # 仓储部
 ## Construction also takes base materials from points of interest: basic
 ## hardware plus a theme supply plus PRTS materials (基建资源策划案 §3, after
-## Tarkov's hideout and Duckov's facilities). {material id: units}, by rack slot
-## / expansion level.
-const RACK_MATERIALS := [{}, {"螺栓": 12, "金属板": 6}, {"螺栓": 12, "金属板": 6},
-	{"碳": 9, "螺栓": 18, "基础加固建材": 3}, {"碳": 9, "螺栓": 18, "基础加固建材": 3}, {"碳": 9, "螺栓": 18, "基础加固建材": 3},
-	{"碳素": 9, "金属板": 12, "进阶加固建材": 3}, {"碳素": 9, "金属板": 12, "进阶加固建材": 3}, {"碳素": 9, "金属板": 12, "进阶加固建材": 3}]
+## Tarkov's hideout and Duckov's facilities). {material id: units}, by
+## expansion level.
 const PACK_MATERIALS := [{}, {"帆布": 9, "胶带": 6, "碳": 6}, {"帆布": 15, "密封泡沫": 6, "家具零件": 9}]
 const SAFE_MATERIALS := [{}, {"金属板": 12, "继电器": 3, "赤金": 3}, {"碳素组": 3, "电路板": 6, "赤金": 6}]
 ## The camp upgrade (撤离与营地修订案 §3, 基地建设, all regions at once): camps stop
 ## adding contamination. Price provisional (用户：营地升级价格待定).
 const CAMP_UPGRADE_PRICE := 168000
 const CAMP_UPGRADE_MATERIALS := {"碳素": 9, "金属板": 12, "继电器": 3}
-const DRONE_MATERIALS := {"微型电机": 3, "电路板": 6, "蓄电池": 6, "家具零件": 6}
 
 ## "碳×4 + 基础加固建材×1".
 static func cost_text(cost: Dictionary) -> String:
 	var parts: Array[String] = []
 	for id in cost: parts.append("%s×%d" % [id, int(cost[id])])
 	return " + ".join(parts)
-const REROLL_LEVEL := 4           # 仓储部: one free order reroll after every settlement
-## Staging warns at departure and its marker turns yellow from this share full.
-const STAGING_WARNING := 0.9
+const REROLL_LEVEL := 4           # from the old free order reroll; no longer read

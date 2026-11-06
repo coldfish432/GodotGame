@@ -1,0 +1,413 @@
+{
+  "dimensions": [
+    1024,
+    2048
+  ],
+  "mode": "RGBA",
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "cell": 256,
+  "rows": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "frames": [
+    {
+      "direction": "S",
+      "frame": 1,
+      "bbox": [
+        74,
+        30,
+        183,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "f8cc4a7569c2c847b88f467e4d005bb79a209e2979e61ec3960c6f03814d6133"
+    },
+    {
+      "direction": "S",
+      "frame": 2,
+      "bbox": [
+        73,
+        32,
+        195,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "17c7459922ad919d5a336f3ff4ee66dcecbdd08855ece758cc56f5fa827d264f"
+    },
+    {
+      "direction": "S",
+      "frame": 3,
+      "bbox": [
+        72,
+        31,
+        187,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "ad3ef14c2040dfc35b14705d16a00dd43ed6b082efa153dea996db85e82891e8"
+    },
+    {
+      "direction": "S",
+      "frame": 4,
+      "bbox": [
+        73,
+        31,
+        199,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "684e5576d583b01f22dfc875b1cf57ae47f361606e9da03f6c41da872164b481"
+    },
+    {
+      "direction": "SW",
+      "frame": 1,
+      "bbox": [
+        73,
+        32,
+        208,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "a9e09fd34e1ed5488ce8c6f2ebabede5fc23083b9050e28bd5989b65337c0d5a"
+    },
+    {
+      "direction": "SW",
+      "frame": 2,
+      "bbox": [
+        73,
+        32,
+        214,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "151a1252230b95639de68b2838d97fcaeac9a0be2c5b2bc0f549be69e0e4795f"
+    },
+    {
+      "direction": "SW",
+      "frame": 3,
+      "bbox": [
+        72,
+        30,
+        210,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "899e096440b8549dea1568982ced5d8a4a4bf21c807398d92aa7d3072d2eccec"
+    },
+    {
+      "direction": "SW",
+      "frame": 4,
+      "bbox": [
+        73,
+        32,
+        207,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "c74f39d50cbc126d5ec188611c2b920a4d5845fffaa988ea5f434c8051424323"
+    },
+    {
+      "direction": "W",
+      "frame": 1,
+      "bbox": [
+        72,
+        30,
+        218,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "fcff67e7d3db9ebdaa19a7921ca0e0a34082458d33838d622e836105d7518803"
+    },
+    {
+      "direction": "W",
+      "frame": 2,
+      "bbox": [
+        72,
+        38,
+        215,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "f6e8a52558c15602edcd78d673dc7eb21473e4077e044e48be43d057df5729a8"
+    },
+    {
+      "direction": "W",
+      "frame": 3,
+      "bbox": [
+        72,
+        30,
+        212,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "87ef24e40a27e3af9a203ec7b5e9c3f2736e6195db5aca327fdde344cd102261"
+    },
+    {
+      "direction": "W",
+      "frame": 4,
+      "bbox": [
+        71,
+        30,
+        206,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "790ed01ddf6bba75e4e819662b24280d824cd62129bd0a1c771ab479a6773333"
+    },
+    {
+      "direction": "NW",
+      "frame": 1,
+      "bbox": [
+        78,
+        34,
+        210,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "75f23e05664799607e4d29d5fa0cb6b314cc47f3e56f6808f808be0fe181ab7c"
+    },
+    {
+      "direction": "NW",
+      "frame": 2,
+      "bbox": [
+        77,
+        32,
+        211,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "afbbd253a6d2c280c3293f17c8c6acc6405b3e17591b35b63c63a421f4774227"
+    },
+    {
+      "direction": "NW",
+      "frame": 3,
+      "bbox": [
+        77,
+        34,
+        211,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "5223f8eb4dcdb625faf696c1bed9ad46add9d445380951fa22f3bee337a46084"
+    },
+    {
+      "direction": "NW",
+      "frame": 4,
+      "bbox": [
+        77,
+        30,
+        201,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "ed7015012a7f8c731fbdd623ddbfd36a4cc5eb378135e19c2757e695610b0847"
+    },
+    {
+      "direction": "N",
+      "frame": 1,
+      "bbox": [
+        74,
+        30,
+        195,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "609e5162007c9ccf7fe968691a17320b76fc8be45e3d9668a902d0c0cd2b0d35"
+    },
+    {
+      "direction": "N",
+      "frame": 2,
+      "bbox": [
+        73,
+        30,
+        208,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "e3a0e4b1a9f6f3f05d0d06a9ce9b3a55913262c55cf4be3f4d911e5841004c36"
+    },
+    {
+      "direction": "N",
+      "frame": 3,
+      "bbox": [
+        72,
+        30,
+        203,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "08ce476c979d105b2fb7b210a0b367b3652bc1243380ba64c421904fe8fe6251"
+    },
+    {
+      "direction": "N",
+      "frame": 4,
+      "bbox": [
+        72,
+        30,
+        199,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "da937d2f1450ce81dea1143a33778c1eed1aa381789219318f82a8a9bf27b2b8"
+    },
+    {
+      "direction": "NE",
+      "frame": 1,
+      "bbox": [
+        48,
+        33,
+        181,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "4992905be349df0138f46dbd5be79615eeac803931292d69401274eb1a020153"
+    },
+    {
+      "direction": "NE",
+      "frame": 2,
+      "bbox": [
+        49,
+        31,
+        181,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "db5a72f33ffa78caed0b4bc74aaa1150b22501bb682c7857a5d3ebed2705b45d"
+    },
+    {
+      "direction": "NE",
+      "frame": 3,
+      "bbox": [
+        44,
+        32,
+        181,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "5c54f414ff70bfc95ed277ea9699d49c7f66d8ac939279d6e26d5e18868e50e7"
+    },
+    {
+      "direction": "NE",
+      "frame": 4,
+      "bbox": [
+        50,
+        30,
+        180,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "24df008ed5a17171da8bea1eea787283e6d57a97830d849bebd7b3ed40c59e5a"
+    },
+    {
+      "direction": "E",
+      "frame": 1,
+      "bbox": [
+        48,
+        30,
+        187,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "6e553e67d41eba97e69bdd21b80a7e9826f105a96d602bd9b4fe77e69ca30900"
+    },
+    {
+      "direction": "E",
+      "frame": 2,
+      "bbox": [
+        46,
+        31,
+        186,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "bad7fa7739af39c98439af8c20bf27f1c744ee19d3fabb9e4af1e97df738cc6d"
+    },
+    {
+      "direction": "E",
+      "frame": 3,
+      "bbox": [
+        44,
+        31,
+        187,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "cfd1cf7f21a5dd9cfb1a34d69989d26b0d07995468aca14815a6d67aec31c826"
+    },
+    {
+      "direction": "E",
+      "frame": 4,
+      "bbox": [
+        47,
+        31,
+        187,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "635f3d03a29385d302e2dee75441766561c9ced924409f6f810448f6485be95c"
+    },
+    {
+      "direction": "SE",
+      "frame": 1,
+      "bbox": [
+        48,
+        30,
+        190,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "556722d8750ac42124072efdf6ef1b8a2edfa5ec254ac6d2421717cafae41ace"
+    },
+    {
+      "direction": "SE",
+      "frame": 2,
+      "bbox": [
+        48,
+        30,
+        191,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "b2c694ff024b7a8b960fa4be76f2e97015c8159465d1c3a9d30c100549adcb00"
+    },
+    {
+      "direction": "SE",
+      "frame": 3,
+      "bbox": [
+        47,
+        30,
+        189,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "30bb465f3342b6c501efb17b465ddc6db5e8a75720f35d0d2955a3a08c9fa417"
+    },
+    {
+      "direction": "SE",
+      "frame": 4,
+      "bbox": [
+        46,
+        30,
+        190,
+        240
+      ],
+      "border_alpha_max": 0,
+      "sha256": "235dc46336142e43e8c520ba7eb1b74d14d117f9f1648d80158bd6d50d4afaeb"
+    }
+  ],
+  "unique_frames": 32,
+  "clear_8px_cell_borders": true,
+  "runtime_tested": false,
+  "animation_preview": "four phase 180ms GIF generated; not Godot playback",
+  "source_processing": "Generated sheets sliced on uniform grids, NW/NE replaced with generated correction rows; per-direction uniform scale and per-frame head centre/sole placement. No procedural character drawing."
+}

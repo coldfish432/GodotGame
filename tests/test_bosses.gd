@@ -18,6 +18,8 @@ func check(label: String, passed: bool, detail: Variant = null) -> void:
 	print(("PASS " if passed else "FAIL ") + label + ("" if detail == null or passed else "  %s" % str(detail)))
 
 func run() -> void:
+	# The set pieces (BossShow) have their own suite; these check the fight itself.
+	BossShow.enabled = false
 	_catalog()
 	_gear()
 	game = GameManager.new()

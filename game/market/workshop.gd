@@ -7,8 +7,8 @@ extends RefCounted
 ## while the game is shut; finished goods go to staging. The queue shows only
 ## 进行中 / 完成 (no time left, 用户 rule for queues outside the exchange).
 
-## PRTS: T1→T2 100, T2→T3 200, T3→T4 300 龙门币; the carbon line 800 / 2400.
-## "minutes" per unit made.
+## "lmd" per unit is this game's price, not PRTS's; "minutes" per unit made.
+## "build" marks the carbon line (its own byproduct chance).
 const RECIPES := {
 	"固源岩": {"in": {"源岩": 3}, "lmd": 300, "minutes": 2, "tier": 2},
 	"固源岩组": {"in": {"固源岩": 5}, "lmd": 600, "minutes": 5, "tier": 3},
@@ -78,8 +78,8 @@ static func slots(level: int) -> int:
 func busy() -> int:
 	return jobs.size()
 
-## Starts `count` of `output` (materials are taken by the caller). The queue
-## runs jobs one after another per slot, so a new job starts after the last.
+## Starts `count` of `output` (materials are taken and free slots checked by
+## the caller). The job's clock starts at `now`, at least one minute long.
 ## `time_factor` shortens the job (科研部: 后勤部 4 阶, the endless 加工时长 line).
 func start(output: String, count: int, now: int, rng: RandomNumberGenerator, time_factor := 1.0) -> Dictionary:
 	var r := recipe(output)

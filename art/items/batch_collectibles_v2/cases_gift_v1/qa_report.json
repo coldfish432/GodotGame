@@ -1,0 +1,458 @@
+{
+  "total": 17,
+  "passed": 17,
+  "static_status": "PASS",
+  "source_issues": [],
+  "art_acceptance": "PENDING_USER_REVIEW",
+  "runtime_validation": "NOT_RUN",
+  "checks": [
+    {
+      "id": "case_material_1",
+      "name": "材料整理箱1级",
+      "size": [
+        72,
+        72
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        69,
+        68
+      ],
+      "source_bbox": [
+        62,
+        88,
+        1196,
+        1206
+      ],
+      "transparent": true,
+      "sha256": "92b135913d61727f0a3fb79b406c22127ef4153ada62cefdec12aa684a9e35f9",
+      "source_sha256": "214cfd1d0257a2d272d53ea402d435d532cfc064812a2dad844b9c31af9717d5",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_material_2",
+      "name": "材料整理箱2级",
+      "size": [
+        72,
+        112
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        68,
+        109
+      ],
+      "source_bbox": [
+        46,
+        27,
+        967,
+        1531
+      ],
+      "transparent": true,
+      "sha256": "4ba801cf31e5ec018055c0ec581022e49099474bfd9fa072eebac925a620c6c5",
+      "source_sha256": "a796d9956a1cb5af49f9e0be6bda0e5b2bb5ea687ebed9efa3eee10fbea43777",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_material_3",
+      "name": "材料整理箱3级",
+      "size": [
+        112,
+        152
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        5,
+        7,
+        107,
+        145
+      ],
+      "source_bbox": [
+        41,
+        70,
+        1045,
+        1428
+      ],
+      "transparent": true,
+      "sha256": "df3af33455779bb038095952f83bc34e33f4149b85ac3ea67889ab15b5cf3dd0",
+      "source_sha256": "f6deb7ea323fc64bd9a17805021ebcecce1d97efc12271bf10820b0bcdecae39",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_material_4",
+      "name": "材料整理箱4级",
+      "size": [
+        192,
+        232
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        15,
+        5,
+        177,
+        227
+      ],
+      "source_bbox": [
+        104,
+        53,
+        1046,
+        1346
+      ],
+      "transparent": true,
+      "sha256": "cf9ce50b66c6ad5a75fc61a07831553b7a6f42d3015c366e364341f65343781d",
+      "source_sha256": "d3ef58e5b71ea0f2d77ca2f44149acbb19a63f8e847db947cb1fa167bed15697",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_1",
+      "name": "收藏品整理箱1级",
+      "size": [
+        72,
+        72
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        69,
+        68
+      ],
+      "source_bbox": [
+        62,
+        84,
+        1197,
+        1206
+      ],
+      "transparent": true,
+      "sha256": "99b5d4ba7dfa9fbad37e77c3ef91f31b6ce6a20f6c7c041cafb96e65614a0157",
+      "source_sha256": "199725732afecc7ddb6b6205249f9a8ef2855dbe60dc60ca0bcbb9898371eb62",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_2",
+      "name": "收藏品整理箱2级",
+      "size": [
+        72,
+        112
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        68,
+        109
+      ],
+      "source_bbox": [
+        47,
+        27,
+        969,
+        1532
+      ],
+      "transparent": true,
+      "sha256": "ec4636dacd8c70dce970b1888594ea4c3e289a5782e3af3de49ddd988e4aab7c",
+      "source_sha256": "29828818e4d462afd21d50ef1411a4734366663ffbfa9de90d380a777e903011",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_3",
+      "name": "收藏品整理箱3级",
+      "size": [
+        112,
+        152
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        5,
+        7,
+        107,
+        144
+      ],
+      "source_bbox": [
+        39,
+        36,
+        1049,
+        1394
+      ],
+      "transparent": true,
+      "sha256": "07fe862fc6b49f69f36dd8f251715ec7626680af4349ff6068975de1a48cac84",
+      "source_sha256": "5fc8698ee4d1547ee03fd14b48791cfffc78abc4d391e1e4e053de42fc4d5f37",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_4",
+      "name": "收藏品整理箱4级",
+      "size": [
+        192,
+        232
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        15,
+        5,
+        177,
+        227
+      ],
+      "source_bbox": [
+        104,
+        52,
+        1051,
+        1348
+      ],
+      "transparent": true,
+      "sha256": "366385fa092d85b6540e4b63886bc0fe824b89650d188f811b55935056c74536",
+      "source_sha256": "0f1cebe7a04c5f448e20ef4efa8cd79db46bb2e2d2ccf02056c13ff784206fc3",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_1",
+      "name": "药剂整理箱1级",
+      "size": [
+        72,
+        72
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        69,
+        68
+      ],
+      "source_bbox": [
+        62,
+        87,
+        1199,
+        1208
+      ],
+      "transparent": true,
+      "sha256": "de707ff58b2584cdf534082f03312444ac7f3e8e6dbd583607d261441e98a3bc",
+      "source_sha256": "05bb2d290a1381174dfd3507a06c40374fe45c8b36bc353ff641593418bb7b75",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_2",
+      "name": "药剂整理箱2级",
+      "size": [
+        72,
+        112
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        68,
+        109
+      ],
+      "source_bbox": [
+        48,
+        28,
+        970,
+        1531
+      ],
+      "transparent": true,
+      "sha256": "898ecc36d9a29fa0bb4de74da207fdcc64741c33736b36bf024eb98439668da0",
+      "source_sha256": "b2c30226fac44b46e65fd4238cbcc9cb4c05217d7cc0c81eef02fd0d825dd347",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_3",
+      "name": "药剂整理箱3级",
+      "size": [
+        112,
+        152
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        5,
+        7,
+        107,
+        145
+      ],
+      "source_bbox": [
+        41,
+        68,
+        1049,
+        1427
+      ],
+      "transparent": true,
+      "sha256": "89caf4abb566e189b7f02b3d3387f0c2d7f21dd5c8ac45f3e7c9fc5234fab146",
+      "source_sha256": "a895c3f0af8ed390f867e2b2d933b13cb703a21186e975dd05964a630e85db53",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_4",
+      "name": "药剂整理箱4级",
+      "size": [
+        192,
+        232
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        14,
+        5,
+        177,
+        227
+      ],
+      "source_bbox": [
+        103,
+        51,
+        1056,
+        1348
+      ],
+      "transparent": true,
+      "sha256": "699b904ef57ce17e0b83d132309ce84e0d8e6e76792dd56d030a87106fcd2772",
+      "source_sha256": "8eece01c59a59c56f8b6217ae5f6883c87d1caeb216c855ee0b069577716d4e6",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_1",
+      "name": "装备整理箱1级",
+      "size": [
+        72,
+        72
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        69,
+        68
+      ],
+      "source_bbox": [
+        64,
+        90,
+        1196,
+        1205
+      ],
+      "transparent": true,
+      "sha256": "cdec9f74bc33d855092d3771121d96063f2a7b07d07b74e372299bddf3b297fa",
+      "source_sha256": "d4b475ac0eede47b6d90ecc739ed69e663a3ad5f78b44377ba9429d9e198cf27",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_2",
+      "name": "装备整理箱2级",
+      "size": [
+        72,
+        112
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        3,
+        68,
+        109
+      ],
+      "source_bbox": [
+        48,
+        28,
+        969,
+        1530
+      ],
+      "transparent": true,
+      "sha256": "701a43fc17393244673cccdd8702435367073f2fd6ff611a47bc61a3d8b33315",
+      "source_sha256": "1dda9aae6bf54c81995169315ac7412ed39c51c5a6962fcc49e3381f016605c2",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_3",
+      "name": "装备整理箱3级",
+      "size": [
+        112,
+        152
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        5,
+        7,
+        107,
+        145
+      ],
+      "source_bbox": [
+        42,
+        70,
+        1044,
+        1424
+      ],
+      "transparent": true,
+      "sha256": "89fdcb4f2335ddc9a384f09787b932ed5aa1f98de673dbde734ababe496d5a28",
+      "source_sha256": "f0480fae7fe94142ea7173e6e4da08352dbc01d1a9f3eb5e3a53b80dd1a3cb82",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_4",
+      "name": "装备整理箱4级",
+      "size": [
+        192,
+        232
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        14,
+        5,
+        178,
+        227
+      ],
+      "source_bbox": [
+        98,
+        47,
+        1057,
+        1348
+      ],
+      "transparent": true,
+      "sha256": "b29943230758091539f39634c3f02e53f339303a35706f152a7189aabcc98162",
+      "source_sha256": "a1572cf081f37e87b631fbb155c6369b184d8ddf797c60b5a69593dfd0498191",
+      "resolver_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "gift_pack",
+      "name": "收藏品礼包",
+      "size": [
+        72,
+        72
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        3,
+        4,
+        69,
+        67
+      ],
+      "source_bbox": [
+        75,
+        104,
+        1185,
+        1163
+      ],
+      "transparent": true,
+      "sha256": "a409a268569022edb381a3ff1643553f454f84cbb44ff83e043c3d91b1acfee4",
+      "source_sha256": "22ea93a1939bb82181a58c972244484c62a76caadbd9d387e25a973f890b50fc",
+      "resolver_match": true,
+      "status": "PASS"
+    }
+  ],
+  "delivery": {
+    "runtime_count": 17,
+    "hash_match": true,
+    "existing_unrelated_pngs_preserved": true
+  },
+  "visual_review": "All 17 icons inspected at native resolution: category strap and emblem differences, level size/construction progression, complete wheels and gift tag reviewed."
+}

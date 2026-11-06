@@ -20,8 +20,17 @@ class LiveText extends Label:
 			_refresh()
 
 	func _refresh() -> void:
-		if provider.is_valid(): text = str(provider.call())
-		if colour_provider.is_valid(): add_theme_color_override("font_color", colour_provider.call())
+		if provider.is_valid():
+			var shown := str(provider.call())
+			if shown != text: text = shown
+		if colour_provider.is_valid():
+			var colour: Color = colour_provider.call()
+			if not has_theme_color_override("font_color") or get_theme_color("font_color") != colour: add_theme_color_override("font_color", colour)
+
+## What the market draws read besides their own inputs: the market's state,
+## the time zone (opening hours) and the language.
+static func market_key(game: GameManager) -> Array:
+	return [game.market, game.market.version, MarketState.tz(), I18n.language]
 
 static func live(provider: Callable, font_size: int = 13, colour: Color = AK.FG, colour_provider: Callable = Callable()) -> LiveText:
 	var l := LiveText.new()
@@ -44,6 +53,11 @@ class MarketList extends Control:
 	var _wait := 0.0
 	## A name scrolled this draw: redraw every frame, not twice a second.
 	var _marquee := false
+	## Per-row values from the market, kept until the market (or the rows) change:
+	## a marquee redraws every frame from these.
+	var _rows: Array = []
+	var _rows_key: Array = []
+	var _drawn_key: Array = []
 	## The name band ends this far from the right edge (the sparkline starts at 170).
 	const NAME_END := 186.0
 	const SPEED := 30.0     # px a second
@@ -58,8 +72,26 @@ class MarketList extends Control:
 		_wait -= delta
 		if _marquee or _wait <= 0.0:
 			_wait = 0.5
+			if _marquee or _key() != _drawn_key: queue_redraw()
 			_marquee = false
-			queue_redraw()
+
+	## Everything the draw reads besides the clock.
+	func _key() -> Array:
+		if game == null: return [null, size]
+		return [MarketWidgets.market_key(game), ids.duplicate(), selected, scroll, size]
+
+	func _row_data() -> Array:
+		var key := [MarketWidgets.market_key(game), ids.duplicate(), size.x]
+		if key == _rows_key: return _rows
+		_rows_key = key
+		_rows = []
+		for k in range(ids.size()):
+			var id: String = ids[k]
+			var text := I18n.t(Exchange.cfd_name(id))
+			_rows.append({"price": KLineChart._fmt(game.exchange.cfd_price(id)), "change": MarketWidgets.change_of(game, id), "text": text,
+				"width": AK.cn().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x,
+				"sub": I18n.t(MarketWidgets.status_of(game, id)), "spark": MarketWidgets.spark_closes(game, id)})
+		return _rows
 
 	func _gui_input(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed:
@@ -73,23 +105,23 @@ class MarketList extends Control:
 			accept_event()
 
 	func _draw() -> void:
+		_drawn_key = _key()
 		draw_rect(Rect2(Vector2.ZERO, size), AK.PLATE_2)
 		if game == null: return
-		var market := game.market
+		var rows := _row_data()
 		for k in range(ids.size()):
 			var y := k * ROW - scroll
 			if y + ROW < 0 or y > size.y: continue
 			var id: String = ids[k]
+			var row: Dictionary = rows[k]
 			if id == selected: draw_rect(Rect2(0, y, size.x, ROW - 2), Color("313a41"))
 			else: draw_rect(Rect2(0, y + ROW - 2, size.x, 1), AK.LINE)
-			var name := Exchange.cfd_name(id)
-			var price := game.exchange.cfd_price(id)
-			var change := MarketWidgets.change_of(game, id)
+			var change: float = row.change
 			var col := KLineChart.UP if change >= 0.0 else KLineChart.DOWN
 			# The name keeps left of the sparkline; a long one scrolls (用户 2026-10-23: 不挡简略k线图，改为滚动字幕).
 			var room := size.x - NAME_END
-			var text := I18n.t(name)
-			var width := AK.cn().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+			var text: String = row.text
+			var width: float = row.width
 			if width <= room:
 				draw_string(AK.cn(), Vector2(10, y + 18), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, AK.FG)
 			else:
@@ -103,11 +135,10 @@ class MarketList extends Control:
 				var bg := Color("313a41") if id == selected else AK.PLATE_2
 				draw_rect(Rect2(0, y + 2, 10, 20), bg)
 				draw_rect(Rect2(10 + room, y + 2, size.x - 10 - room, 20), bg)
-			var sub := MarketWidgets.status_of(game, id)
-			draw_string(AK.cn(), Vector2(10, y + 36), I18n.t(sub), HORIZONTAL_ALIGNMENT_LEFT, room, 10, AK.MUTE)
-			draw_string(AK.en(), Vector2(size.x - 104, y + 18), KLineChart._fmt(price), HORIZONTAL_ALIGNMENT_RIGHT, 96, 13, AK.FG)
+			draw_string(AK.cn(), Vector2(10, y + 36), row.sub, HORIZONTAL_ALIGNMENT_LEFT, room, 10, AK.MUTE)
+			draw_string(AK.en(), Vector2(size.x - 104, y + 18), row.price, HORIZONTAL_ALIGNMENT_RIGHT, 96, 13, AK.FG)
 			draw_string(AK.en(), Vector2(size.x - 104, y + 36), "%+.2f%%" % (change * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, 96, 11, col)
-			MarketWidgets.sparkline(self, game, id, Rect2(size.x - 170, y + 8, 60, ROW - 18), col)
+			MarketWidgets.draw_spark(self, row.spark, Rect2(size.x - 170, y + 8, 60, ROW - 18), col)
 
 ## Day change of a market, or of a faction composite.
 static func change_of(game: GameManager, id: String) -> float:
@@ -116,7 +147,7 @@ static func change_of(game: GameManager, id: String) -> float:
 		var total := 0.0
 		var n := 0
 		for m in game.market.books:
-			if FactionCatalog.split(m)[0] == faction:
+			if (game.market.books[m] as MarketState.Book).faction == faction:
 				total += game.market.change(m)
 				n += 1
 		return total / maxf(n, 1)
@@ -124,9 +155,20 @@ static func change_of(game: GameManager, id: String) -> float:
 
 ## Currency and state under a market's name: 赤金计价 · 活跃 / 盘口薄 / 暂停收货.
 static func status_of(game: GameManager, id: String) -> String:
-	if id == FactionCatalog.FX: return "全天"
+	var cross := Currencies.cross_cur(id)
+	if not cross.is_empty():
+		var tags: Array[String] = ["息差 %+.2f%%" % ((game.market.policy_rate(cross) - game.market.policy_rate("lmd")) * 100.0)]
+		if game.market.halted(id): tags.append("暂停换出")
+		return " · ".join(tags)
+	var cur := Currencies.of_book(id)
+	if not cur.is_empty():
+		var tags: Array[String] = ["年息 %.2f%%" % (game.market.policy_rate(cur) * 100.0)]
+		if game.market.pegged(id): tags.append("挂钩")
+		if game.market.caps.has(id): tags.append("上限")
+		if game.market.halted(id): tags.append("暂停换出")
+		return " · ".join(tags)
 	var faction: String = id.substr(5) if id.begins_with("comp:") else FactionCatalog.split(id)[0]
-	var parts: Array[String] = ["赤金" if FactionCatalog.currency(faction) == "gold" else "龙门币"]
+	var parts: Array[String] = [Currencies.name_of(FactionCatalog.currency(faction))]
 	if not id.begins_with("comp:") and game.market.halted(id): parts.append("暂停收货")
 	elif game.market.active(faction): parts.append("活跃")
 	else: parts.append("盘口薄")
@@ -134,23 +176,32 @@ static func status_of(game: GameManager, id: String) -> String:
 	return " · ".join(parts)
 
 static func sparkline(canvas: CanvasItem, game: GameManager, id: String, rect: Rect2, col: Color) -> void:
+	draw_spark(canvas, spark_closes(game, id), rect, col)
+
+## The closes a sparkline draws: the last half hour of 1-minute candles.
+static func spark_closes(game: GameManager, id: String) -> Array:
 	var src := id
 	if id.begins_with("comp:"):
+		var faction := id.substr(5)
 		for m in game.market.books:
-			if FactionCatalog.split(m)[0] == id.substr(5):
+			if (game.market.books[m] as MarketState.Book).faction == faction:
 				src = m
 				break
-	var data := game.market.candles(src, "1m", 30)
-	if data.size() < 2: return
+	var closes: Array = []
+	for c in game.market.candles(src, "1m", 30): closes.append(float(c[3]))
+	return closes
+
+static func draw_spark(canvas: CanvasItem, closes: Array, rect: Rect2, col: Color) -> void:
+	if closes.size() < 2: return
 	var lo := INF
 	var hi := -INF
-	for c in data:
-		lo = minf(lo, float(c[3]))
-		hi = maxf(hi, float(c[3]))
+	for c: float in closes:
+		lo = minf(lo, c)
+		hi = maxf(hi, c)
 	var span := maxf(hi - lo, 0.0001)
 	var pts := PackedVector2Array()
-	for k in range(data.size()):
-		pts.append(Vector2(rect.position.x + rect.size.x * k / (data.size() - 1), rect.end.y - (float(data[k][3]) - lo) / span * rect.size.y))
+	for k in range(closes.size()):
+		pts.append(Vector2(rect.position.x + rect.size.x * k / (closes.size() - 1), rect.end.y - (float(closes[k]) - lo) / span * rect.size.y))
 	canvas.draw_polyline(pts, col, 1.0)
 
 ## The base watch window (§6.4): up to four markets of the watch list, in the
@@ -158,6 +209,7 @@ static func sparkline(canvas: CanvasItem, game: GameManager, id: String, rect: R
 class WatchWidget extends Control:
 	var game: GameManager
 	var _wait := 0.0
+	var _drawn_key: Array = []
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -166,9 +218,14 @@ class WatchWidget extends Control:
 		_wait -= delta
 		if _wait <= 0.0:
 			_wait = 0.5
-			queue_redraw()
+			if _key() != _drawn_key: queue_redraw()
+
+	func _key() -> Array:
+		if game == null: return [null, size]
+		return [MarketWidgets.market_key(game), game.exchange.watch.slice(0, 4), size]
 
 	func _draw() -> void:
+		_drawn_key = _key()
 		if game == null: return
 		var ids: Array = game.exchange.watch.slice(0, 4)
 		if ids.is_empty(): ids = [FactionCatalog.FX]
@@ -187,8 +244,10 @@ class WatchWidget extends Control:
 
 ## The world state (态势): twelve factors in two columns, a bar each way from 0.
 class FactorBars extends Control:
+	const ROW := 14.0
 	var game: GameManager
 	var _wait := 0.0
+	var _drawn_key: Array = []
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -197,19 +256,25 @@ class FactorBars extends Control:
 		_wait -= delta
 		if _wait <= 0.0:
 			_wait = 1.0
-			queue_redraw()
+			if _key() != _drawn_key: queue_redraw()
+
+	func _key() -> Array:
+		if game == null: return [null, size]
+		return [game.market, game.market.version, I18n.language, size]
 
 	func _draw() -> void:
+		_drawn_key = _key()
 		if game == null: return
 		var keys: Array = MarketLinks.FACTORS.keys()
 		var col_w := size.x / 2.0
+		var rows := ceili(keys.size() / 2.0)
 		for k in range(keys.size()):
 			var f: String = keys[k]
-			var x := (k / 6) * col_w
-			var y := (k % 6) * 22.0
+			var x := (k / rows) * col_w
+			var y := (k % rows) * ROW
 			var v := game.market.factor(f)
-			draw_string(AK.cn(), Vector2(x, y + 14), I18n.t(MarketLinks.FACTORS[f]), HORIZONTAL_ALIGNMENT_LEFT, 84, 11, AK.MUTE)
-			var bar := Rect2(x + 88, y + 6, col_w - 100, 8)
+			draw_string(AK.cn(), Vector2(x, y + 11), I18n.t(MarketLinks.FACTORS[f]), HORIZONTAL_ALIGNMENT_LEFT, 104, 10, AK.MUTE)
+			var bar := Rect2(x + 108, y + 4, col_w - 120, 6)
 			draw_rect(bar, Color(1, 1, 1, 0.06))
 			var mid := bar.position.x + bar.size.x / 3.0
 			draw_line(Vector2(mid, bar.position.y - 2), Vector2(mid, bar.end.y + 2), AK.DIM)

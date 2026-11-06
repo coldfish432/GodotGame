@@ -32,6 +32,7 @@ const REDRAW := 0.5
 var market: MarketState
 var mode := "wall"
 var _wait := 0.0
+var _drawn_key: Array = []
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -40,7 +41,10 @@ func _process(delta: float) -> void:
 	_wait -= delta
 	if _wait <= 0.0:
 		_wait = REDRAW
-		queue_redraw()
+		if _key() != _drawn_key: queue_redraw()
+
+func _key() -> Array:
+	return [market, market.version if market != null else 0, mode, size]
 
 ## The markets on the board: one per trading faction (its busiest category,
 ## the first it prefers), then the FX.
@@ -49,13 +53,18 @@ func rows() -> Array:
 	if market == null: return out
 	var seen := {}
 	for m in market.books:
-		var faction: String = FactionCatalog.split(m)[0]
+		var faction: String = (market.books[m] as MarketState.Book).faction
 		if m == FactionCatalog.FX or seen.has(faction): continue
 		seen[faction] = true
 		out.append(m)
 	return out
 
 func _draw() -> void:
+	_drawn_key = _key()
+	# The SubViewport renders once per change of the board, not every frame
+	# (the ticker's scroll is in the shader).
+	var viewport := get_viewport()
+	if viewport is SubViewport: (viewport as SubViewport).render_target_update_mode = SubViewport.UPDATE_ONCE
 	if market == null: return
 	if mode == "ticker":
 		_ticker(Rect2(Vector2.ZERO, size), size.y * 0.5)
@@ -141,7 +150,7 @@ func _column(r: Rect2) -> void:
 	for i in range(list.size()):
 		var m: String = list[i]
 		var y := r.position.y + i * row_h
-		var faction: String = FactionCatalog.split(m)[0]
+		var faction: String = (market.books[m] as MarketState.Book).faction
 		var ch := market.change(m)
 		var col := UP if ch >= 0.0 else DOWN
 		draw_rect(Rect2(r.position.x, y + 10, 26, row_h - 22), CHIPS.get(faction, LINE))
@@ -172,7 +181,7 @@ func _ticker(r: Rect2, font_size: float) -> void:
 	draw_line(Vector2(r.position.x, r.position.y), Vector2(r.end.x, r.position.y), DIM, 1.0)
 	for i in range(list.size() * 2):
 		var m: String = list[i % list.size()]
-		var faction: String = FactionCatalog.split(m)[0]
+		var faction: String = (market.books[m] as MarketState.Book).faction if market.books.has(m) else FactionCatalog.split(m)[0]
 		var ch := market.change(m)
 		var col := UP if ch >= 0.0 else DOWN
 		var x := r.position.x + i * cell

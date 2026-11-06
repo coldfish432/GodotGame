@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Material" path="res://materials/cargo_panel_mild.tres" id="1_mild"]
+[ext_resource type="Material" path="res://materials/cargo_panel_weathered.tres" id="2_weathered"]
+
+[sub_resource type="Environment" id="Environment_review"]
+background_mode = 1
+background_color = Color(0.18, 0.18, 0.18, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.2
+reflected_light_source = 1
+tonemap_mode = 0
+tonemap_exposure = 1.0
+ssr_enabled = false
+ssao_enabled = false
+ssil_enabled = false
+sdfgi_enabled = false
+glow_enabled = false
+fog_enabled = false
+volumetric_fog_enabled = false
+adjustment_enabled = false
+
+[sub_resource type="BoxMesh" id="BoxMesh_panel"]
+size = Vector3(1.2, 1.2, 0.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_panel_b"]
+size = Vector3(1.2, 1.2, 0.1)
+
+[node name="MaterialReview" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_review")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0.286788, -0.409576, 0, 0.819152, 0.573576, 0.5, -0.496732, 0.709406, 0, 3, 2)
+light_color = Color(1, 1, 1, 1)
+light_energy = 1.0
+
+[node name="RakingLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 3, 2)
+visible = false
+light_color = Color(1, 1, 1, 1)
+light_energy = 1.0
+
+[node name="PanelA_Mild" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 0.7, 0)
+mesh = SubResource("BoxMesh_panel")
+material_override = ExtResource("1_mild")
+
+[node name="PanelB_Weathered" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 0.7, 0)
+mesh = SubResource("BoxMesh_panel_b")
+material_override = ExtResource("2_weathered")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 2.6)
+fov = 50.0
+current = true

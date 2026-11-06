@@ -42,11 +42,13 @@ func run() -> void:
 	game.fixed_market_seed = 77
 	root.add_child(game)
 	await step(8)
-	game.rng.seed = 77
+	game.seed_rng(77)
 	var ex := game.exchange
 	var market := game.market
 	game.gold = 500000
-	check("a new base starts with 喀兰贸易 at R1 and the exchange unbuilt", not ex.unlocked() and ex.rank("karlan") == 1 and ex.rank("lungmen") == 0)
+	check("a new base starts by each faction's attitude, the exchange unbuilt", not ex.unlocked() and ex.rank("karlan") == 2 and ex.rank("lungmen") == 1 and ex.rank("ursus") == 0)
+	# The rank gifts (test_faction_rewards) would land in this suite's warehouse counts.
+	for f in FactionCatalog.ORDER: ex.rank_gifts[f] = FactionRewards.GIFT_RANKS.duplicate()
 	game.base.set_facility("exchange", 1)
 	check("built, it opens (基建设施修订案 v1.1)", ex.unlocked())
 	# --- Spot ---------------------------------------------------------------------
@@ -57,21 +59,22 @@ func run() -> void:
 	var armor := stash_add(MaterialCatalog.create("防具包", 1))
 	set_index("lungmen:armor", 1.0)
 	var q := ex.quote_sell(armor, "lungmen")
-	var expected := 40000.0 * 1.25 * market.bid("lungmen:armor") * (1.0 - minf(0.3, 0.5 * 50000.0 / market.depth("lungmen:armor"))) * (1.0 - 0.04)
-	check("龙门商会 quotes base × preference × bid − slippage − 4%%: %.0f" % float(q.net), q.ok and absf(float(q.net) - expected) < 1.0 and q.currency == "lmd")
+	var expected := 40000.0 * 1.25 * market.bid("lungmen:armor") * (1.0 - minf(0.3, 0.5 * 50000.0 / market.depth("lungmen:armor"))) * (1.0 - 0.035)
+	check("龙门商会 quotes base × preference × bid − slippage − 3.5%% (中立): %.0f" % float(q.net), q.ok and absf(float(q.net) - expected) < 1.0 and q.currency == "lmd")
 	var gold_before := game.gold
 	check("selling pays 龙门币", ex.sell_item(armor, "lungmen") and game.gold - gold_before == floori(float(q.net)) and not game.stash.has(armor))
 	check("selling builds relation and pushes the market", ex.relation("lungmen") > 0 and market.books["lungmen:armor"].p > 0.0)
 	var cube := stash_add(MaterialCatalog.create("源石包", 1))
 	var rq := ex.quote_sell(cube, "rhine")
 	var acct := ex.gold_account
-	check("莱茵生命 pays into the 赤金 account (fixed 1000 base)", rq.currency == "gold" and ex.sell_item(cube, "rhine") and absf(ex.gold_account - acct - float(rq.net)) < 0.02)
+	check("莱茵生命 pays 金券 into its account (地区货币策划案 §1.5)", rq.currency == "col" and ex.sell_item(cube, "rhine") and absf(ex.balance("col") - float(rq.net)) < 0.02)
 	var ore := FieldCatalog.exclusive("mine")
 	game.inventory.try_add(ore)
 	check("a field-only faction refuses remote trade", not ex.quote_sell(ore, "reunion").ok and ex.quote_sell(ore, "reunion", false).ok)
 	ex.relations["lungmen"] = 50
 	var dirty := stash_add(MaterialCatalog.create("违禁品包", 1))
 	check("contraband to 鼠王 costs 龙门商会 relation", ex.sell_item(dirty, "rat") and ex.relation("lungmen") == 45)
+	ex.relations["karlan"] = Exchange.RANK_AT[1]
 	var fee_r1 := ex.remote_fee("karlan")
 	ex.relations["karlan"] = Exchange.RANK_AT[5]
 	check("the remote fee falls 0.5%% a rank: %.3f, %.3f" % [fee_r1, ex.remote_fee("karlan")], is_equal_approx(fee_r1, 0.035) and is_equal_approx(ex.remote_fee("karlan"), 0.015))
@@ -104,8 +107,9 @@ func run() -> void:
 	set_index("lungmen:build", 1.0)
 	var balance := game.gold
 	check("a 交货合约 needs the rank for its leverage", not ex.forward_refusal("lungmen", 3).is_empty() if ex.rank("lungmen") < 3 else true)
-	check("forwards are on packs only", not ex.open_forward("lungmen", "螺栓", 10, 0, true, 2) and ex.forward_materials("lungmen").has("建材包"))
-	check("opening a forward takes margin and fee", ex.open_forward("lungmen", "建材包", 2, 0, true, 2) and game.gold < balance)
+	check("forwards are on packs only", not ex.open_forward("lungmen", "螺栓", 10, 0, true, 3) and ex.forward_materials("lungmen").has("建材包"))
+	check("2× is not a step for goods (1/3/5/10/15/20)", not ex.open_forward("lungmen", "建材包", 2, 0, true, 2) and ex.forward_refusal("lungmen", 2) == "杠杆不可用")
+	check("opening a forward takes margin and fee", ex.open_forward("lungmen", "建材包", 2, 0, true, 3) and game.gold < balance)
 	var f: Dictionary = ex.forwards[-1]
 	check("the deliver price is under spot", float(f.k) < ex.material_spot("lungmen", "建材包", true))
 	stash_add(MaterialCatalog.create("建材包", 2))
@@ -133,7 +137,7 @@ func run() -> void:
 	game.gold = 500000
 	ex.loan = 0
 	set_index("fx", 1.0)
-	check("a CFD on the rate opens long 2×", ex.open_cfd("fx", 1, 2, 20000.0))
+	check("a CFD on the rate opens long 5× (R1)", ex.open_cfd("fx", 1, 5, 8000.0))
 	var c: Dictionary = ex.cfds[-1]
 	set_index("fx", 2.0)   # profit about 40,000
 	check("a rising rate shows profit: %.0f" % ex.cfd_pnl(c), ex.cfd_pnl(c) > 19000.0)
@@ -141,7 +145,7 @@ func run() -> void:
 	var profit := ex.cfd_pnl(c) - float(c.notional) * Exchange.CFD_FEE
 	ex.close_cfd(c.id)
 	# 用户 2026-10-23: no daily cap on CFD profit.
-	check("closing pays the margin plus the whole profit: +%d" % (game.gold - balance), absf(game.gold - balance - (20000.0 + profit)) <= 1.0)
+	check("closing pays the margin plus the whole profit: +%d" % (game.gold - balance), absf(game.gold - balance - (8000.0 + profit)) <= 1.0)
 	check("nothing waits for the next trading day", ex.cfd_pending() == 0.0)
 	ex.cfd_day.pending_lmd = 5000.0   # held back on a save from before the cap went
 	balance = game.gold
@@ -154,16 +158,19 @@ func run() -> void:
 	game.gold = 900000
 	ex.relations["karlan"] = Exchange.RANK_AT[1]
 	check("the notional cap per issuer", not ex.open_cfd("fx", 1, 1, 60000.0) and ex.cfd_refusal("fx", 1, 60000.0) == "持仓上限")
+	ex.relations["kazimierz"] = 0
 	check("leverage needs the issuer's rank", not ex.open_cfd("comp:lungmen", 1, 2, 5.0))
+	ex.relations["kazimierz"] = Exchange.RANK_AT[1]
 	ex.open_cfd("fx", -1, 1, 10000.0)
 	var short: Dictionary = ex.cfds[-1]
 	var margin_before := float(short.margin)
 	later(MarketState.next_day_start(market.t) - market.t + 4)
-	check("an overnight fee comes off the margin at 08:00", float(short.margin) < margin_before)
+	check("a short on 龙门币/赤金 earns the swap at 08:00", float(short.margin) > margin_before and absf(float(short.margin) - margin_before - float(short.notional) * market.policy_rate("lmd") / 365.0) < 0.01)
 	ex.set_cfd_limits(short.id, 0.0, ex.cfd_price("fx") * 1.01)
 	set_index("fx", 3.0)   # up from 2.0: past the short's stop
 	later(4)
 	check("a stop-loss closes the short", not ex.cfds.has(short))
+	_leverage()
 	# --- Loans --------------------------------------------------------------------
 	game.gold = 0
 	check("the loan limit follows 交易所's level: %d" % ex.loan_limit(), ex.loan_limit() == Exchange.LOAN_STEP * maxi(1, game.base.facility_level("exchange")))
@@ -191,13 +198,11 @@ func run() -> void:
 	acct = ex.gold_account
 	check("bars go into the account", ex.deposit_bars(3) and absf(ex.gold_account - acct - 3.0) < 0.01)
 	check("whole bars come out to the warehouse", ex.withdraw_bars(2) and game.base.shelf.any(func(i): return i.material_id == Economy.GOLD_ID))
+	_currencies()
 	var fee_item := MaterialCatalog.create("螺栓", 10)
 	check("the camp's deposit fee uses the live rate", game.deposit_fee(fee_item) == maxi(1, ceili(Economy.price(fee_item) * FieldCatalog.DEPOSIT_FEE / Economy.fx)))
-	# --- Direct delivery ----------------------------------------------------------
-	var plain := stash_add(MaterialCatalog.create("螺栓", 10))
-	balance = game.gold
-	game.sell(plain)
-	check("plain delivery pays 80%% of 交付价: %d" % (game.gold - balance), game.gold - balance == roundi(Economy.price(MaterialCatalog.create("螺栓", 10)) * 0.8))
+	# Direct delivery is gone (用户 2026-10-25: 只能在可露希尔处卖).
+	check("there is no plain delivery", not game.has_method("sell"))
 	# --- 企鹅物流 -------------------------------------------------------------------
 	game.gold = 100000
 	check("企鹅物流 carries packs only", not ex.ship(stash_add(MaterialCatalog.create("医用耗材包", 10)), "reunion"))
@@ -255,6 +260,8 @@ func run() -> void:
 	check("a post pays whole 赤金 into the pack, rounded down, no fee", game.post_sell(meds) and game.gold_bars() - bars_before == floori(float(post_q.net)) and absf(ex.gold_account - acct) < 0.001)
 	check("a field price shows the bars and the exact quote", Exchange.format_field("gold", 2.88) == "2 赤金 (2.88)" and Exchange.format_field("gold", 2.12, true) == "3 赤金 (2.12)" and Exchange.field_bars(3.0, true) == 3 and Exchange.field_bars(0.49) == 0)
 	game.give_gold_bars(100)
+	# 整合运动残党 starts 冷漠 and sells nothing then (势力声望解锁策划案 §2.5–2.6).
+	ex.relations["reunion"] = Exchange.RANK_AT[1]
 	bars_before = game.gold_bars()
 	var rate_before := game.contamination_rate()
 	var unit := float(ex.quote_buy("reunion", "源岩").unit)
@@ -290,5 +297,97 @@ func run() -> void:
 	check("back at the base the swan pops up", game._swan_panel.visible or not game.base_walk_active())
 	game.close_swan_popup()
 	check("and closes", game.swan_popup.is_empty())
+	_field()
 	print("TEST_EXCHANGE: %d failures" % failures)
 	quit(1 if failures > 0 else 0)
+
+## 地区货币策划案 §9: Japan's caps by kind, rank by rank; calls and cuts.
+func _leverage() -> void:
+	var ex := game.exchange
+	check("the steps: FX 25×, index 10×, goods 20×", Exchange.leverage_cap("fx_col") == 25 and Exchange.leverage_cap("comp:rhine") == 10 and Exchange.leverage_cap("lungmen:armor") == 20 and Exchange.leverage_cap("rat:contraband") == 20)
+	check("rank n opens the n-th step", Exchange.rank_for("fx", 25) == 5 and Exchange.rank_for("comp:karlan", 2) == 1 and Exchange.rank_for("karlan:cold", 2) == -1)
+	game.gold = 900000
+	ex.loan = 0
+	ex.cfds.clear()
+	ex.relations["karlan"] = Exchange.RANK_AT[2]
+	check("10× on FX needs R2, 15× is refused", ex.cfd_refusal("fx", 15, 1000.0) == "需要喀兰贸易关系 尊敬" and ex.cfd_refusal("fx", 10, 1000.0).is_empty())
+	set_index("fx", 1.0)
+	ex.open_cfd("fx", 1, 10, 5000.0)
+	var c: Dictionary = ex.cfds[-1]
+	check("a position carries its cap", int(c.cap) == 25 and is_equal_approx(ex.margin_ratio(c, 0.0), 2.5))
+	# Down 7%: equity 1500 on a 50,000 notional needs 2000 → a call.
+	set_index("fx", 0.93)
+	later(4)
+	check("under 100%% a call until 08:00: %.2f" % ex.margin_ratio(c, ex.cfd_pnl(c)), ex.cfds.has(c) and int(c.get("call_until", 0)) == MarketState.next_day_start(game.market.t))
+	var gold := game.gold
+	check("topping up clears it", ex.add_margin(int(c.id), 2000.0))
+	later(4)
+	check("back over 100%", not c.has("call_until"))
+	# Gapped down: under 50% it is closed at once, what is left comes back.
+	set_index("fx", 0.876)
+	gold = game.gold
+	later(4)
+	check("under 50%% it is closed at once and the rest comes back: +%d" % (game.gold - gold), not ex.cfds.has(c) and game.gold > gold and ex.history[-1].kind == "liquidated")
+	ex.open_cfd("fx", 1, 10, 5000.0)
+	c = ex.cfds[-1]
+	set_index("fx", 0.5)
+	gold = game.gold
+	later(4)
+	check("gapped through the margin: closed, nothing owed", not ex.cfds.has(c) and game.gold == gold)
+	set_index("fx", 1.0)
+	# Crosses against 龙门币: FX steps, margin in 龙门币, the rate gap as swap.
+	check("a cross is FX: 25× and 龙门币 margin", Exchange.leverage_cap("x_col") == 25 and Exchange.cfd_currency("x_col") == "lmd" and "x_kje" in ex.cfd_underlyings())
+	check("a cross opens", ex.open_cfd("x_col", 1, 10, 3000.0))
+	var x: Dictionary = ex.cfds[-1]
+	check("long 金券 / 龙门币 earns 金券's rate less 龙门币's", absf(ex.overnight(x) - (game.market.policy_rate("col") - game.market.policy_rate("lmd")) / 365.0 * float(x.notional)) < 1e-6)
+	ex.close_cfd(int(x.id))
+
+## 地区货币策划案 §1.2–1.3: foreign accounts, the changer, interest.
+func _currencies() -> void:
+	var ex := game.exchange
+	game.gold = 100000
+	var q := ex.quote_convert("lmd", "col", 10000.0)
+	check("龙门币 → 金券 crosses through 赤金 at both spreads ×0.75: %.2f%%" % (float(q.spread) * 100.0), q.ok and is_equal_approx(float(q.spread), (0.005 + 0.006) * 0.75))
+	check("and pays the live cross rate", absf(float(q.out) - 10000.0 / Economy.fx * Currencies.rate("col") * (1.0 - float(q.spread))) < 0.01)
+	var col_before := ex.balance("col")
+	check("changing moves the balances", ex.convert_fx("lmd", "col", 10000.0) and game.gold == 90000 and absf(ex.balance("col") - col_before - float(q.out)) < 0.02)
+	var held := ex.balance("col")
+	later(MarketState.next_day_start(game.market.t) - game.market.t + 4)
+	check("interest at 08:00 at the policy rate (less any F17 fee): %.2f → %.2f" % [held, ex.balance("col")], absf(ex.balance("col") - held * (1.0 + game.market.policy_rate("col") / 365.0) * (1.0 - game.market.custody_rate())) < 0.03)
+	game.market.fire("F26", {})
+	check("a halt stops changing 卢布 out", not ex.quote_convert("urs", "gold", 10.0).ok and ex.quote_convert("urs", "gold", 10.0).why == "暂停换出")
+	check("foreign money counts in the account value", ex.account_value() > float(game.gold) + ex.gold_account * Economy.fx - ex.loan + 1.0)
+
+## 地区货币策划案 §2: the news in the field, read through GameManager.
+func _field() -> void:
+	var m := game.market
+	m.field.clear()
+	m.fire("I17", {})
+	m.fire("F16", {})
+	m.fire("I9", {}).rumor.truth = true
+	m._verify(m.effects[-1])
+	m.fire("I8", {})
+	var region := game.region_id
+	game.region_id = "mine"
+	game.market_field = m.field_mods("mine")
+	check("the floor reads its region: threat %.2f" % game.field_mult("threat"), is_equal_approx(game.field_mult("threat"), 1.2) and game.field_mult("gold_drop") == 1.0)
+	check("and the world-wide ones: 坎诺特 pays ×0.85", is_equal_approx(game.field_mult("kannot_buy"), 0.85))
+	var gear := LootTables.roll_equipment(Item.Category.WEAPON, "", "mine", 5, 1, RandomNumberGenerator.new())
+	gear.value = 200
+	var plain := maxi(1, floori(gear.value * FieldCatalog.TRADER_BUYBACK / 10.0))
+	check("坎诺特 pays less for gear: %d → %d" % [plain, game.trader_offer(gear)], game.trader_offer(gear) == floori(200 * FieldCatalog.TRADER_BUYBACK / 10.0 * 0.85))
+	check("loot leans to weapons", is_equal_approx(LootTables.field_loot(game.loot_ctx(), "weapon"), 1.2))
+	check("the feature grows by the news on its own map only", game.field_feature_rate("mine") == game.field_mult("feature_rate") and game.field_feature_rate("snow") == 1.0)
+	check("the route odds take the news", game._route_mults({"trader": 1.5}).trader == 1.5)
+	game.region_id = "city"
+	game.market_field = m.field_mods("city")
+	var swapped := 0
+	var pool: Array = EnemyAttacks.REGION_POOLS.city.normal
+	for i in range(2000):
+		if game._field_enemy(str(pool[0]), "normal", pool) in GameManager.FIELD_ENEMY_TAGS.family.normal: swapped += 1
+	check("family hitmen in Lungmen: %d / 2000 picks" % swapped, swapped > 300 and swapped < 520)
+	check("the route reads I8 on Siracusa only", not game._route_mults({}).has("trader"))
+	check("the snapshot is saved with the run", "market_field" in RunSave.GAME_KEYS)
+	game.market_field = {}
+	game.region_id = region
+	m.field.clear()

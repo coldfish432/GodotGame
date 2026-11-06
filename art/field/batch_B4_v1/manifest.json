@@ -1,0 +1,927 @@
+{
+  "version": "B4_v1",
+  "generator": "built-in imagegen",
+  "cell_size": 256,
+  "directions": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "boards": [
+    {
+      "id": "patriot",
+      "rows": 31,
+      "old_rows": 16,
+      "cell_size": 256,
+      "old_rgba_sha256": "b606be04b6ff084d889cee5fbbbe8649a171c980b199050152432033d3d1ea44",
+      "new_rows": [
+        {
+          "index": 16,
+          "name": "THRUST-SET",
+          "source": "p_thrust_stomp_corrected.png",
+          "source_sha256": "8a8b0316954629798c206c8bb5bc18f55f8c6f664022fdb7a85313f9f8c2e209",
+          "shared_scale": 1.1012658227848102
+        },
+        {
+          "index": 17,
+          "name": "THRUST-FOLLOW",
+          "source": "p_thrust_stomp_corrected.png",
+          "source_sha256": "8a8b0316954629798c206c8bb5bc18f55f8c6f664022fdb7a85313f9f8c2e209",
+          "shared_scale": 1.1012658227848102
+        },
+        {
+          "index": 18,
+          "name": "STOMP-SHIFT",
+          "source": "p_thrust_stomp_corrected.png",
+          "source_sha256": "8a8b0316954629798c206c8bb5bc18f55f8c6f664022fdb7a85313f9f8c2e209",
+          "shared_scale": 1.1012658227848102
+        },
+        {
+          "index": 19,
+          "name": "STOMP-RISE",
+          "source": "p_thrust_stomp_corrected.png",
+          "source_sha256": "8a8b0316954629798c206c8bb5bc18f55f8c6f664022fdb7a85313f9f8c2e209",
+          "shared_scale": 1.1012658227848102
+        },
+        {
+          "index": 20,
+          "name": "JAVELIN-LIFT",
+          "source": "p_javelin_erupt.png",
+          "source_sha256": "ca398b3c2a88751aa588293a2797a8ea3549828c949b1efb0228e05a9452d613",
+          "shared_scale": 1.12987012987013
+        },
+        {
+          "index": 21,
+          "name": "JAVELIN-RELEASE",
+          "source": "p_javelin_erupt.png",
+          "source_sha256": "ca398b3c2a88751aa588293a2797a8ea3549828c949b1efb0228e05a9452d613",
+          "shared_scale": 1.12987012987013
+        },
+        {
+          "index": 22,
+          "name": "ERUPTION-RAISE",
+          "source": "p_javelin_erupt_fix.png",
+          "source_sha256": "7bcc1f8792095c305e524a2971fa5970151dc519cd20c82c3b680565557a2c1b",
+          "shared_scale": 1.12987012987013
+        },
+        {
+          "index": 23,
+          "name": "ERUPTION-GATHER",
+          "source": "p_javelin_erupt_fix.png",
+          "source_sha256": "7bcc1f8792095c305e524a2971fa5970151dc519cd20c82c3b680565557a2c1b",
+          "shared_scale": 1.12987012987013
+        },
+        {
+          "index": 24,
+          "name": "ERUPTION-DRIVE",
+          "source": "p_javelin_erupt.png",
+          "source_sha256": "ca398b3c2a88751aa588293a2797a8ea3549828c949b1efb0228e05a9452d613",
+          "shared_scale": 1.12987012987013
+        },
+        {
+          "index": 25,
+          "name": "SHRINE-POINT",
+          "source": "p_shrine_clench.png",
+          "source_sha256": "c5efa5accf065088af3ee850fe0667a94cb2ce0c08fac69e2e266f0239eb1ba3",
+          "shared_scale": 1.0807453416149069
+        },
+        {
+          "index": 26,
+          "name": "SHRINE-SWING",
+          "source": "p_shrine_clench.png",
+          "source_sha256": "c5efa5accf065088af3ee850fe0667a94cb2ce0c08fac69e2e266f0239eb1ba3",
+          "shared_scale": 1.0807453416149069
+        },
+        {
+          "index": 27,
+          "name": "CLENCH-DRAW",
+          "source": "p_shrine_clench_fix.png",
+          "source_sha256": "453b729dccddb8b821230efc278534b8669a2f494bff571859ca3adffb7575ac",
+          "shared_scale": 1.0807453416149069
+        },
+        {
+          "index": 28,
+          "name": "CLENCH-OPEN",
+          "source": "p_shrine_clench_fix.png",
+          "source_sha256": "453b729dccddb8b821230efc278534b8669a2f494bff571859ca3adffb7575ac",
+          "shared_scale": 1.0807453416149069
+        },
+        {
+          "index": 29,
+          "name": "RALLY-RAISE",
+          "source": "p_rally_fix.png",
+          "source_sha256": "22dad5af38efcd3c5f4af62b52cd1be3486d6ca44c21996366a5a665ba436718",
+          "shared_scale": 1.0714285714285714
+        },
+        {
+          "index": 30,
+          "name": "RALLY-CALL",
+          "source": "p_rally_fix.png",
+          "source_sha256": "22dad5af38efcd3c5f4af62b52cd1be3486d6ca44c21996366a5a665ba436718",
+          "shared_scale": 1.0714285714285714
+        }
+      ]
+    },
+    {
+      "id": "rat_king",
+      "rows": 26,
+      "old_rows": 14,
+      "cell_size": 256,
+      "old_rgba_sha256": "d7651682b1dc9748c256d5487037f43187524c30e48dea6f530013af9b26cdf9",
+      "new_rows": [
+        {
+          "index": 14,
+          "name": "SHOT-GATHER",
+          "source": "r_shot_sing.png",
+          "source_sha256": "a88ca07d2e2f8e91d4010f20f80c61feee2148b49934ce137317658b0c7c9964",
+          "shared_scale": 1.1920529801324504
+        },
+        {
+          "index": 15,
+          "name": "SHOT-FOLLOW",
+          "source": "r_shot_sing.png",
+          "source_sha256": "a88ca07d2e2f8e91d4010f20f80c61feee2148b49934ce137317658b0c7c9964",
+          "shared_scale": 1.1920529801324504
+        },
+        {
+          "index": 16,
+          "name": "SING-BREATH",
+          "source": "r_shot_sing.png",
+          "source_sha256": "a88ca07d2e2f8e91d4010f20f80c61feee2148b49934ce137317658b0c7c9964",
+          "shared_scale": 1.1920529801324504
+        },
+        {
+          "index": 17,
+          "name": "SING-HUM",
+          "source": "r_shot_sing.png",
+          "source_sha256": "a88ca07d2e2f8e91d4010f20f80c61feee2148b49934ce137317658b0c7c9964",
+          "shared_scale": 1.1920529801324504
+        },
+        {
+          "index": 18,
+          "name": "PRISON-PALM",
+          "source": "r_prison_swarm.png",
+          "source_sha256": "07d36afc6418d49db51baaffcae8278677674fca2f4f1cbffbbdcd6ae74f9812",
+          "shared_scale": 1.1612903225806452
+        },
+        {
+          "index": 19,
+          "name": "PRISON-PRESS",
+          "source": "r_prison_swarm.png",
+          "source_sha256": "07d36afc6418d49db51baaffcae8278677674fca2f4f1cbffbbdcd6ae74f9812",
+          "shared_scale": 1.1612903225806452
+        },
+        {
+          "index": 20,
+          "name": "SWARM-POINT",
+          "source": "r_prison_swarm.png",
+          "source_sha256": "07d36afc6418d49db51baaffcae8278677674fca2f4f1cbffbbdcd6ae74f9812",
+          "shared_scale": 1.1612903225806452
+        },
+        {
+          "index": 21,
+          "name": "SWARM-HOLD",
+          "source": "r_prison_swarm.png",
+          "source_sha256": "07d36afc6418d49db51baaffcae8278677674fca2f4f1cbffbbdcd6ae74f9812",
+          "shared_scale": 1.1612903225806452
+        },
+        {
+          "index": 22,
+          "name": "SNAP",
+          "source": "r_call_storm.png",
+          "source_sha256": "3dc12f2d04744ad15b41f23206b96aec9058289351ff6d21b924b95c73e5ea2e",
+          "shared_scale": 1.2587412587412588
+        },
+        {
+          "index": 23,
+          "name": "BECKON",
+          "source": "r_call_storm.png",
+          "source_sha256": "3dc12f2d04744ad15b41f23206b96aec9058289351ff6d21b924b95c73e5ea2e",
+          "shared_scale": 1.2587412587412588
+        },
+        {
+          "index": 24,
+          "name": "STORM-SWIRL",
+          "source": "r_storm_single.png",
+          "source_sha256": "b42798bc0e2e6600cdcee64e8ac301e3c14208db9a79a2c862801be5a0d0129e",
+          "shared_scale": 1.2587412587412588
+        },
+        {
+          "index": 25,
+          "name": "STORM-STAMP",
+          "source": "r_call_storm.png",
+          "source_sha256": "3dc12f2d04744ad15b41f23206b96aec9058289351ff6d21b924b95c73e5ea2e",
+          "shared_scale": 1.2587412587412588
+        }
+      ]
+    },
+    {
+      "id": "eikthyrnir",
+      "rows": 24,
+      "old_rows": 15,
+      "cell_size": 256,
+      "old_rgba_sha256": "363f3f5c696bde918c27b3f0dd0b687a3e96cdf22f89c0be44735de8dea33090",
+      "new_rows": [
+        {
+          "index": 15,
+          "name": "SWEEP-SET",
+          "source": "e_sweep_hurl.png",
+          "source_sha256": "f81cb4c8577a5b14d20f855e95da3c51f62a50a3c9f20d46c671b6fdb8a8f6f3",
+          "shared_scale": 0.9625668449197861
+        },
+        {
+          "index": 16,
+          "name": "SWEEP-FOLLOW",
+          "source": "e_sweep_hurl.png",
+          "source_sha256": "f81cb4c8577a5b14d20f855e95da3c51f62a50a3c9f20d46c671b6fdb8a8f6f3",
+          "shared_scale": 0.9625668449197861
+        },
+        {
+          "index": 17,
+          "name": "HURL-RAISE",
+          "source": "e_sweep_hurl.png",
+          "source_sha256": "f81cb4c8577a5b14d20f855e95da3c51f62a50a3c9f20d46c671b6fdb8a8f6f3",
+          "shared_scale": 0.9625668449197861
+        },
+        {
+          "index": 18,
+          "name": "HURL-COCK",
+          "source": "e_sweep_hurl.png",
+          "source_sha256": "f81cb4c8577a5b14d20f855e95da3c51f62a50a3c9f20d46c671b6fdb8a8f6f3",
+          "shared_scale": 0.9625668449197861
+        },
+        {
+          "index": 19,
+          "name": "ENTROPY-SMASH",
+          "source": "e_entropy_call.png",
+          "source_sha256": "da3505f4d06f996180efc9a7c51818f10c4510b8bf835e384178223069939596",
+          "shared_scale": 1.0362694300518134
+        },
+        {
+          "index": 20,
+          "name": "ENTROPY-HOLD",
+          "source": "e_entropy_call.png",
+          "source_sha256": "da3505f4d06f996180efc9a7c51818f10c4510b8bf835e384178223069939596",
+          "shared_scale": 1.0362694300518134
+        },
+        {
+          "index": 21,
+          "name": "TREESCAR-CALL",
+          "source": "e_entropy_call.png",
+          "source_sha256": "da3505f4d06f996180efc9a7c51818f10c4510b8bf835e384178223069939596",
+          "shared_scale": 1.0362694300518134
+        },
+        {
+          "index": 22,
+          "name": "RAMPAGE-SET",
+          "source": "e_rampage.png",
+          "source_sha256": "61e10c8a46c8aabe050de078a48142b2deaceae64989c7bd50e74becab077e57",
+          "shared_scale": 0.8465608465608465
+        },
+        {
+          "index": 23,
+          "name": "RAMPAGE-SKID",
+          "source": "e_rampage.png",
+          "source_sha256": "61e10c8a46c8aabe050de078a48142b2deaceae64989c7bd50e74becab077e57",
+          "shared_scale": 0.8465608465608465
+        }
+      ]
+    },
+    {
+      "id": "zaro",
+      "rows": 21,
+      "old_rows": 13,
+      "cell_size": 256,
+      "old_rgba_sha256": "cad2a42ae2a8e600cede358b8f047c78a5c0a5247e923c41b583401f7963fe4e",
+      "new_rows": [
+        {
+          "index": 13,
+          "name": "STARE",
+          "source": "z_lying.png",
+          "source_sha256": "15e39166e1167954218ca0e5a6c65f3907b5cff97e37763107b4ae551a59645f",
+          "shared_scale": 0.7342192691029901
+        },
+        {
+          "index": 14,
+          "name": "GROWL",
+          "source": "z_lying_fix.png",
+          "source_sha256": "ae10dd87b7d1a51904df197a40f971ba1a8dee7f25524d0b23d4edd82e86e4a3",
+          "shared_scale": 0.7342192691029901
+        },
+        {
+          "index": 15,
+          "name": "POUNCE-LAND",
+          "source": "z_pounce_bite.png",
+          "source_sha256": "a514cbda0164b4bc4e9e109eff668c2be30347ba530ecce676618949b6770d05",
+          "shared_scale": 1.125
+        },
+        {
+          "index": 16,
+          "name": "BITE-REAR",
+          "source": "z_pounce_bite.png",
+          "source_sha256": "a514cbda0164b4bc4e9e109eff668c2be30347ba530ecce676618949b6770d05",
+          "shared_scale": 1.125
+        },
+        {
+          "index": 17,
+          "name": "BITE-SNAP",
+          "source": "z_pounce_bite_fix.png",
+          "source_sha256": "0cff4a6c1857e367a0a7cb4b7d54ce50fbb10fbac2f625c74162f78b69f4d028",
+          "shared_scale": 1.125
+        },
+        {
+          "index": 18,
+          "name": "BITE-TEAR",
+          "source": "z_pounce_bite.png",
+          "source_sha256": "a514cbda0164b4bc4e9e109eff668c2be30347ba530ecce676618949b6770d05",
+          "shared_scale": 1.125
+        },
+        {
+          "index": 19,
+          "name": "HOWL-SWELL",
+          "source": "z_howl_pack.png",
+          "source_sha256": "d9919b04c460506561e5dcac0ca8163caae8e3ed568d142646ca502b738d1fad",
+          "shared_scale": 0.7142857142857143
+        },
+        {
+          "index": 20,
+          "name": "PACK-CALL",
+          "source": "z_howl_pack.png",
+          "source_sha256": "d9919b04c460506561e5dcac0ca8163caae8e3ed568d142646ca502b738d1fad",
+          "shared_scale": 0.7142857142857143
+        }
+      ]
+    }
+  ],
+  "generation_record": "D:\\\u7b56\u5212\u6d4b\u8bd5\u9898\\B4_work\\generation_record.json",
+  "qa": {
+    "sequence_count": 24,
+    "sequence_selection": "Source-derived Boss.pose_row / BossCatalog.ANIM fallback, no Godot execution.",
+    "visual_acceptance": "pending user review of pose exaggeration, heading, weapon identity, scale and continuity",
+    "runtime": "not run; .gdignore prevents batch importing automatically",
+    "contract_verification": {
+      "boards": 4,
+      "new_rows": 44,
+      "new_cells": 352,
+      "old_prefix_match": {
+        "patriot": true,
+        "rat_king": true,
+        "eikthyrnir": true,
+        "zaro": true
+      },
+      "edge_contact_cells": [],
+      "baked_edge_contact_cells": [
+        [
+          "patriot",
+          19,
+          1
+        ],
+        [
+          "patriot",
+          21,
+          2
+        ],
+        [
+          "patriot",
+          21,
+          3
+        ],
+        [
+          "patriot",
+          23,
+          0
+        ],
+        [
+          "patriot",
+          23,
+          1
+        ],
+        [
+          "patriot",
+          23,
+          6
+        ],
+        [
+          "patriot",
+          27,
+          1
+        ],
+        [
+          "patriot",
+          27,
+          2
+        ],
+        [
+          "patriot",
+          27,
+          7
+        ],
+        [
+          "patriot",
+          28,
+          0
+        ],
+        [
+          "patriot",
+          28,
+          1
+        ],
+        [
+          "patriot",
+          28,
+          2
+        ],
+        [
+          "patriot",
+          28,
+          3
+        ],
+        [
+          "patriot",
+          28,
+          7
+        ],
+        [
+          "patriot",
+          29,
+          1
+        ],
+        [
+          "patriot",
+          29,
+          2
+        ],
+        [
+          "patriot",
+          29,
+          6
+        ],
+        [
+          "patriot",
+          29,
+          7
+        ],
+        [
+          "patriot",
+          30,
+          0
+        ],
+        [
+          "patriot",
+          30,
+          2
+        ],
+        [
+          "patriot",
+          30,
+          3
+        ],
+        [
+          "patriot",
+          30,
+          4
+        ],
+        [
+          "patriot",
+          30,
+          5
+        ],
+        [
+          "patriot",
+          30,
+          6
+        ],
+        [
+          "patriot",
+          30,
+          7
+        ],
+        [
+          "eikthyrnir",
+          21,
+          0
+        ],
+        [
+          "eikthyrnir",
+          21,
+          1
+        ],
+        [
+          "eikthyrnir",
+          21,
+          2
+        ],
+        [
+          "eikthyrnir",
+          21,
+          3
+        ],
+        [
+          "eikthyrnir",
+          21,
+          4
+        ],
+        [
+          "eikthyrnir",
+          21,
+          5
+        ],
+        [
+          "eikthyrnir",
+          21,
+          6
+        ],
+        [
+          "eikthyrnir",
+          21,
+          7
+        ],
+        [
+          "zaro",
+          15,
+          2
+        ],
+        [
+          "zaro",
+          16,
+          0
+        ],
+        [
+          "zaro",
+          16,
+          1
+        ],
+        [
+          "zaro",
+          16,
+          2
+        ],
+        [
+          "zaro",
+          16,
+          3
+        ],
+        [
+          "zaro",
+          16,
+          4
+        ],
+        [
+          "zaro",
+          16,
+          6
+        ]
+      ],
+      "foot_y_counts": {
+        "247": 352
+      },
+      "duplicate_directions": [],
+      "repeated_new_N_cells": [],
+      "sequence_count": 24
+    },
+    "baker_fit_assertion_passed": true,
+    "baked_edge_contact_note": "40 new runtime cells touch an edge after required baker translation. bake_n2.py fit_within_cell checks every processed silhouette <=64x64 and only translates; no oversize exceptions. Edge contact is not asserted absent."
+  },
+  "weapon_override": {
+    "character": "patriot",
+    "scope": "44 B4 rows include 15 Patriot rows; all new Patriot rows use PRTS black openwork multi-point lance",
+    "authorization": "User selected PRTS black multi-point lance in this chat",
+    "old_rows": "Preserved pixel-identical as required; accepted prefix retains older weapon artwork."
+  },
+  "sequence_order": [
+    {
+      "id": "patriot",
+      "move": "thrust",
+      "rows": [
+        16,
+        11,
+        5,
+        17
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "stomp",
+      "rows": [
+        18,
+        6,
+        12,
+        19
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "javelin",
+      "rows": [
+        20,
+        13,
+        21,
+        7
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "eruption",
+      "rows": [
+        22,
+        23,
+        24,
+        8
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "raise_shrine",
+      "rows": [
+        26,
+        8,
+        25,
+        25
+      ],
+      "fallback_beats": [
+        "charge",
+        "recover"
+      ]
+    },
+    {
+      "id": "patriot",
+      "move": "shrine_call",
+      "rows": [
+        27,
+        14,
+        28,
+        28
+      ],
+      "fallback_beats": [
+        "recover"
+      ]
+    },
+    {
+      "id": "patriot",
+      "move": "guerrillas",
+      "rows": [
+        29,
+        2,
+        30,
+        30
+      ],
+      "fallback_beats": [
+        "charge",
+        "recover"
+      ]
+    },
+    {
+      "id": "rat_king",
+      "move": "sand_shot",
+      "rows": [
+        14,
+        9,
+        5,
+        15
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "rat_king",
+      "move": "sing",
+      "rows": [
+        16,
+        17,
+        6,
+        6
+      ],
+      "fallback_beats": [
+        "recover"
+      ]
+    },
+    {
+      "id": "rat_king",
+      "move": "prison",
+      "rows": [
+        18,
+        18,
+        19,
+        19
+      ],
+      "fallback_beats": [
+        "start",
+        "recover"
+      ]
+    },
+    {
+      "id": "rat_king",
+      "move": "stampede",
+      "rows": [
+        10,
+        7,
+        20,
+        21
+      ],
+      "fallback_beats": [
+        "charge"
+      ]
+    },
+    {
+      "id": "rat_king",
+      "move": "grey_tails",
+      "rows": [
+        22,
+        5,
+        23,
+        23
+      ],
+      "fallback_beats": [
+        "charge",
+        "recover"
+      ]
+    },
+    {
+      "id": "rat_king",
+      "move": "sandstorm",
+      "rows": [
+        24,
+        2,
+        25,
+        25
+      ],
+      "fallback_beats": [
+        "charge",
+        "recover"
+      ]
+    },
+    {
+      "id": "eikthyrnir",
+      "move": "sweep",
+      "rows": [
+        15,
+        10,
+        5,
+        16
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "eikthyrnir",
+      "move": "hurl",
+      "rows": [
+        17,
+        18,
+        6,
+        11
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "eikthyrnir",
+      "move": "entropy",
+      "rows": [
+        8,
+        2,
+        19,
+        20
+      ],
+      "fallback_beats": [
+        "charge"
+      ]
+    },
+    {
+      "id": "eikthyrnir",
+      "move": "treescar",
+      "rows": [
+        8,
+        8,
+        21,
+        21
+      ],
+      "fallback_beats": [
+        "charge",
+        "recover"
+      ]
+    },
+    {
+      "id": "eikthyrnir",
+      "move": "rampage",
+      "rows": [
+        22,
+        7,
+        7,
+        23
+      ],
+      "fallback_beats": [
+        "charge"
+      ]
+    },
+    {
+      "id": "zaro",
+      "move": "dread",
+      "rows": [
+        13,
+        13,
+        5,
+        5
+      ],
+      "fallback_beats": [
+        "start",
+        "recover"
+      ]
+    },
+    {
+      "id": "zaro",
+      "move": "call_family",
+      "rows": [
+        1,
+        2,
+        14,
+        14
+      ],
+      "fallback_beats": [
+        "start",
+        "charge",
+        "recover"
+      ]
+    },
+    {
+      "id": "zaro",
+      "move": "pounce",
+      "rows": [
+        11,
+        11,
+        7,
+        15
+      ],
+      "fallback_beats": [
+        "start"
+      ]
+    },
+    {
+      "id": "zaro",
+      "move": "bite",
+      "rows": [
+        16,
+        2,
+        17,
+        18
+      ],
+      "fallback_beats": [
+        "charge"
+      ]
+    },
+    {
+      "id": "zaro",
+      "move": "howl",
+      "rows": [
+        19,
+        8,
+        8,
+        8
+      ],
+      "fallback_beats": [
+        "strike",
+        "recover"
+      ]
+    },
+    {
+      "id": "zaro",
+      "move": "pack",
+      "rows": [
+        19,
+        8,
+        20,
+        20
+      ],
+      "fallback_beats": [
+        "recover"
+      ]
+    }
+  ],
+  "files": {
+    ".gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "eikthyrnir_action.png": "4a28b8c39604b7ceb9a8526ffbd0f6bac4b10702206f458c2a84d9f19d98c360",
+    "eikthyrnir_action_64.png": "d27f05bc959e1bad7b34fe4ebc78b3ebb18d00900620056437a7819104ee0809",
+    "eikthyrnir_action_64_x6.png": "7e60a2f3afe52fded4ea40d4d5b2ccb8f2617233d40fcd0d6cefad096700b31b",
+    "patriot_action.png": "ac1ff3acabe4d3535c1f3eb1ea927d82267304bb0109a2b19fc4ed06bbe9f81a",
+    "patriot_action_64.png": "8d7674460c158b773f38dab77433223426dadb0094c8940432bb9a019256e999",
+    "patriot_action_64_x6.png": "91c57d3be6d92d29347acbb318c0d3e305ce0cdc4c282c8f7854105fe892548f",
+    "rat_king_action.png": "f500b5a2d0550ac4476b4b968dae11b5be77916cf63c5de28aa968dc22d2772f",
+    "rat_king_action_64.png": "73e18700a22784c0234279ab035988fcb04412d26a033ae80d8e6a0393df1c18",
+    "rat_king_action_64_x6.png": "a501a387915c309b893f57d1a179264b3e111e01459529077929da936fe24ed5",
+    "sequences_x6.png": "605b011c97cc39cb24585718f88a72b4338de34ddedd82a1182072e10a39cb08",
+    "zaro_action.png": "e63cada364ea1a9d5273ce89c4e42b31d33dabe4c34f027a536bcac0cf1130b5",
+    "zaro_action_64.png": "f35789feb809923cd7276792d7d9c55c9a7eb3da42c6cdcd6214ebb02e2e9e0f",
+    "zaro_action_64_x6.png": "dbc5d445ac2473f75fd61a162b233c4d3aea173835a06a4eaeae9ebc2129b3e2"
+  },
+  "baker": {
+    "path": "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+    "sha256": "96cb356c8d54ed85b4955b3e05d7e78c32f449387fc7ab31f53716a750e34df6",
+    "unchanged": true
+  }
+}

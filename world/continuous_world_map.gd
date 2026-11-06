@@ -95,7 +95,11 @@ static var vault_chance_mult := 1.0
 const VAULT_ROOM := Vector2(6.0, 4.5)
 ## The edge's own roughness, kept off the vault room's straight walls.
 func edge_noise(point: Vector2, raw: float) -> float:
-	if _vault_room >= 0 and _last_owner == _vault_room: return raw * 0.1
+	return edge_noise_of(_last_owner, raw)
+
+## edge_noise for a known owner (carved_owned's), with no shared state.
+func edge_noise_of(owner: int, raw: float) -> float:
+	if _vault_room >= 0 and owner == _vault_room: return raw * 0.1
 	return raw * (0.1 if urban else 0.85)
 var has_vault := false
 var force_vault := -1
@@ -266,6 +270,7 @@ func generate(p_seed: int, _depth: int) -> void:
 	_generated_root = NavigationRegion3D.new()
 	add_child(_generated_root)
 	_open_circles.clear()
+	small_hall = Vector3.ZERO
 	_closed_circles.clear()
 	prop_blockers.clear()
 	_pillar_shapes.clear()
@@ -275,6 +280,7 @@ func generate(p_seed: int, _depth: int) -> void:
 	_swell.fractal_octaves = 1
 	_open_segments.clear()
 	_main_segments.clear()
+	_cell_roads.clear()
 	_cell_rooms.clear()
 	_cell_segments.clear()
 	_cell_pillars.clear()
@@ -303,6 +309,7 @@ func generate(p_seed: int, _depth: int) -> void:
 	arena_radius = 0.0
 	if boss_layout or compact_layout: has_vault = false
 	_plan_terrain()
+	if boss_layout or compact_layout: _fit_map_to_rooms()
 	_plan_old_town()
 	_roll_districts()
 	mark("layout")
@@ -548,6 +555,20 @@ const ARENA_GAP := 9.0
 const ARENA_EXIT_ROOM := 10.0
 const ARENA_ALCOVE := Vector2(13.0, 4.5)
 
+## A small map (a camp, 坎诺特, 临时休整, a boss arena) is shown on the map at
+## its own size: framed round its rooms, not the whole field's bounds.
+func _fit_map_to_rooms() -> void:
+	var low := Vector2(INF, INF)
+	var high := -low
+	for c in _open_circles:
+		low = low.min(Vector2(c.x - c.z, c.y - c.z))
+		high = high.max(Vector2(c.x + c.z, c.y + c.z))
+	map_center = Vector3((low.x + high.x) * 0.5, 0.0, (low.y + high.y) * 0.5)
+	map_extent = maxf(high.x - low.x, high.y - low.y) * 0.5 + 4.0
+
+## A small map's middle room (x, z, radius), where a camp sets its tents.
+var small_hall := Vector3.ZERO
+
 func _plan_boss_arena() -> void:
 	var entry := Vector2(ENTRY_POSITION.x, ENTRY_POSITION.z)
 	var neck := entry + Vector2(0.0, ARENA_NECK)
@@ -563,6 +584,7 @@ func _plan_boss_arena() -> void:
 	for side in [-1.0, 1.0]:
 		var alcove := _add_circle(neck + Vector2(side * ARENA_ALCOVE.x, 1.0), ARENA_ALCOVE.y, "spur", 0)
 		_link(1, alcove, _corridor_width(), TRAIL_BRANCH)
+	small_hall = Vector3(arena.x, arena.y, radius)
 	if not boss_layout: return
 	arena_radius = radius
 	arena_centre = Vector3(arena.x, 0.0, arena.y)
@@ -1037,6 +1059,7 @@ func _build_segments() -> void:
 			_open_segments.append(segment)
 			if link.trail: _main_segments.append(segment)
 	_build_shape_grid()
+	_build_road_grid()
 
 ## Crossings: dug right after the branches, while the rock between them is
 ## still whole. Across the middle of a branch corridor (the longest straight
@@ -1621,6 +1644,13 @@ static func _smooth_min(a: float, b: float, k: float) -> float:
 ## Also leaves the shape nearest the point in _last_owner: a circle's index, or
 ## -(segment index + 1). That shape sets the ground's height there.
 func carved_distance(point: Vector2) -> float:
+	var carved := carved_owned(point)
+	_last_owner = carved[1]
+	return carved[0]
+
+## carved_distance as [distance, owner], leaving _last_owner alone: safe to
+## read from worker threads (TerrainSurface samples rows in parallel).
+func carved_owned(point: Vector2) -> Array:
 	point = warped(point)
 	# Only the two nearest shapes are blended, never the whole chain. Folding a
 	# smooth max over every primitive in turn would add up to k/4 per step, and
@@ -1685,13 +1715,12 @@ func carved_distance(point: Vector2) -> float:
 			owner = -(j + 1)
 		elif corridor_distance > second:
 			second = corridor_distance
-	_last_owner = owner
 	var distance := best if second <= -1e8 else _smooth_max(best, second, CITY_BLEND if urban else BLEND)
 	# The vault room keeps its straight walls: no fillet swells it past them.
 	if owner == _vault_room and _vault_room >= 0: distance = best
 	for i in pillars:
 		distance = _smooth_min(distance, _pillar_distance(i, point), PILLAR_BLEND)
-	return distance
+	return [distance, owner]
 
 ## Load time (用户 2026-10-13: 优化地图加载): carved_distance is read at every
 ## terrain sample and again while the mesh is built, and looping over every
@@ -1840,8 +1869,41 @@ func pillar_reach(i: int) -> float:
 
 func road_distance(point: Vector2) -> float:
 	var distance := INF
+	var cell := _shape_cell(point)
+	if cell >= 0 and cell < _cell_roads.size():
+		for j in _cell_roads[cell]: distance = minf(distance, _segment_distance(point, _main_segments[j]))
+		return distance
 	for segment in _main_segments: distance = minf(distance, _segment_distance(point, segment))
 	return distance
+
+## Per shape-grid square, the trails that can be the nearest anywhere in it:
+## any trail whose nearest possible reach there is beyond the best trail's
+## farthest is never the minimum, so road_distance gives the same answer.
+var _cell_roads: Array[PackedInt32Array] = []
+
+func _build_road_grid() -> void:
+	_cell_roads.clear()
+	if _main_segments.is_empty() or _cell_rooms.is_empty(): return
+	var half := SHAPE_CELL * 0.5
+	var boxes := PackedFloat32Array()
+	for segment in _main_segments:
+		boxes.append_array([minf(segment[0], segment[2]), minf(segment[1], segment[3]), maxf(segment[0], segment[2]), maxf(segment[1], segment[3])])
+	for z in range(_shape_rows):
+		for x in range(_shape_columns):
+			var low := _shape_origin + Vector2(x, z) * SHAPE_CELL
+			var centre := low + Vector2(half, half)
+			# Farthest any point of the square can be from its nearest trail
+			# (either metric _segment_distance uses), with a little slack.
+			var bound := INF
+			for segment in _main_segments: bound = minf(bound, _segment_distance(centre, segment))
+			bound += half * sqrt(2.0) + 0.01
+			var keep := PackedInt32Array()
+			for j in range(_main_segments.size()):
+				# Nearest the trail's box comes to the square (chessboard): no
+				# point of the square is nearer the trail than this.
+				var gap := maxf(maxf(boxes[j * 4] - (low.x + SHAPE_CELL), low.x - boxes[j * 4 + 2]), maxf(boxes[j * 4 + 1] - (low.y + SHAPE_CELL), low.y - boxes[j * 4 + 3]))
+				if gap - 0.01 <= bound: keep.append(j)
+			_cell_roads.append(keep)
 
 func _is_open(x: float, z: float, inflate: float = 0.0) -> bool:
 	var point := Vector2(x, z)
@@ -2141,6 +2203,9 @@ func _place_content() -> void:
 	if extract_options.is_empty():
 		for i in spurs:
 			if i != exit_chamber and i != buff_room and i != encounter_room: extract_options.append(i)
+	# A small map has two alcoves, the device's and the encounter's: the beacon
+	# takes the device's before the encounter's (a camp has no device; 可露希尔 stands in the other).
+	if extract_options.is_empty() and spurs.has(buff_room) and buff_room != encounter_room: extract_options.append(buff_room)
 	if extract_options.is_empty(): extract_options.append(spurs[-1])
 	extraction_chamber = extract_options[_rng.randi_range(0, extract_options.size() - 1)]
 
@@ -2157,6 +2222,8 @@ func _place_content() -> void:
 	if encounter_kind == "post":
 		# A faction's post (势力与交易所策划案 §12): the stall without 坎诺特, until its NPC art.
 		encounter_node = _set_piece("据点 · E", encounter_position, Color("c48cff"), ENCOUNTER_MODELS.trader)
+	elif encounter_kind == "closure":
+		encounter_node = _set_piece("可露希尔 · E", encounter_position, Color("63eca7"), ENCOUNTER_MODELS.closure, "closure")
 	else:
 		encounter_node = _set_piece("坎诺特 · E" if encounter_kind == "trader" else "罗德岛小队 · E", encounter_position, Color("e6c25a") if encounter_kind == "trader" else Color("5fd0d8"), ENCOUNTER_MODELS["trader" if encounter_kind == "trader" else "squad"], "trader" if encounter_kind == "trader" else "squad")
 	encounter_node.visible = not encounter_kind.is_empty()
@@ -2209,7 +2276,7 @@ func _place_content() -> void:
 	var spare: Array[int] = []
 	for i in spurs:
 		if not used.has(i): spare.append(i)
-	# Each mansion's court keeps the family's safe (game_manager: mansion_point).
+	# Each mansion's court keeps the family's safe (GameManager turns a supply point in a mansion into a safe: is_mansion).
 	for i in mansion_rooms:
 		if circle_distance[i] < INF: spare.append(i)
 	for i in spare:
@@ -2325,11 +2392,11 @@ func _strip(a: Vector2, b: Vector2, width: float, color: Color) -> void:
 		if start.distance_to(end) > 0.01: mesh.basis = Basis.looking_at(end - start)
 
 ## Set pieces from tools/blender/kit/build_encounter.py (NPC_brief_v3.md Part C).
-const ENCOUNTER_MODELS := {"squad": "res://art/kit/enc_squad_post.glb", "trader": "res://art/kit/enc_trader_stall.glb"}
+const ENCOUNTER_MODELS := {"squad": "res://art/kit/enc_squad_post.glb", "trader": "res://art/kit/enc_trader_stall.glb", "closure": "res://art/kit/enc_closure_stall.glb"}
 ## Larger than life, as the search points are (LootContainer.MODEL_SCALE), so they read from the camera.
 const ENCOUNTER_SCALE := 1.5
 ## Where the NPC stands, from the set piece's centre: in front of it, towards the camera (-Z).
-const ENCOUNTER_STAND := {"squad": Vector3.ZERO, "trader": Vector3(0.3, 0.0, -1.65)}
+const ENCOUNTER_STAND := {"squad": Vector3.ZERO, "trader": Vector3(0.3, 0.0, -1.65), "closure": Vector3(-1.1, 0.0, -1.55)}
 ## Half the squad post's footprint (x, z) before ENCOUNTER_SCALE (art/kit/enc_squad_post.glb).
 const SQUAD_POST_HALF := Vector2(1.12, 0.68)
 
@@ -2375,12 +2442,12 @@ func _set_piece(title: String, pos: Vector3, color: Color, model: String, npc: S
 			# same pixels: a camera-facing billboard leans back into the set piece
 			# behind it and loses its head there.
 			figure.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
-			# (GameManager._keep_sprites_upright stretches it again at another tilt.)
+			# (GmCamera._keep_sprites_upright stretches it again at another tilt.)
 			figure.scale.y = GameManager.CAMERA_OFFSET.length() / absf(GameManager.CAMERA_OFFSET.z)
 			figure.add_to_group("upright_figures")
 			node.add_child(figure)
-	# No Label3D over it: the world renders at 640×360, where 3D text breaks
-	# into noise; the HUD's E prompt names it when the player is near.
+	# No Label3D over it (用户 2026-10-13: 不要中文label了): the HUD's E prompt
+	# shows when the player is near.
 	return node
 
 ## The squad's three spots around its post (用户 2026-10-13: 随机三角站位,
@@ -2421,8 +2488,8 @@ func _modelled(node: Node3D, path: String, facing := Vector2.ZERO) -> Node3D:
 	return marker
 
 func _marker(title: String, pos: Vector3, color: Color) -> Node3D:
-	# No Label3D: 3D text is noise at the world's 640×360, and the HUD shows
-	# only the E key when near (用户 2026-10-13: 不要中文label了).
+	# No Label3D: the HUD shows only the E key when near (用户 2026-10-13:
+	# 不要中文label了).
 	return _make_cylinder(title, on_ground(pos), 1.6, 0.25, color, false)
 
 func try_sample_navigation_position(position: Vector3, max_distance: float = 4.0) -> Vector3:

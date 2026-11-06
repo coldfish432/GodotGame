@@ -19,8 +19,8 @@ const PROFILES := {
 	"ice_warrior": {"name": "冰原战士", "attack": "劈冰", "row": 5, "windup": 1.0, "interval": 1.5, "damage": 1.0, "shape": "ice", "reach": 3.0, "width": 1.4, "impact_radius": 0.8, "recovery": 0.35},
 	"ice_hunter": {"name": "冰原猎人", "attack": "狙击", "row": 6, "windup": 1.5, "interval": 2.6, "damage": 1.0, "shape": "projectile", "reach": 15.0, "track": 0.9, "projectile": "bullet", "shots": 1, "recovery": 0.35},
 	"elite": {"name": "精英重击", "attack": "重击", "row": -1, "windup": 1.0, "interval": 2.1, "damage": 1.0, "shape": "circle", "reach": 2.4, "radius": 1.65, "recovery": 0.3, "elite": true},
-	# --- 装备扩充策划案 §2.1: the first sixteen new enemies. "art" borrows an
-	# existing sheet (tinted) until their own art lands; elites use the elite art.
+	# --- 装备扩充策划案 §2.1: the first sixteen new enemies. "art" is the
+	# sheet it borrows (tinted) where it has no boards of its own (Enemy.sheet_type).
 	# 切尔诺伯格
 	"armed": {"name": "武装人员", "attack": "钝器重击", "row": -1, "windup": 1.0, "interval": 2.1, "damage": 1.4, "shape": "circle", "reach": 2.4, "radius": 1.65, "recovery": 0.3, "elite": true, "tint": Color("c0a080")},
 	"caster": {"name": "术师", "attack": "源石晶刺", "art": "crossbow", "tint": Color("c49cff"), "windup": 0.8, "interval": 2.2, "damage": 1.0, "shape": "ground", "reach": 9.0, "radius": 1.2, "recovery": 0.3},
@@ -96,9 +96,9 @@ const ERASER_FLANK_GAP := 2.5
 ## 局内构筑与数值策划案 §6. Shaped after the PRTS lines for the same enemy kinds
 ## (暴徒 / 弩手 / 源石虫 …, 局内构筑调研_集成战略藏品.md §2.3), rescaled so that at
 ## depth 1 Lappland lands 2–3 hits on an ordinary enemy and about 10 on an
-## elite, and an ordinary hit costs her 6–15% of her life. Depth adds 12% HP
-## and 2% ATK per segment, the snow region another 45% HP; alert (警戒) adds
-## up to 62.5% damage on top.
+## elite, and an ordinary hit costs her 6–15% of her life. Depth multiplies
+## them by Scaling.floor_growth, the snow region adds SNOW_HP_BONUS HP; alert
+## (警戒) adds damage on top.
 const STATS := {
 	"thug": {"hp": 1400.0, "atk": 440.0, "def": 100.0, "res": 0.0, "kind": "phys"},
 	"crossbow": {"hp": 1100.0, "atk": 440.0, "def": 60.0, "res": 0.0, "kind": "phys"},
@@ -186,13 +186,21 @@ static func is_elite_type(type: String) -> bool:
 ## The sprite sheet a type uses: its own, or the one it borrows.
 static func art_type(type: String) -> String:
 	return str(PROFILES.get(type, {}).get("art", type))
-## Growth per floor is compound now, ×1.04 for life, attack and defence alike
-## (复利数值改造清单 A; Scaling.floor_growth); the snow adds its share on top.
+## Growth by depth is Scaling.floor_growth (ENEMY_CURVE) for life, attack and
+## defence alike (复利数值改造清单 A); the snow adds its share on top.
 const SNOW_HP_BONUS := 0.45
 const PRESSURE_DIVISOR := 160.0
 ## 警戒 from depth stops here (floor ≈ 30), so it adds at most +62.5% (the
 ## route's danger and relics still add on top).
 const PRESSURE_DEPTH_MAX := 100.0
+
+## An elite of `region`'s own (REGION_POOLS), "" where the region has none.
+## Elites spawned without a type (vault guardians, 险路恶敌, bounties) used to
+## take the generic "elite", which has no boards of its own (2026-10-26).
+static func region_elite(region: String, rng: RandomNumberGenerator) -> String:
+	var pool: Array = REGION_POOLS.get(region, {}).get("elite", [])
+	if pool.is_empty(): return ""
+	return str(pool[rng.randi_range(0, pool.size() - 1)]) if rng != null else str(pool[0])
 
 static func default_type(region: String, elite: bool, ranged: bool) -> String:
 	if elite: return "armed" if region == "mine" else "elite"

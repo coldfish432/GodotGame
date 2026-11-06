@@ -16,6 +16,7 @@ var _wait := 0.0
 var _dragging := false
 var _drag_from := Vector2i.ZERO
 var _on_top := true
+var _drawn_key: Array = []
 
 func _ready() -> void:
 	position = Vector2.ZERO
@@ -46,7 +47,7 @@ func _process(delta: float) -> void:
 	_wait -= delta
 	if _wait <= 0.0:
 		_wait = 0.5
-		queue_redraw()
+		if _key() != _drawn_key: queue_redraw()
 	if _dragging:
 		DisplayServer.window_set_position(DisplayServer.mouse_get_position() - _drag_from)
 
@@ -73,7 +74,22 @@ func ids() -> Array:
 		out.append(w)
 	return out
 
+## Everything the draw reads: the market, the lock, the rows, the account line's
+## own figures and the last news.
+func _key() -> Array:
+	if game == null: return [null, size]
+	var key := [size, I18n.language, game.writer(), game.trade_block(), game.exchange.unlocked()]
+	if not game.exchange.unlocked(): return key
+	var ex := game.exchange
+	var warned := 0
+	for p in ex.forwards + ex.cfds:
+		if p.get("warned", false): warned += 1
+	key.append_array([MarketWidgets.market_key(game), ids(), roundi(ex.margin_total()), ex.floating(), warned])
+	for n in game.market.news.slice(maxi(0, game.market.news.size() - 3)): key.append([str(n.title), n.get("unread", false)])
+	return key
+
 func _draw() -> void:
+	_drawn_key = _key()
 	draw_rect(Rect2(Vector2.ZERO, size), AK.PLATE_2)
 	draw_rect(Rect2(0, 0, size.x, HEAD), Color("0d1013"))
 	draw_rect(Rect2(0, HEAD - 2, size.x, 2), AK.HOLO)

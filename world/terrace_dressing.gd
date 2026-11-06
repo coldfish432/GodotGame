@@ -177,11 +177,11 @@ var tree_count := 0
 var weather: CPUParticles3D
 var post_points: Array[Transform3D] = []
 var headframe_points: Array[Transform3D] = []
-## Every lamp baked into the light map: {"at", "color", "radius"}.
+## Every lamp on the floor, lit through field_light: {"at", "color", "radius"}.
 var lamps: Array[Dictionary] = []
 var field_light: FieldLight
 ## Built again over a vault's dug patch (VaultSeal): the floor-wide pieces
-## that are not dressing (the weather, the extraction, the light map) are left
+## that are not dressing (the weather, the extraction, the lights) are left
 ## to the first build.
 var patch_only := false
 
@@ -416,9 +416,6 @@ func _place_frames(frame: Dictionary) -> void:
 			var beam := Basis(Vector3(across.x, 0, across.y) * (span - 0.3), Vector3.UP, Vector3(-across.y, 0, across.x))
 			frame_caps.append(Transform3D(beam, Vector3(middle.x, maxf(ground_l, ground_r) + float(frame.height), middle.y)))
 
-## Track along every worn corridor segment (the map's trail segments), piece
-## after piece, each pointed from its start to its end on the ground so it
-## climbs ramps with them.
 ## The track network: curved lines with branches off them (RailNetwork). The
 ## sleepers double as rail_pieces, which the search points read to tell
 ## whether they stand by the track.
@@ -431,7 +428,7 @@ func _place_rails(root: Node3D) -> void:
 ## Lamps by rule (地图表现调研 §2 构图): rooms on the way are lit by a post or
 ## two, dead ends are left dark, every frame in a corridor carries a lamp, the
 ## route markers stand under the headframe in a strong cold light, and
-## extraction has its own green one. All of it baked into FieldLight.
+## extraction has its own green one. All of it goes to FieldLight as lamps.
 func _place_lights(lit: Dictionary) -> void:
 	var warm: Color = lit.warm
 	for cap in frame_caps:
@@ -581,7 +578,7 @@ static func _flare_smoke(at: Vector3) -> CPUParticles3D:
 	return smoke
 
 ## Lamps added after the map was dressed (the search points' work lights,
-## placed by GameManager once it has spawned them): baked into the light map.
+## placed by GameManager once it has spawned them): the lights built again.
 func add_lamps(extra: Array[Dictionary]) -> void:
 	lamps.append_array(extra)
 	field_light.build(map, lamps)
@@ -728,7 +725,7 @@ var cave_pillar_count := 0
 var cave_pillar_spots: Array[Vector3] = []
 const CAVE_PILLAR_HEIGHT := 24.0
 
-## Whether rock stands between the camera and her at `at` (GameManager eases
+## Whether rock stands between the camera and her at `at` (GmCamera eases
 ## the cut-away open while it does): a column nearer the camera across her
 ## line of sight, or the cave wall rising before her. `toward_camera` is the
 ## camera's way along the ground; at `pitch` a point s metres nearer the camera
@@ -931,6 +928,7 @@ func _kit_mesh(scene: PackedScene) -> Mesh:
 ## through kit_piece.gdshader. Cached per path and gain.
 static var _kit_cache := {}
 static func kit_mesh(scene: PackedScene, gain: float = 1.0, snow_bias: float = 0.0) -> Mesh:
+	if _kit_cache.has(&"warming"): _collect_warm()
 	var key := "%s@%.2f@%.2f" % [scene.resource_path, gain, snow_bias]
 	if _kit_cache.has(key): return _kit_cache[key]
 	var mesh := _first_mesh(scene.instantiate())
@@ -953,6 +951,40 @@ static func kit_mesh(scene: PackedScene, gain: float = 1.0, snow_bias: float = 0
 		mesh.surface_set_material(surface, material)
 	_kit_cache[key] = mesh
 	return mesh
+
+## Starts loading a region's kit glbs (its own and the ramps') on the loader's
+## threads, ahead of the first floor there: the first visit to Lungmen waited
+## seconds on them. load() then finds them loaded or waits for the rest, and
+## kit_mesh builds its meshes from them as before.
+const KIT_DIR := "res://art/kit/"
+static func warm_kits(region: String) -> void:
+	# Headless runs the dummy renderer, whose materials are not made safely
+	# from loader threads: there it loads on demand as before.
+	if DisplayServer.get_name() == "headless": return
+	var waiting: PackedStringArray = _kit_cache.get(&"warming", PackedStringArray())
+	# The folder's own listing (an exported build has only "<name>.glb.import";
+	# ResourceLoader.list_directory took most of a second here).
+	for file in DirAccess.get_files_at(KIT_DIR):
+		file = file.trim_suffix(".import").trim_suffix(".remap")
+		if not file.ends_with(".glb") or not (file.begins_with(region + "_") or file.begins_with("ramp_")): continue
+		var path := KIT_DIR + file
+		if _kit_cache.has(path) or waiting.has(path) or ResourceLoader.has_cached(path): continue
+		if ResourceLoader.load_threaded_request(path, "PackedScene", true) == OK: waiting.append(path)
+	_kit_cache[&"warming"] = waiting
+
+## The warmed scenes that have finished, taken off the loader and held here
+## (released with the cache).
+static func _collect_warm() -> void:
+	var waiting: PackedStringArray = _kit_cache[&"warming"]
+	var still := PackedStringArray()
+	for path in waiting:
+		if ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			still.append(path)
+			continue
+		var scene := ResourceLoader.load_threaded_get(path)
+		if scene != null: _kit_cache[path] = scene
+	if still.is_empty(): _kit_cache.erase(&"warming")
+	else: _kit_cache[&"warming"] = still
 
 func _add_set(root: Node3D, label: String, mesh: Mesh, transforms: Array[Transform3D]) -> void:
 	# Nothing stands in a bridge's way: cliff accents, crags and trees by its

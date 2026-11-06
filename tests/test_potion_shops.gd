@@ -68,7 +68,7 @@ func _field_shops() -> void:
 	await game.start_contract("snow")
 	await step(4)
 	game.floor_number = 10
-	game._enter_camp()
+	await game._enter_camp()
 	await step(2)
 	var specials: Array = game.camp_closure_stock.keys()
 	check("a camp draws three 特供", specials.size() == BaseCatalog.CAMP_SPECIALS, specials)
@@ -124,10 +124,29 @@ func _field_shops() -> void:
 		check("his shelf takes a dragged pack item", shelf._can_drop_data(Vector2.ZERO, {"trade_sell": gear}))
 		shelf._drop_data(Vector2.ZERO, {"trade_sell": gear})
 		check("and dropping it sells", game.gold_bars() > bars and not game.inventory.items.has(gear))
+		var sold := game.buyback_list("cannot")
+		check("what he bought waits for her at what it fetched", sold.size() == 1 and sold[0].item == gear and int(sold[0].price) == game.gold_bars() - bars)
+	# 出售: her pack shows prices, his shelf what she sold (用户 2026-10-27).
+	var other := Item.create("斧", Item.Category.WEAPON, 1, 2, 1.0)
+	other.value = 40
+	game.inventory.try_add(other)
+	game.menu.trader_tab = "sell"
+	game._open_encounter()
+	await step(1)
+	if true:
+		var pack_grid: AK.BagGrid = _find(game.menu, func(n): return n is AK.BagGrid and n.container == game.inventory)
+		var tagged: Array = pack_grid.get_children().filter(func(t): return t.get_meta("item", null) == other and t.get_children().any(func(c): return c is TraderScreen.PriceTag and c.text == str(game.trader_offer(other))))
+		check("the pack tags what he would pay", tagged.size() == 1)
+		check("his 出售 shelf holds what she sold", _tiles(game.menu).any(func(t): return t.item == gear))
+		var bars := game.gold_bars()
+		var paid := int(game.buyback_list("cannot")[0].price)
+		check("buying it back costs what it fetched", game.buy_back("cannot", 0) and game.inventory.items.has(gear) and game.gold_bars() == bars - paid and game.buyback_list("cannot").is_empty())
 	game.close_modal()
 	# A post's own flask.
 	game.encounter = "post"
 	game.post_faction = "ursus"
+	# 乌萨斯西北矿场 starts 冷漠 and sells nothing then (势力声望解锁策划案 §2.5–2.6).
+	game.exchange.relations["ursus"] = Exchange.RANK_AT[1]
 	game.give_gold_bars(10)
 	check("a post sells its own flask", game.post_potion() == "ursus" and game.post_buy_potion() and game.potion_count("ursus") == 1)
 	game.post_faction = "sami"

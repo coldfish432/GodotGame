@@ -14,7 +14,6 @@ const STATION_TITLES := {
 	"pharmacy": ["医疗部", "MEDICAL"], "store": ["可露希尔的商店", "CLOSURE'S STORE"],
 	"personnel": ["人事部", "PERSONNEL"],
 }
-static var _detail: RichTextLabel
 ## The piece last under the pointer in the warehouse or the workshop (one-key packing's pick).
 static var hovered: Item = null
 ## A screen's own accent for the shell (a trader's colour); clear = the station's department.
@@ -98,6 +97,38 @@ static func _wrap(text: String, size: int, colour: Color, width: float) -> Label
 	l.custom_minimum_size.x = width
 	return l
 
+## A 动态 headline's hover (用户 2026-10-25: 悬停可查看具体文本和效果): the
+## headline, where and how long it lasts, then each effect on the field.
+const NEWS_ENEMY_TAGS := {"family": "家族成员", "reunion": "整合运动", "ursus_army": "乌萨斯军队"}
+
+static func _news_tip(game: GameManager, n: Dictionary) -> String:
+	var ev: Dictionary = MarketEvents.EVENTS.get(str(n.id), {})
+	var lines: Array[String] = [str(n.title)]
+	var head: Array[String] = []
+	if ev.has("kind"): head.append(str(MarketEvents.KIND_NAMES.get(str(ev.kind), "快讯")))
+	if ev.has("region"): head.append(str(ev.region))
+	head.append("剩余 " + ExchangeScreen._left(int(n.until) - game.market.t))
+	lines.append(" · ".join(head))
+	for e in n.effects: lines.append(_news_effect(str(e[0]), float(e[1]), bool(e[2])))
+	return "
+".join(lines)
+
+static func _news_effect(key: String, value: float, adds: bool) -> String:
+	var arg := key.get_slice(":", 1)
+	var what: String = {
+		"threat": "威胁值增长", "elite": "精英敌人", "kannot_buy": "坎诺特收购价", "kannot_stock": "坎诺特货架",
+		"gold_drop": "赤金掉落", "feature_add": "地图特色起点", "feature_rate": "地图特色增长",
+		"reward": "合同报酬", "camp_fx": "可露希尔差价",
+	}.get(key, key)
+	match key.get_slice(":", 0):
+		"enemy": what = NEWS_ENEMY_TAGS.get(arg, arg) + "出现"
+		"route": what = RouteMap.kind_name(arg) + "节点"
+		"post": what = FactionCatalog.name_of(arg) + "据点"
+		"post_price": what = FactionCatalog.name_of(arg) + "据点价格"
+		"loot": what = str(FactionCatalog.CATEGORIES.get(arg, arg)) + "掉落"
+	if adds: return "%s %+d" % [what, roundi(value)]
+	return "%s %+d%%" % [what, roundi((value - 1.0) * 100.0)]
+
 # --- #13 调度台 ----------------------------------------------------------------------
 
 static func contracts(menu: FieldMenu) -> void:
@@ -166,16 +197,15 @@ static func contracts(menu: FieldMenu) -> void:
 		var node := AK.label("%s-%02d" % [code, start + n], 14, AK.FG, AK.en())
 		node.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		# The extraction's band (one of its floors has the beacon) and the block's
-		# last floor, the 前哨据点 or 首领战场 (肉鸽路线图策划案 v0.2).
+		# The block's last floor, the 前哨据点 or 首领战场 (肉鸽路线图策划案 v0.2);
+		# the extraction is not marked here (用户 2026-10-25: 调度台不标撤离信标).
 		var last := n == FieldCatalog.CAMP_INTERVAL
-		var style := AK.box(Color("3b3b2a") if n in FieldCatalog.EXTRACTION_FLOORS else (Color("3a2224") if last else AK.PLATE_3))
+		var style := AK.box(Color("3a2224") if last else AK.PLATE_3)
 		if last:
 			style.border_color = AK.RED
 			style.border_width_bottom = 2
 		node.add_theme_stylebox_override("normal", style)
 		AK.put(stage, node, at, Vector2(84, 34))
-		if n == FieldCatalog.EXTRACTION_FLOORS[1]: AK.put(stage, AK.tag("撤离信标", AK.SP), at + Vector2(10, -24))
 		if last: AK.put(stage, AK.tag(RouteMap.kind_name("boss" if BossCatalog.is_boss_floor(start + n) else "outpost"), AK.RED, false), at + Vector2(10, 38))
 		chain.points.append(at - Vector2(232, chain_top) + Vector2(42, 17))
 	var camp := HBoxContainer.new()
@@ -188,6 +218,20 @@ static func contracts(menu: FieldMenu) -> void:
 	camp_plate.add_child(camp)
 	AK.put(stage, camp_plate, Vector2(252, chain_top + 160), Vector2(188, 40))
 	chain.points.append(Vector2(20 + 94, 160 + 20))
+	# What the exchange's news does to this region now (地区货币策划案 §2.3):
+	# the headlines only, red when it makes the field harder.
+	var news: Array = game.market.field_news(region)
+	if not news.is_empty():
+		_section(stage, "动态", "NEWS", Vector2(248, chain_top + 224))
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 6)
+		flow.add_theme_constant_override("v_separation", 6)
+		AK.put(stage, flow, Vector2(248, chain_top + 256), Vector2(620, 0))
+		for n in news:
+			var t := AK.tag(str(n.title), AK.RED if n.harder else AK.SP)
+			t.mouse_filter = Control.MOUSE_FILTER_STOP
+			t.tooltip_text = _news_tip(game, n)
+			flow.add_child(t)
 	# The detail, right.
 	var x := 884.0
 	stage.add_child(AK.rect(Color(0.04, 0.04, 0.04, 0.92), Vector2(x, 60), Vector2(396, 660)))
@@ -261,7 +305,10 @@ static func contracts(menu: FieldMenu) -> void:
 ## she stands. Data only (用户: 界面不写说明文字).
 static func personnel(menu: FieldMenu) -> void:
 	var game := menu.game
-	var stage := shell(menu, "人事部", "PERSONNEL", [], 0, Callable(), "ROSTER")
+	var stage := shell(menu, "人事部", "PERSONNEL", ["寻访干员", "特派干员"], personnel_tab, func(i): personnel_tab = i; personnel(menu), "ROSTER")
+	if personnel_tab == 1:
+		_lost_roster(menu, stage)
+		return
 	_section(stage, "干员名册", "ROSTER", Vector2(16, TOP + 8))
 	var ids: Array = Operators.ORDER
 	for i in range(ids.size()):
@@ -301,11 +348,48 @@ static func personnel(menu: FieldMenu) -> void:
 			colour = AK.BLUE
 		AK.put(stage, AK.tag(status, colour), at + Vector2(188, 144))
 
+## The 人事部 tab shown (0 寻访干员, 1 特派干员).
+static var personnel_tab := 0
+
+## 失散干员 (失散干员与主线流程策划案 v0.2 §八): the special operators, each with
+## the department she runs; one still missing shows where her signal is from.
+static func _lost_roster(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var base: BaseState = game.base
+	_section(stage, "特派干员", "SPECIAL OPERATORS", Vector2(16, TOP + 8))
+	if is_instance_valid(game.tutorial_spotlight): game.tutorial_spotlight.request("base_roster", Rect2(16, TOP + 40, 1248, 600))
+	var ids: Array = LostCatalog.LOST.keys()
+	for i in range(ids.size()):
+		var id: String = ids[i]
+		var back := base.lost_back(id)
+		var at := Vector2(16 + (i % 4) * 312, TOP + 40 + (i / 4) * 300)
+		stage.add_child(AK.rect(AK.PLATE_2, at, Vector2(300, 288)))
+		var idle: Texture2D = LapplandAnimator3D.sheet(LostCatalog.figure_id(id), "idle") if LapplandAnimator3D.has_sheets(id) else null
+		if idle != null:
+			var stand := AtlasTexture.new()
+			stand.atlas = idle
+			stand.region = Rect2(0, 0, LapplandAnimator3D.CELL_TEXELS, LapplandAnimator3D.CELL_TEXELS)
+			var picture := TextureRect.new()
+			picture.texture = stand
+			picture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			if not back: picture.modulate = Color(0, 0, 0, 0.85)
+			AK.put(stage, picture, at + Vector2(70, 8), Vector2(160, 160))
+		AK.put(stage, AK.label(LostCatalog.name_of(id), 18, AK.FG), at + Vector2(14, 172))
+		AK.put(stage, AK.label(LostCatalog.dept_text(id), 13, AK.MUTE), at + Vector2(14, 200))
+		if back:
+			AK.put(stage, AK.tag("已归队", AK.GREEN), at + Vector2(14, 248))
+		else:
+			var region := str(FieldCatalog.REGIONS[LostCatalog.region_of(id)].name).split(" · ")[0]
+			AK.put(stage, AK.label("%s · 第 %s 层" % [region, LostCatalog.range_text(id)], 13, AK.FG), at + Vector2(14, 222))
+			AK.put(stage, AK.tag("失散", AK.RED), at + Vector2(14, 248))
+
 # --- #14 仓库 -------------------------------------------------------------------------
 
-const STASH_TABS := ["全部", "武器", "防具", "饰品", "材料", "拆包"]
+const STASH_TABS := ["全部", "武器", "防具", "饰品", "药剂", "材料", "收藏品", "拆包"]
 ## The 拆包 page (交易所交易包修订案 §4): the pack picked and the pick so far.
-const UNPACK_TAB := 5
+const UNPACK_TAB := 7
 static var unpack_pick := ""
 static var unpack_counts := {}
 
@@ -359,75 +443,134 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 	# 摆放，物体可以旋转): on 全部 every item lies in its own cell and can be
 	# dragged to any free one or turned (旋转物品); 整理 packs them without gaps.
 	# A filtered tab packs what it shows.
-	base.shelf_normalize()
-	var shown: Array = game.stash.filter(func(x: Item): return (tab == 0 or Item.group_of(x.category) == tab - 1) and menu._matches(x))
+	var shown: Array = game.stash.filter(func(x: Item): return tab_shows(x, tab) and menu._matches(x))
 	var free_layout := tab == 0 and menu.stash_query.is_empty()
 	var sort := AK.button("整理", "plain", 12)
 	AK.put(stage, sort, Vector2(402, TOP + 4), Vector2(80, 34))
 	sort.disabled = not free_layout
 	sort.pressed.connect(func(): base.shelf_sort(); game.save_base(); stash(menu, zone))
-	# Drag: shelf → carry-in brings it, carry-in → shelf stores it.
-	var stores := func(item: Item) -> bool: return game.carried_items().has(item)
-	var brings := func(item: Item) -> bool: return game.stash.has(item)
+	var redraw := func(): stash(menu, zone)
 	var grid: FlowGrid
 	if free_layout:
-		grid = FlowGrid.make(shown, BaseState.SHELF_COLUMNS, maxi(10, base.shelf_rows() + 1), func(item: Item): game.bring_item(item); stash(menu, zone), func(item: Item): _show_detail(game, item))
-		for item: Item in shown: grid.places[item] = Vector2i(item.grid_x, item.grid_y)
-		grid.dragging(stores, func(item: Item): game.store_item(item); stash(menu, zone))
-		grid.move_to = func(item: Item, cell: Vector2i):
-			if game.carried_items().has(item):
-				game.store_item(item)
-				if base.shelf.has(item): base.shelf_move(item, cell.x, cell.y)
-			elif base.shelf.has(item): base.shelf_move(item, cell.x, cell.y)
-			game.save_base()
-			stash(menu, zone)
-		grid.on_rotate = func(item: Item):
-			if base.shelf_rotate(item):
-				game.save_base()
-				stash(menu, zone)
+		grid = shelf_grid(game, FlowGrid.CELL, 14, redraw)
 	else:
-		grid = FlowGrid.packed(shown, BaseState.SHELF_COLUMNS, 10, func(item: Item): game.bring_item(item); stash(menu, zone))
-		grid.cards = false
+		grid = FlowGrid.packed(shown, BaseState.SHELF_COLUMNS, base.shelf_height(), func(item: Item): game.bring_item(item); stash(menu, zone))
 		grid.on_hover = func(item: Item): _show_detail(game, item)
-		grid.dragging(stores, func(item: Item): game.store_item(item); stash(menu, zone))
+		# Drag: pack → shelf stores it (the pack takes drops on its own, below).
+		grid.dragging(func(item: Item) -> bool: return game.carried_items().has(item), func(item: Item): game.store_item(item); stash(menu, zone))
+	# Every tile shows its card on hover (the right column is the pack now).
+	grid.cards = true
+	TraderScreen._game = game
 	var depot := ScrollContainer.new()
 	depot.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	depot.add_child(grid)
-	AK.put(stage, depot, Vector2(16, TOP + 50), Vector2(16 * 40 + 12, 10 * 40))
-	# What goes out with her next.
-	var carry_y := TOP + 50 + 10 * 40 + 12
-	var bring_drop := func(item: Item): game.bring_item(item); stash(menu, zone)
-	ItemDrag.zone(stage, Vector2(16, carry_y - 4), Vector2(932, 56), brings, bring_drop)
-	_section(stage, "将带入", "CARRY-IN", Vector2(16, carry_y + 14))
-	var carry := HBoxContainer.new()
-	carry.add_theme_constant_override("separation", 6)
-	for item in game.carried_items():
-		var b := Button.new()
-		b.flat = true
-		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(46, 46)
-		b.set_meta("item", item)
-		b.add_child(AK.item_icon(item, Vector2(46, 46)))
-		var shown_item: Item = item
-		b.pressed.connect(func(): game.store_item(shown_item); stash(menu, zone))
-		b.mouse_entered.connect(func(): _show_detail(game, shown_item))
-		ItemDrag.wire(b, shown_item, brings, bring_drop)
-		carry.add_child(b)
-	AK.put(stage, carry, Vector2(150, carry_y))
-	# The detail column.
-	var card := PanelContainer.new()
-	card.add_theme_stylebox_override("panel", AK.box(Color("0b0d0f"), AK.LINE_2, 1, 12))
-	_detail = RichTextLabel.new()
-	_detail.bbcode_enabled = true
-	_detail.fit_content = true
-	_detail.scroll_active = false
-	_detail.custom_minimum_size = Vector2(276, 120)
-	_detail.add_theme_font_override("normal_font", AK.cn())
-	_detail.add_theme_font_size_override("normal_font_size", 13)
-	card.add_child(_detail)
-	AK.put(stage, card, Vector2(964, TOP + 50))
-	card.visible = not shown.is_empty()
-	if not shown.is_empty(): _show_detail(game, shown[0])
+	AK.put(stage, depot, Vector2(16, TOP + 50), Vector2(16 * 40 + 12, BOTTOM - TOP - 50))
+	# Right (用户 2026-10-25: 右侧改为背包，可拖拽物品): the pack and safe bag;
+	# a click stores, a drag from the warehouse carries, one between them moves.
+	var r := Rect2(684, TOP + 50, 1264 - 684, BOTTOM - TOP - 50)
+	LoadoutScreens._panel(stage, r, AK.HOLO)
+	var safe_y := r.position.y + 42 + game.inventory.height * 40 + 14
+	for entry in [[game.inventory, r.position.y + 42], [game.safe_bag, safe_y + 28]]:
+		var bag: ItemContainer = entry[0]
+		var pack := AK.BagGrid.make(bag, Callable(), func(item: Item): game.store_item(item); stash(menu, zone))
+		pack.cards = true
+		pack.on_hover = func(item: Item): hovered = item
+		ItemDrag.bag(pack, func(item: Item) -> bool: return not bag.items.has(item) and not item.is_case() and LoadoutScreens._where(game, item) != "",
+			func(item: Item): LoadoutScreens._carry(game, item, bag); stash(menu, zone))
+		AK.put(stage, pack, Vector2(r.position.x + 16, entry[1]))
+	_section(stage, "背包", "PACK %d / %d" % [game.inventory.occupied_cells(), game.inventory.cell_count()], r.position + Vector2(16, 14))
+	_section(stage, "安全袋", "SAFE", Vector2(r.position.x + 16, safe_y))
+	case_window(game, stage, Rect2(16, TOP + 50, 652, BOTTOM - TOP - 50))
+
+## The tabs of the 仓管台 and the workbench's depot (整理箱与收藏品策划案 v0.2 §1):
+## everything, the three gear groups, flasks, materials, collectibles.
+static func tab_shows(item: Item, tab: int) -> bool:
+	match tab:
+		0: return true
+		1, 2, 3: return item.is_equippable() and Item.group_of(item.category) == [Item.Category.WEAPON, Item.Category.ARMOR, Item.Category.TRINKET][tab - 1]
+		4: return item.is_potion()
+		5: return item.category == Item.Category.MATERIAL and not item.is_potion()
+		6: return item.is_collectible()
+	return false
+
+## The warehouse as it lies (its 全部 page), at `size` pixels a cell, on the
+## 仓管台 and the workbench: drag anywhere, T turns, a drop on a 整理箱 puts
+## the item in it, a double click opens the box (§0-9).
+static func shelf_grid(game: GameManager, size: int, min_rows: int, redraw: Callable, pick: Callable = Callable()) -> FlowGrid:
+	var base: BaseState = game.base
+	base.shelf_normalize()
+	var shown: Array = base.shelf.duplicate()
+	var grid := FlowGrid.make(shown, BaseState.SHELF_COLUMNS, base.shelf_height(),
+		pick if pick.is_valid() else func(item: Item): game.bring_item(item); redraw.call(), func(item: Item): _show_detail(game, item), size)
+	for item: Item in shown: grid.places[item] = Vector2i(item.grid_x, item.grid_y)
+	grid.dragging(func(item: Item) -> bool: return game.carried_items().has(item) or base.case_of(item) != null,
+		func(item: Item): shelf_drop(game, item, Vector2i(-1, -1)); redraw.call())
+	grid.move_to = func(item: Item, cell: Vector2i): shelf_drop(game, item, cell); redraw.call()
+	grid.on_rotate = func(item: Item):
+		if base.shelf_rotate(item):
+			game.save_base()
+			redraw.call()
+	grid.on_open = func(box: Item): open_case(box, redraw)
+	grid.cards = true
+	TraderScreen._game = game
+	return grid
+
+## `item` dropped on the warehouse at `cell`: into the 整理箱 lying there, else
+## onto the shelves there (stored from the bags or taken out of its box).
+static func shelf_drop(game: GameManager, item: Item, cell: Vector2i) -> void:
+	var base: BaseState = game.base
+	var under := base.shelf_at(cell) if cell.x >= 0 else null
+	if under != null and under != item and under.is_case():
+		game.box_item(under, item)
+		return
+	if game.carried_items().has(item):
+		game.store_item(item)
+		if base.shelf.has(item) and cell.x >= 0: base.shelf_move(item, cell.x, cell.y)
+	elif base.case_of(item) != null: game.unbox_item(item, cell)
+	elif base.shelf.has(item) and cell.x >= 0: base.shelf_move(item, cell.x, cell.y)
+	game.save_base()
+
+# --- 整理箱 window (§0-9) ------------------------------------------------------------
+
+## The open box and the screen to redraw; the window is drawn over the screen
+## by case_window, Esc shuts it first.
+static var open_box: Item = null
+static var _box_redraw: Callable
+
+static func open_case(box: Item, redraw: Callable) -> void:
+	open_box = box
+	_box_redraw = redraw
+	redraw.call()
+
+static func close_case() -> bool:
+	if open_box == null: return false
+	open_box = null
+	if _box_redraw.is_valid(): _box_redraw.call()
+	return true
+
+## The open box's grid in a window over `stage`, centred on `around`.
+static func case_window(game: GameManager, stage: Control, around: Rect2) -> void:
+	if open_box == null: return
+	if not game.base.shelf.has(open_box) or not open_box.is_case():
+		open_box = null
+		return
+	var box := open_box
+	var inner := Vector2(box.contents.width, box.contents.height) * 40
+	var size := inner + Vector2(32, 72)
+	var at := (around.position + (around.size - size) * 0.5).clamp(Vector2(8, 56), Vector2(1272, 714) - size)
+	var panel := LoadoutScreens._panel(stage, Rect2(at, size), AK.HOLO)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	AK.put(stage, AK.section(box.item_name, "%d / %d" % [box.contents.occupied_cells(), box.contents.cell_count()]), at + Vector2(16, 14))
+	var close := AK.button("×", "plain", 14)
+	close.pressed.connect(func(): close_case())
+	AK.put(stage, close, at + Vector2(size.x - 44, 10), Vector2(32, 28))
+	var grid := AK.BagGrid.make(box.contents, Callable(), func(item: Item): game.bring_item(item); _box_redraw.call())
+	grid.cards = true
+	grid.on_hover = func(item: Item): hovered = item
+	TraderScreen._game = game
+	ItemDrag.bag(grid, func(item: Item) -> bool: return game.can_box(box, item), func(item: Item): game.box_item(box, item); _box_redraw.call())
+	AK.put(stage, grid, at + Vector2(16, 52))
+
 
 ## 拆包 (§4): the packs held on the left, the pack's list with points and
 ## − / + in the middle, the points left and 拆包 on the right.
@@ -553,11 +696,20 @@ static func construction(menu: FieldMenu, title: String = "基建总控台", sit
 	_facility_page(menu, stage, menu.build_pick, true, Vector2(336, TOP + 4), 928, redraw)
 
 ## A faction standing a facility waits for: the rank, relation / needed, its bar.
+## 失散干员 (失散干员与主线流程策划案 v0.2 §4.2): the department's operator,
+## "失散" in red while she is missing.
+static func lost_bar(stage: Control, id: String, missing: bool, at: Vector2, width: float, game: GameManager = null) -> void:
+	stage.add_child(AK.rect(AK.PLATE_2, at, Vector2(width, 40)))
+	if missing and game != null and is_instance_valid(game.tutorial_spotlight): game.tutorial_spotlight.request("base_locked", Rect2(at, Vector2(width, 40)))
+	AK.put(stage, AK.label("负责干员", 13, AK.MUTE), at + Vector2(14, 11))
+	AK.put(stage, AK.label(LostCatalog.name_of(id), 14, AK.FG), at + Vector2(96, 10))
+	if missing: AK.put(stage, AK.label("失散", 14, AK.RED), at + Vector2(206, 10))
+
 static func gate_bar(stage: Control, game: GameManager, faction: String, rank: int, at: Vector2, width: float) -> void:
 	var rel := game.exchange.relation(faction)
 	var need: int = Exchange.RANK_AT[rank]
 	stage.add_child(AK.rect(AK.PLATE_2, at, Vector2(width, 54)))
-	AK.put(stage, AK.label("%s 关系 R%d" % [FactionCatalog.name_of(faction), rank], 14, AK.FG), at + Vector2(14, 8))
+	AK.put(stage, AK.label("%s 关系 %s" % [FactionCatalog.name_of(faction), Exchange.rank_name(rank)], 14, AK.FG), at + Vector2(14, 8))
 	AK.put(stage, AK.label("%d / %d" % [rel, need], 12, AK.MUTE, AK.en()), at + Vector2(14, 30))
 	var bar := FieldPanels.Bar.new()
 	bar.ratio = float(rel) / maxf(need, 1)
@@ -583,6 +735,11 @@ static func _facility_page(menu: FieldMenu, stage: Control, id: String, remote: 
 			func(): return game.connect_facility(id)], redraw, width, "接入")
 		y += 60
 		if remote: return
+	# Linking to the hub goes on; the levels wait for her.
+	var lost := base.dept_missing(id)
+	if not lost.is_empty():
+		lost_bar(stage, lost, true, Vector2(at.x, y), width, game)
+		return
 	var level := base.facility_level(id)
 	var step := BaseCatalog.facility_step(id, level + 1)
 	if step.is_empty(): _project_row(menu, stage, Vector2(at.x, y), ["Lv%d" % level, "已满级", 0, {}, "", Callable()], redraw, width)
@@ -605,12 +762,9 @@ static func _projects(game: GameManager, id: String) -> Array:
 		"outfit":
 			for kind in ["pack", "safe"]:
 				var level := base.pack_level if kind == "pack" else base.safe_level
-				var sizes: Array = BaseCatalog.PACK_SIZES if kind == "pack" else BaseCatalog.SAFE_SIZES
 				var prices: Array = BaseCatalog.PACK_PRICES if kind == "pack" else BaseCatalog.SAFE_PRICES
-				var now: Vector2i = sizes[level]
-				var full := level + 1 >= sizes.size()
-				var next: Vector2i = now if full else sizes[level + 1]
-				var label := "%s %d×%d" % ["背包" if kind == "pack" else "安全袋", now.x, now.y] + ("" if full else " → %d×%d" % [next.x, next.y])
+				var full := level + 1 >= BaseCatalog.expansion_levels(kind)
+				var label := "%s %s" % ["背包" if kind == "pack" else "安全袋", BaseCatalog.capacity_text(kind, level)] + ("" if full else " → %s" % BaseCatalog.capacity_text(kind, level + 1))
 				rows.append([label, "已满配" if full else "", 0 if full else int(prices[level + 1]), game.upgrade_cost(kind), game.upgrade_refusal(kind),
 					game.buy_pack_upgrade if kind == "pack" else game.buy_safe_upgrade])
 	return rows
@@ -636,10 +790,9 @@ static func _project_row(menu: FieldMenu, stage: Control, at: Vector2, row: Arra
 static func _short_refusal(refusal: String) -> String:
 	return "材料不足" if refusal.begins_with("缺少") else refusal
 
-## 龙门币 then each material, red where the warehouse is short.
-## What a build or upgrade costs, as what she has over what it needs (用户
-## 2026-10-24: 显示差多少 — 9/10 red while short, 10/9 white once enough),
-## 龙门币 the same way.
+## What a build or upgrade costs, 龙门币 then each material, as what she has
+## over what it needs (用户 2026-10-24: 显示差多少 — 9/10 red while short, 10/9
+## white once enough).
 static func _cost_line(game: GameManager, stage: Control, at: Vector2, price: int, materials: Dictionary, size: int = 12) -> void:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 10)
@@ -655,7 +808,6 @@ static func _cost_line(game: GameManager, stage: Control, at: Vector2, price: in
 
 static func _show_detail(game: GameManager, item: Item) -> void:
 	hovered = item
-	if is_instance_valid(_detail): _detail.text = ItemTooltip.text(game, item, false, false)
 
 # --- #15 出库区 -----------------------------------------------------------------------
 
@@ -663,31 +815,9 @@ static func outbound(menu: FieldMenu) -> void:
 	var game := menu.game
 	var base: BaseState = game.base
 	var orders: OrderBoard = base.orders
-	var tab: int = menu.outbound_tab
-	var stage := shell(menu, "出库区", "OUTBOUND", ["订单", "直接交付"], tab, func(i): menu.outbound_tab = i; menu.pick = null; outbound(menu), "ORDERS",
-		[["lmd", Economy.format(game.gold)]])
+	# Orders only (用户 2026-10-25: 不要出库区的直接交付；只能在可露希尔处卖).
+	var stage := shell(menu, "出库区", "OUTBOUND", [], 0, Callable(), "ORDERS", [["lmd", Economy.format(game.gold)]])
 	var deliverable := game.deliverable_items()
-	if tab == 1:
-		var pick: Item = menu.pick if menu.pick is Item else null
-		var scroll := ScrollContainer.new()
-		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		AK.put(stage, scroll, Vector2(16, TOP + 8), Vector2(1248, 540))
-		var list := GridContainer.new()
-		list.columns = 4
-		list.add_theme_constant_override("h_separation", 6)
-		list.add_theme_constant_override("v_separation", 6)
-		scroll.add_child(list)
-		for item in deliverable.filter(func(x: Item) -> bool: return game.can_sell(x)):
-			var row := EventScreens._item_row(item, Economy.format(Economy.direct_price(item)), "个人仓库" if game.stash.has(item) else "背包", true, item == pick)
-			row.custom_minimum_size.x = 306
-			var chosen: Item = item
-			row.pressed.connect(func(): menu.pick = chosen; outbound(menu))
-			list.add_child(row)
-		EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, "", "交付" + (" +%s" % Economy.format(Economy.direct_price(pick)) if pick != null else ""), Callable(), func():
-			if pick != null: game.sell(pick)
-			menu.pick = null
-			outbound(menu), pick != null)
-		return
 	# Picking what goes to one order (用户 2026-10-24: 玩家能够选择交什么材料).
 	if order_choosing >= 0 and order_choosing < orders.slots.size() and orders.slots[order_choosing] != null and orders.slots[order_choosing].state == "open":
 		_order_choice(menu, stage, order_choosing, deliverable)
@@ -731,6 +861,7 @@ static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, slot: int
 	if done: return
 	var small := HBoxContainer.new()
 	small.add_theme_constant_override("separation", 4)
+	# Never shown now: nothing sets reroll_available (BaseState).
 	if game.base.reroll_available:
 		var reroll := AK.button("刷新", "plain", 12)
 		reroll.pressed.connect(func(): game.reroll_order(slot); outbound(menu))
@@ -839,7 +970,7 @@ static func store(menu: FieldMenu) -> void:
 # --- #11 暂停与设置 ------------------------------------------------------------------
 
 const PAUSE_ITEMS := ["继续作业", "设置", "按键设置", "放弃合同", "保存并退出", "回到标题"]
-const SETTING_TABS := ["画面", "界面", "音频", "基地"]
+const SETTING_TABS := ["画面", "界面", "音频", "基地", "拾取过滤"]
 
 static func pause(menu: FieldMenu) -> void:
 	var game := menu.game
@@ -909,12 +1040,15 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 	var s := SystemScreens.settings
 	var rows: Array = []
 	match tab:
-		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"], ["gpu"]]
+		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"], ["gpu"], ["震屏强度", [], "shake_strength", 0.0, 1.0], ["Boss 亮相", ["跳过", "播放"], "boss_intro"]]
 		1: rows = [["界面动效", ["精简", "完整"], "ui_motion"], ["交易确认", ["关", "开"], "trade_confirm"], ["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["新手引导", ["关", "开"], "tutorial"], ["主线引导", ["关", "开"], "story_guide"], ["language"],
 			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95]]
 		2: rows = [["主音量", [], "master_volume"]]
 		3:
 			_base_settings(menu, stage)
+			return
+		4:
+			_loot_settings(menu, stage)
 			return
 	var y := 104.0
 	for row in rows:
@@ -955,6 +1089,21 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 			var toggle := AK.toggle(row[1], current, pick, 13)
 			toggle.alignment = BoxContainer.ALIGNMENT_END
 			AK.put(stage, toggle, Vector2(900, y + 6), Vector2(320, 38))
+		stage.add_child(AK.rect(AK.LINE, Vector2(334, y + 49), Vector2(886, 1)))
+		y += 50
+
+## 拾取过滤 (用户 2026-11-02): which equipment shows a name plate on the ground —
+## by rarity, by how many prefixes, by the lowest grade of its prefixes.
+static func _loot_settings(menu: FieldMenu, stage: Control) -> void:
+	var s := SystemScreens.settings
+	var y := 104.0
+	for row in [["装备品质", GameManager.LOOT_RARITY_NAMES, "loot_rarity"], ["前缀数量", GameManager.LOOT_PREFIX_NAMES, "loot_prefixes"],
+			["前缀品质", GameManager.LOOT_GRADE_NAMES, "loot_prefix_grade"]]:
+		AK.put(stage, AK.label(row[0], 14, AK.FG), Vector2(334, y + 12))
+		var key: String = row[2]
+		var names: Array = row[1]
+		var toggle := AK.toggle(names, clampi(int(s.get(key, 0)), 0, names.size() - 1), func(i): SystemScreens.set_setting(key, i); pause(menu), 13)
+		AK.put(stage, toggle, Vector2(520, y + 6))
 		stage.add_child(AK.rect(AK.LINE, Vector2(334, y + 49), Vector2(886, 1)))
 		y += 50
 
@@ -1092,10 +1241,14 @@ class FlowGrid extends Control:
 	## pointer (move_to(item, cell)); 旋转物品 over a tile calls on_rotate(item).
 	var move_to: Callable
 	var on_rotate: Callable
+	## A double click on a 整理箱 opens it (整理箱与收藏品策划案 v0.2 §0-9).
+	var on_open: Callable
+	## Pixels a cell (CELL unless the caller passes another size).
+	var cell := CELL
 	var _hovered: Item
 
 	func cell_at(point: Vector2) -> Vector2i:
-		return Vector2i(floori(point.x / CELL), floori(point.y / CELL))
+		return Vector2i(floori(point.x / cell), floori(point.y / cell))
 
 	func _unhandled_key_input(event: InputEvent) -> void:
 		if on_rotate.is_valid() and _hovered != null and is_visible_in_tree() and event.is_action_pressed("rotate_item"):
@@ -1113,14 +1266,15 @@ class FlowGrid extends Control:
 		control.set_meta("drop_can", can)
 		control.set_meta("drop_take", drop)
 
-	static func make(shown: Array, w: int, h: int, pick: Callable, hover: Callable) -> FlowGrid:
+	static func make(shown: Array, w: int, h: int, pick: Callable, hover: Callable, size: int = CELL) -> FlowGrid:
 		var grid := FlowGrid.new()
 		grid.items = shown
 		grid.columns = w
 		grid.rows = h
 		grid.on_pick = pick
 		grid.on_hover = hover
-		grid.custom_minimum_size = Vector2(w, h) * CELL
+		grid.cell = size
+		grid.custom_minimum_size = Vector2(w, h) * size
 		grid.size = grid.custom_minimum_size
 		return grid
 
@@ -1129,21 +1283,30 @@ class FlowGrid extends Control:
 		var taken := {}
 		var places := {}
 		var rows := min_rows
+		# Rows above `full` are taken end to end: no item's top row can be
+		# there, nor can one reach down across them, so the search starts below.
+		var filled := {}
+		var full := 0
 		for item: Item in shown:
 			var at := Vector2i(-1, -1)
-			var y := 0
+			var y := full
 			while at.x < 0:
 				for x in range(w - item.width + 1):
 					var free := true
 					for dy in range(item.height):
 						for dx in range(item.width):
-							if taken.has(Vector2i(x + dx, y + dy)): free = false
+							if taken.has(Vector2i(x + dx, y + dy)):
+								free = false
+								break
+						if not free: break
 					if free:
 						at = Vector2i(x, y)
 						break
 				y += 1
 			for dy in range(item.height):
 				for dx in range(item.width): taken[at + Vector2i(dx, dy)] = true
+				filled[at.y + dy] = int(filled.get(at.y + dy, 0)) + item.width
+			while int(filled.get(full, 0)) >= w: full += 1
 			places[item] = at
 			rows = maxi(rows, at.y + item.height)
 		var grid := make(shown, w, rows, pick, func(_it): pass)
@@ -1183,8 +1346,8 @@ class FlowGrid extends Control:
 			if cards: tile.item = item
 			tile.flat = true
 			tile.focus_mode = Control.FOCUS_NONE
-			tile.position = Vector2(x, y) * CELL
-			tile.size = Vector2(item.width, item.height) * CELL - Vector2.ONE
+			tile.position = Vector2(x, y) * cell
+			tile.size = Vector2(item.width, item.height) * cell - Vector2.ONE
 			tile.set_meta("item", item)
 			tile.add_child(AK.item_icon(item, tile.size))
 			var shown := item
@@ -1193,9 +1356,11 @@ class FlowGrid extends Control:
 				_hovered = shown
 				on_hover.call(shown))
 			tile.mouse_exited.connect(func(): if _hovered == shown: _hovered = null)
-			if on_alt.is_valid():
+			if on_alt.is_valid() or (on_open.is_valid() and item.is_case()):
 				tile.gui_input.connect(func(e: InputEvent):
-					if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_RIGHT: on_alt.call(shown))
+					if not e is InputEventMouseButton or not e.pressed: return
+					if e.button_index == MOUSE_BUTTON_RIGHT and on_alt.is_valid(): on_alt.call(shown)
+					elif e.button_index == MOUSE_BUTTON_LEFT and e.double_click and shown.is_case() and on_open.is_valid(): on_open.call(shown))
 			if move_to.is_valid(): _wire_free(tile, shown, tile.position)
 			elif drag or accept.is_valid(): ItemDrag.wire(tile, shown if drag else null, accept, take)
 			add_child(tile)
@@ -1203,9 +1368,6 @@ class FlowGrid extends Control:
 			row_h = maxi(row_h, item.height)
 
 	func _draw() -> void:
-		draw_rect(Rect2(Vector2.ZERO, Vector2(columns, rows) * CELL), Color(0, 0, 0, 0.55))
-		for gx in range(columns + 1): draw_line(Vector2(gx * CELL, 0), Vector2(gx * CELL, rows * CELL), Color(1, 1, 1, 0.07))
-		for gy in range(rows + 1): draw_line(Vector2(0, gy * CELL), Vector2(columns * CELL, gy * CELL), Color(1, 1, 1, 0.07))
-
-# --- Item tile and detail (界面策划案 §6) ---------------------------------------------
-
+		draw_rect(Rect2(Vector2.ZERO, Vector2(columns, rows) * cell), Color(0, 0, 0, 0.55))
+		for gx in range(columns + 1): draw_line(Vector2(gx * cell, 0), Vector2(gx * cell, rows * cell), Color(1, 1, 1, 0.07))
+		for gy in range(rows + 1): draw_line(Vector2(0, gy * cell), Vector2(columns * cell, gy * cell), Color(1, 1, 1, 0.07))

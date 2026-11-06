@@ -1,0 +1,258 @@
+{
+  "col_mine_pass": {
+    "id": "col_mine_pass",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-55bc99e1-4893-422a-b698-926659984f80.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-55bc99e1-4893-422a-b698-926659984f80.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: A worn cracked laminated mine entry ID card, hanging from a short looped dark lanyard, a blurry tiny portrait and a few block markings; the entire lanyard must fit within a compact square. Austere Ursus industrial mining town. Final target 32x32 pixels: preserve this square composition, do not stretch. Rarity white; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_miner_charm": {
+    "id": "col_miner_charm",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b3f9ab1a-888e-44b3-9ebc-b91165898070.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b3f9ab1a-888e-44b3-9ebc-b91165898070.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: A small patched brown cloth talisman pouch tied to a cord loop, stitches visible, one tiny orange Originium glow visible through its seam. Compact silhouette, humble miner keepsake. Final target 32x32 pixels: preserve this square composition, do not stretch. Rarity white; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_tin_doll": {
+    "id": "col_tin_doll",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a2f23002-2e1c-4acd-9b0b-4174426542c9.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a2f23002-2e1c-4acd-9b0b-4174426542c9.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: One upright tall slender Ursus tin nesting doll, traditional red and muted gold painted metal, simple friendly face and folk floral apron, dented worn edges. Full vertical doll. Final target 32x72 pixels: preserve this tall narrow vertical composition, do not stretch. Rarity green; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_old_lamp": {
+    "id": "col_old_lamp",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3b736d4f-d9f0-46c8-b150-94da293205d7.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3b736d4f-d9f0-46c8-b150-94da293205d7.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: An upright old industrial miner headlamp with yellowed circular glass in worn steel housing, its thick black electric cable coiled compactly below it, tall narrow composition. Final target 32x72 pixels: preserve this tall narrow vertical composition, do not stretch. Rarity green; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_pocket_watch": {
+    "id": "col_pocket_watch",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-5a776bab-f242-4d8d-baca-3486ab8a7942.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-e0d97ddd-c2d0-4fa8-a1ab-2c6092915726.png",
+    "prompt": "undefinedSubject: One opened brass pocket watch, round white dial and hinged lid tilted to side, engraved simple skyline on lid, very short chain tucked close. Compact square composition, warm aged polished brass. Final target 32x32 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": "Use case: background-extraction. Edit this exact inventory icon. REMOVE ALL BLUE OR PURPLE BACKDROP OUTSIDE THE OBJECT and every external cast shadow. Output the existing object as a clean isolated PNG cutout on fully transparent alpha background. Keep object shape, all internal colors and lines unchanged, including blue enamel inside the medal or blue watch hands. Preserve internal openings between chain links and the crown ring as transparent holes. No background gradient, no square, no glow or scene. Keep the full object inside the canvas with clear transparent margins. Do not add anything. TRUE TRANSPARENT BACKGROUND."
+  },
+  "col_lamp_shade": {
+    "id": "col_lamp_shade",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a18c170a-d1fe-4a19-b2d0-d70b51ddcb06.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a18c170a-d1fe-4a19-b2d0-d70b51ddcb06.png",
+    "prompt": "undefinedSubject: One old mining lantern glass shade inside a dark iron protective cage; no full lamp handle, a layer of clearly visible orange Originium crystal growing INSIDE yellowed glass. Squat broad square silhouette. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_school_badge": {
+    "id": "col_school_badge",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-d99da6cd-6e2c-4c33-b6e9-b80ad51cbac3.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-d99da6cd-6e2c-4c33-b6e9-b80ad51cbac3.png",
+    "prompt": "undefinedSubject: One shield-shaped blue-and-cream enamel school commemorative badge with silver rim, a simple open book school insignia, exquisite polished enamel pin, subtle signs of age. No ribbon, no outer game UI frame. Final target 32x32 pixels: keep a compact square silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_imperial_medal": {
+    "id": "col_imperial_medal",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a87b7ae1-96a8-4630-90bb-20a88758cfd1.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a87b7ae1-96a8-4630-90bb-20a88758cfd1.png",
+    "prompt": "undefinedSubject: One heavy gold Ursus imperial star-shaped medal, thick dimensional gold facets, simple dark eagle motif at center, short faded red ribbon folded behind star. Precious antique state decoration. Compact square. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_teahouse_chip": {
+    "id": "col_teahouse_chip",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e1ba1f6-9d67-40e2-a0ff-2d5e251a8d37.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e1ba1f6-9d67-40e2-a0ff-2d5e251a8d37.png",
+    "prompt": "undefinedSubject: One round old wooden teahouse token, warm brown with dark edge and a single large carved Chinese character 茶 at center, slightly tilted three-quarter to show thickness. Humble worn token, no UI frame. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_lmd_specimen": {
+    "id": "col_lmd_specimen",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e99a610-52b5-40bc-8d43-fde08d0b3243.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e99a610-52b5-40bc-8d43-fde08d0b3243.png",
+    "prompt": "undefinedSubject: One old pale jade-green Lungmen banknote folded slightly into a compact square icon, visible architectural portrait block and large red Chinese stamp 样本 across its face. Paper only, no coins or extra objects. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_mahjong": {
+    "id": "col_mahjong",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-04e181e6-f42f-4553-8099-72a378f87058.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-04e181e6-f42f-4553-8099-72a378f87058.png",
+    "prompt": "undefinedSubject: One small long horizontal open dark wooden mahjong case, its shallow lid behind a single clear row of ivory mahjong tiles with simple green and red characters and dot patterns, tiny brass clasp. Wide low silhouette. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_radio": {
+    "id": "col_radio",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9b9ce06b-2017-4937-b10f-e05cc14c61dd.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9b9ce06b-2017-4937-b10f-e05cc14c61dd.png",
+    "prompt": "undefinedSubject: One squat horizontal vintage rectangular dark wood radio, one large woven warm gray speaker grille, two ivory tuning knobs and a small narrow tuning display, worn brass accents. Wide low silhouette. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_lion_dance": {
+    "id": "col_lion_dance",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-8c3512e1-8117-405f-b575-690d73343b19.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-8c3512e1-8117-405f-b575-690d73343b19.png",
+    "prompt": "undefinedSubject: One tall narrow ornamental Chinese lion dance miniature, oversized red and gold lion head with big round white-rimmed eyes, red mouth, short trailing red fabric body on a tiny integral wood stand. Expressive ornate traditional lion, upright. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_yan_teapot": {
+    "id": "col_yan_teapot",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-ce4be8ac-cc2f-4a05-9590-5f1c91eb24d2.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-ce4be8ac-cc2f-4a05-9590-5f1c91eb24d2.png",
+    "prompt": "undefinedSubject: One round Chinese blue-and-white porcelain teapot, short curved spout to left and loop handle to right, fitted lid, broad simple cobalt floral patterns on white ceramic, clean glazed highlights. Teapot only, no cups. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_lgd_medal": {
+    "id": "col_lgd_medal",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-86b1076e-d6ac-476d-96a2-421126dc34a6.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-6b0c87c5-b0c5-4fbf-b992-4983f56958cb.png",
+    "prompt": "undefinedSubject: One fine silver Lungmen Guard Department commemorative badge, angular stylized dragon-police insignia in polished silver and dark blue enamel, short deep navy ribbon above. Compact square, elegant official workmanship. Final target 32x32 pixels: keep a compact square silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": "Use case: background-extraction. Edit this exact inventory icon. REMOVE ALL BLUE OR PURPLE BACKDROP OUTSIDE THE OBJECT and every external cast shadow. Output the existing object as a clean isolated PNG cutout on fully transparent alpha background. Keep object shape, all internal colors and lines unchanged, including blue enamel inside the medal or blue watch hands. Preserve internal openings between chain links and the crown ring as transparent holes. No background gradient, no square, no glow or scene. Keep the full object inside the canvas with clear transparent margins. Do not add anything. TRUE TRANSPARENT BACKGROUND."
+  },
+  "col_jade_pendant": {
+    "id": "col_jade_pendant",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-948b055f-13ef-40a7-a42c-5a20bd6a35e5.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-948b055f-13ef-40a7-a42c-5a20bd6a35e5.png",
+    "prompt": "undefinedSubject: One precious circular green jade bi-disc pendant with a clearly open round hole in the center, translucent mottled green jade and a short looped red silk cord threaded through it, polished antique workmanship. Compact square. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_reindeer_bell": {
+    "id": "col_reindeer_bell",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-2f716d46-d315-4395-ac63-7345f3be6504.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-2f716d46-d315-4395-ac63-7345f3be6504.png",
+    "prompt": "undefinedSubject: One small hand-hammered aged brass reindeer bell, rough dimpled metal dome and visible dark slit/clapper, short tied brown leather cord loop. Humble Sami tundra tribal craft. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_hide_charm": {
+    "id": "col_hide_charm",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-cd964541-0cf9-4ff2-b047-2322b066690b.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-cd964541-0cf9-4ff2-b047-2322b066690b.png",
+    "prompt": "undefinedSubject: One small roughly stitched reindeer-hide talisman, irregular tan leather pouch patch, tuft of pale reindeer fur and three simple red blue bone beads attached, short leather loop. Compact rugged handmade tribal keepsake. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_antler": {
+    "id": "col_antler",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-730a02aa-ef1f-4a02-bc76-e52584b9c926.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-730a02aa-ef1f-4a02-bc76-e52584b9c926.png",
+    "prompt": "undefinedSubject: One polished pale reindeer antler ornament lying HORIZONTALLY, several natural branching prongs extending sideways, three simple dark carved bands and small leather binding near end. Wide flat icon, not a standing skull. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_birch_basket": {
+    "id": "col_birch_basket",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f3d77f8-da6c-4522-a660-31fdb8c2dc22.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f3d77f8-da6c-4522-a660-31fdb8c2dc22.png",
+    "prompt": "undefinedSubject: One narrow upright handwoven birch bark basket, tall cylindrical tapered pale tan bark weave, dark horizontal grain markings, small open mouth and simple slim loop handle. Vertical slim silhouette. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_sami_carving": {
+    "id": "col_sami_carving",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3a6968ab-1dc3-4cbe-9d11-405536311ebc.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3a6968ab-1dc3-4cbe-9d11-405536311ebc.png",
+    "prompt": "undefinedSubject: One upright carved wooden statue of a SITTING FOX, clearly pointed ears and muzzle, tail curled around its feet, warm reddish wood with a few visible whittled planes and subtle tribal incised lines. Tall narrow full fox. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_snow_map": {
+    "id": "col_snow_map",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b50e61ad-55b0-4771-8409-e7d69f8c0f6e.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b50e61ad-55b0-4771-8409-e7d69f8c0f6e.png",
+    "prompt": "undefinedSubject: One square old map painted on a piece of tan animal hide, irregular rolled edges and two short leather ties, bold winding BLUE river and a few dark mountain marks, sparse tribal red landmarks. Clearly a map, no modern paper or text. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_bone_flute": {
+    "id": "col_bone_flute",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b8708ac3-a801-458c-8202-7d0bbebd900f.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b8708ac3-a801-458c-8202-7d0bbebd900f.png",
+    "prompt": "undefinedSubject: One long ivory bone shaman flute lying HORIZONTALLY with a clear row of five black finger holes, intricately carved end and brown leather wraps, tiny turquoise bead tied close. A single refined tribal instrument. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_aurora_amber": {
+    "id": "col_aurora_amber",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-28586955-7fbf-4ec1-9959-4988fb72737a.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-5373c0ef-7223-48ab-a4fe-a0599ba55bfe.png",
+    "prompt": "undefinedSubject: One polished teardrop of precious warm golden amber, INSIDE it a clearly visible bright GREEN flowing aurora ribbon, honey transparency and crisp broad highlight. This is solid amber, not a bottle; no stand. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": "Use case: background-extraction. Edit this exact golden amber teardrop inventory icon. Remove ALL red background, ALL exterior red light rays and ALL external glow outside its bold black outline. Output only this exact golden amber teardrop and its internal green aurora, unchanged, as an isolated PNG cutout on TRUE TRANSPARENT ALPHA background. Keep the black outline, golden amber interior and green ribbon intact. Every pixel outside the amber object must be transparent. No backdrop, no shadow, no checkerboard, no colored square or gradient, no new ornament. Maintain full object and small transparent margins on each side."
+  },
+  "col_coffee_cup": {
+    "id": "col_coffee_cup",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-aa882cca-2fa7-4c7f-a993-246545c6babc.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-aa882cca-2fa7-4c7f-a993-246545c6babc.png",
+    "prompt": "undefinedSubject: One small ivory espresso coffee cup on matching saucer, dark coffee visible, one small red lipstick mark on cup rim, modest worn cafe crockery with a single thin brown stripe. Compact square, cup handle visible. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_opera_poster": {
+    "id": "col_opera_poster",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-7a45262d-a23b-4afb-b2d2-478998a3aba8.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-7a45262d-a23b-4afb-b2d2-478998a3aba8.png",
+    "prompt": "undefinedSubject: One vertical half-curled aged opera poster, elegant art nouveau dark green and faded burgundy ornament around a simple woman singer portrait, rolled upper corner, large readable graphic forms, no need for legible small typography. Tall narrow poster only. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_silver_cutlery": {
+    "id": "col_silver_cutlery",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f4c4459-53e6-409d-980d-a81dd589fad8.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f4c4459-53e6-409d-980d-a81dd589fad8.png",
+    "prompt": "undefinedSubject: One long horizontal open burgundy leather cutlery case, cream inset holding TWO polished silver dinner knives aligned horizontally, and ONE visibly empty fitted knife slot. Lid open low behind, brass latch. Clearly narrow knife case, not weapon chest. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_brass_lighter": {
+    "id": "col_brass_lighter",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0b5f0ecb-3a72-46d5-9efd-382cdd8af862.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0b5f0ecb-3a72-46d5-9efd-382cdd8af862.png",
+    "prompt": "undefinedSubject: One compact rectangular engraved brass petrol flip-top lighter with lid OPEN, unlit wick and perforated chimney, simple initials V engraved on front, warm worn metallic broad highlights. Compact square silhouette. Final target 32x32 pixels: keep a compact square silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_vintage_bottle": {
+    "id": "col_vintage_bottle",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-28ca3426-8055-4a4a-81c5-1a39e42475e2.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-28ca3426-8055-4a4a-81c5-1a39e42475e2.png",
+    "prompt": "undefinedSubject: One upright tall dark green vintage wine bottle, dust on shoulders, intact burgundy red sealing wax over neck and cork, aged cream paper label with simple burgundy crest, faint glass highlight. Vertical slender bottle. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_porcelain_wolf": {
+    "id": "col_porcelain_wolf",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9a171636-0b22-4055-b9ee-d89927b70338.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9a171636-0b22-4055-b9ee-d89927b70338.png",
+    "prompt": "undefinedSubject: One elegant white porcelain statue of a SITTING WOLF, proud upright pointed muzzle and ears, tail curled alongside paws, fine GOLD edging along ears back and paws, glossy ceramic planes. Whole statue, no extra base or background. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_family_ledger": {
+    "id": "col_family_ledger",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a47c9810-d7b7-4865-af58-63d938343c2e.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a47c9810-d7b7-4865-af58-63d938343c2e.png",
+    "prompt": "undefinedSubject: One thick closed dark burgundy leather family ledger, brass buckle on leather strap, several torn rough cream page edges sticking out, worn embossed gold corner flourishes. Three-quarter view compact square, luxurious antique accounting book. Final target 32x32 pixels: keep a compact square silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_family_seal": {
+    "id": "col_family_seal",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-27962a9e-1c79-4611-8a0e-c5db22f2da54.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-27962a9e-1c79-4611-8a0e-c5db22f2da54.png",
+    "prompt": "undefinedSubject: One precious small brass family signet stamp shown tilted with broad round seal face visible, seal face engraved with a bold WOLF HEAD silhouette, elegant short sculpted handle, one small red sealing-wax lump beside it. Compact square, golden gleam. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  }
+}

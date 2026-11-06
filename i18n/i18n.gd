@@ -30,17 +30,25 @@ const CACHE_LIMIT := 8000
 static var language := "zh"
 static var _table := {}
 static var _by_first := {}
-static var _templates: Array = []  # [RegEx, English]
+static var _templates: Array = []  # [RegEx, English, literal prefix]
+## Templates that can match a text starting with a character (prefix empty or
+## starting with it), in table order; _tpl_any for the other characters.
+static var _tpl_by_first := {}
+static var _tpl_any: Array = []
 static var _cache := {}
+## The generation before the last CACHE_LIMIT: hits move back into _cache.
+static var _cache_old := {}
 static var _translation: Translation
 static var _registered := false
 ## Chinese text shown in English mode with no key for it (for the coverage test).
 static var missing := {}
+const MISSING_LIMIT := 20000
 
 ## Switches the shown language now; every Control re-reads its text.
 static func set_language(lang: String) -> void:
 	language = lang if lang in LANGUAGES else "zh"
 	_cache.clear()
+	_cache_old.clear()
 	if language == "en":
 		_load()
 		if _translation == null:
@@ -82,13 +90,29 @@ static func _load() -> void:
 	for key: String in _table:
 		if key.is_empty(): continue
 		if key.contains("%s") or key.contains("%d"):
-			_templates.append([_template_regex(key), str(_table[key])])
+			_templates.append([_template_regex(key), str(_table[key]), _template_prefix(key)])
 			continue
 		var first := key[0]
 		if not _by_first.has(first): _by_first[first] = []
 		_by_first[first].append(key)
 	for first in _by_first:
 		_by_first[first].sort_custom(func(a: String, b: String): return a.length() > b.length())
+	# A template's regex is anchored on its literal prefix: only a text that
+	# begins with it can match, so the others are never tried.
+	_tpl_any = _templates.filter(func(tp): return str(tp[2]).is_empty())
+	for template in _templates:
+		var prefix: String = template[2]
+		if prefix.is_empty() or _tpl_by_first.has(prefix[0]): continue
+		var c := prefix[0]
+		_tpl_by_first[c] = _templates.filter(func(tp): return str(tp[2]).is_empty() or str(tp[2])[0] == c)
+
+## The literal text before a template's first %s / %d.
+static func _template_prefix(key: String) -> String:
+	var i := 0
+	while i < key.length():
+		if key.substr(i, 2) == "%s" or key.substr(i, 2) == "%d": break
+		i += 1
+	return key.substr(0, i)
 
 static func _template_regex(key: String) -> RegEx:
 	var pattern := "^"
@@ -129,12 +153,17 @@ static func has_cjk(text: String) -> bool:
 static func translate(text: String) -> String:
 	if text.is_empty() or not has_cjk(text): return text
 	if _cache.has(text): return _cache[text]
+	if _cache_old.has(text):
+		var kept: String = _cache_old[text]
+		_store(text, kept)
+		return kept
 	var result: String
 	var templated := false
 	if _table.has(text):
 		result = _table[text]
 	else:
-		for template in _templates:
+		for template in _tpl_by_first.get(text[0], _tpl_any):
+			if not text.begins_with(template[2]): continue
 			var found: RegExMatch = (template[0] as RegEx).search(text)
 			if found == null: continue
 			var parts: Array = []
@@ -161,13 +190,20 @@ static func translate(text: String) -> String:
 				continue
 			if PUNCT.has(c): out += PUNCT[c]
 			else:
-				if has_cjk(c): missing[text] = true
+				if has_cjk(c) and missing.size() < MISSING_LIMIT: missing[text] = true
 				out += c
 			i += 1
 		result = _tidy(out)
-	if _cache.size() > CACHE_LIMIT: _cache.clear()
-	_cache[text] = result
+	_store(text, result)
 	return result
+
+## The result is a function of the text alone, so any eviction gives the same
+## answers; a full cache becomes the old generation instead of being dropped.
+static func _store(text: String, result: String) -> void:
+	if _cache.size() > CACHE_LIMIT:
+		_cache_old = _cache
+		_cache = {}
+	_cache[text] = result
 
 static func _ideograph(text: String, i: int) -> bool:
 	if i < 0 or i >= text.length(): return false

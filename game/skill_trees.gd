@@ -9,7 +9,8 @@ extends RefCounted
 ## tier: the elite stage that opens the node. max: highest rank; skills with
 ## "mastery" go past 7 to 10 (专精 1–3), each of those costing 2 points and the
 ## MASTERY materials, and needing 精英 2. Ranks 5–7 of a skill or signature
-## need 精英 1 (§4.0). `parent`: the node that must have a rank first.
+## need 精英 1 (§4.0). These are the old ranks the tables are written on; the
+## tree stores fine ranks (below). `parent`: the node that must have a rank first.
 
 const SKILL_CAP_E0 := 4
 const MASTERY_POINTS := 2
@@ -53,7 +54,7 @@ const MASTERY := [
 	{"技巧概要·卷3": 6, "提纯源岩": 6, "化合切削液": 3},
 	{"技巧概要·卷3": 10, "D32钢": 4, "改量装置": 4},
 ]
-## Modules (模组, §8): 模组数据块 ×2 each level plus 龙门币 (v1.1 §4.2: 2/3/4 万).
+## Modules (模组, §8): 模组数据块 ×2 each level plus 龙门币 (v1.1 §4.2's 2/3/4 万, now ×2.8).
 const MODULE_COST := [
 	{"lmd": 56000, "materials": {"模组数据块": 2}},
 	{"lmd": 84000, "materials": {"模组数据块": 2}},
@@ -240,7 +241,8 @@ const TREES := {
 	},
 	"santalla": {
 		"tears": {"name": "女巫之泪", "type": "signature", "tier": 0, "max": 10, "mastery": true,
-			"values": [[0.60, 0.03], [10.0, 0.3]], "fmt": ["pct", "sec"],
+			# 用户 2026-11-05: 1 s 一根（原 0.35 s），单根补高 ×1/0.35，总伤害不变.
+			"values": [[1.70, 0.085], [10.0, 0.3]], "fmt": ["pct", "sec"],
 			"text": "光标附近持续落下冰锥，每根 %s 并附加寒冷，持续 %s 秒。冷却 20 秒。"},
 		"orb": {"name": "冰球", "type": "skill", "tier": 0, "max": 10, "mastery": true,
 			"values": [[0.50, 0.05]], "fmt": ["pct"],
@@ -252,7 +254,7 @@ const TREES := {
 			"values": [[0.20, 0.05]], "fmt": ["pct"],
 			"text": "寒冷使敌人移速 −%s。"},
 		"tears_rate": {"name": "冰雨", "type": "modifier", "tier": 1, "max": 3, "parent": "tears",
-			"values": [[0.05, 0.03]], "fmt": ["sec"],
+			"values": [[0.14, 0.085]], "fmt": ["sec"],
 			"text": "冰锥落下间隔 −%s 秒。"},
 		"frost_ward": {"name": "冰霜护身", "type": "passive", "tier": 1, "max": 5,
 			"values": [[5.0, 3.0]], "fmt": ["num"],

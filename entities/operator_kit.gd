@@ -2,10 +2,12 @@ class_name OperatorKit
 extends RefCounted
 ## How a recruit fights (干员寻访策划案 §4, §9, R2): her basic combo, her Space
 ## skill on a cooldown, her signature passive and her three 精英 2 transmuters.
-## Lappland and Amiya keep their own code in Player; every recruit is one of
-## these, made by make() when she is chosen. Player asks the kit at fixed
-## points (swing, cast, tick, incoming damage, stat bonuses), so the answers
-## below are the neutral ones and each kit overrides what it changes.
+## Amiya has no kit (make() returns null) and fights in Player's own code;
+## 拉普兰德's kit is only her Space, her combo and 剑气 stay in Player. Every
+## other recruit is one of these, made by make() when she is chosen. Player
+## asks the kit at fixed points (swing, cast, tick, incoming damage, stat
+## bonuses), so the answers below are neutral and each kit overrides what it
+## changes.
 
 var player: Player
 var id := ""
@@ -74,7 +76,8 @@ func tick(delta: float) -> void:
 			player.stats_changed.emit()
 			if is_instance_valid(game()): game().sound.play("charge")
 
-## Relic "charge" gains and similar shorten the cooldown, a second each.
+## Shortens the cooldown by `seconds`: relic "charge" gains a second each,
+## 猎手先机, 林's 韬光, 德克萨斯's quickdraw.
 func refund(seconds: float) -> void:
 	if seconds <= 0.0 or cooldown <= 0.0: return
 	cooldown = maxf(0.0, cooldown - seconds)
@@ -213,8 +216,8 @@ func skill_hit(target: Enemy, raw: float, kind: String, crit: bool = false) -> f
 	if is_instance_valid(target): player.on_wave_hit(target, 0.0, null)
 	return dealt
 
-## ATK × skill damage × what the cast took.
-## Her skills' power: ATK for physical skills, arts power for arts ones (清单 F).
+## Her skills' power: ATK for physical skills, arts power for arts ones (清单 F),
+## × skill damage × what the cast took.
 func skill_power(kind: String = "phys") -> float:
 	return player.power_for(kind) * player.wave_multiplier() * skill_mult
 

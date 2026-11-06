@@ -1,0 +1,88 @@
+{
+  "size": [
+    512,
+    2048
+  ],
+  "cell": 256,
+  "frames": 16,
+  "rows": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "checks": [
+    {
+      "direction": "S",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    },
+    {
+      "direction": "SW",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    },
+    {
+      "direction": "W",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    },
+    {
+      "direction": "NW",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    },
+    {
+      "direction": "N",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    },
+    {
+      "direction": "NE",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    },
+    {
+      "direction": "E",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    },
+    {
+      "direction": "SE",
+      "knee_y": 198,
+      "identical_below_knees": true,
+      "head_top_delta_px": 8,
+      "feet_baseline": 240,
+      "body_center": 128
+    }
+  ],
+  "clear_8px_cell_borders": true,
+  "walk_unchanged_sha256": "9436012a76cf65ec9b5d3eeffd6a47771740e3db5408bd8b1b02b093236ff96a",
+  "runtime_tested": false,
+  "assembly": "Generated standing and breath poses; same per-direction scale, head centred x128, normal sole y240, breath top +8px, original lower knee band composited into breath. No character art drawn by script."
+}

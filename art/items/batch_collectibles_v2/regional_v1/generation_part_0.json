@@ -1,0 +1,66 @@
+{
+  "col_mine_pass": {
+    "id": "col_mine_pass",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-55bc99e1-4893-422a-b698-926659984f80.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-55bc99e1-4893-422a-b698-926659984f80.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: A worn cracked laminated mine entry ID card, hanging from a short looped dark lanyard, a blurry tiny portrait and a few block markings; the entire lanyard must fit within a compact square. Austere Ursus industrial mining town. Final target 32x32 pixels: preserve this square composition, do not stretch. Rarity white; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_miner_charm": {
+    "id": "col_miner_charm",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b3f9ab1a-888e-44b3-9ebc-b91165898070.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-b3f9ab1a-888e-44b3-9ebc-b91165898070.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: A small patched brown cloth talisman pouch tied to a cord loop, stitches visible, one tiny orange Originium glow visible through its seam. Compact silhouette, humble miner keepsake. Final target 32x32 pixels: preserve this square composition, do not stretch. Rarity white; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_tin_doll": {
+    "id": "col_tin_doll",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a2f23002-2e1c-4acd-9b0b-4174426542c9.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a2f23002-2e1c-4acd-9b0b-4174426542c9.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: One upright tall slender Ursus tin nesting doll, traditional red and muted gold painted metal, simple friendly face and folk floral apron, dented worn edges. Full vertical doll. Final target 32x72 pixels: preserve this tall narrow vertical composition, do not stretch. Rarity green; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_old_lamp": {
+    "id": "col_old_lamp",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3b736d4f-d9f0-46c8-b150-94da293205d7.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-3b736d4f-d9f0-46c8-b150-94da293205d7.png",
+    "prompt": "Use case: stylized-concept. Asset: a single small inventory item icon for a painted 2D extraction ARPG. Draw ONE isolated object only, no scene, no floor, no cast shadow outside the silhouette, no props other than the listed attached parts. TRANSPARENT BACKGROUND with true alpha, no checkerboard drawn into image, no backdrop. Hand-painted GAME ICON, thick dark charcoal outer contour and a few strong internal lines, clean flat local colors with 2-4 broad simple shading regions where useful and small bright material highlights. No palette limit. Not pixel art, not photo or 3D render. Large clear silhouette suitable for final display at only 32px across, simplify aggressively, avoid fine filigree and tiny noise. Three-quarter slightly top view when appropriate. No UI border, rarity frame, badge backdrop or colored square. Fill about 82% of the image with safe transparent margins around all sides. Only text explicitly requested on the object itself is allowed. Subject: An upright old industrial miner headlamp with yellowed circular glass in worn steel housing, its thick black electric cable coiled compactly below it, tall narrow composition. Final target 32x72 pixels: preserve this tall narrow vertical composition, do not stretch. Rarity green; rarity should affect workmanship only, never draw a rarity marker.",
+    "repair_prompt": null
+  },
+  "col_pocket_watch": {
+    "id": "col_pocket_watch",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-5a776bab-f242-4d8d-baca-3486ab8a7942.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-e0d97ddd-c2d0-4fa8-a1ab-2c6092915726.png",
+    "prompt": "undefinedSubject: One opened brass pocket watch, round white dial and hinged lid tilted to side, engraved simple skyline on lid, very short chain tucked close. Compact square composition, warm aged polished brass. Final target 32x32 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": "Use case: background-extraction. Edit this exact inventory icon. REMOVE ALL BLUE OR PURPLE BACKDROP OUTSIDE THE OBJECT and every external cast shadow. Output the existing object as a clean isolated PNG cutout on fully transparent alpha background. Keep object shape, all internal colors and lines unchanged, including blue enamel inside the medal or blue watch hands. Preserve internal openings between chain links and the crown ring as transparent holes. No background gradient, no square, no glow or scene. Keep the full object inside the canvas with clear transparent margins. Do not add anything. TRUE TRANSPARENT BACKGROUND."
+  },
+  "col_lamp_shade": {
+    "id": "col_lamp_shade",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a18c170a-d1fe-4a19-b2d0-d70b51ddcb06.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a18c170a-d1fe-4a19-b2d0-d70b51ddcb06.png",
+    "prompt": "undefinedSubject: One old mining lantern glass shade inside a dark iron protective cage; no full lamp handle, a layer of clearly visible orange Originium crystal growing INSIDE yellowed glass. Squat broad square silhouette. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_school_badge": {
+    "id": "col_school_badge",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-d99da6cd-6e2c-4c33-b6e9-b80ad51cbac3.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-d99da6cd-6e2c-4c33-b6e9-b80ad51cbac3.png",
+    "prompt": "undefinedSubject: One shield-shaped blue-and-cream enamel school commemorative badge with silver rim, a simple open book school insignia, exquisite polished enamel pin, subtle signs of age. No ribbon, no outer game UI frame. Final target 32x32 pixels: keep a compact square silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_imperial_medal": {
+    "id": "col_imperial_medal",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a87b7ae1-96a8-4630-90bb-20a88758cfd1.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a87b7ae1-96a8-4630-90bb-20a88758cfd1.png",
+    "prompt": "undefinedSubject: One heavy gold Ursus imperial star-shaped medal, thick dimensional gold facets, simple dark eagle motif at center, short faded red ribbon folded behind star. Precious antique state decoration. Compact square. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  }
+}

@@ -1,0 +1,129 @@
+[
+  {
+    "id": "mine_floor",
+    "code": "M1",
+    "region": "mine",
+    "world_m": [
+      5,
+      5
+    ],
+    "palette": [
+      "2c251d",
+      "3b3127",
+      "4a3e30",
+      "5e4f3c",
+      "6e5d48",
+      "8a7a63",
+      "615646",
+      "988164"
+    ],
+    "description": "Flat top-down COMPACTED EARTH and small broken gravel, neutral fairly uniform traversable mining-tunnel ground. About 70% packed brown earth with small irregular scattered 2-8 native-pixel chips, small crack marks, no road lanes or wear tracks because those are overlaid by the game. Overall DARKER medium brown, not nearly black, muted earth and stone colors. Low contrast and balanced uniform distribution, no distinctive large boulder, no footprints, no central focal mark."
+  },
+  {
+    "id": "mine_rock_top",
+    "code": "M2",
+    "region": "mine",
+    "world_m": [
+      12,
+      12
+    ],
+    "palette": [
+      "2c251d",
+      "3b3127",
+      "4a3e30",
+      "5e4f3c",
+      "6e5d48",
+      "8a7a63",
+      "615646",
+      "988164"
+    ],
+    "description": "Flat TOP-DOWN elevated weathered rock plateau top, clearly LIGHTER and BUSIER than compacted dirt ground. Dense angular broken rock flakes and weathered pale tan stone slabs 6-22 native pixels wide, scree scattered between, irregular flat surface mineral-color patches. Dominant warm tan and weathered beige rock, medium dark seams only in small cracks. No shading of individual rock volumes, no round cobblestones or road paving pattern, no big recognizable lone boulder. Uniform detail distribution."
+  },
+  {
+    "id": "mine_rock_face",
+    "code": "M3",
+    "region": "mine",
+    "world_m": [
+      4,
+      4
+    ],
+    "palette": [
+      "2c251d",
+      "3b3127",
+      "4a3e30",
+      "5e4f3c",
+      "6e5d48",
+      "8a7a63",
+      "615646",
+      "988164",
+      "d07a2c",
+      "f29a26"
+    ],
+    "description": "A flat UNLIT front-on cross-section rock WALL albedo: HORIZONTAL SEDIMENTARY LAYERS, 5 to 9 irregular layers across tile height, natural layer thickness 0.4-0.8 meters per layer within 4m tile. Browns and weathered tan rock bands separated by narrow dark material seams. Irregular small vertical and diagonal cracks break layers into long rock segments, NOT a brick wall. Layer boundaries align at compatible heights where left and right tile edges meet. The very top and bottom must also join without a border stripe. Only a few tiny warm ORANGE Originium flecks, less than 1% coverage, no glow. Mineral color variation, not light/shadow."
+  },
+  {
+    "id": "snow_floor",
+    "code": "S1",
+    "region": "snow",
+    "world_m": [
+      5,
+      5
+    ],
+    "palette": [
+      "9199af",
+      "b8c6e2",
+      "c5d0ea",
+      "ccd6ed",
+      "dae2f3",
+      "eef2fa",
+      "4c4d57",
+      "6b6d78",
+      "8a8c96"
+    ],
+    "description": "Flat top-down PACKED SNOW walkable ground, cool blue-white compacted snow field with sparse exposed dark gray frozen earth and tiny stone chips. Overall fairly bright cool blue, but DARKER and more compressed than fresh thick plateau snow: favor c5d0ea/ccd6ed and b8c6e2, with a few pale snow flecks. Exposed frozen earth around 10-15% area in dispersed small irregular patches. No tracks, boot prints, road lines, directional light, or large recognizable marks. Broad even coverage and low-frequency mineral/snow patches plus small hard pixel edge detail."
+  },
+  {
+    "id": "snow_rock_top",
+    "code": "S2",
+    "region": "snow",
+    "world_m": [
+      12,
+      12
+    ],
+    "palette": [
+      "9199af",
+      "b8c6e2",
+      "c5d0ea",
+      "ccd6ed",
+      "dae2f3",
+      "eef2fa",
+      "4c4d57",
+      "6b6d78",
+      "8a8c96",
+      "6f7f5a",
+      "8f9c6e"
+    ],
+    "description": "Flat TOP-DOWN elevated rock plateau completely covered in THICK FRESH SNOW. LIGHTER than packed ground, favor dae2f3 and eef2fa as dominant snow albedo. Subtle wind-etched gently wandering horizontal snow streaks made of hard pixel clusters, not raised shaded dunes. Occasional small exposed gray ROCK CORNERS and a few tiny olive-green MOSS clusters together under 8% area. Snow 85-92% coverage, irregular dispersed flat material-color patches, no lone distinctive landmark, no tracks. No hills, lighting gradients, shadows or volumetric shading."
+  },
+  {
+    "id": "snow_rock_face",
+    "code": "S3",
+    "region": "snow",
+    "world_m": [
+      4,
+      4
+    ],
+    "palette": [
+      "9199af",
+      "b8c6e2",
+      "c5d0ea",
+      "ccd6ed",
+      "dae2f3",
+      "eef2fa",
+      "4c4d57",
+      "6b6d78",
+      "8a8c96"
+    ],
+    "description": "A flat UNLIT front-on exposed FROZEN DARK GRAY ROCK WALL albedo, clearly much DARKER than snow ground. Horizontal cracked rock layers, 5-9 bands across tile height, long irregular layer segments with thin dark seams. Snow lodged in horizontal cracks and in narrow caps along the TOP EDGES of protrusions, 20-30% snow coverage. Gray rock dominates. White-blue snow edges have hard irregular pixel steps. This is a cliff-side rock face, not a top-down snowfield or regular brick wall. Left/right layers must match across tile edge, top/bottom repeat without a border stripe. Only material color boundaries, no highlights or cast shadows."
+  }
+]

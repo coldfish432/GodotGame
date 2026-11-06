@@ -1,0 +1,153 @@
+B4 v2 STATIC REVIEW PACKAGE - Patriot only.
+Built-in imagegen source art; deterministic assembly/registration, masks, bake, margin translation and QA.
+Protected old pixels compare to THIS v2 reference ZIP, not an older local board.
+Old action rows0-15 and all8 walk rows: generated patches are confined by exported weapon/flag masks.
+Outside-mask decoded RGBA comparison proves pixel retention there; semantic correctness of the mask boundary is a visual criterion, shown by the magenta diff.
+THROW row7 copied byte-identical decoded RGBA, with no weapon added.
+Required unmodified bake_n2.py is run with --scale-from the original action board.
+Then each baked cell is TRANSLATED ONLY if necessary to keep >=1px clear on all four sides. No sprite is rescaled after baking and no occupied pixel is discarded.
+Godot runtime/import/playback not run. This package does not install or activate assets. Art acceptance remains with reviewer.
+Original non-flag orange insignia/crystal regions (including 2px surrounding edge) are explicitly restored pixel-identical; see insignia_retention.json.
+action: protected_rows=16, changed_pixels=661525, changes_outside_exported_weapon_regions=0.
+walk: protected_rows=8, changed_pixels=321649, changes_outside_exported_weapon_regions=0.
+Raw bake edge contacts: 19.
+After translation: all312 runtime cells have >=1px clear; occupied pixel loss=0; no rescaling.
+[
+  {
+    "kind": "action",
+    "row": 18,
+    "direction": 4,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 18,
+    "direction": 5,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 21,
+    "direction": 0,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 21,
+    "direction": 1,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 22,
+    "direction": 5,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 28,
+    "direction": 0,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 28,
+    "direction": 1,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 28,
+    "direction": 2,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 28,
+    "direction": 3,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 28,
+    "direction": 7,
+    "dx": 0,
+    "dy": 1
+  },
+  {
+    "kind": "action",
+    "row": 30,
+    "direction": 0,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "action",
+    "row": 30,
+    "direction": 2,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "action",
+    "row": 30,
+    "direction": 5,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "action",
+    "row": 30,
+    "direction": 6,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "action",
+    "row": 30,
+    "direction": 7,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "walk",
+    "row": 4,
+    "direction": 5,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "walk",
+    "row": 4,
+    "direction": 6,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "walk",
+    "row": 7,
+    "direction": 1,
+    "dx": -1,
+    "dy": 0
+  },
+  {
+    "kind": "walk",
+    "row": 7,
+    "direction": 6,
+    "dx": -1,
+    "dy": 0
+  }
+]
+Seven four-beat S previews use the final margin-corrected native64 sprites, nearest6x. Existing fallback mappings are unchanged.
+
+Export alpha threshold128 retains thin black openwork head frames. The rejected threshold230 export was not delivered. Action row8 W has an outward weapon-angle correction to fit64px with clear margin; its body outside exported weapon regions remains original.
+Independent QA: all312 native cells nonempty, >=1px clear, x6 exact nearest, sizes correct, ZIP11-entry CRC passed, nine other-boss source/bake PNG hashes unchanged.

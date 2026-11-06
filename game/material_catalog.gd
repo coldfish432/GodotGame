@@ -18,6 +18,10 @@ const STAR_COLORS := {1: Item.RARITY_COLORS[0], 2: Item.RARITY_COLORS[1], 3: Ite
 ## hardware) carry "source": "common" and a "group"; they may override the
 ## star's stack size ("stack": 1 = does not stack), take more than one cell
 ## ("size") and set their own unit value ("value").
+## Chips are shared by every operator now (用户 2026-10-25); old saves load
+## under the new names.
+const RENAMED := {"近卫芯片": "芯片", "近卫芯片组": "芯片组", "近卫双芯片": "双芯片"} # i18n: skip
+
 const MATERIALS := {
 	"源岩": {"star": 1, "kind": "craft", "text": "常见于源石挥发殆尽后的地区，比源石更易采集。"},
 	"固源岩": {"star": 2, "kind": "craft", "text": "内含密集微孔，可吸附源石气体分解物，多用于防护夹层。"},
@@ -47,10 +51,10 @@ const MATERIALS := {
 	"凝胶": {"star": 3, "kind": "craft", "text": "实验室意外诞生的材料，耐高低温，强度高、重量轻。"},
 	"D32钢": {"star": 5, "kind": "craft", "text": "强度超群，能传导源石技艺，将重新订立武器材料的标准。"},
 	# Growth (精英化与加点策划案 §3.2, PRTS names and rarities).
-	"近卫芯片": {"star": 3, "kind": "craft", "text": "记录近卫干员特殊训练数据的存储芯片，用于干员晋升。"},
-	"近卫芯片组": {"star": 4, "kind": "craft", "text": "一组近卫芯片，训练数据更完整。"},
+	"芯片": {"star": 3, "kind": "craft", "text": "记录干员特殊训练数据的存储芯片，用于干员晋升。"},
+	"芯片组": {"star": 4, "kind": "craft", "text": "一组芯片，训练数据更完整。"},
 	"芯片助剂": {"star": 4, "kind": "craft", "text": "制造芯片用的催化剂，合成双芯片的必备材料；价值高，产量小。"},
-	"近卫双芯片": {"star": 5, "kind": "craft", "text": "两组芯片与助剂合成的高阶芯片，用于近卫干员的精英 2 晋升。"},
+	"双芯片": {"star": 5, "kind": "craft", "text": "两组芯片与助剂合成的高阶芯片，用于干员的精英 2 晋升。"},
 	"技巧概要·卷1": {"star": 2, "kind": "craft", "text": "技能训练用的书籍，入门篇。"},
 	"技巧概要·卷2": {"star": 3, "kind": "craft", "text": "技能训练用的书籍，进阶篇。"},
 	"技巧概要·卷3": {"star": 4, "kind": "craft", "text": "技能训练用的书籍，专精篇。"},
@@ -123,6 +127,25 @@ const MATERIALS := {
 	"骑士工坊专利授权": {"star": 5, "kind": "base", "source": "special", "stack": 3, "text": "卡西米尔商业联合会出售的一次性专利授权，研究可以少走许多弯路。"},
 	"企鹅专递单": {"star": 4, "kind": "base", "source": "special", "stack": 5, "text": "企鹅物流的专递单，交给罗德岛小队或营地，多少东西都直接送回仓库。"},
 	"残党向导": {"star": 3, "kind": "base", "source": "special", "stack": 5, "text": "整合运动残党里熟悉地形的人，愿意指出这一层藏东西的地方。"},
+	# 崇敬 goods and 崇拜 badges (势力声望解锁策划案 v0.1 §三). Badges are not traded.
+	"近卫局通行证": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "龙门近卫局签发的通行证，带进龙门，本层威胁值增长 −30%。"},
+	"下城区黑市名录": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "鼠王手下记的黑市名录，带进龙门，本层一定有一个保险柜。"},
+	"莱茵实验抑制剂": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "莱茵生命的实验型抑制剂，到货后是一瓶药剂。"},
+	"雪山向导绳": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "喀兰向导用的登山绳，带进冰原，本层寒冷增长 −50%。"},
+	"矿场勘探图": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "乌萨斯西北矿场的勘探图，带进矿区，本层源石矿脉 +2。"},
+	"残党暗号": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "整合运动残党的暗号，带进矿区，本层第一次巡逻不出现。"},
+	"冰原熏肉": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "萨米林地人烟熏的兽肉，在食堂吃下，本次合同最大生命 +8%。"},
+	"商业联合会担保函": {"star": 5, "kind": "base", "source": "special", "stack": 3, "value": 320, "text": "卡西米尔商业联合会的担保函，放在仓库里，下一次结算的贷款利息免除。"},
+	"加急专递单": {"star": 4, "kind": "base", "source": "special", "stack": 5, "value": 150, "text": "企鹅物流的加急单，放在仓库里，投保装备送回时间减半（每件用一张）。"},
+	"商会荣誉理事章": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "龙门商会的荣誉理事章。"},
+	"老鼠王的信物": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "鼠王给的信物。"},
+	"莱茵合作研究员证": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "莱茵生命的合作研究员证。"},
+	"喀兰贸易金卡": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "喀兰贸易的金卡。"},
+	"矿场主事铭牌": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "乌萨斯西北矿场的主事铭牌。"},
+	"残党联络人": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "整合运动残党的联络人名片。"},
+	"萨米部族护符": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "萨米林地部族的护符。"},
+	"骑士竞技场赞助证": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "卡西米尔骑士竞技场的赞助证。"},
+	"企鹅物流 VIP 卡": {"star": 5, "kind": "base", "source": "special", "stack": 1, "value": 1, "text": "企鹅物流的 VIP 卡。"},
 	"闪耀作物种子": {"star": 4, "kind": "base", "source": "special", "stack": 10, "text": "莱茵生命生态科培育的种子，长成后会在暗处发光。"},
 	"闪耀作物·变种种子": {"star": 5, "kind": "base", "source": "special", "stack": 5, "text": "生态科还在观察的变种，长得慢，光更亮。"},
 	# 农业部 and 食堂 (§四–§五): crops and the 补给 cooked from them. Crops sell for

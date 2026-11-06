@@ -126,7 +126,8 @@ static func roll_affixes(rank: String, tier: int, region: String, floor_number: 
 	return out
 
 # --- The eight (§4–§8) ---------------------------------------------------------------------
-## art / tint / scale: the existing board it borrows until Sol's art lands.
+## art / tint / scale: the shared board it starts on and how that board is
+## dressed; a figure with its own boards (Sol B1) drops tint and scale (Boss).
 ## taken: damage it takes in each phase (1 = all). front_guard: the share its
 ## shield takes off hits from in front, by phase (爱国者 in 行军姿态, 用户 2026-10-19:
 ## 毁灭姿态 keeps the shield as PRTS draws it but no longer blocks). lives: 扎罗 has two.
@@ -160,9 +161,9 @@ const FIGURES := {
 const MOVES := {
 	"patriot": [
 		{"id": "sweep", "shape": "sector", "reach": 3.0, "angle": 140.0, "windup": 1.0, "damage": 1.2, "cd": 0.0, "range": [0.0, 3.0],
-			"up": {2: {"combo": [{"shape": "sector", "reach": 3.0, "angle": 140.0}, {"shape": "lane", "reach": 4.0, "width": 1.0}, {"shape": "self", "radius": 2.4}]}}},
+			"up": {2: {"combo": [{"shape": "sector", "reach": 3.0, "angle": 140.0}, {"shape": "lane", "reach": 4.0, "width": 1.0}, {"shape": "self", "radius": 3.6}]}}},
 		{"id": "thrust", "shape": "lane", "reach": 4.0, "width": 1.0, "windup": 0.9, "damage": 1.1, "cd": 4.0, "range": [1.5, 4.2]},
-		{"id": "stomp", "shape": "self", "radius": 2.4, "windup": 1.2, "damage": 1.0, "cd": 10.0, "range": [0.0, 1.6]},
+		{"id": "stomp", "shape": "self", "radius": 3.6, "windup": 1.2, "damage": 1.0, "cd": 10.0, "range": [0.0, 1.6]},
 		{"id": "javelin", "shape": "javelin", "reach": 14.0, "width": 1.2, "windup": 2.0, "lock": 0.4, "damage": 1.8, "cd": 9.0, "range": [3.0, 14.0], "phase": [2, 3], "early": 2,
 			"up": {5: {"zone": {"radius": 2.0, "time": 10.0, "tick": 0.15, "feature": "contamination", "rate": 2.0}}}},
 		{"id": "eruption", "shape": "safe_zones", "count": 3, "windup": 2.5, "damage": 2.8, "cd": 30.0, "range": [0.0, 99.0], "phase": [3, 3], "tier": 3, "big": true},
@@ -278,6 +279,28 @@ const POSES := {
 	"hollow_snowpriest": {"moves": {"bless": 5, "snatch": 6}},
 	"father_agnir": {"moves": {"absolve": 5}},
 }
+## Each move's four beats (Boss演出策划案_v0_2 §14, 用户 2026-11-04: 多帧连贯动作):
+## start (the first share of its wind-up), charge (the rest), strike (as it
+## lands), recover (after). Rows past the board's end are B4 rows not yet in:
+## a missing beat falls back to the move's own row (POSES), then the shared rows.
+## The basic attacks (戟扫, 杖击, 锤击, 爪击) play the shared rows 1–4.
+const ANIM := {
+	"patriot": {"thrust": {"start": 16, "charge": 11, "strike": 5, "recover": 17}, "stomp": {"start": 18, "charge": 6, "strike": 12, "recover": 19},
+		"javelin": {"start": 20, "charge": 13, "strike": 21, "recover": 7}, "eruption": {"start": 22, "charge": 23, "strike": 24, "recover": 8},
+		"raise_shrine": {"start": 26, "strike": 25}, "shrine_call": {"start": 27, "charge": 14, "strike": 28}, "guerrillas": {"start": 29, "strike": 30}},
+	"rat_king": {"sand_shot": {"start": 14, "charge": 9, "strike": 5, "recover": 15}, "sing": {"start": 16, "charge": 17, "strike": 6},
+		"prison": {"charge": 18, "strike": 19}, "stampede": {"start": 10, "strike": 20, "recover": 21}, "grey_tails": {"start": 22, "strike": 23},
+		"sandstorm": {"start": 24, "strike": 25}},
+	"eikthyrnir": {"sweep": {"start": 15, "charge": 10, "strike": 5, "recover": 16}, "hurl": {"start": 17, "charge": 18, "strike": 6, "recover": 11},
+		"entropy": {"start": 8, "strike": 19, "recover": 20}, "treescar": {"start": 8, "strike": 21}, "rampage": {"start": 22, "strike": 7, "recover": 23}},
+	"zaro": {"dread": {"charge": 13, "strike": 5}, "call_family": {"strike": 14}, "pounce": {"charge": 11, "strike": 7, "recover": 15},
+		"bite": {"start": 16, "strike": 17, "recover": 18}, "howl": {"start": 19, "charge": 8}, "pack": {"start": 19, "charge": 8, "strike": 20}},
+}
+## The start beat's share of a wind-up, at most ANIM_START seconds.
+const ANIM_START_SHARE := 0.3
+const ANIM_START := 0.35
+## 鼠王 stands upright from phase 2 (B3).
+const UPRIGHT_ROW := {"rat_king": 11}
 
 # --- The arenas (Boss战场地策划案 §4, 用户 2026-10-19) ---------------------------------
 ## Each region's ground: its cover (offsets from the centre, in metres, +z
@@ -295,17 +318,27 @@ const ARENAS := {
 }
 ## 矿区: 源石祭坛 (7-18) — every SHRINE_EVERY s, SHRINE_WARN s of warning, then a
 ## pulse of SHRINE_RADIUS: her SHRINE_HIT of her life (true) and SHRINE_CONTAM
-## contamination; 爱国者 and his help a stack of SHRINE_ATK attack for
-## SHRINE_TIME s, at most SHRINE_STACKS.
+## contamination; his help hasted SHRINE_TIME s. 用户 2026-11-05: 祭坛位置随机，
+## 范围扩大，影响到爱国者后爱国者狂暴若干秒 — the stage's shrine stands at a new
+## random spot each fight (SHRINE_EDGE in from the rim, SHRINE_CLEAR from where
+## he stands and from her way in), and a pulse that reaches 爱国者 sends him into
+## a rage for RAGE_TIME s (用户 2026-11-05: 攻击起手更快、攻击更频繁，移速更快、伤害更高):
+## wind-ups × RAGE_WINDUP, the gaps between moves RAGE_ASPD shorter, RAGE_MOVE
+## quicker on his feet, his blows RAGE_DMG harder.
 const SHRINE_AT := Vector2(-5.0, -2.0)
 const SHRINE_EVERY := 14.0
 const SHRINE_WARN := 2.0
-const SHRINE_RADIUS := 4.0
+const SHRINE_RADIUS := 5.5
+const SHRINE_EDGE := 3.0
+const SHRINE_CLEAR := 5.0
+const RAGE_TIME := 8.0
+const RAGE_DMG := 0.30
+const RAGE_ASPD := 0.35
+const RAGE_MOVE := 0.25
+const RAGE_WINDUP := 0.75
 const SHRINE_HIT := 0.12
 const SHRINE_CONTAM := 5.0
-const SHRINE_ATK := 0.10
 const SHRINE_TIME := 12.0
-const SHRINE_STACKS := 3
 ## 爱国者 raises more (raise_shrine): at most SHRINE_RAISED_MAX at once, each
 ## SHRINE_APART from the others; a raised one first pulses SHRINE_FIRST s on.
 ## Gone when the fight resets.
@@ -313,20 +346,28 @@ const SHRINE_RAISED_MAX := 3
 const SHRINE_APART := 5.0
 const SHRINE_FIRST := 7.0
 ## 干扰地雷 (7-18): she arms them with E; an enemy within MINE_TRIGGER sets
-## one off: her attack × MINE_DAMAGE within MINE_RADIUS, and those it hits take
-## MINE_FRAGILE more damage for MINE_FRAGILE_TIME s.
+## one off: everything within MINE_RADIUS is stunned MINE_STUN s, 爱国者 too
+## (用户 2026-11-05: 地雷改为眩晕爱国者; it used to hurt and leave fragile).
 const MINES := [Vector2(-4.0, -7.0), Vector2(5.0, 3.0), Vector2(-2.0, 7.0)]
 const MINE_TRIGGER := 1.0
 const MINE_RADIUS := 2.0
+const MINE_STUN := 3.0
 const MINE_DAMAGE := 3.0
 const MINE_FRAGILE := 0.5
 const MINE_FRAGILE_TIME := 15.0
-## 龙门: 医疗符文 (CB-10) — RUNE_HEAL of her life a second on it; 沙狱 on a
-## rune covers it for RUNE_BURIED s.
-const RUNES := [Vector2(-5.0, 4.0), Vector2(5.0, 4.0), Vector2(0.0, -5.0)]
-const RUNE_RADIUS := 1.5
-const RUNE_HEAL := 0.02
+## 龙门: 源石狂暴地板 (用户 2026-11-05: 回血地板改为源石狂暴地板，角色踩上后若干秒内
+## 持续掉血并对盾伤害提高，鼠王踩上后狂暴；地板位置随机并减少至一块) — one floor of
+## FRENZY_RADIUS at a random spot each fight. On it she burns: for FRENZY_TIME s
+## after (refreshed while she stands there) she loses FRENZY_DRAIN of her life a
+## second, never the last point, and her blows strip a barrier × FRENZY_SHIELD.
+## 鼠王 on it rages (Boss.empower). 沙狱 on it covers it for RUNE_BURIED s.
+## 用户 2026-11-05: 缩小地板面积 — one 2 m square tile (明日方舟's 活性源石), was a 1.6 m-radius disc.
+const RUNE_HALF := 1.0
+const RUNE_RADIUS := 1.0
 const RUNE_BURIED := 20.0
+const FRENZY_TIME := 5.0
+const FRENZY_DRAIN := 0.03
+const FRENZY_SHIELD := 2.0
 ## 萨米: two fires (one lit), and the 木裂 totem in the middle — broken by the
 ## first 自我泯灭, it leaves TOTEM_ICE s of fissured ground (cold TOTEM_COLD a second).
 const FIRES := [Vector2(-9.0, 1.0), Vector2(9.0, 1.0)]

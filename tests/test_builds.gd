@@ -221,7 +221,7 @@ func _sources() -> void:
 	# Drop rates (用户 2026-10-13: boss必掉一个，精英5%，普通敌人0.8%), sampled.
 	var normal := dummy(Vector3(4, 0, 6), false, 0, 0, 1)
 	var elite := dummy(Vector3(5, 0, 6), true, 0, 0, 1)
-	game.rng.seed = 7
+	game.seed_rng(7)
 	var hits := {"normal": 0, "elite": 0}
 	for i in range(20000):
 		if game.rolls_relic_cache(normal): hits.normal += 1

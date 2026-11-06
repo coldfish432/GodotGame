@@ -3,18 +3,21 @@ extends RefCounted
 
 ## Where every item at the base is, and the rules for moving it
 ## (基地玩法策划案_v1_0.md §3.1, 仓库修订 用户 2026-10-23): the warehouse
-## (`shelf`, was GameManager.stash) is one count of cells for every kind of
-## item, a stack of one material per cell up to its limit × stack_mult().
+## (`shelf`, was GameManager.stash) is one SHELF_COLUMNS-wide grid for every
+## kind of item, each item taking its own shape (仓库形状修订案 v1.0); a
+## material stack holds up to its limit × stack_mult().
 ## What comes home stays in the bags until it is put away (at settlement's
 ## 仓库 page or the 仓管台); what the base itself brings back (insured gear,
-## the workshop, a parcel) goes straight in. No crates, staging or carrying.
+## the workshop, a parcel) goes in where it fits, else into the PRTS mail.
+## No crates, staging or carrying.
 ##
-## Equipped and packed items (the loadout) belong to GameManager and the player;
-## they are not tracked here. Every move checks first and changes nothing when
-## it fails, so a refused move never loses or duplicates an item.
+## The deployed operator's gear, the pack and the safe bag belong to
+## GameManager and the player; only the other operators' sets (gear_sets) are
+## kept here. Every move checks first and changes nothing when it fails, so a
+## refused move never loses or duplicates an item.
 
 var shelf: Array[Item] = []
-## Category -> racks drawn in the warehouse room (by 仓储部 level, racks_shown).
+## Category -> racks drawn in the warehouse room (by 仓储部 level, _show_racks).
 var racks := {}
 ## Facility id -> level (BaseCatalog.FACILITIES). Levels unlock convenience and
 ## capacity only, never combat strength.
@@ -50,7 +53,7 @@ var drone := false
 var console := true
 ## Contract offers at the dispatch desk, region -> [contract] (局内节奏与目标策划案 §6 B1).
 var contract_offers := {}
-## Expansion levels into BaseCatalog.PACK_SIZES / SAFE_SIZES.
+## Expansion levels into BaseCatalog.PACK_PAGES / SAFE_SIZES.
 var pack_level := 0
 var safe_level := 0
 ## A free order reroll (仓库修订 took 仓储部 Lv4's away; nothing grants one now).
@@ -61,9 +64,11 @@ var loot_pity := {"rare_gear": 0.0, "rare_material": 0.0}
 var directed_fails := 0
 ## Region bosses fallen at each tier, "region:tier" -> true (Boss与守卫者策划案 §10).
 var boss_falls := {}
+## "<region>:<tier>" a boss was first met at: its full intro played (BossShow).
+var boss_intro_seen := {}
 ## Insured items lost on a death, waiting to come back (保全系统修订案 §3):
-## {"item": Item, "left": contracts still to settle}. Every settlement counts
-## one down; at zero the item arrives as a sealed crate.
+## {"item": Item, "due": unix seconds}. tick_insurance hands each one to
+## receive() once its time has come (2–4 real hours, 保全系统修订).
 var insurance_queue: Array[Dictionary] = []
 ## Camps reached (撤离与营地修订案 §3), per region: the deepest one unlocked (0 none).
 ## Any unlocked camp is a start point for that region.
@@ -112,8 +117,8 @@ func take_kit(id: String) -> int:
 	return tier
 ## The operator who deploys next (Operators.ORDER), picked at the departure screen.
 var operator := default_operator()
-## Who has joined (干员寻访策划案 §9): a new Doctor has only Amiya; the debug
-## build keeps Lappland too (用户 2026-10-16: debug版本先保留).
+## Who has joined (干员寻访策划案 §9): a new Doctor has only Amiya, the debug
+## build too (用户 2026-10-23).
 var roster: Array[String] = []
 ## 踪迹 per operator (§2.1): a counter, never an item; a fall loses none.
 var recruit_clues := {}
@@ -180,6 +185,7 @@ func unlocked_camps(region: String) -> Array[int]:
 
 func _init() -> void:
 	roster = starting_roster()
+	lost_found.assign(LostCatalog.LOST.keys())
 	for category in range(Item.Category.size()):
 		racks[category] = BaseCatalog.STARTING_RACKS
 	orders.start_fresh()
@@ -252,6 +258,32 @@ func potion_price(type: String) -> int:
 ## Who deploys on a new save: Amiya, the only operator a new Doctor has.
 static func default_operator() -> String:
 	return Operators.AMIYA_GUARD
+
+## 失散干员 (失散干员与主线流程策划案 v0.2): the special operators back on
+## board, and whether a department waits for its own. Only a new save is
+## locked (GameManager.load_base); a save from before has everyone back and
+## nothing shut, and so has a bare BaseState (tools, tests).
+var lost_found: Array[String] = []
+var dept_lock := false
+
+## A new save: everyone is missing and their departments are shut.
+func start_locked() -> void:
+	dept_lock = true
+	lost_found.clear()
+
+func lost_back(id: String) -> bool:
+	return id in lost_found
+
+## Whoever runs `dept` and is still missing ("" when it is open).
+func dept_missing(dept: String) -> String:
+	if not dept_lock: return ""
+	var id := LostCatalog.owner_of(dept)
+	return "" if id.is_empty() or lost_back(id) else id
+
+func find_lost(id: String) -> void:
+	if not LostCatalog.valid(id) or lost_back(id): return
+	lost_found.append(id)
+	Story.note(story, "found_" + id)
 
 ## Everyone else is recruited (干员寻访策划案).
 static func starting_roster() -> Array[String]:
@@ -361,8 +393,8 @@ func tick_insurance() -> Array[Item]:
 func queue_insured(item: Item, seconds: int) -> void:
 	insurance_queue.append({"item": item, "due": now() + maxi(seconds, 1)})
 
-## 送回 and other arrivals (the squad, the workshop, a parcel): straight into
-## the warehouse, full or not — nothing that comes home is lost.
+## 送回 and other arrivals (the squad, the workshop, a parcel): the same as
+## receive(), into the warehouse or, when it is full, the PRTS mail.
 func receive_to_staging(item: Item) -> bool:
 	return receive(item)
 
@@ -390,23 +422,32 @@ func sort_staging() -> Dictionary:
 
 # --- Queries -----------------------------------------------------------------
 
-## The warehouse's cells (仓库修订: one count for every kind of item). The
-## category argument is kept for old callers and ignored.
+## The warehouse grid's cells (仓库形状修订案 v1.0: a fixed SHELF_COLUMNS ×
+## shelf_height() grid for every kind of item; each item takes its own shape).
+## The category argument is kept for old callers and ignored.
 func capacity(_category: int = 0) -> int:
-	var cells := int(BaseCatalog.WAREHOUSE_CELLS[clampi(facility_level("warehouse"), 1, BaseCatalog.WAREHOUSE_CELLS.size() - 1)])
-	if researched("rack_cells"): cells = roundi(cells * (1.0 + BaseCatalog.RESEARCH_CELLS))
-	return cells
+	return SHELF_COLUMNS * shelf_height()
+
+## Rows of the grid at this 仓储部 level, 立体货架 adding a fifth.
+func shelf_height() -> int:
+	var rows := int(BaseCatalog.WAREHOUSE_ROWS[clampi(facility_level("warehouse"), 1, BaseCatalog.WAREHOUSE_ROWS.size() - 1)])
+	if researched("rack_cells"): rows = roundi(rows * (1.0 + BaseCatalog.RESEARCH_CELLS))
+	return rows
 
 ## How many times a stack's own limit one warehouse cell holds.
 func stack_mult() -> int:
 	return int(BaseCatalog.WAREHOUSE_STACK[clampi(facility_level("warehouse"), 1, BaseCatalog.WAREHOUSE_STACK.size() - 1)])
 
-## Cells in use (one per item or stack).
+## Cells in use (each item its width × height).
 func shelf_count(_category: int = 0) -> int:
-	return shelf.size()
+	var cells := 0
+	for item in shelf: cells += item.width * item.height
+	return cells
 
-func shelf_has_room(_category: int = 0) -> bool:
-	return shelf.size() < capacity()
+## Room for `item` somewhere (either way round); with none given, for one cell.
+func shelf_has_room(item: Variant = null) -> bool:
+	if item is Item: return shelf_spot(item as Item).x >= 0
+	return shelf_count() < capacity()
 
 ## Cells on one rack, for the racks drawn in the warehouse room.
 func rack_cells() -> int:
@@ -417,13 +458,29 @@ func staging_has_room() -> bool:
 
 func location_of(item: Item) -> String:
 	if item == null: return ""
-	if shelf.has(item): return "shelf"
+	if shelf.has(item) or case_of(item) != null: return "shelf"
 	return ""
+
+## The 整理箱 on the shelves holding `item`, null when none does (整理箱与收藏品策划案 v0.2 §2).
+func case_of(item: Item) -> Item:
+	if item == null: return null
+	for box in shelf:
+		if box.is_case() and box.contents.items.has(item): return box
+	return null
+
+## Everything in the warehouse: the shelves and what their boxes hold (§2.1:
+## what is boxed counts as being in the warehouse).
+func stock() -> Array[Item]:
+	var out: Array[Item] = []
+	for item in shelf:
+		out.append(item)
+		if item.is_case(): out.append_array(item.contents.items)
+	return out
 
 ## Every item at the base, each exactly once.
 func all_items() -> Array[Item]:
-	var out: Array[Item] = []
-	out.append_array(shelf)
+	var out := stock()
+	for letter in mail: out.append_array(letter.items)
 	return out
 
 func sealed_count() -> int:
@@ -439,48 +496,125 @@ func purge_bound() -> int:
 	insurance_queue.assign(insurance_queue.filter(func(e): return not GearCatalog.bound(e.item)))
 	return before - (shelf.size() + insurance_queue.size())
 
-## Something brought back by the base itself: into the warehouse over its
-## cells if need be. False if already here.
-func receive(item: Item, keep_cell: bool = false) -> bool:
-	if item == null or not location_of(item).is_empty(): return false
-	if not _merge_onto_shelf(item): _shelf_add(item, keep_cell)
+## Something brought back by the base itself: into the warehouse where it
+## fits, else into the PRTS mail (用户 2026-11-04: 放在prts（邮件里）暂存，像
+## 塔科夫那样). `from` names the mail's sender. False if already here.
+func receive(item: Item, keep_cell: bool = false, from: String = "罗德岛后勤") -> bool:
+	if item == null or not location_of(item).is_empty() or mail_has(item): return false
+	if _merge_onto_shelf(item): return true
+	if not _shelf_add(item, keep_cell): post_mail(item, from)
+	return true
+
+# --- PRTS 邮件 (仓库形状修订案 §七) --------------------------------------------
+
+## 干员独立装备修订案 v1.0 (用户 2026-11-04: 每个干员可穿一套装备): what each
+## operator but the deployed one wears, id -> {Item.Category: Item}. The
+## deployed one's set is on the Player. Saved; the pack and safe bag are shared.
+var gear_sets := {}
+
+func gear_of(id: String) -> Dictionary:
+	return gear_sets.get(id, {})
+
+## Every piece in the stored sets (insurance and the like look past them).
+func gear_set_items() -> Array[Item]:
+	var out: Array[Item] = []
+	for id in gear_sets:
+		for item in (gear_sets[id] as Dictionary).values(): out.append(item)
+	return out
+
+## Every PRTS broadcast, oldest first, [date and time, text, unix time] (the
+## PRTS terminal's inbox, with the letters). Kept across contracts and saved.
+var prts_history: Array = []
+const HISTORY_MAX := 300
+
+## Letters, newest last: {from, time, items: Array[Item]}. What does not fit
+## the warehouse waits here, never expiring.
+var mail: Array[Dictionary] = []
+## Items sent to the mail since GameManager last announced them.
+var mailed: Array[Item] = []
+## Letters from one sender within this many seconds become one.
+const MAIL_MERGE := 60
+
+func post_mail(item: Item, from: String) -> void:
+	item.grid_x = -1
+	mailed.append(item)
+	var now_s := now()
+	if not mail.is_empty() and str(mail[-1].from) == from and now_s - int(mail[-1].time) <= MAIL_MERGE:
+		(mail[-1].items as Array).append(item)
+		return
+	mail.append({"from": from, "time": now_s, "items": [item]})
+
+func mail_has(item: Item) -> bool:
+	for letter in mail:
+		if (letter.items as Array).has(item): return true
+	return false
+
+func mail_count() -> int:
+	var n := 0
+	for letter in mail: n += (letter.items as Array).size()
+	return n
+
+## Out of its letter (an empty letter goes).
+func take_from_mail(item: Item) -> bool:
+	for letter in mail:
+		if (letter.items as Array).has(item):
+			(letter.items as Array).erase(item)
+			if (letter.items as Array).is_empty(): mail.erase(letter)
+			return true
+	return false
+
+## A letter's item into the warehouse, if it fits there.
+func claim_mail(item: Item) -> bool:
+	if not mail_has(item) or not (shelf_merge_room(item) >= item.quantity or shelf_has_room(item)): return false
+	take_from_mail(item)
+	if not _merge_onto_shelf(item): _shelf_add(item)
 	return true
 
 # --- The warehouse grid (用户 2026-10-24: 仓库自动整理不留空隙，但玩家可以随意
 # 摆放，物体可以旋转) -------------------------------------------------------------
 
-## The warehouse is SHELF_COLUMNS wide and as tall as its items need; every
-## item keeps its cell (Item.grid_x / grid_y, saved), the player moves and
-## turns them, 整理 packs them without gaps.
-const SHELF_COLUMNS := 16
+## The warehouse is SHELF_COLUMNS × shelf_height(); every item keeps its cell
+## (Item.grid_x / grid_y, saved), the player moves and turns them, 整理 packs
+## them without gaps.
+const SHELF_COLUMNS := 10
 
 ## Whether `item` could lie at (x, y) on the warehouse grid, ignoring itself.
 func shelf_fits(item: Item, x: int, y: int) -> bool:
-	if x < 0 or y < 0 or x + item.width > SHELF_COLUMNS: return false
+	if x < 0 or y < 0 or x + item.width > SHELF_COLUMNS or y + item.height > shelf_height(): return false
 	for other in shelf:
 		if other == item or other.grid_x < 0: continue
 		if x < other.grid_x + other.width and other.grid_x < x + item.width and y < other.grid_y + other.height and other.grid_y < y + item.height: return false
 	return true
 
-## The first free cell for `item`, row by row (the grid grows downward).
+## The first free cell for `item` as it is turned, row by row; (-1, -1) when
+## there is none.
 func shelf_first_free(item: Item) -> Vector2i:
-	var y := 0
-	while true:
+	for y in range(shelf_height() - item.height + 1):
 		for x in range(SHELF_COLUMNS - item.width + 1):
 			if shelf_fits(item, x, y): return Vector2i(x, y)
-		y += 1
-	return Vector2i.ZERO
+	return Vector2i(-1, -1)
+
+## The first free cell for `item` either way round; turns it when only the
+## other way fits. (-1, -1) when neither does.
+func shelf_spot(item: Item) -> Vector2i:
+	var at := shelf_first_free(item)
+	if at.x >= 0 or item.width == item.height: return at
+	item.rotate()
+	at = shelf_first_free(item)
+	if at.x < 0: item.rotate()
+	return at
 
 ## A new arrival goes to the first free cell; a loaded one keeps its own
-## (`keep_cell`) when it is still free.
-func _shelf_add(item: Item, keep_cell: bool = false) -> void:
-	shelf.append(item)
-	if item.width > SHELF_COLUMNS: item.rotate()
-	if not keep_cell or not shelf_fits(item, item.grid_x, item.grid_y):
-		item.grid_x = -1
-		var at := shelf_first_free(item)
+## (`keep_cell`) when it is still free. False (and nothing changes) when it
+## fits nowhere.
+func _shelf_add(item: Item, keep_cell: bool = false) -> bool:
+	if not (keep_cell and item.grid_x >= 0 and shelf_fits(item, item.grid_x, item.grid_y)):
+		var at := shelf_spot(item)
+		if at.x < 0: return false
 		item.grid_x = at.x
 		item.grid_y = at.y
+	shelf.append(item)
+	return true
 
 ## The player puts `item` at (x, y); false (and nothing moves) if it does not fit.
 func shelf_move(item: Item, x: int, y: int) -> bool:
@@ -488,6 +622,12 @@ func shelf_move(item: Item, x: int, y: int) -> bool:
 	item.grid_x = x
 	item.grid_y = y
 	return true
+
+## The shelf item lying over `cell`, null when the cell is free.
+func shelf_at(cell: Vector2i) -> Item:
+	for item in shelf:
+		if item.grid_x >= 0 and Rect2i(item.grid_x, item.grid_y, item.width, item.height).has_point(cell): return item
+	return null
 
 ## Turns `item` a quarter where it lies, if it fits so.
 func shelf_rotate(item: Item) -> bool:
@@ -497,14 +637,14 @@ func shelf_rotate(item: Item) -> bool:
 	item.rotate()
 	return false
 
-## Items without a cell (put on the list directly) get the first free one.
+## Items without a cell (put on the list directly) get the first free one;
+## one that fits nowhere goes to the mail.
 func shelf_normalize() -> void:
-	for item in shelf:
+	for item in shelf.duplicate():
 		if item.grid_x < 0 or not shelf_fits(item, item.grid_x, item.grid_y):
 			item.grid_x = -1
-			var at := shelf_first_free(item)
-			item.grid_x = at.x
-			item.grid_y = at.y
+			shelf.erase(item)
+			if not _shelf_add(item): post_mail(item, "罗德岛后勤")
 
 ## Rows the warehouse grid takes now.
 func shelf_rows() -> int:
@@ -523,9 +663,18 @@ func shelf_sort() -> void:
 		if Item.group_of(a.category) != Item.group_of(b.category): return Item.group_of(a.category) < Item.group_of(b.category)
 		if a.rarity != b.rarity: return a.rarity > b.rarity
 		return a.item_name < b.item_name)
+	var before: Array = shelf.map(func(it: Item): return [it, it.grid_x, it.grid_y, it.width])
 	for item: Item in shelf: item.grid_x = -1
 	for item: Item in order:
-		var at := shelf_first_free(item)
+		var at := shelf_spot(item)
+		if at.x < 0:
+			# Packed this way they do not all fit: leave them as they lay.
+			for b in before:
+				var it: Item = b[0]
+				if it.width != int(b[3]): it.rotate()
+				it.grid_x = int(b[1])
+				it.grid_y = int(b[2])
+			return
 		item.grid_x = at.x
 		item.grid_y = at.y
 
@@ -553,9 +702,25 @@ func _merge_onto_shelf(item: Item) -> bool:
 		if item.quantity <= 0: return true
 	return false
 
-## Out of the warehouse, for the caller to put in the pack. A cell holding more
-## than one stack gives one stack (the rest stays in the cell).
+## Takes `count` of material `id` off the warehouse; false (nothing taken) when short.
+func take_material(id: String, count: int) -> bool:
+	var held := stock().filter(func(i): return i.material_id == id)
+	if held.reduce(func(n, i): return n + i.quantity, 0) < count: return false
+	var left := count
+	for item: Item in held:
+		if left <= 0: break
+		var used := mini(left, item.quantity)
+		left -= used
+		if used < item.quantity: item.set_quantity(item.quantity - used)
+		else: take_from_shelf(item)
+	return true
+
+## Out of the warehouse (or the 整理箱 holding it), for the caller to put in the pack.
 func take_from_shelf(item: Item) -> bool:
+	var box := case_of(item)
+	if box != null:
+		box.contents.remove(item)
+		return true
 	if not shelf.has(item): return false
 	shelf.erase(item)
 	return true
@@ -570,26 +735,27 @@ func bag_piece(item: Item) -> Item:
 ## warehouse has no room for it.
 func store_target(item: Item) -> String:
 	if item == null or not location_of(item).is_empty(): return ""
-	if shelf_has_room() or shelf_merge_room(item) >= item.quantity: return "shelf"
+	if shelf_merge_room(item) >= item.quantity or shelf_has_room(item): return "shelf"
 	return ""
 
 func store(item: Item) -> String:
 	var target := store_target(item)
-	if target == "shelf" and not _merge_onto_shelf(item): _shelf_add(item)
+	if target == "shelf" and not _merge_onto_shelf(item) and not _shelf_add(item): return ""
 	return target
 
 ## Out of the base.
 func remove_item(item: Item) -> bool:
 	if location_of(item).is_empty(): return false
-	shelf.erase(item)
-	return true
+	return take_from_shelf(item)
 
-## Undo of take_from_shelf when the pack refuses the item.
+## Undo of take_from_shelf when the pack refuses the item: back to its cell if
+## that is still free, else the first free one, else the mail.
 func put_back(item: Item, _where: String = "shelf") -> void:
 	if not location_of(item).is_empty(): return
-	if not _merge_onto_shelf(item): _shelf_add(item)
+	if not _merge_onto_shelf(item) and not _shelf_add(item, true): post_mail(item, "罗德岛后勤")
 
-## Loose items from a load or a migration: all into the warehouse. Never drops one.
+## Loose items from a load or a migration: into the warehouse, keeping their
+## cells where free; what does not fit goes to the mail. Never drops one.
 func place_loose(items: Array) -> void:
 	for item: Item in items:
 		receive(item, true)
@@ -597,16 +763,23 @@ func place_loose(items: Array) -> void:
 # --- Save --------------------------------------------------------------------
 
 func to_data() -> Dictionary:
-	return {"shelf": shelf.map(func(x): return x.to_data()), "facilities": facilities.duplicate(), "connected": connected.duplicate(), "orders": orders.to_data(),
+	return {"shelf": shelf.map(func(x): return x.to_data()), "prts_history": prts_history.duplicate(true), "gear_sets": _gear_sets_data(), "mail": mail.map(func(l): return {"from": l.from, "time": l.time, "items": (l.items as Array).map(func(x): return x.to_data())}), "facilities": facilities.duplicate(), "connected": connected.duplicate(), "orders": orders.to_data(),
 		"injuries": injuries.duplicate(), "free_potions": free_potions, "closure_stock": closure_stock.duplicate(), "closure_restock_at": closure_restock_at,
 		"medical_report": medical_report, "report_unread": report_unread,
 		"contract_offers": contract_offers.duplicate(true),
 		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(), "directed_fails": directed_fails,
 		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "due": e.due}),
 		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "first_extract_given": first_extract_given, "extracted_once": extracted_once, "story": story.duplicate(true), "kits": kits.duplicate(), "operator": operator,
-		"roster": roster.duplicate(), "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
-		"progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(),
+		"roster": roster.duplicate(), "lost_found": lost_found.duplicate(), "dept_lock": dept_lock, "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
+		"progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(), "boss_intro_seen": boss_intro_seen.duplicate(),
 		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true)}
+
+func _gear_sets_data() -> Dictionary:
+	var out := {}
+	for id in gear_sets:
+		var pieces: Array = (gear_sets[id] as Dictionary).values().map(func(x): return x.to_data())
+		if not pieces.is_empty(): out[id] = pieces
+	return out
 
 func _progress_data() -> Dictionary:
 	var out := {}
@@ -617,7 +790,26 @@ func _progress_data() -> Dictionary:
 ## skipped and new uids are added to it.
 func load_data(data: Dictionary, seen: Dictionary) -> void:
 	shelf.clear()
+	mail.clear()
+	gear_sets = {}
+	var saved_sets: Variant = data.get("gear_sets", {})
+	if saved_sets is Dictionary:
+		for id in saved_sets:
+			if not Operators.valid(str(id)): continue
+			var set := {}
+			for entry in saved_sets[id]:
+				var piece := _fresh(entry, seen)
+				if piece != null and piece.is_equippable(): set[piece.category] = piece
+			if not set.is_empty(): gear_sets[str(id)] = set
+	prts_history = (data.get("prts_history", []) as Array).duplicate(true) if data.get("prts_history") is Array else []
+	for entry in data.get("mail", []):
+		var items: Array = []
+		for it in entry.get("items", []):
+			var item := _fresh(it, seen)
+			if item: items.append(item)
+		if not items.is_empty(): mail.append({"from": str(entry.get("from", "罗德岛后勤")), "time": int(entry.get("time", 0)), "items": items})
 	boss_falls = (data.get("boss_falls", {}) as Dictionary).duplicate()
+	boss_intro_seen = (data.get("boss_intro_seen", {}) as Dictionary).duplicate()
 	injuries = {}
 	var saved_injuries: Variant = data.get("injuries", [])
 	for id in saved_injuries:
@@ -634,7 +826,7 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	# Saves from before 仓库修订 had a drone (it counts toward 仓储部 below).
 	drone = bool(data.get("drone", false))
 	contract_offers = (data.get("contract_offers", {}) as Dictionary).duplicate(true)
-	pack_level = clampi(int(data.get("pack_level", 0)), 0, BaseCatalog.PACK_SIZES.size() - 1)
+	pack_level = clampi(int(data.get("pack_level", 0)), 0, BaseCatalog.PACK_PAGES.size() - 1)
 	safe_level = clampi(int(data.get("safe_level", 0)), 0, BaseCatalog.SAFE_SIZES.size() - 1)
 	directed_fails = maxi(0, int(data.get("directed_fails", 0)))
 	var pity: Dictionary = data.get("loot_pity", {})
@@ -644,6 +836,11 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	roster = starting_roster()
 	for id in data.get("roster", [Operators.AMIYA_GUARD, Operators.LAPPLAND]):
 		if Operators.valid(str(id)) and not str(id) in roster: roster.append(str(id))
+	# A save from before 失散干员: everyone is back, nothing is shut.
+	dept_lock = bool(data.get("dept_lock", false))
+	lost_found.clear()
+	for id in data.get("lost_found", LostCatalog.LOST.keys()):
+		if LostCatalog.valid(str(id)) and not str(id) in lost_found: lost_found.append(str(id))
 	recruit_clues = {}
 	var saved_clues: Dictionary = data.get("recruit_clues", {})
 	for id in saved_clues:
@@ -685,6 +882,8 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	if saved_story is Dictionary:
 		for key in story: story[key] = (saved_story as Dictionary).get(key, story[key])
 	else: story = Story.finished_state()
+	# A thread finished before 失散干员 (its last goal was the exchange) stays finished.
+	if not data.has("dept_lock") and "exchange" in (story.done as Array): story = Story.finished_state()
 	kits = {}
 	var saved_kits: Dictionary = data.get("kits", {})
 	for id in saved_kits:
@@ -715,6 +914,8 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 			var item := _fresh(entry, seen)
 			if item: loose.append(item)
 	place_loose(loose)
+	# Mail from loading is old news, not this session's arrivals.
+	mailed.clear()
 
 ## Saves from before facilities had prestige ranks: each facility gets the
 ## level that opens what the rank opened, and at least what was built.
@@ -767,7 +968,7 @@ func _load_research(data: Dictionary) -> void:
 	contract_reroll = bool(data.get("contract_reroll", false))
 	stayed = bool(data.get("stayed", false))
 
-## Version 1 had one flat warehouse list; it goes on the shelves, overflow to staging.
+## Version 1 had one flat warehouse list; it goes on the shelves, overflow to the mail.
 func migrate_v1(stash_data: Array, seen: Dictionary) -> void:
 	reset_facilities()
 	orders.start_fresh()

@@ -1,0 +1,164 @@
+[
+  {
+    "id": "fig_fang",
+    "name": "芬",
+    "rarity": "green",
+    "description": "Blue-gray tied hair, long blue horse tail and pointed horse ears, blue eyes. Black open Rhodes Island jacket with gray sleeves and teal short dress, black thigh-high socks and brown boots. Long black spear with metallic silver head, held close to body.",
+    "base": "Simple prize-edition thick dark gray round base, two small gray stones, restrained paintwork.",
+    "order": 1,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_fang_prts_e0.png"
+  },
+  {
+    "id": "fig_kroos",
+    "name": "克洛丝",
+    "rarity": "green",
+    "description": "Honey orange hair in short twin braids, tall orange rabbit ears, closed smiling eyes. Dark oversized black-brown jacket over green shirt, short black shorts with red trim, green sneakers with pale socks. Hold the black crossbow upright angled close to body, all bow tips visible.",
+    "base": "Simple prize-edition dark gray thick circular base, one small paving stone, no big effects.",
+    "order": 2,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_kroos_prts_e0.png"
+  },
+  {
+    "id": "fig_dobermann",
+    "name": "杜宾",
+    "rarity": "blue",
+    "description": "Tall adult woman with long straight black hair, pointed black dog ears with tan interiors, long dark dog tail. Dark navy cropped instructor jacket and full-length wide-leg navy trousers, brown gloves and brown boots. Hold coiled black whip with blue segments and handle confidently at shoulder; athletic straight balanced stance.",
+    "base": "Modest thick round dark gray training-yard base with two small industrial barrier fragments.",
+    "order": 3,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_dobermann_prts_e0.png"
+  },
+  {
+    "id": "fig_gummy",
+    "name": "古米",
+    "rarity": "blue",
+    "description": "Pale BLONDE short twin pigtails and small bear ears, amber eyes. Oversized black utility jacket with orange straps, dark sailor top and short skirt, bright orange opaque tights and black shoes. One raised frying pan with orange handle, one large upright dark steel shield beside body; happy confident face.",
+    "base": "Modest dark circular base with small gray stone and a painted orange safety stripe.",
+    "order": 4,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_gummy_prts_e0.png"
+  },
+  {
+    "id": "fig_vigna",
+    "name": "红豆",
+    "rarity": "blue",
+    "description": "Crimson long twin ponytails, little dark red horns and punk headpiece, red eyes. Black gray red punk cropped outfit with short black skirt/shorts and asymmetrical black-red legwear, dark boots. Red-black long lance angled nearly upright, compact electric guitar slung behind shoulder, clear distinct weapon silhouette.",
+    "base": "Compact dark round base with shallow broken street paving and restrained red accents.",
+    "order": 5,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_vigna_prts_e0.png"
+  },
+  {
+    "id": "fig_matterhorn",
+    "name": "角峰",
+    "rarity": "blue",
+    "description": "Tall muscular adult man, short swept dark gray hair, large curved gray black bull horns, dark long tail. Black leather fur-collared jacket, black fitted trousers and fur-trimmed black boots. Large dark rectangular steel shield held vertically at one side, one curved silver knife in other hand, masculine sculpted face.",
+    "base": "Modest physically thick round dark gray rocky base with two small upright metal fragments.",
+    "order": 6,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_matterhorn_prts_e0.png"
+  },
+  {
+    "id": "fig_amiya",
+    "name": "阿米娅",
+    "rarity": "purple",
+    "description": "Long brown hair with very tall rabbit ears, blue eyes. Black flowing Rhodes Island coat with cyan inner collar and sleeve details over white top and blue plaid skirt, black tights and dark shoes. Glowing blue rings on an open extended hand, coat lining rich blue. Balanced standing pose with wind-swept solid sculpted coat.",
+    "base": "Detailed round dark base with black Originium crystals and broken urban tile, small translucent cyan ring effects close to the hand.",
+    "order": 7,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_amiya_prts_e0.png"
+  },
+  {
+    "id": "fig_texas",
+    "name": "德克萨斯",
+    "rarity": "purple",
+    "description": "Long dark blue-black hair and wolf ears, long dark tail, golden eyes. E0 white shirt, black/navy vest, RED chest and waist straps, black shorts and black thigh-highs, dark sneakers. Golden orange sword in one hand pointing diagonally down close to body, scabbard at hip, tiny chocolate stick at corner of mouth. Keep E0 costume exactly.",
+    "base": "Detailed urban pavement circular base with a short broken railing and orange accent, no large effects.",
+    "order": 8,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_texas_prts_e0.png"
+  },
+  {
+    "id": "fig_lappland",
+    "name": "拉普兰德",
+    "rarity": "purple",
+    "description": "Long flowing white hair, white wolf ears and fluffy gray white tail, visible scar over one eye and confident toothy grin. Black high-collar long jacket, dark short shorts, bare pale legs and black shoes. TWO clearly separate swords, one in each hand, close diagonal dynamic pose with both complete blades visible. No extra arms.",
+    "base": "Detailed gray round base with broken paving and three modest rubble blocks; wind-sculpted coat and hair.",
+    "order": 9,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_lappland_prts_e0.png"
+  },
+  {
+    "id": "fig_ptilopsis",
+    "name": "白面鸮",
+    "rarity": "purple",
+    "description": "White bob haircut with two feather-like owl head ornaments, gold orange half-lidded eyes. Short white Rhine Lab dress with silver-gray details, dark outer cape with bright ORANGE feathered lining, bare pale legs and dark ankle shoes. One black staff with open circular head and orange center held near vertical.",
+    "base": "Detailed clean white clinical tile base atop a thick dark circular plinth, modest orange striped inlay.",
+    "order": 10,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_ptilopsis_prts_e0.png"
+  },
+  {
+    "id": "fig_blue_poison",
+    "name": "蓝毒",
+    "rarity": "purple",
+    "description": "Short pink bob hair, turquoise eyes, dark BLUE hood with round black headphones. Blue jacket and navy dark fitted leggings with white graphic accents, dark blue sneakers, small tactical hip pouches. Compact BLACK crossbow held down-forward, one knee slightly bent but supported, silhouette like source.",
+    "base": "Detailed round gray street tile base with a short broken railing; restrained blue translucent droplet beside boots.",
+    "order": 11,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_blue_poison_prts_e0.png"
+  },
+  {
+    "id": "fig_nearl",
+    "name": "临光",
+    "rarity": "purple",
+    "description": "Golden blonde high ponytail, horse ears, long blonde horse tail. White silver black knight armor over black outfit and dark short skirt, black armored boots. Tall black shield in one hand and substantial silver-black WARHAMMER in other, calm adult face, noble standing pose.",
+    "base": "Detailed knightly white-gray stone circular pedestal with modest gold line inlay and two small stone blocks.",
+    "order": 12,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_nearl_prts_e0.png"
+  },
+  {
+    "id": "fig_exusiai",
+    "name": "能天使",
+    "rarity": "red",
+    "description": "Short red-brown bob covering one eye, warm red eyes, golden halo clearly suspended above head. White-black sleeveless Penguin Logistics shirt with pink-red trim, short black skirt over shorts, navy tights and dark sneakers. Small pale angular translucent wings. One compact gun in EACH hand (two guns total), cheerful animated standing pose.",
+    "base": "Premium limited circular city rooftop base with detailed rubble and translucent amber wing-like flare pieces near base, sophisticated precise paintwork.",
+    "order": 13,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_exusiai_prts_e0.png"
+  },
+  {
+    "id": "fig_silverash",
+    "name": "银灰",
+    "rarity": "red",
+    "description": "Tall adult man with short silver-white hair, snow leopard ears and long spotted pale tail. Long flowing black fur-collared coat with visible sculpted cloth folds and fur tufts, gray waistcoat white shirt tie, black trousers and boots. Sheathed sword at waist and cane in hand, small black hawk perched beside shoulder. Mature masculine face.",
+    "base": "Premium limited round snow-covered mountain rock base with translucent pale icy edges, black-gold trim, detailed but does not dwarf the figure.",
+    "order": 14,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_silverash_prts_e0.png"
+  },
+  {
+    "id": "fig_chen",
+    "name": "陈",
+    "rarity": "red",
+    "description": "Dark navy blue ponytail, two dragon horns and long slim blue dragon tail, red eyes. E0 navy police coat over white shirt and red tie, black shorts, knee-high black boots. Scarlet-red sword and separate dark scabbard clearly visible, decisive upright standing pose with hand at hip.",
+    "base": "Premium limited round Longmen stone tile base with red translucent sword arc curling low around the ankles, polished dark-gold trim.",
+    "order": 15,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_chen_prts_e0.png"
+  },
+  {
+    "id": "fig_eyjafjalla",
+    "name": "艾雅法拉",
+    "rarity": "red",
+    "description": "Long wavy BROWN hair, curved sheep horns and long animal ears, gentle pink-brown eyes, NO GLASSES. E0 gray ruffled short dress and open light red-white coat/cape, dark asymmetrical stockings and dark red-accented shoes. One long dark magic staff with sculpted red accents, held near vertical. Calm standing pose, flowing thick sculpted hair.",
+    "base": "Premium limited round black volcanic rock base with small translucent red-orange lava swirls and dark-gold trim, rich finely painted gradients.",
+    "order": 16,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_eyjafjalla_prts_e0.png"
+  },
+  {
+    "id": "fig_skadi",
+    "name": "斯卡蒂",
+    "rarity": "red",
+    "description": "Long silver hair and red eyes. Broad black tricorn hat with blue underside and small red trim. E0 black-blue caped outfit and shorts, tall black boots. One enormous black greatsword longer than her body held resting diagonally along shoulder and rising upward, keeping entire blade inside tall frame. Thick flowing sculpted coat and hair.",
+    "base": "Premium limited round ocean rock base with compact physically sculpted translucent blue wave around boots and dark-gold trim, high-detail wave paint.",
+    "order": 17,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_skadi_prts_e0.png"
+  },
+  {
+    "id": "fig_kaltsit",
+    "name": "凯尔希",
+    "rarity": "red",
+    "description": "Short pale mint green bob, pointed cat ears, green eyes. E0 pale green asymmetric long medical coat/dress with black straps over a light inner layer, dark gloves and ankle boots. Calm mature anime face, standing upright. Behind and next to her place a SMALL Mon3tr biological monster sculpture attached to same base, clear narrow bony head with visible jaw, articulated long clawed forelimbs, segmented dark black-green skeletal torso/spine and bent hind legs, small green glowing core. Use Mon3tr supporting reference only for creature, do NOT change Kaltsit to E2 costume. Creature must clearly read as a crouching animal/monster, never a pile of angular crystals. Keep creature head and claws visible beside her silhouette without hiding her face or torso.",
+    "base": "Premium limited round ruined clinical tile base with faint translucent green accents, dark-gold rim, small Mon3tr supported behind her. Creature maximum about half her height.",
+    "order": 18,
+    "reference": "D:/CSYE 7370/downfall-godot/art/items/batch_collectibles_v2/references/fig_kaltsit_prts_e0.png"
+  }
+]

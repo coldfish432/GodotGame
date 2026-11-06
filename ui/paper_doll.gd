@@ -30,12 +30,14 @@ const SILHOUETTES := {
 
 static var _silhouettes := {}
 
-## What she wears in `slot`; an old save's ARMOR / TRINKET piece shows as the chest / amulet.
-static func worn(game: GameManager, slot: int) -> Item:
-	var item: Item = game.player.equipped.get(slot)
+## What `wearer` (the deployed one when null) has in `slot`; an old save's
+## ARMOR / TRINKET piece shows as the chest / amulet.
+static func worn(game: GameManager, slot: int, wearer: Player = null) -> Item:
+	var on: Dictionary = (wearer if wearer != null else game.player).equipped
+	var item: Item = on.get(slot)
 	if item != null: return item
-	if slot == Item.Category.CHEST: return game.player.equipped.get(Item.Category.ARMOR)
-	if slot == Item.Category.AMULET: return game.player.equipped.get(Item.Category.TRINKET)
+	if slot == Item.Category.CHEST: return on.get(Item.Category.ARMOR)
+	if slot == Item.Category.AMULET: return on.get(Item.Category.TRINKET)
 	return null
 
 ## Does `item` go in `slot` (old ARMOR / TRINKET pieces in the chest / amulet)?
@@ -66,8 +68,8 @@ static func draw_item(canvas: CanvasItem, item: Item, slot: int, size: Vector2) 
 
 ## The fixed pieces around the slots: the standing portrait, the elite badge
 ## and the signature-skill card. `scale` shrinks the whole block.
-static func decorate(game: GameManager, parent: Control, at: Vector2, scale: float = 1.0) -> void:
-	var id := game.player.operator_id
+static func decorate(game: GameManager, parent: Control, at: Vector2, scale: float = 1.0, wearer: Player = null) -> void:
+	var id := (wearer if wearer != null else game.player).operator_id
 	var art := OperatorScreen.standing(id)
 	if art != null:
 		var image := TextureRect.new()
@@ -80,7 +82,7 @@ static func decorate(game: GameManager, parent: Control, at: Vector2, scale: flo
 	var shadow := Shadow.new()
 	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	AK.put(parent, shadow, at + Vector2(PORTRAIT.position.x - 10, PORTRAIT.end.y - 12) * scale, Vector2(PORTRAIT.size.x + 20, 20) * scale)
-	var p: OperatorProgress = game.progress()
+	var p: OperatorProgress = game.base.progress_for(id)
 	var badge := AK.label("E%d" % p.elite, int(14 * scale), AK.SP, AK.en())
 	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

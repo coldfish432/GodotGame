@@ -55,6 +55,12 @@ func run() -> void:
 	game.perform_hotbar_action("potion_B")
 	check("a flask slot drinks its own kind", game.carried_potions().filter(func(x): return x.potion_type == "B").size() == 1 and game.carried_potions().size() == 2)
 	check("one with none of its kind does nothing", not game.use_potion_type("C") and game.carried_potions().size() == 2)
+	# 用户 2026-11-02: a regional flask on the bar drew a blank white bottle.
+	Hotbar.set_action(6, "potion_ursus")
+	game.inventory.try_add(BaseCatalog.create_potion("ursus"))
+	var ursus_slot: Dictionary = game._hud._hotbar_slots()[7]
+	check("any flask on the bar shows its own icon and count", ursus_slot.get("potion", "") == "ursus" and ursus_slot.get("cost", "") == "1")
+	Hotbar.set_action(6, "")
 	game.perform_hotbar_action("dash")
 	check("a dodge slot asks for a dodge", p._dash_buffered)
 	p._dash_buffered = false

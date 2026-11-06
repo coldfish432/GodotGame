@@ -60,6 +60,14 @@ func run() -> void:
 	game.toggle_station_panel()
 	SystemScreens.set_setting("station_hidden", [])
 	check("and closes it again", not BaseHud.panel_open())
+	# 用户 2026-10-25: B 开背包；基地按 C 开角色面板，背包键在基地不开.
+	check("the pack's key is B", Keybinds.short_label("toggle_inventory") == "B")
+	game.toggle_panel("inventory")
+	check("the pack does not open at the base", game.modal.is_empty())
+	game.toggle_panel("training")
+	check("C opens the operator panel at the base", game.modal == "training")
+	game.toggle_panel("training")
+	check("and C again closes it", game.modal.is_empty())
 
 	var rid := base.navigation_map_rid()
 	NavigationServer3D.map_force_update(rid)

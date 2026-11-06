@@ -1,0 +1,587 @@
+{
+  "total": 18,
+  "passed": 18,
+  "static_status": "PASS",
+  "generation": "built-in image_gen",
+  "source_issues": [],
+  "runtime_validation": "NOT_RUN",
+  "art_acceptance": "PENDING_FINAL_USER_REVIEW",
+  "identity_approval": "User approved initial 18-character rough lineup before HD generation",
+  "checks": [
+    {
+      "id": "fig_fang",
+      "name": "芬",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        35,
+        50,
+        477,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        1024,
+        1536
+      ],
+      "source_bbox": [
+        185,
+        38,
+        875,
+        1511
+      ],
+      "source_near_edge": false,
+      "sha256": "c9de43d2c4a3cd7f49658113b8a97c4f8e5a9057bfcfc61933e2d933a56d1025",
+      "source_sha256": "74865f7555ed18fad221a3060d3d7080b905db55a1f7ab65a54e4397d590dd96",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_kroos",
+      "name": "克洛丝",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        40,
+        50,
+        471,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        92,
+        24,
+        881,
+        1753
+      ],
+      "source_near_edge": false,
+      "sha256": "41337d7eb63ac4ac5f3ce2c0b97bc5e3c4f87c38430b04cb56db1967182019d1",
+      "source_sha256": "0975a4132a4ef32e5c465fbc9e2774c3f8f03e688971081a8cf4c5913a3e19a3",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_dobermann",
+      "name": "杜宾",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        45,
+        50,
+        466,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        60,
+        12,
+        837,
+        1755
+      ],
+      "source_near_edge": false,
+      "sha256": "e40e41e5834c1688c64795e5abe8225ebb504428f2ec0cf0dba8c5a69822dc2a",
+      "source_sha256": "5359277b009d5aae946083b37aa3fe65648c47b8403ad0b7a194a77ec57babcc",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_gummy",
+      "name": "古米",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        63,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        32,
+        17,
+        872,
+        1748
+      ],
+      "source_near_edge": false,
+      "sha256": "4c0099e7ce8e693dd55db985a2f6532be13d3c9c713b4eacd646b6ff11c8af41",
+      "source_sha256": "d979bf6ba4a7b3fb59083f6d61181504d450b9d3e382cb45da6e701bd3e419f1",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_vigna",
+      "name": "红豆",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        165,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        11,
+        114,
+        884,
+        1716
+      ],
+      "source_near_edge": false,
+      "sha256": "5d99f5f1f49194e2eb34dac295d42a3c771f46fa33c3d4ca93c6afb01b4af40b",
+      "source_sha256": "3fa441d9fd5f862d6e45a617daa73d3da55fd4e19455f6c1f3d04afbfb0e1c9f",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_matterhorn",
+      "name": "角峰",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        59,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        42,
+        11,
+        884,
+        1752
+      ],
+      "source_near_edge": false,
+      "sha256": "e5fb4dfc685660fe59d5f438625bbcc0220a56393209e3e11585ef4a64c48fc5",
+      "source_sha256": "fa6c392d9b509778169e898e796e5929aebaeea609f2bfa16114ae2df24e3739",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_amiya",
+      "name": "阿米娅",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        38,
+        50,
+        474,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        57,
+        13,
+        862,
+        1757
+      ],
+      "source_near_edge": false,
+      "sha256": "56fae45a7ce2d50adad385d2de4fb8626feebca54398082b6b5f681b89c39039",
+      "source_sha256": "64cc5af31553358f3b6c7ac453b5a666639e9d1d8437fb4e042bfe5ca56cdecf",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_texas",
+      "name": "德克萨斯",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        63,
+        50,
+        449,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        103,
+        8,
+        816,
+        1750
+      ],
+      "source_near_edge": false,
+      "sha256": "57f439324c494c3f04b003538ce7b1f27d12513a3a0866f6c3a2a65780cca968",
+      "source_sha256": "4edbd6d5d4f0ba4f2cb6a1d95aaaaf3afb9626f15aa1d2bf4f957cdf05caf4f1",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_lappland",
+      "name": "拉普兰德",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        110,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        37,
+        85,
+        885,
+        1743
+      ],
+      "source_near_edge": false,
+      "sha256": "c3099e304e185f3a89cb6e9e70a7825d93066ea0759c297fb83315fd4a2f16ff",
+      "source_sha256": "35c917f87331d53fbfa40acca109f929ee60fd7a4a86817150809d9e89f23f56",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_ptilopsis",
+      "name": "白面鸮",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        117,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        18,
+        71,
+        867,
+        1719
+      ],
+      "source_near_edge": false,
+      "sha256": "e3c72f3e631d53f3f3a4bfd0b819ba4c83ea1e9c2b978fe81a37d9d36844fc96",
+      "source_sha256": "028c6f8e39b3e02eb9535a0e328dc7dad533d4e8794cd773beae7f3fffbf331a",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_blue_poison",
+      "name": "蓝毒",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        52,
+        50,
+        460,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        111,
+        61,
+        839,
+        1747
+      ],
+      "source_near_edge": false,
+      "sha256": "c8c404190a36b17b204f1bbb3fde722835e653288daea1a97d4039be02b462d3",
+      "source_sha256": "5c3686afa94665da0c77fa37aa6bd963def1f247713d47f03595149228a8a7cd",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_nearl",
+      "name": "临光",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        100,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        44,
+        71,
+        885,
+        1735
+      ],
+      "source_near_edge": false,
+      "sha256": "d43dfee6a497a1f5149df6d1baca9dc958cae03dd42f6104f4bc04f4a809e31c",
+      "source_sha256": "5110e9c269cd78bc7ef1f1be23e850b16343ed2e95c642930901b1481109aff0",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_exusiai",
+      "name": "能天使",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        65,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        36,
+        31,
+        853,
+        1710
+      ],
+      "source_near_edge": false,
+      "sha256": "6bb28a0272ff162fc7c8bf78242c232cf6902e73b4626d51117a93537a44b809",
+      "source_sha256": "0158a960d2f180511177f5ff771fa381be62d0af53fd50cdcd4f7238dc488f44",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_silverash",
+      "name": "银灰",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        124,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        13,
+        63,
+        874,
+        1720
+      ],
+      "source_near_edge": false,
+      "sha256": "e9f0ccc9d56c07ab39b87ee80d134aafbd4a330f55a90adbd2a83f9e8b3434c6",
+      "source_sha256": "9a91612a4f5c3b1c75534abcd80a60edc4ffabf81797d477ab85e01143305bef",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_chen",
+      "name": "陈",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        72,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        28,
+        15,
+        873,
+        1739
+      ],
+      "source_near_edge": false,
+      "sha256": "30e092fcd3b1f81917aa61d752ee41d3ed8a2cfdde0884c1fb1a4022f08b18f1",
+      "source_sha256": "ce452eaa1f26a9e2ee5b39643194bb7a772d6e07b198207dd34366a1d244afa5",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_eyjafjalla",
+      "name": "艾雅法拉",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        93,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        12,
+        14,
+        880,
+        1745
+      ],
+      "source_near_edge": false,
+      "sha256": "2e68439d5e12be9865121aefc156e987c1996445cbfd9fe9d92fbb54928d7491",
+      "source_sha256": "6ecc61d25c24320518af8bdec0035cc8390fe33e4ebd37203eb5e605fcd5e13c",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_skadi",
+      "name": "斯卡蒂",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        80,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        19,
+        8,
+        885,
+        1760
+      ],
+      "source_near_edge": false,
+      "sha256": "b395e57b6fba65c1302c27c912ddc8f2a7a3a57c68d020e21692cbd6f53082c3",
+      "source_sha256": "1b9a6ccfe614ff9894f62efde278b33bdb820d2f47a0b9c7fe059241c01be1ef",
+      "registry_match": true,
+      "status": "PASS"
+    },
+    {
+      "id": "fig_kaltsit",
+      "name": "凯尔希",
+      "size": [
+        512,
+        1024
+      ],
+      "mode": "RGBA",
+      "bbox": [
+        30,
+        122,
+        482,
+        994
+      ],
+      "alpha_min": 0,
+      "source_size": [
+        887,
+        1774
+      ],
+      "source_bbox": [
+        21,
+        87,
+        873,
+        1731
+      ],
+      "source_near_edge": false,
+      "sha256": "b819a81527f206bbbb09a43b493b5ce3b4ca986e0aa4418681ca0f2b50cfbdd2",
+      "source_sha256": "7cb79cbd16d9b100ac842c3f7529e549f0f5e22cbdfac7d32e6fcff1e3e9d59e",
+      "registry_match": true,
+      "status": "PASS"
+    }
+  ],
+  "delivery": {
+    "runtime_count": 18,
+    "hash_match": true,
+    "existing_unrelated_pngs_preserved": true
+  },
+  "visual_review": {
+    "all_18_hd_contact_reviewed": true,
+    "all_18_120px_reviewed": true,
+    "all_18_32x64_reviewed": true,
+    "full_resolution_spot_checks": [
+      "fig_fang",
+      "fig_lappland",
+      "fig_skadi",
+      "fig_kaltsit"
+    ],
+    "notes": "Solid sculpted PVC volumes, visible pedestal sidewalls, hair and costume thickness reviewed. Lappland revised to two exposed swords; Mon3tr has a distinct head, torso and clawed limbs. Final art acceptance remains pending user review."
+  }
+}

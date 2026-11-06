@@ -139,6 +139,11 @@ func _process(delta: float) -> void:
 	var calm: bool = game.in_base and game.base_walk_active() and game.modal.is_empty() and not game.transitioning
 	var beats := Story.active(state)
 	if calm:
+		# 失散干员 back on board: her few lines the next time the Doctor walks the base.
+		for id in Story.lost_back_talks(game.base):
+			start_talk({"id": "back_" + id, "lines": LostCatalog.BASE_LINES[id]})
+			if is_instance_valid(game.tutorial_spotlight): game.tutorial_spotlight.request("base_dept_return")
+			return
 		for b in beats:
 			if not b.id in state.seen:
 				start_talk(b)
@@ -179,6 +184,19 @@ func start_talk(b: Dictionary) -> void:
 	_lines = Story.lines_of(state, b)
 	if _lines.is_empty(): return
 	speaking = b.id
+	line_index = 0
+	game.open_modal("story")
+	_card.visible = false
+	_dim.visible = true
+	_talk.visible = true
+	_show_line()
+
+## In the field, when the Doctor reaches a missing operator (失散干员 §5.2):
+## her line, then PRTS's pickup. Nothing is saved here (the run is on).
+func talk_lost(id: String) -> void:
+	if not _active() or not Story.is_on() or not speaking.is_empty(): return
+	_lines = [[LostCatalog.name_of(id), LostCatalog.FIELD_LINES.get(id, "")], ["PRTS", "罗德岛小队已接应%s。" % LostCatalog.name_of(id)]]
+	speaking = "lost_" + id
 	line_index = 0
 	game.open_modal("story")
 	_card.visible = false

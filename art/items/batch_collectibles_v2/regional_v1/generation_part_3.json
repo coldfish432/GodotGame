@@ -1,0 +1,66 @@
+{
+  "col_coffee_cup": {
+    "id": "col_coffee_cup",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-aa882cca-2fa7-4c7f-a993-246545c6babc.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-aa882cca-2fa7-4c7f-a993-246545c6babc.png",
+    "prompt": "undefinedSubject: One small ivory espresso coffee cup on matching saucer, dark coffee visible, one small red lipstick mark on cup rim, modest worn cafe crockery with a single thin brown stripe. Compact square, cup handle visible. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_opera_poster": {
+    "id": "col_opera_poster",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-7a45262d-a23b-4afb-b2d2-478998a3aba8.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-7a45262d-a23b-4afb-b2d2-478998a3aba8.png",
+    "prompt": "undefinedSubject: One vertical half-curled aged opera poster, elegant art nouveau dark green and faded burgundy ornament around a simple woman singer portrait, rolled upper corner, large readable graphic forms, no need for legible small typography. Tall narrow poster only. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_silver_cutlery": {
+    "id": "col_silver_cutlery",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f4c4459-53e6-409d-980d-a81dd589fad8.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-4f4c4459-53e6-409d-980d-a81dd589fad8.png",
+    "prompt": "undefinedSubject: One long horizontal open burgundy leather cutlery case, cream inset holding TWO polished silver dinner knives aligned horizontally, and ONE visibly empty fitted knife slot. Lid open low behind, brass latch. Clearly narrow knife case, not weapon chest. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_brass_lighter": {
+    "id": "col_brass_lighter",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0b5f0ecb-3a72-46d5-9efd-382cdd8af862.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0b5f0ecb-3a72-46d5-9efd-382cdd8af862.png",
+    "prompt": "undefinedSubject: One compact rectangular engraved brass petrol flip-top lighter with lid OPEN, unlit wick and perforated chimney, simple initials V engraved on front, warm worn metallic broad highlights. Compact square silhouette. Final target 32x32 pixels: keep a compact square silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_vintage_bottle": {
+    "id": "col_vintage_bottle",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-28ca3426-8055-4a4a-81c5-1a39e42475e2.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-28ca3426-8055-4a4a-81c5-1a39e42475e2.png",
+    "prompt": "undefinedSubject: One upright tall dark green vintage wine bottle, dust on shoulders, intact burgundy red sealing wax over neck and cork, aged cream paper label with simple burgundy crest, faint glass highlight. Vertical slender bottle. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_porcelain_wolf": {
+    "id": "col_porcelain_wolf",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9a171636-0b22-4055-b9ee-d89927b70338.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9a171636-0b22-4055-b9ee-d89927b70338.png",
+    "prompt": "undefinedSubject: One elegant white porcelain statue of a SITTING WOLF, proud upright pointed muzzle and ears, tail curled alongside paws, fine GOLD edging along ears back and paws, glossy ceramic planes. Whole statue, no extra base or background. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_family_ledger": {
+    "id": "col_family_ledger",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a47c9810-d7b7-4865-af58-63d938343c2e.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-a47c9810-d7b7-4865-af58-63d938343c2e.png",
+    "prompt": "undefinedSubject: One thick closed dark burgundy leather family ledger, brass buckle on leather strap, several torn rough cream page edges sticking out, worn embossed gold corner flourishes. Three-quarter view compact square, luxurious antique accounting book. Final target 32x32 pixels: keep a compact square silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_family_seal": {
+    "id": "col_family_seal",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-27962a9e-1c79-4611-8a0e-c5db22f2da54.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-27962a9e-1c79-4611-8a0e-c5db22f2da54.png",
+    "prompt": "undefinedSubject: One precious small brass family signet stamp shown tilted with broad round seal face visible, seal face engraved with a bold WOLF HEAD silhouette, elegant short sculpted handle, one small red sealing-wax lump beside it. Compact square, golden gleam. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  }
+}

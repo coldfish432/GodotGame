@@ -13,8 +13,6 @@ extends Node
 
 const ROOM := "warehouse"
 const CATEGORY_KEYS := ["weapon", "armor", "trinket", "material"]
-const CRATE_REACH := 1.8        # units from a crate's feet
-const RECEIVING_MARGIN := 1.5   # around the bays, for setting a carried item back down
 const HAND_LIFT_PX := 33.0      # icon frame's bottom edge above her feet (her head is ~29 px up)
 const PALLET_DECK := 0.2        # a crate's bottom on a pallet's deck (m)
 ## The order board's screen, by state (board_state): colour and brightness.
@@ -38,7 +36,6 @@ var drone: SortDrone
 var _racks_seen := {}           # category -> racks already given colliders
 var _board: MeshInstance3D      # the board's frame on the north wall
 var _board_screen: MeshInstance3D
-var _hand_textures := {}
 var _signature := ""
 
 func setup(p_game: GameManager, p_map: BaseMap) -> void:
@@ -203,33 +200,7 @@ func zone_rect(category: int) -> Array:
 func _layout(global: Vector3) -> Vector2:
 	return Vector2((global.x - BaseMap.ORIGIN.x) / BaseMap.EAST, global.z - BaseMap.ORIGIN.z)
 
-## rect = [x0, z_south, x1, z_north] in layout units.
-static func _inside(p: Vector2, rect: Array) -> bool:
-	return p.x >= rect[0] and p.x <= rect[2] and p.y >= rect[1] and p.y <= rect[3]
-
-func _near_receiving(p: Vector2) -> bool:
-	var xs: Array = anchors.bays.map(func(b): return b[0])
-	var zs: Array = anchors.bays.map(func(b): return b[1])
-	return p.x >= xs.min() - RECEIVING_MARGIN - 1.5 and p.x <= xs.max() + RECEIVING_MARGIN + 1.5 \
-		and p.y >= zs.min() - RECEIVING_MARGIN and p.y <= zs.max() + RECEIVING_MARGIN + 2.5
-
 static func _signature_of(base: BaseState) -> String:
 	var parts: Array[String] = []
 	for c in base.racks: parts.append("%d:%d/%d" % [c, _kind_count(base, c), base.racks[c]])
 	return ",".join(parts)
-
-func _hand_texture(category: int) -> Texture2D:
-	# A slot's piece (a ring, a helmet) carries its group's icon (8 slots).
-	category = Item.group_of(category)
-	if _hand_textures.has(category): return _hand_textures[category]
-	var image := _rgba(tex.carried_frame)
-	var icon := _rgba(tex["icon_" + CATEGORY_KEYS[category]])
-	image.blend_rect(icon, Rect2i(Vector2i.ZERO, icon.get_size()), Vector2i(4, 4))
-	_hand_textures[category] = ImageTexture.create_from_image(image)
-	return _hand_textures[category]
-
-## blend_rect needs both images in the same format.
-static func _rgba(texture: Texture2D) -> Image:
-	var image := texture.get_image().duplicate()
-	image.convert(Image.FORMAT_RGBA8)
-	return image

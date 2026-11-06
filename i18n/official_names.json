@@ -529,17 +529,17 @@
    "kind": "item",
    "official": "Manganese Ore"
   },
-  "近卫双芯片": {
+  "双芯片": {
    "kind": "item",
-   "official": "Guard Dualchip"
+   "official": "Dualchip"
   },
-  "近卫芯片": {
+  "芯片": {
    "kind": "item",
-   "official": "Guard Chip"
+   "official": "Chip"
   },
-  "近卫芯片组": {
+  "芯片组": {
    "kind": "item",
-   "official": "Guard Chip Pack"
+   "official": "Chip Pack"
   },
   "进阶加固建材": {
    "kind": "item",

@@ -237,21 +237,45 @@ func run() -> void:
 	var gear := weapon(rng)
 	game.inventory.try_add(gear)
 	game.gold = 1000000
-	game.stash.append(MaterialCatalog.create("研磨石", 5, "mine"))
-	game.stash.append(MaterialCatalog.create("改量装置", 5, "mine"))
+	game.base.shelf.append(MaterialCatalog.create("研磨石", 5, "mine"))
+	game.base.shelf.append(MaterialCatalog.create("全新装置", 5, "mine"))
 	game.in_base = true
 	var ids_before: Array = gear.prefixes.map(func(e): return e.id)
 	var gold_before: int = game.gold
+	check("稀有 校准 takes a 研磨石", GameManager.refresh_materials("calibrate", gear) == {"研磨石": 1})
 	check("校准 is done at the base", game.refresh_gear("calibrate", gear))
-	check("校准 keeps the prefixes and takes 龙门币 and a 研磨石", gear.prefixes.map(func(e): return e.id) == ids_before and game.gold < gold_before and game.material_count("研磨石") == 4)
+	check("校准 keeps the prefixes and takes 龙门币 and a 研磨石", gear.prefixes.map(func(e): return e.id) == ids_before and game.gold == gold_before - GameManager.REFRESH_LMD.calibrate[Item.PURPLE] and game.material_count("研磨石") == 4)
 	var lines := PrefixCatalog.rollable_lines(gear)
 	var first_cost := game.refresh_cost("tune", gear)
-	check("精调 one line", game.refresh_gear("tune", gear, lines[0]) and gear.tune_count == 1 and game.material_count("改量装置") == 4)
-	check("each 精调 costs half as much again", game.refresh_cost("tune", gear) == roundi(maxi(GameManager.REFRESH_MIN_LMD, ceili(Economy.price(gear) * GameManager.REFRESH_SHARE)) * GameManager.TUNE_STEP))
+	check("精调 one line for a 全新装置", game.refresh_gear("tune", gear, lines[0]) and gear.tune_count == 1 and game.material_count("全新装置") == 4)
+	check("each 精调 costs half as much again", game.refresh_cost("tune", gear) == roundi(first_cost * GameManager.TUNE_STEP))
 	check("重铸 rolls the prefixes again", game.refresh_gear("reforge", gear) and not gear.prefixes.is_empty())
 	game.in_base = false
 	check("nothing is refreshed outside the base", not game.refresh_gear("calibrate", gear))
-	var _unused := first_cost
+
+	# 用户 2026-10-25: 精调换成装置，每种稀有度的材料和龙门币的花费不同.
+	var tiered := weapon(rng)
+	for kind in ["reforge", "calibrate", "tune"]:
+		var seen := {}
+		var last := 0
+		for r in range(Item.RARITY_MAX + 1):
+			tiered.rarity = r
+			tiered.tune_count = 0
+			var lmd := game.refresh_cost(kind, tiered)
+			var key := "%d %s" % [lmd, str(GameManager.refresh_materials(kind, tiered))]
+			check("%s 龙门币 climbs with rarity %d" % [kind, r], lmd > last, [lmd, last])
+			check("%s cost differs at rarity %d" % [kind, r], not seen.has(key), key)
+			seen[key] = true
+			last = lmd
+	for r in range(Item.RARITY_MAX + 1):
+		tiered.rarity = r
+		check("精调 takes the 装置 line at rarity %d" % r, GameManager.refresh_materials("tune", tiered).keys().all(func(m): return str(m).ends_with("装置")))
+		check("校准 takes 研磨石 from 稀有 up (%d)" % r, GameManager.refresh_materials("calibrate", tiered).has("研磨石") == (r >= Item.PURPLE))
+	tiered.rarity = Item.GREY
+	game.in_base = true
+	game.base.shelf.clear()
+	check("short materials refuse", game.refresh_refusal("tune", tiered).begins_with("缺少"))
+	game.in_base = false
 
 	print("\n%d/%d checks passed" % [checks - failures, checks])
 	quit(1 if failures > 0 else 0)

@@ -102,7 +102,7 @@ var fades := true
 
 ## Faster attacks play the slash faster so it never outlives the next swing.
 func speed_up(multiplier: float) -> CombatVfx:
-	if kind in ["slash", "amiya_slash"] and multiplier > 0:
+	if (kind == "slash" or kind == "amiya_slash") and multiplier > 0:
 		rate = multiplier
 		duration /= multiplier
 	return self
@@ -126,10 +126,16 @@ func _part(mesh: Mesh, color: Color, opacity: float = 0.65) -> MeshInstance3D:
 	_parts.append(part)
 	return part
 
+## Box and quad meshes by size, shared: only the parts' own materials fade
+## (GameManager.release_static_caches). The blink trail resizes its quad and keeps its own.
+static var _meshes := {}
+
 func _box(size: Vector3, color: Color, point: Vector3) -> MeshInstance3D:
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	var part := _part(mesh, color)
+	if not _meshes.has(size):
+		var box := BoxMesh.new()
+		box.size = size
+		_meshes[size] = box
+	var part := _part(_meshes[size], color)
 	part.position = point
 	return part
 
@@ -227,8 +233,12 @@ func _build() -> void:
 ## A painted effect lying flat on the ground, its top edge toward this
 ## effect's forward (-Z), centred `ahead` units in front of the origin.
 func _decal(texture: Texture2D, ahead: float, height: float, tint: Color) -> MeshInstance3D:
-	var quad := QuadMesh.new()
-	quad.size = texture.get_size() * PIXEL
+	var size := texture.get_size() * PIXEL
+	var quad: QuadMesh = _meshes.get(size) if kind != "blink" else null
+	if quad == null:
+		quad = QuadMesh.new()
+		quad.size = size
+		if kind != "blink": _meshes[size] = quad
 	var part := _part(quad, tint, 0.7)
 	var mat := part.material_override as StandardMaterial3D
 	mat.albedo_texture = texture
@@ -281,9 +291,10 @@ func _process(delta: float) -> void:
 		queue_free()
 		return
 	var progress := age / duration
+	var fade := 1.0 if kind == "wave" or not fades else 1.0 - progress
 	for part in _parts:
 		var mat := part.material_override as StandardMaterial3D
-		mat.albedo_color.a = float(part.get_meta("opacity", 0.65)) * (1.0 if kind == "wave" or not fades else 1.0 - progress)
+		mat.albedo_color.a = float(part.get_meta("opacity", 0.65)) * fade
 		if part.has_meta("pframe"):
 			var shown := (int(age * frame_fps) % frame_count) if frame_fps > 0.0 else mini(frame_count - 1, int(progress * frame_count))
 			part.visible = shown == int(part.get_meta("pframe"))
@@ -300,7 +311,7 @@ func _process(delta: float) -> void:
 			if not part.has_meta("rest"): part.set_meta("rest", part.position)
 			part.rotation.y = lerpf(-0.7, 0.7, progress)
 			part.position = Basis(Vector3.UP, part.rotation.y) * (part.get_meta("rest") as Vector3)
-	if kind in ["slash", "amiya_slash"] and stage != 2:
+	if (kind == "slash" or kind == "amiya_slash") and stage != 2:
 		# Sweeps swing around her; the Sundial X surges straight ahead instead.
 		rotation.y += delta * rate * (-4.0 if stage == 1 else 4.0)
 		scale.y = 1.0 - progress * 0.8

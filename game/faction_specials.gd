@@ -33,15 +33,18 @@ const PATENT_TIME := 0.5
 ## 企鹅专递单: bought from 企鹅物流's desk at the exchange for 龙门币.
 const SLIP_PRICE := 22000
 
+## The 崇敬 goods (势力声望解锁策划案 §三) are sold the same way: one faction, from a rank.
 static func is_special(material: String) -> bool:
-	return ITEMS.has(material)
+	return ITEMS.has(material) or FactionRewards.is_good(material)
 
 static func faction_of(material: String) -> String:
+	if FactionRewards.is_good(material): return str(FactionRewards.GOODS[material][0])
 	return str(ITEMS[material][0]) if ITEMS.has(material) else ""
 
 static func rank_needed(material: String) -> int:
+	if FactionRewards.is_good(material): return FactionRewards.GOODS_RANK
 	return int(ITEMS[material][1]) if ITEMS.has(material) else 0
 
 ## `faction`'s shelf without its specials (what the flash sales and forwards draw from).
 static func plain_shelf(faction: String) -> Array:
-	return (FactionCatalog.info(faction).get("sells", []) as Array).filter(func(m): return not ITEMS.has(m))
+	return (FactionCatalog.info(faction).get("sells", []) as Array).filter(func(m): return not is_special(m))

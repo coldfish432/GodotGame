@@ -17,8 +17,6 @@ const DIRECTIONS: Array[String] = [
 	"west", "northwest", "north", "northeast",
 ]
 
-## One texel per rendered pixel at the game's 640x360 internal resolution
-## (orthogonal camera size 24 over 360 px => 1 world unit = 15 px).
 ## Rows of the walk sheet drawn facing the wrong way, shown as the mirrored
 ## opposite instead: the southeast row is painted facing down-left (it is
 ## nearly a copy of southwest), so moving down-right showed her looking
@@ -27,6 +25,7 @@ const DIRECTIONS: Array[String] = [
 ## mirrored (用户 2026-10-07). The combat sheet's northwest row is correct.
 const MIRRORED := {"southeast": "southwest", "northwest": "northeast"}
 
+## World units per sheet texel, and the walk/idle cell's size in texels.
 const PIXEL_SIZE := 0.06
 const CELL_TEXELS := 32.0
 ## Distance from the body's origin down to the feet — matches the player's
@@ -86,7 +85,9 @@ const CREW := ["doctor", "sharp", "stormeye", "pith", "touch", "tulip", "mechani
 	"reserve_vanguard", "reserve_guard", "reserve_defender", "reserve_sniper", "reserve_caster",
 	"reserve_medic", "reserve_supporter", "reserve_specialist",
 	# ST1b (用户 2026-10-22: 补杜宾、凯尔希的行走精灵图): walk once their sheets are baked.
-	"dobermann", "kaltsit"]
+	"dobermann", "kaltsit",
+	# CR4 (失散干员: 电弧 joins as the eighth): walks once her sheets are baked.
+	"raidian"]
 const CREW_CONFIG := {"actions": {}, "signature": "", "mirrored": {}}
 const WALK_FPS := 8.0
 var character := "lappland"
@@ -127,7 +128,7 @@ func _ready() -> void:
 	# discard rather than blend — keeps depth sorting sane against the world.
 	alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 	position.y = CELL_TEXELS * PIXEL_SIZE * 0.5 - FOOT_DROP
-	# Kept on her feet at any camera tilt (GameManager._keep_sprites_upright).
+	# Kept on her feet at any camera tilt (GmCamera._keep_sprites_upright).
 	add_to_group("upright_sprites")
 	# Sprites sit on their own render layer so ground decals (the contact
 	# shadow among them) never land on a sprite.

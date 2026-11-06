@@ -23,7 +23,7 @@ const PACKS := {
 	"饰品包": {"category": "trinket", "face": 400, "open": false},
 }
 const ORDER: Array[String] = ["建材包", "电子包", "医疗包", "作物包", "燃料包", "寒地物资包", "源石包", "养成材料包", "违禁品包", "武器包", "防具包", "饰品包"]
-## Per pack: 100 龙门币 and a minute in the 加工部 queue (§3.1).
+## Per pack: a 龙门币 fee and minutes in the 加工部 queue (§3.1).
 const PACK_LMD := 300
 const PACK_MINUTES := 1
 ## Unpacking costs value × this in points (§4): the round trip always loses.

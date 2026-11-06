@@ -11,8 +11,9 @@ const AMIYA_GUARD := "amiya_guard"
 ## Every operator, recruited or not (干员寻访策划案 §9: Amiya first; the rest are
 ## found region by region, RecruitCatalog).
 const ORDER: Array[String] = [AMIYA_GUARD, LAPPLAND, "hellagur", "rosa", "hoshiguma", "lin", "typhon", "santalla", "texas"]
-## Whose fighting is built (attack code, skill tree): Lappland and Amiya in
-## Player, the recruits of batch R2 in their OperatorKit (entities/kits/).
+## Whose fighting is built (attack code, skill tree): Amiya's in Player,
+## Lappland's combo in Player and her Space in LapplandKit, the recruits of
+## batch R2 in their OperatorKit (entities/kits/).
 const KIT := [LAPPLAND, AMIYA_GUARD, "hellagur", "rosa", "hoshiguma", "lin", "typhon", "santalla", "texas"]
 
 const DATA := {

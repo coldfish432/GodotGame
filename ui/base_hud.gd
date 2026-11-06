@@ -1,8 +1,8 @@
 class_name BaseHud
 extends Control
 
-## The hall HUD (界面策划案 v1.1 #12), after AK's 基建 overview: the sub-page top
-## bar with the currency pills (GameManager._status_bar), a station list down
+## The hall HUD (界面策划案 v1.1 #12), after AK's 基建 overview: the place's
+## name on a plate top left (the currency pills are GameManager._status_bar), a station list down
 ## the left in department colours with a yellow "!" where something waits
 ## (open with its key, toggle_stations; which stations it lists is a setting),
 ## the PRTS log bottom left and quick buttons bottom right. Shown while she
@@ -25,16 +25,18 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_buttons = HBoxContainer.new()
 	_buttons.add_theme_constant_override("separation", 4)
-	_buttons.position = Vector2(1268 - 3 * 60 + 4, 708 - 48)
-	_buttons.size = Vector2(3 * 60 - 4, 48)
+	_buttons.position = Vector2(1268 - 5 * 60 + 4, 708 - 48)
+	_buttons.size = Vector2(5 * 60 - 4, 48)
 	_buttons.alignment = BoxContainer.ALIGNMENT_END
 	add_child(_buttons)
-	for entry in [["基建", "construction"], ["合同", "contracts"], ["菜单", "pause"]]:
+	# 用户 2026-11-04: 让基地也能看干员面板和升级项 — 干员 (C, with its upgrades) here too.
+	for entry in [["PRTS", "prts"], ["干员", "training"], ["基建", "construction"], ["合同", "contracts"], ["菜单", "pause"]]:
 		var b := AK.button(entry[0], "ghost", 12)
 		b.custom_minimum_size = Vector2(56, 48)
 		var kind: String = entry[1]
 		b.pressed.connect(func():
 			if kind == "pause": game.toggle_panel("pause")
+			elif kind == "training": game.toggle_panel("training")
 			else: game.open_station(kind))
 		b.set_meta("kind", kind)
 		_buttons.add_child(b)
@@ -45,6 +47,11 @@ func _process(_delta: float) -> void:
 	# The 基建 quick button only once the hub stands (用户 2026-10-22).
 	for b in _buttons.get_children():
 		if b.get_meta("kind", "") == "construction": b.visible = game.base.hub_built()
+		# Mail waiting shows on the PRTS button.
+		if b.get_meta("kind", "") == "prts":
+			var mails := game.base.mail_count()
+			var label := "PRTS %d" % mails if mails > 0 else "PRTS"
+			if (b as Button).text != label: (b as Button).text = label
 	if visible: queue_redraw()
 
 func _text(at: Vector2, text: String, size: int, color: Color, font: Font = null) -> float:
@@ -54,38 +61,67 @@ func _text(at: Vector2, text: String, size: int, color: Color, font: Font = null
 	return f.get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 
 func _draw() -> void:
-	# Top bar.
-	for i in range(8):
-		draw_rect(Rect2(0, i * 7, 1280, 7), Color(0, 0, 0, 0.85 - i * 0.06))
-	if game.deck == 2:
-		_text(Vector2(18, 22), "RHODES ISLAND · DECK 2", 10, AK.MUTE, AK.en())
-		_text(Vector2(18, 46), "罗德岛 · 第二层", 20, AK.FG)
-	else:
-		_text(Vector2(18, 22), "RHODES ISLAND · BRIDGE HALL", 10, AK.MUTE, AK.en())
-		_text(Vector2(18, 46), "罗德岛 · 舰桥大厅", 20, AK.FG)
+	# One look per kind for this frame: the list's width and its rows share it.
+	_memo.clear()
+	_memo_on = true
+	_draw_hud()
+	_memo_on = false
+	_memo.clear()
+
+## Station statuses and counts already worked out during this _draw.
+var _memo := {}
+var _memo_on := false
+
+func _draw_hud() -> void:
+	# The place's name on a plate of its own (用户 2026-11-04: 黑蒙版改为只在有内容的
+	# 地方有), fading out past its right end; no bar across the screen.
+	var en := "RHODES ISLAND · DECK 2" if game.deck == 2 else "RHODES ISLAND · BRIDGE HALL"
+	var cn := "罗德岛 · 第二层" if game.deck == 2 else "罗德岛 · 舰桥大厅"
+	var wide := maxf(AK.en().get_string_size(en, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x, AK.cn().get_string_size(I18n.t(cn), HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x) + 32
+	draw_rect(Rect2(0, 0, wide, 58), Color(0, 0, 0, 0.7))
+	for i in range(8): draw_rect(Rect2(wide + i * 4, 0, 4, 58), Color(0, 0, 0, 0.7 * (1.0 - (i + 1) / 9.0)))
+	_text(Vector2(18, 22), en, 10, AK.MUTE, AK.en())
+	_text(Vector2(18, 46), cn, 20, AK.FG)
 	_draw_stations()
 	# PRTS log.
 	# A line too long for the box goes on under itself (用户 2026-10-24: 超出的文字起第二行).
 	var lines: Array = game.prts_log.slice(maxi(0, game.prts_log.size() - 4))
-	if not lines.is_empty():
+	# Up for LOG_SHOW seconds after PRTS speaks, fading over its last LOG_FADE.
+	var since := (Time.get_ticks_msec() - game.prts_said_at) / 1000.0
+	var fade := clampf((LOG_SHOW - since) / LOG_FADE, 0.0, 1.0)
+	if not lines.is_empty() and fade > 0.0:
 		var stamp := AK.en().get_string_size("00:00", HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
 		var rows: Array = []
 		for line in lines:
 			var parts := wrap_text(I18n.t(str(line[1])), 12, LOG_WIDTH - 26 - stamp)
 			for k in range(parts.size()): rows.append([str(line[0]).left(5) if k == 0 else "", parts[k]])
 		var box := Rect2(14, 706 - 22 - rows.size() * 18, LOG_WIDTH, 22 + rows.size() * 18)
-		draw_rect(box, Color(0, 0, 0, 0.7))
+		draw_rect(box, Color(0, 0, 0, 0.7 * fade))
 		for i in range(rows.size()):
 			var ly := box.position.y + 24 + i * 18
-			if not str(rows[i][0]).is_empty(): _text(Vector2(box.position.x + 10, ly), rows[i][0], 10, AK.DIM, AK.en())
-			_text(Vector2(box.position.x + 16 + stamp, ly), rows[i][1], 12, AK.FG)
+			if not str(rows[i][0]).is_empty(): _text(Vector2(box.position.x + 10, ly), rows[i][0], 10, Color(AK.DIM, AK.DIM.a * fade), AK.en())
+			_text(Vector2(box.position.x + 16 + stamp, ly), rows[i][1], 12, Color(AK.FG, AK.FG.a * fade))
 
 const LOG_WIDTH := 380.0
+const LOG_SHOW := 6.0
+const LOG_FADE := 1.0
 
 ## `text` cut into lines no wider than `room` at `size`: at a space when the
 ## line has one (English), else at any character (Chinese).
 static func wrap_text(text: String, size: int, room: float) -> Array[String]:
 	var font := AK.cn()
+	var key := [text, size, room, font.get_instance_id()]
+	if _wrapped.has(key): return _wrapped[key]
+	var out := _wrap(font, text, size, room)
+	if _wrapped.size() > WRAP_CACHE_LIMIT: _wrapped.clear()
+	_wrapped[key] = out
+	return out
+
+## wrap_text's rows by text, size, room and font (the text is already in its language).
+static var _wrapped := {}
+const WRAP_CACHE_LIMIT := 256
+
+static func _wrap(font: Font, text: String, size: int, room: float) -> Array[String]:
 	var out: Array[String] = []
 	var line := ""
 	for c in text:
@@ -137,6 +173,12 @@ func _draw_stations() -> void:
 		y += 39
 
 func _status(kind: String) -> String:
+	if not _memo_on: return _status_now(kind)
+	var key := "status:" + kind
+	if not _memo.has(key): _memo[key] = _status_now(kind)
+	return _memo[key]
+
+func _status_now(kind: String) -> String:
 	var base: BaseState = game.base
 	match kind:
 		"contracts": return "外勤合同"
@@ -168,7 +210,7 @@ func _status(kind: String) -> String:
 			return "研究中 %d · 课题 %d" % [running, game.research.projects().size()]
 		"construction":
 			if not game.base.hub_built(): return "未建成"
-			var ready := game.construction_ready()
+			var ready := _construction_ready()
 			return "可升级 %d" % ready if ready > 0 else "设施 · 扩建"
 		"farm":
 			if game.base.facility_level("farm") <= 0: return "未建成"
@@ -186,11 +228,21 @@ func _claimable(kind: String) -> bool:
 		"report": return game.base.report_unread
 		"exchange": return not game.market.flash.is_empty()
 		"personnel": return RecruitCatalog.RECRUITS.keys().any(func(id): return game.base.recruit_ready(id))
-		"construction": return game.construction_ready() > 0
+		"construction": return _construction_ready() > 0
 		"farm": return game.provisions.ripe_count() > 0
 	return false
 
+func _construction_ready() -> int:
+	if not _memo_on: return game.construction_ready()
+	if not _memo.has("construction_ready"): _memo["construction_ready"] = game.construction_ready()
+	return _memo["construction_ready"]
+
 func _ready_orders() -> int:
+	if not _memo_on: return _ready_orders_now()
+	if not _memo.has("ready_orders"): _memo["ready_orders"] = _ready_orders_now()
+	return _memo["ready_orders"]
+
+func _ready_orders_now() -> int:
 	var board: OrderBoard = game.base.orders
 	var deliverable := game.deliverable_items()
 	var n := 0

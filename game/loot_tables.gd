@@ -8,7 +8,9 @@ extends RefCounted
 ## {"gold": int}; the caller puts them on the ground.
 ##
 ## ctx: {"region", "depth", "reward" (route reward), "rng", "pity" (Dictionary,
-## the cross-contract bad-luck counters kept in BaseState)}.
+## the cross-contract bad-luck counters kept in BaseState)}, and optionally
+## "boss", "set_seen", "drop_pct", "field" (the exchange's loot leans) and
+## "exclusive_chance" / "set_chance" overrides.
 
 # --- Enemy-specific materials (§2.2): [id, min, max] -------------------------
 const ENEMY_MATERIALS := {
@@ -34,7 +36,8 @@ const RARE_MATERIAL_PITY_CAP := 0.15
 ## one drops something 37% of the time (was 88%), a guard 62% (was 100%), an
 ## elite rolls twice (was three times): roughly 60% of the old loot per floor.
 ## 用户 2026-10-24: 进一步压低材料掉率 — the material pick a third lower, into
-## nothing (was 54 / 58 / 47).
+## nothing (was 54 / 58 / 47): a normal one now drops something 29% of the
+## time, a guard 51%.
 const ENEMY_SOURCE := {
 	"normal": {"picks": 1, "weights": [168.0, 36.0, 18.0, 16.0]},
 	"guard": {"picks": 1, "weights": [78.0, 40.0, 20.0, 22.0]},
@@ -55,9 +58,9 @@ const POTION_DROP := {"normal": 0.02, "guard": 0.035, "elite": 0.1}
 
 static func source_of(elite: bool, guard: bool) -> String:
 	return "elite" if elite else ("guard" if guard else "normal")
-## Equipment category weights for enemy drops: weapon / armour / trinket.
 ## Which slot an enemy's gear is: GearSlots.DROP_WEIGHTS (装备部位拆分与数值案 §6);
 ## the old weapon : armour : trinket = 6 : 1 : 1 is gone with the three slots.
+## The gold pick's [min, max] per source (×1.5 in 萨米).
 const ENEMY_GOLD := {"normal": [8, 14], "guard": [8, 14], "elite": [25, 40]}
 
 # --- Equipment quality: grey / green / blue / purple / orange / red -----------
@@ -102,6 +105,8 @@ const POI := {
 	"tool_box": {"name": "工具箱", "color": Color("5f7f5a"), "region": {"mine": 1.0, "city": 1.0, "snow": 2.0, "siracusa": 2.5}, "base": false},
 	"electronics": {"name": "电子柜", "color": Color("4a8a8a"), "region": {"mine": 1.0, "city": 2.0, "snow": 0.5, "siracusa": 0.5}, "base": true},
 	"medical": {"name": "医疗柜", "color": Color("c8d4dc"), "region": {"mine": 0.5, "city": 1.0, "snow": 1.0, "siracusa": 1.0}, "base": true},
+	# 整理箱与收藏品策划案 v0.2 §3 (v0.1 §4.3).
+	"collector_box": {"name": "收藏品箱", "color": Color("a8875a"), "region": {"mine": 1.0, "city": 1.5, "snow": 1.0, "siracusa": 2.0}, "base": false},
 }
 const SPECIAL_FROM_BOX := 0.03
 const SPECIAL_FROM_VAULT := 0.15
@@ -234,8 +239,8 @@ static func roll_quality(table: String, rare_bonus: float, rng: RandomNumberGene
 	# floor 30, steep around 35–60, flat from 70.
 	return _pick_weighted(_quality_weights(table, rare_bonus, depth), rng)
 
-## Affix lines per quality, grey to red (§2.2), and the delivery value's
-## multiplier (white ×1 / blue ×2 / gold ×3 before the ladder).
+## Affix lines per quality, grey to red (§2.2), and the item value's
+## multiplier per quality.
 const AFFIX_LINES := [0, 1, 1, 2, 2, 3]
 const VALUE_MULT := [1.0, 1.5, 2.0, 3.0, 4.5, 7.0]
 
@@ -357,16 +362,26 @@ static func _enemy_material(enemy_type: String, ctx: Dictionary) -> Item:
 	if tier == "rare": pity.rare_material = 0.0
 	else: pity.rare_material = minf(RARE_MATERIAL_PITY_CAP, float(pity.get("rare_material", 0.0)) + RARE_MATERIAL_PITY_STEP)
 	var options: Array = table[tier]
-	var pick: Array = options[ctx.rng.randi_range(0, options.size() - 1)]
+	var pick: Array = options[ctx.rng.randi_range(0, options.size() - 1)] if not _field_leans(ctx) else options[_pick_weighted(options.map(func(o): return field_loot(ctx, FactionCatalog.material_category(str(o[0])))), ctx.rng)]
 	return MaterialCatalog.create(pick[0], _range(ctx.rng, int(pick[1]), int(pick[2])), ctx.region)
+
+## The exchange news on drops (地区货币策划案 §2, ctx.field): loot:<category>
+## leans which material comes and, for weapons, armor and trinkets, how often gear does.
+static func field_loot(ctx: Dictionary, category: String) -> float:
+	return float(ctx.get("field", {}).get("loot:" + category, 1.0))
+
+static func _field_leans(ctx: Dictionary) -> bool:
+	for key in ctx.get("field", {}):
+		if str(key).begins_with("loot:"): return true
+	return false
 
 # --- Growth materials (精英化与加点策划案 §3.2): chips, skill summaries, module data.
 ## [material, chance] per source; bosses and outpost leaders use "boss".
 const GROWTH_DROPS := {
 	"normal": [["技巧概要·卷1", 0.03]],
-	"guard": [["技巧概要·卷1", 0.06], ["近卫芯片", 0.03]],
-	"elite": [["近卫芯片", 0.12], ["近卫芯片组", 0.03], ["技巧概要·卷2", 0.10]],
-	"boss": [["近卫芯片组", 0.35], ["模组数据块", 0.15], ["技巧概要·卷3", 0.30], ["近卫芯片", 0.50]],
+	"guard": [["技巧概要·卷1", 0.06], ["芯片", 0.03]],
+	"elite": [["芯片", 0.12], ["芯片组", 0.03], ["技巧概要·卷2", 0.10]],
+	"boss": [["芯片组", 0.35], ["模组数据块", 0.15], ["技巧概要·卷3", 0.30], ["芯片", 0.50]],
 }
 
 ## Everything one enemy drops (§3). ctx may carry "boss" (outpost leader or
@@ -420,7 +435,7 @@ static func _enemy_drops_rolled(enemy_type: String, elite: bool, guard: bool, ct
 		weights[1] = float(weights[1]) + float(weights[3])
 		weights[3] = 0.0
 	# 装备掉率 (底材固有属性表 v1.0) raises the gear pick's weight only.
-	weights[3] = float(weights[3]) * (1.0 + float(ctx.get("drop_pct", 0.0)))
+	weights[3] = float(weights[3]) * (1.0 + float(ctx.get("drop_pct", 0.0))) * maxf(field_loot(ctx, "weapon"), maxf(field_loot(ctx, "armor"), field_loot(ctx, "trinket")))
 	for pick in range(int(table.picks)):
 		match _pick_weighted(weights, rng):
 			1: out.append({"item": _enemy_material(enemy_type, ctx)})
@@ -488,6 +503,10 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			if rng.randf() < 0.35: out.append(_mat("软管", 1, 2, ctx))
 			if _rare_find(ctx, 0.12): out.append(_mat("密封泡沫", 1, 1, ctx))
 			if _rare_find(ctx, 0.06): out.append(_mat("碳素组" if rng.randf() < 0.5 else "进阶加固建材", 1, 1, ctx))
+			# 用户 2026-11-04: 升级用的多的材料不要做地区专属 — the base's upgrade
+			# fabrics and fuel come from piles in every region.
+			if rng.randf() < 0.35: out.append(_mat("帆布", 1, 2, ctx))
+			if _rare_find(ctx, 0.06): out.append(_mat("燃料罐", 1, 1, ctx))
 		"ore_vein":
 			out.append(_mat("源岩", 3, 6, ctx))
 			out.append(_mat("固源岩", 1, 2, ctx))
@@ -536,6 +555,10 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 				if rng.randf() < 0.15: out.append(_mat("扳手", 1, 1, ctx))
 				if _rare_find(ctx, 0.03): out.append(_mat("工具套装", 1, 1, ctx))
 				if rng.randf() < 0.25: out.append(_mat(["碳", "基础加固建材", "家具零件"][rng.randi_range(0, 2)], 1, 2, ctx))
+				if rng.randf() < 0.25: out.append(_mat("帆布", 1, 2, ctx))
+				if _rare_find(ctx, 0.05): out.append(_mat("进阶加固建材", 1, 1, ctx))
+				if rng.randf() < 0.20: out.append(_mat("蓄电池", 1, 1, ctx))
+				if rng.randf() < 0.08: out.append(_mat("车用蓄电池", 1, 1, ctx))
 			if _rare(ctx, SPECIAL_FROM_BOX, DEEP_NAMED): out.append({"item": _special_of(category, ctx)})
 		"electronics":
 			out.append(_mat("电线", 2, 5, ctx))
@@ -543,12 +566,13 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			if _rare_find(ctx, 0.06): out.append(_mat("技巧概要·卷1", 1, 1, ctx))
 			out.append(_mat("继电器" if rng.randf() < 0.5 else "电路板", 1, 1, ctx))
 			if rng.randf() < 0.40: out.append(_mat("电源线", 1, 1, ctx))
+			if rng.randf() < 0.40: out.append(_mat("灯泡", 1, 1, ctx))
 			if rng.randf() < 0.30: out.append(_mat("电路板", 1, 1, ctx))
 			if _rare_find(ctx, 0.06): out.append(_mat("微型电机", 1, 1, ctx))
 		"medical":
 			out.append(_mat("医用耗材包", 1, 2, ctx))
 			out.append(_mat("胶带", 1, 3, ctx))
-			if rng.randf() < 0.30: out.append(_mat("帆布", 1, 1, ctx))
+			if rng.randf() < 0.45: out.append(_mat("帆布", 1, 2, ctx))
 			if rng.randf() < 0.25: out.append(_mat("糖", 1, 2, ctx))
 			# 用户 2026-10-24: 医疗柜能出任意药剂，20% 一瓶、5% 两瓶，按价值分布 —
 			# of any kind there is, each as likely as it is cheap.
@@ -565,10 +589,28 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			out.append(_mat("碳素组", 1, 2, ctx))
 			out.append(_mat("赤金", 1, 2, ctx))
 			if _rare_find(ctx, 0.10): out.append(_mat("源石碎片", 1, 1, ctx))
+	# 收藏品 (整理箱与收藏品策划案 v0.2 §3): the 收藏品箱 always, 保险柜 and vault
+	# chests often, any other point now and then.
+	var region := str(ctx.get("region", ""))
+	var depth := int(ctx.get("depth", 1))
+	match kind:
+		"collector_box":
+			out.append({"gold": _range(rng, 10, 25)})
+			for n in range(2 if rng.randf() < Collectibles.COLLECTOR_SECOND else 1): _add_collectible(out, region, depth, rng)
+		"safe":
+			if rng.randf() < Collectibles.SAFE_CHANCE: _add_collectible(out, region, depth, rng)
+		"vault_weapon", "vault_gear", "vault_base":
+			if rng.randf() < Collectibles.VAULT_CHANCE: _add_collectible(out, region, depth, rng)
+		_:
+			if rng.randf() < minf(BOX_RARE_CAP, deeper(ctx, Collectibles.OTHER_POI_CHANCE, DEEP_BOX_RARE)): _add_collectible(out, region, depth, rng)
 	# 地图特色's field supplies (地图特色策划案 §3.3, §4.5, §5.4), in their own region.
 	for entry in FeatureCatalog.SUPPLY_DROPS.get(kind, []):
 		if ctx.region == entry[2] and rng.randf() < float(entry[1]): out.append({"item": FeatureCatalog.create_supply(entry[0])})
 	return out
+
+static func _add_collectible(out: Array, region: String, depth: int, rng: RandomNumberGenerator) -> void:
+	var found := Collectibles.roll(region, depth, rng)
+	if found != null: out.append({"item": found})
 
 ## A medical cabinet's flasks: none / one / two.
 const MEDICAL_FLASKS := [75.0, 20.0, 5.0]

@@ -2,9 +2,9 @@ class_name Player
 extends CharacterBody3D
 
 ## Ported from the player-facing half of DownfallPrototype (movement toward a
-## click-set target, dash, weapons, hp/stamina, gravity). GameManager owns
+## click-set target, dash, weapons, hp/stamina, gravity). GmPointer owns
 ## input interpretation (raycasting the pointer against enemies/ground) and
-## calls set_move_target()/attack() here — see game/game_manager.gd.
+## calls set_move_target()/lock_target() here — see game/gm_pointer.gd.
 ##
 ## Stats, the damage pipeline and the relic effects follow
 ## 局内构筑与数值策划案_v1_0.md: §3 stat model, §4 damage order, §5 Lappland,
@@ -30,7 +30,6 @@ const STAMINA_REGEN := 8.0
 ## Self-regeneration ticks every second like LoL instead of a 5 s lump (用户
 ## 2026-10-14: 改为lol那样每秒回血；战斗中不回), still only out of combat.
 const HP_REGEN_INTERVAL := 1.0
-## The life 林栖的's share was written against (the old base, 2400).
 const BLADE_RANGE := 3.4
 ## 0.7 s between swings (用户 2026-10-03: 0.42 was too fast; ATK left at 600).
 const BASE_BLADE_COOLDOWN := 0.7
@@ -123,7 +122,7 @@ var gold_gain_multiplier: float = 1.0
 ## Operator experience and the gear share of drops (底材固有属性表 v1.0).
 var exp_gain_multiplier: float = 1.0
 var drop_rate_bonus: float = 0.0
-## Flask healing from the old capacity stat (relics, affixes): ±20% a point.
+## Flask healing: the operator's own trait (OperatorKit.potion_factor) and 科研's heal_pct.
 var potion_heal_multiplier: float = 1.0
 ## 科研部's combat nodes (Research.combat_sheet; 科研树状化策划案 §2): their own
 ## zone, applied after gear, points and relics. hp / atk / def are shares of
@@ -559,11 +558,7 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_vec.z * speed
 	move_and_slide()
 
-	var regen := (STAMINA_REGEN + float(stats.get("stamina_regen", 0.0))) * (1.0 + float(stats.get("stamina_regen_pct", 0.0)) + hex("stamina"))
-	if equipped_effect("frozen_relic"):
-		regen *= 0.6
-	regen *= FeatureCatalog.cold_stamina(cold)
-	stamina = minf(100.0, stamina + regen * delta)
+	stamina = minf(100.0, stamina + stamina_regen_rate() * delta)
 	if move_vec.length_squared() > 0.01:
 		look_at(global_position + move_vec, Vector3.UP)
 
@@ -664,8 +659,7 @@ func _tick_control(delta: float) -> bool:
 	if _control_velocity.length_squared() > 0.0001: move_and_collide(_control_velocity * delta)
 	velocity = Vector3.ZERO
 	if is_instance_valid(_stun_mark) and _stun_mark.visible: _stun_mark.rotation.z += delta * 4.0
-	var regen := (STAMINA_REGEN + float(stats.get("stamina_regen", 0.0))) * (1.0 + float(stats.get("stamina_regen_pct", 0.0)) + hex("stamina"))
-	stamina = minf(100.0, stamina + regen * delta)
+	stamina = minf(100.0, stamina + _stamina_base_regen() * delta)
 	if control_timer <= 0.0:
 		control_kind = ""
 		_control_velocity = Vector3.ZERO
@@ -678,6 +672,18 @@ func _tick_control(delta: float) -> bool:
 
 func dash_cost() -> float:
 	return maxf(0.0, (DASH_STAMINA_COST + float(stats.get("dash_cost", 0.0))) * maxf(0.0, 1.0 + float(stats.get("dash_cost_pct", 0.0))))
+
+func dash_cooldown_total() -> float:
+	return maxf(0.15, DASH_COOLDOWN * (1.0 + float(stats.get("dash_cd_pct", 0.0))) * (families.dash_cd_mult() if families != null else 1.0))
+
+## Stamina a second while free to move: the frozen relic and 寒冷 cut it.
+func stamina_regen_rate() -> float:
+	var regen := _stamina_base_regen()
+	if equipped_effect("frozen_relic"): regen *= 0.6
+	return regen * FeatureCatalog.cold_stamina(cold)
+
+func _stamina_base_regen() -> float:
+	return (STAMINA_REGEN + float(stats.get("stamina_regen", 0.0))) * (1.0 + float(stats.get("stamina_regen_pct", 0.0)) + hex("stamina"))
 
 func can_dash() -> bool:
 	return stamina >= dash_cost() and _dash_cooldown <= 0.0 and control_timer <= 0.0
@@ -707,7 +713,7 @@ func _start_dash(direction: Vector3) -> void:
 	interrupt_actions()
 	if families == null or not families.free_dash(): stamina -= dash_cost()
 	if elements != null: elements.on_dash()
-	_dash_cooldown = maxf(0.15, DASH_COOLDOWN * (1.0 + float(stats.get("dash_cd_pct", 0.0))) * (families.dash_cd_mult() if families != null else 1.0))
+	_dash_cooldown = dash_cooldown_total()
 	invulnerable = true
 	dash_remaining = DASH_INVULN_DURATION
 	_sprite.start_dash(direction)
@@ -753,7 +759,8 @@ func nearby_enemy_count(radius: float) -> int:
 
 func _tick_combat(delta: float) -> void:
 	combo_idle += delta
-	if combo_idle >= maxf(COMBO_WINDOW, current_cooldown() + 0.5): combo_step = 0
+	# Only a combo under way has a step to drop (current_cooldown has no side effects).
+	if combo_step != 0 and combo_idle >= COMBO_WINDOW and combo_idle >= current_cooldown() + 0.5: combo_step = 0
 	if sword_charge > 0 and sword_charge < wave_hits_needed():
 		charge_idle += delta
 		if charge_idle >= 4.0: clear_charge()
@@ -764,7 +771,7 @@ func _tick_combat(delta: float) -> void:
 ## Whether Lappland has a sword wave to charge (weapon affix). Amiya has no
 ## charge: her 绝影 is an active skill on a cooldown.
 ## 剑气 is hers (用户 2026-10-04, 精英化案 §8.1): no affix needed. The old 剑气
-## affix is now 剑气强化 (+25% wave damage), read in _recompute_stats.
+## affix is now 技能强化 (skill damage on the weapon), read in _recompute_stats.
 func has_sword_wave() -> bool:
 	return not is_amiya() and (kit == null or kit is LapplandKit)
 
@@ -824,10 +831,10 @@ func attack(target: Enemy) -> void:
 	if is_instance_valid(game) and (target.game != game or not game.line_of_sight(global_position, target.global_position)): return
 	attack_direction(_get_attack_direction(target), target)
 
-## Ground clicks swing at the air (用户 2026-10-07): a melee swing still lands
-## on the nearest enemy within reach in front of her, or releases a stored
-## wave; one that reaches nobody is a whiff and never charges. A ranged weapon
-## cannot swing at nothing — it needs a target.
+## One swing toward `direction`: attack() for a locked enemy, _follow_wall()
+## for a vault's 暗墙 (ground clicks no longer swing). Without a target a melee
+## swing lands on the nearest enemy in the fan, or releases a stored wave; one
+## that reaches nobody is a whiff and never charges. A ranged weapon needs a target.
 func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	if _attack_cooldown > 0 or hitstop_remaining > 0 or dash_remaining > 0 or shadow_active or control_timer > 0.0: return
 	if kit != null and kit.busy(): return
@@ -1050,7 +1057,6 @@ func _deal(target: Enemy, raw: float, kind: String, crit: bool, pierce: float = 
 	if direct and elements != null and kind != "true": elements.on_hit(target, whole, crit)
 	return dealt
 
-## Called by a sword wave for each enemy it passes through.
 ## Lifesteal off `dealt`; 潮涌 keeps what spills over full life as a shield.
 func _lifesteal(dealt: float) -> void:
 	var amount := dealt * lifesteal() * (families.lifesteal_mult() if families != null else 1.0)
@@ -1058,6 +1064,7 @@ func _lifesteal(dealt: float) -> void:
 	if families != null: families.on_lifesteal(amount, maxf(0.0, max_hp - hp))
 	heal(amount)
 
+## Called by a sword wave for each enemy it passes through.
 func on_wave_hit(enemy: Enemy, dealt: float, wave: SwordWave) -> void:
 	if dealt > 0.0: _lifesteal(dealt)
 	if not is_instance_valid(enemy): return
@@ -1139,7 +1146,7 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 		return
 	if is_instance_valid(game):
 		game.sound.play("hurt")
-		DamageNumber.spawn(game, global_position, str(roundi(amount)), "hurt")
+		DamageNumber.spawn(game, global_position, str(roundi(amount)), kind)
 	var before_ratio := hp_ratio()
 	hp -= amount
 	if elements != null: elements.after_hurt(raw_hit, attacker)
@@ -1151,7 +1158,7 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 
 ## One tick of a damage over time on her (PlayerElements.tick): already cut
 ## by her resistance; no dodge, no block, a shield takes it first.
-func take_dot(amount: float, _kind: String) -> void:
+func take_dot(amount: float, kind: String) -> void:
 	if invulnerable or invuln_timer > 0.0 or amount <= 0.0: return
 	if shield > 0.0:
 		var absorbed := minf(shield, amount)
@@ -1160,11 +1167,11 @@ func take_dot(amount: float, _kind: String) -> void:
 	if amount <= 0.0: return
 	if hp - amount <= 0.0 and _survive_lethal(): return
 	hp -= amount
-	if is_instance_valid(game): DamageNumber.spawn(game, global_position, str(roundi(amount)), "hurt")
+	if is_instance_valid(game): DamageNumber.spawn(game, global_position, str(roundi(amount)), kind)
 	stats_changed.emit()
 
-## 复还之手 (once a route map, back to full: 藏品数值修订案 §2) then "时光之末"
-## (once a contract, 1 life).
+## A potion's emergency save, the kit's own, then 复还之手 (once a route map,
+## back to full: 藏品数值修订案 §2), then "时光之末" (once a contract, 1 life).
 func _survive_lethal() -> bool:
 	if is_instance_valid(game) and game.potion_fx.emergency_save(self): return true
 	if kit != null and kit.survive_lethal(): return true
@@ -1383,7 +1390,7 @@ func _recompute_stats() -> void:
 	gold_gain_multiplier = 1.0 + float(sheet.gold_pct)
 	exp_gain_multiplier = 1.0 + float(sheet.exp_pct)
 	drop_rate_bonus = float(sheet.drop_pct)
-	# Flasks heal their fixed amount; only an operator's own trait changes it.
+	# Flasks heal their fixed amount; only an operator's own trait and 科研 change it.
 	potion_heal_multiplier = (kit.potion_factor() if kit != null else 1.0) * (1.0 + float(research_sheet.get("heal_pct", 0.0)))
 	hp = minf(hp, max_hp)
 	stats_changed.emit()
@@ -1403,7 +1410,8 @@ func has_build(id: String) -> bool:
 	return is_instance_valid(game) and game.builds.has(id)
 
 func equipped_effect(effect: String) -> bool:
-	for item in equipped.values():
+	for slot in equipped:
+		var item = equipped[slot]
 		if item != null and item.effect == effect: return true
 	return false
 
@@ -1423,12 +1431,12 @@ func life_cap_ratio() -> float:
 func full_hp() -> bool:
 	return hp >= life_cap() - 0.5
 
-## 攻击力 right now: (base + flat) × (1 + every +X%, static and conditional,
-## added together the way 明日方舟 stacks one layer).
 ## 科研部's share of a final stat ("hp", "atk", "def"): 1 + its total.
 func research_mult(key: String) -> float:
 	return 1.0 + float(research_sheet.get(key, 0.0))
 
+## 攻击力 right now: (base + flat) × (1 + every +X%, static and conditional,
+## added together the way 明日方舟 stacks one layer) × 科研.
 func attack_power() -> float:
 	return (CombatStats.BASE.atk + float(stats.get("atk", 0.0))) * maxf(0.1, 1.0 + float(stats.get("atk_pct", 0.0)) + power_bonus()) * research_mult("atk")
 

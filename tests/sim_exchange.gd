@@ -66,7 +66,7 @@ func _day(who: String, seed_value: int) -> float:
 					var now := market.price(m)
 					var dir := int(seen.dir)
 					var margin := 15000.0 if Exchange.cfd_currency(m) == "lmd" else 15.0
-					if ex.open_cfd(m, dir, 3, margin):
+					if ex.open_cfd(m, dir, Exchange.max_leverage(m, ex.rank(Exchange.cfd_issuer(m))), margin):
 						var c: Dictionary = ex.cfds[-1]
 						ex.set_cfd_limits(c.id, now * (1.0 + 0.12 * dir), now * (1.0 - 0.06 * dir))
 						c["sim_opened"] = market.t
@@ -75,11 +75,11 @@ func _day(who: String, seed_value: int) -> float:
 					if market.t - int(c.get("sim_opened", market.t)) > 7200: ex.close_cfd(c.id)
 			"idle":
 				if ex.cfds.is_empty() and opened < 0:
-					ex.open_cfd("fx", 1 if market.rng.randf() < 0.5 else -1, 3, 15000.0)
+					ex.open_cfd("fx", 1 if market.rng.randf() < 0.5 else -1, Exchange.max_leverage("fx", ex.rank("karlan")), 15000.0)
 					opened = market.t
 			"random":
 				if ex.cfds.is_empty() and posmod(market.t - t0, 1800) < 2:
-					ex.open_cfd("fx", 1 if market.rng.randf() < 0.5 else -1, 3, 15000.0)
+					ex.open_cfd("fx", 1 if market.rng.randf() < 0.5 else -1, Exchange.max_leverage("fx", ex.rank("karlan")), 15000.0)
 					opened = market.t
 				if not ex.cfds.is_empty() and market.t - opened >= 1800: ex.close_cfd(ex.cfds[-1].id)
 		last_price = p

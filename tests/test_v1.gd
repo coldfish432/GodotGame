@@ -35,12 +35,12 @@ func run() -> void:
 	await step(8)
 	# GameManager randomizes its rng in _ready: seed it (and the global one) so
 	# build offers, wanderers and rolls are the same every run.
-	game.rng.seed = 1729
+	game.seed_rng(1729)
 	seed(1729)
 	check("boot enters the walkable base with all four contracts", game.in_base and game.base_walk_active() and game.base_map.visible and FieldCatalog.REGIONS.size() == 4)
 	var armor := plain_exclusive("city")
 	var weapon := Item.create("投保测试武器", Item.Category.WEAPON, 2, 1, 3)
-	game.stash.append_array([armor, weapon])
+	game.base.shelf.append_array([armor, weapon])
 	check("stash can supply next contract", game.bring_item(armor) and game.bring_item(weapon))
 	check("base equipment changes actual stats", game.equip_from(armor, game.inventory) and game.player.max_hp > 10 and game.player.move_speed < 5)
 	game.gold = 20000
@@ -97,7 +97,7 @@ func run() -> void:
 	# The fixed extraction is the camp after floor 10 (撤离与营地修订案 §1).
 	game.floor_number = 10
 	await game.advance(0)
-	check("the end of floor 10 leads into camp 10|11", game.in_camp and game.modal == "camp" and game.floor_number == 10 and not game.transitioning)
+	check("the end of floor 10 leads into camp 10|11, a map with 可露希尔 and the extraction", game.in_camp and game.modal.is_empty() and game.encounter == "closure" and game.is_extraction_floor() and game.floor_number == 10 and not game.transitioning)
 	game.camp_extract()
 	await step(2)
 	# 仓库修订 (用户 2026-10-23): everything brought out stays in her bags, finds
@@ -150,7 +150,7 @@ func run() -> void:
 		insured.carried_in = true
 		game.inventory.try_add(insured)
 		insured_items.append(insured)
-	game.rng.seed = 619
+	game.seed_rng(619)
 	BaseState.clock_offset = 0
 	var queued_at := BaseState.now()
 	game.settle(false)

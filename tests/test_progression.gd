@@ -44,15 +44,15 @@ func rules() -> void:
 	var base := BaseState.new()
 	# 仓库修订 (用户 2026-10-23): the warehouse is one count of cells for every
 	# kind of item, raised with 仓储部 alone; no racks to build.
-	check("Lv1: 60 cells, whatever the kind", base.capacity() == 60 and base.capacity(Item.Category.WEAPON) == 60 and base.capacity(Item.Category.MATERIAL) == 60 and base.stack_mult() == 1)
+	check("Lv1: 10 × 12 = 120 cells, whatever the kind", base.capacity() == 120 and base.capacity(Item.Category.WEAPON) == 120 and base.capacity(Item.Category.MATERIAL) == 120 and base.stack_mult() == 1)
 	var wh_price := int(BaseCatalog.facility_step("warehouse", 2).price)
 	check("upgrading 仓储部 is refused without the gold", base.facility_refusal("warehouse", wh_price - 1) == "龙门币不足" and base.facility_refusal("warehouse", wh_price).is_empty())
 	check("raising it opens the next level", base.raise_facility("warehouse") == 2 and base.facility_level("warehouse") == 2)
-	check("Lv2: 120 cells, stacks ×2", base.capacity() == 120 and base.stack_mult() == 2)
+	check("Lv2: 200 cells, stacks ×2", base.capacity() == 200 and base.stack_mult() == 2)
 	base.set_facility("warehouse", 3)
-	check("Lv3: 220 cells, stacks ×3", base.capacity() == 220 and base.stack_mult() == 3)
+	check("Lv3: 300 cells, stacks ×3", base.capacity() == 300 and base.stack_mult() == 3)
 	base.set_facility("warehouse", 4)
-	check("Lv4: 360 cells, stacks ×5", base.capacity() == 360 and base.stack_mult() == 5)
+	check("Lv4: 500 cells, stacks ×5", base.capacity() == 500 and base.stack_mult() == 5)
 
 	# One item or one stack a cell; stacks merge up to max_stack × stack_mult().
 	var s := BaseState.new()
@@ -66,13 +66,13 @@ func rules() -> void:
 	var piece := s.bag_piece(bolts)
 	check("bringing it to the pack splits off one bag-sized stack", piece != bolts and piece.quantity == limit and bolts.quantity == limit and s.shelf_count() == 1)
 	# The piece went to the pack, so the cell has room for one bag stack again.
-	for i in range(s.capacity() - s.shelf_count()): s.shelf.append(item("库存%d" % i, Item.Category.WEAPON))
+	for i in range(s.capacity() - s.shelf_count()): s.receive(item("库存%d" % i, Item.Category.WEAPON))
 	var blade := item("新刀", Item.Category.WEAPON)
 	check("a full warehouse refuses what she stores", s.store_target(blade) == "" and s.store(blade) == "" and s.location_of(blade) == "")
 	var fits := MaterialCatalog.create("螺栓", 1)
 	check("…unless a stack still takes it", s.store(fits) == "shelf" and s.shelf_count() == s.capacity())
 	var arrival := item("送回的甲", Item.Category.ARMOR)
-	check("what the base brings home goes in over capacity, never lost", s.receive(arrival) and s.location_of(arrival) == "shelf" and s.shelf_count() == s.capacity() + 1)
+	check("what the base brings home waits in the PRTS mail, never lost", s.receive(arrival) and s.mail_has(arrival) and s.shelf_count() == s.capacity())
 	check("no crates and no staging any more", not "crates" in s and not "staging" in s and s.sealed_count() == 0)
 
 	# Saves from before: crates and staging fold into the warehouse.
@@ -145,8 +145,8 @@ func through_game() -> void:
 	var up: Button = _find_meta(game.menu, "facility", "warehouse")
 	check("the warehouse's construction site offers the upgrade", up != null and not up.disabled)
 	if up != null: up.pressed.emit()
-	check("upgrading names what it opens: " + game.message, game.base.facility_level("warehouse") == 2 and "120 格" in game.message and game.gold == 10000)
-	check("Lv2: 120 cells, stacks ×2", game.base.capacity() == 120 and game.base.stack_mult() == 2)
+	check("upgrading names what it opens: " + game.message, game.base.facility_level("warehouse") == 2 and "10×20" in game.message and game.gold == 10000)
+	check("Lv2: 200 cells, stacks ×2", game.base.capacity() == 200 and game.base.stack_mult() == 2)
 	game.close_modal()
 	await step(3)
 	check("the level's racks join the reveal", reveal.built_shelves().size() == 16)
@@ -180,7 +180,7 @@ func through_game() -> void:
 	game.base = BaseState.new()
 	game.load_base()
 	await step(3)
-	check("save keeps facility levels and the racks they draw", game.base.racks == racks and game.base.facility_level("warehouse") == 4 and game.base.capacity() == 360)
+	check("save keeps facility levels and the racks they draw", game.base.racks == racks and game.base.facility_level("warehouse") == 4 and game.base.capacity() == 500)
 	check("racks from a save are shown", reveal.built_shelves().size() == 36)
 	game.save_enabled = false
 	for suffix in ["", ".bak", ".tmp"]:

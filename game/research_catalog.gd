@@ -127,7 +127,7 @@ const NODES := {
 
 ## Base conditions -> shown text (data only).
 const REQUIREMENT_NAMES := {"racks_3": "仓储部 Lv3", "drone": "仓储部 Lv4", "stayed": "医疗驻留", "camp_upgrade": "营地升级",
-	"safe_2": "安全袋扩容二", "exchange": "交易所", "roster_3": "名册 3 人", "lungmen_r5": "龙门商会 R5"}
+	"safe_2": "安全袋扩容二", "exchange": "交易所", "roster_3": "名册 3 人", "lungmen_r5": "龙门商会崇拜"}
 
 ## Timed projects (§5.7): id -> [name, size, shown effect]. Signed for
 ## PROJECT_SORTIES sorties, charged at every departure.

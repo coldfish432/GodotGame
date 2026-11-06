@@ -1,0 +1,59 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Shader" path="res://shaders/hint_experiment.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://textures/hint_experiment/greys_3x1.png" id="2_greys"]
+
+[sub_resource type="Environment" id="Environment_linear"]
+background_mode = 1
+background_color = Color(0, 0, 0, 1)
+ambient_light_source = 1
+reflected_light_source = 1
+tonemap_mode = 0
+tonemap_exposure = 1.0
+ssr_enabled = false
+ssao_enabled = false
+ssil_enabled = false
+sdfgi_enabled = false
+glow_enabled = false
+fog_enabled = false
+volumetric_fog_enabled = false
+adjustment_enabled = false
+
+[sub_resource type="ShaderMaterial" id="Material_with_hint"]
+shader = ExtResource("1_shader")
+shader_parameter/tex_color = ExtResource("2_greys")
+shader_parameter/tex_raw = ExtResource("2_greys")
+shader_parameter/use_source_color = true
+
+[sub_resource type="ShaderMaterial" id="Material_without_hint"]
+shader = ExtResource("1_shader")
+shader_parameter/tex_color = ExtResource("2_greys")
+shader_parameter/tex_raw = ExtResource("2_greys")
+shader_parameter/use_source_color = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_with"]
+size = Vector2(6, 1.5)
+
+[sub_resource type="QuadMesh" id="QuadMesh_without"]
+size = Vector2(6, 1.5)
+
+[node name="HintExperiment" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_linear")
+
+[node name="QuadWithSourceColor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("QuadMesh_with")
+material_override = SubResource("Material_with_hint")
+
+[node name="QuadWithoutSourceColor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("QuadMesh_without")
+material_override = SubResource("Material_without_hint")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+projection = 1
+size = 4.0
+current = true

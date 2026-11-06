@@ -50,7 +50,7 @@ func run() -> void:
 	await shot("event")
 	game.close_modal()
 	game.floor_number = 10
-	game._enter_camp()
+	await game._enter_camp()
 	await step(2)
 	game.leave_camp()
 	await shot("camp")

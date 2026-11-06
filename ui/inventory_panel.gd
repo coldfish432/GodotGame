@@ -1,13 +1,14 @@
 class_name InventoryPanel
 extends Control
 
-## 干员 · 背包 (界面策划案 v1.1 #2, 用户 2026-10-06): one centred, wide and short
-## window in three flat columns, after Grim Dawn / Diablo —
-##   operator, paper doll and the skill | pack, safe bag, 赤金 | attributes.
+## 背包 (B; 界面策划案 v1.1 #2, 用户 2026-10-06): one centred, wide and short
+## window in flat columns, after Grim Dawn / Diablo —
+##   operator, paper doll and the skill, the C button | pack, safe bag, 赤金 [| the open box].
+## No attribute column (用户 2026-11-02): the C window has the whole sheet.
 ## Hovering an item floats its tooltip beside it, with the worn item of the same
-## slot alongside. Drag between cells, the safe bag and the slots; dragging out
-## of the window asks before dropping. Right click equips / unequips / drinks,
-## Ctrl+click moves between pack and safe bag, Delete drops, Alt shows affix
+## slot alongside. Drag between cells, the safe bag and the slots; dragged out
+## of the window it drops at once (onto the hotbar it binds). Right click equips /
+## unequips / drinks, Ctrl+click moves between pack and safe bag, Delete / X drops, Alt shows affix
 ## ranges. No 战力, no value-at-stake line, no key hints (用户 2026-10-05/06).
 
 const CELL := 40
@@ -33,12 +34,16 @@ var _pointer_known := false
 ## The open box's grid (its search magnifier animates), and what it showed at the last rebuild.
 var _loot_grid: GridView
 var _loot_seen := -1
+## What the loot grid last showed of the search (outlines, the cell searched).
+var _loot_drawn: Array = []
 ## The latest notice (a refused equip, a full pack …) over the window: the
 ## HUD's toasts lie under it (用户 2026-10-13).
 var _notice: Label
 var _notice_seen := 0
 var _notice_left := 0.0
 static var _portrait: Texture2D
+## Tile and slot boxes by look (ItemTile.style_for, EquipSlot), shared.
+static var _tile_styles := {}
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -122,7 +127,13 @@ func _process(delta: float) -> void:
 		# A found item lands in the box's grid: show it.
 		var seen := game.looting.storage.items.size() * 1000 + int(game.looting.search_state().get("found", 0))
 		if seen != _loot_seen: _rebuild()
-		elif is_instance_valid(_loot_grid): _loot_grid.queue_redraw()
+		elif is_instance_valid(_loot_grid):
+			# The magnifier circles while a search runs; otherwise the grid
+			# redraws only when its outlines change.
+			var box := _loot_grid.box
+			var shown := [box, box.pending_rects(), box.search_cell()] if is_instance_valid(box) else []
+			if shown.is_empty() or (shown[2] as Vector2i).x >= 0 or shown != _loot_drawn: _loot_grid.queue_redraw()
+			_loot_drawn = shown
 	var detail := Input.is_key_pressed(KEY_ALT)
 	if detail != _detail:
 		_detail = detail
@@ -154,7 +165,7 @@ func _notification(what: int) -> void:
 		_drag_item = null
 		if not get_viewport().gui_is_drag_successful() and visible and not panel.get_global_rect().has_point(_last_pointer):
 			# Over the hotbar it is a binding, never a drop (用户 2026-10-24).
-			var slot := game.hotbar_drop_slot()
+			var slot := game.hotbar_drop_slot(_last_pointer)
 			if slot >= -1:
 				game.bind_to_hotbar(item, slot)
 				_rebuild()
@@ -170,19 +181,21 @@ func _rebuild() -> void:
 	body.add_child(_operator_column())
 	body.add_child(_divider())
 	body.add_child(_pack_column())
-	body.add_child(_divider())
-	# A box open beside the pack takes the attributes' place.
-	if is_instance_valid(game.looting): body.add_child(_loot_column())
-	else: body.add_child(_stats_column())
+	# A box open beside the pack gets a third column.
+	if is_instance_valid(game.looting):
+		body.add_child(_divider())
+		body.add_child(_loot_column())
 	_fit_window()
 	_refresh_tooltip()
 
-## Flat and centred (用户 2026-10-06): 1120×470 for the starting pack, wider
-## and taller only as far as a larger pack needs (icons stay 1:1 at 40 px).
+## Flat and centred (用户 2026-10-06): doll and pack, 1120×470 with a box
+## open beside them; wider and taller only as far as a larger pack needs
+## (icons stay 1:1 at 40 px).
 func _fit_window() -> void:
-	var w := 400.0 + 1 + maxf(400.0, game.inventory.width * CELL + 24) + 1 + 318
+	var looting := is_instance_valid(game.looting)
+	var w: float = 400.0 + 1 + maxf(400.0, game.inventory.width * CELL + 24) + (319.0 if looting else 0.0)
 	var h := 52.0 + 50 + game.inventory.height * CELL + 36 + game.safe_bag.height * CELL + 16
-	var size := Vector2(maxf(WINDOW.size.x, w), maxf(WINDOW.size.y, h))
+	var size := Vector2(maxf(WINDOW.size.x if looting else 0.0, w), maxf(WINDOW.size.y, h))
 	panel.size = size
 	panel.position = ((Vector2(1280, 720) - size) * 0.5).floor()
 
@@ -246,13 +259,12 @@ func _pack_column() -> Control:
 	var fill := Control.new()
 	fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(fill)
-	for i in range(GameManager.PICKUP_FILTER_NAMES.size()):
-		var b := AK.button(GameManager.PICKUP_FILTER_NAMES[i], "blue" if game.pickup_filter == i else "ghost", 11)
-		var index := i
-		b.pressed.connect(func():
-			while game.pickup_filter != index: game.cycle_pickup_filter()
-			_rebuild())
-		head.add_child(b)
+	# The main pack and its bags (用户 2026-11-02, 恐怖黎明): a tab each; drag an
+	# item onto a tab to send it to that page.
+	if game.inventory.page_count() > 1:
+		head.add_child(AK.page_tabs(game.inventory, func(_i): _rebuild(),
+			func(data, page): return data is Dictionary and data.has("item") and (data.get("from") != game.inventory or game.inventory.page_of(data.item) != page),
+			func(data, page): drop_on_page(data, page)))
 	var sort := AK.button("整理", "plain", 11)
 	sort.pressed.connect(func(): game.sort_pack(); _rebuild())
 	head.add_child(sort)
@@ -313,8 +325,9 @@ func _grid(container: ItemContainer) -> GridView:
 	var grid := GridView.new()
 	grid.panel = self
 	grid.container = container
+	grid.page = AK.shown_page(container)
 	grid.custom_minimum_size = Vector2(container.width * CELL, container.height * CELL)
-	for item in container.items:
+	for item in container.items_on(grid.page):
 		var tile := ItemTile.new()
 		tile.panel = self
 		tile.item = item
@@ -348,66 +361,6 @@ func _loot_column() -> Control:
 	take.pressed.connect(func(): game.take_all(box); _rebuild())
 	column.add_child(take)
 	return margin
-
-# --- Right: attributes ------------------------------------------------------------------
-
-func _stats_column() -> Control:
-	var margin := MarginContainer.new()
-	for side in ["left", "right", "top"]: margin.add_theme_constant_override("margin_" + side, 14)
-	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 2)
-	margin.add_child(column)
-	var p := game.player
-	var preview := hovered if hovered != null and hovered.is_equippable() and game.player.equipped.get(hovered.category) != hovered else null
-	var after: Dictionary = p.preview_equip(preview).after if preview != null else p.snapshot()
-	var now: Dictionary = p.snapshot()
-	var groups := [["基础", [["生命", "hp"], ["攻击", "atk"], ["法术攻击", "arts"], ["防御", "def"], ["法术抗性", "res"]]],
-		["战斗", [["攻击速度", "aspd"], ["暴击率", "crit"], ["暴击伤害", "crit_dmg"]]],
-		["其他", [["移动速度", "move"]]]]
-	for group in groups:
-		column.add_child(AK.section(group[0]))
-		for entry in group[1]:
-			var key: String = entry[1]
-			var row := HBoxContainer.new()
-			row.add_child(AK.label(entry[0], 12, AK.MUTE))
-			var fill := Control.new()
-			fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			row.add_child(fill)
-			var value := AK.label(ItemTooltip._value(key, now[key]) if key != "hp" else "%d / %d" % [roundi(maxf(p.hp, 0)), roundi(p.max_hp)], 14, AK.FG, AK.en())
-			row.add_child(value)
-			var delta := float(after[key]) - float(now[key])
-			if not is_zero_approx(delta) and not (ItemTooltip._value(key, absf(delta)) in ["0", "0%", "0.0"]):
-				row.add_child(AK.label(" %s%s" % ["+" if delta > 0 else "−", ItemTooltip._value(key, absf(delta))], 12, Color("9fe04a") if delta > 0 else AK.RED, AK.en()))
-			column.add_child(row)
-	column.add_child(_resist_row(p))
-	var regen := HBoxContainer.new()
-	regen.add_child(AK.label("生命回复", 12, AK.MUTE))
-	var gap := Control.new()
-	gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	regen.add_child(gap)
-	regen.add_child(AK.label("%d / 秒" % roundi(p.regen_rate()), 14, AK.FG, AK.en()))
-	column.add_child(regen)
-	return margin
-
-## Her five elemental resistances after the floor's 压制 (属性伤害与地区装备
-## 策划案 v1.1 §13): "灼 32 · 寒 −5 …", each in its element's colour, red when
-## below zero; hovering one shows gear and 压制.
-static func _resist_row(p: Player) -> Control:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	if p.elements == null: return row
-	var penalty := Elements.penalty(p.game.floor_number) if is_instance_valid(p.game) and not p.game.in_base else 0.0
-	for kind in ["burn", "cold", "corr", "nerve", "bleed"]:
-		var value := roundi(clampf(p.elements.res_gear(kind) - penalty, Elements.RES_MIN, Elements.RES_CAP_MAX))
-		var cell := HBoxContainer.new()
-		cell.add_theme_constant_override("separation", 2)
-		cell.add_child(AK.label(Elements.BADGES[kind], 12, Elements.COLORS[kind]))
-		cell.add_child(AK.label(("−%d" % -value) if value < 0 else str(value), 13, AK.RED if value < 0 else AK.FG, AK.en()))
-		cell.tooltip_text = "%d · %d" % [roundi(p.elements.res_gear(kind)), -roundi(penalty)]
-		cell.mouse_filter = Control.MOUSE_FILTER_PASS
-		row.add_child(cell)
-	return row
 
 # --- Floating tooltip ---------------------------------------------------------------------
 
@@ -503,10 +456,17 @@ func begin_drag(item: Item, from: ItemContainer, from_equip: bool) -> void:
 	hovered = null
 	_refresh_tooltip()
 
-func drop_on_grid(data: Dictionary, container: ItemContainer, cell: Vector2i) -> void:
+func drop_on_grid(data: Dictionary, container: ItemContainer, cell: Vector2i, page: int = 0) -> void:
 	var from: ItemContainer = data.get("from")
-	if not game.move_item(data.item, from, container, cell.x, cell.y):
+	if not game.move_item(data.item, from, container, cell.x, cell.y, page):
 		game.notice("放不下：位置被占用或超出边界。")
+	_drag_item = null
+	selected = null
+	_rebuild()
+
+## Dropped on a page tab: the first free spot on that page.
+func drop_on_page(data: Dictionary, page: int) -> void:
+	if not game.move_to_pack_page(data.item, data.get("from"), page): game.notice("放不下：这一页没有空位。")
 	_drag_item = null
 	selected = null
 	_rebuild()
@@ -527,14 +487,17 @@ class GridView extends Control:
 	var container: ItemContainer
 	## The box being searched, when this is its grid.
 	var box: LootContainer
+	## The page shown (the pack's pages).
+	var page := 0
 	var _preview := Rect2i()
 	var _preview_ok := false
 
 	func _draw() -> void:
 		var c := InventoryPanel.CELL
-		draw_rect(Rect2(Vector2.ZERO, Vector2(container.width * c, container.height * c)), Color(0, 0, 0, 0.55))
-		for x in range(container.width + 1): draw_line(Vector2(x * c, 0), Vector2(x * c, container.height * c), Color(1, 1, 1, 0.07))
-		for y in range(container.height + 1): draw_line(Vector2(0, y * c), Vector2(container.width * c, y * c), Color(1, 1, 1, 0.07))
+		var cells := container.page_size(page)
+		draw_rect(Rect2(Vector2.ZERO, Vector2(cells.x * c, cells.y * c)), Color(0, 0, 0, 0.55))
+		for x in range(cells.x + 1): draw_line(Vector2(x * c, 0), Vector2(x * c, cells.y * c), Color(1, 1, 1, 0.07))
+		for y in range(cells.y + 1): draw_line(Vector2(0, y * c), Vector2(cells.x * c, y * c), Color(1, 1, 1, 0.07))
 		if is_instance_valid(box):
 			_draw_outlines(box.pending_rects())
 			_draw_search(box.search_cell())
@@ -590,14 +553,14 @@ class GridView extends Control:
 		var item: Item = data.item
 		var cell := _cell_for(at, data)
 		_preview = Rect2i(cell, Vector2i(item.width, item.height))
-		_preview_ok = container.can_place(item, cell.x, cell.y)
+		_preview_ok = container.can_place(item, cell.x, cell.y, page)
 		queue_redraw()
 		return _preview_ok
 
 	func _drop_data(at: Vector2, data: Variant) -> void:
 		var cell := _cell_for(at, data)
 		_preview = Rect2i()
-		panel.drop_on_grid(data, container, cell)
+		panel.drop_on_grid(data, container, cell, page)
 
 	func _notification(what: int) -> void:
 		if what in [NOTIFICATION_MOUSE_EXIT, NOTIFICATION_DRAG_END]:
@@ -668,15 +631,19 @@ class ItemTile extends Button:
 
 	static func style_for(button: Button, shown: Item) -> void:
 		for state in ["normal", "hover", "pressed"]:
-			var style := StyleBoxFlat.new()
-			style.bg_color = Color("242b30") if state == "normal" else Color("2d363c")
-			if shown.insured:
-				style.border_color = InventoryPanel.INSURED
-				style.set_border_width_all(1)
-			elif state == "hover":
-				style.border_color = Color.WHITE
-				style.set_border_width_all(1)
-			button.add_theme_stylebox_override(state, style)
+			# Shared per look: no tile changes its box in place.
+			var key := "%s:%s" % [state, shown.insured]
+			if not InventoryPanel._tile_styles.has(key):
+				var style := StyleBoxFlat.new()
+				style.bg_color = Color("242b30") if state == "normal" else Color("2d363c")
+				if shown.insured:
+					style.border_color = InventoryPanel.INSURED
+					style.set_border_width_all(1)
+				elif state == "hover":
+					style.border_color = Color.WHITE
+					style.set_border_width_all(1)
+				InventoryPanel._tile_styles[key] = style
+			button.add_theme_stylebox_override(state, InventoryPanel._tile_styles[key])
 		button.add_theme_color_override("font_color", AK.FG)
 
 	static func draw_glow(control: Control, shown: Item) -> void:
@@ -721,12 +688,15 @@ class EquipSlot extends Button:
 		add_theme_font_override("font", AK.cn())
 		add_theme_font_size_override("font_size", 12)
 		for state in ["normal", "hover", "pressed"]:
-			var style := StyleBoxFlat.new()
-			style.bg_color = Color("1d2327") if item == null else Color("242b30")
-			if state == "hover":
-				style.border_color = Color.WHITE
-				style.set_border_width_all(1)
-			add_theme_stylebox_override(state, style)
+			var key := "slot:%s:%s" % [state, item == null]
+			if not InventoryPanel._tile_styles.has(key):
+				var style := StyleBoxFlat.new()
+				style.bg_color = Color("1d2327") if item == null else Color("242b30")
+				if state == "hover":
+					style.border_color = Color.WHITE
+					style.set_border_width_all(1)
+				InventoryPanel._tile_styles[key] = style
+			add_theme_stylebox_override(state, InventoryPanel._tile_styles[key])
 		if item != null:
 			mouse_entered.connect(func(): panel.hover(item, null, get_global_rect()))
 			mouse_exited.connect(func(): panel.unhover(item))

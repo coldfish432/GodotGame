@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://shaders/cargo_panel.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://textures/cargo_panel/rusty_metal_sheet_diff_1k.png" id="2_diff"]
+[ext_resource type="Texture2D" path="res://textures/cargo_panel/rusty_metal_sheet_rough_1k.png" id="3_rough"]
+[ext_resource type="Texture2D" path="res://textures/cargo_panel/rusty_metal_sheet_nor_gl_1k.png" id="4_GL"]
+[ext_resource type="Texture2D" path="res://textures/cargo_panel/rusty_metal_sheet_nor_dx_1k.png" id="5_DX_raw"]
+[ext_resource type="Texture2D" path="res://textures/cargo_panel/rusty_metal_sheet_nor_dx_1k_inverty.png" id="6_DX_fixed"]
+
+[sub_resource type="Environment" id="Environment_review"]
+background_mode = 1
+background_color = Color(0.18, 0.18, 0.18, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.2
+reflected_light_source = 1
+tonemap_mode = 0
+tonemap_exposure = 1.0
+ssr_enabled = false
+ssao_enabled = false
+ssil_enabled = false
+sdfgi_enabled = false
+glow_enabled = false
+fog_enabled = false
+volumetric_fog_enabled = false
+adjustment_enabled = false
+
+[sub_resource type="BoxMesh" id="BoxMesh_panel"]
+size = Vector3(1.2, 1.2, 0.1)
+
+[sub_resource type="ShaderMaterial" id="Material_GL"]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_tex = ExtResource("2_diff")
+shader_parameter/roughness_tex = ExtResource("3_rough")
+shader_parameter/normal_tex = ExtResource("4_GL")
+shader_parameter/uv_scale = 1.0
+shader_parameter/tint_color = Color(1, 1, 1, 1)
+shader_parameter/roughness_scale = 1.0
+shader_parameter/normal_strength = 1.0
+
+[sub_resource type="ShaderMaterial" id="Material_DX_raw"]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_tex = ExtResource("2_diff")
+shader_parameter/roughness_tex = ExtResource("3_rough")
+shader_parameter/normal_tex = ExtResource("5_DX_raw")
+shader_parameter/uv_scale = 1.0
+shader_parameter/tint_color = Color(1, 1, 1, 1)
+shader_parameter/roughness_scale = 1.0
+shader_parameter/normal_strength = 1.0
+
+[sub_resource type="ShaderMaterial" id="Material_DX_fixed"]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_tex = ExtResource("2_diff")
+shader_parameter/roughness_tex = ExtResource("3_rough")
+shader_parameter/normal_tex = ExtResource("6_DX_fixed")
+shader_parameter/uv_scale = 1.0
+shader_parameter/tint_color = Color(1, 1, 1, 1)
+shader_parameter/roughness_scale = 1.0
+shader_parameter/normal_strength = 1.0
+
+[node name="NormalMapCheck" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_review")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0.286788, -0.409576, 0, 0.819152, 0.573576, 0.5, -0.496732, 0.709406, 0, 3, 2)
+light_color = Color(1, 1, 1, 1)
+light_energy = 1.0
+
+[node name="RakingLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 3, 2)
+visible = false
+light_color = Color(1, 1, 1, 1)
+light_energy = 1.0
+
+[node name="Panel_GL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, 0)
+mesh = SubResource("BoxMesh_panel")
+material_override = SubResource("Material_GL")
+
+[node name="Panel_DX_raw" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0, 0)
+mesh = SubResource("BoxMesh_panel")
+material_override = SubResource("Material_DX_raw")
+
+[node name="Panel_DX_fixed" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 0)
+mesh = SubResource("BoxMesh_panel")
+material_override = SubResource("Material_DX_fixed")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+projection = 1
+size = 2.6
+current = true

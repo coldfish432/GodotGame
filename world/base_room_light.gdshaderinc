@@ -1,5 +1,5 @@
-// Room lights for the Rhodes Island base, shared by the floor, north-wall and
-// overhead shaders (and mirrored by Sprite3D modulate in BaseMap.set_room_bands).
+// Room lights for the Rhodes Island base, shared by the deck, floor, kit,
+// north-wall and overhead shaders (and mirrored by Sprite3D modulate in BaseMap.set_room_bands).
 // A room is cut into up to four strips across the world x axis, each with its
 // own light level: the warehouse lights come on strip by strip from its door,
 // and light spills into the strips not yet lit (world/room_reveal.gd).

@@ -132,7 +132,8 @@ func setup(p_game: GameManager, p_map: BaseMap) -> void:
 func _process(_delta: float) -> void:
 	if is_instance_valid(game) and _signature() != _shown: refresh()
 
-## What decides the drawing: facility levels, links and the projects.
+## What decides the drawing: facility levels and links (no part in PARTS
+## waits on a "project:" now, so projects are not in it).
 func _signature() -> String:
 	var base: BaseState = game.base
 	return "%s|%s" % [str(base.facilities), str(base.connected)]

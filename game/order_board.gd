@@ -21,7 +21,7 @@ func _init() -> void:
 func resize(count: int) -> void:
 	while slots.size() < count: slots.append(null)
 
-## New game: an easy first order, the second slot empty.
+## New game: an easy first order, the other slots empty.
 func start_fresh() -> void:
 	slots = []
 	resize(BaseCatalog.ORDER_SLOTS)
@@ -36,7 +36,7 @@ func open_orders() -> Array:
 ## Whether `item` is what order `slot` asks for.
 func matches(slot: int, item: Item) -> bool:
 	var order = slots[slot]
-	if order == null or order.state != "open" or item == null or item.is_potion() or GearCatalog.bound(item): return false
+	if order == null or order.state != "open" or item == null or item.is_potion() or GearCatalog.bound(item) or item.contents != null: return false
 	var t: Dictionary = BaseCatalog.ORDERS[order.id]
 	# A sealed ore is still the ore (地图特色策划案 §3.3).
 	if t.has("effect"): return item.effect == t.effect or (t.effect == "raw_ore" and item.effect == GameManager.SEALED_ORE)
@@ -78,7 +78,7 @@ func deliver(slot: int, item: Item) -> Dictionary:
 	var gold := int(t.gold) if t.has("gold") else int(round(Economy.lmd(order.delivered.reduce(func(sum, d): return sum + int(d.value), 0)) * float(t.mult)))
 	return {"done": true, "gold": gold, "used": used}
 
-## Replaces an open order with a different one (仓储部 Lv4's free reroll). What was
+## Replaces an open order with a different one (the free reroll, BaseState.reroll_available). What was
 ## already handed over for it is kept by the department. Rule 2 is not checked:
 ## the player chose to reroll.
 func reroll(slot: int, rng: RandomNumberGenerator) -> bool:

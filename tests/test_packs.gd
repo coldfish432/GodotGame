@@ -41,7 +41,7 @@ func run() -> void:
 	game.fixed_market_seed = 77
 	root.add_child(game)
 	await step(8)
-	game.rng.seed = 77
+	game.seed_rng(77)
 	game.gold = 500000
 	# --- The packs ------------------------------------------------------------------
 	check("twelve packs, one per category", Packs.ORDER.size() == 12 and Packs.PACKS.size() == 12)

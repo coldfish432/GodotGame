@@ -236,7 +236,7 @@ func _nodes() -> void:
 	game.threat.value = 50.0
 	await _go("trader")
 	check("临时休整: the next floor carries no threat", game.threat.value < 1.0, game.threat.value)
-	check("诡异行商: 坎诺特, a small map", game.encounter == "trader" and game.world_map.compact_layout)
+	check("诡异行商: 坎诺特, a small map, no device", game.encounter == "trader" and game.world_map.compact_layout and not game.world_map.buff_device_node.visible and not game.is_buff_available())
 	await _go("supply")
 	check("坎诺特 never comes on a fight floor", game.encounter != "trader")
 	# 用户 2026-10-24: 掉落加成 +5% / +15%，敌人数值 ×1.25 / ×1.6.
@@ -378,7 +378,7 @@ func _camp() -> void:
 	await step(2)
 	check("leaving the camp opens the map of 2–3 first floors", game.modal == "route" and game.in_camp)
 	game.close_routes()
-	check("back from the map is back at the camp", game.modal == "camp")
+	check("back from the map is back in the camp's field", game.modal.is_empty() and game.in_camp)
 	await game.advance(1)
 	await step(2)
 	check("picking one walks into floor 11 on that node", not game.in_camp and game.floor_number == 11 and game.route_node == Vector2i(0, 1))

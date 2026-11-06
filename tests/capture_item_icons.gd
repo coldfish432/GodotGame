@@ -64,7 +64,7 @@ func run() -> void:
 	game.player.invulnerable = true
 	for enemy in get_nodes_in_group("enemies"): enemy.queue_free()
 	await step(2)
-	game.rng.seed = 11
+	game.seed_rng(11)
 	for set in [["mine", MINE], ["city", CITY], ["snow", SNOW]]:
 		await show(set[0], set[1])
 	await show_specials()

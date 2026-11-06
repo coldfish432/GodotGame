@@ -29,11 +29,9 @@ const K0 := 600.0
 ## CombatStats' per-power figures.
 const POWER_BASE := 3.1
 
-## Each rarity rolls inside its own share of the tier's base value (B), grey
-## to red on the ladder (属性伤害与地区装备策划案 v1.1 §2.2, checked in §17:
-## a body's panel stays within 1–4% of the old white / blue / gold). Orange's
-## and red's floors are above the next tier's blue floor (0.9 × 1.48), so they
-## always cross.
+## Each rarity rolls inside its own band of POWER_BASE (B), grey to red on
+## the ladder (属性伤害与地区装备策划案 v1.1 §2.2, checked in §17: a body's
+## panel stays within 1–4% of the old white / blue / gold).
 const BANDS := [[0.62, 0.76], [0.78, 0.90], [0.90, 1.10], [1.15, 1.30], [1.35, 1.50], [1.55, 1.70]]
 ## The S curve both rolls follow (B): midpoint floor 45, width 8, 0 on floor 1,
 ## 1 on floor 90, read on the loot stair so it only climbs.

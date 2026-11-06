@@ -9,7 +9,7 @@ extends RefCounted
 const COUNT := 3
 ## Where the slots live; tests point it elsewhere.
 static var folder := "user://"
-## Every file a save writes beside itself (save_base, market, SaveLock).
+## Every file a save writes beside itself (GmSave, market, SaveLock).
 const SUFFIXES := ["", ".bak", ".tmp", ".market", ".market.tmp", ".lock", ".release"]
 
 static func path(slot: int) -> String:

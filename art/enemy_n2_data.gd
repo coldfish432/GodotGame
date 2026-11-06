@@ -29,7 +29,7 @@ const TIPS := {
 	"family_capo": [Vector2(1, -31), Vector2(4, -31), Vector2(3, -31), Vector2(-6, -31), Vector2(-4, -31), Vector2(2, -31), Vector2(-2, -31), Vector2(2, -31)],
 	"family_eraser": [Vector2(10, -24), Vector2(9, -27), Vector2(-10, -27), Vector2(-12, -25), Vector2(-6, -27), Vector2(17, -25), Vector2(7, -28), Vector2(11, -26)],
 	"family_car": [Vector2(-6, -25), Vector2(10, -23), Vector2(-26, -10), Vector2(-9, -23), Vector2(-8, -21), Vector2(15, -18), Vector2(26, -14), Vector2(-9, -25)],
-	"patriot": [Vector2(-12, -42), Vector2(-23, -29), Vector2(-19, -41), Vector2(-8, -41), Vector2(6, -40), Vector2(17, -38), Vector2(13, -40), Vector2(9, -42)],
+	"patriot": [Vector2(-15, -44), Vector2(-10, -47), Vector2(-18, -42), Vector2(-16, -39), Vector2(15, -41), Vector2(17, -39), Vector2(14, -41), Vector2(10, -44)],
 	"rat_king": [Vector2(16, -41), Vector2(22, -22), Vector2(13, -41), Vector2(16, -41), Vector2(3, -39), Vector2(-13, -41), Vector2(2, -41), Vector2(-16, -40)],
 	"eikthyrnir": [Vector2(-8, -50), Vector2(-4, -46), Vector2(-8, -49), Vector2(-7, -48), Vector2(-3, -48), Vector2(9, -49), Vector2(8, -49), Vector2(18, -44)],
 	"zaro": [Vector2(6, -46), Vector2(2, -44), Vector2(-18, -35), Vector2(-12, -41), Vector2(0, -45), Vector2(2, -44), Vector2(2, -42), Vector2(-4, -46)],

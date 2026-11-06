@@ -38,19 +38,26 @@ func _init(p_player: Player) -> void:
 
 # --- What is worn -------------------------------------------------------------
 
+# The slots are walked by key, not equipped.values(): no array per call.
 func count(fx_id: String) -> int:
 	var n := 0
-	for item in player.equipped.values():
+	for slot in player.equipped:
+		var item = player.equipped[slot]
 		if item == null or item.special.is_empty(): continue
 		if str(SpecialGear.GEAR.get(item.special, {}).get("fx", "")) == fx_id: n += 1
 	return n
 
 func has(fx_id: String) -> bool:
-	return count(fx_id) > 0
+	for slot in player.equipped:
+		var item = player.equipped[slot]
+		if item == null or item.special.is_empty(): continue
+		if str(SpecialGear.GEAR.get(item.special, {}).get("fx", "")) == fx_id: return true
+	return false
 
 func set_pieces(set_id: String) -> int:
 	var n := 0
-	for item in player.equipped.values():
+	for slot in player.equipped:
+		var item = player.equipped[slot]
 		if item == null or item.special.is_empty(): continue
 		if str(SpecialGear.GEAR.get(item.special, {}).get("set_id", "")) == set_id: n += 1
 	return n
@@ -62,7 +69,8 @@ func set_bonus(set_id: String, pieces: int) -> bool:
 ## that tier like any flat affix (复利数值改造清单 C).
 func set_tier(set_id: String) -> int:
 	var tier := Scaling.TIER_MAX
-	for item in player.equipped.values():
+	for slot in player.equipped:
+		var item = player.equipped[slot]
 		if item == null or item.special.is_empty(): continue
 		if str(SpecialGear.GEAR.get(item.special, {}).get("set_id", "")) == set_id: tier = mini(tier, maxi(item.grade, 1))
 	return tier
@@ -138,7 +146,7 @@ func move_mult() -> float:
 	if active("barrier_break"): m += 0.30
 	if active("haste"): m += 0.25
 	if active("mark_reward"): m += 0.15
-	if has("idle_strike") and since_attack >= 5.0: m += 0.30
+	if since_attack >= 5.0 and has("idle_strike"): m += 0.30
 	return m
 
 ## Extra crit chance against `target` (plus a forced crit).
@@ -164,7 +172,7 @@ func damage_mult(target: Enemy) -> float:
 	if has("hit_fresh_bonus") and ratio > 0.80: m *= 1.50
 	return m
 
-## What a hit about to land on her becomes (before defences); 0 means blocked.
+## What a hit about to land on her becomes (before defences).
 func incoming(amount: float, attacker: Enemy) -> float:
 	if set_bonus("inspectors", 2) and randf() < 0.10: amount *= 0.5
 	if has("hurt_front_block") and is_instance_valid(attacker) and randf() < 0.20:
@@ -339,6 +347,8 @@ func on_signature(direction: Vector3, first: Enemy) -> void:
 		_zones.append({"pos": player.global_position, "radius": 3.0, "time": 4.0, "tick": 0.5, "damage": 0.0, "kind": "snow", "follow": true})
 		_disc(player.global_position, 3.0, Color(0.9, 0.95, 1.0, 0.25), 4.0)
 
+const STACKED := ["kill_aspd", "kill_aspd_big", "def_stack"]
+
 func tick(delta: float) -> void:
 	_clock += delta
 	since_attack += delta
@@ -347,7 +357,7 @@ func tick(delta: float) -> void:
 		timers[name] = float(timers[name]) - delta
 		if float(timers[name]) <= 0.0:
 			timers.erase(name)
-			if name in ["kill_aspd", "kill_aspd_big", "def_stack"]: stacks.erase(name)
+			if name in STACKED: stacks.erase(name)
 	for name in cooldowns.keys():
 		cooldowns[name] = float(cooldowns[name]) - delta
 		if float(cooldowns[name]) <= 0.0: cooldowns.erase(name)
@@ -361,10 +371,10 @@ func tick(delta: float) -> void:
 		if temp_shield_time <= 0.0:
 			player.shield = maxf(0.0, player.shield - temp_shield)
 			temp_shield = 0.0
-	if has("idle_barrier") and since_hurt >= 8.0 and not _idle_barrier_given:
+	if since_hurt >= 8.0 and not _idle_barrier_given and has("idle_barrier"):
 		_idle_barrier_given = true
 		player.shield = maxf(player.shield, player.max_hp * 0.15)
-	if has("idle_strike") and since_attack >= 5.0: idle_strike_ready = true
+	if since_attack >= 5.0 and has("idle_strike"): idle_strike_ready = true
 	for i in range(_pending.size() - 1, -1, -1):
 		_pending[i].at = float(_pending[i].at) - delta
 		if float(_pending[i].at) <= 0.0:
@@ -385,7 +395,7 @@ func tick(delta: float) -> void:
 			if str(zone.kind) == "snow": player.heal(player.max_hp * 0.02 * 0.5)
 		if float(zone.time) <= 0.0: _zones.remove_at(i)
 
-## A patch of fire (地火, 火场): 灼燃 every 0.5 s to whoever stands in it.
+## A patch of fire (地火, 火场): 灼燃 every 0.5 s to every enemy in it.
 func add_fire_zone(at: Vector3, radius: float, seconds: float, damage: float) -> void:
 	_zones.append({"pos": at, "radius": radius, "time": seconds, "tick": 0.5, "damage": damage, "kind": "fire"})
 	_disc(at, radius, Color(1.0, 0.5, 0.15, 0.3), seconds)

@@ -114,7 +114,7 @@ func through_game() -> void:
 	var deliverable := game.deliverable_items()
 	check("deliverable: warehouse, pack and safe bag, not equipped", deliverable.has(shelf_mat) and deliverable.has(pack_mat)
 		and deliverable.has(safe_mat) and not deliverable.has(worn))
-	check("equipped items are refused by orders and plain delivery", not game.deliver_to_order(1, worn) and not game.sell(worn))
+	check("equipped items are refused by orders", not game.deliver_to_order(1, worn))
 	game.safe_bag.remove(safe_mat)
 	await step(2)
 	check("board shows an order she can fill", game.warehouse_view.board_state() == "open" and game.warehouse_view._board.get_meta("state") == "open")
@@ -124,11 +124,6 @@ func through_game() -> void:
 		game.deliver_to_order(0, pack_mat) and not game.inventory.items.has(pack_mat) and game.gold == gold + 6500)
 	await step(2)
 	check("with nothing fillable left, a done order shows the completed board", game.warehouse_view.board_state() == "completed")
-	var sold := item("卖掉的饰品", Item.Category.TRINKET, 25)
-	game.inventory.try_add(sold)
-	gold = game.gold
-	# Plain delivery is Rhodes Island's internal buy-back at 80% (势力与交易所策划案 §13).
-	check("plain delivery from the pack pays 80% of its value", game.sell(sold) and game.gold == gold + 2000 and not game.inventory.items.has(sold))
 
 	# Settlement: refills.
 	game.player.unequip(Item.Category.WEAPON)
@@ -158,7 +153,7 @@ func through_game() -> void:
 	check("the mine contract card says an order points there", _has_text(game.menu, "订单 1"))
 	game.close_modal()
 	game.open_station("outbound")
-	check("the outbound menu lists the orders and plain delivery", _contains_text(game.menu, "直接交付") and _contains_text(game.menu, "未封装源石原矿"))
+	check("the outbound menu lists the orders, no plain delivery", not _contains_text(game.menu, "直接交付") and _contains_text(game.menu, "未封装源石原矿"))
 	game.close_modal()
 	game.base.orders = board_with([null, null])
 	await step(2)

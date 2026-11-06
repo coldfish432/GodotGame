@@ -84,15 +84,17 @@ func damage_mult(target: Enemy) -> float:
 		pct += SHATTER
 	return 1.0 + pct
 
-## After a direct hit of `raw` (her hit before the target's mitigation): the
-## elemental parts it adds, then the damage over time it may leave. The parts
-## are their own hits: no lifesteal, no further procs. Returns how much of
-## `raw` was converted away from the hit itself (the caller deals the rest).
+## The share of a direct hit converted away into elements (转化, capped);
+## Player._deal deals the rest as the hit itself.
 func convert_share() -> float:
 	var total := 0.0
 	for kind in Elements.KINDS: total += s(Elements.CONV_KEY[kind])
 	return minf(Elements.CONV_CAP, total)
 
+## After a direct hit of `raw` (her hit before the target's mitigation): the
+## elemental parts it adds (its own 附加 plus the converted share), then the
+## damage over time it may leave. The parts are their own hits: no lifesteal,
+## no further procs.
 func on_hit(target: Enemy, raw: float, crit: bool) -> void:
 	if not is_instance_valid(target) or target._dead: return
 	if target == _chain_target: _chain_hits += 1

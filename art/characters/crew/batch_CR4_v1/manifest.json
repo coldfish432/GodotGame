@@ -1,0 +1,20 @@
+{
+  "sheets": [
+    {
+      "id": "raidian",
+      "kind": "walk",
+      "file": "raidian_walk_source.png",
+      "cols": 4,
+      "rows": 8,
+      "cell": 256
+    },
+    {
+      "id": "raidian",
+      "kind": "idle",
+      "file": "raidian_idle_source.png",
+      "cols": 2,
+      "rows": 8,
+      "cell": 256
+    }
+  ]
+}

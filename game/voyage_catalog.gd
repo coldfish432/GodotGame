@@ -39,7 +39,7 @@ const COST_ROUND := 100
 
 const STAY_KINDS: Array[String] = ["injured", "infected"]
 const STAY_NAMES := {"injured": "伤员", "infected": "感染者"}
-## 龙门币 an hour (用户 2026-10-19: 3000/6000).
+## 龙门币 an hour (用户 2026-10-19: 3000/6000; raised since).
 const STAY_COST := {"injured": 8400, "infected": 17000}
 ## Relation an hour before the anchor's multiplier (用户 2026-10-19: +1/+2).
 const STAY_BASE := {"injured": 1.0, "infected": 2.0}

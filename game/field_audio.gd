@@ -10,6 +10,16 @@ const FILE_CUES := {
 	"hatch": ["res://audio/sfx/hatch.wav", -14.0, 0.05],
 	"shelf": ["res://audio/sfx/shelf.wav", -16.0, 0.05],
 }
+## The bosses' set pieces and signature sounds (audio/BOSS_AUDIO_BRIEF.md §1.2):
+## audio/sfx/boss/<cue>.wav, silent until each one is delivered and cut.
+const BOSS_CUES := ["boss_warning_band", "boss_bar_shatter", "boss_final_blow",
+	"patriot_step", "patriot_shield_clang", "patriot_halberd_plant", "patriot_crystal_crack", "patriot_javelin_whoosh", "patriot_heartbeat",
+	"ratking_cane_tap", "ratking_sand_flow", "ratking_shell_break", "ratking_sing_hum", "ratking_rat_swarm", "ratking_manhole",
+	"eik_hammer_slam", "eik_thunder_arc", "eik_ice_chip", "eik_cold_wind", "eik_collapse_drone", "eik_statue_break",
+	"zaro_bell", "zaro_howl", "zaro_growl", "zaro_claw", "zaro_bite", "zaro_black_mist", "zaro_alley_rain",
+	"crown_unsheathe", "crown_knife_throw", "crown_smoke_puff", "skull_rack", "skull_grenade", "skull_beep",
+	"priest_snow_gust", "priest_ice_chime", "priest_whisper", "agnir_rack", "agnir_chapel_bell", "agnir_prayer"]
+const BOSS_CUE_DB := -10.0
 var streams := {}
 ## How many times each cue was asked for, headless included (tests count events).
 var counts := {}
@@ -17,6 +27,9 @@ func _ready() -> void:
 	GameMusic.ensure_buses()
 	for cue in FILE_CUES:
 		if ResourceLoader.exists(FILE_CUES[cue][0]): streams[cue] = load(FILE_CUES[cue][0])
+	for cue in BOSS_CUES:
+		var path := "res://audio/sfx/boss/%s.wav" % cue
+		if ResourceLoader.exists(path): streams[cue] = load(path)
 	for cue in {"hit": 170.0, "loot": 660.0, "build": 880.0, "exit": 1040.0, "hurt": 110.0, "charge": 1760.0}:
 		var frequencies := {"hit": 170.0, "loot": 660.0, "build": 880.0, "exit": 1040.0, "hurt": 110.0, "charge": 1760.0}
 		var data := PackedByteArray()
@@ -65,6 +78,7 @@ func play(cue: String, release: bool = false) -> void:
 	voice.stream = streams[cue]
 	voice.bus = "SFX"
 	voice.volume_db = -9 if release else -13
+	if BOSS_CUES.has(cue): voice.volume_db = BOSS_CUE_DB
 	if FILE_CUES.has(cue):
 		voice.volume_db = FILE_CUES[cue][1]
 		voice.pitch_scale = 1.0 + randf_range(-1.0, 1.0) * float(FILE_CUES[cue][2])

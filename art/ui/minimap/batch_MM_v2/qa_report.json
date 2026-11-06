@@ -1,0 +1,390 @@
+{
+  "changed": [
+    "mm_route.png",
+    "mm_trace.png"
+  ],
+  "protected_unchanged": 18,
+  "static_checks": "passed",
+  "assets": [
+    {
+      "file": "mm_boss.png",
+      "sha256": "8592c9e957d4d76f2cd216ad0bfabaa7febc291782477091450957134177a2e0",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#ae2e2e",
+        "#e23c3c",
+        "#ec7c7c"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_box.png",
+      "sha256": "b9a7e1bd41f29ced729bef111f2885d778b4201015e522777f67a35bf69c3456",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#9d9d9d",
+        "#cccccc",
+        "#dddddd"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_closure.png",
+      "sha256": "91215ba19268d853632cf861692810f04292dc886d739eba7395ec57a93ef4a2",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#49a0a6",
+        "#5fd0d8",
+        "#94e0e5"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_device.png",
+      "sha256": "a394c60f944c6e5b2e6074fde842c26cda3ad5d903e5ec31f4f54e6d58cb4325",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#b87733",
+        "#ef9b42",
+        "#f4bc80"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_elite.png",
+      "sha256": "120dcd9d5d38513db6fd6ffac4694997b1adfb17f342880cc51abfbad0e426bf",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#ae2e2e",
+        "#e23c3c",
+        "#ec7c7c"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_eraser.png",
+      "sha256": "a18a3712a83abab332571a3b387babdd5f8de6597f3df81eb67663e3ebdacb23",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#ae2e2e",
+        "#e23c3c",
+        "#ec7c7c"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_exit.png",
+      "sha256": "c2267bdb69f32da6714ea01b95c306299aa18b270d5e550ef86ef45100f8d466",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#6e9618",
+        "#8fc31f",
+        "#b4d769"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_handover.png",
+      "sha256": "fdd6cfef37edf7d3ee1cdb3bfce299439c872349c17c78d5f17eb28ca5fc6871",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#976cc4",
+        "#c48cff",
+        "#d7b2ff"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_lost_operator.png",
+      "sha256": "b21b72b0fa39c70b2ac4209fc2592165dbad3b0285932c6cf598c55b66586813",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#bd9400",
+        "#f5c000",
+        "#f8d554"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_patrol.png",
+      "sha256": "820bf3ed12e03fef3b56221bdbf6ac511835cfff007ba998108f9badd2e6dd51",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#ae2e2e",
+        "#e23c3c",
+        "#ec7c7c"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_post.png",
+      "sha256": "fa2facd287a245880afde2ade0d5fdcebe71e8541ef59f642c51932ac946b489",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#976cc4",
+        "#c48cff",
+        "#d7b2ff"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_recruit.png",
+      "sha256": "39f9d4150d4381ec4d10fedb6c9e44a26329bea95a9208800ea479390c795723",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#bd9400",
+        "#f5c000",
+        "#f8d554"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_relic_cache.png",
+      "sha256": "a51d33ad62042a5099fc04c0c715ad30f1b28bd5605e3ac68d4ece5fb367c39f",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#1e80b8",
+        "#27a6ef",
+        "#cfebfb"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_relic_cache_sealed.png",
+      "sha256": "36fe5d32a7c1003bc10425c008e0032670df513e9b62d111be48538dc699bc56",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#6a6e74",
+        "#8a8f96",
+        "#b1b4b9"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_route.png",
+      "sha256": "3e51f82b63593e637043d642288830d7e7c8a3c148514d9a1ff9255006105884",
+      "changed": true,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#588ec4",
+        "#72b8ff",
+        "#a1cfff"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_squad.png",
+      "sha256": "07c2bd95330f7115f016d38d4e02cfbeaf6b303ac0350b4264de5a6bdfbfb2f2",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#49a0a6",
+        "#5fd0d8",
+        "#94e0e5"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_trace.png",
+      "sha256": "5d4d1cb1e5482056bf3822cad396ca2f3e5a46c6ced36a0be9f17371e4af94a3",
+      "changed": true,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#c48cff"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_trader.png",
+      "sha256": "ee434981b4c2803008e8276188bc6f60938dfa0b1a03f8345b6308d117b64229",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#b19545",
+        "#e6c25a",
+        "#eed690"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_vault.png",
+      "sha256": "dce402f31e3ae894e82ad35335fdeb3ede5a81b195a29728f9aca7dc5cc38ba8",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#c49700",
+        "#ffc400",
+        "#ffd754"
+      ],
+      "outline_pass": true
+    },
+    {
+      "file": "mm_vault_relic.png",
+      "sha256": "0ff9e3e9f9f0589f3c64944583a5a5dd0e7ce1f3cdd237a8f90ffbd725b54785",
+      "changed": false,
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "interior_colors": [
+        "#c49700",
+        "#ffc400",
+        "#ffd754"
+      ],
+      "outline_pass": true
+    }
+  ],
+  "runtime_tested_after_revision": false,
+  "existing_v1_runtime_evidence": "User review confirms all 20 v1 icons integrated, size/alpha/outline/color pass. v2 has only offline visual review."
+}

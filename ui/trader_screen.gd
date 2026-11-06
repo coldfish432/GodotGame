@@ -26,9 +26,11 @@ static var _game: GameManager
 ##   goods: [{item?, relic?, price (text), currency, stock, lock, sold, refusal}]
 ##   on_buy(index); refresh: [text, enabled, callable] or []; restock: "18:42"
 ##   offer(item) -> String ("" = not bought here); on_sell(item); sell_extra(item) -> [[text, kind, callable]]
+##   back: what was sold here ({item, price, currency, refusal}), on the 出售 shelf; on_back(index) buys one back
 ##   buttons: rows of [text, kind, callable] for the left column's foot
 ##   restock_in: Callable -> seconds (a live mm:ss countdown); skin: "white" (药房)
 ## Drag a shelf tile onto the pack to buy it, a pack item onto the shelf to sell it.
+## On 出售 the pack shows each price and the shelf what was sold, at that price.
 static func build(menu: FieldMenu, spec: Dictionary) -> Control:
 	var game := menu.game
 	_game = game
@@ -63,6 +65,8 @@ static func build(menu: FieldMenu, spec: Dictionary) -> Control:
 	deal.add_child(AK.rect(Color(0, 0, 0, 0.6), Vector2.ZERO, deal.size))
 	var pick_index := int(menu.pick) if menu.pick is int else -1
 	var pick_item: Item = menu.pick if menu.pick is Item else null
+	var back: Array = spec.get("back", [])
+	var pick_back := int(menu.pick.back) if menu.pick is Dictionary and menu.pick.has("back") and int(menu.pick.back) < back.size() else -1
 	var ok := false
 	var confirm := Callable()
 	var goods: Array = spec.get("goods", [])
@@ -72,6 +76,12 @@ static func build(menu: FieldMenu, spec: Dictionary) -> Control:
 		ok = str(g.get("refusal", "")).is_empty() and not g.get("sold", false) and str(g.get("lock", "")).is_empty()
 		var i := pick_index
 		confirm = func(): spec.on_buy.call(i); menu.pick = null; redraw.call()
+	elif selling and pick_back >= 0:
+		var b: Dictionary = back[pick_back]
+		_deal_line(deal, b.item, {}, str(b.price), str(b.currency), str(b.refusal))
+		ok = str(b.refusal).is_empty()
+		var i := pick_back
+		confirm = func(): spec.on_back.call(i); menu.pick = null; redraw.call()
 	elif selling and pick_item != null:
 		var offer: String = spec.offer.call(pick_item)
 		_deal_line(deal, pick_item, {}, offer, str(spec.get("sell_currency", "gold")), "" if not offer.is_empty() else "不收")
@@ -80,7 +90,7 @@ static func build(menu: FieldMenu, spec: Dictionary) -> Control:
 		confirm = func(): spec.on_sell.call(it); menu.pick = null; redraw.call()
 	else:
 		AK.put(deal, AK.label("—", 16, AK.DIM), Vector2(14, 20))
-	var go := AK.go_button("成交" if not selling else "出售", "DEAL", "blue", 20)
+	var go := AK.go_button("成交" if not selling else "购回" if pick_back >= 0 else "出售", "DEAL", "blue", 20)
 	AK.put(stage, go, LEFT.position + Vector2(14, 476), Vector2(LEFT.size.x - 28, 56))
 	go.disabled = not ok
 	go.pressed.connect(confirm if confirm.is_valid() else func(): pass)
@@ -143,6 +153,12 @@ static func build(menu: FieldMenu, spec: Dictionary) -> Control:
 		if not (data is Dictionary and data.has("trade_buy")): return false
 		var g: Dictionary = goods[int(data.trade_buy)]
 		return str(g.get("refusal", "")).is_empty() and not g.get("sold", false) and str(g.get("lock", "")).is_empty()
+	var backs := func(data: Variant) -> bool:
+		return data is Dictionary and data.has("trade_back") and str(back[int(data.trade_back)].refusal).is_empty()
+	var back_drop := func(data: Variant):
+		var i := int(data.trade_back)
+		var b: Dictionary = back[i]
+		ask(stage, "购回", b.item, {}, str(b.price), str(b.currency), func(): spec.on_back.call(i); menu.pick = null; redraw.call())
 	var buy_drop := func(data: Variant):
 		var i := int(data.trade_buy)
 		var g: Dictionary = goods[i]
@@ -161,38 +177,44 @@ static func build(menu: FieldMenu, spec: Dictionary) -> Control:
 			var tile := _tile(shelf, at, cells, g, i == pick_index, func(): menu.pick = index; redraw.call())
 			tile.payload = {"trade_buy": index}
 	else:
-		# 出售: what this trader would take, laid out in the box with its price.
+		# 出售: what was sold here, at what it fetched (用户 2026-10-27: 可以按照出售价购回).
 		var taken := _taken()
-		var carried: Array = game.inventory.items + game.safe_bag.items
-		for item in carried:
-			var offer: String = spec.offer.call(item)
-			if offer.is_empty(): continue
-			var cells := Vector2i(item.width, item.height)
+		for i in range(back.size()):
+			var b: Dictionary = back[i]
+			var cells := Vector2i(b.item.width, b.item.height)
 			var at := _place(taken, cells)
 			if at.x < 0: continue
-			var chosen: Item = item
-			_tile(shelf, at, cells, {"item": item, "price": offer, "currency": spec.get("sell_currency", "gold")}, item == pick_item,
-				func(): menu.pick = chosen; redraw.call())
+			var index := i
+			var tile := _tile(shelf, at, cells, {"item": b.item, "price": str(b.price), "currency": b.currency, "refusal": b.refusal}, i == pick_back,
+				func(): menu.pick = {"back": index}; redraw.call())
+			tile.payload = {"trade_back": index}
 	# --- right: her pack ----------------------------------------------------------------
 	var right := _plate(stage, RIGHT, AK.HOLO)
 	right.mouse_filter = Control.MOUSE_FILTER_PASS
-	right.set_drag_forwarding(Callable(), func(_at, data): return buys.call(data), func(_at, data): buy_drop.call(data))
+	var takes := func(data: Variant) -> bool: return buys.call(data) or backs.call(data)
+	var take_drop := func(data: Variant): (back_drop if data.has("trade_back") else buy_drop).call(data)
+	right.set_drag_forwarding(Callable(), func(_at, data): return takes.call(data), func(_at, data): take_drop.call(data))
 	var pack_at := RIGHT.position + Vector2(20, 44)
 	AK.put(stage, AK.section("背包", "%d / %d" % [game.inventory.occupied_cells(), game.inventory.cell_count()]), RIGHT.position + Vector2(20, 16))
 	var sellable := func(item: Item) -> bool: return not selling or not str(spec.offer.call(item)).is_empty()
 	var pick_from_pack := func(item: Item): menu.pick = item; redraw.call()
 	var drag_out := func(item: Item) -> Variant: return {"trade_sell": item} if sells.call({"trade_sell": item}) else null
+	var tag_of := (func(item: Item) -> String: return str(spec.offer.call(item))) if selling else Callable()
 	var pack := AK.BagGrid.make(game.inventory, sellable if selling else Callable(), pick_from_pack if selling else Callable(), pick_item)
 	pack.drag_out = drag_out
-	pack.accept = buys
-	pack.take = buy_drop
+	pack.tag_of = tag_of
+	pack.tag_currency = str(spec.get("sell_currency", "gold"))
+	pack.accept = takes
+	pack.take = take_drop
 	AK.put(stage, pack, pack_at)
 	var safe_y := pack_at.y + game.inventory.height * CELL + 14
 	AK.put(stage, AK.section("安全袋"), Vector2(pack_at.x, safe_y))
 	var safe := AK.BagGrid.make(game.safe_bag, sellable if selling else Callable(), pick_from_pack if selling else Callable(), pick_item)
 	safe.drag_out = drag_out
-	safe.accept = buys
-	safe.take = buy_drop
+	safe.tag_of = tag_of
+	safe.tag_currency = str(spec.get("sell_currency", "gold"))
+	safe.accept = takes
+	safe.take = take_drop
 	AK.put(stage, safe, Vector2(pack_at.x, safe_y + 28))
 	var money := VBoxContainer.new()
 	for entry in spec.get("balance", []):
@@ -392,19 +414,26 @@ class ShelfTile extends Button:
 	func _ready() -> void:
 		tooltip_text = " "
 	func _make_custom_tooltip(_for_text: String) -> Object:
-		var card := PanelContainer.new()
-		card.add_theme_stylebox_override("panel", AK.box(Color(0.04, 0.05, 0.06, 0.97), AK.LINE_2, 1, 10))
-		var text := RichTextLabel.new()
-		text.bbcode_enabled = true
-		text.fit_content = true
-		text.scroll_active = false
-		text.custom_minimum_size.x = 280
-		text.add_theme_font_override("normal_font", AK.cn())
-		text.add_theme_font_size_override("normal_font_size", 13)
-		if item != null and is_instance_valid(TraderScreen._game): text.text = ItemTooltip.text(TraderScreen._game, item, false, false)
-		elif not relic.is_empty(): text.text = "[b]%s[/b]\n%s" % [I18n.t(str(relic.get("name", ""))), I18n.t(str(relic.get("effect", "")))]
-		card.add_child(text)
-		return card
+		if item != null: return TraderScreen.item_card(item)
+		return TraderScreen.card_of("[b]%s[/b]\n%s" % [I18n.t(str(relic.get("name", ""))), I18n.t(str(relic.get("effect", "")))] if not relic.is_empty() else "")
+
+## The hover card of `item` (its full tooltip): shelf tiles, bags and doll slots.
+static func item_card(item: Item) -> Control:
+	return card_of(ItemTooltip.text(_game, item, false, false) if is_instance_valid(_game) else "")
+
+static func card_of(bbcode: String) -> Control:
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", AK.box(Color(0.04, 0.05, 0.06, 0.97), AK.LINE_2, 1, 10))
+	var text := RichTextLabel.new()
+	text.bbcode_enabled = true
+	text.fit_content = true
+	text.scroll_active = false
+	text.custom_minimum_size.x = 280
+	text.add_theme_font_override("normal_font", AK.cn())
+	text.add_theme_font_size_override("normal_font_size", 13)
+	text.text = bbcode
+	card.add_child(text)
+	return card
 
 ## mm:ss until `left` reaches 0, then `on_zero` (the shelf has restocked).
 class Countdown extends Label:
@@ -422,7 +451,15 @@ class Countdown extends Label:
 			_fired = true
 			on_zero.call_deferred()
 
-# --- The four shops -----------------------------------------------------------------------
+# --- The shops ---------------------------------------------------------------------------
+
+## The 出售 shelf of `shop` (GmTrader.buyback).
+static func _back(game: GameManager, shop: String) -> Array:
+	var out: Array = []
+	var list := game.buyback_list(shop)
+	for i in range(list.size()):
+		out.append({"item": list[i].item, "price": list[i].shown, "currency": list[i].currency, "refusal": game.buyback_refusal(shop, i)})
+	return out
 
 ## 坎诺特 (诡意行商): relics and gear for 赤金, a rerollable shelf; buys gear back.
 static func cannot(menu: FieldMenu) -> void:
@@ -445,6 +482,7 @@ static func cannot(menu: FieldMenu) -> void:
 		"refresh": ["刷新 %d" % cost, game.gold_bars() >= cost, func(): menu.pick = null; game.trader_reroll(); cannot(menu)],
 		"offer": func(item: Item) -> String: return str(game.trader_offer(item)) if game.trader_offer(item) > 0 else "",
 		"on_sell": func(item: Item): game.trader_sell(item),
+		"back": _back(game, "cannot"), "on_back": func(i): game.buy_back("cannot", i),
 		"buttons": [[["离开", "plain", game.close_modal]]],
 		"redraw": func(): cannot(menu),
 	})
@@ -464,7 +502,7 @@ static func post(menu: FieldMenu) -> void:
 	var goods: Array = []
 	var materials: Array = []
 	var flask_type := game.post_potion()
-	if not flask_type.is_empty():
+	if not flask_type.is_empty() and not ex.cold(faction):
 		var p: Dictionary = BaseCatalog.POTIONS[flask_type]
 		var barter: Dictionary = p.get("barter", {})
 		var refusal := game.post_potion_refusal()
@@ -473,7 +511,8 @@ static func post(menu: FieldMenu) -> void:
 			"tag": ("×%d" % int(barter.values()[0])) if not barter.is_empty() else str(int(p.bars)),
 			"currency": "barter" if not barter.is_empty() else "gold", "refusal": refusal})
 		materials.append("")
-	for material in info.get("sells", []):
+	# 冷漠: the post takes goods and sells none (势力声望解锁策划案 §2.5); from 尊敬 two more (§四).
+	for material in ([] if ex.cold(faction) else info.get("sells", []) + FactionRewards.post_extra(faction, ex.rank(faction))):
 		var q := ex.quote_buy(faction, material)
 		if not q.ok: continue
 		var bars := Exchange.field_bars(float(q.unit), true)
@@ -506,11 +545,12 @@ static func post(menu: FieldMenu) -> void:
 	var balance := [["gold", str(game.gold_bars())]] if currency == "gold" else [["lmd", Economy.format(game.gold)]]
 	build(menu, {
 		"title": FactionCatalog.name_of(faction), "en": str(info.get("region", "")).to_upper() + " · FIELD POST", "accent": POST_ACCENTS.get(faction, AK.SPECIAL),
-		"portrait": trader[1], "who": trader[0], "who_en": FactionCatalog.name_of(faction), "standing": "关系 R%d" % ex.rank(faction),
+		"portrait": trader[1], "who": trader[0], "who_en": FactionCatalog.name_of(faction), "standing": "关系 " + Exchange.rank_name(ex.rank(faction)),
 		"balance": balance, "trade_tabs": ["购买", "出售"], "selling": selling, "sell_currency": currency,
 		"on_trade_tab": func(i): menu.trader_tab = ["buy", "sell"][i]; menu.pick = null; post(menu),
 		"goods": goods, "on_buy": func(i): (game.post_buy_potion() if materials[i] == "" else game.post_buy(materials[i], 1)),
 		"offer": offer, "on_sell": func(item: Item): game.post_sell(item), "sell_extra": extra,
+		"back": _back(game, "post:" + faction), "on_back": func(i): game.buy_back("post:" + faction, i),
 		"buttons": [[["离开", "plain", game.close_modal]]],
 		"redraw": func(): post(menu),
 	})
@@ -586,6 +626,7 @@ static func consign(menu: FieldMenu, at_base: bool) -> void:
 		"goods": goods, "on_buy": func(i): game.consign_buy(i),
 		"offer": func(item: Item) -> String: return game.consign_offer(item),
 		"on_sell": func(item: Item): game.consign_sell(item),
+		"back": _back(game, "consign:" + anchor), "on_back": func(i): game.buy_back("consign:" + anchor, i),
 		"buttons": buttons, "redraw": func(): consign(menu, at_base),
 		"restock_in": (func() -> int: return game.consign.restock_in()) if not anchor.is_empty() else Callable(),
 	})

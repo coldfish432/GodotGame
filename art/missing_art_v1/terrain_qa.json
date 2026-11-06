@@ -1,0 +1,194 @@
+{
+  "passed": 6,
+  "checks": [
+    {
+      "id": "mine_floor",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB",
+      "colors": 8,
+      "palette_exact": true,
+      "world_m": [
+        5,
+        5
+      ],
+      "luma_mean": 67.62,
+      "orange_fraction": 0.0,
+      "seam_x_mean": 2.939,
+      "seam_y_mean": 5.995,
+      "internal_x_p95": 9.109,
+      "internal_y_p95": 8.872,
+      "sha256": "88ed9a41f8d766e414373c808d3646336cdde5af012e9fecb5afff37cfdd6d95",
+      "source_sha256": "b8d8b34af0dda0b415efadcfac3341dc008093361a72450886658a7d1eb60b30",
+      "status": "PASS"
+    },
+    {
+      "id": "mine_rock_top",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB",
+      "colors": 8,
+      "palette_exact": true,
+      "world_m": [
+        12,
+        12
+      ],
+      "luma_mean": 99.95,
+      "orange_fraction": 0.0,
+      "seam_x_mean": 8.915,
+      "seam_y_mean": 8.913,
+      "internal_x_p95": 18.594,
+      "internal_y_p95": 17.841,
+      "sha256": "0c4814b9b56723b42cd0e932bca2ccfb4d8d3b6a87b9355b4bf2c0ceade705f8",
+      "source_sha256": "9390aeb2c7bb17f4a70bceae717fcb1143fca91bcc53cb3dc4b2fcadf7ebcbd0",
+      "status": "PASS"
+    },
+    {
+      "id": "mine_rock_face",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB",
+      "colors": 9,
+      "palette_exact": true,
+      "world_m": [
+        4,
+        4
+      ],
+      "luma_mean": 82.54,
+      "orange_fraction": 0.00565,
+      "seam_x_mean": 3.816,
+      "seam_y_mean": 2.836,
+      "internal_x_p95": 7.197,
+      "internal_y_p95": 16.278,
+      "sha256": "6a9d763c4e98296bcf675e2c6d8f0657bb9b33c353d480b58f620ebbd99b6257",
+      "source_sha256": "3e043fae2e0de4b448f51421a3aa3f78e9ccf77f4c1decfb5bdb4698fbe97d97",
+      "status": "PASS"
+    },
+    {
+      "id": "snow_floor",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB",
+      "colors": 9,
+      "palette_exact": true,
+      "world_m": [
+        5,
+        5
+      ],
+      "luma_mean": 200.78,
+      "orange_fraction": 0.0,
+      "seam_x_mean": 9.319,
+      "seam_y_mean": 8.068,
+      "internal_x_p95": 9.705,
+      "internal_y_p95": 10.145,
+      "sha256": "0371da7d98c6e38829ba0ac9f2f6938615ae60fdcc6acdc2818c971c635e4ff9",
+      "source_sha256": "2309336b6c4fcca3f388fb7b0338ca580797fb0287c14dd50ddfb25517ca267b",
+      "status": "PASS",
+      "revision": 2,
+      "gray_coverage": 0.0518
+    },
+    {
+      "id": "snow_rock_top",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB",
+      "colors": 11,
+      "palette_exact": true,
+      "world_m": [
+        12,
+        12
+      ],
+      "luma_mean": 211.68,
+      "orange_fraction": 0.0,
+      "seam_x_mean": 4.664,
+      "seam_y_mean": 7.354,
+      "internal_x_p95": 10.642,
+      "internal_y_p95": 16.546,
+      "sha256": "b12b3096737edf9932a77e759d8b396893afd26d1479acbbddd04f674456f951",
+      "source_sha256": "9fe85f1616e4bc06296815a2d457f26eacf0b834bf6f0e0053368082b23981fd",
+      "status": "PASS"
+    },
+    {
+      "id": "snow_rock_face",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB",
+      "colors": 9,
+      "palette_exact": true,
+      "world_m": [
+        4,
+        4
+      ],
+      "luma_mean": 130.68,
+      "orange_fraction": 0.0,
+      "seam_x_mean": 5.71,
+      "seam_y_mean": 4.574,
+      "internal_x_p95": 11.396,
+      "internal_y_p95": 24.583,
+      "sha256": "595d3382cdc2a5477b8c1983087b0f50ab8bd382aa77c9be6200370f43fba36d",
+      "source_sha256": "87a6b430a9c8ac59f53b5b2d51c28831023b420efea2663fcbca08163c565f20",
+      "status": "PASS"
+    }
+  ],
+  "relative_brightness": {
+    "mine_top_brighter_than_floor": true,
+    "snow_top_brighter_than_floor": true,
+    "snow_face_darker_than_floor": true
+  },
+  "tiling_visual_review": {
+    "status": "REVIEWED_3X3",
+    "count": 6,
+    "result": "All six 3x3 previews reviewed; snow_floor v2 re-reviewed after gray reduction."
+  },
+  "runtime_validation": "NOT_RUN",
+  "integration": "Deferred to user as required by brief",
+  "delivery": {
+    "texture_count": 6,
+    "tile_preview_count": 6,
+    "hash_match": true,
+    "existing_painted_pngs_preserved": true
+  },
+  "snow_floor_revision": {
+    "id": "snow_floor",
+    "version": 2,
+    "size": [
+      256,
+      256
+    ],
+    "colors": 9,
+    "palette_exact": true,
+    "gray_before_pixels": 8513,
+    "gray_after_pixels": 3395,
+    "gray_ratio_to_v1": 0.3988,
+    "gray_coverage_before": 0.1299,
+    "gray_coverage_after": 0.0518,
+    "luma_mean": 200.78,
+    "snow_top_luma": 211.68,
+    "floor_darker_than_top": true,
+    "seam_x_mean": 9.319,
+    "seam_y_mean": 8.068,
+    "internal_x_p95": 9.705,
+    "internal_y_p95": 10.145,
+    "sha256": "0371da7d98c6e38829ba0ac9f2f6938615ae60fdcc6acdc2818c971c635e4ff9",
+    "source_sha256": "2309336b6c4fcca3f388fb7b0338ca580797fb0287c14dd50ddfb25517ca267b",
+    "runtime_validation": "NOT_RUN",
+    "delivery": {
+      "target": "art/kit/textures/painted/snow_floor.png",
+      "hash_match": true,
+      "other_five_terrain_and_two_icons_unchanged": true
+    },
+    "visual_review": "Before/after and standard 3x3 reviewed; cleaner snow with sparse exposed gray, no obvious border seams observed."
+  }
+}

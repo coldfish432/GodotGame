@@ -40,18 +40,21 @@ const FUNCTIONS := [
 	["camera_drag", "拖动旋转视角", "视角", {"mouse": MOUSE_BUTTON_MIDDLE}, null],
 	["camera_reset", "复位视角", "视角", {"key": KEY_HOME}, null],
 	["interact", "交互", "界面", {"key": KEY_E}, null],
-	["toggle_inventory", "背包", "界面", {"key": KEY_I}, null],
-	# I and C are two windows now (界面美术与布局策划案 v2 S1).
+	# 用户 2026-10-25: B 打开背包；基地也可按 C 打开角色面板.
+	["toggle_inventory", "背包", "界面", {"key": KEY_B}, null],
+	# B and C are two windows now (界面美术与布局策划案 v2 S1).
 	["toggle_operator", "干员", "界面", {"key": KEY_C}, null],
 	["toggle_relics", "藏品", "界面", {"key": KEY_R}, null],
 	["toggle_map", "地图", "界面", {"key": KEY_M}, null],
 	["toggle_journal", "合同", "界面", {"key": KEY_J}, null],
-	["stash_item", "存入安全袋", "界面", {"key": KEY_B}, null],
+	["stash_item", "存入安全袋", "界面", {"key": KEY_G}, null],
 	["show_items", "显示全部地面物品", "界面", {"key": KEY_ALT}, null],
 	["toggle_watch", "盯盘小窗（基地）", "界面", {"key": KEY_K}, null],
 	["toggle_stations", "站点总览（基地）", "界面", {"key": KEY_TAB}, null],
 	# 交易所交易包修订案 §3.4: over the warehouse console.
 	["quick_pack", "一键打包（基地）", "界面", {"key": KEY_P}, null],
+	# 用户 2026-11-04: 玩家按回车召回 PRTS (its messages and mail).
+	["toggle_prts", "PRTS 终端（基地）", "界面", {"key": KEY_ENTER}, null],
 	# 用户 2026-10-24: 物体可以旋转 — the item under the pointer, in a pack or the warehouse.
 	["rotate_item", "旋转物品", "界面", {"key": KEY_T}, null],
 ]

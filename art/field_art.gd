@@ -36,6 +36,11 @@ static func enemy(region: String, elite: bool, ranged: bool) -> AtlasTexture:
 ## S, SW, W, NW, N, NE, E, SE; rows idle, startup, charge, strike, recovery.
 ## Enemies without a board yet keep the side-view sheet (enemy_pose).
 ## The new enemies' sheets (art/install_n2_boards.py, EnemyN2Data) play the same way.
+## A boss's 84 px badge for the intro band (Sol B3), or null until it is in.
+static func boss_badge(figure_id: String) -> Texture2D:
+	var path := "res://ui/art/boss_%s_badge.png" % figure_id
+	return load(path) if ResourceLoader.exists(path) else null
+
 static func has_directional(enemy_type: String) -> bool:
 	return dir_tips(enemy_type).size() == 8 and ResourceLoader.exists(_directional_path(enemy_type))
 
@@ -48,14 +53,25 @@ static func _directional_path(enemy_type: String) -> String:
 	return "res://art/field/enemy_dir_%s_64.png" % enemy_type
 
 static func enemy_dir_pose(enemy_type: String, column: int, pose: int) -> AtlasTexture:
-	var key := "enemy_dir/%s/%d/%d" % [enemy_type, column, pose]
-	if not _frames.has(key):
+	# Asked for every frame by every enemy: by sheet, then column and pose as
+	# one int, kept in _frames so they go with it (no key string each call).
+	var sheet: Dictionary = _sheet(&"enemy_dir", enemy_type)
+	var key := column * 1024 + pose
+	if not sheet.has(key):
 		var atlas := AtlasTexture.new()
 		atlas.atlas = load(_directional_path(enemy_type))
 		atlas.region = Rect2(column * 64, pose * 64, 64, 64)
 		atlas.filter_clip = true
-		_frames[key] = atlas
-	return _frames[key]
+		sheet[key] = atlas
+	return sheet[key]
+
+## _frames' table for one kind of sheet and one enemy type.
+static func _sheet(kind: StringName, enemy_type: String) -> Dictionary:
+	var kinds: Dictionary = _frames.get(kind, {})
+	if kinds.is_empty(): _frames[kind] = kinds
+	var sheet: Dictionary = kinds.get(enemy_type, {})
+	if sheet.is_empty(): kinds[enemy_type] = sheet
+	return sheet
 
 ## Eight-direction walk sheets: same columns, rows are the four walk frames
 ## (contact A, pass A, contact B, pass B). Anchored exactly like the attack sheet.
@@ -66,24 +82,26 @@ static func _walk_path(enemy_type: String) -> String:
 	return "res://art/field/enemy_walk_%s_64.png" % enemy_type
 
 static func enemy_walk_pose(enemy_type: String, column: int, frame: int) -> AtlasTexture:
-	var key := "enemy_walk/%s/%d/%d" % [enemy_type, column, frame]
-	if not _frames.has(key):
+	var sheet: Dictionary = _sheet(&"enemy_walk", enemy_type)
+	var key := column * 1024 + frame
+	if not sheet.has(key):
 		var atlas := AtlasTexture.new()
 		atlas.atlas = load(_walk_path(enemy_type))
 		atlas.region = Rect2(column * 64, frame * 64, 64, 64)
 		atlas.filter_clip = true
-		_frames[key] = atlas
-	return _frames[key]
+		sheet[key] = atlas
+	return sheet[key]
 
 static func enemy_pose(row: int, pose: int) -> AtlasTexture:
-	var key := "enemy_pose/%d/%d" % [row, pose]
-	if not _frames.has(key):
+	var sheet: Dictionary = _sheet(&"enemy_pose", "")
+	var key := row * 1024 + pose
+	if not sheet.has(key):
 		var atlas := AtlasTexture.new()
 		atlas.atlas = ENEMY_ATTACKS
 		atlas.region = Rect2(pose * 64, row * 64, 64, 64)
 		atlas.filter_clip = true
-		_frames[key] = atlas
-	return _frames[key]
+		sheet[key] = atlas
+	return sheet[key]
 
 static func prop(parent: Node3D, region: String, index: int, position: Vector3, height: float, flip: bool = false) -> Sprite3D:
 	return _make_prop(parent, frame(PROPS, 4, 3, index, ["mine", "city", "snow"].find(FieldCatalog.art_region(region))), position, height, flip)
@@ -177,6 +195,17 @@ static func background_material(region: String) -> ShaderMaterial:
 ## place before the art is. Null until the file is delivered; every user
 ## falls back to the procedural look it has now.
 const PAINTED_DIR := "res://art/kit/textures/painted/"
+## Regions whose walkable floor is Sol's painted <region>_floor.png (缺图补全美术需求_v1.md
+## M1), drawn instead of the old atlas. 萨米 keeps its old floor (用户 2026-10-26:
+## 还是用左面的吧，用旧图); Sol's snow_floor.png stays in painted/, unused.
+const PAINTED_FLOORS := ["mine"]
+## How far the painted floor leans to the path's vertex colour, and how much
+## darker it lies off the walked path.
+const FLOOR_PATH := 0.22
+const FLOOR_OFF_PATH := 0.72
+## Sol's floors are painted darker than the lit path they replace (the mine's
+## light is dim): lifted so the walkable ground still reads at a glance.
+const FLOOR_GAIN := {"mine": 1.9, "snow": 1.0}
 
 static func painted(name: String) -> Texture2D:
 	var path := PAINTED_DIR + name + ".png"
@@ -191,8 +220,12 @@ const GROUND_LOOK := {
 
 static func terrain_material(region: String, look := "") -> ShaderMaterial:
 	var ground: Dictionary = GROUND_LOOK.get(look if not look.is_empty() else region, {})
-	var shader := Shader.new()
-	shader.code = """shader_type spatial;
+	# One Shader for every floor (its code never changes; the material and its
+	# parameters are still per floor), kept in _frames to be released with it.
+	var shader: Shader = _frames.get(&"terrain_shader")
+	if shader == null:
+		shader = Shader.new()
+		shader.code = """shader_type spatial;
 render_mode cull_disabled;
 uniform sampler2D atlas : source_color, filter_linear;
 uniform sampler2D background_tex : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
@@ -220,6 +253,14 @@ uniform float kerb_scale = 3.0;
 // puddles in slow patches, darker and nearly mirror.
 uniform float ground_gain = 1.0;
 uniform float wet = 0.0;
+// Sol's painted floor (PAINTED_FLOORS): tiled as it is, a little of the path's
+// vertex colour over it, darker off the walked path.
+uniform bool own_floor = false;
+uniform sampler2D floor_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float floor_scale = 5.0;
+uniform float floor_path = 0.22;
+uniform float floor_off = 0.72;
+uniform float floor_gain = 1.0;
 varying vec3 world_position;
 float wet_hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float wet_noise(vec2 p) {
@@ -240,6 +281,12 @@ void fragment() {
   vec3 slabs = texture(kerb_tex, world_position.xz / kerb_scale).rgb * kerb_gain;
   // The district's road colour (CityDressing.ROAD_TINTS) carried in COLOR.rgb.
   ALBEDO = mix(slabs, asphalt * COLOR.rgb / 0.3, step(kerb_edge, COLOR.a)) * UV2.x;
+  ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
+ } else if (own_floor) {
+  vec3 f = texture(floor_tex, world_position.xz / floor_scale).rgb * floor_gain;
+  float into = region == 1.0 ? 1.0 : COLOR.a;
+  vec3 walked = mix(f, COLOR.rgb * (0.6 + 0.8 * dot(f, vec3(0.3, 0.59, 0.11))), floor_path);
+  ALBEDO = mix(f * floor_off, walked, into) * UV2.x;
   ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
  } else {
  vec2 tile = fract(world_position.xz / 5.0);
@@ -264,6 +311,7 @@ void fragment() {
  SPECULAR = mix(mix(0.2, 0.35, wet), 0.6, puddle);
 }
 """
+		_frames[&"terrain_shader"] = shader
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	# 叙拉古 lays Lungmen's paving slabs wall to wall (叙拉古方案 §2.1: 石板路，
@@ -288,6 +336,13 @@ void fragment() {
 	elif stone:
 		material.set_shader_parameter("road_scale", 3.0)
 		material.set_shader_parameter("road_flat", 0.15)
+	var floor := painted(region + "_floor") if region in PAINTED_FLOORS else null
+	if floor != null:
+		material.set_shader_parameter("own_floor", true)
+		material.set_shader_parameter("floor_tex", floor)
+		material.set_shader_parameter("floor_path", FLOOR_PATH)
+		material.set_shader_parameter("floor_off", FLOOR_OFF_PATH)
+		material.set_shader_parameter("floor_gain", float(FLOOR_GAIN.get(region, 1.0)))
 	if road != null and kerb != null:
 		material.set_shader_parameter("painted", true)
 		material.set_shader_parameter("road_tex", road)
@@ -296,8 +351,10 @@ void fragment() {
 	return material
 
 static func ground_material(region: String) -> ShaderMaterial:
-	var shader := Shader.new()
-	shader.code = """shader_type spatial;
+	var shader: Shader = _frames.get(&"ground_shader")
+	if shader == null:
+		shader = Shader.new()
+		shader.code = """shader_type spatial;
 render_mode cull_back;
 uniform sampler2D atlas : source_color, filter_nearest;
 uniform float region = 0.0;
@@ -309,6 +366,7 @@ void fragment() {
  ROUGHNESS = 1.0;
 }
 """
+		_frames[&"ground_shader"] = shader
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	material.set_shader_parameter("atlas", GROUND)

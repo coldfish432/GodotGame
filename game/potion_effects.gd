@@ -21,6 +21,9 @@ var shield_amount := 0.0
 var regen_share := 0.0
 var regen_left := 0.0
 var regen_lock := 0.0
+## 莱茵实验抑制剂: seconds without contamination, and what it takes off at the end.
+var contam_block := 0.0
+var contam_after := 0.0
 var emergency_used := false
 ## Side effects waiting for their boost to end: [seconds to wait, hex id, values, seconds].
 var _pending: Array = []
@@ -33,6 +36,8 @@ func reset() -> void:
 	shield_amount = 0.0
 	regen_share = 0.0
 	regen_left = 0.0
+	contam_block = 0.0
+	contam_after = 0.0
 	regen_lock = 0.0
 	emergency_used = false
 	_pending.clear()
@@ -63,6 +68,9 @@ func apply(type: String) -> String:
 	if fx.has("debt_block"): debt_block = maxf(debt_block, float(fx.debt_block))
 	if fx.has("contamination"): game.run_contamination = maxf(0.0, game.run_contamination - float(fx.contamination))
 	if fx.has("quiet"): quiet = maxf(quiet, float(fx.quiet))
+	if fx.has("contam_block"):
+		contam_block = maxf(contam_block, float(fx.contam_block))
+		contam_after = maxf(contam_after, float(fx.get("contam_after", 0.0)))
 	if fx.has("shield"):
 		_drop_shield()
 		shield_amount = player.max_hp * float(fx.shield)
@@ -85,6 +93,12 @@ func tick(delta: float) -> void:
 	cold_half = maxf(0.0, cold_half - delta)
 	debt_block = maxf(0.0, debt_block - delta)
 	quiet = maxf(0.0, quiet - delta)
+	if contam_block > 0.0:
+		contam_block -= delta
+		if contam_block <= 0.0:
+			contam_block = 0.0
+			game.run_contamination = maxf(0.0, game.run_contamination - contam_after)
+			contam_after = 0.0
 	if shield_left > 0.0:
 		shield_left -= delta
 		if shield_left <= 0.0: _drop_shield()
@@ -98,6 +112,10 @@ func tick(delta: float) -> void:
 		entry[0] = float(entry[0]) - delta
 		if float(entry[0]) <= 0.0: player.add_hex(str(entry[1]), entry[2], float(entry[3]))
 	_pending = _pending.filter(func(e): return float(e[0]) > 0.0)
+
+## 莱茵实验抑制剂: no contamination while it lasts.
+func contam_mult() -> float:
+	return 0.0 if contam_block > 0.0 else 1.0
 
 func cold_mult() -> float:
 	return 0.5 if cold_half > 0.0 else 1.0

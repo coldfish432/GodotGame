@@ -111,7 +111,7 @@ func run() -> void:
 	check("and are exponential (63%% under the mean): %.2f" % under, absf(under - 0.632) < 0.04)
 	check("some come within a day of each other", waits.any(func(w): return w < 86400))
 	check("about half have an omen: %d / 3000" % omens, absi(omens - 1500) < 150)
-	check("20 black swans, all drawable", MarketEvents.of_kind("swan").size() == 20)
+	check("32 black swans, all drawable", MarketEvents.of_kind("swan").size() == 32)
 	# Every event fires cleanly.
 	var m5 := MarketState.new()
 	m5.start(T0, 21)
@@ -119,7 +119,7 @@ func run() -> void:
 	for id in MarketEvents.EVENTS:
 		var fired := m5.fire(id)
 		if fired.is_empty() or str(m5.news[-1].title).contains("%"): broken.append(id)
-	check("all %d events fire with a filled title: %s" % [MarketEvents.EVENTS.size(), broken], broken.is_empty() and MarketEvents.EVENTS.size() == 200)
+	check("all %d events fire with a filled title: %s" % [MarketEvents.EVENTS.size(), broken], broken.is_empty() and MarketEvents.EVENTS.size() == 269)
 	var empty: Array = []
 	for id in MarketEvents.EVENTS:
 		for spec in MarketEvents.EVENTS[id].effects:
@@ -147,7 +147,7 @@ func run() -> void:
 			linked[to] = true
 			if not str(link.get("if", "")).is_empty() and MarketEvents.EVENTS[id].kind != "rumor": bad_links.append("%s if on a non-rumor" % id)
 	check("every link points at a real event, conditions only on rumors: %s" % [bad_links], bad_links.is_empty())
-	print("links: %d from %d events, %d of 200 events in a story line, %d arcs" % [n_links, MarketLinks.LINKS.size(), linked.size(), MarketLinks.ARCS.size()])
+	print("links: %d from %d events, %d of 269 events in a story line, %d arcs" % [n_links, MarketLinks.LINKS.size(), linked.size(), MarketLinks.ARCS.size()])
 	check("most events belong to a story line: %d" % linked.size(), linked.size() >= 150)
 	var m8 := MarketState.new()
 	m8.start(T0, 31)
@@ -200,9 +200,9 @@ func run() -> void:
 			if not reached.has(w):
 				reached[w] = true
 				stack.append(w)
-	check("all 200 events hang in one web: %d" % reached.size(), reached.size() == 200)
+	check("all %d events hang in one web: %d" % [MarketEvents.EVENTS.size(), reached.size()], reached.size() == MarketEvents.EVENTS.size())
 	var leaning := MarketEvents.EVENTS.keys().filter(func(id): return not MarketLinks.affinity(id).is_empty()).size()
-	check("events lean on the world state: %d / 200" % leaning, leaning >= 185)
+	check("events lean on the world state: %d / %d" % [leaning, MarketEvents.EVENTS.size()], leaning >= MarketEvents.EVENTS.size() * 0.9)
 	var w1 := MarketState.new()
 	w1.start(T0, 41)
 	w1.factors.clear()
@@ -247,5 +247,86 @@ func run() -> void:
 	m7.advance_to(m7.t + 600)
 	check("and keeps running", m7.t >= m6.t + 598)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	_currencies()
 	print("TEST_MARKET: %d failures" % failures)
 	quit(1 if failures > 0 else 0)
+
+## 地区货币与地区互动事件策划案 v0.2: the ten rate books, policy rates, the band,
+## the ceiling, contagion, intervention and the field effects.
+func _currencies() -> void:
+	var m := MarketState.new()
+	m.start(T0, 7)
+	check("ten rate books, quoted as units per 赤金", Currencies.books().all(func(b): return m.books.has(b)) and absf(m.price("fx_col") - m.index("fx_col") * 400.0) < 0.01)
+	check("the live rates are published", absf(Currencies.rate("urs") - m.rate_of("urs")) < 0.01)
+	check("莱茵生命 settles in 金券", FactionCatalog.currency("rhine") == "col" and FactionCatalog.currency("karlan") == "gold")
+	check("9 crosses against 龙门币: 金券 / 龙门币 = 龙门币/赤金 ÷ 金券/赤金", Currencies.crosses().size() == 9 and absf(m.price("x_col") - m.fx_rate() / m.rate_of("col")) < 1e-6)
+	var xc := m.candles("x_col", "15m", 20)
+	check("its candles close where the books do", not xc.is_empty() and absf(float(xc[-1][3]) - float(m.candles("fx", "15m", 1)[0][3]) / float(m.candles("fx_col", "15m", 1)[0][3])) < 1e-6 and float(xc[-1][1]) >= float(xc[-1][2]))
+	var rate := m.policy_rate("col")
+	m.fire("F4", {})
+	check("a rate decision moves the policy rate: %.4f → %.4f" % [rate, m.policy_rate("col")], absf(absf(m.policy_rate("col") - rate) - 0.005) < 1e-6)
+	# The 第纳尔's band holds, and full pressure breaks it.
+	m.books["fx_sar"].pj = 0.2
+	m.advance_to(m.t + 600)
+	check("the 第纳尔 stays in its ±2%% band: %.4f" % m.index("fx_sar"), m.index("fx_sar") <= 1.0201 and m.pegged("fx_sar"))
+	check("leaning on the band builds pressure: %.2f" % float(m.pegs.fx_sar.pressure), float(m.pegs.fx_sar.pressure) > 0.0)
+	m.fire("F12", {})
+	m.advance_to(m.t + 1800)
+	check("F12 breaks the peg and it floats: %.3f" % m.index("fx_sar"), not m.pegged("fx_sar") and m.index("fx_sar") > 1.05)
+	var center := float(m.pegs.fx_sar.next)
+	m.t = int(m.pegs.fx_sar.broken_until) + 1
+	m.advance_to(m.t + 4)
+	check("after its float it is pegged again, weaker: %.3f" % center, m.pegged("fx_sar") and center > 1.09 and absf(float(m.pegs.fx_sar.center) - center) < 1e-6)
+	# The ceiling on 法郎.
+	m.fire("F29", {})
+	m.advance_to(m.t + 600)
+	var floor_now := float(m.caps.fx_kje.floor)
+	m.books["fx_kje"].pj = -0.3
+	m.advance_to(m.t + 600)
+	check("法郎 cannot rise past its ceiling", m.index("fx_kje") >= floor_now - 1e-6)
+	m.fire("F30", {})
+	m.advance_to(m.t + 1800)
+	check("lifting it lets 法郎 jump", not m.caps.has("fx_kje") and m.index("fx_kje") < floor_now * 0.95)
+	# Contagion.
+	m.ripples.clear()
+	m.fire("F7", {})
+	check("a currency crash queues its ties: %d" % m.ripples.size(), m.ripples.size() >= 4)
+	m.advance_to(m.t + 3700)
+	check("and they land within the hour", m.ripples.is_empty())
+	# Intervention.
+	var seen := {"F0": false}
+	m.on_news = func(h, _ev): if str(h.id) == "F0": seen.F0 = true
+	for i in range(200):
+		m.books["fx"].i = 1.3
+		m.books["fx"].mu = 1.3
+		m.t = (m.t / 3600 + 1) * 3600 - 1
+		m.advance_to(m.t + 2)
+		if seen.F0: break
+	check("龙门 steps in when the rate drifts past 12%", seen.F0)
+	m.on_news = Callable()
+	# The field.
+	m.field.clear()
+	m.fire("I17", {})
+	m.fire("I18", {})
+	var mine := m.field_mods("mine")
+	check("events reach the field: threat %.2f, elite %.2f" % [float(mine.mult.get("threat", 1.0)), float(mine.mult.get("elite", 1.0))], is_equal_approx(float(mine.mult.threat), 1.2) and float(mine.mult.elite) > 1.0)
+	check("stacked effects stay within 0.8–1.2", mine.mult.values().all(func(v): return v >= 0.8 - 1e-6 and v <= 1.2 + 1e-6))
+	check("and name their headlines", mine.titles.size() == 2)
+	check("other maps are untouched", m.field_mods("snow").mult.is_empty())
+	m.field.clear()
+	var ev: Dictionary = m.fire("I19", {})
+	check("a rumor reaches the field only once confirmed", m.field_mods("city").mult.is_empty())
+	ev.rumor.truth = true
+	m._verify(ev)
+	check("confirmed, it does", float(m.field_mods("city").mult.get("threat", 1.0)) > 1.0)
+	m.fire("I28", {"map": "snow", "map2": "siracusa"})
+	check("I28 picks two maps", m.field_mods("snow").mult.has("route:rest") and m.field_mods("siracusa").mult.has("threat"))
+	m.fire("I27", {})
+	var picked := str(m.news[-1].picks.faction)
+	check("I27 picks a faction with posts: %s" % picked, not MarketEvents.post_map(picked).is_empty() and m.field_mods(MarketEvents.post_map(picked)).mult.has("post:" + picked))
+	var path := "user://test_market_fx.bin"
+	m.save_file(path)
+	var back := MarketState.new()
+	back.load_file(path)
+	check("rates, pegs, caps and the field load back", back.policy == m.policy and back.pegs.size() == 1 and back.field.size() == m.field.size())
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

@@ -129,7 +129,7 @@ static func canteen(menu: FieldMenu) -> void:
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 6)
 	AK.put(stage, list, Vector2(16, TOP + 16), Vector2(640, 0))
-	for id in Provisions.MEAL_ORDER:
+	for id in Provisions.MEAL_ORDER + ([] if canteen_tab == 0 else Provisions.BOUGHT_MEALS):
 		var line := "%s   ·   %s ×%d" % [id, "库存", game.material_count(id)]
 		if canteen_tab == 0:
 			var parts: Array[String] = []
@@ -141,6 +141,7 @@ static func canteen(menu: FieldMenu) -> void:
 		var chosen: String = id
 		b.pressed.connect(func(): meal_pick = chosen; canteen(menu))
 		list.add_child(b)
+	if canteen_tab == 0 and not Provisions.RECIPES.has(meal_pick): meal_pick = Provisions.MEAL_ORDER[0]
 	var right := VBoxContainer.new()
 	right.add_theme_constant_override("separation", 10)
 	AK.put(stage, right, Vector2(690, TOP + 16), Vector2(570, 0))
@@ -170,7 +171,7 @@ static func canteen(menu: FieldMenu) -> void:
 			right.add_child(AK.label(p.meal() if not p.meal().is_empty() else "无", 16, AK.FG if not p.meal().is_empty() else AK.MUTE))
 			_go(right, "用餐", p.eat_refusal(meal_pick), func(): p.eat(meal_pick); canteen(menu))
 		2:
-			right.add_child(AK.section("寄给罗德岛小队", "COLD CHAIN  R%d" % game.exchange.rank("penguin")))
+			right.add_child(AK.section("寄给罗德岛小队", Exchange.rank_name(game.exchange.rank("penguin"))))
 			right.add_child(AK.label(p.mailed() if not p.mailed().is_empty() else "无", 16, AK.FG if not p.mailed().is_empty() else AK.MUTE))
 			right.add_child(AK.money("lmd", Economy.format(Provisions.MAIL_LMD), 15))
 			_go(right, "寄出", p.mail_refusal(meal_pick), func(): p.mail(meal_pick); canteen(menu))

@@ -38,29 +38,45 @@ func rules() -> void:
 	var base := BaseState.new()
 	var sword := item("剑", Item.Category.WEAPON, 2, 1)
 	var plate := item("甲", Item.Category.ARMOR, 2, 2)
-	# 仓库修订 (用户 2026-10-23): one warehouse, its cells set by 仓储部, any kind in any cell.
-	check("starts with 60 cells, the same for every kind", range(4).all(func(c): return base.capacity(c) == 60) and base.capacity() == 60)
+	# 仓库形状修订案 v1.0 (用户 2026-11-04): a fixed 10 × 12 grid, each item its own shape.
+	check("starts as a 10 × 12 grid of 120 cells", BaseState.SHELF_COLUMNS == 10 and base.shelf_height() == 12 and base.capacity() == 120)
 	check("an item arrives once, straight into the warehouse", base.receive(sword) and not base.receive(sword) and base.location_of(sword) == "shelf")
-	check("arrivals are counted one cell each", base.receive(plate) and base.shelf_count() == 2 and base.all_items().size() == 2)
-	check("taking it out and putting it back", base.take_from_shelf(sword) and base.location_of(sword) == "" and base.store(sword) == "shelf" and base.location_of(sword) == "shelf")
+	check("cells counted by shape: 2×1 and 2×2 take 6", base.receive(plate) and base.shelf_count() == 6 and base.all_items().size() == 2)
+	check("taking it out and putting it back", base.take_from_shelf(plate) and base.location_of(plate) == "" and base.store(plate) == "shelf")
 	check("removing takes it out of the base", base.remove_item(plate) and base.location_of(plate) == "" and not base.remove_item(plate))
 
-	# A full warehouse refuses from the loadout; the item stays where it was.
+	# A full grid refuses from the loadout; what the base brings goes to the PRTS mail.
 	var full := BaseState.new()
-	for i in range(60): full.shelf.append(item("库存%d" % i, Item.Category.WEAPON))
-	var extra := item("第61件", Item.Category.TRINKET)
-	check("a full warehouse refuses to store", full.store_target(extra) == "" and full.store(extra) == "" and full.location_of(extra) == "")
-	check("arrivals still come in over the count, nothing that comes home is lost", full.receive(extra) and full.shelf_count() == 61)
+	for i in range(120): full.receive(item("库存%d" % i, Item.Category.WEAPON))
+	var extra := item("第121件", Item.Category.TRINKET)
+	check("a full warehouse refuses to store", full.shelf_count() == 120 and full.store_target(extra) == "" and full.store(extra) == "" and full.location_of(extra) == "")
+	check("what the base brings goes to the PRTS mail, nothing lost", full.receive(extra) and full.mail_has(extra) and full.mail_count() == 1 and not full.shelf.has(extra) and full.all_items().has(extra))
+	check("mailed once, for the announcement", full.mailed.size() == 1)
 	full.set_facility("warehouse", 2)
-	check("仓储部 Lv2 doubles the room", full.capacity() == 120 and full.shelf_has_room())
+	check("仓储部 Lv2: 10 × 20", full.capacity() == 200 and full.shelf_has_room())
+	check("then the letter's piece comes into the warehouse", full.claim_mail(extra) and full.shelf.has(extra) and full.mail.is_empty())
 
-	# Stacks: a matching stack takes a stack even when the cells are full.
+	# Shape: one free cell takes a 1×1, not a 2×2; a 2×1 turns to fit a 1×2 slot.
+	var shape := BaseState.new()
+	for y in range(12):
+		for x in range(10):
+			if x == 9 and y < 2: continue
+			var piece := item("格%d_%d" % [x, y], Item.Category.MATERIAL)
+			piece.grid_x = x
+			piece.grid_y = y
+			shape.shelf.append(piece)
+	var square := item("方", Item.Category.ARMOR, 2, 2)
+	var bar := item("条", Item.Category.WEAPON, 2, 1)
+	check("two free cells in a column: no room for a 2×2", not shape.shelf_has_room(square) and shape.store(square) == "")
+	check("a 2×1 turns to fit them", shape.store(bar) == "shelf" and bar.width == 1 and bar.height == 2 and bar.grid_x == 9)
+
+	# Stacks: a matching stack takes a stack even when the grid is full.
 	var stacks := BaseState.new()
 	var bolts := MaterialCatalog.create("螺栓", 1)
-	stacks.shelf.append(bolts)
-	for i in range(59): stacks.shelf.append(item("填%d" % i, Item.Category.TRINKET))
+	stacks.receive(bolts)
+	for i in range(119): stacks.receive(item("填%d" % i, Item.Category.TRINKET))
 	var more := MaterialCatalog.create("螺栓", 1)
-	check("a full warehouse still merges onto a stack with room", stacks.store(more) == "shelf" and bolts.quantity == 2 and stacks.shelf_count() == 60)
+	check("a full warehouse still merges onto a stack with room", stacks.store(more) == "shelf" and bolts.quantity == 2 and stacks.shelf_count() == 120)
 	bolts.set_quantity(bolts.max_stack)
 	var over := MaterialCatalog.create("螺栓", 1)
 	check("at ×1 a full stack takes no more", stacks.store(over) == "")
@@ -77,7 +93,12 @@ func rules() -> void:
 	loaded.load_data(JSON.parse_string(JSON.stringify(saved.to_data())), seen)
 	var places := loaded.all_items().map(func(x): return [x.uid, loaded.location_of(x)])
 	check("save round trip keeps each item and 仓储部's level",
-		places.has([a.uid, "shelf"]) and places.has([b.uid, "shelf"]) and loaded.all_items().size() == 2 and loaded.capacity() == 220)
+		places.has([a.uid, "shelf"]) and places.has([b.uid, "shelf"]) and loaded.all_items().size() == 2 and loaded.capacity() == 300)
+	var mailed := BaseState.new()
+	mailed.post_mail(item("信", Item.Category.TRINKET), "罗德岛小队")
+	var reread := BaseState.new()
+	reread.load_data(JSON.parse_string(JSON.stringify(mailed.to_data())), {})
+	check("the mail is saved", reread.mail_count() == 1 and str(reread.mail[0].from) == "罗德岛小队" and reread.mailed.is_empty())
 	var again := BaseState.new()
 	again.load_data(JSON.parse_string(JSON.stringify(saved.to_data())), seen)
 	check("already-loaded uids are not loaded twice", again.all_items().is_empty())
@@ -89,6 +110,11 @@ func rules() -> void:
 	var migrated := BaseState.new()
 	migrated.migrate_v1(old, {})
 	check("v1 stash migrates into the warehouse, none lost", migrated.shelf_count() == 71 and migrated.all_items().size() == 71)
+	var big: Array = []
+	for i in range(130): big.append(item("多%d" % i, Item.Category.WEAPON).to_data())
+	var spilled := BaseState.new()
+	spilled.migrate_v1(big, {})
+	check("an old save past the grid: the rest waits in the mail", spilled.shelf_count() == 120 and spilled.mail_count() == 10 and spilled.all_items().size() == 130)
 
 func through_game() -> void:
 	var game := GameManager.new()
@@ -149,10 +175,11 @@ func through_game() -> void:
 		and game.base.insurance_queue.is_empty())
 	game.base.shelf.erase(blade)
 
-	# Storing, bringing and selling through the game.
+	# Storing and bringing through the game.
 	check("storing from the safe bag goes into the warehouse", game.store_item(safe_find) and game.base.location_of(safe_find) == "shelf" and not game.safe_bag.items.has(safe_find))
 	check("bringing it puts it in the pack", game.bring_item(safe_find) and game.inventory.items.has(safe_find) and game.base.location_of(safe_find) == "")
-	check("a stored item can be sold", game.store_item(safe_find) and game.sell(safe_find) and game.base.location_of(safe_find) == "")
+	check("and it can be stored again", game.store_item(safe_find) and game.base.location_of(safe_find) == "shelf")
+	game.base.shelf.erase(safe_find)
 
 	# A pack too full to take an item: it stays in the warehouse.
 	var bulky := item("大件", Item.Category.ARMOR, 2, 2)

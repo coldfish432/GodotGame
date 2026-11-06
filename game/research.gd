@@ -66,6 +66,9 @@ func refusal(id: String) -> String:
 	if not is_open(): return "需要科研部 Lv%d" % ResearchCatalog.OPEN_LEVEL
 	if is_done(id): return "已完成"
 	if is_running(id): return "研究中"
+	if ResearchCatalog.department_of(id) == "intel":
+		var lost: String = game.dept_refusal("intel")
+		if not lost.is_empty(): return lost
 	var missing := missing_prerequisite(id)
 	if not missing.is_empty(): return "需要%s" % ResearchCatalog.name_of(missing)
 	if deepest_camp() < ResearchCatalog.camp_needed(id): return "需要第 %d 层营地" % ResearchCatalog.camp_needed(id)

@@ -215,6 +215,42 @@ static func _frost_cast(fx: BossVfx, c: Dictionary, dir: Vector3, stage: int) ->
 	fx.burst({"at": dir * 0.5 + Vector3.UP * 1.2, "radius": 0.6, "amount": 10 if stage < 2 else 18, "time": 0.7, "speed": [0.2, 0.6], "dir": Vector3.DOWN, "spread": 30.0,
 		"gravity": Vector3(0, -0.6, 0), "size": P * 1.0, "near_ok": true, "colours": [c.hot, c.dust, Color(c.main.r, c.main.g, c.main.b, 0.0)]})
 
+# --- 寒檀 · 女巫之泪 (用户 2026-11-05: 技能的特效做的更显眼，砸到地上有碎裂迸溅特效) ---------
+
+## Where an icicle will land, `seconds` ahead: a small frost ring closing in, a glint.
+static func icicle_mark(player: Player, spot: Vector3, seconds: float) -> void:
+	if not _ok(player): return
+	var game := player.game
+	var c := colours("santalla")
+	var fx := BossVfx.make(game, _foot(game, spot))
+	fx.ring(0.55, P * 1.5, c.hot, _edge(c), {"from_share": 1.8, "sweep": seconds, "hold": 0.0, "fade": 0.08, "additive": true})
+	fx.glow(0.6, c.main, 0.35, seconds, 0.0)
+
+## An icicle shattering on the ground: a flash and a shock ring, frost spreading,
+## ice spikes breaking out round it, shards and glitter thrown up and out.
+static func icicle_shatter(player: Player, spot: Vector3) -> void:
+	if not _ok(player): return
+	var game := player.game
+	var c := colours("santalla")
+	# A deep ice blue under the pale core, so it reads on snow as well as on rock.
+	var deep := Color("1f78c0")
+	var clear := Color(deep.r, deep.g, deep.b, 0.0)
+	var fx := BossVfx.make(game, _foot(game, spot))
+	fx.glow(1.6, c.main, 1.0, 0.3)
+	fx.ring(1.4, P * 4.0, deep, clear, {"from_share": 0.2, "sweep": 0.12, "hold": 0.02, "fade": 0.3})
+	fx.ring(1.2, P * 2.0, c.hot, _edge(c), {"from_share": 0.2, "sweep": 0.12, "hold": 0.0, "fade": 0.25, "additive": true})
+	fx.splat(1.1, Color(deep.r, deep.g, deep.b, 0.7), Color(c.main.r, c.main.g, c.main.b, 0.0), {"spread": 0.18, "hold": 0.4, "dry": 0.7})
+	for i in range(6):
+		var a := TAU * i / 6.0 + randf() * 0.5
+		fx.crystal(Vector3(cos(a), 0, sin(a)) * randf_range(0.4, 0.85), randf_range(0.3, 0.55), deep, c.hot, 0.0, 0.4)
+	# Shards: chunky ice thrown up and out, falling back.
+	fx.burst({"at": Vector3.UP * 0.25, "radius": 0.2, "amount": 30, "time": 0.65, "speed": [2.0, 5.0], "dir": Vector3.UP, "spread": 70.0, "gravity": Vector3(0, -12.0, 0),
+		"size": P * 2.6, "tints": [deep, c.main, c.hot], "colours": [Color.WHITE, Color.WHITE, Color(1, 1, 1, 0)], "near_ok": true})
+	# A low splash skimming out along the ground.
+	fx.burst({"at": Vector3.UP * 0.08, "ring": [0.1, 0.3], "amount": 20, "time": 0.5, "speed": [2.5, 4.5], "flat": true, "dir": Vector3.RIGHT, "spread": 180.0,
+		"radial": 3.0, "size": P * 1.8, "tints": [deep, c.main], "colours": [Color.WHITE, Color.WHITE, Color(1, 1, 1, 0)], "near_ok": true})
+	fx.sparks(Vector3.UP * 0.3, c.main, c.hot, 14, 3.5, Vector3.UP, 80.0)
+
 ## Typhon: the bowstring's snap — one long thin line of light off her bow.
 static func _bowstring(fx: BossVfx, c: Dictionary, dir: Vector3) -> void:
 	var edge := _edge(c)
@@ -368,7 +404,7 @@ static func skill(player: Player, point: Vector3) -> void:
 			fx.ring(1.6, P * 3.0, c.hot, edge, {"fade": 0.35})
 			fx.glow(2.0, c.main, 0.7, 0.4)
 
-## 绝影's last strike: a crimson cross burnt into the ground and a hard jolt.
+## 绝影's last strike: a crimson cross burnt into the ground.
 static func finisher(player: Player, target: Enemy) -> void:
 	if not _ok(player) or not is_instance_valid(target): return
 	var game := player.game

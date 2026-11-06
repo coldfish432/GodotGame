@@ -87,7 +87,7 @@ func pref(anchor: String, category: String) -> float:
 func sell_quote(anchor: String, item: Item) -> float:
 	if not takes(item): return 0.0
 	var category := FactionCatalog.category_of(item)
-	var lmd := float(Economy.price(item)) * pref(anchor, category) * index(anchor, category) * (1.0 - float(SPREAD.get(anchor, 0.05)) * 0.5 - commission())
+	var lmd := float(Economy.price(item)) * pref(anchor, category) * index(anchor, category) * (1.0 - float(SPREAD.get(anchor, 0.05)) * game.market.consign_mult(anchor) * 0.5 - commission())
 	return Exchange.from_lmd(currency(anchor), lmd)
 
 ## Loose goods, 特产 and gear; never packs, flasks, 赤金, 势力特供 or bulk crates (§5.4).
@@ -106,7 +106,7 @@ func buy_quote(anchor: String, entry: Dictionary) -> float:
 		var q := game.exchange.quote_buy(str(entry.faction), item.material_id)
 		return Exchange.from_lmd(currency(anchor), Exchange.lmd_eq(str(q.currency), float(q.unit)) * item.quantity * (1.0 + commission())) if q.ok else -1.0
 	var category := FactionCatalog.category_of(item)
-	var lmd := float(Economy.price(item)) * pref(anchor, category) * index(anchor, category) * (1.0 + float(SPREAD.get(anchor, 0.05)) * 0.5 + commission())
+	var lmd := float(Economy.price(item)) * pref(anchor, category) * index(anchor, category) * (1.0 + float(SPREAD.get(anchor, 0.05)) * game.market.consign_mult(anchor) * 0.5 + commission())
 	return Exchange.from_lmd(currency(anchor), lmd)
 
 ## A whole price: 赤金 is bars (up when she pays, down when she is paid).
@@ -130,7 +130,7 @@ func restock_in() -> int:
 	return RESTOCK - BaseState.now() % RESTOCK
 
 func _roll(anchor: String) -> Array:
-	var rng := game.rng
+	var rng := game.rng_trade
 	var out: Array = []
 	var region := region_of(anchor)
 	var factions: Array = VoyageCatalog.ANCHOR_FACTIONS.get(anchor, [])
@@ -165,7 +165,7 @@ func _depth(region: String) -> int:
 
 func _roll_gear(region: String) -> Item:
 	for attempt in range(40):
-		var item := FieldCatalog.roll_item(region, _depth(region), game.rng, 0.0)
+		var item := FieldCatalog.roll_item(region, _depth(region), game.rng_trade, 0.0)
 		if item.is_equippable() and not item.is_rare(): return item
 	return null
 
@@ -176,7 +176,7 @@ func buy_refusal(anchor: String, i: int) -> String:
 	var entry: Dictionary = list[i]
 	if entry.sold: return "已售出"
 	if str(entry.kind) == "special" and game.exchange.rank(str(entry.faction)) < FactionSpecials.rank_needed(Item.from_data(entry.item).material_id):
-		return "需要关系 R%d" % FactionSpecials.rank_needed(Item.from_data(entry.item).material_id)
+		return "需要关系 %s" % Exchange.rank_name(FactionSpecials.rank_needed(Item.from_data(entry.item).material_id))
 	var price := buy_quote(anchor, entry)
 	if price < 0.0: return "暂停出售"
 	var cur := currency(anchor)

@@ -40,15 +40,24 @@ B1 = ["patriot", "rat_king", "eikthyrnir", "zaro", "crownslayer", "skullshattere
 IDS += B1
 ACTION_BATCH.update({enemy: "batch_B1_v3" for enemy in B1})
 ACTION_BATCH.update({enemy: "batch_B1_v4" for enemy in ["patriot", "eikthyrnir", "zaro"]})
+# B3 (Boss演出策划案_v0_2, accepted 2026-11-04): the same boards with the set
+# pieces' rows added below (old rows pixel-identical; specks cleaned and baked
+# here, batch_B3_fix/despeckle.py + bake_n2.py --scale-from the B1 board).
+ACTION_BATCH.update({enemy: "batch_B3_fix" for enemy in B1})
+# B4 (Boss演出策划案_v0_2 §14, accepted 2026-11-05): the four region bosses' attack
+# beats below; Patriot carries the PRTS black halberd on every row and on his walk
+# (用户 2026-11-05: 明日方舟里是黑戟; batch_B4_v2, cleaned in batch_B4_fix).
+B4 = ["patriot", "rat_king", "eikthyrnir", "zaro"]
+ACTION_BATCH.update({enemy: "batch_B4_fix" for enemy in B4})
 # 萨卡兹哨兵's walk is re-baked at its action board's scale (bake_n2.py
 # --scale-from; its first walk cell carries the pole tilted), 2026-10-14.
 WALK_BATCH = {"sentinel": "batch_N3_claude"}
 WALK_BATCH.update({enemy: "batch_N4_v1" for enemy in N4})
 WALK_BATCH.update({enemy: "batch_B1_v3" for enemy in B1})
-WALK_BATCH["patriot"] = "batch_B1_v4"
+WALK_BATCH["patriot"] = "batch_B4_fix"
 # B1 boards have more rows (BossCatalog.POSES names them); Patriot's walk has
 # both stances (rows 1-4 marching, 5-8 destruction).
-ACTION_ROWS = {"patriot": 9, "rat_king": 8, "eikthyrnir": 9, "zaro": 9, "crownslayer": 7, "skullshatterer": 6, "hollow_snowpriest": 7, "father_agnir": 6}
+ACTION_ROWS = {"patriot": 31, "rat_king": 26, "eikthyrnir": 24, "zaro": 21, "crownslayer": 9, "skullshatterer": 8, "hollow_snowpriest": 9, "father_agnir": 8}
 WALK_ROWS = {"patriot": 8}
 # B2 叙拉古平民 (Boss战场地策划案 §4.4): Sol's v5 boards, reduced by
 # field/reduce_b2.py --board (用户 2026-10-19: 压平色块、固定调色板、不补耳朵).

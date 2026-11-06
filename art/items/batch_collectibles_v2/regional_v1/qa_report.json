@@ -1,0 +1,751 @@
+{
+  "total": 32,
+  "passed": 32,
+  "static_status": "PASS",
+  "runtime_validation": "NOT_RUN",
+  "art_acceptance": "PENDING_USER_REVIEW",
+  "checks": [
+    {
+      "id": "col_mine_pass",
+      "name": "矿区通行证",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "0b2e7a39849bf7b208c1676c27b91a9b440897caa2b7a2c2cb102aaaecc0628d",
+      "source_sha256": "dcf327540b7494409b3cce6b87c82976deeda1d6de8847176326362af69e17ab",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_miner_charm",
+      "name": "矿工护身符",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "51c1344b3ddf172990c804cc3bd054bb0b2c2fcc2a5258d084924d8c1636547a",
+      "source_sha256": "cb2ce3471eedf1b6f8566de85a4a61c9e7e931fe4ca8a5ceb92b1d3faca8171c",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_tin_doll",
+      "name": "铁皮套娃",
+      "size": [
+        32,
+        72
+      ],
+      "bbox": [
+        2,
+        2,
+        30,
+        69
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "a8e5411ecb07545c2fadba2cc8d4f3046366d89eb74676926b9b72764c259115",
+      "source_sha256": "d37db802484ced17901012528ab616b99a4a030df1e8da959e5b042c52000827",
+      "source_size": [
+        836,
+        1881
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_old_lamp",
+      "name": "旧矿灯",
+      "size": [
+        32,
+        72
+      ],
+      "bbox": [
+        2,
+        6,
+        30,
+        65
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "296b15ef655c7b8b46708380c200b6e2a6fe732a81c86f84fe56b2e2caeb80cb",
+      "source_sha256": "f7abdff01f8d9b0e61cd7d7c4d7bdffeff202ee4ec48e00abc6da6b28804be4a",
+      "source_size": [
+        836,
+        1881
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_pocket_watch",
+      "name": "旧式怀表",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        3,
+        30,
+        28
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "fe8802035e8aff307378ff4049d8a7c0ad9253741437bb0867d68edffe8f0dc7",
+      "source_sha256": "cceb5b48019a78f7a757abe552a014eebd460af1fe0c720777fa007b21e27f01",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_lamp_shade",
+      "name": "源石灯罩",
+      "size": [
+        72,
+        72
+      ],
+      "bbox": [
+        2,
+        2,
+        70,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "2de5bad5db6a4568256473df2ed4681882fb2a254e4952d8bb28f18c4ef5a579",
+      "source_sha256": "eb68c4a57789cf15dca7f3b0df754fc52ee5e6bb0b39de3601fa85ccc3c69657",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_school_badge",
+      "name": "学校纪念徽章",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        3,
+        2,
+        28,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "ef7ddec1cb51421b1a5a4d2f51200c8d3259b6ddbc0585557ef0be07bc54c7d7",
+      "source_sha256": "a19161f3930b1c82c5a5132f158621d53f91ee7ab073de3cd6c9a1d7112a63dd",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_imperial_medal",
+      "name": "帝国勋章",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "bd49f9e4416172507c4fe048ea0a2c88172505c1fa6961a38f47e2c9af0487e1",
+      "source_sha256": "8535aebdaa5d666bdfa6dfea69b8ea519e62c57c20e1db288703a207c6070ccb",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_teahouse_chip",
+      "name": "茶楼筹码",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "f9774b7fabe431d5f5e40e746716681469b08f0bf3f3a0f3d867890d11d9c394",
+      "source_sha256": "f2f4d7a86685e0ae82e1fa96dc2035517b2eeb43d7c8bfa41ae90a6fedbf8de4",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_lmd_specimen",
+      "name": "旧版龙门币样钞",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        30,
+        29
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "9740775d7ac0b13a66f9553276ebe8783bbe260470292e9a130685a658152518",
+      "source_sha256": "2b734a1a76852885392afad4ee3ab1d9b35058162a5fc534ffd8acd1890015d2",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_mahjong",
+      "name": "麻将牌匣",
+      "size": [
+        72,
+        32
+      ],
+      "bbox": [
+        2,
+        5,
+        70,
+        27
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "054b4d81029517751ebe8fe6d66ccdc01c78107a0ea06832bcb45c7cd1a5c07a",
+      "source_sha256": "5b53b6c791561b12b6c4374a3af53c3719cd4863eff5f22214b2af468650016a",
+      "source_size": [
+        1881,
+        836
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_radio",
+      "name": "老式收音机",
+      "size": [
+        72,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        70,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "d1baf7b06099b03b974837dca4b0a9f6efdea0dabb1cf4323b8230b96abc42da",
+      "source_sha256": "58e1e7c443788454dfaed1f3e9adcdfbec299a9a2640e3a910abef6e039bbf4f",
+      "source_size": [
+        1881,
+        836
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_lion_dance",
+      "name": "醒狮摆件",
+      "size": [
+        32,
+        72
+      ],
+      "bbox": [
+        2,
+        2,
+        29,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "f98967816b00024922b53e0901ecb219d0f138ec0af57754117b4a8728d331f3",
+      "source_sha256": "b859878f3caa7543e7229d8b204ee77b33fe8798efaf1696ffd8ee37eff36043",
+      "source_size": [
+        836,
+        1881
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_yan_teapot",
+      "name": "炎国瓷茶壶",
+      "size": [
+        72,
+        72
+      ],
+      "bbox": [
+        2,
+        9,
+        70,
+        63
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "7d5da925c386062130dea042be3f9c0f4aad13b50ecb7101cd8d379586a74fa3",
+      "source_sha256": "2f9304620381d1e5e18230c6014eae6d9d29c60bd7f427b99c849874716bb0de",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_lgd_medal",
+      "name": "近卫局纪念章",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        3,
+        2,
+        28,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "1427751d3ee5feac26d015e561a90e805be8f61d9dbbba95b7893b0e553a405e",
+      "source_sha256": "045aa6b4c77e8701ea8fd935d6b09e1fae19d4c6dd2e43bc93cf3b43f770c487",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_jade_pendant",
+      "name": "古玉坠",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        5,
+        2,
+        27,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "064889434b599b2cfc8a3896710071edfbdb0d95bf4f18dfd01e449f62d36c49",
+      "source_sha256": "2744f14f0c731cb2cf387f577b357a5a284152f28bfe98373017f4f1c92f5ad1",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_reindeer_bell",
+      "name": "驯鹿铃铛",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "51c9d2d070efdaca94a0049b1b665cb7fded155d01fdac493e1cd6ac67946b62",
+      "source_sha256": "b9b1bef3dd9e5dbaa6050b1148e30b33cf278f6a03ea27d836555661c8aa1808",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_hide_charm",
+      "name": "兽皮护符",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "7d97d24ba1cd0bfac5fd8fdf07d7effd2189f0fdd4f2b836c99af40f5a803f53",
+      "source_sha256": "43550d0f4a46bef3cdd1b7ac92a89e2989a82ee7a6d4cb6d52e41f6e93ab8b76",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_antler",
+      "name": "驯鹿角饰",
+      "size": [
+        72,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        70,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "9a9f4ca73126ccdffd99d212f6a69ba70e3aa93551bff54d17c49373ad680671",
+      "source_sha256": "b7c2dec9d1a58cc7d5c42686f64935417c4b441a5f0d37202efb270d83da2a7f",
+      "source_size": [
+        1881,
+        836
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_birch_basket",
+      "name": "桦树皮篓",
+      "size": [
+        32,
+        72
+      ],
+      "bbox": [
+        7,
+        2,
+        24,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "74296fed25b6165af504feda4a40b4fb1c0d9d50779605c1af0ddd06ed637ad0",
+      "source_sha256": "e7c5bdd4bceef6394344ccd8c6a2b8cfae954db16264dc3527fde5e3ae945130",
+      "source_size": [
+        836,
+        1881
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_sami_carving",
+      "name": "萨米木雕",
+      "size": [
+        32,
+        72
+      ],
+      "bbox": [
+        4,
+        2,
+        28,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "e791d078b24bc2a43b38329d22732e66d53e2018469089c07f7bdc94f897d477",
+      "source_sha256": "e664f365ebdbf684b28a6104632d3b25fcee907c4655f864e81644235dd95c68",
+      "source_size": [
+        836,
+        1881
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_snow_map",
+      "name": "雪境古地图",
+      "size": [
+        72,
+        72
+      ],
+      "bbox": [
+        2,
+        2,
+        70,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "2e6a5f9fe34bed66e14cefd3cbd04fd5399724c6bed8a5c33220e95883bd973b",
+      "source_sha256": "0ab5b000c5c86b8810ba78b86dad82381aeecdb35ac3c59bbb926d0f02acc25e",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_bone_flute",
+      "name": "萨满骨笛",
+      "size": [
+        72,
+        32
+      ],
+      "bbox": [
+        2,
+        6,
+        70,
+        26
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "ad8b2ea8ce6e84c91418fdeef7de14e4e88edfae47b9f2e41dca476a74a32189",
+      "source_sha256": "9b2d14027d898743d5daefa61bcb65625ff0365c8e1885605243fb2b62b13422",
+      "source_size": [
+        1881,
+        836
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_aurora_amber",
+      "name": "极光琥珀",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        5,
+        2,
+        27,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "6cb2a921a4179dc6d8b3beeb074b3066f52553451bc25ca803d5f44d8657b70c",
+      "source_sha256": "6619b631cb1cde0a80ef23aa5c450c17b3ca500f116485ba056ddd2f09e1863b",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_coffee_cup",
+      "name": "街角咖啡杯",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        4,
+        30,
+        27
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "189c763166a5fbcaf7ac1264f28d6d22656b745906d186104b36cc4c947f62d1",
+      "source_sha256": "86683f2671f5c9b20cc8122cf34fcf049f9e16bb9ee7e96b682af29c58454166",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_opera_poster",
+      "name": "歌剧院旧海报",
+      "size": [
+        32,
+        72
+      ],
+      "bbox": [
+        4,
+        2,
+        28,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "6bdfe8441d32f79711fbcaa9d681b50404afcb88478ee72ee2fbf27b16978214",
+      "source_sha256": "fc7e59ec06d0f073682f59c53377be26cf326b4c2fea08676287b6056fada257",
+      "source_size": [
+        836,
+        1881
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_silver_cutlery",
+      "name": "银质餐刀匣",
+      "size": [
+        72,
+        32
+      ],
+      "bbox": [
+        2,
+        4,
+        70,
+        28
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "8d6364bbba4a9958478dd83da367a6de13caf205504ceb66b62dede4ed195c25",
+      "source_sha256": "3af13031563a7465f14f5c46491cea1e4a66033b8b42b5f5055464cf0ba24a35",
+      "source_size": [
+        1881,
+        836
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_brass_lighter",
+      "name": "黄铜打火机",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "cb45e2934ccb7633f0fbd2b4be2558ad70cc83b6196009c532ecb756107bf59f",
+      "source_sha256": "3da9167c036ca7910d7bb495327e934895b6c195cf85f521e3b177e2d761fab0",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_vintage_bottle",
+      "name": "陈年酒瓶",
+      "size": [
+        32,
+        72
+      ],
+      "bbox": [
+        8,
+        2,
+        24,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "307fb4f7c6382da2a11ced644af0831eb0c018a226733c0a830b8767c1ccfc27",
+      "source_sha256": "90917422e23146cdee463b1c2173dc376105da58a881db155b74abd2265d98ea",
+      "source_size": [
+        838,
+        1877
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_porcelain_wolf",
+      "name": "陶瓷狼像",
+      "size": [
+        72,
+        72
+      ],
+      "bbox": [
+        14,
+        2,
+        57,
+        70
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "e8c0ec7c5d4e90c9c0a83c2981529ea8ab460466a407993e8b89f129bd302724",
+      "source_sha256": "91e3dcb829cce392f3381a5e726770d6e637e471af6db48eb747756f082496a7",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_family_ledger",
+      "name": "家族账本",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "472e6abe9ee59819a5e0abe91217fc4a052c17df522211be227b6bd6be0605bf",
+      "source_sha256": "951357871fc40e9d9ab6053a6e37b972cdc236c65853bafd2ed473f175a25ad2",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "col_family_seal",
+      "name": "家族印章",
+      "size": [
+        32,
+        32
+      ],
+      "bbox": [
+        2,
+        2,
+        30,
+        30
+      ],
+      "transparent": true,
+      "registry_match": true,
+      "sha256": "6361dee56aa06250b877f9a553bb0f27c9d0102b3723c040949f197583165d9f",
+      "source_sha256": "47065620e2d938d0782519451ebbf12c01e3da12589f00dce304b300c34be580",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "status": "PASS"
+    }
+  ],
+  "delivery": {
+    "runtime_count": 32,
+    "hash_match": true,
+    "existing_unrelated_assets_preserved": true
+  },
+  "visual_review": "All 32 icons inspected at native size and 4x; source details spot-checked."
+}

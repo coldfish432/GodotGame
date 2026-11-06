@@ -6,7 +6,8 @@ const GROUND_LIFT := 0.65
 
 ## Perception and 仇恨值 (aggro, LoL camp style) drive idle/chase/reset states.
 ## Movement follows NavigationAgent3D with terrain-checked final steps.
-## Ordinary attacks read through poses, facing and sounds; elites telegraph.
+## Ordinary attacks read through poses, facing and sounds; elites, ground casts
+## and lobs also mark the ground (telegraphs).
 
 signal died(enemy: Enemy)
 
@@ -189,9 +190,6 @@ var _muzzle := Vector3.ZERO
 const MUZZLE_TEXELS := {"crossbow": Vector2(22, -12), "crossbow_leader": Vector2(23, -12), "ice_hunter": Vector2(23, -10)}
 const SCOPE_TEXELS := Vector2(12, -12)
 const STRIKE_TIME := 0.10
-## While charging, every enemy but the sniper keeps turning to face Lappland at
-## this rate, and strikes where it faces when the windup ends (用户 2026-10-07).
-const WINDUP_TURN_DEG := 270.0
 ## A lunge stops when it reaches the player instead of passing through, holds
 ## the connecting pose, then springs back. It reaches her with whatever is in
 ## front: the slug's jaws (body contact) or the brawler's extended blade.
@@ -203,6 +201,7 @@ const PIXEL := 1.0 / 15.0
 
 func setup(p_game: GameManager, p_elite: bool, p_ranged: bool, type: String = "") -> void:
 	game = p_game
+	if type.is_empty() and p_elite: type = EnemyAttacks.region_elite(game.region_id, game.rng_floor)
 	enemy_type = EnemyAttacks.default_type(game.region_id, p_elite, p_ranged) if type.is_empty() else type
 	if not EnemyAttacks.PROFILES.has(enemy_type): enemy_type = EnemyAttacks.default_type(game.region_id, p_elite, p_ranged)
 	attack_profile = EnemyAttacks.PROFILES[enemy_type]
@@ -465,7 +464,29 @@ func _tick_stealth(delta: float) -> void:
 		_splash_timer = EnemyAttacks.ERASER_SPLASH_EVERY
 		EnemyAttackVfx.spawn(game, Vector3(global_position.x, game.ground_y(global_position) + 0.04, global_position.z), -global_basis.z, "splash")
 
+## line_of_sight asked twice for the same two points within one tick (perception,
+## then the chase) is asked once: nothing on the map moves inside a tick.
+var _sight_live := false
+var _sight_from := Vector3.INF
+var _sight_to := Vector3.INF
+var _sight_clear := false
+
+func _sight(from: Vector3, to: Vector3) -> bool:
+	if _sight_live and from == _sight_from and to == _sight_to: return _sight_clear
+	var clear := game.line_of_sight(from, to)
+	if _sight_live:
+		_sight_from = from
+		_sight_to = to
+		_sight_clear = clear
+	return clear
+
 func _physics_process(delta: float) -> void:
+	_sight_live = true
+	_tick_physics(delta)
+	_sight_live = false
+	_sight_from = Vector3.INF
+
+func _tick_physics(delta: float) -> void:
 	if _dead or (is_instance_valid(game) and not game.simulation_active()): return
 	if not is_instance_valid(game) or not is_instance_valid(game.player): return
 	_tick_stealth(delta)
@@ -519,7 +540,7 @@ func _physics_process(delta: float) -> void:
 			_move_toward_target(home_position, delta)
 		return
 	if state != State.CHASING: return
-	var visible_player := game.line_of_sight(global_position, player_position)
+	var visible_player := _sight(global_position, player_position)
 	var target := _last_seen_position
 	# 残影: for a moment it goes for the afterimage and does not swing.
 	if _decoy_time > 0.0:
@@ -564,8 +585,10 @@ func _concealed(point: Vector3) -> bool:
 
 func _can_perceive(point: Vector3) -> bool:
 	if _concealed(point): return false
+	# The leash test first: when it fails, the sight multipliers need not be read.
+	if _flat_distance(home_position, point) > leash_radius: return false
 	var reach := perception_radius * (CREST_SIGHT if elite and game.player != null and game.player.equipped_effect("saluzzo_crest") else 1.0) * game.feud_sight(self)
-	return _flat_distance(global_position, point) <= reach and _flat_distance(home_position, point) <= leash_radius and game.line_of_sight(global_position, point)
+	return _flat_distance(global_position, point) <= reach and _sight(global_position, point)
 
 ## force: its post has woken, so it turns back even on the way home.
 func begin_chase(force: bool = false) -> void:
@@ -767,7 +790,7 @@ func _move_toward_target(target: Vector3, delta: float) -> void:
 	# Poll before is_navigation_finished: this refreshes a newly assigned path.
 	var next := _nav_agent.get_next_path_position()
 	if _nav_agent.is_navigation_finished():
-		if not game.line_of_sight(global_position, target): return
+		if not _sight(global_position, target): return
 		next = target
 	var direction := next - global_position
 	direction.y = 0
@@ -871,9 +894,11 @@ var _incite_hits := 0
 var _incite_cd := 0.0
 var _incite_mark: Sprite3D
 
+const TELEGRAPH_SHAPES := ["ground", "lob", "circle"]
+
 ## Shown on the ground before it lands: elites, ground casts and lobs.
 func telegraphs() -> bool:
-	return elite or str(attack_profile.shape) in ["ground", "lob", "circle"]
+	return elite or str(attack_profile.shape) in TELEGRAPH_SHAPES
 
 func _begin_telegraphed_attack() -> void:
 	if _dead or state != State.CHASING or attack_phase != "idle": return
@@ -961,7 +986,7 @@ func _aim_target() -> Vector3:
 	var reach := float(attack_profile.get("reach", 1.5)) + 0.3
 	for c in get_tree().get_nodes_in_group("civilians"):
 		if c == self or not is_instance_valid(c) or c._dead or c.fleeing or _flat_distance(c.global_position, global_position) > reach: continue
-		if game.rng.randf() < BossCatalog.CIVILIAN_TARGET_CHANCE:
+		if game.rng_combat.randf() < BossCatalog.CIVILIAN_TARGET_CHANCE:
 			_aim_civilian = c
 			return c.global_position
 		break
@@ -973,26 +998,14 @@ func _strike_civilians() -> void:
 		if c == self or not is_instance_valid(c) or c._dead: continue
 		if threatens(c.global_position): c.struck()
 
-## One step of turning toward her (WINDUP_TURN_DEG). No longer used in a
-## windup (用户 2026-10-14: 敌人不能甩枪); kept for whatever turns between attacks.
-func _turn_toward_player(delta: float) -> void:
-	var to := game.player.global_position - global_position
-	to.y = 0
-	if to.length_squared() < 0.001: return
-	var turn := attack_direction.signed_angle_to(to.normalized(), Vector3.UP)
-	var limit := deg_to_rad(WINDUP_TURN_DEG) * delta
-	attack_direction = attack_direction.rotated(Vector3.UP, clampf(turn, -limit, limit)).normalized()
-	_locked_target = global_position + attack_direction * to.length()
-	_face(attack_direction, 1.0)
-
 func _tick_attack(delta: float) -> void:
 	if attack_phase == "windup":
 		var previous := _attack_elapsed
 		_attack_elapsed += delta
 		_windup_remaining = maxf(0, _windup_total - _attack_elapsed)
 		if not _aim_locked:
-			# Track only before the 0.7s boundary, then hold that last direction
-			# for the entire 0.5s reaction window, including the firing tick.
+			# Track until the profile's "track" time, then hold that last direction
+			# for the rest of the windup (her reaction window), firing tick included.
 			if previous < float(attack_profile.track): _lock_direction(true)
 			if _attack_elapsed >= float(attack_profile.track):
 				_aim_locked = true
@@ -1144,7 +1157,7 @@ func shot_kind() -> String:
 	return damage_kind
 
 func threatens(point: Vector3) -> bool:
-	if attack_phase in ["incite", "reverse"]: return false
+	if attack_phase == "incite" or attack_phase == "reverse": return false
 	if _special == "lasso" or str(attack_profile.shape) == "charge":
 		var lane := point - attack_origin
 		lane.y = 0
@@ -1290,8 +1303,43 @@ func _advance_recoil(delta: float) -> void:
 		_recoil_travelled += step
 		amount -= step
 
+## Per-sheet lookups _update_attack_visual makes every tick, read once per
+## sheet_type (a 平民 changes its sheet after setup): the extra row, the weapon
+## tips, and FieldArt's pose frames by column and pose.
+var _looks_sheet := ""
+var _looks_extra := ""
+var _looks_tips: Array = []
+var _dir_frames: Array[AtlasTexture] = []
+var _walk_frames_dir: Array[AtlasTexture] = []
+const SLUG_GLINT := Color("ffd875")
+
+func _sheet_looks() -> void:
+	if _looks_sheet == sheet_type and not _dir_frames.is_empty(): return
+	_looks_sheet = sheet_type
+	_looks_extra = EnemyN2Data.EXTRA_ROW.get(sheet_type, "")
+	_looks_tips = FieldArt.dir_tips(sheet_type)
+	_dir_frames.clear()
+	_dir_frames.resize(64)
+	_walk_frames_dir.clear()
+	_walk_frames_dir.resize(32)
+
+func _dir_frame(pose: int) -> AtlasTexture:
+	if pose < 0 or pose >= 8: return FieldArt.enemy_dir_pose(sheet_type, dir_column, pose)
+	var i := dir_column * 8 + pose
+	if _dir_frames[i] == null: _dir_frames[i] = FieldArt.enemy_dir_pose(sheet_type, dir_column, pose)
+	return _dir_frames[i]
+
+func _walk_frame(frame: int) -> AtlasTexture:
+	var i := dir_column * 4 + frame
+	if _walk_frames_dir[i] == null: _walk_frames_dir[i] = FieldArt.enemy_walk_pose(sheet_type, dir_column, frame)
+	return _walk_frames_dir[i]
+
+func _show_frame(texture: Texture2D) -> void:
+	if _sprite.texture != texture: _sprite.texture = texture
+
 func _update_attack_visual() -> void:
 	if (elite and not directional) or not is_instance_valid(_sprite): return
+	_sheet_looks()
 	match attack_phase:
 		"windup": pose_frame = 1 if _attack_elapsed < START_TIME else 2
 		"strike", "contact": pose_frame = 3
@@ -1301,7 +1349,7 @@ func _update_attack_visual() -> void:
 	# 木裂战士's turn): that row is the second segment (新敌人攻击案 §三第 10/14 条).
 	if attack_phase == "windup" and _combo_index % 2 == 1: pose_frame = 4
 	# The sixth row: 纠察官's lasso throw, 歪曲施法者's glide.
-	var extra: String = EnemyN2Data.EXTRA_ROW.get(sheet_type, "")
+	var extra: String = _looks_extra
 	if extra == "lasso" and _special == "lasso" and attack_phase == "windup": pose_frame = 5
 	if extra == "incite" and attack_phase == "incite": pose_frame = 5
 	# 近身一掌 has no frames of its own: START to wind up, RECOVER for the backhand.
@@ -1315,15 +1363,15 @@ func _update_attack_visual() -> void:
 		if sentinel_mode == "run" and _run_time < ThreatMeter.SENTINEL_STARTLE: pose_frame = 1
 		elif sentinel_mode == "hold": pose_frame = 4 if _hold_left < SIGNAL_RECOVER else 2 + int(_hold_left / SIGNAL_BEAT) % 2
 	var walk_frame := posmod(int(walk_distance * WALK_FRAMES_PER_UNIT), 4)
-	if has_walk and walking and attack_phase in ["idle", "reverse"] and not gliding: _sprite.texture = FieldArt.enemy_walk_pose(sheet_type, dir_column, walk_frame)
-	elif directional: _sprite.texture = FieldArt.enemy_dir_pose(sheet_type, dir_column, pose_frame)
-	else: _sprite.texture = FieldArt.enemy_pose(int(EnemyAttacks.PROFILES[art_type].row), pose_frame)
+	if has_walk and walking and (attack_phase == "idle" or attack_phase == "reverse") and not gliding: _show_frame(_walk_frame(walk_frame))
+	elif directional: _show_frame(_dir_frame(pose_frame))
+	else: _show_frame(FieldArt.enemy_pose(int(EnemyAttacks.PROFILES[art_type].row), pose_frame))
 	_sprite.position.y = _art_base_y
 	if directional: _sprite.flip_h = false
 	_sprite.offset.x = 0 if directional else (-4 if _sprite.flip_h else 4)
 	if attack_phase == "windup" and pose_frame == 2:
 		_sprite.position.y += PIXEL if int(_attack_elapsed * 24) % 2 else 0.0
-	elif attack_phase == "idle" and state in [State.CHASING, State.RETURNING] and not (has_walk and walking) and pose_frame != 5:
+	elif attack_phase == "idle" and (state == State.CHASING or state == State.RETURNING) and not (has_walk and walking) and pose_frame != 5:
 		# The walk frames carry their own step bob; only bob the idle pose.
 		_sprite.position.y += 0.025 * sin(_bob_time * 10)
 	if sheet_type == "slug" and attack_phase == "strike":
@@ -1342,7 +1390,7 @@ func _update_attack_visual() -> void:
 	var up := game.camera.global_basis.y if is_instance_valid(game.camera) else Vector3.UP
 	var facing := -1.0 if _sprite.flip_h else 1.0
 	# Directional sheets carry their own weapon tip per column; no mirroring.
-	var dir_tip: Vector2 = FieldArt.dir_tips(sheet_type)[dir_column] if directional else Vector2.ZERO
+	var dir_tip: Vector2 = _looks_tips[dir_column] if directional else Vector2.ZERO
 	if directional: facing = 1.0
 	if ranged:
 		var tip: Vector2 = dir_tip if directional else MUZZLE_TEXELS.get(art_type, Vector2(22, -12))
@@ -1359,19 +1407,22 @@ func _update_attack_visual() -> void:
 		if sheet_type == "slug":
 			tip = Vector2(2, -3)
 			_glint.visible = preparing_attack and (flashing or sin(_attack_elapsed * (16 + _attack_elapsed * 50)) > 0.4)
-			_glint.material_override.albedo_color = Color("ffd875")
+			_glint.material_override.albedo_color = SLUG_GLINT
 		_glint.global_position = global_position + Vector3.DOWN * 0.55 + right * tip.x * facing * PIXEL - up * tip.y * PIXEL
 	_breath.global_position = global_position + Vector3.DOWN * 0.55 + right * facing * 0.55 + up * 1.15
 	_sync_headlights(dir_tip, right, up)
 	_sync_outline()
+
+const AWAY_COLUMNS := [3, 4, 5]
+const LAMP_APART := [3.0, 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5]
 
 ## 家族专用轿车's two round lamps (§三第 7 条: START 车头灯亮), a 3×3 white dot
 ## each on the painted bumper, lit from its windup until it is back in its slot.
 ## Not drawn when the nose faces away from the camera.
 func _sync_headlights(tip: Vector2, right: Vector3, up: Vector3) -> void:
 	if _headlights.is_empty(): return
-	var lit := attack_phase != "idle" and not dir_column in [3, 4, 5]
-	var apart: float = [3.0, 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5][dir_column]
+	var lit := attack_phase != "idle" and not dir_column in AWAY_COLUMNS
+	var apart: float = LAMP_APART[dir_column]
 	for i in range(_headlights.size()):
 		var lamp := _headlights[i]
 		lamp.visible = lit and (i == 0 or apart > 0.0)
@@ -1381,9 +1432,13 @@ func headlights_on() -> bool:
 	return _headlights.any(func(lamp): return lamp.visible)
 
 ## The light ring round the body while an unstoppable attack winds up.
+## Kept outlined whatever it is doing (a boss in a rage).
+func _outline_forced() -> bool:
+	return false
+
 func _sync_outline() -> void:
 	if not is_instance_valid(_outline): return
-	_outline.visible = attack_phase == "windup" and unstoppable_now() and _sprite.texture != null
+	_outline.visible = (attack_phase == "windup" and unstoppable_now() or _outline_forced()) and _sprite.texture != null and _sprite.visible
 	if not _outline.visible: return
 	var texture := _sprite.texture
 	var material := _outline.material_override as ShaderMaterial
@@ -1431,7 +1486,7 @@ func take_hit(damage: float, kind: String = "phys", crit: bool = false, pierce: 
 		atk *= 1.5
 	_flash()
 	if is_instance_valid(game) and not quiet:
-		DamageNumber.spawn(game, global_position + Vector3.UP * (0.6 if elite else 0.2), str(roundi(dealt)) + ("!" if crit else ""), "crit" if crit else kind, crit)
+		DamageNumber.spawn(game, global_position + Vector3.UP * (0.6 if elite else 0.2), str(roundi(dealt)) + ("!" if crit else ""), kind, crit)
 	if health <= 0.0:
 		_dead = true
 		_cancel_attack()
@@ -1489,7 +1544,7 @@ func _burst_tier() -> int:
 func burst_cooldown() -> float:
 	return Elements.BURST_COOLDOWN - (PrefixFamilies.BURST_COOLDOWN_CUT if _burst_tier() >= 4 else 0.0)
 
-## A damage over time from her (Player._proc_dots): `total` over `seconds`.
+## A damage over time from her (PlayerElements._proc_dots): `total` over `seconds`.
 func apply_dot(dot: String, total: float, seconds: float) -> void:
 	if _dead or not Elements.DOTS.has(dot): return
 	if dot == "rot": _rot_stacks = mini(Elements.ROT_STACKS, _rot_stacks + 1)

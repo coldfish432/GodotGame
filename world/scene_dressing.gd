@@ -99,10 +99,23 @@ func _dress_corridors() -> void:
 
 func _reserve(p: Vector2, radius: float) -> bool:
 	if map._surface.distance_at(p) > -(radius + 0.8): return false
-	for place in occupied:
-		if p.distance_to(Vector2(place.x, place.y)) < radius + place.z + 1.0: return false
-	occupied.append(Vector3(p.x, p.y, radius))
+	# Only places in the squares round p can be within reach (radii are at
+	# most RESERVE_REACH between them); the rest are too far to matter.
+	var cell := Vector2i((p / RESERVE_CELL).floor())
+	for dz in range(-1, 2):
+		for dx in range(-1, 2):
+			for place: Vector3 in _occupied_grid.get(cell + Vector2i(dx, dz), []):
+				if p.distance_to(Vector2(place.x, place.y)) < radius + place.z + 1.0: return false
+	var spot := Vector3(p.x, p.y, radius)
+	occupied.append(spot)
+	if not _occupied_grid.has(cell): _occupied_grid[cell] = []
+	_occupied_grid[cell].append(spot)
 	return true
+
+## occupied by RESERVE_CELL square. A reservation is at most 4 m round, so two
+## clash only within 4 + 4 + 1 m: never further than the next square.
+const RESERVE_CELL := 10.0
+var _occupied_grid := {}
 
 func _dress_edges() -> void:
 	# Small embedded forms bridge the gap between the bare curb and the larger
@@ -196,14 +209,20 @@ func _stain_color() -> Color:
 ## lit ground it would otherwise show as a pale disc (用户 2026-10-17: 白的是什么).
 func _patch(p: Vector2, radius: Vector2, color: Color) -> void:
 	var centre := Color.WHITE.lerp(Color(color, 1.0), color.a)
+	# Each rim point is shared by two slices: its height read once.
+	var rim := PackedVector2Array()
+	var heights := PackedFloat64Array()
+	for i in range(13):
+		var q := p + Vector2.from_angle(TAU * i / 12.0) * radius
+		rim.append(q)
+		heights.append(_height(q))
+	var middle := _height(p)
 	for i in range(12):
-		var a := p + Vector2.from_angle(TAU * i / 12.0) * radius
-		var b := p + Vector2.from_angle(TAU * (i + 1) / 12.0) * radius
-		for item in [[p, centre], [a, Color.WHITE], [b, Color.WHITE]]:
+		for item in [[p, centre, middle], [rim[i], Color.WHITE, heights[i]], [rim[i + 1], Color.WHITE, heights[i + 1]]]:
 			var q: Vector2 = item[0]
 			stains.set_color(item[1])
 			stains.set_normal(Vector3.UP)
-			stains.add_vertex(Vector3(q.x, _height(q) + 0.045, q.y))
+			stains.add_vertex(Vector3(q.x, float(item[2]) + 0.045, q.y))
 		stain_count += 1
 
 func _rock(p: Vector2, size: Vector3, color: Color) -> void:

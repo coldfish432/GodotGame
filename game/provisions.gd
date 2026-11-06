@@ -64,6 +64,8 @@ const RECIPES := {
 	"变种盛宴": {"in": {"闪耀作物·变种": 2, "闪耀作物": 2, "温室豆": 4}, "minutes": 180, "level": 3},
 }
 const MEAL_ORDER := ["舰内口粮", "食堂便当", "闪耀定食", "变种盛宴"]
+## Eaten but not cooked here: 萨米林地部族's 冰原熏肉 (势力声望解锁策划案 §三).
+const BOUGHT_MEALS := ["冰原熏肉"]
 ## What one does for the contract it is eaten for (shares). hp_pct and
 ## regen_pct join the sheet; atk and aspd ride the flasks' hexes.
 const MEALS := {
@@ -71,6 +73,8 @@ const MEALS := {
 	"食堂便当": {"tier": 2, "hp_pct": 0.08, "regen_pct": 0.10},
 	"闪耀定食": {"tier": 3, "hp_pct": 0.10, "atk": 0.06},
 	"变种盛宴": {"tier": 4, "hp_pct": 0.12, "atk": 0.10, "aspd": 0.05},
+	# 萨米林地部族's 崇敬 good (势力声望解锁策划案 §三): the same slot, no squad tier.
+	"冰原熏肉": {"tier": 0, "hp_pct": 0.08},
 }
 ## For the squads, by the tier eaten (cumulative): 2 its price one step
 ## lower, 3 squads more often, 4 two services from one squad.
@@ -126,7 +130,8 @@ func plot(i: int) -> Dictionary:
 	return plots[i] if i >= 0 and i < plots.size() else {}
 
 func grow_seconds(crop: String) -> int:
-	return int(CROPS[crop].hours) * 3600
+	# 莱茵合作研究员证 (势力声望解锁策划案 §三).
+	return roundi(int(CROPS[crop].hours) * 3600 * (FactionRewards.RESEARCHER_GROW if FactionRewards.badge_on(game, "rhine") else 1.0))
 
 ## 0–1 grown; 1 is ripe (and stays ripe: nothing withers).
 func growth(i: int) -> float:
@@ -149,7 +154,7 @@ func sow_refusal(i: int, crop: String) -> String:
 	var c: Dictionary = CROPS[crop]
 	if c.has("seed"):
 		if game.exchange.rank("rhine") < FactionSpecials.rank_needed(str(c.seed)) and game.material_count(str(c.seed)) <= 0:
-			return "需要莱茵生命关系 R%d" % FactionSpecials.rank_needed(str(c.seed))
+			return "需要莱茵生命关系 %s" % Exchange.rank_name(FactionSpecials.rank_needed(str(c.seed)))
 		return game.materials_refusal({c.seed: 1})
 	if game.gold < int(c.seed_lmd): return "龙门币不足"
 	return ""
@@ -194,7 +199,7 @@ func ripe_count() -> int:
 		if ripe(i): n += 1
 	return n
 
-## Into the warehouse shelf, then staging, then a crate at receiving.
+## Into the warehouse; what does not fit goes to the PRTS mail (BaseState.receive).
 func _store(material: String, count: int) -> void:
 	var left := count
 	while left > 0:
@@ -264,7 +269,7 @@ func eat(meal_id: String) -> bool:
 func mail_refusal(meal_id: String) -> String:
 	if not MEALS.has(meal_id): return "无效"
 	if game.base.facility_level("canteen") < 1: return "需要食堂"
-	if game.exchange.rank("penguin") < MAIL_RANK: return "需要企鹅物流关系 R%d" % MAIL_RANK
+	if game.exchange.rank("penguin") < MAIL_RANK: return "需要企鹅物流关系 %s" % Exchange.rank_name(MAIL_RANK)
 	if not mailed().is_empty(): return "已有寄出的补给"
 	if game.gold < MAIL_LMD: return "龙门币不足"
 	return game.materials_refusal({meal_id: 1})

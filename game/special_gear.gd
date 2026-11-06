@@ -6,10 +6,11 @@ extends RefCounted
 ## 2026-10-03: relics change numbers and rules; attack effects belong to
 ## equipment). Each also rolls one ordinary affix. Being equipment, it follows
 ## every equipment rule: it takes pack cells, can be insured, carried
-## home and kept. One per slot, so the three slots are a real choice.
+## home and kept. One per slot.
 ##
-## How it is obtained is still open (用户：具体归宿待定). For now it drops from
-## ordinary loot rolls at DROP_CHANCE, region-weighted, so it can be played.
+## Where it comes from is still open (用户：具体归宿待定): it drops from ordinary
+## loot rolls at DROP_CHANCE (FieldCatalog.roll_item), region-weighted, and
+## 坎诺特 stocks it.
 
 const DROP_CHANCE := 0.05
 const DROP_CHANCE_PER_REWARD := 0.03
@@ -239,7 +240,7 @@ const SET_SEEN_WEIGHT := 2.0
 static func kind(id: String) -> String:
 	return str(GEAR.get(id, {}).get("kind", "special"))
 
-## The exclusives an enemy type drops (a region boss's nine are "boss" pieces, BossGear).
+## The exclusives an enemy type drops (a region boss's nine are its "boss" pieces).
 static func exclusives_of(enemy_type: String) -> Array:
 	return GEAR.keys().filter(func(id): return kind(id) in ["exclusive", "boss"] and str(GEAR[id].source_enemy) == enemy_type)
 
@@ -307,7 +308,8 @@ static func create(id: String, depth: int, rng: RandomNumberGenerator, boss: boo
 	var stat: int = pool[rng.randi_range(0, pool.size() - 1)]
 	item.modifiers.append(ItemModifier.roll_affix(stat as ItemModifier.Stat, Item.PURPLE, rng, Scaling.roll_position(depth, rng), tier, int(data.category)))
 	if kind(id) == "boss": _boss_lines(item, id, data, rng, depth, tier)
-	# Special and exclusive gear carry prefixes; set pieces do not (装备前缀策划案 §0.1-5).
+	# Special and exclusive gear carry prefixes; set pieces do not (装备前缀策划案 §0.1-5,
+	# PrefixCatalog.eligible_item skips them).
 	PrefixCatalog.roll_onto(item, str(data.get("region", "")), depth, rng)
 	return item
 

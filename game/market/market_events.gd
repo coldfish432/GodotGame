@@ -1,24 +1,27 @@
 class_name MarketEvents
 extends RefCounted
 
-## The exchange's news (交易所事件表_v1_0.md): 55 events by region, each with
-## its PRTS source in the table. Text is what PRTS says; effects are what
+## The exchange's news (交易所事件表_v1_0.md): BASE_EVENTS are its 55 events by
+## region, each with its PRTS source in the table; the later tables follow. Text is what PRTS says; effects are what
 ## MarketState applies.
 ##
 ## kind: "breaking" 突发 / "rumor" 传闻 / "announce" 公告 / "swan" 黑天鹅.
 ## hours: how long the effect lasts. weight: odds within its kind.
 ## Effect entries (all optional except sel):
 ##   sel      "faction:category", "faction:*", "*:category", "fx", "@:*" (the
-##            event's region picked at fire time), "@:category"
+##            event's region picked at fire time), "@:category", "#:*" (the
+##            picked faction), "fx*" (every rate book)
 ##   mult     target multiplier; mult_range [a, b] = 1 ± U(a, b), sign random
 ##   jump     instant move (fraction); jump_range [a, b] signed the same way
 ##   spread / depth / vol   multipliers while it lasts
-##   halt     the market stops buying from the player
+##   halt_hours  the market stops buying from the player for that long
 ##   quota    buy-quota multiplier; fee: added remote fee
+##   active_all  the markets' factions trade around the clock while it lasts
 ##   longterm long-term mean multiplier (stays after the event ends)
 ## Event-level extras: penguin_fee, penguin_risk, cfd_halt (issuer), threat
-## {region, mult}, post_boost (faction), rumors_low (seconds), active_all
-## (faction), barter_reroll, relation {faction: delta}.
+## {region, mult}, post_boost (faction), rumors_low (hours), barter_reroll,
+## relation {faction: delta}. The currency and
+## field keys are with FX_EVENTS below.
 ## `season`: fixed on the real calendar (see SEASONS); they never draw at random.
 
 const KIND_NAMES := {"breaking": "突发", "rumor": "传闻", "announce": "公告", "swan": "黑天鹅"}
@@ -252,7 +255,6 @@ const MORE_EVENTS := {
 		"effects": [{"sel": "@:fuel", "mult": 1.2}, {"sel": "@:build", "mult": 1.1}]},
 }
 
-## Regions events can pick ("天灾预警：%s"): faction region → factions there.
 ## 事件表 v1.2 (用户 2026-10-16: 总量加到 200 个): 98 more. Sources in
 ## 交易所事件表_v1_3.md §12.
 const EXTRA_EVENTS := {
@@ -356,20 +358,236 @@ const EXTRA_EVENTS := {
 	"X25": {"region": "泰拉", "kind": "swan", "hours": 240, "weight": 1, "title": "跨国天灾链式爆发", "penguin_fee": 2.5, "effects": [{"sel": "*:*", "spread": 1.5, "vol": 1.8}, {"sel": "*:cold", "mult": 1.6}, {"sel": "fx", "jump": 0.18}]},
 }
 
-## Every event: v1.0, v1.1 and v1.2 together (200).
+## 地区货币与地区互动事件策划案_v0_2.md §4 (F, currencies) and §5 (I, one region
+## on another). Rate books are quoted as units per 赤金: a jump up is the
+## currency weakening. Extra keys: rate / rate_range (policy rate a year),
+## revert (back toward 1 by this power), peg ("reset" / "press" / "break"),
+## cap ("set" / "lift"), fee / halt_hours on a rate book (conversion out),
+## consign {anchor: spread mult}, custody (account fee a day), relation_pick,
+## pick_post (a faction with field posts), pick_maps (two field maps).
+## `field` (§2): [{region, kind, mult | add, tag | node | faction | category}],
+## region "mine" / "city" / "snow" / "siracusa" / "*", "@" and "@2" the picked
+## maps; faction "#" the picked one. In-field multipliers stay within 0.8–1.2.
+const FX_EVENTS := {
+	"F0": {"region": "龙门", "kind": "breaking", "hours": 12, "weight": 0, "title": "龙门方面入市干预",
+		"effects": [{"sel": "fx", "revert": 0.6, "vol": 1.5}]},
+	"F1": {"region": "龙门", "kind": "announce", "hours": 24, "weight": 2, "title": "龙门财政季度公告",
+		"effects": [{"sel": "fx", "jump_range": [0.01, 0.03], "rate_range": [-0.0025, -0.0025], "link": "f1"}]},
+	"F2": {"region": "龙门", "kind": "breaking", "hours": 24, "weight": 2, "title": "龙门银行收紧放贷",
+		"effects": [{"sel": "fx", "jump": -0.02}, {"sel": "lungmen:*", "mult": 0.95}],
+		"field": [{"region": "city", "kind": "post_price", "faction": "rat", "mult": 1.15}]},
+	"F3": {"region": "龙门", "kind": "rumor", "hours": 12, "weight": 1, "title": "传闻：龙门币遭挤兑",
+		"effects": [{"sel": "fx", "jump": 0.08, "vol": 2.0}],
+		"field": [{"region": "city", "kind": "threat", "mult": 1.1}, {"region": "city", "kind": "camp_fx", "mult": 1.2}]},
+	"F4": {"region": "哥伦比亚", "kind": "announce", "hours": 24, "weight": 2, "title": "哥伦比亚金券利率决议",
+		"effects": [{"sel": "fx_col", "jump_range": [0.03, 0.06], "rate_range": [-0.005, -0.005], "link": "f4"}]},
+	"F5": {"region": "哥伦比亚", "kind": "breaking", "hours": 48, "weight": 2, "title": "哥伦比亚通胀加剧",
+		"effects": [{"sel": "fx_col", "jump": 0.04}, {"sel": "rhine:*", "mult": 1.08}]},
+	"F6": {"region": "哥伦比亚", "kind": "rumor", "hours": 12, "weight": 2, "title": "传闻：特里蒙资金外逃",
+		"effects": [{"sel": "fx_col", "jump": 0.02, "vol": 1.8}]},
+	"F7": {"region": "哥伦比亚", "kind": "swan", "hours": 168, "weight": 1, "title": "哥伦比亚金券信用危机",
+		"effects": [{"sel": "fx_col", "jump": 0.25, "vol": 2.0}, {"sel": "rhine:*", "halt_hours": 12}],
+		"field": [{"region": "snow", "kind": "post", "faction": "sami", "mult": 0.8}, {"region": "snow", "kind": "feature_rate", "mult": 1.1}]},
+	"F8": {"region": "维多利亚", "kind": "announce", "hours": 24, "weight": 2, "title": "伦蒂尼姆议会争执军费",
+		"effects": [{"sel": "fx_vic", "vol": 1.6, "rate": 0.005}]},
+	"F9": {"region": "维多利亚", "kind": "rumor", "hours": 24, "weight": 2, "title": "传闻：维多利亚贵族资金流向谢拉格",
+		"effects": [{"sel": "fx_vic", "jump": 0.03}, {"sel": "fx_kje", "jump": -0.02}, {"sel": "karlan:*", "mult": 1.05, "depth": 1.3}]},
+	"F10": {"region": "维多利亚", "kind": "swan", "hours": 120, "weight": 1, "title": "公爵领拒绝承兑伦蒂尼姆债券",
+		"effects": [{"sel": "fx_vic", "jump": 0.22, "vol": 2.0}, {"sel": "karlan:*", "mult": 1.1}, {"sel": "fx", "jump": 0.04}],
+		"field": [{"region": "*", "kind": "kannot_buy", "mult": 0.9}]},
+	"F11": {"region": "萨尔贡", "kind": "announce", "hours": 72, "weight": 1, "title": "帕迪沙重申第纳尔兑赤金区间",
+		"effects": [{"sel": "fx_sar", "peg": "reset"}]},
+	"F12": {"region": "萨尔贡", "kind": "swan", "hours": 168, "weight": 1, "title": "第纳尔挂钩失守",
+		"effects": [{"sel": "fx_sar", "peg": "break", "jump": 0.25, "vol": 2.0}, {"sel": "*:trinket", "jump": -0.15}],
+		"field": [{"region": "city", "kind": "kannot_stock", "add": 1}, {"region": "city", "kind": "loot", "category": "trinket", "mult": 1.2}]},
+	"F13": {"region": "萨尔贡", "kind": "breaking", "hours": 24, "weight": 2, "title": "大巴扎金币成色之争",
+		"effects": [{"sel": "fx_sar", "peg": "press", "pressure": 0.3}, {"sel": "kazimierz:trinket", "mult": 0.95}]},
+	"F14": {"region": "莱塔尼亚", "kind": "announce", "hours": 24, "weight": 2, "title": "莱塔尼亚选帝侯会议议定铸币",
+		"effects": [{"sel": "fx_lei", "jump_range": [0.02, 0.02], "rate_range": [-0.0025, -0.0025], "link": "f14"}]},
+	"F15": {"region": "莱塔尼亚", "kind": "rumor", "hours": 24, "weight": 2, "title": "传闻：杜卡特金币大量回流",
+		"effects": [{"sel": "fx_lei", "jump": 0.03}, {"sel": "fx*", "jump": -0.01}]},
+	"F16": {"region": "泰拉", "kind": "swan", "hours": 72, "weight": 1, "title": "各国资金抢购赤金避险",
+		"effects": [{"sel": "fx*", "jump": 0.08}, {"sel": "fx_kje", "jump": -0.15}, {"sel": "fx_sir", "jump": 0.05}, {"sel": "fx_urs", "jump": 0.05},
+			{"sel": "fx_sar", "peg": "press", "pressure": 0.5}],
+		"field": [{"region": "*", "kind": "kannot_buy", "mult": 0.85}, {"region": "*", "kind": "camp_fx", "mult": 1.2}]},
+	"F17": {"region": "谢拉格", "kind": "breaking", "hours": 48, "weight": 2, "title": "喀兰贸易上调账户托管费", "custody": 0.0001,
+		"effects": [{"sel": "karlan:*", "spread": 1.2}]},
+	"F18": {"region": "雷姆必拓", "kind": "rumor", "hours": 24, "weight": 1, "title": "传闻：雷姆必拓新精炼厂投产",
+		"effects": [{"sel": "fx*", "jump": -0.02}],
+		"field": [{"region": "*", "kind": "gold_drop", "mult": 1.1}]},
+	"F19": {"region": "泰拉", "kind": "swan", "hours": 120, "weight": 1, "title": "成色不足的赤金流入市场",
+		"effects": [{"sel": "fx*", "vol": 1.8}, {"sel": "rat:*", "mult": 1.2}],
+		"field": [{"region": "*", "kind": "kannot_buy", "mult": 0.8}, {"region": "city", "kind": "post", "faction": "rat", "mult": 1.2}]},
+	"F20": {"region": "泰拉", "kind": "announce", "hours": 48, "weight": 1, "title": "各国财政官员会晤",
+		"effects": [{"sel": "fx*", "vol": 0.6}]},
+	"F21": {"region": "哥伦比亚", "kind": "breaking", "hours": 48, "weight": 1, "title": "套息资金涌入金券",
+		"effects": [{"sel": "fx_col", "jump": -0.03, "vol": 0.8}]},
+	"F22": {"region": "乌萨斯", "kind": "breaking", "hours": 72, "weight": 1, "title": "乌萨斯禁止赤金出境",
+		"effects": [{"sel": "ursus:*", "spread": 2.0, "quota": 0.5}, {"sel": "reunion:*", "mult": 1.15}, {"sel": "fx_urs", "jump": 0.05}],
+		"field": [{"region": "mine", "kind": "post", "faction": "ursus", "mult": 0.8}, {"region": "mine", "kind": "gold_drop", "mult": 1.2}, {"region": "mine", "kind": "threat", "mult": 1.1}]},
+	"F23": {"region": "叙拉古", "kind": "breaking", "hours": 48, "weight": 1, "title": "叙拉古家族改用赤金收赎金",
+		"effects": [{"sel": "fx", "jump": 0.01}, {"sel": "fx_sir", "jump": 0.03}],
+		"field": [{"region": "siracusa", "kind": "feature_add", "add": 10}, {"region": "siracusa", "kind": "gold_drop", "mult": 1.2}]},
+	"F24": {"region": "龙门", "kind": "breaking", "hours": 12, "weight": 2, "title": "近卫局查处地下钱庄",
+		"effects": [{"sel": "rat:*", "halt_hours": 6}, {"sel": "fx", "jump": -0.02}],
+		"field": [{"region": "city", "kind": "post", "faction": "rat", "mult": 0.8}, {"region": "city", "kind": "threat", "mult": 1.1}]},
+	"F25": {"region": "乌萨斯", "kind": "announce", "hours": 24, "weight": 2, "title": "乌萨斯财政部卢布利率决议",
+		"effects": [{"sel": "fx_urs", "jump_range": [0.04, 0.08], "rate_range": [-0.01, -0.01], "link": "f25"}]},
+	"F26": {"region": "乌萨斯", "kind": "breaking", "hours": 48, "weight": 2, "title": "乌萨斯限制卢布兑换",
+		"effects": [{"sel": "fx_urs", "jump": 0.02, "fee": 0.03, "halt_hours": 12}],
+		"field": [{"region": "mine", "kind": "post", "faction": "ursus", "mult": 0.8}, {"region": "mine", "kind": "gold_drop", "mult": 1.1}]},
+	"F27": {"region": "乌萨斯", "kind": "swan", "hours": 168, "weight": 1, "title": "卢布崩跌",
+		"effects": [{"sel": "fx_urs", "jump": 0.4, "vol": 2.0}, {"sel": "ursus:*", "quota": 0.5}, {"sel": "reunion:*", "mult": 1.2}],
+		"field": [{"region": "mine", "kind": "threat", "mult": 1.2}, {"region": "mine", "kind": "gold_drop", "mult": 1.2}]},
+	"F28": {"region": "谢拉格", "kind": "breaking", "hours": 24, "weight": 2, "title": "避险资金涌入谢拉格法郎",
+		"effects": [{"sel": "fx_kje", "jump": -0.05}, {"sel": "karlan:*", "depth": 1.3}]},
+	"F29": {"region": "谢拉格", "kind": "announce", "hours": 168, "weight": 1, "title": "喀兰贸易为法郎升值设定上限",
+		"effects": [{"sel": "fx_kje", "jump": 0.04, "cap": "set", "vol": 0.6}]},
+	"F30": {"region": "谢拉格", "kind": "swan", "hours": 72, "weight": 1, "title": "喀兰贸易突然放弃法郎升值上限",
+		"effects": [{"sel": "fx_kje", "cap": "lift", "jump": -0.17, "vol": 2.0}]},
+	"F31": {"region": "卡西米尔", "kind": "breaking", "hours": 24, "weight": 2, "title": "骑士竞技热潮带动兹罗提走强",
+		"effects": [{"sel": "fx_kaz", "jump": -0.03}, {"sel": "kazimierz:trinket", "mult": 1.1}]},
+	"F32": {"region": "卡西米尔", "kind": "rumor", "hours": 24, "weight": 2, "title": "传闻：商业联合会发行兹罗提计价债券",
+		"effects": [{"sel": "fx_kaz", "jump": 0.02, "vol": 1.6}]},
+	"F33": {"region": "叙拉古", "kind": "breaking", "hours": 48, "weight": 2, "title": "叙拉古里拉通胀失控",
+		"effects": [{"sel": "fx_sir", "jump": 0.08}],
+		"field": [{"region": "siracusa", "kind": "feature_rate", "mult": 1.1}, {"region": "siracusa", "kind": "gold_drop", "mult": 1.1}]},
+	"F34": {"region": "萨米", "kind": "breaking", "hours": 24, "weight": 2, "title": "边境商栈克朗短缺",
+		"effects": [{"sel": "fx_sam", "jump": -0.05, "spread": 1.5}],
+		"field": [{"region": "snow", "kind": "post", "faction": "sami", "mult": 1.2}]},
+}
+
+const REGION_EVENTS := {
+	"I1": {"region": "龙门", "kind": "announce", "hours": 48, "weight": 2, "title": "乌萨斯外交使团抵达龙门",
+		"effects": [{"sel": "ursus:*", "spread": 0.8}, {"sel": "fx", "jump": -0.01}],
+		"field": [{"region": "mine", "kind": "threat", "mult": 0.9}, {"region": "mine", "kind": "post", "faction": "ursus", "mult": 1.2}]},
+	"I2": {"region": "龙门", "kind": "breaking", "hours": 24, "weight": 2, "title": "龙门扣押乌萨斯矿石运输车队",
+		"effects": [{"sel": "ursus:originium", "mult": 1.2}, {"sel": "rat:originium", "mult": 1.15}],
+		"field": [{"region": "mine", "kind": "loot", "category": "originium", "mult": 1.2}]},
+	"I3": {"region": "乌萨斯", "kind": "swan", "hours": 168, "weight": 1, "title": "乌萨斯对龙门实施矿石禁运",
+		"effects": [{"sel": "*:originium", "jump": 0.25}, {"sel": "fx", "jump": 0.05}, {"sel": "ursus:*", "quota": 0.4}, {"sel": "fx_urs", "jump": 0.04}],
+		"field": [{"region": "mine", "kind": "loot", "category": "originium", "mult": 1.2}, {"region": "mine", "kind": "feature_add", "add": 10},
+			{"region": "city", "kind": "kannot_stock", "add": 1}, {"region": "city", "kind": "post", "faction": "rat", "mult": 1.2}]},
+	"I4": {"region": "乌萨斯", "kind": "rumor", "hours": 24, "weight": 1, "title": "传闻：切尔诺伯格残骸通航协议",
+		"effects": [{"sel": "ursus:electronic", "mult": 0.9}, {"sel": "lungmen:build", "mult": 1.05}],
+		"field": [{"region": "mine", "kind": "route", "node": "trader", "mult": 1.2}]},
+	"I5": {"region": "炎", "kind": "announce", "hours": 24, "weight": 1, "title": "炎国户部调拨龙门币储备",
+		"effects": [{"sel": "fx", "jump": -0.04, "vol": 0.7}]},
+	"I6": {"region": "炎", "kind": "breaking", "hours": 48, "weight": 2, "title": "炎国关隘对龙门商品加税", "penguin_fee": 1.3,
+		"effects": [{"sel": "lungmen:*", "mult": 0.95}],
+		"field": [{"region": "city", "kind": "reward", "mult": 0.95}]},
+	"I7": {"region": "龙门", "kind": "breaking", "hours": 24, "weight": 2, "title": "叙拉古家族在龙门洗钱案曝光",
+		"effects": [{"sel": "rat:*", "halt_hours": 4}, {"sel": "fx", "jump": -0.02}, {"sel": "fx_sir", "jump": 0.02}],
+		"field": [{"region": "siracusa", "kind": "feature_rate", "mult": 1.2}, {"region": "city", "kind": "threat", "mult": 1.15}]},
+	"I8": {"region": "叙拉古", "kind": "announce", "hours": 72, "weight": 1, "title": "叙拉古港口与龙门签订航线", "consign": {"叙拉古": 0.7},
+		"effects": [{"sel": "lungmen:build", "mult": 1.05}, {"sel": "fx_sir", "jump": -0.02}],
+		"field": [{"region": "siracusa", "kind": "route", "node": "trader", "mult": 1.2}]},
+	"I9": {"region": "龙门", "kind": "rumor", "hours": 12, "weight": 2, "title": "传闻：家族杀手潜入龙门下城区",
+		"effects": [{"sel": "rat:weapon", "mult": 1.2}],
+		"field": [{"region": "city", "kind": "enemy", "tag": "family", "mult": 1.2}, {"region": "city", "kind": "elite", "mult": 1.1}]},
+	"I10": {"region": "哥伦比亚", "kind": "breaking", "hours": 72, "weight": 1, "title": "哥伦比亚对卡西米尔钢材加征关税",
+		"effects": [{"sel": "kazimierz:build", "jump": -0.1}, {"sel": "rhine:electronic", "mult": 1.1}, {"sel": "fx_col", "jump": -0.01}, {"sel": "fx_kaz", "jump": 0.02}]},
+	"I11": {"region": "卡西米尔", "kind": "announce", "hours": 48, "weight": 1, "title": "卡西米尔骑士赴哥伦比亚商演",
+		"effects": [{"sel": "kazimierz:trinket", "mult": 1.1}, {"sel": "fx_col", "jump": 0.01}]},
+	"I12": {"region": "哥伦比亚", "kind": "breaking", "hours": 48, "weight": 2, "title": "特里蒙资本收购大骑士领企业",
+		"effects": [{"sel": "kazimierz:*", "mult": 1.08}, {"sel": "fx_col", "jump": 0.02}, {"sel": "fx_kaz", "jump": -0.02}]},
+	"I13": {"region": "哥伦比亚", "kind": "breaking", "hours": 48, "weight": 2, "title": "莱茵生命萨米考察队失联",
+		"effects": [{"sel": "rhine:cold", "mult": 1.3}, {"sel": "sami:*", "halt_hours": 12}],
+		"field": [{"region": "snow", "kind": "threat", "mult": 1.2}, {"region": "snow", "kind": "elite", "mult": 1.2},
+			{"region": "snow", "kind": "loot", "category": "cold", "mult": 1.2}, {"region": "snow", "kind": "route", "node": "vault", "mult": 1.2}]},
+	"I14": {"region": "哥伦比亚", "kind": "breaking", "hours": 72, "weight": 1, "title": "哥伦比亚在萨米林缘修建前哨", "relation": {"sami": -5},
+		"effects": [{"sel": "sami:*", "spread": 1.3}],
+		"field": [{"region": "snow", "kind": "post", "faction": "sami", "mult": 0.8}, {"region": "snow", "kind": "reward", "mult": 1.1}]},
+	"I15": {"region": "维多利亚", "kind": "breaking", "hours": 48, "weight": 2, "title": "维多利亚贵族从谢拉格撤资",
+		"effects": [{"sel": "karlan:*", "mult": 0.92}, {"sel": "fx_vic", "jump": -0.02}, {"sel": "fx_kje", "jump": 0.02}]},
+	"I16": {"region": "谢拉格", "kind": "breaking", "hours": 48, "weight": 2, "title": "谢拉格向萨米出口御寒物资",
+		"effects": [{"sel": "karlan:cold", "mult": 1.2}, {"sel": "sami:*", "spread": 0.8}],
+		"field": [{"region": "snow", "kind": "feature_rate", "mult": 0.8}, {"region": "snow", "kind": "kannot_stock", "add": 1}]},
+	"I17": {"region": "乌萨斯", "kind": "breaking", "hours": 48, "weight": 2, "title": "乌萨斯与卡西米尔边境摩擦",
+		"effects": [{"sel": "ursus:weapon", "mult": 1.2}, {"sel": "kazimierz:armor", "mult": 1.15}, {"sel": "fx", "jump": 0.01}, {"sel": "fx_urs", "jump": 0.02}, {"sel": "fx_kaz", "jump": 0.02}],
+		"field": [{"region": "mine", "kind": "threat", "mult": 1.2}, {"region": "mine", "kind": "elite", "mult": 1.15}, {"region": "mine", "kind": "loot", "category": "weapon", "mult": 1.2}]},
+	"I18": {"region": "乌萨斯", "kind": "swan", "hours": 120, "weight": 1, "title": "乌萨斯集团军向卡西米尔边境集结",
+		"effects": [{"sel": "ursus:*", "halt_hours": 24}, {"sel": "kazimierz:*", "jump": -0.15}, {"sel": "*:weapon", "mult": 1.3}, {"sel": "fx", "jump": 0.06},
+			{"sel": "fx_kaz", "jump": 0.1}, {"sel": "fx_urs", "jump": 0.06}],
+		"field": [{"region": "mine", "kind": "threat", "mult": 1.2}, {"region": "mine", "kind": "enemy", "tag": "ursus_army", "mult": 1.2},
+			{"region": "mine", "kind": "post", "faction": "reunion", "mult": 1.2}]},
+	"I19": {"region": "龙门", "kind": "rumor", "hours": 24, "weight": 2, "title": "传闻：整合运动残党向龙门渗透",
+		"effects": [{"sel": "rat:contraband", "mult": 1.15}],
+		"field": [{"region": "city", "kind": "enemy", "tag": "reunion", "mult": 1.2}, {"region": "city", "kind": "threat", "mult": 1.15}, {"region": "mine", "kind": "threat", "mult": 0.9}]},
+	"I20": {"region": "维多利亚", "kind": "breaking", "hours": 72, "weight": 2, "title": "玻利瓦尔战事升级",
+		"effects": [{"sel": "fx_col", "jump": 0.02}, {"sel": "fx_vic", "jump": 0.02}, {"sel": "*:weapon", "mult": 1.15}, {"sel": "*:medical", "mult": 1.1}],
+		"field": [{"region": "*", "kind": "loot", "category": "weapon", "mult": 1.15}]},
+	"I21": {"region": "萨尔贡", "kind": "breaking", "hours": 48, "weight": 2, "title": "萨尔贡商队经龙门转运宝石",
+		"effects": [{"sel": "*:trinket", "mult": 0.92}, {"sel": "fx_sar", "peg": "press", "pressure": -0.2}],
+		"field": [{"region": "city", "kind": "kannot_stock", "add": 1}]},
+	"I22": {"region": "莱塔尼亚", "kind": "announce", "hours": 48, "weight": 1, "title": "莱塔尼亚向卡西米尔订购铠甲",
+		"effects": [{"sel": "kazimierz:armor", "mult": 1.2}, {"sel": "fx_lei", "jump": -0.01}, {"sel": "fx_kaz", "jump": -0.01}]},
+	"I23": {"region": "莱塔尼亚", "kind": "breaking", "hours": 48, "weight": 1, "title": "莱塔尼亚收紧源石技艺材料出口",
+		"effects": [{"sel": "*:originium", "mult": 1.1}, {"sel": "fx_lei", "jump": -0.02}],
+		"field": [{"region": "mine", "kind": "feature_rate", "mult": 1.1}]},
+	"I24": {"region": "叙拉古", "kind": "rumor", "hours": 24, "weight": 1, "title": "传闻：叙拉古家族入股梅什科竞技场",
+		"effects": [{"sel": "kazimierz:*", "vol": 1.4}],
+		"field": [{"region": "siracusa", "kind": "route", "node": "elite", "mult": 1.2}]},
+	"I25": {"region": "拉特兰", "kind": "announce", "hours": 72, "weight": 1, "title": "拉特兰公证所仲裁跨国商贸纠纷",
+		"effects": [{"sel": "*:*", "spread": 0.85}],
+		"field": [{"region": "*", "kind": "reward", "mult": 1.05}, {"region": "siracusa", "kind": "feature_add", "add": -10}]},
+	"I26": {"region": "伊比利亚", "kind": "breaking", "hours": 72, "weight": 1, "title": "伊比利亚封锁海岸，走私转走陆路", "consign": {"叙拉古": 1.3},
+		"effects": [{"sel": "rat:contraband", "mult": 1.1}],
+		"field": [{"region": "siracusa", "kind": "threat", "mult": 1.1}, {"region": "siracusa", "kind": "gold_drop", "mult": 1.15}]},
+	"I27": {"region": "泰拉", "kind": "announce", "hours": 72, "weight": 1, "title": "罗德岛与%s签订医疗协议", "pick_post": true, "relation_pick": 10,
+		"effects": [{"sel": "#:medical", "mult": 1.15}],
+		"field": [{"region": "@", "kind": "post", "faction": "#", "mult": 1.2}]},
+	"I28": {"region": "泰拉", "kind": "breaking", "hours": 48, "weight": 2, "title": "天灾带横穿%s与%s之间", "pick_maps": true, "penguin_fee": 1.5,
+		"effects": [{"sel": "@:*", "spread": 1.5}],
+		"field": [{"region": "@", "kind": "threat", "mult": 1.15}, {"region": "@", "kind": "route", "node": "rest", "mult": 1.2},
+			{"region": "@2", "kind": "threat", "mult": 1.15}, {"region": "@2", "kind": "route", "node": "rest", "mult": 1.2}]},
+	"I29": {"region": "龙门", "kind": "breaking", "hours": 24, "weight": 2, "title": "龙门与炎国移动城市对接补给",
+		"effects": [{"sel": "lungmen:*", "spread": 0.7, "depth": 1.3}],
+		"field": [{"region": "city", "kind": "kannot_buy", "mult": 1.1}]},
+	"I30": {"region": "乌萨斯", "kind": "announce", "hours": 72, "weight": 1, "title": "乌萨斯—谢拉格—萨米北方商路开通",
+		"effects": [{"sel": "ursus:*", "spread": 0.8}, {"sel": "karlan:*", "spread": 0.8}, {"sel": "sami:*", "spread": 0.8}],
+		"field": [{"region": "snow", "kind": "post", "faction": "sami", "mult": 1.2}, {"region": "mine", "kind": "post", "faction": "ursus", "mult": 1.2}]},
+	"I31": {"region": "萨米", "kind": "breaking", "hours": 24, "weight": 2, "title": "北方商路车队遭劫",
+		"effects": [{"sel": "karlan:cold", "mult": 1.2}, {"sel": "sami:*", "quota": 0.6}],
+		"field": [{"region": "snow", "kind": "threat", "mult": 1.2}, {"region": "snow", "kind": "gold_drop", "mult": 1.2}, {"region": "snow", "kind": "loot", "category": "cold", "mult": 1.2}]},
+	"I32": {"region": "乌萨斯", "kind": "swan", "hours": 336, "weight": 1, "title": "乌萨斯与龙门断绝贸易",
+		"effects": [{"sel": "ursus:*", "halt_hours": 48, "longterm": 0.9}, {"sel": "fx", "jump": 0.08}, {"sel": "rat:*", "mult": 1.3}, {"sel": "fx_urs", "jump": 0.08}],
+		"field": [{"region": "mine", "kind": "threat", "mult": 1.2}, {"region": "mine", "kind": "post", "faction": "ursus", "mult": 0.8}, {"region": "city", "kind": "post", "faction": "rat", "mult": 1.2}]},
+	"I33": {"region": "维多利亚", "kind": "swan", "hours": 168, "weight": 1, "title": "金券与镑爆发金融战",
+		"effects": [{"sel": "fx_col", "vol": 2.5, "jump_range": [0.15, 0.15], "link": "i33"}, {"sel": "fx_vic", "vol": 2.5, "jump_range": [-0.15, -0.15], "link": "i33"},
+			{"sel": "karlan:*", "vol": 1.5}],
+		"field": [{"region": "*", "kind": "kannot_buy", "mult": 0.9}]},
+	"I34": {"region": "萨米", "kind": "swan", "hours": 168, "weight": 1, "title": "北原邪魔越境进入乌萨斯冻原",
+		"effects": [{"sel": "ursus:*", "halt_hours": 24}, {"sel": "*:cold", "mult": 1.3}],
+		"field": [{"region": "mine", "kind": "threat", "mult": 1.2}, {"region": "mine", "kind": "elite", "mult": 1.2}, {"region": "snow", "kind": "threat", "mult": 0.85}]},
+}
+
+## Every event: v1.0, v1.1 and v1.2 (200), then the currencies' and the regions' (地区货币策划案 §4–5).
 static var EVENTS: Dictionary = _all()
 
 static func _all() -> Dictionary:
 	var out := BASE_EVENTS.duplicate()
 	out.merge(MORE_EVENTS)
 	out.merge(EXTRA_EVENTS)
+	out.merge(FX_EVENTS)
+	out.merge(REGION_EVENTS)
 	return out
 
+## Regions events can pick ("天灾预警：%s"): the trading factions' regions.
 static func regions() -> Array:
 	var seen := {}
 	for id in FactionCatalog.trading():
 		seen[str(FactionCatalog.FACTIONS[id].region)] = true
 	return seen.keys()
+
+## The field maps and the region each stands for in the news (I28).
+const MAP_REGIONS := {"mine": "乌萨斯", "city": "龙门", "snow": "萨米", "siracusa": "叙拉古"}
+
+## The map a faction's field posts are on, "" if it has none (I27).
+static func post_map(faction: String) -> String:
+	for map in FactionCatalog.POSTS:
+		if faction in FactionCatalog.POSTS[map]: return map
+	return ""
 
 static func factions_in(region: String) -> Array[String]:
 	var out: Array[String] = []
@@ -378,10 +596,17 @@ static func factions_in(region: String) -> Array[String]:
 	return out
 
 static func of_kind(kind: String) -> Array:
-	return EVENTS.keys().filter(func(id): return EVENTS[id].kind == kind and int(EVENTS[id].weight) > 0)
+	return _of_kind(kind).duplicate()
+
+## EVENTS never changes after load: each kind's pool is filtered once.
+static var _pools := {}
+
+static func _of_kind(kind: String) -> Array:
+	if not _pools.has(kind): _pools[kind] = EVENTS.keys().filter(func(id): return EVENTS[id].kind == kind and int(EVENTS[id].weight) > 0)
+	return _pools[kind]
 
 static func pick(kind: String, rng: RandomNumberGenerator, weight_of: Callable = Callable()) -> String:
-	var pool := of_kind(kind)
+	var pool := _of_kind(kind)
 	var total := 0.0
 	var weights: Array = []
 	for id in pool:

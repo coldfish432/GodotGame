@@ -61,6 +61,11 @@ static func _ship_panel(menu: FieldMenu, stage: Control) -> void:
 		var toggle := AK.button("高能燃料 ×%d" % fuels, "paper" if use_fuel else "plain", 12)
 		toggle.pressed.connect(func(): use_fuel = not use_fuel; build(menu))
 		AK.put(stage, toggle, Vector2(480, TOP + 40), Vector2(148, 26))
+	# 失散干员: no voyage until Stormeye is back.
+	var lost := game.base.dept_missing("voyage")
+	if not lost.is_empty():
+		BaseScreens.lost_bar(stage, lost, true, Vector2(28, TOP + 140), 600, game)
+		return
 	for i in range(VoyageCatalog.MODES.size()):
 		var mode: String = VoyageCatalog.MODES[i]
 		var y := TOP + 140 + i * 38
@@ -133,7 +138,7 @@ static func _stay_panel(menu: FieldMenu, stage: Control) -> void:
 		var rel := game.exchange.relation(f)
 		var rate := v.stay_rate(f) if v.stay_on() else 0.0
 		var drift := game.exchange.relation_drift(f)
-		AK.put(stage, AK.label("%s  R%d · %d / %d   %s/时%s" % [FactionCatalog.name_of(f), game.exchange.rank(f), rel, Exchange.next_rank_at(rel),
+		AK.put(stage, AK.label("%s  %s · %d / %d   %s/时%s" % [FactionCatalog.name_of(f), Exchange.rank_name(game.exchange.rank(f)), rel, Exchange.next_rank_at(rel),
 			("+" if rate >= 0.0 else "") + ("%.2f" % rate).trim_suffix("0").trim_suffix(".0"), ("   修正 −%d/日" % drift) if drift > 0 else ""], 13, AK.RED if rate < 0.0 else AK.FG), Vector2(28, y))
 		y += 24
 	var region := VoyageCatalog.region_at(v.place())

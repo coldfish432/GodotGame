@@ -84,6 +84,17 @@ func _ready() -> void:
 	if not real:
 		world_viewport.add_child(game)
 		return
+	# Debug builds only, `-- --hotbar-test`: no title, no save, straight into a
+	# contract with one of each flask in the pack, to drag them onto the bar.
+	if OS.is_debug_build() and "--hotbar-test" in user_args:
+		game.save_enabled = false
+		world_viewport.add_child(game)
+		await get_tree().process_frame
+		await game.start_contract("city")
+		for kind in ["A", "B", "C", "D", "rat", "ursus"]:
+			game.inventory.add_stack(BaseCatalog.create_potion(kind))
+		game.toggle_panel("inventory")
+		return
 	var system_layer := CanvasLayer.new()
 	system_layer.layer = 30
 	add_child(system_layer)

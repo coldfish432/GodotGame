@@ -1,0 +1,25 @@
+{
+  "id": "snow_floor",
+  "version": 2,
+  "size": [
+    256,
+    256
+  ],
+  "colors": 9,
+  "palette_exact": true,
+  "gray_before_pixels": 8513,
+  "gray_after_pixels": 3425,
+  "gray_ratio_to_v1": 0.4023,
+  "gray_coverage_before": 0.1299,
+  "gray_coverage_after": 0.05226,
+  "luma_mean": 201.22,
+  "snow_top_luma": 211.68,
+  "floor_darker_than_top": true,
+  "seam_x_mean": 14.826,
+  "seam_y_mean": 13.658,
+  "internal_x_p95": 9.588,
+  "internal_y_p95": 9.32,
+  "sha256": "e2951d1a74bff8b0fa4b7b018f1a9df79d9dca06788af9db471061e67eb952ab",
+  "source_sha256": "c94d199d8d901ea44cd2ccef0015d4ca1e1addaa08352d1f3040d7ef26f3031b",
+  "runtime_validation": "NOT_RUN"
+}

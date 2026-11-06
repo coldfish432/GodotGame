@@ -50,7 +50,7 @@ const PRESSURE_CAP := 0.5
 ## News per real day; flash offers per day; black swans: one every ~3 weeks
 ## on average, memoryless (用户: 完全随机).
 ## Tuned with tests/sim_exchange.gd (§15). 用户 2026-10-16: 增加事件数量 —
-## 102 kinds of event and about two headlines an hour.
+## about two headlines an hour.
 const BREAKING_PER_DAY := 36.0
 const RUMOR_PER_DAY := 18.0
 const FLASH_PER_DAY := 2.5
@@ -92,6 +92,7 @@ class Book:
 	# Cached from the faction table.
 	var noise := 1.0
 	var fx := false
+	var cur := ""      # the currency of a rate book (Currencies), "" for goods
 	var switches: Array = []
 	var active_kind := "all"
 
@@ -100,9 +101,10 @@ class Book:
 		var parts := FactionCatalog.split(market)
 		faction = parts[0]
 		category = parts[1]
-		fx = market == FactionCatalog.FX
+		cur = Currencies.of_book(market)
+		fx = not cur.is_empty()
 		var info := FactionCatalog.info(faction)
-		noise = float(info.get("noise", 1.0))
+		noise = float(Currencies.info(cur).get("noise", 1.0)) if fx else float(info.get("noise", 1.0))
 		active_kind = str(info.get("active", "all"))
 		switches = FactionCatalog.switch_hours(faction)
 
@@ -162,14 +164,27 @@ class Book:
 var t := 0
 var rng := RandomNumberGenerator.new()
 var books := {}            # market id -> Book
-var effects: Array = []    # {id, title, kind, until, scale, items: [{markets, mult, spread, depth, vol, quota, fee, halt_until, active_all}], rumor: {...}}
-var news: Array = []       # {t, id, kind, title, region, cred, status, unread}
-var calendar: Array = []   # {at, id, seasonal}
+var effects: Array = []    # {id, title, kind, until, scale, picks, items: [{markets, factions, mult, jump, spread, depth, vol, quota, fee, halt_until, active_all}], rumor: {...}}
+var news: Array = []       # {t, id, kind, title, region, cred, status, unread, markets, moves, cause, picks}
+var calendar: Array = []   # {at, id, seasonal} or a linked follow-up {at, id, cause, picks, depth, linked}
 var flash: Array = []      # {id, faction, kind, category, material, mult, cap, left, until}
 var swan := {}             # {at, id, precursor_at, precursor_done}
 var rumors_low_until := 0
-var threat := {}           # region -> {mult, until}
 var post_boost := {}       # faction -> until
+## 地区货币策划案 §1: policy rates a year (currency -> rate), the 第纳尔's band
+## (book -> {center, pressure, broken_until, next}), 法郎's ceiling (book ->
+## {floor, until}: the index cannot go below it), contagion waiting to land
+## ({at, markets, x}), and the events' effects in the field (§2: {until, id,
+## title, region, key, mult | add, pending}).
+var policy := {}
+var pegs := {}
+var caps := {}
+var ripples: Array = []
+var field: Array = []
+## 可露希尔代售's spread at an anchor (I8, I26: anchor -> {mult, until}) and
+## 喀兰贸易's account fee a day (F17: {rate, until}).
+var consign := {}
+var custody := {}
 var penguin := {"fee": 1.0, "risk": 0.0, "until": 0}
 var cfd_halt := {}         # issuer -> until
 var seasonal_scanned := 0
@@ -187,7 +202,9 @@ var _next_flash_id := 1
 ## on_news(entry: Dictionary, event: Dictionary), on_step(t: int, dt: int).
 var on_news := Callable()
 var on_step := Callable()
-var on_flash := Callable()
+## Bumped on every change the screens draw (a step, an event, a load, selling,
+## news read), so a chart redraws only when this or its own inputs moved.
+var version := 0
 
 func _init() -> void:
 	rng.randomize()
@@ -196,10 +213,16 @@ func _init() -> void:
 func start(now: int, seed_value: int = 0) -> void:
 	if seed_value != 0: rng.seed = seed_value
 	books.clear()
+	policy.clear()
+	pegs.clear()
+	caps.clear()
+	ripples.clear()
+	field.clear()
+	_init_currencies()
 	for id in FactionCatalog.markets():
 		var b := Book.new()
 		b.setup(id)
-		b.i = clampf(1.0 + rng.randfn(0.0, 0.04), 0.85, 1.15)
+		b.i = 1.0 if pegs.has(id) else clampf(1.0 + rng.randfn(0.0, 0.04), 0.85, 1.15)
 		b.mu = b.i
 		b.wp = b.i
 		_new_regime(b)
@@ -215,6 +238,7 @@ func start(now: int, seed_value: int = 0) -> void:
 	news.clear()
 	on_news = cb
 	on_step = sb
+	version += 1
 
 # --- Time ------------------------------------------------------------------------
 
@@ -236,8 +260,8 @@ static func day_key(at: int) -> int:
 static func next_day_start(at: int) -> int:
 	return (day_key(at) + 1) * DAY + DAY_START - tz()
 
-## Runs the market up to `now`: exact ticks for the last six hours of a gap,
-## one-minute steps before that, nothing older than seven days.
+## Runs the market up to `now` in the steps EXACT_WINDOW / MID_WINDOW / MAX_SIM
+## describe: exact ticks last, coarser steps further back.
 func advance_to(now: int) -> void:
 	if t <= 0:
 		start(now)
@@ -266,6 +290,8 @@ func _step(dt: int) -> void:
 		_move(b, dt, hour, minute_of_day, lt)
 	_events(dt)
 	if fx_rate_before != fx_rate(): Economy.fx = fx_rate()
+	_publish_rates()
+	version += 1
 	if on_step.is_valid(): on_step.call(t, dt)
 
 func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
@@ -275,7 +301,7 @@ func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
 	if b.rl <= 0.0: _new_regime(b)
 	var regime: Dictionary = REGIMES[b.rg]
 	var vol := float(regime.noise) * float(m.get("vol", 1.0))
-	if b.fx: vol *= FX_NOISE
+	if b.fx: vol *= FX_NOISE * b.noise
 	else:
 		vol *= b.noise
 		if not _active_book(b, hour): vol *= OFF_HOURS.vol
@@ -294,8 +320,10 @@ func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
 	var x := log(b.i)
 	# A running market forgets where "normal" is (bubbles): momentum weakens the pull back.
 	var pull := K_INTRADAY / (1.0 + absf(b.mo) / MOMENTUM_REF)
-	var beta := FX_BETA if b.fx else (BLACK_BETA if b.noise > 1.0 else 1.0)
+	var beta := _fx_beta(b.cur) if b.fx else (BLACK_BETA if b.noise > 1.0 else 1.0)
 	var move := (log(target) - x) * minf(1.0, pull * dt) + b.tr * ticks + HERDING * b.mo * dt + rng.randfn(0.0, vol) * root + beta * (_common - _crash)
+	# 里拉 weakens day by day (§1.4).
+	if b.fx: move += float(Currencies.info(b.cur).get("drift", 0.0)) * dt / DAY
 	x += move
 	# News moves come in under the rate limit, the rest next window.
 	if t - b.w0 >= LIMIT_WINDOW:
@@ -309,6 +337,7 @@ func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
 		b.pj -= release
 	else: b.pj = 0.0
 	x = clampf(x, lo, hi)
+	x = _hold(b, x, dt)
 	var old := b.i
 	b.i = clampf(exp(x), 0.05, 20.0)
 	var r := log(b.i / old)
@@ -336,6 +365,14 @@ const PANIC_VOL := 1.5
 const PANIC_DRIFT := 0.00001
 const FX_BETA := -0.8
 const BLACK_BETA := 1.3
+## In a panic 法郎 strengthens, the high-yield currencies fall harder (§1.4).
+const HAVEN_BETA := 0.6
+const RISKY_BETA := -1.6
+
+static func _fx_beta(cur: String) -> float:
+	if bool(Currencies.info(cur).get("haven", false)): return HAVEN_BETA
+	if cur in Currencies.RISKY: return RISKY_BETA
+	return FX_BETA
 var _common := 0.0
 var _crash := 0.0
 
@@ -361,9 +398,10 @@ func _new_regime(b: Book) -> void:
 # --- Candles -------------------------------------------------------------------------
 
 ## Candles of `market` at `period` ("1m", "5m", "15m", "1h", "4h", "1d", "1w"):
-## [[o, h, l, c, v], …], oldest first, in display units (FX in 龙门币 per 赤金,
-## others ×100).
+## [[o, h, l, c, v], …], oldest first, in display units (rate books in units
+## per 赤金, crosses in 龙门币 per unit, goods ×100).
 func candles(market: String, period: String, limit: int = 120) -> Array:
+	if Currencies.is_cross(market): return _cross_candles(Currencies.cross_cur(market), period, limit)
 	var b: Book = books.get(market)
 	if b == null: return []
 	var src := b.c1
@@ -404,8 +442,27 @@ func candles(market: String, period: String, limit: int = 120) -> Array:
 	if out.size() > limit: out = out.slice(out.size() - limit)
 	return out
 
+## X / 龙门币 from 龙门币/赤金 over X/赤金, candle by candle (the books' candles
+## share their times). Close and open are exact; high and low are the widest
+## the two could make.
+func _cross_candles(cur: String, period: String, limit: int) -> Array:
+	var a := candles(FactionCatalog.FX, period, limit)
+	var b := candles(Currencies.book(cur), period, limit)
+	var n := mini(a.size(), b.size())
+	var out: Array = []
+	for k in range(n):
+		var x: Array = a[a.size() - n + k]
+		var y: Array = b[b.size() - n + k]
+		out.append([x[0] / maxf(y[0], 1e-9), x[1] / maxf(y[2], 1e-9), x[2] / maxf(y[1], 1e-9), x[3] / maxf(y[3], 1e-9), x[4] + y[4]])
+	return out
+
+## 1 unit of `cur` in 龙门币 now.
+func cross_rate(cur: String) -> float:
+	return fx_rate() / maxf(rate_of(cur), 1e-9)
+
 static func display_scale(market: String) -> float:
-	return 1000.0 if market == FactionCatalog.FX else 100.0
+	var cur := Currencies.of_book(market)
+	return Currencies.base(cur) if not cur.is_empty() else 100.0
 
 # --- Quotes ----------------------------------------------------------------------------
 
@@ -420,10 +477,14 @@ func index(market: String) -> float:
 	return b.i if b != null else 1.0
 
 func price(market: String) -> float:
+	if Currencies.is_cross(market): return cross_rate(Currencies.cross_cur(market))
 	return index(market) * display_scale(market)
 
 ## The day's change of `market` (from the trading day's open).
 func change(market: String) -> float:
+	if Currencies.is_cross(market):
+		var day := _cross_candles(Currencies.cross_cur(market), "1d", 1)
+		return (price(market) - float(day[0][0])) / maxf(float(day[0][0]), 1e-9) if not day.is_empty() else 0.0
 	var b: Book = books.get(market)
 	if b == null or b.cd.size() < FIELDS: return 0.0
 	var o := b.cd[b.cd.size() - FIELDS]
@@ -437,7 +498,7 @@ func mods(market: String) -> Dictionary:
 func spread(market: String) -> float:
 	var b: Book = books.get(market)
 	if b == null: return 0.0
-	if market == FactionCatalog.FX: return 0.0
+	if b.fx: return 0.0
 	var s := float(FactionCatalog.info(b.faction).get("spread", 0.03)) * float(mods(market).get("spread", 1.0))
 	if not active(b.faction): s *= OFF_HOURS.spread
 	return s
@@ -461,6 +522,7 @@ func ask(market: String) -> float:
 	return b.i * (1.0 + spread(market) * 0.5)
 
 func halted(market: String) -> bool:
+	if Currencies.is_cross(market): return halted(FactionCatalog.FX) or halted(Currencies.book(Currencies.cross_cur(market)))
 	return int(mods(market).get("halt_until", 0)) > t
 
 func locked(market: String) -> bool:
@@ -483,6 +545,7 @@ func add_pressure(market: String, value: float) -> void:
 	if b == null: return
 	b.p = minf(PRESSURE_CAP, b.p + value / depth(market))
 	if b.c1.size() >= FIELDS: b.c1[b.c1.size() - 1] += value
+	version += 1
 
 ## The faction's composite index: the mean of its markets.
 func composite(faction: String) -> float:
@@ -498,8 +561,174 @@ func fx_rate() -> float:
 	return index(FactionCatalog.FX) * 1000.0
 
 func threat_mult(region: String) -> float:
-	var entry: Dictionary = threat.get(region, {})
+	return float(field_mods(region).mult.get("threat", 1.0))
+
+## Units of `cur` per 赤金 now (its book's index × base).
+func rate_of(cur: String) -> float:
+	return index(Currencies.book(cur)) * Currencies.base(cur)
+
+## Policy rate a year (§1.3).
+func policy_rate(cur: String) -> float:
+	return float(policy.get(cur, Currencies.info(cur).get("rate", 0.0)))
+
+func _init_currencies() -> void:
+	for cur in Currencies.ORDER:
+		if not policy.has(cur): policy[cur] = float(Currencies.info(cur).rate)
+		var id := Currencies.book(cur)
+		if Currencies.info(cur).has("peg") and not pegs.has(id): pegs[id] = {"center": 1.0, "pressure": 0.0, "broken_until": 0, "next": 1.0}
+
+func _publish_rates() -> void:
+	for cur in Currencies.ORDER: Currencies.live[cur] = rate_of(cur)
+
+# --- Pegs, the ceiling, intervention, contagion (§1.4) -----------------------------------
+
+## The band's pressure builds by how far the market tried to leave it.
+const PEG_GAIN := 25.0
+const PEG_DECAY_HALF := 86400.0
+## Once the pressure is full, the break comes within hours.
+const PEG_BREAK_SECS := 6.0 * 3600.0
+const PEG_FLOAT_DAYS := Vector2(7.0, 14.0)
+const PEG_RESET := Vector2(0.10, 0.30)
+## 龙门方面入市干预: beyond ±12% of 1000, 15% an hour.
+const INTERVENE_AT := 0.12
+const INTERVENE_ODDS := 0.15
+## Contagion: an event moving a currency this much carries over (§3.3).
+const RIPPLE_MIN := 0.03
+const RIPPLE_DELAY := Vector2i(600, 3600)
+const RIPPLE_SHARE := Vector2(0.3, 0.8)
+
+## A rate book's band (第纳尔) or ceiling (法郎) holds the index in.
+func _hold(b: Book, x: float, dt: int) -> float:
+	if not b.fx: return x
+	var peg: Dictionary = pegs.get(b.id, {})
+	if not peg.is_empty() and int(peg.broken_until) <= t:
+		var band := float(Currencies.info(b.cur).get("peg", 0.02))
+		var lo := log(float(peg.center) * (1.0 - band))
+		var hi := log(float(peg.center) * (1.0 + band))
+		var excess := maxf(x - hi, lo - x)
+		peg.pressure = float(peg.pressure) * pow(0.5, dt / PEG_DECAY_HALF) + maxf(0.0, excess) * PEG_GAIN
+		x = clampf(x, lo, hi)
+	var cap: Dictionary = caps.get(b.id, {})
+	if not cap.is_empty():
+		if int(cap.until) > t: x = maxf(x, log(float(cap.floor)))
+		else: caps.erase(b.id)
+	return x
+
+func _peg_step(dt: int) -> void:
+	for id in pegs:
+		var peg: Dictionary = pegs[id]
+		var broken := int(peg.broken_until)
+		if broken > 0 and broken <= t:
+			# Floated long enough: pegged again, weaker.
+			peg.center = float(peg.next)
+			peg.broken_until = 0
+			peg.pressure = 0.0
+			fire("F11")
+		elif broken == 0 and float(peg.pressure) >= 1.0 and rng.randf() < dt / PEG_BREAK_SECS:
+			fire("F12")
+
+func _break_peg(market: String) -> void:
+	var peg: Dictionary = pegs.get(market, {})
+	if peg.is_empty() or int(peg.broken_until) > t: return
+	peg.broken_until = t + int(rng.randf_range(PEG_FLOAT_DAYS.x, PEG_FLOAT_DAYS.y) * DAY)
+	peg.next = float(peg.center) * (1.0 + rng.randf_range(PEG_RESET.x, PEG_RESET.y))
+	peg.pressure = 0.0
+
+func pegged(market: String) -> bool:
+	return pegs.has(market) and int(pegs[market].broken_until) <= t
+
+func _intervene_step(dt: int) -> void:
+	if t % 3600 >= dt: return
+	if absf(index(FactionCatalog.FX) - 1.0) > INTERVENE_AT and rng.randf() < INTERVENE_ODDS: fire("F0")
+
+## A currency's event jump `x` (index) carried to its ties after a delay.
+func _ripple(cur: String, x: float) -> void:
+	for tie in Currencies.TIES.get(cur, []):
+		var markets := _resolve(str(tie[0]), [], "")
+		# Ties are in value terms: a currency falling is its index rising.
+		var follow := float(tie[1]) * x * (1.0 if Currencies.is_fx(str(tie[0])) else -1.0)
+		ripples.append({"at": t + rng.randi_range(RIPPLE_DELAY.x, RIPPLE_DELAY.y), "markets": markets, "x": follow * rng.randf_range(RIPPLE_SHARE.x, RIPPLE_SHARE.y)})
+
+func _ripple_step() -> void:
+	if ripples.is_empty(): return
+	for r in ripples.duplicate():
+		if int(r.at) > t: continue
+		ripples.erase(r)
+		for m in r.markets: _jump(str(m), float(r.x))
+
+# --- In the field (§2) --------------------------------------------------------------------
+
+## Multiplying effects clamp here once stacked (拍板 #4); adding ones do not.
+const FIELD_RANGE := Vector2(0.8, 1.2)
+const FIELD_ADD := ["kannot_stock", "feature_add"]
+
+## The field effects on `region` now: {mult: {key: x}, add: {key: n}, titles: […]}.
+## Keys: threat, elite, enemy:<tag>, route:<node>, post:<faction>,
+## post_price:<faction>, kannot_buy, kannot_stock, loot:<category>, gold_drop,
+## feature_add, feature_rate, reward, camp_fx.
+func field_mods(region: String) -> Dictionary:
+	var mult := {}
+	var add := {}
+	var titles: Array = []
+	for f in field:
+		if int(f.until) <= t or f.get("pending", false): continue
+		if str(f.region) != region and str(f.region) != "*": continue
+		var key := str(f.key)
+		if key in FIELD_ADD: add[key] = float(add.get(key, 0.0)) + float(f.get("add", 0.0))
+		else: mult[key] = float(mult.get(key, 1.0)) * float(f.get("mult", 1.0))
+		if not titles.has(f.title): titles.append(f.title)
+	for key in mult: mult[key] = clampf(float(mult[key]), FIELD_RANGE.x, FIELD_RANGE.y)
+	return {"mult": mult, "add": add, "titles": titles}
+
+## The headlines on `region` for 调度台 (§2.3): [{title, harder, id, until, effects}],
+## harder when any of its effects makes the field tougher or pays less; effects
+## are [key, value, adds] for the hover.
+const FIELD_HARDER := ["threat", "elite", "enemy", "feature_add", "feature_rate", "camp_fx"]
+
+func field_news(region: String) -> Array:
+	var out := {}
+	var list: Array = []
+	for f in field:
+		if int(f.until) <= t or f.get("pending", false): continue
+		if str(f.region) != region and str(f.region) != "*": continue
+		var kind := str(f.key).get_slice(":", 0)
+		var up := float(f.get("mult", 1.0)) > 1.0 or float(f.get("add", 0.0)) > 0.0
+		var harder := up if kind in FIELD_HARDER else not up
+		if not out.has(f.title):
+			out[f.title] = {"title": f.title, "harder": false, "id": str(f.get("id", "")), "until": int(f.until), "effects": []}
+			list.append(out[f.title])
+		var n: Dictionary = out[f.title]
+		n.harder = bool(n.harder) or harder
+		n.until = maxi(int(n.until), int(f.until))
+		var adds: bool = f.has("add")
+		n.effects.append([str(f.key), float(f.add) if adds else float(f.get("mult", 1.0)), adds])
+	return list
+
+func _add_field(ev: Dictionary, id: String, title: String, until: int, pending: bool, picks: Dictionary) -> void:
+	var specs: Array = ev.get("field", []).duplicate()
+	# The old event-level threat (S5, S13, S20) is one of them now.
+	if ev.has("threat"): specs.append({"region": str(ev.threat.region), "kind": "threat", "mult": float(ev.threat.mult)})
+	for spec in specs:
+		var region := str(spec.region)
+		# "@" and "@2": the field maps of the regions the event picked (I27, I28).
+		if region.begins_with("@"):
+			region = str(picks.get("map" + region.substr(1), ""))
+			if region.is_empty(): continue
+		var key := str(spec.kind)
+		for extra in ["tag", "node", "faction", "category"]:
+			if spec.has(extra): key += ":" + (str(picks.get("faction", "")) if str(spec[extra]) == "#" else str(spec[extra]))
+		var entry := {"until": until, "id": id, "title": title, "region": region, "key": key, "pending": pending}
+		if spec.has("mult"): entry["mult"] = float(spec.mult)
+		if spec.has("add"): entry["add"] = float(spec.add)
+		field.append(entry)
+	field = field.filter(func(f): return int(f.until) > t)
+
+func consign_mult(anchor: String) -> float:
+	var entry: Dictionary = consign.get(anchor, {})
 	return float(entry.get("mult", 1.0)) if int(entry.get("until", 0)) > t else 1.0
+
+func custody_rate() -> float:
+	return float(custody.get("rate", 0.0)) if int(custody.get("until", 0)) > t else 0.0
 
 func penguin_fee() -> float:
 	return float(penguin.fee) if int(penguin.until) > t else 1.0
@@ -535,7 +764,7 @@ func _rebuild_mods() -> void:
 				_mods[id] = m
 			if item.get("active_all", false):
 				for f in item.get("factions", []): _all_day[f] = true
-	# Stacked news cannot push a book past half or double its level.
+	# Stacked news multipliers are clamped to 0.2–5×.
 	for id in _mods:
 		if _mods[id].has("mult"): _mods[id]["mult"] = clampf(float(_mods[id].mult), 0.2, 5.0)
 	_mods_dirty = false
@@ -548,7 +777,8 @@ func _expire_effects() -> void:
 
 func _resolve(sel: String, region_factions: Array, picked: String) -> Array:
 	var parts := sel.split(":")
-	if sel == FactionCatalog.FX: return [FactionCatalog.FX]
+	if Currencies.is_fx(sel): return [sel]
+	if sel == "fx*": return Currencies.books()
 	var faction_part := parts[0]
 	var category_part := parts[1] if parts.size() > 1 else "*"
 	var factions: Array = []
@@ -564,8 +794,9 @@ func _resolve(sel: String, region_factions: Array, picked: String) -> Array:
 				out.append("%s:%s" % [f, c])
 	return out
 
-## Fires event `id` now. `scale` < 1 for a rumor before it is verified.
-## `cause` is the headline it follows from (MarketLinks), "" for none.
+## Fires event `id` now; a rumor moves at RUMOR_FIRST until it is verified.
+## `cause` is the headline it follows from (MarketLinks), "" for none;
+## `depth` its generation down a chain (CHAIN_DAMP).
 func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0) -> Dictionary:
 	picks = picks.duplicate()
 	var ev: Dictionary = MarketEvents.EVENTS.get(id, {})
@@ -582,13 +813,25 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 		region_factions = MarketEvents.factions_in(region)
 		title = title % region
 		picks["region"] = region
-	if ev.get("pick_faction", false) or ev.get("pick_issuer", false):
+	if ev.get("pick_maps", false):
+		var maps: Array = MarketEvents.MAP_REGIONS.keys()
+		var first: String = picks.get("map", maps[rng.randi() % maps.size()])
+		maps.erase(first)
+		var second: String = picks.get("map2", maps[rng.randi() % maps.size()])
+		picks["map"] = first
+		picks["map2"] = second
+		var names := [str(MarketEvents.MAP_REGIONS[first]), str(MarketEvents.MAP_REGIONS[second])]
+		region_factions = MarketEvents.factions_in(names[0]) + MarketEvents.factions_in(names[1])
+		title = title % names
+	if ev.get("pick_faction", false) or ev.get("pick_issuer", false) or ev.get("pick_post", false):
 		picked = picks.get("faction", "")
 		if picked.is_empty():
 			var pool: Array = FactionCatalog.CFD_ISSUERS if ev.get("pick_issuer", false) else FactionCatalog.trading()
+			if ev.get("pick_post", false): pool = pool.filter(func(f): return not MarketEvents.post_map(f).is_empty())
 			picked = pool[rng.randi() % pool.size()]
 		title = title % FactionCatalog.name_of(picked)
 		picks["faction"] = picked
+		if ev.get("pick_post", false): picks["map"] = MarketEvents.post_map(picked)
 	if ev.has("pick"):
 		var prefs: Array = FactionCatalog.info(str(ev.pick)).get("prefs", {}).keys()
 		pick_cat = picks.get("category", prefs[rng.randi() % prefs.size()])
@@ -618,9 +861,15 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 		var jump := 0.0
 		if spec.has("jump"): jump = float(spec.jump)
 		if spec.has("jump_range"): jump = sign * rng.randf_range(float(spec.jump_range[0]), float(spec.jump_range[1]))
+		# 龙门方面入市干预: back toward 1000 by this share of the gap (§1.4).
+		if spec.has("revert") and not markets.is_empty(): jump = pow(1.0 / maxf(index(markets[0]), 0.05), float(spec.revert)) - 1.0
 		if jump != 0.0:
 			item["jump"] = jump
-			for m in markets: _jump(m, jump * scale)
+			for m in markets:
+				_jump(m, jump * scale)
+				var cur := Currencies.of_book(m)
+				if not cur.is_empty() and absf(jump * scale) >= RIPPLE_MIN: _ripple(cur, jump * scale)
+		_currency_effects(spec, markets, sign, until)
 		if spec.has("longterm"):
 			for m in markets:
 				var b: Book = books.get(m)
@@ -636,12 +885,16 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 		entry["rumor"] = {"cred": cred, "verify_at": t + rng.randi_range(60, 300), "truth": rng.randf() < float(CREDIBILITY[cred]), "false_mult": float(ev.get("false_mult", 1.0))}
 	effects.append(entry)
 	_mods_dirty = true
+	version += 1
+	# A rumor reaches the field only once it is confirmed (§2.2).
+	_add_field(ev, id, title, until, rumor, picks)
 	# Event-level extras.
 	if ev.has("penguin_fee") or ev.has("penguin_risk"):
 		penguin = {"fee": float(ev.get("penguin_fee", 1.0)), "risk": float(ev.get("penguin_risk", 0.0)), "until": until}
 	if ev.has("cfd_halt"): cfd_halt[str(ev.cfd_halt)] = until
+	for anchor in ev.get("consign", {}): consign[anchor] = {"mult": float(ev.consign[anchor]), "until": until}
+	if ev.has("custody"): custody = {"rate": float(ev.custody), "until": until}
 	if ev.has("rumors_low"): rumors_low_until = maxi(rumors_low_until, t + int(float(ev.rumors_low) * MarketEvents.HOUR))
-	if ev.has("threat"): threat[str(ev.threat.region)] = {"mult": float(ev.threat.mult), "until": until}
 	if ev.has("post_boost"): post_boost[str(ev.post_boost)] = until
 	if ev.get("barter_reroll", false): barter_seed = rng.randi()
 	var shown_cred := ""
@@ -656,13 +909,32 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 			if not touched.has(m): touched.append(m)
 			if sign != 0 and not moves.has(m): moves[m] = sign
 	var headline := {"t": t, "id": id, "kind": ev.kind, "title": title, "region": ev.region, "cred": shown_cred,
-		"status": "待证实" if rumor else "", "unread": true, "markets": touched, "moves": moves, "cause": cause}
+		"status": "待证实" if rumor else "", "unread": true, "markets": touched, "moves": moves, "cause": cause, "picks": picks}
 	news.append(headline)
 	if news.size() > NEWS_KEEP: news = news.slice(news.size() - NEWS_KEEP)
 	if on_news.is_valid(): on_news.call(headline, ev)
 	_follow(id, title, picks, "", depth)
 	_push(id, float(MarketLinks.PUSH.get(str(ev.kind), 0.3)))
 	return entry
+
+## Policy rates, the band and the ceiling (§1.3–1.4): what an effect does to a currency.
+func _currency_effects(spec: Dictionary, markets: Array, sign: float, until: int) -> void:
+	for m in markets:
+		var cur := Currencies.of_book(str(m))
+		if cur.is_empty(): continue
+		var step := 0.0
+		if spec.has("rate"): step = float(spec.rate)
+		if spec.has("rate_range"): step = sign * rng.randf_range(float(spec.rate_range[0]), float(spec.rate_range[1]))
+		if step != 0.0: policy[cur] = maxf(-0.01, policy_rate(cur) + step)
+		match str(spec.get("peg", "")):
+			"reset":
+				if pegs.has(m): pegs[m].pressure = 0.0
+			"break": _break_peg(str(m))
+			"press":
+				if pegs.has(m): pegs[m].pressure = maxf(0.0, float(pegs[m].pressure) + float(spec.get("pressure", 0.3)))
+		match str(spec.get("cap", "")):
+			"set": caps[m] = {"floor": index(str(m)) * (1.0 + float(spec.get("jump", 0.0))), "until": until}
+			"lift": caps.erase(m)
 
 ## Moves the world state along an event's affinities (calming events pull it down).
 func _push(id: String, amount: float) -> void:
@@ -675,7 +947,7 @@ func _push(id: String, amount: float) -> void:
 		var room := (MarketLinks.FACTOR_RANGE.y - v) / MarketLinks.FACTOR_RANGE.y if step > 0.0 else (v - MarketLinks.FACTOR_RANGE.x) / -MarketLinks.FACTOR_RANGE.x
 		factors[f] = clampf(v + step * clampf(room, 0.0, 1.0), MarketLinks.FACTOR_RANGE.x, MarketLinks.FACTOR_RANGE.y)
 
-## How the world state leans an event's odds: exp(affinity · factors).
+## How the world state leans an event's odds: exp(affinity · tanh(factors)), capped.
 func lean(id: String) -> float:
 	var aff := MarketLinks.affinity(id)
 	var x := 0.0
@@ -744,7 +1016,10 @@ func _verify(e: Dictionary) -> void:
 			if item.has("jump"):
 				for m in item.markets: _jump(m, float(item.jump) * (1.0 - RUMOR_FIRST))
 		if not headline.is_empty(): headline.status = "已证实"
+		for f in field:
+			if str(f.id) == str(e.id) and f.get("pending", false): f.pending = false
 	else:
+		field = field.filter(func(f): return not (str(f.id) == str(e.id) and f.get("pending", false)))
 		for item in e.items:
 			if item.has("jump"):
 				for m in item.markets: _jump(m, -float(item.jump) * RUMOR_FIRST)
@@ -769,7 +1044,7 @@ func _events(dt: int) -> void:
 	if rng.randf() < dt * BREAKING_PER_DAY / DAY: fire(MarketEvents.pick("breaking", rng, _weight))
 	if rng.randf() < dt * RUMOR_PER_DAY / DAY: fire(MarketEvents.pick("rumor", rng, _weight))
 	# Follow-ups come when their time comes.
-	if not chain.is_empty():
+	if not chain.is_empty() and chain.any(func(c): return int(c.at) <= t):
 		for entry in chain.duplicate():
 			if int(entry.at) <= t:
 				chain.erase(entry)
@@ -786,6 +1061,9 @@ func _events(dt: int) -> void:
 	_calendar_step()
 	_swan_step()
 	_flash_step(dt)
+	_peg_step(dt)
+	_intervene_step(dt)
+	_ripple_step()
 
 ## Weights hooked to the player's behaviour (事件表 §10), set by Exchange.
 var weight_hook := Callable()
@@ -799,16 +1077,25 @@ func _calendar_step() -> void:
 			if not calendar.any(func(c): return c.id == entry[1] and absi(int(c.at) - at) < 3600):
 				calendar.append({"at": at, "id": entry[1], "seasonal": true})
 		seasonal_scanned = t + 8 * DAY - 3600
-	var random_count := calendar.filter(func(c): return not c.get("seasonal", false) and not c.get("linked", false)).size()
+	var random_count := 0
+	for c in calendar:
+		if not c.get("seasonal", false) and not c.get("linked", false): random_count += 1
 	while random_count < RANDOM_ANNOUNCES:
 		var id := MarketEvents.pick("announce", rng)
 		if id.is_empty(): break
 		calendar.append({"at": t + rng.randi_range(6 * 3600, 48 * 3600), "id": id, "seasonal": false})
 		random_count += 1
-	calendar.sort_custom(func(a, b): return int(a.at) < int(b.at))
+	# Godot's sort is a plain insertion sort up to 16 entries, which leaves a
+	# sorted list as it is; past that its order of equal times could differ.
+	if calendar.size() > 16 or not _calendar_sorted(): calendar.sort_custom(func(a, b): return int(a.at) < int(b.at))
 	while not calendar.is_empty() and int(calendar[0].at) <= t:
 		var entry: Dictionary = calendar.pop_front()
 		fire(str(entry.id), entry.get("picks", {}), str(entry.get("cause", "")), int(entry.get("depth", 0)))
+
+func _calendar_sorted() -> bool:
+	for k in range(1, calendar.size()):
+		if int(calendar[k].at) < int(calendar[k - 1].at): return false
+	return true
 
 func _schedule_swan() -> void:
 	var wait := -log(maxf(1e-9, rng.randf())) * SWAN_MEAN
@@ -833,7 +1120,8 @@ func _swan_step() -> void:
 		fire(id)
 
 func _flash_step(dt: int) -> void:
-	flash = flash.filter(func(f): return int(f.until) > t and int(f.left) > 0)
+	if flash.any(func(f): return not (int(f.until) > t and int(f.left) > 0)):
+		flash = flash.filter(func(f): return int(f.until) > t and int(f.left) > 0)
 	if rng.randf() >= dt * FLASH_PER_DAY / DAY: return
 	var factions := FactionCatalog.trading()
 	var faction: String = factions[rng.randi() % factions.size()]
@@ -866,6 +1154,7 @@ func unread() -> int:
 
 func mark_read() -> void:
 	for n in news: n.unread = false
+	version += 1
 
 # --- Saving ------------------------------------------------------------------------------
 
@@ -873,14 +1162,27 @@ func to_data() -> Dictionary:
 	var b_data := {}
 	for id in books: b_data[id] = books[id].to_data()
 	return {"version": 1, "t": t, "seed": rng.seed, "state": rng.state, "books": b_data, "effects": effects, "news": news,
-		"calendar": calendar, "flash": flash, "swan": swan, "rumors_low_until": rumors_low_until, "threat": threat,
+		"calendar": calendar, "flash": flash, "swan": swan, "rumors_low_until": rumors_low_until,
 		"post_boost": post_boost, "penguin": penguin, "cfd_halt": cfd_halt, "seasonal_scanned": seasonal_scanned,
-		"barter_seed": barter_seed, "next_flash": _next_flash_id, "chain": chain, "boosts": boosts, "factors": factors}
+		"barter_seed": barter_seed, "next_flash": _next_flash_id, "chain": chain, "boosts": boosts, "factors": factors,
+		"policy": policy, "pegs": pegs, "caps": caps, "ripples": ripples, "field": field, "consign": consign, "custody": custody}
 
 func load_data(d: Dictionary) -> void:
 	t = int(d.get("t", 0))
 	rng.seed = int(d.get("seed", rng.seed))
 	rng.state = int(d.get("state", rng.state))
+	policy = d.get("policy", {})
+	pegs = d.get("pegs", {})
+	caps = d.get("caps", {})
+	ripples = d.get("ripples", [])
+	field = d.get("field", [])
+	consign = d.get("consign", {})
+	custody = d.get("custody", {})
+	# A save from before the currencies: the old threat entries go to the field.
+	for region in d.get("threat", {}):
+		var old: Dictionary = d.threat[region]
+		if int(old.get("until", 0)) > t: field.append({"until": int(old.until), "id": "", "title": "", "region": region, "key": "threat", "mult": float(old.get("mult", 1.0)), "pending": false})
+	_init_currencies()
 	books.clear()
 	var saved: Dictionary = d.get("books", {})
 	for id in FactionCatalog.markets():
@@ -889,6 +1191,7 @@ func load_data(d: Dictionary) -> void:
 		if saved.has(id): b.load(saved[id])
 		else:
 			b.w0 = t
+			b.wp = b.i
 			_new_regime(b)
 		books[id] = b
 	effects = d.get("effects", [])
@@ -897,7 +1200,6 @@ func load_data(d: Dictionary) -> void:
 	flash = d.get("flash", [])
 	swan = d.get("swan", {})
 	rumors_low_until = int(d.get("rumors_low_until", 0))
-	threat = d.get("threat", {})
 	post_boost = d.get("post_boost", {})
 	penguin = d.get("penguin", {"fee": 1.0, "risk": 0.0, "until": 0})
 	cfd_halt = d.get("cfd_halt", {})
@@ -909,6 +1211,8 @@ func load_data(d: Dictionary) -> void:
 	factors = d.get("factors", {})
 	_mods_dirty = true
 	Economy.fx = fx_rate()
+	_publish_rates()
+	version += 1
 
 func save_file(path: String) -> void:
 	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)

@@ -1,0 +1,618 @@
+{
+  "brief": "收藏品与整理箱图标美术需求_v2.md",
+  "expected": 67,
+  "present": 67,
+  "static_status": "PASS",
+  "runtime_validation": "NOT_RUN",
+  "groups": {
+    "regional_collectibles": 32,
+    "figurines": 18,
+    "storage_cases": 16,
+    "gift_pack": 1
+  },
+  "checks": [
+    {
+      "id": "col_mine_pass",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "823cdc9309b31c373bdf1d29b18cebfe9517a969639ed727d0b3e0bca6013e55",
+      "status": "PASS"
+    },
+    {
+      "id": "col_miner_charm",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "8e748507c9f4835557291b675725dd34a3728a011fae5c01c0e936d3c4d2802b",
+      "status": "PASS"
+    },
+    {
+      "id": "col_tin_doll",
+      "size": [
+        32,
+        72
+      ],
+      "sha256": "79def66884019dfb0a384e248049bc13fc1cab5042881708ee373ecf55b1343f",
+      "status": "PASS"
+    },
+    {
+      "id": "col_old_lamp",
+      "size": [
+        32,
+        72
+      ],
+      "sha256": "f002b3b8824af41c2487787e547b2e8eda49a936b7fdbcf3232a911e672eb0f2",
+      "status": "PASS"
+    },
+    {
+      "id": "col_pocket_watch",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "86c83666ff6837ee9836ded9e780609190a14b827b0b3a4e25991c32f46712be",
+      "status": "PASS"
+    },
+    {
+      "id": "col_lamp_shade",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "4df93bcf99e9f7107f77810b890d2060c9be1a8fd8e324f0a14dcf169ea4fade",
+      "status": "PASS"
+    },
+    {
+      "id": "col_school_badge",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "e0adc2aeb139c7e6affc16fa4be2047684bfaeabc341ff0cf5e7d9adeacccadb",
+      "status": "PASS"
+    },
+    {
+      "id": "col_imperial_medal",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "c8e6bdc2f24588508ff93edaf6357df2ee77f7a4856b5994d579336ae555ec9f",
+      "status": "PASS"
+    },
+    {
+      "id": "col_teahouse_chip",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "b0913d6e39c856242eb09db7f76618943f35bb0fcf234b635020c6607b1b632a",
+      "status": "PASS"
+    },
+    {
+      "id": "col_lmd_specimen",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "3eefebfb6187aa71779963006de173e7aa36dc5768e5d705ae512543e5df1fd2",
+      "status": "PASS"
+    },
+    {
+      "id": "col_mahjong",
+      "size": [
+        72,
+        32
+      ],
+      "sha256": "851513f45162729bad4eaadbfe43c0337e565612fe5e2262a2b1b2ca839ad069",
+      "status": "PASS"
+    },
+    {
+      "id": "col_radio",
+      "size": [
+        72,
+        32
+      ],
+      "sha256": "844e9a1fbd86bdec07d92cd0f79830a1940f0717ede4484042ec55343190f36d",
+      "status": "PASS"
+    },
+    {
+      "id": "col_lion_dance",
+      "size": [
+        32,
+        72
+      ],
+      "sha256": "3b480128219b820e55624078b4197fd9a967a1a2de01394cfa69125f5dc1e2d6",
+      "status": "PASS"
+    },
+    {
+      "id": "col_yan_teapot",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "027cbf68ccfa88386ff0f80bb3497430a2f5872793f9d57e0c5d2d9e067ae847",
+      "status": "PASS"
+    },
+    {
+      "id": "col_lgd_medal",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "866051ab57fdc924ef26319257190f0d3f00765b361b8f9dc20e6bf28c52371d",
+      "status": "PASS"
+    },
+    {
+      "id": "col_jade_pendant",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "2e59ae062973de80a08b58cf377ace012763aebec9bbae34a39f592983530c02",
+      "status": "PASS"
+    },
+    {
+      "id": "col_reindeer_bell",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "ba2b44a4f1f5ec78044d522336107865d4ab274b595721368aa7c249032c4fca",
+      "status": "PASS"
+    },
+    {
+      "id": "col_hide_charm",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "926b1508c1f96f3c4b62aa4cf4f129880eff71f3f22bacf980cfc34e1efde325",
+      "status": "PASS"
+    },
+    {
+      "id": "col_antler",
+      "size": [
+        72,
+        32
+      ],
+      "sha256": "1393d8a17cc923ecceff3a5ab31257be5a87d0b7273c5902da04ccdddabfd491",
+      "status": "PASS"
+    },
+    {
+      "id": "col_birch_basket",
+      "size": [
+        32,
+        72
+      ],
+      "sha256": "88835276cb7981a726934dd6f831b689559eeebd9a6867a2f80c6a917d0f9adb",
+      "status": "PASS"
+    },
+    {
+      "id": "col_sami_carving",
+      "size": [
+        32,
+        72
+      ],
+      "sha256": "a522b9c4d39cd6fb9a311d19deb800aa610dbf9cc4ad8728a28415201841ca6f",
+      "status": "PASS"
+    },
+    {
+      "id": "col_snow_map",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "829ca838b78bc87246f1a99a5e0515a704c32f38a6c59019d137e949689c5558",
+      "status": "PASS"
+    },
+    {
+      "id": "col_bone_flute",
+      "size": [
+        72,
+        32
+      ],
+      "sha256": "95c4bb75f370b155dbe3e7898cd5f1f9412c48c1d78e53e2780bf9fb356ab56b",
+      "status": "PASS"
+    },
+    {
+      "id": "col_aurora_amber",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "aa57ac318198b321802cdde9d43181df946b4b4975b4cba58550b80bfcb40505",
+      "status": "PASS"
+    },
+    {
+      "id": "col_coffee_cup",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "cdd959a6011ab96ffa7b0ac45fa1ebebf878b6b0a17f5d1b922eb56ea86ea4ef",
+      "status": "PASS"
+    },
+    {
+      "id": "col_opera_poster",
+      "size": [
+        32,
+        72
+      ],
+      "sha256": "ed983928c0ec39ff6768c013f542e35d6e1f546a56c7ed340be73433bad82441",
+      "status": "PASS"
+    },
+    {
+      "id": "col_silver_cutlery",
+      "size": [
+        72,
+        32
+      ],
+      "sha256": "3782ef80b1003f55df7dac5a79b2dc8b97ac00dfa7c0c966f8b5c9197f17e58f",
+      "status": "PASS"
+    },
+    {
+      "id": "col_brass_lighter",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "3b55d4695d19382c67c731f9505f9fe6cc6b2aab2b1e92059c8c82f64b73f91f",
+      "status": "PASS"
+    },
+    {
+      "id": "col_vintage_bottle",
+      "size": [
+        32,
+        72
+      ],
+      "sha256": "fed7f7199d80dcd44e684d2eb81a8935852ddc9eb6b9c38fef75bee36aeeaa3c",
+      "status": "PASS"
+    },
+    {
+      "id": "col_porcelain_wolf",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "1c5670a91f65328cbb521108d9600ee7b36de9dc8a1c2a967685af9e5d057174",
+      "status": "PASS"
+    },
+    {
+      "id": "col_family_ledger",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "caa2064efe7444f40b0e48fcf671962aed2e43b6593db3aa3ef16f4cbfc64f51",
+      "status": "PASS"
+    },
+    {
+      "id": "col_family_seal",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "cd95e4366010474cc24279bcd2c682502b0c59bee8179a761470ad77a04b5040",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_fang",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "c9de43d2c4a3cd7f49658113b8a97c4f8e5a9057bfcfc61933e2d933a56d1025",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_kroos",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "41337d7eb63ac4ac5f3ce2c0b97bc5e3c4f87c38430b04cb56db1967182019d1",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_dobermann",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "e40e41e5834c1688c64795e5abe8225ebb504428f2ec0cf0dba8c5a69822dc2a",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_gummy",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "4c0099e7ce8e693dd55db985a2f6532be13d3c9c713b4eacd646b6ff11c8af41",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_vigna",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "5d99f5f1f49194e2eb34dac295d42a3c771f46fa33c3d4ca93c6afb01b4af40b",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_matterhorn",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "e5fb4dfc685660fe59d5f438625bbcc0220a56393209e3e11585ef4a64c48fc5",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_amiya",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "56fae45a7ce2d50adad385d2de4fb8626feebca54398082b6b5f681b89c39039",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_texas",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "57f439324c494c3f04b003538ce7b1f27d12513a3a0866f6c3a2a65780cca968",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_lappland",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "c3099e304e185f3a89cb6e9e70a7825d93066ea0759c297fb83315fd4a2f16ff",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_ptilopsis",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "e3c72f3e631d53f3f3a4bfd0b819ba4c83ea1e9c2b978fe81a37d9d36844fc96",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_blue_poison",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "c8c404190a36b17b204f1bbb3fde722835e653288daea1a97d4039be02b462d3",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_nearl",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "d43dfee6a497a1f5149df6d1baca9dc958cae03dd42f6104f4bc04f4a809e31c",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_exusiai",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "6bb28a0272ff162fc7c8bf78242c232cf6902e73b4626d51117a93537a44b809",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_silverash",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "e9f0ccc9d56c07ab39b87ee80d134aafbd4a330f55a90adbd2a83f9e8b3434c6",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_chen",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "30e092fcd3b1f81917aa61d752ee41d3ed8a2cfdde0884c1fb1a4022f08b18f1",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_eyjafjalla",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "2e68439d5e12be9865121aefc156e987c1996445cbfd9fe9d92fbb54928d7491",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_skadi",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "b395e57b6fba65c1302c27c912ddc8f2a7a3a57c68d020e21692cbd6f53082c3",
+      "status": "PASS"
+    },
+    {
+      "id": "fig_kaltsit",
+      "size": [
+        512,
+        1024
+      ],
+      "sha256": "b819a81527f206bbbb09a43b493b5ce3b4ca986e0aa4418681ca0f2b50cfbdd2",
+      "status": "PASS"
+    },
+    {
+      "id": "case_material_1",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "92b135913d61727f0a3fb79b406c22127ef4153ada62cefdec12aa684a9e35f9",
+      "status": "PASS"
+    },
+    {
+      "id": "case_material_2",
+      "size": [
+        72,
+        112
+      ],
+      "sha256": "4ba801cf31e5ec018055c0ec581022e49099474bfd9fa072eebac925a620c6c5",
+      "status": "PASS"
+    },
+    {
+      "id": "case_material_3",
+      "size": [
+        112,
+        152
+      ],
+      "sha256": "df3af33455779bb038095952f83bc34e33f4149b85ac3ea67889ab15b5cf3dd0",
+      "status": "PASS"
+    },
+    {
+      "id": "case_material_4",
+      "size": [
+        192,
+        232
+      ],
+      "sha256": "cf9ce50b66c6ad5a75fc61a07831553b7a6f42d3015c366e364341f65343781d",
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_1",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "99b5d4ba7dfa9fbad37e77c3ef91f31b6ce6a20f6c7c041cafb96e65614a0157",
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_2",
+      "size": [
+        72,
+        112
+      ],
+      "sha256": "ec4636dacd8c70dce970b1888594ea4c3e289a5782e3af3de49ddd988e4aab7c",
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_3",
+      "size": [
+        112,
+        152
+      ],
+      "sha256": "07fe862fc6b49f69f36dd8f251715ec7626680af4349ff6068975de1a48cac84",
+      "status": "PASS"
+    },
+    {
+      "id": "case_collectible_4",
+      "size": [
+        192,
+        232
+      ],
+      "sha256": "366385fa092d85b6540e4b63886bc0fe824b89650d188f811b55935056c74536",
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_1",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "de707ff58b2584cdf534082f03312444ac7f3e8e6dbd583607d261441e98a3bc",
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_2",
+      "size": [
+        72,
+        112
+      ],
+      "sha256": "898ecc36d9a29fa0bb4de74da207fdcc64741c33736b36bf024eb98439668da0",
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_3",
+      "size": [
+        112,
+        152
+      ],
+      "sha256": "89caf4abb566e189b7f02b3d3387f0c2d7f21dd5c8ac45f3e7c9fc5234fab146",
+      "status": "PASS"
+    },
+    {
+      "id": "case_potion_4",
+      "size": [
+        192,
+        232
+      ],
+      "sha256": "699b904ef57ce17e0b83d132309ce84e0d8e6e76792dd56d030a87106fcd2772",
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_1",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "cdec9f74bc33d855092d3771121d96063f2a7b07d07b74e372299bddf3b297fa",
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_2",
+      "size": [
+        72,
+        112
+      ],
+      "sha256": "701a43fc17393244673cccdd8702435367073f2fd6ff611a47bc61a3d8b33315",
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_3",
+      "size": [
+        112,
+        152
+      ],
+      "sha256": "89fdcb4f2335ddc9a384f09787b932ed5aa1f98de673dbde734ababe496d5a28",
+      "status": "PASS"
+    },
+    {
+      "id": "case_gear_4",
+      "size": [
+        192,
+        232
+      ],
+      "sha256": "b29943230758091539f39634c3f02e53f339303a35706f152a7189aabcc98162",
+      "status": "PASS"
+    },
+    {
+      "id": "gift_pack",
+      "size": [
+        72,
+        72
+      ],
+      "sha256": "a409a268569022edb381a3ff1643553f454f84cbb44ff83e043c3d91b1acfee4",
+      "status": "PASS"
+    }
+  ]
+}

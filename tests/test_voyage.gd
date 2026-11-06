@@ -33,7 +33,9 @@ func run() -> void:
 	game.fixed_market_seed = 77
 	root.add_child(game)
 	await step(8)
-	game.rng.seed = 91
+	game.seed_rng(91)
+	# The rank gifts (test_faction_rewards) would land in this suite's warehouse counts.
+	for f in FactionCatalog.ORDER: game.exchange.rank_gifts[f] = FactionRewards.GIFT_RANKS.duplicate()
 	_daily_correction()
 	_voyages()
 	_stays()
@@ -62,10 +64,10 @@ func _ladder() -> void:
 		and FactionCatalog.RELATION_EXPECTED.lungmen > FactionCatalog.RELATION_EXPECTED.ursus and FactionCatalog.trading().all(func(f): return FactionCatalog.RELATION_EXPECTED.has(f)))
 	var ex := Exchange.new()
 	ex.load_data({"relations": {"karlan": 100, "lungmen": 350}})
-	check("an old account is migrated on load", ex.relation("karlan") == 150 and ex.relation("lungmen") == 1750, ex.relations)
+	check("an old account is migrated on load, and raised to where each faction starts", ex.relation("karlan") == 500 and ex.relation("lungmen") == 1750, ex.relations)
 	var fresh := Exchange.new()
 	fresh.load_data(fresh.to_data())
-	check("a new account starts 喀兰贸易 at 150 and is not migrated again", Exchange.START_RELATIONS.karlan == 150 and fresh.relations.get("karlan", 150) == 150)
+	check("a new account starts 喀兰贸易 at 500 (友好) and is not migrated again", Exchange.START_RELATIONS.karlan == 500 and fresh.relations.get("karlan", 0) == 500)
 
 func _daily_correction() -> void:
 	var ex := game.exchange
@@ -291,7 +293,7 @@ func _orders() -> void:
 	check("packing takes the goods", game.pack_bulk(int(o.id)) and game.material_count("螺栓") == 5 and str(o.state) == "packed")
 	var crate := v.cargo_item(o)
 	check("the crate is in the warehouse, 4×3, worth nothing to sell", crate != null and game.base.location_of(crate) == "shelf" and crate.width == 4 and crate.height == 3
-		and game.trader_offer(crate) == 0 and Economy.price(crate) == 0 and not game.sell(crate))
+		and game.trader_offer(crate) == 0 and Economy.price(crate) == 0)
 	check("too big for any safe bag", BaseCatalog.SAFE_SIZES.all(func(s): return s.x < crate.width or s.y < crate.height))
 	var floors: Dictionary = o.floors
 	check("it goes to 萨米 or 叙拉古: floors within reach", floors.has("snow") and floors.has("siracusa") and int(floors.snow) <= 39 and int(floors.siracusa) <= 9
@@ -384,13 +386,13 @@ func _station() -> void:
 	await step(1)
 	var texts := _texts(game.menu.stage)
 	check("the 势力 tab lists every faction", FactionCatalog.ORDER.all(func(f): return texts.has(FactionCatalog.name_of(f))))
-	check("ranks and progress show: R1 342 / 500, R5 5000 / 5000",
-		texts.has("R1") and texts.has("R5") and texts.has("342 / 500") and texts.any(func(t): return t.begins_with("5000 / 5000")))
+	check("ranks and progress show: 中立 342 / 500, 崇拜 5000 / 5000",
+		texts.has("中立") and texts.has("崇拜") and texts.has("342 / 500") and texts.any(func(t): return t.begins_with("5000 / 5000")))
 	var rat := RelationsScreen.unlocks(game.exchange, "rat")
 	check("what ranks open: 鼠王 R2 下城区耳目, 喀兰 R2 交易所, 龙门 R5 定向重铸",
 		"下城区耳目" in rat.get(2, []) and "交易所" in RelationsScreen.unlocks(game.exchange, "karlan").get(2, [])
 		and "定向重铸" in RelationsScreen.unlocks(game.exchange, "lungmen").get(5, []))
-	check("the rank lines show", texts.any(func(t): return t.begins_with("R2  ") and "下城区耳目" in t))
+	check("the rank lines show", texts.any(func(t): return t.begins_with("友好  ") and "下城区耳目" in t))
 	SandTableScreen.tab = 0
 	game.close_modal()
 

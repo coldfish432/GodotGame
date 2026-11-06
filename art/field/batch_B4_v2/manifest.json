@@ -1,0 +1,596 @@
+{
+  "version": "B4_v2",
+  "scope": "Patriot only, action31 rows and walk8 rows",
+  "generator": "built-in imagegen",
+  "cell_size": 256,
+  "directions": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "reference_package_sha256": "74eb2459743785816eaaa1db94f938c2d3e7161c164da652953f41ea7e535262",
+  "brief_sha256": "21ee9fb8525df1d929e365646d480e9bda6902a4bcfcefa9679903327fb4bc94",
+  "generation_record": "D:\\\u7b56\u5212\u6d4b\u8bd5\u9898\\B4_v2_work\\generation_record.json",
+  "weapon_region_masks": "D:\\\u7b56\u5212\u6d4b\u8bd5\u9898\\B4_v2_work\\masks",
+  "baker": {
+    "path": "D:\\CSYE 7370\\downfall-godot\\art\\field\\bake_n2.py",
+    "sha256": "96cb356c8d54ed85b4955b3e05d7e78c32f449387fc7ab31f53716a750e34df6",
+    "reference": "D:\\\u7b56\u5212\u6d4b\u8bd5\u9898\\B4_v2_work\\inputs\\refs\\boards\\patriot_action.png",
+    "reference_sha256": "ac1ff3acabe4d3535c1f3eb1ea927d82267304bb0109a2b19fc4ed06bbe9f81a",
+    "script_unchanged": true
+  },
+  "new_pose_assembly": [
+    {
+      "source": "action_16_19",
+      "common_source_density_scale": 0.9627147772159166,
+      "anchor_method": "median reference antler-to-ground anatomical registration; never silhouette fit"
+    },
+    {
+      "source": "action_20_23",
+      "common_source_density_scale": 0.9353788006242054,
+      "anchor_method": "median reference antler-to-ground anatomical registration; never silhouette fit"
+    },
+    {
+      "source": "action_24_27",
+      "common_source_density_scale": 0.9248890491693393,
+      "anchor_method": "median reference antler-to-ground anatomical registration; never silhouette fit"
+    },
+    {
+      "source": "forward_six_fix",
+      "common_source_density_scale": 0.4,
+      "scope": {
+        "rows": [
+          17,
+          21
+        ],
+        "directions": [
+          "S",
+          "SW",
+          "SE"
+        ]
+      }
+    },
+    {
+      "source": "rally_compact",
+      "common_source_density_scale": 1.0019150556338228,
+      "scope": {
+        "rows": [
+          29,
+          30
+        ]
+      }
+    }
+  ],
+  "qa": {
+    "original_body_insignia_and_crystal_guard_pixels_retained": 156460,
+    "insignia_guard_record": "D:\\\u7b56\u5212\u6d4b\u8bd5\u9898\\B4_v2_work\\insignia_retention.json",
+    "action_protected": {
+      "rows": 16,
+      "changed_pixels": 661525,
+      "changed_outside_exported_weapon_masks": 0,
+      "source_pixel_sha256": "b606be04b6ff084d889cee5fbbbe8649a171c980b199050152432033d3d1ea44",
+      "outside_mask_before_sha256": "8333ca3438a764a08a52601859e2188354380f2776825ac4356ee04e6577f2a7",
+      "outside_mask_after_sha256": "8333ca3438a764a08a52601859e2188354380f2776825ac4356ee04e6577f2a7"
+    },
+    "throw_row7_rgba_identical": true,
+    "walk_protected": {
+      "rows": 8,
+      "changed_pixels": 321649,
+      "changed_outside_exported_weapon_masks": 0,
+      "source_pixel_sha256": "637fd97b7807492fd47f94a99d07a62ab8ddccddded5b5ab78bfe032065efbc8",
+      "outside_mask_before_sha256": "cc819cd7e31fc98721b1df764378771182b46fde3b7a7362f88771059a9c2d4d",
+      "outside_mask_after_sha256": "cc819cd7e31fc98721b1df764378771182b46fde3b7a7362f88771059a9c2d4d"
+    },
+    "baked_cell_count": 312,
+    "raw_bake_edge_contacts": [
+      [
+        "action",
+        18,
+        4,
+        [
+          14,
+          0,
+          51,
+          51
+        ]
+      ],
+      [
+        "action",
+        18,
+        5,
+        [
+          13,
+          0,
+          53,
+          51
+        ]
+      ],
+      [
+        "action",
+        21,
+        0,
+        [
+          14,
+          0,
+          52,
+          52
+        ]
+      ],
+      [
+        "action",
+        21,
+        1,
+        [
+          12,
+          0,
+          53,
+          51
+        ]
+      ],
+      [
+        "action",
+        22,
+        5,
+        [
+          16,
+          0,
+          49,
+          51
+        ]
+      ],
+      [
+        "action",
+        28,
+        0,
+        [
+          10,
+          0,
+          55,
+          58
+        ]
+      ],
+      [
+        "action",
+        28,
+        1,
+        [
+          12,
+          0,
+          53,
+          56
+        ]
+      ],
+      [
+        "action",
+        28,
+        2,
+        [
+          5,
+          0,
+          53,
+          52
+        ]
+      ],
+      [
+        "action",
+        28,
+        3,
+        [
+          10,
+          0,
+          56,
+          55
+        ]
+      ],
+      [
+        "action",
+        28,
+        7,
+        [
+          12,
+          0,
+          52,
+          53
+        ]
+      ],
+      [
+        "action",
+        30,
+        0,
+        [
+          7,
+          6,
+          64,
+          51
+        ]
+      ],
+      [
+        "action",
+        30,
+        2,
+        [
+          7,
+          6,
+          64,
+          52
+        ]
+      ],
+      [
+        "action",
+        30,
+        5,
+        [
+          9,
+          5,
+          64,
+          51
+        ]
+      ],
+      [
+        "action",
+        30,
+        6,
+        [
+          3,
+          7,
+          64,
+          52
+        ]
+      ],
+      [
+        "action",
+        30,
+        7,
+        [
+          7,
+          5,
+          64,
+          52
+        ]
+      ],
+      [
+        "walk",
+        4,
+        5,
+        [
+          10,
+          4,
+          64,
+          52
+        ]
+      ],
+      [
+        "walk",
+        4,
+        6,
+        [
+          8,
+          7,
+          64,
+          52
+        ]
+      ],
+      [
+        "walk",
+        7,
+        1,
+        [
+          2,
+          9,
+          64,
+          52
+        ]
+      ],
+      [
+        "walk",
+        7,
+        6,
+        [
+          2,
+          9,
+          64,
+          51
+        ]
+      ]
+    ],
+    "delivered_bake_edge_contacts": [],
+    "delivered_minimum_clear_margin_px": 1,
+    "post_bake_occupied_pixel_loss": 0,
+    "sequence_note": "Same seven four-beat row sequences as B4v1. Existing fallback mappings retained; no gameplay code changed.",
+    "visual_acceptance": "Reviewer pending; semantic correctness of weapon mask boundaries is shown by the magenta diff, not established by hash checks."
+  },
+  "post_bake_translation": [
+    {
+      "kind": "action",
+      "row": 18,
+      "direction": 4,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 18,
+      "direction": 5,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 21,
+      "direction": 0,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 21,
+      "direction": 1,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 22,
+      "direction": 5,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 28,
+      "direction": 0,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 28,
+      "direction": 1,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 28,
+      "direction": 2,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 28,
+      "direction": 3,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 28,
+      "direction": 7,
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "kind": "action",
+      "row": 30,
+      "direction": 0,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "action",
+      "row": 30,
+      "direction": 2,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "action",
+      "row": 30,
+      "direction": 5,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "action",
+      "row": 30,
+      "direction": 6,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "action",
+      "row": 30,
+      "direction": 7,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "walk",
+      "row": 4,
+      "direction": 5,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "walk",
+      "row": 4,
+      "direction": 6,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "walk",
+      "row": 7,
+      "direction": 1,
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "kind": "walk",
+      "row": 7,
+      "direction": 6,
+      "dx": -1,
+      "dy": 0
+    }
+  ],
+  "generated_sources": {
+    "action_00_03": "11b48d3be2043140accc93e4b0bf77da9da6f980b380656c76eaa4b21c46062f",
+    "action_04_07": "34f223fe98b8015dae735e031de0575f2a8328e08aa2a7c1bebcfd4e17573624",
+    "action_08_11": "992d814fcc8fb22b9ceb669995c4dc576aca342f2e068ee93ec98dc92f52dba2",
+    "action_12_15": "4048bab214d945fcaaf3787d3c02e05c11e9f38a54f7624f8d45c87c43345e67",
+    "walk_00_03": "20ef5d2b468f6d2cddb5573b84c9cec4099a3c34b04eb2a0b798ee3aa5382ac9",
+    "walk_04_07": "04514ea00b095efde98d6ef2689b7d720799a039ed86f298e539bd7175e72a71",
+    "action_16_19": "c9b9b5dead2a7b1fc75af0bf9f8259016acfbb6e2d2eba917ce936b77b54f501",
+    "action_20_23": "299cb0839db9d350c72a8e1514dd76de69916b7ff13114ba8b52c2291d226146",
+    "action_24_27": "d49e752d92d3d97bba4385e0724f22cd3b53b6fb0fd094d19e918c85b824fee8",
+    "action_28_30_fix": "223123b5020fc0177da92a1ab7118ba6129f3f392e04e4ac94078f0efb152bfa",
+    "forward_six_fix": "311fa238f975de4f9655d3c912d9504611925299e4c7f4e6eb28ccdc4f6d7cd4",
+    "rally_compact": "0e7385f2a220418fac10e72895a572ad03c19eb934fd133e4776d0f8ee7432e1",
+    "legacy13_fix": "56a6f3f8c035afd185d64889b811c074437f6cf6816e8486d12e9cf66c078c21",
+    "legacy11_fix": "17180f522ff8233be88713c0e6aa55f3aec743e88feee44d37e83c7f0089205e",
+    "legacy11_left_fix": "eb6b79e933e8ee2a4cc8f4c2867164fca93e14fca6af5529314aa99c2c191c43",
+    "kneel_w_clearance": "bcf73029028f9b67e9de1c6e5f8b6869f0ca77b7076092fcb43dd1bc4cd04348"
+  },
+  "sequence_order": [
+    {
+      "id": "patriot",
+      "move": "thrust",
+      "rows": [
+        16,
+        11,
+        5,
+        17
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "stomp",
+      "rows": [
+        18,
+        6,
+        12,
+        19
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "javelin",
+      "rows": [
+        20,
+        13,
+        21,
+        7
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "eruption",
+      "rows": [
+        22,
+        23,
+        24,
+        8
+      ],
+      "fallback_beats": []
+    },
+    {
+      "id": "patriot",
+      "move": "raise_shrine",
+      "rows": [
+        26,
+        8,
+        25,
+        25
+      ],
+      "fallback_beats": [
+        "charge",
+        "recover"
+      ]
+    },
+    {
+      "id": "patriot",
+      "move": "shrine_call",
+      "rows": [
+        27,
+        14,
+        28,
+        28
+      ],
+      "fallback_beats": [
+        "recover"
+      ]
+    },
+    {
+      "id": "patriot",
+      "move": "guerrillas",
+      "rows": [
+        29,
+        2,
+        30,
+        30
+      ],
+      "fallback_beats": [
+        "charge",
+        "recover"
+      ]
+    }
+  ],
+  "files": {
+    ".gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "patriot_action.png": "f727e98403d0ebb63b367071fcca3f4d0bb27c97b6983a0d33f97f29654ead71",
+    "patriot_action_64.png": "20d483211df0d3bd9ef502e019db69e9643dfaefa39e6ecb1d766d98759106a0",
+    "patriot_action_64_x6.png": "a0c9704894650fd1d62b3fc24c79eeefdad22b5f4de3e4f1f436b56858cd29f4",
+    "patriot_old_rows_diff_x2.png": "1e6010fd8fd31497310072fffa2d3aa433fb4d60d545ec22524aad649c679f18",
+    "patriot_sequences_x6.png": "5e35d5fb4e4d8130d6f5392bab0da3455eb2139f6eecb744996ae8ea2de37bae",
+    "patriot_walk.png": "d727e45f1d30521c13ea8ac04a66b43d687aa2944b85dc1e848e9343a197b06e",
+    "patriot_walk_64.png": "2e0768f1419c23edca1591d27e867f68aca602d315cac6f751961ef209b4dc70",
+    "patriot_walk_64_x6.png": "8df17f6371108df56f2bb2b6e7fb713f32d066df6e1c5145b314b2f8c8869793"
+  },
+  "alpha_export": {
+    "visible_alpha_threshold": 128,
+    "detached_component_min_source_pixels": 12,
+    "retains_source_rgb": true,
+    "note": "Thin low-opacity near-black head frames are retained; alpha>230 filtering was rejected because it removed valid weapon art."
+  },
+  "old_weapon_clearance_adjustment": {
+    "row": 8,
+    "direction": "W",
+    "registration": {
+      "scale": 0.9160654160654161,
+      "dx": 3.934102934102924,
+      "dy": 20.731842231842222,
+      "old_antler": [
+        121.19047619047619,
+        126.07936507936508
+      ],
+      "generated_antler": [
+        128.0,
+        115.0
+      ]
+    },
+    "source": "C:\\Users\\yuan\\.codex\\generated_images\\01a1a997-eb67-7ea1-8ab1-906e5d420c53\\exec-97a3deee-87aa-439f-b2ba-09fda10e84e2.png",
+    "weapon_roots": [
+      [
+        155,
+        135
+      ],
+      [
+        184,
+        135
+      ],
+      [
+        220,
+        135
+      ]
+    ]
+  }
+}

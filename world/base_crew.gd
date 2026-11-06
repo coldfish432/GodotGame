@@ -2,18 +2,21 @@ class_name BaseCrew
 extends Node3D
 
 ## Rhodes Island crew walking the base (用户 2026-10-18: 补主基地里行走的罗德岛
-## 干员精灵图; art/characters/crew/CR_brief_v1.md): the special envoys and the
-## reserve operators stroll between the hall's stations, stop a while and walk
-## on. Only the crew whose sheets have arrived walk, so before Sol's batches
-## the hall stays as it was. They pass through the player and the props'
-## colliders (they follow the navigation mesh), and never block her.
+## 干员精灵图; art/characters/crew/CR_brief_v1.md): the crew in pool() stroll
+## between the hall's stations, stop a while and walk on; a few more sit in
+## the canteen. They pass through the player and the props' colliders (they
+## follow the navigation mesh), and never block her.
 
 ## Everyone but the Doctor, who is the player's to walk.
 const CREW := ["sharp", "stormeye", "pith", "touch", "tulip", "mechanist", "misery",
 	"reserve_vanguard", "reserve_guard", "reserve_defender", "reserve_sniper", "reserve_caster",
 	"reserve_medic", "reserve_supporter", "reserve_specialist",
 	# ST1b (用户 2026-10-22: 补杜宾、凯尔希的行走精灵图): walk once their sheets are baked.
-	"dobermann", "kaltsit"]
+	"dobermann", "kaltsit",
+	# CR4 (失散干员与主线流程策划案 v0.2 §十二): 电弧, once her sheets are in.
+	"raidian"]
+## Always on board (ST1b): they never went missing.
+const ON_BOARD := ["dobermann", "kaltsit"]
 const COUNT := 7
 ## An unhurried walk on board: under half her speed (Player.BASE_MOVE_SPEED 5.5).
 const SPEED := 2.3
@@ -39,21 +42,29 @@ var rng := RandomNumberGenerator.new()
 ## {body: CharacterBody3D, path: PackedVector3Array, step: int, wait: float}
 var walkers: Array[Dictionary] = []
 var diners: Array[Node3D] = []
+## The save whose found operators walk (GameManager sets it); null walks them all.
+var base: BaseState
+## How many were back when the walkers came out: one more, and they are redrawn.
+var _found := -1
 
 func setup(map: BaseMap) -> void:
 	base_map = map
 	rng.randomize()
 
-## The crew members who can walk: their sheets are in.
-static func pool() -> Array:
+## Who walks the base (用户 2026-11-01: 基地里只走已获得和找回的干员): the ones
+## always on board and the special operators back from 失散, those whose
+## sheets are in. The reserve operators no longer walk.
+static func pool(state: BaseState = null) -> Array:
 	if not pool_override.is_empty(): return pool_override
-	return CREW.filter(func(id): return LapplandAnimator3D.has_sheets(id))
+	var back: Array = state.lost_found if state != null else LostCatalog.LOST.keys()
+	return CREW.filter(func(id): return (id in ON_BOARD or id in back) and LapplandAnimator3D.has_sheets(id))
 
 func _ready() -> void:
 	name = "Crew"
 
 func _physics_process(delta: float) -> void:
 	if base_map == null: return
+	if base != null and base.lost_found.size() != _found and _found >= 0: _clear()
 	if walkers.is_empty():
 		_spawn()
 		return
@@ -62,8 +73,15 @@ func _physics_process(delta: float) -> void:
 func _map() -> RID:
 	return base_map.navigation_map_rid()
 
+## Everyone off the deck, to come out again (someone came back).
+func _clear() -> void:
+	for walker in walkers: (walker.body as Node).queue_free()
+	for diner in diners: diner.queue_free()
+	walkers.clear()
+	diners.clear()
+
 func _spawn() -> void:
-	var ids := pool()
+	var ids := pool(base)
 	if ids.is_empty(): return
 	# The map answers for the base only once it has synced with the bake
 	# (until then the nearest point is the field's or the origin).
@@ -72,6 +90,7 @@ func _spawn() -> void:
 	var near := NavigationServer3D.map_get_closest_point(_map(), probe)
 	if Vector2(near.x - probe.x, near.z - probe.z).length() > 3.0: return
 	ids.shuffle()
+	_found = base.lost_found.size() if base != null else 0
 	for i in range(mini(COUNT, ids.size())):
 		var body := CharacterBody3D.new()
 		body.name = "Crew_" + str(ids[i])

@@ -20,10 +20,10 @@ extends Node3D
 ##   a liquid splash seen from above that the ground shader plays, wobbles with
 ##   flowing noise and dries away (`splat`: blood, sand, molten originium, frost);
 ## - light shafts: open cylinders with a rising, scrolling additive glow (`shaft`);
-## - light: the field is lit by a baked texture (FieldLight), so a blow's light
-##   is an additive soft pool on the ground that flares and dies (`glow`), and a
-##   soft halo where something burns in the air (`halo`); heavy blows shake the
-##   camera a few pixels (GameManager.start_impact_shake).
+## - light: no real light is made (LightRig's OmniLight pool is for the map's
+##   lamps); a blow's light is an additive soft pool on the ground that flares
+##   and dies (`glow`), and a soft halo where something burns in the air
+##   (`halo`); heavy blows shake the camera a few pixels (GmCamera.start_impact_shake).
 ##
 ## Characters stay on top: everything is depth-tested; arcs, rings, cracks and
 ## light lie flat on the ground (GROUND), which a standing sprite always hides
@@ -189,16 +189,30 @@ func _figures() -> Array[Vector3]:
 		if is_instance_valid(e) and not e._dead: out.append(e.global_position)
 	return out
 
-## Nothing stands within `r` (flat) of this world point.
+## Nothing stands within `r` (flat) of this world point. Reads the figures
+## where they stand, without building _figures() (asked many times a build).
 func clear_at(world: Vector3, r: float = CLEAR) -> bool:
-	for f in _figures():
+	if not is_instance_valid(game): return true
+	if is_instance_valid(game.player):
+		var f := game.player.global_position
 		if Vector2(f.x - world.x, f.z - world.z).length() < r: return false
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(e) and not e._dead:
+			var f: Vector3 = e.global_position
+			if Vector2(f.x - world.x, f.z - world.z).length() < r: return false
 	return true
 
 ## The nearest figure's flat distance from this world point.
 func _nearest(world: Vector3) -> float:
 	var best := 999.0
-	for f in _figures(): best = minf(best, Vector2(f.x - world.x, f.z - world.z).length())
+	if not is_instance_valid(game): return best
+	if is_instance_valid(game.player):
+		var f := game.player.global_position
+		best = minf(best, Vector2(f.x - world.x, f.z - world.z).length())
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(e) and not e._dead:
+			var f: Vector3 = e.global_position
+			best = minf(best, Vector2(f.x - world.x, f.z - world.z).length())
 	return best
 
 # --- The loop -------------------------------------------------------------------------------
@@ -687,40 +701,58 @@ func burst(opts: Dictionary) -> CPUParticles3D:
 		for i in range(1, list.size() - 1): tints.add_point(float(i) / float(list.size() - 1), list[i])
 		tints.interpolation_mode = Gradient.GRADIENT_INTERPOLATE_CONSTANT
 		p.color_initial_ramp = tints
-	var quad := QuadMesh.new()
-	quad.size = Vector2(size, size)
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	if bool(opts.get("additive", false)):
-		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		mat.disable_fog = true
-	if bool(opts.get("soft", false)): mat.albedo_texture = soft_texture()
-	if opts.has("flip") and tex(str(opts.flip)) != null:
+	var additive := bool(opts.get("additive", false))
+	var soft := bool(opts.get("soft", false))
+	var sheet: Texture2D = tex(str(opts.flip)) if opts.has("flip") else null
+	if sheet != null:
 		# A baked fluid puff: each particle plays the 8×8 sheet once over its life, turned at random.
-		mat.albedo_texture = tex(str(opts.flip))
-		mat.particles_anim_h_frames = 8
-		mat.particles_anim_v_frames = 8
-		mat.particles_anim_loop = false
 		p.anim_speed_min = 1.0
 		p.anim_speed_max = 1.0
 		p.angle_min = -180.0
 		p.angle_max = 180.0
-	mat.vertex_color_use_as_albedo = true
-	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
-	quad.material = mat
-	p.mesh = quad
+	p.mesh = _burst_quad(size, additive, soft, sheet)
 	add_child(p)
 	p.position = at
 	var delay := float(opts.get("delay", 0.0))
 	if delay > 0.0:
 		p.emitting = false
-		get_tree().create_timer(delay, false).timeout.connect(func(): if is_instance_valid(p): p.restart())
+		# By id: the floor may go (and the burst with it) before the timer fires.
+		var id := p.get_instance_id()
+		get_tree().create_timer(delay, false).timeout.connect(func():
+			var q := instance_from_id(id) as CPUParticles3D
+			if is_instance_valid(q): q.restart())
 	else:
 		p.emitting = true
 	life = maxf(life, delay + p.lifetime + 0.1)
 	return p
+
+## A burst's particle quad and its material, made once per look and shared:
+## nothing changes either after it is made (GameManager.release_static_caches).
+static var _burst_quads := {}
+
+static func _burst_quad(size: float, additive: bool, soft: bool, sheet: Texture2D) -> QuadMesh:
+	var key := [size, additive, soft, sheet]
+	if _burst_quads.has(key): return _burst_quads[key]
+	var quad := QuadMesh.new()
+	quad.size = Vector2(size, size)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	if additive:
+		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		mat.disable_fog = true
+	if soft: mat.albedo_texture = soft_texture()
+	if sheet != null:
+		mat.albedo_texture = sheet
+		mat.particles_anim_h_frames = 8
+		mat.particles_anim_v_frames = 8
+		mat.particles_anim_loop = false
+	mat.vertex_color_use_as_albedo = true
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	quad.material = mat
+	_burst_quads[key] = quad
+	return quad
 
 ## Fine chips of stone thrown up and falling back.
 func chips(at: Vector3, count: int, radius: float, colour: Color, up: float = 3.0, delay: float = 0.0) -> void:
@@ -756,7 +788,10 @@ func along_strip(from: Vector3, to: Vector3, step: float, opts: Dictionary) -> v
 		o.near_ok = true
 		burst(o)
 
+## While a boss rehearses its effects (Boss.rehearse) nothing shakes the camera.
+static var quiet := false
 static func shake(manager: GameManager, pixels: float, frames: int) -> void:
+	if quiet: return
 	if manager.has_method("start_impact_shake"): manager.start_impact_shake(pixels, frames)
 
 # --- Things that run along a strip ----------------------------------------------------------
@@ -1160,6 +1195,67 @@ static func roar(manager: GameManager, at: Vector3, figure_id: String, radius: f
 	fx.burst({"at": Vector3.UP * 0.2, "ring": [CLEAR, CLEAR + 0.5], "amount": 24, "time": 0.9, "speed": [3.0, 6.0], "dir": Vector3.UP, "spread": 70.0, "gravity": Vector3(0, -1.0, 0), "size": P * 14.0, "flip": "smoke_8x8",
 		"damping": 4.0, "radial": 6.0, "near_ok": true, "colours": [Color(c.dust.r, c.dust.g, c.dust.b, 0.6), Color(c.dust.r, c.dust.g, c.dust.b, 0.4), Color(c.dust.r, c.dust.g, c.dust.b, 0.0)]})
 	shake(manager, 5.0, 18)
+
+## A heavy step (Boss演出策划案_v0_2 §1.3 步): 爱国者 dust and a slight shake,
+## 木裂 a puff of snow, 鼠王's cane a small ring of sand every other step.
+static func footstep(manager: GameManager, at: Vector3, figure_id: String, n: int) -> void:
+	var c := colours(figure_id)
+	match figure_id:
+		"patriot":
+			var fx := make(manager, Vector3(at.x, manager.ground_y(at) + 0.01, at.z))
+			fx.dust(Vector3(0, 0.05, 0), c.dust, 3, 0.3, 0.0, 0.4)
+			shake(manager, 0.6, 4)
+			if manager.sound != null: manager.sound.play("patriot_step")
+		"eikthyrnir":
+			var fx := make(manager, Vector3(at.x, manager.ground_y(at) + 0.01, at.z))
+			fx.dust(Vector3(0, 0.05, 0), Color("eef4f8"), 3, 0.3, 0.0, 0.5)
+			shake(manager, 0.5, 4)
+		"rat_king":
+			if n % 2 == 0: return
+			var fx := make(manager, Vector3(at.x, manager.ground_y(at) + 0.01, at.z))
+			fx.ring(0.45, P * 1.5, c.hot, Color(c.main.r, c.main.g, c.main.b, 0.0), {"fade": 0.3})
+
+## 塔盾 takes a blow (§2.5): sparks off the shield's face and a thin 120° arc in front.
+static func shield_clang(manager: GameManager, at: Vector3, facing: Vector3) -> void:
+	var c := colours("patriot")
+	facing.y = 0.0
+	facing = facing.normalized() if facing.length_squared() > 0.01 else Vector3.FORWARD
+	var fx := make(manager, Vector3(at.x, manager.ground_y(at) + 0.01, at.z))
+	fx.arc(facing, 1.3, 120.0, P * 2.0, c.hot, Color(c.main.r, c.main.g, c.main.b, 0.0), {"fade": 0.25})
+	fx.sparks(facing * 0.6 + Vector3.UP * 1.0, Color("ffd890"), Color.WHITE, 10, 3.5, facing + Vector3.UP * 0.4, 50.0)
+
+## Stunned (a 干扰地雷): three small sparks circling over its head for `seconds`.
+static func stunned(manager: GameManager, figure: Enemy, seconds: float) -> void:
+	var ring := Node3D.new()
+	ring.name = "StunMark"
+	figure.add_child(ring)
+	ring.position = Vector3.UP * (figure.head_height() + 0.25) if figure.has_method("head_height") else Vector3.UP * 2.4
+	for i in range(3):
+		var star := MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2(P * 3.0, P * 3.0)
+		star.mesh = quad
+		var mat := _unlit(Color("ffe08a"))
+		mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+		mat.no_depth_test = true
+		mat.render_priority = 6
+		star.material_override = mat
+		var a := TAU * i / 3.0
+		star.position = Vector3(cos(a), 0, sin(a)) * 0.35
+		ring.add_child(star)
+	var tween := ring.create_tween()
+	tween.tween_property(ring, "rotation:y", TAU * seconds * 0.8, seconds)
+	tween.tween_callback(ring.queue_free)
+
+## 爱国者 goes into a rage (a shrine's pulse reached him): a red burst round him.
+static func rage(manager: GameManager, figure: Enemy) -> void:
+	var at := figure.global_position
+	var fx := make(manager, Vector3(at.x, manager.ground_y(at) + 0.01, at.z))
+	fx.ring(1.8, P * 4.0, Color("ff8a7a"), Color(0.75, 0.1, 0.08, 0.0), {"fade": 0.35})
+	fx.glow(2.2, Color("e8463a"), 1.0, 0.5)
+	fx.embers(Vector3.UP * 0.6, Color("e8463a"), Color("ffd0b0"), 26, 0.8, 0.0, 1.0)
+	shake(manager, 3.0, 10)
+	if manager.sound != null: manager.sound.play("patriot_heartbeat")
 
 ## A puff of dust where help comes in (Boss._summon), so it reads as arriving.
 static func arrival(manager: GameManager, at: Vector3, figure_id: String) -> void:

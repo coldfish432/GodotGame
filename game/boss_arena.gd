@@ -7,13 +7,12 @@ extends Node3D
 ## (for good), and the region's device from the original stage: 源石祭坛 and
 ## 干扰地雷 (7-18), 医疗符文 (CB-10), two fires and the 木裂 totem (萨米),
 ## the fountain and 叙拉古平民 (IS-10). Numbers are in BossCatalog.
-## Models are placeholders until the Blender pieces (§7) are in.
+## Props are the Blender pieces (§7, KIT); a box or cylinder stands in for any
+## piece that is missing.
 
-const GATE_SIZE := Vector3(9.0, 3.2, 0.8)
 ## The Blender pieces (tools/blender/kit/build_arena_props.py). Cover models go
 ## to the region's cover in order; 叙拉古's way out is the family car.
 const KIT := "res://art/kit/%s.glb"
-const GATE_MODEL := {"mine": "arena_mine_gate", "city": "arena_city_shutter", "snow": "arena_snow_logs"}
 const COVER_MODELS := {"mine": ["arena_mine_generator"], "city": ["arena_city_cart"], "snow": ["arena_snow_stump"], "siracusa": ["arena_sira_kiosk", "arena_sira_bench"]}
 
 var game: GameManager
@@ -49,6 +48,7 @@ func setup(p_game: GameManager) -> void:
 		"city": _build_city()
 		"snow": _build_snow()
 		"siracusa": _build_siracusa()
+	build_show_props()
 
 func colour() -> Color:
 	return BossCatalog.ARENAS.get(region, {}).get("colour", Color.WHITE)
@@ -71,43 +71,59 @@ func inside(point: Vector3, margin: float = 0.0) -> bool:
 
 # --- The way out ----------------------------------------------------------------------
 
+## The way out closed (用户 2026-11-05: 门没防住绕开，不要门，直接加空气墙): an
+## unseen wall on the arena's rim, tangent at the exit and wider than the
+## arena, so nothing gets round it; its red stripes show only as she nears it.
+const WALL_HEIGHT := 4.0
+const WALL_THICK := 0.6
+const WALL_SPAN := 2.4
+const WALL_SHADER := preload("res://world/arena_wall.gdshader")
+var _wall_mat: ShaderMaterial
+
 func _build_gate(exit: Vector3) -> void:
 	gate = StaticBody3D.new()
-	gate.name = "ArenaGate"
+	gate.name = "ArenaWall"
 	gate.collision_layer = 1
+	var width := radius * WALL_SPAN
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = GATE_SIZE
+	box.size = Vector3(width, WALL_HEIGHT, WALL_THICK)
 	shape.shape = box
 	gate.add_child(shape)
-	var model := _model(str(GATE_MODEL.get(region, "")))
-	if model != null:
-		model.position.y = -GATE_SIZE.y * 0.5
-		gate.add_child(model)
-	elif region == "siracusa":
-		# The family car parked across the way out, nose to the piazza (its S idle frame).
-		var car := Sprite3D.new()
-		car.texture = FieldArt.enemy_dir_pose("family_car", 0, 0)
-		car.pixel_size = Enemy.PIXEL * 1.6
-		car.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		car.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-		car.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
-		car.offset = Vector2(0, 19)
-		car.position.y = -GATE_SIZE.y * 0.5 + 0.1
-		gate.add_child(car)
-	else:
-		gate.add_child(_mesh_box(GATE_SIZE, Color("2a2c34")))
+	var face := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(width, WALL_HEIGHT)
+	face.mesh = quad
+	_wall_mat = ShaderMaterial.new()
+	_wall_mat.shader = WALL_SHADER
+	_wall_mat.set_shader_parameter("height", WALL_HEIGHT)
+	face.material_override = _wall_mat
+	face.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	gate.add_child(face)
 	add_child(gate)
-	gate.global_position = Vector3(exit.x, game.ground_y(exit) + GATE_SIZE.y * 0.5, exit.z + 1.0)
+	gate.global_position = Vector3(exit.x, game.ground_y(exit) + WALL_HEIGHT * 0.5, exit.z + WALL_THICK)
+
+func _process(_delta: float) -> void:
+	if _wall_mat != null and is_instance_valid(game) and is_instance_valid(game.player):
+		_wall_mat.set_shader_parameter("her", game.player.global_position)
 
 func exit_open() -> bool:
 	return not is_instance_valid(gate)
 
-## The boss is down: the gate goes and the way out is open.
+## The boss is down: the wall goes and the way out is open.
 func open_exit() -> void:
 	if is_instance_valid(gate):
-		EnemyAttackVfx.spawn(game, gate.global_position, Vector3.FORWARD, "ground_shock_big", 3.0)
-		gate.queue_free()
+		var wall := gate
+		var mat := _wall_mat
+		_wall_mat = null
+		# Shown once in full, then it fades away.
+		mat.set_shader_parameter("near", 100.0)
+		mat.set_shader_parameter("far", 101.0)
+		var tween := wall.create_tween()
+		tween.tween_method(func(v: float): mat.set_shader_parameter("fade", v), 1.0, 0.0, 0.8)
+		tween.tween_callback(wall.queue_free)
+		for c in wall.get_children():
+			if c is CollisionShape3D: c.set_deferred("disabled", true)
 	gate = null
 
 # --- Cover (§3.3) ----------------------------------------------------------------------
@@ -159,7 +175,6 @@ func standing_cover() -> int:
 
 func _build_mine() -> void:
 	shrine = _shrine_node()
-	shrine.global_position = at(BossCatalog.SHRINE_AT)
 	shrine_time = BossCatalog.SHRINE_EVERY
 	for offset in BossCatalog.MINES:
 		var node := Node3D.new()
@@ -175,6 +190,8 @@ func _build_mine() -> void:
 		add_child(node)
 		node.global_position = at(offset)
 		mines.append({"node": node, "lamp": lamp, "armed": false, "spent": false})
+	# After the mines and the cover, so it keeps clear of them.
+	_place_shrine()
 
 ## An unarmed mine she stands by (E arms it).
 func mine_near(point: Vector3) -> Dictionary:
@@ -202,10 +219,11 @@ func _tick_mines() -> void:
 		mine.node.visible = false
 		EnemyAttackVfx.spawn(game, p + Vector3.UP * 0.1, Vector3.FORWARD, "ground_shock_big", BossCatalog.MINE_RADIUS)
 		game.sound.play("barrier_break")
+		# 用户 2026-11-05: 地雷改为眩晕爱国者 — it stuns what it catches, the boss included.
 		for e in game.floor_enemies():
 			if Vector2(e.global_position.x - p.x, e.global_position.z - p.z).length() > BossCatalog.MINE_RADIUS: continue
-			e.take_hit(game.player.attack_power() * BossCatalog.MINE_DAMAGE, "phys")
-			if is_instance_valid(e) and not e._dead: e.apply_status("fragile", BossCatalog.MINE_FRAGILE_TIME, BossCatalog.MINE_FRAGILE)
+			if e is Boss: (e as Boss).mine_stun(BossCatalog.MINE_STUN)
+			else: e.stun(BossCatalog.MINE_STUN)
 
 func _shrine_node() -> Node3D:
 	var node := Node3D.new()
@@ -222,6 +240,37 @@ func _shrine_node() -> Node3D:
 		node.add_child(crystal)
 	add_child(node)
 	return node
+
+## The stage's shrine somewhere new (用户 2026-11-05: 祭坛位置随机): inside the
+## rim, clear of where he waits, her way in, the mines and the cover.
+var _shrine_rng := RandomNumberGenerator.new()
+func _place_shrine() -> void:
+	if not is_instance_valid(shrine): return
+	if _shrine_rng.seed == 0 or shrine.global_position == Vector3.ZERO: _shrine_rng.seed = hash([game.floor_number, game.region_id, centre])
+	var keep_clear: Array[Vector3] = [centre, game.world_map.arena_entry]
+	for mine in mines:
+		if is_instance_valid(mine.node): keep_clear.append(mine.node.global_position)
+	for c in cover: keep_clear.append(c.at)
+	var best := _random_spot(_shrine_rng, keep_clear, BossCatalog.SHRINE_EDGE, BossCatalog.SHRINE_CLEAR, at(BossCatalog.SHRINE_AT))
+	shrine.global_position = Vector3(best.x, game.ground_y(best), best.z)
+
+## A walkable spot in the arena, `edge` in from the rim, kept `clear` (or as far as
+## it can) from every point of `keep`.
+func _random_spot(rng: RandomNumberGenerator, keep: Array[Vector3], edge: float, clear: float, fallback: Vector3) -> Vector3:
+	var best := fallback
+	var best_gap := -1.0
+	for attempt in range(40):
+		var a := rng.randf() * TAU
+		var d := rng.randf_range(clear, radius - edge)
+		var spot := game.world_map.nearest_walkable(centre + Vector3(cos(a), 0.0, sin(a)) * d)
+		if not inside(spot, -edge + 1.0): continue
+		var gap := 99.0
+		for p in keep: gap = minf(gap, Vector2(spot.x - p.x, spot.z - p.z).length())
+		if gap >= clear * 0.6: return Vector3(spot.x, game.ground_y(spot), spot.z)
+		if gap > best_gap:
+			best_gap = gap
+			best = spot
+	return Vector3(best.x, game.ground_y(best), best.z)
 
 ## Every shrine standing: the stage's own, then the raised ones.
 func shrines() -> Array[Node3D]:
@@ -297,17 +346,88 @@ func _pulse(p: Vector3) -> void:
 		if e is Boss: (e as Boss).empower()
 		else: e.apply_status("haste", BossCatalog.SHRINE_TIME, 1.0)
 
-# --- 龙门: 医疗符文 ----------------------------------------------------------------------
+# --- 龙门: 源石狂暴地板 (BossCatalog.FRENZY_*) -------------------------------------------------
+
+## Her frenzy left (s): she loses life and strips barriers harder while it runs.
+var her_frenzy := 0.0
+var _frenzy_spark := 0.0
+var _frenzy_rng := RandomNumberGenerator.new()
+var _frenzy_mat: StandardMaterial3D
+const FRENZY_LIGHT := preload("res://world/frenzy_light.gdshader")
+const FRENZY_BEAMS_PER_EDGE := 3
 
 func _build_city() -> void:
-	for offset in BossCatalog.RUNES:
-		var disc: MeshInstance3D = _model("arena_city_rune")
-		if disc == null: disc = _mesh_cylinder(BossCatalog.RUNE_RADIUS, 0.02, Color(0.42, 0.9, 0.78, 0.5), true)
-		add_child(disc)
-		disc.global_position = at(offset) + Vector3.UP * 0.04
-		runes.append({"node": disc, "buried": 0.0})
+	var floor_node := Node3D.new()
+	floor_node.name = "FrenzyFloor"
+	# 明日方舟's 活性源石 (tools/blender/kit/build_arena_props.py arena_city_frenzy).
+	var tile := _model("arena_city_frenzy")
+	if tile != null: floor_node.add_child(tile)
+	# The dripping-knife mark painted on its panel, glowing and throbbing.
+	var mark := MeshInstance3D.new()
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(BossCatalog.RUNE_HALF * 1.5, BossCatalog.RUNE_HALF * 1.5)
+	mark.mesh = plane
+	_frenzy_mat = StandardMaterial3D.new()
+	_frenzy_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_frenzy_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	_frenzy_mat.albedo_texture = load("res://art/field/fx/frenzy_mark.png")
+	_frenzy_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	_frenzy_mat.albedo_color = Color(1.4, 1.1, 1.1, 1.0)
+	mark.material_override = _frenzy_mat
+	mark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mark.position.y = 0.016
+	floor_node.add_child(mark)
+	# Red light rising off all four edges (world/frenzy_light.gdshader): a few thin
+	# beams along each, each edge flaring in its own random windows.
+	var light_mat := ShaderMaterial.new()
+	light_mat.shader = FRENZY_LIGHT
+	var beam_rng := RandomNumberGenerator.new()
+	beam_rng.seed = 7151
+	var h := BossCatalog.RUNE_HALF * 0.96
+	for side in range(4):
+		for n in range(FRENZY_BEAMS_PER_EDGE):
+			var along := (float(n) + beam_rng.randf_range(0.25, 0.75)) / FRENZY_BEAMS_PER_EDGE * 2.0 - 1.0
+			var at := Vector3(along * h, 0.0, h) if side == 0 else (Vector3(h, 0.0, -along * h) if side == 1 else (Vector3(-along * h, 0.0, -h) if side == 2 else Vector3(-h, 0.0, along * h)))
+			var tall := beam_rng.randf_range(0.8, 1.6)
+			var beam := MeshInstance3D.new()
+			var quad := QuadMesh.new()
+			quad.size = Vector2(0.2, tall)
+			beam.mesh = quad
+			beam.material_override = light_mat
+			beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			beam.set_instance_shader_parameter("edge", float(side))
+			beam.set_instance_shader_parameter("seed", beam_rng.randf())
+			beam.position = at + Vector3.UP * tall * 0.5
+			floor_node.add_child(beam)
+	var glow := OmniLight3D.new()
+	glow.light_color = Color(1.0, 0.25, 0.12)
+	glow.light_energy = 0.8
+	glow.omni_range = 3.0
+	glow.position = Vector3.UP * 0.6
+	floor_node.add_child(glow)
+	add_child(floor_node)
+	runes.append({"node": floor_node, "buried": 0.0})
+	_place_frenzy()
+	# The arena lit warm from above (用户 2026-11-05: 整个场景都太黑了，可以调亮).
+	var lamp := OmniLight3D.new()
+	lamp.name = "ArenaLamp"
+	lamp.light_color = Color(1.0, 0.88, 0.7)
+	lamp.light_energy = 3.2
+	lamp.omni_range = radius + 6.0
+	lamp.omni_attenuation = 0.8
+	add_child(lamp)
+	lamp.global_position = centre + Vector3.UP * 7.0
 
-## 沙狱 landing on a rune buries it a while.
+func _place_frenzy() -> void:
+	if runes.is_empty() or not is_instance_valid(runes[0].node): return
+	if _frenzy_rng.seed == 0: _frenzy_rng.seed = hash([game.floor_number, game.region_id, centre, "frenzy"])
+	var keep: Array[Vector3] = [centre, game.world_map.arena_entry]
+	for entry in cover: keep.append(entry.at)
+	var spot := _random_spot(_frenzy_rng, keep, 3.0, 4.0, at(Vector2(0.0, -5.0)))
+	# Flush with the floor (用户 2026-11-05: 嵌在地上不要凸出来): the 2 cm tile sits on the ground line.
+	(runes[0].node as Node3D).global_position = spot
+
+## 沙狱 landing on the floor covers it a while.
 func bury_runes(point: Vector3, reach: float) -> void:
 	for rune in runes:
 		var p: Vector3 = rune.node.global_position
@@ -315,27 +435,47 @@ func bury_runes(point: Vector3, reach: float) -> void:
 			rune.buried = BossCatalog.RUNE_BURIED
 			rune.node.visible = false
 
+## The tile under `point` (a 2 m square, as the model).
 func rune_under(point: Vector3) -> Dictionary:
 	for rune in runes:
 		if float(rune.buried) > 0.0: continue
 		var p: Vector3 = rune.node.global_position
-		if Vector2(p.x - point.x, p.z - point.z).length() <= BossCatalog.RUNE_RADIUS: return rune
+		if absf(p.x - point.x) <= BossCatalog.RUNE_HALF and absf(p.z - point.z) <= BossCatalog.RUNE_HALF: return rune
 	return {}
+
+## Her blows on a barrier while her frenzy runs.
+func barrier_mult() -> float:
+	return BossCatalog.FRENZY_SHIELD if her_frenzy > 0.0 else 1.0
 
 func _tick_runes(delta: float) -> void:
 	for rune in runes:
 		if float(rune.buried) > 0.0:
 			rune.buried = maxf(0.0, float(rune.buried) - delta)
 			if float(rune.buried) <= 0.0: rune.node.visible = true
-	if not rune_under(game.player.global_position).is_empty():
-		game.player.heal(game.player.max_hp * BossCatalog.RUNE_HEAL * delta)
+	if _frenzy_mat != null:
+		var k := 1.15 + 0.35 * sin(Time.get_ticks_msec() * 0.006)
+		_frenzy_mat.albedo_color = Color(k, k * 0.8, k * 0.8, 1.0)
+	var her := game.player
+	if not rune_under(her.global_position).is_empty(): her_frenzy = BossCatalog.FRENZY_TIME
+	if her_frenzy > 0.0:
+		her_frenzy = maxf(0.0, her_frenzy - delta)
+		if her.hp > 1.0: her.hp = maxf(1.0, her.hp - her.max_hp * BossCatalog.FRENZY_DRAIN * delta)
+		_frenzy_spark -= delta
+		if _frenzy_spark <= 0.0:
+			_frenzy_spark = 0.25
+			var c := BossVfx.colours("patriot")
+			var fx := BossVfx.make(game, Vector3(her.global_position.x, game.ground_y(her.global_position) + 0.01, her.global_position.z))
+			fx.embers(Vector3.UP * 0.6, c.main, c.hot, 6, 0.4, 0.0, 0.7)
+	var boss := game.outpost_boss
+	if is_instance_valid(boss) and not boss._dead and boss.in_fight() and not rune_under(boss.global_position).is_empty() and boss.rage_left < 0.5:
+		boss.empower()
 
 # --- 萨米: two fires and the 木裂 totem -------------------------------------------------------
 
 func _build_snow() -> void:
 	totem = _add_cover(BossCatalog.TOTEM_AT, BossCatalog.TOTEM_SIZE, "totem", false, "arena_snow_totem")
 
-## The fires stand where the arena wants them; the first one lit (GameManager._spawn_fires).
+## The fires stand where the arena wants them; the first one lit (GmFeatures._spawn_fires).
 func fire_spots() -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	if region != "snow": return out
@@ -382,6 +522,7 @@ func _physics_process(delta: float) -> void:
 func reset() -> void:
 	shrine_time = BossCatalog.SHRINE_EVERY
 	_shrine_warned = false
+	_place_shrine()
 	for entry in raised:
 		if is_instance_valid(entry.node): entry.node.queue_free()
 	raised.clear()
@@ -394,8 +535,197 @@ func reset() -> void:
 	for rune in runes:
 		rune.buried = 0.0
 		rune.node.visible = true
+	her_frenzy = 0.0
+	_place_frenzy()
 
-# --- The models and placeholder meshes -----------------------------------------------------
+# --- The set pieces' props (Boss演出策划案_v0_2; BossShow drives them) -----------------------
+## Blender pieces when they are there (tools/blender/kit), else plain stand-ins.
+const SHOW_MODELS := {"flag": "arena_mine_flag", "cloth": "arena_mine_flag_cloth", "mound": "arena_snow_mound", "manhole": "arena_city_manhole"}
+const FLAG_AT := Vector2(-5.5, -8.5)
+const MANHOLES := [Vector2(-10.0, -2.0), Vector2(10.0, -2.0), Vector2(-10.0, -7.0), Vector2(10.0, -7.0)]
+const EYES := [Vector2(-0.7, -0.7), Vector2(0.7, -0.7), Vector2(-0.95, 0.2), Vector2(0.95, 0.2)]
+var flag: Node3D
+var _cloth: MeshInstance3D
+var mound: Node3D
+var manholes: Array[Node3D] = []
+var _umbrellas: Array[Node3D] = []
+var _eyes: Array[Node3D] = []
+var _fountain_tint: MeshInstance3D
+
+## The props a boss floor's set pieces need (a warden floor has none).
+func build_show_props() -> void:
+	if not BossCatalog.is_boss_floor(game.floor_number): return
+	match region:
+		"mine": _build_flag()
+		"city":
+			for o in MANHOLES:
+				var m := _model(SHOW_MODELS.manhole)
+				var lid: Node3D = m if m != null else _mesh_cylinder(0.45, 0.06, Color("3a3c40"))
+				add_child(lid)
+				lid.global_position = at(o) + Vector3.UP * 0.03
+				manholes.append(lid)
+
+# 矿区: 游击队旗 on a pole at the edge — raised by the wind, lit by originium, dropped at his fall.
+func _build_flag() -> void:
+	flag = Node3D.new()
+	flag.name = "PatriotFlag"
+	add_child(flag)
+	flag.global_position = at(FLAG_AT)
+	var m := _model(SHOW_MODELS.flag)
+	var cloth := _model(SHOW_MODELS.cloth)
+	if m != null and cloth != null:
+		flag.add_child(m)
+		_cloth = cloth
+		_cloth.position = Vector3(0.0, 3.3, 0.0)
+		flag.add_child(_cloth)
+		return
+	var pole := _mesh_cylinder(0.05, 3.4, Color("3a342e"))
+	pole.position.y = 1.7
+	flag.add_child(pole)
+	_cloth = MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(1.3, 0.85)
+	quad.center_offset = Vector3(0.65, 0, 0)
+	_cloth.mesh = quad
+	var mat := _material(Color("b8452a"), false)
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_cloth.material_override = mat
+	_cloth.position = Vector3(0.05, 2.95, 0)
+	flag.add_child(_cloth)
+
+func wave_flag() -> void:
+	if not is_instance_valid(_cloth): return
+	var tween := _cloth.create_tween()
+	for i in range(4):
+		tween.tween_property(_cloth, "rotation:y", 0.5 if i % 2 == 0 else -0.25, 0.22)
+		tween.parallel().tween_property(_cloth, "scale:x", 1.12 if i % 2 == 0 else 0.92, 0.22)
+	tween.tween_property(_cloth, "rotation:y", 0.15, 0.4)
+
+func light_flag() -> void:
+	if not is_instance_valid(_cloth): return
+	var glow := StandardMaterial3D.new()
+	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glow.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	glow.cull_mode = BaseMaterial3D.CULL_DISABLED
+	glow.albedo_color = Color(1.0, 0.54, 0.16, 0.0)
+	_cloth.material_overlay = glow
+	_cloth.create_tween().tween_property(glow, "albedo_color:a", 0.55, 0.8)
+
+func drop_flag() -> void:
+	if not is_instance_valid(flag): return
+	var tween := flag.create_tween()
+	tween.tween_interval(0.6)
+	tween.tween_property(flag, "rotation:z", 1.35, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+
+# 萨米: the ice he waits in, the first time (§4.4).
+func has_mound() -> bool:
+	return is_instance_valid(mound)
+
+func raise_mound(where: Vector3) -> void:
+	if region != "snow" or is_instance_valid(mound): return
+	mound = Node3D.new()
+	mound.name = "IceMound"
+	add_child(mound)
+	mound.global_position = Vector3(where.x, game.ground_y(where), where.z)
+	var m := _model(SHOW_MODELS.mound)
+	if m != null:
+		mound.add_child(m)
+		return
+	var ice := MeshInstance3D.new()
+	var dome := SphereMesh.new()
+	dome.radius = 1.2
+	dome.height = 1.9
+	dome.radial_segments = 10
+	dome.rings = 5
+	ice.mesh = dome
+	var mat := _material(Color(0.72, 0.88, 0.95, 0.88), false)
+	mat.roughness = 0.2
+	mat.metallic_specular = 0.8
+	ice.material_override = mat
+	ice.scale = Vector3(1.0, 0.85, 1.0)
+	ice.position.y = 0.5
+	mound.add_child(ice)
+
+func crack_mound() -> void:
+	if not is_instance_valid(mound): return
+	var tween := mound.create_tween()
+	for i in range(5):
+		tween.tween_property(mound, "position:x", mound.position.x + (0.04 if i % 2 == 0 else -0.04), 0.05)
+	tween.tween_property(mound, "position:x", mound.position.x, 0.05)
+
+func break_mound() -> void:
+	if not is_instance_valid(mound): return
+	var c := BossVfx.colours("eikthyrnir")
+	var fx := BossVfx.make(game, mound.global_position + Vector3.UP * 0.01)
+	fx.chips(Vector3.UP * 0.8, 50, 1.0, Color("cfeefa"), 4.0)
+	fx.dust(Vector3.UP * 0.4, c.dust, 18, 1.2, 0.0, 1.5)
+	mound.queue_free()
+	mound = null
+
+# 龙门: the lids jump before 鼠潮 (§3.5).
+func rattle_manholes(seconds: float) -> void:
+	if not manholes.is_empty() and game.sound != null: game.sound.play("ratking_manhole")
+	for i in range(manholes.size()):
+		var lid := manholes[i]
+		if not is_instance_valid(lid): continue
+		var tween := lid.create_tween()
+		tween.tween_interval(seconds * 0.15 * i)
+		for k in range(3):
+			tween.tween_property(lid, "position:y", lid.position.y + 0.12, 0.07)
+			tween.tween_property(lid, "position:y", lid.position.y, 0.09)
+
+# 叙拉古: umbrellas in the lanes, wolves' eyes at the edge, the fountain going dark red.
+func show_family_umbrellas() -> void:
+	if region != "siracusa" or not _umbrellas.is_empty(): return
+	for mouth in mouths():
+		var u := Node3D.new()
+		add_child(u)
+		u.global_position = mouth
+		var canopy := MeshInstance3D.new()
+		var cone := CylinderMesh.new()
+		cone.top_radius = 0.02
+		cone.bottom_radius = 0.6
+		cone.height = 0.3
+		canopy.mesh = cone
+		canopy.material_override = _material(Color("15151a"), false)
+		canopy.position.y = 1.9
+		u.add_child(canopy)
+		var stick := _mesh_cylinder(0.02, 1.9, Color("15151a"))
+		stick.position.y = 0.95
+		u.add_child(stick)
+		_umbrellas.append(u)
+		var tween := u.create_tween()
+		tween.tween_interval(1.6)
+		tween.tween_property(u, "scale", Vector3(0.01, 0.01, 0.01), 0.5)
+		tween.tween_callback(func(): if is_instance_valid(u): u.queue_free(); _umbrellas.erase(u))
+
+func wolf_eyes(on: bool) -> void:
+	for e in _eyes:
+		if is_instance_valid(e): e.queue_free()
+	_eyes.clear()
+	if not on: return
+	for o in EYES:
+		var pair := Node3D.new()
+		add_child(pair)
+		pair.global_position = at(o * (radius + 0.5)) + Vector3.UP * 0.9
+		for side in [-1.0, 1.0]:
+			var eye := _mesh_box(Vector3(0.09, 0.05, 0.05), Color("ff3a2a"), true)
+			eye.position.x = side * 0.13
+			eye.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			pair.add_child(eye)
+		_eyes.append(pair)
+
+func tint_fountain(k: float) -> void:
+	if region != "siracusa": return
+	if not is_instance_valid(_fountain_tint):
+		_fountain_tint = _mesh_cylinder(BossCatalog.FOUNTAIN_RADIUS * 0.75, 0.02, Color(0.35, 0.03, 0.05, 0.0))
+		add_child(_fountain_tint)
+		_fountain_tint.global_position = at(BossCatalog.FOUNTAIN_AT) + Vector3.UP * 0.62
+	var mat := _fountain_tint.material_override as StandardMaterial3D
+	_fountain_tint.create_tween().tween_property(mat, "albedo_color:a", clampf(k, 0.0, 1.0) * 0.75, 1.5)
+
+# --- The models and stand-in meshes --------------------------------------------------------
 
 ## A Blender piece as one mesh, lit like the rest of the kit (null when it is not there).
 func _model(id: String) -> MeshInstance3D:

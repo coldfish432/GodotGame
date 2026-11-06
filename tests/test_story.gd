@@ -24,6 +24,8 @@ func run() -> void:
 	game.fixed_map_seed = 1729
 	root.add_child(game)
 	await step(3)
+	# A new save (失散干员): everyone missing, departments shut.
+	game.base.start_locked()
 	story = game.story_card
 	var state: Dictionary = game.base.story
 	check("a new Doctor starts at 苏醒", current() == ["wake"] and state.done.is_empty())
@@ -34,6 +36,10 @@ func run() -> void:
 	check("PRTS has no standing art", not story._face.visible)
 	story.advance()
 	check("继续: 阿米娅, her full-body art at 2× on the left, the box beside it", story._speaker.text == "阿米娅" and story._face.visible and story._face.size == StoryCard.STANDING and story._face.position.x < story._talk.position.x)
+	story.advance()
+	check("then the breakout: 阿米娅, then 凯尔希 (失散干员)", story._speaker.text == "阿米娅" and story._line.text.contains("失散"))
+	story.advance()
+	check("凯尔希 last", story._speaker.text == "凯尔希")
 	story.advance()
 	await step(2)
 	check("after the last line the base walks on", story.speaking.is_empty() and game.modal.is_empty() and "wake" in state.seen)
@@ -110,6 +116,16 @@ func run() -> void:
 	story.go_back()
 	for event in ["bench_equip", "insure"]: game.story_note(event)
 	await step(20)
+	check("then 失散: PRTS has Sharp's signal", current() == ["lost"] and story.speaking == "lost" and story._speaker.text == "PRTS")
+	story.go_back()
+	check("the 整备部 waits for Sharp", not game.dept_refusal("outfit").is_empty() and not game.upgrade_refusal("pack").is_empty())
+	game.base.find_lost("sharp")
+	check("back, it opens", game.dept_refusal("outfit").is_empty())
+	await step(20)
+	check("back on board, Sharp's own lines come first", story.speaking == "back_sharp" and story._speaker.text == "Sharp")
+	story.go_back()
+	game.base.set_facility("outfit", 2)
+	await step(20)
 	check("then 基建, 可露希尔 with her standing art", current() == ["hub"] and story._speaker.text == "可露希尔" and story._face.visible and story._face.texture.resource_path.ends_with("npc_closure.png"))
 	story.go_back()
 	# 基建: parts, the hub, the warehouse connected.
@@ -120,12 +136,20 @@ func run() -> void:
 	story.go_back()
 	for event in ["store_potion", "camp"]: game.story_note(event)
 	await step(20)
-	check("after 补给线, 寻访 and 航行 run side by side", current() == ["recruit", "voyage"])
+	check("after 补给线, 断后 and 寻访 run side by side", current() == ["rearguard", "recruit"])
 	story.go_back()
 	await step(15)
 	story.go_back()
 	await step(15)
-	check("both cards at once on the objective card", story._card_title.text == "寻访 · 航行" and story._goals.get_child_count() == 4)
+	check("both cards at once on the objective card", story._card_title.text == "断后 · 寻访" and story._goals.get_child_count() == 3)
+	check("no voyage until Stormeye is back", not game.voyage.voyage_refusal("萨米", "standard").is_empty() and game.voyage.voyage_refusal("萨米", "standard").contains("Stormeye"))
+	game.base.find_lost("stormeye")
+	await step(20)
+	check("Stormeye back: his lines, then 凯尔希's", story.speaking == "back_stormeye")
+	story.go_back()
+	await step(20)
+	check("and 航行 begins", "voyage" in current())
+	story.go_back()
 	game.story_note("sailed")
 	check("a voyage opens the other regions", game.region_open("city") and game.region_open("siracusa"))
 	# An old save: everything behind her.
@@ -140,5 +164,12 @@ func run() -> void:
 	await step(5)
 	check("off: no card", not story._card.visible)
 	SystemScreens.settings.story_guide = true
+	# The hub_parts goal names what the 基建总控台 Lv1 really costs.
+	var parts_text := ""
+	for beat in Story.BEATS:
+		for g in beat.goals:
+			if g[0] == "hub_parts": parts_text = g[1]
+	var want := "备齐" + "、".join(Story.HUB_PARTS.keys().map(func(m): return "%s×%d" % [m, int(Story.HUB_PARTS[m])]))
+	check("hub_parts goal text '%s' matches the hub's Lv1 materials '%s'" % [parts_text, want], parts_text == want)
 	print("STORY FAILURES: %d" % failures)
 	quit(1 if failures > 0 else 0)

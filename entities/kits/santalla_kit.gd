@@ -17,7 +17,7 @@ const COLD_SECONDS := 8.0
 const COLD_ATK := 0.12
 const STUN_SHARE := 0.5
 const TEARS_SECONDS := 10.0
-const TEARS_GAP := 0.35
+const TEARS_GAP := 1.0  # 用户 2026-11-05: 改为1s掉落一个冰锥 (was 0.35)
 const TEARS_SCATTER := 2.5
 const TEARS_RADIUS := 1.2
 const TEARS_DROP := 0.25
@@ -25,6 +25,8 @@ const TEARS_SEEK := 3.5
 const FREEZE_CHILLS := 3
 const FREEZE_WINDOW := 3.0
 const FREEZE_SECONDS := 1.5
+## An icicle drops from this high (metres above where it lands).
+const FALL_FROM := 3.2
 
 var engaged := 0.0
 var tears_timer := 0.0
@@ -114,6 +116,7 @@ func tick(delta: float) -> void:
 	elif not cold() and is_instance_valid(_aura):
 		_aura.queue_free()
 		_aura = null
+	_tick_zone()
 	if tears_timer > 0.0:
 		tears_timer = maxf(0.0, tears_timer - delta)
 		if follow_pointer and is_instance_valid(game()) and game().is_inside_tree(): tears_aim = game()._skill_aim()
@@ -129,6 +132,35 @@ func tick(delta: float) -> void:
 		_drops.remove_at(i)
 		_land(drop.spot)
 
+## While 女巫之泪 lasts, a frost circle on the ground follows where it rains.
+var _zone: MeshInstance3D
+func _tick_zone() -> void:
+	var on := tears_timer > 0.0 and is_instance_valid(game()) and not game().in_base
+	if not on:
+		if is_instance_valid(_zone):
+			_zone.queue_free()
+			_zone = null
+		return
+	if not is_instance_valid(_zone):
+		_zone = MeshInstance3D.new()
+		var plane := PlaneMesh.new()
+		plane.size = Vector2(TEARS_SCATTER * 2.2, TEARS_SCATTER * 2.2)
+		_zone.mesh = plane
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		mat.albedo_texture = BossVfx.soft_texture()
+		mat.albedo_color = Color(0.48, 0.85, 0.96, 0.3)
+		mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+		_zone.material_override = mat
+		_zone.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		game().add_child(_zone)
+	var at := tears_aim
+	_zone.global_position = Vector3(at.x, game().ground_y(at) + 0.04, at.z)
+	var mat := _zone.material_override as StandardMaterial3D
+	mat.albedo_color.a = 0.22 + 0.08 * sin(engaged_clock * 6.0) if tears_timer > 1.0 else 0.3 * tears_timer / 1.0
+
 func _drop_icicle() -> void:
 	var spot := tears_aim + Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized() * randf_range(0.0, TEARS_SCATTER)
 	if transmuter("tears") == "tears_seek":
@@ -136,18 +168,26 @@ func _drop_icicle() -> void:
 		if not near.is_empty(): spot = near[0].global_position
 	spot.y = tears_aim.y
 	if is_instance_valid(game()):
-		CombatVfx.painted(game(), spot + Vector3.UP * 1.4, Vector3.FORWARD, frame_of("icicle", 3, randi() % 3), 1, TEARS_DROP, "billboard", 0.0, 0.0)
+		# It falls from high up (用户 2026-11-05: 更显眼; 不加预警 — no ring marks the spot).
+		var icicle := CombatVfx.painted(game(), spot + Vector3.UP * FALL_FROM, Vector3.FORWARD, frame_of("icicle", 3, randi() % 3), 1, TEARS_DROP, "billboard", 0.0, 0.0)
+		if is_instance_valid(icicle):
+			icicle.scale = Vector3.ONE * 1.8
+			var tween := icicle.create_tween()
+			tween.tween_property(icicle, "position:y", icicle.position.y - FALL_FROM + 0.35, TEARS_DROP).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	_drops.append({"at": TEARS_DROP, "spot": spot})
 
 func _land(spot: Vector3) -> void:
 	fx(foot(spot), Vector3.FORWARD, "icicle_hit", 3, 0.24, "ground", 0.0, 0.05)
-	var scale := value("tears") if rank("tears") > 0 else 0.6
+	OperatorVfx.icicle_shatter(player, spot)
+	var scale := value("tears") if rank("tears") > 0 else 1.7
 	for enemy in enemies_near(spot, TEARS_RADIUS, Vector3.ZERO, 180.0, false):
 		skill_hit(enemy, skill_power("arts") * scale, "arts")
 		chill(enemy)
 
 func reset() -> void:
 	super()
+	if is_instance_valid(_zone): _zone.queue_free()
+	_zone = null
 	tears_timer = 0.0
 	engaged = 0.0
 	_drops.clear()

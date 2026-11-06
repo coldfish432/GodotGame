@@ -1,0 +1,635 @@
+{
+  "version": "B3_v1",
+  "generator": "built-in imagegen",
+  "cell_size": 256,
+  "directions": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "boards": [
+    {
+      "id": "patriot",
+      "rows": 16,
+      "cell_size": 256,
+      "old_rows": 9,
+      "old_pixels_sha256": "1cc542505f4afc3124147a08b815e98538258d677fc2d2a7eb9207203af72637",
+      "generation_scale": 1.1623376623376624,
+      "source_image": "patriot_clean.png",
+      "source_png_sha256": "69e797e43657873de7bacb13e6f41f4a5d7f667b415cfb9deaac1c6e3a966a8f",
+      "new_rows": [
+        {
+          "index": 9,
+          "name": "REST"
+        },
+        {
+          "index": 10,
+          "name": "RISE"
+        },
+        {
+          "index": 11,
+          "name": "THRUST-WIND"
+        },
+        {
+          "index": 12,
+          "name": "STOMP-LAND"
+        },
+        {
+          "index": 13,
+          "name": "JAVELIN-AIM"
+        },
+        {
+          "index": 14,
+          "name": "CLENCH"
+        },
+        {
+          "index": 15,
+          "name": "DIES STANDING"
+        }
+      ]
+    },
+    {
+      "id": "rat_king",
+      "rows": 14,
+      "cell_size": 256,
+      "old_rows": 8,
+      "old_pixels_sha256": "cb0df6d704e91e407f5d86f0a93a0d6cad759fef6bc0bd671f1d369211547dc3",
+      "generation_scale": 1.1842105263157894,
+      "source_image": "rat_king_clean.png",
+      "source_png_sha256": "1538dd633de04764b80e4609b4fb0eb6ae8f284ba32337228f45afe124bfbf9d",
+      "new_rows": [
+        {
+          "index": 8,
+          "name": "POISED"
+        },
+        {
+          "index": 9,
+          "name": "CUP"
+        },
+        {
+          "index": 10,
+          "name": "CANE ACROSS"
+        },
+        {
+          "index": 11,
+          "name": "UPRIGHT"
+        },
+        {
+          "index": 12,
+          "name": "KNEEL"
+        },
+        {
+          "index": 13,
+          "name": "TIE"
+        }
+      ]
+    },
+    {
+      "id": "eikthyrnir",
+      "rows": 15,
+      "cell_size": 256,
+      "old_rows": 9,
+      "old_pixels_sha256": "329a10d26ad7f51fc9680bdd6de7c3c4ff98ac9fe4c63123d1b0e090912a8048",
+      "generation_scale": 1.0714285714285714,
+      "source_image": "eikthyrnir_clean.png",
+      "source_png_sha256": "3306de55ae8808eb173df6aa806ca833f2304b52a0b5b027781aecccb74bcc47",
+      "new_rows": [
+        {
+          "index": 9,
+          "name": "BREAKOUT"
+        },
+        {
+          "index": 10,
+          "name": "SWEEP-WIND"
+        },
+        {
+          "index": 11,
+          "name": "CATCH"
+        },
+        {
+          "index": 12,
+          "name": "CLUTCH"
+        },
+        {
+          "index": 13,
+          "name": "KNEEL"
+        },
+        {
+          "index": 14,
+          "name": "SHOULDER"
+        }
+      ]
+    },
+    {
+      "id": "zaro",
+      "rows": 13,
+      "cell_size": 256,
+      "old_rows": 9,
+      "old_pixels_sha256": "355cd902f5883a19f1aea01c646d46fba57fbec1d9a046112705b75af4349c2e",
+      "generation_scale": 1.0574162679425838,
+      "source_image": "zaro_clean.png",
+      "source_png_sha256": "f07d486c3d1bacfae82afad445c7095bf0d5c8e3d1e1c88c24065f3d9ac58d46",
+      "new_rows": [
+        {
+          "index": 9,
+          "name": "SLUMBER"
+        },
+        {
+          "index": 10,
+          "name": "LIFT"
+        },
+        {
+          "index": 11,
+          "name": "CROUCH"
+        },
+        {
+          "index": 12,
+          "name": "STRUGGLE"
+        }
+      ]
+    },
+    {
+      "id": "crownslayer",
+      "rows": 9,
+      "cell_size": 256,
+      "old_rows": 7,
+      "old_pixels_sha256": "c3d31fbc0a73b28c22c321e2f276319fa2249519433a3c7ab637b109734d9eac",
+      "generation_scale": 0.7468879668049793,
+      "source_image": "crownslayer_clean.png",
+      "source_png_sha256": "e7ca3ddc47e16718fb9ba7b199f125b42483ebfce4fac6f69d87459f49810821",
+      "new_rows": [
+        {
+          "index": 7,
+          "name": "GLINT"
+        },
+        {
+          "index": 8,
+          "name": "FALLEN"
+        }
+      ]
+    },
+    {
+      "id": "skullshatterer",
+      "rows": 8,
+      "cell_size": 256,
+      "old_rows": 6,
+      "old_pixels_sha256": "b3ca39982a24255a4d3c4a8b3b4f27935706cdb03d64d8c418ef14cbed01c097",
+      "generation_scale": 0.7468879668049793,
+      "source_image": "skullshatterer_clean.png",
+      "source_png_sha256": "dffd4d214ee9b2a6bb4cbb6bc4c42f109e1a265cfed2b43b4c802a14493b4108",
+      "new_rows": [
+        {
+          "index": 6,
+          "name": "RELOAD"
+        },
+        {
+          "index": 7,
+          "name": "DOWN"
+        }
+      ]
+    },
+    {
+      "id": "hollow_snowpriest",
+      "rows": 9,
+      "cell_size": 256,
+      "old_rows": 7,
+      "old_pixels_sha256": "177c6ad816610ba0bc1cf2e0cdd7f6be9c130be977ef5970a04aaa76548e3e50",
+      "generation_scale": 0.743801652892562,
+      "source_image": "hollow_snowpriest_clean.png",
+      "source_png_sha256": "961b16f856d5e7defd49dc33defd898cd105d883cbe67ba07c187c5a92194f61",
+      "new_rows": [
+        {
+          "index": 7,
+          "name": "EMERGE"
+        },
+        {
+          "index": 8,
+          "name": "EMPTY ROBE"
+        }
+      ]
+    },
+    {
+      "id": "father_agnir",
+      "rows": 8,
+      "cell_size": 256,
+      "old_rows": 6,
+      "old_pixels_sha256": "18e73d66b715c8933b8c98da37bd9433a7562cb838fb940247923c36aa03bf34",
+      "generation_scale": 0.6818181818181818,
+      "source_image": "father_agnir_clean.png",
+      "source_png_sha256": "13e9793781b784b26a72d783a25163ad5ebaf7532468a3cd36b38eab7b61aba1",
+      "new_rows": [
+        {
+          "index": 6,
+          "name": "CHAMBER"
+        },
+        {
+          "index": 7,
+          "name": "PRAYER"
+        }
+      ]
+    }
+  ],
+  "emblems": [
+    {
+      "id": "patriot",
+      "file": "emblem_patriot.png",
+      "size": [
+        672,
+        672
+      ]
+    },
+    {
+      "id": "rat_king",
+      "file": "emblem_rat_king.png",
+      "size": [
+        672,
+        672
+      ]
+    },
+    {
+      "id": "eikthyrnir",
+      "file": "emblem_eikthyrnir.png",
+      "size": [
+        672,
+        672
+      ]
+    },
+    {
+      "id": "zaro",
+      "file": "emblem_zaro.png",
+      "size": [
+        672,
+        672
+      ]
+    },
+    {
+      "id": "crownslayer",
+      "file": "emblem_crownslayer.png",
+      "size": [
+        672,
+        672
+      ]
+    },
+    {
+      "id": "skullshatterer",
+      "file": "emblem_skullshatterer.png",
+      "size": [
+        672,
+        672
+      ]
+    },
+    {
+      "id": "hollow_snowpriest",
+      "file": "emblem_hollow_snowpriest.png",
+      "size": [
+        672,
+        672
+      ]
+    },
+    {
+      "id": "father_agnir",
+      "file": "emblem_father_agnir.png",
+      "size": [
+        672,
+        672
+      ]
+    }
+  ],
+  "props": [
+    {
+      "file": "prop_rat_king_cane.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "prop_eikthyrnir_hammer.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "prop_crownslayer_knife.png",
+      "size": [
+        256,
+        256
+      ]
+    }
+  ],
+  "qa": {
+    "rat_king_heights": {
+      "IDLE": 36,
+      "UPRIGHT": 40
+    },
+    "zaro_body_match": {
+      "outside_head_masks": true,
+      "sha256_by_direction": [
+        "133b397dd60ae81f5643d5ee337cbab826ee920b195cf32096cb2b7f8008886c",
+        "3dce30efd9e0df5c0168d1a6caa3087bc5d1d9f9c5dbca5cfaad1444caeb3d2d",
+        "8f09bd8291b1138437f451c4420d1a68ee35dca4b51a72e0cb735499cfb9904d",
+        "8302261017a58519674ce98c1c6e4020d04749069f05ebd46bc39c3b56372139",
+        "371391ca0b7c4370462a51ede0316a01be6b1a606a18fb6108ea6aceec83eadf",
+        "589c7dcf94ade258959a8569fa09f7b500542e13b48310bcf3c51bbe71a17c33",
+        "35f5f1a3b4ed180e5e2409a796b61af3c4570cb7ebc9308e2ab7e38a296331c4",
+        "1aa7176aa5a98942cb76c6249e9984445bd0ee44fb441e5c6ff83ff048adffb0"
+      ],
+      "head_mask_polygons": [
+        [
+          [
+            168,
+            121
+          ],
+          [
+            211,
+            126
+          ],
+          [
+            244,
+            177
+          ],
+          [
+            255,
+            217
+          ],
+          [
+            234,
+            240
+          ],
+          [
+            179,
+            225
+          ],
+          [
+            145,
+            199
+          ],
+          [
+            146,
+            156
+          ]
+        ],
+        [
+          [
+            0,
+            118
+          ],
+          [
+            76,
+            114
+          ],
+          [
+            119,
+            145
+          ],
+          [
+            120,
+            208
+          ],
+          [
+            90,
+            234
+          ],
+          [
+            10,
+            230
+          ],
+          [
+            0,
+            205
+          ]
+        ],
+        [
+          [
+            0,
+            119
+          ],
+          [
+            81,
+            117
+          ],
+          [
+            132,
+            147
+          ],
+          [
+            134,
+            219
+          ],
+          [
+            95,
+            237
+          ],
+          [
+            0,
+            233
+          ]
+        ],
+        [
+          [
+            0,
+            124
+          ],
+          [
+            66,
+            125
+          ],
+          [
+            93,
+            158
+          ],
+          [
+            83,
+            216
+          ],
+          [
+            0,
+            234
+          ]
+        ],
+        [
+          [
+            86,
+            92
+          ],
+          [
+            165,
+            92
+          ],
+          [
+            187,
+            150
+          ],
+          [
+            161,
+            184
+          ],
+          [
+            102,
+            185
+          ],
+          [
+            77,
+            148
+          ]
+        ],
+        [
+          [
+            147,
+            126
+          ],
+          [
+            215,
+            125
+          ],
+          [
+            239,
+            158
+          ],
+          [
+            248,
+            224
+          ],
+          [
+            181,
+            235
+          ],
+          [
+            153,
+            209
+          ]
+        ],
+        [
+          [
+            128,
+            125
+          ],
+          [
+            205,
+            125
+          ],
+          [
+            255,
+            162
+          ],
+          [
+            255,
+            235
+          ],
+          [
+            168,
+            238
+          ],
+          [
+            132,
+            209
+          ]
+        ],
+        [
+          [
+            131,
+            122
+          ],
+          [
+            207,
+            122
+          ],
+          [
+            255,
+            162
+          ],
+          [
+            255,
+            237
+          ],
+          [
+            178,
+            239
+          ],
+          [
+            132,
+            207
+          ]
+        ]
+      ]
+    },
+    "contract_verification": {
+      "old_rows_match": {
+        "patriot": true,
+        "rat_king": true,
+        "eikthyrnir": true,
+        "zaro": true,
+        "crownslayer": true,
+        "skullshatterer": true,
+        "hollow_snowpriest": true,
+        "father_agnir": true
+      },
+      "new_cells": 248,
+      "source_edge_contact_cells": [],
+      "baked_edge_contact_cells": [],
+      "rat_king_heights": {
+        "IDLE": 36,
+        "UPRIGHT": 40
+      },
+      "zaro_slumber_red_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "png_count": 36
+    },
+    "visual_acceptance": "pending user review",
+    "godot_runtime": "not run; batch ignored by .gdignore"
+  },
+  "generation_prompts_record": "D:\\\u7b56\u5212\u6d4b\u8bd5\u9898\\B3_work\\outputs.json",
+  "files": {
+    ".gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "crownslayer_action.png": "974062cb1ece8353219f8cba3247d1050ff142da183b14777fea90a0c7763d5f",
+    "crownslayer_action_64.png": "4b34acde2f646a03ee3da76dbfcdbc62ff92f357c82bd0b6d28ba123b3ac7649",
+    "crownslayer_action_64_x6.png": "dfd6bba043210a45185f42114aa7403c3bc862c7f3fee2cfce2b3efe4aff450e",
+    "eikthyrnir_action.png": "47e629109c254e37115ac4b5874ce8198b19cd7451a09dd93466d6c4ba8ca6ab",
+    "eikthyrnir_action_64.png": "601506c27e5ee7558dafa6711a27e7093d42107b19786ef70d71353a15655e11",
+    "eikthyrnir_action_64_x6.png": "7b1df427f2d2249b9da129524697c718917d9ad6dfe540805fd2d9d6a5845461",
+    "emblem_crownslayer.png": "c225607ebbb902a087a94598f336e4a30ec7e4bd1e30aa7fc5e699eda3a7759f",
+    "emblem_eikthyrnir.png": "c7ddf9dc40aafb6a5e3653b5cf067f2a18bb0788e05a871ba106ea1f395b12a9",
+    "emblem_father_agnir.png": "f2d1199420eaf687b33595c0ed1c8d041edc4b7f6a7d83e4d027a260c48d2717",
+    "emblem_hollow_snowpriest.png": "360446a53eafe071423d3f7c1b74890c3053123a51e8c486cdc1111b0278809a",
+    "emblem_patriot.png": "5e7b208d6b11c18065b2e1c04302e05d97393755d6d55424834b4ed18d51cdad",
+    "emblem_rat_king.png": "33c1a9e597f694b62250afcfbc2b6134057941d5f01120b4ea808def37053b32",
+    "emblem_skullshatterer.png": "e1a7ae15413f9b948f1799fb36df57a133135fcfec374ce755ef2b32e6b0146e",
+    "emblem_zaro.png": "b22303717e24f3e7dbb03dd9f41f9e62c8f03662b3418e44809c847d0f9f3abc",
+    "father_agnir_action.png": "e2b76048b90e83e088d8db1e210f0c6dc881e5ee26997a79012ebedd332dc309",
+    "father_agnir_action_64.png": "d5f169e60736cac6e4f81ac5308f7eca841902c84061dd517ca12ba9dbc4ad32",
+    "father_agnir_action_64_x6.png": "00f5ccbe6dd84fbe60187513c4974671748a5296b4002894e76944c2c0f6b02c",
+    "hollow_snowpriest_action.png": "be0f029267b56db1bb9c26eff858b8fe3e82a0f5926b2dab093b977af724b62f",
+    "hollow_snowpriest_action_64.png": "dab944b581415d80c19027a3a6ec80b2acfba8003327985976d6f1ef3b36dd6f",
+    "hollow_snowpriest_action_64_x6.png": "1e6e9b03b3fe433941b671881712b16d707487017e079583bebe584fbb02c0b5",
+    "new_rows_vs_idle_x6.png": "05974f161bcd9db78cbbcf913bc663654600aa037cf739d755c44ad805cf3808",
+    "patriot_action.png": "cdeeec908bcd0f9825182226a39add9254da80bf10e16e88c4d34054c6c498ae",
+    "patriot_action_64.png": "5b5755d3cbe751ac73dcc19ab622ceb1d34f963e15cd85af8cb48b79fa193365",
+    "patriot_action_64_x6.png": "7a222518de5e9dc833b491cc2f7432b693ba1276a676a3560db806475fd1aabf",
+    "prop_crownslayer_knife.png": "4a8cf137c8c1119a0e9327d779cfe54835080966ddf67a35bb6d6cca9f0a7e3b",
+    "prop_eikthyrnir_hammer.png": "f0423168484af3037d853f95b0c669b9c7abc54728bc43d3cffc0939ec82fe86",
+    "prop_rat_king_cane.png": "dc47b12f7cc4ddb67c2fd7514021796098ae39297ceffb91375c0269ce517238",
+    "rat_king_action.png": "e67c0856146f27cee7e3b594a558d28973f7ac1120b5814dc2c0ece3d9818472",
+    "rat_king_action_64.png": "c6bd3014ade9e1c1f085869ef18a239a63d644bd22e6a33f916073094e6bc147",
+    "rat_king_action_64_x6.png": "455b914dfd1b3f63e0428c60a4e3f8918e679d0dfdedcab356a966ed0afabd88",
+    "skullshatterer_action.png": "e52d5ee93950496337f8eadc4a8fe3ccc6ebe7042c2974292b0aadab8d7f5af7",
+    "skullshatterer_action_64.png": "a5208072cc639b5c45c1d919e1e9a28f52c9e43f25d6dbcc9bd7d91e252620eb",
+    "skullshatterer_action_64_x6.png": "506b18eda0201fd2f7f05c1b093a4c37c384678c486db85dd0f2b7b32900e87b",
+    "zaro_action.png": "12d6beff4279b6effc49161a9a4a9ace6bfd003e2a549a3533218ececd8d8069",
+    "zaro_action_64.png": "aa63180aa8e88c499a5529f47878b969f7f392ae1b7469bca1fc20897d688d12",
+    "zaro_action_64_x6.png": "cce8ad22d2b3b47508ce6288e9b20f5ee4afddafa172d27b335aacaf494e9dce"
+  }
+}

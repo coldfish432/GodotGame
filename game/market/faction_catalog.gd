@@ -16,10 +16,11 @@ const CATEGORIES := {
 	"build": "建材", "electronic": "电子", "fuel": "燃料",
 	"cold": "寒地物资", "contraband": "违禁品", "crop": "作物",
 }
-## Categories nobody sells to the player (gear and crops only go one way).
+## Categories nobody sells to the player (gear, contraband and crops only go one way).
 const SELL_ONLY := ["weapon", "armor", "trinket", "contraband", "crop"]
 
-## currency: "lmd" 龙门币 / "gold" 赤金 (its 赤金账户). active: "day" 08–20,
+## currency: "lmd" 龙门币 / "gold" 赤金 (its 赤金账户) / a Currencies id held in
+## its foreign account (莱茵生命: 哥伦比亚金券, 地区货币策划案 §1.5). active: "day" 08–20,
 ## "night" 20–08, "all". spread: full bid/ask gap in the active hours. depth:
 ## the market's size against selling pressure. noise: volatility multiplier.
 ## prefs: category -> preference (absent = not traded). sells: material ids on
@@ -27,28 +28,28 @@ const SELL_ONLY := ["weapon", "armor", "trinket", "contraband", "crop"]
 const FACTIONS := {
 	"lungmen": {"name": "龙门商会", "region": "龙门", "currency": "lmd", "active": "day", "spread": 0.03, "depth": 1.0, "noise": 1.0,
 		"prefs": {"armor": 1.25, "medical": 1.2, "crop": 0.9, "build": 1.1, "electronic": 1.0, "fuel": 1.0, "weapon": 0.9, "trinket": 0.9, "elite": 0.9},
-		"sells": ["螺栓", "金属板", "胶带", "电线", "灯泡", "蓄电池", "医用耗材包", "代糖", "糖", "玄纹墨"]},
+		"sells": ["螺栓", "金属板", "胶带", "电线", "灯泡", "蓄电池", "医用耗材包", "代糖", "糖", "玄纹墨", "近卫局通行证"]},
 	"rat": {"name": "鼠王的下城区", "region": "龙门", "currency": "lmd", "active": "night", "spread": 0.10, "depth": 0.5, "noise": 1.5, "black": true,
 		"prefs": {"contraband": 1.6, "weapon": 1.2, "crop": 0.95, "armor": 0.95, "trinket": 1.0, "elite": 0.95, "electronic": 1.0, "medical": 1.05, "originium": 1.1},
-		"sells": ["装置", "全新装置", "研磨石", "化合切削液", "电路板", "继电器", "下城区耳目"]},
-	"rhine": {"name": "莱茵生命", "region": "哥伦比亚", "currency": "gold", "active": "all", "spread": 0.04, "depth": 0.8, "noise": 1.0,
+		"sells": ["装置", "全新装置", "研磨石", "化合切削液", "电路板", "继电器", "下城区耳目", "下城区黑市名录"]},
+	"rhine": {"name": "莱茵生命", "region": "哥伦比亚", "currency": "col", "active": "all", "spread": 0.04, "depth": 0.8, "noise": 1.0,
 		"prefs": {"originium": 1.5, "medical": 1.2, "crop": 0.9, "elite": 1.25, "electronic": 1.15, "cold": 1.3, "trinket": 0.9},
-		"sells": ["全新装置", "凝胶", "晶体元件", "糖", "聚酸酯", "闪耀作物种子", "闪耀作物·变种种子"]},
+		"sells": ["全新装置", "凝胶", "晶体元件", "糖", "聚酸酯", "闪耀作物种子", "闪耀作物·变种种子", "莱茵实验抑制剂"]},
 	"karlan": {"name": "喀兰贸易", "region": "谢拉格", "currency": "gold", "active": "all", "spread": 0.03, "depth": 1.0, "noise": 1.0,
 		"prefs": {"trinket": 1.3, "weapon": 1.1, "armor": 1.05, "cold": 1.4, "build": 0.9, "fuel": 1.05},
-		"sells": ["帆布", "固体燃料", "密封泡沫", "碳素", "高能燃料"]},
+		"sells": ["帆布", "固体燃料", "密封泡沫", "碳素", "高能燃料", "雪山向导绳"]},
 	"ursus": {"name": "乌萨斯西北矿场", "region": "乌萨斯", "currency": "gold", "active": "day", "spread": 0.05, "depth": 0.7, "noise": 1.0,
 		"prefs": {"originium": 1.3, "electronic": 1.2, "weapon": 1.15, "fuel": 1.1, "build": 1.0, "elite": 1.0},
-		"sells": ["源岩", "固源岩", "异铁", "异铁碎片", "燃料罐", "高纯源岩助熔剂"]},
+		"sells": ["源岩", "固源岩", "异铁", "异铁碎片", "燃料罐", "高纯源岩助熔剂", "矿场勘探图"]},
 	"reunion": {"name": "整合运动残党", "region": "乌萨斯", "currency": "gold", "active": "night", "spread": 0.10, "depth": 0.4, "noise": 1.5, "black": true, "field_only": true,
 		"prefs": {"medical": 1.5, "originium": 1.2, "weapon": 1.2, "fuel": 1.2, "contraband": 1.3},
-		"sells": ["源岩", "固源岩", "固源岩组", "残党向导"]},
+		"sells": ["源岩", "固源岩", "固源岩组", "残党向导", "残党暗号"]},
 	"sami": {"name": "萨米林地部族", "region": "萨米", "currency": "gold", "active": "day", "spread": 0.08, "depth": 0.3, "noise": 1.0, "barter": true, "field_only": true,
 		"prefs": {"fuel": 1.4, "medical": 1.3, "build": 1.2},
-		"sells": ["林地草药", "鞣制兽皮", "萨米冰原苔"]},
+		"sells": ["林地草药", "鞣制兽皮", "萨米冰原苔", "冰原熏肉"]},
 	"kazimierz": {"name": "卡西米尔商业联合会", "region": "卡西米尔", "currency": "gold", "active": "all", "spread": 0.03, "depth": 1.5, "noise": 1.0, "fee_extra": 0.01,
 		"prefs": {"trinket": 1.35, "weapon": 1.2, "armor": 1.15, "build": 1.2, "electronic": 1.0},
-		"sells": ["螺栓", "螺母", "钉子", "电源线", "骑士工坊专利授权"]},
+		"sells": ["螺栓", "螺母", "钉子", "电源线", "骑士工坊专利授权", "商业联合会担保函"]},
 	"penguin": {"name": "企鹅物流", "region": "龙门", "currency": "lmd", "active": "all", "spread": 0.0, "depth": 1.0, "noise": 0.0, "transport": true,
 		"prefs": {}, "sells": []},
 }
@@ -67,14 +68,17 @@ const RELATION_EXPECTED := {
 const CFD_ISSUERS := ["karlan", "kazimierz"]
 ## Field posts by region (§12): who can be met where.
 const POSTS := {"city": ["rat"], "mine": ["reunion", "ursus"], "snow": ["sami"]}
-## The LMD/赤金 rate's market id.
+## The LMD/赤金 rate's market id; the other currencies' books are in Currencies.
 const FX := "fx"
 
 static func info(id: String) -> Dictionary:
 	return FACTIONS.get(id, {})
 
 static func name_of(id: String) -> String:
-	return "龙门币 / 赤金" if id == FX else str(FACTIONS.get(id, {}).get("name", id))
+	var cur := Currencies.of_book(id)
+	if not cur.is_empty(): return "%s / 赤金" % Currencies.name_of(cur)
+	if Currencies.is_cross(id): return "%s / 龙门币" % Currencies.name_of(Currencies.cross_cur(id))
+	return str(FACTIONS.get(id, {}).get("name", id))
 
 static func currency(id: String) -> String:
 	return str(FACTIONS.get(id, {}).get("currency", "lmd"))
@@ -85,23 +89,24 @@ static func trading() -> Array[String]:
 		if not FACTIONS[id].get("transport", false): out.append(id)
 	return out
 
-## Every market id: "faction:category" for each traded category, then "fx".
+## Every market id: "faction:category" for each traded category, then the
+## currency books ("fx" first).
 static func markets() -> Array[String]:
 	var out: Array[String] = []
 	for id in trading():
 		for category in FACTIONS[id].prefs:
 			out.append("%s:%s" % [id, category])
-	out.append(FX)
+	out.append_array(Currencies.books())
 	return out
 
 static func split(market: String) -> Array:
-	if market == FX: return [FX, ""]
+	if Currencies.is_fx(market): return [market, ""]
 	var parts := market.split(":")
 	return [parts[0], parts[1] if parts.size() > 1 else ""]
 
 ## "建材包 @ 龙门商会": a book trades its category's pack (交易包修订案 §6).
 static func market_name(market: String) -> String:
-	if market == FX: return name_of(FX)
+	if Currencies.is_money(market): return name_of(market)
 	var parts := split(market)
 	var pack := Packs.pack_for(parts[1])
 	return "%s @ %s" % [pack if not pack.is_empty() else CATEGORIES.get(parts[1], parts[1]), name_of(parts[0])]
@@ -128,7 +133,8 @@ static func packs_traded(faction: String) -> Array[String]:
 static func preference(faction: String, category: String) -> float:
 	return float(FACTIONS.get(faction, {}).get("prefs", {}).get(category, 0.0))
 
-## The market category of an item, "" when no market takes it (potions, 赤金).
+## The market category of an item, "" when no market takes it (potions, 赤金,
+## Rhodes standard gear, cases).
 static func category_of(item: Item) -> String:
 	# Rhodes standard gear is issued, not owned (制式保底修订): no market takes it.
 	if item == null or item.is_potion() or GearCatalog.bound(item): return ""
@@ -139,6 +145,9 @@ static func category_of(item: Item) -> String:
 		Item.Category.WEAPON: return "weapon"
 		Item.Category.ARMOR: return "armor"
 		Item.Category.TRINKET: return "trinket"
+		# No book trades them: 可露希尔 buys at their value (整理箱与收藏品策划案 v0.2 §3.3).
+		Item.Category.COLLECTIBLE: return "collectible"
+		Item.Category.CASE: return ""
 	return material_category(item.material_id)
 
 const ORIGINIUM := ["源岩", "固源岩", "固源岩组", "提纯源岩", "源石碎片"]

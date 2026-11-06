@@ -1,9 +1,8 @@
 // The Blender terrace pieces (TerraceDressing) drawn like the terrain around
-// them: unshaded, the region's rock texture sampled in world space so pieces
-// share the ground's grain and scale, tinted by each piece's flat Blender
-// colour. Triplanar, because cliff faces are vertical and a top-down sample
-// would streak down them. Shading is the same fixed sun the terrain bakes
-// into its vertex colours (TerrainSurface._triangle).
+// them: the region's rock texture sampled in world space so pieces share the
+// ground's grain and scale, tinted by each piece's flat Blender colour.
+// Triplanar, because cliff faces are vertical and a top-down sample would
+// streak down them. Lit by the scene's lights.
 shader_type spatial;
 render_mode cull_back;
 uniform sampler2D background_tex : source_color, filter_linear_mipmap_anisotropic, repeat_disable;

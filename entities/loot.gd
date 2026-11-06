@@ -3,7 +3,7 @@ extends Node3D
 
 ## A drop on the ground, done the Grim Dawn way (用户 2026-10-10): the item's
 ## own icon pops out of whatever dropped it and lands nearby, and its name
-## floats above it on a plate (drawn by Hud, which also handles the click).
+## floats above it on a plate (drawn by Hud; GmPointer takes the click).
 ## Nothing is picked up by walking over it — click the name, she walks there
 ## and takes it (GameManager.request_pickup), 赤金 included.
 ##
@@ -31,6 +31,9 @@ var _fly := 0.0
 var _sprite: Sprite3D
 
 static var _ground_cache := {}
+## The shadow disc, the beams and their glow, shared by every drop: none of
+## them changes once made (GameManager.release_static_caches).
+static var _looks := {}
 
 func _ready() -> void:
 	add_to_group("loot")
@@ -48,12 +51,15 @@ func _ready() -> void:
 	_sprite.position.y = _sprite.texture.get_height() * CombatVfx.PIXEL * 0.5
 	add_child(_sprite)
 	var shadow := MeshInstance3D.new()
-	var disk := CylinderMesh.new()
-	disk.top_radius = 0.28
-	disk.bottom_radius = 0.28
-	disk.height = 0.01
-	shadow.mesh = disk
-	shadow.material_override = CombatVfx.material(CombatVfx.SHADOW, 0.35)
+	if not _looks.has("shadow"):
+		var disk := CylinderMesh.new()
+		disk.top_radius = 0.28
+		disk.bottom_radius = 0.28
+		disk.height = 0.01
+		_looks["shadow"] = disk
+		_looks["shadow_mat"] = CombatVfx.material(CombatVfx.SHADOW, 0.35)
+	shadow.mesh = _looks["shadow"]
+	shadow.material_override = _looks["shadow_mat"]
 	shadow.position.y = -0.08
 	add_child(shadow)
 	if is_notable(): _add_beam(item.rarity_color())
@@ -74,7 +80,7 @@ func _build_search_point() -> void:
 ## a small rarity-coloured chip for an item without an icon.
 static func ground_texture(of: Item) -> Texture2D:
 	var source := ItemIcons.texture_for(of)
-	var key := source.resource_path if source != null else "chip:" + of.rarity_color().to_html()
+	var key := (source.resource_path if not source.resource_path.is_empty() else source.resource_name) if source != null else "chip:" + of.rarity_color().to_html()
 	if _ground_cache.has(key): return _ground_cache[key]
 	var image: Image
 	if source == null:
@@ -111,19 +117,24 @@ func is_notable() -> bool:
 
 func _add_beam(color: Color) -> void:
 	var beam := MeshInstance3D.new()
-	var shape := CylinderMesh.new()
 	var tall := not item.special.is_empty()
-	shape.top_radius = 0.06
-	shape.bottom_radius = 0.12
-	shape.height = 5.0 if tall else 3.0
+	if not _looks.has(tall):
+		var cylinder := CylinderMesh.new()
+		cylinder.top_radius = 0.06
+		cylinder.bottom_radius = 0.12
+		cylinder.height = 5.0 if tall else 3.0
+		_looks[tall] = cylinder
+	var shape: CylinderMesh = _looks[tall]
 	beam.mesh = shape
-	var glow := StandardMaterial3D.new()
-	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	glow.albedo_color = Color(color, 0.45)
-	glow.emission_enabled = true
-	glow.emission = color
-	beam.material_override = glow
+	if not _looks.has(color):
+		var glow := StandardMaterial3D.new()
+		glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		glow.albedo_color = Color(color, 0.45)
+		glow.emission_enabled = true
+		glow.emission = color
+		_looks[color] = glow
+	beam.material_override = _looks[color]
 	beam.position.y = shape.height * 0.5
 	add_child(beam)
 	if is_instance_valid(game) and game.sound != null: game.sound.play("build")

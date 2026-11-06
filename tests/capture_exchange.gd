@@ -49,25 +49,42 @@ func run() -> void:
 	game.market.fire("C2")
 	game.market.fire("X2")
 	ex.open_forward("lungmen", "建材包", 2, 1, true, 1)
-	ex.open_forward("karlan", "寒地物资包", 1, 2, false, 2)
-	ex.open_cfd("fx", 1, 2, 15000.0)
+	ex.open_forward("karlan", "寒地物资包", 1, 2, false, 3)
+	ex.open_cfd("fx", 1, 5, 6000.0)
+	ex.open_cfd("fx_col", -1, 10, 8.0)
+	ex.convert_fx("lmd", "col", 20000.0)
+	ex.convert_fx("lmd", "kje", 8000.0)
 	ex.open_cfd("comp:kazimierz", -1, 1, 4.0)
 	ex.add_alert("fx", ">=", ex.cfd_price("fx") * 1.03)
 	game.open_exchange()
 	await step(90)
-	page(0, "fx", 3)
-	await capture("market-fx-cfd")
+	ExchangeScreen.fx_selected = "fx_col"
+	ExchangeScreen.fx_mode = 0
+	ExchangeScreen.fx_from = "lmd"
+	ExchangeScreen.fx_to = "col"
+	page(1)
+	await capture("fx-changer")
+	ExchangeScreen.fx_selected = "fx_sar"
+	ExchangeScreen.fx_mode = 1
+	page(1)
+	await capture("fx-cfd")
+	ExchangeScreen.fx_list = 1
+	ExchangeScreen.fx_selected = "x_col"
+	ExchangeScreen.fx_mode = 1
+	page(1)
+	await capture("fx-cross")
+	ExchangeScreen.fx_list = 0
 	page(0, "lungmen:armor", 0)
 	await capture("market-spot")
 	page(0, "lungmen:build", 2)
 	await capture("market-forward")
 	page(0, "lungmen:medical", 1)
 	await capture("market-orders")
-	page(1)
-	await capture("positions")
 	page(2)
-	await capture("news")
+	await capture("positions")
 	page(3)
+	await capture("news")
+	page(4)
 	await capture("funds")
 	game.menu.show_station("workshop")
 	await capture("workshop")
@@ -103,6 +120,12 @@ func run() -> void:
 	game.inventory.add_stack(MaterialCatalog.create("代糖", 12))
 	game.menu.show_station("store")
 	await capture("consign-sell")
+	for item in game.inventory.items.duplicate():
+		if not game.consign_offer(item).is_empty():
+			game.consign_sell(item)
+			break
+	game.menu.show_station("store")
+	await capture("consign-sold")
 	game.menu.trader_tab = "buy"
 	game.voyage.sailing = {"to": "龙门", "start": BaseState.now(), "due": BaseState.now() + 5400}
 	game.menu.show_station("store")

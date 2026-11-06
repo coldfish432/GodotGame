@@ -5,7 +5,9 @@ extends SceneTree
 ## the dead still dead, the boxes as searched, the ground loot where it lay,
 ## the fog, the relics and the meters; and a save picked up once is used up.
 var failures := 0
-const PATH := "user://run_save_TEST_ONLY.json"
+## One file per process: two runs at once (another session's run_all) shared
+## one path and deleted or overwrote each other's saves mid-test.
+var PATH := "user://run_save_TEST_ONLY_%d.json" % OS.get_process_id()
 func _initialize() -> void: call_deferred("run")
 func step(n: int = 1) -> void:
 	for i in range(n):
@@ -16,7 +18,7 @@ func check(label: String, passed: bool, detail: Variant = null) -> void:
 	if not passed: failures += 1
 
 func clean() -> void:
-	for suffix in ["", ".bak", ".tmp", ".lock", ".market"]:
+	for suffix in ["", ".bak", ".tmp", ".lock", ".market", ".release"]:
 		if FileAccess.file_exists(PATH + suffix): DirAccess.remove_absolute(PATH + suffix)
 
 func boot() -> GameManager:
@@ -153,14 +155,44 @@ func camp_trip() -> void:
 	await game.start_contract("mine", 0)
 	await step(4)
 	game.floor_number = 10
-	game._enter_camp()
+	await game._enter_camp()
 	var map: Dictionary = game.route_map.duplicate(true)
 	await step(2)
 	check("camp: saving in a camp works", game.in_camp and game.save_run())
 	game.queue_free()
 	await step(3)
 	var back := await boot()
-	check("camp: loads back in the camp", back.in_camp and not back.in_base and back.modal == "camp" and back.floor_number == 10 and back.route_node == Vector2i(-1, 0) and back.route_map == map)
+	check("camp: loads back in the camp", back.in_camp and not back.in_base and back.modal.is_empty() and back.encounter == "closure" and back.floor_number == 10 and back.route_node == Vector2i(-1, 0) and back.route_map == map)
+	back.queue_free()
+	await step(3)
+
+## Every stream's dice are kept; a save from before the streams (one state
+## each) still loads in the field.
+func old_save_trip() -> void:
+	clean()
+	SystemScreens.settings["auto_potion"] = ""
+	var game := await boot()
+	game.fixed_map_seed = 3107
+	game.route_plain = true
+	await game.start_contract("mine")
+	await step(4)
+	game.save_run()
+	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+	var run_rng: Variant = saved.run.get("rng")
+	var entry: Dictionary = saved.run.get("entry", {})
+	check("streams: the run, the floor and the wave keep every stream", run_rng is Dictionary and entry.get("rng") is Dictionary and entry.get("wave") is Dictionary
+		and GameManager.RNG_STREAMS.all(func(k): return run_rng.has(k) and entry.rng.has(k) and entry.wave.has(k)) and saved.get("rng_streams") is Dictionary)
+	saved.run.rng = str(run_rng.rng)
+	entry.rng = str(entry.rng.rng)
+	entry.wave = str(entry.wave.rng)
+	saved.erase("rng_streams")
+	game.queue_free()
+	await step(3)
+	var file := FileAccess.open(PATH, FileAccess.WRITE)
+	file.store_string(JSON.stringify(saved))
+	file.close()
+	var back := await boot()
+	check("streams: an older save with one state loads in the field", not back.in_base and not back.in_camp and back._resume.is_empty() and back.floor_number == 1)
 	back.queue_free()
 	await step(3)
 
@@ -172,12 +204,15 @@ func no_save_in_base() -> void:
 	await step(3)
 
 func run() -> void:
+	# The set pieces (BossShow) have their own suite; these check the fight itself.
+	BossShow.enabled = false
 	await no_save_in_base()
 	for region in ["mine", "snow", "city", "siracusa"]:
 		await round_trip(region, false)
 	await round_trip("snow", true)
 	await round_trip("siracusa", true)
 	await camp_trip()
+	await old_save_trip()
 	await event_trip()
 	clean()
 	print("RUN SAVE FAILURES %d" % failures)

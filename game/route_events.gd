@@ -5,7 +5,7 @@ extends RefCounted
 ## (用户 2026-10-24: 事件卡加台词 — the only narration on any card) and two or
 ## three choices written as cost → gain. Only one with a fight (`fight`) has a
 ## map (用户 2026-10-24: 不期而遇无敌人的事件不加载地图); the rest are the card alone. Each choice's `do` is carried out by
-## GameManager.event_choose; `bars` are 赤金 at tier 1, scaled by the floor's
+## GmRoute.event_choose; `bars` are 赤金 at tier 1, scaled by the floor's
 ## income index. The lines are this game's own, not the original's.
 
 const EVENTS := {

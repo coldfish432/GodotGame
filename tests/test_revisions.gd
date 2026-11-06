@@ -236,10 +236,12 @@ func _camps() -> void:
 	game.route_kind = "outpost"
 	var dose: float = game.run_contamination
 	await game.advance(0)
-	check("advancing from floor 10 enters camp 10|11", game.in_camp and game.modal == "camp" and game.floor_number == 10)
+	check("advancing from floor 10 enters camp 10|11, its own map", game.in_camp and game.modal.is_empty() and game.floor_number == 10 and game.route_kind == "camp")
 	check("the camp is unlocked for this region only", game.base.camp_unlocked("mine", 10) and not game.base.camp_unlocked("city", 10) and game.base.unlocked_camps("mine") == [10])
 	check("an unupgraded camp adds contamination", game.run_contamination > dose)
-	check("no squad or 坎诺特 in a camp, and nothing to fight", get_nodes_in_group("enemies").is_empty() and not is_instance_valid(game.world_map.encounter_node))
+	check("可露希尔 in a camp, no squad or 坎诺特, no device, and nothing to fight", get_nodes_in_group("enemies").is_empty() and game.encounter == "closure" and game.world_map.encounter_node.visible and not game.is_buff_available())
+	game._open_encounter()
+	check("E at 可露希尔 opens the camp counter", game.modal == "camp")
 	game.run_gold = 12
 	var bar := maxf(1.0, Economy.bar_lmd())
 	var price_a := maxi(1, ceili(game._closure_lmd("A") / bar))
@@ -262,7 +264,7 @@ func _camps() -> void:
 	check("not more than she carries", not game.sell_gold_bars(99))
 	game.inventory.remove(ore)
 	game.close_modal()
-	check("closing anything in a camp comes back to the camp screen", game.modal == "camp")
+	check("closing her counter goes back to the camp's field", game.modal.is_empty() and game.in_camp)
 	await game.advance(1)
 	await step(2)
 	check("leaving the camp walks into floor 11 on the node picked from the next block's map", not game.in_camp and game.floor_number == 11 and game.route_node == Vector2i(0, 1))
@@ -283,7 +285,7 @@ func _camps() -> void:
 	# Starting from an unlocked camp.
 	await game.start_contract("mine", 20)
 	await step(2)
-	check("a contract can start in an unlocked camp", game.in_camp and game.floor_number == 20 and game.start_floor == 21 and game.modal == "camp")
+	check("a contract can start in an unlocked camp", game.in_camp and game.floor_number == 20 and game.start_floor == 21 and game.encounter == "closure")
 	check("the camp holds the next block's map", int(game.route_map.block) == 2 and game.route_node == Vector2i(-1, 0))
 	for node in game.route_map.cols[0]: node.kind = "patrol"
 	await game.advance(0)
@@ -458,8 +460,8 @@ func _escape() -> void:
 	game.go_back()
 	check("and resumes", game.modal.is_empty())
 	game.floor_number = 10
-	game._enter_camp()
+	await game._enter_camp()
 	game.go_back()
 	check("Esc in a camp pauses over it", game.modal == "pause")
 	game.go_back()
-	check("closing pause returns to the camp", game.modal == "camp")
+	check("closing pause returns to the camp's field", game.modal.is_empty() and game.in_camp)

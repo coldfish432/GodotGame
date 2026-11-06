@@ -71,10 +71,20 @@ func build(world: Node3D) -> MeshInstance3D:
 	_banking = true
 	_chain(banks)
 	_banking = false
-	var tool := SurfaceTool.new()
-	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for chain in chains: _sweep(tool, chain)
+	# The quads go straight into arrays; SurfaceTool only takes them in to
+	# generate the normals (the same vertices add_vertex would have given it).
+	_vertices = PackedVector3Array()
+	_colors = PackedColorArray()
+	for chain in chains: _sweep(chain)
 	if face_length <= 0.0: return null
+	var tool := SurfaceTool.new()
+	if _vertices.is_empty(): tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	else:
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = _vertices
+		arrays[Mesh.ARRAY_COLOR] = _colors
+		tool.create_from_arrays(arrays, Mesh.PRIMITIVE_TRIANGLES)
 	tool.generate_normals()
 	var instance := MeshInstance3D.new()
 	instance.name = "CliffFaces"
@@ -98,15 +108,20 @@ static func rock_material(region: String) -> ShaderMaterial:
 	# Sol's painted face (the city's kerbs and retaining walls, C3) once delivered.
 	var face := FieldArt.painted(own + "_wall")
 	if face == null: face = FieldArt.painted(region + "_wall")
-	material.set_shader_parameter("background_tex", face if face != null else texture)
-	material.set_shader_parameter("world_scale", 6.0 if face != null else (4.0 if SWATCHES.has(region) else 12.0))
-	var tint: Color = TINTS.get(region, Color.WHITE)
+	# Sol's rock faces and terrace tops (缺图补全美术需求_v1.md M2–M3, S2–S3):
+	# 4 m and 12 m a tile, untinted (their palettes are the region's already).
+	var rock_face := FieldArt.painted(own + "_rock_face")
+	var rock_top := FieldArt.painted(own + "_rock_top")
+	material.set_shader_parameter("background_tex", rock_face if rock_face != null else (face if face != null else texture))
+	material.set_shader_parameter("world_scale", 4.0 if rock_face != null else (6.0 if face != null else (4.0 if SWATCHES.has(region) else 12.0)))
+	var tint: Color = Color.WHITE if rock_face != null else TINTS.get(region, Color.WHITE)
 	material.set_shader_parameter("tint", Vector3(tint.r, tint.g, tint.b))
 	# The ground between the buildings (C4), painted, once delivered.
 	var top := FieldArt.painted(own + "_block_ground")
 	if top == null: top = FieldArt.painted(region + "_block_ground")
+	if rock_top != null: top = rock_top
 	material.set_shader_parameter("top_tex", top if top != null else FieldArt.BACKGROUNDS[region])
-	material.set_shader_parameter("top_scale", 6.0 if top != null else 12.0)
+	material.set_shader_parameter("top_scale", 12.0 if rock_top != null else (6.0 if top != null else 12.0))
 	var pave := FieldArt.painted(region + "_pavement")
 	if own == "city" and pave != null:
 		material.set_shader_parameter("city_pave", true)
@@ -119,7 +134,7 @@ static func rock_material(region: String) -> ShaderMaterial:
 		material.set_shader_parameter("pave_tex", stone)
 		material.set_shader_parameter("pave_scale", 6.0)
 		material.set_shader_parameter("pave_gain", 1.6)
-	material.set_shader_parameter("top_tint", Vector3.ONE * (0.85 if region == "mine" else 0.95))
+	material.set_shader_parameter("top_tint", Vector3.ONE * (1.0 if rock_top != null else (0.85 if region == "mine" else 0.95)))
 	# The mine's cave walls and pillars (TerrainSurface CAVE_WALL).
 	if own == "mine":
 		material.set_shader_parameter("void_from", 3.0)
@@ -312,7 +327,10 @@ func _drift_profile(point: Vector2, low: float, high: float, bank: bool) -> Arra
 	rows.append([high - 0.3, -run - 0.6, 1.0])  # tucked under the top
 	return rows
 
-func _sweep(tool: SurfaceTool, chain: Dictionary) -> void:
+var _vertices := PackedVector3Array()
+var _colors := PackedColorArray()
+
+func _sweep(chain: Dictionary) -> void:
 	var points: PackedVector2Array = chain.points
 	var columns: Array = []
 	# One strata count per chain, from its tallest point, so every column has
@@ -338,10 +356,10 @@ func _sweep(tool: SurfaceTool, chain: Dictionary) -> void:
 		var a: Array = columns[i]
 		var b: Array = columns[i + 1]
 		for r in range(mini(a.size(), b.size()) - 1):
-			_quad(tool, a[r], b[r], b[r + 1], a[r + 1])
+			_quad(a[r], b[r], b[r + 1], a[r + 1])
 
-func _quad(tool: SurfaceTool, a: Array, b: Array, c: Array, d: Array) -> void:
+func _quad(a: Array, b: Array, c: Array, d: Array) -> void:
 	for vertex in [a, b, c, a, c, d]:
 		var shade: float = vertex[1]
-		tool.set_color(Color(shade, shade, shade))
-		tool.add_vertex(vertex[0])
+		_colors.append(Color(shade, shade, shade))
+		_vertices.append(vertex[0])

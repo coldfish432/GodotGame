@@ -3,8 +3,8 @@ extends Node
 
 ## The base's interaction markers (美术策划案 v2.0 §3.3, 基地玩法策划案 §5.2): a
 ## small cyan diamond over every station, yellow while that station has
-## something to do. Which stations want attention is GameManager's call
-## (station_needs_attention); this node only draws.
+## something to do. Which stations want attention is GmFacilities' call
+## (game.station_needs_attention); this node only draws.
 
 ## Pixels above the station's spot. Tall consoles get their marker higher; spots
 ## the player walks onto (no prop) get it lower.

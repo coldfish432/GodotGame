@@ -5,8 +5,8 @@ extends RefCounted
 ##   赤金    the in-run money, a stackable material in the pack (it takes cells,
 ##           is lost on death unless in the safe bag, comes home as an item);
 ##   龙门币  the out-of-run money, the account balance (GameManager.gold).
-## 可露希尔 buys 赤金 for 龙门币. Every fixed price here is a base price: a
-## later multi-faction trading system will move prices around (§7), so prices
+## 可露希尔 buys 赤金 for 龙门币. Every fixed price here is a base price; the
+## exchange (MarketState) floats the 赤金 rate around it (`fx`), so prices
 ## are read through these functions rather than written at the call site.
 
 const GOLD_ID := "赤金"

@@ -140,6 +140,7 @@ func run() -> void:
 	game.base.ship_at = "龙门"
 	game.voyage.sailing = {}
 	check("refused below 龙门商会's top rank", game.directed_refusal(target, "riot").begins_with("需要龙门商会关系"), game.directed_refusal(target, "riot"))
+	game.exchange.rank_gifts["lungmen"] = FactionRewards.GIFT_RANKS.duplicate()   # 尊敬 sends 玄纹墨 (势力声望解锁策划案 §2.4)
 	game.exchange.add_relation("lungmen", Exchange.RELATION_MAX)
 	game.base.ship_at = "萨米"
 	check("refused away from 龙门", game.directed_refusal(target, "riot") == "需要停靠龙门")

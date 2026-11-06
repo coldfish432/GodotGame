@@ -48,5 +48,16 @@ func run() -> void:
 	game.in_base = true
 	game.notice("基地里")
 	check("in the base a notice is not a toast", game.prts_toasts.is_empty())
+	# 用户 2026-11-04: 左下角的prts也不常驻，有消息跳出，玩家按回车召回，玩家可查看过往消息.
+	check("every broadcast is kept in the history, past a contract's start", game.base.prts_history.any(func(l): return "合同开始" in str(l[1])) and game.base.prts_history.any(func(l): return "撤离点" in str(l[1])))
+	game.prts_log.clear()
+	check("…which the field log's clearing does not touch", not game.base.prts_history.is_empty())
+	var again := BaseState.new()
+	again.load_data(JSON.parse_string(JSON.stringify(game.base.to_data())), {})
+	check("the history is saved", again.prts_history.size() == game.base.prts_history.size())
+	game.broadcast("PRTS：仓库空间不足，测试已存入 PRTS 邮件。", false)
+	check("a letter's notice pops up but is not a second inbox line", not again.prts_history.any(func(l): return "测试已存入" in str(l[1])) and not game.base.prts_history.any(func(l): return "测试已存入" in str(l[1])))
+	check("Enter calls up the PRTS terminal", Keybinds.FUNCTIONS.any(func(a): return a[0] == "toggle_prts" and a[3].get("key", 0) == KEY_ENTER))
+	check("the hall log shows right after PRTS speaks, then fades", Time.get_ticks_msec() - game.prts_said_at < BaseHud.LOG_SHOW * 1000.0)
 	print("TEST_PRTS: %d failures" % failures)
 	quit(1 if failures > 0 else 0)

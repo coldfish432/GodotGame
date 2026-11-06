@@ -1,0 +1,187 @@
+[
+  {
+    "id": "case_material_1",
+    "name": "材料整理箱1级",
+    "kind": "material",
+    "tier": 1,
+    "w": 72,
+    "h": 72,
+    "band": "AMBER ORANGE",
+    "emblem": "a clear pale HEX BOLT / metal bolt emblem",
+    "construction": "Tier 1: modest soft CANVAS box on a rigid frame, visible fabric panels and folds, no wheels"
+  },
+  {
+    "id": "case_material_2",
+    "name": "材料整理箱2级",
+    "kind": "material",
+    "tier": 2,
+    "w": 72,
+    "h": 112,
+    "band": "AMBER ORANGE",
+    "emblem": "a clear pale HEX BOLT / metal bolt emblem",
+    "construction": "Tier 2: upright hard PLASTIC carry case with rounded molded shell, simple molded ribs and rigid handle, no wheels"
+  },
+  {
+    "id": "case_material_3",
+    "name": "材料整理箱3级",
+    "kind": "material",
+    "tier": 3,
+    "w": 112,
+    "h": 152,
+    "band": "AMBER ORANGE",
+    "emblem": "a clear pale HEX BOLT / metal bolt emblem",
+    "construction": "Tier 3: large upright METAL storage case with substantial metal panels, visible thick protective CORNER GUARDS, reinforced hinges and frame, no wheels"
+  },
+  {
+    "id": "case_material_4",
+    "name": "材料整理箱4级",
+    "kind": "material",
+    "tier": 4,
+    "w": 192,
+    "h": 232,
+    "band": "AMBER ORANGE",
+    "emblem": "a clear pale HEX BOLT / metal bolt emblem",
+    "construction": "Tier 4: very large upright rolling STORAGE CABINET with double door seams, four clearly visible wheel/caster assemblies, stout handles, heavy reinforced corners and frame; distinctly a rolling cabinet rather than a small carry case"
+  },
+  {
+    "id": "case_collectible_1",
+    "name": "收藏品整理箱1级",
+    "kind": "collectible",
+    "tier": 1,
+    "w": 72,
+    "h": 72,
+    "band": "rich GOLD YELLOW (visibly yellower than amber orange)",
+    "emblem": "a clear small IVORY STATUETTE / bust figure emblem",
+    "construction": "Tier 1: modest soft CANVAS box on a rigid frame, visible fabric panels and folds, no wheels"
+  },
+  {
+    "id": "case_collectible_2",
+    "name": "收藏品整理箱2级",
+    "kind": "collectible",
+    "tier": 2,
+    "w": 72,
+    "h": 112,
+    "band": "rich GOLD YELLOW (visibly yellower than amber orange)",
+    "emblem": "a clear small IVORY STATUETTE / bust figure emblem",
+    "construction": "Tier 2: upright hard PLASTIC carry case with rounded molded shell, simple molded ribs and rigid handle, no wheels"
+  },
+  {
+    "id": "case_collectible_3",
+    "name": "收藏品整理箱3级",
+    "kind": "collectible",
+    "tier": 3,
+    "w": 112,
+    "h": 152,
+    "band": "rich GOLD YELLOW (visibly yellower than amber orange)",
+    "emblem": "a clear small IVORY STATUETTE / bust figure emblem",
+    "construction": "Tier 3: large upright METAL storage case with substantial metal panels, visible thick protective CORNER GUARDS, reinforced hinges and frame, no wheels"
+  },
+  {
+    "id": "case_collectible_4",
+    "name": "收藏品整理箱4级",
+    "kind": "collectible",
+    "tier": 4,
+    "w": 192,
+    "h": 232,
+    "band": "rich GOLD YELLOW (visibly yellower than amber orange)",
+    "emblem": "a clear small IVORY STATUETTE / bust figure emblem",
+    "construction": "Tier 4: very large upright rolling STORAGE CABINET with double door seams, four clearly visible wheel/caster assemblies, stout handles, heavy reinforced corners and frame; distinctly a rolling cabinet rather than a small carry case"
+  },
+  {
+    "id": "case_potion_1",
+    "name": "药剂整理箱1级",
+    "kind": "potion",
+    "tier": 1,
+    "w": 72,
+    "h": 72,
+    "band": "clean WHITE",
+    "emblem": "a clear GREEN MEDICAL PLUS CROSS emblem",
+    "construction": "Tier 1: modest soft CANVAS box on a rigid frame, visible fabric panels and folds, no wheels"
+  },
+  {
+    "id": "case_potion_2",
+    "name": "药剂整理箱2级",
+    "kind": "potion",
+    "tier": 2,
+    "w": 72,
+    "h": 112,
+    "band": "clean WHITE",
+    "emblem": "a clear GREEN MEDICAL PLUS CROSS emblem",
+    "construction": "Tier 2: upright hard PLASTIC carry case with rounded molded shell, simple molded ribs and rigid handle, no wheels"
+  },
+  {
+    "id": "case_potion_3",
+    "name": "药剂整理箱3级",
+    "kind": "potion",
+    "tier": 3,
+    "w": 112,
+    "h": 152,
+    "band": "clean WHITE",
+    "emblem": "a clear GREEN MEDICAL PLUS CROSS emblem",
+    "construction": "Tier 3: large upright METAL storage case with substantial metal panels, visible thick protective CORNER GUARDS, reinforced hinges and frame, no wheels"
+  },
+  {
+    "id": "case_potion_4",
+    "name": "药剂整理箱4级",
+    "kind": "potion",
+    "tier": 4,
+    "w": 192,
+    "h": 232,
+    "band": "clean WHITE",
+    "emblem": "a clear GREEN MEDICAL PLUS CROSS emblem",
+    "construction": "Tier 4: very large upright rolling STORAGE CABINET with double door seams, four clearly visible wheel/caster assemblies, stout handles, heavy reinforced corners and frame; distinctly a rolling cabinet rather than a small carry case"
+  },
+  {
+    "id": "case_gear_1",
+    "name": "装备整理箱1级",
+    "kind": "gear",
+    "tier": 1,
+    "w": 72,
+    "h": 72,
+    "band": "STEEL BLUE",
+    "emblem": "two clear pale CROSSED KNIFE BLADES emblem",
+    "construction": "Tier 1: modest soft CANVAS box on a rigid frame, visible fabric panels and folds, no wheels"
+  },
+  {
+    "id": "case_gear_2",
+    "name": "装备整理箱2级",
+    "kind": "gear",
+    "tier": 2,
+    "w": 72,
+    "h": 112,
+    "band": "STEEL BLUE",
+    "emblem": "two clear pale CROSSED KNIFE BLADES emblem",
+    "construction": "Tier 2: upright hard PLASTIC carry case with rounded molded shell, simple molded ribs and rigid handle, no wheels"
+  },
+  {
+    "id": "case_gear_3",
+    "name": "装备整理箱3级",
+    "kind": "gear",
+    "tier": 3,
+    "w": 112,
+    "h": 152,
+    "band": "STEEL BLUE",
+    "emblem": "two clear pale CROSSED KNIFE BLADES emblem",
+    "construction": "Tier 3: large upright METAL storage case with substantial metal panels, visible thick protective CORNER GUARDS, reinforced hinges and frame, no wheels"
+  },
+  {
+    "id": "case_gear_4",
+    "name": "装备整理箱4级",
+    "kind": "gear",
+    "tier": 4,
+    "w": 192,
+    "h": 232,
+    "band": "STEEL BLUE",
+    "emblem": "two clear pale CROSSED KNIFE BLADES emblem",
+    "construction": "Tier 4: very large upright rolling STORAGE CABINET with double door seams, four clearly visible wheel/caster assemblies, stout handles, heavy reinforced corners and frame; distinctly a rolling cabinet rather than a small carry case"
+  },
+  {
+    "id": "gift_pack",
+    "name": "收藏品礼包",
+    "kind": "gift",
+    "tier": 0,
+    "w": 72,
+    "h": 72,
+    "construction": "Dark walnut wooden gift box tied with golden satin ribbon and a Rhodes Island tag."
+  }
+]

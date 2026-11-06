@@ -49,13 +49,13 @@ func _grid() -> void:
 			if a != b and a.grid_x < b.grid_x + b.width and b.grid_x < a.grid_x + a.width and a.grid_y < b.grid_y + b.height and b.grid_y < a.grid_y + a.height: overlap = true
 	check("every warehouse item has its own cell, none overlap", not overlap and base.shelf.all(func(x): return x.grid_x >= 0 and x.grid_x + x.width <= BaseState.SHELF_COLUMNS))
 	var long: Item = pieces[1]
-	check("the player puts an item where she likes", base.shelf_move(long, 10, 4) and long.grid_x == 10 and long.grid_y == 4)
-	check("…but not over another", not base.shelf_move(pieces[2], 11, 4))
+	check("the player puts an item where she likes", base.shelf_move(long, 6, 4) and long.grid_x == 6 and long.grid_y == 4)
+	check("…but not over another", not base.shelf_move(pieces[2], 7, 4))
 	check("an item turns a quarter where it lies (3×1 → 1×3)", base.shelf_rotate(long) and long.width == 1 and long.height == 3 and long.rotated)
 	var back := Item.from_data(long.to_data())
-	check("its cell and its turn survive a save", back.rotated and back.width == 1 and back.height == 3 and back.grid_x == 10 and back.grid_y == 4)
+	check("its cell and its turn survive a save", back.rotated and back.width == 1 and back.height == 3 and back.grid_x == 6 and back.grid_y == 4)
 	base.shelf_sort()
-	# 2×2 + 1×3 + 1×2 + 13×1 = 22 cells: two rows of 16 after packing, nothing open before the last item.
+	# 2×2 + 1×3 + 1×2 + 13×1 = 22 cells: three rows of 10 after packing, nothing open before the last item.
 	var used := {}
 	for x in base.shelf:
 		for dy in range(x.height):
@@ -64,7 +64,7 @@ func _grid() -> void:
 	for y in range(base.shelf_rows()):
 		for x in range(BaseState.SHELF_COLUMNS):
 			if not used.has(Vector2i(x, y)): gaps += 1
-	check("整理 packs with no gaps but the last row's tail", base.shelf_rows() == 3 and gaps == BaseState.SHELF_COLUMNS * 3 - 22 and used.has(Vector2i(0, 0)) and used.has(Vector2i(15, 0)))
+	check("整理 packs with no gaps but the last row's tail", base.shelf_rows() == 3 and gaps == BaseState.SHELF_COLUMNS * 3 - 22 and used.has(Vector2i(0, 0)) and used.has(Vector2i(9, 0)))
 	var pack := ItemContainer.new(4, 2)
 	var bar := item("棍", Item.Category.WEAPON, 2, 1)
 	pack.try_add(bar)
@@ -96,7 +96,7 @@ func run() -> void:
 	for x in finds: game.base.receive(x)
 	await step(2)
 	check("eight arrivals: all in the warehouse, no crate drawn", finds.all(func(x): return game.base.location_of(x) == "shelf")
-		and game.stash.size() == 8 and game.base.shelf_count() == 8 and view._crates.is_empty())
+		and game.stash.size() == 8 and game.base.shelf_count() == 12 and view._crates.is_empty())
 	check("the weapon rack face shows one filled cell", view._cell_layers[0][0].filter(func(c): return c.visible).size() == 1 and view._cell_layers[0][0][0].visible)
 	check("the material rack face shows five", view._cell_layers[Item.Category.MATERIAL][0].filter(func(c): return c.visible).size() == 5)
 	check("zone frames stay hidden", view._zone_lights[0].all(func(d): return not d.visible) and view._zone_frames[0].all(func(d): return not d.visible))
@@ -108,8 +108,8 @@ func run() -> void:
 		check("nothing to do at %s: %s" % [str(spot_at), str(spot.get("kind", ""))],
 			view.target_at(game.player.global_position).is_empty() and not str(spot.get("kind", "")) in ["crate", "zone", "shelf_zone", "staging", "putback"])
 
-	# Capacity: one count for every kind, set by 仓储部; the stack multiplier too.
-	var expect := {1: [60, 1], 2: [120, 2], 3: [220, 3], 4: [360, 5]}
+	# Capacity: a 10-wide grid, its rows set by 仓储部 (仓库形状修订案 v1.0); the stack multiplier too.
+	var expect := {1: [120, 1], 2: [200, 2], 3: [300, 3], 4: [500, 5]}
 	for level in expect:
 		game.base.set_facility("warehouse", level)
 		check("仓储部 Lv%d: %d cells, stacks ×%d" % [level, expect[level][0], expect[level][1]],
@@ -118,7 +118,7 @@ func run() -> void:
 		await step(1)
 		check("仓储部 Lv%d draws its racks" % level, int(game.base.racks[0]) == clampi(level * 3 - 2, BaseCatalog.STARTING_RACKS, BaseCatalog.RACK_SLOTS))
 	game.base.research.done.append(ResearchCatalog.id_of_key("rack_cells"))
-	check("立体货架 adds 20%", game.base.capacity() == 432)
+	check("立体货架 adds 20%: 50 → 60 rows", game.base.capacity() == 600)
 	game.base.research.done.erase(ResearchCatalog.id_of_key("rack_cells"))
 
 	# A warehouse stack holds a bag stack × stack_mult(); bringing one out takes a bag-sized piece.
@@ -136,18 +136,33 @@ func run() -> void:
 
 	# Full warehouse: storing from the loadout refuses, base arrivals still come in.
 	game.base.set_facility("warehouse", 1)
-	while game.base.shelf_count() < game.base.capacity(): game.base.shelf.append(item("库存%d" % game.base.shelf_count(), Item.Category.TRINKET))
-	var spare := item("第61件", Item.Category.WEAPON)
+	while game.base.shelf_count() < game.base.capacity(): game.base.receive(item("库存%d" % game.base.shelf_count(), Item.Category.TRINKET))
+	var spare := item("第121件", Item.Category.WEAPON)
 	game.inventory.try_add(spare)
-	check("a full warehouse refuses to store and says how full", not game.store_item(spare) and "60/60" in game.message and game.inventory.items.has(spare))
+	check("a full warehouse refuses to store and says how full", not game.store_item(spare) and "120/120" in game.message and game.inventory.items.has(spare))
 	var parcel := item("送回的装备", Item.Category.ARMOR)
-	check("arrivals still come in over the count", game.base.receive(parcel) and game.base.location_of(parcel) == "shelf" and game.base.shelf_count() == 61)
+	check("arrivals wait in the PRTS mail, nothing lost", game.base.receive(parcel) and game.base.mail_has(parcel) and game.base.shelf_count() == 120)
+	await step(2)
+	check("PRTS says so once", game.prts_log.any(func(l): return "PRTS 邮件" in str(l[1])) and game.base.mailed.is_empty())
+	game.open_station("prts")
+	await step(1)
+	check("the PRTS terminal lists the letter", game.modal == "station" and find_text(game.menu, "全部收入仓库"))
+	game.close_modal()
 
 	# The 仓管台: the whole warehouse with one load bar; no console to buy.
 	game.open_station("stash")
 	await step(1)
 	check("the 仓管台 shows the load and stack size", find_text(game.menu, "%d/%d  ·  ×%d" % [game.base.shelf_count(), game.base.capacity(), game.base.stack_mult()]))
-	check("and the carry-in row", find_text(game.menu, "将带入"))
+	# 用户 2026-10-25: 右侧改为背包，可拖拽物品.
+	check("and the pack and safe bag on the right", find_text(game.menu, "背包") and find_text(game.menu, "安全袋"))
+	var packs: Array = game.menu.find_children("*", "Control", true, false).filter(func(n): return n is AK.BagGrid)
+	check("both take drops", packs.size() == 2 and packs.all(func(g): return g.accept.is_valid()))
+	for x in game.inventory.items.duplicate(): game.inventory.remove(x)
+	var on_shelf: Item = game.stash[0]
+	if packs.size() == 2:
+		packs[0]._drop_data(Vector2.ZERO, ItemDrag.payload(on_shelf))
+		await step(1)
+		check("dragging a shelf item onto the pack carries it", game.inventory.items.has(on_shelf) and not game.stash.has(on_shelf))
 	game.close_modal()
 	check("a new base has its console from the start", BaseState.new().console)
 	var old := game.base.to_data()

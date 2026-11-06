@@ -1,0 +1,938 @@
+B4 STATIC VALIDATION; visual acceptance and Godot runtime are separate.
+Original prefixes compare decoded RGBA pixels, including hidden RGB.
+All new cells: footline y=247. Placement only translates at common group scale, never per-cell fit shrinking.
+Zaro new STARE/GROWL use complete generated lying poses at common scale; protected IDLE is untouched. No head-only compositing.
+Original rows are untouched; newly generated art exported with alpha>230 core, 12px detached-crumb threshold and 1px alpha>128 fringe.
+Patriot: user overrides weapon shape to PRTS black lattice multi-point lance on NEW rows. Existing protected rows keep old weapon art; sequence weapon continuity therefore cannot be identical across that boundary.
+
+patriot p_thrust_stomp: source=p_thrust_stomp_corrected.png raster=(887, 1774), shared_scale=1.101265823, anchor={'layout': 'pose_columns', 'source': 'p_thrust_stomp_corrected.png', 'anchor_pose': 0, 'target': 174}
+row=16 THRUST-SET S foot_y=247 bbox=(48, 74, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 THRUST-SET SW foot_y=247 bbox=(51, 74, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 THRUST-SET W foot_y=247 bbox=(37, 76, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 THRUST-SET NW foot_y=247 bbox=(41, 71, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 THRUST-SET N foot_y=247 bbox=(59, 70, 197, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 THRUST-SET NE foot_y=247 bbox=(47, 65, 210, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 THRUST-SET E foot_y=247 bbox=(38, 64, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 THRUST-SET SE foot_y=247 bbox=(46, 71, 210, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW S foot_y=247 bbox=(48, 71, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW SW foot_y=247 bbox=(40, 70, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW W foot_y=247 bbox=(7, 98, 249, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW NW foot_y=247 bbox=(12, 89, 244, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW N foot_y=247 bbox=(28, 83, 229, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW NE foot_y=247 bbox=(12, 88, 245, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW E foot_y=247 bbox=(12, 88, 245, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 THRUST-FOLLOW SE foot_y=247 bbox=(11, 96, 245, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT S foot_y=247 bbox=(53, 64, 203, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT SW foot_y=247 bbox=(55, 65, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT W foot_y=247 bbox=(45, 67, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT NW foot_y=247 bbox=(49, 59, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT N foot_y=247 bbox=(57, 67, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT NE foot_y=247 bbox=(57, 59, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT E foot_y=247 bbox=(58, 59, 198, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 STOMP-SHIFT SE foot_y=247 bbox=(57, 57, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE S foot_y=247 bbox=(55, 63, 202, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE SW foot_y=247 bbox=(52, 52, 204, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE W foot_y=247 bbox=(46, 74, 210, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE NW foot_y=247 bbox=(47, 71, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE N foot_y=247 bbox=(56, 66, 200, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE NE foot_y=247 bbox=(54, 64, 203, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE E foot_y=247 bbox=(58, 58, 198, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 STOMP-RISE SE foot_y=247 bbox=(52, 54, 205, 248) outside_pixels=0 edge_contact_pixels=0
+
+patriot p_javelin_erupt: source=p_javelin_erupt.png raster=(992, 1586), shared_scale=1.129870130, anchor={'layout': 'pose_columns', 'anchor_pose': 0, 'target': 174}
+row=20 JAVELIN-LIFT S foot_y=247 bbox=(52, 73, 205, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 JAVELIN-LIFT SW foot_y=247 bbox=(49, 80, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 JAVELIN-LIFT W foot_y=247 bbox=(38, 81, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 JAVELIN-LIFT NW foot_y=247 bbox=(57, 88, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 JAVELIN-LIFT N foot_y=247 bbox=(58, 68, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 JAVELIN-LIFT NE foot_y=247 bbox=(52, 77, 205, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 JAVELIN-LIFT E foot_y=247 bbox=(47, 80, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 JAVELIN-LIFT SE foot_y=247 bbox=(43, 85, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE S foot_y=247 bbox=(46, 83, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE SW foot_y=247 bbox=(45, 84, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE W foot_y=247 bbox=(29, 81, 228, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE NW foot_y=247 bbox=(29, 87, 228, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE N foot_y=247 bbox=(57, 85, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE NE foot_y=247 bbox=(51, 92, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE E foot_y=247 bbox=(44, 89, 213, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 JAVELIN-RELEASE SE foot_y=247 bbox=(45, 88, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE S foot_y=247 bbox=(49, 52, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE SW foot_y=247 bbox=(60, 49, 197, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE W foot_y=247 bbox=(49, 53, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE NW foot_y=247 bbox=(55, 60, 202, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE N foot_y=247 bbox=(56, 68, 200, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE NE foot_y=247 bbox=(61, 52, 196, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE E foot_y=247 bbox=(62, 50, 195, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 ERUPTION-RAISE SE foot_y=247 bbox=(50, 58, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER S foot_y=247 bbox=(49, 52, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER SW foot_y=247 bbox=(59, 49, 198, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER W foot_y=247 bbox=(49, 53, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER NW foot_y=247 bbox=(54, 62, 202, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER N foot_y=247 bbox=(56, 67, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER NE foot_y=247 bbox=(60, 52, 197, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER E foot_y=247 bbox=(61, 50, 196, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 ERUPTION-GATHER SE foot_y=247 bbox=(48, 58, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE S foot_y=247 bbox=(58, 103, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE SW foot_y=247 bbox=(56, 107, 200, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE W foot_y=247 bbox=(52, 97, 205, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE NW foot_y=247 bbox=(53, 97, 204, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE N foot_y=247 bbox=(59, 104, 197, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE NE foot_y=247 bbox=(62, 97, 194, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE E foot_y=247 bbox=(60, 96, 196, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 ERUPTION-DRIVE SE foot_y=247 bbox=(57, 98, 200, 248) outside_pixels=0 edge_contact_pixels=0
+
+patriot p_shrine_clench: source=p_shrine_clench.png raster=(887, 1774), shared_scale=1.080745342, anchor={'layout': 'pose_columns', 'anchor_pose': 0, 'target': 174}
+row=25 SHRINE-POINT S foot_y=247 bbox=(50, 74, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 SHRINE-POINT SW foot_y=247 bbox=(55, 56, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 SHRINE-POINT W foot_y=247 bbox=(34, 69, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 SHRINE-POINT NW foot_y=247 bbox=(36, 63, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 SHRINE-POINT N foot_y=247 bbox=(50, 89, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 SHRINE-POINT NE foot_y=247 bbox=(37, 75, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 SHRINE-POINT E foot_y=247 bbox=(34, 60, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 SHRINE-POINT SE foot_y=247 bbox=(40, 63, 216, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING S foot_y=247 bbox=(30, 93, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING SW foot_y=247 bbox=(42, 70, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING W foot_y=247 bbox=(30, 73, 227, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING NW foot_y=247 bbox=(39, 67, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING N foot_y=247 bbox=(39, 89, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING NE foot_y=247 bbox=(30, 84, 227, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING E foot_y=247 bbox=(39, 75, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=26 SHRINE-SWING SE foot_y=247 bbox=(29, 67, 227, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW S foot_y=247 bbox=(52, 37, 204, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW SW foot_y=247 bbox=(52, 50, 205, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW W foot_y=247 bbox=(50, 48, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW NW foot_y=247 bbox=(54, 44, 203, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW N foot_y=247 bbox=(54, 53, 202, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW NE foot_y=247 bbox=(57, 52, 200, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW E foot_y=247 bbox=(57, 53, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=27 CLENCH-DRAW SE foot_y=247 bbox=(59, 51, 197, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN S foot_y=247 bbox=(44, 29, 213, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN SW foot_y=247 bbox=(48, 34, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN W foot_y=247 bbox=(50, 49, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN NW foot_y=247 bbox=(41, 40, 216, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN N foot_y=247 bbox=(35, 59, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN NE foot_y=247 bbox=(48, 59, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN E foot_y=247 bbox=(51, 60, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=28 CLENCH-OPEN SE foot_y=247 bbox=(54, 46, 202, 248) outside_pixels=0 edge_contact_pixels=0
+
+patriot p_rally: source=p_rally.png raster=(887, 1774), shared_scale=1.071428571, anchor={'layout': 'pose_columns', 'anchor_pose': 1, 'target': 180, 'anchor_source': 'p_rally_mask_fix.png'}
+row=29 RALLY-RAISE S foot_y=247 bbox=(29, 26, 228, 248) outside_pixels=0 edge_contact_pixels=0
+row=29 RALLY-RAISE SW foot_y=247 bbox=(32, 32, 225, 248) outside_pixels=0 edge_contact_pixels=0
+row=29 RALLY-RAISE W foot_y=247 bbox=(22, 22, 234, 248) outside_pixels=0 edge_contact_pixels=0
+row=29 RALLY-RAISE NW foot_y=247 bbox=(18, 11, 238, 248) outside_pixels=0 edge_contact_pixels=0
+row=29 RALLY-RAISE N foot_y=247 bbox=(51, 17, 205, 248) outside_pixels=0 edge_contact_pixels=0
+row=29 RALLY-RAISE NE foot_y=247 bbox=(50, 20, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=29 RALLY-RAISE E foot_y=247 bbox=(44, 16, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=29 RALLY-RAISE SE foot_y=247 bbox=(39, 23, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL S foot_y=247 bbox=(31, 42, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL SW foot_y=247 bbox=(36, 56, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL W foot_y=247 bbox=(36, 44, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL NW foot_y=247 bbox=(40, 44, 216, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL N foot_y=247 bbox=(41, 37, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL NE foot_y=247 bbox=(34, 38, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL E foot_y=247 bbox=(26, 28, 231, 248) outside_pixels=0 edge_contact_pixels=0
+row=30 RALLY-CALL SE foot_y=247 bbox=(29, 42, 227, 248) outside_pixels=0 edge_contact_pixels=0
+
+patriot old_reference_rgba_sha256=b606be04b6ff084d889cee5fbbbe8649a171c980b199050152432033d3d1ea44
+patriot old_delivery_rgba_sha256=b606be04b6ff084d889cee5fbbbe8649a171c980b199050152432033d3d1ea44 MATCH
+
+rat_king r_shot_sing: source=r_shot_sing.png raster=(887, 1774), shared_scale=1.192052980, anchor={'layout': 'pose_columns', 'anchor_pose': 0, 'target': 180}
+row=14 SHOT-GATHER S foot_y=247 bbox=(31, 68, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 SHOT-GATHER SW foot_y=247 bbox=(36, 72, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 SHOT-GATHER W foot_y=247 bbox=(30, 71, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 SHOT-GATHER NW foot_y=247 bbox=(31, 66, 225, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 SHOT-GATHER N foot_y=247 bbox=(26, 68, 231, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 SHOT-GATHER NE foot_y=247 bbox=(31, 65, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 SHOT-GATHER E foot_y=247 bbox=(35, 68, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 SHOT-GATHER SE foot_y=247 bbox=(35, 72, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW S foot_y=247 bbox=(32, 68, 224, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW SW foot_y=247 bbox=(31, 69, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW W foot_y=247 bbox=(19, 68, 237, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW NW foot_y=247 bbox=(13, 63, 244, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW N foot_y=247 bbox=(23, 69, 234, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW NE foot_y=247 bbox=(18, 62, 239, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW E foot_y=247 bbox=(23, 67, 233, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SHOT-FOLLOW SE foot_y=247 bbox=(16, 68, 241, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH S foot_y=247 bbox=(41, 58, 216, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH SW foot_y=247 bbox=(38, 51, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH W foot_y=247 bbox=(41, 51, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH NW foot_y=247 bbox=(38, 51, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH N foot_y=247 bbox=(41, 60, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH NE foot_y=247 bbox=(41, 52, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH E foot_y=247 bbox=(46, 51, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SING-BREATH SE foot_y=247 bbox=(38, 48, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM S foot_y=247 bbox=(34, 54, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM SW foot_y=247 bbox=(39, 51, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM W foot_y=247 bbox=(37, 49, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM NW foot_y=247 bbox=(38, 53, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM N foot_y=247 bbox=(34, 61, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM NE foot_y=247 bbox=(37, 50, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM E foot_y=247 bbox=(40, 50, 216, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 SING-HUM SE foot_y=247 bbox=(34, 46, 223, 248) outside_pixels=0 edge_contact_pixels=0
+
+rat_king r_prison_swarm: source=r_prison_swarm.png raster=(887, 1774), shared_scale=1.161290323, anchor={'layout': 'pose_columns', 'anchor_pose': 2, 'target': 180}
+row=18 PRISON-PALM S foot_y=247 bbox=(37, 63, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 PRISON-PALM SW foot_y=247 bbox=(32, 66, 225, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 PRISON-PALM W foot_y=247 bbox=(30, 64, 227, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 PRISON-PALM NW foot_y=247 bbox=(28, 66, 229, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 PRISON-PALM N foot_y=247 bbox=(28, 63, 229, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 PRISON-PALM NE foot_y=247 bbox=(29, 63, 228, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 PRISON-PALM E foot_y=247 bbox=(34, 62, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 PRISON-PALM SE foot_y=247 bbox=(23, 68, 233, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS S foot_y=247 bbox=(33, 64, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS SW foot_y=247 bbox=(36, 64, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS W foot_y=247 bbox=(38, 67, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS NW foot_y=247 bbox=(37, 73, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS N foot_y=247 bbox=(41, 64, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS NE foot_y=247 bbox=(43, 67, 213, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS E foot_y=247 bbox=(42, 67, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 PRISON-PRESS SE foot_y=247 bbox=(44, 66, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT S foot_y=247 bbox=(52, 69, 205, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT SW foot_y=247 bbox=(29, 64, 228, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT W foot_y=247 bbox=(11, 65, 246, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT NW foot_y=247 bbox=(17, 66, 239, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT N foot_y=247 bbox=(30, 61, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT NE foot_y=247 bbox=(22, 66, 235, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT E foot_y=247 bbox=(15, 64, 241, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 SWARM-POINT SE foot_y=247 bbox=(36, 68, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD S foot_y=247 bbox=(40, 51, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD SW foot_y=247 bbox=(38, 51, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD W foot_y=247 bbox=(48, 46, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD NW foot_y=247 bbox=(45, 51, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD N foot_y=247 bbox=(41, 55, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD NE foot_y=247 bbox=(45, 52, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD E foot_y=247 bbox=(52, 52, 204, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 SWARM-HOLD SE foot_y=247 bbox=(44, 51, 212, 248) outside_pixels=0 edge_contact_pixels=0
+
+rat_king r_call_storm: source=r_call_storm.png raster=(887, 1774), shared_scale=1.258741259, anchor={'layout': 'pose_columns', 'anchor_pose': 0, 'target': 180}
+row=22 SNAP S foot_y=247 bbox=(54, 69, 203, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 SNAP SW foot_y=247 bbox=(51, 68, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 SNAP W foot_y=247 bbox=(48, 65, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 SNAP NW foot_y=247 bbox=(48, 69, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 SNAP N foot_y=247 bbox=(44, 71, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 SNAP NE foot_y=247 bbox=(45, 68, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 SNAP E foot_y=247 bbox=(44, 63, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 SNAP SE foot_y=247 bbox=(43, 64, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON S foot_y=247 bbox=(39, 70, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON SW foot_y=247 bbox=(33, 69, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON W foot_y=247 bbox=(32, 69, 224, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON NW foot_y=247 bbox=(36, 70, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON N foot_y=247 bbox=(29, 73, 228, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON NE foot_y=247 bbox=(26, 73, 230, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON E foot_y=247 bbox=(37, 66, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 BECKON SE foot_y=247 bbox=(25, 64, 232, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL S foot_y=247 bbox=(33, 42, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL SW foot_y=247 bbox=(34, 49, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL W foot_y=247 bbox=(38, 49, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL NW foot_y=247 bbox=(42, 51, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL N foot_y=247 bbox=(39, 41, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL NE foot_y=247 bbox=(46, 37, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL E foot_y=247 bbox=(37, 43, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=24 STORM-SWIRL SE foot_y=247 bbox=(36, 44, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP S foot_y=247 bbox=(56, 66, 200, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP SW foot_y=247 bbox=(53, 69, 204, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP W foot_y=247 bbox=(44, 71, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP NW foot_y=247 bbox=(41, 70, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP N foot_y=247 bbox=(48, 69, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP NE foot_y=247 bbox=(48, 74, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP E foot_y=247 bbox=(40, 65, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=25 STORM-STAMP SE foot_y=247 bbox=(51, 65, 206, 248) outside_pixels=0 edge_contact_pixels=0
+
+rat_king old_reference_rgba_sha256=d7651682b1dc9748c256d5487037f43187524c30e48dea6f530013af9b26cdf9
+rat_king old_delivery_rgba_sha256=d7651682b1dc9748c256d5487037f43187524c30e48dea6f530013af9b26cdf9 MATCH
+
+eikthyrnir e_sweep_hurl: source=e_sweep_hurl.png raster=(887, 1774), shared_scale=0.962566845, anchor={'layout': 'block_pairs', 'anchor_pose': 0, 'target': 180}
+row=15 SWEEP-SET S foot_y=247 bbox=(67, 68, 190, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SWEEP-SET SW foot_y=247 bbox=(53, 71, 203, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SWEEP-SET W foot_y=247 bbox=(53, 73, 203, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SWEEP-SET NW foot_y=247 bbox=(51, 70, 205, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SWEEP-SET N foot_y=247 bbox=(61, 72, 195, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SWEEP-SET NE foot_y=247 bbox=(51, 70, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SWEEP-SET E foot_y=247 bbox=(44, 74, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 SWEEP-SET SE foot_y=247 bbox=(55, 73, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW S foot_y=247 bbox=(50, 75, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW SW foot_y=247 bbox=(47, 74, 210, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW W foot_y=247 bbox=(48, 77, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW NW foot_y=247 bbox=(52, 75, 204, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW N foot_y=247 bbox=(62, 79, 195, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW NE foot_y=247 bbox=(55, 71, 202, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW E foot_y=247 bbox=(48, 75, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 SWEEP-FOLLOW SE foot_y=247 bbox=(56, 73, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE S foot_y=247 bbox=(58, 70, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE SW foot_y=247 bbox=(60, 72, 197, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE W foot_y=247 bbox=(51, 68, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE NW foot_y=247 bbox=(51, 69, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE N foot_y=247 bbox=(57, 66, 199, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE NE foot_y=247 bbox=(60, 73, 196, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE E foot_y=247 bbox=(50, 69, 207, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 HURL-RAISE SE foot_y=247 bbox=(55, 69, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK S foot_y=247 bbox=(46, 72, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK SW foot_y=247 bbox=(50, 74, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK W foot_y=247 bbox=(45, 78, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK NW foot_y=247 bbox=(40, 78, 216, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK N foot_y=247 bbox=(50, 73, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK NE foot_y=247 bbox=(56, 76, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK E foot_y=247 bbox=(45, 77, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 HURL-COCK SE foot_y=247 bbox=(45, 75, 211, 248) outside_pixels=0 edge_contact_pixels=0
+
+eikthyrnir e_entropy_call: source=e_entropy_call.png raster=(887, 1774), shared_scale=1.036269430, anchor={'layout': 'pose_columns', 'anchor_pose': 2, 'target': 200}
+row=19 ENTROPY-SMASH S foot_y=247 bbox=(46, 70, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 ENTROPY-SMASH SW foot_y=247 bbox=(44, 68, 213, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 ENTROPY-SMASH W foot_y=247 bbox=(38, 73, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 ENTROPY-SMASH NW foot_y=247 bbox=(34, 70, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 ENTROPY-SMASH N foot_y=247 bbox=(46, 77, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 ENTROPY-SMASH NE foot_y=247 bbox=(37, 73, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 ENTROPY-SMASH E foot_y=247 bbox=(40, 71, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 ENTROPY-SMASH SE foot_y=247 bbox=(36, 74, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD S foot_y=247 bbox=(47, 67, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD SW foot_y=247 bbox=(47, 59, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD W foot_y=247 bbox=(41, 61, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD NW foot_y=247 bbox=(42, 56, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD N foot_y=247 bbox=(48, 63, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD NE foot_y=247 bbox=(45, 59, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD E foot_y=247 bbox=(43, 55, 213, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 ENTROPY-HOLD SE foot_y=247 bbox=(43, 60, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL S foot_y=247 bbox=(48, 48, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL SW foot_y=247 bbox=(39, 46, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL W foot_y=247 bbox=(36, 49, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL NW foot_y=247 bbox=(40, 49, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL N foot_y=247 bbox=(45, 43, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL NE foot_y=247 bbox=(39, 47, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL E foot_y=247 bbox=(43, 46, 213, 248) outside_pixels=0 edge_contact_pixels=0
+row=21 TREESCAR-CALL SE foot_y=247 bbox=(41, 46, 216, 248) outside_pixels=0 edge_contact_pixels=0
+
+eikthyrnir e_rampage: source=e_rampage.png raster=(887, 1774), shared_scale=0.846560847, anchor={'layout': 'pose_columns', 'anchor_pose': 1, 'target': 160}
+row=22 RAMPAGE-SET S foot_y=247 bbox=(46, 124, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 RAMPAGE-SET SW foot_y=247 bbox=(47, 125, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 RAMPAGE-SET W foot_y=247 bbox=(34, 122, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 RAMPAGE-SET NW foot_y=247 bbox=(27, 122, 230, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 RAMPAGE-SET N foot_y=247 bbox=(47, 108, 210, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 RAMPAGE-SET NE foot_y=247 bbox=(38, 120, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 RAMPAGE-SET E foot_y=247 bbox=(30, 124, 227, 248) outside_pixels=0 edge_contact_pixels=0
+row=22 RAMPAGE-SET SE foot_y=247 bbox=(38, 117, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID S foot_y=247 bbox=(43, 89, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID SW foot_y=247 bbox=(48, 89, 208, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID W foot_y=247 bbox=(37, 87, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID NW foot_y=247 bbox=(30, 89, 227, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID N foot_y=247 bbox=(40, 89, 217, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID NE foot_y=247 bbox=(32, 90, 224, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID E foot_y=247 bbox=(33, 85, 224, 248) outside_pixels=0 edge_contact_pixels=0
+row=23 RAMPAGE-SKID SE foot_y=247 bbox=(39, 88, 217, 248) outside_pixels=0 edge_contact_pixels=0
+
+eikthyrnir old_reference_rgba_sha256=363f3f5c696bde918c27b3f0dd0b687a3e96cdf22f89c0be44735de8dea33090
+eikthyrnir old_delivery_rgba_sha256=363f3f5c696bde918c27b3f0dd0b687a3e96cdf22f89c0be44735de8dea33090 MATCH
+
+zaro z_lying: source=z_lying.png raster=(1254, 1254), shared_scale=0.734219269, anchor={'layout': 'block_pairs', 'anchor_pose': 0, 'anchor_direction': 2, 'target': 221, 'dimension': 'width'}
+row=13 STARE S foot_y=247 bbox=(45, 133, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=13 STARE SW foot_y=247 bbox=(25, 133, 231, 248) outside_pixels=0 edge_contact_pixels=0
+row=13 STARE W foot_y=247 bbox=(18, 141, 239, 248) outside_pixels=0 edge_contact_pixels=0
+row=13 STARE NW foot_y=247 bbox=(37, 134, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=13 STARE N foot_y=247 bbox=(45, 129, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=13 STARE NE foot_y=247 bbox=(34, 129, 222, 248) outside_pixels=0 edge_contact_pixels=0
+row=13 STARE E foot_y=247 bbox=(22, 142, 235, 248) outside_pixels=0 edge_contact_pixels=0
+row=13 STARE SE foot_y=247 bbox=(34, 139, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL S foot_y=247 bbox=(47, 135, 210, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL SW foot_y=247 bbox=(25, 135, 231, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL W foot_y=247 bbox=(22, 140, 235, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL NW foot_y=247 bbox=(36, 132, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL N foot_y=247 bbox=(46, 127, 211, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL NE foot_y=247 bbox=(35, 129, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL E foot_y=247 bbox=(37, 140, 219, 248) outside_pixels=0 edge_contact_pixels=0
+row=14 GROWL SE foot_y=247 bbox=(34, 138, 222, 248) outside_pixels=0 edge_contact_pixels=0
+
+zaro z_pounce_bite: source=z_pounce_bite.png raster=(887, 1774), shared_scale=1.125000000, anchor={'layout': 'pose_columns', 'anchor_pose': 0, 'anchor_direction': 2, 'target': 225, 'dimension': 'width'}
+row=15 POUNCE-LAND S foot_y=247 bbox=(31, 92, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 POUNCE-LAND SW foot_y=247 bbox=(25, 97, 232, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 POUNCE-LAND W foot_y=247 bbox=(15, 98, 241, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 POUNCE-LAND NW foot_y=247 bbox=(26, 96, 231, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 POUNCE-LAND N foot_y=247 bbox=(32, 96, 225, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 POUNCE-LAND NE foot_y=247 bbox=(27, 99, 229, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 POUNCE-LAND E foot_y=247 bbox=(17, 100, 239, 248) outside_pixels=0 edge_contact_pixels=0
+row=15 POUNCE-LAND SE foot_y=247 bbox=(19, 93, 237, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR S foot_y=247 bbox=(51, 56, 206, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR SW foot_y=247 bbox=(38, 48, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR W foot_y=247 bbox=(24, 44, 233, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR NW foot_y=247 bbox=(23, 40, 233, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR N foot_y=247 bbox=(56, 47, 200, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR NE foot_y=247 bbox=(46, 47, 210, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR E foot_y=247 bbox=(39, 46, 218, 248) outside_pixels=0 edge_contact_pixels=0
+row=16 BITE-REAR SE foot_y=247 bbox=(31, 45, 225, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP S foot_y=247 bbox=(47, 92, 209, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP SW foot_y=247 bbox=(37, 93, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP W foot_y=247 bbox=(17, 96, 240, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP NW foot_y=247 bbox=(22, 97, 234, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP N foot_y=247 bbox=(42, 107, 215, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP NE foot_y=247 bbox=(33, 98, 224, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP E foot_y=247 bbox=(18, 104, 239, 248) outside_pixels=0 edge_contact_pixels=0
+row=17 BITE-SNAP SE foot_y=247 bbox=(34, 100, 223, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR S foot_y=247 bbox=(45, 88, 212, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR SW foot_y=247 bbox=(37, 84, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR W foot_y=247 bbox=(24, 90, 233, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR NW foot_y=247 bbox=(31, 85, 225, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR N foot_y=247 bbox=(43, 89, 213, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR NE foot_y=247 bbox=(37, 84, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR E foot_y=247 bbox=(26, 86, 231, 248) outside_pixels=0 edge_contact_pixels=0
+row=18 BITE-TEAR SE foot_y=247 bbox=(33, 83, 224, 248) outside_pixels=0 edge_contact_pixels=0
+
+zaro z_howl_pack: source=z_howl_pack.png raster=(887, 1774), shared_scale=0.714285714, anchor={'layout': 'pose_columns', 'anchor_pose': 1, 'anchor_direction': 2, 'target': 225, 'dimension': 'width'}
+row=19 HOWL-SWELL S foot_y=247 bbox=(68, 109, 188, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 HOWL-SWELL SW foot_y=247 bbox=(54, 107, 202, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 HOWL-SWELL W foot_y=247 bbox=(31, 111, 226, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 HOWL-SWELL NW foot_y=247 bbox=(43, 109, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 HOWL-SWELL N foot_y=247 bbox=(77, 102, 179, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 HOWL-SWELL NE foot_y=247 bbox=(61, 109, 196, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 HOWL-SWELL E foot_y=247 bbox=(36, 108, 221, 248) outside_pixels=0 edge_contact_pixels=0
+row=19 HOWL-SWELL SE foot_y=247 bbox=(53, 108, 203, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL S foot_y=247 bbox=(67, 112, 189, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL SW foot_y=247 bbox=(42, 118, 214, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL W foot_y=247 bbox=(16, 123, 241, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL NW foot_y=247 bbox=(36, 126, 220, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL N foot_y=247 bbox=(66, 127, 190, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL NE foot_y=247 bbox=(55, 123, 201, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL E foot_y=247 bbox=(21, 127, 236, 248) outside_pixels=0 edge_contact_pixels=0
+row=20 PACK-CALL SE foot_y=247 bbox=(43, 126, 213, 248) outside_pixels=0 edge_contact_pixels=0
+
+zaro old_reference_rgba_sha256=cad2a42ae2a8e600cede358b8f047c78a5c0a5247e923c41b583401f7963fe4e
+zaro old_delivery_rgba_sha256=cad2a42ae2a8e600cede358b8f047c78a5c0a5247e923c41b583401f7963fe4e MATCH
+
+SEQUENCE PLAY ORDER: source-derived runtime beats; table dashes use current code fallback, not invented new artwork.
+[
+  {
+    "id": "patriot",
+    "move": "thrust",
+    "rows": [
+      16,
+      11,
+      5,
+      17
+    ],
+    "fallback_beats": []
+  },
+  {
+    "id": "patriot",
+    "move": "stomp",
+    "rows": [
+      18,
+      6,
+      12,
+      19
+    ],
+    "fallback_beats": []
+  },
+  {
+    "id": "patriot",
+    "move": "javelin",
+    "rows": [
+      20,
+      13,
+      21,
+      7
+    ],
+    "fallback_beats": []
+  },
+  {
+    "id": "patriot",
+    "move": "eruption",
+    "rows": [
+      22,
+      23,
+      24,
+      8
+    ],
+    "fallback_beats": []
+  },
+  {
+    "id": "patriot",
+    "move": "raise_shrine",
+    "rows": [
+      26,
+      8,
+      25,
+      25
+    ],
+    "fallback_beats": [
+      "charge",
+      "recover"
+    ]
+  },
+  {
+    "id": "patriot",
+    "move": "shrine_call",
+    "rows": [
+      27,
+      14,
+      28,
+      28
+    ],
+    "fallback_beats": [
+      "recover"
+    ]
+  },
+  {
+    "id": "patriot",
+    "move": "guerrillas",
+    "rows": [
+      29,
+      2,
+      30,
+      30
+    ],
+    "fallback_beats": [
+      "charge",
+      "recover"
+    ]
+  },
+  {
+    "id": "rat_king",
+    "move": "sand_shot",
+    "rows": [
+      14,
+      9,
+      5,
+      15
+    ],
+    "fallback_beats": []
+  },
+  {
+    "id": "rat_king",
+    "move": "sing",
+    "rows": [
+      16,
+      17,
+      6,
+      6
+    ],
+    "fallback_beats": [
+      "recover"
+    ]
+  },
+  {
+    "id": "rat_king",
+    "move": "prison",
+    "rows": [
+      18,
+      18,
+      19,
+      19
+    ],
+    "fallback_beats": [
+      "start",
+      "recover"
+    ]
+  },
+  {
+    "id": "rat_king",
+    "move": "stampede",
+    "rows": [
+      10,
+      7,
+      20,
+      21
+    ],
+    "fallback_beats": [
+      "charge"
+    ]
+  },
+  {
+    "id": "rat_king",
+    "move": "grey_tails",
+    "rows": [
+      22,
+      5,
+      23,
+      23
+    ],
+    "fallback_beats": [
+      "charge",
+      "recover"
+    ]
+  },
+  {
+    "id": "rat_king",
+    "move": "sandstorm",
+    "rows": [
+      24,
+      2,
+      25,
+      25
+    ],
+    "fallback_beats": [
+      "charge",
+      "recover"
+    ]
+  },
+  {
+    "id": "eikthyrnir",
+    "move": "sweep",
+    "rows": [
+      15,
+      10,
+      5,
+      16
+    ],
+    "fallback_beats": []
+  },
+  {
+    "id": "eikthyrnir",
+    "move": "hurl",
+    "rows": [
+      17,
+      18,
+      6,
+      11
+    ],
+    "fallback_beats": []
+  },
+  {
+    "id": "eikthyrnir",
+    "move": "entropy",
+    "rows": [
+      8,
+      2,
+      19,
+      20
+    ],
+    "fallback_beats": [
+      "charge"
+    ]
+  },
+  {
+    "id": "eikthyrnir",
+    "move": "treescar",
+    "rows": [
+      8,
+      8,
+      21,
+      21
+    ],
+    "fallback_beats": [
+      "charge",
+      "recover"
+    ]
+  },
+  {
+    "id": "eikthyrnir",
+    "move": "rampage",
+    "rows": [
+      22,
+      7,
+      7,
+      23
+    ],
+    "fallback_beats": [
+      "charge"
+    ]
+  },
+  {
+    "id": "zaro",
+    "move": "dread",
+    "rows": [
+      13,
+      13,
+      5,
+      5
+    ],
+    "fallback_beats": [
+      "start",
+      "recover"
+    ]
+  },
+  {
+    "id": "zaro",
+    "move": "call_family",
+    "rows": [
+      1,
+      2,
+      14,
+      14
+    ],
+    "fallback_beats": [
+      "start",
+      "charge",
+      "recover"
+    ]
+  },
+  {
+    "id": "zaro",
+    "move": "pounce",
+    "rows": [
+      11,
+      11,
+      7,
+      15
+    ],
+    "fallback_beats": [
+      "start"
+    ]
+  },
+  {
+    "id": "zaro",
+    "move": "bite",
+    "rows": [
+      16,
+      2,
+      17,
+      18
+    ],
+    "fallback_beats": [
+      "charge"
+    ]
+  },
+  {
+    "id": "zaro",
+    "move": "howl",
+    "rows": [
+      19,
+      8,
+      8,
+      8
+    ],
+    "fallback_beats": [
+      "strike",
+      "recover"
+    ]
+  },
+  {
+    "id": "zaro",
+    "move": "pack",
+    "rows": [
+      19,
+      8,
+      20,
+      20
+    ],
+    "fallback_beats": [
+      "recover"
+    ]
+  }
+]
+The brief says 23 moves but enumerates 24; all 24 are included.
+Missing beat definitions can fall back to unrelated old shared/own rows. This is a source-level integration observation, not changed by this art delivery.
+Pose accuracy, angular accuracy and visual continuity require visual review; source hashes do not prove those.
+Godot import, runtime and final art acceptance NOT RUN / NOT APPROVED.
+
+FINAL CONTRACT CHECK
+{
+  "boards": 4,
+  "new_rows": 44,
+  "new_cells": 352,
+  "old_prefix_match": {
+    "patriot": true,
+    "rat_king": true,
+    "eikthyrnir": true,
+    "zaro": true
+  },
+  "edge_contact_cells": [],
+  "baked_edge_contact_cells": [
+    [
+      "patriot",
+      19,
+      1
+    ],
+    [
+      "patriot",
+      21,
+      2
+    ],
+    [
+      "patriot",
+      21,
+      3
+    ],
+    [
+      "patriot",
+      23,
+      0
+    ],
+    [
+      "patriot",
+      23,
+      1
+    ],
+    [
+      "patriot",
+      23,
+      6
+    ],
+    [
+      "patriot",
+      27,
+      1
+    ],
+    [
+      "patriot",
+      27,
+      2
+    ],
+    [
+      "patriot",
+      27,
+      7
+    ],
+    [
+      "patriot",
+      28,
+      0
+    ],
+    [
+      "patriot",
+      28,
+      1
+    ],
+    [
+      "patriot",
+      28,
+      2
+    ],
+    [
+      "patriot",
+      28,
+      3
+    ],
+    [
+      "patriot",
+      28,
+      7
+    ],
+    [
+      "patriot",
+      29,
+      1
+    ],
+    [
+      "patriot",
+      29,
+      2
+    ],
+    [
+      "patriot",
+      29,
+      6
+    ],
+    [
+      "patriot",
+      29,
+      7
+    ],
+    [
+      "patriot",
+      30,
+      0
+    ],
+    [
+      "patriot",
+      30,
+      2
+    ],
+    [
+      "patriot",
+      30,
+      3
+    ],
+    [
+      "patriot",
+      30,
+      4
+    ],
+    [
+      "patriot",
+      30,
+      5
+    ],
+    [
+      "patriot",
+      30,
+      6
+    ],
+    [
+      "patriot",
+      30,
+      7
+    ],
+    [
+      "eikthyrnir",
+      21,
+      0
+    ],
+    [
+      "eikthyrnir",
+      21,
+      1
+    ],
+    [
+      "eikthyrnir",
+      21,
+      2
+    ],
+    [
+      "eikthyrnir",
+      21,
+      3
+    ],
+    [
+      "eikthyrnir",
+      21,
+      4
+    ],
+    [
+      "eikthyrnir",
+      21,
+      5
+    ],
+    [
+      "eikthyrnir",
+      21,
+      6
+    ],
+    [
+      "eikthyrnir",
+      21,
+      7
+    ],
+    [
+      "zaro",
+      15,
+      2
+    ],
+    [
+      "zaro",
+      16,
+      0
+    ],
+    [
+      "zaro",
+      16,
+      1
+    ],
+    [
+      "zaro",
+      16,
+      2
+    ],
+    [
+      "zaro",
+      16,
+      3
+    ],
+    [
+      "zaro",
+      16,
+      4
+    ],
+    [
+      "zaro",
+      16,
+      6
+    ]
+  ],
+  "foot_y_counts": {
+    "247": 352
+  },
+  "duplicate_directions": [],
+  "repeated_new_N_cells": [],
+  "sequence_count": 24
+}
+All 4 protected source prefixes match byte-for-byte decoded RGBA. 352 new cells nonempty and max occupied y=247.
+No delivered source cells touch cell edges; placement overflow=0. Anatomical direction, weapon shape, scale, grip and motion continuity are visual review criteria, not proven by these pixel checks.
+
+Required baker: all per-pose <=64x64 fit assertions passed, using common reference scale and translation only. 40 new baked cells contact edges; this is recorded, not hidden or claimed absent.

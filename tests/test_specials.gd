@@ -40,8 +40,10 @@ func run() -> void:
 	game.fixed_market_seed = 77
 	root.add_child(game)
 	await step(8)
-	game.rng.seed = 5
+	game.seed_rng(5)
 	game.gold = 5000000
+	# The rank gifts (test_faction_rewards) would land in this suite's warehouse counts.
+	for f in FactionCatalog.ORDER: game.exchange.rank_gifts[f] = FactionRewards.GIFT_RANKS.duplicate()
 	_catalog()
 	_voyage_fuel()
 	_rumor_ears()
@@ -109,7 +111,7 @@ func _catalog() -> void:
 		FactionSpecials.ITEMS.values().map(func(e): return e[2]).filter(func(d): return d != "farm").size() == 7)
 	rank("karlan", 2)
 	var q := game.exchange.quote_buy("karlan", "高能燃料")
-	check("below its rank a special is not sold: %s" % q.why, not q.ok and q.why == "需要关系 R3")
+	check("below its rank a special is not sold: %s" % q.why, not q.ok and q.why == "需要关系 尊敬")
 	rank("karlan", 3)
 	check("from R3 喀兰 sells 高能燃料", game.exchange.quote_buy("karlan", "高能燃料").ok)
 	check("plain goods need no rank", game.exchange.quote_buy("karlan", "帆布").ok)
@@ -134,7 +136,7 @@ func _catalog() -> void:
 	rank("sami", 2)
 	check("萨米 barters no 冰原苔 below R3", game.barter_count(MaterialCatalog.create("帆布", 5), "萨米冰原苔") == 0)
 	rank("penguin", 1)
-	check("企鹅专递单 needs 企鹅物流 R2", game.slip_refusal() == "需要关系 R2")
+	check("企鹅专递单 needs 企鹅物流 R2", game.slip_refusal() == "需要关系 友好")
 	rank("penguin", 2)
 	var slips := game.material_count("企鹅专递单")
 	var gold := game.gold
@@ -231,7 +233,7 @@ func _farm() -> void:
 	var shelf_before := game.material_count("舰载麦")
 	check("harvest: six units to the warehouse", p.harvest(0) == 6 and game.material_count("舰载麦") == shelf_before + 6 and p.plot(0).is_empty())
 	rank("rhine", 2)
-	check("闪耀作物 needs 莱茵生命 R3 or a seed", p.sow_refusal(1, "闪耀作物") == "需要莱茵生命关系 R3")
+	check("闪耀作物 needs 莱茵生命 R3 or a seed", p.sow_refusal(1, "闪耀作物") == "需要莱茵生命关系 尊敬")
 	rank("rhine", 3)
 	check("from R3 莱茵 sells the seed, R5 the variant", game.exchange.quote_buy("rhine", "闪耀作物种子").ok and not game.exchange.quote_buy("rhine", "闪耀作物·变种种子").ok)
 	give("闪耀作物种子", 2)
@@ -271,7 +273,7 @@ func _kitchen_and_meals() -> void:
 	check("eating one for the next contract", p.eat("舰内口粮") and p.meal() == "舰内口粮" and game.material_count("舰内口粮") == 1)
 	check("another replaces it", p.eat("变种盛宴") and p.meal() == "变种盛宴")
 	rank("penguin", 1)
-	check("the cold chain needs 企鹅物流 R2", p.mail_refusal("舰内口粮") == "需要企鹅物流关系 R2")
+	check("the cold chain needs 企鹅物流 R2", p.mail_refusal("舰内口粮") == "需要企鹅物流关系 友好")
 	rank("penguin", 2)
 	var gold := game.gold
 	check("企鹅物流 carries one to the squads", p.mail("舰内口粮") and p.mailed() == "舰内口粮" and game.gold == gold - Provisions.MAIL_LMD)

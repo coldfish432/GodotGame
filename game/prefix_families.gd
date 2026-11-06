@@ -249,6 +249,7 @@ func static_sheet() -> Dictionary:
 		s[key] = float(s.get(key, 0.0)) + float(PrefixCatalog.FICKLE[key]) * fickle_mult()
 	return s
 
+## How many 诡意 stats are drawn: 1 from tier 1, 2 from tier 5, 3 from tier 6.
 func fickle_count() -> int:
 	var t := tier("fickle")
 	if t <= 0: return 0
@@ -349,7 +350,7 @@ func take_block() -> bool:
 	if tier("rampart") >= 8: _burst(player.global_position, 3.0, player.defense_value() * 2.5, "phys", false, 1.0)
 	return true
 
-## After she loses `amount` of life (家族's threshold).
+## After a hit, given her life ratio before it (家族's threshold).
 func on_hurt(before_ratio: float) -> void:
 	if tier("familial") < 4: return
 	var line := threshold()

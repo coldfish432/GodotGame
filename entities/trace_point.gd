@@ -5,8 +5,8 @@ extends Node3D
 ## 用户 2026-10-17: 整体冒幽幽的光，不明显也不可以隐藏): her own mark on the
 ## ground in the ground's own tones (art/kit/trace_<id>.glb), picked up with E.
 ## It glows faintly all the time: the mark breathes a pale light, a few motes
-## drift up off it, and its glow is baked into the floor's light round it
-## (GameManager, GLOW_RADIUS). No name, not on the minimap.
+## drift up off it, and its glow is one of the floor's work lights round it
+## (GameManager._light_floor, GLOW_RADIUS). No name, not on the minimap.
 ##
 ## 用户 2026-10-22 (优化踪迹的表现形式和效果，可以换建模): each mark now has one
 ## thing of hers in it (赫拉格's snapped sabre tip, 林's umbrella, 德克萨斯's
@@ -15,7 +15,7 @@ extends Node3D
 ## the light swells. Picked up, the motes stream into her and the mark fades.
 
 const MODEL := "res://art/kit/trace_%s.glb"
-## The glow: its colour, its strength in the light map, how far it reaches.
+## The glow: its colour, its strength as a work light, how far it reaches.
 const GLOW := Color(0.45, 0.85, 0.7)
 const GLOW_GAIN := 0.35
 const GLOW_RADIUS := 2.6

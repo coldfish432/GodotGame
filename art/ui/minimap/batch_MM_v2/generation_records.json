@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "id": "route",
+      "color": "#72b8ff",
+      "prompt": "Use case: stylized-concept. Draw ONE ultra-simple minimap symbol as coarse native pixel art enlarged for inspection. Subject: a SINGLE THICK DOWNWARD CHEVRON, a wide letter V shape with its only tip pointing STRAIGHT DOWN at six o'clock. Two thick diagonal light-blue bars join at bottom center. Upper center is OPEN TRANSPARENT NEGATIVE SPACE. NO upward or sideways arrow. NO vertical shaft. NO square, block, chest, stairs, background plate or frame behind it. No other objects. The silhouette is only the downward V, like a down navigation chevron. Logical 16x16 pixel canvas; design colored V inside 10x7 logical pixels, bars 2 logical pixels thick, 1 logical pixel near-black #101418 outline everywhere. Base fill exact #72b8ff light blue, optional ONE pale blue highlight step only. FLAT solid blocks, NO gradients, texture, gloss or glow. Crisp square-pixel stair-step diagonals, no antialiasing, no text. Centered with generous genuine transparent background. This must be unmistakably DOWN at 16 pixels.",
+      "source": "C:\\Users\\yuan\\.codex\\generated_images\\01a19ca1-6066-7912-9024-72b28c13dc09\\exec-cdd46450-c12f-4bfd-8cee-1c88c0dfbb73.png"
+    },
+    {
+      "id": "trace",
+      "color": "#c48cff",
+      "prompt": "ONE minimap footprint SYMBOL: a PAIR OF TWO SHORT WIDE BOOT SOLE PRINTS, diagonally staggered, flat VIOLET #c48cff. Left boot lower left, right boot upper right. Both toes point UP. Each boot print has a broad rounded toe cap, short indented arch, and a broad short flat heel. Each sole squat and broad, length only 1.6 times its width. Show TWO separate distinct FOOT SHAPES, with a 2-logical-pixel transparent gap between them, unmistakably footsteps. Each print is one connected silhouette, NOT separate dot and stick. NO tread grooves, NO fingers or tiny details, NO long shaft, NO bone or club. Entire pair composed on a 16x16 logical pixel canvas, colored footprints 4 pixels wide and 7 pixels tall each, separated and staggered by 3 pixels vertically. Thick coarse PIXEL ART, hard stair-step curves, one-pixel #101418 black outline around each footprint, ONE flat violet fill, no shading. Enlarge the coarse logical pixels for inspection but do NOT add detail, texture or gradients. Transparent background, no ground shadow, no text or captions. Pair of BOOT FOOTPRINTS, minimalist navigation icon.",
+      "source": "C:\\Users\\yuan\\.codex\\generated_images\\01a19ca1-6066-7912-9024-72b28c13dc09\\exec-c47a3942-c73b-4b59-a08d-f25a5e017c11.png"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ extends SceneTree
 ## Named prefixes on screen (装备前缀策划案): ground plates with each prefix in
 ## its grade colour, a tooltip with the prefix lines (and Alt ranges), and the
 ## workbench's 重铸 / 校准 / 精调. ../evidence/prefix-plates.png,
-## prefix-tooltip.png, prefix-workbench.png.
+## prefix-tooltip.png, prefix-workbench.png, prefix-tune.png.
 var rig: Node
 var game: GameManager
 func _initialize() -> void: call_deferred("run")
@@ -74,16 +74,26 @@ func run() -> void:
 	game.inventory.try_add(items[0])
 	game.in_base = true
 	game.gold = 50000
+	game.base.shelf.append(MaterialCatalog.create("研磨石", 3, "mine"))
 	game.open_modal("station")
 	game.open_station("loadout")
 	await step(4)
 	var menu: FieldMenu = game.menu
 	if menu != null:
+		menu.workbench_tab = 1
 		menu.pick = items[0]
 		BaseScreens.departure(menu, "", "loadout")
-	await step(8)
+	await create_timer(1.0).timeout
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://../evidence/prefix-workbench.png")
+	# 精调's line list, with its cost (用户 2026-10-25: 精调换成装置).
+	if menu != null:
+		BaseScreens._tuning = items[0]
+		BaseScreens.departure(menu, "", "loadout")
+	await step(6)
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png("res://../evidence/prefix-tune.png")
+	BaseScreens._tuning = null
 	print("menu found: ", menu != null)
 	rig.queue_free()
 	await create_timer(0.4).timeout

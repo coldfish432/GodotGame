@@ -29,6 +29,9 @@ const TIPS := {
 	"vault": ["密室", "博士，这段墙脚有裂痕与幽光，墙后可能是一间密室。走到墙前按 E 即可破开；室内有稀有物资，也可能有守卫者。", 64.0],
 	"sealed": ["密室守卫者", "密室里的宝箱和藏品已被封印。击败全部守卫者后才能打开，守卫者中有一名精英。", 64.0],
 	"trace": ["踪迹", "检测到干员留下的踪迹。靠近后按交互键调查；同一名干员的踪迹集齐 6 条后，调度台会出现寻访合同。", 48.0],
+	"lost_signal": ["识别信号", "检测到失散的罗德岛干员的识别信号。她就在这一层，位置已标在小地图上。", 0.0],
+	"lost_operator": ["失散干员", "失散的干员被敌人包围了。清理她周围的敌人，然后靠近她按 E。", 60.0],
+	"lost_joined": ["归队", "罗德岛小队已接应干员。她已经归队，之后撤退或倒下都不受影响；她负责的部门可以重新运转了。", 0.0],
 	"recruit": ["寻访目标", "博士，寻访目标就在前方，身边有守卫。击败守卫后按交互键与她会面；成功撤离后，她才会正式加入罗德岛。", 60.0],
 	"handover": ["交接点", "运送合同的交接点。背包或安全袋里带着这张订单的大宗货箱时，按交互键交付；报酬在结算时到账。", 56.0],
 	"fire": ["火堆", "这里有一处火堆。点燃时站在旁边寒冷会持续下降；熄灭了就按交互键，从背包里选燃料添进去。", 56.0],
@@ -71,7 +74,7 @@ const TIPS := {
 	"base_stash": ["仓管台", "仓管台管理仓库。所有物品共用仓库容量，一格放一件装备或一组材料；仓储部升级会提高容量和材料的单格堆叠数量。点击物品带入背包，拖动背包里的物品即可存回。", 60.0],
 	# The dispatch desk's screen, in two (BaseScreens.contracts' columns).
 	"dispatch_contract": ["合同委托", "右侧是这份合同的详情：地区、掉落和合同目标。选好一项目标后点击最终准备，确认干员与装备即可出击。完成目标并撤离可以获得对应的龙门币报酬。", 0.0],
-	"dispatch_floors": ["层数与撤离", "中间是本次行动的层数，每 10 层为一段。标黄的第 %d–%d 层中必有一层设有撤离信标；第 10 层是前哨据点（每 20 层是首领战场），之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。", 0.0],
+	"dispatch_floors": ["层数与撤离", "中间是本次行动的层数，每 10 层为一段。第 %d–%d 层中必有一层设有撤离信标；第 10 层是前哨据点（每 20 层是首领战场），之后是营地，营地设有固定撤离点，也可以在可露希尔处补给。", 0.0],
 	# The route map (肉鸽路线图策划案 v0.2 §7), the first time it opens.
 	"route_map": ["路线图", "每 10 层是一张路线图，每一列是一层。只看得清下一层；再下一层只显示是作战还是遭遇，更远的只标出撤离信标与合同目标。不同节点的层内内容不同，选好后点击前进。", 0.0],
 	"base_outbound": ["出库区", "各部门把需要的物资写成订单挂在这里。交付货架或背包里的物品完成订单，就能获得龙门币；也可以把物品直接卖给可露希尔。", 60.0],
@@ -81,6 +84,9 @@ const TIPS := {
 	"base_exchange": ["交易所", "交易所终端可以买卖九大势力的商品，查看行情与新闻，下现货、挂单、远期和差价合约。交易所需要先建成才能使用。", 64.0],
 	"base_workshop": ["加工站", "加工站用材料和龙门币加工成品，按现实时间计时，完成后直接入库。", 60.0],
 	"base_personnel": ["人事部", "人事部记录各位干员的寻访进度：从发现踪迹到可以寻访、正式入职。", 56.0],
+	"base_roster": ["特派干员", "突围时失散的特派干员。失散的一栏写着她最后的信号来自哪个地区、哪几层。", 0.0],
+	"base_locked": ["负责干员失散", "这个部门的负责干员还没有归队。找到她，部门才能重新运转。", 0.0],
+	"base_dept_return": ["归队的干员", "归队的干员回到了罗德岛，会在舰上走动。她负责的部门可以重新运转了。", 0.0],
 	"base_sand_table": ["沙盘", "沙盘上可以指挥罗德岛号航行到各地，开启医疗驻留提升当地关系，或者提交、装箱大宗订单。航行按现实时间进行。", 72.0],
 	"base_research": ["科研部", "科研终端用龙门币和材料推进研究，按现实时间进行。研究可以带来各种长期加成，部分课题需要先完成前置研究。", 60.0],
 	"base_hub": ["基建总控台", "基建总控台需要先建成。之后，每个设施接入总控台，就能在这里远程查看和购买它的升级。", 64.0],
@@ -245,8 +251,8 @@ func screen_opened(kind: String) -> void:
 		return
 	request("base_" + kind)
 
-## The three departure stations in one card; the 后勤柜台's own card is then
-## not needed (it says the same).
+## The three departure stations ringed at once, a card beside each; the
+## 后勤柜台's own first-visit card (base_insurance) is then marked seen.
 func _show_departure() -> void:
 	var main: Dictionary = game.base_map.station(str(DEPARTURE[0][0]))
 	if main.is_empty(): return
@@ -322,7 +328,7 @@ const THREAT_AT := 0.4
 const FEATURE_AT := 20.0
 func _watch_events() -> void:
 	if game.in_base or not is_instance_valid(game.player): return
-	if game.in_camp:
+	if game.in_camp and game.modal == "camp":
 		request("camp")
 		return
 	if not game.simulation_active(): return
@@ -353,12 +359,20 @@ func base_station() -> Dictionary:
 	var at: Vector3 = station.get("position", game.player.global_position)
 	return {"id": id, "at": at + Vector3.UP * 0.6}
 
+## Every kind candidates() can name.
+const SIGHT_KINDS := ["vault", "sealed", "recruit", "lost_operator", "handover", "boss", "mine", "trace", "fire", "trap", "shower",
+	"event", "campfire", "extraction", "route", "device", "trader", "squad", "post", "cache", "leader", "elite", "sentinel", "patrol", "heal_orb"]
+
 ## The first tip not yet seen whose thing is on screen and near her.
 func first_in_sight() -> Dictionary:
+	var done := {}
+	for id in SystemScreens.settings.get("tutorial_seen", []): done[str(id)] = true
+	# Every kind seen: nothing on the floor could show.
+	if SIGHT_KINDS.all(func(kind): return done.has(kind)): return {}
 	var player_at := game.player.global_position
 	for entry in candidates():
 		var id: String = entry[0]
-		if seen(id): continue
+		if done.has(id): continue
 		var at: Vector3 = entry[1]
 		var reach := TRAP_RANGE if id == "trap" else SEE_RANGE
 		var flat := at - player_at
@@ -379,6 +393,7 @@ func candidates() -> Array:
 		var chest := node as LootContainer
 		if chest != null and chest.game == game and chest.sealed: out.append(["sealed", chest.global_position])
 	if is_instance_valid(game.recruit_node) and game.recruit_node.visible and not game.recruit_met: out.append(["recruit", game.recruit_node.global_position])
+	if is_instance_valid(game.lost_node) and game.lost_node.visible and not game.base.lost_back(game.lost_id): out.append(["lost_operator", game.lost_node.global_position + Vector3.UP * 0.6])
 	if is_instance_valid(game.handover_node) and game.handover_node.visible and not game.cargo_delivered: out.append(["handover", game.handover_node.global_position])
 	if is_instance_valid(game.arena):
 		for node in get_tree().get_nodes_in_group("bosses"):

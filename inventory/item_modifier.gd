@@ -319,6 +319,7 @@ func describe() -> String:
 			return "近战冷却 " + pct(amount)
 		Stat.GOLD_GAIN_PCT:
 			return "赤金获取 " + pct(amount)
+		# Shown as healing, but potion_cap is read by nothing (BaseCatalog.POTION_HEAL_PER_CAP).
 		Stat.POTION_CAPACITY_FLAT:
 			return "药剂回复 %+d%%" % roundi(amount * BaseCatalog.POTION_HEAL_PER_CAP * 100.0)
 		Stat.ATTACK_SPEED_PCT:

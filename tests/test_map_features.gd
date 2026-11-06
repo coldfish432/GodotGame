@@ -121,7 +121,7 @@ func _snow() -> void:
 	game.inventory.add_stack(can)
 	check("a 自热罐头 takes 30 off", game.use_supply(can) and is_equal_approx(game.features.value("cold"), 20.0))
 	game.features.values.cold = 70.0
-	game._enter_camp()
+	await game._enter_camp()
 	check("a camp clears the cold", game.features.value("cold") == 0.0 and game.player.cold == 0.0)
 	game.menu.camp_tab = 6
 	game.menu.show_camp()
@@ -179,7 +179,7 @@ func _mine() -> void:
 	# The camp's 处理.
 	game.run_contamination = 50.0
 	game.inventory.add_stack(MaterialCatalog.create(Economy.GOLD_ID, 10))
-	game._enter_camp()
+	await game._enter_camp()
 	var dose := game.run_contamination
 	var bars := game.gold_available()
 	check("营地处理: −30 for 3 赤金", game.camp_cleanse() and is_equal_approx(game.run_contamination, dose - 30.0) and game.gold_available() == bars - 3)
@@ -232,7 +232,7 @@ func _siracusa() -> void:
 	game.inventory.add_stack(letter)
 	check("a 中间人信物 takes 20 off", game.use_supply(letter) and is_equal_approx(game.features.value("debt"), 55.0))
 	game.inventory.add_stack(MaterialCatalog.create(Economy.GOLD_ID, 10))
-	game._enter_camp()
+	await game._enter_camp()
 	var bars := game.gold_available()
 	check("赔偿金: −10 for 2 赤金", game.camp_pay_debt() and is_equal_approx(game.features.value("debt"), 45.0) and game.gold_available() == bars - 2)
 	check("the next one costs 3", game.features.camp_debt_price() == 3 and game.camp_pay_debt() and game.gold_available() == bars - 5)

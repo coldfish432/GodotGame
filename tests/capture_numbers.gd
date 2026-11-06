@@ -24,7 +24,7 @@ func run() -> void:
 	game = find_game(rig)
 	game.exchange.relations["karlan"] = Exchange.RANK_AT[3]
 	game.exchange.relations["lungmen"] = Exchange.RANK_AT[3]
-	ExchangeScreen.tab = 3
+	ExchangeScreen.tab = 4
 	game.open_station("exchange")
 	await capture("exchange-money")
 	ExchangeScreen.tab = 0

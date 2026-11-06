@@ -4,7 +4,7 @@ extends Node3D
 ## A patch of ground that hurts (装备扩充策划案 §2.1, §7): a burning bottle's
 ## fire, the red circle before a volatile slug bursts. `fuse` seconds of warning
 ## first; then either one burst (`lasting` 0) or a tick every TICK seconds for
-## `lasting` seconds. Hits Lappland inside it, and other enemies too when
+## `lasting` seconds. Hits the player inside it, and other enemies too when
 ## `hurts_enemies` (高能源石虫's blast is 敌我都伤).
 
 const TICK := 0.5
@@ -37,6 +37,12 @@ func _ready() -> void:
 	_disc.emission_energy = 0.4
 	_disc.modulate = colour if fuse <= 0.0 else Color(0.95, 0.2, 0.15, 0.3)
 	add_child(_disc)
+	# A burning fire gets flames over the scorch (A5); a fused blast does not.
+	# Under it the scorch goes dark and dim, so the flames carry the colour.
+	if fuse <= 0.0 and lasting > 0.0:
+		_disc.modulate = Color(0.55, 0.2, 0.08, 0.4)
+		_disc.emission_energy = 0.12
+		add_child(FireFlame.new())
 	if fuse > 0.0:
 		# The fuse is a warning like any other: see-through red with rings
 		# counting down to the burst (新敌人攻击案 v1.2).

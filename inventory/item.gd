@@ -6,7 +6,8 @@ class_name Item
 ## 装备部位拆分与数值案 v1.0 (用户 2026-10-21): eight slots. ARMOR and TRINKET
 ## stay for saves and for the three warehouse/order groups (group_of); new
 ## gear is always one of the eight slots. Appended so saved ids keep meaning.
-enum Category { WEAPON, ARMOR, TRINKET, MATERIAL, HEAD, CHEST, HANDS, LEGS, FEET, AMULET, RING }
+## 收藏品 and 整理箱 (整理箱与收藏品策划案 v0.2) come last for the same reason.
+enum Category { WEAPON, ARMOR, TRINKET, MATERIAL, HEAD, CHEST, HANDS, LEGS, FEET, AMULET, RING, COLLECTIBLE, CASE }
 ## The paper doll's slots, in Grim Dawn's reading order.
 const SLOTS := [Category.WEAPON, Category.HEAD, Category.CHEST, Category.HANDS, Category.LEGS, Category.FEET, Category.AMULET, Category.RING]
 const ARMOR_SLOTS := [Category.HEAD, Category.CHEST, Category.HANDS, Category.LEGS, Category.FEET]
@@ -31,7 +32,7 @@ const LEGEND_COLOR := Color("ff4f4f")
 const OLD_RARITY := [GREY, BLUE, PURPLE]
 const OLD_GOLD_ORANGE := 0.75
 const OLD_BANDS := [[0.6, 0.8], [0.9, 1.1], [1.2, 1.4]]
-const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料", "头部", "胸甲", "手部", "腿部", "脚部", "项链", "戒指"]
+const CATEGORY_NAMES := ["武器", "防具", "饰品", "材料", "头部", "胸甲", "手部", "腿部", "脚部", "项链", "戒指", "收藏品", "整理箱"]
 
 ## What its tooltip and shop rows call it: flasks are 医疗品 (用户 2026-10-24:
 ## 药的标签现在是材料，改为医疗品), everything else its category.
@@ -112,6 +113,18 @@ static func is_jewel_slot(category: int) -> bool:
 ## Turned a quarter in a grid (用户 2026-10-24: 物体可以旋转): width and height
 ## are the turned footprint; the icon is drawn turned too.
 @export var rotated: bool = false
+## A 整理箱 (整理箱与收藏品策划案 v0.2 §2): its kind ("material", "collectible",
+## "potion", "gear"), its level 1–4 and what it holds. A 收藏品礼包 (§3.1) holds
+## its collectibles here too. Empty for everything else.
+var case_kind := ""
+var case_tier := 0
+var contents: ItemContainer = null
+
+func is_case() -> bool:
+	return category == Category.CASE and contents != null
+
+func is_collectible() -> bool:
+	return category == Category.COLLECTIBLE
 
 ## Turns it a quarter: the footprint swaps, the icon turns with it.
 func rotate() -> void:
@@ -139,9 +152,11 @@ func power_position() -> float:
 
 var grid_x: int = -1
 var grid_y: int = -1
+## Which page of a paged container (the pack and its bags) it lies on.
+var grid_page: int = 0
 
 func is_equippable() -> bool:
-	return category != Category.MATERIAL
+	return category in SLOTS or category == Category.ARMOR or category == Category.TRINKET
 
 func is_potion() -> bool:
 	return not potion_type.is_empty()
@@ -202,7 +217,7 @@ func stack_suffix() -> String:
 
 func display_name() -> String:
 	# Materials read their rarity off the ladder's colour, not a ★ (§2.6).
-	if not material_id.is_empty(): return item_name
+	if not material_id.is_empty() or category == Category.COLLECTIBLE or category == Category.CASE: return item_name
 	var quality: String = {"special": "特殊", "exclusive": "专属", "set": "套装", "boss": "首领"}.get(named_kind(), "专属" if is_legend() else RARITY_NAMES[clampi(rarity, 0, RARITY_MAX)])
 	return quality + " · " + PrefixCatalog.name_part(self) + item_name
 
@@ -255,16 +270,19 @@ func to_data() -> Dictionary:
 	var mods: Array = []
 	for mod in modifiers:
 		mods.append({"stat": mod.stat, "amount": mod.amount, "trigger": mod.trigger, "tier": mod.tier, "mid": mod.mid, "scale": mod.scale, "band": mod.band})
-	return {"uid": uid, "name": item_name, "category": category, "width": width, "height": height,
+	var data := {"uid": uid, "name": item_name, "category": category, "width": width, "height": height,
 		"power": power, "rarity": rarity, "value": value, "region": exclusive_region, "origin": origin_region, "effect": effect,
 		"description": description, "mods": mods, "insured": insured, "carried_in": carried_in, "special": special, "base": base_id,
 		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type, "grade": grade,
-		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count, "atk_share": atk_share, "rot": rotated, "gx": grid_x, "gy": grid_y,
+		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count, "atk_share": atk_share, "rot": rotated, "gx": grid_x, "gy": grid_y, "gp": grid_page,
 		"tiers": 3, "slots": 3, "ladder": 1}
+	# A 整理箱 or a 收藏品礼包 keeps what it holds.
+	if contents != null: data["case"] = {"kind": case_kind, "tier": case_tier, "w": contents.width, "h": contents.height, "items": contents.items.map(func(x): return x.to_data())}
+	return data
 
 static func from_data(data: Dictionary) -> Item:
 	var item := create(str(data.get("name", "物品")), int(data.get("category", 3)) as Category,
-		clampi(int(data.get("width", 1)), 1, 10), clampi(int(data.get("height", 1)), 1, 6), float(data.get("power", 0)))
+		clampi(int(data.get("width", 1)), 1, 10), clampi(int(data.get("height", 1)), 1, 10), float(data.get("power", 0)))
 	item.uid = str(data.get("uid", item.uid))
 	item.rarity = int(data.get("rarity", 0))
 	item.value = int(data.get("value", 10))
@@ -277,6 +295,9 @@ static func from_data(data: Dictionary) -> Item:
 	item.special = str(data.get("special", ""))
 	item.base_id = str(data.get("base", ""))
 	item.material_id = str(data.get("material", ""))
+	if MaterialCatalog.RENAMED.has(item.material_id):
+		item.material_id = MaterialCatalog.RENAMED[item.material_id]
+		item.item_name = item.material_id
 	item.max_stack = maxi(1, int(data.get("max_stack", 1)))
 	item.unit_value = int(data.get("unit_value", 0))
 	item.potion_type = str(data.get("potion", ""))
@@ -315,6 +336,19 @@ static func from_data(data: Dictionary) -> Item:
 	item.rotated = bool(data.get("rot", false))
 	item.grid_x = int(data.get("gx", -1))
 	item.grid_y = int(data.get("gy", -1))
+	item.grid_page = int(data.get("gp", 0))
+	# A collectible's worth is its table's (saves from before 2026-10-26 kept it 100× over).
+	if item.category == Category.COLLECTIBLE and Collectibles.ITEMS.has(item.base_id):
+		item.value = int(Collectibles.ITEMS[item.base_id].value) / Economy.LMD_PER_VALUE
+		item.rarity = int(Collectibles.ITEMS[item.base_id].rarity)
+	var held: Variant = data.get("case")
+	if held is Dictionary:
+		item.case_kind = str(held.get("kind", ""))
+		item.case_tier = int(held.get("tier", 1))
+		item.contents = ItemContainer.new(maxi(1, int(held.get("w", 1))), maxi(1, int(held.get("h", 1))))
+		for inner in held.get("items", []):
+			var piece := Item.from_data(inner)
+			if not item.contents.place(piece, piece.grid_x, piece.grid_y): item.contents.try_add(piece)
 	for entry in data.get("prefixes", []):
 		if entry is Dictionary and PrefixCatalog.all().has(str(entry.get("id", ""))):
 			var rolls := {}

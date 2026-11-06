@@ -100,8 +100,8 @@ func _rules() -> void:
 	check("records by kill count: 10 normals → 1 basic, elite → 初级, leader → 中级, boss → 高级 (零头作废)",
 		r == {"基础作战记录": 2, "初级作战记录": 3, "中级作战记录": 1, "高级作战记录": 2}, r)
 	check("record exp is PRTS halved", Progression.RECORD_EXP == {"基础作战记录": 100, "初级作战记录": 200, "中级作战记录": 500, "高级作战记录": 1000})
-	check("promotion recipes are PRTS 拉普兰德's (龙门币 ×0.84)", Progression.PROMOTION[1] == {"lmd": 22000, "materials": {"近卫芯片": 4, "装置": 3, "固源岩": 4}}
-		and Progression.PROMOTION[2] == {"lmd": 168000, "materials": {"近卫双芯片": 3, "改量装置": 6, "异铁组": 10}})
+	check("promotion recipes are PRTS 拉普兰德's (龙门币 ×0.84)", Progression.PROMOTION[1] == {"lmd": 22000, "materials": {"芯片": 4, "装置": 3, "固源岩": 4}}
+		and Progression.PROMOTION[2] == {"lmd": 168000, "materials": {"双芯片": 3, "改量装置": 6, "异铁组": 10}})
 	var sums := []
 	for id in Progression.START:
 		var total := 0
@@ -183,13 +183,13 @@ func _base_actions() -> void:
 	check("promotion needs the level cap", game.promotion_refusal() == "需要等级 60")
 	g.add_exp(100000000)
 	check("then the materials", game.promotion_refusal().begins_with("缺少"))
-	stock("近卫芯片", 4)
+	stock("芯片", 4)
 	stock("装置", 3)
 	stock("固源岩", 4)
-	check("promotion takes 龙门币 and materials", game.promote_operator() and g.elite == 1 and game.gold == 100000 - feed_cost - int(Progression.PROMOTION[1].lmd) and game.material_count("近卫芯片") == 0)
-	stock("近卫芯片组", 2)
+	check("promotion takes 龙门币 and materials", game.promote_operator() and g.elite == 1 and game.gold == 100000 - feed_cost - int(Progression.PROMOTION[1].lmd) and game.material_count("芯片") == 0)
+	stock("芯片组", 2)
 	stock("芯片助剂", 1)
-	check("双芯片 is crafted from 芯片组 ×2 + 芯片助剂", game.craft("近卫双芯片") and game.material_count("近卫双芯片") == 1 and game.material_count("近卫芯片组") == 0)
+	check("双芯片 is crafted from 芯片组 ×2 + 芯片助剂", game.craft("双芯片") and game.material_count("双芯片") == 1 and game.material_count("芯片组") == 0)
 	var hp_before := game.player.max_hp
 	var share := _hp_share()
 	g.attribute_points = 5

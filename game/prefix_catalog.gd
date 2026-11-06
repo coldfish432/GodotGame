@@ -3,13 +3,14 @@ extends RefCounted
 
 ## Named prefixes (装备前缀策划案_v1_1.md): a Terraria-style package of stats
 ## written into the item's name, "致命的·狂暴的·断镐战斧". Every piece of gear
-## except set pieces rolls one, sometimes two (§2.3). Each stat line rolls
+## except set pieces and Rhodes standard gear rolls one, sometimes two (§2.3). Each stat line rolls
 ## within 80–120% of the table value (§2.8); an item keeps the multiplier per
 ## line ("rolls"), so ranges and refreshes work from the table.
 ##
 ## stats: keys added straight into the player's sheet (CombatStats.KEYS).
-## fx: conditional effects read by Player (fx_* below), summed like relic fx.
-## No prefix deals damage of its own: attack effects belong to special gear.
+## fx: conditional effects (fx_of, read by Player), summed like relic fx; no
+## prefix in the table has any now — they moved into the effect families
+## (PrefixFamilies).
 
 const W := "W"
 const A := "A"

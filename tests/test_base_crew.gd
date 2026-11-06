@@ -24,9 +24,15 @@ func find_game(node: Node) -> GameManager:
 func run() -> void:
 	var missing := BaseCrew.CREW.filter(func(id): return LapplandAnimator3D.sheet(id, "walk") == null)
 	check("the crew are known to the animator", BaseCrew.CREW.all(func(id): return id in LapplandAnimator3D.CREW))
-	check("only crew with sheets walk", BaseCrew.pool().size() == BaseCrew.CREW.size() - missing.size())
+	# 失散干员 (用户 2026-11-01: 基地里只走已获得和找回的干员): the ones on board and the special operators back; no reserve.
+	var walkable := BaseCrew.CREW.filter(func(id): return (id in BaseCrew.ON_BOARD or LostCatalog.valid(id)) and not id in missing)
+	check("only crew with sheets walk, and no reserve operators", BaseCrew.pool().size() == walkable.size() and not BaseCrew.pool().any(func(id): return str(id).begins_with("reserve_")))
+	var fresh := BaseState.new()
+	fresh.start_locked()
+	check("a new save: only the ones on board walk", BaseCrew.pool(fresh).all(func(id): return id in BaseCrew.ON_BOARD))
 	# 杜宾 and 凯尔希 (ST1b) walk once Sol's sheets are baked; until then they stay out.
-	var pending := ["dobermann", "kaltsit"].filter(func(id): return id in missing)
+	# 电弧 (CR4) likewise, once hers are in.
+	var pending := ["dobermann", "kaltsit", "raidian"].filter(func(id): return id in missing)
 	check("all 15 CR crew and the Doctor have their sheets", missing.all(func(id): return id in pending) and LapplandAnimator3D.has_sheets("doctor"))
 	check("an ST1b one without sheets never walks", pending.all(func(id): return not id in BaseCrew.pool()))
 	var rig: Node = load("res://game/main.tscn").instantiate()
@@ -35,6 +41,9 @@ func run() -> void:
 	await step(20)
 	game = find_game(rig)
 	var crew: BaseCrew = game.base_map.crew
+	check("the crew follow the save", crew.base == game.base)
+	# Everyone back (a new save has only the two on board), so seven can walk.
+	game.base.lost_found.assign(LostCatalog.LOST.keys())
 	for i in range(30):
 		if not crew.walkers.is_empty(): break
 		await step(5)

@@ -4,7 +4,7 @@ extends RefCounted
 ## Drag-and-drop on the base screens (用户 2026-10-21: 所有物品转移都实现拖拽):
 ## the workbench, the depot, a camp's 寄存. A dragged item travels as
 ## {"carry": item}; each target says what it takes and what dropping does.
-## The field I window has its own (InventoryPanel); the traders use trade_buy /
+## The field B window has its own (InventoryPanel); the traders use trade_buy /
 ## trade_sell payloads (TraderScreen).
 
 static func payload(item: Item) -> Dictionary:

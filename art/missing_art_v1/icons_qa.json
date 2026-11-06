@@ -1,0 +1,33 @@
+{
+  "passed": 2,
+  "checks": [
+    {
+      "id": "solid_fuel",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "hard_alpha": true,
+      "sha256": "070539702295ccdd4978e43128c7a8f5a137c15873d6bb85ad9f1ae4615bb00d",
+      "status": "PASS"
+    },
+    {
+      "id": "medical_supplies",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "hard_alpha": true,
+      "sha256": "de376ef0d2443c3e5f2ef8b6b33fa564124ff996073a78540f1d0855ac9f6001",
+      "status": "PASS"
+    }
+  ],
+  "runtime_validation": "NOT_RUN",
+  "delivery": {
+    "count": 2,
+    "hash_match": true,
+    "existing_icons_preserved": true
+  }
+}

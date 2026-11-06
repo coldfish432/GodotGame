@@ -53,11 +53,22 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(game) or not game.simulation_active(): return
 	var remaining := minf(speed * delta, max_range - travelled)
+	# One ray over the whole frame's flight: when it is clear and no substep
+	# point sits low enough for line_of_sight to lift it off the ground, every
+	# substep ray lies on that clear ray, so the substeps skip theirs.
+	var clear := false
+	var low := _lifted(global_position)
+	if remaining > 0.00001 and not low:
+		var end := global_position + direction * remaining
+		clear = not _lifted(end) and game.line_of_sight(global_position, end)
 	# Short substeps give walls priority without missing a nearer player.
 	while remaining > 0.00001:
 		var distance := minf(0.08, remaining)
 		var next := global_position + direction * distance
-		if not game.line_of_sight(global_position, next):
+		var next_low := _lifted(next) if clear else true
+		var skip := clear and not low and not next_low
+		low = next_low
+		if not skip and not game.line_of_sight(global_position, next):
 			if kind == "arrow": EnemyAttackVfx.spawn(game, global_position, direction, "wood")
 			queue_free()
 			return
@@ -78,3 +89,7 @@ func _physics_process(delta: float) -> void:
 		travelled += distance
 		remaining -= distance
 	if travelled >= max_range - 0.0001: queue_free()
+
+## Whether line_of_sight would raise this point to 0.7 over the ground.
+func _lifted(point: Vector3) -> bool:
+	return game.ground_y(point) + 0.7 > point.y

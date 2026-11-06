@@ -1,6 +1,6 @@
 // A thin dark line where depth or normals break, so the modelled scene
 // carries the same outline as the baked pixel sprites (场景渲染统一改造案_v1
-// §4.5). A full-screen quad on the camera; GameManager shows it in the base.
+// §4.5). A full-screen quad on the camera; GmLook shows it in the base.
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, depth_test_disabled, cull_disabled, shadows_disabled;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;

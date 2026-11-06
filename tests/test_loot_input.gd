@@ -96,7 +96,7 @@ func run() -> void:
 		await step()
 	check("赤金 is taken the same way", game.gold_bars() == before + 7)
 	# A filtered drop: no plate until Alt is held, then clickable.
-	game.pickup_filter = 2
+	SystemScreens.settings["loot_rarity"] = Item.PURPLE
 	var common := LootTables.roll_equipment(Item.Category.ARMOR, "x", "mine", 1, 0, game.rng)
 	var d := spawn(common, p.global_position + Vector3(-2.5, 0, 0), p.global_position + Vector3.UP)
 	await step(30)
@@ -115,7 +115,7 @@ func run() -> void:
 		if not is_instance_valid(d) or d.is_queued_for_deletion(): break
 		await step()
 	check("and a click takes it", game.inventory.items.has(common))
-	game.pickup_filter = 0
+	SystemScreens.settings["loot_rarity"] = 0
 	print("LOOT_INPUT: %d failures" % failures)
 	game.settle(true)
 	await create_timer(0.3).timeout

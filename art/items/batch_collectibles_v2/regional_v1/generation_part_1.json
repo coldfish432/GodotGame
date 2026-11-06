@@ -1,0 +1,66 @@
+{
+  "col_teahouse_chip": {
+    "id": "col_teahouse_chip",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e1ba1f6-9d67-40e2-a0ff-2d5e251a8d37.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e1ba1f6-9d67-40e2-a0ff-2d5e251a8d37.png",
+    "prompt": "undefinedSubject: One round old wooden teahouse token, warm brown with dark edge and a single large carved Chinese character 茶 at center, slightly tilted three-quarter to show thickness. Humble worn token, no UI frame. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_lmd_specimen": {
+    "id": "col_lmd_specimen",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e99a610-52b5-40bc-8d43-fde08d0b3243.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-0e99a610-52b5-40bc-8d43-fde08d0b3243.png",
+    "prompt": "undefinedSubject: One old pale jade-green Lungmen banknote folded slightly into a compact square icon, visible architectural portrait block and large red Chinese stamp 样本 across its face. Paper only, no coins or extra objects. Final target 32x32 pixels: keep a compact square silhouette. Rarity white: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_mahjong": {
+    "id": "col_mahjong",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-04e181e6-f42f-4553-8099-72a378f87058.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-04e181e6-f42f-4553-8099-72a378f87058.png",
+    "prompt": "undefinedSubject: One small long horizontal open dark wooden mahjong case, its shallow lid behind a single clear row of ivory mahjong tiles with simple green and red characters and dot patterns, tiny brass clasp. Wide low silhouette. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_radio": {
+    "id": "col_radio",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9b9ce06b-2017-4937-b10f-e05cc14c61dd.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-9b9ce06b-2017-4937-b10f-e05cc14c61dd.png",
+    "prompt": "undefinedSubject: One squat horizontal vintage rectangular dark wood radio, one large woven warm gray speaker grille, two ivory tuning knobs and a small narrow tuning display, worn brass accents. Wide low silhouette. Final target 72x32 pixels: keep a wide low horizontal silhouette. Rarity green: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_lion_dance": {
+    "id": "col_lion_dance",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-8c3512e1-8117-405f-b575-690d73343b19.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-8c3512e1-8117-405f-b575-690d73343b19.png",
+    "prompt": "undefinedSubject: One tall narrow ornamental Chinese lion dance miniature, oversized red and gold lion head with big round white-rimmed eyes, red mouth, short trailing red fabric body on a tiny integral wood stand. Expressive ornate traditional lion, upright. Final target 32x72 pixels: keep a tall narrow upright silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_yan_teapot": {
+    "id": "col_yan_teapot",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-ce4be8ac-cc2f-4a05-9590-5f1c91eb24d2.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-ce4be8ac-cc2f-4a05-9590-5f1c91eb24d2.png",
+    "prompt": "undefinedSubject: One round Chinese blue-and-white porcelain teapot, short curved spout to left and loop handle to right, fitted lid, broad simple cobalt floral patterns on white ceramic, clean glazed highlights. Teapot only, no cups. Final target 72x72 pixels: keep a compact square silhouette. Rarity blue: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  },
+  "col_lgd_medal": {
+    "id": "col_lgd_medal",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-86b1076e-d6ac-476d-96a2-421126dc34a6.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-6b0c87c5-b0c5-4fbf-b992-4983f56958cb.png",
+    "prompt": "undefinedSubject: One fine silver Lungmen Guard Department commemorative badge, angular stylized dragon-police insignia in polished silver and dark blue enamel, short deep navy ribbon above. Compact square, elegant official workmanship. Final target 32x32 pixels: keep a compact square silhouette. Rarity purple: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": "Use case: background-extraction. Edit this exact inventory icon. REMOVE ALL BLUE OR PURPLE BACKDROP OUTSIDE THE OBJECT and every external cast shadow. Output the existing object as a clean isolated PNG cutout on fully transparent alpha background. Keep object shape, all internal colors and lines unchanged, including blue enamel inside the medal or blue watch hands. Preserve internal openings between chain links and the crown ring as transparent holes. No background gradient, no square, no glow or scene. Keep the full object inside the canvas with clear transparent margins. Do not add anything. TRUE TRANSPARENT BACKGROUND."
+  },
+  "col_jade_pendant": {
+    "id": "col_jade_pendant",
+    "generator": "built-in image_gen",
+    "source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-948b055f-13ef-40a7-a42c-5a20bd6a35e5.png",
+    "initial_source_path": "C:\\Users\\yuan\\.codex\\generated_images\\01a1767b-d866-7131-ae81-ec43494dda91\\exec-948b055f-13ef-40a7-a42c-5a20bd6a35e5.png",
+    "prompt": "undefinedSubject: One precious circular green jade bi-disc pendant with a clearly open round hole in the center, translucent mottled green jade and a short looped red silk cord threaded through it, polished antique workmanship. Compact square. Final target 32x32 pixels: keep a compact square silhouette. Rarity red: express through material workmanship only. Bold outer ink contour, broad FLAT painted colors, clean illustrative shapes, minimal surface texture. Large readable features; no fine gritty photographic detail.",
+    "repair_prompt": null
+  }
+}

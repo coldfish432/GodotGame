@@ -50,6 +50,51 @@ func weapon(power: float, rarity: int = 1) -> Item:
 	item.rarity = rarity
 	return item
 
+## The main pack and its bags (用户 2026-11-02, 恐怖黎明): a full page spills
+## onto the next, a tab takes a dragged item, pages survive a save, and an old
+## save's taller pack finds room.
+func _pages() -> void:
+	var bag := game.inventory
+	var kept := bag.items.duplicate()
+	bag.items.clear()
+	for i in range(60): bag.try_add(Item.create("填充", Item.Category.TRINKET, 1, 1, 1.0))
+	var spill := Item.create("溢出", Item.Category.TRINKET, 1, 1, 1.0)
+	check("a full main page spills onto the first bag", bag.try_add(spill) and spill.grid_page == 1 and bag.items_on(0).size() == 60)
+	check("items on another page do not block a cell", bag.can_place(Item.create("x", Item.Category.TRINKET, 1, 1, 1.0), spill.grid_x, spill.grid_y, 2))
+	check("moving to a page takes its first free spot", bag.move_to_page(spill, 2) and spill.grid_page == 2 and spill.grid_x == 0 and spill.grid_y == 0)
+	check("a page is saved with the item", Item.from_data(spill.to_data()).grid_page == 2)
+	bag.items.clear()
+	var loose := Item.create("散件", Item.Category.TRINKET, 1, 1, 1.0)
+	bag.try_add(loose)
+	game.toggle_panel("inventory")
+	await step()
+	AK.show_page(bag, 0)
+	panel()._rebuild()
+	await step()
+	var tab: Button = _find(panel(), func(n): return n is AK.PageTab and n.page == 1)
+	var drag := {"item": loose, "from": bag, "grab": Vector2.ZERO}
+	check("the pack shows a tab per page", tab != null and _find(panel(), func(n): return n is AK.PageTab and n.page == 2) != null)
+	if tab != null:
+		check("a tab accepts a dragged item", tab._can_drop_data(Vector2.ZERO, drag))
+		tab._drop_data(Vector2.ZERO, drag)
+		await step()
+		check("and sends it to that page", loose.grid_page == 1 and bag.items.has(loose))
+		tab = _find(panel(), func(n): return n is AK.PageTab and n.page == 1)
+		tab.pressed.emit()
+		await step()
+		check("clicking a tab shows that page", grid_for(bag).page == 1 and _find(grid_for(bag), func(n): return n is InventoryPanel.ItemTile and n.item == loose) != null)
+	AK.show_page(bag, 0)
+	game.close_modal()
+	bag.items.clear()
+	var deep := Item.create("旧档下层", Item.Category.TRINKET, 1, 1, 1.0)
+	deep.grid_x = 11
+	deep.grid_y = 7
+	bag.items.append(deep)
+	bag.set_pages(BaseCatalog.PACK_PAGES[2])
+	check("an old save's cell outside the main page finds room", bag.items.has(deep) and deep.grid_x < 10 and deep.grid_y < 6)
+	bag.items.clear()
+	for item in kept: bag.try_add(item)
+
 func run() -> void:
 	game = GameManager.new()
 	game.save_enabled = false
@@ -200,14 +245,13 @@ func run() -> void:
 	var flask := BaseCatalog.create_potion("C")
 	game.inventory.add_stack(flask)
 	var hud: Hud = game._hud
-	var ui_at := hud._slot_rect(6).get_center()
-	var world_size := game.get_viewport().get_visible_rect().size
-	var ui_size := game.number_layer.get_viewport().get_visible_rect().size
-	game._pointer_position = ui_at * (world_size / ui_size)
+	# The field's pointer is stale during a GUI drag (still at the drag's start);
+	# only the panel's own pointer is over the slot.
+	game._pointer_position = Vector2(-50, -50)
 	game._has_pointer_position = true
 	panel()._drag_item = flask
 	panel()._drag_from = game.inventory
-	panel()._last_pointer = Vector2(-50, -50)
+	panel()._last_pointer = hud.get_global_transform_with_canvas() * hud._slot_rect(6).get_center()
 	panel()._notification(Control.NOTIFICATION_DRAG_END)
 	check("a flask dragged onto a hotbar slot is bound there and stays in the pack", game.inventory.items.has(flask) and Hotbar.slots()[5].action == "potion_C", [game.hotbar_drop_slot(), Hotbar.slots()[5]])
 	game._has_pointer_position = false
@@ -240,7 +284,7 @@ func run() -> void:
 	# --- Pickup filter.
 	for node in get_nodes_in_group("loot"): node.queue_free()
 	await step()
-	game.pickup_filter = 1
+	SystemScreens.settings["loot_rarity"] = Item.BLUE
 	var common := weapon(1.0, 0)
 	var rare := weapon(1.0, 2)
 	var ore := FieldCatalog.exclusive("mine")
@@ -258,9 +302,22 @@ func run() -> void:
 	game.request_pickup(drop)
 	await step(2)
 	check("clicking its name takes even a filtered drop", game.inventory.items.has(common))
-	game.cycle_pickup_filter()
-	game.cycle_pickup_filter()
-	check("the filter cycles back to 全部", game.pickup_filter == 0)
+	# Prefix count and grade (用户 2026-11-02: 只双前缀, 只蓝色以上).
+	SystemScreens.settings["loot_rarity"] = 0
+	var two := weapon(1.0, 2)
+	var blue_ids := PrefixCatalog.all().keys().filter(func(id): return PrefixCatalog.all()[id].grade == 1)
+	var green_ids := PrefixCatalog.all().keys().filter(func(id): return PrefixCatalog.all()[id].grade == 0)
+	two.prefixes = [{"id": blue_ids[0]}, {"id": blue_ids[1]}]
+	var one := weapon(1.0, 2)
+	one.prefixes = [{"id": blue_ids[0]}, {"id": green_ids[0]}]
+	var bare := weapon(1.0, 2)
+	bare.prefixes = []
+	SystemScreens.settings["loot_prefixes"] = 2
+	check("双前缀 keeps two prefixes only", game.passes_pickup_filter(two) and game.passes_pickup_filter(one) and not game.passes_pickup_filter(bare))
+	SystemScreens.settings["loot_prefixes"] = 0
+	SystemScreens.settings["loot_prefix_grade"] = 2
+	check("蓝色以上 needs every prefix blue or better", game.passes_pickup_filter(two) and not game.passes_pickup_filter(one) and not game.passes_pickup_filter(bare) and game.passes_pickup_filter(ore))
+	SystemScreens.settings["loot_prefix_grade"] = 0
 
 	# --- Expansions and the warehouse.
 	game.settle(true)
@@ -279,7 +336,9 @@ func run() -> void:
 			var m := MaterialCatalog.create(id, left)
 			game.base.shelf.append(m)
 			left -= m.quantity
-	check("at 整备部 Lv3 the pack grows to 10×8 then 12×8", game.buy_pack_upgrade() and game.inventory.height == 8 and game.buy_pack_upgrade() and game.inventory.width == 12)
+	check("at 整备部 Lv3 the pack gains an 8×6 bag, then a second (用户 2026-11-02)", game.buy_pack_upgrade() and game.inventory.page_count() == 2 and game.inventory.page_size(1) == Vector2i(8, 6)
+		and game.buy_pack_upgrade() and game.inventory.page_count() == 3 and game.inventory.width == 10 and game.inventory.height == 6)
+	await _pages()
 	check("then it is fully expanded", not game.buy_pack_upgrade() and game.gold == 500000 - int(BaseCatalog.PACK_PRICES[1]) - int(BaseCatalog.PACK_PRICES[2]))
 	check("safe bag grows to 3×2 at Lv3, 3×3 needs Lv4", game.buy_safe_upgrade() and game.safe_bag.width == 3 and not game.buy_safe_upgrade())
 	check("and every material was used", needed.keys().all(func(id): return game.material_count(id) == 0))

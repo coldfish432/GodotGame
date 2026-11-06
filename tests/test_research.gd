@@ -30,7 +30,7 @@ func run() -> void:
 	game.fixed_market_seed = 77
 	root.add_child(game)
 	await step(8)
-	game.rng.seed = 91
+	game.seed_rng(91)
 	_prices()
 	_kits()
 	_closure()
@@ -58,8 +58,8 @@ func _economy() -> void:
 
 func _prices() -> void:
 	# 仓库修订 (用户 2026-10-23): no racks, console or drone to buy; 仓储部 levels give cells and stack size.
-	check("仓储部 Lv1–4: 60 / 120 / 220 / 360 cells, stacks ×1 / ×2 / ×3 / ×5",
-		BaseCatalog.WAREHOUSE_CELLS == [0, 60, 120, 220, 360] and BaseCatalog.WAREHOUSE_STACK == [0, 1, 2, 3, 5])
+	check("仓储部 Lv1–4: 10 × 12 / 20 / 30 / 50, stacks ×1 / ×2 / ×3 / ×5",
+		BaseCatalog.WAREHOUSE_ROWS == [0, 12, 20, 30, 50] and BaseCatalog.WAREHOUSE_STACK == [0, 1, 2, 3, 5])
 	check("pack 42k / 112k, safe 56k / 140k, camp 168k",
 		BaseCatalog.PACK_PRICES == [0, 42000, 112000] and BaseCatalog.SAFE_PRICES == [0, 56000, 140000] and BaseCatalog.CAMP_UPGRADE_PRICE == 168000)
 	check("promotion 22,000 / 168,000; modules 56k / 84k / 112k",
@@ -200,7 +200,7 @@ func _tree() -> void:
 	check("词条锚定 needs 龙门商会 R5", "lungmen_r5" in ResearchCatalog.conditions("engineering_5"))
 	var standing: int = game.exchange.relation(GameManager.DIRECTED_FACTION)
 	game.exchange.relations[GameManager.DIRECTED_FACTION] = 0
-	check("…refused below R5", r.requirement_refusal("engineering_5") == "龙门商会 R5")
+	check("…refused below R5", r.requirement_refusal("engineering_5") == "龙门商会崇拜")
 	game.exchange.relations[GameManager.DIRECTED_FACTION] = Exchange.RANK_AT[Exchange.RANK_AT.size() - 1]
 	check("…and met at R5", r.requirement_refusal("engineering_5").is_empty())
 	game.exchange.relations[GameManager.DIRECTED_FACTION] = standing
@@ -253,9 +253,10 @@ func _finish(key: String) -> void:
 
 func _effects() -> void:
 	var base := game.base
+	var rows := base.shelf_height()
 	var cells := base.capacity()
 	_finish("rack_cells")
-	check("后勤部 3 阶: warehouse capacity +20%", base.capacity() == roundi(cells * 1.2) and base.capacity(Item.Category.WEAPON) == base.capacity(), [cells, base.capacity()])
+	check("后勤部 3 阶: warehouse rows +20%, whole rows", base.capacity() == BaseState.SHELF_COLUMNS * roundi(rows * 1.2) and base.capacity(Item.Category.WEAPON) == base.capacity(), [cells, base.capacity()])
 	var slots := game.workshop_slots()
 	_finish("workshop_slot")
 	check("后勤部 2 阶: a workshop slot", game.workshop_slots() == slots + 1)
