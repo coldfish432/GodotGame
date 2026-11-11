@@ -1042,7 +1042,8 @@ static func _settings(menu: FieldMenu, stage: Control) -> void:
 	match tab:
 		0: rows = [["窗口模式", ["窗口", "全屏"], "fullscreen"], ["垂直同步", ["关", "开"], "vsync"], ["gpu"], ["震屏强度", [], "shake_strength", 0.0, 1.0], ["Boss 亮相", ["跳过", "播放"], "boss_intro"]]
 		1: rows = [["界面动效", ["精简", "完整"], "ui_motion"], ["交易确认", ["关", "开"], "trade_confirm"], ["伤害数字", ["关", "开"], "damage_numbers"], ["订单追踪", ["隐藏", "显示"], "tracker"], ["PRTS 提示", ["隐藏", "显示"], "broadcasts"], ["新手引导", ["关", "开"], "tutorial"], ["主线引导", ["关", "开"], "story_guide"], ["language"],
-			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95]]
+			["自动喝药下限", [], "auto_potion_low", 0.05, 0.95], ["自动喝药上限", [], "auto_potion_high", 0.05, 0.95],
+			["撤离失败自动治疗", ["关", "开"], "auto_treat"]]
 		2: rows = [["主音量", [], "master_volume"]]
 		3:
 			_base_settings(menu, stage)
@@ -1145,27 +1146,34 @@ static func _base_settings(menu: FieldMenu, stage: Control) -> void:
 ## button; Esc cancels, Backspace clears. A binding another function had is
 ## taken from it. The hotbar's contents are picked on the bar itself.
 const KEY_ROW := 24.0
+const KEY_COLUMNS := 3
+const KEY_PITCH := 302.0
+const KEY_NAME_W := 110.0
+const KEY_BUTTON_W := 92.0
 
 static func _hotbar_page(menu: FieldMenu, stage: Control) -> void:
 	_panel(stage)
 	var reset := AK.button("恢复默认", "plain", 12)
 	reset.pressed.connect(func(): Keybinds.reset(); menu.hotbar_capture = -1; pause(menu))
-	AK.put(stage, reset, Vector2(1110, 46), Vector2(120, 28))
-	for col in range(2):
-		AK.put(stage, AK.label("主键", 11, AK.MUTE), Vector2(334 + col * 470 + 196, 54))
-		AK.put(stage, AK.label("副键", 11, AK.MUTE), Vector2(334 + col * 470 + 342, 54))
+	AK.put(stage, reset, Vector2(1110, 530), Vector2(120, 28))
+	for col in range(KEY_COLUMNS):
+		AK.put(stage, AK.label("主键", 11, AK.MUTE), Vector2(334 + col * KEY_PITCH + KEY_NAME_W, 54))
+		AK.put(stage, AK.label("副键", 11, AK.MUTE), Vector2(334 + col * KEY_PITCH + KEY_NAME_W + KEY_BUTTON_W + 4, 54))
 	var binds := Keybinds.all()
-	var columns := {"快捷栏": 0, "专用键": 0, "视角": 0, "界面": 1}
-	var y := [76.0, 76.0]
-	var last_group := ["", ""]
+	# 用户 2026-11-06: the base's station keys get a column of their own.
+	var columns := {"快捷栏": 0, "专用键": 0, "视角": 0, "界面": 1, "基地站点": 2}
+	var y := [76.0, 76.0, 76.0]
+	var last_group := ["", "", ""]
 	for f in Keybinds.FUNCTIONS:
 		var col: int = columns[f[2]]
-		var x := 334.0 + col * 470.0
+		var x := 334.0 + col * KEY_PITCH
 		if f[2] != last_group[col]:
 			last_group[col] = f[2]
 			AK.put(stage, AK.label(f[2], 13, AK.SP), Vector2(x, y[col] + 4))
 			y[col] += KEY_ROW
-		AK.put(stage, AK.label(f[1], 13, AK.FG), Vector2(x, y[col] + 5))
+		var name := AK.label(f[1], 12, AK.FG)
+		name.clip_text = true
+		AK.put(stage, name, Vector2(x, y[col] + 5), Vector2(KEY_NAME_W - 6, 18))
 		var index := Keybinds.FUNCTIONS.find(f)
 		for which in range(2):
 			var flat := index * 2 + which
@@ -1174,16 +1182,17 @@ static func _hotbar_page(menu: FieldMenu, stage: Control) -> void:
 			var b := AK.button(text if not text.is_empty() else "—", "paper" if waiting else "plain", 12)
 			b.set_meta("binding", flat)
 			b.pressed.connect(func(): menu.hotbar_capture = flat; pause(menu))
-			AK.put(stage, b, Vector2(x + 140 + which * 146, y[col]), Vector2(140, KEY_ROW - 4))
+			AK.put(stage, b, Vector2(x + KEY_NAME_W + which * (KEY_BUTTON_W + 4), y[col]), Vector2(KEY_BUTTON_W, KEY_ROW - 4))
 		y[col] += KEY_ROW
+	var fx := 334.0 + KEY_PITCH
 	var fy: float = y[1] + 6
-	AK.put(stage, AK.label("固定", 13, AK.SP), Vector2(804, fy + 4))
+	AK.put(stage, AK.label("固定", 13, AK.SP), Vector2(fx, fy + 4))
 	fy += KEY_ROW
 	for row in Keybinds.FIXED:
-		AK.put(stage, AK.label(row[0], 12, AK.MUTE), Vector2(804, fy + 4))
+		AK.put(stage, AK.label(row[0], 12, AK.MUTE), Vector2(fx, fy + 4))
 		var keys := AK.label(row[1], 12, AK.FG, AK.en())
 		keys.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		AK.put(stage, keys, Vector2(944, fy + 4), Vector2(286, 20))
+		AK.put(stage, keys, Vector2(fx + 140, fy + 4), Vector2(KEY_PITCH - 146, 20))
 		fy += 24
 	if menu.hotbar_capture >= 0:
 		var catcher := KeyCatcher.new()

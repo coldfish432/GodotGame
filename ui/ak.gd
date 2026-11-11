@@ -211,6 +211,33 @@ static func star(c: Vector2, r: float) -> PackedVector2Array:
 static func diamond(c: Vector2, r: float) -> PackedVector2Array:
 	return PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])
 
+## The interact key's prompt (用户 2026-11-06: E更明显一些，周围做动态的收缩/扩大蓝框):
+## a paper key cap with the bound key, and a blue frame around it that
+## breathes out and in, fading as it opens. `c` is the cap's centre.
+const KEY_PROMPT_PERIOD := 1.2
+static func draw_key_prompt(canvas: CanvasItem, c: Vector2, key: String) -> void:
+	var font := en()
+	var size := 18 if key.length() <= 2 else 13
+	var text_w := font.get_string_size(key, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var half := Vector2(maxf(15.0, text_w * 0.5 + 8.0), 15.0)
+	canvas.draw_rect(Rect2(c - half - Vector2(3, 3), (half + Vector2(3, 3)) * 2.0), Color(0, 0, 0, 0.8))
+	canvas.draw_rect(Rect2(c - half, half * 2.0), PAPER)
+	canvas.draw_string(font, Vector2(c.x - text_w * 0.5, c.y + size * 0.36), key, HORIZONTAL_ALIGNMENT_LEFT, -1, size, INK)
+	# 0 → 1 → 0 over the period: the frame from just outside the cap to 9 px further.
+	var t := fmod(Time.get_ticks_msec() / 1000.0, KEY_PROMPT_PERIOD) / KEY_PROMPT_PERIOD
+	var swell := 0.5 - 0.5 * cos(t * TAU)
+	var grow := Vector2.ONE * (6.0 + 9.0 * swell)
+	var frame := Rect2(c - half - grow, (half + grow) * 2.0)
+	var colour := Color(HOLO, 1.0 - 0.55 * swell)
+	canvas.draw_rect(frame, colour, false, 2.0)
+	# Brighter corner brackets ride on the frame.
+	var arm := 7.0
+	for corner in [frame.position, Vector2(frame.end.x, frame.position.y), frame.end, Vector2(frame.position.x, frame.end.y)]:
+		var sx := 1.0 if corner.x < c.x else -1.0
+		var sy := 1.0 if corner.y < c.y else -1.0
+		canvas.draw_line(corner, corner + Vector2(arm * sx, 0), Color(HOLO, colour.a), 3.0)
+		canvas.draw_line(corner, corner + Vector2(0, arm * sy), Color(HOLO, colour.a), 3.0)
+
 const KIND_NAMES := {"attack": "攻击", "defense": "防守", "fortune": "机缘", "life": "生存", "tempo": "节奏", "wave": "技能"}
 
 ## AK's big confirm button: bold Chinese over small wide English (获取 / ACQUIRE).

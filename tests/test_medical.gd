@@ -129,6 +129,30 @@ func through_game() -> void:
 	await step(2)
 	check("death: injury stays, max HP back to normal at the base", game.base.injured and is_equal_approx(game.player.max_hp, plain) and game.player.condition_hp_penalty == 0.0)
 	game.base.injured = false
+	# 撤离失败自动治疗 (用户 2026-11-06): on, a fall is treated at settlement for the usual price.
+	SystemScreens.settings.auto_treat = true
+	await game.start_contract("snow")
+	game.gold = 10000000
+	var floor_price := Economy.tiered(BaseCatalog.INJURY_TREATMENT, Economy.tier_of(game.floor_number))
+	if game.base.researched("injury_fee"): floor_price /= 2
+	var before := game.gold
+	game.settle(false)
+	check("auto treat on: no injury after a fall, paid %d" % (before - game.gold), not game.base.injured and before - game.gold == floor_price and bool(game.base.medical_report.get("treated", false)))
+	await game.start_contract("snow")
+	game.gold = 0
+	game.settle(false)
+	check("auto treat without the 龙门币: the injury stays", game.base.injured and not game.base.medical_report.has("treated"))
+	game.base.injured = false
+	await game.start_contract("snow")
+	game.gold = 10000000
+	before = game.gold
+	game.settle(true)
+	check("auto treat costs nothing on an extraction", game.gold >= before and not game.base.injured)
+	SystemScreens.settings.auto_treat = false
+	await game.start_contract("snow")
+	game.settle(false)
+	check("auto treat off (default): a fall stays injured", game.base.injured)
+	game.base.injured = false
 	await game.start_contract("snow")
 	game.run_contamination = 100.0
 	await step(2)

@@ -135,7 +135,20 @@ func run() -> void:
 	spot.forced = true
 	var elite := game._spawn_enemy(game.player.global_position + Vector3(3, 0, 1), true, false)
 	elite.elite = true
+	# 玩家反馈 2026-11-06: mid-fight nothing comes up; it waits until she is out of combat.
+	game.player.combat_timer = 0.0
 	await step(20)
+	check("mid-fight the elite's card waits", spot.showing.is_empty() and spot.hold_for_fight() == "fight" and game.modal.is_empty())
+	SystemScreens.settings.tutorial_seen = TutorialSpotlight.TIPS.keys().filter(func(k): return not k in ["elite", "threat"])
+	spot.request("threat", TutorialSpotlight.TOP_BAR)
+	await step(20)
+	check("an event's card waits too", spot.showing.is_empty() and spot._queue.any(func(q): return q[0] == "threat"))
+	spot._queue.clear()
+	SystemScreens.settings.tutorial_seen = TutorialSpotlight.TIPS.keys().filter(func(k): return k != "elite")
+	game.player.combat_timer = Player.OUT_OF_COMBAT + 1.0
+	elite.set_physics_process(false)
+	await step(20)
+	elite.set_physics_process(true)
 	check("an elite on screen stops the field", spot.showing == "elite" and game.modal == "tutorial" and not game.simulation_active())
 	check("dim, a ring round it, PRTS's card", spot.visible and spot._title.text == "精英敌人" and spot.ring_at.distance_to(game.screen_point(elite.global_position + Vector3.UP * 0.8)) < 2.0)
 	check("the card sits beside the ring, on screen", not Rect2(spot._card.position, spot._card.size).has_point(spot.ring_at) and Rect2(Vector2.ZERO, TutorialSpotlight.SCREEN).encloses(Rect2(spot._card.position, spot._card.size)))
@@ -164,7 +177,10 @@ func run() -> void:
 	spot.dismiss()
 	# An event with nothing to point at: the whole screen dims, the card in the middle.
 	spot.request("death")
+	call_group("enemies", "set_physics_process", false)
+	game.player.combat_timer = Player.OUT_OF_COMBAT + 1.0
 	await step(15)
+	call_group("enemies", "set_physics_process", true)
 	check("a retreat's card goes over whatever is up, no ring", spot.showing == "death" and spot.ring_radius == 0.0 and spot.ring_box.size.x == 0.0 and absf(spot._card.position.x + spot._card.size.x * 0.5 - 640.0) < 2.0)
 	spot.dismiss()
 	spot.request("death")

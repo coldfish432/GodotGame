@@ -52,6 +52,8 @@ const BAR_BUILT := 0.85
 const BAR_SPEED := 1.6
 static var settings := {"master_volume": 0.8, "mute": false, "fullscreen": false, "vsync": true, "damage_numbers": true, "tracker": true, "broadcasts": true, "hotbar": [], "keybinds": {}, "language": "zh",
 	"auto_potion": "potion_A", "auto_potion_low": 0.4, "auto_potion_high": 0.9, "base_look": "",
+	# 撤离失败自动治疗 (GmMedical.auto_treat_after_fall): off unless chosen.
+	"auto_treat": false,
 	# 界面动效 (界面动态美术方案 v3 §2): the scan reveal, wipes and typing titles.
 	"ui_motion": true,
 	# Boss演出策划案_v0_2 §1.4: the camera's shake, and the boss intro after the first meeting.

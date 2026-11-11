@@ -9,7 +9,6 @@ extends Control
 ## walks the base.
 
 var game: GameManager
-var _buttons: HBoxContainer
 
 ## [name, kind, colour] — kinds are the station menus they open.
 const STATIONS := [
@@ -23,35 +22,30 @@ const STATIONS := [
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_buttons = HBoxContainer.new()
-	_buttons.add_theme_constant_override("separation", 4)
-	_buttons.position = Vector2(1268 - 5 * 60 + 4, 708 - 48)
-	_buttons.size = Vector2(5 * 60 - 4, 48)
-	_buttons.alignment = BoxContainer.ALIGNMENT_END
-	add_child(_buttons)
-	# 用户 2026-11-04: 让基地也能看干员面板和升级项 — 干员 (C, with its upgrades) here too.
-	for entry in [["PRTS", "prts"], ["干员", "training"], ["基建", "construction"], ["合同", "contracts"], ["菜单", "pause"]]:
-		var b := AK.button(entry[0], "ghost", 12)
-		b.custom_minimum_size = Vector2(56, 48)
-		var kind: String = entry[1]
-		b.pressed.connect(func():
-			if kind == "pause": game.toggle_panel("pause")
-			elif kind == "training": game.toggle_panel("training")
-			else: game.open_station(kind))
-		b.set_meta("kind", kind)
-		_buttons.add_child(b)
+	# 用户 2026-11-06: the quick buttons look like the station bar, each with its
+	# key; 合同 and 基建 went (the bar's 调度台 and 基建 open them).
+	quick_bar = QuickBar.new()
+	quick_bar.game = game
+	quick_bar.size = Vector2(QuickBar.width_of(QuickBar.ENTRIES.size()), BAR_H)
+	quick_bar.position = Vector2(1268 - quick_bar.size.x, BAR_Y)
+	add_child(quick_bar)
+	hotkey_bar = HotkeyBar.new()
+	hotkey_bar.game = game
+	hotkey_bar.position = Vector2(BAR_X, BAR_Y)
+	hotkey_bar.size = Vector2(HotkeyBar.width(), BAR_H)
+	add_child(hotkey_bar)
+
+## 主基地快捷栏 (用户 2026-11-06), along the bottom left of the quick buttons.
+var hotkey_bar: HotkeyBar
+## PRTS, 干员 and the menu, bottom right.
+var quick_bar: QuickBar
+const BAR_X := 14.0
+const BAR_Y := 662.0
+const BAR_H := 46.0
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(game): return
 	visible = game.base_walk_active()
-	# The 基建 quick button only once the hub stands (用户 2026-10-22).
-	for b in _buttons.get_children():
-		if b.get_meta("kind", "") == "construction": b.visible = game.base.hub_built()
-		# Mail waiting shows on the PRTS button.
-		if b.get_meta("kind", "") == "prts":
-			var mails := game.base.mail_count()
-			var label := "PRTS %d" % mails if mails > 0 else "PRTS"
-			if (b as Button).text != label: (b as Button).text = label
 	if visible: queue_redraw()
 
 func _text(at: Vector2, text: String, size: int, color: Color, font: Font = null) -> float:
@@ -83,6 +77,9 @@ func _draw_hud() -> void:
 	_text(Vector2(18, 22), en, 10, AK.MUTE, AK.en())
 	_text(Vector2(18, 46), cn, 20, AK.FG)
 	_draw_stations()
+	# Standing at a station: its key at her feet, as in the field.
+	if not game.nearby_station().is_empty() and is_instance_valid(game.player):
+		AK.draw_key_prompt(self, game.screen_point(game.player.global_position) + Vector2(0, 50), Keybinds.short_label("interact"))
 	# PRTS log.
 	# A line too long for the box goes on under itself (用户 2026-10-24: 超出的文字起第二行).
 	var lines: Array = game.prts_log.slice(maxi(0, game.prts_log.size() - 4))
@@ -95,7 +92,7 @@ func _draw_hud() -> void:
 		for line in lines:
 			var parts := wrap_text(I18n.t(str(line[1])), 12, LOG_WIDTH - 26 - stamp)
 			for k in range(parts.size()): rows.append([str(line[0]).left(5) if k == 0 else "", parts[k]])
-		var box := Rect2(14, 706 - 22 - rows.size() * 18, LOG_WIDTH, 22 + rows.size() * 18)
+		var box := Rect2(14, BAR_Y - 6 - 22 - rows.size() * 18, LOG_WIDTH, 22 + rows.size() * 18)
 		draw_rect(box, Color(0, 0, 0, 0.7 * fade))
 		for i in range(rows.size()):
 			var ly := box.position.y + 24 + i * 18
@@ -250,3 +247,119 @@ func _ready_orders_now() -> int:
 		var order = board.slots[slot]
 		if order != null and order.state == "open" and deliverable.any(func(x): return board.matches(slot, x)): n += 1
 	return n
+
+## A row of slots in the station bar's look: the key over the name, a lock
+## and dim text while it waits for something. A click does what its key does.
+class SlotBar extends Control:
+	var game: GameManager
+	const SLOT := Vector2(52, 46)
+	const GAP := 3.0
+	var _hover := -1
+
+	static func width_of(n: int) -> float:
+		return n * (SLOT.x + GAP) - GAP
+
+	static func slot_rect(i: int) -> Rect2:
+		return Rect2(Vector2(i * (SLOT.x + GAP), 0), SLOT)
+
+	# What each bar fills in.
+	func count() -> int: return 0
+	func key_of(_i: int) -> String: return ""
+	func name_of(_i: int) -> String: return ""
+	func colour_of(_i: int) -> Color: return AK.FG
+	func locked(_i: int) -> bool: return false
+	func press(_i: int) -> void: pass
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	func slot_at(at: Vector2) -> int:
+		for i in range(count()):
+			if slot_rect(i).has_point(at): return i
+		return -1
+
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseMotion:
+			var h := slot_at(event.position)
+			if h != _hover:
+				_hover = h
+				queue_redraw()
+		elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			accept_event()
+			# The press is the bar's: she does not walk to the ground under it.
+			game.pointer.gate = true
+			var i := slot_at(event.position)
+			if i >= 0: press(i)
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_MOUSE_EXIT and _hover != -1:
+			_hover = -1
+			queue_redraw()
+
+	func _process(_delta: float) -> void:
+		if is_visible_in_tree(): queue_redraw()
+
+	func _draw() -> void:
+		if not is_instance_valid(game): return
+		for i in range(count()):
+			var r := slot_rect(i)
+			var shut := locked(i)
+			draw_rect(r, Color(0, 0, 0, 0.8) if i != _hover else Color(0.12, 0.15, 0.17, 0.9))
+			draw_rect(Rect2(r.position, Vector2(r.size.x, 3)), colour_of(i) if not shut else AK.DIM)
+			_fit(Rect2(r.position + Vector2(4, 6), Vector2(r.size.x - 8, 14)), key_of(i), 11, AK.SP if not shut else AK.DIM, AK.en(), HORIZONTAL_ALIGNMENT_LEFT)
+			_fit(Rect2(r.position + Vector2(3, 24), Vector2(r.size.x - 6, 18)), I18n.t(name_of(i)), 12, AK.FG if not shut else AK.DIM, AK.cn(), HORIZONTAL_ALIGNMENT_CENTER)
+			if shut: _lock(r.position + Vector2(r.size.x - 11, 12))
+
+	## `text` in `box`, smaller until it fits (down to 8), then clipped.
+	func _fit(box: Rect2, text: String, size: int, colour: Color, font: Font, align: HorizontalAlignment) -> void:
+		var s := size
+		while s > 8 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x > box.size.x: s -= 1
+		draw_string(font, Vector2(box.position.x, box.end.y - 3), text, align, box.size.x, s, colour, TextServer.JUSTIFICATION_NONE)
+
+	## A small padlock centred on `c`.
+	func _lock(c: Vector2) -> void:
+		draw_arc(c + Vector2(0, -2), 3.0, PI, TAU, 8, AK.HAZARD, 1.5)
+		draw_rect(Rect2(c + Vector2(-4.5, -2), Vector2(9, 7)), AK.HAZARD)
+
+## One slot per BaseHotkeys station.
+class HotkeyBar extends SlotBar:
+	## Each station's stripe, after the overview's department colours.
+	const COLOURS := {"dispatch": Color("ffffff"), "workbench": Color("0098dc"), "logistics": Color("0098dc"), "stash": Color("0098dc"),
+		"outbound": Color("f5c000"), "reception": Color("8fc31f"), "pharmacy": Color("8fc31f"), "store": Color("8fc31f"),
+		"exchange": Color("c48cff"), "workshop": Color("e0782a"), "personnel": Color("0098dc"), "sand_table": Color("5fd0d8"),
+		"research": Color("e0782a"), "site_hub": Color("e8b730"), "lift": Color("9aa7ae"), "farm": Color("8fc31f"), "canteen": Color("e0a040")}
+
+	static func width() -> float:
+		return width_of(BaseHotkeys.STATIONS.size())
+
+	func _id(i: int) -> String: return BaseHotkeys.STATIONS[i][0]
+	func count() -> int: return BaseHotkeys.STATIONS.size()
+	func key_of(i: int) -> String: return Keybinds.short_label(BaseHotkeys.action(_id(i)))
+	func name_of(i: int) -> String: return BaseHotkeys.STATIONS[i][1]
+	func colour_of(i: int) -> Color: return COLOURS.get(_id(i), AK.FG)
+	func locked(i: int) -> bool: return BaseHotkeys.locked(game, _id(i))
+	func press(i: int) -> void: game.use_base_hotkey(_id(i))
+
+## PRTS (with the mail waiting), 干员 and the menu, each with its key.
+class QuickBar extends SlotBar:
+	## [kind, name]
+	const ENTRIES := [["prts", "PRTS"], ["training", "干员"], ["pause", "菜单"]]
+
+	func count() -> int: return ENTRIES.size()
+	func kind_of(i: int) -> String: return ENTRIES[i][0]
+	func key_of(i: int) -> String:
+		match kind_of(i):
+			"prts": return Keybinds.short_label("toggle_prts")
+			"training": return Keybinds.short_label("toggle_operator")
+		return "Esc"
+	func name_of(i: int) -> String:
+		if kind_of(i) == "prts":
+			var mails := game.base.mail_count()
+			return "PRTS %d" % mails if mails > 0 else "PRTS"
+		return ENTRIES[i][1]
+	func colour_of(_i: int) -> Color: return AK.HOLO
+	func press(i: int) -> void:
+		match kind_of(i):
+			"prts": game.open_station("prts")
+			"training": game.toggle_panel("training")
+			"pause": game.toggle_panel("pause")

@@ -222,6 +222,17 @@ func injury_price(id: String) -> int:
 	var price := Economy.tiered(BaseCatalog.INJURY_TREATMENT, tier)
 	return price / 2 if game.base.researched("injury_fee") else price
 
+## 撤离失败自动治疗 (用户 2026-11-06, a setting): after a failed contract the
+## operator who fell is treated at once, at the usual price, when the 龙门币 cover it.
+func auto_treat_after_fall() -> void:
+	var id: String = game.base.operator
+	if not bool(SystemScreens.settings.get("auto_treat", false)) or not game.base.injuries.has(id): return
+	var price := injury_price(id)
+	if game.gold < price: return
+	game.gold -= price
+	game.base.injuries.erase(id)
+	game.base.medical_report["treated"] = true
+
 ## Treats one operator's injury (the one who deploys next by default).
 func treat_injury(id: String = "") -> bool:
 	if id.is_empty(): id = game.base.operator

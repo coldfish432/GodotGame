@@ -554,6 +554,10 @@ func _base_keys() -> void:
 		if exchange.unlocked(): watch_widget.set_meta("on", not watch_widget.get_meta("on", false))
 		else: set_message(EXCHANGE_LOCKED)
 	if Input.is_action_just_pressed("toggle_stations"): toggle_station_panel()
+	for entry in BaseHotkeys.STATIONS:
+		if Input.is_action_just_pressed(BaseHotkeys.action(entry[0])) and base_walk_active():
+			use_base_hotkey(entry[0])
+			break
 
 ## The snowfall, the player glow, the field tint and the cave cut-away follow her.
 func _follow_player_view(delta: float) -> void:
@@ -892,12 +896,29 @@ func _base_interact() -> void:
 	if station.is_empty():
 		set_message("走到发光的站点旁按 E：调度台接单、后勤柜台投保、仓管台、整备台、医疗前台。")
 		return
+	open_interactable(station)
+
+## What E does at `station` (a BaseMap.interactables entry).
+func open_interactable(station: Dictionary) -> void:
 	match station.kind:
 		"build_site": open_build_site(str(station.facility))
 		"hub":
 			if base.hub_built(): open_station("construction")
 			else: open_build_site("hub")
 		_: open_station(station.kind)
+
+## 主基地快捷栏 (BaseHotkeys): a station's key or its slot on the bar opens it
+## as E there would; a locked one only says what it waits for. True when it opened.
+func use_base_hotkey(id: String) -> bool:
+	if not base_walk_active() or not is_instance_valid(base_map): return false
+	var refusal := BaseHotkeys.refusal(self, id)
+	if not refusal.is_empty():
+		set_message(refusal)
+		return false
+	var station := base_map.station(BaseHotkeys.station_id(self, id))
+	if station.is_empty(): return false
+	open_interactable(station)
+	return true
 
 ## A facility's construction site: its upgrades on the spot, connected or not.
 func open_build_site(facility: String) -> void:
@@ -987,9 +1008,8 @@ func _update_base_prompt() -> void:
 		_status_bar.reset_size()
 		_status_bar.position = Vector2(1268 - _status_bar.size.x, 12)
 	if not _base_prompt.visible: return
-	var station := nearby_station()
+	# The E itself is BaseHud's (AK.draw_key_prompt), at her feet.
 	var lines: Array[String] = []
-	if not station.is_empty(): lines.append("E")
 	if message_timer > 0 and not message.is_empty(): lines.append(message)
 	_base_prompt.text = "
 ".join(lines)
@@ -2250,6 +2270,7 @@ func _settle_clear_run(extracted: bool, brought_records: Dictionary) -> void:
 	voyage.on_settle()
 	voyage.contract_done(region_id)
 	base.settle_medical(not extracted, Economy.tier_of(floor_number))
+	if not extracted: medical.auto_treat_after_fall()
 	research.settle()
 	research.apply_run(false)
 	base.contract_reroll = base.researched("offer_reroll")

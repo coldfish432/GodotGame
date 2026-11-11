@@ -2,8 +2,9 @@ extends SceneTree
 
 ## 基建设施修订案_v1_1.md (用户 2026-10-22): the 基建总控台 is built first;
 ## each facility is upgraded at its own site until it is connected, then from
-## the hub too; the exchange's building waits for 喀兰贸易 R2; the 基建 quick
-## button appears once the hub stands; each part shows as a construction site
+## the hub too; the exchange's building waits for 喀兰贸易 R2; the bar's 基建
+## key opens the hub's site, then its console (用户 2026-11-06: the separate
+## 基建 quick button went); each part shows as a construction site
 ## until it is built.
 
 var failures := 0
@@ -48,7 +49,9 @@ func run() -> void:
 	var hub_part := 0
 	check("the hub's console stands behind a construction site", not works.built(hub_part) and (works._drawn[hub_part].pieces as Array).size() > 4
 		and (works._drawn[hub_part].pieces as Array).any(func(p): return p.get_meta("model") == "build_barrier"))
-	check("the 基建 quick button is hidden before the hub", not _quick_button(game).visible)
+	check("before the hub the bar's 基建 key opens its build site", game.use_base_hotkey("site_hub") and game.menu._station == "build_site")
+	game.close_modal()
+	await step(2)
 	check("the exchange is closed", not game.exchange.unlocked())
 
 	# On site before the hub: a facility's upgrade, but no link yet.
@@ -74,7 +77,9 @@ func run() -> void:
 	await step(2)
 	check("the hub is built", base.hub_built())
 	check("its console replaces the site", works.built(hub_part) and (works._drawn[hub_part].pieces as Array).size() == 1)
-	check("the quick button appears", _quick_button(game).visible)
+	check("then the bar's 基建 key opens the console", game.use_base_hotkey("site_hub") and game.menu._station == "construction")
+	game.close_modal()
+	await step(2)
 	game._base_interact()
 	check("E at the hub now opens the console", game.modal == "station" and game.menu._station == "construction")
 	game.close_modal()
@@ -125,9 +130,3 @@ func run() -> void:
 	await step(2)
 	print("WORKS FAILURES: %d" % failures)
 	quit(1 if failures else 0)
-
-func _quick_button(game: GameManager) -> Button:
-	for hud in game.find_children("*", "BaseHud", true, false):
-		for b in (hud as BaseHud)._buttons.get_children():
-			if b.get_meta("kind", "") == "construction": return b
-	return Button.new()

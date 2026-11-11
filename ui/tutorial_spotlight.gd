@@ -304,6 +304,11 @@ func _process(delta: float) -> void:
 	if _check_left > 0.0: return
 	_check_left = CHECK_SECONDS
 	if not tips_on() or game.transitioning: return
+	_watch_events()
+	# 玩家反馈 2026-11-06: 打架时弹出提示，被敌人打死. In the field nothing comes
+	# up mid-fight, nor over a screen the field keeps running under (a box's
+	# window): what is queued waits until she is out of combat.
+	if not hold_for_fight().is_empty(): return
 	if not seen("base_departure") and game.in_base and game.modal.is_empty() and game.base_walk_active() and TutorialCard.step() <= TutorialCard.index_of("contract") \
 			and (not Story.is_on() or "wake" in game.base.story.seen):
 		_show_departure()
@@ -316,10 +321,19 @@ func _process(delta: float) -> void:
 			_queue.remove_at(i)
 			if not seen(q[0]): show_tip(q[0], q[1])
 			return
-	_watch_events()
 	if game.simulation_active() and game.modal.is_empty():
 		var found := first_in_sight()
 		if not found.is_empty(): show_tip(found.id, found.at)
+
+## Why a tip waits now ("" = it need not): "fight" while she has hit or been
+## hit within Player.OUT_OF_COMBAT seconds, "running" while a screen is up
+## that the field keeps running under. Only while the field runs: the base,
+## the camp, a menu or the settlement never wait.
+func hold_for_fight() -> String:
+	if game.in_camp or not game.simulation_active() or not is_instance_valid(game.player): return ""
+	if not game.modal.is_empty(): return "running"
+	if game.player.combat_timer < Player.OUT_OF_COMBAT: return "fight"
+	return ""
 
 ## What is watched rather than seen: life, the 威胁值 and the region's meter in
 ## the field, the first camp. Each queues its tip once.

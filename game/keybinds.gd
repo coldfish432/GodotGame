@@ -57,6 +57,24 @@ const FUNCTIONS := [
 	["toggle_prts", "PRTS 终端（基地）", "界面", {"key": KEY_ENTER}, null],
 	# 用户 2026-10-24: 物体可以旋转 — the item under the pointer, in a pack or the warehouse.
 	["rotate_item", "旋转物品", "界面", {"key": KEY_T}, null],
+	# 用户 2026-11-06: 主基地每个交互项一个快捷键 (BaseHotkeys.STATIONS, same order).
+	["base_dispatch", "调度台", "基地站点", {"key": KEY_D}, null],
+	["base_workbench", "整备台", "基地站点", {"key": KEY_W}, null],
+	["base_logistics", "后勤柜台", "基地站点", {"key": KEY_I}, null],
+	["base_stash", "仓管台", "基地站点", {"key": KEY_S}, null],
+	["base_outbound", "出库区", "基地站点", {"key": KEY_O}, null],
+	["base_reception", "医疗前台", "基地站点", {"key": KEY_H}, null],
+	["base_pharmacy", "药房", "基地站点", {"key": KEY_Y}, null],
+	["base_store", "商店", "基地站点", {"key": KEY_U}, null],
+	["base_exchange", "交易所", "基地站点", {"key": KEY_A}, null],
+	["base_workshop", "加工站", "基地站点", {"key": KEY_F}, null],
+	["base_personnel", "人事部", "基地站点", {"key": KEY_L}, null],
+	["base_sand_table", "沙盘", "基地站点", {"key": KEY_V}, null],
+	["base_research", "科研部", "基地站点", {"key": KEY_N}, null],
+	["base_site_hub", "基建", "基地站点", {"key": KEY_6}, null],
+	["base_lift", "升降梯", "基地站点", {"key": KEY_7}, null],
+	["base_farm", "农业部", "基地站点", {"key": KEY_8}, null],
+	["base_canteen", "食堂", "基地站点", {"key": KEY_9}, null],
 ]
 ## Shown on the keys page, not changeable.
 const FIXED := [["攻击 / 移动 / 拾取 / 选择", "左键"], ["安全袋", "Ctrl + 左键"], ["暂停", "Esc"]]

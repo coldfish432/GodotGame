@@ -432,7 +432,7 @@ func _outbound_section() -> void:
 func _medical_summary() -> void:
 	var base: BaseState = game.base
 	var report: Dictionary = base.medical_report
-	if bool(report.get("injured", false)): text(body, "上一份合同 / 撤退，%s负伤" % Operators.display_name(str(report.get("operator", base.operator))), 16)
+	if bool(report.get("injured", false)): text(body, "上一份合同 / 撤退，%s负伤%s" % [Operators.display_name(str(report.get("operator", base.operator))), "，已自动治疗" if bool(report.get("treated", false)) else ""], 16)
 	# Each injured operator keeps hers until treated (博士主角叙事修订案 §5).
 	for id in base.injured_operators():
 		text(body, "%s  ·  重伤  ·  生命上限 −%d%%" % [Operators.display_name(id), roundi(BaseCatalog.INJURY_HP_PENALTY * 100)], 15, AK.RED)

@@ -941,10 +941,7 @@ func _draw_world_marks() -> void:
 	_draw_ground_names()
 	# Just the key, no name (用户 2026-10-13: 不要中文label了，只提示e即可).
 	if not game.interaction_prompt().is_empty():
-		var at := game.screen_point(p.global_position) + Vector2(0, 48)
-		draw_rect(Rect2(at.x - 13, at.y - 16, 26, 24), Color(0, 0, 0, 0.8))
-		draw_rect(Rect2(at.x - 10, at.y - 13, 20, 18), AK.PAPER)
-		_text(at + Vector2(-5, 0), "E", 12, AK.INK, _en(), false)
+		AK.draw_key_prompt(self, game.screen_point(p.global_position) + Vector2(0, 50), Keybinds.short_label("interact"))
 
 ## Name plates over ground items in rarity colour, the Grim Dawn way (用户 2026-10-10): always
 ## shown for items the pickup filter keeps, every item while Alt is held.
