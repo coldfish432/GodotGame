@@ -911,7 +911,6 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 		_try_execute(target)
 		target.hitstop_remaining = maxf(target.hitstop_remaining, stop)
 		hitstop_remaining = stop
-		if is_instance_valid(game): CombatVfx.spawn(game, target.global_position, direction, "spark")
 		if crit and has_trigger(ItemModifier.Trigger.MOON_WAVE) and randf() < 0.35:
 			_spawn_wave(direction, arts_power() * WAVE_SCALE * wave_multiplier() * 0.5, false, true)
 		if f("hit_stack_atk") > 0.0:
@@ -959,7 +958,6 @@ func _lappland_cross(target: Enemy, raw: float, kind: String, crit: bool, pierce
 	var scaled := raw / maxf(0.01, target_multiplier(target)) * target_multiplier(best) * CROSS_SCALE
 	_deal(best, scaled, kind, crit, pierce if kind == "phys" else 0.0, true)
 	_melee_riders(best, scaled, crit, pierce)
-	if is_instance_valid(best): CombatVfx.spawn(game, best.global_position, direction, "spark")
 
 ## 精神摧毁 (用户 2026-10-20: 剑气命中沉默敌人): her wave stops the target's
 ## special abilities for a while (less on elites and bosses), with 模组 fragile.
@@ -1765,7 +1763,6 @@ func _amiya_cut(target: Enemy, raw: float, crit: bool, direction: Vector3) -> vo
 	_melee_riders(target, raw, crit, 0.0)
 	_after_landed(target, raw, 0)
 	_try_execute(target)
-	if is_instance_valid(game): CombatVfx.spawn(game, target.global_position, direction, "amiya_spark")
 	if f("hit_stack_atk") > 0.0:
 		hit_stacks = mini(HIT_STACK_MAX, hit_stacks + 1)
 		hit_stack_timer = HIT_STACK_SECONDS

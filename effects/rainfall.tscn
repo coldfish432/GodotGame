@@ -1,0 +1,116 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://effects/weather_fx.gd" id="1_kum6t"]
+
+[sub_resource type="Gradient" id="Gradient_jh3na"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.8, 0.86, 0.95, 0, 0.8, 0.86, 0.95, 0.45, 0.8, 0.86, 0.95, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ay3yh"]
+gradient = SubResource("Gradient_jh3na")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_molcd"]
+particle_flag_align_y = true
+emission_shape = 3
+emission_box_extents = Vector3(22, 0.5, 18)
+direction = Vector3(0.12, -1, 0.05)
+spread = 2.0
+initial_velocity_min = 11.0
+initial_velocity_max = 13.0
+gravity = Vector3(0, -2, 0)
+color_ramp = SubResource("GradientTexture1D_ay3yh")
+collision_mode = 2
+sub_emitter_mode = 3
+sub_emitter_amount_at_collision = 1
+
+[sub_resource type="Gradient" id="Gradient_kv7hx"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uk7gu"]
+gradient = SubResource("Gradient_kv7hx")
+width = 4
+height = 32
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nkyoa"]
+transparency = 1
+depth_draw_mode = 2
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_uk7gu")
+billboard_mode = 2
+
+[sub_resource type="QuadMesh" id="QuadMesh_prrlf"]
+material = SubResource("StandardMaterial3D_nkyoa")
+size = Vector2(0.03, 0.7)
+
+[sub_resource type="Gradient" id="Gradient_k7ukb"]
+colors = PackedColorArray(0.85, 0.9, 1, 0.55, 0.85, 0.9, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_86kpr"]
+gradient = SubResource("Gradient_k7ukb")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_jy8rl"]
+direction = Vector3(0, 1, 0)
+spread = 60.0
+initial_velocity_min = 0.6
+initial_velocity_max = 1.3
+gravity = Vector3(0, -7, 0)
+scale_min = 0.6
+color_ramp = SubResource("GradientTexture1D_86kpr")
+
+[sub_resource type="Gradient" id="Gradient_hj1nd"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_cetw2"]
+gradient = SubResource("Gradient_hj1nd")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6w7aa"]
+transparency = 1
+depth_draw_mode = 2
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_cetw2")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_ax25k"]
+material = SubResource("StandardMaterial3D_6w7aa")
+size = Vector2(0.05, 0.05)
+
+[node name="Rainfall" type="Node3D" unique_id=56601825]
+script = ExtResource("1_kum6t")
+
+[node name="Rain" type="GPUParticles3D" parent="." unique_id=374297545]
+cast_shadow = 0
+amount = 900
+sub_emitter = NodePath("../Splash")
+lifetime = 1.1
+preprocess = 1.1
+fixed_fps = 0
+visibility_aabb = AABB(-30, -20, -26, 60, 24, 52)
+process_material = SubResource("ParticleProcessMaterial_molcd")
+draw_pass_1 = SubResource("QuadMesh_prrlf")
+
+[node name="Splash" type="GPUParticles3D" parent="." unique_id=201071813]
+cast_shadow = 0
+emitting = false
+amount = 400
+lifetime = 0.25
+randomness = 0.3
+fixed_fps = 0
+visibility_aabb = AABB(-30, -20, -26, 60, 24, 52)
+process_material = SubResource("ParticleProcessMaterial_jy8rl")
+draw_pass_1 = SubResource("QuadMesh_ax25k")

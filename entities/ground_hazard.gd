@@ -43,6 +43,8 @@ func _ready() -> void:
 		_disc.modulate = Color(0.55, 0.2, 0.08, 0.4)
 		_disc.emission_energy = 0.12
 		add_child(FireFlame.new())
+	# Particles over it (GPU粒子特效推广策划案 §6): fire, or a fuse and its blast.
+	if fuse > 0.0 or lasting > 0.0: add_child(HazardFx.new())
 	if fuse > 0.0:
 		# The fuse is a warning like any other: see-through red with rings
 		# counting down to the burst (新敌人攻击案 v1.2).

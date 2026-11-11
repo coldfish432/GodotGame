@@ -52,3 +52,75 @@ field_snow={
 "type": "float",
 "value": 0.0
 }
+field_wet={
+"type": "float",
+"value": 0.0
+}
+field_puddle={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_snow_cover={
+"type": "float",
+"value": 0.0
+}
+field_trail={
+"type": "sampler2D",
+"value": "res://art/kit/textures/white_1px.png"
+}
+field_trail_rect={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_time={
+"type": "float",
+"value": 0.0
+}
+field_fire_0={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_fire_1={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_fire_2={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_fire_3={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_0={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_tint_0={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_1={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_tint_1={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_2={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_tint_2={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_3={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+field_lamp_tint_3={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}

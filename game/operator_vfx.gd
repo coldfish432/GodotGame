@@ -296,7 +296,8 @@ static func great_array(player: Player, centre: Vector3, radius: float) -> void:
 static func hit(player: Player, target: Enemy, kind: String, crit: bool) -> void:
 	if not _ok(player) or not is_instance_valid(target) or target.attack_profile.get("neutral", false): return
 	var key := target.get_instance_id()
-	var now := Time.get_ticks_msec() / 1000.0
+	# Game time (physics ticks), not the wall clock: fast-forwarded or slowed play keeps the gap.
+	var now := float(Engine.get_physics_frames()) / float(Engine.physics_ticks_per_second)
 	if now - float(_last_hit.get(key, -1.0)) < HIT_GAP: return
 	_last_hit[key] = now
 	if _last_hit.size() > 256: _last_hit.clear()
@@ -312,7 +313,8 @@ static func hit(player: Player, target: Enemy, kind: String, crit: bool) -> void
 	var r := 1.2 if crit else 0.95
 	fx.ring(r, P * (5.0 if crit else 3.5), c.hot, Color(c.main.r, c.main.g, c.main.b, 0.4), {"fade": 0.3})
 	fx.glow(r * 1.8, c.main, 1.0 if crit else 0.75, 0.3)
-	fx.sparks(Vector3.UP * 0.4, c.main, c.hot, 18 if crit else 12, 4.0, dir + Vector3.UP * 0.6, 55.0)
+	# The burst itself is the shared GPU HitSpark (GPU粒子特效推广策划案 §3 P0b).
+	HitSpark.spawn(game, at + Vector3.UP * 0.4, id, crit, hit_style(id, kind), dir + Vector3.UP * 0.6)
 	match id:
 		"hellagur":
 			# A thrust goes through: a short streak out the far side of him.
@@ -336,6 +338,13 @@ static func hit(player: Player, target: Enemy, kind: String, crit: bool) -> void
 		"hoshiguma":
 			fx.chips(Vector3.UP * 0.1, 8, 0.3, c.dust, 2.2)
 	if kind == "arts": fx.embers(Vector3.UP * 0.2, c.main, c.hot, 6, 0.4, 0.0, 0.6)
+
+## How her hits land: arts as light motes, the bow and the launcher as chips
+## thrown on along the shot, everything else the melee throw.
+static func hit_style(operator_id: String, kind: String) -> String:
+	if kind == "arts": return "arts"
+	if operator_id in ["typhon", "rosa"]: return "ranged"
+	return "melee"
 
 ## Her Space skill going off (aimed at `point`).
 static func skill(player: Player, point: Vector3) -> void:

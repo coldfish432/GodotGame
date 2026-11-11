@@ -63,7 +63,7 @@ func _physics_process(delta: float) -> void:
 		var amount := damage * (1.0 - decay * clampf(travelled / reach, 0.0, 1.0)) * (game.player.wave_bonus_against(enemy) if is_instance_valid(game.player) else 1.0)
 		var dealt := enemy.take_hit(amount, kind, crit)
 		if is_instance_valid(game.player): game.player.on_wave_hit(enemy, dealt, self)
-		CombatVfx.spawn(game, point, direction, "spark", 0, true)
+		HitSpark.spawn(game, point, game.player.operator_id if is_instance_valid(game.player) else "", crit, OperatorVfx.hit_style(game.player.operator_id if is_instance_valid(game.player) else "", kind), direction)
 		if enemy.attack_profile.get("blocks_pierce", false):
 			end = entry[3]
 			blocked = true

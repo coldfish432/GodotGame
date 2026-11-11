@@ -323,27 +323,24 @@ func _grade_lamps(lamps: Dictionary) -> void:
 	rig.grade_near(boss.centre(), BossCatalog.ARENA_RADIUS + 6.0, lamps.tint, float(lamps.k), float(lamps.mult))
 
 ## 萨米's snowfall (TerraceDressing.weather): harder by stage, a gust, and calm at his fall.
-func _weather() -> CPUParticles3D:
+func _weather() -> WeatherFx:
 	var world_map := game.world_map
 	if not is_instance_valid(world_map) or world_map.terrace_dressing == null: return null
-	var w: CPUParticles3D = world_map.terrace_dressing.weather
+	var w: WeatherFx = world_map.terrace_dressing.weather
 	return w if is_instance_valid(w) else null
 
 func _storm(level: float) -> void:
 	var w := _weather()
 	if w == null: return
-	if not w.has_meta("calm_gravity"): w.set_meta("calm_gravity", w.gravity)
-	var g: Vector3 = w.get_meta("calm_gravity")
 	w.emitting = true
-	w.speed_scale = 1.0 + 0.6 * level
-	w.gravity = Vector3(g.x + 2.2 * level, g.y, g.z + 0.6 * level)
+	w.storm(level)
 
 func _gust(seconds: float) -> void:
 	var w := _weather()
 	if w == null: return
-	var before := w.speed_scale
+	var before := w.storm_level()
 	_storm(2.0)
-	_after(seconds, func(): if _weather() != null: _storm((before - 1.0) / 0.6))
+	_after(seconds, func(): if _weather() != null: _storm(before))
 
 func _calm() -> void:
 	var w := _weather()
@@ -353,7 +350,7 @@ func _calm() -> void:
 	_after(4.0, func(): if _weather() != null: _weather().emitting = true)
 
 ## Sand blowing through the air round the camera (鼠王's phases): `level` 0 none, 1 light, 2 more.
-var _sand: CPUParticles3D
+var _sand: GPUParticles3D
 func _haze(level: float) -> void:
 	if level <= 0.0:
 		if is_instance_valid(_sand):
@@ -363,25 +360,25 @@ func _haze(level: float) -> void:
 			_sand = null
 		return
 	if not is_instance_valid(_sand):
-		_sand = CPUParticles3D.new()
-		_sand.name = "SandHaze"
-		_sand.local_coords = false
-		_sand.lifetime = 3.0
-		_sand.preprocess = 3.0
-		_sand.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-		_sand.emission_box_extents = Vector3(16.0, 1.2, 12.0)
-		_sand.direction = Vector3(1.0, 0.05, 0.25)
-		_sand.spread = 12.0
-		_sand.initial_velocity_min = 2.5
-		_sand.initial_velocity_max = 4.5
-		_sand.gravity = Vector3(0.6, -0.05, 0.0)
-		_sand.scale_amount_min = 0.6
-		_sand.scale_amount_max = 1.6
+		var sand := CPUParticles3D.new()
+		sand.name = "SandHaze"
+		sand.local_coords = false
+		sand.lifetime = 3.0
+		sand.preprocess = 3.0
+		sand.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+		sand.emission_box_extents = Vector3(16.0, 1.2, 12.0)
+		sand.direction = Vector3(1.0, 0.05, 0.25)
+		sand.spread = 12.0
+		sand.initial_velocity_min = 2.5
+		sand.initial_velocity_max = 4.5
+		sand.gravity = Vector3(0.6, -0.05, 0.0)
+		sand.scale_amount_min = 0.6
+		sand.scale_amount_max = 1.6
 		var ramp := Gradient.new()
 		ramp.set_color(0, Color(0.85, 0.72, 0.48, 0.0))
 		ramp.add_point(0.3, Color(0.85, 0.72, 0.48, 0.5))
 		ramp.set_color(ramp.get_point_count() - 1, Color(0.85, 0.72, 0.48, 0.0))
-		_sand.color_ramp = ramp
+		sand.color_ramp = ramp
 		var quad := QuadMesh.new()
 		quad.size = Vector2(0.9, 0.3)
 		var mat := StandardMaterial3D.new()
@@ -392,9 +389,12 @@ func _haze(level: float) -> void:
 		mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 		mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
 		quad.material = mat
-		_sand.mesh = quad
+		sand.mesh = quad
+		sand.amount = 440
+		_sand = GpuFx.from_cpu(sand, [1.2, 6.0, 0.05, 0.15], 24.0)
 		game.add_child(_sand)
-	_sand.amount = int(220 * level)
+	# A fixed buffer; how much blows is the ratio (changing amount restarts it).
+	_sand.amount_ratio = clampf(level / 2.0, 0.0, 1.0)
 	_sand.emitting = true
 
 func _rig() -> FieldLight.LightRig:

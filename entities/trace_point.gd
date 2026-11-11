@@ -82,7 +82,7 @@ var operator := ""
 ## Which of her traces this is (RecruitCatalog.TRACE_SMALL / TRACE_BIG).
 var key := "s1"
 var game: Node
-var _motes: CPUParticles3D
+var _motes: GPUParticles3D
 var _shine: StandardMaterial3D
 var _column: ShaderMaterial
 var _model: MeshInstance3D
@@ -132,22 +132,22 @@ func setup(id: String, p_game: Node = null, p_key := "s1") -> void:
 	_shine = (get_node("Halo") as MeshInstance3D).material_override
 	glow = glow_for(id)
 	_add_column(big)
-	_motes = CPUParticles3D.new()
-	_motes.name = "Motes"
-	_motes.amount = 10 if big else 5
-	_motes.lifetime = 3.0
-	_motes.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
-	_motes.emission_sphere_radius = 0.35
-	_motes.direction = Vector3.UP
-	_motes.spread = 25.0
-	_motes.gravity = Vector3.ZERO
-	_motes.initial_velocity_min = 0.08
-	_motes.initial_velocity_max = 0.2
+	var cpu := CPUParticles3D.new()
+	cpu.name = "Motes"
+	cpu.amount = 10 if big else 5
+	cpu.lifetime = 3.0
+	cpu.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	cpu.emission_sphere_radius = 0.35
+	cpu.direction = Vector3.UP
+	cpu.spread = 25.0
+	cpu.gravity = Vector3.ZERO
+	cpu.initial_velocity_min = 0.08
+	cpu.initial_velocity_max = 0.2
 	var fade := Gradient.new()
 	fade.set_color(0, Color(glow, 0.0))
 	fade.add_point(0.35, Color(glow.lightened(0.2), 0.8))
 	fade.set_color(fade.get_point_count() - 1, Color(glow, 0.0))
-	_motes.color_ramp = fade
+	cpu.color_ramp = fade
 	var speck := QuadMesh.new()
 	speck.size = Vector2(0.07, 0.07)
 	var material := StandardMaterial3D.new()
@@ -156,9 +156,12 @@ func setup(id: String, p_game: Node = null, p_key := "s1") -> void:
 	material.vertex_color_use_as_albedo = true
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 	speck.material = material
-	_motes.mesh = speck
-	_motes.position.y = 0.15
-	_motes.preprocess = 3.0
+	cpu.mesh = speck
+	cpu.position.y = 0.15
+	cpu.preprocess = 3.0
+	# On the GPU (§7 P4): more motes the nearer she comes (amount_ratio, below).
+	cpu.amount = 14 if big else 8
+	_motes = GpuFx.from_cpu(cpu, [0.6, 1.5, 0.05, 0.12], 2.0)
 	add_child(_motes)
 
 ## A faint column of her glow rising off the mark (BossVfx's shaft, held).
@@ -226,3 +229,4 @@ func _process(delta: float) -> void:
 		_column.set_shader_parameter("flow", -_time * 0.25)
 	if is_instance_valid(_motes):
 		_motes.speed_scale = 1.0 + _stir * 1.5
+		_motes.amount_ratio = 0.35 + 0.65 * _stir

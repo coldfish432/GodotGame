@@ -6,6 +6,7 @@ extends Node3D
 ## whoever stands in the circle, then a patch of fire (GroundHazard).
 
 const FLIGHT := 0.6
+const SHARDS := preload("res://effects/molotov_shards.tscn")
 ## Highest point above the straight line, in world units.
 const APEX := 2.0
 const P := 1.0 / 15.0
@@ -60,6 +61,8 @@ func _land() -> void:
 	if is_instance_valid(warning): warning.queue_free()
 	var at := Vector3(target.x, game.ground_y(target), target.z)
 	CombatVfx.spawn(game, at + Vector3.UP * 0.09, Vector3.FORWARD, "burst", 0, true)
+	# Glass and a flare of flame (GPU粒子特效推广策划案 §6).
+	OneShotFx.spawn(SHARDS, game, at + Vector3.UP * 0.15, 8)
 	game.sound.play("molotov_shatter")
 	if is_instance_valid(game.player) and Vector2(game.player.global_position.x - at.x, game.player.global_position.z - at.z).length() <= radius:
 		game.player.take_damage(damage, kind, source if is_instance_valid(source) else null)

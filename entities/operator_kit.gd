@@ -203,7 +203,9 @@ func enemy_at(point: Vector3, pick: float, range_limit: float) -> Enemy:
 func basic_hit(target: Enemy, raw: float, kind: String, crit: bool, pierce: float = 0.0, spark: String = "spark", direction: Vector3 = Vector3.FORWARD) -> float:
 	if not alive(target): return 0.0
 	var dealt := player.land_hit(target, raw, kind, crit, pierce)
-	if is_instance_valid(target):
+	# The landed burst is OperatorVfx.hit's HitSpark (via land_hit → _deal);
+	# only a kit's own named spark still draws here.
+	if is_instance_valid(target) and spark != "spark":
 		fx(target.global_position, direction, spark, 2, 0.12, "ground", 0.0, 0.3)
 	return dealt
 

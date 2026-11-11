@@ -43,6 +43,7 @@ void fragment() {
 	ALBEDO *= mix(1.0, void_floor, smoothstep(void_from, void_from + void_span, model_height));
 	NORMAL_MAP = texture(normal_tex, UV).rgb;
 	NORMAL_MAP_DEPTH = normal_depth;
-	ROUGHNESS = 0.72;
-	SPECULAR = 0.35;
+	vec3 rain_glow = vec3(0.0);
+	field_rain_surface(ALBEDO, ROUGHNESS, SPECULAR, rain_glow, world_normal, world_position, INV_VIEW_MATRIX, 0.72, 0.35);
+	EMISSION = rain_glow;
 }

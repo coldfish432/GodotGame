@@ -77,6 +77,7 @@ void fragment() {
 	// it, out of sight above the screen in the cave's reading, goes black.
 	float up_dark = mix(void_floor, 0.03, smoothstep(0.55, 0.85, world_normal.y));
 	ALBEDO *= mix(1.0, up_dark, smoothstep(void_from, void_from + void_span, rise));
-	ROUGHNESS = 0.92;
-	SPECULAR = 0.2;
+	vec3 rain_glow = vec3(0.0);
+	field_rain_surface(ALBEDO, ROUGHNESS, SPECULAR, rain_glow, world_normal, world_position, INV_VIEW_MATRIX, 0.92, 0.2);
+	EMISSION = rain_glow;
 }

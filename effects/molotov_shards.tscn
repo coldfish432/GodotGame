@@ -1,0 +1,130 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://effects/one_shot.gd" id="1_6ky46"]
+
+[sub_resource type="Gradient" id="Gradient_ks3e6"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.62, 0.78, 0.66, 1, 0.82, 0.9, 0.86, 1, 0.45, 0.6, 0.5, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_4vv2p"]
+gradient = SubResource("Gradient_ks3e6")
+
+[sub_resource type="Gradient" id="Gradient_shbm4"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_8nqre"]
+gradient = SubResource("Gradient_shbm4")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_v4mu5"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+angle_max = 360.0
+direction = Vector3(0, 1, 0)
+spread = 70.0
+initial_velocity_min = 2.5
+initial_velocity_max = 4.5
+gravity = Vector3(0, -12, 0)
+scale_min = 0.6
+scale_max = 1.3
+color_ramp = SubResource("GradientTexture1D_8nqre")
+color_initial_ramp = SubResource("GradientTexture1D_4vv2p")
+collision_mode = 1
+collision_friction = 0.6
+collision_bounce = 0.35
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q7wcq"]
+transparency = 1
+depth_draw_mode = 2
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_10brm"]
+material = SubResource("StandardMaterial3D_q7wcq")
+size = Vector2(0.07, 0.05)
+
+[sub_resource type="Gradient" id="Gradient_k28sn"]
+offsets = PackedFloat32Array(0, 0.35, 1)
+colors = PackedColorArray(1, 0.95, 0.7, 1, 1, 0.55, 0.15, 0.9, 0.6, 0.1, 0.02, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_4uj3j"]
+gradient = SubResource("Gradient_k28sn")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_yontk"]
+emission_shape = 1
+emission_sphere_radius = 0.2
+direction = Vector3(0, 1, 0)
+spread = 90.0
+initial_velocity_min = 2.0
+initial_velocity_max = 4.0
+gravity = Vector3(0, -2, 0)
+damping_min = 4.0
+damping_max = 6.0
+scale_min = 0.7
+scale_max = 1.2
+color_ramp = SubResource("GradientTexture1D_4uj3j")
+
+[sub_resource type="Gradient" id="Gradient_au3ex"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_augmo"]
+gradient = SubResource("Gradient_au3ex")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pikf7"]
+transparency = 1
+blend_mode = 1
+depth_draw_mode = 2
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_augmo")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_km16j"]
+material = SubResource("StandardMaterial3D_pikf7")
+size = Vector2(0.22, 0.22)
+
+[node name="MolotovShards" type="Node3D" unique_id=1145622572]
+script = ExtResource("1_6ky46")
+
+[node name="Glass" type="GPUParticles3D" parent="." unique_id=1381740094]
+cast_shadow = 0
+emitting = false
+amount = 14
+lifetime = 0.7
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+fixed_fps = 0
+visibility_aabb = AABB(-2.5, -0.5, -2.5, 5, 3, 5)
+process_material = SubResource("ParticleProcessMaterial_v4mu5")
+draw_pass_1 = SubResource("QuadMesh_10brm")
+
+[node name="Flare" type="GPUParticles3D" parent="." unique_id=568095723]
+cast_shadow = 0
+emitting = false
+amount = 12
+lifetime = 0.35
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+fixed_fps = 0
+visibility_aabb = AABB(-2, -0.5, -2, 4, 3, 4)
+process_material = SubResource("ParticleProcessMaterial_yontk")
+draw_pass_1 = SubResource("QuadMesh_km16j")

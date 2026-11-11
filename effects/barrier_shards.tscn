@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://effects/one_shot.gd" id="1_ldaf0"]
+
+[sub_resource type="Gradient" id="Gradient_1166t"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.9, 0.95, 1, 0.7, 0.75, 0.85, 1, 0.5, 0.75, 0.85, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_jvbk8"]
+gradient = SubResource("Gradient_1166t")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_lx8ka"]
+emission_shape = 1
+emission_sphere_radius = 0.45
+angle_max = 360.0
+direction = Vector3(0, 1, 0)
+spread = 90.0
+initial_velocity_min = 1.5
+initial_velocity_max = 3.0
+gravity = Vector3(0, -6, 0)
+damping_min = 1.0
+damping_max = 2.0
+scale_min = 0.6
+scale_max = 1.2
+color_ramp = SubResource("GradientTexture1D_jvbk8")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sew6f"]
+transparency = 1
+blend_mode = 1
+depth_draw_mode = 2
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_vj7rw"]
+material = SubResource("StandardMaterial3D_sew6f")
+size = Vector2(0.09, 0.06)
+
+[node name="BarrierShards" type="Node3D" unique_id=1093465799]
+script = ExtResource("1_ldaf0")
+
+[node name="Shards" type="GPUParticles3D" parent="." unique_id=1093857550]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+cast_shadow = 0
+emitting = false
+amount = 16
+lifetime = 0.6
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+fixed_fps = 0
+visibility_aabb = AABB(-2, -1, -2, 4, 3.5, 4)
+process_material = SubResource("ParticleProcessMaterial_lx8ka")
+draw_pass_1 = SubResource("QuadMesh_vj7rw")

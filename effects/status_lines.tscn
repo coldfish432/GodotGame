@@ -1,0 +1,95 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://effects/status_lines.gd" id="1_xr6y2"]
+[ext_resource type="Shader" path="res://effects/status_line.gdshader" id="2_lxw8a"]
+
+[sub_resource type="Gradient" id="Gradient_w20k4"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ch728"]
+gradient = SubResource("Gradient_w20k4")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_5344y"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.0
+emission_ring_radius = 0.4
+emission_ring_inner_radius = 0.38
+emission_ring_cone_angle = 90.0
+direction = Vector3(0, 1, 0)
+spread = 0.0
+initial_velocity_min = 0.9
+initial_velocity_max = 1.4
+gravity = Vector3(0, 0, 0)
+color_ramp = SubResource("GradientTexture1D_ch728")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oa1xs"]
+render_priority = 0
+shader = ExtResource("2_lxw8a")
+shader_parameter/falls = 0.0
+shader_parameter/front_alpha = null
+shader_parameter/back_alpha = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_lbhm5"]
+material = SubResource("ShaderMaterial_oa1xs")
+size = Vector2(0.14, 0.6)
+
+[sub_resource type="Gradient" id="Gradient_st72j"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_1rope"]
+gradient = SubResource("Gradient_st72j")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_8u7oi"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.0
+emission_ring_radius = 0.4
+emission_ring_inner_radius = 0.38
+emission_ring_cone_angle = 90.0
+direction = Vector3(0, -1, 0)
+spread = 0.0
+initial_velocity_min = 0.9
+initial_velocity_max = 1.4
+gravity = Vector3(0, 0, 0)
+color_ramp = SubResource("GradientTexture1D_1rope")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_agoku"]
+render_priority = 0
+shader = ExtResource("2_lxw8a")
+shader_parameter/falls = 1.0
+shader_parameter/front_alpha = null
+shader_parameter/back_alpha = null
+
+[sub_resource type="QuadMesh" id="QuadMesh_dvh8v"]
+material = SubResource("ShaderMaterial_agoku")
+size = Vector2(0.14, 0.6)
+
+[node name="StatusLines" type="Node3D" unique_id=385224148]
+script = ExtResource("1_xr6y2")
+
+[node name="Up" type="GPUParticles3D" parent="." unique_id=654533968]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+cast_shadow = 0
+emitting = false
+amount = 12
+lifetime = 0.9
+randomness = 0.5
+fixed_fps = 0
+visibility_aabb = AABB(-1.5, -2, -1.5, 3, 4.5, 3)
+process_material = SubResource("ParticleProcessMaterial_5344y")
+draw_pass_1 = SubResource("QuadMesh_lbhm5")
+
+[node name="Down" type="GPUParticles3D" parent="." unique_id=747964746]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
+cast_shadow = 0
+emitting = false
+amount = 12
+lifetime = 0.9
+randomness = 0.5
+fixed_fps = 0
+visibility_aabb = AABB(-1.5, -2, -1.5, 3, 4.5, 3)
+process_material = SubResource("ParticleProcessMaterial_8u7oi")
+draw_pass_1 = SubResource("QuadMesh_dvh8v")

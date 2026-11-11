@@ -12,7 +12,7 @@ const LAMP_GAIN := 0.4
 
 var used := false
 var _lamp: StandardMaterial3D
-var _spray: CPUParticles3D
+var _spray: GPUParticles3D
 
 func _ready() -> void:
 	add_to_group("shower_points")
@@ -28,16 +28,16 @@ func _ready() -> void:
 	_lamp = halo.material_override
 	_lamp.albedo_color = LAMP * LAMP_GAIN
 	add_child(halo)
-	_spray = CPUParticles3D.new()
-	_spray.name = "Spray"
-	_spray.amount = 40
-	_spray.lifetime = 0.6
-	_spray.emitting = false
-	_spray.position = Vector3(0.0, 2.35, 0.5)
-	_spray.direction = Vector3.DOWN
-	_spray.spread = 18.0
-	_spray.initial_velocity_min = 2.0
-	_spray.initial_velocity_max = 3.2
+	var spray := CPUParticles3D.new()
+	spray.name = "Spray"
+	spray.amount = 40
+	spray.lifetime = 0.6
+	spray.emitting = false
+	spray.position = Vector3(0.0, 2.35, 0.5)
+	spray.direction = Vector3.DOWN
+	spray.spread = 18.0
+	spray.initial_velocity_min = 2.0
+	spray.initial_velocity_max = 3.2
 	var drop := QuadMesh.new()
 	drop.size = Vector2(0.04, 0.12)
 	var material := StandardMaterial3D.new()
@@ -46,7 +46,8 @@ func _ready() -> void:
 	material.albedo_color = Color(0.7, 0.95, 1.0, 0.6)
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 	drop.material = material
-	_spray.mesh = drop
+	spray.mesh = drop
+	_spray = GpuFx.from_cpu(spray, [], 3.0)
 	add_child(_spray)
 
 func _placeholder() -> void:

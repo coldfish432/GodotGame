@@ -185,11 +185,12 @@ func _place_tell() -> void:
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 	speck.material = material
 	grit.mesh = speck
-	_sealed.add_child(grit)
-	grit.global_position = Vector3(mouth.x, top - 0.1, mouth.y) - Vector3(inward.x, 0, inward.y) * 0.15
+	var gpu_grit := GpuFx.from_cpu(grit, [], 3.0)
+	_sealed.add_child(gpu_grit)
+	gpu_grit.global_position = Vector3(mouth.x, top - 0.1, mouth.y) - Vector3(inward.x, 0, inward.y) * 0.15
 
 ## Faint motes seeping out of the face along the mouth, drifting up.
-func _seep(mouth: Vector2, inward: Vector2, top: float) -> CPUParticles3D:
+func _seep(mouth: Vector2, inward: Vector2, top: float) -> GPUParticles3D:
 	var motes := CPUParticles3D.new()
 	motes.name = "VaultSeep"
 	motes.amount = 7
@@ -220,7 +221,7 @@ func _seep(mouth: Vector2, inward: Vector2, top: float) -> CPUParticles3D:
 	var across := Vector3(-inward.y, 0, inward.x)
 	var ground: float = map.ground_height(mouth - inward * 0.3)
 	motes.transform = Transform3D(Basis(across, Vector3.UP, Vector3(-inward.x, 0, -inward.y)), Vector3(mouth.x, ground + 0.5, mouth.y) - Vector3(inward.x, 0, inward.y) * 0.3)
-	return motes
+	return GpuFx.from_cpu(motes, [0.5, 1.5, 0.05, 0.1], 3.0)
 
 ## Whether a swing from `from` heading `direction` reaches the edge at the mouth.
 func in_reach(from: Vector3, direction: Vector3) -> bool:

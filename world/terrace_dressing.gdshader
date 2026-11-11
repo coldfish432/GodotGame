@@ -23,6 +23,7 @@ void fragment() {
 		+ surface_texture(world_position.xz) * weight.y
 		+ surface_texture(world_position.xy) * weight.z;
 	ALBEDO = field_lit_px(field_snowed(grain * tint, world_normal, world_position), world_position, FRAGCOORD.xy);
-	ROUGHNESS = 0.9;
-	SPECULAR = 0.2;
+	vec3 rain_glow = vec3(0.0);
+	field_rain_surface(ALBEDO, ROUGHNESS, SPECULAR, rain_glow, world_normal, world_position, INV_VIEW_MATRIX, 0.9, 0.2);
+	EMISSION = rain_glow;
 }

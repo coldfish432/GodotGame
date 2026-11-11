@@ -11,7 +11,7 @@ extends Node3D
 ##   edge), that sweeps open, holds and fades (`arc`, `ring`, `beam`, `crack`);
 ## - crystals: faceted hexagonal bipyramids, each face shaded by its facing and
 ##   lit toward the tip, that break out of the ground and shatter (`crystal`);
-## - particles: one-shot CPUParticles3D bursts of fine texel chips, sparks,
+## - particles: one-shot GPUParticles3D bursts of fine texel chips, sparks,
 ##   embers, ice glitter, blood, and soft round dust and mist (`burst` and the
 ##   helpers after it);
 ## - textures and fluids (tools/fx/bake_boss_fx.py, art/fx/boss/): a tileable
@@ -633,8 +633,10 @@ func halo(at: Vector3, size: float, colour: Color, gain: float = 0.7, time: floa
 ## damping, explosive, delay, flat (stays on the ground), near_ok.
 ## Unless `near_ok`, its emitter keeps clear of every figure: it is moved out
 ## to a ring round one that stands at its centre, or shrunk off one at its edge.
-func burst(opts: Dictionary) -> CPUParticles3D:
-	var p := CPUParticles3D.new()
+func burst(opts: Dictionary) -> GPUParticles3D:
+	# GPU particles (GPU粒子特效推广策划案 v0.6 §4 P1): the same opts and the same
+	# keeping-clear as the CPU version; the process material is cached per look.
+	var p := GPUParticles3D.new()
 	var at: Vector3 = opts.get("at", Vector3.UP * 0.3)
 	var radius := float(opts.get("radius", 0.2))
 	p.amount = maxi(1, int(opts.get("amount", 16)))
@@ -642,89 +644,124 @@ func burst(opts: Dictionary) -> CPUParticles3D:
 	p.one_shot = true
 	p.explosiveness = float(opts.get("explosive", 0.95))
 	p.local_coords = false
-	if opts.has("box"):
-		p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-		p.emission_box_extents = opts.box
-	elif opts.has("ring"):
-		p.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
-		p.emission_ring_axis = Vector3.UP
-		p.emission_ring_height = 0.05
-		p.emission_ring_inner_radius = float(opts.ring[0])
-		p.emission_ring_radius = float(opts.ring[1])
-	else:
-		p.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
-		p.emission_sphere_radius = radius
-		if not bool(opts.get("near_ok", false)):
-			var d := _nearest(global_position + at)
-			if d < CLEAR:
-				# A figure stands at its heart: throw from a ring round it instead.
-				p.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
-				p.emission_ring_axis = Vector3.UP
-				p.emission_ring_height = 0.05
-				p.emission_ring_inner_radius = CLEAR - d + 0.1
-				p.emission_ring_radius = maxf(radius, CLEAR - d + 0.6)
-				p.radial_accel_min = 1.5
-				p.radial_accel_max = 2.5
-			elif d < radius + CLEAR:
-				p.emission_sphere_radius = maxf(0.05, d - CLEAR)
-	p.direction = opts.get("dir", Vector3.UP)
-	p.spread = float(opts.get("spread", 60.0))
-	var speed: Array = opts.get("speed", [1.0, 3.0])
-	p.initial_velocity_min = float(speed[0])
-	p.initial_velocity_max = float(speed[1])
-	p.gravity = opts.get("gravity", Vector3(0, -6.0, 0))
-	if opts.has("radial"):
-		p.radial_accel_min = float(opts.radial)
-		p.radial_accel_max = float(opts.radial)
-	if opts.has("tangential"):
-		p.tangential_accel_min = float(opts.tangential)
-		p.tangential_accel_max = float(opts.tangential)
-	p.damping_min = float(opts.get("damping", 0.0))
-	p.damping_max = float(opts.get("damping", 0.0))
-	if bool(opts.get("flat", false)):
-		p.direction = Vector3(opts.get("dir", Vector3.RIGHT).x, 0.0, opts.get("dir", Vector3.RIGHT).z)
-		p.gravity = Vector3.ZERO
+	p.interpolate = true
+	p.fixed_fps = 0
+	# Where it throws from: box, ring, or a sphere moved off a figure at its heart.
+	var shape := {"kind": "sphere", "radius": radius}
+	if opts.has("box"): shape = {"kind": "box", "box": opts.box}
+	elif opts.has("ring"): shape = {"kind": "ring", "inner": float(opts.ring[0]), "outer": float(opts.ring[1])}
+	elif not bool(opts.get("near_ok", false)):
+		var d := _nearest(global_position + at)
+		if d < CLEAR:
+			# A figure stands at its heart: throw from a ring round it instead.
+			shape = {"kind": "ring", "inner": CLEAR - d + 0.1, "outer": maxf(radius, CLEAR - d + 0.6), "push": true}
+		elif d < radius + CLEAR:
+			shape.radius = maxf(0.05, d - CLEAR)
+	p.process_material = _burst_material(opts, shape)
 	var size := float(opts.get("size", P * 1.2))
-	p.scale_amount_min = 0.6
-	p.scale_amount_max = 1.4
-	var ramp := Gradient.new()
-	var colours: Array = opts.get("colours", [Color.WHITE, Color.WHITE, Color(1, 1, 1, 0)])
-	ramp.set_color(0, colours[0])
-	ramp.add_point(0.35, colours[1])
-	ramp.set_color(ramp.get_point_count() - 1, colours[2])
-	p.color_ramp = ramp
-	if opts.has("tints"):
-		var tints := Gradient.new()
-		var list: Array = opts.tints
-		tints.set_color(0, list[0])
-		tints.set_color(1, list[list.size() - 1])
-		for i in range(1, list.size() - 1): tints.add_point(float(i) / float(list.size() - 1), list[i])
-		tints.interpolation_mode = Gradient.GRADIENT_INTERPOLATE_CONSTANT
-		p.color_initial_ramp = tints
-	var additive := bool(opts.get("additive", false))
-	var soft := bool(opts.get("soft", false))
 	var sheet: Texture2D = tex(str(opts.flip)) if opts.has("flip") else null
-	if sheet != null:
-		# A baked fluid puff: each particle plays the 8×8 sheet once over its life, turned at random.
-		p.anim_speed_min = 1.0
-		p.anim_speed_max = 1.0
-		p.angle_min = -180.0
-		p.angle_max = 180.0
-	p.mesh = _burst_quad(size, additive, soft, sheet)
+	p.draw_pass_1 = _burst_quad(size, bool(opts.get("additive", false)), bool(opts.get("soft", false)), sheet)
+	p.visibility_aabb = _burst_aabb(opts, shape, size)
+	p.emitting = false
 	add_child(p)
 	p.position = at
 	var delay := float(opts.get("delay", 0.0))
 	if delay > 0.0:
-		p.emitting = false
 		# By id: the floor may go (and the burst with it) before the timer fires.
 		var id := p.get_instance_id()
 		get_tree().create_timer(delay, false).timeout.connect(func():
-			var q := instance_from_id(id) as CPUParticles3D
+			var q := instance_from_id(id) as GPUParticles3D
 			if is_instance_valid(q): q.restart())
 	else:
-		p.emitting = true
+		p.restart()
 	life = maxf(life, delay + p.lifetime + 0.1)
 	return p
+
+## Process materials per look, shared (they never change once made). Cleared
+## with the other static caches; capped so a long run cannot grow it forever.
+static var _burst_materials := {}
+const BURST_MATERIALS_MAX := 1024
+
+static func _burst_material(opts: Dictionary, shape: Dictionary) -> ParticleProcessMaterial:
+	var keys := ["dir", "spread", "speed", "gravity", "radial", "tangential", "damping", "flat", "colours", "tints", "flip"]
+	var key := [shape]
+	for k in keys: key.append(opts.get(k))
+	var hashed := str(key).hash()
+	if _burst_materials.has(hashed): return _burst_materials[hashed]
+	if _burst_materials.size() >= BURST_MATERIALS_MAX: _burst_materials.clear()
+	var m := ParticleProcessMaterial.new()
+	m.particle_flag_disable_z = false
+	match String(shape.kind):
+		"box":
+			m.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+			m.emission_box_extents = shape.box
+		"ring":
+			m.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_RING
+			m.emission_ring_axis = Vector3.UP
+			m.emission_ring_height = 0.05
+			m.emission_ring_inner_radius = float(shape.inner)
+			m.emission_ring_radius = float(shape.outer)
+			if shape.get("push", false):
+				m.radial_accel_min = 1.5
+				m.radial_accel_max = 2.5
+		_:
+			m.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+			m.emission_sphere_radius = float(shape.radius)
+	m.direction = opts.get("dir", Vector3.UP)
+	m.spread = float(opts.get("spread", 60.0))
+	var speed: Array = opts.get("speed", [1.0, 3.0])
+	m.initial_velocity_min = float(speed[0])
+	m.initial_velocity_max = float(speed[1])
+	m.gravity = opts.get("gravity", Vector3(0, -6.0, 0))
+	if opts.has("radial"):
+		m.radial_accel_min = float(opts.radial)
+		m.radial_accel_max = float(opts.radial)
+	if opts.has("tangential"):
+		m.tangential_accel_min = float(opts.tangential)
+		m.tangential_accel_max = float(opts.tangential)
+	m.damping_min = float(opts.get("damping", 0.0))
+	m.damping_max = float(opts.get("damping", 0.0))
+	if bool(opts.get("flat", false)):
+		var flat_dir: Vector3 = opts.get("dir", Vector3.RIGHT)
+		m.direction = Vector3(flat_dir.x, 0.0, flat_dir.z)
+		m.gravity = Vector3.ZERO
+	m.scale_min = 0.6
+	m.scale_max = 1.4
+	var colours: Array = opts.get("colours", [Color.WHITE, Color.WHITE, Color(1, 1, 1, 0)])
+	m.color_ramp = GpuFx.ramp([colours[0], colours[1], colours[2]], [0.0, 0.35, 1.0])
+	if opts.has("tints"):
+		var list: Array = opts.tints
+		var tints := Gradient.new()
+		tints.set_color(0, list[0])
+		tints.set_color(1, list[list.size() - 1])
+		for i in range(1, list.size() - 1): tints.add_point(float(i) / float(list.size() - 1), list[i])
+		tints.interpolation_mode = Gradient.GRADIENT_INTERPOLATE_CONSTANT
+		var initial := GradientTexture1D.new()
+		initial.gradient = tints
+		m.color_initial_ramp = initial
+	if opts.has("flip"):
+		# A baked fluid puff: each particle plays the 8×8 sheet once over its life, turned at random.
+		m.anim_speed_min = 1.0
+		m.anim_speed_max = 1.0
+		m.angle_min = -180.0
+		m.angle_max = 180.0
+	_burst_materials[hashed] = m
+	return m
+
+## How far a burst's particles can get (set by hand; GPU particles do not grow it).
+static func _burst_aabb(opts: Dictionary, shape: Dictionary, size: float) -> AABB:
+	var speed: Array = opts.get("speed", [1.0, 3.0])
+	var t := float(opts.get("time", 0.6))
+	var g: Vector3 = opts.get("gravity", Vector3(0, -6.0, 0))
+	var push := 2.5 if shape.get("push", false) else absf(float(opts.get("radial", 0.0))) + absf(float(opts.get("tangential", 0.0)))
+	var reach := float(speed[1]) * t + 0.5 * (g.length() + push) * t * t
+	var spread := 0.0
+	match String(shape.kind):
+		"box": spread = (shape.box as Vector3).length()
+		"ring": spread = float(shape.outer)
+		_: spread = float(shape.radius)
+	var r := reach + spread + size
+	return AABB(Vector3(-r, -r, -r), Vector3(r, r, r) * 2.0)
 
 ## A burst's particle quad and its material, made once per look and shared:
 ## nothing changes either after it is made (GameManager.release_static_caches).

@@ -98,6 +98,11 @@ func feature_rate(kind: String) -> float:
 func cold_rate() -> float:
 	if game.in_base or game.in_camp or game.region_id != "snow": return 0.0
 	if warm_fire() != null: return -FeatureCatalog.FIRE_WARM * (FactionRewards.AMULET_FIRE if FactionRewards.badge_on(game, "sami") else 1.0)
+	return cold_growth()
+
+## How fast the cold grows here away from a fire (the snowfall follows it, §5.1).
+func cold_growth() -> float:
+	if game.in_base or game.in_camp or game.region_id != "snow": return 0.0
 	var rate := FeatureCatalog.COLD_RATE + (FeatureCatalog.COLD_DEEP if game.route_deep() else 0.0)
 	if game.floor_kit_on("雪山向导绳"): rate *= FactionRewards.ROPE_COLD
 	# 埃克提尔尼尔's blizzard from tier 5 (Boss与守卫者策划案 §6).

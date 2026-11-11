@@ -174,7 +174,7 @@ var marker_points: Array[Transform3D] = []
 var tree_transforms := {}
 var tree_count := 0
 ## The snowfall over the camera, moved there by GameManager every frame.
-var weather: CPUParticles3D
+var weather: WeatherFx
 var post_points: Array[Transform3D] = []
 var headframe_points: Array[Transform3D] = []
 ## Every lamp on the floor, lit through field_light: {"at", "color", "radius"}.
@@ -524,7 +524,7 @@ static func _highest_vertex(mesh: Mesh) -> Vector3:
 	return best
 
 ## Green smoke rising and spreading from the flare tip, fading out as it goes.
-static func _flare_smoke(at: Vector3) -> CPUParticles3D:
+static func _flare_smoke(at: Vector3) -> GPUParticles3D:
 	var smoke := CPUParticles3D.new()
 	smoke.name = "FlareSmoke"
 	smoke.position = at
@@ -575,7 +575,8 @@ static func _flare_smoke(at: Vector3) -> CPUParticles3D:
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	puff.material = material
 	smoke.mesh = puff
-	return smoke
+	# On the GPU with turbulence (§7 P4): the plume curls as it rises.
+	return GpuFx.from_cpu(smoke, [1.0, 3.0, 0.04, 0.1], 14.0)
 
 ## Lamps added after the map was dressed (the search points' work lights,
 ## placed by GameManager once it has spawned them): the lights built again.
@@ -840,72 +841,16 @@ func _on_pillar(p: Vector2) -> bool:
 		if Vector2(pillar.x, pillar.y).distance_to(p) < map.pillar_reach(i) + 1.0: return true
 	return false
 
-## Snow falling over the camera's view: small, sparse flakes drifting with the
-## wind, in world space so they do not slide when she runs.
-static func _snowfall() -> CPUParticles3D:
-	var snow := CPUParticles3D.new()
-	snow.name = "Snowfall"
-	snow.amount = 420
-	snow.lifetime = 6.0
-	snow.preprocess = 6.0
-	snow.local_coords = false
-	snow.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-	snow.emission_box_extents = Vector3(22.0, 0.5, 18.0)
-	snow.direction = Vector3.DOWN
-	snow.spread = 12.0
-	snow.initial_velocity_min = 0.6
-	snow.initial_velocity_max = 1.2
-	snow.gravity = Vector3(0.5, -1.4, 0.2)
-	snow.scale_amount_min = 0.6
-	snow.scale_amount_max = 1.2
-	var fade := Gradient.new()
-	fade.set_color(0, Color(1, 1, 1, 0.0))
-	fade.add_point(0.15, Color(0.95, 0.97, 1.0, 0.85))
-	fade.set_color(fade.get_point_count() - 1, Color(0.95, 0.97, 1.0, 0.0))
-	snow.color_ramp = fade
-	var flake := QuadMesh.new()
-	flake.size = Vector2(0.16, 0.16)
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	flake.material = material
-	snow.mesh = flake
-	return snow
+## Snow falling over the camera's view, and 叙拉古's rain (GPU粒子特效推广策划案
+## v0.6 §5.1): GPU scenes; FieldWeather sets how hard and the blizzard.
+const SNOWFALL_SCENE := preload("res://effects/snowfall.tscn")
+const RAINFALL_SCENE := preload("res://effects/rainfall.tscn")
 
-## 叙拉古's rain (叙拉古方案 §3.4: 东部湿润，雨季较长): thin streaks falling
-## fast and a little slanted, light enough not to hide the street.
-static func _rainfall() -> CPUParticles3D:
-	var rain := CPUParticles3D.new()
-	rain.name = "Rainfall"
-	rain.amount = 520
-	rain.lifetime = 1.1
-	rain.preprocess = 1.1
-	rain.local_coords = false
-	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-	rain.emission_box_extents = Vector3(22.0, 0.5, 18.0)
-	rain.direction = Vector3(0.12, -1.0, 0.05)
-	rain.spread = 2.0
-	rain.initial_velocity_min = 11.0
-	rain.initial_velocity_max = 13.0
-	rain.gravity = Vector3(0, -2.0, 0)
-	var fade := Gradient.new()
-	fade.set_color(0, Color(0.8, 0.86, 0.95, 0.0))
-	fade.add_point(0.2, Color(0.8, 0.86, 0.95, 0.45))
-	fade.set_color(fade.get_point_count() - 1, Color(0.8, 0.86, 0.95, 0.0))
-	rain.color_ramp = fade
-	var streak := QuadMesh.new()
-	streak.size = Vector2(0.03, 0.7)
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.vertex_color_use_as_albedo = true
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
-	material.billboard_keep_scale = true
-	streak.material = material
-	rain.mesh = streak
-	return rain
+static func _snowfall() -> WeatherFx:
+	return SNOWFALL_SCENE.instantiate() as WeatherFx
+
+static func _rainfall() -> WeatherFx:
+	return RAINFALL_SCENE.instantiate() as WeatherFx
 
 ## Distance from `point` along `direction` to the wall (the contour), or -1.
 func _wall(point: Vector2, direction: Vector2) -> float:

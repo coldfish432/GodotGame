@@ -13,10 +13,15 @@ const FLAME := Color(1.0, 0.55, 0.18)
 const GLOW := Color(0.95, 0.5, 0.2)
 const GLOW_GAIN := 0.55
 const FLICKER := 7.0
+## The flames and embers (GPU particles; every setting lives in the scene).
+const FLAMES_SCENE := preload("res://effects/fire_pit_flames.tscn")
+## Fuel at or above this shows the full fire; below it the flames thin, down to
+## LOW_RATIO at the last second (CHANGE-BRIEF.md Effect B, feedback mapping).
+const FULL_FIRE := 120.0
+const LOW_RATIO := 0.3
 
 var burn_left := 0.0
-var _flames: CPUParticles3D
-var _embers: CPUParticles3D
+var _emitters: Array[GPUParticles3D] = []
 var _glow: StandardMaterial3D
 var _time := 0.0
 
@@ -34,13 +39,12 @@ func _ready() -> void:
 	_glow = halo.material_override
 	_glow.albedo_color = Color.BLACK
 	add_child(halo)
-	_flames = _particles(18, 0.7, 0.18, Vector2(0.5, 1.1), 0.22, [Color(1.0, 0.85, 0.4, 0.0), Color(1.0, 0.6, 0.2, 0.9), Color(0.8, 0.2, 0.05, 0.0)])
-	_flames.name = "Flames"
-	_flames.position.y = 0.2
-	_embers = _particles(8, 2.2, 0.25, Vector2(0.4, 0.9), 0.05, [Color(1.0, 0.7, 0.3, 0.0), Color(1.0, 0.5, 0.15, 0.9), Color(0.6, 0.15, 0.05, 0.0)])
-	_embers.name = "Embers"
-	_embers.position.y = 0.35
-	_set_lit(false)
+	var flames := FLAMES_SCENE.instantiate()
+	add_child(flames)
+	for child in flames.get_children():
+		if child is GPUParticles3D: _emitters.append(child)
+	# A pit already holding fuel when it enters the tree burns from its first frame.
+	_set_lit(lit())
 
 ## Stones, logs and the charm in plain shapes until the model is in.
 func _placeholder() -> void:
@@ -71,37 +75,6 @@ func _placeholder() -> void:
 		stick.rotation = Vector3(PI / 2.0, TAU * i / 3.0, 0.0)
 		add_child(stick)
 
-func _particles(amount: int, lifetime: float, radius: float, speed: Vector2, size: float, ramp: Array) -> CPUParticles3D:
-	var p := CPUParticles3D.new()
-	p.amount = amount
-	p.lifetime = lifetime
-	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
-	p.emission_sphere_radius = radius
-	p.direction = Vector3.UP
-	p.spread = 15.0
-	p.gravity = Vector3.ZERO
-	p.initial_velocity_min = speed.x
-	p.initial_velocity_max = speed.y
-	var fade := Gradient.new()
-	fade.set_color(0, ramp[0])
-	fade.add_point(0.3, ramp[1])
-	fade.set_color(fade.get_point_count() - 1, ramp[2])
-	p.color_ramp = fade
-	var quad := QuadMesh.new()
-	quad.size = Vector2(size, size)
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	# Fog on an additive quad lights its whole square.
-	material.disable_fog = true
-	material.vertex_color_use_as_albedo = true
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	quad.material = material
-	p.mesh = quad
-	add_child(p)
-	return p
-
 func lit() -> bool:
 	return burn_left > 0.0
 
@@ -118,11 +91,23 @@ func burn(delta: float) -> void:
 	if burn_left <= 0.0: return
 	burn_left = maxf(0.0, burn_left - delta)
 	if burn_left <= 0.0: _set_lit(false)
+	else: _show_fuel()
 
 func _set_lit(on: bool) -> void:
-	if _flames != null: _flames.emitting = on
-	if _embers != null: _embers.emitting = on
+	_show_fuel()
 	if _glow != null and not on: _glow.albedo_color = Color.BLACK
+
+## Presentation only, read from burn_left (never written here): the flames burn
+## while there is fuel, and thin below FULL_FIRE. `amount` is never touched (it
+## would restart the buffer); a fire lit from cold restarts so the scene's
+## preprocess shows it full at once.
+func _show_fuel() -> void:
+	var on := burn_left > 0.0
+	var ratio := LOW_RATIO + (1.0 - LOW_RATIO) * clampf(burn_left / FULL_FIRE, 0.0, 1.0)
+	for p in _emitters:
+		p.amount_ratio = ratio
+		if on and not p.emitting: p.restart()
+		elif p.emitting != on: p.emitting = on
 
 func _process(delta: float) -> void:
 	if not lit() or _glow == null: return

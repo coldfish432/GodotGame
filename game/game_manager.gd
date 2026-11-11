@@ -121,6 +121,13 @@ var stash: Array[Item]:
 
 var player: Player
 var world_map: ContinuousWorldMap
+## The floor's weather drawn on the ground (FieldWeather; a child of world_map).
+var field_weather: FieldWeather
+## The full-screen status look (StatusPost).
+var status_post: StatusPost
+## The buff / debuff rings on her and the enemies (StatusRings).
+var status_rings: StatusRings
+const VAULT_GRIT := preload("res://effects/vault_grit.tscn")
 var base_map: BaseMap
 var warehouse_view: WarehouseView
 var medical_view: MedicalView
@@ -564,6 +571,12 @@ func _follow_player_view(delta: float) -> void:
 	# The snowfall rides above her view (TerraceDressing.weather).
 	if is_instance_valid(world_map) and is_instance_valid(world_map.terrace_dressing) and is_instance_valid(world_map.terrace_dressing.weather) and world_map.terrace_dressing.weather.is_inside_tree() and is_instance_valid(player) and player.is_inside_tree():
 		world_map.terrace_dressing.weather.global_position = player.global_position + Vector3(0, 11, 4).rotated(Vector3.UP, camera_yaw)
+	# The floor's weather on the ground (GPU粒子特效推广策划案 §5): one per floor.
+	if not in_base and is_instance_valid(world_map) and world_map.is_inside_tree() and (not is_instance_valid(field_weather) or field_weather.map != world_map):
+		field_weather = FieldWeather.create(self, world_map)
+	# The full-screen status look (§7 P5), made once.
+	if not is_instance_valid(status_post): status_post = StatusPost.create(self)
+	if not is_instance_valid(status_rings): status_rings = StatusRings.create(self)
 	# The glow that follows her through the field (FieldLight).
 	if is_instance_valid(player):
 		RenderingServer.global_shader_parameter_set("field_player", player.global_position + Vector3.DOWN * 0.7)
@@ -1478,6 +1491,13 @@ func _interact() -> void:
 	if _interact_boxes(): return
 	if _vault_nearby():
 		CombatVfx.spawn(self, world_map.vault_seal.wall_centre() + Vector3(0, 0.8, 0), world_map.vault_seal.inward(), "spark")
+		# The wall gives: grit and dust thrown out towards her (GPU粒子特效推广策划案 §7 P4).
+		var wall := world_map.vault_seal.wall_centre()
+		var grit := OneShotFx.spawn(VAULT_GRIT, self, Vector3(wall.x, ground_y(wall), wall.z), 2)
+		if grit != null and is_instance_valid(player):
+			var out := player.global_position - wall
+			out.y = 0.0
+			if out.length_squared() > 0.01: grit.global_basis = Basis.looking_at(-out.normalized())
 		_open_vault()
 		return
 	var fire := near_fire()
@@ -5779,10 +5799,11 @@ static func release_static_caches() -> void:
 	for cache: Dictionary in [BarrierFx._cells, BossVfx._band_shaders, BossVfx._textures, BossVfx._splat_shaders,
 			BaseMap._kit_meshes, TerraceDressing._kit_cache, AttackCursor._textures, ItemIcons._cache, PaperDoll._silhouettes,
 			RelicIcons._cache, ResearchTreeView._cards, ResearchTreeView._bands, GroundHazard._circles, Loot._ground_cache,
-			OperatorKit._textures, FieldArt._frames, EnemyAttackVfx._shared, CombatVfx._meshes, BossVfx._burst_quads, Loot._looks,
+			OperatorKit._textures, FieldArt._frames, EnemyAttackVfx._shared, CombatVfx._meshes, BossVfx._burst_quads, BossVfx._burst_materials, Loot._looks,
 			AK._button_styles, InventoryPanel._tile_styles]:
 		cache.clear()
 	AttackCursor.release()
+	GpuFx.release()
 	BossVfx._soft = null
 	BossVfx._shaft_shader = null
 	Enemy._silence_tex = null

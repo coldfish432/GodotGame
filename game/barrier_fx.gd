@@ -21,6 +21,7 @@ const SHELL := preload("res://art/field/fx/barrier_shell.png")
 const CRACKED := preload("res://art/field/fx/barrier_cracked.png")
 const BREAK := preload("res://art/field/fx/barrier_break.png")
 const OPACITY := 0.7
+const SHARDS := preload("res://effects/barrier_shards.tscn")
 const LOOP_FPS := 6.0
 const BREAK_FPS := 12.0
 const CELL := 64
@@ -37,6 +38,7 @@ var size := 1.0
 var cracked := false
 var _time := 0.0
 var _breaking := -1.0
+var _feet := Vector3.ZERO
 static var _cells := {}
 
 func _init() -> void:
@@ -62,6 +64,7 @@ static func cell(strip: Texture2D, index: int) -> AtlasTexture:
 
 ## Shows the shell standing on `feet` (the actor's local feet point).
 func follow(feet: Vector3) -> void:
+	_feet = feet
 	if _breaking >= 0.0: return
 	position = feet
 	pixel_size = TEXEL * size
@@ -79,6 +82,9 @@ func shatter() -> void:
 	if not visible or _breaking >= 0.0: return
 	_breaking = 0.0
 	texture = cell(BREAK, 0)
+	# Shards flung off over Sol's break frames (GPU粒子特效推广策划案 §7 P4).
+	var gm := _game()
+	if gm != null: OneShotFx.spawn(SHARDS, gm, global_position if is_inside_tree() else _feet, 6)
 
 func breaking() -> bool:
 	return _breaking >= 0.0
@@ -97,3 +103,9 @@ func _process(delta: float) -> void:
 		cracked = false
 		return
 	texture = cell(BREAK, index)
+
+## The GameManager this shell is drawn in (an ancestor), for the shards.
+func _game() -> Node3D:
+	var n := get_parent()
+	while n != null and not (n is GameManager): n = n.get_parent()
+	return n as Node3D

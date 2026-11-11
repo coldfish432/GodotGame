@@ -25,6 +25,7 @@ var _mapped_cells := -1
 var _mapped_stamp := 0
 var _pulse := 0.0
 var _buttons: HBoxContainer
+var status_bar: StatusBar
 
 const MAP_RECT := Rect2(1036, 60, 232, 176)
 ## The M overlay: the same map, large (界面策划案 #4).
@@ -49,6 +50,11 @@ func _ready() -> void:
 	pause.custom_minimum_size = Vector2(46, 40)
 	pause.pressed.connect(func(): game.toggle_panel("pause"))
 	_buttons.add_child(pause)
+	# Buffs, debuffs and meter stages above the hotbar (GPU粒子特效推广策划案 §7b).
+	status_bar = StatusBar.new()
+	status_bar.name = "StatusBar"
+	status_bar.hud = self
+	add_child(status_bar)
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(game) or not is_instance_valid(game.player): return

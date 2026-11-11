@@ -1,0 +1,66 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://effects/one_shot.gd" id="1_wxhmi"]
+
+[sub_resource type="Gradient" id="Gradient_3jeof"]
+colors = PackedColorArray(0.95, 0.97, 1, 0.85, 0.95, 0.97, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_1xvi8"]
+gradient = SubResource("Gradient_3jeof")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_slvpk"]
+emission_shape = 1
+emission_sphere_radius = 0.15
+direction = Vector3(0, 1, 0)
+spread = 55.0
+initial_velocity_min = 0.8
+initial_velocity_max = 1.6
+gravity = Vector3(0, -5, 0)
+scale_min = 0.6
+scale_max = 1.1
+color_ramp = SubResource("GradientTexture1D_1xvi8")
+
+[sub_resource type="Gradient" id="Gradient_oh5ei"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uj7c3"]
+gradient = SubResource("Gradient_oh5ei")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3k41s"]
+transparency = 1
+depth_draw_mode = 2
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_uj7c3")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_vxn3w"]
+material = SubResource("StandardMaterial3D_3k41s")
+size = Vector2(0.09, 0.09)
+
+[node name="SnowKick" type="Node3D" unique_id=45800980]
+script = ExtResource("1_wxhmi")
+
+[node name="Kick" type="GPUParticles3D" parent="." unique_id=28232695]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+cast_shadow = 0
+emitting = false
+amount = 7
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+fixed_fps = 0
+visibility_aabb = AABB(-1, -0.5, -1, 2, 1.5, 2)
+process_material = SubResource("ParticleProcessMaterial_slvpk")
+draw_pass_1 = SubResource("QuadMesh_vxn3w")

@@ -26,6 +26,8 @@ var weather := ""
 var city_variant := ""
 ## Tests and captures: "upper" / "lower" overrides the roll.
 static var force_city_variant := ""
+## Tests and captures: 叙拉古's weather this floor ("rain" / "overcast"; "" rolls it).
+static var force_weather := ""
 var extraction_available := false
 var buff_position := Vector3.ZERO
 ## The mid-route spot where a Rhodes squad or 坎诺特 can be met (保全系统修订案 §2,
@@ -255,6 +257,7 @@ func generate(p_seed: int, _depth: int) -> void:
 	var sky := RandomNumberGenerator.new()
 	sky.seed = p_seed ^ 0x5a1e
 	weather = ("rain" if sky.randf() < RAIN_SHARE else "overcast") if region_id == "siracusa" else ""
+	if region_id == "siracusa" and not force_weather.is_empty(): weather = force_weather
 	city_variant = city_variant_of(p_seed) if region_id == "city" else ""
 	var size_rng := RandomNumberGenerator.new()
 	size_rng.seed = p_seed ^ 0x5ca1e

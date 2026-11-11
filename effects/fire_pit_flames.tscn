@@ -1,0 +1,147 @@
+[gd_scene format=3]
+
+[sub_resource type="Gradient" id="Gradient_dot"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_dot"]
+gradient = SubResource("Gradient_dot")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Curve" id="Curve_flames"]
+_data = [Vector2(0, 0.6), 0.0, 1.3333334, 0, 1, Vector2(0.3, 1), 1.3333334, -1.1428572, 1, 1, Vector2(1, 0.2), -1.1428572, 0.0, 1, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_flames"]
+curve = SubResource("Curve_flames")
+
+[sub_resource type="Gradient" id="Gradient_flames"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.85, 0.4, 0, 1, 0.6, 0.2, 0.9, 0.8, 0.2, 0.05, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flames"]
+gradient = SubResource("Gradient_flames")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_flames"]
+particle_flag_disable_z = false
+emission_shape = 1
+emission_sphere_radius = 0.18
+direction = Vector3(0, 1, 0)
+spread = 15.0
+initial_velocity_min = 0.5
+initial_velocity_max = 1.1
+gravity = Vector3(0, 0, 0)
+damping_min = 0.0
+damping_max = 0.0
+scale_min = 0.8
+scale_max = 1.2
+scale_curve = SubResource("CurveTexture_flames")
+color_ramp = SubResource("GradientTexture1D_flames")
+turbulence_enabled = true
+turbulence_noise_strength = 1.0
+turbulence_noise_scale = 2.5
+turbulence_influence_min = 0.05
+turbulence_influence_max = 0.12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flames"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_dot")
+billboard_mode = 3
+
+[sub_resource type="QuadMesh" id="QuadMesh_flames"]
+material = SubResource("StandardMaterial3D_flames")
+size = Vector2(0.55, 0.55)
+
+[sub_resource type="Curve" id="Curve_embers"]
+_data = [Vector2(0, 1), 0.0, -1.0, 0, 1, Vector2(1, 0), -1.0, 0.0, 1, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_embers"]
+curve = SubResource("Curve_embers")
+
+[sub_resource type="Gradient" id="Gradient_embers"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.7, 0.3, 0, 1, 0.5, 0.15, 0.9, 0.6, 0.15, 0.05, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_embers"]
+gradient = SubResource("Gradient_embers")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_embers"]
+particle_flag_disable_z = false
+emission_shape = 1
+emission_sphere_radius = 0.25
+direction = Vector3(0, 1, 0)
+spread = 15.0
+initial_velocity_min = 0.4
+initial_velocity_max = 0.9
+gravity = Vector3(0, 0, 0)
+damping_min = 0.2
+damping_max = 0.2
+scale_min = 0.7
+scale_max = 1.3
+scale_curve = SubResource("CurveTexture_embers")
+color_ramp = SubResource("GradientTexture1D_embers")
+turbulence_enabled = true
+turbulence_noise_strength = 1.0
+turbulence_noise_scale = 4.0
+turbulence_influence_min = 0.15
+turbulence_influence_max = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_embers"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_dot")
+billboard_mode = 3
+
+[sub_resource type="QuadMesh" id="QuadMesh_embers"]
+material = SubResource("StandardMaterial3D_embers")
+size = Vector2(0.05, 0.05)
+
+[node name="FirePitFlames" type="Node3D"]
+
+[node name="Flames" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+emitting = false
+amount = 24
+amount_ratio = 1.0
+lifetime = 0.8
+one_shot = false
+preprocess = 0.8
+explosiveness = 0.0
+randomness = 0.3
+use_fixed_seed = false
+fixed_fps = 0
+interpolate = true
+visibility_aabb = AABB(-0.6, -0.2, -0.6, 1.2, 2, 1.2)
+local_coords = false
+process_material = SubResource("ParticleProcessMaterial_flames")
+draw_pass_1 = SubResource("QuadMesh_flames")
+
+[node name="Embers" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+emitting = false
+amount = 10
+amount_ratio = 1.0
+lifetime = 2.2
+one_shot = false
+preprocess = 2.2
+explosiveness = 0.0
+randomness = 0.3
+use_fixed_seed = false
+fixed_fps = 0
+interpolate = true
+visibility_aabb = AABB(-1.5, -0.2, -1.5, 3, 4, 3)
+local_coords = false
+process_material = SubResource("ParticleProcessMaterial_embers")
+draw_pass_1 = SubResource("QuadMesh_embers")

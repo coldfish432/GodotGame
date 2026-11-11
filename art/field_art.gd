@@ -305,10 +305,38 @@ void fragment() {
  ALBEDO *= UV2.x;
  ALBEDO = field_lit_px(ALBEDO, world_position, FRAGCOORD.xy);
  }
- float puddle = wet * smoothstep(0.62, 0.7, wet_noise(world_position.xz / 3.5) * 0.7 + wet_noise(world_position.xz / 1.3) * 0.3);
- ALBEDO *= ground_gain * mix(1.0, 0.72, puddle);
- ROUGHNESS = mix(mix(0.95, 0.6, wet), 0.12, puddle);
+ // Fresh snow over the snowfield's ground (GPU粒子特效推广策划案 §5.3): deeper
+ // with the cold (field_snow_cover), melted round a lit fire, pressed grey-blue
+ // along fresh tracks with a little heaped-up rim, filled in again over time.
+ if (field_snow > 0.0 && region == 2.0) {
+  vec2 xz = world_position.xz;
+  float track = field_track(xz);
+  float e = 0.22;
+  vec2 slope = vec2(field_track(xz + vec2(e, 0.0)) - field_track(xz - vec2(e, 0.0)), field_track(xz + vec2(0.0, e)) - field_track(xz - vec2(0.0, e)));
+  float melt = field_melt(world_position);
+  float drift = field_noise(xz * 0.9) * 0.6 + field_noise(xz * 3.1) * 0.4;
+  float cover = clamp(field_snow_cover * melt * (0.75 + 0.5 * drift), 0.0, 1.0);
+  vec3 fresh = vec3(0.84, 0.88, 0.95) * (0.93 + 0.07 * drift);
+  // The walked corridor (COLOR.a) takes a little less.
+  ALBEDO = mix(ALBEDO, fresh, cover * mix(1.0, 0.75, COLOR.a));
+  float depth = track * (0.35 + 0.65 * field_snow_cover) * melt;
+  // Linear colour: a trodden blue-grey well under the snow's.
+  ALBEDO = mix(ALBEDO, vec3(0.17, 0.21, 0.29) * (0.9 + 0.1 * drift), depth * 0.8);
+  ALBEDO += vec3(0.06, 0.065, 0.07) * clamp(length(slope) * 2.0, 0.0, 1.0) * (1.0 - track) * field_snow_cover;
+  // Melt water round a fire: darker, glossier.
+  ALBEDO = mix(ALBEDO * vec3(0.55, 0.56, 0.58), ALBEDO, melt);
+ }
+ // Rain (§5.2): puddles placed per floor and filling while it rains; lamps
+ // seen in them as stretched spots; rain rings on them while it falls.
+ float puddle = field_puddle_mask(world_position, wet);
+ ALBEDO *= ground_gain * mix(1.0, 0.6, puddle);
+ ROUGHNESS = mix(mix(0.95, 0.6, wet), 0.08, puddle);
  SPECULAR = mix(mix(0.2, 0.35, wet), 0.6, puddle);
+ if (puddle > 0.0) {
+  float rain = step(0.0001, field_puddle.w);
+  float rings = field_ripples(world_position.xz) * rain;
+  EMISSION = (field_lamp_glints(world_position, INV_VIEW_MATRIX) * (0.85 + 0.5 * rings) * 0.6 + vec3(0.5, 0.58, 0.72) * rings * 0.06) * puddle;
+ }
 }
 """
 		_frames[&"terrain_shader"] = shader
