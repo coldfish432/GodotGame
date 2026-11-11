@@ -732,7 +732,8 @@ func _model(id: String) -> MeshInstance3D:
 	if id.is_empty() or not ResourceLoader.exists(KIT % id): return null
 	var m := MeshInstance3D.new()
 	m.name = id
-	m.mesh = TerraceDressing.kit_mesh(load(KIT % id))
+	# The stump keeps its bark showing like the fallen pines (2026-11-11).
+	m.mesh = TerraceDressing.kit_mesh(load(KIT % id), 1.0, TerraceDressing.LOG_SNOW_BIAS if id == "arena_snow_stump" else 0.0)
 	return m
 
 func _mesh_box(size: Vector3, c: Color, glow: bool = false) -> MeshInstance3D:

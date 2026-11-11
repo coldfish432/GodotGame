@@ -26,6 +26,7 @@ from build_mine_cliff import rock_material  # noqa: E402
 from build_siracusa_kit import new_scene  # noqa: E402
 from build_snow_kit import snow_rock, birch_wood  # noqa: E402
 from build_poi import _settled_publish  # noqa: E402
+import snow_shapes as shapes  # noqa: E402
 
 
 def _prism(name, radius, length, location, tilt, sides=6):
@@ -66,20 +67,31 @@ def originium(variant, seed):
 
 
 def boulders(variant, seed):
+    """A heap of frost-split rocks (用户 2026-11-11: 石头太圆润了): one big block
+    cracked through and its halves pulled apart, two to four angular rocks
+    leaning on it, flakes spalled off round the foot. snow_shapes."""
     new_scene(f"snow_boulders_{variant}")
     random.seed(seed)
-    rocks = []
-    for i in range(random.randint(3, 5)):
-        r = random.uniform(0.3, 0.7) if i == 0 else random.uniform(0.15, 0.4)
+    r = random.uniform(0.55, 0.75)
+    rocks = shapes.split_block("b0", (r * random.uniform(1.1, 1.4), r * random.uniform(0.8, 1.0), r * random.uniform(0.65, 0.85)),
+                               seed * 10, (0, 0, r * 0.6), (0, 0, random.uniform(0, math.tau)), gap=random.uniform(0.06, 0.1))
+    for i in range(random.randint(2, 4)):
+        s = random.uniform(0.18, 0.4)
         angle = random.uniform(0, math.tau)
-        rock = kit.rock(f"b{i}", r, (math.cos(angle) * (0 if i == 0 else random.uniform(0.5, 0.9)), math.sin(angle) * (0 if i == 0 else random.uniform(0.4, 0.7)), r * 0.45),
-                        (random.uniform(1.0, 1.4), random.uniform(0.85, 1.1), random.uniform(0.6, 0.85)))
-        kit.roughen(rock, seed * 10 + i, strength=0.1 * r, size=0.3, subdiv=2, crack_strength=0.05, bulge=0.3)
-        rocks.append(rock)
+        at = (math.cos(angle) * random.uniform(0.7, 1.0), math.sin(angle) * random.uniform(0.55, 0.8), s * 0.4)
+        rocks.append(shapes.shard(f"b{i + 1}", (s * random.uniform(1.0, 1.5), s, s * random.uniform(0.6, 0.9)), seed * 10 + i + 1, at,
+                                  (random.uniform(-0.35, 0.35), random.uniform(-0.35, 0.35), random.uniform(0, math.tau))))
+    for i in range(random.randint(3, 5)):
+        s = random.uniform(0.06, 0.12)
+        angle = random.uniform(0, math.tau)
+        at = (math.cos(angle) * random.uniform(0.9, 1.4), math.sin(angle) * random.uniform(0.7, 1.1), s * 0.2)
+        rocks.append(shapes.shard(f"f{i}", (s * 1.6, s * 1.2, s * 0.45), seed * 10 + 20 + i, at,
+                                  (random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2), random.uniform(0, math.tau))))
     heap = kit.join(rocks, "rock")
     kit.clip_below(heap, 0.0)
-    kit.decimate(heap, 3000)
-    _settled_publish([(heap, snow_rock(f"snow_boulders_{variant}_p", seed), "rock")], f"snow_boulders_{variant}", 2.6, 512)
+    shapes.seal(heap)
+    kit.decimate(heap, 3500)
+    _settled_publish([(heap, snow_rock(f"snow_boulders_{variant}_p", seed), "rock")], f"snow_boulders_{variant}", 2.8, 512)
 
 
 def ruin(variant, seed):

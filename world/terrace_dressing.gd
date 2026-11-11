@@ -30,6 +30,9 @@ const KERB_STEP := {"big": Vector2(1.6, 2.2), "small": Vector2(0.8, 1.2)}
 const KERB_SNOW_BIAS := -0.3
 ## The boulders and ruined wall: stone, a cap of snow at most.
 const STONE_SNOW_BIAS := -0.4
+## The fallen pines (用户 2026-11-11: 倒伏的树像倒的电线杆子): less snow, so the
+## bark and the root plate's soil show down the sides; full snow made a white pole.
+const LOG_SNOW_BIAS := -0.25
 ## Floor slope (rise per metre) that counts as ramp: a 2.2 tier over 6.5 is
 ## 0.34; level floor is 0, and a cliff's samples jump far past the top end.
 const KERB_SLOPE := Vector2(0.12, 0.7)
@@ -119,7 +122,7 @@ const ACCENTS := {
 	"snow": [
 		{"at": "foot", "paths": ["res://art/kit/snow_drift_a.glb", "res://art/kit/snow_drift_b.glb"], "gap": Vector2(10.0, 18.0), "scale": Vector2(0.55, 0.85), "min_rise": 1.5},
 		{"at": "hang", "paths": ["res://art/kit/snow_icicles.glb"], "gap": Vector2(4.0, 9.0), "scale": Vector2(0.9, 1.2), "min_rise": 1.5},
-		{"at": "floor", "paths": ["res://art/kit/snow_log.glb"], "gap": Vector2(35.0, 70.0), "scale": Vector2(0.85, 1.1), "min_rise": 1.0},
+		{"at": "floor", "paths": ["res://art/kit/snow_log.glb", "res://art/kit/snow_log_b.glb"], "gap": Vector2(35.0, 70.0), "scale": Vector2(0.85, 1.1), "min_rise": 1.0},
 		# 用户 2026-10-20: 雪原只是需要更多精细的建模. Frost-split boulders and
 		# the odd run of Ursus wall along the cliff foot, ice thrust up against it.
 		{"at": "floor", "paths": ["res://art/kit/snow_boulders_a.glb", "res://art/kit/snow_boulders_b.glb"], "gap": Vector2(8.0, 16.0), "scale": Vector2(1.2, 2.0), "min_rise": 1.0},
@@ -268,6 +271,7 @@ func build(world: Node3D) -> void:
 		# The boulders and the ruined wall keep their stone showing: under the
 		# full snow they read as snowballs.
 		var bias := STONE_SNOW_BIAS if String(path).contains("snow_boulders") or String(path).contains("snow_ruin") else 0.0
+		if String(path).contains("snow_log"): bias = LOG_SNOW_BIAS
 		var label := String(path).get_file().get_basename()
 		var placed: Array[Transform3D] = accent_transforms[path]
 		if label in PROP_ACCENTS: placed = _enlarged(placed, PROP_SCALE)
@@ -339,7 +343,7 @@ func _accent(kind: Dictionary, chain: Dictionary, i: int, rise: float) -> Varian
 ## braces, icicles) and the ramps keep the size the terrain gives them.
 const PROP_SCALE := 1.6
 const TREE_SCALE := 1.4
-const PROP_ACCENTS := ["mine_rocks_a", "mine_rocks_b", "mine_cart", "mine_originium_a", "mine_originium_b", "snow_log", "snow_boulders_a",
+const PROP_ACCENTS := ["mine_rocks_a", "mine_rocks_b", "mine_cart", "mine_originium_a", "mine_originium_b", "snow_log", "snow_log_b", "snow_boulders_a",
 	"snow_boulders_b", "snow_ruin_a", "snow_ruin_b", "snow_ice_shards", "snow_shrub"]
 
 static func _enlarged(list: Array[Transform3D], factor: float) -> Array[Transform3D]:

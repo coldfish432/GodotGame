@@ -171,13 +171,59 @@ def arena_snow_totem(seed=2201):
             (kit.join(antler, "bone"), flat("arena_snow_totem_bone_p", "8a7a62"), "bone")]
 
 
+def _rings(mat):
+    """wood_material with its rings centred on the stump's axis (the seed
+    offset would put their centre off the stump and leave straight stripes)."""
+    mapping = next(n for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeMapping")
+    mapping.inputs["Location"].default_value = (0.0, 0.0, 0.0)
+    mapping.inputs["Scale"].default_value = (9.0, 9.0, 0.6)
+    return mat
+
+
 def arena_snow_stump(seed=2202):
-    """A frozen stump: a thick cut trunk under a crust of blue-white ice."""
-    trunk = [log("trunk", 0.65, 1.3, (0, 0, 0.65), (0, 0, 0), 12)]
-    roots = [log(f"r{k}", 0.16, 0.9, (math.cos(k * 1.6) * 0.65, math.sin(k * 1.6) * 0.65, 0.12), (math.sin(k * 1.6) * 1.2, -math.cos(k * 1.6) * 1.2, 0), 6) for k in range(4)]
-    crust = [rough_rock("ice", 0.72, (0.05, 0, 1.3), seed, (1.0, 1.0, 0.35))]
-    return [(kit.join(trunk + roots, "bark"), flat("arena_snow_stump_bark_p", "4a3e34", "2a221c", 12.0), "bark"),
-            (kit.join(crust, "ice"), flat("arena_snow_stump_ice_p", "d8eef8", "9fc4d8", 6.0), "ice")]
+    """A frozen stump (用户 2026-11-11: 一起重做, after the fallen pines): a thick
+    pine snapped above the flare, bark furrowed, the torn top in splinters
+    round the pale heartwood rings, five roots reaching out and down into the
+    ground, a crust of angular ice on the break and down one side. The cover's
+    box is 1.4 x 1.6 x 1.4 (BossCatalog snow cover); the trunk stays inside it,
+    the roots run out low. snow_shapes."""
+    import snow_shapes as shapes
+    from build_mine_accents import wood_material
+    rnd = random.Random(seed)
+    random.seed(seed)
+    zs = [-0.15, 0.0, 0.15, 0.35, 0.6, 0.85, 1.05, 1.18]
+    radii = [0.8, 0.78, 0.68, 0.6, 0.57, 0.55, 0.54, 0.53]
+    pts = [(rnd.uniform(-0.02, 0.02), rnd.uniform(-0.02, 0.02), z) for z in zs]
+    bark = [shapes.tube("trunk", pts, radii, sides=22, seed=seed, wobble=0.04, furrows=9, furrow_depth=0.1,
+                        start="cap", end="splinter", splinter=0.42)]
+    for k in range(6):
+        a = math.tau * k / 6 + rnd.uniform(-0.3, 0.3)
+        out = Vector((math.cos(a), math.sin(a), 0.0))
+        # Out along the ground first, then down into it.
+        base = Vector((0, 0, 0.42)) + out * 0.4
+        root = shapes._polyline(base, out + Vector((0, 0, -0.45)), rnd.uniform(0.95, 1.25), 6, droop=0.12, curl=0.08, rnd=rnd)
+        root[-1].z = min(root[-1].z, -0.12)
+        bark.append(shapes.tube(f"root{k}", root, shapes._taper(rnd.uniform(0.2, 0.26), 0.04, len(root), 0.7), sides=9,
+                                seed=seed + 10 + k, wobble=0.12, furrows=4, furrow_depth=0.08, start="cap", end="point"))
+    # The heartwood: a disc of rings sunk inside the splintered rim.
+    heart = d.cyl("heart", 0.46, 0.05, (0, 0, 1.265), (0, 0, 0), 22)
+    ice = []
+    for k in range(2):
+        a = rnd.uniform(0, math.tau)
+        r = rnd.uniform(0.32, 0.42)
+        ice.append(shapes.shard(f"cap{k}", (rnd.uniform(0.16, 0.22), rnd.uniform(0.12, 0.18), rnd.uniform(0.06, 0.09)), seed + 30 + k,
+                                (math.cos(a) * r, math.sin(a) * r, 1.3), (rnd.uniform(-0.2, 0.2), rnd.uniform(-0.2, 0.2), rnd.uniform(0, math.tau))))
+    side = rnd.uniform(0, math.tau)
+    for k in range(3):
+        z = 1.0 - k * 0.3
+        ice.append(shapes.shard(f"sheet{k}", (0.22, 0.09, 0.2), seed + 40 + k,
+                                (math.cos(side) * 0.56, math.sin(side) * 0.56, z), (0, 0, side + math.pi / 2 + rnd.uniform(-0.2, 0.2))))
+    wood = kit.join(bark, "bark")
+    kit.clip_below(wood, -0.05)
+    shapes.seal(wood)
+    return [(wood, shapes.bark_material("arena_snow_stump_bark_p", seed, "Z"), "bark"),
+            (heart, _rings(wood_material("arena_snow_stump_wood_p", seed)), "wood"),
+            (kit.join(ice, "ice"), flat("arena_snow_stump_ice_p", "d8eef8", "9fc4d8", 6.0), "ice")]
 
 
 def arena_snow_logs(seed=2203):

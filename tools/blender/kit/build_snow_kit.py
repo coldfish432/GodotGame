@@ -24,6 +24,7 @@ from build_mine_accents import rust_material, wood_material, _lantern_parts  # n
 from build_mine_cliff import rock_material  # noqa: E402
 import poi_detail as d  # noqa: E402
 from build_poi import cloth, _settled_publish  # noqa: E402
+import snow_shapes as shapes  # noqa: E402
 
 
 def snow_rock(name, seed):
@@ -152,31 +153,52 @@ def totem(seed):
 
 
 def drift(variant, seed):
-    """snow_drift_{a,b}: snow banked against a cliff foot, a rock or two showing."""
-    kit.reset_scene()
+    """snow_drift_{a,b}: snow banked against a cliff foot, a rock or two showing
+    (2026-11-11: the rocks angular, snow_shapes.shard)."""
+    _fresh(f"snow_drift_{variant}")
     random.seed(seed)
     mound = kit.rock("mound", 0.9, (0, 0, 0), (1.6, 1.0, 0.45), subdivisions=3)
     kit.roughen(mound, seed, strength=0.08, size=0.5, subdiv=1)
     kit.clip_below(mound, 0.0)
     kit.decimate(mound, 1500)
-    rocks = [kit.rock(f"r{i}", random.uniform(0.15, 0.25), (random.uniform(-0.8, 0.8), random.uniform(-0.3, 0.3), 0.15), (1.2, 1.0, 0.8), subdivisions=1) for i in range(2)]
-    for i, r in enumerate(rocks): kit.roughen(r, seed + i, strength=0.03, size=0.1, subdiv=1)
-    rock_obj = kit.join(rocks, "rocks")
+    rocks = []
+    for i in range(2):
+        r = random.uniform(0.17, 0.27)
+        rocks.append(shapes.shard(f"r{i}", (r * 1.2, r, r * 0.8), seed * 10 + i,
+                                  (random.uniform(-0.8, 0.8), random.uniform(-0.3, 0.3), 0.12), (0, 0, random.uniform(0, math.tau))))
+    rock_obj = shapes.seal(kit.join(rocks, "rocks"))
     _settled_publish([(mound, kit.flat_material("snow_drift_snow_p", "e8eef4", 12.0, "b8c8d8"), "snow"),
                       (rock_obj, snow_rock("snow_drift_rock_p", seed), "rock")], f"snow_drift_{variant}", 3.2, 512)
 
 
-def fallen_log(seed):
-    """snow_log: a fallen pine with its broken stumps of branches and root plate."""
-    kit.reset_scene()
-    random.seed(seed)
-    trunk = d.cyl("trunk", 0.22, 3.2, (0, 0, 0.2), (0, math.pi / 2, random.uniform(-0.1, 0.1)), 12)
-    branches = [d.cyl(f"br{i}", 0.05, 0.5, (random.uniform(-1.3, 1.3), random.uniform(-0.1, 0.1), 0.35), (random.uniform(-0.8, 0.8), random.uniform(-0.6, 0.6), 0), 6) for i in range(5)]
-    root = kit.rock("root", 0.45, (1.65, 0, 0.35), (0.35, 1.0, 1.0), subdivisions=2)
-    kit.roughen(root, seed, strength=0.05, size=0.15, subdiv=1)
-    wood = kit.join([trunk] + branches + [root], "wood")
-    kit.clip_below(wood, 0.0)
-    _settled_publish([(wood, d.worn(wood_material("snow_log_wood_p", seed), edge="8a7a62", edge_strength=0.3), "wood")], "snow_log", 3.8, 512)
+def fallen_log(seed, variant=""):
+    """snow_log / snow_log_b: a fallen pine (用户 2026-11-11: 倒伏的树现在像倒的电线杆子).
+    Tapered and bent, the torn-up root plate on end at its foot, whorls of
+    branches up the crown (snapped short where it lies on them), a few clumps
+    of needles. "": the whole tree, crown to the tip; "b": snapped off at
+    two-thirds, a splintered end. snow_shapes.fallen_pine."""
+    name = "snow_log" + (f"_{variant}" if variant else "")
+    _fresh(name)
+    bark, soil, needles = shapes.fallen_pine(seed, length=4.2 if not variant else 4.6, radius=0.24 if not variant else 0.28, crown=not variant)
+    kit.clip_below(bark, 0.0)
+    kit.clip_below(soil, 0.0)
+    shapes.seal(bark)
+    shapes.seal(soil)
+    parts = [(bark, shapes.bark_material(f"{name}_bark_p", seed), "bark"),
+             (soil, kit.flat_material(f"{name}_soil_p", "4a3b30", 9.0, "201813"), "soil")]
+    if needles is not None:
+        kit.clip_below(needles, 0.0)
+        parts.append((needles, kit.flat_material(f"{name}_needles_p", "3a4a34", 14.0, "1f281c"), "needles"))
+    _settled_publish(parts, name, 4.6, 512)
+
+
+def _fresh(name):
+    """A new scene in the open Blender (MCP), or a reset one headless."""
+    if bpy.app.background:
+        kit.reset_scene()
+    else:
+        from build_siracusa_kit import new_scene
+        new_scene(name)
 
 
 def icicles(seed):
@@ -241,6 +263,7 @@ if __name__ == "__main__":
     drift("a", 407)
     drift("b", 409)
     fallen_log(411)
+    fallen_log(419, "b")
     icicles(413)
     camp(415)
 
@@ -251,7 +274,7 @@ def crag(variant, seed, kind):
     "wall": a short cliff face, stepped; "tor": a heap of big blocks. Grey-blue
     frozen rock; the game snows its tops. Origin at the bottom centre, built
     to sink ~0.5 into the slope it stands on."""
-    kit.reset_scene()
+    _fresh(f"snow_crag_{variant}")
     random.seed(seed)
     parts = []
     if kind == "spire":
@@ -273,14 +296,17 @@ def crag(variant, seed, kind):
             kit.roughen(slab, seed + i, strength=0.16, size=0.45, bevel=0.07, subdiv=2, crack_strength=0.07, bulge=0.25, bulge_size=1.0)
             parts.append(slab)
     else:
+        # 2026-11-11 (石头太圆润): angular frost-split blocks, not spheres.
         for i in range(5):
             r = random.uniform(0.6, 1.1)
-            block = kit.rock(f"t{i}", r, (random.uniform(-1.2, 1.2), random.uniform(-0.9, 0.9), r * 0.6 + (0.8 if i == 4 else 0)),
-                             (random.uniform(1.0, 1.4), random.uniform(0.9, 1.2), random.uniform(0.7, 1.0)))
-            kit.roughen(block, seed + i, strength=0.12, size=0.35, subdiv=2, crack_strength=0.05)
-            parts.append(block)
+            at = (random.uniform(-1.2, 1.2), random.uniform(-0.9, 0.9), r * 0.6 + (0.8 if i == 4 else 0))
+            size = (r * random.uniform(1.0, 1.4), r * random.uniform(0.9, 1.2), r * random.uniform(0.7, 1.0))
+            turn = (random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2), random.uniform(0, math.tau))
+            if i == 0: parts += shapes.split_block(f"t{i}", size, seed * 10 + i, at, turn, gap=0.12)
+            else: parts.append(shapes.shard(f"t{i}", size, seed * 10 + i, at, turn))
     obj = kit.join(parts, f"snow_crag_{variant}")
     kit.clip_below(obj, 0.0)
+    if kind == "tor": shapes.seal(obj)
     kit.decimate(obj, 1600)
     _settled_publish([(obj, snow_rock(f"snow_crag_{variant}_rock_p", seed), "rock")], f"snow_crag_{variant}", 5.0, 512)
 

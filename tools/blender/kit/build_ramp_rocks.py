@@ -59,9 +59,45 @@ def small(seed):
     return obj
 
 
+def snow_big(seed):
+    """The snowfield's: an angular frost-split block and a shard leaning on it
+    (用户 2026-11-11: 石头太圆润了), its foot stretched down to ROOT like big()."""
+    import snow_shapes as shapes
+    random.seed(seed)
+    r = random.uniform(0.55, 0.7)
+    parts = shapes.split_block("main", (r * random.uniform(1.1, 1.4), r * random.uniform(0.85, 1.05), r * random.uniform(1.1, 1.4)),
+                               seed * 10, (0.0, 0.0, r * 0.35 - ROOT * 0.35), (0, 0, random.uniform(0, 6.28)), gap=0.07)
+    r2 = r * random.uniform(0.45, 0.6)
+    parts.append(shapes.shard("side", (r2 * 1.2, r2, r2 * 0.9), seed * 10 + 5, (r * random.uniform(0.85, 1.05), random.uniform(-0.2, 0.2), r2 * 0.4 - 0.1),
+                              (random.uniform(-0.3, 0.3), random.uniform(-0.3, 0.3), random.uniform(0, 6.28))))
+    obj = kit.join(parts, "rock")
+    for v in obj.data.vertices:
+        if v.co.z < 0.0: v.co.z *= ROOT / max(0.3, r * 0.9)
+    obj.data.update()
+    kit.decimate(obj, 2200)
+    return obj
+
+
+def snow_small(seed):
+    import snow_shapes as shapes
+    random.seed(seed)
+    stones = []
+    for i in range(random.randint(3, 4)):
+        r = random.uniform(0.11, 0.24)
+        stones.append(shapes.shard(f"s{i}", (r * random.uniform(1.0, 1.5), r * random.uniform(0.8, 1.1), r * random.uniform(0.55, 0.8)), seed * 10 + i,
+                                   (random.uniform(-0.45, 0.45), random.uniform(-0.25, 0.25), r * 0.25),
+                                   (random.uniform(-0.3, 0.3), random.uniform(-0.3, 0.3), random.uniform(0, 6.28))))
+    obj = kit.join(stones, "stones")
+    kit.clip_below(obj, -0.05)
+    shapes.seal(obj)
+    kit.decimate(obj, 1100)
+    return obj
+
+
 def build(kind, variant, seed, snow):
     name = f"ramp_{'snow_' if snow else ''}rock_{kind}_{variant}"
-    obj = big(seed) if kind == "big" else small(seed)
+    if snow: obj = snow_big(seed) if kind == "big" else snow_small(seed)
+    else: obj = big(seed) if kind == "big" else small(seed)
     obj.name = name
     if snow:
         from build_snow_kit import snow_rock
