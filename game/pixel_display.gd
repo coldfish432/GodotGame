@@ -17,6 +17,8 @@ func _ready() -> void:
 	# A card picked in 设置 → 画面 → 显卡 (GpuChoice): before anything is built,
 	# the real game restarts once on it.
 	if get_tree().current_scene == self:
+		# config/name stays "downfall-godot": it names the user:// folder that holds the saves.
+		get_window().title = "罗德岛日常 · Rhodes Daily"
 		SystemScreens.load_settings()
 		if GpuChoice.apply_at_start(get_tree()): return
 	var world_viewport := SubViewport.new()

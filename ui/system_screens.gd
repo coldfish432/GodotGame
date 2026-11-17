@@ -298,11 +298,14 @@ func _build_title() -> Control:
 	stripe.position = Vector2(96, 236)
 	stripe.size = Vector2(8, 120)
 	screen.add_child(stripe)
-	var name_en := AK.label("DOWNFALL", 76, AK.FG, AK.en())
-	name_en.position = Vector2(124, 220)
+	# Room to the right so the English name is not shrunk to fit the Chinese width.
+	var name_en := AK.label("罗德岛日常", 72, AK.FG, AK.en() if I18n.is_english() else null)
+	name_en.position = Vector2(124, 222)
+	name_en.size.x = 760
 	screen.add_child(name_en)
-	var name_cn := AK.label("罗德岛 · 外勤", 22, AK.MUTE)
+	var name_cn := AK.label("外勤 · 基建 · 航行", 22, AK.MUTE)
 	name_cn.position = Vector2(128, 318)
+	name_cn.size.x = 760
 	screen.add_child(name_cn)
 	_slots = Control.new()
 	_slots.position = Vector2(128, 380)

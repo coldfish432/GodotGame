@@ -3,6 +3,8 @@ extends SceneTree
 ## Not part of run_all (no checks).
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
+	var lang := "en" if OS.get_environment("DOWNFALL_LANG") == "en" else "zh"
+	if lang == "en": I18n.set_language("en")
 	SystemScreens.settings["ui_motion"] = false
 	var rig: Node = load("res://game/main.tscn").instantiate()
 	rig.persist_sessions = false
@@ -17,5 +19,5 @@ func run() -> void:
 	screens.show_title()
 	for i in range(10): await process_frame
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://../evidence/title.png")
+	root.get_texture().get_image().save_png("res://../evidence/title.png" if lang == "zh" else "res://../evidence/title-en.png")
 	quit(0)
