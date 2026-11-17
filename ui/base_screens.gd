@@ -22,6 +22,10 @@ static var accent_override := Color(0, 0, 0, 0)
 ## The sub-page shell. `currencies` are [kind, value] pairs: "lmd", "gold", "ori".
 static func shell(menu: FieldMenu, cn_title: String, en_title: String, tabs: Array = [], tab: int = 0, on_tab: Callable = Callable(), watermark: String = "", currencies: Array = []) -> Control:
 	var stage := menu.stage_begin(1.0)
+	# 首次打开介绍 (TutorialSpotlight.SCREENS): a camp's store reads as the base's.
+	var key := cn_title
+	if menu.game.in_camp and cn_title == menu.game.camp_label(menu.game.floor_number): key = "可露希尔的商店"  # i18n: skip
+	TutorialSpotlight.screen(menu.game, [key] if tabs.is_empty() else [key, "%s/%s" % [key, tabs[clampi(tab, 0, tabs.size() - 1)]]])  # i18n: skip
 	var accent := accent_override if accent_override.a > 0.0 else Terminal.dept_color(menu._station)
 	stage.add_child(AK.rect(AK.BG, Vector2.ZERO, Vector2(1280, 720)))
 	if not watermark.is_empty():
@@ -387,7 +391,9 @@ static func _lost_roster(menu: FieldMenu, stage: Control) -> void:
 
 # --- #14 仓库 -------------------------------------------------------------------------
 
-const STASH_TABS := ["全部", "武器", "防具", "饰品", "药剂", "材料", "收藏品", "拆包"]
+const STASH_TABS := ["全部", "武器", "防具", "饰品", "药剂", "材料", "收藏品", "拆包", "罗德岛库存"]
+## 罗德岛运营与资产管理策划案 §2.5: the one-way transfer into the 罗德岛库存.
+const RHODES_TAB := 8
 ## The 拆包 page (交易所交易包修订案 §4): the pack picked and the pick so far.
 const UNPACK_TAB := 7
 static var unpack_pick := ""
@@ -408,6 +414,9 @@ static func stash(menu: FieldMenu, zone: int = -1) -> void:
 		stage = shell(menu, "仓管台", "DEPOT", STASH_TABS, tab, func(i): menu.stash_tab = i; stash(menu), "DEPOT", currencies)
 		if tab == UNPACK_TAB:
 			_unpack_page(menu, stage)
+			return
+		if tab == RHODES_TAB:
+			_rhodes_stock_page(menu, stage)
 			return
 	if true:
 		var search := LineEdit.new()
@@ -574,6 +583,57 @@ static func case_window(game: GameManager, stage: Control, around: Rect2) -> voi
 
 ## 拆包 (§4): the packs held on the left, the pack's list with points and
 ## − / + in the middle, the points left and 拆包 on the right.
+static var transfer_count := 10
+
+## §2.5: what the base eats, from the personal warehouse into the 罗德岛库存
+## (one way: nothing comes back), and how long each family lasts.
+static func _rhodes_stock_page(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var fin := game.exchange.fin
+	var left := VBoxContainer.new()
+	left.add_theme_constant_override("separation", 6)
+	AK.put(stage, left, Vector2(16, TOP + 8), Vector2(640, 0))
+	left.add_child(AK.section("个人仓库", "TRANSFER"))
+	ExchangeScreen._number(left, "数量", transfer_count, 0, 1, 1, func(v): transfer_count = maxi(1, int(v)); stash(menu))
+	var mats := {}
+	for item in game.stash:
+		if item.category == Item.Category.MATERIAL and RhodesFinance.can_stock(item.material_id): mats[item.material_id] = true
+	if mats.is_empty(): left.add_child(AK.label("无可转入材料", 13, AK.MUTE))
+	for id in mats:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var have := game.material_count(str(id))
+		var name := AK.label("%s ×%d" % [id, have], 13, AK.FG)
+		name.custom_minimum_size.x = 260
+		row.add_child(name)
+		var mid := str(id)
+		for n in [transfer_count, have]:
+			var count := mini(int(n), have)
+			var b := AK.button("转入 %d" % count, "blue", 12)
+			b.custom_minimum_size = Vector2(110, 30)
+			b.disabled = not fin.transfer_refusal(mid, count).is_empty()
+			b.pressed.connect(func():
+				if fin.transfer_in(mid, count): game.save_base()
+				stash(menu))
+			row.add_child(b)
+		left.add_child(row)
+	var right := VBoxContainer.new()
+	right.add_theme_constant_override("separation", 6)
+	AK.put(stage, right, Vector2(690, TOP + 8), Vector2(570, 0))
+	right.add_child(AK.section("罗德岛库存", "RHODES STOCK  %s" % Economy.format(roundi(fin.stock_value()))))
+	for f in RhodesFinance.UPKEEP_ORDER:
+		var days := fin.days_left(f)
+		right.add_child(AK.label("%s  %s" % [RhodesFinance.FACILITY_NAMES[f], ("%.1f 天" % days) if days < 9999.0 else "—"], 13, AK.FG if days >= 1.0 or fin.need_lmd(f) <= 0.0 else AK.RED))
+		var parts: Array[String] = []
+		for m in RhodesFinance.UPKEEP[f]:
+			if fin.stock_count(str(m)) > 0: parts.append("%s×%d" % [m, fin.stock_count(str(m))])
+		if not parts.is_empty(): right.add_child(AK.label("  ".join(parts), 11, AK.MUTE))
+	var crops: Array[String] = []
+	for c in RhodesFinance.RATION_CROPS:
+		if fin.stock_count(c) > 0: crops.append("%s×%d" % [c, fin.stock_count(c)])
+	right.add_child(AK.label("作物口粮  %s" % (("%.1f 天" % fin.ration_days()) if fin.rations() > 0 else "—"), 13, AK.FG if fin.ration_days() >= 1.0 else AK.RED))
+	if not crops.is_empty(): right.add_child(AK.label("  ".join(crops), 11, AK.MUTE))
+
 static func _unpack_page(menu: FieldMenu, stage: Control) -> void:
 	var game := menu.game
 	var held: Array[String] = []
@@ -1036,6 +1096,7 @@ static func _panel(stage: Control) -> Control:
 static func _settings(menu: FieldMenu, stage: Control) -> void:
 	_panel(stage)
 	var tab: int = menu.settings_tab
+	TutorialSpotlight.screen(menu.game, ["设置", "设置/" + SETTING_TABS[tab]])  # i18n: skip
 	AK.put(stage, AK.toggle(SETTING_TABS, tab, func(i): menu.settings_tab = i; pause(menu), 14), Vector2(324, 48))
 	var s := SystemScreens.settings
 	var rows: Array = []

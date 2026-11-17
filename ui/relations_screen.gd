@@ -88,7 +88,32 @@ static func _card(ex: Exchange, stage: Control, f: String, at: Vector2) -> void:
 	stage.add_child(AK.rect(Color(0, 0, 0, 0.6), bar_at, Vector2(bar_w, 6)))
 	stage.add_child(AK.rect(AK.HOLO, bar_at, Vector2(bar_w * clampf(ratio, 0.0, 1.0), 6)))
 	var drift := ex.relation_drift(f)
-	AK.put(stage, AK.label("%d / %d%s" % [rel, hi, ("   修正 −%d/日" % drift) if drift > 0 else ""], 12, AK.FG, AK.en()), at + Vector2(14, 64))
+	var rel_line := AK.label("%d / %d%s" % [rel, hi, ("   修正 −%d/日" % drift) if drift > 0 else ""], 12, AK.FG, AK.en())
+	# 运营策划案 §3.9.5: the hover lists what makes the value, item by item.
+	var tip: Array[String] = ["积累 %d" % ex.standing(f)]
+	for line in ex.mod_lines(f): tip.append("%s %+d → %+d" % [str(line[0]), int(line[1]), int(line[2])])
+	tip.append("有效 %d" % rel)
+	rel_line.mouse_filter = Control.MOUSE_FILTER_PASS
+	rel_line.tooltip_text = "
+".join(tip)
+	AK.put(stage, rel_line, at + Vector2(14, 64))
+	# §3.8.10 / §3.9.5: its net with Rhodes over 7 days, and how it stands with the others.
+	var actors := ex.market.actors
+	if actors != null and actors.factions.has(f) and f != "penguin":
+		var tiers := {"敌对": [], "冷淡": [], "友好": []}
+		for o in FactionCatalog.ORDER:
+			if o == f: continue
+			var t := actors.tier(f, o)
+			if tiers.has(t): tiers[t].append(FactionCatalog.name_of(o))
+		var parts: Array[String] = ["对罗德岛 7日 %+d" % roundi(actors.rhodes_net(f))]
+		for t in tiers:
+			if not (tiers[t] as Array).is_empty(): parts.append("%s %s" % [t, " ".join(tiers[t])])
+		var stand := AK.label("  ·  ".join(parts), 11, AK.MUTE)
+		stand.clip_text = true
+		stand.mouse_filter = Control.MOUSE_FILTER_PASS
+		stand.tooltip_text = stand.text + "
+" + _net_by_category(actors, f)
+		AK.put(stage, stand, at + Vector2(130, 64), Vector2(CARD.x - 144, 0))
 	if not FactionCatalog.info(f).get("transport", false):
 		AK.put(stage, AK.label("远程费 %.1f%%  ·  额度 %s  ·  买入 %+d%%  ·  卖出 %+d%%" % [ex.remote_fee(f) * 100.0, Economy.format(roundi(ex.quota_cap(f))),
 			roundi((float(Exchange.RANK_BUY[r]) - 1.0) * 100.0), roundi((float(Exchange.RANK_SELL[r]) - 1.0) * 100.0)], 11, AK.MUTE), at + Vector2(14, 82))
@@ -103,3 +128,10 @@ static func _card(ex: Exchange, stage: Control, f: String, at: Vector2) -> void:
 		line.tooltip_text = line.text
 		AK.put(stage, line, at + Vector2(14, y), Vector2(CARD.x - 28, 0))
 		y += 18
+
+## The last 7 days' net buying (+) and selling (−) by category, from its ledger.
+static func _net_by_category(actors: MarketActors, f: String) -> String:
+	var net: Dictionary = (actors.factions.get(f, {}) as Dictionary).get("net7", {})
+	var parts: Array[String] = []
+	for cat in net: parts.append("%s %+d" % [FactionCatalog.CATEGORIES.get(cat, cat), roundi(float(net[cat]))])
+	return "  ".join(parts)

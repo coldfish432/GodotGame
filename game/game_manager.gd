@@ -1998,6 +1998,9 @@ func toggle_panel(kind: String) -> void:
 			menu.show_training(true)
 		"pause": menu.show_pause()
 		_: field_panels.open(kind)
+	# 首次打开介绍 (TutorialSpotlight.SCREENS); 干员 reports its own page.
+	var screen_key: String = {"inventory": "背包", "relics": "藏品", "map": "地图", "journal": "外勤合同"}.get(kind, "")  # i18n: skip
+	if not screen_key.is_empty(): TutorialSpotlight.screen(self, [screen_key])  # i18n: skip
 
 ## Esc (用户 2026-10-06): back one level — a dialog, a sub-page, a window, a
 ## screen — and with nothing open, the pause menu with its settings.

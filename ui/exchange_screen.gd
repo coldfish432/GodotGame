@@ -8,7 +8,7 @@ extends RefCounted
 ## Goods and currencies are two pages (用户 2026-10-25: 实物和货币分为两个界面):
 ## 行情 the factions' books, 外汇 the ten rate books, the accounts and the changer.
 
-const TABS := ["行情", "外汇", "持仓", "新闻", "资金"]
+const TABS := ["行情", "外汇", "持仓", "新闻", "资金", "资产", "企业", "策略"]
 const PERIODS := ["1m", "5m", "15m", "1h", "4h", "1d", "1w"]
 const PERIOD_NAMES := ["1分", "5分", "15分", "1时", "4时", "日", "周"]
 const FILTERS := ["全部", "自选", "龙门币", "赤金", "金券", "指数"]
@@ -92,6 +92,10 @@ static func build(menu: FieldMenu) -> void:
 		2: _positions_page(menu, stage)
 		3: _news_page(menu, stage)
 		4: _money_page(menu, stage)
+		# 罗德岛运营与资产管理策划案 §6.
+		5: AssetsScreen.assets_page(menu, stage)
+		6: AssetsScreen.firms_page(menu, stage)
+		7: AssetsScreen.strategies_page(menu, stage)
 
 ## Top right, under the money: the terminal's state (可交易 / 只读 · …), or in
 ## the game the button that opens the ticker (§1).

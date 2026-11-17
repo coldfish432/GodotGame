@@ -622,6 +622,7 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 	# 地图特色策划案 §9: 随队物资 at the base; 补给 and 处理 in a camp.
 	var tabs := CLOSURE_TABS_BASE if at_base else CLOSURE_TABS_CAMP
 	var tab: int = clampi(menu.camp_tab, 0, tabs.size() - 1)
+	TutorialSpotlight.screen(game, ["可露希尔的商店", "可露希尔的商店/" + tabs[tab]])  # i18n: skip
 	var redraw := func(): camp(menu, at_base)
 	AK.put(stage, AK.toggle(tabs, tab, func(i): menu.camp_tab = i; menu.pick = null; camp(menu, at_base)), Vector2(410, 32))
 	tab = ([0, 9, 2, 3, 4, 6, 10] if at_base else [0, 9, 1, 2, 3, 5, 7, 8])[tab]
@@ -803,8 +804,15 @@ static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: b
 			row.add_child(to_lmd)
 			box.add_child(row)
 		4:
-			box.add_child(AK.label("待还 %s   ·   额度 %s   ·   下次结算利率 %d%%%s" % [Economy.format(ex.loan), Economy.format(ex.loan_limit()),
-				roundi(ex.loan_rate_now(ex.loan) * 100), "   ·   逾期" if ex.loan_locked() else ""], 15, AK.RED if ex.loan_locked() else AK.FG))
+			# 运营策划案 §3.7.1: the credit line's daily rate, the auto repayment.
+			box.add_child(AK.label("待还 %s   ·   额度 %s   ·   利率 %.3f%%/日%s" % [Economy.format(ex.loan), Economy.format(ex.loan_limit()),
+				ex.loan_rate_now(ex.loan) * 100.0, "   ·   严重超额" if ex.fin.severe() else ("   ·   逾期" if ex.loan_locked() else "")], 15, AK.RED if ex.loan_locked() else AK.FG))
+			var auto := AK.button("自动还款：%s  ·  保留 %d 天" % ["开" if ex.fin.auto_repay else "关", ex.fin.reserve_days], "plain", 13)
+			auto.pressed.connect(func():
+				ex.fin.auto_repay = not ex.fin.auto_repay
+				game.save_base()
+				redraw.call())
+			box.add_child(auto)
 			var row := HBoxContainer.new()
 			row.add_theme_constant_override("separation", 10)
 			for n in [10000, 50000]:
@@ -904,6 +912,7 @@ static func settlement(menu: FieldMenu) -> void:
 	back.pressed.connect(game.close_modal)
 	# 仓库修订 (用户 2026-10-23): a 仓库 page beside the bags, to put away what came home.
 	var tab: int = clampi(menu.settle_tab, 0, SETTLE_TABS.size() - 1)
+	TutorialSpotlight.screen(game, ["结算", "结算/" + SETTLE_TABS[tab]])  # i18n: skip
 	AK.put(stage, AK.toggle(SETTLE_TABS, tab, func(i): menu.settle_tab = i; settlement(menu), 13), Vector2(1100, 14))
 	if tab == 1:
 		_settle_store(menu, stage)

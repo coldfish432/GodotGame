@@ -137,7 +137,7 @@ func _case_ui() -> void:
 	game.menu.stash_tab = 0
 	game.open_station("stash")
 	await step(1)
-	check("the 仓管台's tabs: 全部 武器 防具 饰品 药剂 材料 收藏品 拆包", BaseScreens.STASH_TABS == ["全部", "武器", "防具", "饰品", "药剂", "材料", "收藏品", "拆包"])
+	check("the 仓管台's tabs: 全部 武器 防具 饰品 药剂 材料 收藏品 拆包 罗德岛库存", BaseScreens.STASH_TABS == ["全部", "武器", "防具", "饰品", "药剂", "材料", "收藏品", "拆包", "罗德岛库存"])
 	var box: Item = game.base.shelf.filter(func(x): return x.is_case())[0]
 	var grid: BaseScreens.FlowGrid = find(game.menu, func(n): return n is BaseScreens.FlowGrid)
 	check("the warehouse grid opens boxes", grid != null and grid.on_open.is_valid())

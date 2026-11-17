@@ -40,6 +40,7 @@ static func show(menu: FieldMenu, in_field: bool) -> void:
 	if menu.reveal_pending: Terminal.type_in(title)
 	AK.put(stage, titles, Vector2(20, 6))
 	var tab: int = clampi(menu.operator_tab, 0, TABS.size() - 1)
+	TutorialSpotlight.screen(game, ["干员", "干员/" + TABS[tab]])  # i18n: skip
 	AK.put(stage, AK.toggle(TABS, tab, func(i): menu.operator_tab = i; refresh.call(), 13), Vector2(110, 7))
 	var key := AK.label("C", 11, AK.FG, AK.en())
 	key.add_theme_stylebox_override("normal", AK.box(AK.PLATE_3, Color.TRANSPARENT, 0, 4))

@@ -94,6 +94,127 @@ const TIPS := {
 	"base_lift": ["升降梯", "升降梯连接舰桥大厅与二层，二层是农业部和食堂。", 56.0],
 	"base_farm": ["农业部", "农业部的水培槽可以种植作物，按现实时间生长，成熟后不会枯萎。作物可以送到食堂烹饪。", 60.0],
 	"base_canteen": ["食堂", "食堂用作物烹饪补给。出发前吃一份，下一份合同中干员会获得生命、回复或攻击方面的增益。", 60.0],
+	# --- 界面首次打开（用户 2026-11-15: 做每个ui界面的首次开启介绍）: SCREENS ---
+	"ui_pack": ["背包", "背包里是这次带出来的物品。右键使用或装备，拖动可以整理、丢弃或拖到快捷栏绑定药剂。安全袋里的物品倒下也不会丢失。", 0.0],
+	"ui_relics": ["藏品", "本次行动拿到的藏品都在这里，效果持续到行动结束。图鉴页记录见过的全部藏品。", 0.0],
+	"ui_map": ["地图", "整层地图，撤离信标、入口和合同目标都标在上面。", 0.0],
+	"ui_journal": ["外勤合同", "目标页是这份合同要完成的事；订单页是各部门订单需要的物资，带回后在出库区交付。", 0.0],
+	"ui_operator": ["干员", "当前干员的数值与成长。概览页列出全部最终数值，右侧名册可以切换查看其他干员。", 0.0],
+	"ui_operator_attr": ["属性", "升级获得属性点，分配到各项属性上。每点的效果写在旁边。", 0.0],
+	"ui_operator_skill": ["技能", "升级获得技能点，用来点亮技能树。", 0.0],
+	"ui_settle": ["行动结算", "这次行动的结果：赤金、合同报酬、深度与可交付的订单。", 0.0],
+	"ui_settle_store": ["入库", "把背包与安全袋里的物品存进仓库。可以一键入库，也可以逐件拖动。仓库放不下的会进 PRTS 邮件。", 0.0],
+	"ui_deploy": ["出发准备", "出发前最后确认：出战干员、身上装备、背包和安全袋。确认无误后出击。", 0.0],
+	"ui_prts": ["PRTS 终端", "PRTS 终端保存消息历史和邮件。仓库放不下的物品、运营账单和各种通知都会发到这里。按回车可以随时打开。", 0.0],
+	"ui_pickup": ["拾取过滤", "按前缀数量和品质过滤地上的装备名牌，低于条件的不再显示。", 0.0],
+	# 交易所各页.
+	"ui_ex_market": ["行情", "左侧是九大势力的商品盘，中间是 K 线，右侧下单：现货立即成交，挂单等价格到了再成交，远期约定日后交割，差价合约可以带杠杆做多做空，保证金不足会被强平。", 0.0],
+	"ui_ex_fx": ["外汇", "各地区货币盘与交叉盘。可以换汇、持有外币或做外汇差价合约。干员薪资按家乡货币支付，持有外币可以对冲汇率。", 0.0],
+	"ui_ex_positions": ["持仓", "远期合约、差价合约和挂单都列在这里，带浮动盈亏。保证金不足时可以追加保证金或平仓。", 0.0],
+	"ui_ex_news": ["新闻", "各地的行情新闻。新闻会推动相关商品和企业的价格，各势力也会据此买卖。", 0.0],
+	"ui_ex_money": ["资金", "赤金实物可以存入赤金账户，账户里的赤金可以直接交易。下方是九大势力对罗德岛的关系，等级越高交易条件越好。", 0.0],
+	# 经济系统教程：资产页第一次打开时依次出现.
+	"ui_econ_money": ["罗德岛的钱", "龙门币是罗德岛的资金：合同报酬、出库订单、卖货、分红和利息都进余额，建设、升级、日账和薪资也从余额扣。赤金是局内货币，可以存进赤金账户，或在可露希尔处卖成龙门币。余额本身不生息。", 0.0],
+	"ui_econ_worth": ["账户净值", "上方是账户总览。账户净值 = 龙门币 + 赤金与外币折算 + 存款 + 证券与策略 + 罗德岛库存 − 欠款，个人仓库里的物品不算。借款额度按净值计算。", 0.0],
+	"ui_econ_upkeep": ["日账", "运营页是罗德岛的日账。每个交易日（和现实日期同步），各设施消耗一族材料：先从罗德岛库存扣，不够的按行情自动买进；干员薪资按家乡货币折算。设施越多、等级越高，日账越贵。", 0.0],
+	"ui_econ_stock": ["罗德岛库存", "罗德岛库存专供设施消耗，在仓管台从个人仓库转入，只能转入、不能取回。行情低时买进材料转入，等于提前锁定日账成本。个人仓库里的东西永远不会被自动扣。", 0.0],
+	"ui_econ_rations": ["口粮与热餐", "每个交易日，每名在舰干员吃 1 份基础作物，只从罗德岛库存扣，作物只能在农业部自己种。够了全舰有热餐，出击最大生命 +3%；不够就停发补给，补够后到食堂点“开饭”恢复。", 0.0],
+	"ui_econ_arrears": ["欠费", "龙门币不够付日账时会自动借款，按天计息。额度用完或逾期后按顺序暂停：交易所策略、加工部、农业部、科研部。整备台、仓库和出击永远可用，还清后立即恢复。", 0.0],
+	"ui_econ_cycle": ["景气指数", "左侧是净值走势和景气指数。景气由货价、势力、情绪和信贷松紧组成；信贷越紧，基础贷款利率越高，企业也越难扩张。", 0.0],
+	"ui_econ_grow": ["让钱生钱", "存款页存活期或定存；证券页买赤金产品和债券；企业页买上市企业的股份；策略页让自动交易策略替你交易。收益越高，波动也越大。", 0.0],
+	"ui_econ_deposit": ["存款", "活期随存随取，按天计息。定存 1、3、7 天，期限越长利率越高，提前取出没收利息。存进去的钱会借给市场，信贷池也会因此变松。", 0.0],
+	"ui_econ_credit": ["信贷", "借款随借随还，没有到期日，按天复利。额度跟着净资产变，借得越接近额度利率越高。自动还款每天把超过 3 天日账的余额拿去还款。欠款超过额度 1.5 倍为逾期，龙门币收入先还债；超过 2 倍会依次变卖策略持仓、证券、定存和活期。", 0.0],
+	"ui_econ_securities": ["证券", "左侧是赤金产品：赤金存单按赤金计息，两只基金持有一篮子企业股份并定期派息。右侧是债券：期限 3 天或 7 天，票息高于定存，到期还本；提前卖出按市价，价格随利率涨跌。", 0.0],
+	"ui_firm_list": ["上市企业", "左侧是上市企业。市盈率 = 股价 ÷ 每股收益；PEG = 市盈率 ÷ 利润增长率，低于 1 显示绿色，高于 2 显示橙色。", 0.0],
+	"ui_firm_detail": ["企业详情", "中间是选中企业的 K 线、关键比率、护城河 12 项（达标越多，经营越稳）和季报。企业按季度公布营收、净利和分红。", 0.0],
+	"ui_firm_order": ["买卖股份", "右侧买卖股份。持有股份可以拿分红；持股达到 5% 会公开，各势力都会知道。下方是主要持有人和 PRTS 研报。", 0.0],
+	"ui_strat_slots": ["策略槽", "交易所 3 级开 1 个策略槽，4 级开 2 个，科研“量化交易”再加 1 个。鼠标停在策略名称上可以查看规则。", 0.0],
+	"ui_strat_new": ["新建策略", "选好模板，设定资金、止损线（净值回撤到这里就停）、运行天数、参数和标的。先点回测，用历史 K 线免费试算，每天 10 次；满意了再启动。", 0.0],
+	"ui_strat_run": ["运行中的策略", "中间是策略的净值曲线、收益、最大回撤、胜率和持仓。策略每天按占用资金收 0.05% 托管费；罗德岛欠费时，策略最先暂停。", 0.0],
+	# 其他设施的分页.
+	"ui_stash_unpack": ["拆包", "交易所买来的大类包在这里拆开，按点数自选里面的物品。", 0.0],
+	"ui_stash_stock": ["罗德岛库存", "把个人仓库的材料转入罗德岛库存，供设施日账和食堂口粮消耗。只能转入，不能取回也不能卖；右侧显示每族还够用几天。", 0.0],
+	"ui_work_pack": ["打包", "把同一大类的物资打成交易包，交易所只按大类包交易。仓库里按 P 键也可以一键打包。", 0.0],
+	"ui_work_gift": ["礼品包", "把收藏品打成礼品包，在沙盘的势力页送给势力，可以提升关系。", 0.0],
+	"ui_bench_refit": ["改造", "用材料和龙门币改造装备的前缀：重铸、校准和精调。", 0.0],
+	"ui_bench_insure": ["投保", "和后勤柜台一样：为装备投保后，没带回的会在 2 到 4 小时后由罗德岛小队送回。制式装备不用投保。", 0.0],
+	"ui_bench_support": ["增益", "出发前的增益集中在这里：食堂补给、科研课题、药剂和随队物资。各部门的入口仍然保留。", 0.0],
+	"ui_canteen_eat": ["用餐", "出发前吃一份做好的补给，下一份合同中生效。停发补给的日子不能用餐。", 0.0],
+	"ui_canteen_mail": ["冷链", "把一份补给交给企鹅物流寄出，外勤时在罗德岛小队处领取。", 0.0],
+	"ui_lab_projects": ["课题", "课题签下后持续 3 次出击，每次出发时收取费用，期间提供加成。课题位有限。", 0.0],
+	"ui_lab_endless": ["基础研究", "基础研究没有上限，每升一级提供一点永久加成，费用逐级提高。", 0.0],
+	"ui_sand_factions": ["势力", "九大势力对罗德岛的关系、修正项和解锁的特权。关系从冷漠升到崇拜，每升一级有礼物；礼品包也在这里送出。", 0.0],
+	"ui_store_consign": ["代售", "可露希尔代售的交易包。在基地按锚地代售，营地按地图代售；可以买，也可以把自己的交易包交给她卖。", 0.0],
+	"ui_store_bars": ["出售赤金", "把赤金实物卖成龙门币。", 0.0],
+	"ui_store_fx": ["换汇", "按实时汇率在外币和龙门币之间兑换。", 0.0],
+	"ui_store_loan": ["贷款", "和交易所资产页的信贷是同一笔：随借随还，按天计息，额度跟着净资产变。", 0.0],
+	"ui_store_kits": ["随队物资", "减缓地图特色（污染、寒冷、血债）的随队物资，买下后下一份合同自动带上。", 0.0],
+	"ui_store_cases": ["整理箱", "整理箱在仓库里只算 1 件，里面可以装多件物品，可以原地升级到 4 级。", 0.0],
+	"ui_camp_deposit": ["寄存", "把背包里的普通材料交给可露希尔，付交付价 20% 的赤金，物品送回仓库。药剂和特殊材料不收。", 0.0],
+	"ui_camp_delivery": ["交割", "到期的远期交货合约在这里交割：背包里的材料够数就能交货。", 0.0],
+	"ui_camp_supply": ["补给", "用赤金买燃料和缓解地图特色的补给，直接放进背包。", 0.0],
+	"ui_camp_treat": ["处理", "用赤金处理污染或血债，每个营地一次。", 0.0],
+}
+
+## Screens (用户 2026-11-15: 做每个ui界面的首次开启介绍，增加经济系统玩法教程):
+## the key a screen reports (`screen`, from BaseScreens.shell and the screens
+## outside it) -> its tips in order, each [id, where]: null for the card in the
+## middle, a Rect2 box on screen, or "button:<text>" for that button.
+## Stations whose own card (base_<kind>) already covers the first page list
+## only their other pages.
+const ASSET_TOP := Rect2(16, 110, 1248, 58)
+const ASSET_LEFT := Rect2(16, 174, 500, 508)
+const ASSET_RIGHT := Rect2(526, 174, 738, 508)
+const SIDE_LEFT := Rect2(16, 110, 330, 572)
+const SIDE_MID := Rect2(356, 108, 524, 574)
+const SIDE_RIGHT := Rect2(890, 110, 374, 572)
+const SCREENS := {
+	"背包": [["ui_pack", null]],  # i18n: skip
+	"藏品": [["ui_relics", null]],  # i18n: skip
+	"地图": [["ui_map", null]],  # i18n: skip
+	"外勤合同": [["ui_journal", null]],  # i18n: skip
+	"干员": [["ui_operator", null]],  # i18n: skip
+	"干员/属性": [["ui_operator_attr", "button:属性"]],  # i18n: skip
+	"干员/技能": [["ui_operator_skill", "button:技能"]],  # i18n: skip
+	"结算/结算": [["ui_settle", null]],  # i18n: skip
+	"结算/仓库": [["ui_settle_store", "button:仓库"]],  # i18n: skip
+	"出发准备": [["ui_deploy", null]],  # i18n: skip
+	"PRTS": [["ui_prts", null]],  # i18n: skip
+	"设置/拾取过滤": [["ui_pickup", "button:拾取过滤"]],  # i18n: skip
+	"交易所/行情": [["ui_ex_market", "button:行情"]],  # i18n: skip
+	"交易所/外汇": [["ui_ex_fx", "button:外汇"]],  # i18n: skip
+	"交易所/持仓": [["ui_ex_positions", "button:持仓"]],  # i18n: skip
+	"交易所/新闻": [["ui_ex_news", "button:新闻"]],  # i18n: skip
+	"交易所/资金": [["ui_ex_money", "button:资金"]],  # i18n: skip
+	"交易所/资产": [["ui_econ_money", null], ["ui_econ_worth", ASSET_TOP], ["ui_econ_upkeep", ASSET_RIGHT], ["ui_econ_stock", ASSET_RIGHT],  # i18n: skip
+		["ui_econ_rations", ASSET_RIGHT], ["ui_econ_arrears", ASSET_RIGHT], ["ui_econ_cycle", ASSET_LEFT], ["ui_econ_grow", "button:存款"]],  # i18n: skip
+	"交易所/资产/存款": [["ui_econ_deposit", ASSET_RIGHT]],  # i18n: skip
+	"交易所/资产/信贷": [["ui_econ_credit", ASSET_RIGHT]],  # i18n: skip
+	"交易所/资产/证券": [["ui_econ_securities", ASSET_RIGHT]],  # i18n: skip
+	"交易所/企业": [["ui_firm_list", SIDE_LEFT], ["ui_firm_detail", SIDE_MID], ["ui_firm_order", SIDE_RIGHT]],  # i18n: skip
+	"交易所/策略": [["ui_strat_slots", SIDE_LEFT], ["ui_strat_new", SIDE_RIGHT], ["ui_strat_run", SIDE_MID]],  # i18n: skip
+	"仓管台/拆包": [["ui_stash_unpack", "button:拆包"]],  # i18n: skip
+	"仓管台/罗德岛库存": [["ui_stash_stock", "button:罗德岛库存"]],  # i18n: skip
+	"加工站/打包": [["ui_work_pack", "button:打包"]],  # i18n: skip
+	"加工站/礼品包": [["ui_work_gift", "button:礼品包"]],  # i18n: skip
+	"整备台/改造": [["ui_bench_refit", "button:改造"]],  # i18n: skip
+	"整备台/投保": [["ui_bench_insure", "button:投保"]],  # i18n: skip
+	"整备台/增益": [["ui_bench_support", "button:增益"]],  # i18n: skip
+	"食堂/用餐": [["ui_canteen_eat", "button:用餐"]],  # i18n: skip
+	"食堂/冷链": [["ui_canteen_mail", "button:冷链"]],  # i18n: skip
+	"科研部/课题": [["ui_lab_projects", "button:课题"]],  # i18n: skip
+	"科研部/基础研究": [["ui_lab_endless", "button:基础研究"]],  # i18n: skip
+	"沙盘/势力": [["ui_sand_factions", "button:势力"]],  # i18n: skip
+	"可露希尔的商店/代售": [["ui_store_consign", "button:代售"]],  # i18n: skip
+	"可露希尔的商店/出售赤金": [["ui_store_bars", "button:出售赤金"]],  # i18n: skip
+	"可露希尔的商店/换汇": [["ui_store_fx", "button:换汇"]],  # i18n: skip
+	"可露希尔的商店/贷款": [["ui_store_loan", "button:贷款"]],  # i18n: skip
+	"可露希尔的商店/随队物资": [["ui_store_kits", "button:随队物资"]],  # i18n: skip
+	"可露希尔的商店/整理箱": [["ui_store_cases", "button:整理箱"]],  # i18n: skip
+	"可露希尔的商店/寄存": [["ui_camp_deposit", "button:寄存"]],  # i18n: skip
+	"可露希尔的商店/交割": [["ui_camp_delivery", "button:交割"]],  # i18n: skip
+	"可露希尔的商店/补给": [["ui_camp_supply", "button:补给"]],  # i18n: skip
+	"可露希尔的商店/处理": [["ui_camp_treat", "button:处理"]],  # i18n: skip
 }
 ## The dispatch desk's columns, in screen pixels (BaseScreens.contracts).
 const DISPATCH_CONTRACT := Rect2(884, 60, 396, 660)
@@ -220,6 +341,7 @@ static func seen(id: String) -> bool:
 func dismiss() -> void:
 	if showing.is_empty(): return
 	showing = ""
+	_showing_screen = ""
 	visible = false
 	for note in _notes: note.queue_free()
 	_notes.clear()
@@ -280,10 +402,38 @@ func go_back() -> bool:
 	return true
 
 ## An event's tip, shown as soon as it can be (once, like the rest).
-func request(id: String, at: Variant = null) -> void:
+## `screen`: the screen key it belongs to; it then shows only while that
+## screen is the one up (SCREENS).
+func request(id: String, at: Variant = null, screen := "") -> void:
 	if not TIPS.has(id) or seen(id) or not tips_on() or not _active(): return
 	if _queue.any(func(q): return q[0] == id): return
-	_queue.append([id, at])
+	_queue.append([id, at, screen])
+
+## The screen keys up now (`screen_shown`) and the modal they were shown under.
+var _screens_now: Array = []
+var _screens_modal := ""
+## The screen key of the card up now ("" not a screen's).
+var _showing_screen := ""
+
+## A screen was drawn: `keys` are what it is, from the whole screen to its
+## page ("交易所", "交易所/资产", "交易所/资产/存款"). Deferred, so a station's
+## own card (screen_opened, right after the screen is built) comes first.
+static func screen(game: GameManager, keys: Array) -> void:
+	if game == null or not is_instance_valid(game.tutorial_spotlight): return
+	game.tutorial_spotlight.call_deferred("screen_shown", keys)
+
+func screen_shown(keys: Array) -> void:
+	if not is_instance_valid(game): return
+	_screens_now = keys
+	_screens_modal = game.modal
+	for key in keys:
+		for entry in SCREENS.get(key, []): request(str(entry[0]), entry[1], str(key))
+
+## Whether a queued tip's screen is the one up (a tip with none: always).
+func _screen_up(q: Array) -> bool:
+	var key: String = q[2] if q.size() > 2 else ""
+	if key.is_empty(): return true
+	return not game.modal.is_empty() and game.modal == _screens_modal and key in _screens_now
 
 func _active() -> bool:
 	return is_instance_valid(game) and (forced or is_instance_valid(game.system_screens))
@@ -293,6 +443,10 @@ func _process(delta: float) -> void:
 		visible = false
 		return
 	if not showing.is_empty():
+		# Its screen closed or changed: it goes with it.
+		if not _showing_screen.is_empty() and not _screen_up([showing, null, _showing_screen]):
+			dismiss()
+			return
 		# Something closed the modal under it (a test, a transition): gone too.
 		if _owns_modal and game.modal != "tutorial":
 			showing = ""
@@ -304,6 +458,8 @@ func _process(delta: float) -> void:
 	if _check_left > 0.0: return
 	_check_left = CHECK_SECONDS
 	if not tips_on() or game.transitioning: return
+	# A screen's tips go with it; drawn again, it asks again.
+	_queue = _queue.filter(func(q): return _screen_up(q))
 	_watch_events()
 	# 玩家反馈 2026-11-06: 打架时弹出提示，被敌人打死. In the field nothing comes
 	# up mid-fight, nor over a screen the field keeps running under (a box's
@@ -319,7 +475,9 @@ func _process(delta: float) -> void:
 		# a world point waits for the field.
 		if q[1] == null or q[1] is Rect2 or q[1] is String or (game.simulation_active() and game.modal.is_empty()):
 			_queue.remove_at(i)
-			if not seen(q[0]): show_tip(q[0], q[1])
+			if not seen(q[0]):
+				show_tip(q[0], q[1])
+				_showing_screen = str(q[2]) if q.size() > 2 else ""
 			return
 	if game.simulation_active() and game.modal.is_empty():
 		var found := first_in_sight()

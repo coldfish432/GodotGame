@@ -64,7 +64,7 @@ func _ladder() -> void:
 		and FactionCatalog.RELATION_EXPECTED.lungmen > FactionCatalog.RELATION_EXPECTED.ursus and FactionCatalog.trading().all(func(f): return FactionCatalog.RELATION_EXPECTED.has(f)))
 	var ex := Exchange.new()
 	ex.load_data({"relations": {"karlan": 100, "lungmen": 350}})
-	check("an old account is migrated on load, and raised to where each faction starts", ex.relation("karlan") == 500 and ex.relation("lungmen") == 1750, ex.relations)
+	check("an old account is migrated on load, and raised to where each faction starts", ex.standing("karlan") == 500 and ex.standing("lungmen") == 1750, ex.relations)
 	var fresh := Exchange.new()
 	fresh.load_data(fresh.to_data())
 	check("a new account starts 喀兰贸易 at 500 (友好) and is not migrated again", Exchange.START_RELATIONS.karlan == 500 and fresh.relations.get("karlan", 0) == 500)
@@ -75,9 +75,9 @@ func _daily_correction() -> void:
 	ex.relations["ursus"] = 400
 	var day := MarketState.day_key(game.market.t)
 	while MarketState.day_key(game.market.t) == day: later(3600)
-	check("a new trading day corrects a relation above its expected value", ex.relation("lungmen") == 2500 - 38 and ex.relation("ursus") == 400, ex.relations)
+	check("a new trading day corrects a relation above its expected value", ex.standing("lungmen") == 2500 - 38 and ex.standing("ursus") == 400, ex.relations)
 	later(86400 * 30)
-	check("thirty days later it has come down towards 1000 (about 1770)", ex.relation("lungmen") > 1700 and ex.relation("lungmen") < 1850, ex.relation("lungmen"))
+	check("thirty days later it has come down towards 1000 (about 1770)", ex.standing("lungmen") > 1700 and ex.standing("lungmen") < 1850, ex.standing("lungmen"))
 	ex.relations["lungmen"] = 0
 	ex.relations["ursus"] = 0
 
@@ -143,11 +143,11 @@ func _stays() -> void:
 	check("care costs %d / %d an hour" % [inj, inf], inj == 8400 and inf == 17000)
 	v.set_stay("injured", true, now())
 	later(3600)
-	check("an hour of injured care: −%d, 龙门商会 +1, 鼠王 half a point" % inj, game.gold == 1000000 - inj and ex.relation("lungmen") == 1 and ex.relation("rat") == 0, [game.gold, ex.relations])
+	check("an hour of injured care: −%d, 龙门商会 +1, 鼠王 half a point" % inj, game.gold == 1000000 - inj and ex.standing("lungmen") == 1 and ex.standing("rat") == 0, [game.gold, ex.relations])
 	later(3600)
-	check("鼠王's halves make a point", ex.relation("rat") == 1 and ex.relation("lungmen") == 2)
+	check("鼠王's halves make a point", ex.standing("rat") == 1 and ex.standing("lungmen") == 2)
 	later(1800)
-	check("half an hour settles nothing", ex.relation("lungmen") == 2)
+	check("half an hour settles nothing", ex.standing("lungmen") == 2)
 	# Medical supplies pay at most half an hour's cost, whole units, cheapest first.
 	var sugar := _shelf("代糖", 20)
 	var stocked := sugar.quantity
@@ -168,17 +168,17 @@ func _stays() -> void:
 	check("a %d budget allows one hour, then stops" % budget, not v.stay_on() and int(v.stay.spent) == inj)
 	v.set_budget(0)
 	# A target stops it.
-	v.set_target("lungmen", ex.relation("lungmen") + 2)
+	v.set_target("lungmen", ex.standing("lungmen") + 2)
 	v.set_stay("injured", true, now())
 	later(3600 * 5)
-	check("the target relation stops it", not v.stay_on() and ex.relation("lungmen") == int(v.stay.target), [ex.relation("lungmen"), v.stay.target])
+	check("the target relation stops it", not v.stay_on() and ex.standing("lungmen") == int(v.stay.target), [ex.standing("lungmen"), v.stay.target])
 	v.set_target("", 0)
 	# The cap: R3.
 	ex.relations["lungmen"] = VoyageState.cap() - 1
 	ex.relations["rat"] = VoyageState.cap()
 	v.set_stay("injured", true, now())
 	later(3600 * 3)
-	check("a stay lifts nobody past R3, and stops when all are there", ex.relation("lungmen") == VoyageState.cap() and ex.relation("rat") == VoyageState.cap() and not v.stay_on())
+	check("a stay lifts nobody past R3, and stops when all are there", ex.standing("lungmen") == VoyageState.cap() and ex.standing("rat") == VoyageState.cap() and not v.stay_on())
 	ex.relations["lungmen"] = 0
 	ex.relations["rat"] = 0
 	# No money, no care.
@@ -190,8 +190,11 @@ func _stays() -> void:
 	# Offline: hours settle on catch-up.
 	v.set_stay("infected", true, now())
 	gold = game.gold
+	var paid_before := game.exchange.fin.paid_total + game.exchange.fin.repaid_total
 	later(3600 * 10)
-	check("ten hours away settle ten hours", gold - game.gold == inf * 10 and ex.relation("rat") == 30 and ex.relation("lungmen") == 10, [gold - game.gold, ex.relations])
+	# 运营策划案 §2: a trading day's bill may fall in those hours too.
+	var billed := game.exchange.fin.paid_total + game.exchange.fin.repaid_total - paid_before
+	check("ten hours away settle ten hours", gold - game.gold == inf * 10 + billed and ex.standing("rat") == 30 and ex.standing("lungmen") == 10, [gold - game.gold, ex.relations])
 	v.set_stay("infected", false, now())
 
 func _conflicts() -> void:
@@ -203,7 +206,7 @@ func _conflicts() -> void:
 	ex.relations["reunion"] = 0
 	v.set_stay("infected", true, now())
 	later(3600 * 6)
-	check("切尔诺伯格: the mines lose, the remnants gain", ex.relation("ursus") == 94 and ex.relation("reunion") == 18, ex.relations)
+	check("切尔诺伯格: the mines lose, the remnants gain", ex.standing("ursus") == 94 and ex.standing("reunion") == 18, ex.relations)
 	check("six infected hours: the next mine contract starts at +10% threat", is_equal_approx(v.threat_start("mine"), 0.1) and v.threat_start("city") == 0.0)
 	later(3600 * 60)
 	check("capped at +40%", is_equal_approx(v.mine_threat, VoyageCatalog.MINE_THREAT_CAP))
@@ -216,7 +219,7 @@ func _conflicts() -> void:
 	v.relation_frac.clear()
 	v.set_stay("infected", true, now())
 	later(3600 * 200)
-	var rel := ex.relation("kazimierz")
+	var rel := ex.standing("kazimierz")
 	check("卡西米尔: strikes cost relation (%d < 300)" % rel, rel < 300 and rel > 150)
 	v.set_stay("infected", false, now())
 	# 叙拉古: insurance and 血债.
@@ -278,13 +281,13 @@ func _orders() -> void:
 	check("short of goods it will not take it", v.submit_refusal(int(o.id)).begins_with("缺少"))
 	_shelf("螺栓", 25)
 	var gold := game.gold
-	var rel := ex.relation("lungmen")
+	var rel := ex.standing("lungmen")
 	check("in 龙门's waters it is submitted", game.submit_bulk(int(o.id)) and game.material_count("螺栓") == 5 and str(o.state) == "handover")
 	check("and cannot be packed", v.pack_refusal(int(o.id)) != "")
 	later(1800)
 	check("not paid before the hour", game.gold == gold)
 	later(1900)
-	check("after an hour: paid and relation +15", game.gold == gold + 25000 and ex.relation("lungmen") == rel + 15 and v.order(int(o.id)).is_empty())
+	check("after an hour: paid and relation +15", game.gold == gold + 25000 and ex.standing("lungmen") == rel + 15 and v.order(int(o.id)).is_empty())
 	# Out of waters: pack a crate.
 	o = _order_for("rhine", {"螺栓": 10})
 	check("莱茵生命 is not in 龙门's waters", v.submit_refusal(int(o.id)) == "不在境内")
@@ -365,10 +368,10 @@ func _delivery() -> void:
 	game._interact()
 	check("handed over: the crate leaves the pack, the objective is done", game.cargo_delivered and not game.inventory.items.has(crate) and game.contract_progress().done)
 	var gold_account := ex.gold_account
-	var rel := ex.relation("karlan")
+	var rel := ex.standing("karlan")
 	game.settle(false)
 	await step(2)
-	check("paid at settlement even after a fall", is_equal_approx(ex.gold_account, gold_account + 12.5) and ex.relation("karlan") == rel + 15 and v.order(int(o.id)).is_empty())
+	check("paid at settlement even after a fall", is_equal_approx(ex.gold_account, gold_account + 12.5) and ex.standing("karlan") == rel + 15 and v.order(int(o.id)).is_empty())
 
 # --- The station ----------------------------------------------------------------------------
 
@@ -381,6 +384,7 @@ func _station() -> void:
 	# 势力 tab: every faction's rank, progress and what the next rank opens.
 	game.exchange.relations["rat"] = 342
 	game.exchange.relations["lungmen"] = 5000
+	game.exchange.relation_mods = {}
 	SandTableScreen.tab = 1
 	SandTableScreen.build(game.menu)
 	await step(1)
