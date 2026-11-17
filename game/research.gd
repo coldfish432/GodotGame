@@ -103,6 +103,8 @@ func progress(id: String) -> float:
 ## Finishes whatever research is due; returns the ids finished.
 func tick() -> Array[String]:
 	var finished: Array[String] = []
+	# 运营策划案 §2.4: unpaid, the lab stops (its clock does not run out meanwhile is not modelled: it simply does not finish).
+	if game.exchange != null and game.exchange.fin.facility_stopped("lab"): return finished
 	var now := BaseState.now()
 	for e in active().duplicate():
 		if int(e.end) <= now:

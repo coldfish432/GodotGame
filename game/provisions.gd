@@ -150,6 +150,7 @@ func seconds_left(i: int) -> int:
 func sow_refusal(i: int, crop: String) -> String:
 	if not CROPS.has(crop): return "无效"
 	if i < 0 or i >= basins(): return "需要农业部升级"
+	if game.exchange.fin.facility_stopped("farm"): return "欠费停用"
 	if not plot(i).is_empty(): return "已种植"
 	var c: Dictionary = CROPS[crop]
 	if c.has("seed"):
@@ -182,7 +183,8 @@ func harvest(i: int) -> int:
 	var crop := str(plot(i).crop)
 	var count := int(CROPS[crop].yield)
 	_state().plots[i] = {}
-	_store(crop, count)
+	# 运营策划案 §2.5: with the switch on, rations go straight to the 罗德岛库存.
+	if not game.exchange.fin.harvest_in(crop, count): _store(crop, count)
 	if crop in GLOWING: game.broadcast("PRTS：莱茵生命生态科提醒，闪耀作物收获后仍会发光一段时间，请放在阴凉处。")
 	game.farm_changed()
 	return count
@@ -255,6 +257,8 @@ func mailed() -> String: return str(_state().get("mailed", ""))
 func eat_refusal(meal_id: String) -> String:
 	if not MEALS.has(meal_id): return "无效"
 	if game.base.facility_level("canteen") < 1: return "需要食堂"
+	# §2.2.1: no rations today, no 补给 served.
+	if game.exchange.fin.supply_stopped(): return "停发补给"
 	return game.materials_refusal({meal_id: 1})
 
 ## Eats one before the next contract; one already eaten is replaced.

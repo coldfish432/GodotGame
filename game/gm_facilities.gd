@@ -26,6 +26,8 @@ func _tick_kitchen() -> void:
 ## and attack speed as a lasting hex beside the flasks'. "" takes it off.
 func _apply_meal(meal_id: String) -> void:
 	game.run_meal = meal_id if Provisions.MEALS.has(meal_id) else ""
+	# 运营策划案 §2.2.1: today's 热餐 goes out with her.
+	game.run_hot_meal = game.exchange.fin.hot_meal()
 	if not is_instance_valid(game.player): return
 	game.player.clear_hex("meal")
 	var m: Dictionary = Provisions.MEALS.get(game.run_meal, {})

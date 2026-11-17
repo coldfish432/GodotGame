@@ -571,7 +571,30 @@ static func _all() -> Dictionary:
 	out.merge(EXTRA_EVENTS)
 	out.merge(FX_EVENTS)
 	out.merge(REGION_EVENTS)
+	out.merge(ACTOR_EVENTS)
 	return out
+
+## 罗德岛运营与资产管理策划案 §3.4: what the factions and firms do as news.
+## AE*: weight 0, fired by the actors (先动作后事件 / 动作即事件); FE*: firm news
+## drawn like the rest, which the firms then act on (先事件后动作). "#": the
+## region of the faction or firm picked.
+const ACTOR_EVENTS := {
+	"AE1": {"region": "#", "kind": "breaking", "hours": 6, "weight": 0, "title": "%s连续抛售库存，传闻减产", "pick_faction": true, "effects": []},
+	"AE2": {"region": "#", "kind": "announce", "hours": 6, "weight": 0, "title": "%s宣布大宗采购", "pick_faction": true, "effects": []},
+	"AE3": {"region": "#", "kind": "announce", "hours": 6, "weight": 0, "title": "%s宣布回购股份", "pick_firm": true, "effects": []},
+	"AE4": {"region": "#", "kind": "announce", "hours": 6, "weight": 0, "title": "%s宣布增发新股", "pick_firm": true, "effects": []},
+	"AE5": {"region": "#", "kind": "announce", "hours": 6, "weight": 0, "title": "%s上调分红比例", "pick_firm": true, "effects": []},
+	"AE6": {"region": "#", "kind": "rumor", "hours": 6, "weight": 0, "title": "%s疑似狙击罗德岛头寸", "pick_faction": true, "effects": []},
+	"AE7": {"region": "#", "kind": "announce", "hours": 6, "weight": 0, "title": "%s下调分红比例", "pick_firm": true, "effects": []},
+	"AE8": {"region": "#", "kind": "breaking", "hours": 12, "weight": 0, "title": "%s启动债务重组", "pick_firm": true, "effects": []},
+	"AE9": {"region": "#", "kind": "announce", "hours": 6, "weight": 0, "title": "%s发布季报", "pick_firm": true, "effects": []},
+	"FE1": {"region": "#", "kind": "breaking", "hours": 12, "weight": 1, "title": "%s接到大额防务订单", "pick_firm": true, "firms": ["blacksteel", "raythean"], "effects": []},
+	"FE2": {"region": "#", "kind": "breaking", "hours": 12, "weight": 1, "title": "%s运货途中遇险", "pick_firm": true, "firms": ["penguin", "fengchi", "fastrun"], "effects": []},
+	"FE3": {"region": "#", "kind": "breaking", "hours": 12, "weight": 1, "title": "%s拿下载具大单", "pick_firm": true, "firms": ["venezia"], "effects": []},
+	"FE4": {"region": "#", "kind": "breaking", "hours": 12, "weight": 1, "title": "%s矿井事故停产", "pick_firm": true, "firms": ["sunvalley", "mieszko"], "effects": []},
+	"FE5": {"region": "#", "kind": "breaking", "hours": 12, "weight": 1, "title": "%s新药获批上市", "pick_firm": true, "firms": ["sunherb"], "effects": []},
+	"FE6": {"region": "#", "kind": "breaking", "hours": 12, "weight": 1, "title": "%s宣布研发突破", "pick_firm": true, "firms": ["brian", "raythean", "volvotech"], "effects": []},
+}
 
 ## Regions events can pick ("天灾预警：%s"): the trading factions' regions.
 static func regions() -> Array:

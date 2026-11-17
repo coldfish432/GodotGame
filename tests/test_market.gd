@@ -37,10 +37,12 @@ func run() -> void:
 	m.advance_to(T0 + 6 * 3600 + 7 * 86400)
 	var week := Time.get_ticks_msec() - t
 	print("six hours %d ms, seven days %d ms" % [six, week])
-	check("a week offline catches up in under 3 s: %d ms" % week, week < 3000)
+	# 运营策划案 §5.1: two days at most now, with the actors (alone about 3 s; run_all's 12 jobs load the machine).
+	check("a week offline catches up in under 6 s: %d ms" % week, week < 6000)
 	t = Time.get_ticks_msec()
 	m.advance_to(T0 + 60 * 86400)
-	check("more than seven days only simulates the last seven: %d ms" % (Time.get_ticks_msec() - t), Time.get_ticks_msec() - t < 3000 and m.t > T0 + 60 * 86400 - 3)
+	# 运营策划案 §5.1: the market never replays more than two days (the Rhodes clock stands still beyond).
+	check("more than two days only simulates the last two: %d ms" % (Time.get_ticks_msec() - t), Time.get_ticks_msec() - t < 6000 and m.t > T0 + 60 * 86400 - 3)
 	# Active hours (不停市): thin books outside them, never closed.
 	var day := T0 - posmod(T0, 86400)    # midnight UTC = local with tz 0
 	# The made-up history may leave an all-day or spread event running; the
@@ -53,7 +55,7 @@ func run() -> void:
 	var in_hours := m.spread("lungmen:armor")
 	m.t = day + 22 * 3600
 	check("off hours the spread doubles", absf(m.spread("lungmen:armor") - in_hours * 2.0) < 0.0001)
-	check("off hours the depth halves", absf(m.depth("lungmen:armor") * 2.0 - MarketState.DEPTH_LMD * 1.0) < 1.0)
+	check("off hours the depth halves (the makers deepen it, 运营策划案 §3.8.5)", absf(m.depth("lungmen:armor") * 2.0 - MarketState.DEPTH_LMD * (1.0 + m.actors.maker_share)) < 1.0)
 	check("still tradeable off hours (no halt)", not m.halted("lungmen:armor"))
 	check("the trading day turns at 08:00", MarketState.day_key(day + 7 * 3600) == MarketState.day_key(day + 7 * 3600 + 1) and MarketState.day_key(day + 8 * 3600) == MarketState.day_key(day + 7 * 3600) + 1)
 	check("next 08:00", MarketState.next_day_start(day + 9 * 3600) == day + 86400 + 8 * 3600)
@@ -119,7 +121,7 @@ func run() -> void:
 	for id in MarketEvents.EVENTS:
 		var fired := m5.fire(id)
 		if fired.is_empty() or str(m5.news[-1].title).contains("%"): broken.append(id)
-	check("all %d events fire with a filled title: %s" % [MarketEvents.EVENTS.size(), broken], broken.is_empty() and MarketEvents.EVENTS.size() == 269)
+	check("all %d events fire with a filled title: %s" % [MarketEvents.EVENTS.size(), broken], broken.is_empty() and MarketEvents.EVENTS.size() == 284)
 	var empty: Array = []
 	for id in MarketEvents.EVENTS:
 		for spec in MarketEvents.EVENTS[id].effects:
@@ -291,8 +293,10 @@ func _currencies() -> void:
 	m.ripples.clear()
 	m.fire("F7", {})
 	check("a currency crash queues its ties: %d" % m.ripples.size(), m.ripples.size() >= 4)
+	var queued := m.ripples.duplicate()
 	m.advance_to(m.t + 3700)
-	check("and they land within the hour", m.ripples.is_empty())
+	# Only these: an event in that hour may queue new ones.
+	check("and they land within the hour", queued.all(func(r): return not m.ripples.has(r)))
 	# Intervention.
 	var seen := {"F0": false}
 	m.on_news = func(h, _ev): if str(h.id) == "F0": seen.F0 = true

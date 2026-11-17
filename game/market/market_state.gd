@@ -17,7 +17,8 @@ const EXACT_WINDOW := 3600
 const MID_WINDOW := 6 * 3600
 const MID_STEP := 20
 const COARSE := 300
-const MAX_SIM := 7 * 86400
+## 运营策划案 §5.1: never more than a day and the hours over (the clock stood still the rest).
+const MAX_SIM := 2 * 86400
 const DAY := 86400
 const DAY_START := 8 * 3600
 const KEEP_M1 := 360
@@ -83,6 +84,9 @@ class Book:
 	var w0 := 0        # rate-limit window start
 	var wp := 1.0      # index at the window start
 	var lock := 0      # orders do not fill before this time
+	var fl := 0.0      # net order flow this step (龙门币 of base price, + buying), 运营策划案 §3.4
+	var va := 0.0      # gross traded this step: the candle's volume
+	var fe := 0.0      # lasting flow (decaying sum of fl / depth, half-life a day): where fair leans
 	var c1 := PackedFloat32Array()
 	var c15 := PackedFloat32Array()
 	var cd := PackedFloat32Array()
@@ -149,9 +153,20 @@ class Book:
 		if c15.size() > KEEP_M15 * FIELDS: c15 = c15.slice(c15.size() - KEEP_M15 * FIELDS)
 		if cd.size() > KEEP_D1 * FIELDS: cd = cd.slice(cd.size() - KEEP_D1 * FIELDS)
 
+	## A listed firm's shares (§3.2): its own book, outside the factions' list.
+	func setup_stock(firm: String) -> void:
+		id = firm
+		faction = ""
+		category = ""
+		cur = ""
+		fx = false
+		noise = 1.0
+		active_kind = "all"
+		switches = []
+
 	func to_data() -> Dictionary:
 		trim()
-		return {"id": id, "i": i, "mu": mu, "lt": lt, "rg": rg, "rl": rl, "tr": tr, "p": p, "pj": pj, "sh": sh, "ew": ew, "mo": mo, "w0": w0, "wp": wp,
+		return {"id": id, "i": i, "mu": mu, "lt": lt, "rg": rg, "rl": rl, "tr": tr, "p": p, "pj": pj, "sh": sh, "ew": ew, "mo": mo, "w0": w0, "wp": wp, "fl": fl, "va": va, "fe": fe,
 			"c1": c1, "c15": c15, "cd": cd, "b1": b1, "b15": b15, "bd": bd}
 
 	func load(d: Dictionary) -> void:
@@ -160,6 +175,7 @@ class Book:
 		p = float(d.get("p", 0.0)); pj = float(d.get("pj", 0.0)); sh = float(d.get("sh", 0.0)); ew = float(d.get("ew", 0.0)); mo = float(d.get("mo", 0.0)); w0 = int(d.get("w0", 0)); wp = float(d.get("wp", i))
 		c1 = d.get("c1", PackedFloat32Array()); c15 = d.get("c15", PackedFloat32Array()); cd = d.get("cd", PackedFloat32Array())
 		b1 = int(d.get("b1", -1)); b15 = int(d.get("b15", -1)); bd = int(d.get("bd", -1))
+		fl = float(d.get("fl", 0.0)); va = float(d.get("va", 0.0)); fe = float(d.get("fe", 0.0))
 
 var t := 0
 var rng := RandomNumberGenerator.new()
@@ -199,6 +215,17 @@ var _mods := {}
 var _all_day := {}
 var _mods_dirty := true
 var _next_flash_id := 1
+## 罗德岛运营与资产管理策划案 v0.12: the actors who trade (§3.8), the cycle
+## (§3.6), the credit pool (§3.7), the listed firms and their share books
+## (§3.2), and Rhodes as the factions see it (an Exchange, null in a bare market).
+var actors: MarketActors
+var econ: EconomyCycle
+var credit: CreditPool
+var firms: Firms
+var stocks := {}           # firm id -> Book
+var rhodes: Object = null
+## Off: the old random market only.
+var actors_on := true
 ## on_news(entry: Dictionary, event: Dictionary), on_step(t: int, dt: int).
 var on_news := Callable()
 var on_step := Callable()
@@ -208,6 +235,10 @@ var version := 0
 
 func _init() -> void:
 	rng.randomize()
+	actors = MarketActors.new()
+	econ = EconomyCycle.new()
+	credit = CreditPool.new()
+	firms = Firms.new()
 
 ## A fresh market at `now`, with two hours of history behind it.
 func start(now: int, seed_value: int = 0) -> void:
@@ -229,6 +260,7 @@ func start(now: int, seed_value: int = 0) -> void:
 		books[id] = b
 	t = now - 2 * 3600
 	for b in books.values(): b.w0 = t
+	_start_world()
 	_schedule_swan()
 	var cb := on_news
 	on_news = Callable()        # the made-up history makes no headlines
@@ -239,6 +271,13 @@ func start(now: int, seed_value: int = 0) -> void:
 	on_news = cb
 	on_step = sb
 	version += 1
+
+## The actors, the cycle and the firms from scratch (a new market, or a save from before them).
+func _start_world() -> void:
+	econ.start(t, rng)
+	firms.start(self)
+	actors.start(self)
+	credit.rebuild(actors, firms, 0.0, 0.0)
 
 # --- Time ------------------------------------------------------------------------
 
@@ -288,7 +327,10 @@ func _step(dt: int) -> void:
 	_crash = PANIC_DRIFT * panic * float(dt) / TICK
 	for b: Book in books.values():
 		_move(b, dt, hour, minute_of_day, lt)
+	if actors_on:
+		for b: Book in stocks.values(): _move_stock(b, dt, lt)
 	_events(dt)
+	if actors_on: _world_step(dt)
 	if fx_rate_before != fx_rate(): Economy.fx = fx_rate()
 	_publish_rates()
 	version += 1
@@ -316,12 +358,20 @@ func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
 	# The day's mean wanders back to 1, slowly.
 	b.mu = exp(log(b.mu) * (1.0 - K_MEAN * dt) + rng.randfn(0.0, MEAN_NOISE) * root)
 	if absf(b.sh) > 0.0001: b.sh *= pow(0.5, dt / SHOCK_HALF)
-	var target := b.mu * b.lt * float(m.get("mult", 1.0)) * exp(b.sh)
+	var target := b.mu * b.lt * float(m.get("mult", 1.0)) * exp(b.sh) * (exp(clampf(FAIR_LEVEL * b.fe, -FAIR_RANGE, FAIR_RANGE)) if actors_on else 1.0)
 	var x := log(b.i)
 	# A running market forgets where "normal" is (bubbles): momentum weakens the pull back.
 	var pull := K_INTRADAY / (1.0 + absf(b.mo) / MOMENTUM_REF)
 	var beta := _fx_beta(b.cur) if b.fx else (BLACK_BETA if b.noise > 1.0 else 1.0)
-	var move := (log(target) - x) * minf(1.0, pull * dt) + b.tr * ticks + HERDING * b.mo * dt + rng.randfn(0.0, vol) * root + beta * (_common - _crash)
+	# §3.4: the actors' orders move the price; the noise left is about 4 tenths;
+	# lasting buying or selling also moves where the book thinks fair is.
+	var flow := 0.0
+	if actors_on:
+		vol *= NOISE_SCALE
+		if b.fl != 0.0: flow = b.fl / _depth_cached(b.id)
+		# Lasting buying or selling leans fair value, within bounds, and is forgotten over days.
+		b.fe = b.fe * pow(0.5, dt / FAIR_HALF) + flow
+	var move := (log(target) - x) * minf(1.0, pull * dt) + b.tr * ticks + HERDING * b.mo * dt + rng.randfn(0.0, vol) * root + beta * (_common - _crash) + IMPACT * flow
 	# 里拉 weakens day by day (§1.4).
 	if b.fx: move += float(Currencies.info(b.cur).get("drift", 0.0)) * dt / DAY
 	x += move
@@ -346,9 +396,96 @@ func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
 	var keep_m := pow(MOMENTUM_KEEP, dt)
 	b.mo = b.mo * keep_m + (1.0 - keep_m) * r / float(dt)
 	if b.p > 0.0001: b.p *= pow(0.5, dt / PRESSURE_HALF)
-	b.candle(lt, old, absf(b.i - old) * 4000.0 * rng.randf())
+	b.candle(lt, old, b.va if actors_on else absf(b.i - old) * 4000.0 * rng.randf())
+	b.fl = 0.0
+	b.va = 0.0
+
+## A share book: back toward the firm's fundamental value over a couple of
+## days, pushed by orders, a little noise (§3.2, §3.4).
+func _move_stock(b: Book, dt: int, lt: int) -> void:
+	var fair_i: float = firms.fair_index(b.id)
+	var x := log(b.i)
+	var flow := b.fl / stock_depth(b.id)
+	var noise := 0.0012 * NOISE_SCALE * sqrt(float(dt) / TICK)
+	if absf(b.sh) > 0.0001: b.sh *= pow(0.5, dt / SHOCK_HALF)
+	x += (log(maxf(fair_i, 0.01)) + b.sh - x) * minf(1.0, STOCK_PULL * dt) + IMPACT * flow + rng.randfn(0.0, noise) + HERDING * b.mo * dt * 0.5
+	var old := b.i
+	b.i = clampf(exp(x), 0.02, 50.0)
+	var r := log(b.i / old)
+	var keep_c := pow(CLUSTER_KEEP, float(dt) / TICK)
+	b.ew = b.ew * keep_c + (1.0 - keep_c) * absf(r)
+	var keep_m := pow(MOMENTUM_KEEP, dt)
+	b.mo = b.mo * keep_m + (1.0 - keep_m) * r / float(dt)
+	b.candle(lt, old, b.va)
+	b.fl = 0.0
+	b.va = 0.0
+
+func _world_step(dt: int) -> void:
+	var day := day_key(t)
+	if day != _world_day:
+		if _world_day >= 0: econ.day_close(self, _world_day)
+		_world_day = day
+	actors.step(self, dt)
+	firms.step(self, dt)
+	econ.step(self)
+	if t % MarketActors.ROUND < dt:
+		var debt := 0.0
+		var deposits := 0.0
+		if rhodes != null:
+			debt = float(rhodes.loan)
+			deposits = rhodes.fin.deposits_lmd()
+		credit.rebuild(actors, firms, debt, deposits)
+
+var _world_day := -1
+var _depth_cache := {}
+var _depth_slot := -1
+
+## depth() for the flow, worked out once per 5 minutes (it only moves with the hour and events).
+func _depth_cached(market: String) -> float:
+	var slot := t / 300
+	if slot != _depth_slot or _mods_dirty:
+		_depth_slot = slot
+		_depth_cache.clear()
+	var d: Variant = _depth_cache.get(market)
+	if d == null:
+		d = depth(market)
+		_depth_cache[market] = d
+	return float(d)
+
+## §3.4 order flow: `lmd` of base price (+ buying) into `market` this step.
+func add_flow(market: String, lmd: float, who: String = "") -> void:
+	var b: Book = books.get(market)
+	if b == null: return
+	b.fl += lmd
+	b.va += absf(lmd)
+	if who == "rhodes_upkeep": actors.saw_upkeep(market)
+	version += 1
+
+func add_stock_flow(firm: String, lmd: float, _who: String = "") -> void:
+	var b: Book = stocks.get(firm)
+	if b == null: return
+	b.fl += lmd
+	b.va += absf(lmd)
+
+## A share book's depth: the share of its market value that trades without moving it much.
+func stock_depth(firm: String) -> float:
+	var b: Book = stocks.get(firm)
+	var cap := firms.base_lmd(firm) * (b.i if b != null else 1.0) * float(firms.f_of(firm).get("shares", 1.0))
+	return maxf(20000.0, cap * 0.02 * (1.0 + clampf(actors.maker_share, 0.0, 0.6)))
+
+## Price of a share in its firm's currency.
+func stock_price(firm: String) -> float:
+	var b: Book = stocks.get(firm)
+	return firms.price_from_index(firm, b.i if b != null else 1.0)
 
 const EMPTY := {}
+## 运营策划案 §3.4: orders against depth; the noise left; how lasting flow moves fair.
+const IMPACT := 0.5
+const NOISE_SCALE := 0.4
+const FAIR_LEVEL := 0.05
+const FAIR_RANGE := 0.4
+const FAIR_HALF := 86400.0
+const STOCK_PULL := 0.693 / (2.0 * 86400.0)
 ## Market behaviour (用户: 股市的事情你知道的).
 const CLUSTER_BASE := 0.0010
 const CLUSTER_MAX := 3.0
@@ -403,6 +540,7 @@ func _new_regime(b: Book) -> void:
 func candles(market: String, period: String, limit: int = 120) -> Array:
 	if Currencies.is_cross(market): return _cross_candles(Currencies.cross_cur(market), period, limit)
 	var b: Book = books.get(market)
+	if b == null and market.begins_with("stock:"): b = stocks.get(market.substr(6))
 	if b == null: return []
 	var src := b.c1
 	var group := 1
@@ -420,7 +558,7 @@ func candles(market: String, period: String, limit: int = 120) -> Array:
 			src = b.cd
 			group = 7
 		_: pass
-	var scale := display_scale(market)
+	var scale := display_scale_any(market, self)
 	var out: Array = []
 	var n := src.size() / FIELDS
 	# Groups end at the newest candle; the oldest group may be partial.
@@ -460,6 +598,13 @@ func _cross_candles(cur: String, period: String, limit: int) -> Array:
 func cross_rate(cur: String) -> float:
 	return fx_rate() / maxf(rate_of(cur), 1e-9)
 
+## Shares ("stock:<firm>") show their price in the firm's currency.
+static func display_scale_any(market: String, m: MarketState) -> float:
+	if market.begins_with("stock:") and m != null:
+		var firm := market.substr(6)
+		return m.firms.base_lmd(firm) / Currencies.lmd_per_unit(FirmCatalog.currency(firm))
+	return display_scale(market)
+
 static func display_scale(market: String) -> float:
 	var cur := Currencies.of_book(market)
 	return Currencies.base(cur) if not cur.is_empty() else 100.0
@@ -486,6 +631,7 @@ func change(market: String) -> float:
 		var day := _cross_candles(Currencies.cross_cur(market), "1d", 1)
 		return (price(market) - float(day[0][0])) / maxf(float(day[0][0]), 1e-9) if not day.is_empty() else 0.0
 	var b: Book = books.get(market)
+	if b == null and market.begins_with("stock:"): b = stocks.get(market.substr(6))
 	if b == null or b.cd.size() < FIELDS: return 0.0
 	var o := b.cd[b.cd.size() - FIELDS]
 	return (b.i - o) / maxf(o, 0.0001)
@@ -508,6 +654,8 @@ func depth(market: String) -> float:
 	if b == null: return DEPTH_LMD
 	var d := DEPTH_LMD * float(FactionCatalog.info(b.faction).get("depth", 1.0)) * float(mods(market).get("depth", 1.0))
 	if not active(b.faction): d *= OFF_HOURS.depth
+	# The makers' money deepens every book (§3.8.5).
+	if actors_on: d *= 1.0 + clampf(actors.maker_share, 0.0, 0.6)
 	return maxf(d, 1000.0)
 
 ## What the faction pays, as a multiple of base price before preference.
@@ -539,12 +687,17 @@ func quota_mult(faction: String) -> float:
 			if item.has("quota") and faction in item.get("factions", []): m = minf(m, float(item.quota))
 	return m
 
-## Selling `value` (龙门币 of base price) into `market` pushes it down.
-func add_pressure(market: String, value: float) -> void:
+## Selling `value` (龙门币 of base price) into `market` pushes it down; it
+## is order flow too (§3.4), Rhodes' own unless `who` says otherwise.
+func add_pressure(market: String, value: float, who: String = "rhodes") -> void:
 	var b: Book = books.get(market)
 	if b == null: return
-	b.p = minf(PRESSURE_CAP, b.p + value / depth(market))
-	if b.c1.size() >= FIELDS: b.c1[b.c1.size() - 1] += value
+	b.p = clampf(b.p + value / depth(market), 0.0, PRESSURE_CAP)
+	if b.c1.size() >= FIELDS: b.c1[b.c1.size() - 1] += absf(value)
+	if actors_on and value > 0.0:
+		b.fl -= value
+		if who == "rhodes" and rhodes != null:
+			actors.rhodes_trade(self, b.faction, market, -value)
 	version += 1
 
 ## The faction's composite index: the mean of its markets.
@@ -569,7 +722,8 @@ func rate_of(cur: String) -> float:
 
 ## Policy rate a year (§1.3).
 func policy_rate(cur: String) -> float:
-	return float(policy.get(cur, Currencies.info(cur).get("rate", 0.0)))
+	# The cycle leans every rate a little (§3.6).
+	return float(policy.get(cur, Currencies.info(cur).get("rate", 0.0))) + (econ.policy_bias() if actors_on else 0.0)
 
 func _init_currencies() -> void:
 	for cur in Currencies.ORDER:
@@ -745,6 +899,7 @@ func post_boosted(faction: String) -> bool:
 # --- Effects -------------------------------------------------------------------------
 
 func _rebuild_mods() -> void:
+	_depth_slot = -1
 	_mods.clear()
 	_all_day.clear()
 	var now_effects: Array = []
@@ -832,6 +987,14 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 		title = title % FactionCatalog.name_of(picked)
 		picks["faction"] = picked
 		if ev.get("pick_post", false): picks["map"] = MarketEvents.post_map(picked)
+	# The actors' events (运营策划案 §3.4) name a listed firm.
+	if ev.get("pick_firm", false):
+		var firm := str(picks.get("firm", ""))
+		if firm.is_empty():
+			var pool: Array = ev.get("firms", FirmCatalog.ORDER)
+			firm = str(pool[rng.randi() % pool.size()])
+			picks["firm"] = firm
+		title = title % FirmCatalog.name_of(firm)
 	if ev.has("pick"):
 		var prefs: Array = FactionCatalog.info(str(ev.pick)).get("prefs", {}).keys()
 		pick_cat = picks.get("category", prefs[rng.randi() % prefs.size()])
@@ -908,11 +1071,17 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 		for m in item.markets:
 			if not touched.has(m): touched.append(m)
 			if sign != 0 and not moves.has(m): moves[m] = sign
-	var headline := {"t": t, "id": id, "kind": ev.kind, "title": title, "region": ev.region, "cred": shown_cred,
+	var region_label := str(ev.region)
+	if region_label == "#":
+		region_label = str(FirmCatalog.info(str(picks.get("firm", ""))).get("region", "")) if picks.has("firm") else str(FactionCatalog.info(str(picks.get("faction", ""))).get("region", ""))
+	var headline := {"t": t, "id": id, "kind": ev.kind, "title": title, "region": region_label, "cred": shown_cred,
 		"status": "待证实" if rumor else "", "unread": true, "markets": touched, "moves": moves, "cause": cause, "picks": picks}
 	news.append(headline)
 	if news.size() > NEWS_KEEP: news = news.slice(news.size() - NEWS_KEEP)
 	if on_news.is_valid(): on_news.call(headline, ev)
+	if actors_on:
+		actors.on_news(self, headline, ev)
+		if id.begins_with("FE"): firms.on_event(self, id, picks)
 	_follow(id, title, picks, "", depth)
 	_push(id, float(MarketLinks.PUSH.get(str(ev.kind), 0.3)))
 	return entry
@@ -925,7 +1094,8 @@ func _currency_effects(spec: Dictionary, markets: Array, sign: float, until: int
 		var step := 0.0
 		if spec.has("rate"): step = float(spec.rate)
 		if spec.has("rate_range"): step = sign * rng.randf_range(float(spec.rate_range[0]), float(spec.rate_range[1]))
-		if step != 0.0: policy[cur] = maxf(-0.01, policy_rate(cur) + step)
+		# The stored rate, without the cycle's lean (policy_rate adds that when read).
+		if step != 0.0: policy[cur] = maxf(-0.01, float(policy.get(cur, Currencies.info(cur).get("rate", 0.0))) + step)
 		match str(spec.get("peg", "")):
 			"reset":
 				if pegs.has(m): pegs[m].pressure = 0.0
@@ -1165,7 +1335,13 @@ func to_data() -> Dictionary:
 		"calendar": calendar, "flash": flash, "swan": swan, "rumors_low_until": rumors_low_until,
 		"post_boost": post_boost, "penguin": penguin, "cfd_halt": cfd_halt, "seasonal_scanned": seasonal_scanned,
 		"barter_seed": barter_seed, "next_flash": _next_flash_id, "chain": chain, "boosts": boosts, "factors": factors,
-		"policy": policy, "pegs": pegs, "caps": caps, "ripples": ripples, "field": field, "consign": consign, "custody": custody}
+		"policy": policy, "pegs": pegs, "caps": caps, "ripples": ripples, "field": field, "consign": consign, "custody": custody,
+		"actors": actors.to_data(), "econ": econ.to_data(), "credit": credit.to_data(), "firms": firms.to_data(), "stocks": _stocks_data(), "world_day": _world_day}
+
+func _stocks_data() -> Dictionary:
+	var out := {}
+	for id in stocks: out[id] = (stocks[id] as Book).to_data()
+	return out
 
 func load_data(d: Dictionary) -> void:
 	t = int(d.get("t", 0))
@@ -1209,6 +1385,22 @@ func load_data(d: Dictionary) -> void:
 	chain = d.get("chain", [])
 	boosts = d.get("boosts", {})
 	factors = d.get("factors", {})
+	# The world (§3.8): a save from before it starts one at its own time.
+	_world_day = int(d.get("world_day", -1))
+	if d.get("actors") is Dictionary and not (d.actors as Dictionary).is_empty():
+		econ.load_data(d.get("econ", {}))
+		credit.load_data(d.get("credit", {}))
+		firms.load_data(d.get("firms", {}))
+		actors.load_data(d.actors)
+		stocks.clear()
+		var saved_stocks: Dictionary = d.get("stocks", {})
+		for id in FirmCatalog.ORDER:
+			var sb := Book.new()
+			sb.setup_stock(id)
+			if saved_stocks.has(id): sb.load(saved_stocks[id])
+			stocks[id] = sb
+		if actors.factions.is_empty() or firms.firms.is_empty(): _start_world()
+	else: _start_world()
 	_mods_dirty = true
 	Economy.fx = fx_rate()
 	_publish_rates()

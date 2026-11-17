@@ -81,7 +81,10 @@ const NODES := {
 	"commerce_2": ["赤金对冲", 2, "closure_spread", "赤金差价 3% → 2%", ["commerce_1"], {}],
 	"commerce_3": ["长期合作协议", 3, "relation_drift", "关系回落 −30%", ["commerce_1", "field_2"], {}],
 	"commerce_4": ["航线补给优化", 4, "voyage_supply", "航行物资 −15%", ["commerce_3", "logistics_2"], {}],
-	"commerce_5": ["信用评级", 5, "loan_terms", "贷款额度 ×1.5 · 利率 −1%", ["commerce_2", "commerce_3"], {}],
+	"commerce_5": ["信用评级", 5, "loan_terms", "贷款额度 ×1.5 · 利率 ×0.8", ["commerce_2", "commerce_3"], {}],
+	# 罗德岛运营与资产管理策划案 §7.1: a strategy slot (and the later templates), and the bill −10%.
+	"commerce_q": ["量化交易", 4, "quant_trading", "策略槽 +1 · 高级策略模板", ["commerce_3"], {}],
+	"commerce_f": ["财务优化", 5, "finance_opt", "日开销 −10%", ["commerce_q", "commerce_5"], {}],
 	"commerce_6": ["期货直送", 6, "forward_dock", "远期交割直接入仓 · 免运费", ["commerce_4", "commerce_5", "logistics_4"], {}],
 	"personnel_1": ["作战记录归档", 1, "feed_fee", "喂作战记录 −20%", ["@roster_3"], {}],
 	"personnel_2": ["技能再训练", 2, "respec_fee", "技能重置 −50%", ["personnel_1"], {}],

@@ -102,6 +102,8 @@ var provisions := Provisions.new(self)
 ## The 补给 eaten for this contract ("" none), and how many services this
 ## floor's Rhodes squad has given.
 var run_meal := ""
+## 热餐 for this contract (运营策划案 §2.2.1): max HP +3%.
+var run_hot_meal := false
 var squad_uses := 0
 ## The floor a 残党向导 was used on (−1 none): its vault and trace show on the map.
 var guide_floor := -1
@@ -979,6 +981,13 @@ func _build_base_prompt(layer: CanvasLayer) -> void:
 	_status_bar.add_theme_stylebox_override("normal", plate)
 	_status_bar.position = Vector2(700, 12)
 	_status_bar.visible = false
+	# 罗德岛运营与资产管理策划案 §6: the money top right; a click opens the terminal's 资产.
+	_status_bar.mouse_filter = Control.MOUSE_FILTER_STOP
+	_status_bar.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_status_bar.gui_input.connect(func(e: InputEvent):
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and exchange.unlocked():
+			ExchangeScreen.tab = 5
+			open_exchange())
 	layer.add_child(_status_bar)
 	# The base watch window (§6.4) and the black-swan popup (§5.5).
 	watch_widget = MarketWidgets.WatchWidget.new()
@@ -2455,8 +2464,16 @@ func _init_market() -> void:
 func _catch_up_market() -> void:
 	exchange.migrate_packs()
 	_migrate_trade_crates()
+	# 运营策划案 §5.1: a day and the hours over are caught up; whole days beyond stand still.
+	var away := BaseState.now() - market.t
+	var split := BaseState.catch_up_split(away)
+	if int(split[1]) > 0 and market.t > 0:
+		BaseState.stall += int(split[1])
+		if save_enabled and writer(): save_base()
 	var gap := BaseState.now() - market.t
 	var before := exchange.account_value()
+	var paid_before := exchange.fin.paid_total
+	var strat_before := exchange.strategies.value_lmd()
 	exchange.counters.clear()
 	market.advance_to(BaseState.now())
 	_tick_workshop()
@@ -2467,10 +2484,12 @@ func _catch_up_market() -> void:
 	if gap < 600 or not exchange.unlocked(): return
 	var c := exchange.counters
 	var hours := gap / 3600.0
-	var text := "离线 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。" % [
-		("%.1f 小时" % hours) if hours < 48 else ("%d 天" % roundi(hours / 24)), int(c.get("fill", 0)), int(c.get("liquidation", 0)),
+	var text := "离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。" % [
+		("%.1f 小时" % (away / 3600.0)) if away < 48 * 3600 else ("%d 天" % roundi(away / 86400.0)), ("%.1f 小时" % hours), int(c.get("fill", 0)), int(c.get("liquidation", 0)),
 		int(c.get("default", 0)), int(c.get("arrival", 0)) + int(c.get("delivery", 0)), "+" if exchange.account_value() >= before else "−",
 		Economy.format(roundi(absf(exchange.account_value() - before)))]
+	# 运营策划案 §5.3: the bills and the strategies over that time.
+	text += " 日账 %s 龙门币，策略 %s%s 龙门币。" % [Economy.format(exchange.fin.paid_total - paid_before), "+" if exchange.strategies.value_lmd() >= strat_before else "−", Economy.format(roundi(absf(exchange.strategies.value_lmd() - strat_before)))]
 	broadcast("PRTS：" + text)
 	set_message(text)
 
@@ -2575,6 +2594,7 @@ func workshop_refusal(output: String, count: int) -> String:
 	if count <= 0 or Packs.is_pack(output) or Workshop.recipe(output).is_empty(): return "没有这个配方"
 	var lost := dept_refusal("workshop")
 	if not lost.is_empty(): return lost
+	if exchange.fin.facility_stopped("workshop"): return "欠费停用"
 	if workshop.busy() >= workshop_slots(): return "加工队列已满"
 	var cost := Workshop.cost_of(output, count)
 	var missing := materials_refusal(cost)
@@ -2604,6 +2624,7 @@ func pack_refusal(pack: String, count: int, quick: bool = true) -> String:
 	if not Packs.is_pack(pack) or count <= 0: return "没有这个包"
 	var lost := dept_refusal("workshop")
 	if not lost.is_empty(): return lost
+	if exchange.fin.facility_stopped("workshop"): return "欠费停用"
 	if workshop.busy() >= workshop_slots(): return "加工队列已满"
 	if gold < Packs.PACK_LMD * count: return "龙门币不足"
 	if Packs.max_packs(pack, stash, quick) < count: return "货不够"
@@ -3982,7 +4003,7 @@ func request_contract(region: String, start_camp: int = 0) -> void:
 
 ## The base's top bar (§5.1): gold, and an injury when present.
 func base_status_text() -> String:
-	var parts: Array[String] = ["龙门币 %s" % Economy.format(gold)]
+	var parts: Array[String] = ["龙门币 %s" % Economy.format(gold), "赤金 %.2f" % (exchange.gold_account + material_count(Economy.GOLD_ID))]
 	var injured := base.injured_operators()
 	if not injured.is_empty(): parts.append("重伤 " + "、".join(injured.map(func(id): return Operators.display_name(id))))
 	return "   ".join(parts)

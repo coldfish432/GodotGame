@@ -150,7 +150,9 @@ func run() -> void:
 	ex.cfd_day.pending_lmd = 5000.0   # held back on a save from before the cap went
 	balance = game.gold
 	later(MarketState.next_day_start(market.t) - market.t + 4)
-	check("an old save's held-back profit comes in at 08:00", ex.cfd_pending() == 0.0 and game.gold >= balance + 5000)
+	# The day's bill (运营策划案 §2) is paid at the same 08:00.
+	var bill := int(ex.fin.bills[-1].total) if not ex.fin.bills.is_empty() else 0
+	check("an old save's held-back profit comes in at 08:00", ex.cfd_pending() == 0.0 and game.gold >= balance + 5000 - bill - 1)
 	game.gold = 30000
 	ex.loan = 25000
 	check("borrowed money is not margin (贷款不能当保证金)", not ex.open_cfd("fx", 1, 1, 10000.0) and ex.cfd_refusal("fx", 1, 10000.0) == "保证金不足")
@@ -161,10 +163,16 @@ func run() -> void:
 	ex.relations["kazimierz"] = 0
 	check("leverage needs the issuer's rank", not ex.open_cfd("comp:lungmen", 1, 2, 5.0))
 	ex.relations["kazimierz"] = Exchange.RANK_AT[1]
+	# The rank reads the effective relation: clear the modifiers the market's
+	# factions have built up by now (运营策划案 §3.9). Opened a minute before 08:00
+	# so the market's own moves cannot margin-call it first.
+	later(MarketState.next_day_start(market.t) - market.t - 60)
+	ex.relation_mods.clear()
+	game.gold = 900000
 	ex.open_cfd("fx", -1, 1, 10000.0)
 	var short: Dictionary = ex.cfds[-1]
 	var margin_before := float(short.margin)
-	later(MarketState.next_day_start(market.t) - market.t + 4)
+	later(64)
 	check("a short on 龙门币/赤金 earns the swap at 08:00", float(short.margin) > margin_before and absf(float(short.margin) - margin_before - float(short.notional) * market.policy_rate("lmd") / 365.0) < 0.01)
 	ex.set_cfd_limits(short.id, 0.0, ex.cfd_price("fx") * 1.01)
 	set_index("fx", 3.0)   # up from 2.0: past the short's stop
@@ -173,11 +181,16 @@ func run() -> void:
 	_leverage()
 	# --- Loans --------------------------------------------------------------------
 	game.gold = 0
-	check("the loan limit follows 交易所's level: %d" % ex.loan_limit(), ex.loan_limit() == Exchange.LOAN_STEP * maxi(1, game.base.facility_level("exchange")))
+	# 运营策划案 §3.7: the limit follows net worth (the 罗德岛库存 left out), never under the floor.
+	check("the loan limit follows net worth: %d" % ex.loan_limit(), ex.loan_limit() == maxi(RhodesFinance.LOAN_FLOOR, roundi(maxf(0.0, ex.fin.net_worth() - ex.fin.stock_value()) * RhodesFinance.LOAN_FACTOR)) * (1.5 if game.base.researched("loan_terms") else 1.0))
 	check("borrowing adds to the balance", ex.borrow(10000) and game.gold == 10000 and ex.loan == 10000)
 	check("not past the limit", not ex.borrow(ex.loan_limit()))
 	ex.on_settlement(0)
-	check("interest once a settlement: 1%% under %d" % Exchange.LOAN_TIERS[0][0], ex.loan == 10100)
+	check("no interest at a settlement any more", ex.loan == 10000)
+	var day_rate := ex.loan_rate_now(ex.loan)
+	ex.fin._loan_interest()
+	check("interest once a trading day at the floating rate: %.4f%%" % (day_rate * 100.0), ex.loan == ceili(10000 * (1.0 + day_rate)))
+	ex.loan = 10000
 	check("tiers", is_equal_approx(Exchange.loan_rate(112000), 0.02) and is_equal_approx(Exchange.loan_rate(252000), 0.03) and is_equal_approx(Exchange.loan_rate(420000), 0.04))
 	ex.loan = 200000
 	game.gold = 10000

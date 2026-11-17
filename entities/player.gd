@@ -1375,6 +1375,7 @@ func _recompute_stats() -> void:
 	var meal: Dictionary = Provisions.MEALS.get(game.run_meal, {}) if is_instance_valid(game) else {}
 	for key in ["hp_pct", "regen_pct"]:
 		if meal.has(key): sheet[key] = float(sheet.get(key, 0.0)) + float(meal[key])
+	if is_instance_valid(game) and game.run_hot_meal: sheet["hp_pct"] = float(sheet.get("hp_pct", 0.0)) + RhodesFinance.HOT_MEAL_HP
 	stats = sheet
 	var hp_pct := float(sheet.hp_pct) + (kit.hp_pct() if kit != null else 0.0) + f("elite_hp_stack") * mini(ELITE_STACK_MAX, elite_kills) + _axe_and_route_bonus()
 	# 残弩 / 断杖 / "断剑" cut life on their own (藏品数值修订案 §3.4): no life bonus dilutes them.

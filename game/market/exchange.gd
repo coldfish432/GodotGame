@@ -122,10 +122,23 @@ var _day := 0
 var packs_version := 1
 ## notify(text, kind): the game decides how to show it (PRTS log in the field).
 var notify := Callable()
+## 罗德岛运营与资产管理策划案 v0.12: the bill, deposits and the credit line
+## (RhodesFinance), shares, bonds, funds and 赤金存单 (Securities), the
+## strategies (Strategies), and §3.9's relation modifiers: faction ->
+## key -> {cur, target, until}. relation() is the effective value, standing()
+## what was earned (the old `relations`).
+var fin := RhodesFinance.new()
+var securities := Securities.new()
+var strategies := Strategies.new()
+var relation_mods := {}
 
 func setup(p_game: GameManager, p_market: MarketState) -> void:
 	game = p_game
 	market = p_market
+	fin.ex = self
+	securities.ex = self
+	strategies.ex = self
+	market.rhodes = self
 	market.on_step = on_step
 	market.weight_hook = _news_weight
 	if relations.is_empty(): relations = START_RELATIONS.duplicate()
@@ -170,8 +183,18 @@ func blocked() -> bool:
 
 # --- Relations, fees, quota --------------------------------------------------------
 
+## §3.9.2 有效关系: what was earned plus the modifiers, 0…5000.
 func relation(faction: String) -> int:
+	return clampi(standing(faction) + mods_total(faction), 0, RELATION_MAX)
+
+## What was earned by trading, events and gifts (the old relation value).
+func standing(faction: String) -> int:
 	return int(relations.get(faction, 0))
+
+func mods_total(faction: String) -> int:
+	var t := 0.0
+	for k in relation_mods.get(faction, {}): t += float(relation_mods[faction][k].cur)
+	return roundi(t)
 
 func rank(faction: String) -> int:
 	return rank_of(relation(faction))
@@ -201,7 +224,7 @@ static func drift(value: int, expected: int) -> int:
 	return mini(excess, ceili(excess * (DRIFT_BASE + DRIFT_PER_1000 * excess / 1000.0)))
 
 func relation_drift(faction: String) -> int:
-	var d := drift(relation(faction), int(FactionCatalog.RELATION_EXPECTED.get(faction, RELATION_MAX)))
+	var d := drift(standing(faction), int(FactionCatalog.RELATION_EXPECTED.get(faction, RELATION_MAX)))
 	return roundi(d * 0.7) if game.base.researched("relation_drift") else d   # 商务部 3 阶
 
 ## Where the next rank starts (RELATION_MAX at R5).
@@ -219,7 +242,7 @@ static func migrate_relation(old: int) -> int:
 func add_relation(faction: String, delta: int) -> void:
 	if faction.is_empty() or not FactionCatalog.FACTIONS.has(faction): return
 	var before := rank(faction)
-	relations[faction] = clampi(relation(faction) + delta, 0, RELATION_MAX)
+	relations[faction] = clampi(standing(faction) + delta, 0, RELATION_MAX)
 	if rank(faction) > before and game.has_method("broadcast"):
 		game.broadcast("PRTS：%s关系达到%s。" % [FactionCatalog.name_of(faction), rank_name(rank(faction))])
 	if delta > 0: send_gifts(faction)
@@ -446,6 +469,10 @@ func buy_material(faction: String, material: String, count: int, remote: bool = 
 		return false
 	if not pay(q.currency, cost): return false
 	quota_used[faction] = float(quota_used.get(faction, 0.0)) + eq
+	if not str(q.market).is_empty():
+		var value := float(MaterialCatalog.create(material, 1).unit_value * Economy.LMD_PER_VALUE) * count
+		market.add_flow(str(q.market), value, "rhodes")
+		market.actors.rhodes_trade(market, faction, str(q.market), value)
 	_deliver_goods(material, count)
 	add_relation(faction, clampi(roundi(eq / 5000.0), 1, 10))
 	special_bought(material)
@@ -860,29 +887,36 @@ func cfd_underlyings() -> Array[String]:
 		if Currencies.is_fx(m): continue
 		var f: String = FactionCatalog.split(m)[0]
 		if not FactionCatalog.info(f).get("field_only", false): out.append(m)
+	# 运营策划案 §4.1: shares too.
+	for id in FirmCatalog.ORDER: out.append("stock:" + id)
 	return out
 
 static func cfd_issuer(underlying: String) -> String:
+	if underlying.begins_with("stock:"): return "kazimierz" if FirmCatalog.currency(underlying.substr(6)) in ["kaz", "sir"] else "karlan"
 	return "kazimierz" if underlying.begins_with("comp:") else "karlan"
 
 ## The rate books against 赤金 and the composites settle in 赤金, 龙门币's book
 ## and the crosses in 龙门币, goods books in their faction's currency.
 static func cfd_currency(underlying: String) -> String:
+	if underlying.begins_with("stock:"): return FirmCatalog.currency(underlying.substr(6))
 	if underlying == FactionCatalog.FX or Currencies.is_cross(underlying): return "lmd"
 	if Currencies.is_fx(underlying) or underlying.begins_with("comp:"): return "gold"
 	return FactionCatalog.currency(FactionCatalog.split(underlying)[0])
 
 static func cfd_name(underlying: String) -> String:
+	if underlying.begins_with("stock:"): return "%s股份" % FirmCatalog.name_of(underlying.substr(6))
 	if underlying.begins_with("comp:"): return "%s综合指数" % FactionCatalog.name_of(underlying.substr(5))
 	return FactionCatalog.market_name(underlying)
 
 func cfd_price(underlying: String) -> float:
+	if underlying.begins_with("stock:"): return market.stock_price(underlying.substr(6))
 	if underlying.begins_with("comp:"): return market.composite(underlying.substr(5)) * 100.0
 	return market.price(underlying)
 
 func _cfd_half_spread(underlying: String) -> float:
 	# CFDs trade on the book's level, not its goods: a thin slice of its spread.
 	if Currencies.is_money(underlying) or underlying.begins_with("comp:"): return 0.001
+	if underlying.begins_with("stock:"): return 0.002
 	return 0.001 + market.spread(underlying) * 0.05
 
 func cfd_pnl(c: Dictionary) -> float:
@@ -983,6 +1017,11 @@ func _new_day() -> void:
 	if pend_l + pend_g > 0.0: _say("差价合约待入账 %s 龙门币已到账" % Economy.format(roundi(pend_l + pend_g * Economy.GOLD_BAR_LMD)), "cap")
 	for f in recent_sales.keys(): recent_sales[f] = float(recent_sales[f]) * 0.5
 	_interest()
+	if game != null and game.base != null:
+		fin.new_day()
+		securities.new_day()
+		strategies.new_day()
+		update_relation_mods()
 
 ## A day on a CFD: a rate book pays or charges the swap (long the book is long
 ## 赤金 against the currency: it pays the currency's rate), the rest a fee.
@@ -1020,39 +1059,31 @@ func _correct_relations(days: int) -> void:
 		for i in range(days):
 			var d := relation_drift(f)
 			if d <= 0: break
-			relations[f] = relation(f) - d
+			relations[f] = standing(f) - d
 
 # --- Loans (§10) --------------------------------------------------------------------------
 
-## LOAN_STEP per 交易所 level; 商务部 5 阶: ×1.5 and a point off the rate.
+## 运营策划案 §3.7: the credit line's limit off net worth (the 罗德岛库存
+## left out); 商务部 5 阶 ×1.5 and the rate ×0.8.
 func loan_limit() -> int:
-	var limit := mini(LOAN_CAP, LOAN_STEP * maxi(1, game.base.facility_level("exchange")))
-	return roundi(limit * 1.5) if game.base.researched("loan_terms") else limit
+	return fin.loan_limit()
 
+## The day's floating rate on a debt of `debt`.
 func loan_rate_now(debt: int) -> float:
-	return maxf(0.0, loan_rate(debt) - (0.01 if game.base.researched("loan_terms") else 0.0))
+	return fin.loan_rate(debt)
 
 ## 骑士竞技场赞助证 halves what opening a 差价合约 costs (势力声望解锁策划案 §三).
 func cfd_fee() -> float:
 	return CFD_FEE * (FactionRewards.ARENA_CFD if FactionRewards.badge_on(game, "kazimierz") else 1.0)
 
 func loan_locked() -> bool:
-	return loan > roundi(loan_limit() * LOAN_OVERDUE)
+	return fin.loan_locked()
 
 func borrow(amount: int) -> bool:
-	if blocked(): return false
-	if amount <= 0 or loan_locked() or loan + amount > loan_limit(): return false
-	loan += amount
-	game.gold += amount
-	return true
+	return fin.borrow(amount)
 
 func repay(amount: int) -> bool:
-	if blocked(): return false
-	amount = mini(amount, loan)
-	if amount <= 0 or game.gold < amount: return false
-	game.gold -= amount
-	loan -= amount
-	return true
+	return fin.repay(amount)
 
 static func loan_rate(debt: int) -> float:
 	for tier in LOAN_TIERS:
@@ -1071,9 +1102,8 @@ func on_settlement(reward: int) -> int:
 func _settle(reward: int) -> int:
 	var taken := 0
 	if loan > 0:
-		# 商业联合会担保函 in the warehouse: this settlement's interest is waived.
-		if game.base.stock().any(func(i): return i.material_id == "商业联合会担保函") and game.base.take_material("商业联合会担保函", 1): pass
-		else: loan = ceili(loan * (1.0 + loan_rate_now(loan)))
+		# Interest runs by the trading day now (§3.7.1, RhodesFinance); an
+		# overdue loan still takes the reward first.
 		if loan_locked() and reward > 0:
 			taken = mini(reward, loan)
 			loan -= taken
@@ -1156,6 +1186,7 @@ func ship_fee(item: Item) -> int:
 	return ceili(Economy.price(item) * rate)
 
 func ship(item: Item, faction: String) -> bool:
+	market.firms.freight += ship_fee(item)
 	if blocked(): return false
 	if not Packs.is_pack(item.material_id) or market_of(item, faction).is_empty() or FactionCatalog.info(faction).get("transport", false): return false
 	var fee := ship_fee(item)
@@ -1215,6 +1246,9 @@ func on_step(_t: int, dt: int) -> void:
 
 func _step_account(dt: int) -> void:
 	_roll_day()
+	if game != null and game.base != null:
+		fin.step()
+		strategies.step()
 	for f in quota_used.keys():
 		quota_used[f] = maxf(0.0, float(quota_used[f]) - quota_cap(f) * QUOTA_REGEN * dt / QUOTA_REGEN_SECS)
 	if not orders.is_empty(): _tick_orders()
@@ -1278,7 +1312,7 @@ func to_data() -> Dictionary:
 	return {"gold_account": gold_account, "fx_accounts": fx_accounts, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
 		"cfds": cfds, "forward_cooldown": forward_cooldown, "loan": loan, "shipments": shipments, "history": history,
 		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE, "rank_gifts": rank_gifts, "start_attitude": start_attitude,
-		"packs_version": packs_version}
+		"packs_version": packs_version, "finance": fin.to_data(), "securities": securities.to_data(), "strategies": strategies.to_data(), "relation_mods": relation_mods.duplicate(true)}
 
 func load_data(d: Dictionary) -> void:
 	gold_account = float(d.get("gold_account", 0.0))
@@ -1304,3 +1338,116 @@ func load_data(d: Dictionary) -> void:
 	_next_id = int(d.get("next_id", 1))
 	# A fresh account starts on packs; an old one migrates once (migrate_packs).
 	packs_version = int(d.get("packs_version", 0 if not d.is_empty() else 1))
+	fin.load_data(d.get("finance", {}) if d.get("finance") is Dictionary else {})
+	securities.load_data(d.get("securities", {}) if d.get("securities") is Dictionary else {})
+	strategies.load_data(d.get("strategies", {}) if d.get("strategies") is Dictionary else {})
+	relation_mods = (d.get("relation_mods", {}) as Dictionary).duplicate(true) if d.get("relation_mods") is Dictionary else {}
+
+# --- Relation modifiers (运营策划案 §3.9) ---------------------------------------------------
+
+const MOD_STEP := 0.1
+const MOD_SNAP := 10.0
+const ENEMY_FRIEND_RATE := 0.5
+const ENEMY_FRIEND_CAP := -1500.0
+const ENEMY_FRIEND_TOTAL := -2500.0
+const ENEMY_ENEMY_CAP := 150.0
+const ENEMY_ENEMY_TOTAL := 500.0
+const CONFLICT_PER_10K := -50.0
+const CONFLICT_CAP := -500.0
+const EVENT_MOD_CAP := 300.0
+const MOD_NAMES := {"enemy_friend": "敌之友", "enemy_enemy": "敌之敌", "conflict": "近期冲突"}
+
+## The modifiers' targets for `a` today (§3.9.2–3.9.3): from what was earned
+## with its enemies (never the effective values: no loops), its grudge, events.
+func mod_targets(a: String) -> Dictionary:
+	var out := {}
+	if market == null or market.actors == null or market.actors.factions.is_empty(): return out
+	var ef := 0.0
+	var ee := 0.0
+	for b in market.actors.enemies_of(a):
+		var tension := FactionAICatalog.tension(market.actors.relation(a, str(b)))
+		var over := standing(str(b)) - int(FactionCatalog.RELATION_EXPECTED.get(str(b), RELATION_MAX))
+		ef += maxf(ENEMY_FRIEND_CAP, -ENEMY_FRIEND_RATE * tension * maxf(over, 0.0))
+		var start := mini(int(START_RELATIONS.get(str(b), 0)), RANK_AT[1])
+		ee += minf(ENEMY_ENEMY_CAP, tension * maxf(start - standing(str(b)), 0.0))
+	out["enemy_friend"] = maxf(ef, ENEMY_FRIEND_TOTAL)
+	out["enemy_enemy"] = minf(ee, ENEMY_ENEMY_TOTAL)
+	var grudge := float((market.actors.factions.get(a, {}) as Dictionary).get("grudge", 0.0))
+	out["conflict"] = maxf(CONFLICT_CAP, CONFLICT_PER_10K * grudge / 10000.0)
+	for k in relation_mods.get(a, {}):
+		if str(k).begins_with("event:"):
+			var e: Dictionary = relation_mods[a][k]
+			out[k] = float(e.target) if int(e.get("until", 0)) > market.t else 0.0
+	return out
+
+## Every trading day: each modifier 10% of the way to its target; a rank won
+## this way is announced and its gift sent like any other (§3.9.6).
+func update_relation_mods() -> void:
+	for f in FactionCatalog.ORDER:
+		var before := rank(f)
+		var targets := mod_targets(f)
+		var mods: Dictionary = relation_mods.get(f, {})
+		for k in targets:
+			var e: Dictionary = mods.get(k, {"cur": 0.0, "target": 0.0, "until": 0})
+			e.target = float(targets[k])
+			var gap := float(e.target) - float(e.cur)
+			e.cur = float(e.target) if absf(gap) < MOD_SNAP else float(e.cur) + gap * MOD_STEP
+			mods[k] = e
+		for k in mods.keys():
+			if str(k).begins_with("event:") and int(mods[k].get("until", 0)) <= market.t and absf(float(mods[k].cur)) < 1.0: mods.erase(k)
+		relation_mods[f] = mods
+		if rank(f) > before:
+			if game != null and game.has_method("broadcast"): game.broadcast("PRTS：%s关系达到%s。" % [FactionCatalog.name_of(f), rank_name(rank(f))])
+			send_gifts(f)
+
+## An event's temporary modifier (§3.9.2 事件, ±300 each).
+func add_relation_event(faction: String, id: String, amount: float, days: float) -> void:
+	if not FactionCatalog.FACTIONS.has(faction): return
+	var mods: Dictionary = relation_mods.get(faction, {})
+	mods["event:" + id] = {"cur": float((mods.get("event:" + id, {}) as Dictionary).get("cur", 0.0)), "target": clampf(amount, -EVENT_MOD_CAP, EVENT_MOD_CAP), "until": market.t + int(days * 86400)}
+	relation_mods[faction] = mods
+
+## [[name, current, target]] for the relation hover (§3.9.5).
+func mod_lines(faction: String) -> Array:
+	var out: Array = []
+	for k in relation_mods.get(faction, {}):
+		var e: Dictionary = relation_mods[faction][k]
+		if absf(float(e.cur)) < 1.0 and absf(float(e.target)) < 1.0: continue
+		var name := str(MOD_NAMES.get(str(k), "事件"))
+		out.append([name, roundi(float(e.cur)), roundi(float(e.target))])
+	return out
+
+# --- What the factions can know of Rhodes (运营策划案 §3.8.8) --------------------------------
+
+## Signed 龙门币 of what Rhodes holds, by book (firm id for shares): forwards,
+## CFDs, shares, the strategies' positions.
+func rhodes_positions() -> Dictionary:
+	var out := {}
+	for f in forwards:
+		var cat := FactionCatalog.material_category(str(f.material))
+		var m := "%s:%s" % [str(f.faction), cat]
+		var sign := -1.0 if str(f.dir) == "deliver" else 1.0
+		if market.books.has(m): out[m] = float(out.get(m, 0.0)) + sign * lmd_eq(str(f.currency), float(f.k) * int(f.count))
+	for c in cfds:
+		var u := str(c.underlying)
+		var key := u.substr(6) if u.begins_with("stock:") else u
+		if market.books.has(key) or market.stocks.has(key): out[key] = float(out.get(key, 0.0)) + float(c.dir) * lmd_eq(str(c.currency), float(c.notional))
+	for firm in securities.shares: out[firm] = float(out.get(firm, 0.0)) + securities.held(str(firm)) * securities.share_price_lmd(str(firm))
+	for st in strategies.list:
+		for mk in st.pos:
+			var key := str(mk).substr(6) if str(mk).begins_with("stock:") else str(mk)
+			out[key] = float(out.get(key, 0.0)) + float(st.pos[mk].qty) * strategies.price(str(mk)) * strategies.unit_lmd(str(mk))
+	return out
+
+## Rhodes' big orders resting at `faction`'s venue (layer 1): [{market, size}].
+func orders_at(faction: String) -> Array:
+	var out: Array = []
+	for o in orders:
+		if str(o.get("faction", "")) != faction or not o.has("market"): continue
+		var m := str(o.market)
+		if not market.books.has(m): continue
+		var value := 0.0
+		if o.has("item"): value = -float(Economy.price(Item.from_data(o.item)))
+		elif o.has("material") and MaterialCatalog.MATERIALS.has(str(o.material)): value = float(MaterialCatalog.create(str(o.material), 1).unit_value * Economy.LMD_PER_VALUE) * int(o.get("count", 1))
+		if absf(value) >= market.depth(m) * 0.05: out.append({"market": m, "size": value})
+	return out

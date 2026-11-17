@@ -227,18 +227,18 @@ func _settle_hour(at: int) -> bool:
 	if bool(stay.infected): _conflict_hour(here)
 	# Stop when the target is met, or nobody here can gain any more.
 	var target := str(stay.target_faction)
-	if not target.is_empty() and game.exchange.relation(target) >= int(stay.target):
+	if not target.is_empty() and game.exchange.standing(target) >= int(stay.target):
 		_stop_stay("%s 已达 %d" % [FactionCatalog.name_of(target), int(stay.target)])
 		return true
 	var locals := local_factions(here)
-	if not locals.is_empty() and locals.all(func(f): return stay_rate(f) <= 0.0 or game.exchange.relation(f) >= cap()):
+	if not locals.is_empty() and locals.all(func(f): return stay_rate(f) <= 0.0 or game.exchange.standing(f) >= cap()):
 		_stop_stay("已达上限")
 	return true
 
 ## Adds `rate` to a faction through its fraction; gains stop at the cap.
 func _gain(faction: String, rate: float) -> void:
 	if rate == 0.0: return
-	var have := game.exchange.relation(faction)
+	var have := game.exchange.standing(faction)
 	if rate > 0.0 and have >= cap():
 		relation_frac.erase(faction)
 		return

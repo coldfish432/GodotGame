@@ -12,11 +12,18 @@ extends SceneTree
 ## counts as stuck. Prints a table of runs per beat and what was short.
 ## Combat, the pack's room and selling are not simulated: half the points on a
 ## floor are looted (OPEN_SHARE), and loot is not sold, so gold is a floor.
+## 罗德岛日账 (运营与资产管理策划案 v0.12 §2.2): half a day's bill per run (two
+## runs a day) at the real RhodesFinance numbers, bought at base × UPKEEP_ASK, is
+## added up and reported next to the contract pay but not taken off `gold`: with
+## contract pay as the only income the bill would stall every thread, which says
+## nothing about play (a real run sells its loot, tools/upkeep_model.py).
 
 const RUN_CAP := 40
 const CACHES_PER_FLOOR := 13
 const OPEN_SHARE := 0.5
 const SEED := 20261104
+const RUNS_PER_DAY := 2
+const UPKEEP_ASK := 1.1
 
 var game: GameManager
 var failures := 0
@@ -32,6 +39,17 @@ var report: Array = []
 ## What each beat ran out of before it could pay (the bottleneck), by beat.
 var short_of := {}
 var beat_now := ""
+## 龙门币 the daily bills took in all.
+var upkeep_paid := 0
+var contract_paid := 0
+
+## Half a day's bill as RhodesFinance.new_day would charge it now (no stock).
+func half_day_bill() -> int:
+	var fin: RhodesFinance = game.exchange.fin
+	var total := 0.0
+	for f in RhodesFinance.UPKEEP_ORDER: total += fin.need_lmd(str(f)) * UPKEEP_ASK
+	total += fin.salary_lmd()
+	return roundi(total / RUNS_PER_DAY)
 
 func _initialize() -> void: call_deferred("run")
 func step(n: int = 1) -> void:
@@ -70,7 +88,10 @@ func sim_run(region: String, below: int = 100000) -> Array:
 		camp[region] = maxi(int(camp[region]), last)
 		game.base.unlock_camp(region, last)
 	var offers: Array = game.contract_offers(region)
-	gold += Economy.contract_reward(offers[0], start) if not offers.is_empty() else 0
+	var pay := Economy.contract_reward(offers[0], start) if not offers.is_empty() else 0
+	gold += pay
+	contract_paid += pay
+	upkeep_paid += half_day_bill()
 	return floors
 
 ## Runs in the open regions, round robin, until `cost` (materials) and `price`
@@ -263,7 +284,7 @@ func run() -> void:
 	quit(1 if failures else 0)
 
 func _print_report() -> void:
-	print("FLOW REPORT: %d runs in all, gold left %d" % [runs, gold])
+	print("FLOW REPORT: %d runs in all, gold left %d, contract pay %d, daily bills %d (not charged)" % [runs, gold, contract_paid, upkeep_paid])
 	for row in report: print("  %-6s %3d 次外勤  %s  短缺：%s" % [row[0], row[1], row[2], " | ".join(short_of.get(row[0], []))])
 	var left: Array = stock.keys().filter(func(k): return int(stock[k]) > 0 and not str(k).is_empty())
 	left.sort_custom(func(a, b): return int(stock[a]) > int(stock[b]))

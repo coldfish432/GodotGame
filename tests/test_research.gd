@@ -125,7 +125,7 @@ func _research_rules() -> void:
 	check("科研部 opens once it is built", not r.is_open() and r.refusal("logistics_1") == "需要科研部 Lv1")
 	game.base.set_facility("lab", 1)
 	game.gold = 10000000
-	check("72 nodes in seven departments and the joint research", ResearchCatalog.all_ids().size() == 72)
+	check("74 nodes in seven departments and the joint research", ResearchCatalog.all_ids().size() == 74)
 	check("第二加工线 needs 订单速递 first", r.refusal("logistics_2") == "需要订单速递", r.refusal("logistics_2"))
 	check("materials are checked", r.refusal("logistics_1").begins_with("缺少"))
 	_stock({"电路板": 20, "继电器": 20, "微型电机": 10, "装置": 20})
@@ -159,7 +159,7 @@ func _tree() -> void:
 			known = known and ResearchCatalog.valid(p)
 			lower = lower and ResearchCatalog.valid(p) and ResearchCatalog.tier_of(p) <= ResearchCatalog.tier_of(id)
 		for c in ResearchCatalog.conditions(id): known = known and ResearchCatalog.REQUIREMENT_NAMES.has(c)
-	check("every node has its own name", names.size() == 72)
+	check("every node has its own name", names.size() == 74)
 	check("every prerequisite exists and sits no higher", known and lower)
 	var acyclic := true
 	for id in ResearchCatalog.all_ids(): acyclic = acyclic and _reaches(id, id, {}) == false
@@ -296,8 +296,10 @@ func _effects() -> void:
 	_finish("safe_row")
 	check("外勤部 4 阶: one more safe-bag row", game.safe_bag.height == safe + 1)
 	var limit := game.exchange.loan_limit()
+	var rate := game.exchange.loan_rate_now(0)
 	_finish("loan_terms")
-	check("商务部 5 阶: loans ×1.5, a point off", game.exchange.loan_limit() == roundi(limit * 1.5) and is_equal_approx(game.exchange.loan_rate_now(5000), 0.0))
+	# 运营策划案 v0.11: the rate ×0.8 now that it is a day's (the old −1 point was per settlement).
+	check("商务部 5 阶: loans ×1.5, the rate ×0.8", game.exchange.loan_limit() == roundi(limit * 1.5) and is_equal_approx(game.exchange.loan_rate_now(0), rate * 0.8))
 	_finish("closure_spread")
 	check("商务部 2 阶: 可露希尔's spread 2%", is_equal_approx(Economy.closure_spread, 0.02))
 	_finish("feed_fee")

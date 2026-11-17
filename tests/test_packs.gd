@@ -144,7 +144,8 @@ func run() -> void:
 	check("and restocks on the next", cs.goods("萨米") != shelf)
 	var wheat := MaterialCatalog.create("舰载麦", 6)
 	var near := cs.sell_quote("龙门", wheat) / float(Economy.direct_price(wheat))
-	check("she pays for crops about what delivery does: ×%.2f" % near, near > 0.9 and near < 1.1)
+	# The crop books move with the actors now (运营策划案 §3.4): a wider band.
+	check("she pays for crops about what delivery does: ×%.2f" % near, near > 0.8 and near < 1.2)
 	check("龙门 is in 龙门币, the rest in 赤金", Consignment.currency("龙门") == "lmd" and Consignment.currency("萨米") == "gold")
 	check("she takes loose goods and gear, never packs", Consignment.takes(MaterialCatalog.create("帆布", 2)) and Consignment.takes(gear(Item.Category.WEAPON, 50)) and not Consignment.takes(MaterialCatalog.create("建材包", 1)))
 	# Prices follow the packs' books there.

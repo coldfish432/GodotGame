@@ -16,7 +16,7 @@ const VERSION := 1
 ## GameManager's run fields, written with var_to_str (typed arrays, vectors).
 const GAME_KEYS := ["region_id", "floor_number", "start_floor", "market_field", "route_map", "route_node", "route_kind", "route_trail", "route_peek", "route_exit_map", "route_threat_cut", "floor_kits", "post_gifted", "next_floor_mods", "floor_mods", "event_done", "campfire_used", "witness_marked", "_floor_relics", "route_history", "contract", "contract_vaults",
 	"bounty_killed", "recruit_met", "lost_floor", "cargo_delivered", "_contract_announced", "builds", "relic_floors", "run_kills", "run_sets_seen", "reroll_count",
-	"pressure", "run_meal", "squad_uses", "guide_floor", "_run_seed", "in_camp", "in_event",
+	"pressure", "run_meal", "run_hot_meal", "squad_uses", "guide_floor", "_run_seed", "in_camp", "in_event",
 	"_random_extraction_available", "encounter", "encounter_used", "squad_mult", "post_faction", "trader_rerolls", "_trader_met",
 	"_encounter_greeted", "camp_closure_stock", "first_run_ore", "_buff_taken", "vault_opened", "outpost_cleared", "_device_offers",
 	"drop_share", "_extra_ordinary", "_herd_count", "_tracked_warned", "_patrol_warned", "_next_patrol_entry", "prts_log",

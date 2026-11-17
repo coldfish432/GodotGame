@@ -111,7 +111,7 @@ func run() -> void:
 	give(game, BaseCatalog.facility_step("exchange", 1).materials)
 	check("at R2 it is built on site", game.facility_refusal("exchange").is_empty() and game.upgrade_facility("exchange"))
 	check("and opens for trading", game.exchange.unlocked())
-	check("its loan limit is %d at Lv1" % Exchange.LOAN_STEP, game.exchange.loan_limit() == Exchange.LOAN_STEP or base.researched("loan_terms"))
+	check("its credit line is open at Lv1: %d" % game.exchange.loan_limit(), game.exchange.loan_limit() >= RhodesFinance.LOAN_FLOOR)
 
 	# Saves.
 	var copy := BaseState.new()

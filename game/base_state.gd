@@ -376,8 +376,19 @@ func closure_left(type: String) -> int:
 func closure_restock_in() -> int:
 	return maxi(0, closure_restock_at - now())
 
+## 运营策划案 §5.1: the whole days the Rhodes clock stood still while nobody
+## was aboard (online again it runs with the real clock; the hours of the day stay real).
+static var stall := 0
+
 static func now() -> int:
-	return (frozen_clock if frozen_clock > 0 else int(Time.get_unix_time_from_system())) + clock_offset
+	return (frozen_clock if frozen_clock > 0 else int(Time.get_unix_time_from_system())) + clock_offset - stall
+
+## §5.1: after `gap` seconds away, how long is caught up and how long stands
+## still: under a day all of it; else one day and what is over whole days.
+static func catch_up_split(gap: int) -> Array:
+	if gap < 86400: return [gap, 0]
+	var still := (gap / 86400 - 1) * 86400
+	return [gap - still, still]
 
 ## Everything insured whose time has come arrives at receiving; returns those items.
 func tick_insurance() -> Array[Item]:
@@ -772,7 +783,7 @@ func to_data() -> Dictionary:
 		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "first_extract_given": first_extract_given, "extracted_once": extracted_once, "story": story.duplicate(true), "kits": kits.duplicate(), "operator": operator,
 		"roster": roster.duplicate(), "lost_found": lost_found.duplicate(), "dept_lock": dept_lock, "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
 		"progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(), "boss_intro_seen": boss_intro_seen.duplicate(),
-		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true)}
+		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true), "stall": stall}
 
 func _gear_sets_data() -> Dictionary:
 	var out := {}
@@ -816,6 +827,7 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 		var tier: int = int(saved_injuries[id]) if saved_injuries is Dictionary and (saved_injuries[id] is float or saved_injuries[id] is int) else 1
 		if Operators.valid(str(id)): injuries[str(id)] = maxi(tier, 1)
 	_load_research(data)
+	stall = maxi(0, int(data.get("stall", 0)))
 	farm = Provisions.load_state(data.get("farm"))
 	reset_potions()
 	free_potions = clampi(int(data.get("free_potions", free_potion_count())), 0, free_potion_count())
