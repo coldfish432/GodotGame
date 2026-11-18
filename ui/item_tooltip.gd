@@ -32,6 +32,8 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 	if not item.material_id.is_empty():
 		kind = "%s · ★%d · %d×%d" % [MaterialCatalog.group(item.material_id), MaterialCatalog.star(item.material_id), item.width, item.height]
 		kind += " · 堆叠 %d/%d" % [item.quantity, item.max_stack] if item.is_stackable() else " · 不可堆叠"
+		if Fuel.is_tank(item): kind += " · 燃料 %d/%d" % [item.fuel, Fuel.TANK_FULL]
+		elif Fuel.is_solid(item): kind += " · 燃料 %d" % Fuel.units_of(item)
 	if FieldCatalog.REGIONS.has(item.origin_region): kind += " · 产地 " + FieldCatalog.REGIONS[item.origin_region].name.split(" · ")[0]
 	if not item.exclusive_region.is_empty(): kind += " · [color=#ee8a24]地区专属[/color]"
 	match item.named_kind():

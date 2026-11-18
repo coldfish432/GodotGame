@@ -23,6 +23,9 @@ const RECIPES := {
 	"改量装置": {"in": {"全新装置": 1, "固源岩组": 2, "研磨石": 1}, "lmd": 800, "minutes": 15, "tier": 4},
 	"碳素": {"in": {"碳": 3}, "lmd": 2200, "minutes": 3, "tier": 3, "build": true},
 	"碳素组": {"in": {"碳素": 3}, "lmd": 6700, "minutes": 8, "tier": 4, "build": true},
+	# 燃料储备修订案 v0.6 §0.6: 12 units of fuel (the 燃料储备, then the warehouse's
+	# cans) pressed into one block, no loss.
+	"固体燃料": {"in": {"燃料": 12}, "lmd": 100, "minutes": 1, "tier": 1},
 }
 ## Rhodes standard gear used to be made here (装备策划案 §10.3); it is issued
 ## free at the workbench now (制式保底修订). A job saved before that gives its

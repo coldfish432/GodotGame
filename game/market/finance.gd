@@ -25,7 +25,9 @@ const UPKEEP := {
 	"canteen": ["代糖", "糖"],
 	"warehouse": ["螺栓", "螺母", "钉子", "金属板"],
 	"outfit": ["研磨石", "化合切削液"],
-	"hub": ["燃料罐", "固体燃料"],
+	# 燃料储备修订案 v0.6: the hub burns fuel units, from the 燃料储备 (stock["燃料"]),
+	# then the warehouse's cans, then bought by the cheapest unit (_pay_fuel).
+	"hub": ["燃料"],
 }
 const UPKEEP_ORDER := ["hub", "warehouse", "outfit", "workshop", "lab", "farm", "canteen"]
 const FACILITY_NAMES := {"workshop": "加工部", "lab": "科研部", "farm": "农业部", "canteen": "食堂", "warehouse": "仓储部", "outfit": "整备部", "hub": "基建总控台"}
@@ -105,6 +107,7 @@ static func material_for(facility: String, t: int) -> String:
 	return str(fam[mini(t / TIERS_PER_STEP, fam.size() - 1)])
 
 static func unit_lmd(material: String) -> float:
+	if material == Fuel.RESERVE: return Fuel.unit_lmd()
 	return float(MaterialCatalog.create(material, 1).unit_value * Economy.LMD_PER_VALUE)
 
 ## 龙门币 of base price `facility` uses a day now.
@@ -145,6 +148,8 @@ func transfer_refusal(material: String, count: int) -> String:
 ## What the base eats: the upkeep families and the ration crops.
 static func can_stock(material: String) -> bool:
 	if material in RATION_CROPS: return true
+	# Fuel is poured in (pour_in), not moved as goods.
+	if material == Fuel.RESERVE: return false
 	for f in UPKEEP:
 		if material in UPKEEP[f]: return true
 	return false
@@ -241,6 +246,7 @@ func cheapest(material: String) -> Dictionary:
 ## What one family's day costs: from the stock, lowest tier first by value, the
 ## rest bought as today's tier (or the next one on sale).
 func _pay_family(facility: String, out: Dictionary) -> float:
+	if facility == "hub": return _pay_fuel(out)
 	var need := need_lmd(facility)
 	if need <= 0.0: return 0.0
 	var fam: Array = UPKEEP[facility]
@@ -270,6 +276,120 @@ func _pay_family(facility: String, out: Dictionary) -> float:
 			if not str(seller.market).is_empty(): ex.market.add_flow(str(seller.market), unit_lmd(material) * bought, "rhodes_upkeep")
 	out.items.append({"facility": facility, "material": material, "from_stock": used, "bought": bought, "cost": roundi(cost)})
 	return cost
+
+# --- 燃料储备 (燃料储备修订案 v0.6) -----------------------------------------------------
+
+func fuel_reserve() -> int: return stock_count(Fuel.RESERVE)
+
+func add_fuel(units: int) -> void: _add_stock(Fuel.RESERVE, units)
+
+## The 燃料罐 on the warehouse's shelves and in its cases (not the pack or safe bag).
+func warehouse_tanks() -> Array[Item]:
+	var out: Array[Item] = []
+	for item in _game().stash:
+		if Fuel.is_tank(item): out.append(item)
+	return out
+
+func tank_fuel() -> int:
+	var n := 0
+	for t in warehouse_tanks(): n += t.fuel
+	return n
+
+## What the base can burn without buying: the reserve and the warehouse's cans.
+func fuel_on_hand() -> int: return fuel_reserve() + tank_fuel()
+
+## Takes up to `units`: the reserve first, then the warehouse's cans, the
+## emptiest first so the full ones stay for builds (§4). {reserve, tanks, short}.
+func take_fuel(units: int) -> Dictionary:
+	var from_reserve := _take_stock(Fuel.RESERVE, units)
+	var left := units - from_reserve
+	var from_tanks := 0
+	var tanks := warehouse_tanks().filter(func(t): return t.fuel > 0)
+	tanks.sort_custom(func(a, b): return a.fuel < b.fuel)
+	for t: Item in tanks:
+		if left <= 0: break
+		var n := mini(left, t.fuel)
+		Fuel.set_fill(t, t.fuel - n)
+		left -= n
+		from_tanks += n
+	return {"reserve": from_reserve, "tanks": from_tanks, "short": left}
+
+## The cheapest fuel on sale now, per unit: barrels, full cans less the can, or
+## 固体燃料 (§4). {faction, unit_lmd, material, market} or {}.
+func cheapest_fuel() -> Dictionary:
+	var best := {}
+	for lot in [[Fuel.BARREL, Fuel.BARREL_UNITS, 0.0], [Fuel.TANK, Fuel.TANK_FULL, Fuel.TANK_SHELL * Economy.LMD_PER_VALUE], [Fuel.SOLID, Fuel.SOLID_UNITS, 0.0]]:
+		var seller := cheapest(str(lot[0]))
+		if seller.is_empty(): continue
+		var each := maxf(0.0, float(seller.unit_lmd) - float(lot[2])) / float(lot[1])
+		if best.is_empty() or each < float(best.unit_lmd):
+			best = {"faction": seller.faction, "unit_lmd": each, "material": str(lot[0]), "market": str(seller.market)}
+	return best
+
+## Burns `units` for the base: what is held first, the rest bought at the
+## cheapest unit (at base price when nobody sells). {reserve, tanks, bought, cost}.
+func burn_fuel(units: int) -> Dictionary:
+	var got := take_fuel(maxi(0, units))
+	var bought := int(got.short)
+	var cost := 0.0
+	if bought > 0:
+		var seller := cheapest_fuel()
+		cost = (float(seller.unit_lmd) if not seller.is_empty() else Fuel.unit_lmd()) * bought
+		if not seller.is_empty() and not str(seller.market).is_empty(): ex.market.add_flow(str(seller.market), Fuel.unit_lmd() * bought, "rhodes_upkeep")
+	return {"reserve": int(got.reserve), "tanks": int(got.tanks), "bought": bought, "cost": cost}
+
+## The hub's day (§4): its units, held fuel first.
+func _pay_fuel(out: Dictionary) -> float:
+	var units := need_units("hub")
+	if units <= 0: return 0.0
+	var r := burn_fuel(units)
+	var used := {}
+	if int(r.reserve) > 0: used["燃料储备"] = int(r.reserve)
+	if int(r.tanks) > 0: used[Fuel.TANK] = int(r.tanks)
+	out.items.append({"facility": "hub", "material": Fuel.RESERVE, "from_stock": used, "bought": int(r.bought), "cost": roundi(float(r.cost))})
+	return float(r.cost)
+
+## Why `item` cannot be poured into the reserve ("" when it can).
+func pour_refusal(item: Item) -> String:
+	if ex.blocked(): return "只读"
+	if not Fuel.is_fuel(item): return "不是燃料"
+	if Fuel.units_of(item) <= 0: return "空罐"
+	var g := _game()
+	if not (g.stash.has(item) or (g.in_base and (g.inventory.items.has(item) or g.safe_bag.items.has(item)))): return "不在仓库"
+	return ""
+
+## One way into the 燃料储备: a can's fuel (the can stays, empty) or a whole
+## 固体燃料 stack (§2). Returns the units poured.
+func pour_in(item: Item) -> int:
+	if not pour_refusal(item).is_empty(): return 0
+	var units := Fuel.units_of(item)
+	if Fuel.is_tank(item): Fuel.set_fill(item, 0)
+	elif not _game()._hand_over(item): return 0
+	add_fuel(units)
+	return units
+
+## Every can and 固体燃料 in the warehouse into the reserve.
+func pour_all() -> int:
+	var n := 0
+	for item in _game().stash.duplicate():
+		if Fuel.is_fuel(item) and Fuel.units_of(item) > 0: n += pour_in(item)
+	return n
+
+## A save's 燃料包 (gone, §3): OLD_PACK_UNITS each into the reserve, with a mail.
+func migrate_fuel_packs() -> int:
+	var g := _game()
+	var packs := 0
+	for item in g.stash.duplicate():
+		if item.material_id == Fuel.OLD_PACK and g._hand_over(item): packs += item.quantity
+	for bag in [g.inventory, g.safe_bag]:
+		for item in bag.items.duplicate():
+			if item.material_id == Fuel.OLD_PACK:
+				bag.remove(item)
+				packs += item.quantity
+	if packs <= 0: return 0
+	add_fuel(packs * Fuel.OLD_PACK_UNITS)
+	if g.has_method("broadcast"): g.broadcast("PRTS：燃料包 ×%d → 燃料储备 +%d" % [packs, packs * Fuel.OLD_PACK_UNITS])
+	return packs
 
 ## Salaries at the live rate of each home currency (§2.2).
 func salary_lmd() -> float:
@@ -559,7 +679,11 @@ func load_data(d: Dictionary) -> void:
 	var s: Variant = d.get("stock", {})
 	if s is Dictionary:
 		for m in s:
-			if MaterialCatalog.MATERIALS.has(str(m)) and int(s[m]) > 0: stock[str(m)] = int(s[m])
+			if int(s[m]) <= 0: continue
+			# Cans and 固体燃料 moved in before the 燃料储备 are its units now (§7).
+			if str(m) == Fuel.TANK: _add_stock(Fuel.RESERVE, int(s[m]) * Fuel.TANK_FULL)
+			elif str(m) == Fuel.SOLID: _add_stock(Fuel.RESERVE, int(s[m]) * Fuel.SOLID_UNITS)
+			elif str(m) == Fuel.RESERVE or MaterialCatalog.MATERIALS.has(str(m)): _add_stock(str(m), int(s[m]))
 	harvest_to_stock = bool(d.get("harvest_to_stock", false))
 	demand = {"lmd": 0.0, "gold": 0.0}
 	var dm: Variant = d.get("demand", {})

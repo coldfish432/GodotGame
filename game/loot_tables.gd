@@ -462,6 +462,12 @@ static func _enemy_drops_rolled(enemy_type: String, elite: bool, guard: bool, ct
 static func _mat(id: String, low: int, high: int, ctx: Dictionary) -> Dictionary:
 	return {"item": MaterialCatalog.create(id, _range(ctx.rng, low, high), ctx.region)}
 
+## A 燃料罐 found in the field holds anything from nothing to full (燃料储备修订案 §3).
+static func _tank(ctx: Dictionary) -> Dictionary:
+	var can := MaterialCatalog.create(Fuel.TANK, 1, ctx.region)
+	Fuel.set_fill(can, Fuel.field_fill(ctx.rng))
+	return {"item": can}
+
 ## Everything a point of interest gives when opened (§4.1–4.2). `guarded`: it
 ## had a guard post (better quality); `vault`: one of the sealed vault chests.
 ## 用户 2026-10-18: 兴趣点里刷的材料不堆叠，一个最多一个 — every material entry,
@@ -506,12 +512,12 @@ static func _container_rolled(kind: String, ctx: Dictionary, guarded: bool) -> A
 			# 用户 2026-11-04: 升级用的多的材料不要做地区专属 — the base's upgrade
 			# fabrics and fuel come from piles in every region.
 			if rng.randf() < 0.35: out.append(_mat("帆布", 1, 2, ctx))
-			if _rare_find(ctx, 0.06): out.append(_mat("燃料罐", 1, 1, ctx))
+			if _rare_find(ctx, 0.06): out.append(_tank(ctx))
 		"ore_vein":
 			out.append(_mat("源岩", 3, 6, ctx))
 			out.append(_mat("固源岩", 1, 2, ctx))
 			if rng.randf() < 0.30: out.append(_mat("金属板", 1, 2, ctx))
-			if _rare_find(ctx, 0.05): out.append(_mat("燃料罐", 1, 1, ctx))
+			if _rare_find(ctx, 0.05): out.append(_tank(ctx))
 			if rng.randf() < 0.20: out.append(_mat("固源岩组", 1, 1, ctx))
 			if _rare_find(ctx, 0.03): out.append(_mat("源石碎片", 1, 1, ctx))
 			if rng.randf() < 0.25: out.append({"item": FieldCatalog.exclusive("mine", int(ctx.depth))})

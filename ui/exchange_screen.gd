@@ -385,8 +385,11 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	var faction := _faction()
 	var category := _category()
 	body.add_child(AK.section("卖给" + FactionCatalog.name_of(faction), "SELL"))
+	# Fuel sells by the barrel out of the warehouse's cans (燃料储备修订案 v0.6 §2).
+	if Packs.is_barrel(Packs.pack_for(category)):
+		_fuel_sell_row(menu, body, faction)
 	var items := _matching_items(game, category)
-	if items.is_empty(): body.add_child(AK.label("可卖 0", 12, AK.MUTE))
+	if items.is_empty() and not Packs.is_barrel(Packs.pack_for(category)): body.add_child(AK.label("可卖 0", 12, AK.MUTE))
 	for item in items.slice(0, 5):
 		var q := ex.quote_sell(item, faction, true)
 		var b := AK.button("%s  →  %s" % [item.display_name() + item.stack_suffix(), Exchange.format_money(str(q.currency), float(q.net)) if q.ok else str(q.why)], "plain", 11)
@@ -438,6 +441,27 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 			_go(body, "买入 %s ×5" % offer.material, true, func():
 				if ex.buy_from_flash(id, 5): game.save_base()
 				build(menu), "yellow")
+
+## 燃料桶 held in the warehouse's cans, and ×1 / ×5 to sell.
+static func _fuel_sell_row(menu: FieldMenu, body: VBoxContainer, faction: String) -> void:
+	var game := menu.game
+	var ex := game.exchange
+	var held := ex.barrels_held()
+	var q := ex.quote_fuel(faction, 1)
+	var row := HBoxContainer.new()
+	var l := AK.label("%s ×%d  %s" % [Fuel.BARREL, held, Exchange.format_money(str(q.currency), float(q.net)) if q.ok else str(q.why)], 11, AK.FG)
+	l.custom_minimum_size.x = 170
+	row.add_child(l)
+	for n in [1, 5]:
+		var b := _act(AK.button("×%d" % n, "plain", 11))
+		b.disabled = not q.ok or held < n
+		b.set_meta("sell_fuel", n)
+		var count: int = n
+		b.pressed.connect(func():
+			if ex.sell_fuel(faction, count): game.save_base()
+			build(menu))
+		row.add_child(b)
+	body.add_child(row)
 
 static func _order_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	var game := menu.game
@@ -1005,11 +1029,11 @@ static func _pack_pool(game: GameManager, pack: String) -> Array:
 static func _pack_page(menu: FieldMenu, stage: Control) -> void:
 	var game := menu.game
 	pack_chosen = pack_chosen.filter(func(x): return game.stash.has(x))
-	# Left: every pack (Packs.ORDER).
+	# Left: every pack the 加工部 makes (Packs.packing_order: not the fuel barrel).
 	var left := VBoxContainer.new()
 	left.add_theme_constant_override("separation", 4)
 	AK.put(stage, left, Vector2(16, TOP + 8), Vector2(220, 0))
-	for pack in Packs.ORDER:
+	for pack in Packs.packing_order():
 		var b := AK.button("%s   %d" % [pack, Packs.face(pack)], "blue" if pack == pack_pick else "plain", 13)
 		b.custom_minimum_size = Vector2(220, 34)
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -1079,10 +1103,12 @@ static func _quick_form(menu: FieldMenu, parent: VBoxContainer, redraw: Callable
 	var game := menu.game
 	if with_picker:
 		_picker(parent, "包", pack_pick, func():
-			pack_pick = Packs.ORDER[posmod(Packs.ORDER.find(pack_pick) - 1, Packs.ORDER.size())]
+			var order := Packs.packing_order()
+			pack_pick = order[posmod(order.find(pack_pick) - 1, order.size())]
 			pack_count = 1
 			redraw.call(), func():
-			pack_pick = Packs.ORDER[posmod(Packs.ORDER.find(pack_pick) + 1, Packs.ORDER.size())]
+			var order := Packs.packing_order()
+			pack_pick = order[posmod(order.find(pack_pick) + 1, order.size())]
 			pack_count = 1
 			redraw.call())
 	var most := Packs.max_packs(pack_pick, game.stash)

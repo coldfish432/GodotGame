@@ -76,16 +76,42 @@ func supply_price(material: String, at: String = "") -> float:
 
 ## `fuel`: a 高能燃料 from 喀兰贸易 (势力特供策划案 §二) — 全速 costs no more
 ## than 标准, and the voyage takes FactionSpecials.FUEL_TIME of the time.
+## The 龙门币 paid at departure: the supplies but fuel at the live price, and
+## the fuel the 燃料储备 and the warehouse's cans cannot cover, bought by the
+## barrel's unit at the anchor (燃料储备修订案 v0.6 §5).
 func voyage_cost(to: String, mode: String, fuel := false) -> int:
 	# 喀兰贸易金卡: 谢拉格 is free (势力声望解锁策划案 §三).
-	if to == FactionRewards.KARLAN_PORT and FactionRewards.badge_on(game, "karlan"): return 0
+	if free_voyage(to): return 0
 	var total := 0.0
 	var supplies := VoyageCatalog.voyage_supplies(VoyageCatalog.distance(place(), to))
-	for id in supplies: total += supply_price(id) * int(supplies[id])
-	var mult := float(VoyageCatalog.MODE_COST.get(mode, 1.0))
-	total *= minf(mult, 1.0) if fuel else mult
-	if game.base.researched("voyage_supply"): total *= 0.85
+	for id in supplies:
+		if id != Fuel.TANK: total += supply_price(id) * int(supplies[id])
+	total *= _cost_mult(mode, fuel)
+	total += fuel_short(to, mode, fuel) * fuel_unit_price()
 	return roundi(total / VoyageCatalog.COST_ROUND) * VoyageCatalog.COST_ROUND
+
+func free_voyage(to: String) -> bool:
+	return to == FactionRewards.KARLAN_PORT and FactionRewards.badge_on(game, "karlan")
+
+func _cost_mult(mode: String, fuel: bool) -> float:
+	var mult := float(VoyageCatalog.MODE_COST.get(mode, 1.0))
+	mult = minf(mult, 1.0) if fuel else mult
+	if game.base.researched("voyage_supply"): mult *= 0.85
+	return mult
+
+## Units of fuel the voyage burns (its 燃料罐 × 60, by the pace like the rest).
+func voyage_fuel(to: String, mode: String, fuel := false) -> int:
+	if free_voyage(to): return 0
+	var tanks := int(VoyageCatalog.voyage_supplies(VoyageCatalog.distance(place(), to)).get(Fuel.TANK, 0))
+	return ceili(tanks * Fuel.TANK_FULL * _cost_mult(mode, fuel))
+
+## What of it the reserve and the warehouse's cans do not hold.
+func fuel_short(to: String, mode: String, fuel := false) -> int:
+	return maxi(0, voyage_fuel(to, mode, fuel) - game.exchange.fin.fuel_on_hand())
+
+## 龙门币 per unit of fuel bought for a voyage: the barrel at the anchor.
+func fuel_unit_price() -> float:
+	return supply_price(Fuel.BARREL) / Fuel.BARREL_UNITS
 
 func voyage_seconds(to: String, mode: String, fuel := false) -> int:
 	return roundi(VoyageCatalog.voyage_seconds(VoyageCatalog.distance(place(), to), mode) * game.research.voyage_time_factor() * (FactionSpecials.FUEL_TIME if fuel else 1.0))
@@ -102,7 +128,10 @@ func voyage_refusal(to: String, mode: String, fuel := false) -> String:
 
 func sail(to: String, mode: String, now: int, fuel := false) -> bool:
 	if not voyage_refusal(to, mode, fuel).is_empty(): return false
+	var units := voyage_fuel(to, mode, fuel)
 	game.gold -= voyage_cost(to, mode, fuel)
+	# What is held burns now; the rest was bought in the cost above.
+	game.exchange.fin.take_fuel(units)
 	if fuel: game.consume_materials({GameManager.SPECIAL_FUEL: 1})
 	sailing = {"from": place(), "to": to, "mode": mode, "start": now, "due": now + voyage_seconds(to, mode, fuel), "fuel": fuel}
 	for kind in VoyageCatalog.STAY_KINDS: stay[kind] = false

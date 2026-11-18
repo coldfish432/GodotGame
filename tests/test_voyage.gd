@@ -90,12 +90,19 @@ func _voyages() -> void:
 	var d := VoyageCatalog.distance("龙门", "切尔诺伯格")
 	check("龙门 to 切尔诺伯格 is about 0.24 on the table", absf(d - 0.237) < 0.01, d)
 	var supplies := VoyageCatalog.voyage_supplies(d)
-	var expected := 0.0
-	for id in supplies: expected += v.supply_price(id) * int(supplies[id])
+	# 燃料储备修订案 v0.6 §5: fuel is units (燃料罐 × 60), the reserve's and the
+	# warehouse's cans first; what is short is bought by the barrel's unit.
+	var others := 0.0
+	for id in supplies:
+		if id != Fuel.TANK: others += v.supply_price(id) * int(supplies[id])
+	var expect := func(mult: float) -> float:
+		var units := ceili(int(supplies[Fuel.TANK]) * Fuel.TANK_FULL * mult)
+		return others * mult + maxi(0, units - game.exchange.fin.fuel_on_hand()) * v.fuel_unit_price()
+	var expected: float = expect.call(1.0)
 	var standard := v.voyage_cost("切尔诺伯格", "standard")
-	check("the cost is the supplies at the live price: %d" % standard, absi(standard - roundi(expected)) <= 100 and standard > 280000 and standard < 1120000)
-	check("全速 costs ×1.25, 边走边补 ×0.75",
-		absi(v.voyage_cost("切尔诺伯格", "fast") - roundi(expected * 1.25)) <= 100 and absi(v.voyage_cost("切尔诺伯格", "resupply") - roundi(expected * 0.75)) <= 100)
+	check("the cost is the supplies at the live price: %d" % standard, absi(standard - roundi(expected)) <= 100 and standard > 280000 and standard < 1120000, roundi(expected))
+	check("全速 costs ×1.25, 慢速 ×0.75",
+		absi(v.voyage_cost("切尔诺伯格", "fast") - roundi(expect.call(1.25))) <= 100 and absi(v.voyage_cost("切尔诺伯格", "resupply") - roundi(expect.call(0.75))) <= 100)
 	var hours := VoyageCatalog.HOURS_BASE + VoyageCatalog.HOURS_PER_DISTANCE * d
 	check("and takes 1 + 6d hours, −30% / +30%",
 		absi(v.voyage_seconds("切尔诺伯格", "standard") - roundi(hours * 3600)) <= 1 and absi(v.voyage_seconds("切尔诺伯格", "fast") - roundi(hours * 0.7 * 3600)) <= 1

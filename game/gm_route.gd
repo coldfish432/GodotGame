@@ -379,12 +379,8 @@ func event_choose(index: int) -> bool:
 		"bribe": game.route_threat_cut = true
 		"fight_guard": _event_fight(at, 1, 4, LootTables.container_drops("vault_gear", game.loot_ctx()))
 		"give_fuel":
-			var fuel: String = game.pack_fuels().keys()[0]
-			for item in game.inventory.items:
-				if item.material_id != fuel: continue
-				if item.quantity > 1: item.set_quantity(item.quantity - 1)
-				else: game.inventory.remove(item)
-				break
+			# One piece, or one unit out of a can (燃料储备修订案 §6).
+			game.map_features.take_fuel_piece(str(game.pack_fuels().keys()[0]))
 			game.exchange.add_relation("karlan", 10)
 			_event_give(FeatureCatalog.create_supply("自热罐头"))
 		"invitation":

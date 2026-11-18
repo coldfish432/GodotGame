@@ -91,7 +91,8 @@ const MATERIALS := {
 	"微型电机": {"star": 4, "kind": "base", "group": "电子", "source": "common", "stack": 3, "size": Vector2i(2, 2), "value": 60, "text": "小型电动机，驱动无人机和机械臂。"},
 	"蓄电池": {"star": 2, "kind": "base", "group": "能源", "source": "common", "text": "可充电电池，便携设备的电源。"},
 	"车用蓄电池": {"star": 4, "kind": "base", "group": "能源", "source": "common", "stack": 1, "size": Vector2i(3, 2), "value": 120, "text": "沉重的车用蓄电池，能给整套设施供电。"},
-	"固体燃料": {"star": 1, "kind": "base", "group": "燃料", "source": "common", "text": "块状燃料，取暖和野外加热的耗材。"},
+	# 燃料储备修订案 v0.6: 12 units of fuel pressed into a block, worth 12 × 2/3.
+	"固体燃料": {"star": 1, "kind": "base", "group": "燃料", "source": "common", "value": 8, "text": "浓缩压制的固态燃料块，取暖和野外加热都靠它。"},
 	"燃料罐": {"star": 3, "kind": "base", "group": "燃料", "source": "common", "stack": 1, "size": Vector2i(2, 2), "value": 50, "text": "装满的金属燃料罐，发电机的口粮。"},
 	"扳手": {"star": 3, "kind": "base", "group": "工具", "source": "common", "stack": 5, "text": "棘轮扳手，拆装设备的常用工具。"},
 	"工具套装": {"star": 4, "kind": "base", "group": "工具", "source": "common", "stack": 1, "size": Vector2i(2, 2), "value": 100, "text": "一整箱工具，工程部最想要的东西。"},
@@ -108,7 +109,10 @@ const MATERIALS := {
 	"电子包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 120, "text": "加工部封装的标准电子包，交易所按包报价。"},
 	"医疗包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准医疗包，交易所按包报价。"},
 	"作物包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的农业部作物，加了封条，拆不开。"},
+	# Gone (燃料储备修订案 v0.6 §3): kept so a save's packs load, then pour into the reserve.
 	"燃料包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准燃料包，交易所按包报价。"},
+	# The exchange's fuel lot: 480 units (Fuel.BARREL_UNITS × 2/3). Never an item.
+	"燃料桶": {"star": 4, "kind": "base", "source": "pack", "stack": 999, "size": Vector2i(2, 3), "value": 320, "text": "交易所燃料盘的报价单位，一桶 480 单位燃料。"},
 	"寒地物资包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 100, "text": "加工部封装的标准寒地物资包，交易所按包报价。"},
 	"源石包": {"star": 3, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 120, "text": "加工部封装的标准源石包，交易所按包报价。"},
 	"养成材料包": {"star": 4, "kind": "base", "source": "pack", "stack": 5, "size": Vector2i(2, 2), "value": 300, "text": "加工部封装的标准养成材料包，交易所按包报价。"},
@@ -192,4 +196,6 @@ static func create(id: String, count: int, region: String = "") -> Item:
 	item.description = "%s ★%d · %s" % ["通用物资" if is_common(id) else "PRTS", int(data.star), data.text]
 	item.origin_region = region
 	item.set_quantity(clampi(count, 1, item.max_stack))
+	# Bought, unpacked or made: a full can (燃料储备修订案 §3).
+	if id == Fuel.TANK: Fuel.set_fill(item, Fuel.TANK_FULL)
 	return item

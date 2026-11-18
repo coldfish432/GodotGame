@@ -437,6 +437,7 @@ func right_click(item: Item, container: ItemContainer) -> void:
 	elif FeatureCatalog.is_supply(item): game.use_supply(item)
 	elif game.usable_special(item): game.use_guide()
 	elif item.effect == "raw_ore": game.seal_with_sealer(item)
+	elif Fuel.is_fuel(item) and container != null: game.pour_into_first_tank(item, container)
 	elif item.is_equippable(): game.equip_from(item, container)
 	selected = null
 	hovered = null
@@ -460,6 +461,13 @@ func drop_on_grid(data: Dictionary, container: ItemContainer, cell: Vector2i, pa
 	var from: ItemContainer = data.get("from")
 	if not game.move_item(data.item, from, container, cell.x, cell.y, page):
 		game.notice("放不下：位置被占用或超出边界。")
+	_drag_item = null
+	selected = null
+	_rebuild()
+
+## Dropped on a can (燃料储备修订案 §2): poured, no confirm.
+func pour(source: Item, tank: Item) -> void:
+	game.pour_fuel(source, tank)
 	_drag_item = null
 	selected = null
 	_rebuild()
@@ -548,9 +556,21 @@ class GridView extends Control:
 		var grab: Vector2 = data.get("grab", Vector2.ZERO)
 		return Vector2i(roundi((at.x - grab.x) / InventoryPanel.CELL), roundi((at.y - grab.y) / InventoryPanel.CELL))
 
+	## The can under the pointer that `item` would pour into, or null (燃料储备修订案 §2).
+	func _tank_under(at: Vector2, item: Item) -> Item:
+		var p := _local(at)
+		var target := container.item_at(floori(p.x / InventoryPanel.CELL), floori(p.y / InventoryPanel.CELL), page)
+		return target if Fuel.pour_amount(item, target) > 0 else null
+
 	func _can_drop_data(at: Vector2, data: Variant) -> bool:
 		if not data is Dictionary or not data.has("item"): return false
 		var item: Item = data.item
+		var tank := _tank_under(at, item)
+		if tank != null:
+			_preview = Rect2i(Vector2i(tank.grid_x, tank.grid_y), Vector2i(tank.width, tank.height))
+			_preview_ok = true
+			queue_redraw()
+			return true
 		var cell := _cell_for(at, data)
 		_preview = Rect2i(cell, Vector2i(item.width, item.height))
 		_preview_ok = container.can_place(item, cell.x, cell.y, page)
@@ -560,6 +580,10 @@ class GridView extends Control:
 	func _drop_data(at: Vector2, data: Variant) -> void:
 		var cell := _cell_for(at, data)
 		_preview = Rect2i()
+		var tank := _tank_under(at, data.item)
+		if tank != null:
+			panel.pour(data.item, tank)
+			return
 		panel.drop_on_grid(data, container, cell, page)
 
 	func _notification(what: int) -> void:
@@ -664,6 +688,7 @@ class ItemTile extends Button:
 		if in_safe:
 			control.draw_rect(Rect2(3, s.y - 13, 9, 7), AK.GREEN)
 			control.draw_arc(Vector2(7.5, s.y - 13), 3.0, PI, TAU, 8, AK.GREEN, 1.5)
+		if Fuel.is_tank(shown): AK.draw_fuel(control, shown)
 		if shown.is_stackable():
 			var label := str(shown.quantity)
 			var font := AK.en()

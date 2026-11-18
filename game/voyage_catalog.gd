@@ -28,9 +28,9 @@ const VOYAGE_PER_DISTANCE := {"燃料罐": 224, "金属板": 168}
 ## Real hours: HOURS_BASE + HOURS_PER_DISTANCE × d at the standard pace.
 const HOURS_BASE := 1.0
 const HOURS_PER_DISTANCE := 6.0
-## 全速 carries everything from the start; 边走边补 buys on the way (用户 2026-10-19).
+## 全速 carries everything from the start; 慢速 (resupply) buys on the way (用户 2026-10-19).
 const MODES: Array[String] = ["standard", "fast", "resupply"]
-const MODE_NAMES := {"standard": "标准", "fast": "全速", "resupply": "边走边补"}
+const MODE_NAMES := {"standard": "标准", "fast": "全速", "resupply": "慢速"}
 const MODE_COST := {"standard": 1.0, "fast": 1.25, "resupply": 0.75}
 const MODE_TIME := {"standard": 1.0, "fast": 0.7, "resupply": 1.3}
 const COST_ROUND := 100

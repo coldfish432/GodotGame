@@ -14,7 +14,9 @@ const PACKS := {
 	"作物包": {"category": "crop", "face": 100, "open": false},
 	"建材包": {"category": "build", "face": 100, "open": true},
 	"电子包": {"category": "electronic", "face": 120, "open": true},
-	"燃料包": {"category": "fuel", "face": 100, "open": true},
+	# 燃料储备修订案 v0.6 §2: fuel trades by the barrel, never as goods. "barrel":
+	# bought ones go into the 燃料储备, sold ones come out of the warehouse's cans.
+	"燃料桶": {"category": "fuel", "face": 320, "open": false, "barrel": true},
 	"寒地物资包": {"category": "cold", "face": 100, "open": true},
 	"养成材料包": {"category": "elite", "face": 300, "open": true},
 	"违禁品包": {"category": "contraband", "face": 200, "open": false},
@@ -22,7 +24,7 @@ const PACKS := {
 	"防具包": {"category": "armor", "face": 400, "open": false},
 	"饰品包": {"category": "trinket", "face": 400, "open": false},
 }
-const ORDER: Array[String] = ["建材包", "电子包", "医疗包", "作物包", "燃料包", "寒地物资包", "源石包", "养成材料包", "违禁品包", "武器包", "防具包", "饰品包"]
+const ORDER: Array[String] = ["建材包", "电子包", "医疗包", "作物包", "燃料桶", "寒地物资包", "源石包", "养成材料包", "违禁品包", "武器包", "防具包", "饰品包"]
 ## Per pack: a 龙门币 fee and minutes in the 加工部 queue (§3.1).
 const PACK_LMD := 300
 const PACK_MINUTES := 1
@@ -40,6 +42,16 @@ static func category_of(pack: String) -> String:
 static func face(pack: String) -> int:
 	return int(PACKS.get(pack, {}).get("face", 0))
 
+## The packs the 加工部 makes (every one but the fuel barrel).
+static func packing_order() -> Array[String]:
+	var out: Array[String] = []
+	for id in ORDER:
+		if not is_barrel(id): out.append(id)
+	return out
+
+static func is_barrel(pack: String) -> bool:
+	return bool(PACKS.get(pack, {}).get("barrel", false))
+
 static func can_open(pack: String) -> bool:
 	return bool(PACKS.get(pack, {}).get("open", false))
 
@@ -55,7 +67,9 @@ static func packable(item: Item) -> bool:
 	if is_pack(item.material_id) or item.material_id == Economy.GOLD_ID: return false
 	if item.effect == VoyageCatalog.CARGO_EFFECT: return false
 	if str(MaterialCatalog.MATERIALS.get(item.material_id, {}).get("source", "")) == "special": return false
-	return not pack_for(FactionCatalog.category_of(item)).is_empty()
+	var pack := pack_for(FactionCatalog.category_of(item))
+	# Fuel is poured, not packed (燃料储备修订案 v0.6 §3).
+	return not pack.is_empty() and not is_barrel(pack)
 
 ## What one-key packing leaves alone in gear packs (§3.4): the top quality and
 ## named pieces (set, boss, special, exclusive) only go in by hand.

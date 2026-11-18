@@ -148,8 +148,15 @@ func add_stack(item: Item) -> int:
 func count_material(id: String) -> int:
 	var total := 0
 	for item in items:
-		if item.material_id == id: total += item.quantity
+		# A 燃料罐 counts only when full (燃料储备修订案 §6).
+		if Fuel.counts_as(item, id): total += item.quantity
 	return total
+
+## What lies on cell (x, y) of `page`, or null.
+func item_at(x: int, y: int, page: int = 0) -> Item:
+	for item in items:
+		if item.grid_page == page and x >= item.grid_x and x < item.grid_x + item.width and y >= item.grid_y and y < item.grid_y + item.height: return item
+	return null
 
 func occupied_cells() -> int:
 	var total := 0

@@ -75,7 +75,8 @@ func _upkeep(ex: Exchange, fin: RhodesFinance) -> void:
 	check("the personal warehouse is untouched", game.material_count("异铁碎片") == personal)
 	# What is short is bought at the cheapest live ask.
 	var hub: Dictionary = bill.items.filter(func(i): return i.facility == "hub")[0]
-	var fuel := fin.cheapest(str(hub.material))
+	# The hub burns fuel units: the cheapest unit of barrel, can or 固体燃料 (燃料储备修订案 §4).
+	var fuel := fin.cheapest_fuel()
 	check("short: bought at the cheapest seller (%s)" % str(fuel.get("faction", "")), int(hub.bought) > 0 and absi(int(hub.cost) - roundi(float(fuel.unit_lmd) * int(hub.bought))) <= 2 + int(hub.bought), [hub, fuel])
 	check("the 异铁 seller is 乌萨斯西北矿场", str(seller.get("faction", "")) == "ursus")
 	# MarketState.add_flow: this step's flow on the book (a faction's pending

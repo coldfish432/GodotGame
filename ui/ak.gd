@@ -423,6 +423,19 @@ class Glyph extends Control:
 			draw_circle(c, 4.5, AK.INK)
 
 
+## A 燃料罐's fill (燃料储备修订案 §1): a bar up its left edge and "36/60" at the foot.
+static func draw_fuel(control: Control, item: Item) -> void:
+	var s := control.size
+	var share := float(item.fuel) / Fuel.TANK_FULL
+	var h := s.y - 8.0
+	control.draw_rect(Rect2(3, 4, 4, h), Color(0, 0, 0, 0.6))
+	control.draw_rect(Rect2(3, 4 + h * (1.0 - share), 4, h * share), AK.SP if share > 0.0 else AK.DIM)
+	var label := "%d/%d" % [item.fuel, Fuel.TANK_FULL]
+	var w := en().get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	control.draw_rect(Rect2(s.x - w - 6, s.y - 18, w + 6, 14), Color.BLACK)
+	control.draw_string(en(), Vector2(s.x - w - 3, s.y - 7), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
+
+
 class ItemSquare extends Control:
 	var item: Item
 	var dim := false
@@ -465,6 +478,7 @@ class ItemSquare extends Control:
 				shown_name = shown_name.left(shown_name.length() - 1)
 			var w := AK.cn().get_string_size(shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 			draw_string(AK.cn(), Vector2((s.x - w) * 0.5, s.y * 0.5 + 5), shown_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, AK.FG)
+		if Fuel.is_tank(item): AK.draw_fuel(self, item)
 		if item.is_stackable() and not hide_count:
 			var count := str(item.quantity)
 			var cw := AK.en().get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x

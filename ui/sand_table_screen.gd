@@ -73,7 +73,11 @@ static func _ship_panel(menu: FieldMenu, stage: Control) -> void:
 		var hours := v.voyage_seconds(destination, mode, use_fuel) / 3600.0
 		AK.put(stage, AK.label(VoyageCatalog.MODE_NAMES[mode], 13, AK.MUTE), Vector2(28, y + 4))
 		AK.put(stage, AK.money("lmd", Economy.format(cost), 15), Vector2(120, y))
-		AK.put(stage, AK.label("%.1f h" % hours, 13, AK.FG, AK.en()), Vector2(300, y + 4))
+		AK.put(stage, AK.label("%.1f h" % hours, 13, AK.FG, AK.en()), Vector2(250, y + 4))
+		# 燃料 有/需 (燃料储备修订案 §5): the reserve and the warehouse's cans.
+		var need_fuel := v.voyage_fuel(destination, mode, use_fuel)
+		var have_fuel := game.exchange.fin.fuel_on_hand()
+		AK.put(stage, AK.label("燃料 %s / %s" % [Economy.format(have_fuel), Economy.format(need_fuel)], 12, AK.FG if have_fuel >= need_fuel else AK.RED), Vector2(320, y + 6))
 		var refusal := v.voyage_refusal(destination, mode, use_fuel)
 		var go := AK.button("出发" if refusal.is_empty() else refusal, "blue" if refusal.is_empty() else "plain", 13)
 		go.disabled = not refusal.is_empty()

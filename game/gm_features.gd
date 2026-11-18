@@ -210,7 +210,9 @@ func near_fire() -> FirePit:
 func pack_fuels() -> Dictionary:
 	var out := {}
 	for item in game.inventory.items:
-		if FeatureCatalog.FUELS.has(item.material_id): out[item.material_id] = int(out.get(item.material_id, 0)) + item.quantity
+		# A can counts its units, an empty one nothing (燃料储备修订案 §6).
+		var n := item.fuel if Fuel.is_tank(item) else item.quantity
+		if FeatureCatalog.FUELS.has(item.material_id) and n > 0: out[item.material_id] = int(out.get(item.material_id, 0)) + n
 	return out
 
 ## E at a fire: the picker of what to burn; nothing without fuel.
@@ -225,13 +227,47 @@ func burn_fuel(id: String, fire: FirePit = null) -> bool:
 	if fire == null: fire = fuel_fire
 	if not is_instance_valid(fire) or not FeatureCatalog.FUELS.has(id): return false
 	if fire.burn_left >= FeatureCatalog.FIRE_MAX: return false
+	if id == Fuel.TANK: return burn_tank(1, fire) > 0
+	if not take_fuel_piece(id): return false
+	fire.feed(float(FeatureCatalog.FUELS[id]))
+	return true
+
+## One piece of `id` off the pack (a can: one unit, the can stays).
+func take_fuel_piece(id: String) -> bool:
+	if id == Fuel.TANK: return take_tank_units(1) > 0
 	for item in game.inventory.items:
 		if item.material_id != id: continue
 		if item.quantity > 1: item.set_quantity(item.quantity - 1)
 		else: game.inventory.remove(item)
-		fire.feed(float(FeatureCatalog.FUELS[id]))
 		return true
 	return false
+
+## Units out of the pack's cans, the emptiest first; returns how many.
+func take_tank_units(units: int) -> int:
+	var tanks: Array = game.inventory.items.filter(func(t): return Fuel.is_tank(t) and t.fuel > 0)
+	tanks.sort_custom(func(a, b): return a.fuel < b.fuel)
+	var left := units
+	for t: Item in tanks:
+		if left <= 0: break
+		var n := mini(left, t.fuel)
+		Fuel.set_fill(t, t.fuel - n)
+		left -= n
+	return units - left
+
+## The most units a fire takes now (it holds FIRE_MAX seconds).
+func fire_room_units(fire: FirePit = null) -> int:
+	if fire == null: fire = fuel_fire
+	if not is_instance_valid(fire): return 0
+	return int((FeatureCatalog.FIRE_MAX - fire.burn_left) / Fuel.SECONDS_PER_UNIT)
+
+## `units` of the pack's cans onto the fire (用户 2026-11-17: 玩家可选用多少);
+## the cans stay. Returns the units burnt.
+func burn_tank(units: int, fire: FirePit = null) -> int:
+	if fire == null: fire = fuel_fire
+	if not is_instance_valid(fire): return 0
+	var n := take_tank_units(mini(units, fire_room_units(fire)))
+	if n > 0: fire.feed(n * Fuel.SECONDS_PER_UNIT)
+	return n
 
 ## 净化喷淋点 (§3.3): on SHOWER_CHANCE of mine floors, beside the main path.
 func _spawn_shower() -> void:

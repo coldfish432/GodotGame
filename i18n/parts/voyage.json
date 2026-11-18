@@ -48,7 +48,7 @@
  "订单不可提交": "Cannot submit",
  "订单不可装箱": "Cannot pack",
  "货箱不在仓库": "Crate not at base",
- "边走边补": "Resupply en Route",
+ "慢速": "Slow",
  "运送": "Delivery",
  "运送 ·": "Delivery ·",
  "运送完成 ·": "Delivered ·",

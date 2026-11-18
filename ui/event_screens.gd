@@ -1125,6 +1125,10 @@ static func fuel(menu: FieldMenu) -> void:
 	var y := top + 44.0
 	for id in FeatureCatalog.FUELS:
 		if not fuels.has(id): continue
+		if id == Fuel.TANK:
+			_tank_row(menu, stage, Vector2(452, y), int(fuels[id]))
+			y += 64.0
+			continue
 		var row := Button.new()
 		row.focus_mode = Control.FOCUS_NONE
 		row.set_meta("fuel", id)
@@ -1144,3 +1148,41 @@ static func fuel(menu: FieldMenu) -> void:
 	var back := AK.button("✕", "plain", 14)
 	AK.put(stage, back, Vector2(796, top + 8), Vector2(36, 30))
 	back.pressed.connect(game.close_modal)
+
+## Units the 燃料罐 row burns (用户 2026-11-17: 火堆不整罐烧，玩家可选用多少).
+static var tank_units := 6
+
+## The cans' row: their units, − / + how many to burn, and 燃烧 (the cans stay).
+static func _tank_row(menu: FieldMenu, stage: Control, at: Vector2, held: int) -> void:
+	var game := menu.game
+	var row := Panel.new()
+	row.add_theme_stylebox_override("panel", AK.box(AK.PLATE_2))
+	row.set_meta("fuel", Fuel.TANK)
+	AK.put(stage, row, at, Vector2(376, 56))
+	# The icon is the pack's fullest can, so its fill shows.
+	var cans: Array = game.inventory.items.filter(func(t): return Fuel.is_tank(t))
+	cans.sort_custom(func(a, b): return a.fuel > b.fuel)
+	var icon: Item = cans[0] if not cans.is_empty() else MaterialCatalog.create(Fuel.TANK, 1)
+	AK.put(row, AK.item_icon(icon, Vector2(48, 48)), Vector2(4, 4))
+	AK.put(row, AK.label("%s  %d" % [Fuel.TANK, held], 14, AK.FG), Vector2(60, 18))
+	var most := mini(held, game.fire_room_units())
+	tank_units = clampi(tank_units, 1, maxi(1, most))
+	var minus := AK.button("−", "plain", 14)
+	minus.custom_minimum_size = Vector2.ZERO
+	AK.put(row, minus, Vector2(160, 12), Vector2(32, 32))
+	minus.pressed.connect(func(): tank_units = maxi(1, tank_units - 1); fuel(menu))
+	var count := AK.label(str(tank_units), 14, AK.FG, AK.en())
+	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	AK.put(row, count, Vector2(194, 18), Vector2(36, 20))
+	var plus := AK.button("+", "plain", 14)
+	plus.custom_minimum_size = Vector2.ZERO
+	AK.put(row, plus, Vector2(232, 12), Vector2(32, 32))
+	plus.pressed.connect(func(): tank_units = mini(maxi(1, most), tank_units + 1); fuel(menu))
+	var burn := AK.button("%d s" % roundi(tank_units * Fuel.SECONDS_PER_UNIT), "blue" if most > 0 else "plain", 13)
+	burn.custom_minimum_size = Vector2.ZERO
+	burn.disabled = most <= 0
+	burn.set_meta("burn_tank", true)
+	AK.put(row, burn, Vector2(274, 12), Vector2(94, 32))
+	burn.pressed.connect(func():
+		game.burn_tank(tank_units)
+		game.close_modal())

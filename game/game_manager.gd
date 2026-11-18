@@ -2466,6 +2466,7 @@ func _init_market() -> void:
 ## 不暂停，读档时模拟 k 线); PRTS sums up what happened meanwhile.
 func _catch_up_market() -> void:
 	exchange.migrate_packs()
+	exchange.migrate_fuel()
 	_migrate_trade_crates()
 	# 运营策划案 §5.1: a day and the hours over are caught up; whole days beyond stand still.
 	var away := BaseState.now() - market.t
@@ -3130,6 +3131,23 @@ func move_item(item: Item, from: ItemContainer, to: ItemContainer, x: int, y: in
 	save_base_soon(not in_base)
 	return true
 
+## 燃料储备修订案 §2: `source` (a can or 固体燃料) into the can `tank`, as much as
+## fits; an emptied 固体燃料 stack leaves wherever it lay. Returns the units moved.
+func pour_fuel(source: Item, tank: Item) -> int:
+	var moved := Fuel.pour(source, tank)
+	if moved <= 0: return 0
+	if Fuel.is_solid(source) and source.quantity <= 0: _hand_over(source)
+	save_base_soon(not in_base)
+	return moved
+
+## Right click on fuel (§8): into the first can in the same bag that is not
+## full (not itself). Returns the units moved.
+func pour_into_first_tank(source: Item, bag: ItemContainer) -> int:
+	if bag == null or not Fuel.is_fuel(source): return 0
+	for t in bag.items:
+		if t != source and Fuel.pour_amount(source, t) > 0: return pour_fuel(source, t)
+	return 0
+
 ## Onto a page of the pack, its first free spot (a drop on the page's tab).
 ## `from` is a container, or null for an equipped item.
 func move_to_pack_page(item: Item, from: ItemContainer, page: int) -> bool:
@@ -3162,13 +3180,15 @@ func apply_container_sizes() -> void:
 
 ## Units of a PRTS material in the warehouse, pack and safe bag (掉落物策划案 §7.1).
 func material_count(id: String) -> int:
+	# "燃料" in a cost: the 燃料储备 and the warehouse's cans (燃料储备修订案 v0.6).
+	if id == Fuel.RESERVE: return exchange.fin.fuel_on_hand()
 	var total := inventory.count_material(id) + safe_bag.count_material(id)
 	# The shelves and their boxes in place, without copying them (stash).
 	for item in base.shelf:
-		if item.material_id == id: total += item.quantity
+		if Fuel.counts_as(item, id): total += item.quantity
 		if item.is_case():
 			for inner in item.contents.items:
-				if inner.material_id == id: total += inner.quantity
+				if Fuel.counts_as(inner, id): total += inner.quantity
 	return total
 
 ## "" when every material of `cost` is there, else what is missing.
@@ -3184,11 +3204,14 @@ func consume_materials(cost: Dictionary) -> bool:
 	if not materials_refusal(cost).is_empty(): return false
 	for id in cost:
 		var need := int(cost[id])
+		if id == Fuel.RESERVE:
+			exchange.fin.take_fuel(need)
+			continue
 		for source in ["stash", "safe", "pack"]:
 			var pool: Array = stash if source == "stash" else (safe_bag.items if source == "safe" else inventory.items)
 			for item: Item in pool.duplicate():
 				if need <= 0: break
-				if item.material_id != id: continue
+				if not Fuel.counts_as(item, id): continue
 				var used := mini(need, item.quantity)
 				need -= used
 				if used < item.quantity: item.set_quantity(item.quantity - used)
@@ -4278,6 +4301,8 @@ func _tick_features(delta: float) -> void: map_features._tick_features(delta)
 func _spawn_fires() -> void: map_features._spawn_fires()
 func near_fire() -> FirePit: return map_features.near_fire()
 func pack_fuels() -> Dictionary: return map_features.pack_fuels()
+func burn_tank(units: int, fire: FirePit = null) -> int: return map_features.burn_tank(units, fire)
+func fire_room_units(fire: FirePit = null) -> int: return map_features.fire_room_units(fire)
 func burn_fuel(id: String, fire: FirePit = null) -> bool: return map_features.burn_fuel(id, fire)
 func _start_shower() -> void: map_features._start_shower()
 func use_supply(item: Item) -> bool: return map_features.use_supply(item)

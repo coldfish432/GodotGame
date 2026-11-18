@@ -120,6 +120,8 @@ var _next_id := 1
 var _day := 0
 ## 1 once the account trades packs (交易包修订案 §7.3).
 var packs_version := 1
+## 1 once the account trades fuel by the barrel (燃料储备修订案 v0.6 §3).
+var fuel_version := 1
 ## notify(text, kind): the game decides how to show it (PRTS log in the field).
 var notify := Callable()
 ## 罗德岛运营与资产管理策划案 v0.12: the bill, deposits and the credit line
@@ -407,6 +409,11 @@ func sell_item(item: Item, faction: String, remote: bool = true, flash: Dictiona
 	if blocked(): return false
 	var q := quote_sell(item, faction, remote, float(flash.get("mult", 1.0)))
 	if not q.ok or not game._hand_over(item): return false
+	_settle_sale(item, faction, q, remote)
+	return true
+
+## After a sale: the money, the book's pressure, relations and the log.
+func _settle_sale(item: Item, faction: String, q: Dictionary, remote: bool) -> void:
 	# Face to face in the field she is paid in bars, into the pack.
 	var field: bool = not remote and q.currency == "gold" and not game.in_base
 	if field: game.give_gold_bars(field_bars(q.net))
@@ -419,7 +426,38 @@ func sell_item(item: Item, faction: String, remote: bool = true, flash: Dictiona
 	if category == "contraband" and not (faction == "rat" and FactionRewards.badge_on(game, "rat")):
 		for rival in FactionCatalog.RIVALS.get(faction, []): add_relation(rival, -5)
 	recent_sales[faction] = float(recent_sales.get(faction, 0.0)) + value
-	_log({"kind": "sell", "what": item.display_name(), "faction": faction, "amount": float(field_bars(q.net)) if field else q.net, "currency": q.currency})
+	_log({"kind": "sell", "what": item.display_name() + item.stack_suffix(), "faction": faction, "amount": float(field_bars(q.net)) if field else q.net, "currency": q.currency})
+
+# --- 燃料桶 (燃料储备修订案 v0.6 §2) --------------------------------------------------------
+
+## Whole barrels the warehouse's cans hold (the reserve never comes back out).
+func barrels_held() -> int:
+	return fin.tank_fuel() / Fuel.BARREL_UNITS
+
+## A quote for `count` barrels (a lot that is never an item).
+func quote_fuel(faction: String, count: int, remote: bool = true) -> Dictionary:
+	return quote_sell(MaterialCatalog.create(Fuel.BARREL, maxi(1, count)), faction, remote)
+
+## Takes `count` barrels out of the warehouse's cans, the fullest first.
+func _take_barrels(count: int) -> bool:
+	var units := count * Fuel.BARREL_UNITS
+	if count <= 0 or fin.tank_fuel() < units: return false
+	var tanks := fin.warehouse_tanks()
+	tanks.sort_custom(func(a, b): return a.fuel > b.fuel)
+	for t: Item in tanks:
+		if units <= 0: break
+		var n := mini(units, t.fuel)
+		Fuel.set_fill(t, t.fuel - n)
+		units -= n
+	return true
+
+## Sells `count` barrels from the warehouse's cans to `faction`.
+func sell_fuel(faction: String, count: int, remote: bool = true) -> bool:
+	if blocked() or count <= 0: return false
+	var lot := MaterialCatalog.create(Fuel.BARREL, count)
+	var q := quote_sell(lot, faction, remote)
+	if not q.ok or not _take_barrels(count): return false
+	_settle_sale(lot, faction, q, remote)
 	return true
 
 ## Unit price of `material` from `faction`'s shelf: {ok, why, unit, currency, market}.
@@ -485,6 +523,10 @@ func special_bought(material: String) -> void:
 
 ## Bought goods arrive at the receiving bay, one sealed crate per stack.
 func _deliver_goods(material: String, count: int) -> void:
+	# A barrel is poured straight into the 燃料储备 (燃料储备修订案 §2).
+	if Packs.is_barrel(material):
+		fin.add_fuel(count * Fuel.BARREL_UNITS)
+		return
 	var left := count
 	while left > 0:
 		var stack := FactionRewards.as_goods(material, mini(left, MaterialCatalog.stack_size(material)))
@@ -738,7 +780,9 @@ func deliver_forward(id: int, warehouse_only: bool = false) -> bool:
 	if blocked(): return false
 	for f in forwards:
 		if int(f.id) != id or f.dir != "deliver": continue
-		if warehouse_only:
+		if Packs.is_barrel(str(f.material)):
+			if not _take_barrels(int(f.count)): return false
+		elif warehouse_only:
 			if not _consume_stash(str(f.material), int(f.count)): return false
 		elif not game.consume_materials({str(f.material): int(f.count)}): return false
 		forwards.erase(f)
@@ -765,6 +809,7 @@ func take_forward(id: int) -> bool:
 	return false
 
 func _consume_stash(material: String, count: int) -> bool:
+	if Packs.is_barrel(material): return _take_barrels(count)
 	var have := 0
 	for item in game.stash:
 		if item.material_id == material: have += item.quantity
@@ -1279,6 +1324,22 @@ func on_event(ev: Dictionary, picks: Dictionary = {}) -> void:
 ## Once, on a save from before the packs: positions on loose materials and on
 ## the old 贸易品 books close at today's price (no relation lost, not a default),
 ## their orders are cancelled with the fee back, the watch list moves to packs.
+## 燃料包 is gone (燃料储备修订案 §3): its forwards close at their P/L, its orders
+## are cancelled, and the packs held pour into the 燃料储备.
+func migrate_fuel() -> void:
+	if fuel_version >= 1: return
+	fuel_version = 1
+	_auto = true
+	for f in forwards.duplicate():
+		if str(f.material) != Fuel.OLD_PACK: continue
+		forwards.erase(f)
+		credit(str(f.currency), maxf(0.0, float(f.margin) + forward_pnl(f)))
+	for o in orders.duplicate():
+		var what := str(o.get("material", (o.get("item", {}) as Dictionary).get("material", "")))
+		if what == Fuel.OLD_PACK: cancel_order(int(o.id))
+	_auto = false
+	fin.migrate_fuel_packs()
+
 func migrate_packs() -> void:
 	if packs_version >= 1: return
 	packs_version = 1
@@ -1312,7 +1373,7 @@ func to_data() -> Dictionary:
 	return {"gold_account": gold_account, "fx_accounts": fx_accounts, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
 		"cfds": cfds, "forward_cooldown": forward_cooldown, "loan": loan, "shipments": shipments, "history": history,
 		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE, "rank_gifts": rank_gifts, "start_attitude": start_attitude,
-		"packs_version": packs_version, "finance": fin.to_data(), "securities": securities.to_data(), "strategies": strategies.to_data(), "relation_mods": relation_mods.duplicate(true)}
+		"packs_version": packs_version, "fuel_version": fuel_version, "finance": fin.to_data(), "securities": securities.to_data(), "strategies": strategies.to_data(), "relation_mods": relation_mods.duplicate(true)}
 
 func load_data(d: Dictionary) -> void:
 	gold_account = float(d.get("gold_account", 0.0))
@@ -1338,6 +1399,7 @@ func load_data(d: Dictionary) -> void:
 	_next_id = int(d.get("next_id", 1))
 	# A fresh account starts on packs; an old one migrates once (migrate_packs).
 	packs_version = int(d.get("packs_version", 0 if not d.is_empty() else 1))
+	fuel_version = int(d.get("fuel_version", 0 if not d.is_empty() else 1))
 	fin.load_data(d.get("finance", {}) if d.get("finance") is Dictionary else {})
 	securities.load_data(d.get("securities", {}) if d.get("securities") is Dictionary else {})
 	strategies.load_data(d.get("strategies", {}) if d.get("strategies") is Dictionary else {})

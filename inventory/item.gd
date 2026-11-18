@@ -90,6 +90,8 @@ static func is_jewel_slot(category: int) -> bool:
 @export var quantity: int = 1
 @export var max_stack: int = 1
 @export var unit_value: int = 0
+## Units of fuel in a 燃料罐 (0–60, Fuel); -1 for everything else.
+@export var fuel: int = -1
 ## A flask ("A" / "B" / "C", BaseCatalog.POTIONS) — flasks are pack items; one kind
 ## stacks in a cell up to BaseCatalog.POTION_STACK (用户 2026-10-17); "" for everything else.
 @export var potion_type: String = ""
@@ -213,6 +215,7 @@ func split(count: int) -> Item:
 	return part
 
 func stack_suffix() -> String:
+	if fuel >= 0: return Fuel.suffix(self)
 	return " ×%d" % quantity if is_stackable() else ""
 
 func display_name() -> String:
@@ -276,6 +279,7 @@ func to_data() -> Dictionary:
 		"material": material_id, "quantity": quantity, "max_stack": max_stack, "unit_value": unit_value, "potion": potion_type, "grade": grade,
 		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count, "atk_share": atk_share, "rot": rotated, "gx": grid_x, "gy": grid_y, "gp": grid_page,
 		"tiers": 3, "slots": 3, "ladder": 1}
+	if fuel >= 0: data["fuel"] = fuel
 	# A 整理箱 or a 收藏品礼包 keeps what it holds.
 	if contents != null: data["case"] = {"kind": case_kind, "tier": case_tier, "w": contents.width, "h": contents.height, "items": contents.items.map(func(x): return x.to_data())}
 	return data
@@ -372,6 +376,8 @@ static func from_data(data: Dictionary) -> Item:
 	if not data.has("prefixes"): PrefixCatalog.backfill(item)
 	if int(data.get("ladder", 0)) < 1: _migrate_ladder(item)
 	if int(data.get("tiers", 1)) == 2: _fold_tier(item)
+	# A 燃料罐 saved before cans held units was a full one (燃料储备修订案 §7).
+	if item.material_id == Fuel.TANK: Fuel.set_fill(item, int(data.get("fuel", Fuel.TANK_FULL)))
 	return item
 
 ## Gear saved in ten-floor tiers (×1.48 a tier, flat affixes ×1.30) folded

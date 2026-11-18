@@ -94,7 +94,9 @@ const FIRE_WARM := 3.0
 ## What a fire can hold, in seconds.
 const FIRE_MAX := 300.0
 ## Seconds one piece burns (用户 2026-10-19: she picks which to burn).
-const FUELS := {"帆布": 30.0, "家具零件": 45.0, "木板": 60.0, "固体燃料": 120.0, "燃料罐": 240.0}
+## 燃料罐 burns what it holds, Fuel.SECONDS_PER_UNIT a unit, as many units as she
+## picks; the can stays (燃料储备修订案 v0.6). 固体燃料 is 12 units, 120 s.
+const FUELS := {"帆布": 30.0, "家具零件": 45.0, "木板": 60.0, "固体燃料": 120.0, "燃料罐": Fuel.SECONDS_PER_UNIT}
 ## 萨米's ordinary enemies sometimes carry a plank.
 const SNOW_PLANK := 0.05
 

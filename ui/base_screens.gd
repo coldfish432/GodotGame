@@ -520,6 +520,7 @@ static func shelf_grid(game: GameManager, size: int, min_rows: int, redraw: Call
 			game.save_base()
 			redraw.call()
 	grid.on_open = func(box: Item): open_case(box, redraw)
+	grid.on_pour = func(source: Item, tank: Item): game.pour_fuel(source, tank); redraw.call()
 	grid.cards = true
 	TraderScreen._game = game
 	return grid
@@ -585,6 +586,36 @@ static func case_window(game: GameManager, stage: Control, around: Rect2) -> voi
 ## − / + in the middle, the points left and 拆包 on the right.
 static var transfer_count := 10
 
+## 燃料储备修订案 v0.6 §2: the warehouse's cans and 固体燃料 poured into the
+## 燃料储备 (the cans stay, empty), one by one or all at once.
+static func _fuel_pour_rows(menu: FieldMenu, left: VBoxContainer) -> void:
+	var game := menu.game
+	var fin := game.exchange.fin
+	left.add_child(AK.section("燃料储备", "FUEL RESERVE  %s" % Economy.format(fin.fuel_reserve())))
+	var fuels: Array = game.stash.filter(func(it): return Fuel.is_fuel(it) and Fuel.units_of(it) > 0)
+	for item: Item in fuels:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var name := AK.label("%s%s  ·  %d" % [item.item_name, item.stack_suffix(), Fuel.units_of(item)], 13, AK.FG)
+		name.custom_minimum_size.x = 260
+		row.add_child(name)
+		var b := AK.button("倒入储备", "blue", 12)
+		b.custom_minimum_size = Vector2(110, 30)
+		b.set_meta("pour", item)
+		b.disabled = not fin.pour_refusal(item).is_empty()
+		b.pressed.connect(func():
+			if fin.pour_in(item) > 0: game.save_base()
+			stash(menu))
+		row.add_child(b)
+		left.add_child(row)
+	if fuels.size() > 1:
+		var all := AK.button("全部倒入", "blue", 12)
+		all.custom_minimum_size = Vector2(110, 30)
+		all.pressed.connect(func():
+			if fin.pour_all() > 0: game.save_base()
+			stash(menu))
+		left.add_child(all)
+
 ## §2.5: what the base eats, from the personal warehouse into the 罗德岛库存
 ## (one way: nothing comes back), and how long each family lasts.
 static func _rhodes_stock_page(menu: FieldMenu, stage: Control) -> void:
@@ -599,6 +630,7 @@ static func _rhodes_stock_page(menu: FieldMenu, stage: Control) -> void:
 	for item in game.stash:
 		if item.category == Item.Category.MATERIAL and RhodesFinance.can_stock(item.material_id): mats[item.material_id] = true
 	if mats.is_empty(): left.add_child(AK.label("无可转入材料", 13, AK.MUTE))
+	_fuel_pour_rows(menu, left)
 	for id in mats:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
@@ -1313,6 +1345,8 @@ class FlowGrid extends Control:
 	var on_rotate: Callable
 	## A double click on a 整理箱 opens it (整理箱与收藏品策划案 v0.2 §0-9).
 	var on_open: Callable
+	## Fuel dropped on a can (on_pour(source, tank)).
+	var on_pour: Callable
 	## Pixels a cell (CELL unless the caller passes another size).
 	var cell := CELL
 	var _hovered: Item
@@ -1331,7 +1365,11 @@ class FlowGrid extends Control:
 		var can := func(_at: Vector2, data: Variant) -> bool:
 			var it := ItemDrag.item_of(data)
 			return it != null and (items.has(it) or (accept.is_valid() and bool(accept.call(it))))
-		var drop := func(at: Vector2, data: Variant) -> void: move_to.call(ItemDrag.item_of(data), cell_at(offset + at))
+		var drop := func(at: Vector2, data: Variant) -> void:
+			var it := ItemDrag.item_of(data)
+			# Fuel onto a can pours into it (燃料储备修订案 §2).
+			if on_pour.is_valid() and Fuel.pour_amount(it, item) > 0: on_pour.call(it, item)
+			else: move_to.call(it, cell_at(offset + at))
 		control.set_drag_forwarding(drag, can, drop)
 		control.set_meta("drop_can", can)
 		control.set_meta("drop_take", drop)

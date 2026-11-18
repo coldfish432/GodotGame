@@ -459,5 +459,9 @@
  "剩余 %d 秒": "%d s left",
  "罗德岛日常": "RHODES DAILY",
  "外勤 · 基建 · 航行": "Field Ops · Base · Voyage",
- "罗德岛日常 · Rhodes Daily": "Rhodes Daily"
+ "罗德岛日常 · Rhodes Daily": "Rhodes Daily",
+ "PRTS：燃料包 ×%d → 燃料储备 +%d": "PRTS: Fuel Pack ×%d → Fuel Reserve +%d",
+ "燃料 %s / %s": "Fuel %s / %s",
+ " · 燃料 %d/%d": " · Fuel %d/%d",
+ " · 燃料 %d": " · Fuel %d"
 }
