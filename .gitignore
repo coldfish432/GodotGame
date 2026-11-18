@@ -33,6 +33,7 @@ art/items/batch_*/references/
 
 # Design docs, assignment write-ups and the film stay local
 *.md
+!/README.md
 design/
 youtube/
 
