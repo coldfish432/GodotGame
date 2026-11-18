@@ -206,11 +206,11 @@ func run() -> void:
 	ex.cfds.append({"id": 9002, "underlying": "kazimierz:trade", "issuer": "karlan", "dir": 1, "lev": 1, "margin": 5.0, "opening": 5.0, "notional": 5.0,
 		"entry": 100.0, "currency": "gold", "opened": game.market.t, "tp": 0.0, "sl": 0.0, "warned": false, "auto": 0.0})
 	ex.watch.assign(["kazimierz:trade", "fx"])
-	var acct := ex.gold_account
+	var acct := ex.home_bars()
 	lmd = game.gold
 	ex.migrate_packs()
 	check("migration closes loose forwards at today's price, no default", ex.forwards.is_empty() and game.gold >= lmd and not ex.history.any(func(h): return h.kind == "default" and h.what.begins_with("螺栓")))
-	check("CFDs on the old 贸易品 books give the margin back", ex.cfds.is_empty() and absf(ex.gold_account - acct - 5.0) < 0.01)
+	check("CFDs on the old 贸易品 books give the margin back", ex.cfds.is_empty() and ex.home_bars() == acct + 5)
 	check("the watch list keeps live books only", ex.watch == ["fx"])
 	check("it runs once", ex.packs_version == 1)
 	var copy := Exchange.new()

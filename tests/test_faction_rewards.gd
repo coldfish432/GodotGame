@@ -137,9 +137,9 @@ func _gifts() -> void:
 	var flux := game.material_count("高纯源岩助熔剂")
 	ex.add_relation("ursus", Exchange.RANK_AT[3] - Exchange.RANK_AT[2])
 	check("尊敬 sends its special", game.material_count("高纯源岩助熔剂") == flux + 1)
-	var account := ex.gold_account
+	var account := ex.home_bars()
 	ex.add_relation("ursus", Exchange.RANK_AT[4] - Exchange.RANK_AT[3])
-	check("崇敬 sends 30,000 龙门币 worth in its currency (赤金账户)", ex.gold_account > account)
+	check("崇敬 sends 30,000 龙门币 worth in its currency (whole 赤金 bars)", ex.home_bars() == account + roundi(Exchange.from_lmd("gold", 30000.0)))
 	ex.add_relation("ursus", Exchange.RANK_AT[5])
 	check("崇拜 sends its badge", game.material_count("矿场主事铭牌") == 1 and ex.rank_gifts.ursus == [2, 3, 4, 5])
 	ex.relations["ursus"] = Exchange.RANK_AT[3]

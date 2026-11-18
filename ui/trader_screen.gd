@@ -498,6 +498,8 @@ static func post(menu: FieldMenu) -> void:
 	var faction := game.post_faction
 	var info := FactionCatalog.info(faction)
 	var currency := FactionCatalog.currency(faction)
+	# What she holds and sees: 赤金 or 龙门币, never a foreign currency.
+	var money := "gold" if currency == "gold" else "lmd"
 	var selling := menu.trader_tab == "sell"
 	var goods: Array = []
 	var materials: Array = []
@@ -515,19 +517,18 @@ static func post(menu: FieldMenu) -> void:
 	for material in ([] if ex.cold(faction) else info.get("sells", []) + FactionRewards.post_extra(faction, ex.rank(faction))):
 		var q := ex.quote_buy(faction, material)
 		if not q.ok: continue
-		var bars := Exchange.field_bars(float(q.unit), true)
-		var price := str(bars) if currency == "gold" else Economy.format(roundi(float(q.unit)))
-		var short := (currency == "gold" and game.gold_bars() < bars) or (currency != "gold" and game.gold < float(q.unit))
-		goods.append({"item": MaterialCatalog.create(material, 1) if MaterialCatalog.MATERIALS.has(material) else null, "price": price,
-			"currency": currency, "refusal": ("赤金不足" if currency == "gold" else "龙门币不足") if short else ""})
+		# Whole: bars, or the 龙门币 a foreign price comes to now (货币精简与取整修订案 v1.0).
+		var whole := Exchange.pay_whole(currency, float(q.unit))
+		var short := (currency == "gold" and game.gold_bars() < whole) or (currency != "gold" and game.gold < whole)
+		goods.append({"item": MaterialCatalog.create(material, 1) if MaterialCatalog.MATERIALS.has(material) else null, "price": str(whole) if currency == "gold" else Economy.format(whole),
+			"currency": money, "refusal": ("赤金不足" if currency == "gold" else "龙门币不足") if short else ""})
 		materials.append(material)
 	var offer := func(item: Item) -> String:
 		var q := ex.quote_sell(item, faction, false)
 		if not q.ok: return ""
-		if currency == "gold":
-			var bars := Exchange.field_bars(float(q.net))
-			return str(bars) if bars > 0 else ""
-		return Economy.format(roundi(float(q.net)))
+		var whole := Exchange.credit_whole(currency, float(q.net))
+		if whole <= 0: return ""
+		return str(whole) if currency == "gold" else Economy.format(whole)
 	var extra := func(item: Item) -> Array:
 		var row: Array = []
 		if info.get("barter", false):
@@ -546,7 +547,7 @@ static func post(menu: FieldMenu) -> void:
 	build(menu, {
 		"title": FactionCatalog.name_of(faction), "en": str(info.get("region", "")).to_upper() + " · FIELD POST", "accent": POST_ACCENTS.get(faction, AK.SPECIAL),
 		"portrait": trader[1], "who": trader[0], "who_en": FactionCatalog.name_of(faction), "standing": "关系 " + Exchange.rank_name(ex.rank(faction)),
-		"balance": balance, "trade_tabs": ["购买", "出售"], "selling": selling, "sell_currency": currency,
+		"balance": balance, "trade_tabs": ["购买", "出售"], "selling": selling, "sell_currency": money,
 		"on_trade_tab": func(i): menu.trader_tab = ["buy", "sell"][i]; menu.pick = null; post(menu),
 		"goods": goods, "on_buy": func(i): (game.post_buy_potion() if materials[i] == "" else game.post_buy(materials[i], 1)),
 		"offer": offer, "on_sell": func(item: Item): game.post_sell(item), "sell_extra": extra,

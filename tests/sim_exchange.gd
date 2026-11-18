@@ -88,4 +88,4 @@ func _day(who: String, seed_value: int) -> float:
 	if who == "attentive":
 		for h in ex.history:
 			if h.kind in ["closed", "liquidated"]: print("    %s %s %.0f" % [h.kind, h.what, float(h.amount)])
-	return float(game.gold) - start_gold + ex.gold_account * Economy.GOLD_BAR_LMD
+	return float(game.gold) - start_gold + ex.home_bars() * Economy.GOLD_BAR_LMD

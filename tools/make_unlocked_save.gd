@@ -51,7 +51,7 @@ func run() -> void:
 	base.safe_level = BaseCatalog.SAFE_PRICES.size() - 1
 	base.camp_upgraded = true
 	game.gold = 10000000
-	game.exchange.gold_account = 1000.0
+	game.base.receive(MaterialCatalog.create(Economy.GOLD_ID, 999))
 	game.save_base()
 	await step(5)
 	print("WROTE ", ProjectSettings.globalize_path(path), "  roster ", base.roster.size(), "  research ", base.research.done.size())

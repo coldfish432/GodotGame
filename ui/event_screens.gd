@@ -791,16 +791,21 @@ static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: b
 	AK.put(stage, box, Vector2(410, 84), Vector2(834, 0))
 	match tab:
 		3:
-			var amount: int = int(menu.pick) if menu.pick is int else 10000
-			box.add_child(MarketWidgets.live(func(): return "龙门币 / 赤金 %.1f   ·   可露希尔价差 %d%%   ·   赤金账户 %.2f" % [Economy.fx, roundi(Economy.closure_spread * 100), ex.gold_account], 14))
-			box.add_child(AK.toggle(["1,000", "10,000", "50,000"], [1000, 10000, 50000].find(amount), func(i): menu.pick = [1000, 10000, 50000][i]; redraw.call(), 13))
+			# Whole bars (货币精简与取整修订案 v1.0): in a camp from and into the pack.
+			var amount: int = int(menu.pick) if menu.pick is int and int(menu.pick) in [1, 10, 50] else 1
+			var held := func() -> int: return ex.home_bars() if game.in_base else game.gold_bars()
+			box.add_child(MarketWidgets.live(func(): return "龙门币 / 赤金 %.1f   ·   可露希尔价差 %d%%   ·   龙门币 %s   ·   赤金 %d" % [Economy.fx, roundi(Economy.closure_spread * 100), Economy.format(game.gold), held.call()], 14))
+			box.add_child(AK.toggle(["1", "10", "50"], [1, 10, 50].find(amount), func(i): menu.pick = [1, 10, 50][i]; redraw.call(), 13))
 			var row := HBoxContainer.new()
 			row.add_theme_constant_override("separation", 10)
-			var to_gold := AK.button("龙门币 %s → 赤金账户" % Economy.format(amount), "blue", 14)
+			var cost := ex.convert_lmd(true, amount, true)
+			var to_gold := AK.button("龙门币 %s → 赤金 ×%d" % [Economy.format(cost), amount], "blue", 14)
+			to_gold.disabled = game.gold < cost
 			to_gold.pressed.connect(func(): game.closure_convert(true, amount); redraw.call())
 			row.add_child(to_gold)
-			var to_lmd := AK.button("赤金账户 → 龙门币 %s" % Economy.format(amount), "plain", 14)
-			to_lmd.pressed.connect(func(): game.closure_convert(false, amount / (Economy.fx * (1.0 - Economy.closure_spread))); redraw.call())
+			var to_lmd := AK.button("赤金 ×%d → 龙门币 %s" % [amount, Economy.format(ex.convert_lmd(false, amount, true))], "plain", 14)
+			to_lmd.disabled = held.call() < amount
+			to_lmd.pressed.connect(func(): game.closure_convert(false, amount); redraw.call())
 			row.add_child(to_lmd)
 			box.add_child(row)
 		4:

@@ -34,7 +34,7 @@ func run() -> void:
 	game.gold = 240000
 	var ex := game.exchange
 	ex.relations = {"karlan": 700, "lungmen": 560, "rhine": 300, "kazimierz": 150}
-	ex.gold_account = 36.5
+	game.base.receive(MaterialCatalog.create(Economy.GOLD_ID, 36))
 	game.base.set_facility("exchange", 1)
 	for item in [MaterialCatalog.create("螺栓", 20), MaterialCatalog.create("螺栓", 20), MaterialCatalog.create("金属板", 14), MaterialCatalog.create("钉子", 20),
 			MaterialCatalog.create("医用耗材包", 6), MaterialCatalog.create("固源岩", 12), MaterialCatalog.create("源岩", 30),
@@ -52,16 +52,12 @@ func run() -> void:
 	ex.open_forward("karlan", "寒地物资包", 1, 2, false, 3)
 	ex.open_cfd("fx", 1, 5, 6000.0)
 	ex.open_cfd("fx_col", -1, 10, 8.0)
-	ex.convert_fx("lmd", "col", 20000.0)
-	ex.convert_fx("lmd", "kje", 8000.0)
 	ex.open_cfd("comp:kazimierz", -1, 1, 4.0)
 	ex.add_alert("fx", ">=", ex.cfd_price("fx") * 1.03)
 	game.open_exchange()
 	await step(90)
 	ExchangeScreen.fx_selected = "fx_col"
 	ExchangeScreen.fx_mode = 0
-	ExchangeScreen.fx_from = "lmd"
-	ExchangeScreen.fx_to = "col"
 	page(1)
 	await capture("fx-changer")
 	ExchangeScreen.fx_selected = "fx_sar"

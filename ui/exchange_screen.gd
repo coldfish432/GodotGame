@@ -45,7 +45,6 @@ static var lev := 1
 static var cfd_dir := 1
 static var cfd_margin := 5000.0
 static var cfd_margin_currency := "lmd"
-static var fx_amount := 10000.0
 static var bars := 1
 static var ship_pick := 0
 static var ship_to := 0
@@ -78,7 +77,7 @@ static func build(menu: FieldMenu) -> void:
 		tab = i
 		if i == 3: game.market.mark_read()
 		build(menu), "MARKET",
-		[["lmd", Economy.format(game.gold)], ["gold", "%.2f" % ex.gold_account]])
+		[["lmd", Economy.format(game.gold)], ["gold", Economy.format(ex.home_bars())]])
 	_account_bar(stage, game)
 	_app_corner(menu, stage)
 	if not ex.unlocked():
@@ -117,10 +116,8 @@ static func _account_bar(stage: Control, game: GameManager) -> void:
 	var ex := game.exchange
 	stage.add_child(AK.rect(AK.PLATE_2, Vector2(16, TOP), Vector2(1248, 30)))
 	var line := MarketWidgets.live(func():
-		var foreign := 0.0
-		for c in ex.fx_accounts: foreign += Exchange.live_lmd(str(c), float(ex.fx_accounts[c]))
-		return "龙门币 %s   赤金账户 %.2f   外币 %s   待还贷款 %s   保证金 %s   浮动盈亏 %s   账户总值 %s   龙门币 / 赤金 %.1f" % [
-			Economy.format(game.gold), ex.gold_account, Economy.format(roundi(foreign)), Economy.format(ex.loan), Economy.format(roundi(ex.margin_total())),
+		return "龙门币 %s   赤金 %s   待还贷款 %s   保证金 %s   浮动盈亏 %s   账户总值 %s   龙门币 / 赤金 %.1f" % [
+			Economy.format(game.gold), Economy.format(ex.home_bars()), Economy.format(ex.loan), Economy.format(roundi(ex.margin_total())),
 			("+" if ex.floating() >= 0 else "") + Economy.format(roundi(ex.floating())), Economy.format(roundi(ex.account_value())), Economy.fx], 13)
 	AK.put(stage, line, Vector2(28, TOP + 6))
 
@@ -555,15 +552,15 @@ static func _cfd_form(menu: FieldMenu, body: VBoxContainer, underlying: String) 
 		body.add_child(AK.label("局内据点不发行", 12, AK.MUTE))
 		return
 	var currency := Exchange.cfd_currency(underlying)
-	# A sensible first margin in each currency: about 5,000 龙门币.
+	# A sensible first margin: about 5,000 龙门币, whole (bars or 龙门币).
 	if currency != cfd_margin_currency:
 		cfd_margin_currency = currency
-		cfd_margin = snappedf(Exchange.from_lmd(currency, 5000.0), 0.01)
-	var unit := snappedf(Exchange.from_lmd(currency, 1000.0), 0.01)
+		cfd_margin = maxf(1.0, roundf(Exchange.from_lmd(currency, 5000.0)))
+	var unit := maxf(1.0, roundf(Exchange.from_lmd(currency, 1000.0)))
 	body.add_child(AK.label(Exchange.cfd_name(underlying) + " · " + FactionCatalog.name_of(Exchange.cfd_issuer(underlying)), 12, AK.FG))
 	body.add_child(_seg(["做多", "做空"], 0 if cfd_dir > 0 else 1, func(i): cfd_dir = 1 if i == 0 else -1; build(menu), 12, 288.0))
 	_lev_seg(menu, body, underlying)
-	_number(body, "保证金", cfd_margin, 2, unit, 0.01, func(v): cfd_margin = v; build(menu), Currencies.unit(currency),
+	_number(body, "保证金", cfd_margin, 0, unit, 1, func(v): cfd_margin = roundf(v); build(menu), "赤金" if currency == "gold" else "龙门币",
 		func(): return ex.free_for_margin(currency))
 	var issuer := Exchange.cfd_issuer(underlying)
 	body.add_child(AK.label("名义 %s   持仓 %s / %s" % [Exchange.format_money(currency, cfd_margin * lev), Economy.format(roundi(ex.cfd_notional_used(issuer))), Economy.format(roundi(ex.cfd_notional_cap(issuer)))], 11, AK.MUTE))
@@ -811,33 +808,23 @@ static func _fx_quote(game: GameManager, cur: String) -> String:
 	if m.halted(book): line += "   暂停换出"
 	return line
 
-## The accounts and any two of them exchanged (地区货币策划案 §1.1–1.2).
+## 龙门币 and whole 赤金 bars changed at the live rate (货币精简与取整修订案
+## v1.0: the foreign currencies are quotes only, never held).
 static func _changer(menu: FieldMenu, body: VBoxContainer) -> void:
 	var game := menu.game
 	var ex := game.exchange
-	var sides: Array = ["lmd", "gold"] + Currencies.foreign()
 	body.add_child(AK.section("账户", "ACCOUNTS"))
-	for c in sides:
-		var cur: String = c
-		var amount := ex.balance(cur)
-		if amount <= 0.0 and not cur in ["lmd", "gold", fx_from, fx_to]: continue
-		body.add_child(MarketWidgets.live(func():
-			return "%s   %s   ≈ %s 龙门币" % [Currencies.name_of(cur), Exchange.format_money(cur, ex.balance(cur)) if cur != "lmd" else Economy.format(game.gold), Economy.format(roundi(Exchange.live_lmd(cur, ex.balance(cur))))], 11, AK.FG))
+	body.add_child(MarketWidgets.live(func(): return "龙门币 %s   赤金 %s" % [Economy.format(game.gold), Economy.format(ex.home_bars())], 12, AK.FG))
 	body.add_child(AK.section("换汇", "EXCHANGE"))
-	var step := func(value: String, by: int) -> String:
-		return sides[posmod(sides.find(value) + by, sides.size())]
-	_picker(body, "卖出", Currencies.name_of(fx_from), func(): fx_from = step.call(fx_from, -1); build(menu), func(): fx_from = step.call(fx_from, 1); build(menu))
-	_picker(body, "买入", Currencies.name_of(fx_to), func(): fx_to = step.call(fx_to, -1); build(menu), func(): fx_to = step.call(fx_to, 1); build(menu))
-	_number(body, "数量", fx_amount, 2, snappedf(Exchange.from_lmd(fx_from, 1000.0), 0.01), 0.01, func(v): fx_amount = v; build(menu), Currencies.unit(fx_from), func(): return ex.balance(fx_from))
-	var q := ex.quote_convert(fx_from, fx_to, fx_amount)
+	_number(body, "赤金", bars, 0, 1, 1, func(v): bars = maxi(1, int(v)); build(menu), "块", func(): return maxi(ex.home_bars(), 1))
 	body.add_child(MarketWidgets.live(func():
-		var live := ex.quote_convert(fx_from, fx_to, fx_amount)
-		if not live.ok: return str(live.why) if not str(live.why).is_empty() else "—"
-		return "→ %s   ·   价差 %.2f%%" % [Exchange.format_money(fx_to, float(live.out)), float(live.spread) * 100.0], 12, AK.MUTE))
-	var refusal := "" if q.ok else (str(q.why) if not str(q.why).is_empty() else "不可兑换")
-	if q.ok and ex.balance(fx_from) + 0.0001 < fx_amount: refusal = "余额不足"
-	_go(body, "换汇" if refusal.is_empty() else refusal, refusal.is_empty(), func():
-		if ex.convert_fx(fx_from, fx_to, fx_amount): game.save_base()
+		return "买入 %s 龙门币   ·   卖出 %s 龙门币" % [Economy.format(ex.convert_lmd(true, bars)), Economy.format(ex.convert_lmd(false, bars))], 12, AK.MUTE))
+	var buy_cost := ex.convert_lmd(true, bars)
+	_go(body, "买入赤金" if game.gold >= buy_cost else "龙门币不足", game.gold >= buy_cost, func():
+		if ex.convert(true, bars): game.save_base()
+		build(menu))
+	_go(body, "卖出赤金" if ex.home_bars() >= bars else "赤金不足", ex.home_bars() >= bars, func():
+		if ex.convert(false, bars): game.save_base()
 		build(menu))
 
 # --- 资金 -----------------------------------------------------------------------------------
@@ -848,21 +835,6 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 8)
 	AK.put(stage, col, Vector2(16, TOP + 44), Vector2(600, 0))
-	col.add_child(AK.section("赤金账户", "GOLD ACCOUNT  %.2f" % ex.gold_account))
-	# Bars are the item: whole ones only.
-	_number(col, "赤金", bars, 0, 1, 1, func(v): bars = int(v); build(menu), "块  ·  库存 %d" % game.material_count(Economy.GOLD_ID), func(): return game.material_count(Economy.GOLD_ID))
-	var bar_row := HBoxContainer.new()
-	var dep := _act(AK.button("存入", "blue", 13))
-	dep.pressed.connect(func():
-		if ex.deposit_bars(bars): game.save_base()
-		build(menu))
-	bar_row.add_child(dep)
-	var wd := _act(AK.button("取出", "plain", 13))
-	wd.pressed.connect(func():
-		if ex.withdraw_bars(bars): game.save_base()
-		build(menu))
-	bar_row.add_child(wd)
-	col.add_child(bar_row)
 	col.add_child(AK.section("势力关系", "RELATIONS"))
 	for f in FactionCatalog.ORDER:
 		col.add_child(AK.label("%s  %s  ·  %d / %d%s%s" % [FactionCatalog.name_of(f), Exchange.rank_name(ex.rank(f)), ex.relation(f), Exchange.next_rank_at(ex.relation(f)),

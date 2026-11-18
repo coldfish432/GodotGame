@@ -2467,6 +2467,7 @@ func _init_market() -> void:
 func _catch_up_market() -> void:
 	exchange.migrate_packs()
 	exchange.migrate_fuel()
+	exchange.migrate_money()
 	_migrate_trade_crates()
 	# 运营策划案 §5.1: a day and the hours over are caught up; whole days beyond stand still.
 	var away := BaseState.now() - market.t
@@ -2547,7 +2548,7 @@ func close_swan_popup() -> void:
 	swan_popup = ""
 
 ## The Doctor's money changer at 可露希尔 (§1.3), base or camp.
-func closure_convert(to_gold: bool, amount: float) -> bool:
+func closure_convert(to_gold: bool, amount: int) -> bool:
 	if not (in_base or in_camp): return false
 	if not exchange.convert(to_gold, amount, true): return false
 	save_base(not in_base)
@@ -2809,7 +2810,10 @@ func post_sell(item: Item) -> bool:
 		var delta := int(exchange.relations[f]) - int(before.get(f, 0))
 		if delta != 0: undo.relations[f] = delta
 	if str(q.currency) == "gold": traders._record_sale("post:" + post_faction, item, Exchange.field_bars(float(q.net)), "gold", str(Exchange.field_bars(float(q.net))), undo)
-	else: traders._record_sale("post:" + post_faction, item, float(q.net), str(q.currency), Economy.format(roundi(float(q.net))), undo)
+	else:
+		# What came in is whole 龙门币 (a foreign price at the live rate); buying back costs the same.
+		var got := Exchange.credit_whole(str(q.currency), float(q.net))
+		traders._record_sale("post:" + post_faction, item, float(got), "lmd", Economy.format(got), undo)
 	save_base(true)
 	return true
 
@@ -4029,7 +4033,7 @@ func request_contract(region: String, start_camp: int = 0) -> void:
 
 ## The base's top bar (§5.1): gold, and an injury when present.
 func base_status_text() -> String:
-	var parts: Array[String] = ["龙门币 %s" % Economy.format(gold), "赤金 %.2f" % (exchange.gold_account + material_count(Economy.GOLD_ID))]
+	var parts: Array[String] = ["龙门币 %s" % Economy.format(gold), "赤金 %d" % material_count(Economy.GOLD_ID)]
 	var injured := base.injured_operators()
 	if not injured.is_empty(): parts.append("重伤 " + "、".join(injured.map(func(id): return Operators.display_name(id))))
 	return "   ".join(parts)

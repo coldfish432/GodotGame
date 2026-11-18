@@ -18,7 +18,7 @@ static var tab := 0
 static func build(menu: FieldMenu) -> void:
 	var game := menu.game
 	var stage := BaseScreens.shell(menu, "沙盘", "SAND TABLE · RHODES ISLAND", ["航行", "势力"], tab, func(i): tab = i; build(menu), "TERRA",
-		[["lmd", Economy.format(game.gold)], ["gold", "%.2f" % game.exchange.gold_account]])
+		[["lmd", Economy.format(game.gold)], ["gold", Economy.format(game.exchange.home_bars())]])
 	if tab == 1:
 		RelationsScreen.page(menu, stage)
 		return

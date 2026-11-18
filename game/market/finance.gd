@@ -64,7 +64,10 @@ var ex: Exchange
 ## 罗德岛库存: material -> count. Nothing ever comes back out.
 var stock := {}
 var harvest_to_stock := false
-var demand := {"lmd": 0.0, "gold": 0.0}
+## 龙门币 only, whole (货币精简与取整修订案 v1.0); the 赤金 rate in DEMAND_RATE
+## stays as the funds' bond yield. An old save's 赤金 or foreign deposits are
+## paid out by Exchange.migrate_money.
+var demand := {"lmd": 0}
 var terms: Array = []          # {id, cur, amount, rate, days, due}
 var auto_repay := true
 var reserve_days := RESERVE_DAYS
@@ -494,21 +497,24 @@ func term_rate(days: int) -> float:
 	return float(TERM_RATE.get(days, 0.0)) * cycle_mult()
 
 func deposit(cur: String, amount: float) -> bool:
-	if ex.blocked() or not cur in DEMAND_RATE or amount <= 0.0: return false
-	if not ex.pay(cur, amount): return false
-	demand[cur] = float(demand.get(cur, 0.0)) + (float(ceili(amount)) if cur == "lmd" else amount)
+	var whole := roundi(amount)
+	if ex.blocked() or cur != "lmd" or whole <= 0: return false
+	if not ex.pay(cur, whole): return false
+	demand.lmd = int(demand.get("lmd", 0)) + whole
 	return true
 
 func withdraw(cur: String, amount: float) -> bool:
-	if ex.blocked() or amount <= 0.0 or float(demand.get(cur, 0.0)) + 0.001 < amount: return false
-	demand[cur] = float(demand[cur]) - amount
-	ex.credit(cur, amount)
+	var whole := roundi(amount)
+	if ex.blocked() or cur != "lmd" or whole <= 0 or int(demand.get("lmd", 0)) < whole: return false
+	demand.lmd = int(demand.lmd) - whole
+	ex.credit(cur, whole)
 	return true
 
 func open_term(cur: String, amount: float, days: int) -> bool:
-	if ex.blocked() or not cur in DEMAND_RATE or not days in TERM_DAYS or amount <= 0.0: return false
-	if not ex.pay(cur, amount): return false
-	terms.append({"id": _next_id, "cur": cur, "amount": amount, "rate": term_rate(days), "days": days, "due": today() + days})
+	var whole := roundi(amount)
+	if ex.blocked() or cur != "lmd" or not days in TERM_DAYS or whole <= 0: return false
+	if not ex.pay(cur, whole): return false
+	terms.append({"id": _next_id, "cur": cur, "amount": whole, "rate": term_rate(days), "days": days, "due": today() + days})
 	_next_id += 1
 	return true
 
@@ -526,15 +532,16 @@ func _mature_terms() -> void:
 	for d in terms.duplicate():
 		if int(d.due) <= today():
 			terms.erase(d)
-			var paid := float(d.amount) * pow(1.0 + float(d.rate), int(d.days))
+			var paid := roundi(float(d.amount) * pow(1.0 + float(d.rate), int(d.days)))
 			ex.credit(str(d.cur), paid)
 			today_in += Exchange.live_lmd(str(d.cur), paid - float(d.amount))
 
+## A day's interest on the demand deposit, rounded on its own (no remainder kept).
 func _deposit_interest() -> void:
 	for cur in demand.keys():
-		var held := float(demand[cur])
-		if held <= 0.0: continue
-		var gain := held * demand_rate(str(cur))
+		var held := int(demand[cur])
+		if held <= 0: continue
+		var gain := roundi(held * demand_rate(str(cur)))
 		demand[cur] = held + gain
 		today_in += Exchange.live_lmd(str(cur), gain)
 
@@ -653,18 +660,13 @@ func liquidate() -> void:
 		if target.call(): break
 		var held := float(demand[cur])
 		if held > 0.0:
-			demand[cur] = 0.0
+			demand[cur] = 0
 			ex.credit(str(cur), held)
 	# What came in pays the debt.
 	var g := _game()
 	var pay := mini(g.gold, ex.loan)
 	g.gold -= pay
 	ex.loan -= pay
-	if ex.gold_account > 0.0 and not target.call():
-		var lmd_left := float(ex.loan - roundi(loan_limit() * OVERDUE))
-		var bars := minf(ex.gold_account, lmd_left / maxf(Economy.fx, 1.0))
-		ex.gold_account -= bars
-		ex.loan -= roundi(bars * Economy.fx)
 	g.broadcast("PRTS：欠款超过额度两倍，已变卖持仓还款。")
 
 # --- Saving -------------------------------------------------------------------------------
@@ -685,11 +687,13 @@ func load_data(d: Dictionary) -> void:
 			elif str(m) == Fuel.SOLID: _add_stock(Fuel.RESERVE, int(s[m]) * Fuel.SOLID_UNITS)
 			elif str(m) == Fuel.RESERVE or MaterialCatalog.MATERIALS.has(str(m)): _add_stock(str(m), int(s[m]))
 	harvest_to_stock = bool(d.get("harvest_to_stock", false))
-	demand = {"lmd": 0.0, "gold": 0.0}
+	demand = {"lmd": 0}
 	var dm: Variant = d.get("demand", {})
 	if dm is Dictionary:
 		for cur in dm:
-			if cur in DEMAND_RATE: demand[cur] = maxf(0.0, float(dm[cur]))
+			# Whole 龙门币; anything else is an old save's, for Exchange.migrate_money.
+			if str(cur) == "lmd": demand.lmd = maxi(0, roundi(float(dm[cur])))
+			elif cur in DEMAND_RATE and float(dm[cur]) > 0.0: demand[cur] = float(dm[cur])
 	terms = (d.get("terms", []) as Array).duplicate(true) if d.get("terms") is Array else []
 	auto_repay = bool(d.get("auto_repay", true))
 	reserve_days = clampi(int(d.get("reserve_days", RESERVE_DAYS)), 0, 30)

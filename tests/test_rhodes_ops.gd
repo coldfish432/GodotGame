@@ -52,7 +52,9 @@ func run() -> void:
 	_idle(ex, fin)
 	var copy := RhodesFinance.new(ex)
 	copy.load_data(fin.to_data())
-	check("the books save and load", copy.to_data().hash() == fin.to_data().hash())
+	var a := copy.to_data()
+	var b := fin.to_data()
+	check("the books save and load", a.hash() == b.hash(), a.keys().filter(func(k): return str(a[k]) != str(b[k]) or typeof(a[k]) != typeof(b[k])).map(func(k): return "%s: %s / %s" % [k, a[k], b[k]]))
 	print("RHODES OPS FAILURES: %d" % failures)
 	BaseState.frozen_clock = 0
 	BaseState.clock_offset = 0
@@ -200,8 +202,8 @@ func _loans(ex: Exchange, fin: RhodesFinance) -> void:
 	check("overdue: income goes to the debt", ex.loan == l - 4000 and game.gold == 1000)
 	# Past twice the limit the holdings are sold, never the warehouse or the stock.
 	game.gold = 0
-	fin.demand.lmd = 5000000.0
-	fin.terms.append({"id": 999, "cur": "lmd", "amount": 300000.0, "rate": 0.0005, "days": 7, "due": fin.today() + 7})
+	fin.demand.lmd = 5000000
+	fin.terms.append({"id": 999, "cur": "lmd", "amount": 300000, "rate": 0.0005, "days": 7, "due": fin.today() + 7})
 	var shelf := game.base.shelf.size()
 	var stock := fin.stock.duplicate()
 	# Net 5.3 M less 3 M owed: the limit 1.15 M, so 3 M is past twice it.
@@ -212,7 +214,7 @@ func _loans(ex: Exchange, fin: RhodesFinance) -> void:
 	check("past 2× the limit: sold down to 1.5× (%d ≤ %d)" % [ex.loan, roundi(fin.loan_limit() * 1.5)], ex.loan <= roundi(fin.loan_limit() * 1.5) + 1)
 	check("the terms went first, the warehouse and stock stayed", fin.terms.is_empty() and game.base.shelf.size() == shelf and fin.stock == stock)
 	ex.loan = 0
-	fin.demand.lmd = 0.0
+	fin.demand.lmd = 0
 	game.gold = 100000
 	# Between the limit and 1.5× it (the limit itself falls as the debt grows: L = 0.375 × net).
 	ex.loan = roundi(0.375 * (fin.net_worth() - fin.stock_value()))

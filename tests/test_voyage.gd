@@ -374,11 +374,13 @@ func _delivery() -> void:
 	check("the prompt names the buyer", game.interaction_prompt() == FactionCatalog.name_of("karlan"), game.interaction_prompt())
 	game._interact()
 	check("handed over: the crate leaves the pack, the objective is done", game.cargo_delivered and not game.inventory.items.has(crate) and game.contract_progress().done)
-	var gold_account := ex.gold_account
+	# 货币精简与取整修订案 v1.0: 12.5 赤金 comes as 13 whole bars into the warehouse.
+	var shelf_bars := func() -> int: return game.base.stock().filter(func(i): return i.material_id == Economy.GOLD_ID).reduce(func(n, i): return n + i.quantity, 0)
+	var bars_before: int = shelf_bars.call()
 	var rel := ex.standing("karlan")
 	game.settle(false)
 	await step(2)
-	check("paid at settlement even after a fall", is_equal_approx(ex.gold_account, gold_account + 12.5) and ex.standing("karlan") == rel + 15 and v.order(int(o.id)).is_empty())
+	check("paid at settlement even after a fall, whole bars", shelf_bars.call() == bars_before + 13 and ex.standing("karlan") == rel + 15 and v.order(int(o.id)).is_empty())
 
 # --- The station ----------------------------------------------------------------------------
 

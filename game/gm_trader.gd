@@ -105,7 +105,7 @@ func trader_buy(slot: int) -> bool:
 func trader_offer(item: Item) -> int:
 	if item == null or item.is_potion() or item.insured or item.effect in ["raw_ore", GameManager.SEALED_ORE, VoyageCatalog.CARGO_EFFECT] or item.material_id == Economy.GOLD_ID or GearCatalog.bound(item): return 0
 	if FactionRewards.is_badge(item.material_id): return 0
-	return maxi(1, floori(item.value * FieldCatalog.TRADER_BUYBACK / 10.0 * game.field_mult("kannot_buy") * (FactionRewards.COUNCIL_PAY if FactionRewards.badge_on(game, "lungmen") else 1.0)))
+	return maxi(1, roundi(item.value * FieldCatalog.TRADER_BUYBACK / 10.0 * game.field_mult("kannot_buy") * (FactionRewards.COUNCIL_PAY if FactionRewards.badge_on(game, "lungmen") else 1.0)))
 
 func trader_sell(item: Item) -> bool:
 	if game.encounter != "trader" or not game.carried_items().has(item) or trader_offer(item) <= 0: return false

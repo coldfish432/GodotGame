@@ -28,7 +28,7 @@ func run() -> void:
 	if is_instance_valid(game.system_screens): game.system_screens.hide()
 	game.gold = 1800000
 	var ex := game.exchange
-	ex.gold_account = 64.0
+	game.base.receive(MaterialCatalog.create(Economy.GOLD_ID, 64))
 	for f in ["exchange", "workshop", "warehouse", "canteen", "hub", "lab", "farm", "outfit"]: game.base.set_facility(f, 2 if f != "exchange" else 4)
 	for item in [MaterialCatalog.create("异铁碎片", 20), MaterialCatalog.create("螺栓", 20), MaterialCatalog.create("钉子", 20), MaterialCatalog.create("舰载麦", 20), MaterialCatalog.create("块茎薯", 20)]:
 		game.base.shelf.append(item)
@@ -40,7 +40,6 @@ func run() -> void:
 	ex.securities.buy_stock("swire", 150000)
 	ex.securities.buy_stock("raythean", 80000)
 	ex.securities.buy_bond("col", 50000, 7)
-	ex.securities.buy_cert(10.0)
 	ex.securities.buy_fund("karlan_fund", 12.0)
 	for i in range(3): ex._new_day()
 	ex.strategies.create("S8", 100000.0, [], {"hours": 1, "amount": 10000})

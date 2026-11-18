@@ -62,12 +62,14 @@ func run() -> void:
 	var expected := 40000.0 * 1.25 * market.bid("lungmen:armor") * (1.0 - minf(0.3, 0.5 * 50000.0 / market.depth("lungmen:armor"))) * (1.0 - 0.035)
 	check("龙门商会 quotes base × preference × bid − slippage − 3.5%% (中立): %.0f" % float(q.net), q.ok and absf(float(q.net) - expected) < 1.0 and q.currency == "lmd")
 	var gold_before := game.gold
-	check("selling pays 龙门币", ex.sell_item(armor, "lungmen") and game.gold - gold_before == floori(float(q.net)) and not game.stash.has(armor))
+	check("selling pays 龙门币, rounded", ex.sell_item(armor, "lungmen") and game.gold - gold_before == roundi(float(q.net)) and not game.stash.has(armor))
 	check("selling builds relation and pushes the market", ex.relation("lungmen") > 0 and market.books["lungmen:armor"].p > 0.0)
 	var cube := stash_add(MaterialCatalog.create("源石包", 1))
 	var rq := ex.quote_sell(cube, "rhine")
-	var acct := ex.gold_account
-	check("莱茵生命 pays 金券 into its account (地区货币策划案 §1.5)", rq.currency == "col" and ex.sell_item(cube, "rhine") and absf(ex.balance("col") - float(rq.net)) < 0.02)
+	var lmd_before := game.gold
+	# 货币精简与取整修订案 v1.0: 金券 is a quote; 莱茵生命 pays 龙门币 at the live rate.
+	check("莱茵生命 quotes 金券 but pays 龙门币 at the live rate, rounded", rq.currency == "col" and ex.sell_item(cube, "rhine") and game.gold - lmd_before == roundi(Exchange.live_lmd("col", float(rq.net))))
+	var acct := ex.home_bars()
 	var ore := FieldCatalog.exclusive("mine")
 	game.inventory.try_add(ore)
 	check("a field-only faction refuses remote trade", not ex.quote_sell(ore, "reunion").ok and ex.quote_sell(ore, "reunion", false).ok)
@@ -95,10 +97,10 @@ func run() -> void:
 	check("a limit sell escrows the item", ex.place_sell_order(sword, "karlan", "limit", 110.0) and not game.stash.has(sword) and ex.orders.size() == 1)
 	later(4)
 	check("it waits below the limit", ex.orders.size() == 1)
-	acct = ex.gold_account
+	acct = ex.home_bars()
 	set_index("karlan:weapon", 1.12)
 	later(4)
-	check("and fills when the market reaches it", ex.orders.is_empty() and ex.gold_account > acct)
+	check("and fills when the market reaches it, whole bars into the warehouse", ex.orders.is_empty() and ex.home_bars() > acct)
 	var shield := stash_add(MaterialCatalog.create("防具包", 1))
 	ex.place_sell_order(shield, "karlan", "stop", 50.0)
 	check("cancelling returns the item to the warehouse", ex.cancel_order(ex.orders[-1].id) and game.base.shelf.any(func(i): return i.material_id == "防具包"))
@@ -115,14 +117,14 @@ func run() -> void:
 	stash_add(MaterialCatalog.create("建材包", 2))
 	var rel := ex.relation("lungmen")
 	balance = game.gold
-	check("delivering pays K × Q plus the margin back", ex.deliver_forward(f.id) and game.gold - balance == floori(float(f.k) * 2 + float(f.margin)) and ex.relation("lungmen") == rel + 10)
+	check("delivering pays K × Q plus the margin back", ex.deliver_forward(f.id) and game.gold - balance == roundi(float(f.k) * 2 + float(f.margin)) and ex.relation("lungmen") == rel + 10)
 	ex.open_forward("lungmen", "建材包", 3, 0, true, 1)
 	rel = ex.relation("lungmen")
 	later(3700)
 	check("no goods at expiry: default, relation −40, a cooldown", ex.forwards.is_empty() and ex.relation("lungmen") == rel - 40 and ex.forward_refusal("lungmen", 1) == "违约冷却中")
 	check("the cooldown lasts at least six hours", int(ex.forward_cooldown["lungmen"]) - market.t >= Exchange.DEFAULT_MIN_COOLDOWN - 200)
 	ex.relations["karlan"] = Exchange.RANK_AT[3]
-	ex.gold_account += 500.0
+	stash_add(MaterialCatalog.create(Economy.GOLD_ID, 500))
 	check("gear packs only go one way: no 收货合约", not ex.open_forward("karlan", "武器包", 1, 0, false, 1) and Exchange.forward_side_refusal("karlan", "武器包", false) == "只能交货")
 	var cold := game.material_count("寒地物资包")
 	check("a 收货合约 opens", ex.open_forward("karlan", "寒地物资包", 1, 0, false, 1))
@@ -202,15 +204,12 @@ func run() -> void:
 	set_index("fx", 1.1)
 	market.advance_to(market.t + 2)
 	game.gold = 110000
-	acct = ex.gold_account
-	check("the terminal changes 龙门币 to 赤金 at the rate less 0.5%", ex.convert(true, 110000) and absf(ex.gold_account - acct - 110000.0 / (Economy.fx * 1.005)) < 0.02)
+	acct = ex.home_bars()
+	var ten_cost := ceili(10 * Economy.fx * 1.005 - 0.0001)
+	check("the terminal sells whole bars for 龙门币 at the rate plus 0.5%, rounded up", ex.convert_lmd(true, 10) == ten_cost and ex.convert(true, 10) and game.gold == 110000 - ten_cost and ex.home_bars() == acct + 10)
 	game.gold = 0
-	check("可露希尔 changes at 3%", game.closure_convert(false, 10.0) and absi(game.gold - roundi(10.0 * Economy.fx * 0.97)) <= 1)
+	check("可露希尔 changes at 3%, rounded", game.closure_convert(false, 10) and game.gold == roundi(10 * Economy.fx * 0.97))
 	check("可露希尔 buys bars at the live rate", Economy.closure_bar_price() == roundi(Economy.fx * 0.97))
-	stash_add(MaterialCatalog.create(Economy.GOLD_ID, 3))
-	acct = ex.gold_account
-	check("bars go into the account", ex.deposit_bars(3) and absf(ex.gold_account - acct - 3.0) < 0.01)
-	check("whole bars come out to the warehouse", ex.withdraw_bars(2) and game.base.shelf.any(func(i): return i.material_id == Economy.GOLD_ID))
 	_currencies()
 	var fee_item := MaterialCatalog.create("螺栓", 10)
 	check("the camp's deposit fee uses the live rate", game.deposit_fee(fee_item) == maxi(1, ceili(Economy.price(fee_item) * FieldCatalog.DEPOSIT_FEE / Economy.fx)))
@@ -221,9 +220,9 @@ func run() -> void:
 	check("企鹅物流 carries packs only", not ex.ship(stash_add(MaterialCatalog.create("医用耗材包", 10)), "reunion"))
 	var cargo := stash_add(MaterialCatalog.create("医疗包", 1))
 	check("shipping charges a fee and takes the goods", ex.ship(cargo, "reunion") and game.gold < 100000 and ex.shipments.size() == 1)
-	acct = ex.gold_account
+	acct = ex.home_bars()
 	later(4 * 3600 + 10)
-	check("and pays at the price on arrival, even to a field-only faction", ex.shipments.is_empty() and ex.gold_account > acct)
+	check("and pays at the price on arrival, even to a field-only faction", ex.shipments.is_empty() and ex.home_bars() > acct)
 	# --- Alerts and the watch list ------------------------------------------------
 	ex.toggle_watch("fx")
 	check("watching", ex.watch.has("fx"))
@@ -254,7 +253,7 @@ func run() -> void:
 	# --- Saving -------------------------------------------------------------------
 	var copy := Exchange.new()
 	copy.load_data(JSON.parse_string(JSON.stringify(ex.to_data())))
-	check("the account saves and loads", absf(copy.gold_account - ex.gold_account) < 0.01 and copy.relation("lungmen") == ex.relation("lungmen") and copy.watch == ex.watch and copy.loan == ex.loan)
+	check("the account saves and loads", copy.money_version == 1 and not ex.to_data().has("gold_account") and not ex.to_data().has("fx_accounts") and copy.relation("lungmen") == ex.relation("lungmen") and copy.watch == ex.watch and copy.loan == ex.loan)
 	# --- News in the field and the swan popup ------------------------------------
 	await game.start_contract("mine")
 	await step(4)
@@ -267,11 +266,11 @@ func run() -> void:
 	game.post_faction = "reunion"
 	var meds := MaterialCatalog.create("医用耗材包", 5)
 	game.inventory.try_add(meds)
-	acct = ex.gold_account
+	acct = ex.home_bars()
 	var bars_before := game.gold_bars()
 	var post_q := ex.quote_sell(meds, "reunion", false)
-	check("a post pays whole 赤金 into the pack, rounded down, no fee", game.post_sell(meds) and game.gold_bars() - bars_before == floori(float(post_q.net)) and absf(ex.gold_account - acct) < 0.001)
-	check("a field price shows the bars and the exact quote", Exchange.format_field("gold", 2.88) == "2 赤金 (2.88)" and Exchange.format_field("gold", 2.12, true) == "3 赤金 (2.12)" and Exchange.field_bars(3.0, true) == 3 and Exchange.field_bars(0.49) == 0)
+	check("a post pays whole 赤金 into the pack, rounded, no fee", game.post_sell(meds) and game.gold_bars() - bars_before == roundi(float(post_q.net)) and ex.home_bars() == acct)
+	check("a field price is whole bars: paid rounded, paying rounded up", Exchange.format_field("gold", 2.88) == "3 赤金" and Exchange.format_field("gold", 2.12) == "2 赤金" and Exchange.format_field("gold", 2.12, true) == "3 赤金" and Exchange.field_bars(3.0, true) == 3 and Exchange.field_bars(0.49) == 0 and Exchange.field_bars(0.5) == 1)
 	game.give_gold_bars(100)
 	# 整合运动残党 starts 冷漠 and sells nothing then (势力声望解锁策划案 §2.5–2.6).
 	ex.relations["reunion"] = Exchange.RANK_AT[1]
@@ -355,21 +354,29 @@ func _leverage() -> void:
 	check("long 金券 / 龙门币 earns 金券's rate less 龙门币's", absf(ex.overnight(x) - (game.market.policy_rate("col") - game.market.policy_rate("lmd")) / 365.0 * float(x.notional)) < 1e-6)
 	ex.close_cfd(int(x.id))
 
-## 地区货币策划案 §1.2–1.3: foreign accounts, the changer, interest.
+## 货币精简与取整修订案 v1.0: two monies, both whole; foreign currencies are quotes.
 func _currencies() -> void:
 	var ex := game.exchange
 	game.gold = 100000
-	var q := ex.quote_convert("lmd", "col", 10000.0)
-	check("龙门币 → 金券 crosses through 赤金 at both spreads ×0.75: %.2f%%" % (float(q.spread) * 100.0), q.ok and is_equal_approx(float(q.spread), (0.005 + 0.006) * 0.75))
-	check("and pays the live cross rate", absf(float(q.out) - 10000.0 / Economy.fx * Currencies.rate("col") * (1.0 - float(q.spread))) < 0.01)
-	var col_before := ex.balance("col")
-	check("changing moves the balances", ex.convert_fx("lmd", "col", 10000.0) and game.gold == 90000 and absf(ex.balance("col") - col_before - float(q.out)) < 0.02)
-	var held := ex.balance("col")
-	later(MarketState.next_day_start(game.market.t) - game.market.t + 4)
-	check("interest at 08:00 at the policy rate (less any F17 fee): %.2f → %.2f" % [held, ex.balance("col")], absf(ex.balance("col") - held * (1.0 + game.market.policy_rate("col") / 365.0) * (1.0 - game.market.custody_rate())) < 0.03)
-	game.market.fire("F26", {})
-	check("a halt stops changing 卢布 out", not ex.quote_convert("urs", "gold", 10.0).ok and ex.quote_convert("urs", "gold", 10.0).why == "暂停换出")
-	check("foreign money counts in the account value", ex.account_value() > float(game.gold) + ex.gold_account * Economy.fx - ex.loan + 1.0)
+	check("no foreign changer and no 赤金 account any more", not ex.has_method("convert_fx") and not ex.has_method("deposit_bars") and not "gold_account" in ex and not "fx_accounts" in ex)
+	check("a foreign amount paid is 龙门币 at the live rate, rounded up", ex.pay("col", 10.0) and game.gold == 100000 - ceili(Exchange.live_lmd("col", 10.0) - 0.0001))
+	game.gold = 100000
+	ex.credit("col", 10.0)
+	check("a foreign amount received is 龙门币 at the live rate, rounded", game.gold == 100000 + roundi(Exchange.live_lmd("col", 10.0)))
+	game.gold = 100000
+	ex.credit("lmd", 2.5)
+	ex.credit("lmd", 2.49)
+	check("龙门币 received is rounded half up: 2.5 → 3, 2.49 → 2", game.gold == 100005)
+	check("龙门币 paid is rounded up", ex.pay("lmd", 4.01) and game.gold == 100000)
+	var bars := ex.home_bars()
+	ex.credit("gold", 1.5)
+	check("赤金 received is whole bars into the warehouse, rounded", ex.home_bars() == bars + 2 and game.base.shelf.any(func(i): return i.material_id == Economy.GOLD_ID))
+	check("赤金 paid is whole bars, rounded up", ex.pay("gold", 1.2) and ex.home_bars() == bars)
+	check("money shows whole, never a foreign unit", Exchange.format_money("col", 10.0).ends_with("龙门币") and not "." in Exchange.format_money("col", 10.0) and Exchange.format_money("gold", 2.4) == "2 赤金")
+	check("shares and goods CFDs settle in 龙门币", Exchange.cfd_currency("stock:" + str(FirmCatalog.ORDER[0])) == "lmd" and Exchange.cfd_currency("rhine:medical") == "lmd")
+	var worth := ex.account_value()
+	ex.credit("gold", 1.0)
+	check("bars count in the account value", absf(ex.account_value() - worth - Economy.fx) < 0.5)
 
 ## 地区货币策划案 §2: the news in the field, read through GameManager.
 func _field() -> void:
@@ -387,8 +394,8 @@ func _field() -> void:
 	check("and the world-wide ones: 坎诺特 pays ×0.85", is_equal_approx(game.field_mult("kannot_buy"), 0.85))
 	var gear := LootTables.roll_equipment(Item.Category.WEAPON, "", "mine", 5, 1, RandomNumberGenerator.new())
 	gear.value = 200
-	var plain := maxi(1, floori(gear.value * FieldCatalog.TRADER_BUYBACK / 10.0))
-	check("坎诺特 pays less for gear: %d → %d" % [plain, game.trader_offer(gear)], game.trader_offer(gear) == floori(200 * FieldCatalog.TRADER_BUYBACK / 10.0 * 0.85))
+	var plain := maxi(1, roundi(gear.value * FieldCatalog.TRADER_BUYBACK / 10.0))
+	check("坎诺特 pays less for gear, rounded: %d → %d" % [plain, game.trader_offer(gear)], game.trader_offer(gear) == roundi(200 * FieldCatalog.TRADER_BUYBACK / 10.0 * 0.85))
 	check("loot leans to weapons", is_equal_approx(LootTables.field_loot(game.loot_ctx(), "weapon"), 1.2))
 	check("the feature grows by the news on its own map only", game.field_feature_rate("mine") == game.field_mult("feature_rate") and game.field_feature_rate("snow") == 1.0)
 	check("the route odds take the news", game._route_mults({"trader": 1.5}).trader == 1.5)

@@ -343,8 +343,6 @@ static func assets_page(menu: FieldMenu, stage: Control) -> void:
 	var game := menu.game
 	var ex := game.exchange
 	var fin := ex.fin
-	var foreign := 0.0
-	for c in ex.fx_accounts: foreign += Exchange.live_lmd(str(c), float(ex.fx_accounts[c]))
 	var bill: Dictionary = fin.bills[-1] if not fin.bills.is_empty() else {}
 	# Tiles.
 	var top := VBoxContainer.new()
@@ -355,7 +353,7 @@ static func assets_page(menu: FieldMenu, stage: Control) -> void:
 	_tile(tiles, "今日盈亏", ("+" if net_today >= 0.0 else "") + _fmt(net_today), _tone(net_today))
 	_tile(tiles, "日账", _fmt(float(bill.get("total", 0))))
 	_tile(tiles, "龙门币", _fmt(game.gold))
-	_tile(tiles, "赤金账户", "%.2f" % ex.gold_account)
+	_tile(tiles, "赤金", Economy.format(ex.home_bars()))
 	_tile(tiles, "存款", _fmt(fin.deposits_lmd()))
 	_tile(tiles, "证券与策略", _fmt(fin.holdings_lmd()))
 	_tile(tiles, "罗德岛库存", _fmt(fin.stock_value()))
@@ -364,9 +362,9 @@ static func assets_page(menu: FieldMenu, stage: Control) -> void:
 	var y := TOP + 102
 	var wl := _card(stage, Vector2(16, y), Vector2(500, 236), "净值走势", "NET WORTH")
 	_curve(wl, [fin.worth.map(func(x): return float(x[1]))], Vector2(476, 136))
-	var gold_lmd := Exchange.live_lmd("gold", ex.gold_account) if ex.gold_account > 0.0 else 0.0
+	var gold_lmd := Exchange.live_lmd("gold", ex.home_bars())
 	var mix := [["龙门币", float(maxi(game.gold, 0)), AK.FG], ["存款", fin.deposits_lmd(), AK.CYAN], ["证券与策略", fin.holdings_lmd(), AK.HOLO],
-		["库存", fin.stock_value(), AK.SP], ["外币与赤金", foreign + gold_lmd, AK.SPECIAL]]
+		["库存", fin.stock_value(), AK.SP], ["赤金", gold_lmd, AK.SPECIAL]]
 	var bar := StackBar.new()
 	bar.parts = mix.map(func(p): return [p[1], p[2]])
 	bar.custom_minimum_size = Vector2(476, 8)
@@ -479,12 +477,10 @@ static func _deposit_tab(menu: FieldMenu, card: VBoxContainer) -> void:
 	var redo := _redo(menu)
 	card.add_child(AK.section("存款", "DEPOSITS  %s" % _fmt(fin.deposits_lmd())))
 	var rows: Array = [
-		["活期", "龙门币", _fmt(float(fin.demand.lmd)), "%.3f%%" % (fin.demand_rate("lmd") * 100.0), "—", ""],
-		["活期", "赤金", "%.2f" % float(fin.demand.gold), "%.3f%%" % (fin.demand_rate("gold") * 100.0), "—", ""]]
+		["活期", "龙门币", _fmt(float(fin.demand.lmd)), "%.3f%%" % (fin.demand_rate("lmd") * 100.0), "—", ""]]
 	for tm in fin.terms:
 		var tid := int(tm.id)
-		var lmd := str(tm.cur) == "lmd"
-		rows.append(["定存 %d 天" % int(tm.days), "龙门币" if lmd else "赤金", _fmt(float(tm.amount)) if lmd else "%.2f" % float(tm.amount),
+		rows.append(["定存 %d 天" % int(tm.days), "龙门币", _fmt(float(tm.amount)),
 			"%.3f%%" % (float(tm.rate) * 100.0), "%d 天" % (int(tm.due) - fin.today()), _cell_btn("提前取出", true, func(): fin.break_term(tid); redo.call(), 72)])
 	_table(card, [["账户", 110, 0], ["币种", 80, 0], ["金额", 130, 2], ["利率/日", 100, 2], ["到期", 90, 2], ["", 110, 2]], rows)
 	_gap(card, 10)
@@ -541,32 +537,28 @@ static func _securities_tab(menu: FieldMenu, card: VBoxContainer) -> void:
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 18)
 	card.add_child(cols)
-	# Left: 赤金 products (the 存单 and the funds), one picked.
+	# Left: the 赤金 funds (bought with whole bars from the warehouse), one picked.
 	var left := VBoxContainer.new()
 	left.add_theme_constant_override("separation", 6)
 	left.custom_minimum_size.x = 348
 	cols.add_child(left)
-	left.add_child(AK.section("赤金产品", "GOLD  %s" % _fmt(sec.value_lmd())))
+	left.add_child(AK.section("赤金基金", "GOLD FUNDS  %s" % _fmt(sec.value_lmd())))
 	var funds := Securities.FUNDS.keys()
-	gold_pick = posmod(gold_pick, funds.size() + 1)
-	var rows: Array = [["赤金存单", "1.0000", "%.2f" % sec.cert]]
+	gold_pick = posmod(gold_pick, funds.size())
+	var rows: Array = []
 	for f in funds:
 		var held := float((sec.funds.get(f, {}) as Dictionary).get("units", 0.0))
 		rows.append([str(Securities.FUNDS[f].name), "%.4f" % sec.nav(str(f)), "%.2f" % held])
-	_table(left, [["产品", 170, 0], ["净值", 80, 2], ["持有", 90, 2]], rows, gold_pick, func(i): gold_pick = i; ExchangeScreen.build(menu))
+	_table(left, [["产品", 170, 0], ["净值", 80, 2], ["份额", 90, 2]], rows, gold_pick, func(i): gold_pick = i; ExchangeScreen.build(menu))
 	_gap(left, 4)
-	ExchangeScreen._number(left, "赤金", gold_amount, 2, 1.0, 0.0, func(v): gold_amount = v; ExchangeScreen.build(menu), "", func(): return ex.gold_account)
-	var have := ex.gold_account >= gold_amount and gold_amount > 0.0
+	gold_amount = maxf(1.0, roundf(gold_amount))
+	ExchangeScreen._number(left, "赤金", gold_amount, 0, 1.0, 1.0, func(v): gold_amount = maxf(1.0, roundf(v)); ExchangeScreen.build(menu), "块", func(): return float(ex.home_bars()))
+	var have := ex.home_bars() >= int(gold_amount)
 	var brow := _row(left)
-	if gold_pick == 0:
-		_btn(brow, "买入", have, func(): sec.buy_cert(gold_amount); redo.call(), "blue", 100)
-		_btn(brow, "兑回账户", sec.cert >= gold_amount and gold_amount > 0.0, func(): sec.redeem_cert(gold_amount, false); redo.call(), "plain", 110)
-		_btn(brow, "兑实物", sec.cert >= gold_amount and gold_amount >= 1.0, func(): sec.redeem_cert(gold_amount, true); redo.call(), "plain", 100)
-	else:
-		var fund := str(funds[gold_pick - 1])
-		var held := float((sec.funds.get(fund, {}) as Dictionary).get("units", 0.0))
-		_btn(brow, "买入", have, func(): sec.buy_fund(fund, gold_amount); redo.call(), "blue", 100)
-		_btn(brow, "全部卖出", held > 0.0, func(): sec.sell_fund(fund, held); redo.call(), "plain", 110)
+	var fund := str(funds[gold_pick])
+	var held := float((sec.funds.get(fund, {}) as Dictionary).get("units", 0.0))
+	_btn(brow, "买入", have, func(): sec.buy_fund(fund, gold_amount); redo.call(), "blue", 100)
+	_btn(brow, "全部卖出", held > 0.0, func(): sec.sell_fund(fund, held); redo.call(), "plain", 110)
 	# Right: bonds.
 	var right := VBoxContainer.new()
 	right.add_theme_constant_override("separation", 6)

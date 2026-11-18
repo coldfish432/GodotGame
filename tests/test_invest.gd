@@ -80,9 +80,9 @@ func _securities() -> void:
 	check("buy shares of 黑钢国际 (金券, a change spread)", sec.buy_stock("blacksteel", 100000.0) and g - game.gold == ceili(100000.0 * 1.005))
 	var n := sec.held("blacksteel")
 	check("the shares at today's price: %.1f" % n, absf(n - 100000.0 / m.firms.share_price_lmd("blacksteel", m)) < 0.01 and absf(m.firms.holding("blacksteel", "rhodes") - n) < 1e-6)
-	var col := ex.balance("col")
+	var lmd_before := game.gold
 	sec.on_dividend("blacksteel", 2.0)
-	check("a cash dividend lands in its currency", ex.balance("col") > col)
+	check("a 金券 cash dividend lands as whole 龙门币 at the live rate", game.gold - lmd_before == roundi(Exchange.live_lmd("col", Exchange.from_lmd("col", n * 2.0))))
 	check("its order is on the share book", m.actors.pending.has("s|blacksteel"))
 	sec.buy_stock("sunvalley", 200000.0)
 	var bars := game.material_count(Economy.GOLD_ID)
@@ -116,17 +116,14 @@ func _securities() -> void:
 	bond.due = ex.fin.today()
 	sec.new_day()
 	check("matured: the face back", not sec.bonds.has(bond))
-	# Funds and 赤金存单.
-	ex.gold_account = 100.0
-	check("a fund bought with 赤金", sec.buy_fund("karlan_fund", 20.0) and is_equal_approx(ex.gold_account, 80.0))
-	var acct := ex.gold_account
+	# Funds (货币精简与取整修订案 v1.0: bought with whole bars, paid out in 龙门币; no 赤金存单).
+	game.base.receive(MaterialCatalog.create(Economy.GOLD_ID, 100))
+	bars = ex.home_bars()
+	check("a fund bought with whole bars from the warehouse", sec.buy_fund("karlan_fund", 20.4) and ex.home_bars() == bars - 20)
+	var lmd_day := game.gold
 	sec.new_day()
-	check("it pays out in 赤金 every day", ex.gold_account > acct)
-	check("赤金存单", sec.buy_cert(30.0) and is_equal_approx(sec.cert, 30.0))
-	sec.new_day()
-	check("it earns the 赤金 rate", sec.cert > 30.0)
-	bars = game.material_count(Economy.GOLD_ID)
-	check("redeemed as bars, 0.5%% off", sec.redeem_cert(10.0, true) and game.material_count(Economy.GOLD_ID) == bars + 9)
+	check("it pays out in whole 龙门币 every day", game.gold > lmd_day)
+	check("no 赤金存单 any more", not sec.has_method("buy_cert") and not sec.has_method("redeem_cert"))
 	check("the holdings count toward net worth", sec.value_lmd() > 0.0 and ex.fin.holdings_lmd() >= sec.value_lmd() - 1.0)
 	# Share CFDs.
 	check("shares have CFDs too: 卡西米尔 firms by its union", ex.cfd_underlyings().has("stock:mieszko") and Exchange.cfd_issuer("stock:mieszko") == "kazimierz" and Exchange.cfd_issuer("stock:swire") == "karlan")

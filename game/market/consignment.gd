@@ -109,10 +109,9 @@ func buy_quote(anchor: String, entry: Dictionary) -> float:
 	var lmd := float(Economy.price(item)) * pref(anchor, category) * index(anchor, category) * (1.0 + float(SPREAD.get(anchor, 0.05)) * game.market.consign_mult(anchor) * 0.5 + commission())
 	return Exchange.from_lmd(currency(anchor), lmd)
 
-## A whole price: 赤金 is bars (up when she pays, down when she is paid).
+## A whole price: up when she pays, rounded when she is paid (货币精简与取整修订案 v1.0).
 static func whole(currency_id: String, amount: float, buying: bool) -> int:
-	if currency_id == "gold": return Exchange.field_bars(amount, buying)
-	return ceili(amount - 0.0001) if buying else floori(amount + 0.0001)
+	return Exchange.pay_whole(currency_id, amount) if buying else Exchange.credit_whole(currency_id, amount)
 
 # --- The shelf -------------------------------------------------------------------------------
 

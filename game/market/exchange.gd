@@ -97,9 +97,11 @@ const WATCH_MAX := 12
 
 var game: GameManager
 var market: MarketState
-var gold_account := 0.0
-## Foreign currencies (地区货币策划案 §1.2): balances only, never an item.
-var fx_accounts := {}
+## 货币精简与取整修订案 v1.0: she holds 龙门币 and 赤金 bars only. The 赤金
+## account and the foreign balances are gone; an old save's are paid out once
+## (migrate_money). 0 before that, 1 after.
+var money_version := 1
+var _legacy := {}
 var relations := {}
 ## The ranks whose gift each faction has sent (势力声望解锁策划案 §2.4): faction -> [rank].
 var rank_gifts := {}
@@ -171,6 +173,11 @@ func _say(text: String, kind: String) -> void:
 
 func _log(entry: Dictionary) -> void:
 	entry["t"] = market.t
+	# A foreign amount is kept as the 龙门币 it was at the time (货币精简与取整修订案 v1.0).
+	var cur := str(entry.get("currency", ""))
+	if not cur.is_empty() and not cur in ["lmd", "gold"]:
+		entry["amount"] = live_lmd(cur, float(entry.get("amount", 0.0)))
+		entry["currency"] = "lmd"
 	history.append(entry)
 	if history.size() > HISTORY_KEEP: history = history.slice(history.size() - HISTORY_KEEP)
 
@@ -282,34 +289,57 @@ func unlocked() -> bool:
 
 # --- Money --------------------------------------------------------------------------------
 
+## 货币精简与取整修订案 v1.0 §3: two monies, both whole. 赤金 is the bars at
+## home (at the base the carried ones too; in the field the warehouse only).
+## A foreign currency is a quote: what is priced in it is paid and received
+## in 龙门币 at the live rate. What she is paid is rounded (四舍五入), what she
+## pays is rounded up (拍板 Q2).
 func balance(currency: String) -> float:
-	if currency == "gold": return gold_account
 	if currency == "lmd": return float(game.gold)
-	return float(fx_accounts.get(currency, 0.0))
+	if currency == "gold": return float(home_bars())
+	return float(game.gold) / maxf(Currencies.live_lmd_per_unit(currency), 1e-9)
+
+## Bars she can pay with from here.
+func home_bars() -> int:
+	if game.in_base: return game.material_count(Economy.GOLD_ID)
+	var n := 0
+	for item in game.base.stock():
+		if item.material_id == Economy.GOLD_ID: n += item.quantity
+	return n
 
 ## Funds free for margin: 龙门币 less what is owed (贷款不能当保证金).
 func free_for_margin(currency: String) -> float:
-	return float(game.gold - loan) if currency == "lmd" else balance(currency)
+	if currency == "gold": return balance("gold")
+	return float(game.gold - loan) / (1.0 if currency == "lmd" else maxf(Currencies.live_lmd_per_unit(currency), 1e-9))
+
+## What paying `amount` of `currency` takes: whole bars for 赤金, else 龙门币.
+static func pay_whole(currency: String, amount: float) -> int:
+	if currency == "gold": return ceili(amount - 0.0001)
+	return ceili(live_lmd(currency, amount) - 0.0001) if currency != "lmd" else ceili(amount - 0.0001)
+
+## What receiving `amount` of `currency` gives: whole bars for 赤金, else 龙门币.
+static func credit_whole(currency: String, amount: float) -> int:
+	if currency == "gold": return roundi(amount)
+	return roundi(live_lmd(currency, amount)) if currency != "lmd" else roundi(amount)
 
 func pay(currency: String, amount: float) -> bool:
 	if amount <= 0.0: return true
-	if currency == "lmd":
-		var lmd := ceili(amount)
-		if game.gold < lmd: return false
-		game.gold -= lmd
-		return true
-	if balance(currency) + 0.0001 < amount: return false
-	_set_balance(currency, snappedf(balance(currency) - amount, 0.01))
+	var whole := pay_whole(currency, amount)
+	if whole <= 0: return true
+	if currency == "gold":
+		if home_bars() < whole: return false
+		if game.in_base: return game.consume_materials({Economy.GOLD_ID: whole})
+		return game.base.take_material(Economy.GOLD_ID, whole)
+	if game.gold < whole: return false
+	game.gold -= whole
 	return true
 
 func credit(currency: String, amount: float) -> void:
 	if amount <= 0.0: return
-	if currency == "lmd": game.gold += floori(amount)
-	else: _set_balance(currency, snappedf(balance(currency) + amount, 0.01))
-
-func _set_balance(currency: String, amount: float) -> void:
-	if currency == "gold": gold_account = amount
-	else: fx_accounts[currency] = amount
+	var whole := credit_whole(currency, amount)
+	if whole <= 0: return
+	if currency == "gold": _deliver_goods(Economy.GOLD_ID, whole)
+	else: game.gold += whole
 
 ## 龙门币 equivalent of `amount` in `currency` at the fixed base rate (§4).
 static func lmd_eq(currency: String, amount: float) -> float:
@@ -318,23 +348,23 @@ static func lmd_eq(currency: String, amount: float) -> float:
 static func from_lmd(currency: String, lmd: float) -> float:
 	return lmd / Currencies.lmd_per_unit(currency)
 
-static func format_money(currency: String, amount: float) -> String:
-	if currency == "lmd": return "%s 龙门币" % Economy.format(roundi(amount))
-	return "%.2f %s" % [amount, Currencies.unit(currency)]
+## What changes hands, whole: 赤金 in bars, everything else in 龙门币 (a
+## foreign price at the live rate). `paying`: rounded up, else rounded.
+static func format_money(currency: String, amount: float, paying: bool = false) -> String:
+	var whole := pay_whole(currency, amount) if paying else credit_whole(currency, amount)
+	if currency == "gold": return "%d 赤金" % whole
+	return "%s 龙门币" % Economy.format(whole)
 
-## In the field 赤金 is whole bars: she pays a post rounded up, is paid rounded down.
+## Whole bars: she pays rounded up, is paid rounded (四舍五入).
 static func field_bars(amount: float, buying: bool = false) -> int:
-	return ceili(amount - 0.0001) if buying else floori(amount + 0.0001)
+	return pay_whole("gold", amount) if buying else credit_whole("gold", amount)
 
-## A field price: the whole bars, the exact quote in brackets.
 static func format_field(currency: String, amount: float, buying: bool = false) -> String:
-	if currency != "gold": return format_money(currency, amount)
-	return "%d 赤金 (%.2f)" % [field_bars(amount, buying), amount]
+	return format_money(currency, amount, buying)
 
 ## Everything at the live rate, in 龙门币 (the account overview).
 func account_value() -> float:
-	var total := float(game.gold) + gold_account * Economy.fx - loan
-	for c in fx_accounts: total += live_lmd(str(c), float(fx_accounts[c]))
+	var total := float(game.gold) + home_bars() * Economy.fx - loan
 	for f in forwards: total += live_lmd(str(f.currency), float(f.margin) + forward_pnl(f))
 	for c in cfds: total += live_lmd(str(c.currency), float(c.margin) + cfd_pnl(c))
 	return total
@@ -401,7 +431,6 @@ func quote_sell(item: Item, faction: String, remote: bool = true, flash_mult: fl
 	out.fee = fee
 	out.gross = from_lmd(out.currency, gross)
 	out.net = from_lmd(out.currency, gross * (1.0 - fee))
-	if out.currency != "lmd": out.net = snappedf(out.net, 0.01)
 	return out
 
 ## Sells `item` to `faction`. remote = at the terminal; false at a post or camp.
@@ -942,11 +971,14 @@ static func cfd_issuer(underlying: String) -> String:
 
 ## The rate books against 赤金 and the composites settle in 赤金, 龙门币's book
 ## and the crosses in 龙门币, goods books in their faction's currency.
+## Shares and anything once in a foreign currency settle in 龙门币 now
+## (货币精简与取整修订案 v1.0 拍板 Q5).
 static func cfd_currency(underlying: String) -> String:
-	if underlying.begins_with("stock:"): return FirmCatalog.currency(underlying.substr(6))
+	if underlying.begins_with("stock:"): return "lmd"
 	if underlying == FactionCatalog.FX or Currencies.is_cross(underlying): return "lmd"
 	if Currencies.is_fx(underlying) or underlying.begins_with("comp:"): return "gold"
-	return FactionCatalog.currency(FactionCatalog.split(underlying)[0])
+	var cur := FactionCatalog.currency(FactionCatalog.split(underlying)[0])
+	return cur if cur == "gold" else "lmd"
 
 static func cfd_name(underlying: String) -> String:
 	if underlying.begins_with("stock:"): return "%s股份" % FirmCatalog.name_of(underlying.substr(6))
@@ -1078,16 +1110,10 @@ func overnight(c: Dictionary) -> float:
 	if not cross.is_empty(): return float(c.dir) * (market.policy_rate(cross) - market.policy_rate("lmd")) / 365.0 * float(c.notional)
 	return -float(c.notional) * CFD_OVERNIGHT
 
-## Interest at the policy rate on the foreign accounts (拍板 #8: idle money
-## may earn); 喀兰贸易's fee (F17) off the 赤金 and foreign accounts.
+## The foreign accounts' interest and 喀兰贸易's custody fee went with the
+## accounts (货币精简与取整修订案 v1.0 §3.1); kept as the day's hook.
 func _interest() -> void:
-	for cur in fx_accounts.keys():
-		var held := float(fx_accounts[cur])
-		if held > 0.0: fx_accounts[cur] = snappedf(held * (1.0 + market.policy_rate(str(cur)) / 365.0), 0.01)
-	var fee := market.custody_rate()
-	if fee > 0.0:
-		gold_account = snappedf(gold_account * (1.0 - fee), 0.01)
-		for cur in fx_accounts.keys(): fx_accounts[cur] = snappedf(float(fx_accounts[cur]) * (1.0 - fee), 0.01)
+	pass
 
 func _roll_day() -> void:
 	var day := MarketState.day_key(market.t)
@@ -1160,67 +1186,31 @@ func _settle(reward: int) -> int:
 
 # --- The money changer (§1.3) --------------------------------------------------------------
 
-## 龙门币 → 赤金账户 (`to_gold`) or back, at the live rate less the spread.
-func convert(to_gold: bool, amount: float, closure: bool = false) -> bool:
-	if blocked(): return false
-	if amount <= 0.0: return false
-	if not closure and not unlocked(): return false
+## 龙门币 for `bars` 赤金 changed at the live rate less the spread: what
+## buying them costs (rounded up) or selling them brings (rounded).
+func convert_lmd(to_gold: bool, bars: int, closure: bool = false) -> int:
 	var spread := Economy.closure_spread if closure else Economy.EXCHANGE_FX_SPREAD
+	if to_gold: return pay_whole("lmd", bars * Economy.fx * (1.0 + spread))
+	return credit_whole("lmd", bars * Economy.fx * (1.0 - spread))
+
+## Whole bars bought with 龙门币 (`to_gold`) or sold for it. At the base the
+## bars go to and come from the warehouse; in a camp (可露希尔), the pack.
+func convert(to_gold: bool, bars: int, closure: bool = false) -> bool:
+	if blocked(): return false
+	if bars <= 0: return false
+	if not closure and not unlocked(): return false
+	var lmd := convert_lmd(to_gold, bars, closure)
+	var field := closure and not game.in_base
 	if to_gold:
-		var lmd := ceili(amount)
-		if not pay("lmd", lmd): return false
-		credit("gold", lmd / (Economy.fx * (1.0 + spread)))
+		if game.gold < lmd: return false
+		game.gold -= lmd
+		if field: game.give_gold_bars(bars)
+		else: _deliver_goods(Economy.GOLD_ID, bars)
 	else:
-		if not pay("gold", amount): return false
-		credit("lmd", amount * Economy.fx * (1.0 - spread))
-	return true
-
-## Any two of 龙门币, 赤金 and the foreign currencies at the terminal
-## (地区货币策划案 §1.1): {ok, why, out, spread}. `amount` is in `from`.
-func quote_convert(from: String, to: String, amount: float) -> Dictionary:
-	var out := {"ok": false, "why": "", "out": 0.0, "spread": 0.0}
-	if from == to or amount <= 0.0: return out
-	for c in [from, to]:
-		if c != "gold" and not Currencies.is_currency(c): return out
-	var from_book := Currencies.book(from)
-	if not from_book.is_empty() and market.halted(from_book):
-		out.why = "暂停换出"
-		return out
-	var spread := Economy.EXCHANGE_FX_SPREAD if [from, to].has("lmd") and [from, to].has("gold") else Currencies.spread(from, to)
-	var fee := 0.0
-	for c in [from, to]:
-		var book := Currencies.book(c)
-		if book.is_empty() or c == "lmd": continue
-		spread *= float(market.mods(book).get("spread", 1.0))
-		fee += market.fee_extra(book)
-	out.spread = spread + fee
-	out.out = amount / Currencies.rate(from) * Currencies.rate(to) * (1.0 - spread - fee)
-	out.ok = true
-	return out
-
-func convert_fx(from: String, to: String, amount: float) -> bool:
-	if blocked() or not unlocked(): return false
-	var q := quote_convert(from, to, amount)
-	if not q.ok or balance(from) + 0.0001 < amount: return false
-	if not pay(from, amount): return false
-	credit(to, float(q.out))
-	return true
-
-## Bars (the item) into the 赤金 account, and whole bars out.
-func deposit_bars(count: int) -> bool:
-	if blocked(): return false
-	if count <= 0 or not game.consume_materials({Economy.GOLD_ID: count}): return false
-	credit("gold", count)
-	return true
-
-func withdraw_bars(count: int) -> bool:
-	if blocked(): return false
-	if count <= 0 or not pay("gold", count): return false
-	var left := count
-	while left > 0:
-		var stack := MaterialCatalog.create(Economy.GOLD_ID, mini(left, MaterialCatalog.stack_size(Economy.GOLD_ID)))
-		left -= stack.quantity
-		if not game.base.receive_to_staging(stack): game.base.receive(stack)
+		if field:
+			if not game.spend_gold_bars(bars): return false
+		elif not pay("gold", bars): return false
+		game.gold += lmd
 	return true
 
 # --- 企鹅物流 (§11) -------------------------------------------------------------------------
@@ -1367,17 +1357,59 @@ func migrate_packs() -> void:
 	alerts = alerts.filter(func(a): return Currencies.is_fx(str(a.market)) or str(a.market).begins_with("comp:") or market.books.has(str(a.market)))
 	_auto = false
 
+## Once, on a save from before 货币精简与取整修订案 v1.0 (§3.5): the foreign
+## balances become 龙门币 at the live rate, the 赤金 account, the 赤金
+## deposits and the 赤金存单 become bars in the warehouse (the mail when it
+## is full), the 龙门币 deposits are made whole. Each rounded. Open positions
+## stay: they settle in whole money when they close. PRTS says what was paid.
+func migrate_money() -> void:
+	if money_version >= 1: return
+	money_version = 1
+	_auto = true
+	var lmd := 0
+	for cur in (_legacy.get("fx", {}) as Dictionary):
+		var held := float(_legacy.fx[cur])
+		if held > 0.0 and Currencies.is_currency(str(cur)): lmd += credit_whole(str(cur), held)
+	var bars := float(_legacy.get("gold", 0.0))
+	bars += float(fin.demand.get("gold", 0.0))
+	fin.demand.erase("gold")
+	for d in fin.terms.duplicate():
+		if str(d.cur) == "gold":
+			bars += float(d.amount)
+			fin.terms.erase(d)
+		elif str(d.cur) != "lmd":
+			lmd += credit_whole(str(d.cur), float(d.amount))
+			fin.terms.erase(d)
+		else: d.amount = roundi(float(d.amount))
+	for cur in fin.demand.keys():
+		if str(cur) != "lmd":
+			lmd += credit_whole(str(cur), float(fin.demand[cur]))
+			fin.demand.erase(cur)
+	fin.demand["lmd"] = roundi(float(fin.demand.get("lmd", 0.0)))
+	bars += securities.cert
+	securities.cert = 0.0
+	var whole := credit_whole("gold", bars)
+	if lmd > 0: game.gold += lmd
+	if whole > 0: _deliver_goods(Economy.GOLD_ID, whole)
+	_legacy = {}
+	_auto = false
+	if lmd > 0 or whole > 0:
+		game.broadcast("PRTS：货币精简——外币账户折合龙门币 %s，赤金账户与存款折合赤金 ×%d 已入仓库。" % [Economy.format(lmd), whole])
+
 # --- Saving ---------------------------------------------------------------------------------
 
 func to_data() -> Dictionary:
-	return {"gold_account": gold_account, "fx_accounts": fx_accounts, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
+	return {"money_version": money_version, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
 		"cfds": cfds, "forward_cooldown": forward_cooldown, "loan": loan, "shipments": shipments, "history": history,
 		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE, "rank_gifts": rank_gifts, "start_attitude": start_attitude,
 		"packs_version": packs_version, "fuel_version": fuel_version, "finance": fin.to_data(), "securities": securities.to_data(), "strategies": strategies.to_data(), "relation_mods": relation_mods.duplicate(true)}
 
 func load_data(d: Dictionary) -> void:
-	gold_account = float(d.get("gold_account", 0.0))
-	fx_accounts = (d.get("fx_accounts", {}) as Dictionary).duplicate()
+	# A save from before the two monies: what its accounts held waits for migrate_money.
+	money_version = int(d.get("money_version", 0 if not d.is_empty() else 1))
+	_legacy = {}
+	if money_version < 1:
+		_legacy = {"gold": float(d.get("gold_account", 0.0)), "fx": (d.get("fx_accounts", {}) as Dictionary).duplicate() if d.get("fx_accounts") is Dictionary else {}}
 	relations = (d.get("relations", START_RELATIONS) as Dictionary).duplicate()
 	if not d.is_empty() and int(d.get("relation_scale", 1)) < RELATION_SCALE:
 		for f in relations: relations[f] = migrate_relation(int(relations[f]))

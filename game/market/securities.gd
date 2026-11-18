@@ -25,7 +25,6 @@ const FUNDS := {
 	"karlan_fund": {"name": "喀兰稳健基金", "issuer": "karlan", "basket": ["swire", "penguin", "longitudinal", "sunherb", "blacksteel", "fengchi"], "bond": 0.4},
 	"kaz_fund": {"name": "卡西米尔骑士基金", "issuer": "kazimierz", "basket": ["mieszko", "sunherb", "rose", "raythean", "venezia", "sunvalley"], "bond": 0.1},
 }
-const CERT_REDEEM_FEE := 0.005
 
 var ex: Exchange
 var shares := {}      # firm -> {n, cost} (cost: 龙门币 paid)
@@ -93,10 +92,11 @@ func on_dividend(firm: String, per_share_lmd: float) -> void:
 	var kind := str(FirmCatalog.info(firm).get("dividend", "cash"))
 	var cur := FirmCatalog.currency(firm)
 	if kind == "gold":
+		# Whole bars; what is short of a bar comes as 龙门币 (货币精简与取整修订案 v1.0).
 		var bars := int(total / Economy.GOLD_BAR_LMD)
 		var rest := total - bars * Economy.GOLD_BAR_LMD
 		if bars > 0: ex._deliver_goods(Economy.GOLD_ID, bars)
-		ex.credit("gold", rest / Economy.GOLD_BAR_LMD)
+		ex.credit("lmd", rest)
 	elif kind.begins_with("material:"):
 		var mat := str(FirmCatalog.DIVIDEND_MATERIALS.get(kind.substr(9), ""))
 		var each := RhodesFinance.unit_lmd(mat) if MaterialCatalog.MATERIALS.has(mat) else 0.0
@@ -179,12 +179,13 @@ func _fund_day(fund: String) -> void:
 func fund_payout_rate() -> float:
 	return FUND_PAYOUT * m().econ.fund_payout_mult()
 
-## Bought and sold in 赤金 from the 赤金 account.
+## Bought with whole bars from the warehouse, sold back for whole bars (rounded).
 func buy_fund(fund: String, gold: float) -> bool:
-	if ex.blocked() or not FUNDS.has(fund) or gold <= 0.0 or not ex.pay("gold", gold): return false
+	var bars := roundi(gold)
+	if ex.blocked() or not FUNDS.has(fund) or bars <= 0 or not ex.pay("gold", bars): return false
 	var h: Dictionary = funds.get(fund, {"units": 0.0, "cost": 0.0})
-	h.units = float(h.units) + gold / nav(fund)
-	h.cost = float(h.cost) + gold
+	h.units = float(h.units) + bars / nav(fund)
+	h.cost = float(h.cost) + bars
 	funds[fund] = h
 	return true
 
@@ -199,39 +200,18 @@ func sell_fund(fund: String, units: float) -> bool:
 	ex.credit("gold", units * nav(fund))
 	return true
 
-func buy_cert(gold: float) -> bool:
-	if ex.blocked() or gold <= 0.0 or not ex.pay("gold", gold): return false
-	cert += gold
-	return true
-
-## Back to the 赤金 account, or as bars (whole ones, less 0.5%).
-func redeem_cert(gold: float, as_bars: bool) -> bool:
-	if ex.blocked() or gold <= 0.0 or gold > cert + 0.0001: return false
-	if as_bars:
-		var bars := int(gold * (1.0 - CERT_REDEEM_FEE))
-		if bars <= 0: return false
-		cert -= gold
-		ex._deliver_goods(Economy.GOLD_ID, bars)
-		ex.credit("gold", gold * (1.0 - CERT_REDEEM_FEE) - bars)
-	else:
-		cert -= gold
-		ex.credit("gold", gold)
-	return true
+## 赤金存单 went with the 赤金 deposits (货币精简与取整修订案 v1.0, 拍板 Q1);
+## `cert` is only an old save's, paid out as bars by Exchange.migrate_money.
 
 # --- The day ------------------------------------------------------------------------------
 
 func new_day() -> void:
 	for f in FUNDS: _fund_day(f)
-	# Fund payouts in 赤金.
+	# Fund payouts: a day's is a fraction of a bar, so it comes as 龙门币 at the live rate, rounded.
 	for f in funds:
-		var pay := float(funds[f].units) * nav(f) * fund_payout_rate()
-		ex.credit("gold", pay)
-		ex.fin.today_in += pay * Economy.fx
-	# 赤金存单 at the 赤金 demand rate.
-	if cert > 0.0:
-		var gain := cert * ex.fin.demand_rate("gold")
-		cert += gain
-		ex.fin.today_in += gain * Economy.fx
+		var pay := float(funds[f].units) * nav(f) * fund_payout_rate() * Economy.fx
+		ex.credit("lmd", pay)
+		ex.fin.today_in += pay
 	# Coupons, maturity, defaults.
 	for b in bonds.duplicate():
 		var cur := str(b.cur)
@@ -272,10 +252,6 @@ func liquidate_until(done: Callable) -> void:
 	for f in funds.keys():
 		if done.call(): return
 		sell_fund(str(f), float(funds[f].units))
-	if cert > 0.0 and not done.call():
-		var c := cert
-		cert = 0.0
-		ex.credit("gold", c)
 
 func to_data() -> Dictionary:
 	return {"shares": shares.duplicate(true), "bonds": bonds.duplicate(true), "funds": funds.duplicate(true), "fund_nav": fund_nav.duplicate(), "fund_base": fund_base.duplicate(true),
