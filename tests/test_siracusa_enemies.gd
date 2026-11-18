@@ -115,7 +115,10 @@ func run() -> void:
 		check("back in its slot, its lamps go dark", car.attack_phase == "idle" and not car.headlights_on())
 		game.player.global_position = start
 		await step(2)
-	# 血债: a soldier's fall adds its weight.
+	# 血债: a soldier's fall adds its weight. The floor's market news is not
+	# under the map seed and may scale 血债 (feature_rate 0.8–1.2); these checks
+	# are of the weights alone, so the news is cleared (test_exchange covers it).
+	game.market_field = {}
 	game.features.values.debt = 0.0
 	var soldier: Enemy = game._spawn_enemy(game.player.global_position + Vector3(20, 0, 20), false, false, "family_soldier")
 	await step(2)

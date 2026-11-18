@@ -103,17 +103,15 @@ func run() -> void:
 	check("every material id has an icon id", unmapped.is_empty(), unmapped)
 	check("源石碎片 has an emit mask", ResourceLoader.exists(ItemIcons.DIR + "originium_shard_emit.png"))
 	# M2: common supplies fill 36 px per cell minus the margin (1 cell = 32,
-	# 2 = 72, 3 = 108); three items wait for a redraw and stay text.
-	var held := ["医用耗材包", "固体燃料"]
+	# 2 = 72, 3 = 108). 医用耗材包 and 固体燃料 got their redraws (in since 10-26).
 	var wrong := []
 	for id in MaterialCatalog.MATERIALS:
-		if MaterialCatalog.MATERIALS[id].get("source", "") != "common" or held.has(id): continue
+		if MaterialCatalog.MATERIALS[id].get("source", "") != "common": continue
 		var item := MaterialCatalog.create(id, 1)
 		var tex := ItemIcons.texture_for(item)
 		var want := Vector2(32 if item.width == 1 else item.width * 36, 32 if item.height == 1 else item.height * 36)
 		if tex == null or tex.get_size() != want: wrong.append([id, tex.get_size() if tex else null, want])
 	check("every accepted common supply has an icon sized to its cells", wrong.is_empty(), wrong)
-	for id in held: check("%s waits for its redraw (text)" % id, ItemIcons.texture_for(MaterialCatalog.create(id, 1)) == null)
 	for type in ["A", "B"]:
 		var tex := ItemIcons.texture_for(BaseCatalog.create_potion(type))
 		check("potion %s has a 32×32 icon" % type, tex != null and tex.get_size() == Vector2(32, 32))

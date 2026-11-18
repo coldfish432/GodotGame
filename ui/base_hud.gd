@@ -300,7 +300,9 @@ class SlotBar extends Control:
 		if is_visible_in_tree(): queue_redraw()
 
 	func _draw() -> void:
-		if not is_instance_valid(game): return
+		# While booting the save (and the exchange) may not be loaded yet: a second
+		# window waits in saves.claim() for the terminal to hand the save over.
+		if not is_instance_valid(game) or game.booting: return
 		for i in range(count()):
 			var r := slot_rect(i)
 			var shut := locked(i)
