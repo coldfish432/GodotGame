@@ -12,7 +12,6 @@ var camp_tab := 0
 var settle_tab := 0
 var region_pick := ""
 ## The contract card picked at the dispatch desk (局内节奏与目标策划案 §6 B1).
-var contract_pick := 0
 var stash_tab := 0
 ## The facility picked on the 基建总控台's list.
 var build_pick := "hub"
@@ -221,10 +220,8 @@ func show_station(kind: String) -> void:
 	var info: Array = STATIONS.get(kind, ["罗德岛", ""])
 	clear(info[0], "%s    ·    龙门币 %s" % [info[1], Economy.format(game.gold)])
 	match kind:
-		"contracts": _contracts_section()
 		"insurance", "loadout": _loadout_section()
 		"stash": _stash_section()
-		"outbound": _outbound_section()
 		"report":
 			_medical_summary()
 			_report_section(true)
@@ -285,8 +282,8 @@ func _contracts_section() -> void:
 		text(box, data.loot)
 		text(box, "专属 / " + data.exclusive, 14)
 		text(box, "藏品 / " + data.build, 14)
-		var orders := game.base.orders.pointing_at(region)
-		if orders > 0: text(box, "订单 %d" % orders, 14, GOLD)
+		var going := game.base.board.run_cards(region).size() + game.base.board.pointing_at(region)
+		if going > 0: text(box, "合同 %d" % going, 14, GOLD)
 		button(box, "接下合同 →", func(): game.request_contract(region))
 		for depth in game.base.unlocked_camps(region):
 			button(box, "从%s出发" % game.camp_label(depth), func(): game.request_contract(region, depth))
@@ -397,36 +394,6 @@ func show_departure(region: String) -> void:
 	_station = ""
 	_enter("departure", null)
 	BaseScreens.departure(self, region)
-
-## Orders (§3.8; no plain delivery, 用户 2026-10-25: 只能在可露希尔处卖). Only the warehouse and the pack or safe
-## bag can supply items; equipped gear cannot.
-func _outbound_section() -> void:
-	var orders: OrderBoard = game.base.orders
-	var deliverable := game.deliverable_items()
-	for i in range(orders.slots.size()):
-		var order = orders.slots[i]
-		var box := VBoxContainer.new()
-		body.add_child(box)
-		if order == null:
-			text(box, "订单栏 %d / 空，下次结算后补上" % (i + 1), 16, Color("99aab8"))
-			continue
-		var t: Dictionary = BaseCatalog.ORDERS[order.id]
-		var reward := ("龙门币 %s" % Economy.format(int(t.gold))) if t.has("gold") else ("龙门币为交付价 ×%.1f" % float(t.mult))
-		var count := int(t.count)
-		if order.state == "done":
-			text(box, "订单栏 %d / 已完成  ·  %s" % [i + 1, BaseCatalog.order_text(order.id)], 16, Color("8fd18f"))
-			continue
-		text(box, "订单栏 %d / %s  ·  %d/%d  ·  %s" % [i + 1, BaseCatalog.order_text(order.id), orders.delivered_count(i), count, reward], 18, GOLD)
-		var fits := deliverable.filter(func(x): return orders.matches(i, x))
-		if fits.is_empty(): text(box, "个人仓库和背包里没有符合的物品。", 14, Color("99aab8"))
-		for item: Item in fits:
-			var row := HBoxContainer.new()
-			box.add_child(row)
-			text(row, "%s%s  ·  %s" % [item.display_name(), item.stack_suffix(), "个人仓库" if game.stash.has(item) else "背包"], 15).tooltip_text = item.details()
-			button(row, "交付" if not item.is_stackable() else "交付 ×%d" % orders.takes(i, item), func(): game.deliver_to_order(i, item); _refresh())
-		# Never shown now: nothing sets reroll_available (BaseState).
-		if game.base.reroll_available: button(box, "免费刷新这张订单", func(): game.reroll_order(i); _refresh())
-		button(box, "放弃这张订单", func(): game.abandon_order(i); _refresh())
 
 ## The injury, with its treatment (§4.2, §4.4).
 func _medical_summary() -> void:

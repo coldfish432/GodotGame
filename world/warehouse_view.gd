@@ -165,18 +165,14 @@ func fly_drone(categories: Array) -> void:
 ## finished order waits for the next refresh, "open" for orders she cannot fill
 ## yet, "empty" when the board has nothing.
 func board_state() -> String:
-	var orders: OrderBoard = game.base.orders
 	if orders_fillable(): return "open"
-	if orders.slots.any(func(o): return o != null and o.state == "done"): return "completed"
-	return "open" if not orders.open_orders().is_empty() else "empty"
+	return "open" if not game.base.board.deliveries().is_empty() else "empty"
 
-## Whether some open order can be filled from the shelves or the pack right now.
+## Whether some taken 交付 / 回收 card can be filled from the shelves or the pack right now.
 func orders_fillable() -> bool:
-	var orders: OrderBoard = game.base.orders
 	var deliverable := game.deliverable_items()
-	for i in range(orders.slots.size()):
-		var order = orders.slots[i]
-		if order != null and order.state == "open" and deliverable.any(func(x): return orders.matches(i, x)): return true
+	for c in game.base.board.deliveries():
+		if deliverable.any(func(x): return ContractBoard.matches(c, x)): return true
 	return false
 
 ## Nothing in the warehouse room takes the E key any more (仓库修订).

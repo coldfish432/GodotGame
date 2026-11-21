@@ -729,8 +729,8 @@ static func deploy(menu: FieldMenu, region: String) -> void:
 	who.add_theme_constant_override("separation", 10)
 	who.add_child(AK.label(Operators.display_name(game.player.operator_id), 18, AK.FG))
 	who.add_child(AK.label("%s · Lv %d" % [Progression.ELITE_NAMES[p.elite], p.level], 12, AK.MUTE, AK.en()))
-	var orders := base.orders.pointing_at(region)
-	if orders > 0: who.add_child(AK.tag("订单 %d" % orders, AK.SP))
+	var going := base.board.run_cards(region).size() + base.board.pointing_at(region)
+	if going > 0: who.add_child(AK.tag("合同 %d" % going, AK.SP))
 	if base.injured: who.add_child(AK.tag("重伤", AK.RED))
 	AK.put(stage, who, Vector2(x, TOP + 182))
 	var y := TOP + 220

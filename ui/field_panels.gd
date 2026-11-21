@@ -201,7 +201,7 @@ func _relic_detail(relic: Dictionary) -> Control:
 # --- J: the contract — objectives and orders ---------------------------------------
 
 func _journal() -> void:
-	_clear("外勤合同", "CONTRACT", "J", ["目标", "订单"])
+	_clear("外勤合同", "CONTRACT", "J", ["目标", "交付"])
 	var region: Dictionary = FieldCatalog.REGIONS[game.region_id]
 	if _tab == 0:
 		var plate := HBoxContainer.new()
@@ -227,13 +227,13 @@ func _journal() -> void:
 		info.add_child(lines)
 		plate.add_child(info)
 		_body.add_child(plate)
-		var goal := game.contract_progress()
-		if not goal.is_empty(): _objective("合同 · " + goal.goal, goal.have, goal.need, AK.GREEN if goal.done else AK.SP)
+		for goal in game.contract_progress(): _objective("%s · %s" % [goal.dept, goal.goal], goal.have, goal.need, AK.GREEN if goal.done else AK.SP)
+		if not game.recruit_target.is_empty(): _objective(game.recruit_goal(), 1 if game.recruit_met else 0, 1, AK.GREEN if game.recruit_met else AK.SP)
 		var block_start := (game.floor_number - 1) / FieldCatalog.CAMP_INTERVAL * FieldCatalog.CAMP_INTERVAL
 		var camp_at := block_start + FieldCatalog.CAMP_INTERVAL
 		_objective("到达" + game.camp_label(camp_at), game.floor_number - block_start, FieldCatalog.CAMP_INTERVAL, AK.GREEN)
 		if game.is_extraction_floor(): _objective("撤离点", 1, 1, AK.GREEN)
-		_body.add_child(AK.section("订单"))
+		_body.add_child(AK.section("交付"))
 	for entry in game.order_progress(): _body.add_child(_order_card(entry))
 
 func _pair(key: String, value: String, colour: Color) -> HBoxContainer:
@@ -273,7 +273,7 @@ func _order_card(entry: Dictionary) -> Control:
 	var dept_column := VBoxContainer.new()
 	dept_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	dept_column.add_theme_constant_override("separation", -2)
-	dept_column.add_child(AK.label("ORDER %02d" % (int(entry.slot) + 1), 8, AK.INK, AK.en()))
+	dept_column.add_child(AK.label("CONTRACT", 8, AK.INK, AK.en()))
 	dept_column.add_child(AK.label(entry.dept, 15, AK.INK))
 	dept.add_child(dept_column)
 	strip.add_child(dept)

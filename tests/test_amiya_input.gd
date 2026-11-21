@@ -180,7 +180,7 @@ func run() -> void:
 	check("dash ends and she walks again", not p.invulnerable and p._sprite.action_name != "dash")
 	game.settle(true)
 	await step(10)
-	check("the settlement screen shows her crisp portrait, not Lappland", shows_amiya(rig))
+	check("the settlement screen shows no portrait (用户 2026-11-19)", not shows_amiya(rig))
 	await save_shot("amiya-settlement")
 	var file := FileAccess.open("res://../evidence/amiya-input-tests.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify({"checks": checks, "failures": failures}, "  "))

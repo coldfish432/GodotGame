@@ -45,7 +45,7 @@ const JOINT_PRICE := 6720000
 ## The economy nodes keep their v1.1 ids, so saves carry over; 工程部's two
 ## late reforge nodes keep theirs at 7.
 const NODES := {
-	"logistics_1": ["订单速递", 1, "order_slot", "订单板 +1 栏", [], {}],
+	"logistics_1": ["订单速递", 1, "order_slot", "合同板后勤部 +1 栏", [], {}],
 	"logistics_2": ["第二加工线", 2, "workshop_slot", "加工部队列 +1", ["logistics_1"], {}],
 	"logistics_3": ["立体货架", 3, "rack_cells", "仓库容量 +20%", ["logistics_1", "@racks_3"], {}],
 	"logistics_4": ["流水线优化", 4, "workshop_speed", "加工时长 −25%", ["logistics_2", "engineering_1"], {}],
@@ -71,7 +71,7 @@ const NODES := {
 	"intel_4": ["跨档识别", 4, "tier_mark", "跨档标记", ["intel_2", "engineering_1"], {}],
 	"intel_5": ["信标追踪", 5, "exit_map", "撤离点上小地图", ["intel_3", "field_3"], {}],
 	"intel_6": ["地层回波测绘", 6, "vault_map", "密室范围上小地图", ["intel_5", "personnel_3"], {}],
-	"field_1": ["合同中介网", 1, "offer_slot", "合同可选 3 → 4", [], {}],
+	"field_1": ["合同中介网", 1, "offer_slot", "合同承接 3 → 4", [], {}],
 	"field_2": ["调度优先权", 2, "offer_reroll", "每次回港免费重抽 1 张合同", ["field_1"], {}],
 	"field_3": ["营地联络站", 3, "deposit_fee", "营地寄存手续费 20% → 10%", ["field_1", "@camp_upgrade"], {}],
 	"field_4": ["加固安全袋", 4, "safe_row", "安全袋 +1 行", ["field_3", "logistics_3", "@safe_2"], {}],

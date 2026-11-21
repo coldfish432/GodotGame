@@ -39,7 +39,8 @@ func run() -> void:
 	await shot("stash-screen")
 	game.close_modal()
 	# B3: the order board over the outbound pallets, and the outbound menu.
-	game.base.orders.slots = [{"id": "starter", "state": "open", "delivered": []}, {"id": "log_fine_weapon", "state": "open", "delivered": []}]
+	game.set_contract({"type": "order", "id": "starter", "dept": "工程部"})
+	game.base.board.add_active({"type": "order", "id": "log_fine_weapon"}, "后勤部")
 	var spare := Item.create("封装矿料", Item.Category.MATERIAL, 1, 1)
 	spare.value = 22
 	game.base.shelf.append(spare)

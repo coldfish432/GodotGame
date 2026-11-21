@@ -240,12 +240,10 @@ func _ready_orders() -> int:
 	return _memo["ready_orders"]
 
 func _ready_orders_now() -> int:
-	var board: OrderBoard = game.base.orders
 	var deliverable := game.deliverable_items()
 	var n := 0
-	for slot in range(board.slots.size()):
-		var order = board.slots[slot]
-		if order != null and order.state == "open" and deliverable.any(func(x): return board.matches(slot, x)): n += 1
+	for c in game.base.board.deliveries():
+		if deliverable.any(func(x): return ContractBoard.matches(c, x)): n += 1
 	return n
 
 ## A row of slots in the station bar's look: the key over the name, a lock

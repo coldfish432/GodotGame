@@ -217,7 +217,7 @@ func through_game() -> void:
 	var loose := BaseCatalog.create_potion("A")
 	check("a picked-up flask joins the stack", game.inventory.add_stack(loose) == 0 and stack_a[0].quantity == 3 and game.potions == 5)
 	check("a flask saved one per cell stacks after loading", Item.from_data({"name": "标准急救剂", "potion": "A", "value": 30}).max_stack == BaseCatalog.POTION_STACK)
-	check("orders never take a flask", not game.base.orders.slots.any(func(o): return o != null and game.carried_potions().any(func(x): return game.base.orders.matches(game.base.orders.slots.find(o), x))))
+	check("orders never take a flask", not game.base.board.deliveries().any(func(c): return game.carried_potions().any(func(x): return ContractBoard.matches(c, x))))
 	# Room for a gel's 1680 above her ungeared 600 HP.
 	game.player.apply_buff(2000.0, 0.0)
 	game.player.hp = 5

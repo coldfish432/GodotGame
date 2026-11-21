@@ -58,7 +58,7 @@ func _issue() -> void:
 func _bound() -> void:
 	var weapon: Item = game.player.equipped[Item.Category.WEAPON]
 	check("not for sale, delivery or orders", game.trader_offer(weapon) == 0
-		and range(game.base.orders.slots.size()).all(func(slot): return not game.base.orders.matches(slot, weapon)))
+		and BaseCatalog.ORDERS.keys().all(func(id): return not ContractBoard.matches({"type": "order", "id": id}, weapon)))
 	check("not insured, packed, consigned or refitted", not game.insure(weapon) and not weapon.insured and not Packs.packable(weapon)
 		and not Consignment.takes(weapon) and game.refresh_refusal("reforge", weapon) == "无法改造")
 	check("unworn at the base it is handed back", game.unequip_to_pack(weapon) and game.player.equipped.get(Item.Category.WEAPON) == null and _kept_anywhere().is_empty())
@@ -76,7 +76,7 @@ func _own_gear() -> void:
 
 func _contracts() -> void:
 	var own: Item = game.player.equipped[Item.Category.WEAPON]
-	game._pending_contract = {"type": "deep", "steps": 4, "roll": 1.0}
+	game.set_contract({"type": "deep", "steps": 4, "roll": 1.0})
 	await game.start_contract("mine")
 	await step(2)
 	# One piece in the pack, one in the safe bag: neither is kept.
@@ -93,7 +93,7 @@ func _contracts() -> void:
 	check("…her own weapon stays on her", game.player.equipped.get(Item.Category.WEAPON) == own)
 	check("…and the settlement says so", game.settlement.filter(func(e): return e.reason == "制式收回").size() == 7, game.settlement.map(func(e): return e.reason))
 	game.fill_rhodes()
-	game._pending_contract = {"type": "deep", "steps": 4, "roll": 1.0}
+	game.set_contract({"type": "deep", "steps": 4, "roll": 1.0})
 	await game.start_contract("mine")
 	await step(2)
 	var head: Item = game.player.equipped[Item.Category.HEAD]

@@ -83,12 +83,14 @@ func rules() -> void:
 	old.load_data(data, {})
 	check("an old save's crates and staging land in the warehouse", old.shelf.size() == 2 and old.shelf.any(func(x): return x.item_name == "旧箱货") and old.shelf.any(func(x): return x.item_name == "旧暂存"))
 
-	var board := OrderBoard.new()
-	board.slots = [{"id": "eng_materials", "state": "open", "delivered": []}, null]
+	var board := ContractBoard.new()
+	board.posted = [{"uid": 1, "type": "order", "id": "eng_materials", "region": "", "dept": "工程部", "age": 0}]
+	board.serial = 1
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 3
-	check("reroll swaps an open order for a different template", board.reroll(0, rng) and board.slots[0].id != "eng_materials")
-	check("an empty slot cannot be rerolled", not board.reroll(1, rng))
+	var ctx := {"regions": ["mine"], "depts": ["工程部"], "extra": {}, "start": func(_r): return 1, "bonus": 10000}
+	check("reroll swaps a posted card for a different one", board.reroll(1, rng, ctx) and board.posted.size() == 1 and board.posted[0].get("id", "") != "eng_materials")
+	check("a card not on the board cannot be rerolled", not board.reroll(99, rng, ctx))
 
 func through_game() -> void:
 	var game := GameManager.new()
@@ -164,13 +166,12 @@ func through_game() -> void:
 	check("and stands in the way like the first", not space.intersect_point(query).is_empty())
 	check("nothing to buy for the warehouse: no drone, no console", not game.has_method("buy_drone") and not game.has_method("buy_console") and not game.has_method("build_rack") and game.base.console)
 
-	# 仓储部 Lv4 no longer gives a free order reroll (仓库修订); the board has 3 + 1 slots.
+	# 仓储部 Lv4 no longer gives a free reroll (仓库修订); the cap is 3 (合同板修订案).
 	game.base.set_facility("warehouse", 4)
 	await game.start_contract("city")
 	game.settle(true)
-	check("the board has ORDER_SLOTS + 1 slots", game.base.order_slot_count() == BaseCatalog.ORDER_SLOTS + 1)
-	game.base.orders.slots = [{"id": "eng_materials", "state": "open", "delivered": []}, {"id": "log_trinkets", "state": "open", "delivered": []}, null]
-	check("Lv4: no free reroll after a settlement", not game.base.reroll_available and not game.reroll_order(0))
+	check("the cap is three taken cards", game.base.contract_cap() == ContractBoard.CAP)
+	check("Lv4: no free reroll after a settlement", not game.base.reroll_available and not game.base.contract_reroll)
 
 	# Saves keep all of it.
 	game.save_path = "user://progression_TEST_ONLY.json"

@@ -14,8 +14,8 @@ extends RefCounted
 const VERSION := 1
 
 ## GameManager's run fields, written with var_to_str (typed arrays, vectors).
-const GAME_KEYS := ["region_id", "floor_number", "start_floor", "market_field", "route_map", "route_node", "route_kind", "route_trail", "route_peek", "route_exit_map", "route_threat_cut", "floor_kits", "post_gifted", "next_floor_mods", "floor_mods", "event_done", "campfire_used", "witness_marked", "_floor_relics", "route_history", "contract", "contract_vaults",
-	"bounty_killed", "recruit_met", "lost_floor", "cargo_delivered", "_contract_announced", "builds", "relic_floors", "run_kills", "run_sets_seen", "reroll_count",
+const GAME_KEYS := ["region_id", "floor_number", "start_floor", "market_field", "route_map", "route_node", "route_kind", "route_trail", "route_peek", "route_exit_map", "route_threat_cut", "floor_kits", "post_gifted", "next_floor_mods", "floor_mods", "event_done", "campfire_used", "witness_marked", "_floor_relics", "route_history", "run_contracts", "_contracts_announced",
+	"bounty_killed", "recruit_target", "recruit_met", "lost_floor", "cargo_delivered", "builds", "relic_floors", "run_kills", "run_sets_seen", "reroll_count",
 	"pressure", "run_meal", "run_hot_meal", "squad_uses", "guide_floor", "_run_seed", "in_camp", "in_event",
 	"_random_extraction_available", "encounter", "encounter_used", "squad_mult", "post_faction", "trader_rerolls", "_trader_met",
 	"_encounter_greeted", "camp_closure_stock", "first_run_ore", "_buff_taken", "vault_opened", "outpost_cleared", "_device_offers",
@@ -35,6 +35,18 @@ static func pack(object: Object, keys: Array) -> Dictionary:
 	var out := {}
 	for key in keys: out[key] = var_to_str(object.get(key))
 	return out
+
+## A run saved before 合同板修订案 had one `contract`: a run kind goes along as
+## this run's only card (uid 0, on no board), a 寻访 becomes the run's target.
+static func _migrate_contract(game: GameManager, data: Dictionary) -> void:
+	if data.has("run_contracts") or not data.has("contract"): return
+	var c = str_to_var(str(data.contract))
+	game.run_contracts = []
+	if not c is Dictionary or c.is_empty(): return
+	if str(c.get("type", "")) == "recruit": game.recruit_target = {"operator": str(c.operator), "offset": int(c.offset)}
+	elif str(c.type) in ContractBoard.RUN_KINDS:
+		c.uid = 0
+		game.run_contracts.append(c)
 
 static func unpack(object: Object, data: Dictionary, keys: Array) -> void:
 	for key in keys:
@@ -60,6 +72,7 @@ static func run_data(game: GameManager) -> Dictionary:
 
 static func apply_run(game: GameManager, data: Dictionary) -> void:
 	unpack(game, data.get("game", {}), GAME_KEYS)
+	_migrate_contract(game, data.get("game", {}))
 	unpack(game.threat, data.get("threat", {}), THREAT_KEYS)
 	unpack(game.features, data.get("features", {}), FEATURE_KEYS)
 	unpack(game.potion_fx, data.get("potions", {}), POTION_KEYS)

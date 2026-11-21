@@ -97,14 +97,14 @@ func _closure() -> void:
 	game.base.camps = {}
 
 func _contract_and_records() -> void:
-	var offers := game.contract_offers("mine")
-	check("every ordinary offer carries its roll", offers.slice(0, FieldCatalog.CONTRACT_OFFERS).all(func(c): return c.has("roll") and float(c.roll) >= 0.85 and float(c.roll) <= 1.15))
-	var card := game.contract_pay_text({"type": "search", "roll": 1.0}, 1)
-	check("the card shows the pay", card == "8,000 龙门币", card)
-	game._pending_contract = {"type": "deep", "steps": 4, "roll": 1.0}
+	var offers: Array = game.board_cards().filter(func(c): return str(c.type) in ["deep", "hunt", "recover"])
+	check("every 龙门币 card carries its roll", not offers.is_empty() and offers.all(func(c): return c.has("roll") and float(c.roll) >= 0.85 and float(c.roll) <= 1.15))
+	var card := game.contract_pay_text({"type": "hunt", "offset": 3, "roll": 1.0}, 1)
+	check("the card shows the pay", card == "8,800 龙门币 · 稀有装备 ×1", card)
+	game.set_contract({"type": "deep", "steps": 4, "roll": 1.0})
 	await game.start_contract("mine")
 	await step(2)
-	check("taken: 8,000 × 0.8 = 6,400", int(game.contract.reward) == 6400, game.contract)
+	check("taken: 8,000 × 0.8 = 6,400", int(game.run_contracts[0].reward) == 6400, game.run_contracts)
 	game._clear_field()
 	game.inventory.items.clear()
 	game.inventory.add_stack(MaterialCatalog.create("初级作战记录", 2))
@@ -137,10 +137,11 @@ func _research_rules() -> void:
 	check("a research runs 20% of its written hours", ResearchCatalog.seconds("logistics_1") == 720 and ResearchCatalog.duration_text("logistics_1") == "12 分钟")
 	later(360)
 	check("six minutes in: half done, not finished", is_equal_approx(r.progress("logistics_1"), 0.5) and r.tick().is_empty())
-	var slots := game.base.order_slot_count()
+	var slots := game.base.board.slots_of("后勤部", game.board_ctx())
 	later(360)
 	check("twelve minutes in it is done", r.tick() == ["logistics_1"] and r.is_done("logistics_1"))
-	check("后勤部 1 阶 adds an order slot at once", game.base.order_slot_count() == slots + 1 and game.base.orders.slots.size() == slots + 1)
+	check("后勤部 1 阶 adds a 后勤部 slot on the board at once", game.base.board.slots_of("后勤部", game.board_ctx()) == slots + 1
+		and game.base.board.posted.filter(func(c): return c.dept == "后勤部").size() == slots + 1)
 	check("tier 2 needs the camp at floor 10", r.refusal("logistics_2") == "需要第 10 层营地")
 	game.base.camps = {"mine": 10}
 	check("…then it can start", r.refusal("logistics_2").is_empty(), r.refusal("logistics_2"))
@@ -280,16 +281,14 @@ func _effects() -> void:
 	check("工程部 2 阶: Rhodes gear turns blue", base.rhodes_rarity == 1)
 	_finish("rhodes_gold")
 	check("工程部 4 阶: then blue", base.rhodes_rarity == Item.BLUE)
-	var offers := game.contract_offer_count()
+	var cap := base.contract_cap()
 	_finish("offer_slot")
-	check("外勤部 1 阶: four offers", game.contract_offer_count() == offers + 1)
-	base.contract_offers.erase("city")
-	var four := game.contract_offers("city").filter(func(c): return c.type in FieldCatalog.CONTRACT_TYPES)
-	check("…all four kinds", four.size() == 4, four.size())
+	check("外勤部 1 阶: one more card taken at once", base.contract_cap() == cap + 1)
+	game.board_cards()
 	base.contract_reroll = true
-	var was: Dictionary = (base.contract_offers["city"][0] as Dictionary).duplicate()
-	check("外勤部 2 阶: one free reroll", game.reroll_contract("city", 0) and not base.contract_reroll and not game.reroll_contract("city", 0))
-	check("…the card changed", base.contract_offers["city"][0] != was)
+	var was: Dictionary = (base.board.posted[0] as Dictionary).duplicate()
+	check("外勤部 2 阶: one free reroll", game.reroll_contract(int(was.uid)) and not base.contract_reroll and not game.reroll_contract(int(base.board.posted[0].uid)))
+	check("…the card changed", base.board.find_posted(int(was.uid)).is_empty())
 	_finish("deposit_fee")
 	check("外勤部 3 阶: the deposit fee halves", is_equal_approx(game.research.deposit_fee_factor(), 0.5))
 	var safe := game.safe_bag.height

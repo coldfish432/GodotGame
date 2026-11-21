@@ -135,8 +135,15 @@ static func _news_effect(key: String, value: float, adds: bool) -> String:
 
 # --- #13 调度台 ----------------------------------------------------------------------
 
+## 调度台's pages: where she goes, and the 合同板 (合同板修订案_v0_1.md).
+static var dispatch_tab := 0
+
 static func contracts(menu: FieldMenu) -> void:
 	var game := menu.game
+	if dispatch_tab == 1:
+		var board_stage := shell(menu, "调度台", "DISPATCH", ["出发", "合同板"], 1, func(i): dispatch_tab = i; contracts(menu), "BOARD")
+		contract_board(menu, board_stage)
+		return
 	var regions: Array = FieldCatalog.REGIONS.keys()
 	if not menu.region_pick in regions or not game.region_open(menu.region_pick): menu.region_pick = regions[0]
 	var region: String = menu.region_pick
@@ -144,7 +151,7 @@ static func contracts(menu: FieldMenu) -> void:
 	var parts: PackedStringArray = str(data.name).split(" · ")
 	var code: String = AK.REGION_CODE.get(region, "LG")
 	var en_names := {"mine": "CHERNOBOG", "city": "LUNGMEN", "snow": "SAMI", "siracusa": "SIRACUSA"}
-	var stage := shell(menu, "调度台", "DISPATCH", [], 0, Callable(), en_names.get(region, ""))
+	var stage := shell(menu, "调度台", "DISPATCH", ["出发", "合同板"], 0, func(i): dispatch_tab = i; contracts(menu), en_names.get(region, ""))
 	# Regions as chapters.
 	for i in range(regions.size()):
 		var id: String = regions[i]
@@ -161,14 +168,14 @@ static func contracts(menu: FieldMenu) -> void:
 		AK.put(b, AK.label(AK.REGION_CODE.get(id, "LG"), 22, ink, AK.en()), Vector2(14, 8))
 		AK.put(b, AK.label(names[0], 14, ink), Vector2(14, 36))
 		AK.put(b, AK.label(names[1] if names.size() > 1 else "", 11, Color(ink, 0.7)), Vector2(14, 56))
-		var orders := game.base.orders.pointing_at(id)
-		if orders > 0: AK.put(b, AK.tag("订单 %d" % orders, AK.SP), Vector2(14, 74))
+		var taken := game.base.board.active.filter(func(c): return str(c.get("region", "")) == id).size()
+		if taken > 0: AK.put(b, AK.tag("合同 %d" % taken, AK.SP), Vector2(14, 74))
 		for child in b.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		# Before the first voyage only 切尔诺伯格 (主线引导): the others greyed out.
 		if not game.region_open(id):
 			b.disabled = true
 			b.modulate = Color(1, 1, 1, 0.35)
-		b.pressed.connect(func(): menu.region_pick = id; menu.pick = 0; menu.contract_pick = 0; contracts(menu))
+		b.pressed.connect(func(): menu.region_pick = id; menu.pick = 0; contracts(menu))
 	# The middle picks the floors (用户 2026-10-21: 中间改为层数选择): every block
 	# she can start from, CH-01 or a camp she has reached, then the block's
 	# floors snaking, the random-extraction band tinted, the camp at its end.
@@ -257,51 +264,105 @@ static func contracts(menu: FieldMenu) -> void:
 	special.add_child(AK.item_icon(exclusive, Vector2(46, 46)))
 	special.add_child(AK.label(exclusive.item_name, 12, exclusive.rarity_color()))
 	AK.put(stage, special, Vector2(x + 18, TOP + 182))
-	# The objective: three cards, one picked (§6 B1).
-	_section(stage, "合同目标", "OBJECTIVE", Vector2(x + 18, TOP + 256))
-	var offers: Array = game.contract_offers(region)
-	var chosen := clampi(menu.contract_pick, 0, offers.size() - 1)
-	# 寻访合同 come after the three: then the rows go to one line each.
-	var compact := offers.size() > FieldCatalog.CONTRACT_OFFERS
-	var row := 34 if compact else 50
-	for i in range(offers.size()):
-		var offer: Dictionary = offers[i]
-		var card := Button.new()
-		card.focus_mode = Control.FOCUS_NONE
-		card.set_meta("label", "合同 %d" % (i + 1))
-		var on := i == chosen
-		for s in ["normal", "hover", "pressed"]:
-			card.add_theme_stylebox_override(s, AK.box(AK.PAPER if on else (AK.PLATE_3 if s == "hover" else AK.PLATE_2)))
-		AK.put(stage, card, Vector2(x + 18, TOP + 284 + i * row), Vector2(360, row - 4))
-		var ink := AK.INK if on else AK.FG
-		var kind: String = FieldCatalog.CONTRACT_NAMES[offer.type]
-		AK.put(card, AK.tag(kind, AK.SP), Vector2(10, 4 if compact else 10))
-		# The text starts after the tag, however long its shown name is.
-		var text_x := maxf(64.0, 10.0 + AK.cn().get_string_size(I18n.t(kind), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 12.0 + 8.0)
-		AK.put(card, AK.label(FieldCatalog.contract_goal(offer, region, start + 1), 13, ink), Vector2(text_x, 4 if compact else 2))
-		var bonus := AK.label(game.contract_pay_text(offer, start + 1), 11, Color(ink, 0.7))
-		if compact:
-			bonus.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			AK.put(card, bonus, Vector2(150, 7), Vector2(200, 16))
-		else:
-			AK.put(card, bonus, Vector2(text_x, 21))
-		for child in card.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var index := i
-		card.pressed.connect(func(): menu.contract_pick = index; contracts(menu))
-	# 外勤部 2 阶: one free reroll of the chosen ordinary card per return.
-	if game.base.contract_reroll and chosen < (game.base.contract_offers.get(region, []) as Array).size():
-		var reroll := AK.button("重抽", "ghost", 11)
-		AK.put(stage, reroll, Vector2(x + 318, TOP + 252), Vector2(60, 24))
-		reroll.pressed.connect(func(): game.reroll_contract(region, chosen); contracts(menu))
+	# This run's contracts: the taken cards that go to this region (合同板修订案 §2.2).
+	_section(stage, "本局合同", "CONTRACTS", Vector2(x + 18, TOP + 256))
+	var going: Array = game.base.board.run_cards(region) + game.base.board.deliveries().filter(func(c): return str(c.get("region", "")) in ["", region])
+	var row := 34 if going.size() > 4 else 50
+	for i in range(mini(going.size(), 8)):
+		var c: Dictionary = going[i]
+		var card := AK.rect(AK.PLATE_2, Vector2(x + 18, TOP + 284 + i * row), Vector2(360, row - 4))
+		stage.add_child(card)
+		stage.add_child(AK.rect(GameManager.DEPT_COLOURS.get(c.dept, AK.FG), Vector2(x + 18, TOP + 284 + i * row), Vector2(4, row - 4)))
+		var kind: String = FieldCatalog.CONTRACT_NAMES.get(str(c.type), "")
+		AK.put(stage, AK.tag(kind, AK.SP), Vector2(x + 30, TOP + 284 + i * row + (4 if row < 50 else 10)))
+		var text_x := x + 30 + maxf(54.0, AK.cn().get_string_size(I18n.t(kind), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 20.0)
+		var goal := FieldCatalog.contract_goal(c, region, start + 1) if ContractBoard.is_run(c) else "%s %d/%d" % [game.contract_what(c).split(" ×")[0], ContractBoard.delivered_count(c), ContractBoard.need(c)]
+		AK.put(stage, AK.label(goal, 13, AK.FG), Vector2(text_x, TOP + 284 + i * row + (4 if row < 50 else 2)))
+		if row >= 50: AK.put(stage, AK.label(game.contract_pay_text(c, start + 1), 11, AK.MUTE), Vector2(text_x, TOP + 284 + i * row + 21))
 	# 最终准备: who goes and what she carries, then 开始行动 there.
 	var go := AK.go_button("最终准备", "FINAL PREP")
-	if compact: AK.put(stage, go, Vector2(x + 18, BOTTOM - 56), Vector2(360, 50))
-	else: AK.put(stage, go, Vector2(x + 18, BOTTOM - 84), Vector2(360, 72))
+	AK.put(stage, go, Vector2(x + 18, BOTTOM - 84), Vector2(360, 72))
 	go.pressed.connect(func():
-		game._pending_contract = (offers[chosen] as Dictionary).duplicate()
 		game._pending_start_camp = start
 		menu.show_departure(region)
 		menu.back_to = func(): game.open_station("contracts"))
+
+## The 合同板 page: every department's posted cards on the left, grouped, each
+## with 接取; the taken ones on the right with their progress and 放弃.
+static func contract_board(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var board: ContractBoard = game.base.board
+	var cards: Array = game.board_cards()
+	var y := TOP + 8.0
+	var col := 0
+	var col_y := [TOP + 8.0, TOP + 8.0]
+	for dept in ContractBoard.DEPT_ORDER:
+		var mine: Array = cards.filter(func(c): return str(c.dept) == dept)
+		if mine.is_empty(): continue
+		col = 0 if col_y[0] <= col_y[1] else 1
+		var cx := 16.0 + col * 430.0
+		y = col_y[col]
+		stage.add_child(AK.rect(GameManager.DEPT_COLOURS.get(dept, AK.FG), Vector2(cx, y + 4), Vector2(4, 16)))
+		AK.put(stage, AK.label(dept, 14, AK.FG), Vector2(cx + 12, y))
+		y += 28
+		for c in mine:
+			_board_card(menu, stage, Vector2(cx, y), c, false)
+			y += 70
+		col_y[col] = y + 10
+	# Taken, right.
+	var x := 884.0
+	stage.add_child(AK.rect(Color(0.04, 0.04, 0.04, 0.92), Vector2(x, 60), Vector2(396, 660)))
+	_section(stage, "进行中 %d/%d" % [board.active.size(), game.base.contract_cap()], "TAKEN", Vector2(x + 18, TOP + 8))
+	var ty := TOP + 40.0
+	for c in board.active:
+		_board_card(menu, stage, Vector2(x + 14, ty), c, true)
+		ty += 70
+
+static func _board_card(menu: FieldMenu, stage: Control, at: Vector2, c: Dictionary, taken: bool) -> void:
+	var game := menu.game
+	var width := 368.0 if taken else 420.0
+	stage.add_child(AK.rect(AK.PLATE_2, at, Vector2(width, 64)))
+	stage.add_child(AK.rect(GameManager.DEPT_COLOURS.get(c.dept, AK.FG), at, Vector2(4, 64)))
+	var region := str(c.get("region", ""))
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 6)
+	head.add_child(AK.tag(FieldCatalog.CONTRACT_NAMES.get(str(c.type), ""), AK.SP))
+	if not region.is_empty(): head.add_child(AK.label(AK.REGION_CODE.get(region, ""), 12, AK.MUTE, AK.en()))
+	if taken: head.add_child(AK.label(str(c.dept), 11, AK.MUTE))
+	AK.put(stage, head, at + Vector2(12, 6))
+	var goal := ""
+	match str(c.type):
+		"deep": goal = "起点 +%d 层后撤离" % int(c.steps)
+		"hunt": goal = "起点 +%d 层 · 悬赏目标" % int(c.offset)
+		"deliver": goal = FieldCatalog.contract_goal(c, region, 1)
+		_: goal = game.contract_what(c)
+	if taken and ContractBoard.is_delivery(c): goal = "%s %d/%d" % [goal.split(" ×")[0], ContractBoard.delivered_count(c), ContractBoard.need(c)]
+	AK.put(stage, AK.label(goal, 13, AK.FG), at + Vector2(12, 32))
+	# The 龙门币 alone on a card; the hunt's rare piece shows on the 出发 page.
+	var pay := game.contract_pay_text(c, 1)
+	if str(c.type) == "hunt": pay = pay.split(" · ")[0]
+	var pay_label := AK.label(pay, 11, AK.MUTE)
+	pay_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	AK.put(stage, pay_label, at + Vector2(width - 252, 8), Vector2(160, 16))
+	if taken:
+		var drop := AK.button("放弃", "plain", 12)
+		AK.put(stage, drop, at + Vector2(width - 80, 16), Vector2(68, 32))
+		var uid := int(c.uid)
+		drop.pressed.connect(func(): game.abandon_contract(uid); contracts(menu))
+		return
+	var take := AK.button("接取", "blue", 13)
+	var refusal := game.contract_refusal(c)
+	take.disabled = not refusal.is_empty()
+	if not refusal.is_empty(): take.tooltip_text = refusal
+	AK.put(stage, take, at + Vector2(width - 80, 16), Vector2(68, 32))
+	var card := c
+	take.pressed.connect(func(): game.take_contract(card); contracts(menu))
+	# 外勤部 2 阶: one free reroll of a posted card per return.
+	if game.base.contract_reroll and c.has("uid") and str(c.dept) != "商务部":
+		var reroll := AK.button("重抽", "ghost", 11)
+		AK.put(stage, reroll, at + Vector2(width - 140, 20), Vector2(52, 24))
+		var uid := int(c.uid)
+		reroll.pressed.connect(func(): game.reroll_contract(uid); contracts(menu))
 
 # --- 人事部 (干员寻访策划案 §2.3) ----------------------------------------------------
 
@@ -905,83 +966,63 @@ static func _show_detail(game: GameManager, item: Item) -> void:
 
 static func outbound(menu: FieldMenu) -> void:
 	var game := menu.game
-	var base: BaseState = game.base
-	var orders: OrderBoard = base.orders
-	# Orders only (用户 2026-10-25: 不要出库区的直接交付；只能在可露希尔处卖).
+	var board: ContractBoard = game.base.board
+	# The taken 交付 / 回收 cards only (用户 2026-10-25: 不要出库区的直接交付；只能在可露希尔处卖).
 	var stage := shell(menu, "出库区", "OUTBOUND", [], 0, Callable(), "ORDERS", [["lmd", Economy.format(game.gold)]])
 	var deliverable := game.deliverable_items()
-	# Picking what goes to one order (用户 2026-10-24: 玩家能够选择交什么材料).
-	if order_choosing >= 0 and order_choosing < orders.slots.size() and orders.slots[order_choosing] != null and orders.slots[order_choosing].state == "open":
+	# Picking what goes to one card (用户 2026-10-24: 玩家能够选择交什么材料).
+	if order_choosing >= 0 and not board.find_active(order_choosing).is_empty():
 		_order_choice(menu, stage, order_choosing, deliverable)
 		return
 	order_choosing = -1
-	# The order strips.
 	var y := TOP + 8
-	for i in range(orders.slots.size()):
-		var order = orders.slots[i]
-		_order_strip(menu, stage, Vector2(16, y), i, order, deliverable)
+	for c in board.deliveries():
+		_order_strip(menu, stage, Vector2(16, y), c, deliverable)
 		y += 82
 
-static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, slot: int, order, deliverable: Array[Item]) -> void:
+static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, card: Dictionary, deliverable: Array[Item]) -> void:
 	var game := menu.game
-	var orders: OrderBoard = game.base.orders
-	if order == null:
-		var empty := AK.rect(AK.PLATE_2, at, Vector2(1248, 72))
-		empty.modulate.a = 0.4
-		stage.add_child(empty)
-		AK.put(stage, AK.label("ORDER %02d" % (slot + 1), 10, AK.MUTE, AK.en()), at + Vector2(16, 28))
-		return
-	var t: Dictionary = BaseCatalog.ORDERS[order.id]
-	var colour: Color = GameManager.DEPT_COLOURS.get(t.dept, AK.FG)
+	var t := ContractBoard.spec(card)
+	var colour: Color = GameManager.DEPT_COLOURS.get(card.dept, AK.FG)
 	stage.add_child(AK.rect(colour, at, Vector2(110, 72)))
-	AK.put(stage, AK.label("ORDER %02d" % (slot + 1), 8, AK.INK, AK.en()), at + Vector2(12, 16))
-	AK.put(stage, AK.label(t.dept, 16, AK.INK), at + Vector2(12, 30))
+	AK.put(stage, AK.label("CONTRACT", 8, AK.INK, AK.en()), at + Vector2(12, 16))
+	AK.put(stage, AK.label(card.dept, 16, AK.INK), at + Vector2(12, 30))
 	stage.add_child(AK.rect(AK.PLATE_2, at + Vector2(110, 0), Vector2(1138, 72)))
-	var fits: Array = deliverable.filter(func(x): return orders.matches(slot, x))
+	var fits: Array = deliverable.filter(func(x): return ContractBoard.matches(card, x))
 	if not fits.is_empty(): AK.put(stage, AK.item_icon(fits[0], Vector2(50, 50)), at + Vector2(124, 11))
-	var count := int(t.count)
-	var what := BaseCatalog.order_text(order.id).trim_prefix(str(t.dept) + "：")
+	var what := game.contract_what(card)
+	var region := str(t.get("region", ""))
+	if not region.is_empty(): what += "（%s）" % FieldCatalog.REGIONS[region].name.split(" · ")[0]
 	AK.put(stage, AK.label(what, 14, AK.FG), at + Vector2(188, 14))
-	var done: bool = order.state == "done"
-	AK.put(stage, AK.label("已完成" if done else "已交付 %d / %d  ·  可交付 %d" % [orders.delivered_count(slot), count, fits.size()], 12, AK.GREEN if done or not fits.is_empty() else AK.MUTE), at + Vector2(188, 40))
+	AK.put(stage, AK.label("已交付 %d / %d  ·  可交付 %d" % [ContractBoard.delivered_count(card), ContractBoard.need(card), fits.size()], 12, AK.GREEN if not fits.is_empty() else AK.MUTE), at + Vector2(188, 40))
 	var reward := VBoxContainer.new()
 	reward.alignment = BoxContainer.ALIGNMENT_CENTER
 	var money := AK.money("lmd", Economy.format(int(t.gold)) if t.has("gold") else "×%s" % str(t.mult), 16)
 	money.alignment = BoxContainer.ALIGNMENT_END
 	reward.add_child(money)
 	AK.put(stage, reward, at + Vector2(840, 10), Vector2(120, 52))
-	if done: return
-	var small := HBoxContainer.new()
-	small.add_theme_constant_override("separation", 4)
-	# Never shown now: nothing sets reroll_available (BaseState).
-	if game.base.reroll_available:
-		var reroll := AK.button("刷新", "plain", 12)
-		reroll.pressed.connect(func(): game.reroll_order(slot); outbound(menu))
-		small.add_child(reroll)
+	var uid := int(card.uid)
 	var drop := AK.button("放弃", "plain", 12)
-	drop.pressed.connect(func(): game.abandon_order(slot); outbound(menu))
-	small.add_child(drop)
-	AK.put(stage, small, at + Vector2(980, 20))
+	drop.pressed.connect(func(): game.abandon_contract(uid); outbound(menu))
+	AK.put(stage, drop, at + Vector2(980, 20))
 	var deliver := AK.button("交付", "blue" if not fits.is_empty() else "plain", 14)
 	deliver.disabled = fits.is_empty()
 	AK.put(stage, deliver, at + Vector2(1140, 0), Vector2(108, 72))
 	deliver.pressed.connect(func():
-		order_choosing = slot
+		order_choosing = uid
 		menu.pick = null
 		outbound(menu))
 
-## The order being filled by hand, -1 for the board (用户 2026-10-24).
+## The taken card (uid) being filled by hand, -1 for the list (用户 2026-10-24).
 static var order_choosing := -1
 
-## Everything that fits order `slot`: she picks one, and hands it over.
-static func _order_choice(menu: FieldMenu, stage: Control, slot: int, deliverable: Array[Item]) -> void:
+## Everything that fits card `uid`: she picks one, and hands it over.
+static func _order_choice(menu: FieldMenu, stage: Control, uid: int, deliverable: Array[Item]) -> void:
 	var game := menu.game
-	var orders: OrderBoard = game.base.orders
-	var order: Dictionary = orders.slots[slot]
-	var t: Dictionary = BaseCatalog.ORDERS[order.id]
-	var head := AK.label("%s  ·  已交付 %d / %d" % [BaseCatalog.order_text(order.id), orders.delivered_count(slot), int(t.count)], 15, AK.FG)
+	var card: Dictionary = game.base.board.find_active(uid)
+	var head := AK.label("%s  ·  已交付 %d / %d" % [game.contract_text(card), ContractBoard.delivered_count(card), ContractBoard.need(card)], 15, AK.FG)
 	AK.put(stage, head, Vector2(16, TOP + 8))
-	var pick: Item = menu.pick if menu.pick is Item and orders.matches(slot, menu.pick) else null
+	var pick: Item = menu.pick if menu.pick is Item and ContractBoard.matches(card, menu.pick) else null
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	AK.put(stage, scroll, Vector2(16, TOP + 40), Vector2(1248, 500))
@@ -990,17 +1031,17 @@ static func _order_choice(menu: FieldMenu, stage: Control, slot: int, deliverabl
 	list.add_theme_constant_override("h_separation", 6)
 	list.add_theme_constant_override("v_separation", 6)
 	scroll.add_child(list)
-	for item in deliverable.filter(func(x: Item) -> bool: return orders.matches(slot, x)):
-		var row := EventScreens._item_row(item, "×%d" % orders.takes(slot, item), "个人仓库" if game.stash.has(item) else "背包", true, item == pick)
+	for item in deliverable.filter(func(x: Item) -> bool: return ContractBoard.matches(card, x)):
+		var row := EventScreens._item_row(item, "×%d" % ContractBoard.takes(card, item), "个人仓库" if game.stash.has(item) else "背包", true, item == pick)
 		row.custom_minimum_size.x = 306
 		var chosen: Item = item
 		row.pressed.connect(func(): menu.pick = chosen; outbound(menu))
 		list.add_child(row)
-	EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, "返回", "交付" + (" ×%d" % orders.takes(slot, pick) if pick != null else ""), func():
+	EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, "返回", "交付" + (" ×%d" % ContractBoard.takes(card, pick) if pick != null else ""), func():
 		order_choosing = -1
 		menu.pick = null
 		outbound(menu), func():
-		if pick != null: game.deliver_to_order(slot, pick)
+		if pick != null: game.deliver_to_order(uid, pick)
 		menu.pick = null
 		outbound(menu), pick != null)
 

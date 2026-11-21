@@ -495,32 +495,36 @@ func _text_within(at: Vector2, text: String, size: int, color: Color, room: floa
 func _tag_width(text: String) -> float:
 	return maxf(34.0, _font().get_string_size(I18n.t(text), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8)
 
-## The tracker: the contract's objective first (局内节奏与目标策划案 §6 B1), then
-## the orders (用户 2026-10-06): department, what, carried / needed.
+## The tracker: this run's cards first, one row each (合同板修订案 §2.5), then
+## the 交付 / 回收 cards (用户 2026-10-06): department, what, carried / needed.
 func _draw_orders() -> void:
 	var y := TRACK_TOP
 	var x := MAP_RECT.position.x
-	var goal := game.contract_progress()
-	if not goal.is_empty():
+	var goals := game.contract_progress()
+	if not game.recruit_target.is_empty():
+		goals.append({"type": "recruit", "goal": game.recruit_goal(), "have": 1 if game.recruit_met else 0, "need": 1, "done": game.recruit_met})
+	if not goals.is_empty():
 		draw_rect(Rect2(x, y, MAP_RECT.size.x, 24), Color(0, 0, 0, 0.78))
 		var tag := _tag_width("合同")
 		draw_rect(Rect2(x + 6, y + 5, tag, 14), AK.SP)
 		_text(Vector2(x + 10, y + 17), "合同", 11, AK.INK, null, false)
-		_text(Vector2(x + 14 + tag, y + 17), FieldCatalog.CONTRACT_NAMES[game.contract.type], 12, AK.FG, null, false)
+		_text(Vector2(x + 14 + tag, y + 17), "%d" % goals.size(), 12, AK.FG, _en(), false)
 		y += 26
-		draw_rect(Rect2(x, y, MAP_RECT.size.x, 22), Color(0, 0, 0, 0.55))
-		draw_rect(Rect2(x, y, 4, 22), AK.SP)
-		var mark := "✓" if goal.done else "%d / %d" % [goal.have, goal.need]
-		var mw := _en().get_string_size(I18n.t(mark), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		_text_within(Vector2(x + 10, y + 16), goal.goal, 12, AK.FG, MAP_RECT.size.x - mw - 26)
-		_text(Vector2(x + MAP_RECT.size.x - mw - 8, y + 16), mark, 13, AK.GREEN if goal.done else AK.FG, _en(), false)
-		y += 30
+		for goal in goals.slice(0, 4):
+			draw_rect(Rect2(x, y, MAP_RECT.size.x, 22), Color(0, 0, 0, 0.55))
+			draw_rect(Rect2(x, y, 4, 22), AK.SP)
+			var mark := "✓" if goal.done else "%d / %d" % [goal.have, goal.need]
+			var mw := _en().get_string_size(I18n.t(mark), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+			_text_within(Vector2(x + 10, y + 16), goal.goal, 12, AK.FG, MAP_RECT.size.x - mw - 26)
+			_text(Vector2(x + MAP_RECT.size.x - mw - 8, y + 16), mark, 13, AK.GREEN if goal.done else AK.FG, _en(), false)
+			y += 24
+		y += 6
 	var rows := game.order_progress()
 	if rows.is_empty(): return
 	draw_rect(Rect2(x, y, MAP_RECT.size.x, 24), Color(0, 0, 0, 0.78))
-	var tag := _tag_width("订单")
+	var tag := _tag_width("交付")
 	draw_rect(Rect2(x + 6, y + 5, tag, 14), AK.PAPER)
-	_text(Vector2(x + 10, y + 17), "订单", 11, AK.INK, null, false)
+	_text(Vector2(x + 10, y + 17), "交付", 11, AK.INK, null, false)
 	_text(Vector2(x + 14 + tag, y + 17), FieldCatalog.REGIONS[game.region_id].name.split(" · ")[0], 12, AK.FG, null, false)
 	var dept_w := 42.0
 	for row in rows: dept_w = maxf(dept_w, _font().get_string_size(I18n.t(row.dept), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6)

@@ -877,7 +877,7 @@ static func settlement(menu: FieldMenu) -> void:
 	var cells: Array = []
 	if ok:
 		cells = [["赤金", str(view.get("gold", 0)), AK.SP], ["合同报酬", "+" + Economy.format(view.reward), AK.FG],
-			["深度", AK.floor_code(view.region, view.depth), AK.FG], ["可交付订单", str(view.get("orders", 0)), AK.SP]]
+			["深度", AK.floor_code(view.region, view.depth), AK.FG], ["可交付合同", str(view.get("orders", 0)), AK.SP]]
 	else:
 		var n := {"安全袋保全": 0, "投保送回": 0, "遗失": 0}
 		for entry in view.pack + view.safe + view.worn: n[entry.reason] = int(n.get(entry.reason, 0)) + 1
@@ -889,29 +889,33 @@ static func settlement(menu: FieldMenu) -> void:
 		AK.put(stage, AK.label(cells[i][0], 11, AK.MUTE), at + Vector2(12, 10))
 		AK.put(stage, AK.label(cells[i][1], 22, cells[i][2], AK.en()), at + Vector2(12, 28))
 		stage.add_child(AK.rect(AK.LINE, at + Vector2(0, 67), Vector2(165, 1)))
+	# Every run card (合同板修订案 §2.5): done or not, and what it paid; one line each.
+	var objectives: Array = view.get("contracts", [])
+	var cy := 318.0
+	if not objectives.is_empty():
+		var shown := objectives.slice(0, 4)
+		var box_h := 12.0 + shown.size() * 20.0
+		stage.add_child(AK.rect(AK.PLATE, Vector2(48, cy), Vector2(330, box_h)))
+		for i in range(shown.size()):
+			var o: Dictionary = shown[i]
+			var at := Vector2(58, cy + 6 + i * 20)
+			var mark := AK.label("✓" if o.done else "×", 12, AK.GREEN if o.done else AK.RED)
+			AK.put(stage, mark, at)
+			AK.put(stage, AK.label(str(o.goal), 12, AK.FG if o.done else AK.MUTE), at + Vector2(16, 0))
+			var bonus := AK.label(str(o.bonus) if o.done else "未完成", 11, AK.GREEN if o.done else AK.RED)
+			bonus.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			AK.put(stage, bonus, Vector2(208, at.y + 1), Vector2(160, 16))
+		cy += box_h + 6
+	else: cy = 368.0
 	# 作战记录 by kill count (精英化与加点策划案 §4.2), on success or failure.
 	var records: Dictionary = view.get("records", {})
 	var record_parts: Array[String] = []
 	for record in Progression.RECORDS:
 		if int(records.get(record, 0)) > 0: record_parts.append("%s ×%d" % [record.replace("作战记录", ""), int(records[record])])
-	stage.add_child(AK.rect(AK.PLATE, Vector2(48, 368), Vector2(330, 30)))
-	AK.put(stage, AK.tag("作战记录", AK.SP), Vector2(58, 375))
+	stage.add_child(AK.rect(AK.PLATE, Vector2(48, cy), Vector2(330, 30)))
+	AK.put(stage, AK.tag("作战记录", AK.SP), Vector2(58, cy + 7))
 	var after_tag := maxf(130.0, 58.0 + AK.cn().get_string_size(I18n.t("作战记录"), HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 12.0 + 10.0)
-	AK.put(stage, AK.label(" · ".join(record_parts) if not record_parts.is_empty() else "—", 12, AK.FG), Vector2(after_tag, 374))
-	# The contract's objective (§6 B1): done or not, and what it paid.
-	var objective: Dictionary = view.get("contract", {})
-	if not str(objective.get("goal", "")).is_empty():
-		stage.add_child(AK.rect(AK.PLATE, Vector2(48, 318), Vector2(330, 44)))
-		AK.put(stage, AK.tag("合同目标", AK.SP), Vector2(58, 330))
-		AK.put(stage, AK.label(objective.goal, 12, AK.FG if objective.done else AK.MUTE), Vector2(130, 322))
-		AK.put(stage, AK.label(("✓ " + str(objective.bonus)) if objective.done else "未完成", 11, AK.GREEN if objective.done else AK.RED), Vector2(130, 340))
-	var sprite := TextureRect.new()
-	sprite.texture = Operators.portrait(game.player.operator_id)
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	if not ok: sprite.modulate = Color(0.5, 0.5, 0.5, 0.5)
-	AK.put(stage, sprite, Vector2(129, 408), Vector2(168, 168))
+	AK.put(stage, AK.label(" · ".join(record_parts) if not record_parts.is_empty() else "—", 12, AK.FG), Vector2(after_tag, cy + 6))
 	var back := AK.go_button("返回罗德岛", "RETURN")
 	AK.put(stage, back, Vector2(48, 624), Vector2(330, 60))
 	back.pressed.connect(game.close_modal)

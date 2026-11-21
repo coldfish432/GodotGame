@@ -251,14 +251,18 @@ var in_camp := false
 var in_event := false
 ## The start point picked at the dispatch desk (0 = floor 1, else a camp).
 var _pending_start_camp := 0
-## The contract's objective (局内节奏与目标策划案 §6 B1), chosen at the dispatch
-## desk, and its progress on this run.
-var contract := {}
-var _pending_contract := {}
-var contract_vaults := 0
+## 合同板 (合同板修订案_v0_1.md): the taken run cards (深入 / 猎杀 / 运送) of this
+## region, copied with their pay fixed at the start, and their progress. One
+## of each kind at most, so the bounty, the handover and the depth stay single.
+var run_contracts: Array = []
+## Which of them finished this run already said so.
+var _contracts_announced: Array = []
 var bounty_killed := false
 var _bounty: Enemy
-## 寻访合同 (干员寻访策划案 §2.2): she has been reached and spoken to.
+## 寻访 (干员寻访策划案 §2.2; no card since 合同板修订案): the operator of this
+## region whose traces are all in, {operator, offset}, and whether she has
+## been reached and spoken to.
+var recruit_target := {}
 var recruit_met := false
 ## 运送合同 (沙盘航行策划案 §5.3): the crate is handed over, and where.
 var cargo_delivered := false
@@ -274,7 +278,6 @@ var lost_node: Node3D
 var lost_id := ""
 var _lost_post: GuardPost
 var _lost_warned := false
-var _contract_announced := false
 var builds: Array[String] = []
 ## The floor each relic was taken on (登天斧 fades from there: 藏品数值修订案 §3.1).
 var relic_floors := {}
@@ -1049,7 +1052,7 @@ func start_contract(region: String, start_camp: int = 0) -> void:
 		from_camp = false
 		floor_number = test_floor
 		start_floor = test_floor
-	var project_paid := _take_contract(region)
+	var project_paid := _activate_contracts(region)
 	await _begin_loading()
 	_kit_out_for_run()
 	_announce_contract(project_paid)
@@ -1106,27 +1109,33 @@ func _reset_run_state(region: String) -> void:
 	in_camp = false
 	in_event = false
 
-## Takes the pending (or first offered) contract, fixes its pay, charges the
-## signed projects and rolls the run's seed. Returns the projects' cost.
-func _take_contract(region: String) -> int:
-	contract = _pending_contract.duplicate() if not _pending_contract.is_empty() else (contract_offers(region)[0] as Dictionary).duplicate()
-	_pending_contract = {}
-	# Taking it fixes the pay (v1.1 §2.2); the endless 合同报酬 line adds its share.
-	contract.reward = roundi(Economy.contract_reward(contract, start_floor) * research.contract_bonus() / 10000.0) * 100
+## The taken run cards for this region go along, each with its pay fixed for
+## this start (v1.1 §2.2; the endless 合同报酬 line adds its share); then the
+## signed projects are charged and the run's seed rolled. Returns the projects' cost.
+func _activate_contracts(region: String) -> int:
 	market_field = market.field_mods(region)
-	contract.reward = roundi(contract.reward * field_mult("reward") / 100.0) * 100
+	_prune_deliveries()
+	run_contracts = []
+	for card in base.board.run_cards(region):
+		var c: Dictionary = card.duplicate(true)
+		c.reward = run_card_pay(c, start_floor)
+		run_contracts.append(c)
+	_contracts_announced = []
+	recruit_target = {}
+	for id in RecruitCatalog.in_region(region):
+		if base.recruit_ready(id):
+			recruit_target = {"operator": id, "offset": RecruitCatalog.floor_offset(id)}
+			break
 	_field_feature_start(region)
 	# Signed projects are paid now, at this start's tier, and are on for this contract.
 	var project_paid := research.charge_departure(start_floor)
 	research.apply_run(true)
 	_trader_met = false
-	contract_vaults = 0
 	bounty_killed = false
 	_bounty = null
 	recruit_met = false
 	_roll_lost(region)
 	cargo_delivered = false
-	_contract_announced = false
 	_run_seed = fixed_map_seed if fixed_map_seed else rng_run.randi()
 	return project_paid
 
@@ -1144,7 +1153,7 @@ func _announce_contract(project_paid: int) -> void:
 	prts_log.clear()
 	prts_toasts.clear()
 	broadcast("合同开始：%s。" % FieldCatalog.REGIONS[region_id].name)
-	broadcast("合同目标：%s。" % FieldCatalog.contract_goal(contract, region_id, start_floor))
+	for c in run_contracts: broadcast("合同目标：%s。" % FieldCatalog.contract_goal(c, region_id, start_floor))
 	if not field_titles().is_empty(): broadcast("PRTS 态势：" + "、".join(PackedStringArray(field_titles())))
 	if project_paid > 0: broadcast("课题经费 %s 龙门币：%s。" % [Economy.format(project_paid), "、".join(base.research.run.map(func(p): return str(ResearchCatalog.PROJECTS[p][0])))])
 	broadcast("PRTS：博士，%s已就位。" % Operators.info(player.operator_id).name)
@@ -1602,7 +1611,6 @@ func _vault_nearby() -> bool:
 func _open_vault() -> void:
 	if vault_opened or world_map.vault_seal == null: return
 	vault_opened = true
-	contract_vaults += 1
 	world_map.vault_seal.open()
 	var guarded := rng_floor.randf() < (VAULT_GUARDED_ROUTE if route_kind == "vault" else VAULT_GUARDED) if force_vault_guard < 0 else force_vault_guard == 1
 	if guarded:
@@ -2037,19 +2045,16 @@ func _announce_discoveries() -> void:
 		_seen_exit = true
 		broadcast("PRTS：博士，本层发现撤离点。")
 
-const DEPT_COLOURS := {"工程部": Color("f5c000"), "医疗部": Color("8fc31f"), "后勤部": Color("0098dc"), "加工部": Color("e0782a")}
+const DEPT_COLOURS := {"外勤部": Color("d8d8d8"), "工程部": Color("f5c000"), "医疗部": Color("8fc31f"), "后勤部": Color("0098dc"), "加工部": Color("e0782a"), "商务部": Color("c48cff")}
 
-## The tracker's rows (orders only): open orders for this region or any, with
-## how many matching units she carries.
+## The tracker's rows for the taken 交付 / 回收 cards: those for this region or
+## any, with how many matching units she carries.
 func order_progress() -> Array:
 	var rows: Array = []
-	var board: OrderBoard = base.orders
 	var carried: Array[Item] = []
 	var carried_read := false
-	for slot in range(board.slots.size()):
-		var order = board.slots[slot]
-		if order == null or order.state != "open": continue
-		var t: Dictionary = BaseCatalog.ORDERS[order.id]
+	for card in base.board.deliveries():
+		var t := ContractBoard.spec(card)
 		var where := str(t.get("region", ""))
 		if not where.is_empty() and where != region_id: continue
 		var have := 0
@@ -2057,11 +2062,10 @@ func order_progress() -> Array:
 			carried = carried_items()
 			carried_read = true
 		for item in carried:
-			if board.matches(slot, item): have += item.quantity if item.is_stackable() else 1
-		var what := BaseCatalog.order_text(order.id).split("：")[1] if "：" in BaseCatalog.order_text(order.id) else BaseCatalog.order_text(order.id)
-		what = what.split(" ×")[0].split("（")[0]
-		rows.append({"dept": t.dept, "colour": DEPT_COLOURS.get(t.dept, Color.WHITE), "color": DEPT_COLOURS.get(t.dept, Color.WHITE), "what": what, "have": have, "need": board.remaining(slot),
-			"slot": slot, "mult": t.get("mult", 1.0)})
+			if ContractBoard.matches(card, item): have += item.quantity if item.is_stackable() else 1
+		var what := contract_what(card).split(" ×")[0]
+		rows.append({"dept": card.dept, "colour": DEPT_COLOURS.get(card.dept, Color.WHITE), "color": DEPT_COLOURS.get(card.dept, Color.WHITE), "what": what, "have": have, "need": ContractBoard.remaining(card),
+			"uid": int(card.uid), "mult": t.get("mult", 1.0)})
 	return rows
 
 ## What E would do right here, for the prompt near her ("" for nothing).
@@ -2072,13 +2076,13 @@ func interaction_prompt() -> String:
 		var cache := node as RelicCache
 		if cache.game == self and near(cache): return "密室藏品" if cache.source == "vault" else "战斗缴获"
 	if _vault_nearby(): return "密室"
-	if _recruit_nearby(): return Operators.display_name(str(contract.operator))
+	if _recruit_nearby(): return Operators.display_name(str(recruit_target.operator))
 	if _lost_nearby(): return LostCatalog.name_of(lost_id)
 	if routes._event_nearby(): return RouteEvents.info(event_id()).get("name", "不期而遇")
 	if routes._campfire_nearby(): return "营火"
 	if near_fire() != null and not pack_fuels().is_empty(): return "火堆"
 	if is_instance_valid(shower) and not shower.used and near(shower) and shower_progress < 0.0: return "净化喷淋"
-	if _handover_nearby(): return FactionCatalog.name_of(str(contract.faction))
+	if _handover_nearby(): return FactionCatalog.name_of(str(run_contract("deliver").faction))
 	if is_instance_valid(trace_point) and near(trace_point): return "踪迹"
 	if is_instance_valid(arena) and not arena.mine_near(player.global_position).is_empty(): return "干扰地雷"
 	if near(world_map.buff_device_node) and not _buff_taken: return "强化装置"
@@ -2271,11 +2275,7 @@ func _settle_sort_carried(extracted: bool, on_her: Array, brought_records: Dicti
 		var shown := {"item": item, "reason": reason, "x": item.grid_x, "y": item.grid_y, "page": inventory.page_of(item) if where == "pack" else 0, "w": item.width, "h": item.height}
 		settlement_view[where].append(shown)
 		if kept and item.material_id == Economy.GOLD_ID: settlement_view.gold += item.quantity
-		if kept:
-			for slot in range(base.orders.slots.size()):
-				if base.orders.slots[slot] != null and base.orders.slots[slot].state == "open" and base.orders.matches(slot, item):
-					settlement_view.orders += 1
-					break
+		if kept and base.board.deliveries().any(func(c): return ContractBoard.matches(c, item)): settlement_view.orders += 1
 	return new_finds
 
 ## Insured gear she dropped on a floor and did not pick up again.
@@ -2297,7 +2297,6 @@ func _settle_clear_run(extracted: bool, brought_records: Dictionary) -> void:
 	settlement_view.kills = run_kills.duplicate()
 	run_kills = {}
 	run_sets_seen = {}
-	base.orders.refill(rng_base, region_id)
 	# Bulk orders: crates handed over pay now; a crate lost with the pack reopens its order.
 	voyage.on_settle()
 	voyage.contract_done(region_id)
@@ -2306,6 +2305,9 @@ func _settle_clear_run(extracted: bool, brought_records: Dictionary) -> void:
 	research.settle()
 	research.apply_run(false)
 	base.contract_reroll = base.researched("offer_reroll")
+	# The untaken cards age and the departments post again (合同板修订案 §2.3).
+	base.board.after_settlement(rng_base, board_ctx(), region_id)
+	_prune_deliveries()
 	# 后勤部 6 阶: the pack's finds go straight into the warehouse where it has room.
 	if base.researched("auto_sort"):
 		for item in inventory.items.duplicate():
@@ -2323,22 +2325,29 @@ func _settle_reset_player(still_equipped: Array[Item]) -> void:
 	for item in still_equipped: player.equip(item)
 	player.hp = player.max_hp
 
-## The contract's pay (0 unless extracted with the objective done), added to
-## gold; the contract and its offer are used up.
-func _settle_contract_pay(extracted: bool, progress: Dictionary) -> int:
-	# 赤金 came home as items with everything else; the contract itself pays
-	# 龙门币 for every floor travelled, and nothing on death (经济修订案 §3).
-	# The pay fixed when the contract was taken, on extraction with the objective
-	# done; nothing else is granted here — the field's gains are what came home
-	# (v1.1 §2.1–2.2). The rare piece of a hunt dropped from the bounty itself.
-	var achieved: bool = extracted and progress.get("done", false)
-	var reward: int = int(contract.get("reward", 0)) if achieved else 0
-	settlement_view.contract = {"goal": progress.get("goal", ""), "done": achieved, "bonus": contract_pay_text(contract) if achieved else ""}
-	if achieved:
-		if str(contract.type) == "recruit":
-			base.recruit(str(contract.operator))
-	if not contract.is_empty(): base.contract_offers.erase(region_id)
-	contract = {}
+## Every run card pays on its own (合同板修订案 §2.4): its fixed pay, when she
+## extracted with its objective done; a finished card leaves the board, an
+## unfinished one stays taken with its progress gone. 运送 pays through the
+## voyage; a 寻访 she met joins on extraction.
+func _settle_contract_pay(extracted: bool, progress: Array) -> int:
+	# The field's gains are what came home (v1.1 §2.1–2.2); the hunt's rare piece
+	# dropped from the bounty itself.
+	var reward := 0
+	var rows: Array = []
+	for entry in progress:
+		var c := run_contract_by_uid(int(entry.uid))
+		var achieved: bool = entry.done and (extracted or str(c.get("type", "")) == "deliver")
+		if achieved:
+			reward += int(c.get("reward", 0))
+			base.board.finish(int(c.uid))
+		rows.append({"goal": entry.goal, "done": achieved, "bonus": contract_pay_text(c) if achieved else "", "dept": str(c.get("dept", ""))})
+	if not recruit_target.is_empty():
+		var joined := extracted and recruit_met
+		if joined: base.recruit(str(recruit_target.operator))
+		rows.append({"goal": recruit_goal(), "done": joined, "bonus": "%s 入职" % Operators.display_name(str(recruit_target.operator)) if joined else "", "dept": "人事部"})
+	settlement_view.contracts = rows
+	run_contracts = []
+	recruit_target = {}
 	gold += reward
 	settlement_view.reward = reward
 	return reward
@@ -3950,9 +3959,7 @@ func _apply_meal(meal_id: String) -> void: facilities._apply_meal(meal_id)
 func ride_lift(to_deck: int) -> void: facilities.ride_lift(to_deck)
 func deliverable_items() -> Array[Item]: return facilities.deliverable_items()
 func _hand_over(item: Item) -> bool: return facilities._hand_over(item)
-func deliver_to_order(slot: int, item: Item) -> bool: return facilities.deliver_to_order(slot, item)
-func abandon_order(slot: int) -> bool: return facilities.abandon_order(slot)
-func reroll_order(slot: int) -> bool: return facilities.reroll_order(slot)
+func deliver_to_order(uid: int, item: Item) -> bool: return facilities.deliver_to_order(uid, item)
 func facility_refusal(id: String, remote := false) -> String: return facilities.facility_refusal(id, remote)
 func dept_refusal(dept: String) -> String: return facilities.dept_refusal(dept)
 func gate_refusal(id: String) -> String: return facilities.gate_refusal(id)
@@ -4658,7 +4665,8 @@ func _warden_exclusive(at: Vector3) -> void:
 
 ## The hunt contract's bounty: an elite with HUNT_HP life on its floor, marked.
 func is_bounty_floor() -> bool:
-	return not in_camp and str(contract.get("type", "")) == "hunt" and not bounty_killed and floor_number == start_floor + int(contract.offset)
+	var hunt := run_contract("hunt")
+	return not in_camp and not hunt.is_empty() and not bounty_killed and floor_number == start_floor + int(hunt.offset)
 
 func _spawn_bounty() -> void:
 	var path: Array = world_map.main_path
@@ -4668,63 +4676,123 @@ func _spawn_bounty() -> void:
 	_bounty.max_health *= FieldCatalog.HUNT_HP
 	_bounty.health = _bounty.max_health
 
-## The dispatch desk's offers for `region`, rolled when missing, and after
-## them a 寻访合同 for each operator of the region whose traces are all in
-## (§2.2: 排在 3 张普通卡之外，完成之前一直在).
-func contract_offers(region: String) -> Array:
-	if not base.contract_offers.has(region) or (base.contract_offers[region] as Array).size() < FieldCatalog.CONTRACT_OFFERS:
-		base.contract_offers[region] = FieldCatalog.roll_contracts(region, rng_base)
-	# 外勤部 1 阶: the fourth kind as well.
-	var held: Array = base.contract_offers[region]
-	while base.researched("offer_slot") and held.size() < contract_offer_count():
-		var kinds := held.map(func(c): return str(c.type))
-		for extra in FieldCatalog.roll_contracts(region, rng_base):
-			if not str(extra.type) in kinds:
-				held.append(extra)
-				break
-	# The first contract is fixed (主线 苏醒): 切尔诺伯格 · 回收 源岩.
-	if region == "mine" and Story.count(base.story, "contract") == 0 and Story.is_on():
-		var first: Dictionary = (base.contract_offers[region] as Array)[0]
-		if str(first.get("type", "")) != "recover" or str(first.get("material", "")) != "源岩":
-			(base.contract_offers[region] as Array)[0] = {"type": "recover", "material": "源岩", "count": 6}
-	# The pay's random share goes with the offer (v1.1 §2.2).
-	for offer: Dictionary in base.contract_offers[region]:
-		if not offer.has("roll"): offer.roll = snappedf(rng_base.randf_range(Economy.CONTRACT_ROLL.x, Economy.CONTRACT_ROLL.y), 0.01)
-	var offers: Array = (base.contract_offers[region] as Array).duplicate()
-	for id in RecruitCatalog.in_region(region):
-		if base.recruit_ready(id): offers.append(RecruitCatalog.contract_for(id))
-	offers.append_array(voyage.delivery_offers(region))
-	return offers
+# --- 合同板 (合同板修订案_v0_1.md) ----------------------------------------------
 
-## Ordinary offers at the dispatch desk: 3, 4 with 外勤部 1 阶.
-func contract_offer_count() -> int:
-	return FieldCatalog.CONTRACT_OFFERS + (1 if base.researched("offer_slot") else 0)
+## What the board's posting needs from the base: the open regions and
+## departments, 后勤部 1 阶's extra slot, the start a 回收 card pays from.
+func board_ctx() -> Dictionary:
+	var regions: Array = FieldCatalog.REGIONS.keys().filter(func(r): return region_open(r))
+	var depts: Array = ["外勤部", "工程部", "医疗部", "后勤部"]
+	if base.dept_missing("workshop").is_empty(): depts.append("加工部")
+	return {"regions": regions, "depts": depts, "extra": {"后勤部": 1 if base.researched("order_slot") else 0},
+		"start": _deepest_start, "bonus": research.contract_bonus()}
 
-## 外勤部 2 阶: swaps ordinary offer `index` of `region` for a fresh one of another
-## kind, once per return.
-func reroll_contract(region: String, index: int) -> bool:
-	if not in_base or not base.contract_reroll or not base.contract_offers.has(region): return false
-	var held: Array = base.contract_offers[region]
-	if index < 0 or index >= held.size(): return false
-	var kinds := []
-	for i in range(held.size()):
-		if i != index: kinds.append(str(held[i].type))
-	# A roll can come back with only kinds already held; try a few.
-	for attempt in range(8):
-		for fresh in FieldCatalog.roll_contracts(region, rng_base):
-			if str(fresh.type) in kinds: continue
-			fresh.roll = snappedf(rng_base.randf_range(Economy.CONTRACT_ROLL.x, Economy.CONTRACT_ROLL.y), 0.01)
-			held[index] = fresh
-			base.contract_reroll = false
-			save_base()
-			return true
-	return false
+## The deepest start she has in `region`: the floor after her last camp, or 1.
+func _deepest_start(region: String) -> int:
+	var camps := base.unlocked_camps(region)
+	return (camps.back() + 1) if not camps.is_empty() else 1
+
+## Fills the board's empty slots (a new save, a new department, 后勤部 1 阶).
+func refresh_board() -> void:
+	base.board.fill(rng_base, board_ctx())
+
+## Cards on the board for the dispatch desk: the posted ones and, from 商务部,
+## the voyage's packed orders not yet taken (沙盘航行策划案 §5.3).
+func board_cards() -> Array:
+	if base.board.posted.is_empty(): refresh_board()
+	var out: Array = base.board.posted.duplicate()
+	var taken := base.board.active.filter(func(c): return str(c.type) == "deliver").map(func(c): return int(c.order))
+	for region in FieldCatalog.REGIONS:
+		if not region_open(region): continue
+		for offer in voyage.delivery_offers(region):
+			if int(offer.order) in taken: continue
+			offer.region = region
+			offer.dept = "商务部"
+			out.append(offer)
+	return out
+
+## Why `card` cannot be taken ("" when it can).
+func contract_refusal(card: Dictionary) -> String:
+	if not in_base: return "外勤中"
+	match base.board.refusal(card, base.contract_cap()):
+		"full": return "承接已满"
+		"same": return "同地区已有同类合同"
+	return ""
+
+func take_contract(card: Dictionary) -> bool:
+	if not contract_refusal(card).is_empty(): return false
+	if base.board.take(card, base.contract_cap()).is_empty(): return false
+	save_base()
+	return true
+
+## Tools and tests: the taken cards become just `card` ({} for none), for the
+## region it names or, without one, any region.
+func set_contract(card: Dictionary) -> void:
+	base.board.active.clear()
+	if not card.is_empty(): base.board.add_active(card, str(card.get("dept", "外勤部")))
+
+func abandon_contract(uid: int) -> bool:
+	if not in_base or not base.board.abandon(uid): return false
+	save_base()
+	return true
+
+## 外勤部 2 阶: swaps one posted card for another, once per return.
+func reroll_contract(uid: int) -> bool:
+	if not in_base or not base.contract_reroll or not base.board.reroll(uid, rng_base, board_ctx()): return false
+	base.contract_reroll = false
+	save_base()
+	return true
+
+## A taken 运送 card whose voyage order is no longer packed (expired, delivered
+## and paid, or its crate lost) goes.
+func _prune_deliveries() -> void:
+	for c in base.board.active.duplicate():
+		if str(c.type) != "deliver": continue
+		var o := voyage.order(int(c.order))
+		if o.is_empty() or str(o.state) != "packed": base.board.finish(int(c.uid))
+
+## This run's card of `kind`, or {}.
+func run_contract(kind: String) -> Dictionary:
+	for c in run_contracts:
+		if str(c.type) == kind: return c
+	return {}
+
+func run_contract_by_uid(uid: int) -> Dictionary:
+	for c in run_contracts:
+		if int(c.uid) == uid: return c
+	return {}
+
+## A run card's pay from `from_floor`: 合同报酬 research and the exchange's field mods.
+func run_card_pay(c: Dictionary, from_floor: int) -> int:
+	var pay := roundi(Economy.contract_reward(c, maxi(from_floor, 1)) * research.contract_bonus() / 10000.0) * 100
+	return roundi(pay * field_mult("reward") / 100.0) * 100
+
+## What a card asks for, short: "源岩 ×6", "精良及以上武器 ×1".
+func contract_what(c: Dictionary) -> String:
+	match str(c.get("type", "")):
+		"recover": return "%s ×%d" % [c.material, int(c.count)]
+		"order":
+			var text := BaseCatalog.order_text(str(c.id))
+			return text.split("：")[1].split("（")[0] if "：" in text else text
+	return FieldCatalog.contract_goal(c, str(c.get("region", "")), 1 if in_base else start_floor)
+
+## "工程部：源岩 ×6" for messages.
+func contract_text(c: Dictionary) -> String:
+	return "%s：%s" % [c.get("dept", ""), contract_what(c)]
+
+func recruit_goal() -> String:
+	if recruit_target.is_empty(): return ""
+	return "寻访 %s · %s" % [Operators.display_name(str(recruit_target.operator)), AK.floor_code(region_id, start_floor + int(recruit_target.offset))]
 
 ## What a contract pays, as its card and the settlement show it: the pay fixed
 ## when it was taken, or what it would be from `start_floor` (v1.1 §2.2).
 func contract_pay_text(c: Dictionary, start_floor: int = -1) -> String:
+	if str(c.get("type", "")) == "recover": return "%s 龙门币" % Economy.format(int(c.get("gold", 0)))
+	if str(c.get("type", "")) == "order":
+		var t: Dictionary = BaseCatalog.ORDERS[c.id]
+		return ("%s 龙门币" % Economy.format(int(t.gold))) if t.has("gold") else ("交付价 ×%s" % str(t.mult))
 	if not Economy.pays_contract_reward(c): return FieldCatalog.contract_bonus_text(c)
-	var pay: int = int(c.reward) if c.has("reward") else roundi(Economy.contract_reward(c, maxi(start_floor, 1)) * research.contract_bonus() / 10000.0) * 100
+	var pay: int = int(c.reward) if c.has("reward") else run_card_pay(c, start_floor)
 	var parts: Array[String] = ["%s 龙门币" % Economy.format(pay)]
 	if str(c.type) == "hunt": parts.append("稀有装备 ×1")
 	return " · ".join(parts)
@@ -4903,7 +4971,7 @@ func _take_trace() -> void:
 	elif before == 0:
 		broadcast("PRTS：博士，%s附近有人留下了踪迹。" % RecruitCatalog.RECRUITS[id].place)
 	elif have >= RecruitCatalog.CLUES_NEEDED:
-		broadcast("PRTS：博士，%s的行踪已经确认。调度台可以接寻访合同了。" % Operators.display_name(id))
+		broadcast("PRTS：博士，%s的行踪已经确认。下次前往该地区即可寻访。" % Operators.display_name(id))
 	elif repeat:
 		broadcast("PRTS：博士，这条踪迹记录过，但又多了些细节。")
 	set_message("踪迹 · %s %d/%d" % [Operators.display_name(id), have, RecruitCatalog.CLUES_NEEDED])
@@ -4925,16 +4993,16 @@ func _find_clue(id: String = "") -> void:
 	var first := base.add_clue(id)
 	var have := base.clues(id)
 	if first: broadcast("PRTS：博士，%s附近有人留下了踪迹。" % RecruitCatalog.RECRUITS[id].place)
-	elif have >= RecruitCatalog.CLUES_NEEDED: broadcast("PRTS：博士，%s的行踪已经确认。调度台可以接寻访合同了。" % Operators.display_name(id))
+	elif have >= RecruitCatalog.CLUES_NEEDED: broadcast("PRTS：博士，%s的行踪已经确认。下次前往该地区即可寻访。" % Operators.display_name(id))
 	set_message("踪迹 · %s %d/%d" % [Operators.display_name(id), have, RecruitCatalog.CLUES_NEEDED])
 
 func is_recruit_floor() -> bool:
-	return not in_camp and str(contract.get("type", "")) == "recruit" and not recruit_met and floor_number == start_floor + int(contract.offset)
+	return not in_camp and not recruit_target.is_empty() and not recruit_met and floor_number == start_floor + int(recruit_target.offset)
 
 ## Her 寻访点 (§2.2): she stands in her idle on the trunk two thirds of the way
 ## in, with a squad round her led by an elite; she can be spoken to once it is down.
 func _spawn_recruit() -> void:
-	var id := str(contract.operator)
+	var id := str(recruit_target.operator)
 	var path: Array = world_map.main_path
 	var spot: Vector2 = path[clampi(path.size() * 2 / 3, 0, path.size() - 1)]
 	var at := world_map.nearest_walkable(Vector3(spot.x, 0, spot.y))
@@ -4983,7 +5051,7 @@ func _meet_recruit() -> void:
 		notice("先击退她身边的敌人。")
 		return
 	recruit_met = true
-	var name := Operators.display_name(str(contract.operator))
+	var name := Operators.display_name(str(recruit_target.operator))
 	set_message("寻访 · %s 同意随行" % name)
 	broadcast("PRTS：%s同意随博士返回罗德岛。撤离后完成入职。" % name)
 
@@ -5070,7 +5138,8 @@ func _meet_lost() -> void:
 	if is_instance_valid(tutorial_spotlight): tutorial_spotlight.request("lost_joined")
 
 func is_handover_floor() -> bool:
-	return not in_camp and str(contract.get("type", "")) == "deliver" and not cargo_delivered and floor_number == int(contract.floor)
+	var deliver := run_contract("deliver")
+	return not in_camp and not deliver.is_empty() and not cargo_delivered and floor_number == int(deliver.floor)
 
 const HANDOVER_MODEL := "res://art/kit/base_cargo_cart.glb"
 
@@ -5086,7 +5155,7 @@ func _handover_nearby() -> bool:
 
 ## The contract's crate in her pack, or null.
 func carried_cargo() -> Item:
-	var o := voyage.order(int(contract.get("order", 0)))
+	var o := voyage.order(int(run_contract("deliver").get("order", 0)))
 	var crate := voyage.cargo_item(o) if not o.is_empty() else null
 	return crate if crate != null and carried_items().has(crate) else null
 
@@ -5098,37 +5167,33 @@ func _hand_over_cargo() -> void:
 	inventory.remove(crate)
 	safe_bag.remove(crate)
 	cargo_delivered = true
-	voyage.handed_over(int(contract.order))
-	set_message("运送完成 · %s" % FactionCatalog.name_of(str(contract.faction)))
-	broadcast("PRTS：大宗货箱已交给%s的接头人。" % FactionCatalog.name_of(str(contract.faction)))
+	var deliver := run_contract("deliver")
+	voyage.handed_over(int(deliver.order))
+	set_message("运送完成 · %s" % FactionCatalog.name_of(str(deliver.faction)))
+	broadcast("PRTS：大宗货箱已交给%s的接头人。" % FactionCatalog.name_of(str(deliver.faction)))
 
-## {goal, have, need, done} for the running contract, or {} without one.
-func contract_progress() -> Dictionary:
-	if contract.is_empty(): return {}
-	var have := 0
-	var need := 1
-	match str(contract.type):
-		"deep":
-			need = int(contract.steps)
-			have = clampi(floor_number - start_floor, 0, need)
-		"recover":
-			need = int(contract.count)
-			have = inventory.count_material(contract.material) + safe_bag.count_material(contract.material)
-		"hunt": have = 1 if bounty_killed else 0
-		"recruit": have = 1 if recruit_met else 0
-		"deliver": have = 1 if cargo_delivered else 0
-		"search":
-			need = int(contract.vaults)
-			have = contract_vaults
-	return {"goal": FieldCatalog.contract_goal(contract, region_id, start_floor), "have": have, "need": need, "done": have >= need}
+## [{uid, type, dept, goal, have, need, done}] for this run's cards, in the order taken.
+func contract_progress() -> Array:
+	var out: Array = []
+	for c in run_contracts:
+		var have := 0
+		var need := 1
+		match str(c.type):
+			"deep":
+				need = int(c.steps)
+				have = clampi(floor_number - start_floor, 0, need)
+			"hunt": have = 1 if bounty_killed else 0
+			"deliver": have = 1 if cargo_delivered else 0
+		out.append({"uid": int(c.uid), "type": str(c.type), "dept": str(c.get("dept", "")), "goal": FieldCatalog.contract_goal(c, region_id, start_floor), "have": have, "need": need, "done": have >= need})
+	return out
 
 func _tick_contract() -> void:
-	if contract.is_empty() or _contract_announced: return
-	var progress := contract_progress()
-	if not progress.done: return
-	_contract_announced = true
-	set_message("合同目标完成：%s" % progress.goal)
-	broadcast("合同目标完成：%s。" % progress.goal)
+	if run_contracts.is_empty() or _contracts_announced.size() >= run_contracts.size(): return
+	for progress in contract_progress():
+		if not progress.done or int(progress.uid) in _contracts_announced: continue
+		_contracts_announced.append(int(progress.uid))
+		set_message("合同目标完成：%s" % progress.goal)
+		broadcast("合同目标完成：%s。" % progress.goal)
 
 ## One rare (purple) piece of this region's gear: the hunt bounty's, and now
 ## and then a patrol's.
@@ -5333,7 +5398,7 @@ func spawn_enemy_drops(enemy: Enemy) -> void:
 	if not enemy.elite and not enemy.boss and enemy.behavior == Enemy.Behavior.GUARD and rng_loot.randf() > guard_drop_share(): return
 	_drop_records(enemy)
 	# The hunt's bounty carries the contract's rare piece (v1.1 §2.1: no settlement gifts).
-	if enemy == _bounty and str(contract.get("type", "")) == "hunt":
+	if enemy == _bounty and not run_contract("hunt").is_empty():
 		_drop_at(enemy.global_position, [{"item": _rare_gear()}], 0.9)
 	var ctx := loot_ctx()
 	ctx["boss"] = enemy.boss
@@ -5472,7 +5537,7 @@ var first_run_ore := 0
 
 func orirock_owed() -> int:
 	if in_base or base.extracted_once or start_floor != 1 or not FIRST_RUN_ORE_BY.has(floor_number): return 0
-	if str(contract.get("type", "")) != "recover" or str(contract.get("material", "")) != FIRST_RUN_ORE: return 0
+	if not base.board.deliveries().any(func(c): return str(c.type) == "recover" and str(c.get("material", "")) == FIRST_RUN_ORE and str(c.get("region", "")) == region_id): return 0
 	return maxi(0, int(FIRST_RUN_ORE_BY[floor_number]) - first_run_ore)
 
 ## Scatters drops ({"item"} / {"gold"}) in a ring around `position`.

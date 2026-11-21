@@ -54,12 +54,12 @@ static func tiered(base: int, tier: int) -> int:
 ## chosen start, and taking the contract fixes it. Paid on extraction with the
 ## objective done, nothing otherwise.
 const CONTRACT_BASE := 8000
-const CONTRACT_KIND := {"recover": 0.9, "search": 1.0, "hunt": 1.1}
+const CONTRACT_KIND := {"recover": 0.9, "hunt": 1.1}
 ## Deep contracts by how many floors past the start (FieldCatalog.DEEP_STEPS).
 const CONTRACT_DEEP := {4: 0.8, 6: 1.1, 9: 1.5}
 const CONTRACT_ROLL := Vector2(0.85, 1.15)
 
-## Kinds that pay this reward (寻访 and 运送 have their own).
+## Kinds that pay this reward (运送 and 交付 have their own).
 static func pays_contract_reward(contract: Dictionary) -> bool:
 	var kind := str(contract.get("type", ""))
 	return kind == "deep" or CONTRACT_KIND.has(kind)

@@ -118,7 +118,7 @@ func tick() -> Array[String]:
 func _on_done(id: String) -> void:
 	var base := game.base
 	match ResearchCatalog.key_of(id):
-		"order_slot": base.orders.resize(base.order_slot_count())
+		"order_slot": game.refresh_board()
 		"free_potion": base.free_potions = mini(base.free_potions + 1, base.free_potion_count())
 		"rhodes_blue": base.rhodes_rarity = maxi(base.rhodes_rarity, 1)
 		"rhodes_gold": base.rhodes_rarity = maxi(base.rhodes_rarity, 2)

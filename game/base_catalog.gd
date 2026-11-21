@@ -119,16 +119,13 @@ static func facility_step(id: String, level: int) -> Dictionary:
 	var levels: Array = FACILITIES[id].levels
 	return levels[i] if i >= 0 and i < levels.size() else {}
 
-## Order board base slots; BaseState.order_slot_count adds one for everyone
-## (仓库修订) and one with 后勤部 1 阶.
-const ORDER_SLOTS := 2
-
 ## Order templates. An item qualifies by `category` (with optional `min_rarity`
 ## and origin `region`), by a PRTS `material` id, or, for exclusives, by its
 ## `effect`. `count` counts units: a stack of 5 delivers 5 (掉落物策划案 §7.2).
 ## Reward (龙门币) is either the delivered items' 交付价 times `mult`, or a fixed `gold`.
 ## `region` is the region the order points the player to ("" for any).
-## Departments are the three already in the project docs (用户 2026-10-02 暂定).
+## Departments are the three already in the project docs (用户 2026-10-02 暂定);
+## since 合同板修订案 they are the departments' 交付 cards (ContractBoard).
 const ORDERS := {
 	"starter": {"dept": "工程部", "count": 4, "category": Item.Category.MATERIAL, "mult": 1.3, "weight": 0},
 	"eng_materials": {"dept": "工程部", "count": 10, "category": Item.Category.MATERIAL, "mult": 1.3, "weight": 3},

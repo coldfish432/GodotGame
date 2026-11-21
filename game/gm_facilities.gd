@@ -67,35 +67,22 @@ func _hand_over(item: Item) -> bool:
 	else: return false
 	return true
 
-## Hands `item` to the order in `slot` (all of it, or what the order still
-## needs from a stack); the order pays when it is complete.
-func deliver_to_order(slot: int, item: Item) -> bool:
-	if not game.in_base or not deliverable_items().has(item) or not game.base.orders.matches(slot, item): return false
-	var result := game.base.orders.deliver(slot, item)
-	# A stack bigger than the order needs stays where it was, smaller.
+## Hands `item` to taken 交付/回收 card `uid` (all of it, or what the card still
+## needs from a stack); the card pays when it is complete (合同板修订案).
+func deliver_to_order(uid: int, item: Item) -> bool:
+	var board: ContractBoard = game.base.board
+	var card := board.find_active(uid)
+	if not game.in_base or not deliverable_items().has(item) or not ContractBoard.matches(card, item): return false
+	var text := game.contract_text(card)
+	var result := board.deliver(uid, item)
+	# A stack bigger than the card needs stays where it was, smaller.
 	if item.is_stackable() and int(result.used) < item.quantity: item.set_quantity(item.quantity - int(result.used))
 	else: _hand_over(item)
-	var text := BaseCatalog.order_text(game.base.orders.slots[slot].id)
 	if result.done:
 		game.gold += int(result.gold)
 		game.story_note("order")
-		game.set_message("订单完成：%s  ·  龙门币 +%s" % [text, Economy.format(result.gold)])
-	else: game.set_message("已交付 %s ×%d：%s 还差 %d" % [item.item_name, int(result.used), text, game.base.orders.remaining(slot)])
-	game.save_base()
-	return true
-
-func abandon_order(slot: int) -> bool:
-	if not game.in_base or not game.base.orders.abandon(slot): return false
-	game.set_message("已放弃订单：下次结算后补上新订单。")
-	game.save_base()
-	return true
-
-## The free order reroll. reroll_available is never set true now (BaseState),
-## so this always returns false.
-func reroll_order(slot: int) -> bool:
-	if not game.in_base or not game.base.reroll_available or not game.base.orders.reroll(slot, game.rng_base): return false
-	game.base.reroll_available = false
-	game.set_message("订单已刷新。")
+		game.set_message("合同完成：%s  ·  龙门币 +%s" % [text, Economy.format(result.gold)])
+	else: game.set_message("已交付 %s ×%d：%s 还差 %d" % [item.item_name, int(result.used), text, ContractBoard.remaining(card)])
 	game.save_base()
 	return true
 

@@ -51,8 +51,8 @@ func run() -> void:
 	SystemScreens.settings.story_guide = false
 	check("with the thread off, every region", game.region_open("city"))
 	SystemScreens.settings.story_guide = true
-	var first: Dictionary = game.contract_offers("mine")[0]
-	check("the first contract is 回收 源岩 ×6", first.type == "recover" and first.material == "源岩" and int(first.count) == 6)
+	var first: Dictionary = game.base.board.active[0] if game.base.board.active.size() == 1 else {}
+	check("the first contract is taken already: 工程部 · 回收 源岩 ×6", first.get("type", "") == "recover" and first.material == "源岩" and int(first.count) == 6 and first.dept == "工程部")
 	await game.start_contract("mine")
 	await step(20)
 	check("starting it ends 苏醒 and begins 归舰", current() == ["return"] and "first_contract" in state.done)

@@ -50,13 +50,13 @@ func _economy() -> void:
 	check("old reward units become 赤金 at 10 : 1 on average", absf(total / 4000.0 - 1.2) < 0.05, total / 4000.0)
 	# The contract's pay (龙门币平衡与科研部策划案 v1.1 §2.2): 8,000 × the start's
 	# income index × the kind × the offer's roll, in hundreds.
-	check("a search from floor 1 at roll 1.0 pays 8,000", Economy.contract_reward({"type": "search", "roll": 1.0}, 1) == 8000)
+	check("a hunt from floor 1 at roll 1.0 pays 8,800", Economy.contract_reward({"type": "hunt", "roll": 1.0}, 1) == 8800)
 	check("deep 9 pays ×1.5, from floor 41 ×3.28", Economy.contract_reward({"type": "deep", "steps": 9, "roll": 1.0}, 41) == 39400, Economy.contract_reward({"type": "deep", "steps": 9, "roll": 1.0}, 41))
-	check("寻访 and 运送 pay their own way", Economy.contract_reward({"type": "recruit"}, 1) == 0)
+	check("运送 and 交付 pay their own way", Economy.contract_reward({"type": "deliver"}, 1) == 0 and Economy.contract_reward({"type": "order"}, 1) == 0)
 
-	game._pending_contract = {"type": "search", "vaults": 1, "roll": 1.0}
+	game.set_contract({"type": "deep", "steps": 6, "roll": 1.0})
 	await game.start_contract("city")
-	check("taking the contract fixes its pay", int(game.contract.get("reward", 0)) == 8000, game.contract)
+	check("starting fixes the card's pay", int(game.run_contracts[0].get("reward", 0)) == 8800, game.run_contracts)
 	await step(2)
 	game._clear_field()
 	game.inventory.items.clear()
@@ -76,11 +76,11 @@ func _economy() -> void:
 	check("a gold drop lands as a 赤金 stack on the ground", drops.size() == 1 and drops[0].item.quantity == 3, drops.size())
 	# Extraction: 赤金 comes home as an item, the contract pays 龙门币 per floor.
 	var before := game.gold
-	game.contract_vaults = 1
+	game.floor_number = game.start_floor + 6
 	game.settle(true)
 	await step(2)
 	var reward := game.gold - before
-	check("extracting with the objective done pays the fixed pay, and nothing more", reward == 8000, reward)
+	check("extracting with the objective done pays the fixed pay, and nothing more", reward == 8800, reward)
 	var crated := func(): return game.base.all_items().filter(func(x): return x.material_id == Economy.GOLD_ID).reduce(func(n, x): return n + x.quantity, 0)
 	# 仓库修订 (用户 2026-10-23): it stays in her pack; 一键入库 puts it in the warehouse.
 	check("赤金 found on the contract comes home in her pack", game.gold_bars() == 4 and crated.call() == 0, crated.call())
@@ -276,13 +276,14 @@ func _camps() -> void:
 	check("an upgraded camp adds no contamination", game.in_camp and game.run_contamination == dose)
 	var lmd := game.gold
 	# No contract, no pay (v1.1 §2.2: the pay is the contract's, fixed when taken).
-	game.contract = {}
+	game.run_contracts = []
 	game.camp_extract()
 	await step(2)
 	var reward := game.gold - lmd
 	check("extracting at camp 20|21 without a contract pays nothing", game.in_base and reward == 0, reward)
 
 	# Starting from an unlocked camp.
+	game.set_contract({"type": "deep", "steps": 4, "roll": 1.0})
 	await game.start_contract("mine", 20)
 	await step(2)
 	check("a contract can start in an unlocked camp", game.in_camp and game.floor_number == 20 and game.start_floor == 21 and game.encounter == "closure")
@@ -293,9 +294,9 @@ func _camps() -> void:
 	check("and goes on to the floor after it", game.floor_number == 21 and not game.in_camp)
 	check("difficulty there is the depth's own (3.5 × 20 − 3)", is_equal_approx(game.pressure, 67.0))
 	lmd = game.gold
-	var fixed := int(game.contract.get("reward", 0))
-	check("a camp start fixes the pay at that tier (3)", fixed == Economy.contract_reward(game.contract, 21) and fixed > 0, fixed)
-	var done: bool = game.contract_progress().get("done", false)
+	var fixed := int(game.run_contracts[0].get("reward", 0))
+	check("a camp start fixes the pay at that tier (3)", fixed == Economy.contract_reward(game.run_contracts[0], 21) and fixed > 0, fixed)
+	var done: bool = game.contract_progress()[0].get("done", false)
 	game.settle(true)
 	await step(2)
 	reward = game.gold - lmd

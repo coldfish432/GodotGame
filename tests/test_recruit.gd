@@ -69,28 +69,33 @@ func _catalog() -> void:
 
 func _traces_and_card() -> void:
 	game.base.recruit_clues.clear()
-	var offers := game.contract_offers("mine").size()
-	check("no 寻访合同 before her traces are in", not game.contract_offers("mine").any(func(o): return o.type == "recruit"))
+	check("no 寻访 target before her traces are in", RecruitCatalog.in_region("mine").all(func(id): return not game.base.recruit_ready(id)))
 	game.region_id = "mine"
 	var before := game.prts_log.size()
 	for i in range(RecruitCatalog.CLUES_NEEDED * 2 + 2): game._find_clue()
 	check("traces go to this region's recruits, at most %d each" % RecruitCatalog.CLUES_NEEDED, RecruitCatalog.in_region("mine").all(func(id): return game.base.clues(id) == RecruitCatalog.CLUES_NEEDED))
 	check("PRTS speaks at the first trace", game.prts_log.size() > before)
-	var cards: Array = game.contract_offers("mine").filter(func(o): return o.type == "recruit")
-	check("the dispatch desk offers a 寻访合同 for each, besides the three (%d)" % cards.size(), cards.size() == 2 and game.contract_offers("mine").size() == offers + 2)
-	check("other regions get none", not game.contract_offers("snow").any(func(o): return o.type == "recruit"))
-	check("its goal and reward read on the card", FieldCatalog.contract_goal(cards[0], "mine", 1).begins_with("寻访") and FieldCatalog.contract_bonus_text(cards[0]).ends_with("入职"))
+	# 合同板修订案 (用户: 只要深入、猎杀、回收和交付、运送): no card; she is sought on the next run there.
+	check("both are ready to be sought", RecruitCatalog.in_region("mine").all(func(id): return game.base.recruit_ready(id)))
+	check("the board posts no 寻访 card", not game.board_cards().any(func(o): return str(o.type) == "recruit"))
 
 func _recruit_floor() -> void:
 	var id := "hellagur"
-	game._pending_contract = RecruitCatalog.contract_for(id)
+	# Only one of the region is sought a run: hold the other back for this one.
+	var others := {}
+	for other in RecruitCatalog.in_region("mine"):
+		if other != id:
+			others[other] = game.base.clues(other)
+			game.base.recruit_clues[other] = 0
 	await game.start_contract("mine")
 	await step(2)
+	for other in others: game.base.recruit_clues[other] = others[other]
+	check("a run to her region seeks her, no card needed", str(game.recruit_target.get("operator", "")) == id, game.recruit_target)
 	check("no 寻访点 before her floor", not is_instance_valid(game.recruit_node))
-	game.floor_number = game.start_floor + int(game.contract.offset) - 1
+	game.floor_number = game.start_floor + int(game.recruit_target.offset) - 1
 	await game.advance(0)
 	await step(4)
-	check("on her floor she stands at her 寻访点", is_instance_valid(game.recruit_node) and game.floor_number == game.start_floor + int(game.contract.offset), game.floor_number)
+	check("on her floor she stands at her 寻访点", is_instance_valid(game.recruit_node) and game.floor_number == game.start_floor + int(game.recruit_target.offset), game.floor_number)
 	check("guarded by a squad led by an elite", game._recruit_post != null and game._recruit_post.guards.size() >= 2 and game._recruit_post.guards.any(func(e): return e.elite))
 	game.player.teleport(game.recruit_node.global_position + Vector3(0.6, 0, 0))
 	await step(2)
@@ -106,11 +111,11 @@ func _recruit_floor() -> void:
 	await step(2)
 	var before := "sim=%s busy=%s nearby=%s cleared=%s near=%s" % [game.simulation_active(), game.hands_busy(), game._recruit_nearby(), game.recruit_guard_cleared(), game.player.global_position.distance_to(game.recruit_node.global_position)]
 	game._interact()
-	check("cleared, she agrees: the objective is done", game.recruit_met and game.contract_progress().done, before)
+	check("cleared, she agrees: the objective is done", game.recruit_met, before)
 	game.settle(true)
 	await step(2)
 	check("extracting, she joins the roster", game.base.recruited(id) and game.base.clues(id) == 0)
-	check("and her card is gone", not game.contract_offers("mine").any(func(o): return o.get("operator", "") == id))
+	check("the settlement lists her joining", game.settlement_view.contracts.any(func(r): return r.done and str(r.bonus).ends_with("入职")))
 	# R2 (干员寻访策划案 §14): every recruit's kit is built, so she deploys.
 	check("with her kit built she deploys", id in game.base.deployable())
 	var walker := game.base.operator
@@ -120,13 +125,12 @@ func _recruit_floor() -> void:
 
 func _fall_keeps_traces() -> void:
 	var id := "rosa"
-	game._pending_contract = RecruitCatalog.contract_for(id)
 	await game.start_contract("mine")
 	await step(2)
 	game.settle(false)
 	await step(2)
 	check("a fall: she has not joined", not game.base.recruited(id))
-	check("her traces stay and the card stays", game.base.clues(id) == RecruitCatalog.CLUES_NEEDED and game.contract_offers("mine").any(func(o): return o.get("operator", "") == id))
+	check("her traces stay and she is sought again", game.base.clues(id) == RecruitCatalog.CLUES_NEEDED and game.base.recruit_ready(id))
 
 func _base_and_save() -> void:
 	await step(4)

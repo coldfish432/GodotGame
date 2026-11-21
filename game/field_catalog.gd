@@ -14,14 +14,11 @@ const OUTPOST_BOSS_HP := 3.0
 const OUTPOST_BOSS_ATK := 1.2
 const OUTPOST_GUARDS := 2
 
-## Contract objectives (局内节奏与目标策划案 §6 B1): three offers per region at
-## the dispatch desk, refreshed after every settlement; one is chosen before
-## leaving. The bonus is paid only on extraction with the objective done.
-const CONTRACT_OFFERS := 3
-const CONTRACT_TYPES := ["deep", "recover", "hunt", "search"]
-const CONTRACT_NAMES := {"deep": "深入", "recover": "回收", "hunt": "猎杀", "search": "搜索", "recruit": "寻访", "deliver": "运送"}
+## Contract objectives (局内节奏与目标策划案 §6 B1; 合同板修订案_v0_1.md since
+## 2026-11-18): the departments post them on the board (ContractBoard), she
+## takes several. 搜索 and 寻访 cards are gone (用户: 只要深入、猎杀、回收和交付、运送).
+const CONTRACT_NAMES := {"deep": "深入", "recover": "回收", "hunt": "猎杀", "order": "交付", "deliver": "运送"}
 const DEEP_STEPS := [4, 6, 9]          # floors past the start: LG-05 / 07 / 10 from LG-01
-const DEEP_BONUS := 0.5                # of the contract pay
 ## Common drops of each region's own enemies, so the target always exists there.
 const RECOVER_TARGETS := {
 	"mine": [["源岩", 6], ["破损装置", 4], ["异铁碎片", 4]],
@@ -29,47 +26,23 @@ const RECOVER_TARGETS := {
 	"snow": [["双酮", 4], ["异铁碎片", 4]],
 	"siracusa": [["代糖", 4], ["异铁碎片", 4]],
 }
-const RECOVER_REWARD := {"money": 6000}
 const HUNT_OFFSETS := Vector2i(3, 6)   # the bounty's floor, past the start
 const HUNT_HP := 2.5
-## 密室 are found on about one floor in five now (密室与陷阱修订案 §2.1): one is enough.
-const SEARCH_VAULTS := 1
-const SEARCH_REWARD := {"money": 5000}
-
-## Three offers of different kinds for `region`.
-static func roll_contracts(region: String, rng: RandomNumberGenerator) -> Array:
-	var kinds: Array = CONTRACT_TYPES.duplicate()
-	var out := []
-	for i in range(CONTRACT_OFFERS):
-		var kind: String = kinds.pop_at(rng.randi() % kinds.size())
-		match kind:
-			"deep": out.append({"type": kind, "steps": DEEP_STEPS[rng.randi() % DEEP_STEPS.size()]})
-			"recover":
-				var pick: Array = RECOVER_TARGETS[region][rng.randi() % RECOVER_TARGETS[region].size()]
-				out.append({"type": kind, "material": pick[0], "count": pick[1]})
-			"hunt": out.append({"type": kind, "offset": rng.randi_range(HUNT_OFFSETS.x, HUNT_OFFSETS.y)})
-			"search": out.append({"type": kind, "vaults": SEARCH_VAULTS})
-	return out
 
 ## What the objective asks, with floors counted from `start_floor`.
 static func contract_goal(contract: Dictionary, region: String, start_floor: int) -> String:
 	match str(contract.get("type", "")):
 		"deep": return "抵达 %s 后撤离" % AK.floor_code(region, start_floor + int(contract.steps))
-		"recover": return "带回 %s ×%d" % [contract.material, int(contract.count)]
+		"recover": return "回收 %s ×%d" % [contract.material, int(contract.count)]
 		"hunt": return "击破悬赏目标 · %s" % AK.floor_code(region, start_floor + int(contract.offset))
-		"search": return "开启密室 ×%d" % int(contract.vaults)
-		"recruit": return "寻访 %s · %s" % [Operators.display_name(str(contract.operator)), AK.floor_code(region, start_floor + int(contract.offset))]
+		"order": return BaseCatalog.order_text(str(contract.id)).split("：")[1] if "：" in BaseCatalog.order_text(str(contract.id)) else BaseCatalog.order_text(str(contract.id))
 		"deliver": return "运送 %s · %s" % [FactionCatalog.name_of(str(contract.faction)), AK.floor_code(region, int(contract.floor))]
 	return ""
 
-## What finishing it pays, as shown on the card.
+## What finishing it pays, as shown on the card (the 龙门币 kinds are GameManager.contract_pay_text's).
 static func contract_bonus_text(contract: Dictionary) -> String:
 	match str(contract.get("type", "")):
-		"deep": return "合同报酬 +%d%%" % roundi(DEEP_BONUS * 100)
-		"recover": return "%s 龙门币" % Economy.format(RECOVER_REWARD.money)
 		"hunt": return "稀有装备 ×1"
-		"search": return "%s 龙门币" % Economy.format(SEARCH_REWARD.money)
-		"recruit": return "%s 入职" % Operators.display_name(str(contract.operator))
 		"deliver": return "%s · 关系 +%d" % [Exchange.format_money(str(contract.currency), float(contract.pay)), int(contract.relation)]
 	return ""
 ## Random extraction (肉鸽路线图策划案 v0.2 §6.2, 用户 2026-10-24: 4~6必刷一个撤离

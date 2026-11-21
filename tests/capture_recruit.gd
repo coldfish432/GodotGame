@@ -49,9 +49,9 @@ func run() -> void:
 	game.open_station("personnel")
 	await save("personnel")
 	game.close_modal()
-	game._pending_contract = RecruitCatalog.contract_for("hoshiguma")
+	game.base.recruit_clues["hoshiguma"] = RecruitCatalog.CLUES_NEEDED
 	await game.start_contract("city")
-	game.floor_number = game.start_floor + int(game.contract.offset) - 1
+	game.floor_number = game.start_floor + int(game.recruit_target.offset) - 1
 	await game.advance(0)
 	await step(6)
 	game.open_modal("capture")

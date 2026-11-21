@@ -153,9 +153,7 @@ func _mine() -> void:
 	check("简易封装: 0.01 a second, price unchanged", is_equal_approx(game.contamination_rate(), 0.03) and Economy.price(ore) == price)
 	check("the sealer is used up", not game.inventory.items.any(func(i): return i.material_id == "源石矿封装器"))
 	check("with no ore to seal it does nothing", not game.use_supply(FeatureCatalog.create_supply("源石矿封装器")))
-	var order := OrderBoard.new()
-	order.slots = [{"id": "eng_raw_ore", "state": "open", "delivered": []}]
-	check("a sealed ore still fills the raw-ore order", order.matches(0, ore))
+	check("a sealed ore still fills the raw-ore order", ContractBoard.matches({"type": "order", "id": "eng_raw_ore"}, ore))
 	check("and it is still ore to 源石之心", game.player.ore_count() == 1)
 	var ore2 := FieldCatalog.exclusive("mine")
 	game.inventory.try_add(ore2)

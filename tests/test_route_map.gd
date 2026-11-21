@@ -217,7 +217,7 @@ func _walk() -> void:
 
 func _nodes() -> void:
 	game.route_plain = true
-	game._pending_contract = {"type": "deep", "steps": 9}
+	game.set_contract({"type": "deep", "steps": 9})
 	await game.start_contract("mine")
 	await step(2)
 	game.floor_number = 4

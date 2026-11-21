@@ -502,16 +502,17 @@ func run() -> void:
 	check("pity survives a save", is_equal_approx(float(copy.loot_pity.rare_gear), 0.12))
 
 	# Orders count units.
-	base.orders.slots = [{"id": "eng_carbon", "state": "open", "delivered": []}, null]
+	game.set_contract({"type": "order", "id": "eng_carbon", "dept": "工程部"})
 	var big: Item = base.shelf.filter(func(x): return x.material_id == "碳" and x.quantity == 20)[0]
 	var gold_before := game.gold
-	check("a 20-stack fills an 8-unit order", game.deliver_to_order(0, big) and base.orders.slots[0].state == "done")
+	check("a 20-stack fills an 8-unit order", game.deliver_to_order(int(base.board.active[0].uid), big) and base.board.active.is_empty())
 	check("only 8 units left the stack", big.quantity == 12 and base.shelf.has(big))
 	check("the order paid 交付价 × 8 × 1.5", game.gold - gold_before == roundi(Economy.price(MaterialCatalog.create("碳", 8)) * 1.5), game.gold - gold_before)
-	base.orders.slots = [{"id": "eng_carbon", "state": "open", "delivered": []}, null]
+	game.set_contract({"type": "order", "id": "eng_carbon", "dept": "工程部"})
 	var small: Item = base.shelf.filter(func(x): return x.material_id == "碳" and x.quantity == 5)[0]
-	check("a smaller stack counts its units", game.deliver_to_order(0, small) and base.orders.remaining(0) == 3 and not base.shelf.has(small))
-	check("other materials do not match", not base.orders.matches(0, MaterialCatalog.create("碳素", 1)))
+	var carbon: Dictionary = base.board.active[0]
+	check("a smaller stack counts its units", game.deliver_to_order(int(carbon.uid), small) and ContractBoard.remaining(carbon) == 3 and not base.shelf.has(small))
+	check("other materials do not match", not ContractBoard.matches(carbon, MaterialCatalog.create("碳素", 1)))
 	check("the order text names the PRTS item", "碳" in BaseCatalog.order_text("eng_carbon"))
 
 	# Construction takes materials.
@@ -539,10 +540,10 @@ func run() -> void:
 	check("PRTS materials keep their label", MaterialCatalog.create("碳", 1).description.begins_with("PRTS ★2"))
 	give({"燃料罐": 2})
 	check("non-stacking supplies are counted and taken one by one", game.material_count("燃料罐") == 2 and game.consume_materials({"燃料罐": 2}) and game.material_count("燃料罐") == 0)
-	base.orders.slots = [{"id": "eng_bolts", "state": "open", "delivered": []}, null]
+	game.set_contract({"type": "order", "id": "eng_bolts", "dept": "工程部"})
 	var pile := MaterialCatalog.create("螺栓", 30)
 	base.shelf.append(pile)
-	check("the bolts order takes 12 of a 30-stack", game.deliver_to_order(0, pile) and pile.quantity == 18 and base.orders.slots[0].state == "done")
+	check("the bolts order takes 12 of a 30-stack", game.deliver_to_order(int(base.board.active[0].uid), pile) and pile.quantity == 18 and base.board.active.is_empty())
 
 	print("\n%d/%d checks passed" % [checks - failures, checks])
 	quit(1 if failures > 0 else 0)

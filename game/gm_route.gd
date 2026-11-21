@@ -83,10 +83,11 @@ func _roll_route_block(block: int) -> void:
 		"fate_ok": not game._sought_here().is_empty(), "post_ok": not posts.is_empty(), "posts": posts, "plain": game.route_plain,
 		"ensure_post": "reunion" if posts.has("reunion") and FactionRewards.badge_on(game, "reunion") else ""}
 	ctx.mult["post"] = game._field_post_mult(posts)
-	match str(game.contract.get("type", "")):
-		"hunt": if not game.bounty_killed: ctx["bounty"] = game.start_floor + int(game.contract.offset)
-		"search": ctx["search"] = true
-		"deliver": ctx["deliver"] = [int(game.contract.floor), str(game.contract.faction)]
+	# Every card of the run puts its own mark (合同板修订案 §2.5).
+	var hunt := game.run_contract("hunt")
+	if not hunt.is_empty() and not game.bounty_killed: ctx["bounty"] = game.start_floor + int(hunt.offset)
+	var deliver := game.run_contract("deliver")
+	if not deliver.is_empty(): ctx["deliver"] = [int(deliver.floor), str(deliver.faction)]
 	game.route_map = RouteMap.roll(block, ctx)
 	game.route_trail = []
 	game.route_peek = false

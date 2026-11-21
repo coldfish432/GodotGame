@@ -24,7 +24,8 @@ var racks := {}
 var facilities := {}
 ## Facilities connected to the 基建总控台 (upgraded from there as well as on site).
 var connected: Array[String] = []
-var orders := OrderBoard.new()
+## 合同板 (合同板修订案_v0_1.md): the departments' cards and what she has taken.
+var board := ContractBoard.new()
 ## Medical (§4). An injury belongs to the operator who fell and stays on her
 ## until it is treated (博士主角叙事修订案 §5, 用户 2026-10-15); contamination
 ## does not leave the field (用户 2026-10-15: 污染不带出局外). id -> the tier
@@ -52,7 +53,6 @@ var drone := false
 ## The 仓管台 always browses the whole warehouse (仓库修订: no console to buy).
 var console := true
 ## Contract offers at the dispatch desk, region -> [contract] (局内节奏与目标策划案 §6 B1).
-var contract_offers := {}
 ## Expansion levels into BaseCatalog.PACK_PAGES / SAFE_SIZES.
 var pack_level := 0
 var safe_level := 0
@@ -154,10 +154,16 @@ func endless_level(line: String) -> int:
 func project_on(project: String) -> bool:
 	return project in (research.run as Array)
 
-## The order board: 3 (仓库修订 moved 仓储部's extra slot to everyone), one
-## more with 后勤部 1 阶.
-func order_slot_count() -> int:
-	return BaseCatalog.ORDER_SLOTS + 1 + (1 if researched("order_slot") else 0)
+## 合同板: how many cards she can have taken at once (外勤部 1 阶 +1).
+func contract_cap() -> int:
+	return ContractBoard.CAP + (1 if researched("offer_slot") else 0)
+
+## A new save's board: nothing posted yet, the first contract (主线 苏醒:
+## 工程部 · 切尔诺伯格 · 回收 源岩 ×6) already taken.
+func start_board() -> void:
+	board = ContractBoard.new()
+	var first := board.add_active({"type": "recover", "region": "mine", "material": "源岩", "count": 6, "roll": 1.0}, "工程部")
+	first.gold = Economy.contract_reward(first, 1)
 
 ## Free 标准急救剂 per contract: 4 with 医疗部 1 阶.
 func free_potion_count() -> int:
@@ -188,9 +194,8 @@ func _init() -> void:
 	lost_found.assign(LostCatalog.LOST.keys())
 	for category in range(Item.Category.size()):
 		racks[category] = BaseCatalog.STARTING_RACKS
-	orders.start_fresh()
+	start_board()
 	reset_facilities()
-	orders.resize(order_slot_count())
 
 func reset_facilities() -> void:
 	facilities = {}
@@ -215,14 +220,12 @@ func connect_facility(id: String) -> void:
 ## `id` at `level`, clamped (tools, tests and old saves).
 func set_facility(id: String, level: int) -> void:
 	facilities[id] = clampi(level, BaseCatalog.facility_start(id), BaseCatalog.facility_max(id))
-	orders.resize(order_slot_count())
 	_show_racks()
 
 ## Every facility at its top level (tools and tests).
 func max_facilities() -> void:
 	for id in BaseCatalog.FACILITY_ORDER: facilities[id] = BaseCatalog.facility_max(id)
 	connected.assign(BaseCatalog.connectable())
-	orders.resize(order_slot_count())
 	_show_racks()
 
 func facility_level(id: String) -> int:
@@ -239,7 +242,6 @@ func facility_refusal(id: String, money: int) -> String:
 ## Raises `id` one level; the caller pays. Returns the new level.
 func raise_facility(id: String) -> int:
 	facilities[id] = mini(facility_level(id) + 1, BaseCatalog.facility_max(id))
-	orders.resize(order_slot_count())
 	_show_racks()
 	return facility_level(id)
 
@@ -774,10 +776,9 @@ func place_loose(items: Array) -> void:
 # --- Save --------------------------------------------------------------------
 
 func to_data() -> Dictionary:
-	return {"shelf": shelf.map(func(x): return x.to_data()), "prts_history": prts_history.duplicate(true), "gear_sets": _gear_sets_data(), "mail": mail.map(func(l): return {"from": l.from, "time": l.time, "items": (l.items as Array).map(func(x): return x.to_data())}), "facilities": facilities.duplicate(), "connected": connected.duplicate(), "orders": orders.to_data(),
+	return {"shelf": shelf.map(func(x): return x.to_data()), "prts_history": prts_history.duplicate(true), "gear_sets": _gear_sets_data(), "mail": mail.map(func(l): return {"from": l.from, "time": l.time, "items": (l.items as Array).map(func(x): return x.to_data())}), "facilities": facilities.duplicate(), "connected": connected.duplicate(), "contract_board": board.to_data(),
 		"injuries": injuries.duplicate(), "free_potions": free_potions, "closure_stock": closure_stock.duplicate(), "closure_restock_at": closure_restock_at,
 		"medical_report": medical_report, "report_unread": report_unread,
-		"contract_offers": contract_offers.duplicate(true),
 		"pack_level": pack_level, "safe_level": safe_level, "loot_pity": loot_pity.duplicate(), "directed_fails": directed_fails,
 		"insurance_queue": insurance_queue.map(func(e): return {"item": e.item.to_data(), "due": e.due}),
 		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "first_extract_given": first_extract_given, "extracted_once": extracted_once, "story": story.duplicate(true), "kits": kits.duplicate(), "operator": operator,
@@ -837,7 +838,6 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	report_unread = bool(data.get("report_unread", false))
 	# Saves from before 仓库修订 had a drone (it counts toward 仓储部 below).
 	drone = bool(data.get("drone", false))
-	contract_offers = (data.get("contract_offers", {}) as Dictionary).duplicate(true)
 	pack_level = clampi(int(data.get("pack_level", 0)), 0, BaseCatalog.PACK_PAGES.size() - 1)
 	safe_level = clampi(int(data.get("safe_level", 0)), 0, BaseCatalog.SAFE_SIZES.size() - 1)
 	directed_fails = maxi(0, int(data.get("directed_fails", 0)))
@@ -913,9 +913,10 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 		racks[category] = clampi(int(racks_in.get(str(category), BaseCatalog.STARTING_RACKS)), BaseCatalog.STARTING_RACKS, BaseCatalog.RACK_SLOTS)
 	_load_facilities(data)
 	_show_racks()
-	if data.has("orders"): orders.load_data(data.orders)
-	else: orders.start_fresh()
-	orders.resize(order_slot_count())
+	board = ContractBoard.new()
+	if data.has("contract_board"): board.load_data(data.contract_board)
+	elif data.has("orders"): board.migrate_orders(data.orders)
+	else: start_board()
 	# Saves from before 仓库修订: crates and staging go into the warehouse too.
 	var loose: Array[Item] = []
 	for entry in data.get("crates", []):
@@ -983,7 +984,7 @@ func _load_research(data: Dictionary) -> void:
 ## Version 1 had one flat warehouse list; it goes on the shelves, overflow to the mail.
 func migrate_v1(stash_data: Array, seen: Dictionary) -> void:
 	reset_facilities()
-	orders.start_fresh()
+	start_board()
 	shelf.clear()
 	var loose: Array[Item] = []
 	for entry in stash_data:

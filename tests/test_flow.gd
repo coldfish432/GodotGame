@@ -87,8 +87,8 @@ func sim_run(region: String, below: int = 100000) -> Array:
 	if last % FieldCatalog.CAMP_INTERVAL == 0:
 		camp[region] = maxi(int(camp[region]), last)
 		game.base.unlock_camp(region, last)
-	var offers: Array = game.contract_offers(region)
-	var pay := Economy.contract_reward(offers[0], start) if not offers.is_empty() else 0
+	# 合同板 (合同板修订案 v0.1, 用户: 不缩): a 深入 and a 猎杀 taken for the region, both done.
+	var pay := Economy.contract_reward({"type": "deep", "steps": 6, "roll": 1.0}, start) + Economy.contract_reward({"type": "hunt", "roll": 1.0}, start)
 	gold += pay
 	contract_paid += pay
 	upkeep_paid += half_day_bill()

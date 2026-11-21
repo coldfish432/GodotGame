@@ -177,7 +177,7 @@ func _gifts() -> void:
 	check("a gift takes the collectibles and holds them", gift != null and GameManager.is_gift(gift) and Economy.price(gift) == 7500 + 38000 and not game.stash.has(a) and not game.inventory.items.has(b))
 	check("a city piece counts ×1.5 for 龙门商会", game.gift_gain(gift, "lungmen") == roundi((7500 * 1.5 + 38000) / 1000.0))
 	check("…and a mine piece for 乌萨斯西北矿场", game.gift_gain(gift, "ursus") == roundi((7500 + 38000 * 1.5) / 1000.0))
-	check("a gift is not sold, packed, boxed or delivered", not Consignment.takes(gift) and not Packs.packable(gift) and not Collectibles.accepts("material", gift) and not base.orders.matches(0, gift))
+	check("a gift is not sold, packed, boxed or delivered", not Consignment.takes(gift) and not Packs.packable(gift) and not Collectibles.accepts("material", gift) and not ContractBoard.matches({"type": "order", "id": "log_collectibles"}, gift))
 	var saved := Item.from_data(gift.to_data())
 	check("a gift survives a save with what it holds", GameManager.is_gift(saved) and saved.contents.items.size() == 2 and game.gift_gain(saved, "lungmen") == game.gift_gain(gift, "lungmen"))
 	var before := game.exchange.relation("lungmen")
@@ -186,10 +186,9 @@ func _gifts() -> void:
 
 func _orders_and_insurance() -> void:
 	var t: Dictionary = BaseCatalog.ORDERS["log_siracusa_collectible"]
-	var board := OrderBoard.new()
-	board.slots = [{"id": "log_siracusa_collectible", "state": "open", "delivered": []}]
+	var card := {"type": "order", "id": "log_siracusa_collectible"}
 	check("an order asks for a 叙拉古 collectible, blue or better", t.category == Item.Category.COLLECTIBLE
-		and board.matches(0, Collectibles.create("陶瓷狼像")) and not board.matches(0, Collectibles.create("银质餐刀匣")) and not board.matches(0, Collectibles.create("古玉坠")))
+		and ContractBoard.matches(card, Collectibles.create("陶瓷狼像")) and not ContractBoard.matches(card, Collectibles.create("银质餐刀匣")) and not ContractBoard.matches(card, Collectibles.create("古玉坠")))
 	var coat := Item.create("投保外套", Item.Category.CHEST, 2, 2, 1.0)
 	coat.insured = true
 	game.base.receive(coat)

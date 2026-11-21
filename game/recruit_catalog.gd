@@ -79,5 +79,3 @@ static func trace_value(key: String, found_before: bool) -> int:
 	if is_big(key): return BIG_VALUE / 2 if found_before else BIG_VALUE
 	return 0 if found_before else SMALL_VALUE
 
-static func contract_for(id: String) -> Dictionary:
-	return {"type": "recruit", "operator": id, "offset": floor_offset(id)}

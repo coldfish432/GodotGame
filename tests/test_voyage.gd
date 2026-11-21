@@ -308,8 +308,8 @@ func _orders() -> void:
 	var floors: Dictionary = o.floors
 	check("it goes to 萨米 or 叙拉古: floors within reach", floors.has("snow") and floors.has("siracusa") and int(floors.snow) <= 39 and int(floors.siracusa) <= 9
 		and int(floors.snow) % 10 != 0, floors)
-	check("a delivery card at 萨米's desk, none at 龙门's", game.contract_offers("snow").any(func(c): return c.type == "deliver" and int(c.order) == int(o.id))
-		and not game.contract_offers("city").any(func(c): return c.type == "deliver"))
+	check("a 商务部 运送 card for 萨米 on the board, none for 龙门", game.board_cards().any(func(c): return c.type == "deliver" and int(c.order) == int(o.id) and c.region == "snow" and c.dept == "商务部")
+		and not game.board_cards().any(func(c): return c.type == "deliver" and c.region == "city"))
 	var reach := true
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
@@ -351,10 +351,11 @@ func _delivery() -> void:
 	check("the crate goes into the pack", game.inventory.try_add(crate))
 	crate.carried_in = true
 	o.floors = {"snow": 3, "siracusa": 3}
-	var card: Dictionary = game.contract_offers("snow").filter(func(c): return c.type == "deliver")[0]
+	var card: Dictionary = game.board_cards().filter(func(c): return c.type == "deliver" and c.region == "snow")[0]
 	check("the card reads 运送 and its pay", FieldCatalog.contract_goal(card, "snow", 1).begins_with("运送") and FieldCatalog.contract_bonus_text(card).contains("关系 +15"))
 	var ship := game.base.ship_at
-	game._pending_contract = card
+	game.set_contract({})
+	check("taking the 运送 card", game.take_contract(card) and game.board_cards().all(func(c): return not (c.type == "deliver" and int(c.order) == int(card.order))))
 	await game.start_contract("snow")
 	await step(2)
 	check("a contract no longer moves the ship", game.base.ship_at == ship)
@@ -373,7 +374,7 @@ func _delivery() -> void:
 	await step(2)
 	check("the prompt names the buyer", game.interaction_prompt() == FactionCatalog.name_of("karlan"), game.interaction_prompt())
 	game._interact()
-	check("handed over: the crate leaves the pack, the objective is done", game.cargo_delivered and not game.inventory.items.has(crate) and game.contract_progress().done)
+	check("handed over: the crate leaves the pack, the objective is done", game.cargo_delivered and not game.inventory.items.has(crate) and game.contract_progress()[0].done)
 	# 货币精简与取整修订案 v1.0: 12.5 赤金 comes as 13 whole bars into the warehouse.
 	var shelf_bars := func() -> int: return game.base.stock().filter(func(i): return i.material_id == Economy.GOLD_ID).reduce(func(n, i): return n + i.quantity, 0)
 	var bars_before: int = shelf_bars.call()
