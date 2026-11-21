@@ -35,7 +35,7 @@ static func _ship_panel(menu: FieldMenu, stage: Control) -> void:
 	AK.put(stage, AK.section("罗德岛号", "LANDSHIP"), Vector2(28, TOP + 8))
 	var status := MarketWidgets.live(func():
 		if v.is_sailing():
-			return "航行 · %s → %s · %s · %s" % [v.sailing.from, v.sailing.to, VoyageCatalog.MODE_NAMES[v.sailing.mode], ExchangeScreen._left(int(v.sailing.due) - BaseState.now())]
+			return "航行 · %s → %s · %s · %s" % [v.sailing.from, v.sailing.to, VoyageCatalog.MODE_NAMES[v.sailing.mode], ExchangeScreen._left(int(v.sailing.due) - BaseState.real_now())]
 		return "停泊 · %s" % v.place(), 15)
 	AK.put(stage, status, Vector2(28, TOP + 40))
 	if destination.is_empty() or destination == v.place() or not destination in VoyageCatalog.ANCHORS:
@@ -168,9 +168,9 @@ static func _orders_panel(menu: FieldMenu, stage: Control) -> void:
 		var left := MarketWidgets.live(func():
 			var order := v.order(id)
 			if order.is_empty(): return ""
-			if str(order.state) == "handover": return "交接 %s" % ExchangeScreen._left(int(order.due) - BaseState.now())
+			if str(order.state) == "handover": return "交接 %s" % ExchangeScreen._left(int(order.due) - BaseState.real_now())
 			if str(order.state) == "delivered": return "已交接"
-			return ExchangeScreen._left(int(order.expires) - BaseState.now()), 12, AK.MUTE)
+			return ExchangeScreen._left(int(order.expires) - BaseState.real_now()), 12, AK.MUTE)
 		AK.put(stage, left, Vector2(1120, y + 8))
 		var goods: Array = []
 		for m in o.lines: goods.append("%s ×%d (%d)" % [m, int(o.lines[m]), game.material_count(m)])

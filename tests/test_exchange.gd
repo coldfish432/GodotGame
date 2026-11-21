@@ -32,6 +32,8 @@ func set_index(market_id: String, value: float) -> void:
 	b.sh = 0.0
 
 func run() -> void:
+	# These checks are of the one-to-one clock (时间缩放策划案 v0.2: test_time_scale has the scaled one).
+	BaseState.time_scale = 1
 	MarketState.tz_override = 0
 	# The market starts at now() and ticks every second of it: pinned, every run
 	# walks the same prices, news and trading hours (a Wednesday, 10:00).

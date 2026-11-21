@@ -29,6 +29,8 @@ func next_day() -> void:
 	later(MarketState.next_day_start(game.market.t) - game.market.t + 4)
 
 func run() -> void:
+	# These checks are of the one-to-one clock (时间缩放策划案 v0.2: test_time_scale has the scaled one).
+	BaseState.time_scale = 1
 	MarketState.tz_override = 0
 	BaseState.frozen_clock = 1791972000
 	BaseState.stall = 0
@@ -229,10 +231,10 @@ func _loans(ex: Exchange, fin: RhodesFinance) -> void:
 
 func _idle(ex: Exchange, fin: RhodesFinance) -> void:
 	var day := 86400
+	# 时间缩放策划案 v0.2 §5 (scale 1 here): one day at most is caught up, the rest stands still.
 	check("5 hours away: 5 caught up", BaseState.catch_up_split(5 * 3600) == [5 * 3600, 0])
-	check("30 hours: all 30", BaseState.catch_up_split(30 * 3600) == [30 * 3600, 0])
-	check("2 days 3 hours: 1 day 3 hours, 1 day still", BaseState.catch_up_split(2 * day + 3 * 3600) == [day + 3 * 3600, day])
-	check("5 days 23 hours: 1 day 23 hours, 4 days still", BaseState.catch_up_split(5 * day + 23 * 3600) == [day + 23 * 3600, 4 * day])
+	check("30 hours: one day, 6 hours still", BaseState.catch_up_split(30 * 3600) == [day, 6 * 3600])
+	check("5 days 23 hours: one day, 4 days 23 hours still", BaseState.catch_up_split(5 * day + 23 * 3600) == [day, 4 * day + 23 * 3600])
 	# Through the game's catch-up.
 	game.base.research.active.append({"id": "commerce_q", "start": BaseState.now(), "end": BaseState.now() + 3 * day})
 	var bills := fin.bills.size()
@@ -243,10 +245,9 @@ func _idle(ex: Exchange, fin: RhodesFinance) -> void:
 	BaseState.clock_offset += 5 * day + 23 * 3600
 	var stall := BaseState.stall
 	game._catch_up_market()
-	check("away 5 d 23 h: 4 days stood still", BaseState.stall - stall == 4 * day, BaseState.stall)
+	check("away 5 d 23 h: 4 d 23 h stood still", BaseState.stall - stall == 4 * day + 23 * 3600, BaseState.stall)
 	check("the market caught up to the Rhodes clock", absi(game.market.t - BaseState.now()) <= MarketState.TICK)
-	var real_now := BaseState.frozen_clock + BaseState.clock_offset
-	check("the hours of the day stay real", posmod(BaseState.now(), 3600) == posmod(real_now, 3600) and posmod(BaseState.now() - real_before, day) == posmod(real_now - real_before, day))
+	check("the Rhodes clock goes on a day past where it was", BaseState.now() - (real_before - stall) == day, BaseState.now() - (real_before - stall))
 	check("at most two bills for the time caught up: %d" % (fin.bills.size() - bills), fin.bills.size() - bills <= 2 and fin.bills.size() - bills >= 1)
 	check("interest only for the days caught up", ex.loan <= ceili(loan * pow(1.0 + RhodesFinance.LOAN_BASE_RATE * 3.0 + RhodesFinance.LOAN_DEBT_PREMIUM, 2)), [ex.loan, game.gold, fin.bills.slice(-2).map(func(b): return [b.total, b.borrowed, b.interest])])
 	check("research does not finish in the still days", not game.research.is_done("commerce_q"))

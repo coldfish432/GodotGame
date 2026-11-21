@@ -190,6 +190,7 @@ func unlocked_camps(region: String) -> Array[int]:
 	return out
 
 func _init() -> void:
+	reset_clock()
 	roster = starting_roster()
 	lost_found.assign(LostCatalog.LOST.keys())
 	for category in range(Item.Category.size()):
@@ -366,45 +367,131 @@ static var clock_offset := 0
 ## Tests that need the clock to stand still between their own moves pin it here (0: live).
 static var frozen_clock := 0
 ## 可露希尔特供 on her base shelf: what is left of `type` this window. The
-## whole line refills to its caps once the window has run out.
+## whole line refills to its caps once the window has run out (real time,
+## 时间缩放策划案 v0.2 §4.1).
 func closure_left(type: String) -> int:
-	if now() >= closure_restock_at:
+	if real_now() >= closure_restock_at:
 		closure_stock = {}
 		for id in BaseCatalog.CLOSURE_LINE: closure_stock[id] = int(BaseCatalog.POTIONS[id].cap)
-		closure_restock_at = now() + BaseCatalog.RESTOCK_SECONDS
+		closure_restock_at = real_now() + BaseCatalog.RESTOCK_SECONDS
 	return int(closure_stock.get(type, 0))
 
-## Seconds until she restocks.
+## Real seconds until she restocks.
 func closure_restock_in() -> int:
-	return maxi(0, closure_restock_at - now())
+	return maxi(0, closure_restock_at - real_now())
 
-## 运营策划案 §5.1: the whole days the Rhodes clock stood still while nobody
-## was aboard (online again it runs with the real clock; the hours of the day stay real).
+# --- The two clocks (罗德岛时间缩放策划案 v0.2 §3) ---------------------------------
+
+## Rhodes seconds per real second (拍板 1: 现实 3 小时 = 罗德岛 1 天).
+const TIME_SCALE := 8
+## The scale in force; tests that keep the old one-to-one clock set 1 (set_time_scale).
+static var time_scale := TIME_SCALE
+## Rhodes seconds the clock stood still while nobody was aboard (§5): offline
+## beyond one real day is not simulated.
 static var stall := 0
+## Rhodes = anchor_rhodes + (real − anchor_real) × scale − stall + rhodes_offset.
+static var anchor_real := 0
+static var anchor_rhodes := 0
+## Tests only: moves the Rhodes clock and nothing on the real one.
+static var rhodes_offset := 0
+## The old one-to-one save being read now: its stall (real = Rhodes + stall).
+## −1 when the save already runs on the two clocks. Loaders of the other
+## parts of the save (voyage, exchange, market) read it for their migration.
+static var legacy_stall := -1
+## Rhodes time the save began (its 第 1 日).
+static var born := 0
 
+## The wall clock: insurance, crops, her restocks, voyages and parcels (§4.1).
+static func real_now() -> int:
+	return (frozen_clock if frozen_clock > 0 else int(Time.get_unix_time_from_system())) + clock_offset
+
+## The Rhodes clock: everything else.
 static func now() -> int:
-	return (frozen_clock if frozen_clock > 0 else int(Time.get_unix_time_from_system())) + clock_offset - stall
+	var real := real_now()
+	if anchor_real == 0: _anchor(real, real)
+	return anchor_rhodes + (real - anchor_real) * time_scale - stall + rhodes_offset
 
-## §5.1: after `gap` seconds away, how long is caught up and how long stands
-## still: under a day all of it; else one day and what is over whole days.
+static func _anchor(real: int, rhodes: int) -> void:
+	anchor_real = real
+	anchor_rhodes = rhodes
+
+## A new save: the Rhodes clock starts at the real time of now.
+static func reset_clock() -> void:
+	stall = 0
+	rhodes_offset = 0
+	legacy_stall = -1
+	_anchor(real_now(), real_now())
+	born = real_now()
+
+## Changes the scale from this moment; the clock does not jump.
+static func set_time_scale(scale: int) -> void:
+	var at := now() + stall - rhodes_offset
+	time_scale = maxi(1, scale)
+	_anchor(real_now(), at)
+
+## Rhodes seconds `real_seconds` of real time make.
+static func rhodes_seconds(real_seconds: float) -> float:
+	return real_seconds * time_scale
+
+## Real seconds until Rhodes time `at` (countdowns are shown in real time, §7).
+static func real_left(at: int) -> int:
+	return ceili(maxf(0.0, float(at - now())) / time_scale)
+
+## The share of a trading day's amounts Rhodes pays or earns (§6.3): a day's
+## sum ÷ scale, so an hour of real time costs and earns what it did.
+static func day_share() -> float:
+	return 1.0 / time_scale
+
+## §5: after `gap` Rhodes seconds away, [caught up, stood still]: at most one
+## real day (罗德岛 8 天) is caught up, the rest stands still.
 static func catch_up_split(gap: int) -> Array:
-	if gap < 86400: return [gap, 0]
-	var still := (gap / 86400 - 1) * 86400
-	return [gap - still, still]
+	var cap := 86400 * time_scale
+	if gap <= cap: return [gap, 0]
+	return [cap, gap - cap]
+
+## The clock's save fields.
+static func clock_data() -> Dictionary:
+	return {"clock_v": 2, "stall": stall, "anchor_real": anchor_real, "anchor_rhodes": anchor_rhodes + rhodes_offset, "time_scale": time_scale, "born": born}
+
+## Reads the clock back. A save from before the two clocks ran one to one:
+## its Rhodes time was real − stall, and the clock goes on from there.
+static func load_clock(data: Dictionary) -> void:
+	rhodes_offset = 0
+	if int(data.get("clock_v", 1)) < 2:
+		legacy_stall = maxi(0, int(data.get("stall", 0)))
+		stall = 0
+		_anchor(real_now(), real_now() - legacy_stall)
+		born = now()
+		return
+	legacy_stall = -1
+	stall = maxi(0, int(data.get("stall", 0)))
+	var saved_scale := maxi(1, int(data.get("time_scale", time_scale)))
+	var ar := int(data.get("anchor_real", 0))
+	var real := real_now()
+	var at := real - stall if ar == 0 else int(data.get("anchor_rhodes", 0)) + (real - ar) * saved_scale - stall
+	# Rebased on the scale in force: the clock goes on without a jump.
+	stall = 0
+	_anchor(real, at)
+	born = int(data.get("born", 0))
+	if born <= 0: born = at
+
+## A real-clock time stamp of a one-to-one save, on the real clock.
+static func legacy_to_real(at: int) -> int:
+	return at + legacy_stall if legacy_stall >= 0 and at > 0 else at
 
 ## Everything insured whose time has come arrives at receiving; returns those items.
 func tick_insurance() -> Array[Item]:
 	var arrived: Array[Item] = []
-	var t := now()
+	var t := real_now()
 	for entry in insurance_queue.duplicate():
 		if int(entry.due) <= t:
 			insurance_queue.erase(entry)
 			if receive(entry.item): arrived.append(entry.item)
 	return arrived
 
-## `item` comes back `seconds` from now.
+## `item` comes back `seconds` of real time from now (§4.1).
 func queue_insured(item: Item, seconds: int) -> void:
-	insurance_queue.append({"item": item, "due": now() + maxi(seconds, 1)})
+	insurance_queue.append({"item": item, "due": real_now() + maxi(seconds, 1)})
 
 ## 送回 and other arrivals (the squad, the workshop, a parcel): the same as
 ## receive(), into the warehouse or, when it is full, the PRTS mail.
@@ -784,7 +871,7 @@ func to_data() -> Dictionary:
 		"camps": camps.duplicate(), "ship_at": ship_at, "camp_upgraded": camp_upgraded, "first_extract_given": first_extract_given, "extracted_once": extracted_once, "story": story.duplicate(true), "kits": kits.duplicate(), "operator": operator,
 		"roster": roster.duplicate(), "lost_found": lost_found.duplicate(), "dept_lock": dept_lock, "recruit_clues": recruit_clues.duplicate(), "recruit_found": recruit_found.duplicate(true),
 		"progress": _progress_data(), "records": records.duplicate(), "boss_falls": boss_falls.duplicate(), "boss_intro_seen": boss_intro_seen.duplicate(),
-		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true), "stall": stall}
+		"research": research.duplicate(true), "rhodes_rarity": rhodes_rarity, "contract_reroll": contract_reroll, "stayed": stayed, "farm": farm.duplicate(true)}.merged(clock_data())
 
 func _gear_sets_data() -> Dictionary:
 	var out := {}
@@ -828,12 +915,14 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 		var tier: int = int(saved_injuries[id]) if saved_injuries is Dictionary and (saved_injuries[id] is float or saved_injuries[id] is int) else 1
 		if Operators.valid(str(id)): injuries[str(id)] = maxi(tier, 1)
 	_load_research(data)
-	stall = maxi(0, int(data.get("stall", 0)))
+	load_clock(data)
 	farm = Provisions.load_state(data.get("farm"))
+	for p in farm.plots:
+		if p is Dictionary and p.has("at"): p.at = legacy_to_real(int(p.at))
 	reset_potions()
 	free_potions = clampi(int(data.get("free_potions", free_potion_count())), 0, free_potion_count())
 	closure_stock = (data.get("closure_stock", {}) as Dictionary).duplicate() if data.get("closure_stock") is Dictionary else {}
-	closure_restock_at = int(data.get("closure_restock_at", 0))
+	closure_restock_at = legacy_to_real(int(data.get("closure_restock_at", 0)))
 	medical_report = data.get("medical_report", {})
 	report_unread = bool(data.get("report_unread", false))
 	# Saves from before 仓库修订 had a drone (it counts toward 仓储部 below).
@@ -906,7 +995,7 @@ func load_data(data: Dictionary, seen: Dictionary) -> void:
 	for entry in data.get("insurance_queue", []):
 		var queued := _fresh(entry.get("item", {}), seen)
 		# Saves from before the clock counted contracts left: an hour each.
-		var due := int(entry.get("due", now() + maxi(int(entry.get("left", 1)), 1) * 3600))
+		var due := legacy_to_real(int(entry["due"])) if entry.has("due") else real_now() + maxi(int(entry.get("left", 1)), 1) * 3600
 		if queued: insurance_queue.append({"item": queued, "due": due})
 	var racks_in: Dictionary = data.get("racks", {})
 	for category in racks:

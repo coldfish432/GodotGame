@@ -19,6 +19,8 @@ func later(seconds: int) -> void:
 	game.market.advance_to(BaseState.now())
 
 func run() -> void:
+	# These checks are of the one-to-one clock (时间缩放策划案 v0.2: test_time_scale has the scaled one).
+	BaseState.time_scale = 1
 	MarketState.tz_override = 0
 	_indicators()
 	BaseState.frozen_clock = T0

@@ -165,14 +165,14 @@ static func canteen(menu: FieldMenu) -> void:
 			right.add_child(AK.section("队列", "QUEUE  %d / %d" % [p.jobs().size(), p.kitchen_slots()]))
 			for j in p.jobs():
 				var job: Dictionary = j
-				right.add_child(MarketWidgets.live(func(): return "%s ×%d  ·  %s" % [job.output, int(job.count), ExchangeScreen._left(int(job.due) - BaseState.now())], 13))
+				right.add_child(MarketWidgets.live(func(): return "%s ×%d  ·  %s" % [job.output, int(job.count), ExchangeScreen._left(BaseState.real_left(int(job.due)))], 13))
 		1:
 			right.add_child(AK.section("本次出发", "NEXT CONTRACT"))
 			right.add_child(AK.label(p.meal() if not p.meal().is_empty() else "无", 16, AK.FG if not p.meal().is_empty() else AK.MUTE))
 			_go(right, "用餐", p.eat_refusal(meal_pick), func(): p.eat(meal_pick); canteen(menu))
 			# 运营策划案 §2.2.1: today's rations and 热餐.
 			var fin := game.exchange.fin
-			right.add_child(AK.section("口粮", "RATIONS  %d / 日" % fin.rations()))
+			right.add_child(AK.section("口粮", "RATIONS  %.2f / 日" % fin.daily_rations()))
 			right.add_child(AK.label("作物 %d  ·  %s  ·  %s" % [fin.crops_in_stock(), ("%.1f 天" % fin.ration_days()) if fin.rations() > 0 else "—", "热餐" if fin.hot_meal() else ("停发补给" if fin.supply_stopped() else "—")], 14,
 				AK.GREEN if fin.hot_meal() else (AK.RED if fin.supply_stopped() else AK.MUTE)))
 			_go(right, "开饭", fin.serve_refusal(), func():

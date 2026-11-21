@@ -67,7 +67,7 @@ static func _detail(menu: FieldMenu, stage: Control) -> void:
 	right.add_child(AK.section("研究位", "SLOTS  %d / %d" % [r.active().size(), r.slots()]))
 	for e in r.active():
 		var running: String = str(e.id)
-		right.add_child(MarketWidgets.live(func(): return "%s · %s   %s" % [ResearchCatalog.name_of(running), ResearchCatalog.effect_text(running), _clock(r.seconds_left(running))], 13))
+		right.add_child(MarketWidgets.live(func(): return "%s · %s   %s" % [ResearchCatalog.name_of(running), ResearchCatalog.effect_text(running), _clock(ceili(r.seconds_left(running) / float(BaseState.time_scale)))], 13))
 		# 卡西米尔's 骑士工坊专利授权 (势力特供策划案 §二): the rest of the time halved.
 		if game.material_count(GameManager.SPECIAL_PATENT) > 0 and not e.get("patent", false):
 			var patent := game.patent_refusal(running)
@@ -104,7 +104,7 @@ static func _detail(menu: FieldMenu, stage: Control) -> void:
 		tags.add_child(AK.tag(text, AK.RED if text == unmet else AK.PAPER))
 	right.add_child(tags)
 	if r.is_running(pick):
-		right.add_child(MarketWidgets.live(func(): return _clock(r.seconds_left(pick)), 16, AK.SP))
+		right.add_child(MarketWidgets.live(func(): return _clock(ceili(r.seconds_left(pick) / float(BaseState.time_scale))), 16, AK.SP))
 		return
 	var refusal := r.refusal(pick)
 	if not refusal.is_empty(): right.add_child(AK.label(refusal, 12, AK.RED))

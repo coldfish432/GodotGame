@@ -69,10 +69,10 @@
  ],
  "/ 日": [
   "ui/provision_screens.gd:175",
-  "right.add_child(AK.section(\"口粮\", \"RATIONS  %d / 日\" % fin.rations()))"
+  "right.add_child(AK.section(\"口粮\", \"RATIONS  %.2f / 日\" % fin.daily_rations()))"
  ],
  "/ 模拟": [
-  "game/game_manager.gd:2501",
+  "game/game_manager.gd:2507",
   "var text := \"离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "/ 秒": [
@@ -247,6 +247,10 @@
   "game/route_events.gd:24",
   "\"relay\": {\"name\": \"PRTS 中继站\", \"speaker\": \"PRTS\", \"line\": \"中继站可以连回本舰。需要接入吗，博士？\","
  ],
+ "PRTS 同步离线时间": [
+  "ui/system_screens.gd:240",
+  "_tip.text = \"PRTS 同步离线时间\""
+ ],
  "PRTS 层级预报": [
   "game/research_catalog.gd:68",
   "\"intel_3\": [\"PRTS 层级预报\", 3, \"floor_report\", \"进层播报兴趣点 · 精英\", [\"intel_1\"], {}],"
@@ -256,7 +260,7 @@
   "column.add_child(AK.label(\"PRTS 快讯 · 黑天鹅\", 14, AK.RED))"
  ],
  "PRTS 快讯：": [
-  "game/game_manager.gd:2540",
+  "game/game_manager.gd:2550",
   "var line := \"PRTS 快讯：\" + str(headline.title)"
  ],
  "PRTS 态势：": [
@@ -292,19 +296,19 @@
   "broadcast(\"PRTS：仓库空间不足，%s已存入 PRTS 邮件。\" % shown, false)"
  ],
  "PRTS：先清理周围的敌人，博士。": [
-  "game/game_manager.gd:5127",
+  "game/game_manager.gd:5137",
   "if not _lost_warned: broadcast(\"PRTS：先清理周围的敌人，博士。\")"
  ],
  "PRTS：前方是": [
-  "game/game_manager.gd:4650",
+  "game/game_manager.gd:4660",
   "return \"PRTS：前方是%s的战场。击破之后，入口才会开放。\" % BossCatalog.display_name(str(BossCatalog.BOSSES.get(region_id, \"\")))"
  ],
  "PRTS：前进据点已确认，博士。": [
-  "game/game_manager.gd:2995",
+  "game/game_manager.gd:3005",
   "broadcast(\"PRTS：前进据点已确认，博士。\")"
  ],
  "PRTS：加工部完成": [
-  "game/game_manager.gd:2803",
+  "game/game_manager.gd:2813",
   "broadcast(\"PRTS：加工部完成 %s ×%d%s。\" % [job.output, int(job.count), \"，附带副产物\" if not job.get(\"byproducts\", {}).is_empty() else \"\"])"
  ],
  "PRTS：博士与": [
@@ -316,7 +320,7 @@
   "broadcast(\"PRTS：博士，%s已就位。\" % Operators.info(player.operator_id).name)"
  ],
  "PRTS：博士，信号正在被追踪。": [
-  "game/game_manager.gd:4359",
+  "game/game_manager.gd:4369",
   "broadcast(\"PRTS：博士，信号正在被追踪。\")"
  ],
  "PRTS：博士，墙后是一间密室。": [
@@ -324,11 +328,11 @@
   "broadcast(\"PRTS：博士，墙后是一间密室。\")"
  ],
  "PRTS：博士，巡逻队即将从": [
-  "game/game_manager.gd:4356",
+  "game/game_manager.gd:4366",
   "broadcast(\"PRTS：博士，巡逻队即将从%s方进入。\" % _direction_name(_next_patrol_entry - player.global_position))"
  ],
  "PRTS：博士，搜捕巡逻队进入本层。": [
-  "game/game_manager.gd:4380",
+  "game/game_manager.gd:4390",
   "broadcast(\"PRTS：博士，搜捕巡逻队进入本层。\")"
  ],
  "PRTS：博士，本层发现撤离点。": [
@@ -336,7 +340,7 @@
   "broadcast(\"PRTS：博士，本层发现撤离点。\")"
  ],
  "PRTS：博士，本层检测到": [
-  "game/game_manager.gd:5087",
+  "game/game_manager.gd:5097",
   "broadcast(\"PRTS：博士，本层检测到%s的识别信号。\" % LostCatalog.name_of(lost_id))"
  ],
  "PRTS：博士，清算时刻。": [
@@ -344,11 +348,11 @@
   "game.broadcast(\"PRTS：博士，清算时刻。\")"
  ],
  "PRTS：博士，清算时刻。家族的人进入本层。": [
-  "game/game_manager.gd:4387",
+  "game/game_manager.gd:4397",
   "broadcast(\"PRTS：博士，清算时刻。家族的人进入本层。\")"
  ],
  "PRTS：博士，目标脱离接触，已恢复。": [
-  "game/game_manager.gd:4645",
+  "game/game_manager.gd:4655",
   "broadcast(\"PRTS：博士，目标脱离接触，已恢复。\")"
  ],
  "PRTS：博士，越往深处，": [
@@ -356,11 +360,11 @@
   "if not own.is_empty(): game.broadcast(\"PRTS：博士，越往深处，%s来得越快。\" % FeatureCatalog.NAMES[own])"
  ],
  "PRTS：博士，这条踪迹之前已经记录过了。": [
-  "game/game_manager.gd:4970",
+  "game/game_manager.gd:4980",
   "broadcast(\"PRTS：博士，这条踪迹之前已经记录过了。\")"
  ],
  "PRTS：博士，这条踪迹记录过，但又多了些细节。": [
-  "game/game_manager.gd:4976",
+  "game/game_manager.gd:4986",
   "broadcast(\"PRTS：博士，这条踪迹记录过，但又多了些细节。\")"
  ],
  "PRTS：博士，附近发现": [
@@ -372,7 +376,7 @@
   "notice(\"PRTS：博士，首次外勤请先从撤离信标撤离。\")"
  ],
  "PRTS：大宗货箱已交给": [
-  "game/game_manager.gd:5173",
+  "game/game_manager.gd:5183",
   "broadcast(\"PRTS：大宗货箱已交给%s的接头人。\" % FactionCatalog.name_of(str(deliver.faction)))"
  ],
  "PRTS：本层兴趣点": [
@@ -380,19 +384,19 @@
   "broadcast(\"PRTS：本层兴趣点 %d，精英 %d。\" % [world_map.cache_positions.size(), floor_enemies().filter(func(e): return e.elite).size()])"
  ],
  "PRTS：欠款超过额度两倍，已变卖持仓还款。": [
-  "game/market/finance.gd:670",
+  "game/market/finance.gd:699",
   "g.broadcast(\"PRTS：欠款超过额度两倍，已变卖持仓还款。\")"
  ],
  "PRTS：残党向导标出了本层的密室和踪迹。": [
-  "game/game_manager.gd:3943",
+  "game/game_manager.gd:3953",
   "broadcast(\"PRTS：残党向导标出了本层的密室和踪迹。\")"
  ],
  "PRTS：残党的暗号起了作用，这一队巡逻没有进来。": [
-  "game/game_manager.gd:4377",
+  "game/game_manager.gd:4387",
   "broadcast(\"PRTS：残党的暗号起了作用，这一队巡逻没有进来。\")"
  ],
  "PRTS：燃料包 ×": [
-  "game/market/finance.gd:394",
+  "game/market/finance.gd:422",
   "if g.has_method(\"broadcast\"): g.broadcast(\"PRTS：燃料包 ×%d → 燃料储备 +%d\" % [packs, packs * Fuel.OLD_PACK_UNITS])"
  ],
  "PRTS：罗德岛小队已接回博士与": [
@@ -400,27 +404,27 @@
   "broadcast(\"PRTS：博士与%s已完成撤离。\" % who if extracted else \"PRTS：罗德岛小队已接回博士与%s。\" % who)"
  ],
  "PRTS：罗德岛小队已接应": [
-  "game/game_manager.gd:5135",
+  "game/game_manager.gd:5145",
   "broadcast(\"PRTS：罗德岛小队已接应%s。\" % LostCatalog.name_of(id))"
  ],
  "PRTS：莱茵生命生态科提醒，闪耀作物收获后仍会发光一段时间，请放在阴凉处。": [
-  "game/provisions.gd:188",
+  "game/provisions.gd:189",
   "if crop in GLOWING: game.broadcast(\"PRTS：莱茵生命生态科提醒，闪耀作物收获后仍会发光一段时间，请放在阴凉处。\")"
  ],
  "PRTS：萨卡兹哨兵发现了博士的踪迹。": [
-  "game/game_manager.gd:4370",
+  "game/game_manager.gd:4380",
   "broadcast(\"PRTS：萨卡兹哨兵发现了博士的踪迹。\")"
  ],
  "PRTS：货币精简——外币账户折合龙门币": [
-  "game/market/exchange.gd:1397",
+  "game/market/exchange.gd:1408",
   "game.broadcast(\"PRTS：货币精简——外币账户折合龙门币 %s，赤金账户与存款折合赤金 ×%d 已入仓库。\" % [Economy.format(lmd), whole])"
  ],
  "PRTS：车里还有人！": [
-  "game/game_manager.gd:4865",
+  "game/game_manager.gd:4875",
   "broadcast(\"PRTS：车里还有人！\")"
  ],
  "PRTS：运营账单": [
-  "game/market/finance.gd:484",
+  "game/market/finance.gd:512",
   "var line := \"PRTS：运营账单 %s 龙门币%s%s\" % [Economy.format(int(bill.total)), \"  热餐\" if bill.hot else (\"  停发补给\" if rations() > 0 else \"\"), (\"  欠费 %s\" % Economy.format(roundi(arrears))) if arrears > 0.5 else "
  ],
  "PRTS：食堂做好了": [
@@ -548,7 +552,7 @@
   "var auto := AK.button(\"自动还款：%s  ·  保留 %d 天\" % [\"开\" if ex.fin.auto_repay else \"关\", ex.fin.reserve_days], \"plain\", 13)"
  ],
  "·  修正 −": [
-  "ui/exchange_screen.gd:841",
+  "ui/exchange_screen.gd:845",
   "(\"  ·  修正 −%d/日\" % ex.relation_drift(f)) if ex.relation_drift(f) > 0 else \"\","
  ],
  "·  剩": [
@@ -608,19 +612,19 @@
   "box.add_child(AK.label(\"%s → %s  ·  运输中\" % [Item.from_data(s.item).display_name(), FactionCatalog.name_of(str(s.faction))], 12, AK.FG))"
  ],
  "·  违约冷却": [
-  "ui/exchange_screen.gd:842",
-  "(\"  ·  违约冷却 \" + _left(int(ex.forward_cooldown.get(f, 0)) - game.market.t)) if int(ex.forward_cooldown.get(f, 0)) > game.market.t else \"\"], 12, AK.FG))"
+  "ui/exchange_screen.gd:846",
+  "(\"  ·  违约冷却 \" + _rleft(int(ex.forward_cooldown.get(f, 0)))) if int(ex.forward_cooldown.get(f, 0)) > game.market.t else \"\"], 12, AK.FG))"
  ],
  "·  追加保证金": [
   "ui/exchange_screen.gd:660",
-  "return \"  ·  追加保证金 \" + _left(int(pos.call_until) - game.market.t)"
+  "return \"  ·  追加保证金 \" + _rleft(int(pos.call_until))"
  ],
  "·  重伤  ·  生命上限 −": [
   "ui/field_menu.gd:405",
   "text(body, \"%s  ·  重伤  ·  生命上限 −%d%%\" % [Operators.display_name(id), roundi(BaseCatalog.INJURY_HP_PENALTY * 100)], 15, AK.RED)"
  ],
  "·  重启后生效": [
-  "ui/system_screens.gd:478",
+  "ui/system_screens.gd:502",
   "var note := AK.label(GpuChoice.current() + (\"  ·  重启后生效\" if pending else \"\"), 11, AK.SP if pending else AK.MUTE)"
  ],
  "·  额度": [
@@ -756,7 +760,7 @@
   "\"lines_fell\": [[\"凯尔希\", \"……回来就好。先去医疗部，然后看看你带回了什么。\"]],"
  ],
  "→ 燃料储备 +": [
-  "game/market/finance.gd:394",
+  "game/market/finance.gd:422",
   "if g.has_method(\"broadcast\"): g.broadcast(\"PRTS：燃料包 ×%d → 燃料储备 +%d\" % [packs, packs * Fuel.OLD_PACK_UNITS])"
  ],
  "→ 赤金 ×": [
@@ -908,7 +912,7 @@
   "var all := AK.go_button(\"一键入库\", \"STORE ALL\")"
  ],
  "一键打包": [
-  "ui/exchange_screen.gd:1069",
+  "ui/exchange_screen.gd:1073",
   "right.add_child(AK.section(\"一键打包\", \"QUICK\"))"
  ],
  "一键打包（基地）": [
@@ -992,7 +996,7 @@
   "\"AE5\": {\"region\": \"#\", \"kind\": \"announce\", \"hours\": 6, \"weight\": 0, \"title\": \"%s上调分红比例\", \"pick_firm\": true, \"effects\": []},"
  ],
  "上限": [
-  "ui/exchange_screen.gd:807",
+  "ui/exchange_screen.gd:811",
   "if m.caps.has(book): line += \"   上限 %s\" % KLineChart._fmt(float(m.caps[book].floor) * Currencies.base(cur))"
  ],
  "下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂": [
@@ -1076,7 +1080,7 @@
   "skip.text = \"不再提示\""
  ],
  "不出售": [
-  "game/game_manager.gd:2870",
+  "game/game_manager.gd:2880",
   "if type.is_empty(): return \"不出售\""
  ],
  "不动：抵挡伤害时，对 3 米内敌人反震 250% 防御值的物理伤害并眩晕 1 秒": [
@@ -1084,7 +1088,7 @@
   "\"不动：抵挡伤害时，对 3 米内敌人反震 250% 防御值的物理伤害并眩晕 1 秒\"]},"
  ],
  "不在仓库": [
-  "game/market/finance.gd:361",
+  "game/market/finance.gd:389",
   "if not (g.stash.has(item) or (g.in_base and (g.inventory.items.has(item) or g.safe_bag.items.has(item)))): return \"不在仓库\""
  ],
  "不在境内": [
@@ -1100,7 +1104,7 @@
   "if not game.in_camp: return \"不在营地\""
  ],
  "不实": [
-  "game/game_manager.gd:3772",
+  "game/game_manager.gd:3782",
   "headline[\"peek\"] = \"属实\" if bool(_rumor_of(headline).rumor.truth) else \"不实\""
  ],
  "不开刃，打在身上也不留口子。": [
@@ -1112,7 +1116,7 @@
   "_deal_line(deal, pick_item, {}, offer, str(spec.get(\"sell_currency\", \"gold\")), \"\" if not offer.is_empty() else \"不收\")"
  ],
  "不收这类货": [
-  "game/market/exchange.gd:409",
+  "game/market/exchange.gd:411",
   "out.why = \"不收这类货\""
  ],
  "不明罐装呼吸器": [
@@ -1120,7 +1124,7 @@
   "\"mi_armed_3\": {\"name\": \"不明罐装呼吸器\", \"kind\": \"exclusive\", \"category\": Item.Category.AMULET, \"size\": Vector2i(1, 1), \"power\": 1.6, \"region\": \"mine\", \"source_enemy\": \"armed\","
  ],
  "不是燃料": [
-  "game/market/finance.gd:358",
+  "game/market/finance.gd:386",
   "if not Fuel.is_fuel(item): return \"不是燃料\""
  ],
  "不期而遇": [
@@ -1136,7 +1140,7 @@
   "_p(\"immortal\", 2, A, \"不朽的\", \"Immortal\", {\"def\": 40.0, \"hp_pct\": 0.06, \"res\": 6.0}, {\"top\": true})"
  ],
  "不消耗": [
-  "game/market/finance.gd:147",
+  "game/market/finance.gd:156",
   "if not can_stock(material): return \"不消耗\""
  ],
  "不祥的": [
@@ -1148,7 +1152,7 @@
   "\"mi_slug_volatile_7\": {\"name\": \"不稳定虫腹\", \"kind\": \"exclusive\", \"category\": Item.Category.AMULET, \"size\": Vector2i(1, 1), \"power\": 1.6, \"region\": \"mine\", \"source_enemy\": \"slug_volatile\","
  ],
  "不签合约": [
-  "game/market/exchange.gd:764",
+  "game/market/exchange.gd:766",
   "if FactionCatalog.info(faction).get(\"transport\", false): return \"不签合约\""
  ],
  "不该给的，它都给了。": [
@@ -1208,15 +1212,15 @@
   "\"saw_karma\": {\"name\": \"业火\", \"type\": \"transmuter\", \"group\": \"saw\", \"tier\": 2, \"max\": 1,"
  ],
  "东": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "东北": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "东南": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "东国的": [
@@ -1228,7 +1232,7 @@
   "var drop := AK.button(\"丢到地面\", \"plain\", 12)"
  ],
  "丢失": [
-  "game/game_manager.gd:3108",
+  "game/game_manager.gd:3118",
   "return \"丢失\""
  ],
  "两个日期，中间一道横线。": [
@@ -1264,7 +1268,7 @@
   "var state := \"严重超额\" if fin.severe() else (\"逾期\" if fin.loan_locked() else \"正常\")"
  ],
  "个": [
-  "game/game_manager.gd:3287",
+  "game/game_manager.gd:3297",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "个人仓库": [
@@ -1272,7 +1276,7 @@
   "left.add_child(AK.section(\"个人仓库\", \"TRANSFER\"))"
  ],
  "个留在地上。": [
-  "game/game_manager.gd:3287",
+  "game/game_manager.gd:3297",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "中": [
@@ -1288,7 +1292,7 @@
   "const CONTAMINATION_TIER_NAMES := [\"无\", \"中度\", \"重度\"]"
  ],
  "中文": [
-  "ui/system_screens.gd:452",
+  "ui/system_screens.gd:476",
   "row.add_child(AK.toggle([\"中文\", \"English\"], current, func(i):"
  ],
  "中立": [
@@ -1296,7 +1300,7 @@
   "const RANK_NAMES := [\"冷漠\", \"中立\", \"友好\", \"尊敬\", \"崇敬\", \"崇拜\"]"
  ],
  "中级作战记录": [
-  "game/game_manager.gd:5431",
+  "game/game_manager.gd:5441",
   "elif enemy.boss: record = \"中级作战记录\""
  ],
  "中继站可以连回本舰。需要接入吗，博士？": [
@@ -1412,7 +1416,7 @@
   "\"I32\": {\"region\": \"乌萨斯\", \"kind\": \"swan\", \"hours\": 336, \"weight\": 1, \"title\": \"乌萨斯与龙门断绝贸易\","
  ],
  "乌萨斯严冬": [
-  "game/market/market_links.gd:385",
+  "game/market/market_links.gd:390",
   "\"乌萨斯严冬\": [\"U12\", \"U21\", \"U25\"],"
  ],
  "乌萨斯主矿脉枯竭，远北矿区停产": [
@@ -1468,7 +1472,7 @@
   "\"U23\": {\"region\": \"乌萨斯\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 1, \"title\": \"乌萨斯感染者劳役名单扩大\", \"effects\": [{\"sel\": \"ursus:originium\", \"mult\": 0.9}, {\"sel\": \"reunion:medical\", \"mult\": 1.25}]},"
  ],
  "乌萨斯朝堂": [
-  "game/market/market_links.gd:384",
+  "game/market/market_links.gd:389",
   "\"乌萨斯朝堂\": [\"U4\", \"U24\", \"U20\", \"U15\", \"U5\", \"U11\", \"U8\"],"
  ],
  "乌萨斯的": [
@@ -1484,7 +1488,7 @@
   "\"U11\": {\"region\": \"乌萨斯\", \"kind\": \"breaking\", \"hours\": 48, \"weight\": 1, \"title\": \"乌萨斯矿区解除戒严\","
  ],
  "乌萨斯矿场": [
-  "game/market/market_links.gd:383",
+  "game/market/market_links.gd:388",
   "\"乌萨斯矿场\": [\"U2\", \"U3\", \"U13\", \"U26\", \"U23\", \"U17\"],"
  ],
  "乌萨斯禁止赤金出境": [
@@ -1492,7 +1496,7 @@
   "\"F22\": {\"region\": \"乌萨斯\", \"kind\": \"breaking\", \"hours\": 72, \"weight\": 1, \"title\": \"乌萨斯禁止赤金出境\","
  ],
  "乌萨斯禁运": [
-  "game/market/market_links.gd:395",
+  "game/market/market_links.gd:400",
   "\"乌萨斯禁运\": [\"I2\", \"I3\", \"I1\", \"I4\", \"I32\", \"I19\"],"
  ],
  "乌萨斯西北矿场": [
@@ -1568,7 +1572,7 @@
   "\"peg_buy\": \"买入 PEG\", \"peg_sell\": \"卖出 PEG\", \"k\": \"聚类数\", \"S3:n\": \"护城河门槛\", \"S5:n\": \"突破周期\","
  ],
  "买入赤金": [
-  "ui/exchange_screen.gd:823",
+  "ui/exchange_screen.gd:827",
   "_go(body, \"买入赤金\" if game.gold >= buy_cost else \"龙门币不足\", game.gold >= buy_cost, func():"
  ],
  "买卖股份": [
@@ -1580,7 +1584,7 @@
   "\"thug\": {\"name\": \"暴徒\", \"attack\": \"乱劈\", \"row\": 0, \"windup\": 0.8, \"interval\": 1.35, \"damage\": 1.0, \"shape\": \"sector\", \"reach\": 2.4, \"angle\": 100.0, \"recovery\": 0.25},"
  ],
  "事件": [
-  "game/market/exchange.gd:1510",
+  "game/market/exchange.gd:1528",
   "var name := str(MOD_NAMES.get(str(k), \"事件\"))"
  ],
  "二层": [
@@ -1620,7 +1624,7 @@
   "EventScreens._info(stage, game, pick, \"交付价\", Economy.format(Economy.direct_price(pick)), Vector2(412, TOP + 270), BOTTOM - TOP - 270 - 120)"
  ],
  "交付价 ×": [
-  "game/game_manager.gd:4793",
+  "game/game_manager.gd:4803",
   "return (\"%s 龙门币\" % Economy.format(int(t.gold))) if t.has(\"gold\") else (\"交付价 ×%s\" % str(t.mult))"
  ],
  "交出": [
@@ -1632,19 +1636,19 @@
   "const CLOSURE_TABS_CAMP := [\"商店\", \"代售\", \"寄存\", \"出售赤金\", \"换汇\", \"交割\", \"补给\", \"处理\"]"
  ],
  "交割完成：": [
-  "game/market/exchange.gd:821",
+  "game/market/exchange.gd:823",
   "_say(\"交割完成：%s ×%d → %s\" % [f.material, int(f.count), FactionCatalog.name_of(str(f.faction))], \"delivery\")"
  ],
  "交接": [
   "ui/sand_table_screen.gd:171",
-  "if str(order.state) == \"handover\": return \"交接 %s\" % ExchangeScreen._left(int(order.due) - BaseState.now())"
+  "if str(order.state) == \"handover\": return \"交接 %s\" % ExchangeScreen._left(int(order.due) - BaseState.real_now())"
  ],
  "交接点": [
   "ui/tutorial_spotlight.gd:36",
   "\"handover\": [\"交接点\", \"运送合同的交接点。背包或安全袋里带着这张订单的大宗货箱时，按交互键交付；报酬在结算时到账。\", 56.0],"
  ],
  "交接点 · E": [
-  "game/game_manager.gd:5151",
+  "game/game_manager.gd:5161",
   "handover_node = world_map._set_piece(\"交接点 · E\", at, Color(\"c48cff\"), HANDOVER_MODEL)"
  ],
  "交易": [
@@ -1700,7 +1704,7 @@
   "AK.put(stage, AK.label(\"交易终端与盯盘小窗\", 14, AK.FG), Vector2(334, y + 12))"
  ],
  "交货": [
-  "game/market/exchange.gd:787",
+  "game/market/exchange.gd:789",
   "_log({\"kind\": \"forward\", \"what\": \"%s %s ×%d\" % [\"交货\" if deliver else \"收货\", material, count], \"faction\": faction, \"amount\": margin, \"currency\": currency})"
  ],
  "交货合约": [
@@ -1756,7 +1760,7 @@
   "var cols := [[\"设施\", 100, 0], [\"材料\", 104, 0], [\"库存\", 60, 2], [\"可用天数\", 80, 2], [\"今日用库存\", 90, 2], [\"今日买进\", 80, 2], [\"今日费用\", 96, 2], [\"库存估值\", 96, 2]]"
  ],
  "今日回测次数已用完": [
-  "game/market/strategies.gd:410",
+  "game/market/strategies.gd:412",
   "return \"今日回测次数已用完\" if backtests_used >= StrategyCatalog.BACKTESTS_A_DAY else \"\""
  ],
  "今日用库存": [
@@ -1772,15 +1776,15 @@
   "var cols := [[\"设施\", 100, 0], [\"材料\", 104, 0], [\"库存\", 60, 2], [\"可用天数\", 80, 2], [\"今日用库存\", 90, 2], [\"今日买进\", 80, 2], [\"今日费用\", 96, 2], [\"库存估值\", 96, 2]]"
  ],
  "仍在仓库。": [
-  "game/game_manager.gd:3371",
+  "game/game_manager.gd:3381",
   "notice(\"背包空间不足：%s 仍在仓库。\" % item.item_name)"
  ],
  "仍在整理箱里。": [
-  "game/game_manager.gd:3443",
+  "game/game_manager.gd:3453",
   "notice(\"仓库空间不足：%s 仍在整理箱里。\" % item.item_name)"
  ],
  "仍在货架上。": [
-  "game/game_manager.gd:3389",
+  "game/game_manager.gd:3399",
   "notice(\"仓库和背包都满了：%s 仍在货架上。\" % item.item_name)"
  ],
  "仍在邮件里。": [
@@ -1788,7 +1792,7 @@
   "notice(\"仓库和背包都放不下：%s 仍在邮件里。\" % item.item_name)"
  ],
  "仍留在地上。": [
-  "game/game_manager.gd:3289",
+  "game/game_manager.gd:3299",
   "notice(\"背包空间不足：%s ×%d 仍留在地上。\" % [item.item_name, left])"
  ],
  "仍被封印：先击败全部守卫者。": [
@@ -1856,7 +1860,7 @@
   "notice(\"仓库和背包都放不下：%s 仍在邮件里。\" % item.item_name)"
  ],
  "仓库和背包都满了：": [
-  "game/game_manager.gd:3389",
+  "game/game_manager.gd:3399",
   "notice(\"仓库和背包都满了：%s 仍在货架上。\" % item.item_name)"
  ],
  "仓库容量 +20%": [
@@ -1864,7 +1868,7 @@
   "\"logistics_3\": [\"立体货架\", 3, \"rack_cells\", \"仓库容量 +20%\", [\"logistics_1\", \"@racks_3\"], {}],"
  ],
  "仓库已满": [
-  "game/game_manager.gd:3478",
+  "game/game_manager.gd:3488",
   "if tier == 1 and not base.shelf_has_room(): return \"仓库已满\""
  ],
  "仓库的空间……我能让它比看上去大一点。别问原理。": [
@@ -1872,7 +1876,7 @@
   "\"misery\": [[\"Misery\", \"仓库的空间……我能让它比看上去大一点。别问原理。\"]],"
  ],
  "仓库空间不足（": [
-  "game/game_manager.gd:3406",
+  "game/game_manager.gd:3416",
   "if not quiet: set_message(\"仓库空间不足（%d/%d）：%s 留在身上。\" % [base.shelf_count(), base.capacity(), item.item_name])"
  ],
  "仓库空间不足：": [
@@ -1924,7 +1928,7 @@
   "var shown := \"、\".join(names.slice(0, 3)) + (\"等 %d 件\" % names.size() if names.size() > 3 else \"\")"
  ],
  "件   ·   溢出": [
-  "ui/exchange_screen.gd:1101",
+  "ui/exchange_screen.gd:1105",
   "parent.add_child(AK.label(\"用掉 %d 件   ·   溢出 %d 点   ·   %s 龙门币\" % [pieces, int(plan.overflow), Economy.format(Packs.PACK_LMD * pack_count)], 12, AK.MUTE))"
  ],
  "件。": [
@@ -1936,7 +1940,7 @@
   "if base.mail_count() > 0: notice(\"仓库空间不足：%d 件仍在邮件里。\" % base.mail_count())"
  ],
  "件已送回仓库。": [
-  "game/game_manager.gd:3929",
+  "game/game_manager.gd:3939",
   "set_message(\"企鹅专递：%d 件已送回仓库。\" % sending.size())"
  ],
  "件新物品。": [
@@ -1944,7 +1948,7 @@
   "set_message(\"%s：带回 %d 件新物品。%s%s\" % [\"合同交付\" if extracted else \"罗德岛小队归来\", new_finds,"
  ],
  "件材料。": [
-  "game/game_manager.gd:3272",
+  "game/game_manager.gd:3282",
   "if stored > 0: set_message(\"已存回 %d 件材料。\" % stored)"
  ],
  "件物品留在容器里。": [
@@ -1952,11 +1956,11 @@
   "if left > 0: notice(\"背包空间不足，%d 件物品留在容器里。\" % left)"
  ],
  "件留在身上": [
-  "game/game_manager.gd:3575",
+  "game/game_manager.gd:3585",
   "if stored > 0 or left > 0: set_message(\"已入库 %d 件%s。\" % [stored, \"\" if left == 0 else \"，仓库已满，%d 件留在身上\" % left])"
  ],
  "件，已入库。": [
-  "game/game_manager.gd:3587",
+  "game/game_manager.gd:3597",
   "set_message(\"投保物品送回 %d 件，已入库。\" % arrived.size())"
  ],
  "价值型": [
@@ -2004,11 +2008,11 @@
   "if plain.is_empty() and faction == \"penguin\": out[\"企鹅专递单\"] = 1"
  ],
  "企鹅专递单已入库。": [
-  "game/game_manager.gd:3872",
+  "game/game_manager.gd:3882",
   "set_message(\"企鹅专递单已入库。\")"
  ],
  "企鹅专递：": [
-  "game/game_manager.gd:3929",
+  "game/game_manager.gd:3939",
   "set_message(\"企鹅专递：%d 件已送回仓库。\" % sending.size())"
  ],
  "企鹅物流": [
@@ -2048,11 +2052,11 @@
   "\"L4\": {\"region\": \"龙门\", \"kind\": \"breaking\", \"hours\": 12, \"weight\": 2, \"title\": \"企鹅物流运力紧张\","
  ],
  "企鹅物流送达：": [
-  "game/market/exchange.gd:1253",
+  "game/market/exchange.gd:1264",
   "_say(\"企鹅物流送达：%s → %s，%s%s\" % [item.display_name(), FactionCatalog.name_of(faction), format_money(str(q.currency), net), \"（途中遇险，部分损失）\" if lost else \"\"], \"arrival\")"
  ],
  "企鹅物流：": [
-  "game/market/exchange.gd:1243",
+  "game/market/exchange.gd:1254",
   "_say(\"企鹅物流：%s暂停收货，货物退回\" % FactionCatalog.name_of(faction), \"arrival\")"
  ],
  "伊比利亚": [
@@ -2092,7 +2096,7 @@
   "const KIND_NAMES := {\"breaking\": \"突发\", \"rumor\": \"传闻\", \"announce\": \"公告\", \"swan\": \"黑天鹅\"}"
  ],
  "传闻：": [
-  "game/market/market_state.gd:1280",
+  "game/market/market_state.gd:1317",
   "var headline := {\"t\": t, \"id\": \"omen\", \"kind\": \"rumor\", \"title\": \"传闻：%s方面有异动\" % str(MarketEvents.EVENTS[swan.id].region), \"region\": MarketEvents.EVENTS[swan.id].region, \"cred\": \"低\", \"status\": \"\", \"unr"
  ],
  "传闻：乌萨斯主和派推动关闭西北矿场": [
@@ -2348,7 +2352,7 @@
   "const RARITY_NAMES := [\"低\", \"中\", \"高\"]"
  ],
  "低价抛售": [
-  "game/market/market_state.gd:1316",
+  "game/market/market_state.gd:1353",
   "var title := \"%s限时%s%s\" % [FactionCatalog.name_of(faction), \"高价收购\" if offer.kind == \"buy\" else \"低价抛售\", what]"
  ],
  "低伏的": [
@@ -2468,8 +2472,8 @@
   "\"cold\": \"寒地物资\", \"contraband\": \"违禁品\", \"crop\": \"作物\","
  ],
  "作物不足": [
-  "game/market/finance.gd:223",
-  "if crops_in_stock() < rations(): return \"作物不足\""
+  "game/market/finance.gd:241",
+  "if crops_in_stock() < ration_need(): return \"作物不足\""
  ],
  "作物包": [
   "game/material_catalog.gd:111",
@@ -2552,11 +2556,11 @@
   "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"保存并退出\", \"回到标题\"]"
  ],
  "保留": [
-  "game/game_manager.gd:3117",
+  "game/game_manager.gd:3127",
   "if outcome.begins_with(\"保留\"):"
  ],
  "保留（安全袋）": [
-  "game/game_manager.gd:3106",
+  "game/game_manager.gd:3116",
   "if safe_bag.items.has(item): return \"保留（安全袋）\""
  ],
  "保证金": [
@@ -2564,15 +2568,15 @@
   "return \"龙门币 %s   赤金 %s   待还贷款 %s   保证金 %s   浮动盈亏 %s   账户总值 %s   龙门币 / 赤金 %.1f\" % ["
  ],
  "保证金不足": [
-  "game/market/exchange.gd:1021",
+  "game/market/exchange.gd:1023",
   "if free_for_margin(currency) < margin * (1.0 + cfd_fee() * lev): return \"保证金不足\""
  ],
  "保证金率": [
-  "game/market/exchange.gd:948",
+  "game/market/exchange.gd:950",
   "_say(\"保证金预警：%s保证金率 %d%%\" % [what, roundi(ratio * 100)], \"warning\")"
  ],
  "保证金预警：": [
-  "game/market/exchange.gd:948",
+  "game/market/exchange.gd:950",
   "_say(\"保证金预警：%s保证金率 %d%%\" % [what, roundi(ratio * 100)], \"warning\")"
  ],
  "保险柜": [
@@ -2640,7 +2644,7 @@
   "right.add_child(AK.section(\"债券\", \"BONDS\"))"
  ],
  "债券违约，按": [
-  "game/market/securities.gd:234",
+  "game/market/securities.gd:235",
   "ex._say(\"%s债券违约，按 %d%% 兑付\" % [FirmCatalog.name_of(str(b.issuer).substr(5)) if bool(b.corp) else Currencies.name_of(str(b.cur)), roundi((1.0 - DEFAULT_HAIRCUT) * 100)], \"default\")"
  ],
  "假面舞会面具": [
@@ -2652,7 +2656,7 @@
   "\"window\": \"回看根数\", \"c\": \"偏离阈值\", \"adds\": \"加仓次数\", \"rsi_low\": \"RSI 下限\", \"rsi_high\": \"RSI 上限\","
  ],
  "做多": [
-  "game/market/exchange.gd:1034",
+  "game/market/exchange.gd:1036",
   "_log({\"kind\": \"cfd\", \"what\": \"%s %s %d×\" % [cfd_name(underlying), \"做多\" if dir > 0 else \"做空\", lev], \"faction\": cfd_issuer(underlying), \"amount\": margin, \"currency\": currency})"
  ],
  "做市型": [
@@ -2660,11 +2664,11 @@
   "if pos > 0.0: out.append([str({\"value\": \"价值型\", \"trend\": \"趋势型\", \"maker\": \"做市型\", \"noise\": \"噪声型\"}[g]), pos / maxf(base_lmd(id), 0.01) / total])"
  ],
  "做空": [
-  "game/market/exchange.gd:1034",
+  "game/market/exchange.gd:1036",
   "_log({\"kind\": \"cfd\", \"what\": \"%s %s %d×\" % [cfd_name(underlying), \"做多\" if dir > 0 else \"做空\", lev], \"faction\": cfd_issuer(underlying), \"amount\": margin, \"currency\": currency})"
  ],
  "停发补给": [
-  "game/provisions.gd:261",
+  "game/provisions.gd:262",
   "if game.exchange.fin.supply_stopped(): return \"停发补给\""
  ],
  "停止": [
@@ -2704,7 +2708,7 @@
   "Stat.RES_BLEED: \"流血抗性 %+d\", Stat.RES_ALL_ELEM: \"全元素抗性 %+d\", Stat.RES_CAP: \"元素抗性上限 %+d\","
  ],
  "先击退她身边的敌人。": [
-  "game/game_manager.gd:5051",
+  "game/game_manager.gd:5061",
   "notice(\"先击退她身边的敌人。\")"
  ],
  "先敲开冰，再敲开别的。": [
@@ -2752,7 +2756,7 @@
   "\"medical_1\": [\"药房扩编\", 1, \"free_potion\", \"免费药剂 3 → 4 瓶\", [], {}],"
  ],
  "兑付": [
-  "game/market/securities.gd:234",
+  "game/market/securities.gd:235",
   "ex._say(\"%s债券违约，按 %d%% 兑付\" % [FirmCatalog.name_of(str(b.issuer).substr(5)) if bool(b.corp) else Currencies.name_of(str(b.cur)), roundi((1.0 - DEFAULT_HAIRCUT) * 100)], \"default\")"
  ],
  "兑换": [
@@ -2884,7 +2888,7 @@
   "\"commerce_3\": [\"长期合作协议\", 3, \"relation_drift\", \"关系回落 −30%\", [\"commerce_1\", \"field_2\"], {}],"
  ],
  "关系达到": [
-  "game/market/exchange.gd:256",
+  "game/market/exchange.gd:258",
   "game.broadcast(\"PRTS：%s关系达到%s。\" % [FactionCatalog.name_of(faction), rank_name(rank(faction))])"
  ],
  "关节处的颜色洗不掉了。": [
@@ -2944,7 +2948,7 @@
   "\"arms\": \"军备\", \"medicine\": \"医药需求\", \"logistics\": \"物流紧张\", \"panic\": \"金融恐慌\","
  ],
  "军工": [
-  "game/market/market_links.gd:379",
+  "game/market/market_links.gd:384",
   "\"军工\": [\"C9\", \"U1\", \"U14\", \"V6\", \"Z9\"],"
  ],
  "军工、作业机器人": [
@@ -3320,7 +3324,7 @@
   "text(body, \"出战准备 / 投保\", 18)"
  ],
  "出战干员": [
-  "ui/system_screens.gd:424",
+  "ui/system_screens.gd:448",
   "var names: Array = [\"出战干员\"]"
  ],
  "出拳够快的人，刀只需要很短。": [
@@ -3468,11 +3472,11 @@
   "\"implicit\": [[ItemModifier.Stat.ARTS_PCT, 0.05], [ItemModifier.Stat.CRIT_RATE, 0.03]], \"req\": \"tec\", \"form\": \"blade\", \"text\": \"刃面上的环纹，是一场雪落下的样子。\"},"
  ],
  "分": [
-  "ui/exchange_screen.gd:683",
+  "ui/exchange_screen.gd:687",
   "if seconds >= 3600: return \"%d时%d分\" % [seconds / 3600, (seconds % 3600) / 60]"
  ],
  "分   ·": [
-  "ui/exchange_screen.gd:964",
+  "ui/exchange_screen.gd:968",
   "right.add_child(AK.label(\"耗时 %d 分   ·   %s 龙门币\" % [int(r.minutes) * workshop_count, Economy.format(int(r.lmd) * workshop_count)], 12, AK.MUTE))"
  ],
  "分红": [
@@ -3532,7 +3536,7 @@
   "var links := AK.button(\"创建桌面快捷方式\", \"plain\", 13)"
  ],
  "初级作战记录": [
-  "game/game_manager.gd:5432",
+  "game/game_manager.gd:5442",
   "elif enemy.elite: record = \"初级作战记录\""
  ],
  "删除": [
@@ -3556,7 +3560,7 @@
   "\"misery\": \"别那样看着我，博士，我不是刺客。只是不想被发现而已。\","
  ],
  "到价提醒：": [
-  "game/market/exchange.gd:1272",
+  "game/market/exchange.gd:1283",
   "_say(\"到价提醒：%s %s %s\" % [cfd_name(str(a.market)), a.op, str(snappedf(float(a.price), 0.01))], \"alert\")"
  ],
  "到最后，连自己也可以舍掉。": [
@@ -3573,7 +3577,7 @@
  ],
  "到结算": [
   "ui/exchange_screen.gd:633",
-  "\"到结算\" if int(order.expires) == 0 else \"剩 \" + _left(int(order.expires) - game.market.t)], 12))"
+  "\"到结算\" if int(order.expires) == 0 else \"剩 \" + _rleft(int(order.expires))], 12))"
  ],
  "到达": [
   "ui/field_panels.gd:234",
@@ -3753,11 +3757,11 @@
  ],
  "剩": [
   "ui/exchange_screen.gd:633",
-  "\"到结算\" if int(order.expires) == 0 else \"剩 \" + _left(int(order.expires) - game.market.t)], 12))"
+  "\"到结算\" if int(order.expires) == 0 else \"剩 \" + _rleft(int(order.expires))], 12))"
  ],
  "剩余": [
   "ui/base_screens.gd:114",
-  "head.append(\"剩余 \" + ExchangeScreen._left(int(n.until) - game.market.t))"
+  "head.append(\"剩余 \" + ExchangeScreen._rleft(int(n.until)))"
  ],
  "副键": [
   "ui/base_screens.gd:1295",
@@ -3796,7 +3800,7 @@
   "\"window\": \"回看根数\", \"c\": \"偏离阈值\", \"adds\": \"加仓次数\", \"rsi_low\": \"RSI 下限\", \"rsi_high\": \"RSI 上限\","
  ],
  "加入助熔剂。": [
-  "game/game_manager.gd:3800",
+  "game/game_manager.gd:3810",
   "set_message(\"加工部：%s 加入助熔剂。\" % job.output)"
  ],
  "加固安全袋": [
@@ -3808,7 +3812,7 @@
   "_p(\"armored\", 1, A, \"加固的\", \"Armored\", {\"def\": 30.0})"
  ],
  "加工": [
-  "ui/exchange_screen.gd:919",
+  "ui/exchange_screen.gd:923",
   "var stage := BaseScreens.shell(menu, \"加工站\", \"WORKSHOP · PROCESSING DEPT\", [\"加工\", \"打包\", \"礼品包\"], workshop_tab, func(i): workshop_tab = i; workshop(menu), \"PROCESS\","
  ],
  "加工 · 打包": [
@@ -3840,7 +3844,7 @@
   "\"workshop\": {\"name\": \"加工部\", \"start\": 1, \"levels\": ["
  ],
  "加工部完成": [
-  "game/game_manager.gd:2804",
+  "game/game_manager.gd:2814",
   "if in_base: set_message(\"加工部完成 %d 项，已入库。\" % done.size())"
  ],
  "加工部封装的农业部作物，加了封条，拆不开。": [
@@ -3884,7 +3888,7 @@
   "\"logistics_2\": [\"第二加工线\", 2, \"workshop_slot\", \"加工部队列 +1\", [\"logistics_1\"], {}],"
  ],
  "加工部：": [
-  "game/game_manager.gd:2630",
+  "game/game_manager.gd:2640",
   "set_message(\"加工部：%s ×%d 开始加工。\" % [output, count])"
  ],
  "加工部？热力学在上，那些机床被谁拆成这样的……给我一天。": [
@@ -3896,7 +3900,7 @@
   "{\"price\": 112000, \"materials\": {\"微型电机\": 3, \"装置\": 6}, \"opens\": \"加工队列 +1\"},"
  ],
  "加工队列已满": [
-  "game/game_manager.gd:2612",
+  "game/game_manager.gd:2622",
   "if workshop.busy() >= workshop_slots(): return \"加工队列已满\""
  ],
  "加急专递单": [
@@ -3904,7 +3908,7 @@
   "\"加急专递单\": [\"penguin\", \"\"],"
  ],
  "加急专递单已入库。": [
-  "game/game_manager.gd:3864",
+  "game/game_manager.gd:3874",
   "set_message(\"加急专递单已入库。\")"
  ],
  "动得够快，影子也会伤人。": [
@@ -3916,7 +3920,7 @@
   "_section(stage, \"动态\", \"NEWS\", Vector2(248, chain_top + 224))"
  ],
  "助熔剂": [
-  "ui/exchange_screen.gd:987",
+  "ui/exchange_screen.gd:991",
   "var b := AK.button(\"助熔剂\" if flux.is_empty() else flux, \"yellow\" if flux.is_empty() else \"plain\", 11)"
  ],
  "劳役编号牌": [
@@ -3928,7 +3932,7 @@
   "for p in [[\"企业\", parts.firms], [\"货价\", parts.goods], [\"信贷\", parts.credit], [\"势力\", parts.factions], [\"情绪\", parts.mood]]:"
  ],
  "势力关系": [
-  "ui/exchange_screen.gd:838",
+  "ui/exchange_screen.gd:842",
   "col.add_child(AK.section(\"势力关系\", \"RELATIONS\"))"
  ],
  "势力据点": [
@@ -3936,11 +3940,11 @@
   "\"post\": {\"name\": \"势力据点\", \"en\": \"FACTION POST\", \"color\": Color(\"8fc31f\"), \"danger\": 0.0, \"reward\": 0.05, \"enemies\": 3, \"stat\": 1.25, \"combat\": true},"
  ],
  "包": [
-  "ui/exchange_screen.gd:1077",
+  "ui/exchange_screen.gd:1081",
   "_picker(parent, \"包\", pack_pick, func():"
  ],
  "包   ·   溢出": [
-  "ui/exchange_screen.gd:1064",
+  "ui/exchange_screen.gd:1068",
   "right.add_child(AK.label(\"已装 %d / %d   ·   %d 包   ·   溢出 %d\" % [int(manual.points), face, int(manual.packs), int(manual.overflow) if int(manual.packs) > 0 else 0], 13, AK.FG))"
  ],
  "匕首突刺": [
@@ -3948,7 +3952,7 @@
   "\"family_soldier\": {\"name\": \"家族士兵\", \"attack\": \"匕首突刺\", \"windup\": 0.7, \"interval\": 1.2, \"damage\": 0.8, \"shape\": \"lane\", \"reach\": 2.4, \"width\": 0.8, \"dash\": 0.8, \"recoil\": 0.6, \"recovery\": 0.25, \"debt\": 3"
  ],
  "化合切削液": [
-  "game/game_manager.gd:3617",
+  "game/game_manager.gd:3627",
   "\"calibrate\": [{\"异铁碎片\": 2}, {\"异铁\": 1}, {\"异铁组\": 1}, {\"研磨石\": 1}, {\"研磨石\": 2}, {\"研磨石\": 2, \"化合切削液\": 1}],"
  ],
  "化工中介体，液化后像酒精，常让整个工作间醉醺醺的。": [
@@ -3956,7 +3960,7 @@
   "\"扭转醇\": {\"star\": 3, \"kind\": \"craft\", \"text\": \"化工中介体，液化后像酒精，常让整个工作间醉醺醺的。\"},"
  ],
  "北": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "北原邪魔南下": [
@@ -4136,7 +4140,7 @@
   "\"peg_buy\": \"买入 PEG\", \"peg_sell\": \"卖出 PEG\", \"k\": \"聚类数\", \"S3:n\": \"护城河门槛\", \"S5:n\": \"突破周期\","
  ],
  "卖出赤金": [
-  "ui/exchange_screen.gd:826",
+  "ui/exchange_screen.gd:830",
   "_go(body, \"卖出赤金\" if ex.home_bars() >= bars else \"赤金不足\", ex.home_bars() >= bars, func():"
  ],
  "卖出赤金 ×": [
@@ -4152,7 +4156,7 @@
   "game.set_message(\"卖给坎诺特：%s，赤金 +%d\" % [item.display_name(), pay])"
  ],
  "南": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "南边城市造的刀，走到这里已经不像南边的了。": [
@@ -4160,7 +4164,7 @@
   "\"form\": \"blade\", \"icon\": \"expedition_machete\", \"text\": \"南边城市造的刀，走到这里已经不像南边的了。\"},"
  ],
  "博士": [
-  "ui/system_screens.gd:427",
+  "ui/system_screens.gd:451",
   "names.append(\"博士\")"
  ],
  "博士。……这份工作比预想的拖得久了一点。": [
@@ -4236,7 +4240,7 @@
   "\"Z13\": {\"region\": \"卡西米尔\", \"kind\": \"announce\", \"hours\": 24, \"weight\": 2, \"title\": \"卡西米尔国民院预算辩论\", \"effects\": [{\"sel\": \"kazimierz:*\", \"mult_range\": [0.04, 0.1]}]},"
  ],
  "卡西米尔权斗": [
-  "game/market/market_links.gd:388",
+  "game/market/market_links.gd:393",
   "\"卡西米尔权斗\": [\"Z3\", \"Z12\", \"Z7\", \"Z17\", \"Z4\", \"Z13\", \"Z26\"],"
  ],
  "卡西米尔紧张": [
@@ -4320,7 +4324,7 @@
   "return (\"烹饪中 %d\" % game.provisions.jobs().size()) if not game.provisions.jobs().is_empty() else (meal if not meal.is_empty() else \"厨房 · 用餐\")"
  ],
  "去交易": [
-  "ui/exchange_screen.gd:723",
+  "ui/exchange_screen.gd:727",
   "var go := AK.button(\"去交易\", \"plain\", 11)"
  ],
  "去向 · E": [
@@ -4428,7 +4432,7 @@
   "_btn(drow, \"取出活期\", float(fin.demand.lmd) >= amount and amount > 0.0, func(): fin.withdraw(\"lmd\", amount); redo.call(), \"plain\", 130)"
  ],
  "取消": [
-  "ui/exchange_screen.gd:1159",
+  "ui/exchange_screen.gd:1163",
   "var cancel := AK.button(\"取消\", \"plain\", 13)"
  ],
  "取消投保 ·": [
@@ -4592,7 +4596,7 @@
   "AK.put(stage, AK.label(\"叙拉古 血债 ×%.2f\" % v.siracusa_debt, 13, AK.GREEN), Vector2(28, y))"
  ],
  "叙拉古与龙门": [
-  "game/market/market_links.gd:400",
+  "game/market/market_links.gd:405",
   "\"叙拉古与龙门\": [\"L18\", \"I7\", \"F24\", \"I9\", \"I26\", \"I8\"],"
  ],
  "叙拉古中间人的信物，递出去，仇家会退一步。血债 −20。": [
@@ -4641,7 +4645,7 @@
  ],
  "口粮": [
   "ui/provision_screens.gd:175",
-  "right.add_child(AK.section(\"口粮\", \"RATIONS  %d / 日\" % fin.rations()))"
+  "right.add_child(AK.section(\"口粮\", \"RATIONS  %.2f / 日\" % fin.daily_rations()))"
  ],
  "口粮与热餐": [
   "ui/tutorial_spotlight.gd:122",
@@ -4672,19 +4676,19 @@
   "_r(\"古高卢银币\", \"wave\", 0, \"所有干员初始技力+6\", \"进入每个区段时技能充能 +1\", {}, {\"segment_charge\": 1.0}),"
  ],
  "只做交易包": [
-  "game/market/exchange.gd:721",
+  "game/market/exchange.gd:723",
   "if not Packs.is_pack(pack): return \"只做交易包\""
  ],
  "只在基地": [
-  "game/game_manager.gd:3764",
+  "game/game_manager.gd:3774",
   "if not in_base: return \"只在基地\""
  ],
  "只在局内": [
-  "game/game_manager.gd:3896",
+  "game/game_manager.gd:3906",
   "if in_base: return \"只在局内\""
  ],
  "只收交易包": [
-  "game/market/exchange.gd:416",
+  "game/market/exchange.gd:418",
   "out.why = \"只收交易包\""
  ],
  "只收材料": [
@@ -4700,11 +4704,11 @@
   "\"text\": \"只斩 1 次，系数 ×3.5，真实伤害。\"},"
  ],
  "只能交货": [
-  "game/market/exchange.gd:723",
+  "game/market/exchange.gd:725",
   "return \"\" if FactionCatalog.packs_sold(faction).has(pack) else \"只能交货\""
  ],
  "只能在局内据点交易": [
-  "game/market/exchange.gd:412",
+  "game/market/exchange.gd:414",
   "out.why = \"只能在局内据点交易\""
  ],
  "只要它还亮着，就有人知道你在哪。": [
@@ -4768,7 +4772,7 @@
   "var cols := [[\"设施\", 100, 0], [\"材料\", 104, 0], [\"库存\", 60, 2], [\"可用天数\", 80, 2], [\"今日用库存\", 90, 2], [\"今日买进\", 80, 2], [\"今日费用\", 96, 2], [\"库存估值\", 96, 2]]"
  ],
  "可运 0": [
-  "ui/exchange_screen.gd:859",
+  "ui/exchange_screen.gd:863",
   "right.add_child(AK.label(\"可运 0\", 12, AK.MUTE))"
  ],
  "可送回": [
@@ -4900,7 +4904,7 @@
   "[\"journal\", \"合同目标\", \"合同面板显示本局各份合同的进度，以及已接的回收、交付合同需要的物资。\", \"打开合同面板\", \"field\"],"
  ],
  "合同目标完成：": [
-  "game/game_manager.gd:5195",
+  "game/game_manager.gd:5205",
   "set_message(\"合同目标完成：%s\" % progress.goal)"
  ],
  "合同目标：": [
@@ -4916,15 +4920,15 @@
   "AK.put(stage, AK.section(\"合成\", \"CRAFT\"), Vector2(332, y))"
  ],
  "合约": [
-  "game/market/exchange.gd:886",
+  "game/market/exchange.gd:888",
   "_watch_margin(f, pnl, \"合约\")"
  ],
  "合约已满": [
-  "game/market/exchange.gd:770",
+  "game/market/exchange.gd:772",
   "if forwards.filter(func(f): return f.faction == faction).size() >= FORWARD_SLOTS + rank(faction): return \"合约已满\""
  ],
  "合约违约：": [
-  "game/market/exchange.gd:881",
+  "game/market/exchange.gd:883",
   "_say(\"合约违约：%s，保证金没收，关系下降\" % FactionCatalog.name_of(faction), \"default\")"
  ],
  "合计": [
@@ -4932,15 +4936,15 @@
   "_tile(t, \"合计\", _fmt(float(bill.get(\"total\", 0))))"
  ],
  "同地区已有同类合同": [
-  "game/game_manager.gd:4719",
+  "game/game_manager.gd:4729",
   "\"same\": return \"同地区已有同类合同\""
  ],
  "同意随博士返回罗德岛。撤离后完成入职。": [
-  "game/game_manager.gd:5056",
+  "game/game_manager.gd:5066",
   "broadcast(\"PRTS：%s同意随博士返回罗德岛。撤离后完成入职。\" % name)"
  ],
  "同意随行": [
-  "game/game_manager.gd:5055",
+  "game/game_manager.gd:5065",
   "set_message(\"寻访 · %s 同意随行\" % name)"
  ],
  "同部位 · 稀有度 +1": [
@@ -4956,7 +4960,7 @@
   "\"safe_2\": \"安全袋扩容二\", \"exchange\": \"交易所\", \"roster_3\": \"名册 3 人\", \"lungmen_r5\": \"龙门商会崇拜\"}"
  ],
  "名守卫者，宝箱尚未解封。": [
-  "game/game_manager.gd:5371",
+  "game/game_manager.gd:5381",
   "else: set_message(\"密室仍有 %d 名守卫者，宝箱尚未解封。\" % _vault_guardians.size())"
  ],
  "名敌人": [
@@ -5200,7 +5204,7 @@
   "\"C5\": {\"region\": \"哥伦比亚\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"哥伦比亚拓荒区招募潮\","
  ],
  "哥伦比亚政策": [
-  "game/market/market_links.gd:378",
+  "game/market/market_links.gd:383",
   "\"哥伦比亚政策\": [\"C4\", \"C14\", \"C6\", \"C25\", \"C5\"],"
  ],
  "哥伦比亚通往卡西米尔的商路拥堵": [
@@ -5600,7 +5604,7 @@
   "\"swire\": {\"name\": \"施怀雅集团\", \"region\": \"龙门\", \"cur\": \"lmd\", \"industry\": \"地产、综合财团\","
  ],
  "地区互动": [
-  "game/market/market_links.gd:403",
+  "game/market/market_links.gd:408",
   "\"地区互动\": [\"I17\", \"I18\", \"I20\", \"I33\", \"I10\", \"I11\", \"I12\", \"I13\", \"I14\", \"I22\", \"I23\", \"I24\", \"I25\", \"I27\", \"I28\", \"I29\", \"I5\", \"I6\"],"
  ],
  "地图": [
@@ -5752,7 +5756,7 @@
   "const SETTING_TABS := [\"画面\", \"界面\", \"音频\", \"基地\", \"拾取过滤\"]"
  ],
  "基地形象": [
-  "ui/system_screens.gd:434",
+  "ui/system_screens.gd:458",
   "row.add_child(AK.label(\"基地形象\", 14, AK.FG))"
  ],
  "基地站点": [
@@ -5780,7 +5784,7 @@
   "var groups := [[\"基础\", \"BASE\", base], [\"攻击\", \"OFFENSE\", offense], [\"防御\", \"DEFENCE\", defence], [\"体力\", \"STAMINA\", stamina]]"
  ],
  "基础作战记录": [
-  "game/game_manager.gd:5433",
+  "game/game_manager.gd:5443",
   "elif rng_loot.randf() < RECORD_NORMAL_ODDS: record = \"基础作战记录\""
  ],
  "基础利率/日": [
@@ -5888,11 +5892,11 @@
   "message_requested.emit(\"复还之手：受到致命伤时回满生命（本张路线图已用）\")"
  ],
  "外勤 · 基建 · 航行": [
-  "ui/system_screens.gd:306",
+  "ui/system_screens.gd:330",
   "var name_cn := AK.label(\"外勤 · 基建 · 航行\", 22, AK.MUTE)"
  ],
  "外勤中": [
-  "game/game_manager.gd:4716",
+  "game/game_manager.gd:4726",
   "if not in_base: return \"外勤中\""
  ],
  "外勤入口": [
@@ -5996,7 +6000,7 @@
   "const CARGO_NAME := \"大宗货箱\""
  ],
  "大宗货箱已入库。": [
-  "game/game_manager.gd:2597",
+  "game/game_manager.gd:2607",
   "set_message(\"大宗货箱已入库。\")"
  ],
  "大宗贸易协议": [
@@ -6032,15 +6036,15 @@
   "\"改量装置\": {\"star\": 4, \"kind\": \"craft\", \"text\": \"大量私自改造的装置，扩容提速但牺牲了稳定性。\"},"
  ],
  "天": [
-  "game/game_manager.gd:2502",
-  "(\"%.1f 小时\" % (away / 3600.0)) if away < 48 * 3600 else (\"%d 天\" % roundi(away / 86400.0)), (\"%.1f 小时\" % hours), int(c.get(\"fill\", 0)), int(c.get(\"liquidation\", 0)),"
+  "game/game_manager.gd:2518",
+  "return (\"%.1f 小时\" % (seconds / 3600.0)) if seconds < 48 * 3600 else (\"%d 天\" % roundi(seconds / 86400.0))"
  ],
  "天数": [
   "ui/assets_screen.gd:821",
   "ExchangeScreen._number(right, \"天数\", float(strat_days), 0, 1.0, 0.0, func(v): strat_days = int(v); ExchangeScreen.build(menu), \"不限\" if strat_days == 0 else \"天\")"
  ],
  "天灾": [
-  "game/market/market_links.gd:391",
+  "game/market/market_links.gd:396",
   "\"天灾\": [\"X1\", \"X2\", \"X17\", \"X23\", \"X7\", \"X25\", \"X12\", \"X6\", \"X15\", \"X10\"],"
  ],
  "天灾信使数据造假案曝光": [
@@ -6296,11 +6300,11 @@
   "\"outpost\", \"boss\": out.append([\"守卫者\" if kind == \"outpost\" else \"首领\", AK.RED])"
  ],
  "守卫者全部倒下：密室的封印解除。": [
-  "game/game_manager.gd:5370",
+  "game/game_manager.gd:5380",
   "set_message(\"守卫者全部倒下：密室的封印解除。\")"
  ],
  "守在入口前。击破守卫者，入口才会开放。": [
-  "game/game_manager.gd:4651",
+  "game/game_manager.gd:4661",
   "return \"PRTS：%s守在入口前。击破守卫者，入口才会开放。\" % BossCatalog.display_name(str(BossCatalog.WARDENS.get(region_id, \"\")))"
  ],
  "守望者战斧": [
@@ -6336,7 +6340,7 @@
   "\"safe_2\": \"安全袋扩容二\", \"exchange\": \"交易所\", \"roster_3\": \"名册 3 人\", \"lungmen_r5\": \"龙门商会崇拜\"}"
  ],
  "安全袋扩容到": [
-  "game/game_manager.gd:3263",
+  "game/game_manager.gd:3273",
   "set_message(\"安全袋扩容到 %d×%d。\" % [safe_bag.width, safe_bag.height])"
  ],
  "安全袋由博士随身携带，即使行动失败，袋中的物品也会保留。在背包中 Ctrl + 左键点击物品放入，或按安全袋键放入最近拾取的物品。": [
@@ -6348,8 +6352,8 @@
   "\"安全袋由博士随身携带，撤退时也会带回。\","
  ],
  "完成": [
-  "ui/exchange_screen.gd:981",
-  "var line := MarketWidgets.live(func(): return \"%s ×%d  ·  %s\" % [job.output, int(job.count), \"完成\" if int(job.due) <= BaseState.now() else ExchangeScreen._left(int(job.due) - BaseState.now())], 13)"
+  "ui/exchange_screen.gd:985",
+  "var line := MarketWidgets.live(func(): return \"%s ×%d  ·  %s\" % [job.output, int(job.count), \"完成\" if int(job.due) <= BaseState.now() else ExchangeScreen._left(BaseState.real_left(int(job.due)))], 13)"
  ],
  "完整": [
   "ui/base_screens.gd:1178",
@@ -6528,7 +6532,7 @@
   "set_message(\"密室\" if not guarded else \"密室：守卫者 %d\" % _vault_guardians.size())"
  ],
  "密室仍有": [
-  "game/game_manager.gd:5371",
+  "game/game_manager.gd:5381",
   "else: set_message(\"密室仍有 %d 名守卫者，宝箱尚未解封。\" % _vault_guardians.size())"
  ],
  "密室出现率 ×1.5 · 暗墙密室 ×1.5": [
@@ -6704,11 +6708,11 @@
   "\"avenger\": {\"name\": \"寻仇者\", \"attack\": \"突刺回砍\", \"row\": -1, \"windup\": 1.0, \"interval\": 2.0, \"damage\": 0.8, \"shape\": \"circle\", \"reach\": 2.4, \"radius\": 1.6, \"recovery\": 0.3, \"elite\": true, \"combo\": 2, \"phas"
  ],
  "寻访": [
-  "game/game_manager.gd:4785",
+  "game/game_manager.gd:4795",
   "return \"寻访 %s · %s\" % [Operators.display_name(str(recruit_target.operator)), AK.floor_code(region_id, start_floor + int(recruit_target.offset))]"
  ],
  "寻访 ·": [
-  "game/game_manager.gd:5055",
+  "game/game_manager.gd:5065",
   "set_message(\"寻访 · %s 同意随行\" % name)"
  ],
  "寻访干员": [
@@ -6748,8 +6752,8 @@
   "\"微型电机\": {\"star\": 4, \"kind\": \"base\", \"group\": \"电子\", \"source\": \"common\", \"stack\": 3, \"size\": Vector2i(2, 2), \"value\": 60, \"text\": \"小型电动机，驱动无人机和机械臂。\"},"
  ],
  "小时": [
-  "game/game_manager.gd:2502",
-  "(\"%.1f 小时\" % (away / 3600.0)) if away < 48 * 3600 else (\"%d 天\" % roundi(away / 86400.0)), (\"%.1f 小时\" % hours), int(c.get(\"fill\", 0)), int(c.get(\"liquidation\", 0)),"
+  "game/game_manager.gd:2518",
+  "return (\"%.1f 小时\" % (seconds / 3600.0)) if seconds < 48 * 3600 else (\"%d 天\" % roundi(seconds / 86400.0))"
  ],
  "小腿扎紧，跑起来不绊脚。": [
   "game/gear_catalog.gd:392",
@@ -6872,7 +6876,7 @@
   "\"grey_order\": {\"name\": \"灰色秩序\", \"region\": \"city\", \"pieces\": [\"set_grey_order_0\", \"set_grey_order_1\", \"set_grey_order_2\"], \"two\": \"法抗 +8；生命低于 50% 时获得 20% 生命上限的屏障（冷却 20 秒）\", \"three\": \"屏障破碎时，半径 2.5 内 120%"
  ],
  "属实": [
-  "game/game_manager.gd:3772",
+  "game/game_manager.gd:3782",
   "headline[\"peek\"] = \"属实\" if bool(_rumor_of(headline).rumor.truth) else \"不实\""
  ],
  "属性": [
@@ -7000,15 +7004,15 @@
   "const FX_MODES := [\"换汇\", \"差价\"]"
  ],
  "差价合约": [
-  "game/market/exchange.gd:1070",
+  "game/market/exchange.gd:1072",
   "_watch_margin(c, pnl, \"差价合约\")"
  ],
  "差价合约保证金被隔夜费耗尽，已了结": [
-  "game/market/exchange.gd:1086",
+  "game/market/exchange.gd:1088",
   "_say(\"差价合约保证金被隔夜费耗尽，已了结\", \"liquidation\")"
  ],
  "差价合约待入账": [
-  "game/market/exchange.gd:1094",
+  "game/market/exchange.gd:1096",
   "if pend_l + pend_g > 0.0: _say(\"差价合约待入账 %s 龙门币已到账\" % Economy.format(roundi(pend_l + pend_g * Economy.GOLD_BAR_LMD)), \"cap\")"
  ],
  "已习得": [
@@ -7024,7 +7028,7 @@
   "if str(order.state) == \"delivered\": return \"已交接\""
  ],
  "已使用": [
-  "game/game_manager.gd:3785",
+  "game/game_manager.gd:3795",
   "if job.get(\"flux\", false): return \"已使用\""
  ],
  "已使用。": [
@@ -7040,11 +7044,11 @@
   "ex._say(\"策略 %s 已停止（%s）\" % [StrategyCatalog.name_of(str(st.tpl)), reason], \"strategy\")"
  ],
  "已入仓库。": [
-  "game/market/exchange.gd:1397",
+  "game/market/exchange.gd:1408",
   "game.broadcast(\"PRTS：货币精简——外币账户折合龙门币 %s，赤金账户与存款折合赤金 ×%d 已入仓库。\" % [Economy.format(lmd), whole])"
  ],
  "已入库": [
-  "game/game_manager.gd:3575",
+  "game/game_manager.gd:3585",
   "if stored > 0 or left > 0: set_message(\"已入库 %d 件%s。\" % [stored, \"\" if left == 0 else \"，仓库已满，%d 件留在身上\" % left])"
  ],
  "已入职": [
@@ -7080,7 +7084,7 @@
   "broadcast(\"PRTS：仓库空间不足，%s已存入 PRTS 邮件。\" % shown, false)"
  ],
  "已存回": [
-  "game/game_manager.gd:3272",
+  "game/game_manager.gd:3282",
   "if stored > 0: set_message(\"已存回 %d 件材料。\" % stored)"
  ],
  "已完成": [
@@ -7100,11 +7104,11 @@
   "broadcast(\"PRTS：博士，%s已就位。\" % Operators.info(player.operator_id).name)"
  ],
  "已开饭": [
-  "game/market/finance.gd:222",
+  "game/market/finance.gd:240",
   "if hot_meal(): return \"已开饭\""
  ],
  "已归队": [
-  "game/game_manager.gd:5136",
+  "game/game_manager.gd:5146",
   "set_message(\"%s 已归队\" % LostCatalog.name_of(id))"
  ],
  "已投保": [
@@ -7120,7 +7124,7 @@
   "[\"kill\", \"接敌\", \"已抵达作业区域，检测到敌对单位。左键点击敌人，干员会自动接近并攻击；按住左键可以持续进攻。\", \"击败一个敌人\", \"field\"],"
  ],
  "已拆开，物品已入库。": [
-  "game/game_manager.gd:2713",
+  "game/game_manager.gd:2723",
   "set_message(\"%s 已拆开，物品已入库。\" % pack)"
  ],
  "已拥有": [
@@ -7140,11 +7144,11 @@
   "game.set_message(\"%s已接入基建总控台。\" % BaseCatalog.facility_name(id))"
  ],
  "已是该族": [
-  "game/game_manager.gd:3721",
+  "game/game_manager.gd:3731",
   "if PrefixFamilies.family_of(str(entry.id)) == family: return \"已是该族\""
  ],
  "已有寄出的补给": [
-  "game/provisions.gd:277",
+  "game/provisions.gd:278",
   "if not mailed().is_empty(): return \"已有寄出的补给\""
  ],
  "已满": [
@@ -7152,11 +7156,11 @@
   "if r >= SkillTrees.max_rank(data): return \"已满\""
  ],
  "已满级": [
-  "game/base_state.gd:238",
+  "game/base_state.gd:239",
   "if step.is_empty(): return \"已满级\""
  ],
  "已满配": [
-  "game/base_state.gd:421",
+  "game/base_state.gd:508",
   "if level + 1 >= prices.size(): return \"已满配\""
  ],
  "已用餐": [
@@ -7164,7 +7168,7 @@
   "\"已用餐\" if id == eaten else \"用餐\", \"已用餐\" if id == eaten else p.eat_refusal(id), func(): p.eat(meal); redraw.call()))"
  ],
  "已种植": [
-  "game/provisions.gd:154",
+  "game/provisions.gd:155",
   "if not plot(i).is_empty(): return \"已种植\""
  ],
  "已签订": [
@@ -7180,7 +7184,7 @@
   "\"implicit\": [[ItemModifier.Stat.MAX_HP_PCT, 0.04]], \"fx\": \"hurt_sprint\", \"fx_text\": \"受击时：2 秒内移速 +40%（冷却 5 秒）\", \"req\": \"agi\", \"text\": \"已经不疼了，只是想跑。\"},"
  ],
  "已装": [
-  "ui/exchange_screen.gd:1064",
+  "ui/exchange_screen.gd:1068",
   "right.add_child(AK.label(\"已装 %d / %d   ·   %d 包   ·   溢出 %d\" % [int(manual.points), face, int(manual.packs), int(manual.overflow) if int(manual.packs) > 0 else 0], 13, AK.FG))"
  ],
  "已装备": [
@@ -7188,11 +7192,11 @@
   "var tag := \"已装备\" if game.player.equipped.values().has(item) else \"背包\""
  ],
  "已证实": [
-  "game/market/market_state.gd:1188",
+  "game/market/market_state.gd:1219",
   "if not headline.is_empty(): headline.status = \"已证实\""
  ],
  "已转移：": [
-  "game/game_manager.gd:3308",
+  "game/game_manager.gd:3318",
   "set_message(\"已转移：%s\" % item.item_name)"
  ],
  "已辟谣": [
@@ -7356,7 +7360,7 @@
   "\"engineering_6\": [\"平行重铸\", 7, \"reforge_pick\", \"重铸 2 选 1\", [\"engineering_5\", \"joint_eye\", \"logistics_6\"], {}, 8400000, 48],"
  ],
  "年息": [
-  "ui/exchange_screen.gd:801",
+  "ui/exchange_screen.gd:805",
   "var line := \"%s / 赤金 %s   年息 %.2f%%   换汇价差 %.2f%%   本日 %+.2f%%\" % [Currencies.name_of(cur), KLineChart._fmt(m.rate_of(cur)), m.policy_rate(cur) * 100.0,"
  ],
  "并钉住目标 4 秒；冷却": [
@@ -7480,11 +7484,11 @@
   "\"goals\": [[\"found_raidian\", \"在龙门第 15–19 层找到电弧\"], [\"intel_research\", \"开始一项情报部研究\"]]},"
  ],
  "开始加工": [
-  "ui/exchange_screen.gd:967",
+  "ui/exchange_screen.gd:971",
   "var go := AK.button(\"开始加工\", \"blue\" if refusal.is_empty() else \"plain\", 15)"
  ],
  "开始加工。": [
-  "game/game_manager.gd:2630",
+  "game/game_manager.gd:2640",
   "set_message(\"加工部：%s ×%d 开始加工。\" % [output, count])"
  ],
  "开始唤醒": [
@@ -7492,11 +7496,11 @@
   "const PRIMARY := [\"出发\", \"继续\", \"撤离\", \"返回罗德岛\", \"接下合同 →\", \"开始唤醒\"]"
  ],
  "开始打包。": [
-  "game/game_manager.gd:2683",
+  "game/game_manager.gd:2693",
   "set_message(\"加工部：%s ×%d 开始打包。\" % [pack, made])"
  ],
  "开始游戏": [
-  "ui/system_screens.gd:318",
+  "ui/system_screens.gd:342",
   "var start := AK.button(\"开始游戏\", \"blue\", 18)"
  ],
  "开始烹饪": [
@@ -7620,15 +7624,15 @@
   "\"text\": \"弹跳范围 4 → 6。\"},"
  ],
  "强制了结：保证金": [
-  "game/market/exchange.gd:944",
+  "game/market/exchange.gd:946",
   "_say(\"%s强制了结：保证金 %s 没收\" % [what, format_money(str(p.currency), float(p.margin))], \"liquidation\")"
  ],
  "强制变卖": [
-  "game/market/finance.gd:653",
+  "game/market/finance.gd:682",
   "if ex.strategies != null and not target.call(): ex.strategies.liquidate_all(\"强制变卖\")"
  ],
  "强制平仓：退回": [
-  "game/market/exchange.gd:931",
+  "game/market/exchange.gd:933",
   "_say(\"%s强制平仓：退回 %s\" % [what, format_money(str(p.currency), back)], \"liquidation\")"
  ],
  "强化 · E": [
@@ -7732,7 +7736,7 @@
   "\"shadow\": {\"name\": \"影霄·绝影\", \"type\": \"signature\", \"tier\": 0, \"max\": 10, \"mastery\": true,"
  ],
  "待证实": [
-  "game/game_manager.gd:3766",
+  "game/game_manager.gd:3776",
   "if str(headline.get(\"status\", \"\")) != \"待证实\" or headline.has(\"peek\") or _rumor_of(headline).is_empty(): return \"无法查证\""
  ],
  "待调弦的怒火": [
@@ -7760,7 +7764,7 @@
   "var post := game._spawn_guard_post(cache.global_position, \"得偿所愿\", true, \"\", 3)"
  ],
  "得偿所愿：一个藏品箱的封印解除。": [
-  "game/game_manager.gd:5354",
+  "game/game_manager.gd:5364",
   "set_message(\"得偿所愿：一个藏品箱的封印解除。\")"
  ],
  "微型电机": [
@@ -7828,7 +7832,7 @@
   "[\"hotbar_8\", \"快捷栏 8\", \"快捷栏\", {\"key\": KEY_5}, null],"
  ],
  "快捷栏：": [
-  "game/game_manager.gd:5948",
+  "game/game_manager.gd:5958",
   "set_message(\"快捷栏：%s\" % Hotbar.CHOICE_NAMES.get(action, item.item_name))"
  ],
  "快讯": [
@@ -7836,7 +7840,7 @@
   "if ev.has(\"kind\"): head.append(str(MarketEvents.KIND_NAMES.get(str(ev.kind), \"快讯\")))"
  ],
  "态势": [
-  "ui/exchange_screen.gd:709",
+  "ui/exchange_screen.gd:713",
   "AK.put(stage, AK.section(\"态势\", \"WORLD STATE\"), Vector2(852, TOP + 330))"
  ],
  "怒潮：击杀后 5 秒内攻速 +4，至多 5 层": [
@@ -7872,7 +7876,7 @@
   "var reset := AK.button(\"恢复默认\", \"plain\", 12)"
  ],
  "息差": [
-  "ui/exchange_screen.gd:793",
+  "ui/exchange_screen.gd:797",
   "var line := \"%s / 龙门币 %s   息差 %+.2f%%   换汇价差 %.2f%%   本日 %+.2f%%\" % [Currencies.name_of(cur), KLineChart._fmt(m.price(id)),"
  ],
  "恶敌": [
@@ -7984,7 +7988,7 @@
   "\"icon\": \"city_ring_3\", \"text\": \"戒面上的盾什么也没刻。\"},"
  ],
  "战利品仍被封印：先击败全部守卫者。": [
-  "game/game_manager.gd:5967",
+  "game/game_manager.gd:5977",
   "notice(\"战利品仍被封印：先击败全部守卫者。\")"
  ],
  "战地包扎": [
@@ -8036,7 +8040,7 @@
   "if cache.game == self and near(cache): return \"密室藏品\" if cache.source == \"vault\" else \"战斗缴获\""
  ],
  "战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。": [
-  "game/game_manager.gd:5362",
+  "game/game_manager.gd:5372",
   "set_message(\"战斗缴获：附近出现了藏品箱，靠近按 E 选择一件藏品。\")"
  ],
  "战斗：": [
@@ -8364,11 +8368,11 @@
   "\"slug\": {\"name\": \"源石虫\", \"attack\": \"扑咬\", \"row\": 2, \"windup\": 0.8, \"interval\": 1.15, \"damage\": 1.0, \"shape\": \"lane\", \"reach\": 2.2, \"width\": 1.2, \"dash\": 1.6, \"recoil\": 1.2, \"recovery\": 0.25},"
  ],
  "打包": [
-  "ui/exchange_screen.gd:904",
+  "ui/exchange_screen.gd:908",
   "var pack := AK.go_button(\"打包\", \"PACK\", \"blue\", 18)"
  ],
  "打包 ×": [
-  "ui/exchange_screen.gd:1066",
+  "ui/exchange_screen.gd:1070",
   "_go(right, (\"打包 ×%d\" % int(manual.packs)) if by_hand.is_empty() else by_hand, by_hand.is_empty(), func():"
  ],
  "打开合同面板": [
@@ -8396,7 +8400,7 @@
   "[\"relics\", \"藏品\", \"本次行动获得的藏品都记录在这里，点击即可查看效果；图鉴页收录全部藏品。\", \"打开藏品面板\", \"field\"],"
  ],
  "托运": [
-  "ui/exchange_screen.gd:868",
+  "ui/exchange_screen.gd:872",
   "_go(right, \"托运\", q.ok, func():"
  ],
  "扣环上写着上一个人的血型。": [
@@ -8444,7 +8448,7 @@
   "const KEY_NAMES := {\"atk\": \"攻击\", \"aspd\": \"攻速\", \"def\": \"防御\", \"move\": \"移速\", \"stamina\": \"体力恢复\", \"taken\": \"承受伤害\"}"
  ],
  "承接已满": [
-  "game/game_manager.gd:4718",
+  "game/game_manager.gd:4728",
   "\"full\": return \"承接已满\""
  ],
  "技巧": [
@@ -8760,7 +8764,7 @@
   "\"deep\": return \"抵达 %s 后撤离\" % AK.floor_code(region, start_floor + int(contract.steps))"
  ],
  "抵达营地": [
-  "game/game_manager.gd:3011",
+  "game/game_manager.gd:3021",
   "set_message(\"抵达营地 %d|%d。\" % [floor_number, floor_number + 1])"
  ],
  "押运员护腕": [
@@ -8796,7 +8800,7 @@
   "\"mine_x22\": {\"name\": \"拆下的施术单元\", \"region\": \"mine\", \"category\": T, \"tier\": 2, \"factor\": 1.10, \"implicit\": [[S.ARTS_FLAT, 24.0], [S.RES_FLAT, 2.0]],"
  ],
  "拆不开": [
-  "game/game_manager.gd:2692",
+  "game/game_manager.gd:2702",
   "if not Packs.can_open(pack): return \"拆不开\""
  ],
  "拆包": [
@@ -8920,7 +8924,7 @@
   "\"mine_x09\": {\"name\": \"拼装轻甲\", \"region\": \"mine\", \"category\": A, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.DEF_FLAT, 10.0]],"
  ],
  "拾取": [
-  "game/game_manager.gd:3282",
+  "game/game_manager.gd:3292",
   "set_message(\"拾取 %s ×%d\" % [item.display_name(), before])"
  ],
  "拾取一件物品": [
@@ -8944,7 +8948,7 @@
   "_table(mid, [[\"持仓\", 300, 0], [\"方向\", 80, 2], [\"市值\", 130, 2]], prow)"
  ],
  "持仓上限": [
-  "game/market/exchange.gd:1020",
+  "game/market/exchange.gd:1022",
   "if cfd_notional_used(issuer) + lmd_eq(currency, notional) > cfd_notional_cap(issuer) + 0.5: return \"持仓上限\""
  ],
  "持有": [
@@ -8984,11 +8988,11 @@
   "const MODES := [\"现货\", \"挂单\", \"远期\", \"差价\"]"
  ],
  "挂单成交：": [
-  "game/market/exchange.gd:697",
+  "game/market/exchange.gd:699",
   "_say(\"挂单成交：%s → %s，%s\" % [item.display_name(), FactionCatalog.name_of(str(o.faction)), format_money(str(q.currency), net)], \"fill\")"
  ],
  "挂单成交：买入": [
-  "game/market/exchange.gd:710",
+  "game/market/exchange.gd:712",
   "_say(\"挂单成交：买入 %s ×%d\" % [o.material, int(o.count)], \"fill\")"
  ],
  "挂在背心上的小东西，谁都有一个。": [
@@ -9000,7 +9004,7 @@
   "_go(body, \"挂条件单\", true, func():"
  ],
  "挂钩": [
-  "ui/exchange_screen.gd:806",
+  "ui/exchange_screen.gd:810",
   "line += \"   挂钩 %s–%s\" % [KLineChart._fmt(c * (1.0 - band)), KLineChart._fmt(c * (1.0 + band))]"
  ],
  "指刃": [
@@ -9104,7 +9108,7 @@
   "const CLOSURE_TABS_BASE := [\"商店\", \"代售\", \"出售赤金\", \"换汇\", \"贷款\", \"随队物资\", \"整理箱\"]"
  ],
  "换汇价差": [
-  "ui/exchange_screen.gd:793",
+  "ui/exchange_screen.gd:797",
   "var line := \"%s / 龙门币 %s   息差 %+.2f%%   换汇价差 %.2f%%   本日 %+.2f%%\" % [Currencies.name_of(cur), KLineChart._fmt(m.price(id)),"
  ],
  "换装": [
@@ -9116,7 +9120,7 @@
   "const DEPARTURE := [[\"dispatch\"], [\"workbench\", \"整备台\", \"换装、改造装备，免费领取罗德岛制式装备。\"],"
  ],
  "换装空间不足，物品均已保留。": [
-  "game/game_manager.gd:3328",
+  "game/game_manager.gd:3338",
   "notice(\"换装空间不足，物品均已保留。\")"
  ],
  "据点": [
@@ -9140,11 +9144,11 @@
   "notice(\"据点头目还在：入口封锁中。\")"
  ],
  "据点已击破，深入入口解封。": [
-  "game/game_manager.gd:5238",
+  "game/game_manager.gd:5248",
   "broadcast(\"据点已击破，深入入口解封。\")"
  ],
  "据点已击破：入口解封。": [
-  "game/game_manager.gd:5237",
+  "game/game_manager.gd:5247",
   "set_message(\"据点已击破：入口解封。\")"
  ],
  "据点货架 +": [
@@ -9412,7 +9416,7 @@
   "const CASE_NAMES := {\"material\": \"材料整理箱\", \"collectible\": \"收藏品整理箱\", \"potion\": \"药剂整理箱\", \"gear\": \"装备整理箱\"}"
  ],
  "收藏品礼包": [
-  "game/game_manager.gd:3525",
+  "game/game_manager.gd:3535",
   "var gift := Item.create(\"收藏品礼包\", Item.Category.MATERIAL, 2, 2)"
  ],
  "收藏品箱": [
@@ -9420,7 +9424,7 @@
   "\"collector_box\": {\"name\": \"收藏品箱\", \"color\": Color(\"a8875a\"), \"region\": {\"mine\": 1.0, \"city\": 1.5, \"snow\": 1.0, \"siracusa\": 2.0}, \"base\": false},"
  ],
  "收货": [
-  "game/market/exchange.gd:787",
+  "game/market/exchange.gd:789",
   "_log({\"kind\": \"forward\", \"what\": \"%s %s ×%d\" % [\"交货\" if deliver else \"收货\", material, count], \"faction\": faction, \"amount\": margin, \"currency\": currency})"
  ],
  "收货合约": [
@@ -9428,7 +9432,7 @@
   "body.add_child(_seg([\"交货合约\", \"收货合约\"], 0 if fwd_deliver else 1, func(i): fwd_deliver = i == 0; build(menu), 11, 288.0))"
  ],
  "收货完成：": [
-  "game/market/exchange.gd:836",
+  "game/market/exchange.gd:838",
   "_say(\"收货完成：%s ×%d 已入库\" % [f.material, int(f.count)], \"delivery\")"
  ],
  "收购": [
@@ -9656,11 +9660,11 @@
   "\"range\": \"区间根数\", \"vol\": \"放量倍数\", \"hours\": \"间隔\", \"amount\": \"每次金额\", \"low\": \"下沿\","
  ],
  "敌之友": [
-  "game/market/exchange.gd:1452",
+  "game/market/exchange.gd:1470",
   "const MOD_NAMES := {\"enemy_friend\": \"敌之友\", \"enemy_enemy\": \"敌之敌\", \"conflict\": \"近期冲突\"}"
  ],
  "敌之敌": [
-  "game/market/exchange.gd:1452",
+  "game/market/exchange.gd:1470",
   "const MOD_NAMES := {\"enemy_friend\": \"敌之友\", \"enemy_enemy\": \"敌之敌\", \"conflict\": \"近期冲突\"}"
  ],
  "敌人掉落了治疗球。靠近即可吸取，立即回复生命。": [
@@ -9724,7 +9728,7 @@
   "ExchangeScreen._number(left, \"数量\", transfer_count, 0, 1, 1, func(v): transfer_count = maxi(1, int(v)); stash(menu))"
  ],
  "数量不足": [
-  "game/market/finance.gd:148",
+  "game/market/finance.gd:157",
   "if _game().material_count(material) < count: return \"数量不足\""
  ],
  "敲鼓的人不在了，鼓槌还记得节拍。": [
@@ -9752,7 +9756,7 @@
   "\"mine_head_2\": {\"name\": \"整合运动兜帽\", \"region\": \"mine\", \"category\": HEAD, \"tier\": 0, \"factor\": 1.00, \"implicit\": [[S.ARTS_PCT, 0.025]],"
  ],
  "整合运动兵临龙门": [
-  "game/market/market_links.gd:373",
+  "game/market/market_links.gd:378",
   "\"整合运动兵临龙门\": [\"L10\", \"U7\", \"U19\", \"L20\", \"L34\"],"
  ],
  "整合运动制式外套": [
@@ -9872,7 +9876,7 @@
   "var sort := AK.button(\"整理\", \"plain\", 12)"
  ],
  "整理失败：当前摆放已是最紧凑，物品未移动。": [
-  "game/game_manager.gd:3129",
+  "game/game_manager.gd:3139",
   "else: notice(\"整理失败：当前摆放已是最紧凑，物品未移动。\")"
  ],
  "整理箱": [
@@ -9960,7 +9964,7 @@
   "const TABS := [\"行情\", \"外汇\", \"持仓\", \"新闻\", \"资金\", \"资产\", \"企业\", \"策略\"]"
  ],
  "新闻中心": [
-  "ui/exchange_screen.gd:690",
+  "ui/exchange_screen.gd:694",
   "AK.put(stage, AK.section(\"新闻中心\", \"NEWS  %d\" % game.market.news.size()), Vector2(16, TOP + 40))"
  ],
  "方向": [
@@ -9968,11 +9972,11 @@
   "_table(mid, [[\"持仓\", 300, 0], [\"方向\", 80, 2], [\"市值\", 130, 2]], prow)"
  ],
  "方进入。": [
-  "game/game_manager.gd:4356",
+  "game/game_manager.gd:4366",
   "broadcast(\"PRTS：博士，巡逻队即将从%s方进入。\" % _direction_name(_next_patrol_entry - player.global_position))"
  ],
  "方面有异动": [
-  "game/market/market_state.gd:1280",
+  "game/market/market_state.gd:1317",
   "var headline := {\"t\": t, \"id\": \"omen\", \"kind\": \"rumor\", \"title\": \"传闻：%s方面有异动\" % str(MarketEvents.EVENTS[swan.id].region), \"region\": MarketEvents.EVENTS[swan.id].region, \"cred\": \"低\", \"status\": \"\", \"unr"
  ],
  "施工点": [
@@ -10024,7 +10028,7 @@
   "\"city_x19\": {\"name\": \"无人机遥控器\", \"region\": \"city\", \"category\": T, \"tier\": 1, \"factor\": 1.05, \"implicit\": [[S.SKILL_PCT, 0.0625], [S.ATTACK_SPEED_PCT, 0.0125]],"
  ],
  "无人负伤": [
-  "game/game_manager.gd:3825",
+  "game/game_manager.gd:3835",
   "if base.injured_operators().is_empty(): return \"无人负伤\""
  ],
  "无优先股": [
@@ -10072,7 +10076,7 @@
   "_p(\"ruthless\", 1, W, \"无情的\", \"Ruthless\", {\"atk_pct\": 0.10, \"aspd\": -4.0})"
  ],
  "无效": [
-  "game/game_manager.gd:3784",
+  "game/game_manager.gd:3794",
   "if not in_base or not workshop.jobs.has(job): return \"无效\""
  ],
  "无法使用": [
@@ -10080,15 +10084,15 @@
   "return \"%s无法使用%s\" % [Operators.display_name(operator_id), GearCatalog.FORM_NAMES.get(GearCatalog.form_of(item), \"这件武器\")]"
  ],
  "无法兑换": [
-  "game/game_manager.gd:3470",
+  "game/game_manager.gd:3480",
   "if not in_base or not kind in Collectibles.CASE_KINDS or tier < 1 or tier > Collectibles.TIERS: return \"无法兑换\""
  ],
  "无法改造": [
-  "game/game_manager.gd:3655",
+  "game/game_manager.gd:3665",
   "if not in_base or not PrefixCatalog.eligible_item(item): return \"无法改造\""
  ],
  "无法查证": [
-  "game/game_manager.gd:3766",
+  "game/game_manager.gd:3776",
   "if str(headline.get(\"status\", \"\")) != \"待证实\" or headline.has(\"peek\") or _rumor_of(headline).is_empty(): return \"无法查证\""
  ],
  "无法读取存档；原文件保留，请检查备份。": [
@@ -10108,8 +10112,8 @@
   "[\"法术伤害\", _pct(v.call(\"arts_dmg_pct\"), true)], [\"无视防御\", _pct(pl.physical_pierce())],"
  ],
  "日": [
-  "ui/exchange_screen.gd:13",
-  "const PERIOD_NAMES := [\"1分\", \"5分\", \"15分\", \"1时\", \"4时\", \"日\", \"周\"]"
+  "game/market/market_state.gd:309",
+  "return \"第 %d 日 %s\" % [day, \"%02d:%02d\" % [sec / 3600, (sec % 3600) / 60]]"
  ],
  "日开销 −10%": [
   "game/research_catalog.gd:87",
@@ -10132,7 +10136,7 @@
   "\"S6\": \"日线 EMA15 / EMA200 定方向，1 小时 MACD 定动能，15 分钟 RSI 找回调点；三者同向才进场。\","
  ],
  "日账": [
-  "game/game_manager.gd:2506",
+  "game/game_manager.gd:2512",
   "text += \" 日账 %s 龙门币，策略 %s%s 龙门币。\" % [Economy.format(exchange.fin.paid_total - paid_before), \"+\" if exchange.strategies.value_lmd() >= strat_before else \"−\", Economy.format(roundi(absf(exchange.strateg"
  ],
  "旧城区的门都很老，撬棍比钥匙好使。": [
@@ -10168,7 +10172,7 @@
   "\"rosa\": {\"name\": \"早露\", \"class\": \"狙击\", \"branch\": \"SNIPER · BESIEGER\", \"stars\": 6,"
  ],
  "时": [
-  "ui/exchange_screen.gd:682",
+  "ui/exchange_screen.gd:686",
   "if seconds >= 86400: return \"%d天%d时\" % [seconds / 86400, (seconds % 86400) / 3600]"
  ],
  "时光之末": [
@@ -10200,7 +10204,7 @@
   "[\"阿米娅\", \"是电弧小姐……罗德岛的通讯一直是她在维护。难怪最近信号这么乱。\"]],"
  ],
  "显卡": [
-  "ui/system_screens.gd:464",
+  "ui/system_screens.gd:488",
   "row.add_child(AK.label(\"显卡\", 14, AK.FG))"
  ],
  "显圣吊坠": [
@@ -10272,19 +10276,19 @@
   "if price < 0.0: return \"暂停出售\""
  ],
  "暂停开新仓": [
-  "game/market/exchange.gd:1014",
+  "game/market/exchange.gd:1016",
   "if market.cfd_halted(issuer): return \"暂停开新仓\""
  ],
  "暂停换出": [
-  "ui/exchange_screen.gd:795",
+  "ui/exchange_screen.gd:799",
   "if m.halted(id): line += \"   暂停换出\""
  ],
  "暂停收货": [
-  "game/market/exchange.gd:419",
+  "game/market/exchange.gd:421",
   "out.why = \"暂停收货\""
  ],
  "暂停收货，货物退回": [
-  "game/market/exchange.gd:1243",
+  "game/market/exchange.gd:1254",
   "_say(\"企鹅物流：%s暂停收货，货物退回\" % FactionCatalog.name_of(faction), \"arrival\")"
  ],
  "暂无回收记录": [
@@ -10512,11 +10516,11 @@
   "name = \"未知作战\" if RouteMap.is_fight(kind) else \"未知遭遇\""
  ],
  "未装备该族": [
-  "game/game_manager.gd:3719",
+  "game/game_manager.gd:3729",
   "if not player.families.worn.has(family): return \"未装备该族\""
  ],
  "未装满": [
-  "ui/exchange_screen.gd:1065",
+  "ui/exchange_screen.gd:1069",
   "var by_hand := \"未装满\" if int(manual.packs) <= 0 else (\"加工队列已满\" if game.workshop.busy() >= game.workshop_slots() else (\"龙门币不足\" if game.gold < Packs.PACK_LMD * int(manual.packs) else \"\"))"
  ],
  "未解锁": [
@@ -10544,11 +10548,11 @@
   "_section(stage, \"本局合同\", \"CONTRACTS\", Vector2(x + 18, TOP + 256))"
  ],
  "本层已使用": [
-  "game/game_manager.gd:3935",
+  "game/game_manager.gd:3945",
   "if guide_floor == floor_number: return \"本层已使用\""
  ],
  "本层未能按存档复原，已重新布置。": [
-  "game/game_manager.gd:5778",
+  "game/game_manager.gd:5788",
   "if not RunSave.apply_floor(self, saved.get(\"floor\", {})): notice(\"本层未能按存档复原，已重新布置。\")"
  ],
  "本日": [
@@ -10672,7 +10676,7 @@
   "\"pin_dot\": {\"name\": \"束缚\", \"type\": \"passive\", \"tier\": 0, \"max\": 5,"
  ],
  "杠杆不可用": [
-  "game/market/exchange.gd:768",
+  "game/market/exchange.gd:770",
   "if need < 0: return \"杠杆不可用\""
  ],
  "条件": [
@@ -10708,7 +10712,7 @@
   "\"违禁品包\": {\"star\": 4, \"kind\": \"base\", \"source\": \"pack\", \"stack\": 5, \"size\": Vector2i(2, 2), \"value\": 200, \"text\": \"来路不明的货封在一起，只有黑市收。拆不开。\"},"
  ],
  "来路不明，携带时污染缓慢上升。": [
-  "game/game_manager.gd:2846",
+  "game/game_manager.gd:2856",
   "stack.description += \" 来路不明，携带时污染缓慢上升。\""
  ],
  "杯沿有一道口红印。": [
@@ -10988,11 +10992,11 @@
   "_tile(tiles, \"欠款\", _fmt(ex.loan), AK.RED if ex.loan > 0 else AK.FG)"
  ],
  "欠费": [
-  "game/market/finance.gd:484",
+  "game/market/finance.gd:512",
   "var line := \"PRTS：运营账单 %s 龙门币%s%s\" % [Economy.format(int(bill.total)), \"  热餐\" if bill.hot else (\"  停发补给\" if rations() > 0 else \"\"), (\"  欠费 %s\" % Economy.format(roundi(arrears))) if arrears > 0.5 else "
  ],
  "欠费停用": [
-  "game/game_manager.gd:2611",
+  "game/game_manager.gd:2621",
   "if exchange.fin.facility_stopped(\"workshop\"): return \"欠费停用\""
  ],
  "欠费暂停": [
@@ -11016,7 +11020,7 @@
   "\"歌剧院旧海报\": {\"region\": \"siracusa\", \"size\": Vector2i(1, 2), \"rarity\": Item.GREY, \"value\": 1800, \"text\": \"首演那晚的海报。\"},"
  ],
  "止损": [
-  "game/market/exchange.gd:1076",
+  "game/market/exchange.gd:1078",
   "elif float(c.sl) > 0.0 and ((dir > 0 and price <= float(c.sl)) or (dir < 0 and price >= float(c.sl))): close_cfd(int(c.id), \"止损\")"
  ],
  "止损卖": [
@@ -11024,7 +11028,7 @@
   "body.add_child(_seg([\"限价卖\", \"止损卖\", \"限价买\", \"条件卖\"], order_kind, func(i): order_kind = i; build(menu), 11, 288.0))"
  ],
  "止盈": [
-  "game/market/exchange.gd:1075",
+  "game/market/exchange.gd:1077",
   "if float(c.tp) > 0.0 and ((dir > 0 and price >= float(c.tp)) or (dir < 0 and price <= float(c.tp))): close_cfd(int(c.id), \"止盈\")"
  ],
  "止盈止损 ±5%": [
@@ -11340,7 +11344,7 @@
   "\"C7\": {\"region\": \"汐斯塔\", \"kind\": \"announce\", \"hours\": 72, \"weight\": 0, \"title\": \"汐斯塔黑曜石音乐节\", \"season\": \"festival\","
  ],
  "汐斯塔火山": [
-  "game/market/market_links.gd:380",
+  "game/market/market_links.gd:385",
   "\"汐斯塔火山\": [\"C23\", \"C24\", \"C12\"],"
  ],
  "汐斯塔火山活动加剧": [
@@ -11432,7 +11436,7 @@
   "const DEPT_NAMES := {\"outfit\": \"整备部\", \"voyage\": \"沙盘航行\", \"warehouse\": \"仓储部\", \"lab\": \"科研部\", \"workshop\": \"加工部\","
  ],
  "没收": [
-  "game/market/exchange.gd:944",
+  "game/market/exchange.gd:946",
   "_say(\"%s强制了结：保证金 %s 没收\" % [what, format_money(str(p.currency), float(p.margin))], \"liquidation\")"
  ],
  "没有可交出的装备": [
@@ -11444,7 +11448,7 @@
   "\"echo\": if _echo_relic().is_empty(): return \"没有可失去的藏品\""
  ],
  "没有寄来的补给": [
-  "game/game_manager.gd:3992",
+  "game/game_manager.gd:4002",
   "if provisions.mailed().is_empty(): return \"没有寄来的补给\""
  ],
  "没有投保装备": [
@@ -11460,11 +11464,11 @@
   "\"give_fuel\": if game.pack_fuels().is_empty(): return \"没有燃料\""
  ],
  "没有这个包": [
-  "game/game_manager.gd:2638",
+  "game/game_manager.gd:2648",
   "if not Packs.is_pack(pack) or count <= 0: return \"没有这个包\""
  ],
  "没有这个配方": [
-  "game/game_manager.gd:2608",
+  "game/game_manager.gd:2618",
   "if count <= 0 or Packs.is_pack(output) or Workshop.recipe(output).is_empty(): return \"没有这个配方\""
  ],
  "没有这件": [
@@ -11564,7 +11568,7 @@
   "\"kje\": {\"name\": \"谢拉格法郎\", \"unit\": \"法郎\", \"book\": \"fx_kje\", \"region\": \"谢拉格\", \"base\": 90.0, \"rate\": 0.005, \"noise\": 0.6, \"spread\": 0.006, \"haven\": true},"
  ],
  "法郎与卢布": [
-  "game/market/market_links.gd:401",
+  "game/market/market_links.gd:406",
   "\"法郎与卢布\": [\"F28\", \"F29\", \"F17\", \"F25\", \"F26\", \"F27\"],"
  ],
  "法阵": [
@@ -11764,7 +11768,7 @@
   "{\"name\": \"深部污染带\", \"detail\": \"高危险 / 稀有率提高 / 精英增援\", \"danger\": 5.0, \"reward\": 0.5}"
  ],
  "清单里没有": [
-  "game/game_manager.gd:2695",
+  "game/game_manager.gd:2705",
   "if cost < 0: return \"清单里没有\""
  ],
  "清明的": [
@@ -11996,7 +12000,7 @@
   "\"X16\": {\"region\": \"泰拉\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"源石结晶期提前：%s\", \"pick_region\": true, \"effects\": [{\"sel\": \"@:originium\", \"mult\": 1.2}]},"
  ],
  "源石能源": [
-  "game/market/market_links.gd:393",
+  "game/market/market_links.gd:398",
   "\"源石能源\": [\"X4\", \"X13\", \"X8\", \"U6\", \"X20\", \"X11\"],"
  ],
  "源石腐蚀": [
@@ -12220,7 +12224,7 @@
   "\"炎国瓷茶壶\": {\"region\": \"city\", \"size\": Vector2i(2, 2), \"rarity\": Item.BLUE, \"value\": 10000, \"text\": \"壶底的落款被人磨掉了。\"},"
  ],
  "炎国财政": [
-  "game/market/market_links.gd:375",
+  "game/market/market_links.gd:380",
   "\"炎国财政\": [\"L7\", \"L6\", \"L16\", \"L28\", \"L29\"],"
  ],
  "炎式平安符": [
@@ -12252,11 +12256,11 @@
   "_p(\"yanforged\", 2, W, \"炎铸的\", \"Yan-Forged\", {\"atk_pct\": 0.05, \"crit_dmg\": 0.15}, {\"region\": \"city\"})"
  ],
  "点   ·": [
-  "ui/exchange_screen.gd:1101",
+  "ui/exchange_screen.gd:1105",
   "parent.add_child(AK.label(\"用掉 %d 件   ·   溢出 %d 点   ·   %s 龙门币\" % [pieces, int(plan.overflow), Economy.format(Packs.PACK_LMD * pack_count)], 12, AK.MUTE))"
  ],
  "点数不足": [
-  "game/game_manager.gd:2696",
+  "game/game_manager.gd:2706",
   "if cost > open_points(pack): return \"点数不足\""
  ],
  "点烟用的，也点别的。": [
@@ -12280,7 +12284,7 @@
   "{\"price\": 28000, \"materials\": {\"家具零件\": 6, \"电线\": 6}, \"opens\": \"热能饮剂 · 急行针剂 · 广谱解毒剂\"},"
  ],
  "热餐": [
-  "game/market/finance.gd:484",
+  "game/market/finance.gd:512",
   "var line := \"PRTS：运营账单 %s 龙门币%s%s\" % [Economy.format(int(bill.total)), \"  热餐\" if bill.hot else (\"  停发补给\" if rations() > 0 else \"\"), (\"  欠费 %s\" % Economy.format(roundi(arrears))) if arrears > 0.5 else "
  ],
  "烹饪中": [
@@ -12296,7 +12300,7 @@
   "\"options\": [{\"cost\": \"燃料 ×1\", \"gain\": \"喀兰贸易 关系 +10 · 自热罐头 ×1\", \"do\": \"give_fuel\"}]},"
  ],
  "燃料储备": [
-  "game/market/finance.gd:350",
+  "game/market/finance.gd:378",
   "if int(r.reserve) > 0: used[\"燃料储备\"] = int(r.reserve)"
  ],
  "燃料包": [
@@ -12556,7 +12560,7 @@
   "\"wave_fang\": {\"name\": \"獠牙\", \"type\": \"transmuter\", \"group\": \"wave\", \"tier\": 2, \"max\": 1,"
  ],
  "玄纹墨": [
-  "game/game_manager.gd:3698",
+  "game/game_manager.gd:3708",
   "const DIRECTED_MATERIAL := \"玄纹墨\""
  ],
  "玉门关隘封闭": [
@@ -12712,7 +12716,7 @@
   "_r(\"未知仪器\", \"life\", 2, \"所有我方单位生命+50%\", \"生命上限 +50%\", {\"hp_pct\": 0.50}),"
  ],
  "生命上限 −": [
-  "game/game_manager.gd:4018",
+  "game/game_manager.gd:4028",
   "if base.injured: out.append(\"生命上限 −%d%%（重伤）\" % roundi(base.hp_penalty() * 100))"
  ],
  "生命上限（伤病污染后）": [
@@ -12788,7 +12792,7 @@
   "\"家具零件\": {\"star\": 3, \"kind\": \"base\", \"text\": \"用以合成家具的零件：桌腿、扶手、坐垫，什么都有。\"},"
  ],
  "用掉": [
-  "ui/exchange_screen.gd:1101",
+  "ui/exchange_screen.gd:1105",
   "parent.add_child(AK.label(\"用掉 %d 件   ·   溢出 %d 点   ·   %s 龙门币\" % [pieces, int(plan.overflow), Economy.format(Packs.PACK_LMD * pack_count)], 12, AK.MUTE))"
  ],
  "用材料和龙门币改造装备的前缀：重铸、校准和精调。": [
@@ -12892,7 +12896,7 @@
   "1: rows = [[\"界面动效\", [\"精简\", \"完整\"], \"ui_motion\"], [\"交易确认\", [\"关\", \"开\"], \"trade_confirm\"], [\"伤害数字\", [\"关\", \"开\"], \"damage_numbers\"], [\"订单追踪\", [\"隐藏\", \"显示\"], \"tracker\"], [\"PRTS 提示\", [\"隐藏\", \"显示\"], \"broadcasts\""
  ],
  "留在身上。": [
-  "game/game_manager.gd:3406",
+  "game/game_manager.gd:3416",
   "if not quiet: set_message(\"仓库空间不足（%d/%d）：%s 留在身上。\" % [base.shelf_count(), base.capacity(), item.item_name])"
  ],
  "留存": [
@@ -12960,15 +12964,15 @@
   "_p(\"immune\", 2, A + T, \"百毒不侵的\", \"Immune\", {\"res_all_elem\": 3.5}, {\"top\": true})"
  ],
  "的买入额度不足": [
-  "game/market/exchange.gd:535",
+  "game/market/exchange.gd:537",
   "_say(\"%s的买入额度不足\" % FactionCatalog.name_of(faction), \"refused\")"
  ],
  "的战场。击破之后，入口才会开放。": [
-  "game/game_manager.gd:4650",
+  "game/game_manager.gd:4660",
   "return \"PRTS：前方是%s的战场。击破之后，入口才会开放。\" % BossCatalog.display_name(str(BossCatalog.BOSSES.get(region_id, \"\")))"
  ],
  "的接头人。": [
-  "game/game_manager.gd:5173",
+  "game/game_manager.gd:5183",
   "broadcast(\"PRTS：大宗货箱已交给%s的接头人。\" % FactionCatalog.name_of(str(deliver.faction)))"
  ],
  "的敌人伤害": [
@@ -12984,11 +12988,11 @@
   "\"text\": \"被钉住的敌人每秒受到攻击力 %s 的物理伤害。\"},"
  ],
  "的行踪已经确认。下次前往该地区即可寻访。": [
-  "game/game_manager.gd:4974",
+  "game/game_manager.gd:4984",
   "broadcast(\"PRTS：博士，%s的行踪已经确认。下次前往该地区即可寻访。\" % Operators.display_name(id))"
  ],
  "的识别信号。": [
-  "game/game_manager.gd:5087",
+  "game/game_manager.gd:5097",
   "broadcast(\"PRTS：博士，本层检测到%s的识别信号。\" % LostCatalog.name_of(lost_id))"
  ],
  "的重伤已治愈。": [
@@ -13216,7 +13220,7 @@
   "\"源石灯罩\": {\"region\": \"mine\", \"size\": Vector2i(2, 2), \"rarity\": Item.BLUE, \"value\": 9000, \"text\": \"矿灯的罩子，内壁结了一层薄晶。\"},"
  ],
  "矿石病与医药": [
-  "game/market/market_links.gd:392",
+  "game/market/market_links.gd:397",
   "\"矿石病与医药\": [\"X5\", \"X21\", \"X14\", \"L17\"],"
  ],
  "矿石病新变种通报：": [
@@ -13252,7 +13256,7 @@
   "[\"研发费率 ≤30%\", float(sum.rd) / maxf(gross, 1.0) <= 0.3, float(sum.rd) / maxf(gross, 1.0)],"
  ],
  "研磨石": [
-  "game/game_manager.gd:3617",
+  "game/game_manager.gd:3627",
   "\"calibrate\": [{\"异铁碎片\": 2}, {\"异铁\": 1}, {\"异铁组\": 1}, {\"研磨石\": 1}, {\"研磨石\": 2}, {\"研磨石\": 2, \"化合切削液\": 1}],"
  ],
  "研究": [
@@ -13316,7 +13320,7 @@
   "_p(\"exposed\", -1, A, \"破绽的\", \"Exposed\", {\"dmg_reduce\": -0.04})"
  ],
  "确定": [
-  "ui/system_screens.gd:415",
+  "ui/system_screens.gd:439",
   "var done := AK.button(\"确定\", \"blue\", 15)"
  ],
  "确认": [
@@ -13388,7 +13392,7 @@
   "_p(\"worn\", -1, A, \"磨损的\", \"Worn\", {\"def\": -20.0, \"hp_pct\": -0.03})"
  ],
  "礼品包": [
-  "ui/exchange_screen.gd:901",
+  "ui/exchange_screen.gd:905",
   "AK.put(stage, AK.section(\"礼品包\", \"GIFT\"), Vector2(700, TOP + 8))"
  ],
  "神": [
@@ -13420,7 +13424,7 @@
   "_footer(stage, Vector2(470, 622), 770, \"离开\", \"补给\", game.close_modal, func():"
  ],
  "离线": [
-  "game/game_manager.gd:2501",
+  "game/game_manager.gd:2507",
   "var text := \"离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "私人安保、防务承包": [
@@ -13560,7 +13564,7 @@
   "[\"move\", \"行动确认\", \"欢迎回来，博士。PRTS 已完成同步。请先确认行动能力：左键点击地面即可前往目标位置，按住左键可以持续移动。\", \"移动\", \"base\"],"
  ],
  "移动城市": [
-  "game/market/market_links.gd:394",
+  "game/market/market_links.gd:399",
   "\"移动城市\": [\"X18\", \"C20\"],"
  ],
  "移动城市停泊：": [
@@ -13640,7 +13644,7 @@
   "\"hollow_snowpriest\": {\"name\": \"空洞雪祀\", \"rank\": \"warden\", \"region\": \"snow\", \"hp\": 15000.0, \"atk\": 560.0, \"def\": 200.0, \"res\": 50.0, \"kind\": \"arts\","
  ],
  "空罐": [
-  "game/market/finance.gd:359",
+  "game/market/finance.gd:387",
   "if Fuel.units_of(item) <= 0: return \"空罐\""
  ],
  "空闲 3 秒后，每秒回复生命上限的": [
@@ -13656,7 +13660,7 @@
   "\"implicit\": [[ItemModifier.Stat.RES_FLAT, 4.0]], \"fx\": \"idle_barrier\", \"fx_text\": \"空闲 8 秒（未受伤）：获得 15% 生命上限的屏障；破碎时移速 +30% 3 秒\", \"req\": \"arts\", \"text\": \"碎掉的时候，人就该跑了。\"},"
  ],
  "空间不足，物品留在原处；物品不能旋转。": [
-  "game/game_manager.gd:3305",
+  "game/game_manager.gd:3315",
   "notice(\"空间不足，物品留在原处；物品不能旋转。\")"
  ],
  "穿上一件装备": [
@@ -13764,8 +13768,8 @@
   "_p(\"bulky\", 1, W, \"笨重的\", \"Bulky\", {\"atk_pct\": 0.08, \"reach_pct\": 0.08, \"aspd\": -10.0}, {\"form\": \"heavy\"})"
  ],
  "第": [
-  "ui/provision_screens.gd:83",
-  "right.add_child(AK.section(\"第 %d 槽\" % (basin + 1), \"BASIN %02d\" % (basin + 1)))"
+  "game/market/market_state.gd:309",
+  "return \"第 %d 日 %s\" % [day, \"%02d:%02d\" % [sec / 3600, (sec % 3600) / 60]]"
  ],
  "第 2 段第二刀有": [
   "game/skill_trees.gd:101",
@@ -13824,7 +13828,7 @@
   "\"sar\": {\"name\": \"萨尔贡第纳尔\", \"unit\": \"第纳尔\", \"book\": \"fx_sar\", \"region\": \"萨尔贡\", \"base\": 1500.0, \"rate\": 0.07, \"noise\": 0.3, \"spread\": 0.008, \"peg\": 0.02},"
  ],
  "第纳尔挂钩": [
-  "game/market/market_links.gd:397",
+  "game/market/market_links.gd:402",
   "\"第纳尔挂钩\": [\"F11\", \"F13\", \"F12\", \"I21\"],"
  ],
  "第纳尔挂钩失守": [
@@ -14196,7 +14200,7 @@
   "const PAUSE_ITEMS := [\"继续作业\", \"设置\", \"按键设置\", \"放弃合同\", \"保存并退出\", \"回到标题\"]"
  ],
  "继续合同：": [
-  "game/game_manager.gd:5745",
+  "game/game_manager.gd:5755",
   "set_message(\"继续合同：%s。\" % camp_label(floor_number))"
  ],
  "绳子的另一头，通常没有人。": [
@@ -14228,7 +14232,7 @@
   "\"V9\": {\"region\": \"维多利亚\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"维多利亚贵族加码龙门投资\", \"effects\": [{\"sel\": \"lungmen:*\", \"mult\": 1.04}, {\"sel\": \"fx\", \"jump\": -0.01}]},"
  ],
  "维多利亚资本": [
-  "game/market/market_links.gd:398",
+  "game/market/market_links.gd:403",
   "\"维多利亚资本\": [\"F8\", \"F9\", \"K9\", \"F10\", \"I15\"],"
  ],
  "维多利亚镑": [
@@ -14240,7 +14244,7 @@
   "\"V2\": {\"region\": \"维多利亚\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"维多利亚镑走弱\","
  ],
  "维持率": [
-  "game/market/exchange.gd:920",
+  "game/market/exchange.gd:922",
   "_say(\"追加保证金：%s维持率 %d%%\" % [what, roundi(ratio * 100)], \"warning\")"
  ],
  "绷带、止血钳，都是制式的；用的人不是。": [
@@ -14252,7 +14256,7 @@
   "\"icon\": \"city_x13\", \"text\": \"绸子挡不住刀，挡刀的是别的东西。\"},"
  ],
  "综合指数": [
-  "game/market/exchange.gd:985",
+  "game/market/exchange.gd:987",
   "if underlying.begins_with(\"comp:\"): return \"%s综合指数\" % FactionCatalog.name_of(underlying.substr(5))"
  ],
  "绿叶菜罐头": [
@@ -14304,7 +14308,7 @@
   "\"form\": \"blade\", \"icon\": \"standard_dagger\", \"text\": \"缴获来的，编号被锉掉了。\"},"
  ],
  "缺少": [
-  "game/game_manager.gd:3213",
+  "game/game_manager.gd:3223",
   "return \"\" if missing.is_empty() else \"缺少 \" + \"、\".join(missing)"
  ],
  "缺装备时，到制式页免费领取罗德岛制式装备：每个部位选一件，合同结束时收回，无需投保。": [
@@ -14420,7 +14424,7 @@
   "_say(\"罗德岛号起航：%s → %s。\" % [sailing.from, to])"
  ],
  "罗德岛后勤": [
-  "game/base_state.gd:515",
+  "game/base_state.gd:602",
   "func receive(item: Item, keep_cell: bool = false, from: String = \"罗德岛后勤\") -> bool:"
  ],
  "罗德岛外勤制服": [
@@ -14500,7 +14504,7 @@
   "_r(\"罗德岛战术电台\", \"fortune\", 1, \"战斗后掉落招募券时，增加一个可选项\", \"之后的藏品选择多一个选项\", {}, {\"radio\": 1.0}),"
  ],
  "罗德岛日常": [
-  "ui/system_screens.gd:302",
+  "ui/system_screens.gd:326",
   "var name_en := AK.label(\"罗德岛日常\", 72, AK.FG, AK.en() if I18n.is_english() else null)"
  ],
  "罗德岛日常 · Rhodes Daily": [
@@ -14580,7 +14584,7 @@
   "\"块茎薯\": {\"star\": 1, \"kind\": \"base\", \"source\": \"farm\", \"value\": 2, \"text\": \"耐储存的块茎，食堂的主食。\"},"
  ],
  "耗时": [
-  "ui/exchange_screen.gd:964",
+  "ui/exchange_screen.gd:968",
   "right.add_child(AK.label(\"耗时 %d 分   ·   %s 龙门币\" % [int(r.minutes) * workshop_count, Economy.format(int(r.lmd) * workshop_count)], 12, AK.MUTE))"
  ],
  "耳目": [
@@ -14624,7 +14628,7 @@
   "ex._log({\"kind\": \"buy\", \"what\": \"%s ×%.1f 股\" % [FirmCatalog.name_of(firm), n], \"faction\": \"\", \"amount\": lmd, \"currency\": \"lmd\"})"
  ],
  "股份": [
-  "game/market/exchange.gd:984",
+  "game/market/exchange.gd:986",
   "if underlying.begins_with(\"stock:\"): return \"%s股份\" % FirmCatalog.name_of(underlying.substr(6))"
  ],
  "股息率": [
@@ -14656,15 +14660,15 @@
   "button(body, \"背包与安全袋的材料全部存回仓库\", func(): game.store_all_materials(); _refresh())"
  ],
  "背包只装下": [
-  "game/game_manager.gd:3287",
+  "game/game_manager.gd:3297",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "背包已整理。": [
-  "game/game_manager.gd:3128",
+  "game/game_manager.gd:3138",
   "if sorted: set_message(\"背包已整理。\")"
  ],
  "背包已满": [
-  "game/game_manager.gd:2877",
+  "game/game_manager.gd:2887",
   "if not inventory.can_take(BaseCatalog.create_potion(type, Economy.tier_of(floor_number))): return \"背包已满\""
  ],
  "背包扩容 10×8": [
@@ -14676,7 +14680,7 @@
   "{\"price\": 84000, \"materials\": {\"帆布\": 9, \"密封泡沫\": 6}, \"opens\": \"背包扩容 12×8 · 安全袋扩容 3×2\"},"
  ],
  "背包扩容到": [
-  "game/game_manager.gd:3253",
+  "game/game_manager.gd:3263",
   "set_message(\"背包扩容到 %d 页。\" % inventory.page_count())"
  ],
  "背包放不下": [
@@ -14700,7 +14704,7 @@
   "if left > 0: notice(\"背包空间不足，%d 件物品留在容器里。\" % left)"
  ],
  "背包空间不足：": [
-  "game/game_manager.gd:3289",
+  "game/game_manager.gd:3299",
   "notice(\"背包空间不足：%s ×%d 仍留在地上。\" % [item.item_name, left])"
  ],
  "背包空间不足：药剂要占一格。": [
@@ -14728,7 +14732,7 @@
   "_r(\"金酒之杯\", \"tempo\", 2, \"每有5源石锭，所有我方单位攻击速度+7\", \"背包里每有 10 赤金，攻速 +5（至多 +50）\", {}, {\"gold_aspd\": 5.0}),"
  ],
  "背包里没有这张订单的大宗货箱。": [
-  "game/game_manager.gd:5165",
+  "game/game_manager.gd:5175",
   "notice(\"背包里没有这张订单的大宗货箱。\")"
  ],
  "背面写着一个已经关门的茶楼。": [
@@ -14889,7 +14893,7 @@
  ],
  "航行 ·": [
   "ui/sand_table_screen.gd:38",
-  "return \"航行 · %s → %s · %s · %s\" % [v.sailing.from, v.sailing.to, VoyageCatalog.MODE_NAMES[v.sailing.mode], ExchangeScreen._left(int(v.sailing.due) - BaseState.now())]"
+  "return \"航行 · %s → %s · %s · %s\" % [v.sailing.from, v.sailing.to, VoyageCatalog.MODE_NAMES[v.sailing.mode], ExchangeScreen._left(int(v.sailing.due) - BaseState.real_now())]"
  ],
  "航行 →": [
   "ui/base_hud.gd:199",
@@ -15172,7 +15176,7 @@
   "set_message(\"获得藏品 %s — %s\" % [offer.name, offer.effect])"
  ],
  "获得赤金 ×": [
-  "game/game_manager.gd:5581",
+  "game/game_manager.gd:5591",
   "set_message(\"获得赤金 ×%d\" % given)"
  ],
  "莽撞的": [
@@ -15292,7 +15296,7 @@
   "button(body, \"萨米冰原苔 ×%d：全部痊愈\" % game.material_count(GameManager.SPECIAL_MOSS), func(): game.moss_cure(); _refresh(), not game.moss_refusal().is_empty())"
  ],
  "萨米冰原苔：所有干员已痊愈。": [
-  "game/game_manager.gd:3833",
+  "game/game_manager.gd:3843",
   "set_message(\"萨米冰原苔：所有干员已痊愈。\")"
  ],
  "萨米寒灾": [
@@ -15336,7 +15340,7 @@
   "\"萨米部族护符\": {\"star\": 5, \"kind\": \"base\", \"source\": \"special\", \"stack\": 1, \"value\": 1, \"text\": \"萨米林地部族的护符。\"},"
  ],
  "萨米林线": [
-  "game/market/market_links.gd:386",
+  "game/market/market_links.gd:391",
   "\"萨米林线\": [\"S1\", \"S5\", \"S13\", \"S7\", \"S14\", \"S12\", \"S16\", \"S10\", \"S4\"],"
  ],
  "萨米猎人营地缺少帆布": [
@@ -15488,7 +15492,7 @@
   "AK.put(stage, AK.label(\"行动结束\" if ok else \"行动失败\", 52, AK.FG if ok else AK.RED), Vector2(48, 76))"
  ],
  "行动开始": [
-  "ui/system_screens.gd:349",
+  "ui/system_screens.gd:373",
   "var title := AK.label(\"行动开始\", 34, AK.FG)"
  ],
  "行动确认": [
@@ -15652,7 +15656,7 @@
   "\"intel_2\": [\"装备鉴定协议\", 2, \"appraisal\", \"装备鉴定：范围位置\", [\"intel_1\"], {}],"
  ],
  "装备需求未达标：": [
-  "game/game_manager.gd:3315",
+  "game/game_manager.gd:3325",
   "notice(\"装备需求未达标：%s。\" % refusal)"
  ],
  "装满的金属燃料罐，发电机的口粮。": [
@@ -15688,15 +15692,15 @@
   "\"ice_warrior\": {\"common\": [[\"双酮\", 1, 2]], \"uncommon\": [[\"酮凝集\", 1, 1], [\"轻锰矿\", 1, 1]], \"rare\": [[\"褐素纤维\", 1, 1]]},"
  ],
  "西": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "西北": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "西南": [
-  "game/game_manager.gd:4495",
+  "game/game_manager.gd:4505",
   "return [\"北\", \"东北\", \"东\", \"东南\", \"南\", \"西南\", \"西\", \"西北\"][int(roundf(angle / 45.0)) % 8]"
  ],
  "要害训练": [
@@ -15964,7 +15968,7 @@
   "\"诡运：诡意属性 ×2；每次换属性后的 3 秒内，攻击必定暴击\"]},"
  ],
  "语言 / Language": [
-  "ui/system_screens.gd:447",
+  "ui/system_screens.gd:471",
   "row.add_child(AK.label(\"语言 / Language\", 14, AK.FG))"
  ],
  "读不懂上面的字，但它好像读得懂你。": [
@@ -16056,7 +16060,7 @@
   "\"K16\": {\"region\": \"谢拉格\", \"kind\": \"breaking\", \"hours\": 48, \"weight\": 1, \"title\": \"谢拉格雪地车队断粮\", \"effects\": [{\"sel\": \"karlan:fuel\", \"mult\": 1.3}, {\"sel\": \"karlan:cold\", \"mult\": 1.2}]},"
  ],
  "谢拉格雪山": [
-  "game/market/market_links.gd:382",
+  "game/market/market_links.gd:387",
   "\"谢拉格雪山\": [\"K2\", \"K7\", \"K20\", \"K16\", \"K10\"],"
  ],
  "谢拉格雪山大典三族会谈": [
@@ -16084,7 +16088,7 @@
   "\"commerce_f\": [\"财务优化\", 5, \"finance_opt\", \"日开销 −10%\", [\"commerce_q\", \"commerce_5\"], {}],"
  ],
  "财经日历": [
-  "ui/exchange_screen.gd:700",
+  "ui/exchange_screen.gd:704",
   "AK.put(stage, AK.section(\"财经日历\", \"CALENDAR\"), Vector2(852, TOP + 40))"
  ],
  "账户": [
@@ -16100,7 +16104,7 @@
   "return \"龙门币 %s   赤金 %s   待还贷款 %s   保证金 %s   浮动盈亏 %s   账户总值 %s   龙门币 / 赤金 %.1f\" % ["
  ],
  "货不够": [
-  "game/game_manager.gd:2644",
+  "game/game_manager.gd:2654",
   "if Packs.max_packs(pack, stash, quick) < count: return \"货不够\""
  ],
  "货价": [
@@ -16108,7 +16112,7 @@
   "for p in [[\"企业\", parts.firms], [\"货价\", parts.goods], [\"信贷\", parts.credit], [\"势力\", parts.factions], [\"情绪\", parts.mood]]:"
  ],
  "货币杂项": [
-  "game/market/market_links.gd:402",
+  "game/market/market_links.gd:407",
   "\"货币杂项\": [\"F0\", \"F1\", \"F2\", \"F3\", \"F14\", \"F15\", \"F16\", \"F18\", \"F19\", \"F20\", \"F23\", \"F33\", \"F31\", \"F32\", \"F34\"],"
  ],
  "货物": [
@@ -16248,7 +16252,7 @@
   "if gold_bars() < squad_price(item): return \"赤金不足\""
  ],
  "赤金与金币": [
-  "game/market/market_links.gd:390",
+  "game/market/market_links.gd:395",
   "\"赤金与金币\": [\"V3\", \"V15\", \"V4\", \"V13\"],"
  ],
  "赤金占背包格子，营地里可以卖给可露希尔。": [
@@ -16368,7 +16372,7 @@
   "\"intel_4\": [\"跨档识别\", 4, \"tier_mark\", \"跨档标记\", [\"intel_2\", \"engineering_1\"], {}],"
  ],
  "跨线": [
-  "game/market/market_links.gd:404",
+  "game/market/market_links.gd:409",
   "\"跨线\": [\"U7\", \"U13\", \"U19\", \"U21\", \"U6\", \"X7\", \"X2\", \"X18\", \"X25\", \"S20\", \"S5\", \"X21\", \"C25\", \"S3\", \"L33\", \"C16\", \"Z9\", \"V18\", \"L28\", \"L9\", \"K21\", \"Z26\", \"X9\", \"C8\", \"V15\", \"V13\", \"L4\", \"C11\", \"K2\", \"K"
  ],
  "路线图": [
@@ -16404,7 +16408,7 @@
   "if is_instance_valid(trace_point) and near(trace_point): return \"踪迹\""
  ],
  "踪迹 ·": [
-  "game/game_manager.gd:4977",
+  "game/game_manager.gd:4987",
   "set_message(\"踪迹 · %s %d/%d\" % [Operators.display_name(id), have, RecruitCatalog.CLUES_NEEDED])"
  ],
  "踪迹档案": [
@@ -16548,7 +16552,7 @@
   "\"FE2\": {\"region\": \"#\", \"kind\": \"breaking\", \"hours\": 12, \"weight\": 1, \"title\": \"%s运货途中遇险\", \"pick_firm\": true, \"firms\": [\"penguin\", \"fengchi\", \"fastrun\"], \"effects\": []},"
  ],
  "运费": [
-  "ui/exchange_screen.gd:867",
+  "ui/exchange_screen.gd:871",
   "right.add_child(AK.label(\"现价 %s   运费 %s\" % [Exchange.format_money(str(q.currency), float(q.net)) if q.ok else str(q.why), Economy.format(ex.ship_fee(item))], 12, AK.MUTE))"
  ],
  "运输": [
@@ -16568,7 +16572,7 @@
   "\"handover\": [\"交接点\", \"运送合同的交接点。背包或安全袋里带着这张订单的大宗货箱时，按交互键交付；报酬在结算时到账。\", 56.0],"
  ],
  "运送完成 ·": [
-  "game/game_manager.gd:5172",
+  "game/game_manager.gd:5182",
   "set_message(\"运送完成 · %s\" % FactionCatalog.name_of(str(deliver.faction)))"
  ],
  "近代工业的关键材料之一，但这只是原料。": [
@@ -16676,7 +16680,7 @@
   "\"evasion_melee\": \"近战闪避\", \"evasion_ranged\": \"远程闪避\", \"dmg_reduce\": \"整体减伤\", \"elite_pct\": \"对精英伤害\","
  ],
  "近期冲突": [
-  "game/market/exchange.gd:1452",
+  "game/market/exchange.gd:1470",
   "const MOD_NAMES := {\"enemy_friend\": \"敌之友\", \"enemy_enemy\": \"敌之敌\", \"conflict\": \"近期冲突\"}"
  ],
  "返回": [
@@ -16864,7 +16868,7 @@
   "return {\"sell\": \"卖出\", \"buy\": \"买入\", \"fill\": \"成交\", \"forward\": \"签约\", \"delivered\": \"交割\", \"default\": \"违约\", \"liquidated\": \"强平\","
  ],
  "违约冷却中": [
-  "game/market/exchange.gd:765",
+  "game/market/exchange.gd:767",
   "if int(forward_cooldown.get(faction, 0)) > market.t: return \"违约冷却中\""
  ],
  "连击第 3 段冲撞把敌人击退": [
@@ -16956,7 +16960,7 @@
   "var add := _act(AK.button(\"追加保证金\", \"plain\", 12))"
  ],
  "追加保证金：": [
-  "game/market/exchange.gd:920",
+  "game/market/exchange.gd:922",
   "_say(\"追加保证金：%s维持率 %d%%\" % [what, roundi(ratio * 100)], \"warning\")"
  ],
  "追猎": [
@@ -16984,23 +16988,23 @@
   "status = \"未发现\" if have == 0 else (\"可寻访\" if game.base.recruit_ready(id) else \"追踪中\")"
  ],
  "退出": [
-  "ui/system_screens.gd:326",
+  "ui/system_screens.gd:350",
   "var quit := AK.button(\"退出\", \"plain\", 15)"
  ],
  "送回": [
-  "game/game_manager.gd:3120",
+  "game/game_manager.gd:3130",
   "elif outcome.begins_with(\"送回\"): summary.insured += item.value"
  ],
  "送回（投保）": [
-  "game/game_manager.gd:3107",
+  "game/game_manager.gd:3117",
   "if item.insured: return \"送回（投保）\""
  ],
  "送往": [
-  "ui/exchange_screen.gd:865",
+  "ui/exchange_screen.gd:869",
   "_picker(right, \"送往\", FactionCatalog.name_of(to), func(): ship_to -= 1; build(menu), func(): ship_to += 1; build(menu))"
  ],
  "送来": [
-  "game/game_manager.gd:2861",
+  "game/game_manager.gd:2871",
   "set_message(\"%s送来 %s ×%d\" % [FactionCatalog.name_of(post_faction), str(gift[0]), int(gift[1])])"
  ],
  "送达": [
@@ -17080,7 +17084,7 @@
   "var state := \"严重超额\" if fin.severe() else (\"逾期\" if fin.loan_locked() else \"正常\")"
  ],
  "遇到": [
-  "game/game_manager.gd:2945",
+  "game/game_manager.gd:2955",
   "set_message(\"遇到%s：赤金 +%d\" % [encounter_name(), bonus])"
  ],
  "道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +": [
@@ -17196,7 +17200,7 @@
   "const FORM_NAMES := {\"blade\": \"刃\", \"heavy\": \"重\", \"fist\": \"拳\", \"polearm\": \"长柄\", \"crossbow\": \"弩\", \"bow\": \"弓\", \"gun\": \"铳\", \"staff\": \"法杖\"}"
  ],
  "重伤": [
-  "game/game_manager.gd:4045",
+  "game/game_manager.gd:4055",
   "if not injured.is_empty(): parts.append(\"重伤 \" + \"、\".join(injured.map(func(id): return Operators.display_name(id))))"
  ],
  "重伤治疗费 −50%": [
@@ -17636,11 +17640,11 @@
   "\"range\": \"区间根数\", \"vol\": \"放量倍数\", \"hours\": \"间隔\", \"amount\": \"每次金额\", \"low\": \"下沿\","
  ],
  "队列": [
-  "ui/exchange_screen.gd:976",
+  "ui/exchange_screen.gd:980",
   "right.add_child(AK.section(\"队列\", \"QUEUE  %d / %d\" % [game.workshop.busy(), game.workshop_slots()]))"
  ],
  "队列已满": [
-  "game/provisions.gd:223",
+  "game/provisions.gd:224",
   "if jobs().size() >= kitchen_slots(): return \"队列已满\""
  ],
  "防具": [
@@ -17764,7 +17768,7 @@
   "if v.call(Elements.ADD_KEY[kind]) > 0.0: elements.append([\"附加\" + Elements.NAMES[kind], _pct(v.call(Elements.ADD_KEY[kind]))])"
  ],
  "附近有人留下了踪迹。": [
-  "game/game_manager.gd:4972",
+  "game/game_manager.gd:4982",
   "broadcast(\"PRTS：博士，%s附近有人留下了踪迹。\" % RecruitCatalog.RECRUITS[id].place)"
  ],
  "附近没有其他敌人时，技能伤害": [
@@ -17796,7 +17800,7 @@
   "body.add_child(_seg([\"限价卖\", \"止损卖\", \"限价买\", \"条件卖\"], order_kind, func(i): order_kind = i; build(menu), 11, 288.0))"
  ],
  "限时": [
-  "game/market/market_state.gd:1316",
+  "game/market/market_state.gd:1353",
   "var title := \"%s限时%s%s\" % [FactionCatalog.name_of(faction), \"高价收购\" if offer.kind == \"buy\" else \"低价抛售\", what]"
  ],
  "限时收购 ×": [
@@ -18020,19 +18024,19 @@
   "out.append(\"需要%s Lv%d\" % [BaseCatalog.facility_name(facility), level])"
  ],
  "需要企鹅专递单": [
-  "game/game_manager.gd:3897",
+  "game/game_manager.gd:3907",
   "if carried_count(SPECIAL_SLIP) <= 0: return \"需要企鹅专递单\""
  ],
  "需要企鹅物流关系": [
-  "game/provisions.gd:276",
+  "game/provisions.gd:277",
   "if game.exchange.rank(\"penguin\") < MAIL_RANK: return \"需要企鹅物流关系 %s\" % Exchange.rank_name(MAIL_RANK)"
  ],
  "需要停靠龙门": [
-  "game/game_manager.gd:3717",
+  "game/game_manager.gd:3727",
   "if base.ship_at != DIRECTED_ANCHOR or not voyage.sailing.is_empty(): return \"需要停靠龙门\""
  ],
  "需要关系": [
-  "game/game_manager.gd:2871",
+  "game/game_manager.gd:2881",
   "if exchange.cold(post_faction): return \"需要关系 %s\" % Exchange.rank_name(1)"
  ],
  "需要农业部 Lv1": [
@@ -18040,7 +18044,7 @@
   "right.add_child(AK.label(\"需要农业部 Lv1\", 14, AK.MUTE))"
  ],
  "需要农业部升级": [
-  "game/provisions.gd:152",
+  "game/provisions.gd:153",
   "if i < 0 or i >= basins(): return \"需要农业部升级\""
  ],
  "需要基建总控台": [
@@ -18048,11 +18052,11 @@
   "if not game.base.hub_built(): return \"需要基建总控台\""
  ],
  "需要整备部 Lv": [
-  "game/base_state.gd:422",
+  "game/base_state.gd:509",
   "if facility_level(\"outfit\") < int(needs[level + 1]): return \"需要整备部 Lv%d\" % int(needs[level + 1])"
  ],
  "需要残党向导": [
-  "game/game_manager.gd:3936",
+  "game/game_manager.gd:3946",
   "if carried_count(SPECIAL_GUIDE) <= 0: return \"需要残党向导\""
  ],
  "需要科研部 Lv": [
@@ -18072,19 +18076,19 @@
   "if elite < 2: return \"需要精英 2\""
  ],
  "需要罗德岛小队或营地": [
-  "game/game_manager.gd:3898",
+  "game/game_manager.gd:3908",
   "if not in_camp and not (encounter == \"squad\" and near(world_map.encounter_node)): return \"需要罗德岛小队或营地\""
  ],
  "需要莱茵生命关系": [
-  "game/provisions.gd:158",
+  "game/provisions.gd:159",
   "return \"需要莱茵生命关系 %s\" % Exchange.rank_name(FactionSpecials.rank_needed(str(c.seed)))"
  ],
  "需要食堂": [
-  "game/provisions.gd:259",
+  "game/provisions.gd:260",
   "if game.base.facility_level(\"canteen\") < 1: return \"需要食堂\""
  ],
  "需要食堂 Lv": [
-  "game/provisions.gd:222",
+  "game/provisions.gd:223",
   "if game.base.facility_level(\"canteen\") < int(RECIPES[meal].level): return \"需要食堂 Lv%d\" % int(RECIPES[meal].level)"
  ],
  "需要食堂 Lv1": [
@@ -18092,7 +18096,7 @@
   "AK.put(stage, AK.label(\"需要食堂 Lv1\", 16, AK.MUTE), Vector2(32, TOP + 24))"
  ],
  "需要龙门商会关系": [
-  "game/game_manager.gd:3718",
+  "game/game_manager.gd:3728",
   "if exchange.rank(DIRECTED_FACTION) < Exchange.RANK_AT.size() - 1: return \"需要龙门商会关系 %s\" % Exchange.rank_name(Exchange.RANK_AT.size() - 1)"
  ],
  "震屏强度": [
@@ -18136,7 +18140,7 @@
   "\"implicit\": [[ItemModifier.Stat.ATTACK_SPEED_PCT, 0.06], [ItemModifier.Stat.RES_FLAT, 5.0]], \"fx\": \"idle_strike\", \"fx_text\": \"空闲 5 秒（未攻击）：移速 +30%，之后第一次命中追加 80% 法术攻击力\", \"req\": \"arts\", \"text\": \"静下来的时候，它"
  ],
  "静音": [
-  "ui/system_screens.gd:401",
+  "ui/system_screens.gd:425",
   "mute.text = \"静音\""
  ],
  "静默喷剂": [
@@ -18184,7 +18188,7 @@
   "\"taoguang\": {\"name\": \"韬光\", \"type\": \"passive\", \"tier\": 1, \"max\": 5,"
  ],
  "音量": [
-  "ui/system_screens.gd:390",
+  "ui/system_screens.gd:414",
   "volume_row.add_child(AK.label(\"音量\", 14, AK.FG))"
  ],
  "音频": [
@@ -18196,7 +18200,7 @@
   "if kind == \"pack\": return \"%d 页\" % (PACK_PAGES[level] as Array).size()"
  ],
  "页。": [
-  "game/game_manager.gd:3253",
+  "game/game_manager.gd:3263",
   "set_message(\"背包扩容到 %d 页。\" % inventory.page_count())"
  ],
  "项链": [
@@ -18204,7 +18208,7 @@
   "const CATEGORY_NAMES := [\"武器\", \"防具\", \"饰品\", \"材料\", \"头部\", \"胸甲\", \"手部\", \"腿部\", \"脚部\", \"项链\", \"戒指\", \"收藏品\", \"整理箱\"]"
  ],
  "项，已入库。": [
-  "game/game_manager.gd:2804",
+  "game/game_manager.gd:2814",
   "if in_base: set_message(\"加工部完成 %d 项，已入库。\" % done.size())"
  ],
  "颁给它的国家，已经不认它了。": [
@@ -18368,7 +18372,7 @@
   "\"Z18\": {\"region\": \"卡西米尔\", \"kind\": \"announce\", \"hours\": 48, \"weight\": 1, \"title\": \"骑士竞技资格赛开幕\", \"effects\": [{\"sel\": \"kazimierz:weapon\", \"mult\": 1.15}, {\"sel\": \"kazimierz:armor\", \"mult\": 1.15}]},"
  ],
  "骑士锦标赛": [
-  "game/market/market_links.gd:387",
+  "game/market/market_links.gd:392",
   "\"骑士锦标赛\": [\"Z1\", \"Z18\", \"Z15\", \"Z22\", \"Z21\", \"Z14\"],"
  ],
  "骚乱的": [
@@ -18400,7 +18404,7 @@
   "const RARITY_NAMES := [\"低\", \"中\", \"高\"]"
  ],
  "高价收购": [
-  "game/market/market_state.gd:1316",
+  "game/market/market_state.gd:1353",
   "var title := \"%s限时%s%s\" % [FactionCatalog.name_of(faction), \"高价收购\" if offer.kind == \"buy\" else \"低价抛售\", what]"
  ],
  "高危险 / 稀有率提高 / 精英增援": [
@@ -18416,7 +18420,7 @@
   "\"medical_5\": [\"高浓度配方\", 5, \"potion_grade\", \"免费药剂 +2\", [\"medical_1\", \"logistics_2\"], {}],"
  ],
  "高级作战记录": [
-  "game/game_manager.gd:5430",
+  "game/game_manager.gd:5440",
   "if enemy is Boss or enemy == _bounty: record = \"高级作战记录\""
  ],
  "高纯源岩助熔剂": [
@@ -18556,7 +18560,7 @@
   "const REGION_MARKS := {\"mine\": \"矿\", \"city\": \"龙\", \"snow\": \"萨\", \"siracusa\": \"叙\"}"
  ],
  "龙门": [
-  "game/game_manager.gd:3696",
+  "game/game_manager.gd:3706",
   "const DIRECTED_ANCHOR := \"龙门\""
  ],
  "龙门—乌萨斯": [
@@ -18608,7 +18612,7 @@
   "\"L20\": {\"region\": \"龙门\", \"kind\": \"breaking\", \"hours\": 24, \"weight\": 2, \"title\": \"龙门外环剿灭行动\", \"effects\": [{\"sel\": \"lungmen:armor\", \"mult\": 1.15}, {\"sel\": \"lungmen:medical\", \"mult\": 1.1}]},"
  ],
  "龙门币": [
-  "game/game_manager.gd:4043",
+  "game/game_manager.gd:4053",
   "var parts: Array[String] = [\"龙门币 %s\" % Economy.format(gold), \"赤金 %d\" % material_count(Economy.GOLD_ID)]"
  ],
  "龙门币   ·": [
@@ -18616,7 +18620,7 @@
   "right.add_child(AK.label(\"%s 龙门币   ·   %s\" % [Economy.format(ResearchCatalog.price(pick)), ResearchCatalog.duration_text(pick)], 14, AK.FG if game.gold >= ResearchCatalog.price(pick) else AK.RED))"
  ],
  "龙门币   ·   卖出": [
-  "ui/exchange_screen.gd:821",
+  "ui/exchange_screen.gd:825",
   "return \"买入 %s 龙门币   ·   卖出 %s 龙门币\" % [Economy.format(ex.convert_lmd(true, bars)), Economy.format(ex.convert_lmd(false, bars))], 12, AK.MUTE))"
  ],
  "龙门币 / 赤金": [
@@ -18636,11 +18640,11 @@
   "\"ui_econ_arrears\": [\"欠费\", \"龙门币不够付日账时会自动借款，按天计息。额度用完或逾期后按顺序暂停：交易所策略、加工部、农业部、科研部。整备台、仓库和出击永远可用，还清后立即恢复。\", 0.0],"
  ],
  "龙门币不足": [
-  "game/base_state.gd:239",
+  "game/base_state.gd:240",
   "if money < int(step.price): return \"龙门币不足\""
  ],
  "龙门币已到账": [
-  "game/market/exchange.gd:1094",
+  "game/market/exchange.gd:1096",
   "if pend_l + pend_g > 0.0: _say(\"差价合约待入账 %s 龙门币已到账\" % Economy.format(roundi(pend_l + pend_g * Economy.GOLD_BAR_LMD)), \"cap\")"
  ],
  "龙门币是罗德岛的资金：合同报酬、出库交付、卖货、分红和利息都进余额，建设、升级、日账和薪资也从余额扣。赤金是局内货币，可以存进赤金账户，或在可露希尔处卖成龙门币。余额本身不生息。": [
@@ -18660,7 +18664,7 @@
   "button(body, \"治疗重伤（%s 龙门币）\" % Economy.format(game.injury_price(id)), func(): game.treat_injury(id); _refresh(), game.gold < game.injury_price(id))"
  ],
  "龙门币，策略": [
-  "game/game_manager.gd:2506",
+  "game/game_manager.gd:2512",
   "text += \" 日账 %s 龙门币，策略 %s%s 龙门币。\" % [Economy.format(exchange.fin.paid_total - paid_before), \"+\" if exchange.strategies.value_lmd() >= strat_before else \"−\", Economy.format(roundi(absf(exchange.strateg"
  ],
  "龙门币：": [
@@ -18700,7 +18704,7 @@
   "\"L24\": {\"region\": \"龙门\", \"kind\": \"breaking\", \"hours\": 12, \"weight\": 1, \"title\": \"龙门消防署更换装备\", \"effects\": [{\"sel\": \"lungmen:armor\", \"mult\": 1.1}, {\"sel\": \"lungmen:fuel\", \"mult\": 0.95}]},"
  ],
  "龙门物流": [
-  "game/market/market_links.gd:374",
+  "game/market/market_links.gd:379",
   "\"龙门物流\": [\"L4\", \"L21\", \"L30\", \"L12\"],"
  ],
  "龙门的海关查得很严，所以它很贵。": [
@@ -18772,11 +18776,11 @@
   "out.append([line_text(key, value_of(entry, key) * scale), \"（范围 %s ~ %s）\" % _ends(key, base)])"
  ],
  "（途中遇险，部分损失）": [
-  "game/market/exchange.gd:1253",
+  "game/market/exchange.gd:1264",
   "_say(\"企鹅物流送达：%s → %s，%s%s\" % [item.display_name(), FactionCatalog.name_of(faction), format_money(str(q.currency), net), \"（途中遇险，部分损失）\" if lost else \"\"], \"arrival\")"
  ],
  "（重伤）": [
-  "game/game_manager.gd:4018",
+  "game/game_manager.gd:4028",
   "if base.injured: out.append(\"生命上限 −%d%%（重伤）\" % roundi(base.hp_penalty() * 100))"
  ],
  "（间隔": [
@@ -18788,7 +18792,7 @@
   "if t.has(\"region\") and not t.has(\"effect\"): where = \"（产地：%s）\" % FieldCatalog.REGIONS[t.region].name.split(\" · \")[0]"
  ],
  "）：": [
-  "game/game_manager.gd:3406",
+  "game/game_manager.gd:3416",
   "if not quiet: set_message(\"仓库空间不足（%d/%d）：%s 留在身上。\" % [base.shelf_count(), base.capacity(), item.item_name])"
  ],
  "）：[/color]": [
@@ -18796,15 +18800,15 @@
   "lines.append(\"[color=#99aab8]装备后（对比%s）：[/color]\" % (\"当前 \" + worn.item_name if worn != null else \"空槽\"))"
  ],
  "，": [
-  "game/game_manager.gd:4002",
+  "game/game_manager.gd:4012",
   "set_message(\"罗德岛小队：%s，%s。\" % [meal_id, Provisions.meal_text(meal_id)])"
  ],
  "，仓库已满，": [
-  "game/game_manager.gd:3575",
+  "game/game_manager.gd:3585",
   "if stored > 0 or left > 0: set_message(\"已入库 %d 件%s。\" % [stored, \"\" if left == 0 else \"，仓库已满，%d 件留在身上\" % left])"
  ],
  "，保证金没收，关系下降": [
-  "game/market/exchange.gd:881",
+  "game/market/exchange.gd:883",
   "_say(\"合约违约：%s，保证金没收，关系下降\" % FactionCatalog.name_of(faction), \"default\")"
  ],
  "，关系 +": [
@@ -18820,7 +18824,7 @@
   "\"text\": \"每放出 %s 道剑气，进入 6 秒狼魂：普攻变为法术伤害，攻击力 +%s，剑气蓄力降为 1 次。\"},"
  ],
  "，剩余": [
-  "game/game_manager.gd:3287",
+  "game/game_manager.gd:3297",
   "notice(\"背包只装下 %d 个 %s，剩余 %d 个留在地上。\" % [before - left, item.item_name, left])"
  ],
  "，增长调整市盈率": [
@@ -18828,7 +18832,7 @@
   "var title := \"%s 季报 EPS 环比 %+.0f%%，增长调整市盈率 %s\" % [FirmCatalog.name_of(id), (b - a) / maxf(absf(a), 1e-6) * 100.0, (\"%.1f\" % float(r.peg)) if float(r.peg) < 99.0 else \"—\"]"
  ],
  "，已放回仓库。": [
-  "game/game_manager.gd:5648",
+  "game/game_manager.gd:5658",
   "notice(\"%s无法使用%s，已放回仓库。\" % [Operators.display_name(player.operator_id), weapon.item_name])"
  ],
  "，已自动治疗": [
@@ -18848,7 +18852,7 @@
   "\"text\": \"身边一圈落剑，两段法术伤害各 %s，并晕眩 1.5 秒；冷却 %s 秒。\"},"
  ],
  "，强制了结": [
-  "game/game_manager.gd:2501",
+  "game/game_manager.gd:2507",
   "var text := \"离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，持续": [
@@ -18884,7 +18888,7 @@
   "\"amiya_guard\": {\"name\": \"青色怒火\", \"text\": \"攻击力与防御力 +%s，绝影期间及之后 3 秒效果加倍。\"},"
  ],
  "，账户总值": [
-  "game/game_manager.gd:2501",
+  "game/game_manager.gd:2507",
   "var text := \"离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，赤金 +": [
@@ -18892,19 +18896,19 @@
   "game.set_message(\"卖给坎诺特：%s，赤金 +%d\" % [item.display_name(), pay])"
  ],
  "，赤金账户与存款折合赤金 ×": [
-  "game/market/exchange.gd:1397",
+  "game/market/exchange.gd:1408",
   "game.broadcast(\"PRTS：货币精简——外币账户折合龙门币 %s，赤金账户与存款折合赤金 ×%d 已入仓库。\" % [Economy.format(lmd), whole])"
  ],
  "，违约": [
-  "game/game_manager.gd:2501",
+  "game/game_manager.gd:2507",
   "var text := \"离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，送达": [
-  "game/game_manager.gd:2501",
+  "game/game_manager.gd:2507",
   "var text := \"离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "，附带副产物": [
-  "game/game_manager.gd:2803",
+  "game/game_manager.gd:2813",
   "broadcast(\"PRTS：加工部完成 %s ×%d%s。\" % [job.output, int(job.count), \"，附带副产物\" if not job.get(\"byproducts\", {}).is_empty() else \"\"])"
  ],
  "，附近没有其他敌人时再翻倍": [
@@ -18928,11 +18932,11 @@
   "set_message(\"%s：带回 %d 件新物品。%s%s\" % [\"合同交付\" if extracted else \"罗德岛小队归来\", new_finds,"
  ],
  "：挂单成交": [
-  "game/game_manager.gd:2501",
+  "game/game_manager.gd:2507",
   "var text := \"离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。\" % ["
  ],
  "：赤金 +": [
-  "game/game_manager.gd:2945",
+  "game/game_manager.gd:2955",
   "set_message(\"遇到%s：赤金 +%d\" % [encounter_name(), bonus])"
  ],
  "：送到基地仓库。": [

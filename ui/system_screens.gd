@@ -213,18 +213,42 @@ func _process(delta: float) -> void:
 		if _loading_left <= 0.0 and not game.transitioning and not game.booting and _progress >= 1.0: _loading.hide()
 
 func _flash_loading() -> void:
-	_tip.text = TIPS[randi() % TIPS.size()]
+	# Already up (a load's catch-up came first): the bar never goes back.
+	var keep := _loading.visible
+	if not keep: _tip.text = TIPS[randi() % TIPS.size()]
 	_loading_left = 0.8
-	_progress = 0.0
-	_target = 0.3
+	_progress = _progress if keep else 0.0
+	_target = maxf(_target, 0.3) if keep else 0.3
 	_draw_bar()
 	_show_card()
 	_loading.show()
 
 ## A floor is about to be built: the screen goes up at once, before the work.
 func begin_loading() -> void:
+	var was := _loading.visible
 	_flash_loading()
-	_target = 0.1
+	if not was: _target = 0.1
+
+## A load's offline catch-up (时间缩放策划案 v0.2 §5): the bar runs 0.3 → CATCH_UP_DONE
+## with it, drawn here and now since the frame is busy simulating.
+const CATCH_UP_DONE := 0.6
+var _catch_up_from := 0.3
+
+func begin_catch_up() -> void:
+	if not _loading.visible: _flash_loading()
+	_catch_up_from = clampf(_progress, 0.0, CATCH_UP_DONE)
+	_tip.text = "PRTS 同步离线时间"
+	step_catch_up(0.0)
+
+func step_catch_up(done: float) -> void:
+	_progress = lerpf(_catch_up_from, CATCH_UP_DONE, clampf(done, 0.0, 1.0))
+	_target = maxf(_target, _progress)
+	_draw_bar()
+	RenderingServer.force_draw()
+
+func end_catch_up() -> void:
+	step_catch_up(1.0)
+	_tip.text = TIPS[randi() % TIPS.size()]
 
 ## One stage of the map done (ContinuousWorldMap.mark). The frame is busy
 ## building, so the bar is drawn here and now.

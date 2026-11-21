@@ -496,5 +496,7 @@
  "合同 %d": "Contracts %d",
  "出发": "Depart",
  "放弃": "Abandon",
- "回收 %s ×%d": "Recover %s ×%d"
+ "回收 %s ×%d": "Recover %s ×%d",
+ "第 %d 日 %s": "Day %d %s",
+ "PRTS 同步离线时间": "PRTS: syncing offline time"
 }

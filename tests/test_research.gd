@@ -21,6 +21,8 @@ func later(seconds: int) -> void:
 	BaseState.clock_offset += seconds
 
 func run() -> void:
+	# These checks are of the one-to-one clock (时间缩放策划案 v0.2: test_time_scale has the scaled one).
+	BaseState.time_scale = 1
 	MarketState.tz_override = 0
 	BaseState.frozen_clock = 1791972000
 	_economy()
@@ -133,13 +135,13 @@ func _research_rules() -> void:
 	var gold := game.gold
 	check("starting pays 56,000 and the materials", r.start("logistics_1") and gold - game.gold == int(ResearchCatalog.TIER_PRICE[0]) and game.material_count("电路板") == 18)
 	check("one slot at Lv1", r.refusal("medical_1") == "研究位已满")
-	# 用户 2026-10-24: 科研部时间全部变为原先的20% — tier 1 (1 h) runs 12 minutes.
-	check("a research runs 20% of its written hours", ResearchCatalog.seconds("logistics_1") == 720 and ResearchCatalog.duration_text("logistics_1") == "12 分钟")
-	later(360)
-	check("six minutes in: half done, not finished", is_equal_approx(r.progress("logistics_1"), 0.5) and r.tick().is_empty())
+	# 时间缩放策划案 v0.2 拍板 3: the × 0.2 is off — tier 1 runs its 1 h (at scale 1 here).
+	check("a research runs its written hours", ResearchCatalog.seconds("logistics_1") == 3600 and ResearchCatalog.duration_text("logistics_1") == "1 小时")
+	later(1800)
+	check("half an hour in: half done, not finished", is_equal_approx(r.progress("logistics_1"), 0.5) and r.tick().is_empty())
 	var slots := game.base.board.slots_of("后勤部", game.board_ctx())
-	later(360)
-	check("twelve minutes in it is done", r.tick() == ["logistics_1"] and r.is_done("logistics_1"))
+	later(1800)
+	check("an hour in it is done", r.tick() == ["logistics_1"] and r.is_done("logistics_1"))
 	check("后勤部 1 阶 adds a 后勤部 slot on the board at once", game.base.board.slots_of("后勤部", game.board_ctx()) == slots + 1
 		and game.base.board.posted.filter(func(c): return c.dept == "后勤部").size() == slots + 1)
 	check("tier 2 needs the camp at floor 10", r.refusal("logistics_2") == "需要第 10 层营地")

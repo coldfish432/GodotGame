@@ -111,7 +111,7 @@ static func _news_tip(game: GameManager, n: Dictionary) -> String:
 	var head: Array[String] = []
 	if ev.has("kind"): head.append(str(MarketEvents.KIND_NAMES.get(str(ev.kind), "快讯")))
 	if ev.has("region"): head.append(str(ev.region))
-	head.append("剩余 " + ExchangeScreen._left(int(n.until) - game.market.t))
+	head.append("剩余 " + ExchangeScreen._rleft(int(n.until)))
 	lines.append(" · ".join(head))
 	for e in n.effects: lines.append(_news_effect(str(e[0]), float(e[1]), bool(e[2])))
 	return "

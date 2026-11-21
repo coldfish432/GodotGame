@@ -191,7 +191,7 @@ static func _news_row(game: GameManager, n: Dictionary, width: float) -> Control
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	var colour: Color = {"swan": AK.RED, "announce": AK.SP, "rumor": AK.SPECIAL, "flash": AK.GREEN}.get(str(n.kind), AK.CYAN)
-	var when := Time.get_datetime_string_from_unix_time(MarketState.local(int(n.t)), true).substr(5, 11)
+	var when := MarketState.stamp(int(n.t))
 	row.add_child(AK.label(when, 11, AK.MUTE, AK.en()))
 	row.add_child(AK.tag(MarketEvents.KIND_NAMES.get(str(n.kind), "快讯") if str(n.kind) != "flash" else "限时", colour))
 	var title := str(n.title)
@@ -425,7 +425,7 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 	for offer in game.market.flash:
 		if offer.faction != faction: continue
 		var tag := "限时%s %s ×%.2f" % ["收购" if offer.kind == "buy" else "抛售", FactionCatalog.CATEGORIES.get(offer.get("category", ""), str(offer.get("material", ""))), float(offer.mult)]
-		body.add_child(MarketWidgets.live(func(): return "%s   %ds" % [tag, maxi(0, int(offer.until) - game.market.t)], 12, AK.GREEN))
+		body.add_child(MarketWidgets.live(func(): return "%s   %ds" % [tag, BaseState.real_left(int(offer.until))], 12, AK.GREEN))
 		if offer.kind == "buy":
 			for item in _matching_items(game, str(offer.category)).slice(0, 3):
 				var chosen: Item = item
@@ -592,7 +592,7 @@ static func _positions_page(menu: FieldMenu, stage: Control) -> void:
 			return "%s  %s ×%d @ %s  ·  %s  ·  约定 %s  现价 %s  ·  盈亏 %s  ·  维持率 %d%%%s  ·  剩 %s" % [
 				"交货" if pos.dir == "deliver" else "收货", pos.material, int(pos.count), FactionCatalog.name_of(str(pos.faction)), "%d×" % int(pos.lev),
 				Exchange.format_money(str(pos.currency), float(pos.k)), Exchange.format_money(str(pos.currency), ex.material_spot(str(pos.faction), str(pos.material), pos.dir == "deliver")),
-				Exchange.format_money(str(pos.currency), pnl), roundi(ex.margin_ratio(pos, pnl) * 100), _call_text(game, pos), _left(int(pos.expires) - game.market.t)], 12))
+				Exchange.format_money(str(pos.currency), pnl), roundi(ex.margin_ratio(pos, pnl) * 100), _call_text(game, pos), _rleft(int(pos.expires))], 12))
 		var act := _act(AK.button("交割" if pos.dir == "deliver" else "收货", "blue", 12))
 		act.pressed.connect(func():
 			if (ex.deliver_forward(int(pos.id)) if pos.dir == "deliver" else ex.take_forward(int(pos.id))): game.save_base()
@@ -630,7 +630,7 @@ static func _positions_page(menu: FieldMenu, stage: Control) -> void:
 		var kind: String = {"limit": "限价", "stop": "止损", "cond": "条件"}.get(str(order.type), "")
 		row.add_child(MarketWidgets.live(func(): return "%s%s  %s  ·  %s  ·  %.2f  ·  现价 %.2f  ·  %s" % [kind, "卖" if order.side == "sell" else "买", what,
 			FactionCatalog.market_name(str(order.market)), float(order.price), game.market.price(str(order.market)),
-			"到结算" if int(order.expires) == 0 else "剩 " + _left(int(order.expires) - game.market.t)], 12))
+			"到结算" if int(order.expires) == 0 else "剩 " + _rleft(int(order.expires))], 12))
 		var cancel := _act(AK.button("撤单", "plain", 12))
 		cancel.pressed.connect(func(): ex.cancel_order(int(order.id)); game.save_base(); build(menu))
 		row.add_child(cancel)
@@ -651,13 +651,13 @@ static func _positions_page(menu: FieldMenu, stage: Control) -> void:
 	var history := ex.history.duplicate()
 	history.reverse()
 	for h in history:
-		box.add_child(AK.label("%s  %s  %s  ·  %s  ·  %s" % [Time.get_datetime_string_from_unix_time(MarketState.local(int(h.t)), true).substr(5, 11), _history_kind(str(h.kind)),
+		box.add_child(AK.label("%s  %s  %s  ·  %s  ·  %s" % [MarketState.stamp(int(h.t)), _history_kind(str(h.kind)),
 			str(h.what), FactionCatalog.name_of(str(h.faction)), Exchange.format_money(str(h.currency), float(h.amount))], 11, AK.MUTE))
 
 ## "  ·  追加保证金 3时12分" while a call runs (§9.3).
 static func _call_text(game: GameManager, pos: Dictionary) -> String:
 	if int(pos.get("call_until", 0)) <= 0: return ""
-	return "  ·  追加保证金 " + _left(int(pos.call_until) - game.market.t)
+	return "  ·  追加保证金 " + _rleft(int(pos.call_until))
 
 static func _history_kind(kind: String) -> String:
 	return {"sell": "卖出", "buy": "买入", "fill": "成交", "forward": "签约", "delivered": "交割", "default": "违约", "liquidated": "强平",
@@ -676,6 +676,10 @@ static func _margin_buttons(menu: FieldMenu, row: HBoxContainer, pos: Dictionary
 		game.save_base()
 		build(menu))
 	row.add_child(auto)
+
+## Real time left until Rhodes time `at` (时间缩放策划案 v0.2 §7).
+static func _rleft(at: int) -> String:
+	return _left(BaseState.real_left(at))
 
 static func _left(seconds: int) -> String:
 	seconds = maxi(0, seconds)
@@ -705,7 +709,7 @@ static func _news_page(menu: FieldMenu, stage: Control) -> void:
 		var entry: Dictionary = c
 		var ev: Dictionary = MarketEvents.EVENTS.get(str(entry.id), {})
 		var title := str(ev.get("title", entry.id)).replace("%s", "…")
-		cal.add_child(MarketWidgets.live(func(): return "%s  %s  ·  %s" % [Time.get_datetime_string_from_unix_time(MarketState.local(int(entry.at)), true).substr(5, 11), title, _left(int(entry.at) - game.market.t)], 12))
+		cal.add_child(MarketWidgets.live(func(): return "%s  %s  ·  %s" % [MarketState.stamp(int(entry.at)), title, _rleft(int(entry.at))], 12))
 	AK.put(stage, AK.section("态势", "WORLD STATE"), Vector2(852, TOP + 330))
 	var bars := MarketWidgets.FactorBars.new()
 	bars.game = game
@@ -719,7 +723,7 @@ static func _news_page(menu: FieldMenu, stage: Control) -> void:
 		var offer: Dictionary = f
 		var row := HBoxContainer.new()
 		row.add_child(MarketWidgets.live(func(): return "%s %s %s ×%.2f  %ds" % [FactionCatalog.name_of(str(offer.faction)), "收购" if offer.kind == "buy" else "抛售",
-			FactionCatalog.CATEGORIES.get(offer.get("category", ""), str(offer.get("material", ""))), float(offer.mult), maxi(0, int(offer.until) - game.market.t)], 12, AK.GREEN))
+			FactionCatalog.CATEGORIES.get(offer.get("category", ""), str(offer.get("material", ""))), float(offer.mult), BaseState.real_left(int(offer.until))], 12, AK.GREEN))
 		var go := AK.button("去交易", "plain", 11)
 		go.pressed.connect(func():
 			tab = 0
@@ -839,7 +843,7 @@ static func _money_page(menu: FieldMenu, stage: Control) -> void:
 	for f in FactionCatalog.ORDER:
 		col.add_child(AK.label("%s  %s  ·  %d / %d%s%s" % [FactionCatalog.name_of(f), Exchange.rank_name(ex.rank(f)), ex.relation(f), Exchange.next_rank_at(ex.relation(f)),
 			("  ·  修正 −%d/日" % ex.relation_drift(f)) if ex.relation_drift(f) > 0 else "",
-			("  ·  违约冷却 " + _left(int(ex.forward_cooldown.get(f, 0)) - game.market.t)) if int(ex.forward_cooldown.get(f, 0)) > game.market.t else ""], 12, AK.FG))
+			("  ·  违约冷却 " + _rleft(int(ex.forward_cooldown.get(f, 0)))) if int(ex.forward_cooldown.get(f, 0)) > game.market.t else ""], 12, AK.FG))
 	# 企鹅物流.
 	var right := VBoxContainer.new()
 	right.add_theme_constant_override("separation", 8)
@@ -978,7 +982,7 @@ static func _queue(menu: FieldMenu, right: VBoxContainer) -> void:
 		var job: Dictionary = j
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
-		var line := MarketWidgets.live(func(): return "%s ×%d  ·  %s" % [job.output, int(job.count), "完成" if int(job.due) <= BaseState.now() else ExchangeScreen._left(int(job.due) - BaseState.now())], 13)
+		var line := MarketWidgets.live(func(): return "%s ×%d  ·  %s" % [job.output, int(job.count), "完成" if int(job.due) <= BaseState.now() else ExchangeScreen._left(BaseState.real_left(int(job.due)))], 13)
 		line.custom_minimum_size.x = 360
 		row.add_child(line)
 		# 乌萨斯西北矿场's 助熔剂 (势力特供策划案 §二), once a job.

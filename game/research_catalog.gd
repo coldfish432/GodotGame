@@ -228,16 +228,16 @@ static func hours(id: String) -> int:
 	if row.size() > 7 and int(row[7]) > 0: return int(row[7])
 	return int(TIER_HOURS[tier_of(id) - 1])
 
-## 用户 2026-10-24: 科研部时间全部变为原先的20% — the written hours stay the
-## design's; a research runs this share of them.
-const TIME_SHARE := 0.2
+## 用户 2026-10-24 had 科研部时间全部变为原先的20%; 时间缩放策划案 v0.2
+## 拍板 3 takes it off: the written hours are Rhodes hours (÷ scale real).
+const TIME_SHARE := 1.0
 
 static func seconds(id: String) -> int:
 	return roundi(hours(id) * 3600 * TIME_SHARE)
 
-## "12 分钟" / "1.6 小时": the run time as shown.
+## "12 分钟" / "1.6 小时": the run time as shown, in real time (§7).
 static func duration_text(id: String) -> String:
-	var minutes := seconds(id) / 60
+	var minutes := seconds(id) / BaseState.time_scale / 60
 	if minutes < 60: return "%d 分钟" % minutes
 	var h := minutes / 60.0
 	return ("%d 小时" % roundi(h)) if is_equal_approx(h, roundf(h)) else ("%.1f 小时" % h)

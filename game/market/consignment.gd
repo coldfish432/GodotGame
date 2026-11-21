@@ -118,7 +118,7 @@ static func whole(currency_id: String, amount: float, buying: bool) -> int:
 ## The anchor's shelf, restocked every real hour (§5.3).
 func goods(anchor: String) -> Array:
 	if anchor.is_empty(): return []
-	var hour := BaseState.now() / RESTOCK
+	var hour := BaseState.real_now() / RESTOCK
 	var s: Dictionary = stock.get(anchor, {})
 	if s.is_empty() or int(s.hour) != hour:
 		s = {"hour": hour, "goods": _roll(anchor)}
@@ -126,7 +126,7 @@ func goods(anchor: String) -> Array:
 	return s.goods
 
 func restock_in() -> int:
-	return RESTOCK - BaseState.now() % RESTOCK
+	return RESTOCK - BaseState.real_now() % RESTOCK
 
 func _roll(anchor: String) -> Array:
 	var rng := game.rng_trade

@@ -218,6 +218,9 @@ func run() -> void:
 	game.player.hp = game.player.max_hp * 0.5
 	game.player.regen_timer = 100
 	var hp := game.player.hp
+	# The live market's regional news (e.g. a mine feature_rate ×1.1) is not
+	# under test here: these checks read the ore alone.
+	game.market.field.clear()
 	var dose := game.run_contamination
 	game._physics_process(2)
 	# 用户 2026-10-15: 原矿本身每秒扣血删除 — it only raises contamination.

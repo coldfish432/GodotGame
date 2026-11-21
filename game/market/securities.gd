@@ -88,7 +88,8 @@ func held(firm: String) -> float: return float((shares.get(firm, {}) as Dictiona
 func on_dividend(firm: String, per_share_lmd: float) -> void:
 	var n := held(firm)
 	if n <= 0.0: return
-	var total := n * per_share_lmd
+	# A quarter is 7 trading days: ÷ scale of the design's (时间缩放策划案 v0.2 §6.3).
+	var total := n * per_share_lmd * BaseState.day_share()
 	var kind := str(FirmCatalog.info(firm).get("dividend", "cash"))
 	var cur := FirmCatalog.currency(firm)
 	if kind == "gold":
@@ -209,19 +210,19 @@ func new_day() -> void:
 	for f in FUNDS: _fund_day(f)
 	# Fund payouts: a day's is a fraction of a bar, so it comes as 龙门币 at the live rate, rounded.
 	for f in funds:
-		var pay := float(funds[f].units) * nav(f) * fund_payout_rate() * Economy.fx
+		var pay := float(funds[f].units) * nav(f) * fund_payout_rate() * Economy.fx * BaseState.day_share()
 		ex.credit("lmd", pay)
 		ex.fin.today_in += pay
 	# Coupons, maturity, defaults.
 	for b in bonds.duplicate():
 		var cur := str(b.cur)
-		ex.credit(cur, float(b.face) * float(b.coupon) / 365.0)
+		ex.credit(cur, float(b.face) * float(b.coupon) / 365.0 * BaseState.day_share())
 		if bool(b.corp):
 			var firm := str(b.issuer).substr(5)
 			if m().firms.equity(firm) < 0.0:
 				_default(b)
 				continue
-		elif m().policy_rate(cur) > SOVEREIGN_DEFAULT_RATE and m().rng.randf() < SOVEREIGN_DEFAULT_ODDS:
+		elif m().policy_rate(cur) > SOVEREIGN_DEFAULT_RATE and m().rng.randf() < SOVEREIGN_DEFAULT_ODDS * BaseState.day_share():
 			_default(b)
 			continue
 		if int(b.due) <= today():

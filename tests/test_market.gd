@@ -10,6 +10,8 @@ func check(label: String, passed: bool) -> void:
 const T0 := 2000000000   # 2033-05-18, a fixed start
 
 func run() -> void:
+	# These checks are of the one-to-one clock (时间缩放策划案 v0.2: test_time_scale has the scaled one).
+	BaseState.time_scale = 1
 	MarketState.tz_override = 0
 	var m := MarketState.new()
 	m.start(T0, 99)
@@ -37,12 +39,12 @@ func run() -> void:
 	m.advance_to(T0 + 6 * 3600 + 7 * 86400)
 	var week := Time.get_ticks_msec() - t
 	print("six hours %d ms, seven days %d ms" % [six, week])
-	# 运营策划案 §5.1: two days at most now, with the actors (alone about 3 s; run_all's 12 jobs load the machine).
+	# 时间缩放策划案 v0.2 §5: one real day at most now (one Rhodes day at scale 1 here).
 	check("a week offline catches up in under 6 s: %d ms" % week, week < 6000)
 	t = Time.get_ticks_msec()
 	m.advance_to(T0 + 60 * 86400)
-	# 运营策划案 §5.1: the market never replays more than two days (the Rhodes clock stands still beyond).
-	check("more than two days only simulates the last two: %d ms" % (Time.get_ticks_msec() - t), Time.get_ticks_msec() - t < 6000 and m.t > T0 + 60 * 86400 - 3)
+	# §5: the market never replays more than one real day (the Rhodes clock stands still beyond).
+	check("more than a day only simulates the last one: %d ms" % (Time.get_ticks_msec() - t), Time.get_ticks_msec() - t < 6000 and m.t > T0 + 60 * 86400 - 3)
 	# Active hours (不停市): thin books outside them, never closed.
 	var day := T0 - posmod(T0, 86400)    # midnight UTC = local with tz 0
 	# The made-up history may leave an all-day or spread event running; the

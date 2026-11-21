@@ -1915,7 +1915,7 @@ func broadcast(text: String, keep := true) -> void:
 	if prts_log.size() > 40: prts_log.pop_front()
 	prts_said_at = Time.get_ticks_msec()
 	if not keep: return
-	base.prts_history.append([Time.get_datetime_string_from_system(false, true).substr(5), text, BaseState.now()])
+	base.prts_history.append([Time.get_datetime_string_from_system(false, true).substr(5), text, BaseState.real_now()])
 	if base.prts_history.size() > BaseState.HISTORY_MAX: base.prts_history.pop_front()
 
 ## When PRTS last spoke: the hall's log shows for a while after, then fades
@@ -2478,7 +2478,7 @@ func _catch_up_market() -> void:
 	exchange.migrate_fuel()
 	exchange.migrate_money()
 	_migrate_trade_crates()
-	# 运营策划案 §5.1: a day and the hours over are caught up; whole days beyond stand still.
+	# 时间缩放策划案 v0.2 §5: at most one real day (罗德岛 8 天) is caught up; the rest stands still.
 	var away := BaseState.now() - market.t
 	var split := BaseState.catch_up_split(away)
 	if int(split[1]) > 0 and market.t > 0:
@@ -2489,23 +2489,33 @@ func _catch_up_market() -> void:
 	var paid_before := exchange.fin.paid_total
 	var strat_before := exchange.strategies.value_lmd()
 	exchange.counters.clear()
+	# 用户 2026-11-20 加读条: the loading screen is up (title pick or reload) and its bar follows the catch-up.
+	var bar := is_instance_valid(system_screens) and system_screens.is_inside_tree() and gap > 3600 * BaseState.time_scale
+	if bar:
+		system_screens.begin_catch_up()
+		market.progress_hook = system_screens.step_catch_up
 	market.advance_to(BaseState.now())
+	market.progress_hook = Callable()
+	if bar: system_screens.end_catch_up()
 	_tick_workshop()
 	facilities._tick_kitchen()
 	if not research.tick().is_empty(): save_base()
-	voyage.tick(BaseState.now())
+	voyage.tick(BaseState.real_now())
 	# Before the exchange is built PRTS has nothing of it to report (用户 2026-10-24).
-	if gap < 600 or not exchange.unlocked(): return
+	if gap < 600 * BaseState.time_scale or not exchange.unlocked(): return
 	var c := exchange.counters
-	var hours := gap / 3600.0
 	var text := "离线 %s / 模拟 %s：挂单成交 %d，强制了结 %d，违约 %d，送达 %d，账户总值 %s%s 龙门币。" % [
-		("%.1f 小时" % (away / 3600.0)) if away < 48 * 3600 else ("%d 天" % roundi(away / 86400.0)), ("%.1f 小时" % hours), int(c.get("fill", 0)), int(c.get("liquidation", 0)),
+		_span_text(away / float(BaseState.time_scale)), _span_text(gap), int(c.get("fill", 0)), int(c.get("liquidation", 0)),
 		int(c.get("default", 0)), int(c.get("arrival", 0)) + int(c.get("delivery", 0)), "+" if exchange.account_value() >= before else "−",
 		Economy.format(roundi(absf(exchange.account_value() - before)))]
 	# 运营策划案 §5.3: the bills and the strategies over that time.
 	text += " 日账 %s 龙门币，策略 %s%s 龙门币。" % [Economy.format(exchange.fin.paid_total - paid_before), "+" if exchange.strategies.value_lmd() >= strat_before else "−", Economy.format(roundi(absf(exchange.strategies.value_lmd() - strat_before)))]
 	broadcast("PRTS：" + text)
 	set_message(text)
+
+## "5.0 小时" / "3 天" for an absence or a span caught up.
+static func _span_text(seconds: float) -> String:
+	return ("%.1f 小时" % (seconds / 3600.0)) if seconds < 48 * 3600 else ("%d 天" % roundi(seconds / 86400.0))
 
 func _tick_market(delta: float) -> void:
 	market.advance_to(BaseState.now())
@@ -2517,7 +2527,7 @@ func _tick_market(delta: float) -> void:
 			facilities._tick_kitchen()
 		if in_base and not research.tick().is_empty(): save_base()
 		var before := voyage.to_data().hash()
-		voyage.tick(BaseState.now())
+		voyage.tick(BaseState.real_now())
 		if voyage.to_data().hash() != before: save_base(not in_base)
 		if in_base and is_instance_valid(base_map):
 			show_ship()
@@ -2569,25 +2579,25 @@ func show_research() -> void:
 
 ## The little ship on the sand table: at anchor, or along its leg.
 func show_ship() -> void:
-	if voyage.is_sailing(): base_map.set_ship_between(str(voyage.sailing.from), str(voyage.sailing.to), voyage.progress(BaseState.now()))
+	if voyage.is_sailing(): base_map.set_ship_between(str(voyage.sailing.from), str(voyage.sailing.to), voyage.progress(BaseState.real_now()))
 	else: base_map.set_ship_at(base.ship_at)
 
 # --- 沙盘 (沙盘航行策划案_v1_0.md) --------------------------------------------------------
 
 func sail(to: String, mode: String, fuel := false) -> bool:
-	if not in_base or not voyage.sail(to, mode, BaseState.now(), fuel): return false
+	if not in_base or not voyage.sail(to, mode, BaseState.real_now(), fuel): return false
 	story_note("sailed")
 	show_ship()
 	save_base()
 	return true
 
 func set_stay(kind: String, on: bool) -> bool:
-	if not in_base or not voyage.set_stay(kind, on, BaseState.now()): return false
+	if not in_base or not voyage.set_stay(kind, on, BaseState.real_now()): return false
 	save_base()
 	return true
 
 func submit_bulk(id: int) -> bool:
-	if not in_base or not voyage.submit(id, BaseState.now()): return false
+	if not in_base or not voyage.submit(id, BaseState.real_now()): return false
 	save_base()
 	return true
 

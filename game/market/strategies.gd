@@ -195,13 +195,15 @@ func step() -> void:
 func new_day() -> void:
 	for st in list:
 		var eq := equity(st)
-		st.cash = float(st.cash) - maxf(eq, 0.0) * StrategyCatalog.CUSTODY
+		# A trading day is ÷ scale of the design's day (时间缩放策划案 v0.2 §6.3).
+		var share := BaseState.day_share()
+		st.cash = float(st.cash) - maxf(eq, 0.0) * StrategyCatalog.CUSTODY * share
 		for mk in st.pos:
 			var cur := Currencies.of_book(str(mk))
 			if cur.is_empty(): continue
 			# Short the book = holding the currency: it earns that currency's rate.
 			var lmd := float(st.pos[mk].qty) * price(str(mk))
-			st.cash = float(st.cash) - lmd * (m().policy_rate(cur) - m().policy_rate("lmd")) / 365.0
+			st.cash = float(st.cash) - lmd * (m().policy_rate(cur) - m().policy_rate("lmd")) / 365.0 * share
 		st.equity.append(roundi(equity(st)))
 		var bench := 0.0
 		for mk in st.bench_start: bench += price(str(mk)) / maxf(float(st.bench_start[mk]), 1e-6)

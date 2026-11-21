@@ -3,7 +3,7 @@ extends RefCounted
 
 ## Rhodes Island on Terra (沙盘航行策划案_v1_0.md): where the ship lies, its
 ## voyages, the medical stay at the anchor and the factions' bulk orders. All
-## on the wall clock (BaseState.now()), caught up on load like the workshop.
+## on the real clock (BaseState.real_now(), 时间缩放策划案 v0.2 §4.1), caught up on load like the workshop.
 ## The ship's place itself stays BaseState.ship_at (saved with the base);
 ## numbers are in VoyageCatalog.
 
@@ -530,3 +530,13 @@ func load_data(d: Dictionary) -> void:
 		o.floors = floors
 	last_refill = int(d.get("last_refill", 0))
 	_next_id = int(d.get("next_id", 1))
+	# 时间缩放策划案 v0.2 §6.5: a one-to-one save's times go on the real clock.
+	if BaseState.legacy_stall >= 0:
+		var to_real := BaseState.legacy_to_real
+		for key in ["start", "due"]:
+			if sailing.has(key): sailing[key] = to_real.call(int(sailing[key]))
+		if stay.has("last"): stay.last = to_real.call(int(stay.last))
+		for o in orders:
+			for key in ["due", "expires"]:
+				if o.has(key): o[key] = to_real.call(int(o[key]))
+		last_refill = to_real.call(last_refill)

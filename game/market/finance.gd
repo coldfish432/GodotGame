@@ -84,6 +84,11 @@ var _gold_mark := -1
 var paid_total := 0
 var repaid_total := 0
 var _next_id := 1
+## 时间缩放策划案 v0.2 §6.3: a trading day pays ÷ scale of the design's day.
+## What a facility's last bill took over its share (龙门币 of base price), and
+## the rations eaten ahead, come off the next days' (whole units, no loss).
+var carry := {}
+var ration_carry := 0.0
 
 func _init(p_ex: Exchange = null) -> void:
 	ex = p_ex
@@ -118,14 +123,18 @@ func need_lmd(facility: String) -> float:
 	var g := _game()
 	var level := g.base.facility_level(facility)
 	if level <= 0: return 0.0
-	var v := UPKEEP_LMD * level * upkeep_index(tier())
+	var v := UPKEEP_LMD * level * upkeep_index(tier()) * BaseState.day_share()
 	if g.base.researched("finance_opt"): v *= FINANCE_CUT
 	if facility == "hub" and g.voyage != null and not g.voyage.sailing.is_empty(): v *= 2.0
 	return v
 
 func need_units(facility: String) -> int:
 	var m := material_for(facility, tier())
-	return 0 if m.is_empty() else ceili(need_lmd(facility) / unit_lmd(m))
+	return 0 if m.is_empty() else maxi(0, ceili(_owed(facility) / unit_lmd(m) - 1e-9))
+
+## Today's share less what the last bills took ahead (§6.3).
+func _owed(facility: String) -> float:
+	return need_lmd(facility) - float(carry.get(facility, 0.0))
 
 # --- 罗德岛库存 (§2.5) --------------------------------------------------------------------
 
@@ -185,14 +194,22 @@ func rations() -> int:
 	if _game().base.facility_level("canteen") <= 0: return 0
 	return _game().base.roster.size()
 
+## Rations a trading day eats: the roster ÷ scale (§6.3).
+func daily_rations() -> float:
+	return rations() * BaseState.day_share()
+
+## Whole rations today's meal takes, after what was eaten ahead.
+func ration_need() -> int:
+	return maxi(0, ceili(daily_rations() - ration_carry - 1e-9))
+
 func crops_in_stock() -> int:
 	var n := 0
 	for c in RATION_CROPS: n += stock_count(c)
 	return n
 
 func ration_days() -> float:
-	var r := rations()
-	return INF if r <= 0 else float(crops_in_stock()) / r
+	var r := daily_rations()
+	return INF if r <= 0.0 else float(crops_in_stock()) / r
 
 ## Market value of the stock now (asks of the cheapest seller, else base price).
 func stock_value() -> float:
@@ -207,9 +224,10 @@ func supply_stopped() -> bool: return stop_day >= 0 and stop_day == today()
 
 ## Takes today's rations, cheapest crops first. False (and nothing taken) when short.
 func _eat_rations() -> bool:
-	var need := rations()
-	if need <= 0: return false
+	if rations() <= 0: return false
+	var need := ration_need()
 	if crops_in_stock() < need: return false
+	ration_carry += need - daily_rations()
 	var order := RATION_CROPS.duplicate()
 	order.sort_custom(func(a, b): return unit_lmd(a) < unit_lmd(b) or (unit_lmd(a) == unit_lmd(b) and RATION_CROPS.find(a) < RATION_CROPS.find(b)))
 	var left := need
@@ -220,7 +238,7 @@ func _eat_rations() -> bool:
 func serve_refusal() -> String:
 	if rations() <= 0: return "需要食堂"
 	if hot_meal(): return "已开饭"
-	if crops_in_stock() < rations(): return "作物不足"
+	if crops_in_stock() < ration_need(): return "作物不足"
 	return ""
 
 func serve_now() -> bool:
@@ -230,7 +248,7 @@ func serve_now() -> bool:
 	stop_day = -1
 	if not bills.is_empty() and int(bills[-1].day) == today():
 		bills[-1].hot = true
-		bills[-1].rations = rations()
+		bills[-1].rations = daily_rations()
 	return true
 
 # --- The daily bill (§2) ------------------------------------------------------------------
@@ -250,8 +268,12 @@ func cheapest(material: String) -> Dictionary:
 ## rest bought as today's tier (or the next one on sale).
 func _pay_family(facility: String, out: Dictionary) -> float:
 	if facility == "hub": return _pay_fuel(out)
-	var need := need_lmd(facility)
-	if need <= 0.0: return 0.0
+	if need_lmd(facility) <= 0.0: return 0.0
+	var owed := _owed(facility)
+	if owed <= 0.0:
+		carry[facility] = -owed
+		return 0.0
+	var need := owed
 	var fam: Array = UPKEEP[facility]
 	var used := {}
 	for m in fam:
@@ -277,6 +299,10 @@ func _pay_family(facility: String, out: Dictionary) -> float:
 			bought = ceili(need / unit_lmd(material))
 			cost = float(seller.unit_lmd) * bought
 			if not str(seller.market).is_empty(): ex.market.add_flow(str(seller.market), unit_lmd(material) * bought, "rhodes_upkeep")
+			need -= bought * unit_lmd(material)
+	# Whole units: what they came to over the share is the next days' (§6.3;
+	# at scale 1 each day rounds up on its own, as before).
+	carry[facility] = maxf(0.0, -need) if BaseState.time_scale > 1 else 0.0
 	out.items.append({"facility": facility, "material": material, "from_stock": used, "bought": bought, "cost": roundi(cost)})
 	return cost
 
@@ -343,7 +369,9 @@ func burn_fuel(units: int) -> Dictionary:
 
 ## The hub's day (§4): its units, held fuel first.
 func _pay_fuel(out: Dictionary) -> float:
+	if need_lmd("hub") <= 0.0: return 0.0
 	var units := need_units("hub")
+	carry["hub"] = maxf(0.0, units * unit_lmd(Fuel.RESERVE) - _owed("hub")) if BaseState.time_scale > 1 else 0.0
 	if units <= 0: return 0.0
 	var r := burn_fuel(units)
 	var used := {}
@@ -400,7 +428,7 @@ func salary_lmd() -> float:
 	var idx := Economy.income_index(tier())
 	for id in _game().base.roster:
 		var cur := str(HOME.get(str(id), "lmd"))
-		var amount := Exchange.from_lmd(cur, SALARY_LMD * idx)
+		var amount := Exchange.from_lmd(cur, SALARY_LMD * idx * BaseState.day_share())
 		total += Exchange.live_lmd(cur, amount)
 	return total
 
@@ -421,7 +449,7 @@ func new_day() -> void:
 		if _eat_rations():
 			hot_day = today()
 			stop_day = -1
-			bill.rations = rations()
+			bill.rations = daily_rations()
 			bill.hot = true
 		else:
 			hot_day = -1
@@ -490,11 +518,12 @@ func _mail_bill(bill: Dictionary) -> void:
 func cycle_mult() -> float:
 	return ex.market.econ.deposit_mult() if ex.market.econ != null and ex.market.actors_on else 1.0
 
+## Rates a trading day: the design's ÷ scale (§6.3).
 func demand_rate(cur: String) -> float:
-	return float(DEMAND_RATE.get(cur, 0.0)) * cycle_mult()
+	return float(DEMAND_RATE.get(cur, 0.0)) * cycle_mult() * BaseState.day_share()
 
 func term_rate(days: int) -> float:
-	return float(TERM_RATE.get(days, 0.0)) * cycle_mult()
+	return float(TERM_RATE.get(days, 0.0)) * cycle_mult() * BaseState.day_share()
 
 func deposit(cur: String, amount: float) -> bool:
 	var whole := roundi(amount)
@@ -577,7 +606,7 @@ func loan_rate(debt: int = -1) -> float:
 	var base: float = ex.market.credit.base_rate(ex.market) if ex.market.credit != null and ex.market.actors_on else LOAN_BASE_RATE
 	var r := base + LOAN_DEBT_PREMIUM * clampf(float(debt) / maxf(1.0, loan_limit()), 0.0, 1.0)
 	if _game().base.researched("loan_terms"): r *= LOAN_RESEARCH
-	return r
+	return r * BaseState.day_share()
 
 func loan_locked() -> bool:
 	return ex.loan > roundi(loan_limit() * OVERDUE)
@@ -674,7 +703,8 @@ func liquidate() -> void:
 func to_data() -> Dictionary:
 	return {"stock": stock.duplicate(), "harvest_to_stock": harvest_to_stock, "demand": demand.duplicate(), "terms": terms.duplicate(true),
 		"auto_repay": auto_repay, "reserve_days": reserve_days, "hot_day": hot_day, "stop_day": stop_day, "arrears": arrears,
-		"stopped": stopped.duplicate(), "bills": bills.duplicate(true), "worth": worth.duplicate(true), "today_in": today_in, "today_out": today_out, "next_id": _next_id}
+		"stopped": stopped.duplicate(), "bills": bills.duplicate(true), "worth": worth.duplicate(true), "today_in": today_in, "today_out": today_out, "next_id": _next_id,
+		"carry": carry.duplicate(), "ration_carry": ration_carry}
 
 func load_data(d: Dictionary) -> void:
 	stock = {}
@@ -698,6 +728,8 @@ func load_data(d: Dictionary) -> void:
 	auto_repay = bool(d.get("auto_repay", true))
 	reserve_days = clampi(int(d.get("reserve_days", RESERVE_DAYS)), 0, 30)
 	hot_day = int(d.get("hot_day", -1))
+	carry = (d.get("carry", {}) as Dictionary).duplicate() if d.get("carry") is Dictionary else {}
+	ration_carry = float(d.get("ration_carry", 0.0))
 	stop_day = int(d.get("stop_day", -1))
 	arrears = maxf(0.0, float(d.get("arrears", 0.0)))
 	stopped = (d.get("stopped", []) as Array).duplicate() if d.get("stopped") is Array else []

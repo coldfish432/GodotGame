@@ -17,8 +17,12 @@ const EXACT_WINDOW := 3600
 const MID_WINDOW := 6 * 3600
 const MID_STEP := 20
 const COARSE := 300
-## 运营策划案 §5.1: never more than a day and the hours over (the clock stood still the rest).
-const MAX_SIM := 2 * 86400
+## 时间缩放策划案 v0.2 §5: never more than one real day (MAX_SIM × scale
+## Rhodes seconds; the clock stood still the rest). The windows and steps
+## above are real-time lengths, × scale on the Rhodes clock (§5.1).
+const MAX_SIM := 86400
+## The coarsest catch-up step: actors decide every 15 Rhodes minutes.
+const COARSE_CAP := 900
 const DAY := 86400
 const DAY_START := 8 * 3600
 const KEEP_M1 := 360
@@ -229,6 +233,9 @@ var actors_on := true
 ## on_news(entry: Dictionary, event: Dictionary), on_step(t: int, dt: int).
 var on_news := Callable()
 var on_step := Callable()
+## Catch-up on a load: called with the share done (0–1), at most every 50 ms
+## real time (时间缩放策划案 v0.2 §5, 用户 2026-11-20: 加读条).
+var progress_hook := Callable()
 ## Bumped on every change the screens draw (a step, an event, a load, selling,
 ## news read), so a chart redraws only when this or its own inputs moved.
 var version := 0
@@ -285,6 +292,22 @@ static func tz() -> int:
 	if tz_override >= 0: return tz_override
 	return int(Time.get_time_zone_from_system().get("bias", 0)) * 60
 
+## The real time Rhodes time `at` stands for, and back: off the clock's
+## anchors only (not the wall clock), so a replayed market goes the same way.
+static func real_of(at: int) -> int:
+	BaseState.now()     # anchors a clock that has none yet
+	return BaseState.anchor_real + floori(float(at + BaseState.stall - BaseState.rhodes_offset - BaseState.anchor_rhodes) / BaseState.time_scale)
+
+static func rhodes_of(real: int) -> int:
+	BaseState.now()
+	return BaseState.anchor_rhodes + (real - BaseState.anchor_real) * BaseState.time_scale - BaseState.stall + BaseState.rhodes_offset
+
+## "第 12 日 14:20": Rhodes time `at` (时间缩放策划案 v0.2 §6.1).
+static func stamp(at: int) -> String:
+	var day := floori(float(local(at)) / DAY) - floori(float(local(BaseState.born)) / DAY) + 1
+	var sec := posmod(local(at), DAY)
+	return "第 %d 日 %s" % [day, "%02d:%02d" % [sec / 3600, (sec % 3600) / 60]]
+
 static func local(at: int) -> int:
 	return at + tz()
 
@@ -305,13 +328,21 @@ func advance_to(now: int) -> void:
 	if t <= 0:
 		start(now)
 		return
-	if now - t > MAX_SIM: t = now - MAX_SIM
+	var k := BaseState.time_scale
+	if now - t > MAX_SIM * k: t = now - MAX_SIM * k
+	# Online a 2 s real tick is one step of 2 × scale Rhodes seconds.
+	var tick := TICK * k
+	var from := t
+	var shown := Time.get_ticks_msec()
 	while t + TICK <= now:
 		var left := now - t
-		var dt := TICK
-		if left > MID_WINDOW: dt = mini(COARSE, left - MID_WINDOW)
-		elif left > EXACT_WINDOW: dt = mini(MID_STEP, left - EXACT_WINDOW)
+		var dt := mini(tick, left)
+		if left > MID_WINDOW * k: dt = mini(mini(COARSE * k, COARSE_CAP), left - MID_WINDOW * k)
+		elif left > EXACT_WINDOW * k: dt = mini(MID_STEP * k, left - EXACT_WINDOW * k)
 		_step(maxi(dt, TICK))
+		if progress_hook.is_valid() and Time.get_ticks_msec() - shown >= 50:
+			shown = Time.get_ticks_msec()
+			progress_hook.call(float(t - from) / float(maxi(1, now - from)))
 
 func _step(dt: int) -> void:
 	t += dt
@@ -1211,8 +1242,10 @@ func _events(dt: int) -> void:
 	_expire_effects()
 	for e in effects:
 		if e.has("rumor") and not e.rumor.get("verified", false) and int(e.rumor.verify_at) <= t: _verify(e)
-	if rng.randf() < dt * BREAKING_PER_DAY / DAY: fire(MarketEvents.pick("breaking", rng, _weight))
-	if rng.randf() < dt * RUMOR_PER_DAY / DAY: fire(MarketEvents.pick("rumor", rng, _weight))
+	# §6.4 拍板 6: so many a real day, ÷ scale a Rhodes day.
+	var share := BaseState.day_share()
+	if rng.randf() < dt * BREAKING_PER_DAY * share / DAY: fire(MarketEvents.pick("breaking", rng, _weight))
+	if rng.randf() < dt * RUMOR_PER_DAY * share / DAY: fire(MarketEvents.pick("rumor", rng, _weight))
 	# Follow-ups come when their time comes.
 	if not chain.is_empty() and chain.any(func(c): return int(c.at) <= t):
 		for entry in chain.duplicate():
@@ -1220,7 +1253,7 @@ func _events(dt: int) -> void:
 				chain.erase(entry)
 				fire(str(entry.id), entry.get("picks", {}), str(entry.get("cause", "")), int(entry.get("depth", 0)))
 	# Surprises only: the usual flow of news is taken off, then everything fades.
-	var drift := MarketLinks.drift(BREAKING_PER_DAY, RUMOR_PER_DAY)
+	var drift := MarketLinks.drift(BREAKING_PER_DAY * BaseState.day_share(), RUMOR_PER_DAY * BaseState.day_share())
 	var fade := pow(0.5, dt / (MarketLinks.FACTOR_HALF_HOURS * 3600.0))
 	for f in drift:
 		factors[f] = clampf((float(factors.get(f, 0.0)) - float(drift[f]) * dt) * fade, MarketLinks.FACTOR_RANGE.x, MarketLinks.FACTOR_RANGE.y)
@@ -1239,14 +1272,17 @@ func _events(dt: int) -> void:
 var weight_hook := Callable()
 
 func _calendar_step() -> void:
-	# Seasonal events on the real calendar, a week ahead.
-	if t - seasonal_scanned > 3600:
-		var from := maxi(seasonal_scanned, t)
-		for entry in MarketEvents.seasonal_between(local(from), local(t + 8 * DAY)):
-			var at: int = int(entry[0]) - tz()
-			if not calendar.any(func(c): return c.id == entry[1] and absi(int(c.at) - at) < 3600):
+	# Seasonal events on the real calendar, a week ahead (时间缩放策划案 v0.2
+	# §6.1): seasonal_scanned is the real time scanned up to; each date is put
+	# on the Rhodes clock where its real time falls.
+	var real_t := real_of(t)
+	if real_t > seasonal_scanned:
+		var from := maxi(seasonal_scanned, real_t)
+		for entry in MarketEvents.seasonal_between(local(from), local(real_t + 8 * DAY)):
+			var at := rhodes_of(int(entry[0]) - tz())
+			if not calendar.any(func(c): return c.id == entry[1] and absi(int(c.at) - at) < 3600 * BaseState.time_scale):
 				calendar.append({"at": at, "id": entry[1], "seasonal": true})
-		seasonal_scanned = t + 8 * DAY - 3600
+		seasonal_scanned = real_t + 8 * DAY - 3600
 	var random_count := 0
 	for c in calendar:
 		if not c.get("seasonal", false) and not c.get("linked", false): random_count += 1
@@ -1268,7 +1304,8 @@ func _calendar_sorted() -> bool:
 	return true
 
 func _schedule_swan() -> void:
-	var wait := -log(maxf(1e-9, rng.randf())) * SWAN_MEAN
+	# 拍板: about 21 real days apart, × scale on the Rhodes clock.
+	var wait := -log(maxf(1e-9, rng.randf())) * SWAN_MEAN * BaseState.time_scale
 	var at := t + int(wait)
 	var id := MarketEvents.pick("swan", rng)
 	swan = {"at": at, "id": id, "precursor_at": (at - rng.randi_range(0, DAY)) if rng.randf() < 0.5 else -1, "precursor_done": false}
@@ -1292,7 +1329,7 @@ func _swan_step() -> void:
 func _flash_step(dt: int) -> void:
 	if flash.any(func(f): return not (int(f.until) > t and int(f.left) > 0)):
 		flash = flash.filter(func(f): return int(f.until) > t and int(f.left) > 0)
-	if rng.randf() >= dt * FLASH_PER_DAY / DAY: return
+	if rng.randf() >= dt * FLASH_PER_DAY * BaseState.day_share() / DAY: return
 	var factions := FactionCatalog.trading()
 	var faction: String = factions[rng.randi() % factions.size()]
 	if not active(faction) and rng.randf() < 0.5: return
@@ -1331,7 +1368,7 @@ func mark_read() -> void:
 func to_data() -> Dictionary:
 	var b_data := {}
 	for id in books: b_data[id] = books[id].to_data()
-	return {"version": 1, "t": t, "seed": rng.seed, "state": rng.state, "books": b_data, "effects": effects, "news": news,
+	return {"version": 1, "clock_v": 2, "t": t, "seed": rng.seed, "state": rng.state, "books": b_data, "effects": effects, "news": news,
 		"calendar": calendar, "flash": flash, "swan": swan, "rumors_low_until": rumors_low_until,
 		"post_boost": post_boost, "penguin": penguin, "cfd_halt": cfd_halt, "seasonal_scanned": seasonal_scanned,
 		"barter_seed": barter_seed, "next_flash": _next_flash_id, "chain": chain, "boosts": boosts, "factors": factors,
@@ -1380,6 +1417,17 @@ func load_data(d: Dictionary) -> void:
 	penguin = d.get("penguin", {"fee": 1.0, "risk": 0.0, "until": 0})
 	cfd_halt = d.get("cfd_halt", {})
 	seasonal_scanned = int(d.get("seasonal_scanned", 0))
+	# 时间缩放策划案 v0.2 §6.5: a one-to-one save. The next swan keeps its
+	# real wait (Rhodes wait × scale); the seasonal dates are put again on
+	# the new clock.
+	var legacy_clock := int(d.get("clock_v", 1)) < 2 and t > 0
+	if legacy_clock:
+		var k := BaseState.time_scale
+		if not swan.is_empty():
+			swan.at = t + maxi(0, int(swan.at) - t) * k
+			if int(swan.precursor_at) > 0: swan.precursor_at = t + maxi(0, int(swan.precursor_at) - t) * k
+		calendar = calendar.filter(func(c): return not c.get("seasonal", false))
+		seasonal_scanned = 0
 	barter_seed = int(d.get("barter_seed", 1))
 	_next_flash_id = int(d.get("next_flash", 1))
 	chain = d.get("chain", [])
@@ -1389,6 +1437,7 @@ func load_data(d: Dictionary) -> void:
 	_world_day = int(d.get("world_day", -1))
 	if d.get("actors") is Dictionary and not (d.actors as Dictionary).is_empty():
 		econ.load_data(d.get("econ", {}))
+		if legacy_clock: econ.rescale_wave(t, BaseState.time_scale)
 		credit.load_data(d.get("credit", {}))
 		firms.load_data(d.get("firms", {}))
 		actors.load_data(d.actors)

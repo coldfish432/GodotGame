@@ -339,12 +339,17 @@ static func affinity(id: String) -> Dictionary:
 	return out
 
 static var _drift := {}
+static var _drift_key := Vector2(-1, -1)
 
 ## What the ordinary flow of news pushes each factor by per second, on average
 ## (base odds, no leaning). The world state counts surprises: this is taken
 ## off every step, so it sits near 0 until events really cluster.
 static func drift(breaking_per_day: float, rumor_per_day: float) -> Dictionary:
-	if not _drift.is_empty(): return _drift
+	# Cached for the rates it was made with (they change with the time scale).
+	var key := Vector2(breaking_per_day, rumor_per_day)
+	if not _drift.is_empty() and key == _drift_key: return _drift
+	_drift = {}
+	_drift_key = key
 	for kind in [["breaking", breaking_per_day], ["rumor", rumor_per_day]]:
 		var pool := MarketEvents.of_kind(kind[0])
 		var total := 0.0

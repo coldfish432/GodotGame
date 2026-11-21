@@ -846,7 +846,7 @@ static func _closure_money(menu: FieldMenu, stage: Control, tab: int, at_base: b
 				var row := HBoxContainer.new()
 				row.add_theme_constant_override("separation", 10)
 				row.add_child(AK.label("交货 %s ×%d → %s  ·  背包 %d  ·  剩 %s" % [pos.material, int(pos.count), FactionCatalog.name_of(str(pos.faction)),
-					game.material_count(str(pos.material)), ExchangeScreen._left(int(pos.expires) - game.market.t)], 14, AK.FG))
+					game.material_count(str(pos.material)), ExchangeScreen._rleft(int(pos.expires))], 14, AK.FG))
 				var b := AK.button("交割", "blue", 14)
 				b.disabled = game.material_count(str(pos.material)) < int(pos.count)
 				b.pressed.connect(func():

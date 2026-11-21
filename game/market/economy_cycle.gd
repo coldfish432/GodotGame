@@ -28,14 +28,24 @@ var _prev_e := 0.0
 
 func start(t: int, rng: RandomNumberGenerator) -> void:
 	wave_start = t
-	wave_len = rng.randf_range(WAVE_DAYS.x, WAVE_DAYS.y) * 86400.0
+	wave_len = _wave_len(rng)
 	_last = t
+
+## 20–40 real days (时间缩放策划案 v0.2 §4.1): × scale on the Rhodes clock.
+static func _wave_len(rng: RandomNumberGenerator) -> float:
+	return rng.randf_range(WAVE_DAYS.x, WAVE_DAYS.y) * 86400.0 * BaseState.time_scale
+
+## A one-to-one save: the wave keeps its phase and its real length.
+func rescale_wave(t: int, scale: int) -> void:
+	var done := clampf(float(t - wave_start) / maxf(wave_len, 1.0), 0.0, 1.0)
+	wave_len *= scale
+	wave_start = t - int(done * wave_len)
 
 ## The wave: a sine over this round, a new length each time it ends.
 func wave(t: int, rng: RandomNumberGenerator) -> float:
 	if float(t - wave_start) >= wave_len:
 		wave_start = t
-		wave_len = rng.randf_range(WAVE_DAYS.x, WAVE_DAYS.y) * 86400.0
+		wave_len = _wave_len(rng)
 	return WAVE_AMP * sin(TAU * float(t - wave_start) / wave_len)
 
 func step(m: MarketState) -> void:

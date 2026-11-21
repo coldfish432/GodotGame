@@ -133,18 +133,19 @@ func grow_seconds(crop: String) -> int:
 	# 莱茵合作研究员证 (势力声望解锁策划案 §三).
 	return roundi(int(CROPS[crop].hours) * 3600 * (FactionRewards.RESEARCHER_GROW if FactionRewards.badge_on(game, "rhine") else 1.0))
 
-## 0–1 grown; 1 is ripe (and stays ripe: nothing withers).
+## 0–1 grown; 1 is ripe (and stays ripe: nothing withers). Crops grow on
+## the real clock (时间缩放策划案 v0.2 §4.1); the kitchen cooks on Rhodes time.
 func growth(i: int) -> float:
 	var p := plot(i)
 	if p.is_empty(): return 0.0
-	return clampf(float(BaseState.now() - int(p.at)) / float(grow_seconds(str(p.crop))), 0.0, 1.0)
+	return clampf(float(BaseState.real_now() - int(p.at)) / float(grow_seconds(str(p.crop))), 0.0, 1.0)
 
 func ripe(i: int) -> bool:
 	return not plot(i).is_empty() and growth(i) >= 1.0
 
 func seconds_left(i: int) -> int:
 	var p := plot(i)
-	return 0 if p.is_empty() else maxi(0, int(p.at) + grow_seconds(str(p.crop)) - BaseState.now())
+	return 0 if p.is_empty() else maxi(0, int(p.at) + grow_seconds(str(p.crop)) - BaseState.real_now())
 
 ## "" when `crop` can be sown in basin `i` now.
 func sow_refusal(i: int, crop: String) -> String:
@@ -165,7 +166,7 @@ func sow(i: int, crop: String) -> bool:
 	var c: Dictionary = CROPS[crop]
 	if c.has("seed"): game.consume_materials({c.seed: 1})
 	else: game.gold -= int(c.seed_lmd)
-	_state().plots[i] = {"crop": crop, "at": BaseState.now()}
+	_state().plots[i] = {"crop": crop, "at": BaseState.real_now()}
 	game.story_note("sowed")
 	game.farm_changed()
 	return true

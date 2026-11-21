@@ -120,6 +120,8 @@ var recent_sales := {}        # faction -> 龙门币 sold recently, for news wei
 var counters := {}            # offline summary: fills, liquidations, defaults, arrivals
 var _next_id := 1
 var _day := 0
+## Trading days toward the next whole design day of relation correction (§6.3).
+var _relation_days := 0.0
 ## 1 once the account trades packs (交易包修订案 §7.3).
 var packs_version := 1
 ## 1 once the account trades fuel by the barrel (燃料储备修订案 v0.6 §3).
@@ -783,7 +785,7 @@ func open_forward(faction: String, material: String, count: int, term: int, deli
 	if free_for_margin(currency) < margin + fee: return false
 	if not pay(currency, margin + fee): return false
 	forwards.append({"id": _id(), "dir": "deliver" if deliver else "receive", "faction": faction, "material": material, "count": count,
-		"k": k, "margin": margin, "opening": margin, "lev": lev, "cap": leverage_cap("goods"), "currency": currency, "expires": market.t + TERMS[term], "opened": market.t, "warned": false, "auto": 0.0})
+		"k": k, "margin": margin, "opening": margin, "lev": lev, "cap": leverage_cap("goods"), "currency": currency, "expires": market.t + TERMS[term] * BaseState.time_scale, "opened": market.t, "warned": false, "auto": 0.0})
 	_log({"kind": "forward", "what": "%s %s ×%d" % ["交货" if deliver else "收货", material, count], "faction": faction, "amount": margin, "currency": currency})
 	return true
 
@@ -1092,7 +1094,7 @@ func _new_day() -> void:
 	credit("lmd", pend_l)
 	credit("gold", pend_g)
 	if pend_l + pend_g > 0.0: _say("差价合约待入账 %s 龙门币已到账" % Economy.format(roundi(pend_l + pend_g * Economy.GOLD_BAR_LMD)), "cap")
-	for f in recent_sales.keys(): recent_sales[f] = float(recent_sales[f]) * 0.5
+	for f in recent_sales.keys(): recent_sales[f] = float(recent_sales[f]) * pow(0.5, BaseState.day_share())
 	_interest()
 	if game != null and game.base != null:
 		fin.new_day()
@@ -1103,6 +1105,10 @@ func _new_day() -> void:
 ## A day on a CFD: a rate book pays or charges the swap (long the book is long
 ## 赤金 against the currency: it pays the currency's rate), the rest a fee.
 func overnight(c: Dictionary) -> float:
+	# A trading day is ÷ scale of the design's day (时间缩放策划案 v0.2 §6.3).
+	return _overnight_day(c) * BaseState.day_share()
+
+func _overnight_day(c: Dictionary) -> float:
 	var cur := Currencies.of_book(str(c.underlying))
 	if not cur.is_empty(): return -float(c.dir) * market.policy_rate(cur) / 365.0 * float(c.notional)
 	# Long X / 龙门币 holds X and owes 龙门币: it earns the difference.
@@ -1120,7 +1126,11 @@ func _roll_day() -> void:
 	if day != _day:
 		# The market only replays the last seven days of a long absence; the
 		# relation correction counts every trading day that passed.
-		_correct_relations(clampi(day - _day, 1, 3650))
+		# A design day's correction comes once every scale trading days (§6.3).
+		_relation_days += clampi(day - _day, 1, 3650) * BaseState.day_share()
+		var whole := floori(_relation_days + 1e-9)
+		_relation_days -= whole
+		if whole > 0: _correct_relations(whole)
 		_day = day
 		_new_day()
 
@@ -1226,14 +1236,15 @@ func ship(item: Item, faction: String) -> bool:
 	if not Packs.is_pack(item.material_id) or market_of(item, faction).is_empty() or FactionCatalog.info(faction).get("transport", false): return false
 	var fee := ship_fee(item)
 	if not pay("lmd", fee): return false
-	var due := market.t + game.rng_base.randi_range(SHIP_HOURS.x, SHIP_HOURS.y)
+	# Real time (时间缩放策划案 v0.2 §4.1, 拍板 5).
+	var due := BaseState.real_now() + game.rng_base.randi_range(SHIP_HOURS.x, SHIP_HOURS.y)
 	shipments.append({"id": _id(), "faction": faction, "item": _escrow(item), "due": due})
 	add_relation("penguin", 2)
 	return true
 
 func _tick_shipments() -> void:
 	for s in shipments.duplicate():
-		if market.t < int(s.due): continue
+		if BaseState.real_now() < int(s.due): continue
 		shipments.erase(s)
 		var item := Item.from_data(s.item)
 		var faction := str(s.faction)
@@ -1285,7 +1296,7 @@ func _step_account(dt: int) -> void:
 		fin.step()
 		strategies.step()
 	for f in quota_used.keys():
-		quota_used[f] = maxf(0.0, float(quota_used[f]) - quota_cap(f) * QUOTA_REGEN * dt / QUOTA_REGEN_SECS)
+		quota_used[f] = maxf(0.0, float(quota_used[f]) - quota_cap(f) * QUOTA_REGEN * dt * BaseState.day_share() / QUOTA_REGEN_SECS)
 	if not orders.is_empty(): _tick_orders()
 	if not forwards.is_empty(): _tick_forwards()
 	if not cfds.is_empty(): _tick_cfds()
@@ -1402,7 +1413,7 @@ func to_data() -> Dictionary:
 	return {"money_version": money_version, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
 		"cfds": cfds, "forward_cooldown": forward_cooldown, "loan": loan, "shipments": shipments, "history": history,
 		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE, "rank_gifts": rank_gifts, "start_attitude": start_attitude,
-		"packs_version": packs_version, "fuel_version": fuel_version, "finance": fin.to_data(), "securities": securities.to_data(), "strategies": strategies.to_data(), "relation_mods": relation_mods.duplicate(true)}
+		"packs_version": packs_version, "fuel_version": fuel_version, "finance": fin.to_data(), "securities": securities.to_data(), "strategies": strategies.to_data(), "relation_mods": relation_mods.duplicate(true), "relation_days": _relation_days}
 
 func load_data(d: Dictionary) -> void:
 	# A save from before the two monies: what its accounts held waits for migrate_money.
@@ -1423,6 +1434,12 @@ func load_data(d: Dictionary) -> void:
 	forward_cooldown = d.get("forward_cooldown", {})
 	loan = int(d.get("loan", 0))
 	shipments = d.get("shipments", [])
+	# 时间缩放策划案 v0.2 §6.5: a one-to-one save's parcels go on the real
+	# clock; a forward keeps its real time left (its Rhodes time left × scale).
+	if BaseState.legacy_stall >= 0:
+		for s in shipments: s.due = BaseState.legacy_to_real(int(s.due))
+		var at := BaseState.now()
+		for f in forwards: f.expires = at + maxi(0, int(f.expires) - at) * BaseState.time_scale
 	history = d.get("history", [])
 	watch.assign(d.get("watch", []))
 	alerts = d.get("alerts", [])
@@ -1436,6 +1453,7 @@ func load_data(d: Dictionary) -> void:
 	securities.load_data(d.get("securities", {}) if d.get("securities") is Dictionary else {})
 	strategies.load_data(d.get("strategies", {}) if d.get("strategies") is Dictionary else {})
 	relation_mods = (d.get("relation_mods", {}) as Dictionary).duplicate(true) if d.get("relation_mods") is Dictionary else {}
+	_relation_days = float(d.get("relation_days", 0.0))
 
 # --- Relation modifiers (运营策划案 §3.9) ---------------------------------------------------
 
@@ -1485,7 +1503,7 @@ func update_relation_mods() -> void:
 			var e: Dictionary = mods.get(k, {"cur": 0.0, "target": 0.0, "until": 0})
 			e.target = float(targets[k])
 			var gap := float(e.target) - float(e.cur)
-			e.cur = float(e.target) if absf(gap) < MOD_SNAP else float(e.cur) + gap * MOD_STEP
+			e.cur = float(e.target) if absf(gap) < MOD_SNAP else float(e.cur) + gap * (1.0 - pow(1.0 - MOD_STEP, BaseState.day_share()))
 			mods[k] = e
 		for k in mods.keys():
 			if str(k).begins_with("event:") and int(mods[k].get("until", 0)) <= market.t and absf(float(mods[k].cur)) < 1.0: mods.erase(k)

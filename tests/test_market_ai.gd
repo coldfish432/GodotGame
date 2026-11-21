@@ -19,6 +19,8 @@ func later(seconds: int) -> void:
 	game.market.advance_to(BaseState.now())
 
 func run() -> void:
+	# These checks are of the one-to-one clock (时间缩放策划案 v0.2: test_time_scale has the scaled one).
+	BaseState.time_scale = 1
 	MarketState.tz_override = 0
 	_bare()
 	_events()
@@ -48,17 +50,19 @@ func _bare() -> void:
 	a.start(T0, 5)
 	var b := MarketState.new()
 	b.start(T0, 5)
-	a.advance_to(T0 + 3 * 86400)
-	b.advance_to(T0 + 3 * 86400)
+	# Within the one-day catch-up cap (时间缩放策划案 v0.2 §5): past it the market
+	# skips ahead, which the game never does (the clock stands still instead).
+	a.advance_to(T0 + 86400 - 7200)
+	b.advance_to(T0 + 86400 - 7200)
 	check("a fixed seed replays the same market, actors and all", is_equal_approx(a.index("lungmen:armor"), b.index("lungmen:armor")) and is_equal_approx(a.econ.e, b.econ.e) and is_equal_approx(a.stock_price("swire"), b.stock_price("swire")))
 	# One after the other (the published rates are shared statics, as in the game).
 	var snap := a.to_data().duplicate(true)
-	a.advance_to(T0 + 4 * 86400)
+	a.advance_to(T0 + 2 * 86400 - 7200)
 	var a_idx := a.index("ursus:build")
 	var a_px := a.stock_price("penguin")
 	var c := MarketState.new()
 	c.load_data(snap)
-	c.advance_to(T0 + 4 * 86400)
+	c.advance_to(T0 + 2 * 86400 - 7200)
 	check("saved and loaded it goes on the same way", absf(a_idx / c.index("ursus:build") - 1.0) < 1e-6 and absf(a_px / c.stock_price("penguin") - 1.0) < 1e-6, [a_idx, c.index("ursus:build"), a_px, c.stock_price("penguin")])
 	a.load_data(c.to_data())
 	check("the noise left is 0.4 of the old", is_equal_approx(MarketState.NOISE_SCALE, 0.4))

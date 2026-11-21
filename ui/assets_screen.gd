@@ -465,7 +465,7 @@ static func _upkeep_tab(menu: FieldMenu, card: VBoxContainer, bill: Dictionary) 
 	card.add_child(AK.section("作物口粮", "RATIONS"))
 	var meal := "热餐" if fin.hot_meal() else ("停发补给" if fin.supply_stopped() else "—")
 	_table(card, [["库存", 110, 2], ["每日", 110, 2], ["可用天数", 110, 2], ["今日", 110, 2]],
-		[[str(fin.crops_in_stock()), str(fin.rations()), ("%.1f" % fin.ration_days()) if fin.rations() > 0 else "—",
+		[[str(fin.crops_in_stock()), "%.2f" % fin.daily_rations(), ("%.1f" % fin.ration_days()) if fin.rations() > 0 else "—",
 			[meal, AK.GREEN if fin.hot_meal() else (AK.RED if fin.supply_stopped() else AK.FG)]]])
 	_gap(card, 4)
 	var hrow := _row(card)
