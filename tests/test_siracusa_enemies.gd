@@ -63,9 +63,12 @@ func run() -> void:
 	var seen := 0
 	var cut := 0
 	var seed_with := 0
+	# The floor a contract opens on is built from its run seed + 7919
+	# (GameManager._floor_seed), with the first floor's bridge chance.
+	ContinuousWorldMap.bridge_chance = ContinuousWorldMap.bridge_chance_after(1)
 	for i in range(12):
 		map.region_id = "siracusa"
-		map.generate((i + 1) * 104729, 1)
+		map.generate((i + 1) * 104729 + 7919, 1)
 		if map.roadblock.is_empty(): continue
 		seen += 1
 		if map._cut_edge(int(map.roadblock.link)): cut += 1

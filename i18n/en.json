@@ -1752,6 +1752,7 @@
  "地图特色累计 −10%": "Map feature build-up −10%",
  "地图特色累计 −20%": "Map feature build-up −20%",
  "地图特色起点": "Map feature start",
+ "地图生成已更新，本层已按新布局重建。": "The map generator has been updated; this floor has been laid out anew.",
  "地层回波测绘": "Stratum Echo Survey",
  "地面上的物资会显示名牌，左键点击名牌即可拾取；按住显示键列出附近全部地面物品。背包标题栏的过滤按钮可以隐藏低品质物品的名牌。": "Items on the ground show a name plate; left-click the plate to pick them up. Hold the show-items key to list everything nearby. The filter buttons on the inventory title bar hide the plates of lower-quality items.",
  "场地里布置有干扰地雷。站在旁边按交互键布雷，敌人踏入时会被炸伤，之后一段时间受到的伤害提高。每个只能用一次。": "Interferential mines are placed in the arena. Stand beside one and press the interact key to arm it; an enemy stepping in is blasted and takes more damage for a while. Each works once.",

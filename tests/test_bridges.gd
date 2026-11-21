@@ -1,7 +1,8 @@
 extends SceneTree
 
 ## Rock bridges (用户 2026-10-13: 下面的路从上面的路下面穿过，形成有高度差的不连
-## 在一起的回路). Sweeps snowfield seeds and checks every bridge built: the deck
+## 在一起的回路; 立交桥修订案 v0.1: all four regions). Sweeps seeds in every
+## region and checks every bridge built: the deck
 ## stands two tiers over the road it crosses, the navmesh carries a walk over
 ## the deck and a walk along the road beneath it, the two do not join where
 ## they cross, ground queries tell the deck from the road by the asker's
@@ -9,6 +10,7 @@ extends SceneTree
 
 ## Daily runs sweep fewer floors; DOWNFALL_FULL=1 (run_all.ps1 -Full) the lot.
 var SEEDS := 24 if OS.get_environment("DOWNFALL_FULL") == "1" else 12
+const REGIONS := ["snow", "city", "mine", "siracusa"]
 
 var failures := 0
 
@@ -44,12 +46,26 @@ func run() -> void:
 	var climbs := 0
 	var rays := 0
 	var notes: Array[String] = []
-	for i in range(SEEDS):
-		map.region_id = "snow"
-		var seed_value := (i + 1) * 7919
+	# 立交桥修订案 v0.1: every region has bridges now; a floor whose roll asks
+	# for one (bridge_chance 1 here) gets the module.
+	ContinuousWorldMap.bridge_chance = 1.0
+	var per_region := {}
+	var resampled_off := 0
+	for i in range(SEEDS * REGIONS.size()):
+		var region: String = REGIONS[i % REGIONS.size()]
+		map.region_id = region
+		var seed_value := (i / REGIONS.size() + 1) * 7919
 		map.generate(seed_value, 1)
+		per_region[region] = int(per_region.get(region, 0)) + (0 if map.bridges.is_empty() else 1)
 		if map.bridges.is_empty(): continue
 		with_bridge += 1
+		# The floor with its bridges is sampled only round their stubs
+		# (TerrainSurface.sample_from): it must read as a full sample does.
+		var full := TerrainSurface.new()
+		full.sample(map)
+		if full._distance != map._surface._distance or full._owner != map._surface._owner or full._height_grid != map._surface._height_grid:
+			resampled_off += 1
+			notes.append("%s seed %d: the surface sampled round the stubs differs from a full sample" % [region, seed_value])
 		var nav := map.navigation_map_rid()
 		# The baked mesh reaches the server a few frames later.
 		var probe: Dictionary = map.bridges[0]
@@ -57,6 +73,10 @@ func run() -> void:
 			await step()
 			var seen := NavigationServer3D.map_get_closest_point(nav, Vector3(probe.centre.x, float(probe.top) + 0.3, probe.centre.y))
 			if seen != Vector3.ZERO: break
+		var deck_names := []
+		for child in map._generated_root.get_children():
+			if str(child.name).begins_with("Bridge"): deck_names.append(child.name)
+		if deck_names.size() != map.bridges.size(): notes.append("%s seed %d: %d bridge nodes for %d bridges" % [region, seed_value, deck_names.size(), map.bridges.size()])
 		for bridge in map.bridges:
 			built += 1
 			var top: float = bridge.top
@@ -64,7 +84,7 @@ func run() -> void:
 			var centre: Vector2 = bridge.centre
 			var axis: Vector2 = bridge.axis
 			var across := axis.orthogonal()
-			var tag := "seed %d bridge at (%.1f, %.1f) span %.1f" % [seed_value, centre.x, centre.y, float(bridge.span)]
+			var tag := region + " seed %d bridge at (%.1f, %.1f) span %.1f" % [seed_value, centre.x, centre.y, float(bridge.span)]
 			if top - base < 4.0:
 				low_rise += 1
 				notes.append(tag + " rise %.2f" % (top - base))
@@ -139,13 +159,19 @@ func run() -> void:
 				climbs += 1
 				notes.append(tag + " body climbed to %.2f" % body.global_position.y)
 			body.queue_free()
-	for other in ["mine", "city"]:
-		map.region_id = other
+	# A floor whose roll asks for none gets none.
+	ContinuousWorldMap.bridge_chance = 0.0
+	for region in REGIONS:
+		map.region_id = region
 		map.generate(4421, 1)
-		check("no bridges in the %s" % other, map.bridges.is_empty())
+		check("no bridge in the %s when the roll asks for none" % region, map.bridges.is_empty() and map._crossings.is_empty())
+	ContinuousWorldMap.bridge_chance = 1.0
 	for note in notes: print("  " + note)
-	print("bridges: %d on %d/%d snow seeds" % [built, with_bridge, SEEDS])
-	check("a bridge on at least a third of snowfield floors (%d/%d)" % [with_bridge, SEEDS], with_bridge * 3 >= SEEDS)
+	print("bridges: %d on %d/%d floors %s" % [built, with_bridge, SEEDS * REGIONS.size(), per_region])
+	for region in REGIONS:
+		# The six in ten over a run is test_bridge_rate's; here only that none falls far short.
+		check("a bridge on at least a third of the %s floors that ask for one (%d/%d)" % [region, int(per_region.get(region, 0)), SEEDS], int(per_region.get(region, 0)) * 3 >= SEEDS)
+	check("the floor sampled round its stubs reads as a full sample (%d off)" % resampled_off, resampled_off == 0)
 	check("every deck stands two tiers over the road it crosses", low_rise == 0)
 	check("ground height tells the deck from the road by the asker's height", layered == built)
 	check("the navmesh has a floor on every deck and under it", deck_nav == built and under_nav == built)

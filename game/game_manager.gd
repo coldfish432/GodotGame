@@ -297,6 +297,9 @@ var offer_source := "device"
 var _device_offers: Array[Dictionary] = []
 var _active_cache: RelicCache
 var reroll_count := 0
+## 立交桥修订案 M4: bridge-eligible floors in a row since the last one with a
+## bridge (camps, boss and compact floors do not count). A run starts at 1.
+var floors_since_bridge := 1
 ## Ground pickup filter (装备与背包界面调研 §5.10, Grim Dawn style), set in the
 ## settings (用户 2026-11-02): the lowest rarity (an index on Item's ladder),
 ## how many prefixes, and the lowest grade every prefix must reach. Equipment
@@ -1095,6 +1098,7 @@ func _reset_run_state(region: String) -> void:
 	run_sets_seen = {}
 	player._recompute_stats()
 	floor_number = 1
+	floors_since_bridge = 1
 	pressure = 0
 	threat.reset()
 	features.reset()
@@ -1254,7 +1258,12 @@ func _build_world() -> void:
 	player.reset_floor_state()
 	world_map.region_id = region_id
 	world_map.extraction_available = is_extraction_floor()
+	ContinuousWorldMap.bridge_chance = ContinuousWorldMap.bridge_chance_after(floors_since_bridge)
 	world_map.generate(_floor_seed(), floor_number)
+	# Counted from the floor as built: a rebuilt saved floor starts from the
+	# count it was entered with (RunSave entry), so it comes out the same.
+	if not world_map.boss_layout and not world_map.compact_layout:
+		floors_since_bridge = 0 if not world_map.bridges.is_empty() else floors_since_bridge + 1
 	arena = null
 	if world_map.boss_layout and world_map.arena_centre != Vector3.INF:
 		arena = BossArena.new()
@@ -5711,7 +5720,7 @@ func can_save_run() -> bool:
 	return save_enabled and app_mode.is_empty() and not in_base and not _settled and not transitioning and player.hp > 0.0
 
 func run_snapshot() -> Dictionary:
-	var data := {"version": RunSave.VERSION, "now": RunSave.run_data(self), "player": RunSave.player_data(player), "rng": rng_states()}
+	var data := {"version": RunSave.VERSION, "map_gen": RunSave.MAP_GEN, "now": RunSave.run_data(self), "player": RunSave.player_data(player), "rng": rng_states()}
 	if not in_camp and not in_event:
 		data["entry"] = _floor_entry
 		data["floor"] = RunSave.floor_data(self)
@@ -5785,7 +5794,12 @@ func resume_run() -> void:
 	RunSave.set_base_inputs(base, base_now)
 	RunSave.apply_run(self, now)
 	set_rng_states(saved.get("rng", rng_states()))
-	if not RunSave.apply_floor(self, saved.get("floor", {})): notice("本层未能按存档复原，已重新布置。")
+	# 立交桥修订案 §7-1: a floor saved under an older map generator is laid
+	# out anew; she starts it again at its entrance with all she carries.
+	if int(saved.get("map_gen", 1)) < RunSave.MAP_GEN:
+		her.erase("at")
+		notice("地图生成已更新，本层已按新布局重建。")
+	elif not RunSave.apply_floor(self, saved.get("floor", {})): notice("本层未能按存档复原，已重新布置。")
 	RunSave.apply_player(self, her)
 	camera.global_position = player.global_position + camera_offset()
 	_end_loading()

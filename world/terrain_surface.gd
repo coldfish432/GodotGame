@@ -89,6 +89,37 @@ func sample(map: Node3D) -> void:
 	_sampled = true
 	relevel()
 
+## The floor `from` sampled, plus the corridor segments from `first_new` on
+## dug since (立交桥修订案 §10: a floor's bridges, on the tiers settled
+## without them; new segments go last, so the shapes already there keep
+## their indices). carved_owned reads only the shapes its SHAPE_CELL square
+## lists; a cell whose square lists none of the new segments reads exactly
+## what it read before and is copied, every other one sampled again — the
+## same as a full sample gives, at a fraction of the cost.
+func sample_from(map: Node3D, from: TerrainSurface, first_new: int) -> void:
+	field = map
+	noise.seed = map.seed_value
+	noise.frequency = 0.15
+	noise.fractal_octaves = 2
+	origin = from.origin
+	columns = from.columns
+	rows = from.rows
+	_distance = from._distance.duplicate()
+	_owner = from._owner.duplicate()
+	_sampled = false
+	var touched: PackedByteArray = map.squares_listing_from(first_new)
+	for z in range(rows + 1):
+		for x in range(columns + 1):
+			var p := origin + Vector2(x, z) * CELL
+			var square: int = map._shape_cell(p)
+			if square >= 0 and touched[square] == 0: continue
+			var index := z * (columns + 1) + x
+			var carved: Array = map.carved_owned(p)
+			_distance[index] = carved[0] + map.edge_noise_of(carved[1], noise.get_noise_2dv(p))
+			_owner[index] = carved[1]
+	_sampled = true
+	relevel()
+
 ## Heights again from the owners already sampled, after the tiers changed.
 func relevel() -> void:
 	_height_grid.resize(_distance.size())

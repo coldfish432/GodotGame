@@ -12,6 +12,9 @@ extends RefCounted
 ## boss fight starts over.
 
 const VERSION := 1
+## The map generator a saved floor was built by (立交桥修订案 v0.1: 2). A floor
+## from an older one is not laid over: its layout has moved.
+const MAP_GEN := 2
 
 ## GameManager's run fields, written with var_to_str (typed arrays, vectors).
 const GAME_KEYS := ["region_id", "floor_number", "start_floor", "market_field", "route_map", "route_node", "route_kind", "route_trail", "route_peek", "route_exit_map", "route_threat_cut", "floor_kits", "post_gifted", "next_floor_mods", "floor_mods", "event_done", "campfire_used", "witness_marked", "_floor_relics", "route_history", "run_contracts", "_contracts_announced",
@@ -20,7 +23,7 @@ const GAME_KEYS := ["region_id", "floor_number", "start_floor", "market_field", 
 	"_random_extraction_available", "encounter", "encounter_used", "squad_mult", "post_faction", "trader_rerolls", "_trader_met",
 	"_encounter_greeted", "camp_closure_stock", "first_run_ore", "_buff_taken", "vault_opened", "outpost_cleared", "_device_offers",
 	"drop_share", "_extra_ordinary", "_herd_count", "_tracked_warned", "_patrol_warned", "_next_patrol_entry", "prts_log",
-	"_seen_encounter", "_seen_exit", "_slow_heal_left", "_slow_heal_rate", "_suppress_timer", "_potion_heal_factor", "_announced_tier"]
+	"_seen_encounter", "_seen_exit", "floors_since_bridge", "_slow_heal_left", "_slow_heal_rate", "_suppress_timer", "_potion_heal_factor", "_announced_tier"]
 const THREAT_KEYS := ["value", "fill_seconds", "wave"]
 const FEATURE_KEYS := ["values", "announced", "kits", "reckon_wait", "reckonings", "camp_cleansed", "camp_debt_paid", "depth_step"]
 const POTION_KEYS := ["cold_half", "debt_block", "quiet", "shield_left", "shield_amount", "regen_share", "regen_left", "regen_lock", "emergency_used", "_pending", "contam_block", "contam_after"]

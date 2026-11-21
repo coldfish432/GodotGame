@@ -356,8 +356,11 @@ func _banner(p: Vector2, across: Vector2, family: String, side: float) -> void:
 
 ## The car's lane mouth (叙拉古敌人设计案 §三第 7.1 节, constraint 4): barrels
 ## across the lane from the car's flanks to the walls, colliding; the car
-## itself (GameManager._spawn_car) fills the gap between them.
-const ROADBLOCK_GAP := 1.1
+## itself (GameManager._spawn_car) fills the gap between them. Half the gap:
+## 2.8 m in all, the car's body (2.4 m across) still barring it, the navmesh
+## (agents 0.75 round) still carrying a walk through once the car is broken —
+## at 2.2 m the mesh closed on some floors (立交桥修订案 §9).
+const ROADBLOCK_GAP := 1.4
 var roadblock_barrels := 0
 
 func _place_roadblock() -> void:

@@ -498,5 +498,6 @@
  "放弃": "Abandon",
  "回收 %s ×%d": "Recover %s ×%d",
  "第 %d 日 %s": "Day %d %s",
- "PRTS 同步离线时间": "PRTS: syncing offline time"
+ "PRTS 同步离线时间": "PRTS: syncing offline time",
+ "地图生成已更新，本层已按新布局重建。": "The map generator has been updated; this floor has been laid out anew."
 }

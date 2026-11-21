@@ -57,7 +57,9 @@ func go_to(region: String, floor: int) -> void:
 	await step(3)
 
 func near(figure: Boss) -> void:
-	game.player.teleport(figure.global_position + Vector3(2.0, 0, 0))
+	# On walkable ground beside it: a figure by a cliff has the next tier 2 m off,
+	# and a teleport at its own height would put her inside the rock.
+	game.player.teleport(game.world_map.nearest_walkable(figure.global_position + Vector3(2.0, 0, 0)))
 	game.player.invuln_timer = 0.0
 	await step(3)
 

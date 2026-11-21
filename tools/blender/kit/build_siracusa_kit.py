@@ -937,19 +937,85 @@ def siracusa_arch_house(seed=943):
             (kit.join(glow, "glow"), lit("siracusa_arch_house_glow_p"), "glow")]
 
 
+def siracusa_arch(seed=945):
+    """石拱廊桥 (立交桥修订案 v0.1 §3): Siracusa's overpass, an aqueduct-like
+    stone arch carrying a lane over the lane below. The frame of snow_bridge
+    and city_overpass: X along the span, Y across, Z up; the origin the middle
+    of the deck's top (flat, z = 0); the cliff lines at x = +-5, 4.4 below;
+    stretched along X in the game, which walls the deck at +-2.45 itself.
+    Ashlar body cut by one segmental arch springing at the cliff lines, a
+    ring of voussoirs and a keystone on each face, a parapet with a coping,
+    a string of lights sagging under the arch on each face (the old town's
+    串灯) and a lantern at each end of the parapet."""
+    random.seed(seed)
+    span, length, half, drop = 10.0, 12.8, 2.5, 4.4
+    depth = half * 2 + 0.5
+    body = kit.box("body", (length, depth, drop + 0.5), (0, 0, -(drop + 0.5) * 0.5))
+    # Segmental arch: an ellipse 5 wide either way, springing at -4.4, its
+    # crown 1.1 under the deck.
+    rise = drop - 1.1
+    vault = d.cyl("vault_cut", 1.0, depth + 1.0, (0, 0, -drop), (math.pi / 2, 0, 0), vertices=40)
+    vault.scale = (span * 0.5, rise, 1.0)
+    bpy.context.view_layer.objects.active = vault
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    legs = kit.box("legs_cut", (span, depth + 1.0, 1.2), (0, 0, -drop - 0.6))
+    _cut(body, [vault, legs])
+    trims = []
+    for sy in (-1, 1):
+        y = sy * (depth * 0.5 + 0.04)
+        for n in range(15):
+            a = math.pi * n / 14
+            x, z = math.cos(a) * (span * 0.5 + 0.25), -drop + math.sin(a) * (rise + 0.25)
+            tangent = math.atan2(math.cos(a) * (rise + 0.25), -math.sin(a) * (span * 0.5 + 0.25))
+            trims.append(kit.box(f"vs{sy}_{n}", (0.55, 0.12, 0.34), (x, y, z), (0, -tangent, 0)))
+        trims.append(kit.box(f"key{sy}", (0.5, 0.18, 0.7), (0, y + sy * 0.03, -1.05)))
+        trims.append(kit.box(f"string{sy}", (length, 0.16, 0.18), (0, y, -0.32)))
+    parapet = []
+    for sy in (-1, 1):
+        parapet.append(d.bbox(f"parapet{sy}", (length, 0.3, 0.9), (0, sy * (half + 0.15), 0.45), width=0.03))
+        trims.append(kit.box(f"coping{sy}", (length + 0.1, 0.42, 0.1), (0, sy * (half + 0.15), 0.95)))
+    deck = [kit.box("paving", (length, half * 2, 0.06), (0, 0, -0.03))]
+    irons, glow = [], []
+    for sy in (-1, 1):
+        # String lights: bulbs on a sagging wire across the arch's face.
+        y = sy * (depth * 0.5 + 0.3)
+        for n in range(13):
+            t = n / 12
+            x = -3.6 + 7.2 * t
+            z = -1.9 - 0.7 * math.sin(math.pi * t)
+            glow.append(kit.box(f"bulb{sy}_{n}", (0.12, 0.12, 0.14), (x, y, z - 0.1)))
+            if n < 12:
+                nx = -3.6 + 7.2 * (t + 1 / 12)
+                nz = -1.9 - 0.7 * math.sin(math.pi * (t + 1 / 12))
+                seg = math.hypot(nx - x, nz - z)
+                irons.append(kit.box(f"wire{sy}_{n}", (seg, 0.02, 0.02), ((x + nx) * 0.5, y, (z + nz) * 0.5), (0, -math.atan2(nz - z, nx - x), 0)))
+        # A lantern on a post at each end of the parapet.
+        for sx in (-1, 1):
+            px = sx * (length * 0.5 - 0.5)
+            pz = 1.0
+            irons += [kit.box(f"lpost{sy}{sx}", (0.08, 0.08, 0.9), (px, sy * (half + 0.15), pz + 0.45)),
+                      kit.box(f"lcap{sy}{sx}", (0.3, 0.3, 0.08), (px, sy * (half + 0.15), pz + 1.2))]
+            glow.append(kit.box(f"lglass{sy}{sx}", (0.2, 0.2, 0.32), (px, sy * (half + 0.15), pz + 1.02)))
+    return [(kit.join([body] + parapet, "stone"), stone("siracusa_arch_stone_p", seed, "c2ae88"), "stone"),
+            (kit.join(trims, "trim"), stone("siracusa_arch_trim_p", seed, "d6c8a6"), "trim"),
+            (kit.join(deck, "paving"), stone("siracusa_arch_paving_p", seed, "8e8270"), "paving"),
+            (kit.join(irons, "iron"), iron("siracusa_arch_iron_p", seed), "iron"),
+            (kit.join(glow, "glow"), lit("siracusa_arch_glow_p"), "glow")]
+
+
 HOUSES = [siracusa_house_a, siracusa_house_b, siracusa_house_c, siracusa_house_d, siracusa_house_low, siracusa_ruin]
 PIECES = [siracusa_theatre, siracusa_court, siracusa_fountain, siracusa_lantern, siracusa_banner_saluzzo,
           siracusa_banner_rossetti, siracusa_banner_bellone, siracusa_barrels, siracusa_garden_wall, siracusa_mansion_gate,
-          siracusa_bell_tower, siracusa_arch_house]
+          siracusa_bell_tower, siracusa_arch_house, siracusa_arch]
 BUILDERS = HOUSES + PIECES
 PREVIEW = {"siracusa_house_a": 12.0, "siracusa_house_b": 13.0, "siracusa_house_c": 14.0, "siracusa_house_d": 13.0,
            "siracusa_house_low": 9.0, "siracusa_ruin": 13.0, "siracusa_theatre": 18.0, "siracusa_court": 16.0,
            "siracusa_fountain": 5.0, "siracusa_lantern": 1.6, "siracusa_banner_saluzzo": 5.0, "siracusa_banner_rossetti": 5.0,
            "siracusa_banner_bellone": 5.0, "siracusa_barrels": 2.6, "siracusa_garden_wall": 3.0,
-           "siracusa_mansion_gate": 10.0, "siracusa_bell_tower": 22.0, "siracusa_arch_house": 13.0}
+           "siracusa_mansion_gate": 10.0, "siracusa_bell_tower": 22.0, "siracusa_arch_house": 13.0, "siracusa_arch": 15.0}
 BAKE_SIZE = {"wall": 1024, "roof": 1024, "trim": 1024, "shutters": 512, "glow": 128, "glass": 256, "door": 256, "iron": 256,
              "columns": 512, "metal": 256, "stone": 512, "water": 128, "cloth": 256, "fringe": 128, "wood": 256, "planks": 256,
-             "pots": 128, "plants": 256}
+             "pots": 128, "plants": 256, "paving": 512}
 
 
 def publish(name, parts):

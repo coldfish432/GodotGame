@@ -14,7 +14,7 @@ New-Item -ItemType Directory -Force -Path $evidence | Out-Null
 $env:DOWNFALL_FULL = if ($Full) { '1' } else { '' }
 
 # Longest first, so the slow map sweeps start at once and the short suites fill in.
-$headlessSuites = @('test_layout', 'test_siracusa', 'test_siracusa_enemies', 'test_city_variants', 'test_recruit', 'test_traps_traces', 'test_bridges', 'test_elevation', 'test_terrain', 'test_guards', 'test_scene_dressing',
+$headlessSuites = @('test_layout', 'test_siracusa', 'test_siracusa_enemies', 'test_city_variants', 'test_recruit', 'test_traps_traces', 'test_bridges', 'test_bridge_rate', 'test_elevation', 'test_terrain', 'test_guards', 'test_scene_dressing',
     'test_v1', 'test_revisions', 'test_new_enemies', 'test_run_goals', 'test_threat', 'test_base_state', 'test_warehouse', 'test_cases_collectibles', 'test_contract_board',
     'test_medical', 'test_progression', 'test_works', 'test_base_scene', 'test_movement', 'test_combat', 'test_enemy_attacks',
     'test_lappland', 'test_amiya', 'test_hellagur', 'test_recruit_kits', 'test_pointer', 'test_prts', 'test_hotbar', 'test_relics', 'test_builds', 'test_inventory', 'test_loot',

@@ -102,6 +102,9 @@ func run() -> void:
 		var spots: Array[Vector3] = [map.buff_position, map.encounter_position, map.exit_node.position, map.route_guard_position]
 		if map.has_vault: spots.append(map.vault_position)
 		for node in map.route_nodes: spots.append(node.position)
+		# The vault's floor is rock until its wall is broken (VaultSeal): it is
+		# measured on the ground it stands on once dug, as she would find it.
+		if map.has_vault and is_instance_valid(map.vault_seal): map.vault_seal.open()
 		for spot in spots:
 			if not map._surface.is_level(Vector2(spot.x, spot.z)) or absf(spot.y - map.ground_height(Vector2(spot.x, spot.z))) > 0.7: unlevel += 1
 	check("most floors have more than one tier (%d of %d)" % [tiered, SEEDS], tiered >= SEEDS * 0.6)

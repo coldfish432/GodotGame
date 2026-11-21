@@ -196,6 +196,36 @@ func old_save_trip() -> void:
 	back.queue_free()
 	await step(3)
 
+## 立交桥修订案 §7-1: a floor saved by an older map generator is laid out
+## anew and she starts it at its entrance; the run (floor, bridge count) stays.
+func map_gen_trip() -> void:
+	clean()
+	SystemScreens.settings["auto_potion"] = ""
+	var game := await boot()
+	game.fixed_map_seed = 3109
+	game.route_plain = true
+	await game.start_contract("snow")
+	await step(4)
+	var since: int = game.floors_since_bridge
+	game.player.teleport(game.player.global_position + Vector3(6.0, 0.0, 6.0))
+	game.save_run()
+	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+	check("map gen: a field save names the map generator", int(saved.run.get("map_gen", 0)) == RunSave.MAP_GEN)
+	saved.run.map_gen = 1
+	game.queue_free()
+	await step(3)
+	var file := FileAccess.open(PATH, FileAccess.WRITE)
+	file.store_string(JSON.stringify(saved))
+	file.close()
+	var back := await boot()
+	var entry := ContinuousWorldMap.ENTRY_POSITION
+	var at: Vector3 = back.player.global_position
+	check("map gen: an older floor loads in the field at its entrance", not back.in_base and back.floor_number == 1
+		and Vector2(at.x, at.z).distance_to(Vector2(entry.x, entry.z)) < 1.5)
+	check("map gen: the run's bridge count comes back", back.floors_since_bridge == since)
+	back.queue_free()
+	await step(3)
+
 func no_save_in_base() -> void:
 	clean()
 	var game := await boot()
@@ -213,6 +243,7 @@ func run() -> void:
 	await round_trip("siracusa", true)
 	await camp_trip()
 	await old_save_trip()
+	await map_gen_trip()
 	await event_trip()
 	clean()
 	print("RUN SAVE FAILURES %d" % failures)
