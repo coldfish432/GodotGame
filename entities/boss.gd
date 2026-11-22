@@ -133,11 +133,11 @@ func setup_boss(p_game: GameManager, id: String, p_tier: int) -> void:
 		if is_instance_valid(_sprite):
 			_sprite.texture = FieldArt.enemy_dir_pose(id, dir_column, 0)
 			_sprite.pixel_size = PIXEL
-			_sprite.modulate = _tint
+			_refresh_look()
 	else:
 		_tint = fig.get("tint", Color.WHITE)
 		if is_instance_valid(_sprite):
-			_sprite.modulate = _tint
+			_refresh_look()
 			_sprite.pixel_size *= float(fig.get("scale", 1.0))
 		if is_instance_valid(_outline): _outline.scale = Vector3.ONE * float(fig.get("scale", 1.0))
 	_reset_fight()
@@ -270,8 +270,27 @@ func hide_figure() -> void:
 		tween.tween_property(own_light, "light_energy", 0.0, 0.8)
 	if _shell != null: _shell.visible = false
 
+## Back to its rest look: the kneel, 清算 red and a flash dropped (as the old
+## direct write of the rest tint did).
 func _rest_look() -> void:
-	if is_instance_valid(_sprite): _sprite.modulate = _rest_tint()
+	_down_look = false
+	_reckoning_look = false
+	_flashing = false
+	_refresh_look()
+
+## Its state colours over `base` (Enemy._refresh_look), one by priority: the rage
+## glow > 清算时刻's red > the kneel's dark. Silence and the barrier have none.
+const RAGE_COLOUR := Color(1.7, 0.45, 0.38)
+const RECKONING_COLOUR := Color("c04050")
+var _down_look := false
+var _reckoning_look := false
+func _state_tint(base: Color) -> Color:
+	if rage_left > 0.05:
+		var k := 0.5 + 0.5 * sin(fight_time * 9.0)
+		return base.lerp(RAGE_COLOUR, 0.5 + 0.3 * k)
+	if _reckoning_look: return RECKONING_COLOUR
+	if _down_look: return _tint.darkened(0.4)
+	return base
 
 func _rest_tint() -> Color:
 	var t := _tint
@@ -626,9 +645,8 @@ func dealt_mult() -> float:
 ## His rage shows: the body throbs dark red, embers rise off him.
 var _rage_tick := 0.0
 func _rage_glow() -> void:
-	if not is_instance_valid(_sprite) or not _shown or _sprite.modulate.r > 2.0: return
-	var k := 0.5 + 0.5 * sin(fight_time * 9.0)
-	_sprite.modulate = _rest_tint().lerp(Color(1.7, 0.45, 0.38), 0.5 + 0.3 * k) if rage_left > 0.05 else _rest_tint()
+	if not is_instance_valid(_sprite) or not _shown or _flashing: return
+	_refresh_look()
 	_rage_tick -= get_physics_process_delta_time()
 	if _rage_tick <= 0.0 and rage_left > 0.05:
 		_rage_tick = 0.22
@@ -1568,7 +1586,8 @@ func _go_down(after: String) -> void:
 	_lift_curse()
 	_after_down = after
 	down_left = BossCatalog.DOWN_TIME
-	if is_instance_valid(_sprite): _sprite.modulate = _tint.darkened(0.4)
+	_down_look = true
+	_refresh_look()
 	_mark_area(global_position, BossCatalog.ROAR_RADIUS, BossCatalog.DOWN_TIME)
 	if BossShow.enabled and is_instance_valid(game):
 		if after == "next_life": BossShow.of(game).rebirth(self)
@@ -1577,7 +1596,8 @@ func _go_down(after: String) -> void:
 func _get_up() -> void:
 	_clear_markers()
 	set_shown(true)
-	if is_instance_valid(_sprite): _sprite.modulate = _rest_tint()
+	_down_look = false
+	_refresh_look()
 	match _after_down:
 		"next_life":
 			life += 1
@@ -1684,7 +1704,8 @@ func _tick_auras(delta: float) -> void:
 ## 清算时刻 on a boss floor (Q6): 扎罗 takes it himself instead of a squad coming.
 func begin_reckoning() -> void:
 	reckoning_left = BossCatalog.RECKONING_TIME
-	if is_instance_valid(_sprite): _sprite.modulate = Color("c04050")
+	_reckoning_look = true
+	_refresh_look()
 	# 清算时刻 (Boss演出策划案_v0_2 §5.3): the clock tower strikes three.
 	if BossShow.enabled and is_instance_valid(game) and game.sound != null:
 		for i in range(3): BossShow.of(game)._sfx("zaro_bell", 0.9 * i)
@@ -1743,7 +1764,8 @@ func _tick_later(delta: float) -> void:
 				if _in_lane(game.player.global_position, entry.from, global_position, float(seg.width)): _hit_her(seg, _raw(float(seg.back_damage)))
 			"rampage": _rampage()
 			"tint":
-				if is_instance_valid(_sprite): _sprite.modulate = _tint
+				_reckoning_look = false
+				_refresh_look()
 
 ## 自我泯灭 (§6): a cold burst, three charges at her taking a fifth of the
 ## damage, and a burst again.

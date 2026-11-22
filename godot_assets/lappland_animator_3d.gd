@@ -49,9 +49,11 @@ const AMIYA_ACTIONS := {"attack_1": [0, 3], "attack_2": [3, 4], "attack_3": [7, 
 ## shown mirrored.
 const CHARACTERS := {
 	"lappland": {"walk": "res://godot_assets/Lappland8DirWalk32.tres", "idle": "res://godot_assets/lappland_idle_32.png",
-		"combat": "res://godot_assets/lappland_combat_64.png", "actions": ACTIONS, "signature": "wave", "mirrored": MIRRORED},
+		"combat": "res://godot_assets/lappland_combat_64.png", "actions": ACTIONS, "signature": "wave", "mirrored": MIRRORED,
+		"impact": {"attack_1": 1, "attack_2": 2, "attack_3": 1}},
 	"amiya_guard": {"walk": "res://godot_assets/amiya_guard_walk_32.png", "idle": "res://godot_assets/amiya_guard_idle_32.png",
-		"combat": "res://godot_assets/amiya_guard_combat_64.png", "actions": AMIYA_ACTIONS, "signature": "shadow", "mirrored": {}},
+		"combat": "res://godot_assets/amiya_guard_combat_64.png", "actions": AMIYA_ACTIONS, "signature": "shadow", "mirrored": {},
+		"impact": {"attack_1": 1, "attack_2": 1, "attack_3": 1}},
 	# The first recruits (prepare_operator_atlas.py; column tables from each
 	# batch <CODE>1 manifest). Their walk rows all face the right way. A third
 	# number loops the frames from that offset while the pose is held
@@ -94,6 +96,11 @@ var character := "lappland"
 var actions: Dictionary = ACTIONS
 var mirrored: Dictionary = MIRRORED
 var signature_action := "wave"
+## Strike frame per attack (出手打击时机修订案 方案 A, user-confirmed 2026-11-22):
+## the swing starts on the frame where the blade lands, the same tick the hit
+## resolves, and keeps the action's full length by holding the last frame.
+var impacts: Dictionary = {}
+var action_from := 0
 var action_time := 0.0
 var action_duration := 0.0
 var action_name := ""
@@ -183,15 +190,44 @@ func _load_character() -> void:
 	actions = config.actions
 	mirrored = config.mirrored
 	signature_action = config.signature
-	var walk := sheet(character, "walk")
-	if walk is SpriteFrames: sprite_frames = (walk as SpriteFrames).duplicate()
-	else: sprite_frames = _walk_frames_from(walk as Texture2D)
-	_build_idle_frames()
-	_build_combat_frames()
+	impacts = config.get("impact", {})
+	sprite_frames = frames_for(character)
+
+## Where tools/bake_sprite_frames.gd saves someone's SpriteFrames (动画工程整理案 §3).
+static func baked_path(id: String) -> String:
+	return "res://godot_assets/frames/%s.tres" % id
+
+## Frames already loaded, kept here so a swap back never re-parses the .tres:
+## Godot's resource cache lets a resource go once nothing holds it, and the
+## first measurement after baking (12.8 ms a swap, up from 9 ms) was exactly that.
+static var _frames_cache := {}
+
+## Someone's frames: the baked resource when there is one, else built here as
+## before; either way kept in _frames_cache. Nothing writes to the frames
+## after this, so one shared resource per person is safe.
+static func frames_for(id: String) -> SpriteFrames:
+	if _frames_cache.has(id): return _frames_cache[id]
+	var path := baked_path(id)
+	var frames: SpriteFrames = load(path) as SpriteFrames if ResourceLoader.exists(path) else build_frames(id)
+	_frames_cache[id] = frames
+	return frames
+
+## Drop the cache (GameManager.release_static_caches clears _frames_cache at exit).
+static func release_frames_cache() -> void:
+	_frames_cache.clear()
+
+## Build someone's walk, idle and combat animations from their sheets. The
+## bake tool saves exactly this; test_baked_frames compares the two.
+static func build_frames(id: String) -> SpriteFrames:
+	var walk := sheet(id, "walk")
+	var frames: SpriteFrames = (walk as SpriteFrames).duplicate() if walk is SpriteFrames else _walk_frames_from(walk as Texture2D)
+	_add_idle_frames(frames, id)
+	_add_combat_frames(frames, id, look_config(id).actions)
+	return frames
 
 ## A walk sheet laid out like lappland_8dir_walk_32.png: 4 columns, rows in
 ## IDLE_ROWS order, looping at 8 FPS.
-func _walk_frames_from(walk: Texture2D) -> SpriteFrames:
+static func _walk_frames_from(walk: Texture2D) -> SpriteFrames:
 	var frames := SpriteFrames.new()
 	frames.remove_animation(&"default")
 	for row in range(IDLE_ROWS.size()):
@@ -325,8 +361,8 @@ func _play_idle() -> void:
 const IDLE_ROWS := ["south", "southwest", "west", "northwest", "north", "northeast", "east", "southeast"]
 const IDLE_FPS := 2.0
 
-func _build_idle_frames() -> void:
-	var idle_sheet := sheet(character, "idle") as Texture2D
+static func _add_idle_frames(sprite_frames: SpriteFrames, id: String) -> void:
+	var idle_sheet := sheet(id, "idle") as Texture2D
 	for row in range(IDLE_ROWS.size()):
 		var animation_name: String = "idle_" + IDLE_ROWS[row]
 		sprite_frames.clear(animation_name)
@@ -338,8 +374,8 @@ func _build_idle_frames() -> void:
 			texture.region = Rect2(column * CELL_TEXELS, row * CELL_TEXELS, CELL_TEXELS, CELL_TEXELS)
 			sprite_frames.add_frame(animation_name, texture)
 
-func _build_combat_frames() -> void:
-	var combat_sheet := sheet(character, "combat") as Texture2D
+static func _add_combat_frames(sprite_frames: SpriteFrames, id: String, actions: Dictionary) -> void:
+	var combat_sheet := sheet(id, "combat") as Texture2D
 	if combat_sheet == null: return
 	for row in range(COMBAT_ROWS.size()):
 		for action in actions:
@@ -357,7 +393,7 @@ func _build_combat_frames() -> void:
 				texture.region = Rect2(column * COMBAT_CELL, row * COMBAT_CELL, COMBAT_CELL, COMBAT_CELL)
 				sprite_frames.add_frame(animation_name, texture)
 
-func _start_action(action: String, rate: float = 1.0) -> void:
+func _start_action(action: String, rate: float = 1.0, from_frame: int = 0) -> void:
 	var index := _facing_index
 	flip_h = index in [0, 1, 7]
 	if index == 0: index = 4
@@ -369,18 +405,20 @@ func _start_action(action: String, rate: float = 1.0) -> void:
 	action_rate = maxf(rate, 0.01)
 	action_duration = float(actions[action][1]) / (12.0 * action_rate)
 	animation = action + "_" + direction_name
+	action_from = clampi(from_frame, 0, sprite_frames.get_frame_count(animation) - 1)
 	stop()
-	frame = 0
+	frame = action_from
 
 func play_attack(direction: Vector3, stage: int, wave: bool, rate: float = 1.0) -> void:
 	_face_toward(direction)
-	_start_action(signature_action if wave else "attack_" + str(stage + 1), rate)
+	var action := signature_action if wave else "attack_" + str(stage + 1)
+	_start_action(action, rate, 0 if wave else int(impacts.get(action, 0)))
 
 ## The frame for the action's clock: the last one held, or, for an action with
 ## a loop offset, its loop frames cycling.
 func _action_frame() -> int:
 	var count := sprite_frames.get_frame_count(animation)
-	var index := int(action_time * 12 * action_rate)
+	var index := action_from + int(action_time * 12 * action_rate)
 	var entry: Array = actions.get(action_name, [])
 	if entry.size() > 2 and index >= count:
 		var from := int(entry[2])
@@ -417,6 +455,7 @@ func cancel_action() -> void:
 	action_duration = 0
 	action_time = 0
 	action_name = ""
+	action_from = 0
 	action_rate = 1.0
 	flip_h = false
 	modulate = scene_tint

@@ -271,6 +271,7 @@ func _build_visual() -> void:
 	_sprite = LapplandAnimator3D.new()
 	_sprite.character = operator_id
 	add_child(_sprite)
+	_build_wave_rig()
 	kit = OperatorKit.make(operator_id, self)
 	add_child(PlayerAura.new())
 	_stun_mark = Label3D.new()
@@ -295,6 +296,144 @@ func _build_visual() -> void:
 	capsule.height = 1.3
 	shape.shape = capsule
 	add_child(shape)
+
+## Lappland's release rig (A7 clip 2, CHANGE-BRIEF.md "Clip 2"): a 2D cutout
+## in a SubViewport drawn by a billboard at her. It starts at rest (the
+## scene's node values are the RESET pose) and hidden; the wave state
+## machine is its only driver, and that alone shows the Billboard.
+const WAVE_RIG := preload("res://animations/lappland_wave_rig.tscn")
+var _wave_rig: Node3D
+var _wave_player: AnimationPlayer
+var _wave_billboard: Sprite3D
+var _wave_rig_root: Node2D
+var _wave_viewport: SubViewport
+
+## The release's state machine (CHANGE-BRIEF.md "The state machine", r3, r4).
+## Gameplay: it decides when the wave leaves. It reads its own clock
+## (`wave_frame`), never the clip; it is the rig AnimationPlayer's only caller.
+enum WaveState { READY, STARTUP, ACTIVE, RECOVERY }
+## Design frames per second of the phase table (at playback rate 1).
+const WAVE_FPS := 30.0
+## The clip each state plays on the rig.
+const WAVE_CLIPS := {
+	WaveState.READY: &"RESET",
+	WaveState.STARTUP: &"wave_release",
+	WaveState.ACTIVE: &"wave_release",
+	WaveState.RECOVERY: &"wave_release",
+}
+## [from, design frame, to]: the clock's transitions. Interrupts (dodge, loss
+## of control, operator swap, death, leaving the field) and a swing in
+## RECOVERY go to READY.
+const WAVE_TRANSITIONS := [
+	[WaveState.STARTUP, 6, WaveState.ACTIVE],
+	[WaveState.ACTIVE, 10, WaveState.RECOVERY],
+	[WaveState.RECOVERY, 20, WaveState.READY],
+]
+const WAVE_END_FRAME := 20
+var wave_state: int = WaveState.READY
+var wave_frame := 0
+var _wave_time := 0.0
+## Playback rate taken once on the release click (r4: animation_rate(), >= 1).
+var _wave_rate := 1.0
+## What the click decided, for the spawn on frame 6: direction, target,
+## damage (before the signature bonus, r3), crit.
+var _wave_pending := {}
+
+func _build_wave_rig() -> void:
+	_wave_rig = WAVE_RIG.instantiate() as Node3D
+	add_child(_wave_rig)
+	_wave_player = _wave_rig.get_node("AnimationPlayer") as AnimationPlayer
+	_wave_billboard = _wave_rig.get_node("Billboard") as Sprite3D
+	_wave_rig_root = _wave_rig.get_node("Viewport/Rig") as Node2D
+	_wave_viewport = _wave_rig.get_node("Viewport") as SubViewport
+	# Hidden at rest: the viewport draws nothing until a release plays.
+	_wave_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	# READY plays RESET from the start (brief state table).
+	_wave_player.play(&"RESET")
+	_wave_player.seek(0.0, true)
+	# On the sprites' render layer, so ground decals never land on it.
+	_wave_billboard.layers = LapplandAnimator3D.SPRITE_LAYER
+	# Kept on her feet at any camera tilt like her sprite (brief r3:
+	# GmCamera writes its offset.y; nothing keys it).
+	_wave_billboard.add_to_group("upright_sprites")
+
+## The release click: STARTUP from frame 0. The operator sprite gives way to
+## the rig, which plays wave_release from its start.
+func _wave_begin(direction: Vector3, target: Enemy, damage: float, crit: bool) -> void:
+	wave_state = WaveState.STARTUP
+	wave_frame = 0
+	_wave_time = 0.0
+	_wave_rate = animation_rate()
+	_wave_pending = {"direction": direction, "target": target, "damage": damage, "crit": crit}
+	swing_remaining = WAVE_END_FRAME / (WAVE_FPS * _wave_rate)
+	if not is_instance_valid(_wave_player): return
+	# The rig's parts face west (screen left); mirrored when she swings to the right.
+	_wave_rig_root.scale.x = -1.0 if cos(_sprite._screen_angle(direction)) > 0.0 else 1.0
+	_wave_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_wave_player.play(WAVE_CLIPS[WaveState.STARTUP])
+	_wave_player.seek(0.0, true)
+	_wave_billboard.visible = true
+	_sprite.visible = false
+
+## Each physics tick not frozen by hitstop or a paused simulation: the clock
+## and the clip advance together by delta * rate, then the transitions.
+func _tick_wave(delta: float) -> void:
+	if wave_state == WaveState.READY: return
+	if hp <= 0.0 or (is_instance_valid(game) and not game.simulation_active()):
+		_wave_to_ready()
+		return
+	var step := delta * _wave_rate
+	_wave_time += step
+	if is_instance_valid(_wave_player): _wave_player.advance(step)
+	wave_frame = floori(_wave_time * WAVE_FPS + 0.0001)
+	# The move lock lasts as long as the release (hitstop does not eat it).
+	swing_remaining = maxf(swing_remaining, (WAVE_END_FRAME / WAVE_FPS - _wave_time) / _wave_rate)
+	for transition in WAVE_TRANSITIONS:
+		if wave_state != transition[0] or wave_frame < transition[1]: continue
+		if transition[2] == WaveState.READY:
+			_wave_to_ready()
+			return
+		wave_state = transition[2]
+		if wave_state == WaveState.ACTIVE: _wave_fire()
+
+## Frame 6, once: the wave leaves, the charge clears, the burst and the wave's
+## relic and trigger effects fire.
+func _wave_fire() -> void:
+	var direction: Vector3 = _wave_pending.get("direction", -global_basis.z)
+	var target = _wave_pending.get("target")
+	if not is_instance_valid(target): target = null
+	var crit: bool = _wave_pending.get("crit", false)
+	if is_instance_valid(game):
+		clear_charge()
+		var wave_damage: float = _wave_pending.get("damage", 0.0)
+		if gear_fx != null: wave_damage *= gear_fx.spend_signature_bonus()
+		match transmuter("wave"):
+			"wave_pack":
+				for side in [-1.0, 0.0, 1.0]: _spawn_wave(direction.rotated(Vector3.UP, deg_to_rad(20.0 * side)), wave_damage * 0.45, crit, side != 0.0)
+			_: _spawn_wave(direction, wave_damage, crit, false)
+		if gear_fx != null: gear_fx.on_signature(direction, enemy_in_swing(direction) if target == null else target)
+		if has_trigger(ItemModifier.Trigger.TWIN_WAVE):
+			for side in [-1.0, 1.0]:
+				_spawn_wave(direction.rotated(Vector3.UP, deg_to_rad(20.0 * side)), wave_damage * 0.5, crit, true)
+		var foot := Vector3(global_position.x, game.ground_y(global_position) + 0.09, global_position.z)
+		CombatVfx.spawn(game, foot, direction, "burst", 0, true)
+	_on_wave_released()
+	if families != null and families.on_skill(func(): add_charge(wave_hits_needed())): add_charge(wave_hits_needed())
+
+## Back to rest: the rig at its RESET pose, hidden and not drawing; the
+## operator sprite shown again. Only acts when a release is under way.
+func _wave_to_ready() -> void:
+	if wave_state == WaveState.READY: return
+	wave_state = WaveState.READY
+	wave_frame = 0
+	_wave_time = 0.0
+	_wave_pending = {}
+	if not is_instance_valid(_wave_player): return
+	_wave_player.play(WAVE_CLIPS[WaveState.READY])
+	_wave_player.seek(0.0, true)
+	_wave_billboard.visible = false
+	_wave_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	if is_instance_valid(_sprite): _sprite.visible = true
 
 func is_amiya() -> bool:
 	return operator_id == Operators.AMIYA_GUARD
@@ -505,6 +644,9 @@ func _physics_process(delta: float) -> void:
 	if hitstop_remaining > 0.0:
 		hitstop_remaining = maxf(0.0, hitstop_remaining - delta)
 		return
+	# After the freezes above, before this tick's swing: the release click's
+	# tick is frame 0, and a dodge on the frame-6 tick comes after the spawn.
+	_tick_wave(delta)
 	combat_timer += delta
 	_tick_relic_timers(delta)
 	stationary_time = 0.0 if velocity.length_squared() > 0.3 else stationary_time + delta
@@ -706,6 +848,7 @@ func interrupt_actions_for(reason: String) -> void:
 	wall_target = false
 	_has_move_target = false
 	if is_instance_valid(_sprite): _sprite.cancel_action()
+	_wave_to_ready()
 	if is_instance_valid(game): game.cancel_channels(reason)
 
 func _start_dash(direction: Vector3) -> void:
@@ -825,6 +968,7 @@ func reset_combat_state(clear_stacks: bool = true) -> void:
 	_end_shadow()
 	if kit != null: kit.reset_combat()
 	if is_instance_valid(_sprite): _sprite.cancel_action()
+	_wave_to_ready()
 
 func attack(target: Enemy) -> void:
 	if not is_instance_valid(target) or target._dead or not is_target_in_range(target): return
@@ -837,6 +981,8 @@ func attack(target: Enemy) -> void:
 ## that reaches nobody is a whiff and never charges. A ranged weapon needs a target.
 func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	if _attack_cooldown > 0 or hitstop_remaining > 0 or dash_remaining > 0 or shadow_active or control_timer > 0.0: return
+	# A release's startup and active frames commit her: no new swing (brief phase table).
+	if wave_state == WaveState.STARTUP or wave_state == WaveState.ACTIVE: return
 	if kit != null and kit.busy(): return
 	if is_instance_valid(game) and not game.simulation_active(): return
 	if not is_instance_valid(target) and is_ranged_weapon() and (kit == null or not kit.plays_swing()): return
@@ -846,6 +992,8 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	if not is_instance_valid(target): target = enemy_in_swing(direction)
 	# A shot needs someone to shoot at; an empty click does nothing.
 	if not is_instance_valid(target) and kit != null and kit.ranged(): return
+	# A swing in a release's recovery cuts the recovery short (brief r3).
+	if wave_state == WaveState.RECOVERY: _wave_to_ready()
 	var release := has_sword_wave() and sword_charge >= wave_hits_needed()
 	var stage := combo_step
 	var lands := is_instance_valid(target) and not target._dead and is_target_in_range(target) and (not is_instance_valid(game) or game.line_of_sight(global_position, target.global_position))
@@ -876,28 +1024,19 @@ func attack_direction(direction: Vector3, target: Enemy = null) -> void:
 	if kit != null and kit.plays_swing():
 		kit.swing(direction, target, stage, lands, multiplier, crit, crit_factor)
 		return
-	_sprite.play_attack(direction, stage, release, animation_rate())
-	swing_remaining = _sprite.action_duration
+	if release:
+		# The rig plays the release (change 1): the sprite holds no action and
+		# faces the swing; the wave itself leaves on frame 6 (_wave_fire).
+		_sprite._face_toward(direction)
+		_sprite.cancel_action()
+		_wave_begin(direction, target, arts_power() * SkillTrees.wave_scale(rank("wave")) * wave_multiplier() * multiplier * crit_factor, crit)
+	else:
+		_sprite.play_attack(direction, stage, false, animation_rate())
+		swing_remaining = _sprite.action_duration
 	if is_instance_valid(game):
 		game.sound.play("hit")
 		var foot := Vector3(global_position.x, game.ground_y(global_position) + 0.09, global_position.z)
 		CombatVfx.spawn(game, foot, direction, "slash", stage, release).speed_up(animation_rate())
-		if release:
-			clear_charge()
-			var wave_damage := arts_power() * SkillTrees.wave_scale(rank("wave")) * wave_multiplier() * multiplier * crit_factor
-			if gear_fx != null: wave_damage *= gear_fx.spend_signature_bonus()
-			match transmuter("wave"):
-				"wave_pack":
-					for side in [-1.0, 0.0, 1.0]: _spawn_wave(direction.rotated(Vector3.UP, deg_to_rad(20.0 * side)), wave_damage * 0.45, crit, side != 0.0)
-				_: _spawn_wave(direction, wave_damage, crit, false)
-			if gear_fx != null: gear_fx.on_signature(direction, enemy_in_swing(direction) if target == null else target)
-			if has_trigger(ItemModifier.Trigger.TWIN_WAVE):
-				for side in [-1.0, 1.0]:
-					_spawn_wave(direction.rotated(Vector3.UP, deg_to_rad(20.0 * side)), wave_damage * 0.5, crit, true)
-			CombatVfx.spawn(game, foot, direction, "burst", 0, true)
-	if release:
-		_on_wave_released()
-		if families != null and families.on_skill(func(): add_charge(wave_hits_needed())): add_charge(wave_hits_needed())
 	if lands:
 		var stop := 0.05 if release or stage == 2 else 0.03
 		# 狼魂: her blades strike as arts while it runs (PRTS: 伤害类型变为法术), off

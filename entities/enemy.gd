@@ -189,14 +189,18 @@ var _muzzle := Vector3.ZERO
 ## and the release flash start there; the hunter's lock glint sits on the scope.
 const MUZZLE_TEXELS := {"crossbow": Vector2(22, -12), "crossbow_leader": Vector2(23, -12), "ice_hunter": Vector2(23, -10)}
 const SCOPE_TEXELS := Vector2(12, -12)
-const STRIKE_TIME := 0.10
+## 敌人攻击帧数表策划案: the strike and the START pose in design frames
+## (EnemyAttacks.DESIGN_FPS); the seconds follow from them.
+const STRIKE_F := 3
+const STRIKE_TIME := STRIKE_F / EnemyAttacks.DESIGN_FPS
 ## A lunge stops when it reaches the player instead of passing through, holds
 ## the connecting pose, then springs back. It reaches her with whatever is in
 ## front: the slug's jaws (body contact) or the brawler's extended blade.
 const CONTACT_DISTANCE := 0.8
 const CONTACT_TIME := 0.12
 const RECOIL_TIME := 0.18
-const START_TIME := 0.12
+const START_F := 4
+const START_TIME := START_F / EnemyAttacks.DESIGN_FPS
 const PIXEL := 1.0 / 15.0
 
 func setup(p_game: GameManager, p_elite: bool, p_ranged: bool, type: String = "") -> void:
@@ -248,7 +252,7 @@ func _build_visual() -> void:
 	else: _sprite.texture = FieldArt.enemy_pose(int(EnemyAttacks.PROFILES[art_type].row), 0)
 	# Own boards are baked at the enemy's own height; "scale" only enlarged a borrowed sheet.
 	_sprite.pixel_size = (height / _sprite.texture.get_height() if elite and not directional else PIXEL) * (1.0 if own_art() else float(attack_profile.get("scale", 1.0)))
-	_sprite.modulate = _tint
+	_refresh_look()
 	if attack_profile.has("barrier"):
 		_shell = BarrierFx.new()
 		_shell.colour = attack_profile.get("barrier_color", Color("9fc8ff"))
@@ -454,7 +458,7 @@ func _tick_stealth(delta: float) -> void:
 	_revealed = maxf(0.0, _revealed - delta)
 	var hidden := stealthed()
 	var faint := hidden and _flat_distance(global_position, game.player.global_position) <= STEALTH_FAINT
-	_sprite.modulate.a = 0.15 if faint else (0.0 if hidden else 1.0)
+	_refresh_look()
 	_sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED if hidden else SpriteBase3D.ALPHA_CUT_DISCARD
 	if is_instance_valid(_pick_area): _pick_area.collision_layer = 0 if hidden else PICK_LAYER
 	_read_heading(game.player.global_position)
@@ -1635,7 +1639,7 @@ func _break_barrier() -> void:
 	move_speed *= 1.4
 	if _shell != null: _shell.shatter()
 	if is_instance_valid(game): game.sound.play("barrier_break")
-	if is_instance_valid(_sprite): _sprite.modulate = _rest_tint()
+	_refresh_look()
 	if is_instance_valid(game): CombatVfx.spawn(game, global_position, Vector3.FORWARD, "spark", 0, true)
 
 func status_value(status: String) -> float:
@@ -1698,7 +1702,7 @@ func push(direction: Vector3, distance: float) -> void:
 func silence(seconds: float) -> void:
 	silence_timer = maxf(silence_timer, seconds)
 	_end_incite()
-	if is_instance_valid(_sprite): _sprite.modulate = _rest_tint()
+	_refresh_look()
 
 func silenced() -> bool:
 	return silence_timer > 0.0
@@ -1901,17 +1905,50 @@ func _tick_statuses(delta: float) -> void:
 func _flash() -> void:
 	if not is_instance_valid(_sprite):
 		return
-	_sprite.modulate = Color(3.0, 3.0, 3.0)
+	_flashing = true
+	_refresh_look()
 	var tween := create_tween()
-	tween.tween_interval(0.08)
+	tween.tween_interval(FLASH_TIME)
 	tween.tween_callback(func() -> void:
-		if is_instance_valid(_sprite):
-			_sprite.modulate = _rest_tint()
+		_flashing = false
+		_refresh_look()
 	)
 
 ## Its resting colour (the borrowed sheet's tint until its own art is in).
 func _rest_tint() -> Color:
 	return _tint
+
+# --- Its look (动画工程整理案 v0.1 §2: one writer of _sprite.modulate) --------------------
+
+## The hit flash: the whole sprite this colour for FLASH_TIME s.
+const FLASH_COLOUR := Color(3.0, 3.0, 3.0)
+const FLASH_TIME := 0.08
+var _flashing := false
+
+## The only place that writes _sprite.modulate (tests/test_modulate_writer.gd).
+## Colour: the hit flash if one is on, else the highest-priority state colour
+## over the rest tint (_state_tint), else the rest tint. Priority (用户 2026-11-22
+## "全部默认"): flash > silence > rage > barrier > base; silence and the barrier
+## have no colour of their own (the × mark and the shell are separate nodes), so
+## on a plain enemy only the flash and the rest tint remain; Boss adds its own.
+## Alpha: a stealthy enemy's from _stealth_alpha(), whatever else is showing.
+## Every writer sets its state, then calls this.
+func _refresh_look() -> void:
+	if not is_instance_valid(_sprite): return
+	var colour := FLASH_COLOUR if _flashing else _state_tint(_rest_tint())
+	if attack_profile.get("stealth", false): colour.a = _stealth_alpha()
+	_sprite.modulate = colour
+
+## The one state colour that shows over `base`, by priority; `base` when none does.
+func _state_tint(base: Color) -> Color:
+	return base
+
+## Unseen 0, a faint outline within STEALTH_FAINT 0.15, else 1.
+func _stealth_alpha() -> float:
+	if not is_inside_tree() or not is_instance_valid(game) or not is_instance_valid(game.player): return 1.0
+	var hidden := stealthed()
+	var faint := hidden and _flat_distance(global_position, game.player.global_position) <= STEALTH_FAINT
+	return 0.15 if faint else (0.0 if hidden else 1.0)
 
 ## The barrier shell stands on its feet while the barrier holds, cracked once
 ## half of it is gone (用户 2026-10-11: 加一个有裂纹的屏障).

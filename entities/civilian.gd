@@ -50,7 +50,7 @@ func setup_civilian(p_game: GameManager, p_arena: BossArena) -> void:
 	# Each one glances round on its own beat.
 	_bob_time = randf() * LOOK_EVERY
 	if is_instance_valid(_sprite):
-		_sprite.modulate = _tint
+		_refresh_look()
 		_update_attack_visual()
 	remove_from_group("guards")
 	add_to_group("civilians")

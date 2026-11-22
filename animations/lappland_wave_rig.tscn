@@ -1,0 +1,196 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Texture2D" uid="uid://ctk7hymrd8wpj" path="res://animations/lappland_rig/body.png" id="1_body"]
+[ext_resource type="Texture2D" uid="uid://ca146cesiut5s" path="res://animations/lappland_rig/blade_back.png" id="2_blade_back"]
+[ext_resource type="Texture2D" uid="uid://b5mejofhsr03d" path="res://animations/lappland_rig/blade_front.png" id="3_blade_front"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_rig"]
+resource_local_to_scene = true
+viewport_path = NodePath("Viewport")
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+step = 0.0333333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Body:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-32, -32)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ArmBack:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(10, 7)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ArmBack:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ArmFront:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-8, 5)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("ArmFront:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_wave_release"]
+resource_name = "wave_release"
+length = 0.666667
+loop_mode = 0
+step = 0.0333333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Body:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.333333, 0.666667),
+"transitions": PackedFloat32Array(2, 0.4, 0.5, 1),
+"update": 0,
+"values": [Vector2(-32, -32), Vector2(-30, -31), Vector2(-35, -32), Vector2(-32, -32)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ArmBack:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.333333, 0.666667),
+"transitions": PackedFloat32Array(2, 0.4, 0.5, 1),
+"update": 0,
+"values": [Vector2(10, 7), Vector2(12, 8), Vector2(7, 7), Vector2(10, 7)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ArmBack:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.333333, 0.666667),
+"transitions": PackedFloat32Array(2, 1, 0.5, 1),
+"update": 0,
+"values": [0.0, -0.7, 1.4, 0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ArmFront:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.333333, 0.666667),
+"transitions": PackedFloat32Array(2, 0.4, 0.5, 1),
+"update": 0,
+"values": [Vector2(-8, 5), Vector2(-6, 6), Vector2(-11, 5), Vector2(-8, 5)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("ArmFront:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.333333, 0.666667),
+"transitions": PackedFloat32Array(2, 1, 0.5, 1),
+"update": 0,
+"values": [0.0, 0.9, -0.8, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_wave"]
+_data = {
+&"RESET": SubResource("Animation_RESET"),
+&"wave_release": SubResource("Animation_wave_release")
+}
+
+[node name="WaveRig" type="Node3D"]
+
+[node name="Billboard" type="Sprite3D" parent="."]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.31, 0)
+pixel_size = 0.06
+billboard = 1
+alpha_cut = 1
+texture_filter = 0
+texture = SubResource("ViewportTexture_rig")
+
+[node name="Viewport" type="SubViewport" parent="."]
+disable_3d = true
+transparent_bg = true
+size = Vector2i(96, 96)
+render_target_update_mode = 4
+
+[node name="Rig" type="Node2D" parent="Viewport"]
+texture_filter = 1
+position = Vector2(48, 48)
+
+[node name="Body" type="Sprite2D" parent="Viewport/Rig"]
+position = Vector2(-32, -32)
+texture = ExtResource("1_body")
+centered = false
+
+[node name="ArmBack" type="Node2D" parent="Viewport/Rig"]
+z_index = -1
+position = Vector2(10, 7)
+
+[node name="BladeBack" type="Sprite2D" parent="Viewport/Rig/ArmBack"]
+position = Vector2(-42, -39)
+texture = ExtResource("2_blade_back")
+centered = false
+
+[node name="ArmFront" type="Node2D" parent="Viewport/Rig"]
+position = Vector2(-8, 5)
+
+[node name="BladeFront" type="Sprite2D" parent="Viewport/Rig/ArmFront"]
+position = Vector2(-24, -37)
+texture = ExtResource("3_blade_front")
+centered = false
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("../Viewport/Rig")
+callback_mode_process = 2
+libraries = {
+&"": SubResource("AnimationLibrary_wave")
+}

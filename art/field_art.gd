@@ -157,29 +157,19 @@ const NPC_IDLES := {
 const NPC_FRAMES := 4
 const NPC_FEET_PX := 2
 
+## The idle clip (A7, CHANGE-BRIEF.md clip 1): a Sprite3D whose own
+## AnimationPlayer is the only writer of `frame` (autoplay "idle").
+const NPC_IDLE_SCENE := preload("res://animations/npc_idle.tscn")
+
 ## An NPC's idle billboard at the game's sprite scale (1/15 unit a texel),
-## playing. Its origin is under the feet.
-static func npc_idle(kind: String) -> AnimatedSprite3D:
+## playing. Its origin is under the feet. Only the sheet and the placement
+## are set here; the scene's AnimationPlayer plays the breath.
+static func npc_idle(kind: String) -> Sprite3D:
 	var sheet: Texture2D = load(NPC_IDLES[kind])
-	var w := sheet.get_width() / NPC_FRAMES
-	var frames := SpriteFrames.new()
-	frames.set_animation_speed("default", 3.0)
-	frames.set_animation_loop("default", true)
-	for i in range(NPC_FRAMES):
-		var atlas := AtlasTexture.new()
-		atlas.atlas = sheet
-		atlas.region = Rect2(i * w, 0, w, sheet.get_height())
-		frames.add_frame("default", atlas)
-	var sprite := AnimatedSprite3D.new()
+	var sprite := NPC_IDLE_SCENE.instantiate() as Sprite3D
 	sprite.name = "Npc"
-	sprite.sprite_frames = frames
-	sprite.pixel_size = 1.0 / 15.0
-	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
-	sprite.shaded = false
+	sprite.texture = sheet
 	sprite.offset.y = sheet.get_height() * 0.5 - NPC_FEET_PX
-	sprite.play("default")
 	return sprite
 
 static func background_material(region: String) -> ShaderMaterial:

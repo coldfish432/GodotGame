@@ -2712,8 +2712,11 @@ func _set_piece(title: String, pos: Vector3, color: Color, model: String, npc: S
 		for i in range(spots.size()):
 			var figure := FieldArt.npc_idle(who[i])
 			figure.position = spots[i] + Vector3(0, ground_height(Vector2(pos.x + spots[i].x, pos.z + spots[i].z)) - node.position.y, 0)
-			# Each on its own frame, so they do not breathe in step.
-			figure.frame = rng.randi_range(0, FieldArt.NPC_FRAMES - 1)
+			# Each from its own cell, so they do not breathe in step: the same
+			# draw as before (nothing seeded after it moves), now a one-time
+			# seek of the figure's clip once it is in the tree (below); its
+			# AnimationPlayer stays the only writer of `frame`.
+			var phase := rng.randi_range(0, FieldArt.NPC_FRAMES - 1)
 			# Standing upright, stretched by the camera's tilt so it draws the
 			# same pixels: a camera-facing billboard leans back into the set piece
 			# behind it and loses its head there.
@@ -2722,6 +2725,8 @@ func _set_piece(title: String, pos: Vector3, color: Color, model: String, npc: S
 			figure.scale.y = GameManager.CAMERA_OFFSET.length() / absf(GameManager.CAMERA_OFFSET.z)
 			figure.add_to_group("upright_figures")
 			node.add_child(figure)
+			var clip := figure.get_node("AnimationPlayer") as AnimationPlayer
+			clip.seek(phase * clip.get_animation(&"idle").length / FieldArt.NPC_FRAMES, true)
 	# No Label3D over it (用户 2026-10-13: 不要中文label了): the HUD's E prompt
 	# shows when the player is near.
 	return node

@@ -61,10 +61,14 @@ func run() -> void:
 	var poses: Dictionary = {}
 	var saw_wave := false
 	var saw_ready := false
+	# Re-pin 2026-11-22 (CHANGE-BRIEF change 1, r1): the release is played by
+	# the rig (wave_state STARTUP, clip wave_release), not a "wave" sprite pose.
+	var saw_release := false
 	var hits := 0
 	var last_hp := enemy.health
 	for i in range(150):
 		poses[p._sprite.action_name] = true
+		if p.wave_state == Player.WaveState.STARTUP and p.get_node("WaveRig/AnimationPlayer").current_animation == &"wave_release": saw_release = true
 		if p.sword_charge == 3: saw_ready = true
 		for node in game.get_children():
 			if node is SwordWave: saw_wave = true
@@ -75,7 +79,7 @@ func run() -> void:
 	print("INPUT STATE ", {"poses": poses, "charge": p.sword_charge, "hp": enemy.health, "ready": saw_ready, "wave": saw_wave, "cooldown": p._attack_cooldown})
 	await mouse(enemy.global_position, false)
 	check("held mouse attacks through all three poses", poses.has("attack_1") and poses.has("attack_2") and poses.has("attack_3"))
-	check("real-time held attack readies then releases wave", saw_ready and saw_wave and poses.has("wave"))
+	check("real-time held attack readies then releases wave", saw_ready and saw_wave and saw_release)
 	# Damage per blow follows the floor (scaling.gd), so count the blows that land.
 	print("HITS ", hits)
 	check("actual melee and wave damage reach target", hits >= 4 and enemy.health < 1000000)

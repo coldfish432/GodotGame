@@ -5942,7 +5942,7 @@ static func release_static_caches() -> void:
 			BaseMap._kit_meshes, TerraceDressing._kit_cache, AttackCursor._textures, ItemIcons._cache, PaperDoll._silhouettes,
 			RelicIcons._cache, ResearchTreeView._cards, ResearchTreeView._bands, GroundHazard._circles, Loot._ground_cache,
 			OperatorKit._textures, FieldArt._frames, EnemyAttackVfx._shared, CombatVfx._meshes, BossVfx._burst_quads, BossVfx._burst_materials, Loot._looks,
-			AK._button_styles, InventoryPanel._tile_styles]:
+			AK._button_styles, InventoryPanel._tile_styles, LapplandAnimator3D._frames_cache]:
 		cache.clear()
 	AttackCursor.release()
 	GpuFx.release()

@@ -373,6 +373,12 @@ func _combat_lappland() -> void:
 	p.hitstop_remaining = 0
 	p.dash_remaining = 0
 	p.attack_direction(Vector3.FORWARD)
+	# Re-pin 2026-11-22 (CHANGE-BRIEF change 1, r3 (1)): the wave leaves on the
+	# release's frame 6, on her own physics tick (switched off in this suite):
+	# run her tick until the release is over. Expected value unchanged.
+	for i in range(120):
+		if p.wave_state == Player.WaveState.READY: break
+		p._physics_process(1.0 / 60.0)
 	var count := game.get_children().filter(func(c): return c is SwordWave).size()
 	check("狼群: the wave splits in three", count == 3, count)
 	game._clear_field()

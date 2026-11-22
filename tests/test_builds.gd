@@ -39,6 +39,22 @@ func dummy(offset: Vector3, elite: bool = false, defense: float = 0.0, res: floa
 	enemy.res = res
 	return enemy
 
+## Re-pin 2026-11-22 (CHANGE-BRIEF change 1, r3 (1), r5 (a)): a release's
+## wave leaves on its frame 6 and the release ends on frame 20, on the
+## player's own physics tick, and no swing starts in its startup or active
+## frames. This suite switches her physics off, so it runs her tick here until
+## the release is over. Expected values are unchanged.
+func through_release() -> void:
+	for i in range(120):
+		if p.wave_state == Player.WaveState.READY: return
+		p._physics_process(1.0 / 60.0)
+
+## A swing that may follow a release (an incidental fourth hit): the release
+## runs out first, as it would in play.
+func swing_after_release(enemy: Enemy, stage: int = 0) -> float:
+	through_release()
+	return swing(enemy, stage)
+
 func swing(enemy: Enemy, stage: int = 0) -> float:
 	p._attack_cooldown = 0
 	p.hitstop_remaining = 0
@@ -283,20 +299,20 @@ func _attack() -> void:
 	e.health = e.max_health * 0.5
 	check("溃决之手: +25% into an enemy at half life", is_equal_approx(swing(e), ATK * 1.25))
 	e.health = e.max_health * 0.2 + ATK * 0.5 # just above 20%: one hit takes it under
-	swing(e)
+	swing_after_release(e)
 	check("溃决之手: an ordinary enemy under 20% is executed", e._dead)
 	var boss := dummy(Vector3(1, 0, 2), true)
 	boss.health = boss.max_health * 0.1
 	use(["扼喉之手"])
-	swing(boss)
+	swing_after_release(boss)
 	check("扼喉之手 never executes an elite", not boss._dead)
 	boss.queue_free()
 	await step()
 	var lone := dummy(Vector3(0, 0, 2))
 	use(["荣耀绶带"])
-	check("荣耀绶带: +60% with one enemy near", is_equal_approx(swing(lone), ATK * 1.6))
+	check("荣耀绶带: +60% with one enemy near", is_equal_approx(swing_after_release(lone), ATK * 1.6))
 	var crowd := dummy(Vector3(0.5, 0, 3))
-	check("but not with two", is_equal_approx(swing(lone), ATK))
+	check("but not with two", is_equal_approx(swing_after_release(lone), ATK))
 	crowd.queue_free()
 	await step()
 	use(["绿叶菜罐头"])
@@ -310,7 +326,7 @@ func _attack() -> void:
 	p._on_wave_released()
 	check("and back to nothing after a wave", is_equal_approx(p.attack_power(), ATK))
 	use(["轰鸣之手"])
-	for i in range(12): swing(lone)
+	for i in range(12): swing_after_release(lone)
 	check("轰鸣之手: +8% per hit up to +80%", p.hit_stacks == 10 and is_equal_approx(p.attack_power(), ATK * 1.8))
 	p._tick_relic_timers(3.1)
 	check("and gone after 3 s without a hit", is_equal_approx(p.attack_power(), ATK))
@@ -321,7 +337,7 @@ func _attack() -> void:
 	p.hp = p.max_hp
 	use(["赏善郎"])
 	p._on_block()
-	check("赏善郎: a block arms the next hit at ×2", is_equal_approx(swing(lone), ATK * 2) and is_equal_approx(swing(lone), ATK))
+	check("赏善郎: a block arms the next hit at ×2", is_equal_approx(swing_after_release(lone), ATK * 2) and is_equal_approx(swing_after_release(lone), ATK))
 	use(["《光耀卡西米尔》"])
 	p._on_evade()
 	check("《光耀卡西米尔》: +70% ATK for 6 s after an evade", is_equal_approx(p.attack_power(), ATK * 1.7))
@@ -583,6 +599,7 @@ func _special() -> void:
 	p.sword_charge = 3
 	var before := game.get_children().filter(func(n): return n is SwordWave).size()
 	swing(e)
+	through_release()
 	check("双生狼牙 fires three waves", game.get_children().filter(func(n): return n is SwordWave).size() - before == 3)
 	for wave in game.get_children().filter(func(n): return n is SwordWave): wave.queue_free()
 	wear("ember_fang")

@@ -41,6 +41,14 @@ func body_metrics(texture: Texture2D) -> Vector2:
 			if top < 0: top = y
 			foot = y
 	return Vector2(foot + 1 - image.get_height() / 2.0, foot + 1 - top)
+## Re-pin 2026-11-22 (CHANGE-BRIEF change 1, r1, r3 (1)): a release's wave
+## leaves on its frame 6 and the release ends on frame 20, both on the
+## player's own physics tick. This suite switches her physics off, so it runs
+## her tick here until the release is over. Expected values are unchanged.
+func through_release() -> void:
+	for i in range(120):
+		if p.wave_state == Player.WaveState.READY: return
+		p._physics_process(1.0 / 60.0)
 func waves() -> Array[Node]:
 	return game.get_children().filter(func(n): return n is SwordWave and not n.is_queued_for_deletion())
 func clear_waves() -> void:
@@ -97,7 +105,10 @@ func run() -> void:
 		and textures[0] == PlayerAura.FANG_TEXTURES.lit and textures[1] == PlayerAura.FANG_TEXTURES.empty and textures[2] == PlayerAura.FANG_TEXTURES.empty)
 	p.sword_charge = kept
 	swing(enemy)
-	check("fourth hit releases and does not re-charge", p.sword_charge == 0 and waves().size() == 1 and p.combo_step == 0 and p._sprite.action_name == "wave")
+	# r1: the release is played by the rig (wave_state STARTUP, clip wave_release), not a "wave" sprite action.
+	var rig_plays: bool = p.wave_state == Player.WaveState.STARTUP and p.get_node("WaveRig/AnimationPlayer").current_animation == &"wave_release"
+	through_release()
+	check("fourth hit releases and does not re-charge", p.sword_charge == 0 and waves().size() == 1 and p.combo_step == 0 and rig_plays)
 	var wave := waves()[0] as SwordWave
 	wave.set_physics_process(false)
 	# 剑气强化 (the old 剑气 affix, 精英化案 §8.1) adds 25%: arts power × 1.5 × 1.25.
@@ -144,6 +155,7 @@ func run() -> void:
 	p.sword_charge = 3
 	p._attack_cooldown = 0
 	p.attack_direction(Vector3.FORWARD)  # away from the dummies: a true air swing
+	through_release()
 	check("full charge can release on empty ground", waves().size() == 1 and p.sword_charge == 0)
 	clear_waves()
 	p.sword_charge = 3
@@ -334,7 +346,7 @@ func run() -> void:
 	check("the release swing is tinted arts purple", (released._parts[0].material_override as StandardMaterial3D).albedo_color.is_equal_approx(Color(CombatVfx.LIGHT, 0.7)))
 	released.queue_free()
 	p._sprite._process(0.12)
-	check("fast swing reaches its last frame early", p._sprite.frame == 2)
+	check("fast swing reaches its last frame early", p._sprite.frame == 3) # from the strike frame 1: 1 + int(0.12 × 18)
 	p._sprite.cancel_action()
 	charm.modifiers.append(ItemModifier.stat_mod(ItemModifier.Stat.BLADE_COOLDOWN_PCT, 0.15))
 	p._recompute_stats()
