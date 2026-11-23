@@ -959,10 +959,8 @@ func cfd_underlyings() -> Array[String]:
 	for id in FactionCatalog.trading():
 		if FactionCatalog.info(id).get("field_only", false): continue
 		out.append("comp:" + id)
-	for m in market.books:
-		if Currencies.is_fx(m): continue
-		var f: String = FactionCatalog.split(m)[0]
-		if not FactionCatalog.info(f).get("field_only", false): out.append(m)
+	# 统一行情: one underlying a pack, its line.
+	for cat in market.lines: out.append(str(cat))
 	# 运营策划案 §4.1: shares too.
 	for id in FirmCatalog.ORDER: out.append("stock:" + id)
 	return out

@@ -8,6 +8,12 @@ extends RefCounted
 ## mean, about 5 days to the long-term level), and is pushed by news
 ## (MarketEvents) and by the player's own selling (pressure). Big moves are
 ## rate-limited to 10% per 5 minutes instead of halting (§5.5, 不停市).
+##
+## 交易所统一行情修订案 v0.3 (用户 2026-11-22): goods have one line a pack
+## (`lines`, id = the category, "build"); a faction's book ("lungmen:build")
+## is no longer a walk of its own but the line × (1 + its basis), the basis
+## within ±8% and fading back over 6 hours. A faction's news and orders reach
+## the line by its hidden share (MarketInfluence), the rest its basis.
 
 const TICK := 2
 ## Catching up after the game was shut: exact 2 s ticks for the last hour,
@@ -64,6 +70,13 @@ const RANDOM_ANNOUNCES := 2
 const NEWS_KEEP := 120
 const LOCK_TICKS := 3
 const CREDIBILITY := {"低": 0.3, "中": 0.55, "高": 0.8}
+## 统一行情 §4.3: a faction's basis on a pack line, its fade and its noise
+## (per sqrt second; about 2.5% spread at rest, black markets × their noise).
+const BASIS_CAP := 0.08
+const BASIS_HALF := 6.0 * 3600.0
+const BASIS_NOISE := 0.0002
+## Rhodes' selling: this share reaches the line, the rest the venue's basis (§4.4).
+const RHODES_LINE_SHARE := 0.5
 const RUMOR_FIRST := 0.3
 
 ## Local time offset in seconds; -1 = the system's.
@@ -91,6 +104,8 @@ class Book:
 	var fl := 0.0      # net order flow this step (龙门币 of base price, + buying), 运营策划案 §3.4
 	var va := 0.0      # gross traded this step: the candle's volume
 	var fe := 0.0      # lasting flow (decaying sum of fl / depth, half-life a day): where fair leans
+	var bs := 0.0      # 统一行情: a faction book's basis on its pack line (fraction)
+	var is_line := false
 	var c1 := PackedFloat32Array()
 	var c15 := PackedFloat32Array()
 	var cd := PackedFloat32Array()
@@ -157,6 +172,18 @@ class Book:
 		if c15.size() > KEEP_M15 * FIELDS: c15 = c15.slice(c15.size() - KEEP_M15 * FIELDS)
 		if cd.size() > KEEP_D1 * FIELDS: cd = cd.slice(cd.size() - KEEP_D1 * FIELDS)
 
+	## 统一行情: a pack's line, the one walk its faction books follow.
+	func setup_line(cat: String) -> void:
+		id = cat
+		faction = ""
+		category = cat
+		cur = ""
+		fx = false
+		noise = 1.0
+		active_kind = "all"
+		switches = []
+		is_line = true
+
 	## A listed firm's shares (§3.2): its own book, outside the factions' list.
 	func setup_stock(firm: String) -> void:
 		id = firm
@@ -170,7 +197,7 @@ class Book:
 
 	func to_data() -> Dictionary:
 		trim()
-		return {"id": id, "i": i, "mu": mu, "lt": lt, "rg": rg, "rl": rl, "tr": tr, "p": p, "pj": pj, "sh": sh, "ew": ew, "mo": mo, "w0": w0, "wp": wp, "fl": fl, "va": va, "fe": fe,
+		return {"id": id, "i": i, "mu": mu, "lt": lt, "rg": rg, "rl": rl, "tr": tr, "p": p, "pj": pj, "sh": sh, "ew": ew, "mo": mo, "w0": w0, "wp": wp, "fl": fl, "va": va, "fe": fe, "bs": bs,
 			"c1": c1, "c15": c15, "cd": cd, "b1": b1, "b15": b15, "bd": bd}
 
 	func load(d: Dictionary) -> void:
@@ -179,11 +206,18 @@ class Book:
 		p = float(d.get("p", 0.0)); pj = float(d.get("pj", 0.0)); sh = float(d.get("sh", 0.0)); ew = float(d.get("ew", 0.0)); mo = float(d.get("mo", 0.0)); w0 = int(d.get("w0", 0)); wp = float(d.get("wp", i))
 		c1 = d.get("c1", PackedFloat32Array()); c15 = d.get("c15", PackedFloat32Array()); cd = d.get("cd", PackedFloat32Array())
 		b1 = int(d.get("b1", -1)); b15 = int(d.get("b15", -1)); bd = int(d.get("bd", -1))
-		fl = float(d.get("fl", 0.0)); va = float(d.get("va", 0.0)); fe = float(d.get("fe", 0.0))
+		fl = float(d.get("fl", 0.0)); va = float(d.get("va", 0.0)); fe = float(d.get("fe", 0.0)); bs = float(d.get("bs", 0.0))
 
 var t := 0
 var rng := RandomNumberGenerator.new()
-var books := {}            # market id -> Book
+var books := {}            # market id -> Book (faction books and rate books)
+var lines := {}            # 统一行情: category -> Book, one line a pack
+var _quotes := {}          # category -> [faction book ids]
+var _line_mods := {}       # category -> {mult, vol}
+var _basis_mods := {}      # faction book -> basis from news (fraction)
+var influence: MarketInfluence
+var plans: MarketPlans
+var pending_news: Array = []   # {at, title, region, markets, moves}: exposed plans (§4.3)
 var effects: Array = []    # {id, title, kind, until, scale, picks, items: [{markets, factions, mult, jump, spread, depth, vol, quota, fee, halt_until, active_all}], rumor: {...}}
 var news: Array = []       # {t, id, kind, title, region, cred, status, unread, markets, moves, cause, picks}
 var calendar: Array = []   # {at, id, seasonal} or a linked follow-up {at, id, cause, picks, depth, linked}
@@ -246,6 +280,8 @@ func _init() -> void:
 	econ = EconomyCycle.new()
 	credit = CreditPool.new()
 	firms = Firms.new()
+	influence = MarketInfluence.new()
+	plans = MarketPlans.new()
 
 ## A fresh market at `now`, with two hours of history behind it.
 func start(now: int, seed_value: int = 0) -> void:
@@ -257,16 +293,34 @@ func start(now: int, seed_value: int = 0) -> void:
 	ripples.clear()
 	field.clear()
 	_init_currencies()
+	lines.clear()
+	for cat in FactionCatalog.line_ids():
+		var lb := Book.new()
+		lb.setup_line(cat)
+		lb.i = clampf(1.0 + rng.randfn(0.0, 0.04), 0.85, 1.15)
+		lb.mu = lb.i
+		lb.wp = lb.i
+		_new_regime(lb)
+		lines[cat] = lb
 	for id in FactionCatalog.markets():
 		var b := Book.new()
 		b.setup(id)
-		b.i = 1.0 if pegs.has(id) else clampf(1.0 + rng.randfn(0.0, 0.04), 0.85, 1.15)
-		b.mu = b.i
-		b.wp = b.i
-		_new_regime(b)
+		if b.fx:
+			b.i = 1.0 if pegs.has(id) else clampf(1.0 + rng.randfn(0.0, 0.04), 0.85, 1.15)
+			b.mu = b.i
+			b.wp = b.i
+			_new_regime(b)
+		else:
+			b.bs = clampf(rng.randfn(0.0, 0.02), -BASIS_CAP, BASIS_CAP)
 		books[id] = b
+	_index_quotes()
+	for b in books.values():
+		if not b.fx: _derive(b)
 	t = now - 2 * 3600
 	for b in books.values(): b.w0 = t
+	for b in lines.values(): b.w0 = t
+	plans.clear()
+	pending_news.clear()
 	_start_world()
 	_schedule_swan()
 	var cb := on_news
@@ -285,6 +339,8 @@ func _start_world() -> void:
 	firms.start(self)
 	actors.start(self)
 	credit.rebuild(actors, firms, 0.0, 0.0)
+	influence.start(self)
+	_mods_dirty = true
 
 # --- Time ------------------------------------------------------------------------
 
@@ -357,11 +413,16 @@ func _step(dt: int) -> void:
 	_common = rng.randfn(0.0, COMMON_NOISE * (1.0 + PANIC_VOL * panic)) * sqrt(float(dt) / TICK)
 	_crash = PANIC_DRIFT * panic * float(dt) / TICK
 	for b: Book in books.values():
+		if b.fx: _move(b, dt, hour, minute_of_day, lt)
+	for b: Book in lines.values():
 		_move(b, dt, hour, minute_of_day, lt)
+	for b: Book in books.values():
+		if not b.fx: _move_quote(b, dt)
 	if actors_on:
 		for b: Book in stocks.values(): _move_stock(b, dt, lt)
 	_events(dt)
 	if actors_on: _world_step(dt)
+	_news_due()
 	if fx_rate_before != fx_rate(): Economy.fx = fx_rate()
 	_publish_rates()
 	version += 1
@@ -375,6 +436,7 @@ func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
 	var regime: Dictionary = REGIMES[b.rg]
 	var vol := float(regime.noise) * float(m.get("vol", 1.0))
 	if b.fx: vol *= FX_NOISE * b.noise
+	elif b.is_line: vol *= b.noise
 	else:
 		vol *= b.noise
 		if not _active_book(b, hour): vol *= OFF_HOURS.vol
@@ -431,6 +493,30 @@ func _move(b: Book, dt: int, hour: int, minute_of_day: int, lt: int) -> void:
 	b.fl = 0.0
 	b.va = 0.0
 
+## 统一行情 §4.3: a faction book follows its pack line; its basis fades back
+## over BASIS_HALF and wanders a little (more on a black market).
+func _move_quote(b: Book, dt: int) -> void:
+	b.bs = clampf(b.bs * pow(0.5, dt / BASIS_HALF) + rng.randfn(0.0, BASIS_NOISE * maxf(b.noise, 1.0)) * sqrt(float(dt)), -BASIS_CAP, BASIS_CAP)
+	if b.p > 0.0001: b.p *= pow(0.5, dt / PRESSURE_HALF)
+	_derive(b)
+
+## A faction book's index: its line × (1 + basis), the news basis included.
+func _derive(b: Book) -> void:
+	var line: Book = lines.get(b.category)
+	if line == null: return
+	var off := clampf(b.bs + float(_basis_mods.get(b.id, 0.0)), -BASIS_CAP, BASIS_CAP)
+	b.i = clampf(line.i * (1.0 + off), 0.05, 20.0)
+	b.ew = line.ew
+	b.mo = line.mo
+
+func _index_quotes() -> void:
+	_quotes.clear()
+	for id in books:
+		var b: Book = books[id]
+		if b.fx or b.category.is_empty(): continue
+		if not _quotes.has(b.category): _quotes[b.category] = []
+		_quotes[b.category].append(id)
+
 ## A share book: back toward the firm's fundamental value over a couple of
 ## days, pushed by orders, a little noise (§3.2, §3.4).
 func _move_stock(b: Book, dt: int, lt: int) -> void:
@@ -459,6 +545,8 @@ func _world_step(dt: int) -> void:
 	actors.step(self, dt)
 	firms.step(self, dt)
 	econ.step(self)
+	influence.step(self, dt)
+	plans.step(self, dt)
 	if t % MarketActors.ROUND < dt:
 		var debt := 0.0
 		var deposits := 0.0
@@ -484,13 +572,32 @@ func _depth_cached(market: String) -> float:
 	return float(d)
 
 ## §3.4 order flow: `lmd` of base price (+ buying) into `market` this step.
+## 统一行情 §4.4: a faction book's flow goes to its pack line; Rhodes' own
+## trades half to the line and half to that venue's basis; an arbitrage
+## ("arb:…") only to the basis.
 func add_flow(market: String, lmd: float, who: String = "") -> void:
 	var b: Book = books.get(market)
-	if b == null: return
-	b.fl += lmd
-	b.va += absf(lmd)
+	if b == null:
+		b = lines.get(market)
+		if b == null: return
+	if not b.fx and not b.is_line:
+		var line: Book = lines.get(b.category)
+		var to_line := lmd
+		if who.begins_with("arb:"): to_line = 0.0
+		elif who == "rhodes": to_line = lmd * RHODES_LINE_SHARE
+		if to_line != lmd: _push_basis(b, IMPACT * (lmd - to_line) / maxf(_depth_cached(b.id), 1000.0))
+		if line != null:
+			line.fl += to_line
+			line.va += absf(lmd)
+	else:
+		b.fl += lmd
+		b.va += absf(lmd)
 	if who == "rhodes_upkeep": actors.saw_upkeep(market)
 	version += 1
+
+func _push_basis(b: Book, x: float) -> void:
+	b.bs = clampf(b.bs + x, -BASIS_CAP, BASIS_CAP)
+	_derive(b)
 
 func add_stock_flow(firm: String, lmd: float, _who: String = "") -> void:
 	var b: Book = stocks.get(firm)
@@ -570,8 +677,7 @@ func _new_regime(b: Book) -> void:
 ## per 赤金, crosses in 龙门币 per unit, goods ×100).
 func candles(market: String, period: String, limit: int = 120) -> Array:
 	if Currencies.is_cross(market): return _cross_candles(Currencies.cross_cur(market), period, limit)
-	var b: Book = books.get(market)
-	if b == null and market.begins_with("stock:"): b = stocks.get(market.substr(6))
+	var b: Book = shown_book(market)
 	if b == null: return []
 	var src := b.c1
 	var group := 1
@@ -650,7 +756,62 @@ func active(faction: String, hour: int = -1) -> bool:
 
 func index(market: String) -> float:
 	var b: Book = books.get(market)
+	if b == null: b = lines.get(market)
 	return b.i if b != null else 1.0
+
+## The book whose candles show `market`: a faction book shows its pack line.
+func shown_book(market: String) -> Book:
+	var b: Book = books.get(market)
+	if b == null: b = lines.get(market)
+	if b == null and market.begins_with("stock:"): b = stocks.get(market.substr(6))
+	if b != null and not b.fx and not b.is_line and lines.has(b.category): b = lines[b.category]
+	return b
+
+## The pack line under a faction book (itself for a line, the book for a rate).
+func line_of(market: String) -> Book:
+	var b: Book = books.get(market)
+	if b == null: return lines.get(market)
+	if b.fx: return b
+	return lines.get(b.category, b)
+
+func is_line(market: String) -> bool:
+	return lines.has(market)
+
+## Puts a book at `value` now, with nothing pending (tests and tools): a
+## faction book through its line, its basis cleared.
+func pin(market: String, value: float) -> void:
+	var b: Book = books.get(market)
+	if b == null: b = lines.get(market)
+	if b == null: return
+	if not b.fx and not b.is_line:
+		b.bs = 0.0
+		b.p = 0.0
+		b.lock = 0
+		b = lines.get(b.category)
+		if _mods_dirty: _rebuild_mods()
+		value /= 1.0 + clampf(float(_basis_mods.get(market, 0.0)), -BASIS_CAP, BASIS_CAP)
+	b.i = value
+	b.wp = value
+	b.mu = value
+	b.p = 0.0
+	b.lock = 0
+	b.pj = 0.0
+	b.sh = 0.0
+	b.mo = 0.0
+	b.tr = 0.0
+	if b.is_line:
+		for q in quotes_of(b.id): _derive(books[q])
+
+## The faction books on a pack line.
+func quotes_of(cat: String) -> Array:
+	return _quotes.get(cat, [])
+
+## A faction book's basis now (news included), fraction.
+func basis(market: String) -> float:
+	var b: Book = books.get(market)
+	if b == null or b.fx: return 0.0
+	if _mods_dirty: _rebuild_mods()
+	return clampf(b.bs + float(_basis_mods.get(market, 0.0)), -BASIS_CAP, BASIS_CAP)
 
 func price(market: String) -> float:
 	if Currencies.is_cross(market): return cross_rate(Currencies.cross_cur(market))
@@ -661,8 +822,7 @@ func change(market: String) -> float:
 	if Currencies.is_cross(market):
 		var day := _cross_candles(Currencies.cross_cur(market), "1d", 1)
 		return (price(market) - float(day[0][0])) / maxf(float(day[0][0]), 1e-9) if not day.is_empty() else 0.0
-	var b: Book = books.get(market)
-	if b == null and market.begins_with("stock:"): b = stocks.get(market.substr(6))
+	var b: Book = shown_book(market)
 	if b == null or b.cd.size() < FIELDS: return 0.0
 	var o := b.cd[b.cd.size() - FIELDS]
 	return (b.i - o) / maxf(o, 0.0001)
@@ -675,6 +835,7 @@ func mods(market: String) -> Dictionary:
 func spread(market: String) -> float:
 	var b: Book = books.get(market)
 	if b == null: return 0.0
+	if b.is_line: return 0.0
 	if b.fx: return 0.0
 	var s := float(FactionCatalog.info(b.faction).get("spread", 0.03)) * float(mods(market).get("spread", 1.0))
 	if not active(b.faction): s *= OFF_HOURS.spread
@@ -682,7 +843,13 @@ func spread(market: String) -> float:
 
 func depth(market: String) -> float:
 	var b: Book = books.get(market)
-	if b == null: return DEPTH_LMD
+	if b == null:
+		# 统一行情 §4.1: a line is as deep as its faction books together.
+		if lines.has(market):
+			var sum := 0.0
+			for q in quotes_of(market): sum += depth(str(q))
+			return maxf(sum, 1000.0)
+		return DEPTH_LMD
 	var d := DEPTH_LMD * float(FactionCatalog.info(b.faction).get("depth", 1.0)) * float(mods(market).get("depth", 1.0))
 	if not active(b.faction): d *= OFF_HOURS.depth
 	# The makers' money deepens every book (§3.8.5).
@@ -692,12 +859,12 @@ func depth(market: String) -> float:
 ## What the faction pays, as a multiple of base price before preference.
 func bid(market: String) -> float:
 	var b: Book = books.get(market)
-	if b == null: return 0.0
+	if b == null: return index(market) if lines.has(market) else 0.0
 	return b.i * (1.0 - b.p) * (1.0 - spread(market) * 0.5)
 
 func ask(market: String) -> float:
 	var b: Book = books.get(market)
-	if b == null: return 0.0
+	if b == null: return index(market) if lines.has(market) else 0.0
 	return b.i * (1.0 + spread(market) * 0.5)
 
 func halted(market: String) -> bool:
@@ -724,9 +891,14 @@ func add_pressure(market: String, value: float, who: String = "rhodes") -> void:
 	var b: Book = books.get(market)
 	if b == null: return
 	b.p = clampf(b.p + value / depth(market), 0.0, PRESSURE_CAP)
-	if b.c1.size() >= FIELDS: b.c1[b.c1.size() - 1] += absf(value)
+	var shown: Book = lines.get(b.category, b) if not b.fx else b
+	if shown.c1.size() >= FIELDS: shown.c1[shown.c1.size() - 1] += absf(value)
 	if actors_on and value > 0.0:
-		b.fl -= value
+		if b.fx: b.fl -= value
+		else:
+			var share := RHODES_LINE_SHARE if who == "rhodes" else 1.0
+			shown.fl -= value * share
+			if share < 1.0: _push_basis(b, -IMPACT * value * (1.0 - share) / maxf(depth(market), 1000.0))
 		if who == "rhodes" and rhodes != null:
 			actors.rhodes_trade(self, b.faction, market, -value)
 	version += 1
@@ -953,7 +1125,42 @@ func _rebuild_mods() -> void:
 	# Stacked news multipliers are clamped to 0.2–5×.
 	for id in _mods:
 		if _mods[id].has("mult"): _mods[id]["mult"] = clampf(float(_mods[id].mult), 0.2, 5.0)
+	_split_mods()
 	_mods_dirty = false
+
+## 统一行情 §4.4: a pack line takes a "*:category" effect whole and a
+## faction's by that faction's hidden share; the rest of a faction's price
+## effect is its basis (capped at ±8%). Spread, depth, halts stay its own.
+func _split_mods() -> void:
+	_line_mods.clear()
+	_basis_mods.clear()
+	for e in effects:
+		var scale := float(e.get("scale", 1.0))
+		for item in e.items:
+			if not item.has("mult") and not item.has("vol"): continue
+			var d_mult := (float(item.mult) - 1.0) * scale if item.has("mult") else 0.0
+			var d_vol := float(item.vol) - 1.0 if item.has("vol") else 0.0
+			if item.get("global", false):
+				for cat in item.get("cats", []):
+					var lm: Dictionary = _line_mods.get(cat, {"mult": 0.0, "vol": 0.0})
+					lm.mult = float(lm.mult) + d_mult
+					lm.vol = float(lm.vol) + d_vol
+					_line_mods[cat] = lm
+				continue
+			for q in item.markets:
+				var b: Book = books.get(q)
+				if b == null or b.fx: continue
+				var s := influence.quote_share(self, str(q))
+				var lm: Dictionary = _line_mods.get(b.category, {"mult": 0.0, "vol": 0.0})
+				lm.mult = float(lm.mult) + d_mult * s
+				lm.vol = float(lm.vol) + d_vol * s
+				_line_mods[b.category] = lm
+				_basis_mods[q] = clampf(float(_basis_mods.get(q, 0.0)) + d_mult * (1.0 - s), -BASIS_CAP, BASIS_CAP)
+	for cat in _line_mods:
+		_mods[cat] = {"mult": clampf(1.0 + float(_line_mods[cat].mult), 0.2, 5.0), "vol": maxf(0.2, 1.0 + float(_line_mods[cat].vol))}
+	# The news bases apply at once.
+	for b: Book in books.values():
+		if not b.fx: _derive(b)
 
 func _expire_effects() -> void:
 	for e in effects:
@@ -1041,6 +1248,14 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 		if sel.contains("%s"): sel = sel % pick_cat
 		var markets := _resolve(sel, region_factions, picked)
 		var item := {"markets": markets, "factions": markets.map(func(m): return FactionCatalog.split(m)[0])}
+		# 统一行情 §4.4: "*:category" moves the pack lines whole.
+		if sel.begins_with("*:") and not Currencies.is_fx(sel):
+			item["global"] = true
+			var cats: Array = []
+			for m in markets:
+				var c := str(FactionCatalog.split(m)[1])
+				if not cats.has(c): cats.append(c)
+			item["cats"] = cats
 		var link := str(spec.get("link", ""))
 		var sign := 1.0 if rng.randf() < 0.5 else -1.0
 		if not link.is_empty():
@@ -1059,20 +1274,27 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 		if spec.has("revert") and not markets.is_empty(): jump = pow(1.0 / maxf(index(markets[0]), 0.05), float(spec.revert)) - 1.0
 		if jump != 0.0:
 			item["jump"] = jump
+			_jump_item(item, jump * scale)
 			for m in markets:
-				_jump(m, jump * scale)
 				var cur := Currencies.of_book(m)
 				if not cur.is_empty() and absf(jump * scale) >= RIPPLE_MIN: _ripple(cur, jump * scale)
 		_currency_effects(spec, markets, sign, until)
 		if spec.has("longterm"):
-			for m in markets:
-				var b: Book = books.get(m)
-				if b != null: b.lt *= float(spec.longterm)
+			if item.get("global", false):
+				for c in item.cats:
+					if lines.has(c): (lines[c] as Book).lt *= float(spec.longterm)
+			else:
+				for m in markets:
+					var b: Book = books.get(m)
+					if b == null: continue
+					if b.fx: b.lt *= float(spec.longterm)
+					elif lines.has(b.category): (lines[b.category] as Book).lt *= 1.0 + (float(spec.longterm) - 1.0) * influence.quote_share(self, str(m))
 		for m in markets:
 			var b: Book = books.get(m)
 			if b != null: b.lock = t + LOCK_TICKS * TICK
 		items.append(item)
 	var entry := {"id": id, "title": title, "kind": ev.kind, "until": until, "scale": scale, "items": items, "picks": picks}
+	influence.on_event(self, items, picks, id)
 	if rumor:
 		var creds := CREDIBILITY.keys()
 		var cred: String = creds[rng.randi() % creds.size()]
@@ -1112,6 +1334,7 @@ func fire(id: String, picks: Dictionary = {}, cause: String = "", depth: int = 0
 	if on_news.is_valid(): on_news.call(headline, ev)
 	if actors_on:
 		actors.on_news(self, headline, ev)
+		plans.on_news(self, headline, ev)
 		if id.begins_with("FE"): firms.on_event(self, id, picks)
 	_follow(id, title, picks, "", depth)
 	_push(id, float(MarketLinks.PUSH.get(str(ev.kind), 0.3)))
@@ -1197,10 +1420,24 @@ func _weight(id: String) -> float:
 
 func _jump(market: String, fraction: float) -> void:
 	var b: Book = books.get(market)
-	if b != null:
-		var x := log(maxf(0.05, 1.0 + fraction))
-		b.pj += x
-		b.sh += x
+	if b == null: b = lines.get(market)
+	if b == null: return
+	if not b.fx and not b.is_line:
+		# 统一行情 §4.4: the line by the faction's share, the rest its basis.
+		var s := influence.quote_share(self, market)
+		_jump(b.category, fraction * s)
+		_push_basis(b, fraction * (1.0 - s))
+		return
+	var x := log(maxf(0.05, 1.0 + fraction))
+	b.pj += x
+	b.sh += x
+
+## An event item's jump: a "*:category" one on its lines whole, else book by book.
+func _jump_item(item: Dictionary, fraction: float) -> void:
+	if item.get("global", false):
+		for c in item.get("cats", []): _jump(str(c), fraction)
+		return
+	for m in item.markets: _jump(str(m), fraction)
 
 func _verify(e: Dictionary) -> void:
 	var r: Dictionary = e.rumor
@@ -1214,16 +1451,14 @@ func _verify(e: Dictionary) -> void:
 	if r.truth:
 		e.scale = 1.0
 		for item in e.items:
-			if item.has("jump"):
-				for m in item.markets: _jump(m, float(item.jump) * (1.0 - RUMOR_FIRST))
+			if item.has("jump"): _jump_item(item, float(item.jump) * (1.0 - RUMOR_FIRST))
 		if not headline.is_empty(): headline.status = "已证实"
 		for f in field:
 			if str(f.id) == str(e.id) and f.get("pending", false): f.pending = false
 	else:
 		field = field.filter(func(f): return not (str(f.id) == str(e.id) and f.get("pending", false)))
 		for item in e.items:
-			if item.has("jump"):
-				for m in item.markets: _jump(m, -float(item.jump) * RUMOR_FIRST)
+			if item.has("jump"): _jump_item(item, -float(item.jump) * RUMOR_FIRST)
 			if item.has("mult"): item["mult"] = float(r.false_mult)
 		e.scale = 1.0
 		if float(r.false_mult) == 1.0: e.until = t
@@ -1368,7 +1603,9 @@ func mark_read() -> void:
 func to_data() -> Dictionary:
 	var b_data := {}
 	for id in books: b_data[id] = books[id].to_data()
-	return {"version": 1, "clock_v": 2, "t": t, "seed": rng.seed, "state": rng.state, "books": b_data, "effects": effects, "news": news,
+	var l_data := {}
+	for id in lines: l_data[id] = lines[id].to_data()
+	return {"version": 1, "clock_v": 2, "unified": 1, "lines": l_data, "influence": influence.to_data(), "plans": plans.to_data(), "pending_news": pending_news, "t": t, "seed": rng.seed, "state": rng.state, "books": b_data, "effects": effects, "news": news,
 		"calendar": calendar, "flash": flash, "swan": swan, "rumors_low_until": rumors_low_until,
 		"post_boost": post_boost, "penguin": penguin, "cfd_halt": cfd_halt, "seasonal_scanned": seasonal_scanned,
 		"barter_seed": barter_seed, "next_flash": _next_flash_id, "chain": chain, "boosts": boosts, "factors": factors,
@@ -1407,6 +1644,20 @@ func load_data(d: Dictionary) -> void:
 			b.wp = b.i
 			_new_regime(b)
 		books[id] = b
+	_index_quotes()
+	# 统一行情: the pack lines; a save from before them is moved over at the end.
+	var unified_save := int(d.get("unified", 0)) >= 1
+	lines.clear()
+	var saved_lines: Dictionary = d.get("lines", {})
+	for cat in FactionCatalog.line_ids():
+		var lb := Book.new()
+		lb.setup_line(cat)
+		if unified_save and saved_lines.has(cat): lb.load(saved_lines[cat])
+		else:
+			lb.w0 = t
+			_new_regime(lb)
+		lines[cat] = lb
+	pending_news = d.get("pending_news", [])
 	effects = d.get("effects", [])
 	news = d.get("news", [])
 	calendar = d.get("calendar", [])
@@ -1450,10 +1701,74 @@ func load_data(d: Dictionary) -> void:
 			stocks[id] = sb
 		if actors.factions.is_empty() or firms.firms.is_empty(): _start_world()
 	else: _start_world()
+	if d.get("influence") is Dictionary and not (d.influence as Dictionary).is_empty():
+		influence.load_data(d.influence)
+		if influence.empty(): influence.recompute(self)
+	else: influence.start(self)
+	plans.load_data(d.get("plans", {}) if unified_save else {})
+	if not unified_save: _migrate_unified()
 	_mods_dirty = true
+	for b in books.values():
+		if not b.fx: _derive(b)
 	Economy.fx = fx_rate()
 	_publish_rates()
 	version += 1
+
+## 统一行情 v0.2 §6 (用户: K 线清空): each line at its faction books' index
+## weighted by their shares, each book's basis what it was off that, no history.
+func _migrate_unified() -> void:
+	for cat in lines:
+		var lb: Book = lines[cat]
+		var sum := 0.0
+		var w := 0.0
+		for q in quotes_of(cat):
+			var s := maxf(influence.quote_share(self, str(q)), 0.01)
+			sum += (books[q] as Book).i * s
+			w += s
+		lb.i = sum / w if w > 0.0 else 1.0
+		lb.mu = lb.i
+		lb.wp = lb.i
+		lb.lt = 1.0
+		lb.w0 = t
+		lb.c1 = PackedFloat32Array()
+		lb.c15 = PackedFloat32Array()
+		lb.cd = PackedFloat32Array()
+		lb.b1 = -1
+		lb.b15 = -1
+		lb.bd = -1
+		for q in quotes_of(cat):
+			var b: Book = books[q]
+			b.bs = clampf(b.i / maxf(lb.i, 0.01) - 1.0, -BASIS_CAP, BASIS_CAP)
+	for b: Book in books.values():
+		if b.fx: continue
+		b.c1 = PackedFloat32Array()
+		b.c15 = PackedFloat32Array()
+		b.cd = PackedFloat32Array()
+		b.b1 = -1
+		b.b15 = -1
+		b.bd = -1
+		b.pj = 0.0
+		b.sh = 0.0
+
+## 统一行情 §4.3: a headline that is only news (an exposed plan, a production
+## change, an ally's aid): shown and kept, no effect on any book.
+func post_news(title: String, region: String = "", markets: Array = [], moves: Dictionary = {}) -> void:
+	var headline := {"t": t, "id": "", "kind": "breaking", "title": title, "region": region, "cred": "", "status": "", "unread": true, "markets": markets, "moves": moves, "cause": "", "picks": {}}
+	news.append(headline)
+	if news.size() > NEWS_KEEP: news = news.slice(news.size() - NEWS_KEEP)
+	if on_news.is_valid(): on_news.call(headline, {})
+	version += 1
+
+## A headline for later (an exposure comes 1–6 hours after the trades, §4.3).
+func schedule_news(at: int, title: String, region: String = "", markets: Array = [], moves: Dictionary = {}) -> void:
+	pending_news.append({"at": at, "title": title, "region": region, "markets": markets, "moves": moves})
+
+func _news_due() -> void:
+	if pending_news.is_empty(): return
+	for n in pending_news.duplicate():
+		if int(n.at) > t: continue
+		pending_news.erase(n)
+		post_news(str(n.title), str(n.get("region", "")), n.get("markets", []), n.get("moves", {}))
 
 func save_file(path: String) -> void:
 	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)

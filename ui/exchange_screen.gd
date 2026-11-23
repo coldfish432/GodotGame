@@ -11,9 +11,8 @@ extends RefCounted
 const TABS := ["行情", "外汇", "持仓", "新闻", "资金", "资产", "企业", "策略"]
 const PERIODS := ["1m", "5m", "15m", "1h", "4h", "1d", "1w"]
 const PERIOD_NAMES := ["1分", "5分", "15分", "1时", "4时", "日", "周"]
-const FILTERS := ["全部", "自选", "龙门币", "赤金", "金券", "指数"]
-## The currency each money filter keeps (FILTERS 2–4).
-const FILTER_CURRENCY := {2: "lmd", 3: "gold", 4: "col"}
+## 统一行情修订案: one row a pack; the faction books are its quote table.
+const FILTERS := ["全部", "自选", "指数"]
 const FX_MODES := ["换汇", "差价"]
 ## The 外汇 list: every currency against 赤金, or against 龙门币.
 const FX_LISTS := ["对赤金", "对龙门币"]
@@ -123,21 +122,37 @@ static func _account_bar(stage: Control, game: GameManager) -> void:
 
 # --- 行情 -------------------------------------------------------------------------------
 
-## The goods page's list: no rate books (they are on 外汇).
+## The goods page's list: the pack lines (no rate books: they are on 外汇).
 static func _list_ids(game: GameManager) -> Array:
 	var out: Array = []
 	match filter:
-		1: out = game.exchange.watch.filter(func(w): return not Currencies.is_fx(w))
-		5:
+		1:
+			for w in game.exchange.watch:
+				if Currencies.is_fx(w): continue
+				var id := _row_of(game, w)
+				if not out.has(id): out.append(id)
+		2:
 			for f in FactionCatalog.trading():
 				if not FactionCatalog.info(f).get("field_only", false): out.append("comp:" + f)
 		_:
-			for m in game.market.books:
-				if Currencies.is_fx(m): continue
-				var cur := FactionCatalog.currency((game.market.books[m] as MarketState.Book).faction)
-				if FILTER_CURRENCY.has(filter) and cur != str(FILTER_CURRENCY[filter]): continue
-				out.append(m)
+			for cat in game.market.lines: out.append(str(cat))
 	return out
+
+## A list row for a market: a faction book shows as its pack's line.
+static func _row_of(game: GameManager, id: String) -> String:
+	if game.market.books.has(id) and not Currencies.is_fx(id): return str(FactionCatalog.split(id)[1])
+	return id
+
+## The faction book to trade a pack at: the one already picked if it trades
+## the pack, else the first that is not field-only.
+static func _venue_for(game: GameManager, cat: String) -> String:
+	var quotes: Array = game.market.quotes_of(cat)
+	if quotes.is_empty(): return cat
+	var keep := "%s:%s" % [_faction(), cat] if game.market.books.has(selected) else ""
+	if quotes.has(keep): return keep
+	for q in quotes:
+		if not FactionCatalog.info(str(FactionCatalog.split(str(q))[0])).get("field_only", false): return str(q)
+	return str(quotes[0])
 
 static func _market_page(menu: FieldMenu, stage: Control) -> void:
 	var game := menu.game
@@ -145,31 +160,88 @@ static func _market_page(menu: FieldMenu, stage: Control) -> void:
 	var list := MarketWidgets.MarketList.new()
 	list.game = game
 	list.ids = _list_ids(game)
+	if game.market.is_line(selected): selected = _venue_for(game, selected)
 	if selected.is_empty() or Currencies.is_fx(selected) or not (game.market.books.has(selected) or selected.begins_with("comp:")):
-		selected = str(list.ids[0]) if not list.ids.is_empty() else game.market.books.keys().filter(func(m): return not Currencies.is_fx(m))[0]
-	list.selected = selected
-	list.on_pick = func(id): selected = id; pick = 0; fwd_material = 0; build(menu)
+		var first := str(list.ids[0]) if not list.ids.is_empty() else str(game.market.lines.keys()[0])
+		selected = _venue_for(game, first) if game.market.is_line(first) else first
+	list.selected = _row_of(game, selected)
+	list.on_pick = func(id):
+		selected = _venue_for(game, str(id)) if game.market.is_line(str(id)) else str(id)
+		pick = 0
+		fwd_material = 0
+		build(menu)
 	AK.put(stage, list, Vector2(16, TOP + 78), Vector2(330, BOTTOM - TOP - 78))
-	# Chart.
+	# Chart: the pack's one line (统一行情修订案).
 	var x := 356.0
-	AK.put(stage, AK.label(Exchange.cfd_name(selected), 18, AK.FG), Vector2(x, TOP + 38))
-	var star := AK.button("★ 自选" if game.exchange.watch.has(selected) else "☆ 自选", "plain", 11)
-	star.pressed.connect(func(): game.exchange.toggle_watch(selected); game.save_base(); build(menu))
+	var row_id := _row_of(game, selected)
+	AK.put(stage, AK.label(Exchange.cfd_name(row_id), 18, AK.FG), Vector2(x, TOP + 38))
+	var star := AK.button("★ 自选" if game.exchange.watch.has(row_id) or game.exchange.watch.has(selected) else "☆ 自选", "plain", 11)
+	star.pressed.connect(func():
+		if game.exchange.watch.has(selected) and selected != row_id: game.exchange.toggle_watch(selected)
+		else: game.exchange.toggle_watch(row_id)
+		game.save_base()
+		build(menu))
 	AK.put(stage, star, Vector2(x + 510, TOP + 38), Vector2(80, 26))
 	AK.put(stage, _seg(PERIOD_NAMES, period, func(i): period = i; build(menu), 10, 590.0), Vector2(x, TOP + 70))
 	var chart := KLineChart.new()
 	chart.game = game
-	chart.market_id = selected
+	chart.market_id = row_id
 	chart.period = PERIODS[period]
-	AK.put(stage, chart, Vector2(x, TOP + 104), Vector2(590, 330))
-	var info := MarketWidgets.live(func(): return _quote_line(game), 12, AK.MUTE)
-	AK.put(stage, info, Vector2(x, TOP + 440))
+	var chart_h := 330.0 if selected.begins_with("comp:") else 250.0
+	AK.put(stage, chart, Vector2(x, TOP + 104), Vector2(590, chart_h))
+	var y := TOP + 104 + chart_h + 8
+	if selected.begins_with("comp:"):
+		var info := MarketWidgets.live(func(): return _quote_line(game), 12, AK.MUTE)
+		AK.put(stage, info, Vector2(x, y))
+		y += 22
+	else: y = _quote_table(menu, stage, Vector2(x, y), 590)
 	var ticker := MarketWidgets.live(func():
 		var n: Array = game.market.news
 		return ("PRTS 快讯：" + str(n[-1].title)) if not n.is_empty() else "", 12, AK.CYAN)
-	AK.put(stage, ticker, Vector2(x, TOP + 462))
-	_recent_news(stage, game, Vector2(x, TOP + 490), 590, 5)
+	AK.put(stage, ticker, Vector2(x, y))
+	_recent_news(stage, game, Vector2(x, y + 26), 590, clampi(int((BOTTOM - y - 26) / 20.0), 1, 5))
 	_order_panel(menu, stage, Vector2(956, TOP + 36))
+
+## The pack's faction books (统一行情修订案 v0.2 §5): who, currency, bid, ask,
+## basis, quota, state; a click trades there. Returns the y below it.
+static func _quote_table(menu: FieldMenu, stage: Control, at: Vector2, width: float) -> float:
+	var game := menu.game
+	var cat := str(FactionCatalog.split(selected)[1])
+	var cols := [0.0, 150.0, 230.0, 310.0, 390.0, 460.0, 540.0]
+	var heads := ["势力", "币种", "买", "卖", "基差", "额度", "状态"]
+	for k in range(heads.size()):
+		AK.put(stage, AK.label(heads[k], 11, AK.MUTE), at + Vector2(cols[k] + 6, 0))
+	var y := at.y + 18
+	for q in game.market.quotes_of(cat):
+		var quote := str(q)
+		var faction := str(FactionCatalog.split(quote)[0])
+		var on := quote == selected
+		var row := Button.new()
+		row.flat = true
+		row.focus_mode = Control.FOCUS_NONE
+		row.add_theme_stylebox_override("normal", AK.box(Color("313a41") if on else Color(0, 0, 0, 0.0), AK.LINE if on else Color(0, 0, 0, 0.0), 1))
+		row.add_theme_stylebox_override("hover", AK.box(Color("262d33"), AK.LINE, 1))
+		row.add_theme_stylebox_override("pressed", AK.box(Color("313a41"), AK.HOLO, 1))
+		row.set_meta("quote", quote)
+		row.pressed.connect(func(): selected = quote; pick = 0; fwd_material = 0; build(menu))
+		AK.put(stage, row, Vector2(at.x, y), Vector2(width, 21))
+		var name := FactionCatalog.name_of(faction)
+		if FactionCatalog.info(faction).get("field_only", false): name += " · 局内据点"
+		AK.put(stage, AK.label(name, 12, AK.FG if on else AK.MUTE), Vector2(at.x + cols[0] + 6, y + 2))
+		AK.put(stage, AK.label(Currencies.name_of(FactionCatalog.currency(faction)), 11, AK.MUTE), Vector2(at.x + cols[1] + 6, y + 3))
+		var cells := [
+			[cols[2], func(): return "%.2f" % (game.market.bid(quote) * 100.0)],
+			[cols[3], func(): return "%.2f" % (game.market.ask(quote) * 100.0)],
+			[cols[4], func(): return "%+.1f%%" % (game.market.basis(quote) * 100.0)],
+			[cols[5], func(): return Economy.format(roundi(game.exchange.quota_left(faction)))],
+			[cols[6], func(): return "暂停收货" if game.market.halted(quote) else ("活跃" if game.market.active(faction) else "盘口薄")],
+		]
+		for c in cells:
+			var l := MarketWidgets.live(c[1], 11, AK.FG if on else AK.MUTE)
+			l.add_theme_font_override("font", AK.en() if float(c[0]) < cols[6] else AK.cn())
+			AK.put(stage, l, Vector2(at.x + float(c[0]) + 6, y + 3))
+		y += 22
+	return y + 6
 
 static func _quote_line(game: GameManager) -> String:
 	var m := game.market

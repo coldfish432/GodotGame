@@ -59,8 +59,8 @@ func universe(tpl: String) -> Array:
 		"fx":
 			for c in Currencies.foreign(): out.append(Currencies.book(c))
 		_:
-			for id in m().books:
-				if not Currencies.is_fx(str(id)): out.append(str(id))
+			# 统一行情: one line a pack.
+			for id in m().lines: out.append(str(id))
 			for id in FirmCatalog.ORDER: out.append("stock:" + id)
 			for c in Currencies.foreign(): out.append(Currencies.book(c))
 	return out

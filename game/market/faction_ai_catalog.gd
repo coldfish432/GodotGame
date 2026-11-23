@@ -33,6 +33,16 @@ const FACTIONS := {
 		"traits": {"risk": 0.6, "patience": 0.6, "value": 0.6, "credulity": 0.3, "revenge": 0.1, "cash": 0.6}},
 }
 
+## 交易所统一行情修订案 v0.3 §3: 秩序 (keeps markets steady) and 野心 (wants
+## the market to itself), by the setting.
+const DRIVE_TRAITS := {
+	"lungmen": {"order": 0.85, "ambition": 0.4}, "rat": {"order": 0.3, "ambition": 0.7},
+	"rhine": {"order": 0.4, "ambition": 0.6}, "karlan": {"order": 0.7, "ambition": 0.4},
+	"ursus": {"order": 0.5, "ambition": 0.3}, "reunion": {"order": 0.05, "ambition": 0.5},
+	"sami": {"order": 0.4, "ambition": 0.1}, "kazimierz": {"order": 0.6, "ambition": 0.85},
+	"penguin": {"order": 0.5, "ambition": 0.3},
+}
+
 ## §3.9.4: A -> B starting attitude (−1000…1000); everything else 0.
 const BASE_RELATIONS := {
 	"lungmen": {"rat": -600, "reunion": -500},

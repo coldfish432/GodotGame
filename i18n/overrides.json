@@ -499,5 +499,17 @@
  "回收 %s ×%d": "Recover %s ×%d",
  "第 %d 日 %s": "Day %d %s",
  "PRTS 同步离线时间": "PRTS: syncing offline time",
- "地图生成已更新，本层已按新布局重建。": "The map generator has been updated; this floor has been laid out anew."
+ "地图生成已更新，本层已按新布局重建。": "The map generator has been updated; this floor has been laid out anew.",
+ "%s出现大额买盘，来源疑似%s": "Heavy buying in %s, said to be %s",
+ "传闻%s正在囤积%s": "Rumour: %s is hoarding %s",
+ "%s遭大额抛售，来源疑似%s": "Heavy selling in %s, said to be %s",
+ "%s入市平抑%s价格": "%s steps in to steady the price of %s",
+ "%s低价倾销%s": "%s undercuts the market on %s",
+ "传闻%s大量控制%s货源": "Rumour: %s is cornering %s",
+ "%s宣布%s减产": "%s cuts output of %s",
+ "%s宣布%s增产": "%s raises output of %s",
+ "%s恐慌抛售%s": "%s panic-sells %s",
+ "%s启动%s战略储备": "%s starts a strategic reserve of %s",
+ "%s向%s紧急调拨%s": "%s sends %s an emergency lot of %s",
+ "报价 %d 家": "%d quotes"
 }

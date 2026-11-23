@@ -85,7 +85,8 @@ func _upkeep(ex: Exchange, fin: RhodesFinance) -> void:
 	check("the 异铁 seller is 乌萨斯西北矿场", str(seller.get("faction", "")) == "ursus")
 	# MarketState.add_flow: this step's flow on the book (a faction's pending
 	# order there would be someone else's).
-	check("the bill's buying is order flow on that book", (ex.market.books[str(fuel.market)] as MarketState.Book).fl > 0.0)
+	# 统一行情: a faction book's flow is its pack line's.
+	check("the bill's buying is order flow on that book", ex.market.line_of(str(fuel.market)).fl > 0.0)
 	# Salaries in the home currency at the live rate.
 	game.base.roster.assign([Operators.AMIYA_GUARD, Operators.LAPPLAND])
 	var sal := fin.salary_lmd()

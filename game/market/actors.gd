@@ -183,13 +183,8 @@ static func best_buyer(m: MarketState, seller: String, category: String) -> Stri
 
 ## The mean index of the books trading `category`.
 static func cat_price(m: MarketState, category: String) -> float:
-	var t := 0.0
-	var n := 0
-	for b: MarketState.Book in m.books.values():
-		if b.category == category and not b.fx:
-			t += b.i
-			n += 1
-	return t / n if n > 0 else 1.0
+	# 统一行情: the pack's line.
+	return m.index(category) if m.lines.has(category) else 1.0
 
 ## Where a faction buys `category`: its own book, else the cheapest that trades it.
 static func best_seller(m: MarketState, buyer: String, category: String) -> String:
@@ -205,13 +200,14 @@ static func best_seller(m: MarketState, buyer: String, category: String) -> Stri
 	return best
 
 func fair(m: MarketState, market: String) -> float:
-	var b: MarketState.Book = m.books.get(market)
+	# 统一行情: a faction book's fair value is its line's.
+	var b: MarketState.Book = m.line_of(market)
 	if b == null: return 1.0
-	return b.mu * b.lt * float(m.mods(market).get("mult", 1.0)) * exp(b.sh)
+	return b.mu * b.lt * float(m.mods(b.id).get("mult", 1.0)) * exp(b.sh)
 
 ## §3.8.6 the price an actor expects: fair value and the trend, by its tilt.
 func expected(m: MarketState, market: String, value_tilt: float) -> float:
-	var b: MarketState.Book = m.books.get(market)
+	var b: MarketState.Book = m.line_of(market)
 	if b == null: return 1.0
 	var trend := b.i * (1.0 + clampf(b.mo * 3600.0, -0.2, 0.2))
 	return fair(m, market) * value_tilt + trend * (1.0 - value_tilt)
@@ -225,7 +221,9 @@ func _decide_faction(m: MarketState, f: String) -> void:
 	# The round's use and making.
 	for cat in info.use: a.inv[cat] = maxf(0.0, float(a.inv.get(cat, 0.0)) - float(info.use[cat]) * days * dm)
 	# Makers make more when it pays (elastic supply).
-	for cat in info.make: a.inv[cat] = float(a.inv.get(cat, 0.0)) + float(info.make[cat]) * days * (2.0 - dm if bool(info.get("volatile", false)) else 1.0) * clampf(cat_price(m, str(cat)), 0.6, 1.6)
+	for cat in info.make:
+		var made := float(info.make[cat]) * days * (2.0 - dm if bool(info.get("volatile", false)) else 1.0) * clampf(cat_price(m, str(cat)), 0.6, 1.6) * MarketLedgers.pm(m, "f:" + f, str(cat))
+		MarketLedgers.add_inv(m, "f:" + f, str(cat), made, cat_price(m, str(cat)) * MarketLedgers.OWN_COST)
 	if bool(info.get("carrier", false)): return
 	var target_days := _target_days(tr)
 	var use_day := 0.0
@@ -248,6 +246,9 @@ func _decide_faction(m: MarketState, f: String) -> void:
 		if lift > 0.02 and room > 0.0 and float(a.cash) > use_day * 5.0:
 			cands.append({"kind": "hoard", "m": market, "cat": cat, "amt": minf(room, float(info.use[cat]) * 0.5), "score": clampf(lift * 10.0, 0.0, 1.0) * (1.0 - float(tr.risk) * 0.5)})
 	for cat in a.inv:
+		# 统一行情 B4 / B7 / B8: a plan holds it back or sells it itself.
+		if MarketLedgers.held(m, "f:" + f, str(cat)): continue
+		if m.plans != null and not m.plans.on_cat("f:" + f, str(cat)).is_empty(): continue
 		var target := float(info.use.get(cat, 0.0)) * target_days + float(info.make.get(cat, 0.0))
 		# What it uses is kept up to the hoarding ceiling (twice the target): selling
 		# from the target up made it buy at home and dump abroad round after round
@@ -312,7 +313,7 @@ func _act(m: MarketState, f: String, c: Dictionary) -> bool:
 			var done := place(m, str(c.m), amt, "faction:" + f)
 			if done <= 0.0: return false
 			a.cash = float(a.cash) - done * price
-			a.inv[c.cat] = float(a.inv.get(c.cat, 0.0)) + done
+			MarketLedgers.add_inv(m, "f:" + f, str(c.cat), done, price)
 			if m.econ != null: m.econ.faction_net += done
 			# 动作即事件: a big purchase is announced (§3.4).
 			if str(c.kind) == "buy" and done >= m.depth(str(c.m)) * IMPACT_CAP * 0.9 and _cool(m, "AE2:" + f): m.fire("AE2", {"faction": f})
@@ -386,8 +387,10 @@ func _decide_groups(m: MarketState) -> void:
 	var e := m.econ.e if m.econ != null else 0.0
 	maker_share = clampf(float(groups.maker.cash) / maxf(1.0, _crowd_total()), 0.0, 0.6)
 	m._depth_slot = -1
+	# 统一行情: the crowds trade the pack lines and the rate books.
 	for b: MarketState.Book in m.books.values():
-		_crowd_book(m, b.id, false, e)
+		if b.fx: _crowd_book(m, b.id, false, e)
+	for cat in m.lines: _crowd_book(m, str(cat), false, e)
 	if m.firms != null:
 		for id in m.stocks: _crowd_book(m, str(id), true, e)
 
@@ -397,7 +400,7 @@ func _crowd_total() -> float:
 	return t
 
 func _crowd_book(m: MarketState, market: String, stock: bool, e: float) -> void:
-	var b: MarketState.Book = m.stocks.get(market) if stock else m.books.get(market)
+	var b: MarketState.Book = m.stocks.get(market) if stock else (m.books.get(market) if m.books.has(market) else m.lines.get(market))
 	if b == null: return
 	var depth := m.stock_depth(market) if stock else m.depth(market)
 	var price := b.i
@@ -445,7 +448,7 @@ func crowd_worth(m: MarketState, g: String) -> float:
 	var grp: Dictionary = groups[g]
 	var v := float(grp.cash)
 	for market in grp.pos:
-		var b: MarketState.Book = m.stocks.get(market) if m.stocks.has(market) else m.books.get(market)
+		var b: MarketState.Book = m.stocks.get(market) if m.stocks.has(market) else (m.books.get(market) if m.books.has(market) else m.lines.get(market))
 		if b != null: v += float(grp.pos[market]) * b.i
 	return v
 

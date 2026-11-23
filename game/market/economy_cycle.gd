@@ -79,8 +79,8 @@ func day_close(m: MarketState, day: int) -> void:
 static func _goods_composite(m: MarketState) -> float:
 	var total := 0.0
 	var n := 0
-	for b: MarketState.Book in m.books.values():
-		if b.fx: continue
+	# 统一行情: the pack lines.
+	for b: MarketState.Book in m.lines.values():
 		total += b.i
 		n += 1
 	return total / maxf(1.0, n)

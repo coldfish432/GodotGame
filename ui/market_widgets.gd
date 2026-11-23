@@ -167,6 +167,8 @@ static func status_of(game: GameManager, id: String) -> String:
 		if game.market.caps.has(id): tags.append("上限")
 		if game.market.halted(id): tags.append("暂停换出")
 		return " · ".join(tags)
+	# 统一行情: a pack line shows how many books quote it.
+	if game.market.is_line(id): return "报价 %d 家" % game.market.quotes_of(id).size()
 	var faction: String = id.substr(5) if id.begins_with("comp:") else FactionCatalog.split(id)[0]
 	var parts: Array[String] = [Currencies.name_of(FactionCatalog.currency(faction))]
 	if not id.begins_with("comp:") and game.market.halted(id): parts.append("暂停收货")

@@ -80,6 +80,9 @@ func _bare() -> void:
 		var e := MarketState.new()
 		e.load_data(a.to_data())
 		e.rng.seed = 100 + k
+		# 统一行情: the plans decide by thresholds and would take the twins apart.
+		d.plans.enabled = false
+		e.plans.enabled = false
 		var cap := e.depth(m) * MarketActors.IMPACT_CAP
 		capped = capped and is_equal_approx(e.actors.place(e, m, -cap * 10.0, "test"), -cap)
 		d.advance_to(d.t + 900)
@@ -145,12 +148,13 @@ func _bare() -> void:
 	var p := MarketState.new()
 	p.load_data(a.to_data())
 	var fr: Dictionary = p.firms.firms.raythean
+	# 统一行情: nothing held back by a plan, so all it makes is sold.
+	fr["hold"] = {}
 	fr.today = Firms._blank()
 	p.firms._produce(p, "raythean")
 	var margin := 1.0 - float(fr.today.cogs) / float(fr.today.rev)
-	for id in p.books:
-		var book: MarketState.Book = p.books[id]
-		if book.category in ["build", "electronic"] and not book.fx: book.i *= 2.0
+	# 统一行情: the inputs' pack lines.
+	for cat in ["build", "electronic"]: (p.lines[cat] as MarketState.Book).i *= 2.0
 	fr.today = Firms._blank()
 	p.firms._produce(p, "raythean")
 	check("雷神工业's inputs double: the margin narrows", 1.0 - float(fr.today.cogs) / float(fr.today.rev) < margin)
@@ -180,7 +184,7 @@ func _events() -> void:
 	check("先动作，后事件: three days of selling make news", m.news.any(func(n): return str(n.id) == "AE1"))
 	var before := m.actors.reactions.size()
 	m.fire("L3", {"category": "medical"})
-	check("先事件，后动作: the factions that use those goods react later", m.actors.reactions.size() > before and m.actors.reactions.all(func(r): return int(r.at) > m.t))
+	check("先事件，后动作: the factions that use those goods react later", m.actors.reactions.size() > before and m.actors.reactions.slice(before).all(func(r): return int(r.at) > m.t))
 	m.firms._issue(m, "rose", 100000.0)
 	check("动作即事件: an issue is news as it happens", m.news.any(func(n): return str(n.id) == "AE4" and str(n.title).contains("玫瑰报业")))
 	var fee := float(m.penguin.fee)

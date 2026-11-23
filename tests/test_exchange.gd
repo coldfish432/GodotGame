@@ -22,14 +22,8 @@ func later(seconds: int) -> void:
 	game.market.advance_to(BaseState.now())
 
 func set_index(market_id: String, value: float) -> void:
-	var b = game.market.books[market_id]
-	b.i = value
-	b.wp = value
-	b.mu = value
-	b.p = 0.0
-	b.lock = 0
-	b.pj = 0.0
-	b.sh = 0.0
+	# 统一行情: a faction book is its line × its basis; pin sets both.
+	game.market.pin(market_id, value)
 
 func run() -> void:
 	# These checks are of the one-to-one clock (时间缩放策划案 v0.2: test_time_scale has the scaled one).

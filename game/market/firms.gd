@@ -41,6 +41,7 @@ func start(m: MarketState) -> void:
 			"util": 0.8, "shares": shares, "base": eps_year * FirmCatalog.START_PE, "holders": {}, "today": _blank(), "days": [], "quarters": [],
 			"retained": 0.0, "payout": float(info.payout), "hi": 0, "lo": 0, "boost": 1.0, "boost_until": 0, "up_q": 0, "cur": str(info.cur), "restructured": 0}
 		firms[id] = f
+		_stock_up(id)
 		var b := MarketState.Book.new()
 		b.setup_stock(id)
 		b.i = 1.0
@@ -50,6 +51,16 @@ func start(m: MarketState) -> void:
 		m.stocks[id] = b
 	_round = int(m.t / ROUND)
 	_day = MarketState.day_key(m.t)
+
+## 统一行情 v0.3 §2.1: a firm starts with its target stock of what it makes.
+func _stock_up(id: String) -> void:
+	var f: Dictionary = firms[id]
+	if f.has("inv"): return
+	var info := FirmCatalog.info(id)
+	var inv := {}
+	for cat in info.get("out", {}): inv[cat] = float(f.cap) * float(f.util) * float(info.out[cat]) * MarketLedgers.PRODUCER_DAYS
+	f["inv"] = inv
+	f["cost"] = {}
 
 static func _start_ni_day(info: Dictionary) -> float:
 	var rev := float(info.revenue) * 0.8
@@ -149,6 +160,13 @@ func demand(m: MarketState, id: String) -> float:
 		"telecom", "liquor": pass
 	return base
 
+## 统一行情 v0.3 §2.1: a plan's sale of its stock is the firm's revenue.
+func book_sale(id: String, lmd: float) -> void:
+	var f := f_of(id)
+	if f.is_empty(): return
+	f.today.rev = float(f.today.rev) + lmd
+	f.today.ni = float(f.today.ni) + lmd
+
 static func _composite(m: MarketState, faction: String) -> float:
 	var t := 0.0
 	var n := 0
@@ -164,14 +182,8 @@ static func _cat_index(m: MarketState, cats: Dictionary) -> float:
 	var total := 0.0
 	var w := 0.0
 	for cat in cats:
-		var sum := 0.0
-		var n := 0
-		for b: MarketState.Book in m.books.values():
-			if b.category == cat:
-				sum += b.i
-				n += 1
-		if n == 0: continue
-		total += float(cats[cat]) * sum / n
+		if not m.lines.has(cat): continue
+		total += float(cats[cat]) * m.index(str(cat))
 		w += float(cats[cat])
 	return total / w if w > 0.0 else 1.0
 
@@ -182,15 +194,28 @@ func _produce(m: MarketState, id: String) -> void:
 	var units := float(f.cap) * float(f.util) * frac
 	var out_cats: Dictionary = info.out
 	var in_cats: Dictionary = info.get("in", {})
-	var rev := units * _cat_index(m, out_cats)
 	var cogs := units * float(info.input) * _cat_index(m, in_cats)
 	# Inputs bought and output sold as flow on the books.
 	for cat in in_cats:
 		var market := MarketActors.best_seller(m, "", str(cat))
 		if not market.is_empty(): m.actors.place(m, market, units * float(info.input) * float(in_cats[cat]), "firm:" + id)
+	# 统一行情 v0.3 §2.1: what it makes goes into its stock first; it sells
+	# what is over its target unless a plan holds it back (B4 / B7). What it
+	# sells is the revenue; a firm with nothing to sell books what it serves.
+	var rev := 0.0
+	var pid := "c:" + id
 	for cat in out_cats:
+		var made := units * float(out_cats[cat]) * MarketLedgers.pm(m, pid, str(cat))
+		MarketLedgers.add_inv(m, pid, str(cat), made, m.index(str(cat)) * MarketLedgers.OWN_COST)
+		if MarketLedgers.held(m, pid, str(cat)): continue
+		var extra := MarketLedgers.inv(m, pid, str(cat)) - MarketLedgers.target(m, pid, str(cat))
+		if extra <= 0.0: continue
 		var market := MarketActors.best_buyer(m, "", str(cat))
-		if not market.is_empty(): m.actors.place(m, market, -units * float(out_cats[cat]), "firm:" + id)
+		if market.is_empty(): continue
+		var done := m.actors.place(m, market, -extra, "firm:" + id)
+		MarketLedgers.add_inv(m, pid, str(cat), done, m.index(market))
+		rev += -done * m.index(market)
+	if out_cats.is_empty(): rev = units * _cat_index(m, out_cats)
 	var sga := rev * float(info.sga)
 	var rd := rev * float(info.rd)
 	var dep := float(f.capital) * float(info.get("depreciation", FirmCatalog.DEPRECIATION)) * frac
@@ -549,3 +574,4 @@ func load_data(d: Dictionary) -> void:
 	volume = float(d.get("volume", 0.0))
 	for id in FirmCatalog.ORDER:
 		if not firms.has(id): firms.clear()
+	for id in firms: _stock_up(str(id))

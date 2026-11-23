@@ -77,7 +77,8 @@ func _daily_correction() -> void:
 	ex.relations["ursus"] = 400
 	var day := MarketState.day_key(game.market.t)
 	while MarketState.day_key(game.market.t) == day: later(3600)
-	check("a new trading day corrects a relation above its expected value", ex.standing("lungmen") == 2500 - 38 and ex.standing("ursus") == 400, ex.relations)
+	# 乌萨斯 is at its expected value: no correction (the day's trading may still raise it).
+	check("a new trading day corrects a relation above its expected value", ex.standing("lungmen") == 2500 - 38 and ex.standing("ursus") >= 400, ex.relations)
 	later(86400 * 30)
 	check("thirty days later it has come down towards 1000 (about 1770)", ex.standing("lungmen") > 1700 and ex.standing("lungmen") < 1850, ex.standing("lungmen"))
 	ex.relations["lungmen"] = 0

@@ -99,6 +99,26 @@ static func markets() -> Array[String]:
 	out.append_array(Currencies.books())
 	return out
 
+## 统一行情修订案 v0.3: the pack lines, one a category some faction trades,
+## in the packs' order.
+static var _line_ids: Array[String] = []
+
+static func line_ids() -> Array[String]:
+	if not _line_ids.is_empty(): return _line_ids
+	var out: Array[String] = []
+	for pack in Packs.ORDER:
+		var cat := Packs.category_of(pack)
+		if cat.is_empty() or out.has(cat): continue
+		for id in trading():
+			if FACTIONS[id].prefs.has(cat):
+				out.append(cat)
+				break
+	_line_ids = out
+	return out
+
+static func is_line(market: String) -> bool:
+	return CATEGORIES.has(market)
+
 static func split(market: String) -> Array:
 	if Currencies.is_fx(market): return [market, ""]
 	var parts := market.split(":")
@@ -107,6 +127,9 @@ static func split(market: String) -> Array:
 ## "建材包 @ 龙门商会": a book trades its category's pack (交易包修订案 §6).
 static func market_name(market: String) -> String:
 	if Currencies.is_money(market): return name_of(market)
+	if is_line(market):
+		var p := Packs.pack_for(market)
+		return p if not p.is_empty() else str(CATEGORIES[market])
 	var parts := split(market)
 	var pack := Packs.pack_for(parts[1])
 	return "%s @ %s" % [pack if not pack.is_empty() else CATEGORIES.get(parts[1], parts[1]), name_of(parts[0])]
