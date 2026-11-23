@@ -55,11 +55,10 @@ func run() -> void:
 		game.open_modal("capture")
 		var map := game.world_map
 		var city: CityDressing = map.terrace_dressing.city
-		print("%s place=%s light=%s fronts %d buildings %d street lamps %d neon %d windows %d lanterns %d laundry %d skybridges %d" % [variant, game.place_name(), FieldLight.key(map), city.frontage_count, city.building_count, city.street_lamp_count, city.neon_count, city.window_light_count, city.red_lantern_count, city.laundry_count, city.skybridge_count])
-		# The lower city first: its 牌楼连廊 are shot again in the upper city.
+		print("%s place=%s light=%s fronts %d buildings %d street lamps %d neon %d windows %d lanterns %d laundry %d" % [variant, game.place_name(), FieldLight.key(map), city.frontage_count, city.building_count, city.street_lamp_count, city.neon_count, city.window_light_count, city.red_lantern_count, city.laundry_count])
+		# The lower city first: its spots are shot again in the upper city.
 		if variant == "lower":
 			spots = [map.main_path[0] + Vector2(0, 8), map.main_path[map.main_path.size() / 2]]
-			for p in city.skybridge_points: spots.append(p - Vector2(0, 2.0))
 		for k in range(spots.size()):
 			await shot(spots[k], "city-%s-%d" % [variant, k])
 		await shot(spots[1], "city-%s-wide" % variant, 48.0)

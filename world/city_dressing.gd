@@ -77,8 +77,8 @@ const DISTRICT_TINTS := {
 ## LOWER: old concrete and tile streaked with damp, rows of windows a third
 ## lit, more air conditioners and laundry poles), darker colder tints, a third
 ## of the street lamps, neon that lights only its sign, warm window and red
-## lantern light at the doors, laundry under the cables, and 1–2 牌楼连廊
-## across her trunk road. Everything the lower city adds draws on look_rng,
+## lantern light at the doors and laundry under the cables (no 牌楼连廊 over
+## her roads: 用户 2026-11-22 不要连廊，挡视野). Everything the lower city adds draws on look_rng,
 ## so the plan (and all that collides) is the upper city's to the metre.
 var lower := false
 var look_rng := RandomNumberGenerator.new()
@@ -175,9 +175,8 @@ func build(world: Node3D, parent: Node3D) -> void:
 	map.mark("  city: street furniture + cables")
 	if lower:
 		_place_front_lights()
-		_place_skybridges()
 		_place_front_laundry()
-		map.mark("  city: lower city lights + skybridges")
+		map.mark("  city: lower city lights")
 	for path in transforms:
 		_add_set(String(path).get_file().get_basename(), TerraceDressing.kit_mesh(load(path)), transforms[path])
 	map.mark("  city: multimeshes")
@@ -274,7 +273,7 @@ func _add_set(label: String, mesh: Mesh, list: Array[Transform3D]) -> void:
 	instance.multimesh = multimesh
 	root.add_child(instance)
 
-# --- 下城: door lights and 牌楼连廊 ----------------------------------------------------
+# --- 下城: door lights ----------------------------------------------------------------
 
 ## The lower city's light (改造案 §1.3: 以窗光和红灯笼为主): at some building
 ## fronts a small warm pool from the lit windows and doorway; at some shops a
@@ -309,22 +308,6 @@ func _place_front_lights() -> void:
 			var pool := door + axis * 0.9
 			lamps.append({"at": Vector3(pool.x, ground + 2.2, pool.y), "color": LANTERN_LIGHT_RED, "radius": 4.0})
 
-## 牌楼连廊 (改造案 §1.3, §3): a covered bridge with a 歇山 roof between the
-## buildings either side of her trunk road, high over her head, two red
-## lanterns under it; 1–2 a floor, on a straight stretch of the trunk with
-## buildings on both kerbs, well clear of the way down. It stops nothing:
-## the road under it is walkable, and she is hidden while she is under it.
-## The model (art/kit/city_lc_skybridge.glb) spans SKYBRIDGE_SPAN kerb to
-## kerb along its x and is stretched to the street.
-const SKYBRIDGE_SPAN := 10.0
-const SKYBRIDGE_COUNT := Vector2i(1, 2)
-const SKYBRIDGE_WIDTH := Vector2(6.0, 16.0)
-const SKYBRIDGE_CLEAR := 36.0
-## How near her trunk it must be.
-const SKYBRIDGE_TRUNK := 10.0
-var skybridge_count := 0
-var skybridge_points: Array[Vector2] = []
-
 ## Places across the streets she walks with a building behind both kerbs:
 ## sampled every `step` along each corridor, the kerbs `span` apart (at most
 ## `max_span`) along `across`, `at` the street's middle, `along` its run.
@@ -351,50 +334,6 @@ func _street_spans(step: float, max_span: float) -> Array[Dictionary]:
 			if walls.size() < 2 or walls[0] + walls[1] > max_span: continue
 			spans.append({"at": centre + across * (walls[1] - walls[0]) * 0.5, "across": across, "along": along, "span": walls[0] + walls[1]})
 	return spans
-
-## How far `p` is from her trunk (the main path's rooms and the roads between).
-func _trunk_distance(p: Vector2) -> float:
-	var best := INF
-	for i in range(map.main_path.size() - 1):
-		var a: Vector2 = map.main_path[i]
-		var b: Vector2 = map.main_path[i + 1]
-		var t := clampf((p - a).dot(b - a) / maxf((b - a).length_squared(), 0.01), 0.0, 1.0)
-		best = minf(best, p.distance_to(a.lerp(b, t)))
-	return best
-
-func _place_skybridges() -> void:
-	var exit := Vector2.INF
-	if is_instance_valid(map.exit_node): exit = Vector2(map.exit_node.position.x, map.exit_node.position.z)
-	var entry := Vector2(ContinuousWorldMap.ENTRY_POSITION.x, ContinuousWorldMap.ENTRY_POSITION.z)
-	var found: Array[Dictionary] = []
-	var off_trunk: Array[Dictionary] = []
-	for spot in _street_spans(2.0, SKYBRIDGE_WIDTH.y):
-		var centre: Vector2 = spot.at
-		if float(spot.span) < SKYBRIDGE_WIDTH.x: continue
-		if exit != Vector2.INF and centre.distance_to(exit) < SKYBRIDGE_CLEAR: continue
-		if centre.distance_to(entry) < 20.0 or not map.bridge_at(centre, 6.0).is_empty(): continue
-		if _near_any(zebra_points, centre, 9.0): continue
-		(found if _trunk_distance(centre) <= SKYBRIDGE_TRUNK else off_trunk).append(spot)
-	# On her trunk first, then by any other road she walks.
-	_shuffle_with(found, look_rng)
-	_shuffle_with(off_trunk, look_rng)
-	found.append_array(off_trunk)
-	var want := look_rng.randi_range(SKYBRIDGE_COUNT.x, SKYBRIDGE_COUNT.y)
-	for spot in found:
-		if skybridge_count >= want: break
-		var at: Vector2 = spot.at
-		if _near_any(skybridge_points, at, 30.0): continue
-		var across: Vector2 = spot.across
-		var along: Vector2 = spot.along
-		var ground: float = map.ground_height(at)
-		# Model x along `across`, stretched so its ends go 0.6 m into the walls.
-		var turn := Basis(Vector3.UP, atan2(-across.y, across.x)) * Basis.from_scale(Vector3((float(spot.span) + 1.2) / SKYBRIDGE_SPAN, 1.0, 1.0))
-		_add("city_lc_skybridge", Transform3D(turn, Vector3(at.x, ground - 0.02, at.y)))
-		for side in [-1.0, 1.0]:
-			var pool: Vector2 = at + along * side * 1.9
-			lamps.append({"at": Vector3(pool.x, ground + 3.6, pool.y), "color": LANTERN_LIGHT_RED * 1.1, "radius": 5.5})
-		skybridge_points.append(at)
-		skybridge_count += 1
 
 # --- Side streets ----------------------------------------------------------------------
 
@@ -849,7 +788,7 @@ func _place_front_laundry() -> void:
 	var before := laundry_count
 	for spot in _street_spans(3.0, 12.0):
 		var at: Vector2 = spot.at
-		if look_rng.randf() > FRONT_LAUNDRY_SHARE or _near_any(placed, at, 7.0) or _near_any(skybridge_points, at, 6.0): continue
+		if look_rng.randf() > FRONT_LAUNDRY_SHARE or _near_any(placed, at, 7.0): continue
 		var across: Vector2 = spot.across
 		var half: float = float(spot.span) * 0.5 + 0.3
 		var h: float = map.ground_height(at) + look_rng.randf_range(4.6, 6.0)

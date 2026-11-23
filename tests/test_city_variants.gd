@@ -70,9 +70,8 @@ func _check_lungmen(map: ContinuousWorldMap) -> void:
 	var fewer_lamps := 0
 	var swapped := 0
 	var no_pink := 0
-	var skybridges := 0
-	var bridges_clear := true
 	var lights := 0
+	var skybridge_floors := 0
 	var laundry := 0
 	for i in range(SEEDS):
 		var seed_value := (i + 3) * 15485863
@@ -98,19 +97,16 @@ func _check_lungmen(map: ContinuousWorldMap) -> void:
 			for c in city._neon_colours[path]:
 				if CityDressing.LOWER_NEON.has(c): pink = true
 		if not pink: no_pink += 1
-		skybridges += city.skybridge_count
-		if city.skybridge_count > CityDressing.SKYBRIDGE_COUNT.y: bridges_clear = false
-		for p in city.skybridge_points:
-			if is_instance_valid(map.exit_node) and p.distance_to(Vector2(map.exit_node.position.x, map.exit_node.position.z)) < CityDressing.SKYBRIDGE_CLEAR: bridges_clear = false
-			if map._surface.distance_near(p) < 0.0: bridges_clear = false
+		if city.transforms.has(CityDressing.KIT + "city_lc_skybridge.glb"): skybridge_floors += 1
 		lights += city.window_light_count + city.red_lantern_count
 		laundry += city.laundry_count
-		print("seed %d lamps %d/%d skybridges %d windows %d lanterns %d laundry %d" % [seed_value, city.street_lamp_count, upper_lamps, city.skybridge_count, city.window_light_count, city.red_lantern_count, city.laundry_count])
+		print("seed %d lamps %d/%d windows %d lanterns %d laundry %d" % [seed_value, city.street_lamp_count, upper_lamps, city.window_light_count, city.red_lantern_count, city.laundry_count])
 	check("下城 is 上城's plan to the metre (%d/%d)" % [same_plan, SEEDS], same_plan == SEEDS)
 	check("下城 keeps a third of the street lamps (%d/%d)" % [fewer_lamps, SEEDS], fewer_lamps == SEEDS)
 	check("下城 builds the lower-city copies of the buildings (%d/%d)" % [swapped, SEEDS], swapped == SEEDS)
 	check("no pink or violet neon in 下城 (%d/%d)" % [no_pink, SEEDS], no_pink == SEEDS)
-	check("牌楼连廊 over her roads, 1–2 a floor, clear of the way down (%d)" % skybridges, skybridges >= SEEDS and bridges_clear)
+	# 用户 2026-11-22: 不要连廊，挡视野.
+	check("no 牌楼连廊 over her roads (%d floors with one)" % skybridge_floors, skybridge_floors == 0)
 	check("window and lantern light, laundry over the streets", lights > 0 and laundry > 0)
 
 func _check_siracusa(map: ContinuousWorldMap) -> void:

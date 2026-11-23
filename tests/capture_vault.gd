@@ -8,7 +8,7 @@ func step(count: int = 8) -> void:
 func save(label: String) -> void:
 	await step(4)
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://../evidence/vault-" + label + ".png")
+	root.get_texture().get_image().save_png("res://../evidence/vault-" + OS.get_environment("VAULT_SEED") + label + ".png")
 func run() -> void:
 	game = GameManager.new()
 	game.save_enabled = false
@@ -16,7 +16,7 @@ func run() -> void:
 	await step()
 	for region in (OS.get_environment("VAULT_REGIONS") if OS.get_environment("VAULT_REGIONS") != "" else "mine,city,snow,siracusa").split(","):
 		game.world_map.force_vault = int(OS.get_environment("VAULT_FORCE")) if OS.get_environment("VAULT_FORCE") != "" else 1
-		game.fixed_map_seed = 31337
+		game.fixed_map_seed = int(OS.get_environment("VAULT_SEED")) if OS.get_environment("VAULT_SEED") != "" else 31337
 		game.force_trace = true
 		await game.start_contract(region)
 		await step(6)
@@ -29,12 +29,17 @@ func run() -> void:
 			mouth = Vector2(float(at[0]), float(at[1]))
 			inward = Vector2(float(at[2]), float(at[3]))
 		print("VAULT_AT=%f,%f,%f,%f" % [mouth.x, mouth.y, inward.x, inward.y])
-		var stand := Vector3(mouth.x, 0, mouth.y) - Vector3(inward.x, 0, inward.y) * 4.5 + Vector3(-inward.y, 0, inward.x) * 2.0
+		var back := float(OS.get_environment("STAND_BACK")) if OS.get_environment("STAND_BACK") != "" else 4.5
+		var stand := Vector3(mouth.x, 0, mouth.y) - Vector3(inward.x, 0, inward.y) * back + Vector3(-inward.y, 0, inward.x) * (2.0 if back > 2.0 else 0.0)
 		game.player.teleport(map.nearest_walkable(stand))
 		game.camera.size = float(OS.get_environment("CAM")) if OS.get_environment("CAM") != "" else 16.0
 		game.camera.global_position = game.player.global_position + Vector3(inward.x, 0, inward.y) * 6.0 + GameManager.CAMERA_OFFSET * (16.0 / 24.0)
 		game._hud.visible = false
 		for e in game.floor_enemies(): e.global_position += Vector3(300, 0, 300)
+		await step(2)
+		for k in [0.0, 3.0, 6.0]:
+			var w: Vector2 = mouth + inward * k
+			print("SCREEN mouth+%.0f m in -> %s" % [k, str(game.camera.unproject_position(Vector3(w.x, map.ground_height(w), w.y)))])
 		await save(region + "-sealed")
 		game.camera.size = 10.0
 		game.player.invulnerable = true

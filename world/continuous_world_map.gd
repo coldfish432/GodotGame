@@ -2591,6 +2591,10 @@ func _place_content() -> void:
 ## The 暗墙 is the stretch of the room's edge where the vault's lane would
 ## leave it: walking the lane out from the trunk, the first point where the
 ## floor, carved with the vault, would run on into what is rock without it.
+## Rock that stays rock with the vault carved (a pillar standing in the room
+## the lane leaves from, a city block's fenced yard) is walked past: 用户
+## 2026-11-22 试玩: 密室入口像是有空气墙 — the mouth had been put at a pillar's
+## edge, its E, tell and glow beside it, the real way in metres on.
 func _find_vault_mouth() -> void:
 	var link: Dictionary = _links[_vault_link]
 	var points := [Vector2(_open_circles[link.a].x, _open_circles[link.a].y), link.middle as Vector2, Vector2(_open_circles[link.b].x, _open_circles[link.b].y)]
@@ -2602,13 +2606,23 @@ func _find_vault_mouth() -> void:
 		var t := 0.0
 		while t < length:
 			var p := from.lerp(to, t / length)
-			if _surface.distance_near(p) < 0.0:
+			if _surface.distance_near(p) < 0.0 and vault_opens(p):
 				vault_inward = (to - from).normalized()
 				vault_mouth = p
 				return
 			t += 0.25
 	vault_mouth = points[1]
 	vault_inward = (points[2] - points[1]).normalized()
+
+## Whether `p` is floor once the vault is carved (it is rock while sealed).
+func vault_opens(p: Vector2) -> bool:
+	var was := vault_excluded
+	vault_excluded = false
+	# Read as the surface reads it (TerrainSurface.find_patch): its edge noise too.
+	var carved := carved_owned(p)
+	var open: bool = float(carved[0]) + edge_noise_of(int(carved[1]), _surface.noise.get_noise_2dv(p)) >= 0.0
+	vault_excluded = was
+	return open
 
 ## Whether a vault room at `spot`, its lane to `base`, would stand in rock
 ## (VAULT_CLEAR all round) clear of every room and corridor planned so far.
