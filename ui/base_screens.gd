@@ -18,6 +18,8 @@ const STATION_TITLES := {
 static var hovered: Item = null
 ## A screen's own accent for the shell (a trader's colour); clear = the station's department.
 static var accent_override := Color(0, 0, 0, 0)
+## More screen keys the next shell reports (a trader's 出售 side: "商人/出售"); cleared by it.
+static var screen_extra: Array = []
 
 ## The sub-page shell. `currencies` are [kind, value] pairs: "lmd", "gold", "ori".
 static func shell(menu: FieldMenu, cn_title: String, en_title: String, tabs: Array = [], tab: int = 0, on_tab: Callable = Callable(), watermark: String = "", currencies: Array = []) -> Control:
@@ -25,7 +27,10 @@ static func shell(menu: FieldMenu, cn_title: String, en_title: String, tabs: Arr
 	# 首次打开介绍 (TutorialSpotlight.SCREENS): a camp's store reads as the base's.
 	var key := cn_title
 	if menu.game.in_camp and cn_title == menu.game.camp_label(menu.game.floor_number): key = "可露希尔的商店"  # i18n: skip
-	TutorialSpotlight.screen(menu.game, [key] if tabs.is_empty() else [key, "%s/%s" % [key, tabs[clampi(tab, 0, tabs.size() - 1)]]])  # i18n: skip
+	var keys: Array = [key] if tabs.is_empty() else [key, "%s/%s" % [key, tabs[clampi(tab, 0, tabs.size() - 1)]]]  # i18n: skip
+	keys.append_array(screen_extra)
+	screen_extra = []
+	TutorialSpotlight.screen(menu.game, keys)
 	var accent := accent_override if accent_override.a > 0.0 else Terminal.dept_color(menu._station)
 	stage.add_child(AK.rect(AK.BG, Vector2.ZERO, Vector2(1280, 720)))
 	if not watermark.is_empty():
@@ -935,6 +940,8 @@ static func _project_row(menu: FieldMenu, stage: Control, at: Vector2, row: Arra
 	var b := AK.button(verb if refusal.is_empty() else _short_refusal(refusal), "blue" if refusal.is_empty() else "plain", 12)
 	b.set_meta(meta_key, meta_value if meta_value != null else row[0])
 	b.disabled = not refusal.is_empty()
+	b.clip_text = true
+	b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	var buy: Callable = row[5]
 	b.pressed.connect(func(): buy.call(); redraw.call())
 	AK.put(stage, b, at + Vector2(width - 160, 10), Vector2(150, 34))

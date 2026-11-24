@@ -110,9 +110,30 @@ const TIPS := {
 	"ui_pickup": ["拾取过滤", "按前缀数量和品质过滤地上的装备名牌，低于条件的不再显示。", 0.0],
 	# 交易所各页.
 	"ui_ex_market": ["行情", "左侧是九大势力的商品盘，中间是 K 线，右侧下单：现货立即成交，挂单等价格到了再成交，远期约定日后交割，差价合约可以带杠杆做多做空，保证金不足会被强平。", 0.0],
-	"ui_ex_fx": ["外汇", "各地区货币盘与交叉盘。可以换汇、持有外币或做外汇差价合约。干员薪资按家乡货币支付，持有外币可以对冲汇率。", 0.0],
+	# 用户 2026-11-24: 其余没有介绍的分页都补上.
+	"ui_ex_fx": ["外汇", "各地区货币盘与交叉盘。罗德岛只持有龙门币和赤金，其他货币只用来报价，用外币成交时按当时汇率折成龙门币结算。这一页可以把龙门币和赤金互换，也可以做外汇差价合约押注汇率涨跌。", 0.0],
+	"ui_ex_changer": ["换汇", "龙门币和赤金按实时汇率整块互换，买入和卖出各有 0.5% 价差。在基地换到的赤金直接进仓库。", 0.0],
+	"ui_set_video": ["画面", "窗口模式、垂直同步、用哪块显卡、震屏强度，以及 Boss 登场演出是否播放。", 0.0],
+	"ui_set_ui": ["界面", "界面动效、交易确认、伤害数字、订单追踪、PRTS 提示、新手与主线引导和语言。自动喝药：生命低于下限时喝快捷栏自动格里的药剂，回到上限停下。撤离失败自动治疗：行动失败后龙门币够就立即治好倒下干员的重伤。", 0.0],
+	"ui_set_audio": ["音频", "调整主音量。", 0.0],
+	"ui_set_base": ["基地设置", "基地左上角的站点总览可以整个隐藏，也可以逐个选择列出哪些站点。下方可以在桌面创建交易终端和盯盘小窗的快捷方式：不开游戏也能看行情，交易终端还能下单。", 0.0],
+	"ui_stash_filter": ["分类筛选", "按大类筛选仓库，只列出这一类并自动排好。自由摆放、旋转和整理只在“全部”页。", 0.0],
+	"ui_stash_collect": ["收藏品", "收藏品是外勤里找到的纪念物，不能装备。可露希尔升级整理箱要用收藏品；在加工站把它们打成礼品包送给势力能提升关系，送给收藏品家乡的势力效果更好。", 0.0],
+	"ui_trade_sell": ["出售", "背包里能卖的物品标着收购价，拖到货架上卖出；标不出价的这里不收。货架上列出在这里卖掉的东西，离开前可以按卖出价买回。", 0.0],
 	"ui_ex_positions": ["持仓", "远期合约、差价合约和挂单都列在这里，带浮动盈亏。保证金不足时可以追加保证金或平仓。", 0.0],
 	"ui_ex_news": ["新闻", "各地的行情新闻。新闻会推动相关商品和企业的价格，各势力也会据此买卖。", 0.0],
+	# 用户 2026-11-24: 远期、外汇差价、势力关系三处都加教程.
+	"ui_spot": ["现货", "按当前报价立即成交。上半部分卖出这一大类里背包和仓库中的物品，下半部分买入这家势力出售的交易包和特供商品。每家势力用自己的货币报价，卖出也会提升关系。", 0.0],
+	"ui_order_kinds": ["挂单", "不想按现价成交，就挂单等价格到位。限价卖：价格涨到设定价时卖出；止损卖：价格跌到设定价时按市价卖出；限价买：价格跌到设定价时买入；条件卖：自选的另一个盘达到条件时卖出。", 0.0],
+	"ui_order_terms": ["挂单期限与费用", "挂单时物品先交给交易所托管，并付交付价 0.5% 的手续费。期限可选当日到 7 日；选“结算”则挂到下一次合同结算时撤销。每家势力能挂的单数是 3 加关系等级。", 0.0],
+	"ui_fwd_what": ["远期合约", "和一家势力约定好价格，到期时交货或收货。交货合约是到期把货交给对方，收货合约是到期付款收货。期限越长，约定价里的溢价越高。", 0.0],
+	"ui_fwd_margin": ["保证金与杠杆", "签约时先付保证金（名义金额 ÷ 杠杆）和 0.5% 开仓费。价格朝不利方向走，维持率就会下降：低于 100% 要在次日 08:00 前追加保证金，低于 50% 立即强制平仓。", 0.0],
+	"ui_fwd_due": ["到期交割", "到期时自动交割：交货合约从仓库扣货，收货合约扣款、货物入库。货或钱不够就算违约：保证金没收，关系 −40，冷却期内不能再和这家签约。", 0.0],
+	"ui_cfd_what": ["差价合约", "不交收实物，只按开仓价和平仓价的差额结算盈亏。看涨就做多，看跌就做空。杠杆把保证金放大成名义金额，盈亏也一起放大。", 0.0],
+	"ui_cfd_risk": ["持仓上限与风险", "每家发行方按关系等级给持仓上限，每升一级多 5 万。持仓每天收名义金额 0.02% 的隔夜费。维持率规则和远期一样：低于 100% 追加，低于 50% 强平。可以在持仓页设止盈止损。", 0.0],
+	"ui_rel_ranks": ["势力关系", "九大势力各有一条关系，到 150 / 500 / 1000 / 2500 / 5000 依次升级。升级会送礼，高等级开放特供商品和更好的交易条件。交易、订单、礼物和医疗驻留都会提升关系。", 0.0],
+	"ui_rel_drift": ["关系修正", "每家势力对罗德岛都有一个期望关系，超过的部分每天会被慢慢修正回来，超得越多修正越快，“修正 −n/日”就是当天会扣的量。期望值以下不会下降；合约违约会直接扣关系。", 0.0],
+	"ui_penguin": ["企鹅物流", "企鹅物流关系够高后，可以买企鹅专递单：交给罗德岛小队或营地，多少东西都直接送回仓库。加急专递单放在仓库里，投保装备送回的时间减半，每件用一张。", 0.0],
 	"ui_ex_money": ["资金", "赤金实物可以存入赤金账户，账户里的赤金可以直接交易。下方是九大势力对罗德岛的关系，等级越高交易条件越好。", 0.0],
 	# 经济系统教程：资产页第一次打开时依次出现.
 	"ui_econ_money": ["罗德岛的钱", "龙门币是罗德岛的资金：合同报酬、出库交付、卖货、分红和利息都进余额，建设、升级、日账和薪资也从余额扣。赤金是局内货币，可以存进赤金账户，或在可露希尔处卖成龙门币。余额本身不生息。", 0.0],
@@ -166,7 +187,13 @@ const TIPS := {
 const ASSET_TOP := Rect2(16, 110, 1248, 58)
 const ASSET_LEFT := Rect2(16, 174, 500, 508)
 const ASSET_RIGHT := Rect2(526, 174, 738, 508)
+## The exchange's order column (ExchangeScreen._order_panel and the 外汇 page's), the 资金 page's two columns.
+const ORDER_PANEL := Rect2(956, 108, 308, 582)
+const REL_LEFT := Rect2(16, 112, 600, 380)
+const REL_RIGHT := Rect2(660, 112, 600, 180)
 const SIDE_LEFT := Rect2(16, 110, 330, 572)
+## A trader's middle column (TraderScreen.MID): the shelf.
+const TRADE_SHELF := Rect2(328, 76, 440, 608)
 const SIDE_MID := Rect2(356, 108, 524, 574)
 const SIDE_RIGHT := Rect2(890, 110, 374, 572)
 const SCREENS := {
@@ -183,11 +210,21 @@ const SCREENS := {
 	"出发准备": [["ui_deploy", null]],  # i18n: skip
 	"PRTS": [["ui_prts", null]],  # i18n: skip
 	"设置/拾取过滤": [["ui_pickup", "button:拾取过滤"]],  # i18n: skip
+	"设置/画面": [["ui_set_video", "button:画面"]],  # i18n: skip
+	"设置/界面": [["ui_set_ui", "button:界面"]],  # i18n: skip
+	"设置/音频": [["ui_set_audio", "button:音频"]],  # i18n: skip
+	"设置/基地": [["ui_set_base", "button:基地"]],  # i18n: skip
 	"交易所/行情": [["ui_ex_market", "button:行情"]],  # i18n: skip
 	"交易所/外汇": [["ui_ex_fx", "button:外汇"]],  # i18n: skip
+	"交易所/外汇/换汇": [["ui_ex_changer", ORDER_PANEL]],  # i18n: skip
 	"交易所/持仓": [["ui_ex_positions", "button:持仓"]],  # i18n: skip
 	"交易所/新闻": [["ui_ex_news", "button:新闻"]],  # i18n: skip
-	"交易所/资金": [["ui_ex_money", "button:资金"]],  # i18n: skip
+	"交易所/资金": [["ui_ex_money", "button:资金"], ["ui_rel_ranks", REL_LEFT], ["ui_rel_drift", REL_LEFT], ["ui_penguin", REL_RIGHT]],  # i18n: skip
+	"交易所/行情/现货": [["ui_spot", ORDER_PANEL]],  # i18n: skip
+	"交易所/行情/挂单": [["ui_order_kinds", ORDER_PANEL], ["ui_order_terms", ORDER_PANEL]],  # i18n: skip
+	"交易所/行情/远期": [["ui_fwd_what", ORDER_PANEL], ["ui_fwd_margin", ORDER_PANEL], ["ui_fwd_due", ORDER_PANEL]],  # i18n: skip
+	"交易所/行情/差价": [["ui_cfd_what", ORDER_PANEL], ["ui_cfd_risk", ORDER_PANEL]],  # i18n: skip
+	"交易所/外汇/差价": [["ui_cfd_what", ORDER_PANEL], ["ui_cfd_risk", ORDER_PANEL]],  # i18n: skip
 	"交易所/资产": [["ui_econ_money", null], ["ui_econ_worth", ASSET_TOP], ["ui_econ_upkeep", ASSET_RIGHT], ["ui_econ_stock", ASSET_RIGHT],  # i18n: skip
 		["ui_econ_rations", ASSET_RIGHT], ["ui_econ_arrears", ASSET_RIGHT], ["ui_econ_cycle", ASSET_LEFT], ["ui_econ_grow", "button:存款"]],  # i18n: skip
 	"交易所/资产/存款": [["ui_econ_deposit", ASSET_RIGHT]],  # i18n: skip
@@ -196,6 +233,13 @@ const SCREENS := {
 	"交易所/企业": [["ui_firm_list", SIDE_LEFT], ["ui_firm_detail", SIDE_MID], ["ui_firm_order", SIDE_RIGHT]],  # i18n: skip
 	"交易所/策略": [["ui_strat_slots", SIDE_LEFT], ["ui_strat_new", SIDE_RIGHT], ["ui_strat_run", SIDE_MID]],  # i18n: skip
 	"仓管台/拆包": [["ui_stash_unpack", "button:拆包"]],  # i18n: skip
+	"仓管台/武器": [["ui_stash_filter", "button:武器"]],  # i18n: skip
+	"仓管台/防具": [["ui_stash_filter", "button:防具"]],  # i18n: skip
+	"仓管台/饰品": [["ui_stash_filter", "button:饰品"]],  # i18n: skip
+	"仓管台/药剂": [["ui_stash_filter", "button:药剂"]],  # i18n: skip
+	"仓管台/材料": [["ui_stash_filter", "button:材料"]],  # i18n: skip
+	"仓管台/收藏品": [["ui_stash_collect", "button:收藏品"]],  # i18n: skip
+	"商人/出售": [["ui_trade_sell", TRADE_SHELF]],  # i18n: skip
 	"仓管台/罗德岛库存": [["ui_stash_stock", "button:罗德岛库存"]],  # i18n: skip
 	"加工站/打包": [["ui_work_pack", "button:打包"]],  # i18n: skip
 	"加工站/礼品包": [["ui_work_gift", "button:礼品包"]],  # i18n: skip

@@ -36,6 +36,7 @@ static func build(menu: FieldMenu, spec: Dictionary) -> Control:
 	_game = game
 	var accent: Color = spec.get("accent", AK.HOLO)
 	BaseScreens.accent_override = accent
+	if spec.get("selling", false): BaseScreens.screen_extra = ["商人/出售"]  # i18n: skip
 	var stage := BaseScreens.shell(menu, spec.title, spec.en, spec.get("tabs", []), spec.get("tab", 0), spec.get("on_tab", Callable()), "", spec.get("balance", []))
 	BaseScreens.accent_override = Color(0, 0, 0, 0)
 	var selling: bool = spec.get("selling", false)

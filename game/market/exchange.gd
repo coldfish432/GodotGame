@@ -36,9 +36,10 @@ const RELATION_MAX := 5000
 const START_RELATIONS := {"karlan": 500, "sami": 500, "lungmen": 300, "rhine": 300, "penguin": 300, "rat": 150,
 	"kazimierz": 100, "ursus": 0, "reunion": 0}
 ## Above its expected value a relation is corrected every trading day by
-## E × (DRIFT_BASE + DRIFT_PER_1000 × E / 1000), E the excess (用户 2026-10-19).
-const DRIFT_BASE := 0.01
-const DRIFT_PER_1000 := 0.01
+## E × (DRIFT_BASE + DRIFT_PER_1000 × E / 1000), E the excess (用户 2026-10-19),
+## a tenth of the first rates (用户 2026-11-24: 势力关系修正太高了，/10差不多).
+const DRIFT_BASE := 0.001
+const DRIFT_PER_1000 := 0.001
 ## Saves before the ladder had 100 a rank up to 500.
 const OLD_RANK_STEP := 100
 const RELATION_SCALE := 2

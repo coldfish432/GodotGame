@@ -57,6 +57,8 @@ static func _seg(names: Array, current: int, on_pick: Callable, size: int = 12, 
 		var b := AK.button(str(names[i]), "paper" if i == current else "plain", size)
 		b.custom_minimum_size = Vector2(each, 28)
 		b.clip_text = true
+		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		b.tooltip_text = str(names[i])
 		var index := i
 		b.pressed.connect(func(): on_pick.call(index))
 		row.add_child(b)
@@ -227,8 +229,9 @@ static func _quote_table(menu: FieldMenu, stage: Control, at: Vector2, width: fl
 		AK.put(stage, row, Vector2(at.x, y), Vector2(width, 21))
 		var name := FactionCatalog.name_of(faction)
 		if FactionCatalog.info(faction).get("field_only", false): name += " · 局内据点"
-		AK.put(stage, AK.label(name, 12, AK.FG if on else AK.MUTE), Vector2(at.x + cols[0] + 6, y + 2))
-		AK.put(stage, AK.label(Currencies.name_of(FactionCatalog.currency(faction)), 11, AK.MUTE), Vector2(at.x + cols[1] + 6, y + 3))
+		# Each column keeps to its width: a long (English) name shrinks, then is cut.
+		AK.put(stage, _clip(AK.label(name, 12, AK.FG if on else AK.MUTE)), Vector2(at.x + cols[0] + 6, y + 2), Vector2(cols[1] - cols[0] - 10, 18))
+		AK.put(stage, _clip(AK.label(Currencies.name_of(FactionCatalog.currency(faction)), 11, AK.MUTE)), Vector2(at.x + cols[1] + 6, y + 3), Vector2(cols[2] - cols[1] - 10, 16))
 		var cells := [
 			[cols[2], func(): return "%.2f" % (game.market.bid(quote) * 100.0)],
 			[cols[3], func(): return "%.2f" % (game.market.ask(quote) * 100.0)],
@@ -242,6 +245,12 @@ static func _quote_table(menu: FieldMenu, stage: Control, at: Vector2, width: fl
 			AK.put(stage, l, Vector2(at.x + float(c[0]) + 6, y + 3))
 		y += 22
 	return y + 6
+
+## A label held to the size it is put at: AK.fit shrinks it first, the rest is cut.
+static func _clip(l: Label) -> Label:
+	l.clip_text = true
+	l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	return l
 
 static func _quote_line(game: GameManager) -> String:
 	var m := game.market
@@ -308,6 +317,7 @@ static func _order_panel(menu: FieldMenu, stage: Control, at: Vector2) -> void:
 		1: _order_form(menu, body)
 		2: _forward_form(menu, body)
 		3: _cfd_form(menu, body, selected)
+	TutorialSpotlight.screen(game, ["交易所", "交易所/行情", "交易所/行情/" + MODES[mode]])  # i18n: skip
 	# Alerts at ±2% of now.
 	var alert := HBoxContainer.new()
 	for op in [">=", "<="]:
@@ -453,7 +463,8 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 		return
 	var faction := _faction()
 	var category := _category()
-	body.add_child(AK.section("卖给" + FactionCatalog.name_of(faction), "SELL"))
+	# The faction's name is long in English; the small subtitle would only repeat it.
+	body.add_child(AK.section("卖给" + FactionCatalog.name_of(faction), "" if I18n.is_english() else "SELL"))
 	# Fuel sells by the barrel out of the warehouse's cans (燃料储备修订案 v0.6 §2).
 	if Packs.is_barrel(Packs.pack_for(category)):
 		_fuel_sell_row(menu, body, faction)
@@ -470,7 +481,7 @@ static func _spot_form(menu: FieldMenu, body: VBoxContainer) -> void:
 			if ex.sell_item(chosen, faction, true): game.save_base()
 			build(menu))
 		body.add_child(b)
-	body.add_child(AK.section("买入", "BUY"))
+	body.add_child(AK.section("买入", "" if I18n.is_english() else "BUY"))
 	var shelf: Array = FactionCatalog.packs_sold(faction).filter(func(p): return Packs.category_of(p) == category)
 	shelf.append_array((FactionCatalog.info(faction).get("sells", []) as Array).filter(func(m): return FactionSpecials.is_special(m)))
 	for material in shelf:
@@ -781,7 +792,13 @@ static func _news_page(menu: FieldMenu, stage: Control) -> void:
 		var entry: Dictionary = c
 		var ev: Dictionary = MarketEvents.EVENTS.get(str(entry.id), {})
 		var title := str(ev.get("title", entry.id)).replace("%s", "…")
-		cal.add_child(MarketWidgets.live(func(): return "%s  %s  ·  %s" % [MarketState.stamp(int(entry.at)), title, _rleft(int(entry.at))], 12))
+		var when := MarketWidgets.live(func(): return "%s  %s  ·  %s" % [MarketState.stamp(int(entry.at)), title, _rleft(int(entry.at))], 12)
+		# A long (English) title is cut to the column, the whole of it on hover.
+		when.clip_text = true
+		when.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		when.tooltip_text = title
+		when.mouse_filter = Control.MOUSE_FILTER_PASS
+		cal.add_child(when)
 	AK.put(stage, AK.section("态势", "WORLD STATE"), Vector2(852, TOP + 330))
 	var bars := MarketWidgets.FactorBars.new()
 	bars.game = game
@@ -855,6 +872,7 @@ static func _fx_page(menu: FieldMenu, stage: Control) -> void:
 	AK.put(stage, body, at + Vector2(10, 52), Vector2(288, 0))
 	if fx_mode == 0: _changer(menu, body)
 	else: _cfd_form(menu, body, fx_selected)
+	TutorialSpotlight.screen(game, ["交易所", "交易所/外汇", "交易所/外汇/" + FX_MODES[fx_mode]])  # i18n: skip
 	var alert := HBoxContainer.new()
 	for op in [">=", "<="]: alert.add_child(_alert_button(menu, fx_selected, op))
 	AK.put(stage, alert, Vector2(at.x + 10, BOTTOM - 40))

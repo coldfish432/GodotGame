@@ -114,6 +114,34 @@ func run() -> void:
 		await step(2)
 	check("the 整备台's 增益 page has its card: %s" % [shown], "ui_bench_support" in shown)
 	game.close_modal()
+
+	# 用户 2026-11-24 (其余分页都补上): the warehouse's filters share one card.
+	game.menu.stash_tab = 1
+	game.open_station("stash")
+	shown = []
+	for i in range(4):
+		if spot.showing.is_empty(): await step(20)
+		if spot.showing.is_empty(): break
+		shown.append(spot.showing)
+		spot.dismiss()
+		await step(2)
+	check("a filter page: the filter card: %s" % [shown], "ui_stash_filter" in shown)
+	game.menu.stash_tab = 2
+	BaseScreens.stash(game.menu)
+	await step(30)
+	check("another filter page: no card again", spot.showing.is_empty())
+	game.menu.stash_tab = 6
+	BaseScreens.stash(game.menu)
+	check("收藏品 has its own card", await wait_tip("ui_stash_collect"))
+	spot.dismiss()
+	# A trader's 出售 side adds its key to the shell's.
+	BaseScreens.screen_extra = ["商人/出售"]
+	BaseScreens.stash(game.menu)
+	await step(3)
+	check("the extra key is reported once: %s" % [spot._screens_now], "商人/出售" in spot._screens_now and BaseScreens.screen_extra.is_empty())
+	check("the trader sell card waits on that key", await wait_tip("ui_trade_sell"))
+	spot.dismiss()
+	game.close_modal()
 	SystemScreens.settings.tutorial_tips = false
 	ExchangeScreen.tab = 7
 	game.open_station("exchange")

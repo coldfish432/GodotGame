@@ -333,8 +333,13 @@ static func _skills(menu: FieldMenu, stage: Control, in_field: bool, refresh: Ca
 			b.tooltip_text = SkillTrees.describe(game.viewed_id(), id, rank)
 			AK.put(stage, b, Vector2(tx + 6, ny), Vector2(184, 58))
 			AK.put(b, AK.label(str(data.name), 13, AK.FG if rank > 0 else AK.MUTE), Vector2(8, 6))
-			AK.put(b, AK.tag(kind_names.get(str(data.type), ""), AK.PAPER), Vector2(8, 32))
-			AK.put(b, AK.label(SkillTrees.rank_label(data, rank), 12, AK.SP if rank > 0 else AK.DIM, AK.en()), Vector2(60, 34))
+			var kind_tag := AK.tag(kind_names.get(str(data.type), ""), AK.PAPER)
+			AK.put(b, kind_tag, Vector2(8, 32))
+			# The rank after the tag as it reads (English tags run longer, 用户 2026-11-24).
+			var rank_x := maxf(60.0, 8.0 + kind_tag.get_combined_minimum_size().x + 6.0)
+			var rank_label := AK.label(SkillTrees.rank_label(data, rank), 12, AK.SP if rank > 0 else AK.DIM, AK.en())
+			AK.put(b, rank_label, Vector2(rank_x, 34))
+			var free_x := rank_x + rank_label.get_combined_minimum_size().x + 6.0
 			var block := p.rank_block(id)
 			var materials := SkillTrees.rank_materials(data, rank)
 			var mat_short := not materials.is_empty() and not game.materials_refusal(materials).is_empty()
@@ -351,7 +356,11 @@ static func _skills(menu: FieldMenu, stage: Control, in_field: bool, refresh: Ca
 				plus.pressed.connect(func(): game.add_skill_rank(node_id); refresh.call())
 				AK.put(b, plus, Vector2(136, 28))
 			elif rank < SkillTrees.max_rank(data):
-				AK.put(b, AK.label(block if not block.is_empty() else "材料不足", 10, AK.DIM), Vector2(116, 36))
+				var why := AK.label(block if not block.is_empty() else "材料不足", 10, AK.DIM)
+				why.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+				why.clip_text = true
+				why.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+				AK.put(b, why, Vector2(maxf(free_x, 100.0), 36), Vector2(178 - maxf(free_x, 100.0), 14))
 			for child in b.get_children():
 				if not child is Button: child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			ny += 64
@@ -368,8 +377,9 @@ static func _skills(menu: FieldMenu, stage: Control, in_field: bool, refresh: Ca
 			var module: Dictionary = SkillTrees.MODULES.get(game.viewed_id(), {})
 			stage.add_child(AK.rect(AK.PLATE_SOLID, Vector2(tx + 6, ny), Vector2(184, 74)))
 			AK.put(stage, AK.label(str(module.get("name", "")), 13, AK.FG if p.module_level > 0 else AK.MUTE), Vector2(tx + 14, ny + 4))
-			AK.put(stage, AK.tag("模组 %s" % str(module.get("type", "")), AK.CYAN), Vector2(tx + 14, ny + 24))
-			AK.put(stage, AK.label("%d/3" % p.module_level, 12, AK.SP, AK.en()), Vector2(tx + 100, ny + 26))
+			var module_tag := AK.tag("模组 %s" % str(module.get("type", "")), AK.CYAN)
+			AK.put(stage, module_tag, Vector2(tx + 14, ny + 24))
+			AK.put(stage, AK.label("%d/3" % p.module_level, 12, AK.SP, AK.en()), Vector2(tx + maxf(100.0, 14.0 + module_tag.get_combined_minimum_size().x + 8.0), ny + 26))
 			if not in_field and p.module_level < 3:
 				var cost: Dictionary = SkillTrees.MODULE_COST[p.module_level]
 				var upgrade := AK.button("%s · %s" % ["解锁" if p.module_level == 0 else "升级", Economy.format(int(cost.lmd))], "plain", 11)

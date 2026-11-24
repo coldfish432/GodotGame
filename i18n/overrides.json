@@ -511,5 +511,16 @@
  "%s恐慌抛售%s": "%s panic-sells %s",
  "%s启动%s战略储备": "%s starts a strategic reserve of %s",
  "%s向%s紧急调拨%s": "%s sends %s an emergency lot of %s",
- "报价 %d 家": "%d quotes"
+ "报价 %d 家": "%d quotes",
+ "沃尔西尼旧城区": "Old Volsini Quarter",
+ "技能点不足": "Need points",
+ "背包材料全部存回": "Store Materials",
+ "证券与策略": "Securities",
+ "今日用库存": "Used today",
+ "%d时%d分": "%dh %dm",
+ "%d分": "%dm",
+ "第 %s 层": "Floor %s",
+ "剩 %s": "%s left",
+ "剩 %d 次": "%d left",
+ "%s · 第 %s 层": "%s · Floors %s"
 }

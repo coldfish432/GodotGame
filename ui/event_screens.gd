@@ -288,6 +288,11 @@ const ROUTE_MID := 270.0
 const ROUTE_CODES := 548.0
 const ROUTE_ROW := 92.0
 const ROUTE_HALF := 34.0
+## English: 96 px of the 104 between columns.
+const ROUTE_HALF_EN := 48.0
+
+static func route_half() -> float:
+	return ROUTE_HALF_EN if I18n.is_english() else ROUTE_HALF
 
 ## The tags a column shows even in the dark: the extraction, the contract's marks.
 static func _route_tags(col: Array) -> Array:
@@ -332,18 +337,24 @@ static func _route_node(parent: Control, centre: Vector2, tags: String, name: St
 		b.add_theme_stylebox_override(s, style)
 	b.disabled = state != "next"
 	if state in ["done", "far"]: b.modulate.a = 0.55
-	AK.put(parent, b, centre - Vector2(ROUTE_HALF, 20), Vector2(ROUTE_HALF * 2.0, 40))
+	# English names run longer than four characters (用户 2026-11-24: 英文会溢出文本框):
+	# a wider node, the name on up to two lines.
+	var half := route_half()
+	AK.put(parent, b, centre - Vector2(half, 20), Vector2(half * 2.0, 40))
 	# The four characters on one line (用户 2026-10-24: 每个节点四个字在一行).
-	var label := AK.label(name, 13, AK.INK if state == "here" else (AK.MUTE if state == "fuzzy" else AK.FG))
+	var label := AK.label(name, 11 if I18n.is_english() else 13, AK.INK if state == "here" else (AK.MUTE if state == "fuzzy" else AK.FG))
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	AK.put(b, label, Vector2.ZERO, Vector2(ROUTE_HALF * 2.0, 40))
+	if I18n.is_english():
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.remove_meta("fit_size")
+	AK.put(b, label, Vector2(2, 0), Vector2(half * 2.0 - 4, 40))
 	if not tags.is_empty():
 		var tag := AK.label(tags, 10, AK.GREEN if tags.begins_with("撤离") else AK.SP)
 		tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		AK.put(b, tag, Vector2(ROUTE_HALF - 55, 43), Vector2(110, 14))
+		AK.put(b, tag, Vector2(half - 70, 43), Vector2(140, 14))
 	if selected: AK.frame(b, AK.SP, 2.0)
 	return b
 
@@ -372,10 +383,17 @@ static func event_card(menu: FieldMenu) -> void:
 		b.disabled = not str(opt.refusal).is_empty()
 		b.set_meta("label", str(opt.text))
 		AK.put(stage, b, Vector2(352, y), Vector2(576, 56))
+		# A refused choice: its reason on a line under it, not beside (英文会溢出).
 		if b.disabled:
+			b.text = ""
+			var text := AK.label(str(opt.text), 16, AK.MUTE)
+			text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			AK.put(b, text, Vector2(8, 6), Vector2(560, 24))
 			var why := AK.label(str(opt.refusal), 12, AK.RED)
+			why.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			why.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			AK.put(b, why, Vector2(440, 20), Vector2(130, 16))
+			AK.put(b, why, Vector2(8, 32), Vector2(560, 18))
 		var chosen := i
 		b.pressed.connect(func(): game.event_choose(chosen))
 		y += 70.0
@@ -624,7 +642,10 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 	var tab: int = clampi(menu.camp_tab, 0, tabs.size() - 1)
 	TutorialSpotlight.screen(game, ["可露希尔的商店", "可露希尔的商店/" + tabs[tab]])  # i18n: skip
 	var redraw := func(): camp(menu, at_base)
-	AK.put(stage, AK.toggle(tabs, tab, func(i): menu.camp_tab = i; menu.pick = null; camp(menu, at_base)), Vector2(410, 32))
+	var tab_row := AK.toggle(tabs, tab, func(i): menu.camp_tab = i; menu.pick = null; camp(menu, at_base))
+	AK.put(stage, tab_row, Vector2(410, 32))
+	# The purse after the tabs as they read (English tabs run longer, 用户 2026-11-24).
+	var purse_x := maxf(950.0, 410.0 + tab_row.get_combined_minimum_size().x + 16.0)
 	tab = ([0, 9, 2, 3, 4, 6, 10] if at_base else [0, 9, 1, 2, 3, 5, 7, 8])[tab]
 	if tab == 10:
 		_closure_cases(menu, stage)
@@ -633,12 +654,12 @@ static func camp(menu: FieldMenu, at_base: bool = false) -> void:
 		_closure_money(menu, stage, tab, at_base)
 		return
 	if tab >= 6:
-		AK.put(stage, AK.money("gold", str(game.gold_available())), Vector2(950, 38))
-		AK.put(stage, AK.money("lmd", Economy.format(game.gold)), Vector2(1070, 38))
+		AK.put(stage, AK.money("gold", str(game.gold_available())), Vector2(purse_x, 38))
+		AK.put(stage, AK.money("lmd", Economy.format(game.gold)), Vector2(purse_x + 100, 38))
 		_closure_features(menu, stage, tab, at_base)
 		return
-	AK.put(stage, AK.money("gold", str(game.gold_available())), Vector2(950, 38))
-	AK.put(stage, AK.money("lmd", Economy.format(game.gold)), Vector2(1070, 38))
+	AK.put(stage, AK.money("gold", str(game.gold_available())), Vector2(purse_x, 38))
+	AK.put(stage, AK.money("lmd", Economy.format(game.gold)), Vector2(purse_x + 100, 38))
 	var ok := false
 	var confirm := Callable()
 	match tab:

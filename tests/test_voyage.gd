@@ -61,7 +61,7 @@ func _ladder() -> void:
 	check("old saves keep their rank and progress: 250 → 750, 100 → 150, 500 → 5000",
 		Exchange.migrate_relation(250) == 750 and Exchange.migrate_relation(100) == 150 and Exchange.migrate_relation(500) == 5000 and Exchange.migrate_relation(0) == 0)
 	check("no correction at or below the expected value", Exchange.drift(1000, 1000) == 0 and Exchange.drift(800, 1000) == 0)
-	check("the correction grows with the excess: 1500 over → −38, 4000 over → −200", Exchange.drift(2500, 1000) == 38 and Exchange.drift(5000, 1000) == 200, [Exchange.drift(2500, 1000), Exchange.drift(5000, 1000)])
+	check("the correction grows with the excess, a tenth of the first rates: 1500 over → −4, 4000 over → −20", Exchange.drift(2500, 1000) == 4 and Exchange.drift(5000, 1000) == 20, [Exchange.drift(2500, 1000), Exchange.drift(5000, 1000)])
 	check("expected values follow each place's attitude", FactionCatalog.RELATION_EXPECTED.karlan > FactionCatalog.RELATION_EXPECTED.lungmen
 		and FactionCatalog.RELATION_EXPECTED.lungmen > FactionCatalog.RELATION_EXPECTED.ursus and FactionCatalog.trading().all(func(f): return FactionCatalog.RELATION_EXPECTED.has(f)))
 	var ex := Exchange.new()
@@ -78,9 +78,9 @@ func _daily_correction() -> void:
 	var day := MarketState.day_key(game.market.t)
 	while MarketState.day_key(game.market.t) == day: later(3600)
 	# 乌萨斯 is at its expected value: no correction (the day's trading may still raise it).
-	check("a new trading day corrects a relation above its expected value", ex.standing("lungmen") == 2500 - 38 and ex.standing("ursus") >= 400, ex.relations)
+	check("a new trading day corrects a relation above its expected value", ex.standing("lungmen") == 2500 - 4 and ex.standing("ursus") >= 400, ex.relations)
 	later(86400 * 30)
-	check("thirty days later it has come down towards 1000 (about 1770)", ex.standing("lungmen") > 1700 and ex.standing("lungmen") < 1850, ex.standing("lungmen"))
+	check("thirty days later it has come down a little towards 1000 (about 2380)", ex.standing("lungmen") > 2340 and ex.standing("lungmen") < 2420, ex.standing("lungmen"))
 	ex.relations["lungmen"] = 0
 	ex.relations["ursus"] = 0
 

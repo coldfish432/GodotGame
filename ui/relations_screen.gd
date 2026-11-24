@@ -113,7 +113,10 @@ static func _card(ex: Exchange, stage: Control, f: String, at: Vector2) -> void:
 		stand.mouse_filter = Control.MOUSE_FILTER_PASS
 		stand.tooltip_text = stand.text + "
 " + _net_by_category(actors, f)
-		AK.put(stage, stand, at + Vector2(130, 64), Vector2(CARD.x - 144, 0))
+		# After the relation line as it reads (English runs longer, 用户 2026-11-24).
+		var after := 14.0 + AK.en().get_string_size(I18n.t(rel_line.text), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 16.0
+		stand.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		AK.put(stage, stand, at + Vector2(maxf(130.0, after), 64), Vector2(CARD.x - maxf(130.0, after) - 14, 0))
 	if not FactionCatalog.info(f).get("transport", false):
 		AK.put(stage, AK.label("远程费 %.1f%%  ·  额度 %s  ·  买入 %+d%%  ·  卖出 %+d%%" % [ex.remote_fee(f) * 100.0, Economy.format(roundi(ex.quota_cap(f))),
 			roundi((float(Exchange.RANK_BUY[r]) - 1.0) * 100.0), roundi((float(Exchange.RANK_SELL[r]) - 1.0) * 100.0)], 11, AK.MUTE), at + Vector2(14, 82))
@@ -124,6 +127,7 @@ static func _card(ex: Exchange, stage: Control, f: String, at: Vector2) -> void:
 		var color := AK.GREEN if k <= r else (AK.SP if k == r + 1 else AK.DIM)
 		var line := AK.label("%s  %s" % [Exchange.rank_name(k), "  ·  ".join(PackedStringArray(opens[k]))], 12, color)
 		line.clip_text = true
+		line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		line.mouse_filter = Control.MOUSE_FILTER_PASS
 		line.tooltip_text = line.text
 		AK.put(stage, line, at + Vector2(14, y), Vector2(CARD.x - 28, 0))

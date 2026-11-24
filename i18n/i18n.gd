@@ -144,6 +144,11 @@ static func _fill(english: String, parts: Array) -> String:
 		out = out.substr(0, at) + part + out.substr(at + 2)
 	return out
 
+static func _digit(text: String, at: int) -> bool:
+	if at < 0 or at >= text.length(): return false
+	var c := text.unicode_at(at)
+	return c >= 48 and c <= 57
+
 static func has_cjk(text: String) -> bool:
 	for i in range(text.length()):
 		var c := text.unicode_at(i)
@@ -182,6 +187,8 @@ static func translate(text: String) -> String:
 				# One character alone (区, 缓, 层 …) only as a word of its own:
 				# inside 下城区 or 缓释凝胶 it is part of a longer name.
 				if key.length() == 1 and (_ideograph(text, i - 1) or _ideograph(text, i + 1)): continue
+				# A key ending in a digit (赤金 10) never takes the front of a longer number (赤金 1012.6).
+				if _digit(key, key.length() - 1) and (_digit(text, i + key.length()) or text.substr(i + key.length(), 1) == "."): continue
 				hit = key
 				break
 			if not hit.is_empty():

@@ -8,8 +8,9 @@ func step(count: int = 10) -> void:
 func shot(name: String) -> void:
 	await step(90)
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://../evidence/route-map-%s.png" % name)
+	root.get_texture().get_image().save_png("res://../evidence/route-map-%s%s.png" % ["en-" if I18n.is_english() else "", name])
 func run() -> void:
+	if OS.get_environment("DOWNFALL_LANG") == "en": I18n.set_language("en")
 	game = GameManager.new()
 	game.save_enabled = false
 	game.fixed_map_seed = 4242
