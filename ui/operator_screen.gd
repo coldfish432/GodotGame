@@ -56,7 +56,7 @@ static func show(menu: FieldMenu, in_field: bool) -> void:
 
 ## 干员独立装备修订案 §三 (用户 2026-11-04: 已解锁的可在干员界面切换查看): every
 ## operator on the roster, a column beside the window; a click shows her, in
-## her own set. Only to look: who deploys is chosen at the workbench.
+## her own set. At the base the overview's 设为出战 deploys her (用户 2026-11-24).
 const CHIP := Vector2(44, 48)
 static func _roster(menu: FieldMenu, stage: Control, refresh: Callable) -> void:
 	var game := menu.game
@@ -103,6 +103,12 @@ static func _overview(menu: FieldMenu, stage: Control, in_field: bool, refresh: 
 	LoadoutScreens.doll(game, stage, Vector2(16, TOP + 6), DOLL_SCALE, null, Callable(), game.operator_view(id))
 	AK.put(stage, AK.label(Operators.display_name(id), 28, AK.FG), Vector2(24, TOP + 384))
 	AK.put(stage, AK.label(id.to_upper(), 10, AK.MUTE, AK.en()), Vector2(26, TOP + 422))
+	# 用户 2026-11-24: 这里也能换出战（包括行走）干员 — base only, like the workbench.
+	if game.can_deploy_from_roster(id):
+		var deploy := AK.button("设为出战", "yellow", 13)
+		deploy.set_meta("deploy", id)
+		AK.put(stage, deploy, Vector2(236, TOP + 392), Vector2(112, 34))
+		deploy.pressed.connect(func(): game.deploy_from_roster(id); refresh.call())
 	var rank := HBoxContainer.new()
 	rank.add_theme_constant_override("separation", 10)
 	rank.add_child(AK.tag(Progression.ELITE_NAMES[p.elite], AK.SP))
@@ -128,7 +134,10 @@ static func _overview(menu: FieldMenu, stage: Control, in_field: bool, refresh: 
 				line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				line.custom_minimum_size.x = W - SHEET_X - 34
 				sheet.add_child(line)
-			else: sheet.add_child(_stat_row(entry[0], entry[1]))
+			else:
+				var row := _stat_row(entry[0], entry[1], entry[2] if entry.size() > 2 else AK.FG)
+				if entry.size() > 3: row.tooltip_text = str(entry[3])
+				sheet.add_child(row)
 	if p.elite < 2:
 		var y := TOP + 400
 		AK.put(stage, AK.section("晋升 · %s" % Progression.ELITE_NAMES[p.elite + 1], "PROMOTION"), Vector2(SHEET_X, y))
@@ -157,7 +166,9 @@ static func detail_groups(pl: Player) -> Array:
 	if pl.condition_hp_penalty > 0.0: base.append(["生命上限（伤病污染后）", str(roundi(pl.life_cap()))])
 	if pl.shield > 0.0: base.append(["护盾", str(roundi(pl.shield))])
 	base.append_array([["攻击力", str(roundi(pl.attack_power()))], ["法术攻击力", str(roundi(pl.arts_power()))],
-		["防御", str(roundi(pl.defense_value()))], ["法术抗性", str(roundi(pl.resistance()))], ["移动速度", "%.1f" % pl.move_speed]])
+		["防御", str(roundi(pl.defense_value()))],
+		["法术抗性", "%d/%d" % [roundi(pl.resistance()), roundi(CombatStats.RES_CAP)], AK.RED if pl.resistance() < CombatStats.RES_CAP - 0.01 else AK.FG],
+		["移动速度", "%.1f" % pl.move_speed]])
 	var offense := [["攻击速度", str(roundi(pl.current_aspd()))], ["攻击间隔", "%.2f 秒" % pl.current_cooldown()],
 		["攻击范围", "%.1f 米" % pl.weapon_range()],
 		["暴击率", _pct(pl.crit_rate())], ["暴击伤害", _pct(pl.crit_damage())],
@@ -172,20 +183,22 @@ static func detail_groups(pl: Player) -> Array:
 		["整体减伤", _pct(minf(CombatStats.REDUCTION_CAP, reduce))], ["受到伤害", _pct(v.call("taken_pct") + pl.hex("taken"), true)],
 		["生命回复", "%d / 秒" % roundi(pl.regen_rate())], ["受到治疗", _pct(v.call("heal_pct"), true)],
 		["药剂回复", _pct(pl.potion_heal_multiplier)]]
+	# 镶件 keys (抗性为王修订案 v0.4 §5.3) that no affix line shows.
+	for entry in [["受到首领伤害", "boss_taken"], ["受到远程伤害", "ranged_taken"], ["自身损伤积累", "gauge_taken"],
+			["受到的减速", "slow_taken"], ["受到的减抗", "shred_taken"], ["元素爆发对自身", "burst_taken"]]:
+		if not is_zero_approx(v.call(entry[1])): defence.append([entry[0], _pct(v.call(entry[1]), true)])
 	var stamina := [["体力回复", "%.1f / 秒" % pl.stamina_regen_rate()], ["闪避体力消耗", str(roundi(pl.dash_cost()))],
 		["闪避冷却", "%.2f 秒" % pl.dash_cooldown_total()]]
 	var elements := []
 	if pl.elements != null:
 		for kind in ["burn", "cold", "corr", "nerve", "bleed"]:
-			elements.append([Elements.NAMES[kind] + "抗性", str(roundi(pl.elements.res(kind)))])
-		if v.call("res_cap") > 0.0: elements.append(["元素抗性上限", str(roundi(minf(Elements.RES_CAP_MAX, Elements.RES_CAP + v.call("res_cap"))))])
-		var conv := pl.elements.convert_share()
-		elements.append(["伤害转换", _pct(conv)])
-		var conv_total := 0.0
-		for kind in Elements.KINDS: conv_total += v.call(Elements.CONV_KEY[kind])
+			elements.append(_res_row(pl, kind))
+		if v.call("res_cap") > 0.0: elements.append(["元素抗性上限", str(roundi(pl.elements.res_cap()))])
+		var parts: Dictionary = pl.elements.convert_parts("phys")
+		elements.append(["伤害转换", _pct(pl.elements.convert_share("phys"))])
 		for kind in Elements.KINDS:
-			var share: float = v.call(Elements.CONV_KEY[kind]) / conv_total * conv if conv_total > 0.0 else 0.0
-			if share > 0.0: elements.append(["转为" + Elements.NAMES[kind], _pct(share)])
+			if float(parts.get(kind, 0.0)) > 0.0: elements.append(["转为" + Elements.NAMES[kind], _pct(float(parts[kind]))])
+		if float(parts.get("arts", 0.0)) > 0.0: elements.append(["转为法术", _pct(float(parts.arts))])
 		for kind in Elements.KINDS:
 			if v.call(Elements.ADD_KEY[kind]) > 0.0: elements.append(["附加" + Elements.NAMES[kind], _pct(v.call(Elements.ADD_KEY[kind]))])
 		for kind in ["burn", "cold", "corr", "nerve", "bleed", "necro"]:
@@ -204,7 +217,7 @@ static func detail_groups(pl: Player) -> Array:
 	var conditional := []
 	for stat in ItemModifier.SHEET_KEYS:
 		var key: String = ItemModifier.SHEET_KEYS[stat]
-		if stat < ItemModifier.Stat.CROWD_DMG or stat == ItemModifier.Stat.BUILD_PCT or key in CONDITIONAL_SHOWN: continue
+		if stat < ItemModifier.Stat.CROWD_DMG or stat == ItemModifier.Stat.BUILD_PCT or stat == ItemModifier.Stat.CONV_ARTS or key in CONDITIONAL_SHOWN: continue
 		if is_zero_approx(v.call(key)): continue
 		var mod := ItemModifier.new()
 		mod.stat = stat
@@ -227,15 +240,28 @@ static func _pct(value: float, signed: bool = false) -> String:
 	if signed and shown > 0.0 and text != "0": text = "+" + text
 	return text + "%"
 
-static func _stat_row(name: String, value: String) -> HBoxContainer:
+static func _stat_row(name: String, value: String, colour: Color = AK.FG) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.custom_minimum_size.y = 22
 	row.add_child(AK.label(name, 12, AK.MUTE))
 	var fill := Control.new()
 	fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(fill)
-	row.add_child(AK.label(value, 14, AK.FG, AK.en()))
+	row.add_child(AK.label(value, 14, colour, AK.en()))
 	return row
+
+## A resistance as 实际/上限 (+溢出), red below the cap (抗性为王修订案 v0.4 §7.2),
+## with 装备 − 压制 on hover.
+static func _res_row(pl: Player, kind: String) -> Array:
+	var e := pl.elements
+	var cap := e.res_cap()
+	var now := e.res(kind)
+	var over := e.res_over(kind)
+	var text := "%d/%d" % [roundi(now), roundi(cap)] + (" (+%d)" % roundi(over) if over >= 0.5 else "")
+	var floor_number := pl.game.floor_number if is_instance_valid(pl.game) else 1
+	var tip := "装备 %d − 压制 %d" % [roundi(e.res_gear(kind)), roundi(Elements.penalty(floor_number))]
+	if e.shred_on(kind) > 0.0: tip += " − 减抗 %d" % roundi(e.shred_on(kind))
+	return [Elements.NAMES[kind] + "抗性", text, AK.RED if now < cap - 0.01 else AK.FG, tip]
 
 # --- 属性: points, battle records, crafts ----------------------------------------------
 

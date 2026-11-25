@@ -13,7 +13,7 @@ var game: GameManager
 ## [name, kind, colour] — kinds are the station menus they open.
 const STATIONS := [
 	["调度台", "contracts", Color("ffffff")], ["整备台", "loadout", Color("0098dc")], ["仓管台", "stash", Color("0098dc")],
-	["出库区", "outbound", Color("f5c000")], ["医疗前台", "report", Color("8fc31f")], ["药房窗口", "pharmacy", Color("8fc31f")],
+	["合同板", "board", Color("f5c000")], ["医疗前台", "report", Color("8fc31f")], ["药房窗口", "pharmacy", Color("8fc31f")],
 	["可露希尔的商店", "store", Color("8fc31f")], ["交易所", "exchange", Color("c48cff")], ["加工站", "workshop", Color("e0782a")],
 	["人事部", "personnel", Color("0098dc")], ["沙盘", "sand_table", Color("5fd0d8")], ["科研部", "research", Color("e0782a")],
 	["基建总控台", "construction", Color("e8b730")], ["农业部", "farm", Color("8fc31f")], ["食堂", "canteen", Color("e0a040")],
@@ -182,9 +182,9 @@ func _status_now(kind: String) -> String:
 		"loadout": return "装备 · 投保"
 		"stash":
 			return "仓库 %d/%d" % [base.shelf_count(), base.capacity()]
-		"outbound":
+		"board":
 			var ready := _ready_orders()
-			return "订单 · 可交付 %d" % ready if ready > 0 else "订单"
+			return "合同 · 可交付 %d" % ready if ready > 0 else "合同 %d/%d" % [base.board.active.size(), base.contract_cap()]
 		"report": return "返还中 %d" % base.insurance_queue.size() if not base.insurance_queue.is_empty() else "回收报告"
 		"pharmacy": return "配药"
 		"store": return "药剂 · 换汇 · 贷款"
@@ -221,7 +221,7 @@ func _status_now(kind: String) -> String:
 
 func _claimable(kind: String) -> bool:
 	match kind:
-		"outbound": return _ready_orders() > 0
+		"board": return _ready_orders() > 0
 		"report": return game.base.report_unread
 		"exchange": return not game.market.flash.is_empty()
 		"personnel": return RecruitCatalog.RECRUITS.keys().any(func(id): return game.base.recruit_ready(id))
@@ -325,7 +325,7 @@ class SlotBar extends Control:
 class HotkeyBar extends SlotBar:
 	## Each station's stripe, after the overview's department colours.
 	const COLOURS := {"dispatch": Color("ffffff"), "workbench": Color("0098dc"), "logistics": Color("0098dc"), "stash": Color("0098dc"),
-		"outbound": Color("f5c000"), "reception": Color("8fc31f"), "pharmacy": Color("8fc31f"), "store": Color("8fc31f"),
+		"board": Color("f5c000"), "reception": Color("8fc31f"), "pharmacy": Color("8fc31f"), "store": Color("8fc31f"),
 		"exchange": Color("c48cff"), "workshop": Color("e0782a"), "personnel": Color("0098dc"), "sand_table": Color("5fd0d8"),
 		"research": Color("e0782a"), "site_hub": Color("e8b730"), "lift": Color("9aa7ae"), "farm": Color("8fc31f"), "canteen": Color("e0a040")}
 

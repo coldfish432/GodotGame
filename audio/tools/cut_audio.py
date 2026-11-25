@@ -191,10 +191,92 @@ def main():
         write_ogg(OUT / "_check" / "warehouse_sequence.ogg", mix)
         print(f"warehouse_sequence.ogg: peak {20 * np.log10(np.abs(mix).max()):.1f} dBFS")
 
+    cut_elevenlabs(record)
     for k in ("开灯.mp3", "关灯.mp3", "开门.mp3", "货架升起.wav", "基地背景音乐.mp3", "矿洞外勤音乐.mp3", "撤离.mp3", "失败.mp3"):
         log["music/" + k] = {"raw": True, "sha256": hashlib.sha256((RAW / k).read_bytes()).hexdigest()}
+    for k in [v[0] for v in FIELD.values()] + [v[0] for v in BOSS.values()] + list(BOSS_STINGS.values()):
+        log["music/" + k] = {"raw": True, "source": "ElevenLabs agent (Eleven Music)", "sha256": hashlib.sha256((RAW / k).read_bytes()).hexdigest()}
     (OUT / "asset_log.json").write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(log, ensure_ascii=False, indent=2))
 
+# --- ElevenLabs music (2026-11-24, audio/ELEVENLABS_AGENT_BRIEF.md) -------------
+# Bar lengths measured by flux autocorrelation (all came out at whole BPM); the
+# sections sit on the bar grid from 0 s, found by per-bar loudness and novelty
+# (see audio/PROMPTS.md, P-FIELD-* and P-BOSS-*).
+#   field: (raw, bar s, loop start bar, loop end bar)
+FIELD = {
+    "city":     ("field/field_city.mp3",     2.66667, 4, 28),   # 90 BPM: intro 4 bars, main 24 bars
+    "snow":     ("field/field_snow.mp3",     3.33333, 4, 20),   # 72 BPM: intro 4, main 16
+    "siracusa": ("field/field_siracusa.mp3", 3.0,     8, 20),   # 80 BPM: main builds from bar 4; loop only the full bars 8-20
+}
+#   boss: (raw, bar s, A start bar, B start bar, ending bar, silent bars to drop at the head)
+BOSS = {
+    "mine":     ("boss/boss_mine.mp3",     2.4,     2, 10, 18, 1),  # 100 BPM; bar 0 is silence
+    "city":     ("boss/boss_city.mp3",     2.22222, 2, 10, 18, 0),  # 108 BPM
+    "snow":     ("boss/boss_snow.mp3",     2.82353, 2, 10, 18, 0),  # 85 BPM
+    "siracusa": ("boss/boss_siracusa.mp3", 2.5,     2, 10, 18, 0),  # 96 BPM
+}
+BOSS_STINGS = {"down": "boss/down_sting.mp3", "win": "boss/win_stin.mp3"}
+
+def cut_elevenlabs(record):
+    for key, (raw, bar, a, b) in FIELD.items():
+        x = decode(raw)
+        y, off_s = loop_file(x, a * bar, b * bar)
+        y = rms_norm(y, -18)
+        p = OUT / "music" / f"{key}_loop.ogg"; write_ogg(p, y)
+        record(p, source="music/" + raw, cut=f"0 – {len(y)/SR:.4f} s", loop_offset=round(off_s, 4),
+               loop_length=round(len(y) / SR - off_s, 4), bars=f"bar {bar} s; intro bars 0–{a}, loop bars {a}–{b}",
+               crossfade="40 ms raised-cosine into the audio before loop_offset",
+               gain="RMS -18 dBFS, peak <= -1 dBFS", format="OGG Vorbis q6")
+        check_file(OUT / "_check" / f"{key}_loop_x3.ogg", y, off_s)
+    for key, (raw, bar, a, b, e, head) in BOSS.items():
+        x = decode(raw)
+        y1, off1 = loop_file(x, a * bar, b * bar)            # intro + A, loops back to A
+        h = int(round(head * bar * SR)); y1 = y1[h:]; off1 -= h / SR  # whole bars: the grid stays on 0
+        y2, off2 = loop_file(x, b * bar, e * bar)            # ... + B; keep only B
+        s2 = int(round(off2 * SR)); y2 = y2[s2:]
+        body = x[:int(e * bar * SR)]                          # one gain for both parts
+        g = 10 ** (-18 / 20) / np.sqrt((body ** 2).mean())
+        g = min(g, 10 ** (-1 / 20) / max(np.abs(y1).max(), np.abs(y2).max()))
+        y1 = y1 * g; y2 = y2 * g
+        common = dict(source="music/" + raw, bar=bar, gain=f"{20*np.log10(g):+.2f} dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+                      crossfade="40 ms raised-cosine into the audio before the loop start", format="OGG Vorbis q6")
+        p = OUT / "music" / f"boss_{key}_p1.ogg"; write_ogg(p, y1)
+        record(p, cut=f"{h/SR:.4f} – {h/SR + len(y1)/SR:.4f} s", loop_offset=round(off1, 4), loop_length=round(len(y1) / SR - off1, 4),
+               bars=f"intro bars {head}–{a}, A bars {a}–{b} (file starts at bar {head})", **common)
+        p = OUT / "music" / f"boss_{key}_p2.ogg"; write_ogg(p, y2)
+        record(p, cut=f"{s2/SR:.4f} – {s2/SR + len(y2)/SR:.4f} s", loop_offset=0.0, loop_length=round(len(y2) / SR, 4),
+               bars=f"B bars {b}–{e}", **common)
+        # Listening copy: A twice, then B from the next bar line twice (what the game does).
+        a2 = np.concatenate([y1, y1[int(off1 * SR):]])
+        write_ogg(OUT / "_check" / f"boss_{key}_A2_B2.ogg", np.concatenate([a2, y2, y2]))
+    for kind, raw in BOSS_STINGS.items():
+        x = decode(raw)
+        s = onset(x, 0.0, 1.0, -40)
+        y = x[s:].copy()
+        a = int(0.002 * SR); y[:a] *= np.linspace(0, 1, a)[:, None]
+        f = int(0.3 * SR); y[-f:] *= (np.linspace(1, 0, f) ** 2)[:, None]
+        y = rms_norm(y, -18)
+        p = OUT / "music" / f"sting_boss_{kind}.ogg"; write_ogg(p, y)
+        record(p, source="music/" + raw, cut=f"{s/SR:.4f} s – end ({len(x)/SR:.4f} s)",
+               fade="2 ms in, squared 0.3 s out", gain="RMS -18 dBFS, peak <= -1 dBFS", format="OGG Vorbis q6")
+
+def main_elevenlabs():
+    """Cut only the ElevenLabs music and merge it into the existing asset log,
+    leaving the earlier files (and their bytes) untouched."""
+    path = OUT / "asset_log.json"
+    log = json.loads(path.read_text(encoding="utf-8"))
+    def record(p: Path, **info):
+        log[str(p.relative_to(ROOT)).replace("\\", "/")] = {**info, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+    cut_elevenlabs(record)
+    raws = [v[0] for v in FIELD.values()] + [v[0] for v in BOSS.values()] + list(BOSS_STINGS.values())
+    for k in raws:
+        log["music/" + k] = {"raw": True, "source": "ElevenLabs agent (Eleven Music)", "sha256": hashlib.sha256((RAW / k).read_bytes()).hexdigest()}
+    path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if sys.argv[1:] == ["eleven"]:
+        main_elevenlabs()   # python audio/tools/cut_audio.py eleven
+    else:
+        main()

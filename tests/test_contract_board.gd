@@ -153,7 +153,7 @@ func through_game() -> void:
 	game.fixed_map_seed = 1729
 	root.add_child(game)
 	await step(8)
-	check("the outbound station is exported", not game.base_map.station("outbound").is_empty())
+	check("the 合同板 station is exported, the 出库区 gone", not game.base_map.station("board").is_empty() and game.base_map.station("outbound").is_empty())
 	game.base.board = board_with(["eng_carbon", "log_fine_weapon"])
 	var carbon: Dictionary = game.base.board.active[0]
 	var weapon_card: Dictionary = game.base.board.active[1]
@@ -196,8 +196,24 @@ func through_game() -> void:
 	check("the 合同板 page lists the taken cards and the cap", _contains_text(game.menu, "进行中 2/3") and _contains_text(game.menu, "未封装源石原矿"))
 	BaseScreens.dispatch_tab = 0
 	game.close_modal()
-	game.open_station("outbound")
-	check("the outbound page lists the taken 交付 cards, no plain delivery", not _contains_text(game.menu, "直接交付") and _contains_text(game.menu, "未封装源石原矿"))
+	# 用户 2026-11-24: 出库区改为合同板 — the board station lists them and hands them in.
+	game.open_station("board")
+	check("the 合同板 station lists the taken 交付 cards, no plain delivery", not _contains_text(game.menu, "直接交付") and _contains_text(game.menu, "未封装源石原矿") and _contains_text(game.menu, "进行中 2/3"))
+	var hand_in := _buttons(game.menu, "交付")
+	check("each taken delivery card has its 交付 button, off with nothing to hand in", hand_in.size() == 2 and hand_in.all(func(b): return b.disabled), hand_in.size())
+	game.close_modal()
+	var ore_card: Dictionary = game.base.board.active.filter(func(c): return str(c.id) == "eng_raw_ore")[0]
+	var ore := item("未封装源石原矿", Item.Category.MATERIAL, 10)
+	ore.effect = "raw_ore"
+	game.inventory.try_add(ore)
+	game.open_station("board")
+	var live: Array = _buttons(game.menu, "交付").filter(func(b): return not b.disabled)
+	check("with the ore in the pack its card's 交付 is on", live.size() == 1, live.size())
+	if live.size() == 1:
+		live[0].pressed.emit()
+		check("交付 opens the pick list on the 合同板", BaseScreens.order_choosing == int(ore_card.uid) and _contains_text(game.menu, "已交付 0 / %d" % ContractBoard.need(ore_card)))
+		BaseScreens.order_choosing = -1
+	game.inventory.remove(ore)
 	game.close_modal()
 	game.base.board = ContractBoard.new()
 	await step(2)
@@ -240,3 +256,9 @@ func _contains_text(node: Node, text: String) -> bool:
 	for child in node.get_children():
 		if _contains_text(child, text): return true
 	return false
+
+func _buttons(node: Node, text: String) -> Array:
+	var out: Array = []
+	if node is Button and (node as Button).text == text: out.append(node)
+	for child in node.get_children(): out.append_array(_buttons(child, text))
+	return out

@@ -114,8 +114,6 @@ var fixed_market_seed := 0
 var _market_save_left := 60.0
 var _workshop_check := 0.0
 const MARKET_SAVE_SECONDS := 60.0
-## A black swan's headline, shown at the base until it is closed (§5.5: 弹窗).
-var swan_popup := ""
 ## The warehouse proper: personal storage on the shelves, and what its 整理箱
 ## hold (整理箱与收藏品策划案 v0.2 §2.1). A copy: move items through BaseState.
 var stash: Array[Item]:
@@ -322,7 +320,9 @@ var rng_loot := RandomNumberGenerator.new()
 var rng_trade := RandomNumberGenerator.new()
 var rng_base := RandomNumberGenerator.new()
 var rng_combat := RandomNumberGenerator.new()
-const RNG_STREAMS := ["rng", "rng_run", "rng_floor", "rng_loot", "rng_trade", "rng_base", "rng_combat"]
+## 抗性为王修订案 v0.4: which enemies carry elements, its own so no other draw moves.
+var rng_elem := RandomNumberGenerator.new()
+const RNG_STREAMS := ["rng", "rng_run", "rng_floor", "rng_loot", "rng_trade", "rng_base", "rng_combat", "rng_elem"]
 ## How far apart the streams start from one seed (seed_rng, an older save).
 const RNG_STREAM_STEP := 7919
 var _settled := true
@@ -629,6 +629,21 @@ func choose_operator(id: String) -> void:
 	player.hp = player.max_hp
 	refresh_look()
 	save_base()
+
+## The C window's 设为出战 (用户 2026-11-24: 干员界面可以更换当前出战（包括行走）
+## 干员): she deploys and walks the base, so 基地形象 goes back to following
+## whoever deploys; the window then shows her as the deployed one.
+func deploy_from_roster(id: String) -> bool:
+	if not can_deploy_from_roster(id): return false
+	choose_operator(id)
+	if str(SystemScreens.settings.get("base_look", "")) != "":
+		SystemScreens.set_setting("base_look", "")
+	view_operator = ""
+	refresh_look()
+	return true
+
+func can_deploy_from_roster(id: String) -> bool:
+	return in_base and id != player.operator_id and id in base.deployable()
 
 ## 干员独立装备修订案 v1.0: the leaving operator's set goes to her name, the
 ## coming one puts on her own. Rhodes standard pieces go back (they are
@@ -995,41 +1010,20 @@ func _build_base_prompt(layer: CanvasLayer) -> void:
 			ExchangeScreen.tab = 5
 			open_exchange())
 	layer.add_child(_status_bar)
-	# The base watch window (§6.4) and the black-swan popup (§5.5).
+	# The base watch window (§6.4). No black-swan popup (用户 2026-11-24: 不要黑天鹅弹窗).
 	watch_widget = MarketWidgets.WatchWidget.new()
 	watch_widget.game = self
 	watch_widget.position = Vector2(968, 52)
 	watch_widget.size = Vector2(300, 160)
 	watch_widget.visible = false
 	layer.add_child(watch_widget)
-	_swan_panel = PanelContainer.new()
-	_swan_panel.add_theme_stylebox_override("panel", AK.box(Color(0.06, 0.04, 0.04, 0.95), AK.RED, 2, 16))
-	_swan_panel.position = Vector2(340, 250)
-	_swan_panel.custom_minimum_size = Vector2(600, 0)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 10)
-	column.add_child(AK.label("PRTS 快讯 · 黑天鹅", 14, AK.RED))
-	_swan_label = AK.label("", 20, AK.FG)
-	_swan_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	column.add_child(_swan_label)
-	var close := AK.button("知道了", "blue", 14)
-	close.pressed.connect(close_swan_popup)
-	column.add_child(close)
-	_swan_panel.add_child(column)
-	_swan_panel.visible = false
-	layer.add_child(_swan_panel)
 
 var watch_widget: Control
-var _swan_panel: PanelContainer
-var _swan_label: Label
 
 func _update_base_prompt() -> void:
 	if not is_instance_valid(_base_prompt): return
 	_base_prompt.visible = base_walk_active()
 	if is_instance_valid(watch_widget): watch_widget.visible = _base_prompt.visible and watch_widget.get_meta("on", false) and exchange.unlocked()
-	if is_instance_valid(_swan_panel):
-		_swan_panel.visible = in_base and not transitioning and not swan_popup.is_empty() and (modal.is_empty() or modal == "station")
-		_swan_label.text = swan_popup
 	if is_instance_valid(_status_bar):
 		_status_bar.visible = _base_prompt.visible
 		_status_bar.text = base_status_text()
@@ -1557,13 +1551,11 @@ func _interact() -> void:
 ## True when E was spent on one. Ground loot is taken by clicking its name
 ## (request_pickup), not with E.
 func _interact_boxes() -> bool:
-	for node in get_tree().get_nodes_in_group("loot_containers"):
-		var box := node as LootContainer
-		if box.game != self or player.global_position.distance_to(box.global_position) > LootContainer.REACH: continue
+	var box := pick_box()
+	if box != null:
 		if box.sealed:
 			notice("%s仍被封印：先击败全部守卫者。" % box.title())
 			return true
-		if box.looted(): continue
 		if box.begin_open():
 			open_loot(box)
 			return true
@@ -1576,6 +1568,44 @@ func _interact_boxes() -> bool:
 			open_relic_offer(cache.source, cache)
 		return true
 	return false
+
+## 物品堆里选箱子 (用户 2026-11-24: 多兴趣点时没法选开哪个): of the boxes in
+## reach, the one the pointer is on (within BOX_POINTER_REACH of its ground
+## point), else the one nearest her. Only that one wears the rim.
+const BOX_POINTER_REACH := 1.3
+
+func pick_box() -> LootContainer:
+	if not is_instance_valid(player): return null
+	var at := player.global_position
+	var aim := pointer.ground_point()
+	var nearest: LootContainer = null
+	var nearest_d := INF
+	var aimed: LootContainer = null
+	var aimed_d := BOX_POINTER_REACH
+	for node in get_tree().get_nodes_in_group("loot_containers"):
+		var box := node as LootContainer
+		if box == null or box.game != self or (box.looted() and not box.sealed): continue
+		var d := at.distance_to(box.global_position)
+		if d > LootContainer.REACH: continue
+		if d < nearest_d:
+			nearest_d = d
+			nearest = box
+		var off := Vector2(aim.x - box.global_position.x, aim.z - box.global_position.z).length()
+		if off < aimed_d:
+			aimed_d = off
+			aimed = box
+	return aimed if aimed != null else nearest
+
+## pick_box once a frame, for every box's rim.
+var _box_pick_frame := -1
+var _box_pick: LootContainer
+
+func box_target() -> LootContainer:
+	var frame := Engine.get_process_frames()
+	if frame != _box_pick_frame:
+		_box_pick_frame = frame
+		_box_pick = pick_box()
+	return _box_pick if is_instance_valid(_box_pick) else null
 
 ## A route exit in reach opens the route map, unless the outpost's boss still
 ## holds the entry or the first contract must extract by beacon.
@@ -2551,17 +2581,14 @@ func _tick_market(delta: float) -> void:
 			save_lock_saved()
 
 ## News reaches the Doctor through PRTS: the log everywhere, a line at the base
-## for flash offers, and the one popup for a black swan (§5.5).
+## for flash offers and black swans (no popup: 用户 2026-11-24).
 func _on_market_news(headline: Dictionary, event: Dictionary) -> void:
 	if not event.is_empty(): exchange.on_event(event, headline.get("picks", {}))
 	# The market moves all the same; its news reaches her once the exchange is built (用户 2026-10-24).
 	if not exchange.unlocked(): return
 	var line := "PRTS 快讯：" + str(headline.title)
 	broadcast(line)
-	if str(headline.kind) == "swan":
-		if in_base: swan_popup = str(headline.title)
-		else: swan_popup = str(headline.title)  # shown when she is back
-	elif in_base and str(headline.kind) == "flash": set_message(line)
+	if in_base and str(headline.kind) in ["swan", "flash"]: set_message(line)
 
 ## Account events (§12): in the field PRTS reports them, at the base a line.
 ## Price alerts are the Doctor's own and only show at the base.
@@ -2571,9 +2598,6 @@ func _on_exchange_notice(text: String, kind: String) -> void:
 	if kind == "alert" and not in_base: return
 	broadcast("PRTS：" + text)
 	if in_base: set_message(text)
-
-func close_swan_popup() -> void:
-	swan_popup = ""
 
 ## The Doctor's money changer at 可露希尔 (§1.3), base or camp.
 func closure_convert(to_gold: bool, amount: int) -> bool:
@@ -3676,6 +3700,30 @@ func refresh_refusal(kind: String, item: Item) -> String:
 	if gold < refresh_cost(kind, item): return "龙门币不足"
 	return materials_refusal(refresh_materials(kind, item))
 
+## 镶嵌 (抗性为王修订案 v0.4 §5.2) at the base workbench: why `id` at `tier`
+## with these `kinds` cannot go on `item` now ("" when it can).
+func inlay_refusal(item: Item, id: String, tier: int, kinds: Array) -> String:
+	if not in_base or not InlayCatalog.has_slot(item) or not InlayCatalog.INLAYS.has(id): return "无法镶嵌"
+	if not item.category in (InlayCatalog.INLAYS[id].slots as Array) or not tier in InlayCatalog.tiers_of(id): return "无法镶嵌"
+	var need := InlayCatalog.tier_key(tier)
+	if not need.is_empty() and not base.researched(need): return "需要" + ResearchCatalog.name_of(ResearchCatalog.id_of_key(need))
+	var pool := InlayCatalog.kinds_pool(id)
+	if kinds.size() != InlayCatalog.picks(id) or kinds.any(func(k): return not k in pool): return "选择元素"
+	for i in range(kinds.size()):
+		if kinds.find(kinds[i]) != i: return "选择元素"
+	if gold < InlayCatalog.price(tier): return "龙门币不足"
+	return materials_refusal(InlayCatalog.materials(id, tier))
+
+## Sets it (the old one, if any, is gone). True when done.
+func set_inlay(item: Item, id: String, tier: int, kinds: Array = []) -> bool:
+	if not inlay_refusal(item, id, tier, kinds).is_empty(): return false
+	gold -= InlayCatalog.price(tier)
+	consume_materials(InlayCatalog.materials(id, tier))
+	item.inlay = {"id": id, "tier": tier, "kinds": kinds.duplicate()}
+	if is_instance_valid(player): player._recompute_stats()
+	save_base()
+	return true
+
 ## `line` (精调 only) is one of PrefixCatalog.rollable_lines(item).
 func refresh_gear(kind: String, item: Item, line: Array = []) -> bool:
 	if not refresh_refusal(kind, item).is_empty(): return false
@@ -4642,6 +4690,7 @@ func _spawn_boss(id: String, tier: int, at: Vector3) -> Boss:
 	figure.global_position = world_map.nearest_walkable(at) + Vector3.UP * 0.65
 	figure.global_position.y = ground_y(figure.global_position) + Enemy.GROUND_LIFT
 	figure.setup_boss(self, id, tier)
+	figure.elem_spec = ElementThreat.boss_spec(region_id)
 	var growth := Scaling.floor_growth(floor_number)
 	figure.max_health *= growth * (1.0 + (EnemyAttacks.SNOW_HP_BONUS if region_id == "snow" else 0.0))
 	figure.max_health *= enemy_life_multiplier(player.f("enemy_hp")) * contract_life()
@@ -5278,6 +5327,11 @@ func _spawn_enemy(position: Vector3, elite: bool, ranged: bool, type: String = "
 	enemy.max_health *= stat * float(floor_mods.get("weak", 1.0))
 	enemy.health = enemy.max_health
 	enemy.atk *= stat
+	# 抗性为王修订案 v0.4 §3: the deeper, the likelier its hits carry elements; an
+	# enemy with elemental damage of its own (EnemyAttacks.ELEMENTS "kind") keeps
+	# that instead (one with only a damage over time rolls, and keeps its DoT).
+	if not in_base and not (EnemyAttacks.ELEMENTS.get(enemy.enemy_type, {}) as Dictionary).has("kind"):
+		enemy.elem_spec = ElementThreat.roll(floor_number, region_id, enemy.elite or enemy.boss, routes.route_surge(), routes.route_deep(), rng_elem)
 	enemy.died.connect(_on_enemy_died)
 	return enemy
 

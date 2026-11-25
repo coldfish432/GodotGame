@@ -1,0 +1,7 @@
+{"adapter":"NVIDIA GeForce RTX 4060 Laptop GPU","clip":"route","driver":"d3d12","engine":"4.7.2-stable (official)","event":"start","frame":0,"renderer":"forward_plus","seed":2026}
+{"event":"setup_teleport","frame":50,"to":[10.2974367141724,0.0,121.90372467041],"why":"beside the descent marker, standing in for clearing the floor"}
+{"event":"tap","frame":380,"key":"E"}
+{"event":"modal","frame":518,"modal":"route"}
+{"call":"GameManager.advance(0)","event":"driver_choice","frame":518,"modal":"route"}
+{"event":"floor","floor":2,"frame":728}
+{"event":"end","frame":728}

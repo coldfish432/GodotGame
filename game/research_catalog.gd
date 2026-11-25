@@ -103,6 +103,13 @@ const NODES := {
 	"medical_c4": ["强化体质", 4, "", "生命 +3%", ["medical_c2", "medical_2", "personnel_c1"], {"hp": 0.03}],
 	"medical_c5": ["应急再生", 5, "", "药剂回复 +8%", ["medical_c4", "medical_c3", "medical_4"], {"heal_pct": 0.08}],
 	"medical_c6": ["极限耐受", 6, "", "生命 +5%", ["medical_c5", "medical_3"], {"hp": 0.05}],
+	# 抗性为王修订案 v0.4 §5.1: the 抗性 branch — 全元素 +10, 法抗 +5, 上限 +2 in all.
+	"medical_c7": ["元素防护涂层", 3, "", "全元素抗性 +5", ["medical_c3"], {"res_all_elem": 5.0}],
+	"medical_c8": ["复合防护层", 5, "", "全元素抗性 +5 · 法术抗性 +5", ["medical_c7", "engineering_c4"], {"res_all_elem": 5.0, "res": 5.0}],
+	"medical_c9": ["极限防护", 6, "", "元素抗性上限 +2", ["medical_c8", "medical_c5"], {"res_cap": 2.0}],
+	# §5.2: 镶嵌 at the workbench, 初级 from the start; these open 中级, then 高级 and 特制.
+	"engineering_i1": ["镶嵌工艺 I", 2, "inlay_mid", "镶件 中级", ["engineering_1"], {}],
+	"engineering_i2": ["镶嵌工艺 II", 4, "inlay_high", "镶件 高级 · 特制", ["engineering_i1", "engineering_2"], {}],
 	"engineering_c1": ["武器校准", 1, "", "攻击 · 法术 +1%", ["engineering_1"], {"atk": 0.01}],
 	"engineering_c2": ["装甲涂层", 2, "", "防御 +6%", ["engineering_c1", "logistics_2"], {"def": 0.06}],
 	"engineering_c3": ["刃口淬火", 3, "", "攻击 · 法术 +1.5%", ["engineering_c1", "engineering_2", "intel_c1"], {"atk": 0.015}],

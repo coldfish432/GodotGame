@@ -1,0 +1,230 @@
+{
+ "B01": {
+  "kind": "constructed still board",
+  "duration": 19.3,
+  "note": "artifact card"
+ },
+ "B07": {
+  "kind": "constructed still board",
+  "duration": 9.066666666666666,
+  "note": "floors / danger / extract diagram"
+ },
+ "B08": {
+  "kind": "constructed still board",
+  "duration": 15.966666666666667,
+  "note": "two comparison cards; Greedy Cave title rendered with a CJK-capable font fallback"
+ },
+ "B10": {
+  "kind": "constructed still board",
+  "duration": 27.533333333333335,
+  "note": "skill to evidence table"
+ },
+ "B11": {
+  "kind": "constructed still board",
+  "duration": 6.633333333333334,
+  "note": "scope columns"
+ },
+ "B12": {
+  "kind": "constructed still board",
+  "duration": 17.666666666666668,
+  "note": "system graph; figures from test_flow"
+ },
+ "B13": {
+  "kind": "constructed still board",
+  "duration": 13.033333333333333,
+  "note": "had vs new"
+ },
+ "B14": {
+  "kind": "constructed still board",
+  "duration": 5.0,
+  "note": "end card, silent"
+ },
+ "B00": {
+  "kind": "real capture windows, not retimed",
+  "duration": 11.266666666666667,
+  "pieces": [
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\mine.avi",
+    "start_s": 20.0,
+    "length_s": 11.266666666666667,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps"
+    ]
+   }
+  ]
+ },
+ "B02": {
+  "kind": "real capture windows, not retimed",
+  "duration": 12.5,
+  "pieces": [
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\regions.avi",
+    "start_s": 2.0,
+    "length_s": 3.0,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Lungmen · Upper City"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\regions.avi",
+    "start_s": 16.0,
+    "length_s": 3.0,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Sami · Permafrost Treeline"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\regions.avi",
+    "start_s": 30.0,
+    "length_s": 3.0,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Siracusa · Old Volsini Quarter"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\bridge.avi",
+    "start_s": 1.0,
+    "length_s": 3.5,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Setup: teleported to the bridge end, field cleared — then she walks across"
+    ]
+   }
+  ]
+ },
+ "B03": {
+  "kind": "real capture windows, not retimed",
+  "duration": 9.133333333333333,
+  "pieces": [
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\mine.avi",
+    "start_s": 40.0,
+    "length_s": 9.133333333333333,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "enemy telegraph → dodge → strike / sword wave"
+    ]
+   }
+  ]
+ },
+ "B04": {
+  "kind": "real capture windows, not retimed",
+  "duration": 12.733333333333333,
+  "pieces": [
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\route.avi",
+    "start_s": 11.5,
+    "length_s": 6.533333333333333,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Setup: teleported beside the descent marker (stands in for clearing the floor)"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\camp.avi",
+    "start_s": 9.4,
+    "length_s": 6.2,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Setup: camp 10|11 unlocked in memory · extraction via GameManager.camp_extract()"
+    ]
+   }
+  ]
+ },
+ "B05": {
+  "kind": "real capture windows, not retimed",
+  "duration": 11.233333333333333,
+  "pieces": [
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\base.avi",
+    "start_s": 2.0,
+    "length_s": 2.0,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\base.avi",
+    "start_s": 7.3,
+    "length_s": 3.5,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Setup: screens opened by code (what the station hotkey does)"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\base.avi",
+    "start_s": 12.5,
+    "length_s": 3.3,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Setup: exchange & research set built in memory"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\base.avi",
+    "start_s": 17.5,
+    "length_s": 2.433333333333333,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted input (AiDriver) · Godot Movie Maker 30 fps",
+     "Setup: exchange & research set built in memory"
+    ]
+   }
+  ]
+ },
+ "B06": {
+  "kind": "real capture windows, not retimed",
+  "duration": 11.0,
+  "pieces": [
+   {
+    "source": "D:\\CSYE 7370\\csye-7270-course\\fall-2026\\jingyao-y\\assignment-6\\walker-downfall\\youtube\\claude-liam-downfall-a6-particles-gamedev\\capture\\a_play\\frame%08d.png",
+    "start_s": 0.0,
+    "length_s": 5.5,
+    "kind": "seq",
+    "label": [
+     "A6 GPU PARTICLES · tag a6 f92a3cf3 · scripted-input Movie Maker capture, 1280×720 ×3"
+    ]
+   },
+   {
+    "source": "D:\\CSYE 7370\\csye-7270-course\\fall-2026\\jingyao-y\\assignment-7\\walker-downfall\\youtube\\claude-liam-downfall-a7-animation-gamedev\\capture\\wave_dodges\\frame%08d.png",
+    "start_s": 3.0,
+    "length_s": 5.5,
+    "kind": "seq",
+    "label": [
+     "A7 SWORD-WAVE RIG · tag a7 171a5830 · film fixture scene, scripted input, 1280×720 ×3"
+    ]
+   }
+  ]
+ },
+ "B09": {
+  "kind": "real capture windows, not retimed",
+  "duration": 17.5,
+  "pieces": [
+   {
+    "source": "D:\\CSYE 7370\\build\\pitch-raw\\title.avi",
+    "start_s": 0.0,
+    "length_s": 17.5,
+    "kind": "avi",
+    "label": [
+     "REAL CAPTURE · commit 1fbc309a · scripted clicks · title → new save → base",
+     "Not a timing measurement: the first sixty seconds WILL be timed"
+    ]
+   }
+  ]
+ }
+}

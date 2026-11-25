@@ -10,7 +10,7 @@ const TOP := 72.0
 const BOTTOM := 690.0
 const STATION_TITLES := {
 	"contracts": ["调度台", "DISPATCH"], "insurance": ["后勤柜台", "LOGISTICS"], "loadout": ["整备台", "WORKBENCH"],
-	"stash": ["仓管台", "DEPOT"], "outbound": ["出库区", "OUTBOUND"], "report": ["医疗部", "MEDICAL"],
+	"stash": ["仓管台", "DEPOT"], "board": ["合同板", "BOARD"], "report": ["医疗部", "MEDICAL"],
 	"pharmacy": ["医疗部", "MEDICAL"], "store": ["可露希尔的商店", "CLOSURE'S STORE"],
 	"personnel": ["人事部", "PERSONNEL"],
 }
@@ -146,8 +146,8 @@ static var dispatch_tab := 0
 static func contracts(menu: FieldMenu) -> void:
 	var game := menu.game
 	if dispatch_tab == 1:
-		var board_stage := shell(menu, "调度台", "DISPATCH", ["出发", "合同板"], 1, func(i): dispatch_tab = i; contracts(menu), "BOARD")
-		contract_board(menu, board_stage)
+		var board_stage := shell(menu, "调度台", "DISPATCH", ["出发", "合同板"], 1, func(i): dispatch_tab = i; order_choosing = -1; contracts(menu), "BOARD")
+		if not _order_pick_shown(menu, board_stage): contract_board(menu, board_stage)
 		return
 	var regions: Array = FieldCatalog.REGIONS.keys()
 	if not menu.region_pick in regions or not game.region_open(menu.region_pick): menu.region_pick = regions[0]
@@ -292,6 +292,26 @@ static func contracts(menu: FieldMenu) -> void:
 		menu.show_departure(region)
 		menu.back_to = func(): game.open_station("contracts"))
 
+## 合同板 station (用户 2026-11-24: 出库区改为合同板，出库区删除): the board, and
+## handing in the taken 交付 / 回收 cards, which the 出库区 used to do.
+static func board(menu: FieldMenu) -> void:
+	var game := menu.game
+	var stage := shell(menu, "合同板", "BOARD", [], 0, Callable(), "BOARD", [["lmd", Economy.format(game.gold)]])
+	if not _order_pick_shown(menu, stage): contract_board(menu, stage)
+
+## Whichever board she is on, drawn again.
+static func _redraw_board(menu: FieldMenu) -> void:
+	if menu._station == "board": board(menu)
+	else: contracts(menu)
+
+## The pick list for the taken card she pressed 交付 on, if any.
+static func _order_pick_shown(menu: FieldMenu, stage: Control) -> bool:
+	if order_choosing >= 0 and not menu.game.base.board.find_active(order_choosing).is_empty():
+		_order_choice(menu, stage, order_choosing, menu.game.deliverable_items())
+		return true
+	order_choosing = -1
+	return false
+
 ## The 合同板 page: every department's posted cards on the left, grouped, each
 ## with 接取; the taken ones on the right with their progress and 放弃.
 static func contract_board(menu: FieldMenu, stage: Control) -> void:
@@ -348,12 +368,22 @@ static func _board_card(menu: FieldMenu, stage: Control, at: Vector2, c: Diction
 	if str(c.type) == "hunt": pay = pay.split(" · ")[0]
 	var pay_label := AK.label(pay, 11, AK.MUTE)
 	pay_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	AK.put(stage, pay_label, at + Vector2(width - 252, 8), Vector2(160, 16))
+	var delivers := taken and ContractBoard.is_delivery(c)
+	AK.put(stage, pay_label, at + Vector2(width - (320 if delivers else 252), 8), Vector2(160, 16))
 	if taken:
 		var drop := AK.button("放弃", "plain", 12)
 		AK.put(stage, drop, at + Vector2(width - 80, 16), Vector2(68, 32))
 		var uid := int(c.uid)
-		drop.pressed.connect(func(): game.abandon_contract(uid); contracts(menu))
+		drop.pressed.connect(func(): game.abandon_contract(uid); _redraw_board(menu))
+		if delivers:
+			var fits := game.deliverable_items().filter(func(x): return ContractBoard.matches(c, x)).size()
+			var deliver := AK.button("交付", "blue" if fits > 0 else "plain", 12)
+			deliver.disabled = fits == 0
+			AK.put(stage, deliver, at + Vector2(width - 152, 16), Vector2(64, 32))
+			deliver.pressed.connect(func():
+				order_choosing = uid
+				menu.pick = null
+				_redraw_board(menu))
 		return
 	var take := AK.button("接取", "blue", 13)
 	var refusal := game.contract_refusal(c)
@@ -361,13 +391,13 @@ static func _board_card(menu: FieldMenu, stage: Control, at: Vector2, c: Diction
 	if not refusal.is_empty(): take.tooltip_text = refusal
 	AK.put(stage, take, at + Vector2(width - 80, 16), Vector2(68, 32))
 	var card := c
-	take.pressed.connect(func(): game.take_contract(card); contracts(menu))
+	take.pressed.connect(func(): game.take_contract(card); _redraw_board(menu))
 	# 外勤部 2 阶: one free reroll of a posted card per return.
 	if game.base.contract_reroll and c.has("uid") and str(c.dept) != "商务部":
 		var reroll := AK.button("重抽", "ghost", 11)
 		AK.put(stage, reroll, at + Vector2(width - 140, 20), Vector2(52, 24))
 		var uid := int(c.uid)
-		reroll.pressed.connect(func(): game.reroll_contract(uid); contracts(menu))
+		reroll.pressed.connect(func(): game.reroll_contract(uid); _redraw_board(menu))
 
 # --- 人事部 (干员寻访策划案 §2.3) ----------------------------------------------------
 
@@ -969,56 +999,7 @@ static func _cost_line(game: GameManager, stage: Control, at: Vector2, price: in
 static func _show_detail(game: GameManager, item: Item) -> void:
 	hovered = item
 
-# --- #15 出库区 -----------------------------------------------------------------------
-
-static func outbound(menu: FieldMenu) -> void:
-	var game := menu.game
-	var board: ContractBoard = game.base.board
-	# The taken 交付 / 回收 cards only (用户 2026-10-25: 不要出库区的直接交付；只能在可露希尔处卖).
-	var stage := shell(menu, "出库区", "OUTBOUND", [], 0, Callable(), "ORDERS", [["lmd", Economy.format(game.gold)]])
-	var deliverable := game.deliverable_items()
-	# Picking what goes to one card (用户 2026-10-24: 玩家能够选择交什么材料).
-	if order_choosing >= 0 and not board.find_active(order_choosing).is_empty():
-		_order_choice(menu, stage, order_choosing, deliverable)
-		return
-	order_choosing = -1
-	var y := TOP + 8
-	for c in board.deliveries():
-		_order_strip(menu, stage, Vector2(16, y), c, deliverable)
-		y += 82
-
-static func _order_strip(menu: FieldMenu, stage: Control, at: Vector2, card: Dictionary, deliverable: Array[Item]) -> void:
-	var game := menu.game
-	var t := ContractBoard.spec(card)
-	var colour: Color = GameManager.DEPT_COLOURS.get(card.dept, AK.FG)
-	stage.add_child(AK.rect(colour, at, Vector2(110, 72)))
-	AK.put(stage, AK.label("CONTRACT", 8, AK.INK, AK.en()), at + Vector2(12, 16))
-	AK.put(stage, AK.label(card.dept, 16, AK.INK), at + Vector2(12, 30))
-	stage.add_child(AK.rect(AK.PLATE_2, at + Vector2(110, 0), Vector2(1138, 72)))
-	var fits: Array = deliverable.filter(func(x): return ContractBoard.matches(card, x))
-	if not fits.is_empty(): AK.put(stage, AK.item_icon(fits[0], Vector2(50, 50)), at + Vector2(124, 11))
-	var what := game.contract_what(card)
-	var region := str(t.get("region", ""))
-	if not region.is_empty(): what += "（%s）" % FieldCatalog.REGIONS[region].name.split(" · ")[0]
-	AK.put(stage, AK.label(what, 14, AK.FG), at + Vector2(188, 14))
-	AK.put(stage, AK.label("已交付 %d / %d  ·  可交付 %d" % [ContractBoard.delivered_count(card), ContractBoard.need(card), fits.size()], 12, AK.GREEN if not fits.is_empty() else AK.MUTE), at + Vector2(188, 40))
-	var reward := VBoxContainer.new()
-	reward.alignment = BoxContainer.ALIGNMENT_CENTER
-	var money := AK.money("lmd", Economy.format(int(t.gold)) if t.has("gold") else "×%s" % str(t.mult), 16)
-	money.alignment = BoxContainer.ALIGNMENT_END
-	reward.add_child(money)
-	AK.put(stage, reward, at + Vector2(840, 10), Vector2(120, 52))
-	var uid := int(card.uid)
-	var drop := AK.button("放弃", "plain", 12)
-	drop.pressed.connect(func(): game.abandon_contract(uid); outbound(menu))
-	AK.put(stage, drop, at + Vector2(980, 20))
-	var deliver := AK.button("交付", "blue" if not fits.is_empty() else "plain", 14)
-	deliver.disabled = fits.is_empty()
-	AK.put(stage, deliver, at + Vector2(1140, 0), Vector2(108, 72))
-	deliver.pressed.connect(func():
-		order_choosing = uid
-		menu.pick = null
-		outbound(menu))
+# --- 交付合同的物资选择（原出库区，合同板里用） ------------------------------------------
 
 ## The taken card (uid) being filled by hand, -1 for the list (用户 2026-10-24).
 static var order_choosing := -1
@@ -1042,15 +1023,15 @@ static func _order_choice(menu: FieldMenu, stage: Control, uid: int, deliverable
 		var row := EventScreens._item_row(item, "×%d" % ContractBoard.takes(card, item), "个人仓库" if game.stash.has(item) else "背包", true, item == pick)
 		row.custom_minimum_size.x = 306
 		var chosen: Item = item
-		row.pressed.connect(func(): menu.pick = chosen; outbound(menu))
+		row.pressed.connect(func(): menu.pick = chosen; _redraw_board(menu))
 		list.add_child(row)
 	EventScreens._footer(stage, Vector2(16, BOTTOM - 62), 1248, "返回", "交付" + (" ×%d" % ContractBoard.takes(card, pick) if pick != null else ""), func():
 		order_choosing = -1
 		menu.pick = null
-		outbound(menu), func():
+		_redraw_board(menu), func():
 		if pick != null: game.deliver_to_order(uid, pick)
 		menu.pick = null
-		outbound(menu), pick != null)
+		_redraw_board(menu), pick != null)
 
 # --- #16 医疗部 -----------------------------------------------------------------------
 

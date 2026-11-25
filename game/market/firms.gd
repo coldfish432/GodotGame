@@ -511,8 +511,10 @@ func sell_shares(m: MarketState, id: String, n: float, who: String) -> float:
 func holding(id: String, who: String) -> float:
 	return float(f_of(id).get("holders", {}).get(who, 0.0))
 
-## §3.8.10 主要持有人: who holds what share, the crowds' positions included.
-func holders(m: MarketState, id: String) -> Array:
+## §3.8.10 主要持有人: who holds what share — the factions, other firms and
+## Rhodes; the crowds (价值型 / 趋势型 / 做市型 / 噪声型, the retail) are not
+## shown (用户 2026-11-24: 主要持有人只显示势力和其他公司、散户不显示).
+func holders(_m: MarketState, id: String) -> Array:
 	var f := f_of(id)
 	var total := maxf(float(f.get("shares", 1.0)), 1.0)
 	var out: Array = []
@@ -521,11 +523,11 @@ func holders(m: MarketState, id: String) -> Array:
 		var w := str(who)
 		var name := w
 		if w.begins_with("faction:"): name = FactionCatalog.name_of(w.substr(8))
+		elif w.begins_with("firm:"): name = FirmCatalog.name_of(w.substr(5))
+		elif FirmCatalog.ORDER.has(w): name = FirmCatalog.name_of(w)
 		elif w == "rhodes": name = "罗德岛"
+		else: continue
 		out.append([name, n / total])
-	for g in m.actors.groups:
-		var pos := float((m.actors.groups[g].pos as Dictionary).get(id, 0.0))
-		if pos > 0.0: out.append([str({"value": "价值型", "trend": "趋势型", "maker": "做市型", "noise": "噪声型"}[g]), pos / maxf(base_lmd(id), 0.01) / total])
 	out.sort_custom(func(a, b): return float(a[1]) > float(b[1]))
 	return out
 

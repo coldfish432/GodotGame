@@ -863,21 +863,25 @@ func _draw_glyph(c: Vector2, card: Dictionary) -> void:
 			else: draw_colored_polygon(AK.diamond(c, 10), AK.SPECIAL)
 
 ## 损伤 rings at the feet (属性伤害与地区装备策划案 v1.1 §13, 用户 2026-10-24:
-## 圆环形式，都放脚下): one ring per filling gauge, its element's colour
-## sweeping clockwise from the top; a gauge cooling after its burst is a dim
-## full ring. `gauges` is ElementState.top: [[kind, ratio, cooling]].
-func _draw_gauges(centre: Vector2, gauges: Array, radius: float) -> void:
-	if gauges.is_empty(): return
-	var step := radius * 2.0 + 4.0
-	var x := centre.x - step * (gauges.size() - 1) * 0.5
-	for g in gauges:
-		var c := Vector2(x, centre.y)
-		var colour: Color = Elements.COLORS[str(g[0])]
-		draw_circle(c, radius + 1.5, Color(0, 0, 0, 0.75))
-		draw_arc(c, radius, 0.0, TAU, 24, Color(colour, 0.22), 2.0, true)
-		if bool(g[2]): draw_arc(c, radius, 0.0, TAU, 24, Color(colour, 0.45), 2.0, true)
-		elif float(g[1]) > 0.0: draw_arc(c, radius, -PI / 2.0, -PI / 2.0 + TAU * float(g[1]), 24, colour, 2.0, true)
-		x += step
+## 圆环形式，都放脚下): one ring, its elements' arcs end to end clockwise from
+## the top; cooling after it went off it is a dim full ring in the leading
+## element's colour. `ring` is ElementState.ring.
+func _draw_gauges(centre: Vector2, ring: Dictionary, radius: float) -> void:
+	var arcs: Array = ring.get("arcs", [])
+	var cooling := bool(ring.get("cooling", false))
+	if arcs.is_empty() and not cooling: return
+	draw_circle(centre, radius + 1.5, Color(0, 0, 0, 0.75))
+	if cooling:
+		var kind := str(ring.get("kind", ""))
+		draw_arc(centre, radius, 0.0, TAU, 24, Color(Elements.COLORS.get(kind, Color.WHITE), 0.45), 2.0, true)
+		return
+	draw_arc(centre, radius, 0.0, TAU, 24, Color(1, 1, 1, 0.12), 2.0, true)
+	# 元素反应策划案 v0.2 §2: one ring, each element its own arc, clockwise from 12.
+	var from := -PI / 2.0
+	for arc in arcs:
+		var span := TAU * float(arc[1])
+		draw_arc(centre, radius, from, from + span, maxi(3, int(24.0 * float(arc[1]))), Elements.COLORS[str(arc[0])], 2.0, true)
+		from += span
 
 # --- The world: her bars, enemy bars, names, the E prompt ------------------------------
 
@@ -912,9 +916,9 @@ func _draw_world_marks() -> void:
 	# 损伤 rings at every enemy's feet (用户 2026-10-24: 圆环都放脚下).
 	for node in _enemies:
 		var foe := node as Enemy
-		if foe.game != game or foe._dead or (foe.elements.gauges.is_empty() and foe.elements.cooldowns.is_empty()): continue
+		if foe.game != game or foe._dead or foe.elements.is_idle(): continue
 		var big := foe is Boss or foe.boss
-		_draw_gauges(game.screen_point(foe.global_position - Vector3.UP * Enemy.GROUND_LIFT) + Vector2(0, 8), foe.elements.top(foe.gauge_threshold()), 5.0 if big else 4.0)
+		_draw_gauges(game.screen_point(foe.global_position - Vector3.UP * Enemy.GROUND_LIFT) + Vector2(0, 8), foe.elements.ring(foe.gauge_threshold()), 5.0 if big else 4.0)
 	# A 萨卡兹哨兵 that has seen her: a red "!" over its head while it is alerted.
 	for node in get_tree().get_nodes_in_group("sentinels"):
 		var sentinel := node as Enemy
@@ -928,7 +932,7 @@ func _draw_world_marks() -> void:
 	var feet := game.screen_point(p.global_position) + Vector2(0, 14)
 	AK.draw_bar(self, Rect2(feet.x - 27, feet.y, 54, 5), p.hp / maxf(p.max_hp, 1.0), AK.RED if p.hp < p.max_hp * 0.3 else AK.HP, Color(0, 0, 0, 0.8))
 	_blocked_life(Rect2(feet.x - 27, feet.y, 54, 5), p.life_cap_ratio())
-	if p.elements != null: _draw_gauges(Vector2(feet.x, feet.y + (18.0 if p.has_sword_wave() else 11.0)), p.elements.state.top(p.max_hp * Elements.HER_THRESHOLD), 4.0)
+	if p.elements != null: _draw_gauges(Vector2(feet.x, feet.y + (18.0 if p.has_sword_wave() else 11.0)), p.elements.state.ring(p.max_hp * Elements.HER_THRESHOLD), 4.0)
 	if p.has_sword_wave():
 		var need := p.wave_hits_needed()
 		var seg := (54.0 - (need - 1) * 2.0) / need

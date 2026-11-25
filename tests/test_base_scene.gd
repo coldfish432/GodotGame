@@ -86,7 +86,7 @@ func run() -> void:
 	# south, and walking on north stops at the ring's north console.
 	var space := game.get_world_3d().direct_space_state
 	for station in base.interactables:
-		if station.id in ["lift", "outbound", "pharmacy", "exchange", "personnel", "dispatch", "workshop", "sand_table", "research", "deck_lift", "lift2", "farm", "canteen"] or str(station.id).begins_with("site_"): continue  # walk-up spots (the terminals until their art), not props
+		if station.id in ["lift", "board", "pharmacy", "exchange", "personnel", "dispatch", "workshop", "sand_table", "research", "deck_lift", "lift2", "farm", "canteen"] or str(station.id).begins_with("site_"): continue  # walk-up spots (the terminals until their art), not props
 		var query := PhysicsPointQueryParameters3D.new()
 		query.position = Vector3(station.position.x, 1.0, station.position.z)
 		query.collision_mask = 1

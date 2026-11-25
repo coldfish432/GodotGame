@@ -152,7 +152,7 @@ func run() -> void:
 	for t in range(LoadoutScreens.WORKBENCH_TABS.size()):
 		game.menu.workbench_tab = t
 		await station("loadout", "workbench/%d" % t)
-	for kind in ["construction", "outbound", "pharmacy", "report", "workshop", "farm", "canteen", "lift", "prts"]:
+	for kind in ["construction", "board", "pharmacy", "report", "workshop", "farm", "canteen", "lift", "prts"]:
 		await station(kind, kind)
 	for t in range(2):
 		BaseScreens.personnel_tab = t

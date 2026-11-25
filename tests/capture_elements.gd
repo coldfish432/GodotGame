@@ -30,18 +30,19 @@ func run() -> void:
 	var p := game.player
 	p.invulnerable = true
 	var at := p.global_position
-	var kinds := [["thug", ["cold", "corr"]], ["caster", ["burn"]], ["armed", ["nerve", "cold"]]]
+	var kinds := [["thug", ["cold", "corr"]], ["caster", ["burn"]], ["armed", ["nerve", "cold", "necro"]]]
 	for i in range(kinds.size()):
 		var e := game._spawn_enemy(at + Vector3(2.5 + i * 1.6, 0, -1.0 + i), kinds[i][0] == "armed", false, kinds[i][0])
 		e.set_physics_process(false)
+		# One ring (元素反应策划案 v0.2): the parts sit end to end.
 		var share := 0.35
 		for kind in kinds[i][1]:
 			e.elements.fill(kind, e.gauge_threshold() * share, e.gauge_threshold(), Elements.BURST_COOLDOWN)
-			share += 0.4
+			share = 0.2
 		e.health = e.max_health * 0.7
-	p.elements.state.fill("corr", p.max_hp * 0.6 * 0.55, p.max_hp * Elements.HER_THRESHOLD, Elements.HER_COOLDOWN)
+	p.elements.state.fill("corr", p.max_hp * 0.6 * 0.45, p.max_hp * Elements.HER_THRESHOLD, Elements.HER_COOLDOWN)
 	p.elements.state.fill("nerve", p.max_hp * 0.6 * 0.25, p.max_hp * Elements.HER_THRESHOLD, Elements.HER_COOLDOWN)
-	await capture("elements-rings")
+	await capture("element-ring-v02")
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 3
 	var region := ["mine", "city", "snow", "siracusa", "mine"]

@@ -9,9 +9,12 @@ extends RefCounted
 ## The rings show only timed hexes; the bar lists every hex, the canteen meal
 ## and the meters' stage penalties.
 
-const KEY_GOOD := {"atk": true, "aspd": true, "def": true, "move": true, "stamina": true, "taken": false}
+const KEY_GOOD := {"atk": true, "aspd": true, "def": true, "move": true, "stamina": true, "taken": false,
+	# 抗性为王修订案 v0.4: the resistance flasks.
+	"res": true, "res_burn": true, "res_cold": true, "res_corr": true, "res_nerve": true, "res_all_elem": true}
 const META := ["time", "stacks"]
-const KEY_NAMES := {"atk": "攻击", "aspd": "攻速", "def": "防御", "move": "移速", "stamina": "体力恢复", "taken": "承受伤害"}
+const KEY_NAMES := {"atk": "攻击", "aspd": "攻速", "def": "防御", "move": "移速", "stamina": "体力恢复", "taken": "承受伤害",
+	"res": "法术抗性", "res_burn": "灼燃抗性", "res_cold": "寒冷抗性", "res_corr": "侵蚀抗性", "res_nerve": "神经抗性", "res_all_elem": "全元素抗性"}
 const ENEMY_GOOD := {"haste": true, "slow": false, "frozen": false, "fragile": false, "res_down": false, "weaken": false, "burn": false}
 ## Names of the hexes that are not potions.
 const HEX_NAMES := {"meal": "食堂补给", "corr_burst": "腐蚀", "necro_burst": "凋亡", "boss_shred": "破甲", "boss_awe": "威慑", "boss_curse": "诅咒",
@@ -106,7 +109,8 @@ static func effect_lines(entry: Dictionary) -> Array:
 		if key in META or not KEY_NAMES.has(key): continue
 		var v := float(entry[key])
 		if is_zero_approx(v): continue
-		lines.append("%s %s%d%%" % [KEY_NAMES[key], "+" if v > 0.0 else "−", roundi(absf(v) * 100.0)])
+		if str(key).begins_with("res"): lines.append("%s %s%d" % [KEY_NAMES[key], "+" if v > 0.0 else "−", roundi(absf(v))])   # points
+		else: lines.append("%s %s%d%%" % [KEY_NAMES[key], "+" if v > 0.0 else "−", roundi(absf(v) * 100.0)])
 	return lines
 
 ## What a meter's stage does (FeatureCatalog / BaseCatalog tiers).

@@ -30,8 +30,8 @@ WORLD = {
                  spawns={'arrival': (64.0, 53.0)}),
     'warehouse': dict(origin=(-64.0 - SEAM, -8.0), size=(64, 36), east_doors=[18.0], west_doors=[], north_doors=[],
                       interact=[('stash', 'stash', '仓管台：仓库', 50.0, 12.0),
-                                # 出库区：东北角两个出库托盘的南侧，公告板就在它们正上方的北墙
-                                ('outbound', 'outbound', '出库区：订单与交付', 55.5, 8.2)], spawns={}),
+                                # 合同板（原出库区，用户 2026-11-24）：东北角两个出库托盘的南侧，公告板就在它们正上方的北墙
+                                ('board', 'board', '合同板', 55.5, 8.2)], spawns={}),
     'medical': dict(origin=(128.0 + SEAM, 4.0), size=(45, 41), west_doors=[30.0], east_doors=[], north_doors=[],
                     interact=[('reception', 'report', '医疗前台：回收报告与治疗', 7.0, 9.0),
                               # 药房窗口在北墙（x 10–15.2），站在洗手台南侧

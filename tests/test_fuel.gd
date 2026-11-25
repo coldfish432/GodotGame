@@ -136,7 +136,7 @@ func run() -> void:
 		var ok := ex.buy_material(seller, Fuel.BARREL, 1)
 		var barrel_items := game.stash.filter(func(it): return it.material_id == Fuel.BARREL).size()
 		check("a bought barrel goes into the reserve, nothing to the warehouse", ok and fin.fuel_reserve() == 480 and barrel_items == 0 and game.base.mail_count() == mail_before,
-			[ok, seller, fin.fuel_reserve(), game.base.shelf.size(), shelf_before, game.base.mail_count(), mail_before, ex.quote_buy(seller, Fuel.BARREL), ex.quota_left(seller)])
+			[ok, seller, fin.fuel_reserve(), game.base.shelf.size(), shelf_before, game.base.mail_count(), mail_before, ex.quote_buy(seller, Fuel.BARREL)])
 	var buyer := ""
 	for f in FactionCatalog.ORDER:
 		if ex.quote_fuel(str(f), 1).ok:

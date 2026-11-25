@@ -20,6 +20,11 @@ func check(label: String, passed: bool) -> void:
 func n(cue: String) -> int: return int(game.sound.counts.get(cue, 0))
 
 func run() -> void:
+	# The title plays the base loop before any game exists (PixelDisplay).
+	var title_host := Node.new()
+	root.add_child(title_host)
+	GameMusic.play_title(title_host)
+	var title_player: AudioStreamPlayer = GameMusic._title_player
 	game = GameManager.new()
 	game.save_enabled = false
 	game.fixed_map_seed = 1729
@@ -29,17 +34,29 @@ func run() -> void:
 
 	# --- Files and loop points ------------------------------------------------
 	var log: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://audio/asset_log.json"))
-	for key in ["base", "mine"]:
+	for key in ["base", "mine", "city", "snow", "siracusa"]:
 		var stream: AudioStreamOggVorbis = music._streams.get(key)
 		var entry: Dictionary = log["audio/music/%s_loop.ogg" % key]
 		check("%s loop loads, loops, and jumps back to the logged point (%.4f s)" % [key, entry.loop_offset],
 			stream != null and stream.loop and is_equal_approx(stream.loop_offset, float(entry.loop_offset)))
+	for region in GameMusic.BOSS_BAR:
+		var p1 := GameMusic.BOSS_TRACK % [region, "p1"]
+		var p2 := GameMusic.BOSS_TRACK % [region, "p2"]
+		var e1: Dictionary = log.get(p1.trim_prefix("res://"), {})
+		var e2: Dictionary = log.get(p2.trim_prefix("res://"), {})
+		check("%s boss: p1 loops back to A at the logged point, p2 (B) from 0, on the logged bar" % region,
+			ResourceLoader.exists(p1) and ResourceLoader.exists(p2) and not e1.is_empty() and not e2.is_empty()
+			and is_equal_approx(float(GameMusic.BOSS_LOOP_OFFSET["boss_%s_p1" % region]), float(e1.loop_offset))
+			and float(e2.loop_offset) == 0.0 and is_equal_approx(float(GameMusic.BOSS_BAR[region]), float(e1.bar)))
+	check("both boss stings are there", GameMusic.BOSS_STINGS.values().all(func(p): return ResourceLoader.exists(p)))
 	check("the defeat sting loads and does not loop; extraction has none", music._streams.has(false) and not music._streams[false].loop and not music._streams.has(true))
 	check("all four warehouse cues load", ["lights_on", "lights_off", "hatch", "shelf"].all(func(c): return game.sound.streams.has(c)))
 	check("Music and SFX buses feed Master", AudioServer.get_bus_index("Music") > 0 and AudioServer.get_bus_index("SFX") > 0
 		and AudioServer.get_bus_send(AudioServer.get_bus_index("Music")) == "Master")
 
 	# --- Base music and pause -------------------------------------------------
+	check("the title's base loop plays on into the base, not restarted", title_player != null and music._loop == title_player
+		and not GameMusic.title_playing() and title_player.bus == "Music")
 	check("the base plays its track from the start", music.track == "base" and music._loop != null and music._loop.stream == music._streams.base)
 	game.toggle_panel("pause")
 	await step(30)
@@ -138,6 +155,16 @@ func run() -> void:
 	played = music.stings_played
 	music.end_run(false)
 	check("a settle without field music (interrupted contract on boot) plays no sting", music.stings_played == played and music.track == "base")
+
+	# --- Each region its own field loop -------------------------------------
+	for region in ["city", "snow", "siracusa"]:
+		game.close_modal()
+		await game.start_contract(region)
+		await step(3)
+		check("a %s contract plays the %s loop" % [region, region], music.track == region and music._loop.stream == music._streams[region])
+		game.settle(true)
+		await step(6)
+	check("after the last one the base track is back", music.track == "base")
 
 	# --- Mute -----------------------------------------------------------------
 	var master := AudioServer.get_bus_index("Master")

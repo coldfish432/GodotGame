@@ -24,8 +24,8 @@ const FLOOR := 0.10
 const CEIL := 1.50
 const RES_MIN := -50.0
 const RES_CAP := 80.0
-## 首领件's 抗性上限 +5 lifts her cap; two of them reach 90 (§4.1).
-const RES_CAP_MAX := 90.0
+## 首领件's 抗性上限 +5 lifts her cap; two of them and 科研 极限防护 +2 reach 92 (抗性为王修订案 v0.4 §5.1).
+const RES_CAP_MAX := 92.0
 
 ## Every elemental hit and DoT is one of these; physical, arts and true keep
 ## CombatStats' own rules.
@@ -37,10 +37,17 @@ static func multiplier(resistance: float) -> float:
 
 # --- Depth (§4.2) ----------------------------------------------------------------
 
-## Her five new resistances lose 5 every ten floors from floor 21, −40 at most.
+## Her five new resistances lose 5 every ten floors from floor 21, −50 at most
+## (抗性为王修订案 v0.4 §4; was −40).
+const PENALTY_MAX := 50.0
 static func penalty(floor_number: int) -> float:
 	if floor_number <= 20: return 0.0
-	return minf(40.0, 5.0 * float((floor_number - 11) / 10))
+	return minf(PENALTY_MAX, 5.0 * float((floor_number - 11) / 10))
+
+## Her 法抗 loses half of that, −25 at most (§4).
+const ARTS_PENALTY_MAX := 25.0
+static func arts_penalty(floor_number: int) -> float:
+	return minf(ARTS_PENALTY_MAX, penalty(floor_number) * 0.5)
 
 ## Enemies' elemental share of their damage (§11): half on floors 1–10, three
 ## quarters on 11–20, all of it from 21.
@@ -78,9 +85,19 @@ static func enemy_resists(region: String, elite: bool, boss: bool) -> Dictionary
 ## A gauge fills with the elemental damage dealt (after resistance) and bursts
 ## at this share of the target's max life; 凋亡 fills from arts DoT ticks.
 const GAUGE_KINDS := ["burn", "cold", "corr", "nerve", "necro"]
-const THRESHOLD := {"normal": 0.20, "elite": 0.30, "boss": 0.08}
+## An enemy's ring is no share of its life any more (元素阈值修订案 v0.1, 用户
+## 2026-11-24): T = T0 × its rank × the depth its life grew by (floor and
+## contract), as 明日方舟's 1000 / 1000 / 2000.
+const T0 := 250.0
+const RANK := {"normal": 1.0, "elite": 1.0, "boss": 2.0}
+## Hers stays a share of her life.
 const HER_THRESHOLD := 0.60
-const BURST_COOLDOWN := 8.0
+## 元素反应策划案 v0.2 (用户 2026-11-24): one ring, 4 s (was 8 s a gauge).
+const BURST_COOLDOWN := 4.0
+## An enemy's ring takes this many times the elemental damage it is dealt.
+## ×4 (2026-11-24, §20) made up for thresholds of its life; with fixed
+## thresholds it is back to ×1 (元素阈值修订案 v0.1).
+const GAUGE_FILL := 1.0
 const HER_COOLDOWN := 10.0
 ## 3 s without a new fill, the gauge loses 10% of the threshold a second.
 const DECAY_DELAY := 3.0
@@ -103,9 +120,57 @@ const HER_BURST := {
 	"necro": {"atk_down": 0.20, "secs": 5.0},
 }
 
-static func threshold_share(elite: bool, boss: bool) -> float:
-	if boss: return float(THRESHOLD.boss)
-	return float(THRESHOLD.elite) if elite else float(THRESHOLD.normal)
+# --- One ring, pure bursts and reactions (元素反应策划案 v0.2) ---------------------
+
+## The leading kind at or above this share bursts alone (§5.1 table);
+## below it the two leading kinds react.
+const PURE_SHARE := 0.70
+## A reaction's damage × (K_BASE + K_BALANCE × second ÷ first): 1.2 at 50/50.
+const K_BASE := 0.7
+const K_BALANCE := 0.5
+const REACT_RADIUS := 3.0
+
+## Pair key (GAUGE_KINDS order) → name, damage as a share of the threshold,
+## its kind, the share of DEF it ignores; the rest of each one's effect is in
+## Enemy._react.
+const REACTIONS := {
+	"burn+cold": {"name": "骤裂", "damage": 0.70, "kind": "phys", "pierce": 0.5},
+	"burn+corr": {"name": "源石爆燃", "damage": 0.50, "kind": "burn"},
+	"burn+nerve": {"name": "过载", "damage": 0.45, "kind": "true", "stun": 0.8, "elite_stun": 0.4, "boss_slow": 0.30, "boss_secs": 2.0},
+	"burn+necro": {"name": "焚身", "damage": 0.90, "kind": "arts", "secs": 6.0, "res_down": 20.0, "res_secs": 8.0},
+	"cold+corr": {"name": "脆化", "damage": 0.30, "kind": "phys", "fragile": 0.25, "slow": 0.30, "secs": 6.0},
+	"cold+nerve": {"name": "僵直", "damage": 0.25, "kind": "true", "freeze": 2.5, "elite_freeze": 1.2, "boss_slow": 0.50, "boss_secs": 4.0},
+	"cold+necro": {"name": "寂灭", "damage": 0.40, "kind": "arts", "weaken": 0.30, "slow": 0.30, "secs": 6.0},
+	"corr+nerve": {"name": "蚀神", "damage": 0.45, "kind": "true", "stacks": 2},
+	"corr+necro": {"name": "溃散", "damage": 0.50, "kind": "phys", "stacks": 1, "weaken": 0.30, "secs": 6.0},
+	"nerve+necro": {"name": "崩溃", "damage": 0.35, "kind": "true", "stun": 1.0, "elite_stun": 0.5, "boss_slow": 0.30, "boss_secs": 3.0, "fragile": 0.20, "secs": 6.0},
+}
+
+## The kind with the largest share (ties: GAUGE_KINDS order).
+static func leading(split: Dictionary) -> String:
+	var best := ""
+	for kind in GAUGE_KINDS:
+		if float(split.get(kind, 0.0)) > float(split.get(best, 0.0)): best = kind
+	return best
+
+## What a full ring does: {"pure": kind} or {"pair": key, "main": kind, "k": k}.
+static func outcome(split: Dictionary) -> Dictionary:
+	var order: Array = GAUGE_KINDS.filter(func(kind): return float(split.get(kind, 0.0)) > 0.0)
+	order.sort_custom(func(a, b): return float(split[a]) > float(split[b]) or (float(split[a]) == float(split[b]) and GAUGE_KINDS.find(a) < GAUGE_KINDS.find(b)))
+	if order.is_empty(): return {}
+	var first: String = order[0]
+	var s1 := float(split[first])
+	if order.size() < 2 or s1 >= PURE_SHARE: return {"pure": first}
+	var second: String = order[1]
+	return {"pair": pair_key(first, second), "main": first, "k": K_BASE + K_BALANCE * float(split[second]) / s1}
+
+static func pair_key(a: String, b: String) -> String:
+	return a + "+" + b if GAUGE_KINDS.find(a) < GAUGE_KINDS.find(b) else b + "+" + a
+
+## An enemy's T: `growth` is Scaling.floor_growth × the contract's life factor.
+static func threshold(elite: bool, boss: bool, growth: float) -> float:
+	var rank := float(RANK.boss) if boss else (float(RANK.elite) if elite else float(RANK.normal))
+	return T0 * rank * maxf(growth, 0.0)
 
 # --- Damage over time (§6) ---------------------------------------------------------
 
@@ -139,3 +204,6 @@ const CONV_KEY := {"burn": "conv_burn", "cold": "conv_cold", "corr": "conv_corr"
 const DMG_KEY := {"burn": "burn_dmg_pct", "cold": "cold_dmg_pct", "corr": "corr_dmg_pct", "nerve": "nerve_dmg_pct", "bleed": "bleed_dmg_pct", "necro": "necro_dmg_pct"}
 ## Conversion never takes more than this of a hit (§3.4).
 const CONV_CAP := 0.60
+## 高血量 (元素转化与高血量词条修订案 v0.1 §5): a target whose life is at
+## least this × the floor's growth × 合同深入系数 (as enemy life grows).
+const HIGH_HP := 2500.0

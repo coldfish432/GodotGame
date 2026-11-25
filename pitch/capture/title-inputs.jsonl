@@ -1,0 +1,5 @@
+{"adapter":"NVIDIA GeForce RTX 4060 Laptop GPU","clip":"title","driver":"d3d12","engine":"4.7.2-stable (official)","event":"start","frame":0,"renderer":"forward_plus","seed":2026}
+{"button":"开始游戏","event":"click","frame":90,"window_xy":[496.774993896484,973.261108398438]}
+{"button":"新存档","event":"click","frame":141,"window_xy":[755.178100585938,889.144470214844]}
+{"event":"state","frame":552,"in_base":true,"in_game":true}
+{"event":"end","frame":732}

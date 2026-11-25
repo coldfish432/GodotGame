@@ -82,11 +82,12 @@ func run() -> void:
 	check("the terminal sells no loose goods", not ex.buy_material("lungmen", "螺栓", 5) and game.gold == lmd)
 	check("龙门商会 sells the packs of its shelf, never gear", FactionCatalog.packs_sold("lungmen").has("建材包") and not FactionCatalog.packs_sold("lungmen").has("武器包"))
 	check("buying a pack pays and goes straight into the warehouse (仓库修订)", ex.buy_material("lungmen", "建材包", 1) and game.gold < lmd and game.material_count("建材包") == packs + 1)
-	check("and uses the buy quota", ex.quota_left("lungmen") < ex.quota_cap("lungmen"))
-	ex.quota_used["lungmen"] = ex.quota_cap("lungmen")
-	check("a full quota refuses", not ex.buy_material("lungmen", "建材包", 1))
+	# 用户 2026-11-24: 取消额度 — no buy quota, as many as she pays for.
+	var before := game.material_count("建材包")
+	check("no buy quota: 20 packs at once go through", ex.buy_material("lungmen", "建材包", 20) and game.material_count("建材包") == before + 20)
+	# Out of the warehouse again: a forward below must find no packs to settle with.
+	game.consume_materials({"建材包": game.material_count("建材包")})
 	later(600)
-	check("the quota comes back 10% per 10 minutes", absf(ex.quota_left("lungmen") - ex.quota_cap("lungmen") * 0.1) < 50.0)
 	# --- Orders -------------------------------------------------------------------
 	var sword := stash_add(MaterialCatalog.create("武器包", 1))
 	set_index("karlan:weapon", 1.0)
@@ -157,9 +158,11 @@ func run() -> void:
 	ex.loan = 0
 	game.gold = 900000
 	ex.relations["karlan"] = Exchange.RANK_AT[1]
-	check("the notional cap per issuer", not ex.open_cfd("fx", 1, 1, 60000.0) and ex.cfd_refusal("fx", 1, 60000.0) == "持仓上限")
+	# 用户 2026-11-24: 持仓不设上限，倍率最高888，不再被势力态度限制.
+	check("no notional cap per issuer", ex.cfd_refusal("fx", 1, 60000.0).is_empty())
 	ex.relations["kazimierz"] = 0
-	check("leverage needs the issuer's rank", not ex.open_cfd("comp:lungmen", 1, 2, 5.0))
+	check("leverage does not need the issuer's rank", ex.cfd_refusal("comp:lungmen", 2, 5.0).is_empty() and ex.cfd_refusal("comp:lungmen", 888, 5.0).is_empty())
+	check("888× is the top", ex.cfd_refusal("fx", 889, 5.0) == "杠杆不可用" and ex.cfd_refusal("fx", 0, 5.0) == "杠杆不可用" and not ex.open_cfd("fx", 1, 889, 5.0))
 	ex.relations["kazimierz"] = Exchange.RANK_AT[1]
 	# The rank reads the effective relation: clear the modifiers the market's
 	# factions have built up by now (运营策划案 §3.9). Opened a minute before 08:00
@@ -250,13 +253,13 @@ func run() -> void:
 	var copy := Exchange.new()
 	copy.load_data(JSON.parse_string(JSON.stringify(ex.to_data())))
 	check("the account saves and loads", copy.money_version == 1 and not ex.to_data().has("gold_account") and not ex.to_data().has("fx_accounts") and copy.relation("lungmen") == ex.relation("lungmen") and copy.watch == ex.watch and copy.loan == ex.loan)
-	# --- News in the field and the swan popup ------------------------------------
+	# --- News in the field (no swan popup: 用户 2026-11-24) ----------------------
 	await game.start_contract("mine")
 	await step(4)
 	game.market.fire("U2")
 	check("in the field PRTS reports market news", game.prts_log.any(func(l): return "PRTS 快讯" in str(l[1])))
 	game.market.fire("U6")
-	check("a black swan waits as the base popup", not game.swan_popup.is_empty())
+	check("a black swan is a PRTS line, no popup", game.prts_log.any(func(l): return str(game.market.news[-1].title) in str(l[1])) and not "swan_popup" in game)
 	# A post in the mine.
 	game.encounter = "post"
 	game.post_faction = "reunion"
@@ -302,9 +305,6 @@ func run() -> void:
 	check("萨米 barters fuel for herbs: %d" % herbs, herbs > 0 and game.barter(fuel, "林地草药") and game.inventory.count_material("林地草药") + 0 >= 0)
 	game.settle(true)
 	await step(2)
-	check("back at the base the swan pops up", game._swan_panel.visible or not game.base_walk_active())
-	game.close_swan_popup()
-	check("and closes", game.swan_popup.is_empty())
 	_field()
 	print("TEST_EXCHANGE: %d failures" % failures)
 	quit(1 if failures > 0 else 0)
@@ -318,11 +318,26 @@ func _leverage() -> void:
 	ex.loan = 0
 	ex.cfds.clear()
 	ex.relations["karlan"] = Exchange.RANK_AT[2]
-	check("10× on FX needs R2, 15× is refused", ex.cfd_refusal("fx", 15, 1000.0) == "需要喀兰贸易关系 尊敬" and ex.cfd_refusal("fx", 10, 1000.0).is_empty())
+	ex.relations["karlan"] = 0
+	check("any leverage 1–888 opens at any rank", ex.cfd_refusal("fx", 15, 1000.0).is_empty() and ex.cfd_refusal("fx", 300, 1000.0).is_empty())
+	ex.relations["karlan"] = Exchange.RANK_AT[2]
 	set_index("fx", 1.0)
 	ex.open_cfd("fx", 1, 10, 5000.0)
 	var c: Dictionary = ex.cfds[-1]
 	check("a position carries its cap", int(c.cap) == 25 and is_equal_approx(ex.margin_ratio(c, 0.0), 2.5))
+	# Over the kind's old top step the cap is its own leverage: maintenance is its own margin.
+	check("a 300× position measures against its own margin", Exchange.cfd_cap("fx", 300) == 300 and Exchange.cfd_cap("fx", 10) == 25)
+	# The 外汇 · 差价 panel picks it on a 1–888 slider, no step buttons per rank.
+	ExchangeScreen.tab = 1
+	ExchangeScreen.fx_mode = 1
+	ExchangeScreen.lev = 300
+	game.open_station("exchange")
+	var sliders := _of_type(game.menu, "HSlider")
+	check("the 差价 panel has a 1–888 leverage slider at 300×", sliders.size() == 1 and int(sliders[0].max_value) == 888 and int(sliders[0].min_value) == 1 and int(sliders[0].value) == 300 and sliders[0].exp_edit)
+	game.close_modal()
+	ExchangeScreen.tab = 0
+	ExchangeScreen.fx_mode = 0
+	ExchangeScreen.lev = 1
 	# Down 7%: equity 1500 on a 50,000 notional needs 2000 → a call.
 	set_index("fx", 0.93)
 	later(4)
@@ -407,3 +422,9 @@ func _field() -> void:
 	game.market_field = {}
 	game.region_id = region
 	m.field.clear()
+
+func _of_type(node: Node, cls: String) -> Array:
+	var out: Array = []
+	if node.is_class(cls) and (node as Control).is_visible_in_tree(): out.append(node)
+	for child in node.get_children(): out.append_array(_of_type(child, cls))
+	return out

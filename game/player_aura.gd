@@ -65,7 +65,10 @@ func _process(delta: float) -> void:
 	if is_instance_valid(player.game) and not (player.game.simulation_active() or player.game.base_walk_active()): return
 	age += delta
 	global_basis = Basis.IDENTITY
-	shadow.global_position = Vector3(player.global_position.x, 0.045, player.global_position.z)
+	# On the ground under her: a terrace, or a bridge's deck (用户 2026-11-24:
+	# 桥上时拉普兰德的三环在桥下), not the map's zero.
+	var ground := player.game.ground_y(player.global_position) if is_instance_valid(player.game) else 0.0
+	shadow.global_position = Vector3(player.global_position.x, ground + 0.045, player.global_position.z)
 	shadow.visible = not player.invulnerable
 	var need := player.wave_hits_needed()
 	var waves := player.has_sword_wave()
@@ -73,7 +76,7 @@ func _process(delta: float) -> void:
 	# The three-hit ring (Lappland's sword wave).
 	ring.visible = waves
 	if ring.visible:
-		ring.global_position = Vector3(player.global_position.x, 0.055, player.global_position.z)
+		ring.global_position = Vector3(player.global_position.x, ground + 0.055, player.global_position.z)
 		ring.rotation.y = wrapf(ring.rotation.y + delta * (RING_SPIN_FULL if full else RING_SPIN), 0.0, TAU)
 		var pulse := 0.5 + 0.5 * sin(age * TAU * 2.0)
 		for i in range(segments.size()):

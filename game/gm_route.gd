@@ -121,6 +121,14 @@ func route_exit_floor() -> int:
 func route_node_info() -> Dictionary:
 	return RouteMap.info(game.route_kind)
 
+## 元素异变 on the floor's node (抗性为王修订案 v0.4 §3.4): an element, or "".
+func route_surge() -> String:
+	if game.in_base or game.in_camp or game.route_map.is_empty(): return ""
+	var cols: Array = game.route_map.get("cols", [])
+	var at: Vector2i = game.route_node
+	if at.x < 0 or at.x >= cols.size() or at.y < 0 or at.y >= (cols[at.x] as Array).size(): return ""
+	return str((cols[at.x][at.y] as Dictionary).get("surge", ""))
+
 ## The 深部 modifiers: contamination, cold, guarded boxes, one more elite.
 func route_deep() -> bool:
 	return bool(route_node_info().get("deep", false))

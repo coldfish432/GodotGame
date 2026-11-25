@@ -209,8 +209,8 @@ static func _market_page(menu: FieldMenu, stage: Control) -> void:
 static func _quote_table(menu: FieldMenu, stage: Control, at: Vector2, width: float) -> float:
 	var game := menu.game
 	var cat := str(FactionCatalog.split(selected)[1])
-	var cols := [0.0, 150.0, 230.0, 310.0, 390.0, 460.0, 540.0]
-	var heads := ["势力", "币种", "买", "卖", "基差", "额度", "状态"]
+	var cols := [0.0, 150.0, 230.0, 310.0, 390.0, 470.0]
+	var heads := ["势力", "币种", "买", "卖", "基差", "状态"]
 	for k in range(heads.size()):
 		AK.put(stage, AK.label(heads[k], 11, AK.MUTE), at + Vector2(cols[k] + 6, 0))
 	var y := at.y + 18
@@ -236,12 +236,11 @@ static func _quote_table(menu: FieldMenu, stage: Control, at: Vector2, width: fl
 			[cols[2], func(): return "%.2f" % (game.market.bid(quote) * 100.0)],
 			[cols[3], func(): return "%.2f" % (game.market.ask(quote) * 100.0)],
 			[cols[4], func(): return "%+.1f%%" % (game.market.basis(quote) * 100.0)],
-			[cols[5], func(): return Economy.format(roundi(game.exchange.quota_left(faction)))],
-			[cols[6], func(): return "暂停收货" if game.market.halted(quote) else ("活跃" if game.market.active(faction) else "盘口薄")],
+			[cols[5], func(): return "暂停收货" if game.market.halted(quote) else ("活跃" if game.market.active(faction) else "盘口薄")],
 		]
 		for c in cells:
 			var l := MarketWidgets.live(c[1], 11, AK.FG if on else AK.MUTE)
-			l.add_theme_font_override("font", AK.en() if float(c[0]) < cols[6] else AK.cn())
+			l.add_theme_font_override("font", AK.en() if float(c[0]) < cols[5] else AK.cn())
 			AK.put(stage, l, Vector2(at.x + float(c[0]) + 6, y + 3))
 		y += 22
 	return y + 6
@@ -256,8 +255,8 @@ static func _quote_line(game: GameManager) -> String:
 	var m := game.market
 	if selected.begins_with("comp:"): return "综合指数 %.2f   本日 %+.2f%%" % [game.exchange.cfd_price(selected), MarketWidgets.change_of(game, selected) * 100]
 	var faction: String = FactionCatalog.split(selected)[0]
-	return "买 %.2f   卖 %.2f   价差 %.1f%%   深度 %s   手续费 %.1f%%   额度 %s   %s" % [m.bid(selected) * 100, m.ask(selected) * 100, m.spread(selected) * 100,
-		Economy.format(roundi(m.depth(selected))), game.exchange.remote_fee(faction, selected) * 100, Economy.format(roundi(game.exchange.quota_left(faction))),
+	return "买 %.2f   卖 %.2f   价差 %.1f%%   深度 %s   手续费 %.1f%%   %s" % [m.bid(selected) * 100, m.ask(selected) * 100, m.spread(selected) * 100,
+		Economy.format(roundi(m.depth(selected))), game.exchange.remote_fee(faction, selected) * 100,
 		"暂停收货" if m.halted(selected) else ("活跃" if m.active(faction) else "盘口薄")]
 
 static func _recent_news(stage: Control, game: GameManager, at: Vector2, width: float, count: int) -> void:
@@ -628,6 +627,54 @@ static func _lev_seg(menu: FieldMenu, body: VBoxContainer, underlying: String) -
 	var names: Array = steps.map(func(x): return "%d×" % int(x))
 	body.add_child(_seg(names, steps.find(lev), func(i): lev = int(steps[i]); build(menu), 10, 288.0))
 
+## 差价合约的杠杆 (用户 2026-11-24: 倍率做成滑动选取，最高888): a slider over
+## 1–888 (logarithmic, so the low end stays pickable) with − / + for one step.
+static func _lev_slider(menu: FieldMenu, body: VBoxContainer) -> void:
+	lev = clampi(lev, 1, Exchange.CFD_LEVERAGE_MAX)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var caption := AK.label("杠杆", 12, AK.MUTE)
+	caption.custom_minimum_size.x = 64
+	row.add_child(caption)
+	var shown := AK.label("%d×" % lev, 14, AK.FG, AK.en())
+	shown.custom_minimum_size.x = 52
+	shown.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var redraw := func(): (func(): build(menu)).call_deferred()
+	var minus := AK.button("−", "plain", 13)
+	minus.custom_minimum_size = Vector2(30, 26)
+	minus.disabled = lev <= 1
+	minus.pressed.connect(func(): lev = maxi(1, lev - 1); redraw.call())
+	row.add_child(minus)
+	var slider := HSlider.new()
+	slider.min_value = 1
+	slider.max_value = Exchange.CFD_LEVERAGE_MAX
+	slider.step = 1
+	slider.exp_edit = true
+	slider.value = lev
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	slider.custom_minimum_size = Vector2(80, 26)
+	slider.add_theme_stylebox_override("slider", AK.box(Color(0, 0, 0, 0.45), AK.LINE, 1))
+	slider.add_theme_stylebox_override("grabber_area", AK.box(AK.HOLO, AK.HOLO, 1))
+	slider.add_theme_stylebox_override("grabber_area_highlight", AK.box(AK.HOLO, AK.HOLO, 1))
+	var dragging := [false]
+	slider.drag_started.connect(func(): dragging[0] = true)
+	slider.drag_ended.connect(func(_changed: bool):
+		dragging[0] = false
+		redraw.call())
+	slider.value_changed.connect(func(v: float):
+		lev = int(v)
+		shown.text = "%d×" % lev
+		if not dragging[0]: redraw.call())
+	row.add_child(slider)
+	var plus := AK.button("+", "plain", 13)
+	plus.custom_minimum_size = Vector2(30, 26)
+	plus.disabled = lev >= Exchange.CFD_LEVERAGE_MAX
+	plus.pressed.connect(func(): lev = mini(Exchange.CFD_LEVERAGE_MAX, lev + 1); redraw.call())
+	row.add_child(plus)
+	row.add_child(shown)
+	body.add_child(row)
+
 static func _cfd_form(menu: FieldMenu, body: VBoxContainer, underlying: String) -> void:
 	var game := menu.game
 	var ex := game.exchange
@@ -642,11 +689,10 @@ static func _cfd_form(menu: FieldMenu, body: VBoxContainer, underlying: String) 
 	var unit := maxf(1.0, roundf(Exchange.from_lmd(currency, 1000.0)))
 	body.add_child(AK.label(Exchange.cfd_name(underlying) + " · " + FactionCatalog.name_of(Exchange.cfd_issuer(underlying)), 12, AK.FG))
 	body.add_child(_seg(["做多", "做空"], 0 if cfd_dir > 0 else 1, func(i): cfd_dir = 1 if i == 0 else -1; build(menu), 12, 288.0))
-	_lev_seg(menu, body, underlying)
+	_lev_slider(menu, body)
 	_number(body, "保证金", cfd_margin, 0, unit, 1, func(v): cfd_margin = roundf(v); build(menu), "赤金" if currency == "gold" else "龙门币",
 		func(): return ex.free_for_margin(currency))
-	var issuer := Exchange.cfd_issuer(underlying)
-	body.add_child(AK.label("名义 %s   持仓 %s / %s" % [Exchange.format_money(currency, cfd_margin * lev), Economy.format(roundi(ex.cfd_notional_used(issuer))), Economy.format(roundi(ex.cfd_notional_cap(issuer)))], 11, AK.MUTE))
+	body.add_child(AK.label("名义 %s" % Exchange.format_money(currency, cfd_margin * lev), 11, AK.MUTE))
 	var refusal := ex.cfd_refusal(underlying, lev, cfd_margin)
 	if not refusal.is_empty(): body.add_child(AK.label(refusal, 12, AK.RED))
 	_go(body, "开仓", refusal.is_empty(), func():

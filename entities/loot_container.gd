@@ -211,7 +211,12 @@ func cancel(_reason: String) -> void:
 func _process(delta: float) -> void:
 	if not is_instance_valid(game) or not is_instance_valid(game.player): return
 	# The rim while she walks by one still worth opening.
-	_set_rim(can_use() and game.simulation_active() and not game.hands_busy() and game.player.global_position.distance_to(global_position) <= RIM_REACH)
+	# With one in reach, only the box E would open rims (用户 2026-11-24: 物品堆里选箱子).
+	var rim := can_use() and game.simulation_active() and not game.hands_busy() and game.player.global_position.distance_to(global_position) <= RIM_REACH
+	if rim:
+		var target: LootContainer = game.box_target()
+		if target != null: rim = target == self
+	_set_rim(rim)
 	# Searched only while its window is open; the field runs on meanwhile.
 	if _search < 0.0 or game.looting != self: return
 	_search += delta

@@ -127,7 +127,7 @@ func _research_rules() -> void:
 	check("科研部 opens once it is built", not r.is_open() and r.refusal("logistics_1") == "需要科研部 Lv1")
 	game.base.set_facility("lab", 1)
 	game.gold = 10000000
-	check("74 nodes in seven departments and the joint research", ResearchCatalog.all_ids().size() == 74)
+	check("79 nodes in seven departments and the joint research", ResearchCatalog.all_ids().size() == 79)
 	check("第二加工线 needs 订单速递 first", r.refusal("logistics_2") == "需要订单速递", r.refusal("logistics_2"))
 	check("materials are checked", r.refusal("logistics_1").begins_with("缺少"))
 	_stock({"电路板": 20, "继电器": 20, "微型电机": 10, "装置": 20})
@@ -162,7 +162,7 @@ func _tree() -> void:
 			known = known and ResearchCatalog.valid(p)
 			lower = lower and ResearchCatalog.valid(p) and ResearchCatalog.tier_of(p) <= ResearchCatalog.tier_of(id)
 		for c in ResearchCatalog.conditions(id): known = known and ResearchCatalog.REQUIREMENT_NAMES.has(c)
-	check("every node has its own name", names.size() == 74)
+	check("every node has its own name", names.size() == ResearchCatalog.all_ids().size())
 	check("every prerequisite exists and sits no higher", known and lower)
 	var acyclic := true
 	for id in ResearchCatalog.all_ids(): acyclic = acyclic and _reaches(id, id, {}) == false
@@ -171,7 +171,7 @@ func _tree() -> void:
 	for id in ResearchCatalog.all_ids():
 		for p in ResearchCatalog.prerequisite_nodes(id):
 			if ResearchCatalog.department_of(p) != ResearchCatalog.department_of(id): cross += 1
-	check("56 links across departments", cross == 56, cross)
+	check("57 links across departments (复合防护层 ← 复合插板, 抗性为王修订案 v0.4)", cross == 57, cross)
 	check("one node opens several: 体能训练 → 强化体质, 复合插板, 战术翻滚", ["medical_c4", "engineering_c4", "field_c4"].all(func(x): return x in ResearchCatalog.unlocks("medical_c2")))
 	# Several prerequisites: all of them, the first missing named.
 	game.base.camps = {"mine": 40}

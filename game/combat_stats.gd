@@ -32,13 +32,16 @@ const KEYS := ["hp", "hp_pct", "atk", "atk_pct", "arts", "arts_pct", "def", "def
 	# 属性伤害与地区装备策划案 v1.1 (Elements): resistances, elemental damage
 	# added to and converted from her hits, its bonuses, damage over time.
 	"res_burn", "res_cold", "res_corr", "res_nerve", "res_bleed", "res_all_elem", "res_cap",
-	"add_burn", "add_cold", "add_corr", "add_nerve", "conv_burn", "conv_cold", "conv_corr", "conv_nerve",
+	"add_burn", "add_cold", "add_corr", "add_nerve", "conv_burn", "conv_cold", "conv_corr", "conv_nerve", "conv_arts",
 	"burn_dmg_pct", "cold_dmg_pct", "corr_dmg_pct", "nerve_dmg_pct", "bleed_dmg_pct", "necro_dmg_pct",
 	"bleed_chance", "burnout_chance", "frost_chance", "rot_chance", "necro_chance", "dot_pct", "dot_dur_pct", "build_pct",
 	# Regional affixes (§8): conditional damage and defence she reads in combat.
 	"crowd_dmg", "crowd_dr", "blast_taken", "rot_full_aspd", "kill_heal", "ore_atk",
 	"ambush_dmg", "melee_taken", "dash_def", "chain_dmg", "dot_taken_dur",
 	"full_hp_dmg", "cold_pct", "fire_regen", "lone_evasion", "freeze_taken", "lone_skill",
+	# 抗性为王修订案 v0.4: 镶件 and the weapon's 减抗 line.
+	"boss_taken", "gauge_taken", "slow_taken", "shred_taken", "burst_taken", "ranged_taken",
+	"shred_burn", "shred_cold", "shred_corr", "shred_nerve",
 	"stunned_dmg", "low_hp_dmg", "debt_pct", "elite_taken", "back_taken", "elite_kill_aspd", "debt_dmg",
 	# Orange signatures (§8): 1 when worn.
 	"sig_cascade", "sig_carrier", "sig_resonance", "sig_blaze", "sig_shieldwall", "sig_escort",

@@ -126,7 +126,7 @@ func run() -> void:
 	game.menu.workbench_tab = 0
 	game.open_station("insurance")
 	await capture("base-insurance")
-	for station in ["stash", "outbound", "pharmacy", "report", "loadout", "store"]:
+	for station in ["stash", "board", "pharmacy", "report", "loadout", "store"]:
 		game.open_station(station)
 		await capture("base-" + station)
 		game.close_modal()

@@ -227,6 +227,10 @@ func _layers() -> void:
 	var n := (actors.factions.lungmen.rhodes as Array).size()
 	check("layer 1: 龙门商会 sees Rhodes selling at its venue", ex.sell_item(pack, "lungmen") and (actors.factions.lungmen.rhodes as Array).size() == n + 1 and actors.rhodes_net("lungmen") < 0.0)
 	check("…and only it", (actors.factions.rhine.rhodes as Array).size() == 0)
+	# 用户 2026-11-24: 每日改为现实时间 — Rhodes' trades are kept seven real days.
+	var sold_at := int((actors.factions.lungmen.rhodes as Array).back()[0])
+	var real_day := 86400 * BaseState.time_scale
+	check("Rhodes' trades count seven real days", actors.rhodes_net("lungmen", sold_at + 6 * real_day) < 0.0 and is_zero_approx(actors.rhodes_net("lungmen", sold_at + 7 * real_day)))
 	# Layer 3: the bill's buying, learned after 3 days (鼠王 2), forgotten after 3 without.
 	var mk := "ursus:build"
 	for i in range(2):

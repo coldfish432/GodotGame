@@ -1,0 +1,6 @@
+{"adapter":"NVIDIA GeForce RTX 4060 Laptop GPU","clip":"camp","driver":"d3d12","engine":"4.7.2-stable (official)","event":"start","frame":0,"renderer":"forward_plus","seed":2026}
+{"depth":10,"event":"setup_unlock_camp","frame":20,"region":"mine","why":"stands in for walking floors 1-10"}
+{"event":"walk_to_extraction","frame":80,"to":[-13.0,-5.0]}
+{"event":"tap","frame":203,"key":"E"}
+{"event":"fallback_camp_extract","frame":266,"why":"E did not open the extraction; GameManager.camp_extract, what the beacon calls"}
+{"event":"end","frame":536}

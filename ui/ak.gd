@@ -484,6 +484,8 @@ class ItemSquare extends Control:
 			var cw := AK.en().get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 			draw_rect(Rect2(s.x - cw - 6, s.y - 18, cw + 6, 14), Color.BLACK)
 			draw_string(AK.en(), Vector2(s.x - cw - 3, s.y - 7), count, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
+		# 镶嵌槽 (抗性为王修订案 v0.4 §7.1), as on the inventory's tiles.
+		if InlayCatalog.has_slot(item): InlayCatalog.draw_mark(self, item, Vector2(s.x - (20.0 if not item.exclusive_region.is_empty() else 8.0), 8.0))
 		if dim: draw_rect(Rect2(Vector2.ZERO, s), Color(0, 0, 0, 0.62))
 
 

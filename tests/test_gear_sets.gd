@@ -73,7 +73,25 @@ func run() -> void:
 	game.close_modal()
 	game.open_training()
 	check("opening C again starts at the deployed one", game.viewed_id() == amiya)
+	await step(1)
+	check("no 设为出战 on the deployed one", find(game.menu, func(n): return n is Button and n.has_meta("deploy")) == null)
+	# 用户 2026-11-24: 这个界面可以更换当前出战（包括行走）干员.
+	SystemScreens.settings.base_look = amiya
+	chip = find(game.menu, func(n): return n is Button and n.get_meta("operator", "") == "hellagur")
+	chip.pressed.emit()
+	await step(1)
+	var deploy: Button = find(game.menu, func(n): return n is Button and n.get_meta("deploy", "") == "hellagur")
+	check("设为出战 shows on another operator at the base", deploy != null)
+	if deploy != null: deploy.pressed.emit()
+	await step(1)
+	check("设为出战 deploys her, in her own set", game.player.operator_id == "hellagur" and game.base.operator == "hellagur" and game.player.equipped.values() == [chest])
+	check("and she walks the base", game.base_look() == "hellagur" and str(SystemScreens.settings.base_look) == "")
+	check("the window now shows her as the deployed one", game.viewed_id() == "hellagur" and find(game.menu, func(n): return n is Button and n.has_meta("deploy")) == null)
 	game.close_modal()
+	game.choose_operator(amiya)
+	game.in_base = false
+	check("not in the field", not game.can_deploy_from_roster("hellagur") and not game.deploy_from_roster("hellagur") and game.player.operator_id == amiya)
+	game.in_base = true
 	# Saved; an old save has no sets.
 	var copy := BaseState.new()
 	copy.load_data(JSON.parse_string(JSON.stringify(game.base.to_data())), {})

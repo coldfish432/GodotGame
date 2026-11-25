@@ -236,6 +236,11 @@ static func routes(menu: FieldMenu, index: int) -> void:
 				state = "fuzzy"
 			var tags := " · ".join(PackedStringArray(_route_tags([node]).map(func(t): return str(t[0]))))
 			var b := _route_node(layer, at, tags, name, state, info.color if seen != "fuzzy" else AK.DIM, state == "next" and rows.find(r) == pick)
+			# 元素异变 (抗性为王修订案 v0.4 §3.4): the element's diamond by the node, clear or fuzzy.
+			if Elements.is_element(str(node.get("surge", ""))):
+				var mark := SurgeMark.new()
+				mark.kind = str(node.surge)
+				AK.put(layer, mark, at + Vector2(route_half() - 2.0, -ROUTE_HALF - 4.0), Vector2(12, 12))
 			if state == "next":
 				var line := rows.find(r)
 				b.set_meta("label", "进入 " + name)
@@ -275,10 +280,26 @@ static func routes(menu: FieldMenu, index: int) -> void:
 		for entry in _route_contents(game, picked):
 			AK.put(stage, AK.label(entry[0], 14, entry[1]), Vector2(996, y))
 			y += 24
+		var surge := str(picked.get("surge", ""))
+		if Elements.is_element(surge):
+			AK.put(stage, AK.label("元素异变 · " + str(Elements.NAMES[surge]), 14, Elements.COLORS[surge]), Vector2(996, y))
+			y += 24
 	var go := AK.go_button("前进", "PROCEED")
 	AK.put(stage, go, Vector2(996, 634), Vector2(268, 66))
 	go.disabled = rows.is_empty()
 	go.pressed.connect(func(): menu.pick = null; game.advance(pick))
+
+## The 元素异变 diamond beside a route node, in its element's colour.
+class SurgeMark extends Control:
+	var kind := ""
+	func _ready() -> void: mouse_filter = Control.MOUSE_FILTER_IGNORE
+	func _draw() -> void:
+		var c := size * 0.5
+		var r := minf(size.x, size.y) * 0.5
+		var pts := PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])
+		draw_colored_polygon(pts, Elements.COLORS.get(kind, Color.WHITE))
+		pts.append(pts[0])
+		draw_polyline(pts, Color(0, 0, 0, 0.7), 1.0, true)
 
 const ROUTE_X0 := 44.0
 const ROUTE_STEP := 104.0

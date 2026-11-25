@@ -1,0 +1,8 @@
+{"adapter":"NVIDIA GeForce RTX 4060 Laptop GPU","clip":"regions","driver":"d3d12","engine":"4.7.2-stable (official)","event":"start","frame":0,"renderer":"forward_plus","seed":2026}
+{"event":"start_contract","frame":20,"region":"city"}
+{"event":"settle_for_next_region","frame":395,"why":"ends the contract so the next region can start; not shown in the film"}
+{"event":"start_contract","frame":425,"region":"snow"}
+{"event":"settle_for_next_region","frame":800,"why":"ends the contract so the next region can start; not shown in the film"}
+{"event":"start_contract","frame":830,"region":"siracusa"}
+{"event":"settle_for_next_region","frame":1205,"why":"ends the contract so the next region can start; not shown in the film"}
+{"event":"end","frame":1235}

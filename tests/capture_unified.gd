@@ -36,7 +36,6 @@ func run() -> void:
 	game.market.plans.begin(game.market, "f:ursus", "B10", "build")
 	game.open_exchange()
 	await step(30)
-	game.close_swan_popup()
 	ExchangeScreen.tab = 0
 	ExchangeScreen.filter = 0
 	ExchangeScreen.period = 2

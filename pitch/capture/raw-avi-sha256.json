@@ -1,0 +1,37 @@
+{
+ "base.avi": {
+  "sha256": "32b96f20aa073a9b3022099b08bd226eadc8490e23c0a4a910ac951add763a65",
+  "bytes": 304029034,
+  "duration_s": 22.166667
+ },
+ "bridge.avi": {
+  "sha256": "be65a040598fbc46dd5b34767e7fd4c46993ec9c98860de7f1a0d7aa732f8b9c",
+  "bytes": 97609974,
+  "duration_s": 6.533333
+ },
+ "camp.avi": {
+  "sha256": "4e609da514a3bc5406e293bdfd781214d3cbc8284402a0a9cfba4e1468c4f58b",
+  "bytes": 198938092,
+  "duration_s": 18.333333
+ },
+ "mine.avi": {
+  "sha256": "3f500a700b9d7831eb3ceab5c9ff31286295fc53127f96bd0017f2370d1f57b3",
+  "bytes": 1291664112,
+  "duration_s": 83.133333
+ },
+ "regions.avi": {
+  "sha256": "481f0a8c75c949133e51c97567b0433e1baf627f3102b75e9143eb5b8f18054c",
+  "bytes": 633484642,
+  "duration_s": 41.966667
+ },
+ "route.avi": {
+  "sha256": "65c904aa76b7ca2bea8b9798e637938f6f61bc9def146211822e602ab4e17dca",
+  "bytes": 313508978,
+  "duration_s": 24.733333
+ },
+ "title.avi": {
+  "sha256": "67598409a4240ead2e65786e627b07d5bf9a118feb92bb8308c6c90cf252be78",
+  "bytes": 274869182,
+  "duration_s": 24.7
+ }
+}

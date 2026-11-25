@@ -797,9 +797,9 @@
    "z": -20.0
   },
   {
-   "id": "outbound",
-   "kind": "outbound",
-   "label": "出库区：订单与交付",
+   "id": "board",
+   "kind": "board",
+   "label": "合同板",
    "x": -9.566666666666663,
    "z": -16.2
   }

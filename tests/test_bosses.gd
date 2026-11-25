@@ -216,7 +216,12 @@ func _patriot() -> void:
 	game.player.hp = game.player.max_hp
 	game.player.invuln_timer = 0.0
 	hp = game.player.hp
+	# 抗性为王修订案 v0.4 §3.5: an elemental big move is sized to the floor instead
+	# (test_resistance_king); without elements the 60% cap still holds.
+	var spec := figure.elem_spec
+	figure.elem_spec = {}
 	figure._hit_her({"id": "test", "damage": 1.0, "big": true})
+	figure.elem_spec = spec
 	check("a big move no more than 60%", hp - game.player.hp <= game.player.max_hp * BossCatalog.BIG_CAP + 0.5 and hp - game.player.hp > game.player.max_hp * BossCatalog.HIT_CAP, [hp, game.player.hp])
 	figure.atk = atk
 	game.player.hp = game.player.max_hp

@@ -114,7 +114,7 @@ class DollSlot extends Button:
 
 # --- 整备台 ------------------------------------------------------------------------
 
-const WORKBENCH_TABS := ["换装", "改造", "制式", "投保", "增益"]
+const WORKBENCH_TABS := ["换装", "改造", "制式", "投保", "增益", "镶嵌"]
 
 static func workbench(menu: FieldMenu) -> void:
 	var tab: int = clampi(menu.workbench_tab, 0, WORKBENCH_TABS.size() - 1)
@@ -127,6 +127,9 @@ static func workbench(menu: FieldMenu) -> void:
 		1: _refit(menu, stage)
 		3: _insurance(menu, stage, func(): workbench(menu))
 		4: _support(menu, stage)
+		5:
+			_inlay(menu, stage)
+			if is_instance_valid(menu.game.tutorial_spotlight): menu.game.tutorial_spotlight.screen_opened("loadout_inlay")
 		_:
 			_issue(menu, stage)
 			if is_instance_valid(menu.game.tutorial_spotlight): menu.game.tutorial_spotlight.screen_opened("loadout_issue")
@@ -475,6 +478,137 @@ static func _refit(menu: FieldMenu, stage: Control) -> void:
 			fams.add_child(b)
 		AK.put(stage, fams, Vector2(880, y + 70), Vector2(352, h - 78))
 
+# --- 整备台 · 镶嵌 (抗性为王修订案 v0.4 §5.2, §7.2) ----------------------------------------
+
+## The inlay being set up on the right: its id, tier and chosen elements.
+static var _inlay_id := ""
+static var _inlay_tier := 0
+static var _inlay_kinds: Array = []
+
+static func _inlay(menu: FieldMenu, stage: Control) -> void:
+	var game := menu.game
+	var redraw := func(): workbench(menu)
+	var pick: Item = menu.pick if menu.pick is Item and InlayCatalog.has_slot(menu.pick) else null
+	# Left: every piece with a slot — worn, carried, on the shelves.
+	_panel(stage, Rect2(16, TOP, 360, BOTTOM - TOP), LOG)
+	AK.put(stage, AK.section("装备", "GEAR"), Vector2(32, TOP + 14))
+	var pieces: Array = []
+	for category in Item.SLOTS:
+		var worn: Item = PaperDoll.worn(game, category)
+		if InlayCatalog.has_slot(worn): pieces.append(worn)
+	for it in game.carried_items() + game.stash:
+		if InlayCatalog.has_slot(it) and not pieces.has(it): pieces.append(it)
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 4)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	AK.put(stage, scroll, Vector2(28, TOP + 42), Vector2(336, BOTTOM - TOP - 54))
+	scroll.add_child(list)
+	for it in pieces:
+		var row := Button.new()
+		row.focus_mode = Control.FOCUS_NONE
+		row.custom_minimum_size = Vector2(326, 48)
+		for s in ["normal", "hover", "pressed"]:
+			row.add_theme_stylebox_override(s, AK.box(AK.PLATE_3 if s == "hover" or it == pick else AK.PLATE_2, AK.HOLO if it == pick else Color.TRANSPARENT, 1 if it == pick else 0))
+		AK.put(row, AK.item_icon(it, Vector2(44, 44)), Vector2(2, 2))
+		AK.put(row, AK.item_name(it, 13), Vector2(54, 6))
+		var where := "身上" if game.player.equipped.values().has(it) else ("仓库" if game.stash.has(it) else "背包")
+		var current := InlayCatalog.line(it).trim_prefix("镶嵌：")
+		AK.put(row, AK.label(where + ("  ·  " + current if not current.is_empty() else ""), 11, AK.MUTE), Vector2(54, 28))
+		for child in row.get_children(): child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var chosen: Item = it
+		row.pressed.connect(func(): menu.pick = chosen; _inlay_id = ""; _inlay_kinds = []; redraw.call())
+		list.add_child(row)
+	# Middle: the piece, its inlay now, and what its slot takes.
+	_panel(stage, Rect2(392, TOP, 440, BOTTOM - TOP), LOG)
+	_panel(stage, Rect2(848, TOP, 416, BOTTOM - TOP), LOG)
+	if pick == null:
+		AK.put(stage, AK.label("—", 18, AK.DIM), Vector2(600, TOP + 200))
+		return
+	AK.put(stage, AK.item_icon(pick, Vector2(88, 88)), Vector2(408, TOP + 16))
+	AK.put(stage, AK.item_name(pick, 15), Vector2(508, TOP + 22))
+	var now := InlayCatalog.line(pick)
+	AK.put(stage, AK.label(now if not now.is_empty() else "镶嵌：—", 13, AK.FG if not now.is_empty() else AK.MUTE), Vector2(508, TOP + 56))
+	var kinds_list := VBoxContainer.new()
+	kinds_list.add_theme_constant_override("separation", 4)
+	var scroll2 := ScrollContainer.new()
+	scroll2.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	AK.put(stage, scroll2, Vector2(408, TOP + 120), Vector2(408, BOTTOM - TOP - 132))
+	scroll2.add_child(kinds_list)
+	var options := InlayCatalog.for_slot(pick.category)
+	if not _inlay_id in options:
+		_inlay_id = ""
+	for id in options:
+		var inlay_id: String = id
+		var e := InlayCatalog.entry(id)
+		var tiers := InlayCatalog.tiers_of(id)
+		var top_tier: int = tiers.back()
+		var sample: Array = InlayCatalog.kinds_pool(id).slice(0, InlayCatalog.picks(id)) if InlayCatalog.picks(id) > 0 else []
+		var shown := str(e.name) if InlayCatalog.picks(id) > 0 else InlayCatalog.describe(id, top_tier, sample)
+		if InlayCatalog.picks(id) > 0: shown += " " + InlayCatalog.value_text(str(e.stats.keys()[0]) % "burn", float(e.stats.values()[0]))
+		var b := AK.button(("★ " if bool(e.get("special", false)) else "") + shown, "blue" if id == _inlay_id else "plain", 13)
+		b.custom_minimum_size = Vector2(396, 34)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.pressed.connect(func():
+			_inlay_id = inlay_id
+			_inlay_tier = InlayCatalog.tiers_of(inlay_id).back()
+			_inlay_kinds = []
+			redraw.call())
+		kinds_list.add_child(b)
+	# Right: the chosen inlay's tier, elements, cost and the button.
+	if _inlay_id.is_empty(): return
+	var e2 := InlayCatalog.entry(_inlay_id)
+	AK.put(stage, AK.section(str(e2.name), "INLAY"), Vector2(864, TOP + 14))
+	var y := TOP + 50
+	var tier_row := HBoxContainer.new()
+	tier_row.add_theme_constant_override("separation", 6)
+	for t in InlayCatalog.tiers_of(_inlay_id):
+		var tier: int = t
+		var need := InlayCatalog.tier_key(tier)
+		var open := need.is_empty() or game.base.researched(need)
+		var tb := AK.button(InlayCatalog.TIER_NAMES[tier], "blue" if tier == _inlay_tier else "plain", 13)
+		tb.custom_minimum_size = Vector2(92, 34)
+		tb.disabled = not open
+		tb.pressed.connect(func(): _inlay_tier = tier; redraw.call())
+		tier_row.add_child(tb)
+	AK.put(stage, tier_row, Vector2(864, y))
+	y += 46
+	var picks := InlayCatalog.picks(_inlay_id)
+	if picks > 0:
+		var pool := InlayCatalog.kinds_pool(_inlay_id)
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 6)
+		flow.add_theme_constant_override("v_separation", 6)
+		for k in pool:
+			var kind: String = k
+			var on := _inlay_kinds.has(kind)
+			var kb := AK.button(("■ " if on else "□ ") + str(Elements.NAMES.get(kind, kind)), "blue" if on else "plain", 13)
+			kb.custom_minimum_size = Vector2(72, 32)
+			kb.add_theme_color_override("font_color", Elements.COLORS.get(kind, AK.FG))
+			kb.pressed.connect(func():
+				if _inlay_kinds.has(kind): _inlay_kinds.erase(kind)
+				else:
+					_inlay_kinds.append(kind)
+					while _inlay_kinds.size() > InlayCatalog.picks(_inlay_id): _inlay_kinds.pop_front()
+				redraw.call())
+			flow.add_child(kb)
+		AK.put(stage, flow, Vector2(864, y), Vector2(384, 76))
+		y += 84
+	var preview_kinds: Array = _inlay_kinds.duplicate()
+	for k in InlayCatalog.kinds_pool(_inlay_id):
+		if preview_kinds.size() >= picks: break
+		if not preview_kinds.has(k): preview_kinds.append(k)
+	AK.put(stage, AK.label(InlayCatalog.describe(_inlay_id, _inlay_tier, preview_kinds), 15, AK.HOLO), Vector2(866, y))
+	y += 36
+	BaseScreens._cost_line(game, stage, Vector2(866, y), InlayCatalog.price(_inlay_tier), InlayCatalog.materials(_inlay_id, _inlay_tier), 13)
+	var refusal := game.inlay_refusal(pick, _inlay_id, _inlay_tier, _inlay_kinds)
+	var go := AK.button("镶嵌" if refusal.is_empty() else BaseScreens._short_refusal(refusal), "blue", 14)
+	go.disabled = not refusal.is_empty()
+	go.pressed.connect(func():
+		if game.set_inlay(pick, _inlay_id, _inlay_tier, _inlay_kinds): _inlay_kinds = []
+		redraw.call())
+	AK.put(stage, go, Vector2(1108, BOTTOM - 60), Vector2(128, 40))
+
 # --- 后勤柜台 · 投保 ------------------------------------------------------------------
 
 static func logistics(menu: FieldMenu) -> void:
@@ -717,12 +851,24 @@ static func deploy(menu: FieldMenu, region: String) -> void:
 	AK.put(stage, AK.label(parts[0], 30, AK.FG), Vector2(x, TOP + 36))
 	AK.put(stage, AK.label(parts[1] if parts.size() > 1 else "", 15, AK.FG), Vector2(x, TOP + 78))
 	var start: int = game._pending_start_camp
+	# 抗性为王修订案 v0.4 §7.2: the first floor's 压制 and the share of enemies with elements.
+	var first := start + 1
 	var cells := [["起点", game.camp_label(start) if start > 0 else AK.floor_code(region, 1), AK.GREEN if start > 0 else AK.FG],
-		["深度", AK.floor_code(region, start + 1), AK.FG]]
+		["深度", AK.floor_code(region, first), AK.FG],
+		["压制", "−%d" % roundi(Elements.penalty(first)), AK.RED if Elements.penalty(first) > 0.0 else AK.FG],
+		["带元素", "%d%%" % roundi(ElementThreat.chance(first, false) * 100.0), AK.FG]]
 	for i in range(cells.size()):
 		stage.add_child(AK.rect(AK.PLATE_2, Vector2(x + i * 114, TOP + 110), Vector2(108, 56)))
 		AK.put(stage, AK.label(cells[i][0], 11, AK.MUTE), Vector2(x + i * 114 + 8, TOP + 116))
 		AK.put(stage, AK.label(cells[i][1], 15, cells[i][2], AK.en() if i > 0 or start == 0 else AK.cn()), Vector2(x + i * 114 + 8, TOP + 136))
+	# The region's elements, main first, each with its share.
+	var shares := ElementThreat.weights(region)
+	var order: Array = Elements.KINDS.duplicate()
+	order.sort_custom(func(a, b): return float(shares[a]) > float(shares[b]))
+	var mix := HBoxContainer.new()
+	mix.add_theme_constant_override("separation", 14)
+	for kind in order: mix.add_child(AK.label("%s %d%%" % [Elements.NAMES[kind], roundi(float(shares[kind]) * 100.0)], 12, Elements.COLORS[kind]))
+	AK.put(stage, mix, Vector2(x, TOP + 172))
 	# Who goes, in one line (no class, no stars).
 	var p: OperatorProgress = game.progress()
 	var who := HBoxContainer.new()
@@ -732,8 +878,8 @@ static func deploy(menu: FieldMenu, region: String) -> void:
 	var going := base.board.run_cards(region).size() + base.board.pointing_at(region)
 	if going > 0: who.add_child(AK.tag("合同 %d" % going, AK.SP))
 	if base.injured: who.add_child(AK.tag("重伤", AK.RED))
-	AK.put(stage, who, Vector2(x, TOP + 182))
-	var y := TOP + 220
+	AK.put(stage, who, Vector2(x, TOP + 198))
+	var y := TOP + 236
 	for warning in game.departure_warnings():
 		AK.put(stage, BaseScreens._wrap(warning, 12, AK.SP, 430), Vector2(x, y))
 		y += 40

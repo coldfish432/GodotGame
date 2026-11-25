@@ -1,0 +1,8 @@
+{"adapter":"NVIDIA GeForce RTX 4060 Laptop GPU","clip":"base","driver":"d3d12","engine":"4.7.2-stable (official)","event":"start","frame":0,"renderer":"forward_plus","seed":2026}
+{"event":"move_target","frame":65,"station":"dispatch"}
+{"event":"move_target","frame":138,"station":"workbench"}
+{"built":["exchange","research"],"event":"setup_facilities","frame":236,"why":"fresh state has them unbuilt"}
+{"event":"open_station","frame":236,"id":"contracts","tab":"board"}
+{"event":"open_exchange","frame":356}
+{"event":"open_station","frame":506,"id":"research"}
+{"event":"end","frame":656}

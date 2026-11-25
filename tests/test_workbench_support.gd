@@ -76,7 +76,7 @@ func _open(tab: int) -> void:
 	await step(2)
 
 func _insurance() -> void:
-	check("the workbench has 投保 and 增益 tabs", LoadoutScreens.WORKBENCH_TABS.slice(3) == ["投保", "增益"])
+	check("the workbench has 投保 and 增益 tabs", LoadoutScreens.WORKBENCH_TABS.slice(3, 5) == ["投保", "增益"])
 	var gear := Item.create("刀", Item.Category.WEAPON, 1, 2, 1.0)
 	gear.value = 400
 	game.inventory.try_add(gear)

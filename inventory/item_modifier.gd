@@ -57,6 +57,11 @@ enum Stat {
 	SIG_SHATTER, SIG_TREELINE, SIG_FIRSTBLOOD, SIG_RECKONING, SIG_SILENCE, SIG_BLOODPRICE,
 	## 爆发族 / 首领件 lines.
 	BUILD_PCT,
+	## 元素转化与高血量词条修订案 v0.1 §3: a physical hit's share dealt as arts.
+	CONV_ARTS,
+	## 抗性为王修订案 v0.4 §6: a hit lowers the target's resistance to the
+	## region's element for a few seconds.
+	SHRED_BURN, SHRED_COLD, SHRED_CORR, SHRED_NERVE,
 }
 
 ## The sheet key each of the stats above adds to (Player._recompute_stats).
@@ -81,7 +86,8 @@ const SHEET_KEYS := {
 	Stat.SIG_BLAZE: "sig_blaze", Stat.SIG_SHIELDWALL: "sig_shieldwall", Stat.SIG_ESCORT: "sig_escort",
 	Stat.SIG_SHATTER: "sig_shatter", Stat.SIG_TREELINE: "sig_treeline", Stat.SIG_FIRSTBLOOD: "sig_firstblood",
 	Stat.SIG_RECKONING: "sig_reckoning", Stat.SIG_SILENCE: "sig_silence", Stat.SIG_BLOODPRICE: "sig_bloodprice",
-	Stat.BUILD_PCT: "build_pct",
+	Stat.BUILD_PCT: "build_pct", Stat.CONV_ARTS: "conv_arts",
+	Stat.SHRED_BURN: "shred_burn", Stat.SHRED_COLD: "shred_cold", Stat.SHRED_CORR: "shred_corr", Stat.SHRED_NERVE: "shred_nerve",
 }
 ## How each new stat reads: %s is its value (ItemModifier.pct, sign kept);
 ## "%d" lines are whole points (resistances).
@@ -98,7 +104,7 @@ const TEXTS := {
 	Stat.KILL_HEAL: "击杀回复 %s 最大生命", Stat.ORE_ATK: "携带源石原矿时，伤害 %s",
 	Stat.AMBUSH_DMG: "对未察觉的敌人，第一击伤害 %s", Stat.MELEE_TAKEN: "受到近战伤害 %s", Stat.HEAL_PCT: "受到治疗 %s",
 	Stat.DASH_DEF: "闪避后 1 秒内防御 %s", Stat.CHAIN_DMG: "连续命中同一目标，每次伤害 %s（最多 5 层）", Stat.DOT_TAKEN_DUR: "受到的持续伤害时长 %s",
-	Stat.FULL_HP_DMG: "对满血敌人伤害 %s", Stat.COLD_SLOW: "寒冷上涨 %s", Stat.FIRE_REGEN: "火堆旁每秒回复 %s 最大生命",
+	Stat.FULL_HP_DMG: "对高血量敌人伤害 %s", Stat.COLD_SLOW: "寒冷上涨 %s", Stat.FIRE_REGEN: "火堆旁每秒回复 %s 最大生命",
 	Stat.LONE_EVASION: "物理闪避 %s，附近没有其他敌人时再翻倍", Stat.FREEZE_TAKEN: "受到冻结的时长 %s", Stat.LONE_SKILL: "附近没有其他敌人时，技能伤害 %s",
 	Stat.STUNNED_DMG: "对晕眩中的敌人伤害 %s", Stat.LOW_HP_DMG: "对生命低于 25%% 的敌人伤害 %s", Stat.DEBT_SLOW: "血债上涨 %s",
 	Stat.ELITE_TAKEN: "受到精英的伤害 %s", Stat.BACK_TAKEN: "受到来自背后的伤害 %s", Stat.ELITE_KILL_ASPD: "击杀精英后 6 秒内攻速 %s",
@@ -109,7 +115,9 @@ const TEXTS := {
 	Stat.SIG_SHATTER: "碎冰：冻结中的敌人受到的下一击 +80%", Stat.SIG_TREELINE: "林线行者：寒冷 60 以上时，闪避 +8%",
 	Stat.SIG_FIRSTBLOOD: "猎手先机：技能命中满血敌人时，返还 30% 冷却", Stat.SIG_RECKONING: "家族清算：带着流血死去的敌人，把流血传给 3 米内的敌人",
 	Stat.SIG_SILENCE: "缄默：血债每有 30 点，减伤 +3%", Stat.SIG_BLOODPRICE: "血的价钱：血债每有 10 点，赤金掉落 +2%",
-	Stat.BUILD_PCT: "损伤累积 %s",
+	Stat.BUILD_PCT: "损伤累积 %s", Stat.CONV_ARTS: "命中伤害的 %s 转为法术",
+	Stat.SHRED_BURN: "命中使目标灼燃抗性 −%d", Stat.SHRED_COLD: "命中使目标寒冷抗性 −%d",
+	Stat.SHRED_CORR: "命中使目标侵蚀抗性 −%d", Stat.SHRED_NERVE: "命中使目标神经抗性 −%d",
 }
 ## Orange signatures (and 抗性上限): the text is the whole line.
 const SIGNATURES := [Stat.SIG_CASCADE, Stat.SIG_CARRIER, Stat.SIG_RESONANCE, Stat.SIG_BLAZE, Stat.SIG_SHIELDWALL, Stat.SIG_ESCORT,
@@ -360,5 +368,6 @@ func describe() -> String:
 		var text: String = TEXTS[stat]
 		if is_signature(stat): return text
 		if text.contains("%+d"): return text % roundi(amount)
+		if text.contains("%d"): return text % roundi(absf(amount))
 		return text % (pct(amount).trim_prefix("+") if text.begins_with("命中") else pct(amount))
 	return ""

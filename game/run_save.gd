@@ -173,7 +173,8 @@ static func floor_data(game: GameManager) -> Dictionary:
 			var enemy := node as Enemy
 			enemies.append({"at": var_to_str(enemy.global_position), "type": enemy.enemy_type, "elite": enemy.elite, "ranged": enemy.ranged,
 				"max": enemy.max_health, "hp": enemy.health, "atk": enemy.atk, "def": enemy.defense, "patrol": enemy.patrol_wave,
-				"called": enemy.called_in, "guardian": game._vault_guardians.has(enemy), "reckoning": enemy.is_in_group("reckoning")})
+				"called": enemy.called_in, "guardian": game._vault_guardians.has(enemy), "reckoning": enemy.is_in_group("reckoning"),
+				"elem": enemy.elem_spec.duplicate(true)})
 	var loot: Array = []
 	for node in game.get_children():
 		var drop := node as Loot
@@ -254,6 +255,8 @@ static func apply_floor(game: GameManager, data: Dictionary) -> bool:
 		enemy.health = float(entry.hp)
 		enemy.atk = float(entry.atk)
 		enemy.defense = float(entry.def)
+		# 抗性为王修订案 v0.4: the elements it rolled (an older save: what it rolls now).
+		if entry.has("elem"): enemy.elem_spec = (entry.elem as Dictionary).duplicate(true) if entry.elem is Dictionary else {}
 		if bool(entry.reckoning): enemy.add_to_group("reckoning")
 		if bool(entry.guardian): game._vault_guardians.append(enemy)
 	for entry in data.get("loot", []):

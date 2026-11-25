@@ -262,7 +262,20 @@ const POTIONS := {
 		"fx": {"contam_block": 60.0, "contam_after": 20.0}},
 	"sami": {"name": "林地草药茶", "barter": {"林地草药": 2}, "store": 1, "line": "sami", "text": "60 秒内寒冷累积减半，每秒回复生命上限的 0.3%",
 		"fx": {"cold_half": 60.0, "regen_share": 0.003, "regen_secs": 60.0}},
+	# 抗性为王修订案 v0.4 §5.1: 医疗部's resistance flasks, +25 for 10 罗德岛 minutes
+	# (RES_POTION_SECS of field time at ×8).
+	"res_burn": {"name": "灼燃防护剂", "price": 2800, "store": 2, "line": "pharmacy", "text": "75 秒内灼燃抗性 +25",
+		"fx": {"hex": {"res_burn": 25.0}, "secs": 75.0}},
+	"res_cold": {"name": "寒冷防护剂", "price": 2800, "store": 2, "line": "pharmacy", "text": "75 秒内寒冷抗性 +25",
+		"fx": {"hex": {"res_cold": 25.0}, "secs": 75.0}},
+	"res_corr": {"name": "侵蚀防护剂", "price": 2800, "store": 2, "line": "pharmacy", "text": "75 秒内侵蚀抗性 +25",
+		"fx": {"hex": {"res_corr": 25.0}, "secs": 75.0}},
+	"res_nerve": {"name": "神经防护剂", "price": 2800, "store": 2, "line": "pharmacy", "text": "75 秒内神经抗性 +25",
+		"fx": {"hex": {"res_nerve": 25.0}, "secs": 75.0}},
+	"res_arts": {"name": "法术防护剂", "price": 2800, "store": 2, "line": "pharmacy", "text": "75 秒内法术抗性 +25",
+		"fx": {"hex": {"res": 25.0}, "secs": 75.0}},
 }
+const RES_POTIONS := ["res_burn", "res_cold", "res_corr", "res_nerve", "res_arts"]
 const CLOSURE_LINE := ["C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
 const REGIONAL := {"rat": "rat", "reunion": "reunion", "ursus": "ursus", "sami": "sami"}   # faction -> type
 const RESTOCK_SECONDS := 3600

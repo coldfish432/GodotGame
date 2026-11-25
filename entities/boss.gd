@@ -117,7 +117,7 @@ func setup_boss(p_game: GameManager, id: String, p_tier: int) -> void:
 	defense = float(fig.def)
 	res = float(fig.res)
 	damage_kind = str(fig.kind)
-	move_speed = float(fig.get("speed", 1.2))
+	move_speed = float(fig.get("speed", 1.2)) * SPEED_SCALE
 	lives = int(fig.get("lives", 1))
 	affixes = BossCatalog.roll_affixes(rank, tier, str(fig.region), game.floor_number)
 	if affixes.has("swift"): move_speed *= 1.0 + BossCatalog.SWIFT_SPEED
@@ -1306,8 +1306,19 @@ func _hit_her(seg: Dictionary, mult: float = -1.0) -> void:
 	var cap := p.max_hp * (BossCatalog.BIG_CAP if bool(seg.get("big", false)) else BossCatalog.HIT_CAP)
 	var raw := minf(_raw(float(seg.get("damage", 1.0)) if mult < 0.0 else mult), cap)
 	var before := p.hp
+	# 抗性为王修订案 v0.4 §3.5: its big moves are not to be taken without the resistance
+	# (PlayerElements lifts them to the floor's big-hit size past the cap above).
+	_hit_big = bool(seg.get("big", false)) or float(seg.get("damage", 0.0)) >= BIG_DAMAGE
 	p.take_damage(raw, str(seg.get("kind", damage_kind)), self)
+	_hit_big = false
 	_after_hit(seg, p.hp < before)
+
+## A move this heavy (× ATK) or marked big counts as its big hit.
+const BIG_DAMAGE := 1.5
+var _hit_big := false
+
+func big_hit_now() -> bool:
+	return _hit_big
 
 func _after_hit(seg: Dictionary, landed: bool) -> void:
 	if not landed: return
@@ -1555,6 +1566,11 @@ func _end_channel(done: bool) -> void:
 func _next_phase(share: float = -1.0) -> void:
 	_cancel_move()
 	phase += 1
+	# 抗性为王修订案 v0.4 §3.3: from its third showing a new phase adds an element.
+	if not elem_spec.is_empty() and is_instance_valid(game):
+		var kinds: Array = elem_spec.get("kinds", [])
+		var more := ElementThreat.boss_phase_kind(game.region_id, tier, phase, kinds, game.rng_elem)
+		if not more.is_empty(): kinds.append(more)
 	if figure_id == "patriot" and phase == 2:
 		_go_down("")
 	else:

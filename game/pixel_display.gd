@@ -118,6 +118,7 @@ func _ready() -> void:
 		game.save_path = SaveSlots.path(slot)
 		world_viewport.add_child(game)
 	screens.show_title()
+	GameMusic.play_title(self)
 
 var _game: GameManager
 

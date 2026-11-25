@@ -94,7 +94,7 @@ func run() -> void:
 	var purple := aura.segments.all(func(seg): return (seg.material_override as StandardMaterial3D).albedo_texture == PlayerAura.FANG_TEXTURES.full)
 	var see_through := aura.segments.all(func(seg): return (seg.material_override as StandardMaterial3D).albedo_color.a <= 0.7)
 	check("full: three fangs circling her feet, purple, translucent, turning", aura.ring.visible and aura.segments.size() == 3 and purple and see_through
-		and absf(aura.ring.global_position.y - 0.055) < 0.001 and see_through and Vector2(aura.ring.global_position.x - p.global_position.x, aura.ring.global_position.z - p.global_position.z).length() < 0.001
+		and absf(aura.ring.global_position.y - (p.game.ground_y(p.global_position) + 0.055)) < 0.001 and see_through and Vector2(aura.ring.global_position.x - p.global_position.x, aura.ring.global_position.z - p.global_position.z).length() < 0.001
 		and not is_equal_approx(aura.ring.rotation.y, turn_before))
 	var kept := p.sword_charge
 	p.sword_charge = 1

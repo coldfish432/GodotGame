@@ -166,7 +166,7 @@ const STATIONS := {
 	"insurance": ["后勤柜台 / 出战准备", "带入装备可投保"],
 	"loadout": ["整备台 / 装备", "装备、卸下或存回仓库"],
 	"stash": ["仓管台 / 仓库", "从个人仓库带入下一份合同"],
-	"outbound": ["出库区 / 订单与交付", "交付个人仓库或背包里的物品：按订单或直接换龙门币"],
+	"board": ["合同板", "接取各部门的合同，交付回收与交付合同的物资"],
 	"report": ["医疗前台 / 回收报告与治疗", "上一份合同的回收明细，以及重伤治疗"],
 	"pharmacy": ["药房窗口 / 配药", "下一份合同带哪些药：标准急救剂免费，其余每瓶收费，结算后恢复为 3 瓶标准急救剂"],
 	"store": ["可露希尔的商店", "药剂 · 收购赤金"],
@@ -203,7 +203,7 @@ func show_station(kind: String) -> void:
 		"contracts": BaseScreens.contracts(self); return
 		"stash": BaseScreens.stash(self); return
 		"construction": BaseScreens.construction(self); return
-		"outbound": BaseScreens.outbound(self); return
+		"board": BaseScreens.board(self); return
 		"pharmacy": BaseScreens.medical(self, 0); return
 		"report": BaseScreens.medical(self, 1); return
 		"insurance", "loadout": BaseScreens.departure(self, "", kind); return

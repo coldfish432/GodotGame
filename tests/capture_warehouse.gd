@@ -44,7 +44,7 @@ func run() -> void:
 	var spare := Item.create("封装矿料", Item.Category.MATERIAL, 1, 1)
 	spare.value = 22
 	game.base.shelf.append(spare)
-	var station: Dictionary = game.base_map.station("outbound")
+	var station: Dictionary = game.base_map.station("board")
 	game.player.teleport(station.position)
 	game.camera.global_position = game.camera_target() + GameManager.CAMERA_OFFSET
 	await wait(0.5)

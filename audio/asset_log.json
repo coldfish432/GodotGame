@@ -107,5 +107,195 @@
   "music/失败.mp3": {
     "raw": true,
     "sha256": "dd77388eed1f7febb51c26a4094646f2af7abbf6630d4cf991b8b008dc1b0f57"
+  },
+  "audio/music/city_loop.ogg": {
+    "source": "music/field/field_city.mp3",
+    "cut": "0 – 74.6630 s",
+    "loop_offset": 10.6675,
+    "loop_length": 63.9955,
+    "bars": "bar 2.66667 s; intro bars 0–4, loop bars 4–28",
+    "crossfade": "40 ms raised-cosine into the audio before loop_offset",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "0f566e7d87a80faf2500c62b210454219dae2800c6649720e5e7e7a6a91cb2bd"
+  },
+  "audio/music/snow_loop.ogg": {
+    "source": "music/field/field_snow.mp3",
+    "cut": "0 – 66.6568 s",
+    "loop_offset": 13.3333,
+    "loop_length": 53.3234,
+    "bars": "bar 3.33333 s; intro bars 0–4, loop bars 4–20",
+    "crossfade": "40 ms raised-cosine into the audio before loop_offset",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "e9f12750b3cbc4175d1e077661df6f588ae77bf74110d035bce6c3a58b2df515"
+  },
+  "audio/music/siracusa_loop.ogg": {
+    "source": "music/field/field_siracusa.mp3",
+    "cut": "0 – 59.9946 s",
+    "loop_offset": 23.9997,
+    "loop_length": 35.9949,
+    "bars": "bar 3.0 s; intro bars 0–8, loop bars 8–20",
+    "crossfade": "40 ms raised-cosine into the audio before loop_offset",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "8e00153aa18e4e6f130e70f81bc75b41495416c949cf6ca91cf19b6f26b81c12"
+  },
+  "audio/music/boss_mine_p1.ogg": {
+    "cut": "2.4000 – 24.0068 s",
+    "loop_offset": 2.3996,
+    "loop_length": 19.2072,
+    "bars": "intro bars 1–2, A bars 2–10 (file starts at bar 1)",
+    "source": "music/boss/boss_mine.mp3",
+    "bar": 2.4,
+    "gain": "-0.80 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "e7719bc716b0e594cb83ff7b7d3b7d9c6d1c237fed4ec9b3700aa294caee63e0"
+  },
+  "audio/music/boss_mine_p2.ogg": {
+    "cut": "23.9998 – 43.2032 s",
+    "loop_offset": 0.0,
+    "loop_length": 19.2034,
+    "bars": "B bars 10–18",
+    "source": "music/boss/boss_mine.mp3",
+    "bar": 2.4,
+    "gain": "-0.80 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "280b9f4843d48454dc6ddb73170f2011461d3cb8ed68cd2965776afecddd5a63"
+  },
+  "audio/music/boss_city_p1.ogg": {
+    "cut": "0.0000 – 22.2202 s",
+    "loop_offset": 4.4418,
+    "loop_length": 17.7785,
+    "bars": "intro bars 0–2, A bars 2–10 (file starts at bar 0)",
+    "source": "music/boss/boss_city.mp3",
+    "bar": 2.22222,
+    "gain": "-2.42 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "0b243438d2b4a701ffa82da9bfad422b1452cff6cfba306ea5a4d9d0e5a421e1"
+  },
+  "audio/music/boss_city_p2.ogg": {
+    "cut": "22.2229 – 40.0049 s",
+    "loop_offset": 0.0,
+    "loop_length": 17.7821,
+    "bars": "B bars 10–18",
+    "source": "music/boss/boss_city.mp3",
+    "bar": 2.22222,
+    "gain": "-2.42 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "4d7a8faadd008a5dc012e24616264010ae6436b7547b7a0e55fc69344ae2939b"
+  },
+  "audio/music/boss_snow_p1.ogg": {
+    "cut": "0.0000 – 28.2363 s",
+    "loop_offset": 5.6469,
+    "loop_length": 22.5893,
+    "bars": "intro bars 0–2, A bars 2–10 (file starts at bar 0)",
+    "source": "music/boss/boss_snow.mp3",
+    "bar": 2.82353,
+    "gain": "-1.69 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "b4c74a262c0282b6bf5ddd1985cc4a2d0d2247b4b6e9cb2eb01d12d31a1bb5fb"
+  },
+  "audio/music/boss_snow_p2.ogg": {
+    "cut": "28.2350 – 50.8229 s",
+    "loop_offset": 0.0,
+    "loop_length": 22.588,
+    "bars": "B bars 10–18",
+    "source": "music/boss/boss_snow.mp3",
+    "bar": 2.82353,
+    "gain": "-1.69 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "89fc5f3deae11beedd1b4fc24a680d273e28eace29d1fdf7f41f23af3a3d17fa"
+  },
+  "audio/music/boss_siracusa_p1.ogg": {
+    "cut": "0.0000 – 24.9985 s",
+    "loop_offset": 4.9952,
+    "loop_length": 20.0033,
+    "bars": "intro bars 0–2, A bars 2–10 (file starts at bar 0)",
+    "source": "music/boss/boss_siracusa.mp3",
+    "bar": 2.5,
+    "gain": "-1.76 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "d15f67de76c961075e98c3c5112471204d9ff8295a9706276a42e22dd29b1b6e"
+  },
+  "audio/music/boss_siracusa_p2.ogg": {
+    "cut": "24.9999 – 44.9999 s",
+    "loop_offset": 0.0,
+    "loop_length": 20.0,
+    "bars": "B bars 10–18",
+    "source": "music/boss/boss_siracusa.mp3",
+    "bar": 2.5,
+    "gain": "-1.76 dB (intro+A+B at RMS -18 dBFS, peak <= -1 dBFS)",
+    "crossfade": "40 ms raised-cosine into the audio before the loop start",
+    "format": "OGG Vorbis q6",
+    "sha256": "613bd5b0c47881b0815983cd930ee8c7bc1fc74016ad5be9ec09ded7992a268a"
+  },
+  "audio/music/sting_boss_down.ogg": {
+    "source": "music/boss/down_sting.mp3",
+    "cut": "0.2028 s – end (8.0000 s)",
+    "fade": "2 ms in, squared 0.3 s out",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "bbc720aae828d3ffe9b5c5c4e824bd52de622c0e822d9a1e48b648aedcd85aa5"
+  },
+  "audio/music/sting_boss_win.ogg": {
+    "source": "music/boss/win_stin.mp3",
+    "cut": "0.0000 s – end (3.0000 s)",
+    "fade": "2 ms in, squared 0.3 s out",
+    "gain": "RMS -18 dBFS, peak <= -1 dBFS",
+    "format": "OGG Vorbis q6",
+    "sha256": "9b3b6a9dbeb63f74dd66bab675427d6128bc96cbeb83838cef06cdd4ec841b83"
+  },
+  "music/field/field_city.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "2eebf3d018097aaa3a12c448fbacfcf67c147a2522f6bdad6f0200a46a5e7583"
+  },
+  "music/field/field_snow.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "9c61387fd1ba55e275e93d431fd0df2404110f0f4786938238d72dbcf8feec66"
+  },
+  "music/field/field_siracusa.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "c21eb9f17c98b0324b586a0652a54beb38b80971cd4f4233ebc2717d1d4f0220"
+  },
+  "music/boss/boss_mine.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "43638eff81f95a7114d4ed7b36a9f9af8e4657f7169218bf3fddcc3c38ff2956"
+  },
+  "music/boss/boss_city.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "93c7147ee06267f539dadb2662c9daed14dd7f3c643f179b7dc4d11e439f36d5"
+  },
+  "music/boss/boss_snow.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "14bcf784be2dead18ddd8d8ab7e32e57485e40c878cd4038f9ac2698fd66ac13"
+  },
+  "music/boss/boss_siracusa.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "44e0c3b2541df11ebf7cd4f34e6b1d365dda59b9e664bdea0827cb3b484e09df"
+  },
+  "music/boss/down_sting.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "94bda4289b6fab0d9b0c1419352ab5c06507730d519a282c29f5aa1f08341e8e"
+  },
+  "music/boss/win_stin.mp3": {
+    "raw": true,
+    "source": "ElevenLabs agent (Eleven Music)",
+    "sha256": "50c128933acc8efaa52af6fef8e837a5b0bed17667dd9a848317a350edd566c3"
   }
 }

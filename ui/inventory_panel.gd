@@ -698,6 +698,9 @@ class ItemTile extends Button:
 		if not shown.exclusive_region.is_empty():
 			var c := Vector2(s.x - 8, 8)
 			control.draw_colored_polygon(PackedVector2Array([c + Vector2(0, -5), c + Vector2(5, 0), c + Vector2(0, 5), c + Vector2(-5, 0)]), AK.ORI)
+		# 镶嵌槽 (抗性为王修订案 v0.4 §7.1): top right, left of the region mark when there is one.
+		if InlayCatalog.has_slot(shown):
+			InlayCatalog.draw_mark(control, shown, Vector2(s.x - (20.0 if not shown.exclusive_region.is_empty() else 8.0), 8.0))
 
 
 ## An equipment slot on the paper doll: shows the worn item, accepts drops of its

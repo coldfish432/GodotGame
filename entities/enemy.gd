@@ -34,10 +34,14 @@ var _burn_tick := 0.0
 var elements := ElementState.new()
 ## Its elemental resistances, from its region, rank and kind (Elements.enemy_resists).
 var _eres: Dictionary = {}
+## The elements its hits carry (抗性为王修订案 v0.4, ElementThreat.roll):
+## {mode: "convert"/"add", kinds: [...]}; {} for none. Rolled once at spawn.
+var elem_spec: Dictionary = {}
 ## 侵蚀爆发's permanent DEF cut, 15% a stack (3 at most).
 var corr_stacks := 0
 ## Bursts waiting for the next tick, so a burst's own damage never runs inside the hit that filled it.
-var _pending_bursts: Array[String] = []
+## The shares a full ring held, settled on the next tick (元素反应策划案 v0.2).
+var _pending_burst := {}
 ## Relics that act on the first hit against an enemy (冻土绊索).
 var hit_by_player := false
 var move_speed: float = 2.1
@@ -232,6 +236,8 @@ func setup(p_game: GameManager, p_elite: bool, p_ranged: bool, type: String = ""
 	move_speed = (1.2 if elite else (2.4 if keeps_distance else 2.1)) * float(attack_profile.get("slow", 1.0))
 	# 家族灭迹人 is quick in the dark (叙拉古敌人设计案 §三第 6 条: 1.1×).
 	if attack_profile.get("stealth", false): move_speed = 2.3
+	move_speed *= SPEED_SCALE
+	_face_initial()
 	# 家族专用轿车 keeps to its lane's mouth: out on its charge and straight back.
 	if attack_profile.get("roadblock", false):
 		leash_radius = 0.6
@@ -468,6 +474,59 @@ func _tick_stealth(delta: float) -> void:
 		_splash_timer = EnemyAttacks.ERASER_SPLASH_EVERY
 		EnemyAttackVfx.spawn(game, Vector3(global_position.x, game.ground_y(global_position) + 0.04, global_position.z), -global_basis.z, "splash")
 
+## 全体敌人移速 +20%（用户 2026-11-24）; Boss.setup_boss applies it too.
+const SPEED_SCALE := 1.2
+
+## 视野锥（用户 2026-11-24）: besides its all-round sense, it sees further
+## straight ahead. Seeing her there wakes its post and everyone near it.
+const VIEW_CONE_RANGE := 16.0
+const VIEW_CONE_HALF_ANGLE := 30.0
+const VIEW_CONE_ALERT_RADIUS := 12.0
+
+## Where it looks: -Z, as _face turns it.
+func facing_dir() -> Vector3:
+	var forward := -global_basis.z
+	forward.y = 0.0
+	return forward.normalized() if forward.length_squared() > 0.0001 else Vector3.FORWARD
+
+## Spawned looking some way of its own, not all of them north: the yaw comes
+## from where it stands, so no random stream is drawn. A guard looks out from
+## its post instead (configure_guard).
+func _face_initial() -> void:
+	var at := global_position if is_inside_tree() else position
+	var yaw := fposmod(sin(at.x * 12.9898 + at.z * 78.233) * 43758.5453, TAU)
+	_look_along(Vector3.FORWARD.rotated(Vector3.UP, yaw))
+
+func _look_along(direction: Vector3) -> void:
+	direction.y = 0.0
+	if direction.length_squared() < 0.0001: return
+	if is_inside_tree(): global_basis = Basis.looking_at(direction.normalized(), Vector3.UP)
+	else: basis = Basis.looking_at(direction.normalized(), Vector3.UP)
+	# Its sheet column catches up on the next animation step.
+	_seen_yaw = -1000.0
+
+func in_view_cone(point: Vector3) -> bool:
+	if _concealed(point): return false
+	if _flat_distance(home_position, point) > leash_radius: return false
+	var to := point - global_position
+	to.y = 0.0
+	var reach := maxf(VIEW_CONE_RANGE, perception_radius) * _sight_mult()
+	if to.length() > reach: return false
+	if to.length_squared() > 0.0001 and to.normalized().dot(facing_dir()) < cos(deg_to_rad(VIEW_CONE_HALF_ANGLE)): return false
+	return _sight(global_position, point)
+
+## Seen in its cone: it, its post and every enemy within VIEW_CONE_ALERT_RADIUS
+## of it take up the chase (one hop; sentinels and cars keep their own eyes).
+func cone_alert() -> void:
+	begin_chase()
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var other := node as Enemy
+		if other == null or other == self or other._dead or other.boss or other.game != game: continue
+		if other.state != State.IDLE: continue
+		if other.attack_profile.get("alarm", false) or other.attack_profile.get("roadblock", false): continue
+		if _flat_distance(other.global_position, global_position) > VIEW_CONE_ALERT_RADIUS: continue
+		other.begin_chase()
+
 ## line_of_sight asked twice for the same two points within one tick (perception,
 ## then the chase) is asked once: nothing on the map moves inside a tick.
 var _sight_live := false
@@ -520,7 +579,9 @@ func _tick_physics(delta: float) -> void:
 		_tick_roadblock(delta, player_position)
 		return
 	if state == State.IDLE and _rearm_timer <= 0:
-		if behavior == Behavior.PATROL:
+		if not boss and (provoked or not attack_profile.get("neutral", false)) and in_view_cone(player_position):
+			cone_alert()
+		elif behavior == Behavior.PATROL:
 			if hunts() or _can_perceive(player_position): begin_chase()
 		elif behavior == Behavior.NORMAL:
 			if (provoked or not attack_profile.get("neutral", false)) and _can_perceive(player_position): begin_chase()
@@ -591,8 +652,11 @@ func _can_perceive(point: Vector3) -> bool:
 	if _concealed(point): return false
 	# The leash test first: when it fails, the sight multipliers need not be read.
 	if _flat_distance(home_position, point) > leash_radius: return false
-	var reach := perception_radius * (CREST_SIGHT if elite and game.player != null and game.player.equipped_effect("saluzzo_crest") else 1.0) * game.feud_sight(self)
+	var reach := perception_radius * _sight_mult()
 	return _flat_distance(global_position, point) <= reach and _sight(global_position, point)
+
+func _sight_mult() -> float:
+	return (CREST_SIGHT if elite and game.player != null and game.player.equipped_effect("saluzzo_crest") else 1.0) * game.feud_sight(self)
 
 ## force: its post has woken, so it turns back even on the way home.
 func begin_chase(force: bool = false) -> void:
@@ -784,6 +848,7 @@ func configure_guard(post: Node3D) -> void:
 	home_position = global_position
 	name = "守卫_" + name
 	add_to_group("guards")
+	if is_instance_valid(post) and post.is_inside_tree(): _look_along(global_position - post.global_position)
 
 func _move_toward_target(target: Vector3, delta: float) -> void:
 	_repath_timer -= delta
@@ -1529,16 +1594,34 @@ func elem_res(kind: String) -> float:
 	if _eres.is_empty():
 		var region := game.region_id if is_instance_valid(game) else ""
 		_eres = Elements.enemy_resists(region, elite, boss or self is Boss)
-	return float(_eres.get(kind, 0.0))
+	# Her weapon's 减抗 line (抗性为王修订案 v0.4 §6): one at a time, a few seconds.
+	return float(_eres.get(kind, 0.0)) - status_value("shred_" + kind)
 
-## The life a gauge has to take before it bursts.
+## Her weapon's 降低目标〔元素〕抗性: refreshes, never stacks (apply_status).
+func apply_res_shred(kind: String, amount: float) -> void:
+	apply_status("shred_" + kind, ElementThreat.ENEMY_SHRED_SECONDS, amount)
+
+## The hit landing now is its big one (抗性为王修订案 v0.4 §3.5): an elite's
+## unbreakable attack — 欺凌者's charge, 粉碎攻坚手's third blow, the car.
+## Boss overrides it with its big moves.
+func big_hit_now() -> bool:
+	return elite and unstoppable_now()
+
+## What its ring has to take before it goes off (元素阈值修订案 v0.1): fixed by
+## rank, grown with the floor and the contract like its life, but not by its
+## own life (雪原, relics, route nodes make it tougher, not harder to burst).
+## Read once in the field and kept.
+var _gauge_t := 0.0
 func gauge_threshold() -> float:
-	return max_health * Elements.threshold_share(elite, boss or self is Boss)
+	if _gauge_t > 0.0: return _gauge_t
+	if not is_instance_valid(game): return Elements.threshold(elite, boss or self is Boss, 1.0)
+	_gauge_t = Elements.threshold(elite, boss or self is Boss, Scaling.floor_growth(game.floor_number) * game.contract_life())
+	return _gauge_t
 
 func _on_elemental(kind: String, dealt: float) -> void:
 	if not Elements.is_element(kind): return
 	var mult := game.player.elements.fill_mult() if is_instance_valid(game) and is_instance_valid(game.player) and game.player.elements != null else 1.0
-	if elements.fill(kind, dealt * mult, gauge_threshold(), burst_cooldown()): _pending_bursts.append(kind)
+	if elements.fill(kind, dealt * mult * Elements.GAUGE_FILL, gauge_threshold(), burst_cooldown()): _pending_burst = elements.last_shares.duplicate()
 
 ## Her 爆发 family's 阶等 (0 without one), and the cooldown it shortens at (4).
 func _burst_tier() -> int:
@@ -1559,11 +1642,12 @@ func rot_stacks() -> int:
 	return _rot_stacks if elements.has_dot("rot") else 0
 
 func _tick_elements(delta: float) -> void:
-	for kind in _pending_bursts.duplicate():
-		_pending_bursts.erase(kind)
-		_burst(kind)
+	if not _pending_burst.is_empty():
+		var split := _pending_burst
+		_pending_burst = {}
+		_burst(split)
 		if _dead: return
-	if elements.dots.is_empty() and elements.gauges.is_empty() and elements.cooldowns.is_empty(): return
+	if elements.dots.is_empty() and elements.is_idle(): return
 	if not elements.has_dot("rot"): _rot_stacks = 0
 	if elements.has_dot("frost"): apply_status("slow", 0.6, Elements.FROST_SLOW)
 	for due in elements.tick(delta, gauge_threshold()):
@@ -1571,29 +1655,37 @@ func _tick_elements(delta: float) -> void:
 		if str(due.dot) == "bleed" and walking: damage *= 1.0 + Elements.BLEED_MOVING
 		var dealt := take_hit(damage, str(due.kind), false, 0.0, true)
 		if _dead: return
-		if str(due.dot) == "necro" and elements.fill("necro", dealt, gauge_threshold(), burst_cooldown()): _pending_bursts.append("necro")
+		if str(due.dot) == "necro" and elements.fill("necro", dealt * Elements.GAUGE_FILL, gauge_threshold(), burst_cooldown()): _pending_burst = elements.last_shares.duplicate()
 
-## A full gauge (§5.1). The 爆发 family spreads it at (6) and repeats its
-## damage at half at (8).
-func _burst(kind: String) -> void:
-	if _dead or not is_instance_valid(game): return
+## A full ring (元素反应策划案 v0.2 §3): `split` is what it held (kind →
+## share). The 爆发 family spreads it at (6) by the same shares and repeats
+## the result at half at (8).
+func _burst(split: Dictionary) -> void:
+	if _dead or not is_instance_valid(game) or split.is_empty(): return
 	var family := _burst_tier()
 	if family >= 6:
 		for node in get_tree().get_nodes_in_group("enemies"):
 			var other := node as Enemy
 			if other == null or other == self or other._dead or other.game != game: continue
 			if _flat_distance(other.global_position, global_position) > 3.0: continue
-			if other.elements.fill(kind, other.gauge_threshold() * PrefixFamilies.BURST_SPREAD, other.gauge_threshold(), other.burst_cooldown()): other._pending_bursts.append(kind)
-	_burst_once(kind, 1.0)
-	if family >= 8 and not _dead: _burst_once(kind, PrefixFamilies.BURST_ECHO)
+			if other.elements.spill(split, other.gauge_threshold() * PrefixFamilies.BURST_SPREAD, other.gauge_threshold(), other.burst_cooldown()): other._pending_burst = other.elements.last_shares.duplicate()
+	_burst_once(split, 1.0)
+	if family >= 8 and not _dead: _burst_once(split, PrefixFamilies.BURST_ECHO)
 
-func _burst_once(kind: String, scale: float) -> void:
+func _burst_once(split: Dictionary, scale: float) -> void:
 	if _dead or not is_instance_valid(game): return
+	var result := Elements.outcome(split)
+	if result.is_empty(): return
+	CombatVfx.spawn(game, global_position, Vector3.FORWARD, "spark", 0, true)
+	if is_instance_valid(game.player) and game.player.elements != null: game.player.elements.on_enemy_burst(self, split)
+	if result.has("pure"): _pure_burst(str(result.pure), scale)
+	else: _react(str(result.pair), str(result.main), float(result.k) * scale)
+
+## One element alone (属性伤害与地区装备策划案 v1.1 §5.1).
+func _pure_burst(kind: String, scale: float) -> void:
 	var t := gauge_threshold() * scale
 	var big := self is Boss or boss
 	var spec: Dictionary = Elements.BURST[kind]
-	CombatVfx.spawn(game, global_position, Vector3.FORWARD, "spark", 0, true)
-	if is_instance_valid(game.player) and game.player.elements != null: game.player.elements.on_enemy_burst(self, kind)
 	match kind:
 		"burn":
 			apply_status("res_down", float(spec.secs), float(spec.res_down))
@@ -1617,10 +1709,55 @@ func _burst_once(kind: String, scale: float) -> void:
 			apply_status("weaken", float(spec.secs), float(spec.weaken))
 			elements.apply_dot("necro_burst", t * float(spec.tick) * float(spec.secs), float(spec.secs), "arts")
 
-## The burst's own number, big in its element's colour.
-func _burst_hit(damage: float, kind: String) -> void:
-	var dealt := take_hit(damage, kind, false, 0.0, true) if damage > 0.0 else 0.0
-	if is_instance_valid(game): DamageNumber.spawn(game, global_position + Vector3.UP * 0.6, str(roundi(dealt)) if dealt > 0.0 else Elements.NAMES[kind], _burst_colour_kind(kind), true)
+## Two elements react (元素反应策划案 v0.2 §4): `k` is the balance factor
+## (× the 双响 half); `_main` is the leading kind. No text, only its numbers
+## (用户 2026-11-24: 不要文字).
+func _react(key: String, _main: String, k: float) -> void:
+	var spec: Dictionary = Elements.REACTIONS[key]
+	var t := gauge_threshold()
+	var big := self is Boss or boss
+	var damage := t * float(spec.damage) * k
+	var secs := float(spec.get("secs", 0.0))
+	match key:
+		"burn+corr":
+			for node in get_tree().get_nodes_in_group("enemies"):
+				var other := node as Enemy
+				if other == null or other == self or other._dead or other.game != game: continue
+				if _flat_distance(other.global_position, global_position) > Elements.REACT_RADIUS: continue
+				other._burst_hit(other.gauge_threshold() * float(spec.damage) * k, "burn")
+		"burn+nerve", "nerve+necro":
+			if big: apply_status("slow", float(spec.boss_secs), float(spec.boss_slow))
+			else: stun(float(spec.elite_stun) if elite else float(spec.stun))
+			if spec.has("fragile"): apply_status("fragile", secs, float(spec.fragile))
+		"burn+necro":
+			apply_status("res_down", float(spec.res_secs), float(spec.res_down))
+			elements.apply_dot("pyre", damage, secs, "arts")
+			return
+		"cold+corr":
+			apply_status("fragile", secs, float(spec.fragile))
+			apply_status("slow", secs, float(spec.slow))
+		"cold+nerve":
+			if big: apply_status("slow", float(spec.boss_secs), float(spec.boss_slow))
+			else:
+				var hold := float(spec.elite_freeze) if elite else float(spec.freeze)
+				stun(hold)
+				apply_status("frozen", hold, 1.0)
+		"cold+necro":
+			apply_status("weaken", secs, float(spec.weaken))
+			apply_status("slow", secs, float(spec.slow))
+		"corr+nerve":
+			corr_stacks = mini(int(Elements.BURST.corr.stacks), corr_stacks + int(spec.stacks))
+		"corr+necro":
+			corr_stacks = mini(int(Elements.BURST.corr.stacks), corr_stacks + int(spec.stacks))
+			apply_status("weaken", secs, float(spec.weaken))
+	if _dead: return
+	_burst_hit(damage, str(spec.kind), float(spec.get("pierce", 0.0)))
+
+## The burst's own number in its element's colour, normal size; none when it
+## deals nothing (用户 2026-11-24: 不要大号文字、不要文字).
+func _burst_hit(damage: float, kind: String, pierce: float = 0.0) -> void:
+	var dealt := take_hit(damage, kind, false, pierce, true) if damage > 0.0 else 0.0
+	if is_instance_valid(game) and dealt > 0.0: DamageNumber.spawn(game, global_position + Vector3.UP * 0.6, str(roundi(dealt)), _burst_colour_kind(kind))
 
 func _burst_colour_kind(kind: String) -> String:
 	return kind if DamageNumber.COLORS.has(kind) else "true"

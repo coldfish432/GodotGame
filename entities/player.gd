@@ -128,7 +128,7 @@ var potion_heal_multiplier: float = 1.0
 ## zone, applied after gear, points and relics. hp / atk / def are shares of
 ## the final value; RESEARCH_ADDS join the stat sheet as they are.
 var research_sheet := {}
-const RESEARCH_ADDS := ["res", "crit", "crit_dmg", "aspd", "skill_pct", "skill_cd_pct", "elite_pct", "dmg_reduce", "evasion",
+const RESEARCH_ADDS := ["res", "res_all_elem", "res_cap", "crit", "crit_dmg", "aspd", "skill_pct", "skill_cd_pct", "elite_pct", "dmg_reduce", "evasion",
 	"move_pct", "stamina_regen_pct", "dash_cost_pct"]
 
 var _buff_max_hp_bonus: float = 0.0
@@ -695,7 +695,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -2.0
 	else:
 		velocity.y += GRAVITY * delta
-	var speed := move_speed * (BASE_MOVE_MULT if is_instance_valid(game) and game.in_base else 1.0) * (gear_fx.move_mult() if gear_fx != null else 1.0) * (kit.move_mult() if kit != null else 1.0) * FeatureCatalog.cold_move(cold) * maxf(0.2, 1.0 + hex("move"))
+	var speed := move_speed * (BASE_MOVE_MULT if is_instance_valid(game) and game.in_base else 1.0) * (gear_fx.move_mult() if gear_fx != null else 1.0) * (kit.move_mult() if kit != null else 1.0) * _slowed(FeatureCatalog.cold_move(cold)) * maxf(0.2, 1.0 + _slowed_hex(hex("move")))
 	velocity.x = move_vec.x * speed
 	velocity.z = move_vec.z * speed
 	move_and_slide()
@@ -1185,13 +1185,19 @@ func _deal(target: Enemy, raw: float, kind: String, crit: bool, pierce: float = 
 	# 转化 (属性伤害与地区装备策划案 v1.1 §3.4): that share of a direct hit leaves
 	# as elements (PlayerElements.on_hit) and the hit keeps the rest.
 	var whole := raw
-	if direct and elements != null and kind in ["phys", "arts"]: raw *= 1.0 - elements.convert_share()
+	# 转为法术 (元素转化与高血量词条修订案 v0.1 §3): that share of a physical
+	# hit is an arts hit of its own, ATK-based, with the arts damage bonus.
+	var arts_part := 0.0
+	if direct and elements != null and kind in ["phys", "arts"]:
+		raw *= 1.0 - elements.convert_share(kind)
+		if kind == "phys": arts_part = whole * float(elements.convert_parts(kind).get("arts", 0.0)) * (1.0 + float(stats.get("arts_dmg_pct", 0.0)))
 	if kind == "arts": raw *= 1.0 + float(stats.get("arts_dmg_pct", 0.0))
 	elif kind == "phys": raw *= 1.0 + float(stats.get("phys_dmg_pct", 0.0))
 	var dealt := target.take_hit(raw, kind, crit, pierce)
+	if arts_part > 0.0 and not target._dead: dealt += target.take_hit(arts_part, "arts", crit)
 	if direct and dealt > 0.0: _lifesteal(dealt)
 	if direct: OperatorVfx.hit(self, target, kind, crit)
-	if direct and elements != null and kind != "true": elements.on_hit(target, whole, crit)
+	if direct and elements != null and kind != "true": elements.on_hit(target, whole, crit, kind)
 	return dealt
 
 ## Lifesteal off `dealt`; 潮涌 keeps what spills over full life as a shield.
@@ -1205,7 +1211,7 @@ func _lifesteal(dealt: float) -> void:
 func on_wave_hit(enemy: Enemy, dealt: float, wave: SwordWave) -> void:
 	if dealt > 0.0: _lifesteal(dealt)
 	if not is_instance_valid(enemy): return
-	if elements != null and not enemy._dead and is_instance_valid(wave): elements.on_hit(enemy, wave.damage * wave_bonus_against(enemy), wave.crit)
+	if elements != null and not enemy._dead and is_instance_valid(wave): elements.on_hit(enemy, wave.damage * wave_bonus_against(enemy), wave.crit, "arts")
 	if not is_instance_valid(enemy): return
 	if operator_id == Operators.LAPPLAND and not enemy._dead: _mind_break(enemy)
 	# 余烬 is a 灼烧 now (§15.3): 10% arts power every 0.5 s for 4 s.
@@ -1254,7 +1260,7 @@ func take_damage(amount: float, kind: String = "phys", attacker: Enemy = null) -
 	amount = elements.mitigate(amount, kind, attacker) if elements != null else CombatStats.mitigate(amount, kind, defense_value(), resistance())
 	if elements != null: amount *= elements.taken_mult(attacker)
 	var reduction := 0.25 if equipped_effect("riot_shield") else 0.0
-	if is_instance_valid(attacker) and attacker.ranged: reduction -= f("ranged_taken")
+	if is_instance_valid(attacker) and attacker.ranged: reduction -= f("ranged_taken") + float(stats.get("ranged_taken", 0.0))
 	reduction += float(stats.get("dmg_reduce", 0.0))
 	amount *= 1.0 - minf(CombatStats.REDUCTION_CAP, reduction)
 	amount *= maxf(0.0, 1.0 + float(stats.get("taken_pct", 0.0)) + hex("taken"))
@@ -1487,6 +1493,7 @@ func _recompute_stats() -> void:
 				var key: String = ItemModifier.SHEET_KEYS[mod.stat]
 				sheet[key] = float(sheet.get(key, 0.0)) + mod.amount
 		CombatStats.add(sheet, PrefixCatalog.stats_of(item))
+		CombatStats.add(sheet, InlayCatalog.stats_of(item))
 	if is_instance_valid(game):
 		CombatStats.add(sheet, RelicCatalog.stat_sheet(game.builds))
 		fx = RelicCatalog.fx_sum(game.builds)
@@ -1658,8 +1665,20 @@ func defense_value() -> float:
 	if elements != null: pct += elements.def_pct()
 	return flat * maxf(0.0, 1.0 + pct) * maxf(0.1, 1.0 + hex("def")) * Operators.stat_mult(operator_id, "def") * research_mult("def")
 
+## 镶件 受到的减速效果 (抗性为王修订案 v0.4 §5.3 #16): a factor under 1 eased
+## by her slow_taken (negative); a hex move share the same way when it slows.
+func _slowed(factor: float) -> float:
+	if factor >= 1.0: return factor
+	return 1.0 - (1.0 - factor) * maxf(0.0, 1.0 + float(stats.get("slow_taken", 0.0)))
+
+func _slowed_hex(share: float) -> float:
+	return share if share >= 0.0 else share * maxf(0.0, 1.0 + float(stats.get("slow_taken", 0.0)))
+
+## Her 法抗: gear, potions and the rest, less half the depth's 压制 in the
+## field (抗性为王修订案 v0.4 §4), within the cap.
 func resistance() -> float:
-	var res := CombatStats.BASE.res + float(stats.get("res", 0.0)) + Operators.stat_mult(operator_id, "res")
+	var res := CombatStats.BASE.res + float(stats.get("res", 0.0)) + Operators.stat_mult(operator_id, "res") + hex("res")
+	if is_instance_valid(game) and not game.in_base: res -= Elements.arts_penalty(game.floor_number)
 	if f("linger") > 0.0 and segment_time >= LINGER_SECONDS: res += 30.0
 	if shadow_active and rank("kill_stack") > 0: res += 20.0 * shadow_kill_stacks
 	if f("full_def") > 0.0 and full_hp(): res += 10.0

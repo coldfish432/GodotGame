@@ -240,6 +240,9 @@ static func _fill(map: Dictionary, ctx: Dictionary, rng: RandomNumberGenerator) 
 			if node.kind == "post" and str(node.faction).is_empty():
 				var posts: Array = ctx.get("posts", [])
 				if not posts.is_empty(): node.faction = str(posts[rng.randi() % posts.size()])
+	# 抗性为王修订案 v0.4 §3.4: three fight nodes with an 元素异变, drawn last so
+	# nothing above moves.
+	if not str(ctx.get("region", "")).is_empty(): ElementThreat.mark_surges(map, str(ctx.region), rng)
 
 ## A mark's node on column `c`: not the extraction's (unless that is all there is).
 static func _place(map: Dictionary, c: int, kind: String, mark: String, counts: Dictionary, rng: RandomNumberGenerator) -> Dictionary:

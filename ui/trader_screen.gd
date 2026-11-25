@@ -634,7 +634,7 @@ static func consign(menu: FieldMenu, at_base: bool) -> void:
 	})
 
 ## 药房窗口: only the 制式 restoratives, A and B (药剂与商人界面策划案 §1).
-const PHARMACY_TYPES := ["A", "B"]
+const PHARMACY_TYPES := ["A", "B", "res_burn", "res_cold", "res_corr", "res_nerve", "res_arts"]
 
 static func pharmacy(menu: FieldMenu) -> void:
 	var game := menu.game

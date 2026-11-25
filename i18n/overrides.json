@@ -522,5 +522,6 @@
  "第 %s 层": "Floor %s",
  "剩 %s": "%s left",
  "剩 %d 次": "%d left",
- "%s · 第 %s 层": "%s · Floors %s"
+ "%s · 第 %s 层": "%s · Floors %s",
+ "设为出战": "Deploy"
 }

@@ -155,5 +155,14 @@
  "，声望": ", Reputation",
  "自动": "Auto",
  "自动喝药下限": "Auto-Potion Below",
- "自动喝药上限": "Auto-Potion Until"
+ "自动喝药上限": "Auto-Potion Until",
+ "右侧是这个地区的详情：掉落和本局会生效的合同。合同在合同板页接取，最多同时进行 3 份；深入、猎杀、运送在一次外勤里完成并撤离才算，回收和交付带回后在合同板交付。点击最终准备，确认干员与装备即可出击。": "On the right are this region's details: its drops and the contracts that apply to this run. Contracts are taken on the Contract Board page, up to 3 at once. Depth, Hunt and Transport count only when done within one operation and you extract; Recovery and Delivery are handed in at the Contract Board after you bring the goods back. Click Final Prep, confirm operator and gear, and deploy.",
+ "各部门把需要的事挂在合同板上，最多同时接 3 份。回收和交付合同带回物资后，在右侧已接的合同上点交付，就能获得龙门币。": "Departments post what they need on the Contract Board; take up to 3 at once. Once you bring back the goods for a Recovery or Delivery contract, press Deliver on the taken contract on the right to earn LMD.",
+ "合同 · 可交付": "Contracts · Deliverable",
+ "在合同板完成一张交付合同": "Complete a delivery contract at the Contract Board",
+ "接取各部门的合同，交付回收与交付合同的物资": "Take departments' contracts; hand in goods for Recovery and Delivery contracts",
+ "目标页是本局生效的合同；交付页是已接的回收、交付合同需要的物资，带回后在合同板交付。": "The Objectives page lists this run's contracts; the Delivery page lists the goods your taken Recovery and Delivery contracts need. Bring them back and hand them in at the Contract Board.",
+ "杠杆": "Leverage",
+ "杠杆与风险": "Leverage and Risk",
+ "杠杆用滑条在 1× 到 888× 之间任选，不看关系，持仓也不设上限。开仓费和点差都按名义金额算，杠杆越高，开仓就吃掉越多保证金。持仓每天收名义金额 0.02% 的隔夜费。维持率规则和远期一样：低于 100% 追加，低于 50% 强平。可以在持仓页设止盈止损。": "Pick any leverage from 1× to 888× on the slider, whatever your relations, with no position limit. The opening fee and the spread are charged on the notional, so the higher the leverage, the more of your margin opening eats. Positions pay an overnight fee of 0.02% of the notional each day. Maintenance works as for forwards: under 100% you top up, under 50% the position is closed. Set take-profit and stop-loss on the Positions page."
 }

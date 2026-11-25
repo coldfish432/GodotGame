@@ -536,7 +536,7 @@ func rhodes_trade(m: MarketState, faction: String, market: String, lmd: float) -
 	if not factions.has(faction): return
 	var a: Dictionary = factions[faction]
 	a.rhodes.append([m.t, market, lmd])
-	a.rhodes = a.rhodes.filter(func(x): return int(x[0]) > m.t - 7 * DAY)
+	a.rhodes = a.rhodes.filter(func(x): return int(x[0]) > m.t - rhodes_window())
 	if lmd >= 0.0 or m.rhodes == null: return
 	var r := int(m.rhodes.rank(faction))
 	# 拒绝接盘 when hostile; buying back when friendly.
@@ -548,10 +548,17 @@ func rhodes_trade(m: MarketState, faction: String, market: String, lmd: float) -
 	var b: MarketState.Book = m.books.get(market)
 	if b != null and float(a.inv.get(b.category, 0.0)) > 0.0: a.grudge = float(a.grudge) + (-lmd) * 0.1
 
-## The 7 days' net of Rhodes at this faction's venue (势力页 "对罗德岛").
-func rhodes_net(faction: String) -> float:
+## Rhodes' trades kept for seven real days (用户 2026-11-24: 每日改为现实时间),
+## in Rhodes seconds, which the market's clock runs on. No longer shown.
+static func rhodes_window() -> int:
+	return 7 * DAY * BaseState.time_scale
+
+## The 7 days' net of Rhodes at this faction's venue, up to `at` (now by default).
+func rhodes_net(faction: String, at: int = -1) -> float:
+	var since := (BaseState.now() if at < 0 else at) - rhodes_window()
 	var v := 0.0
-	for x in (factions.get(faction, {}) as Dictionary).get("rhodes", []): v += float(x[2])
+	for x in (factions.get(faction, {}) as Dictionary).get("rhodes", []):
+		if int(x[0]) > since: v += float(x[2])
 	return v
 
 ## Layer 3: the upkeep's buying at the day's open, seen in the books' flow.

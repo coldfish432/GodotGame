@@ -1,0 +1,4 @@
+{"adapter":"NVIDIA GeForce RTX 4060 Laptop GPU","clip":"mine","driver":"d3d12","engine":"4.7.2-stable (official)","event":"start","frame":0,"renderer":"forward_plus","seed":2026}
+{"event":"start_contract","frame":20,"how":"GameManager.start_contract, what the dispatch console calls","region":"mine"}
+{"event":"floor_reached","floor":1,"frame":2300}
+{"event":"end","frame":2480}

@@ -17,7 +17,7 @@ extends RefCounted
 ## rows (group 基地站点), in the same order.
 const STATIONS := [
 	["dispatch", "调度台"], ["workbench", "整备台"], ["logistics", "后勤柜台"], ["stash", "仓管台"],
-	["outbound", "出库区"], ["reception", "医疗前台"], ["pharmacy", "药房"], ["store", "商店"],
+	["board", "合同板"], ["reception", "医疗前台"], ["pharmacy", "药房"], ["store", "商店"],
 	["exchange", "交易所"], ["workshop", "加工站"], ["personnel", "人事部"], ["sand_table", "沙盘"],
 	["research", "科研部"], ["site_hub", "基建"], ["lift", "升降梯"], ["farm", "农业部"], ["canteen", "食堂"],
 ]

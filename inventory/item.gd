@@ -105,6 +105,8 @@ static func is_jewel_slot(category: int) -> bool:
 ## Named prefixes (装备前缀策划案): [{id, rolls: {key: 0.8–1.2}}], one or two,
 ## highest grade first. Empty for materials and set pieces.
 @export var prefixes: Array = []
+## 镶件 (抗性为王修订案 v0.4 §5.2, InlayCatalog): {id, tier, kinds}; {} for none.
+@export var inlay: Dictionary = {}
 ## The 基础效能 at the middle of its rarity's band (清单 B; power_range).
 ## 0 for gear whose power does not roll (named gear, old saves).
 @export var power_mid: float = 0.0
@@ -280,6 +282,7 @@ func to_data() -> Dictionary:
 		"prefixes": prefixes.duplicate(true), "power_mid": power_mid, "value_base": value_base, "tunes": tune_count, "atk_share": atk_share, "rot": rotated, "gx": grid_x, "gy": grid_y, "gp": grid_page,
 		"tiers": 3, "slots": 3, "ladder": 1}
 	if fuel >= 0: data["fuel"] = fuel
+	if not inlay.is_empty(): data["inlay"] = inlay.duplicate(true)
 	# A 整理箱 or a 收藏品礼包 keeps what it holds.
 	if contents != null: data["case"] = {"kind": case_kind, "tier": case_tier, "w": contents.width, "h": contents.height, "items": contents.items.map(func(x): return x.to_data())}
 	return data
@@ -353,6 +356,9 @@ static func from_data(data: Dictionary) -> Item:
 		for inner in held.get("items", []):
 			var piece := Item.from_data(inner)
 			if not item.contents.place(piece, piece.grid_x, piece.grid_y): item.contents.try_add(piece)
+	var set_in: Variant = data.get("inlay")
+	if set_in is Dictionary and InlayCatalog.INLAYS.has(str(set_in.get("id", ""))):
+		item.inlay = {"id": str(set_in.id), "tier": clampi(int(set_in.get("tier", 0)), 0, 3), "kinds": (set_in.get("kinds", []) as Array).map(func(k): return str(k))}
 	for entry in data.get("prefixes", []):
 		if entry is Dictionary and PrefixCatalog.all().has(str(entry.get("id", ""))):
 			var rolls := {}

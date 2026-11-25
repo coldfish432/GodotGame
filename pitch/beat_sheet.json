@@ -1,0 +1,558 @@
+{
+  "metadata": {
+    "title": "Rhodes Daily: What It Is, What Runs, What Is Left",
+    "slug": "rhodes-daily-final-pitch",
+    "topic": "CSYE 7270 FINAL PROJECT PITCH",
+    "kind": "pitch",
+    "engine": "kokoro",
+    "voice": "am_onyx",
+    "voice_kokoro": "am_onyx",
+    "aspect_ratio": "16:9",
+    "captions": false,
+    "clock": "narration",
+    "narrator_note": "AI voice speaking as the author, first person. No instructor name, persona, 'in for Bear' line or @NikBearBrown handle anywhere, including the outro card.",
+    "honesty_note": "Past tense only for things shown in real captures. Every USER-CAPTURE beat carries a corner tag with its commit. Every GRAPHIC beat that is not a capture carries the corner tag 'Constructed'.",
+    "game": {
+      "name": "Rhodes Daily (repo: downfall-godot)",
+      "engine_version": "Godot 4.7.2",
+      "renderer": "Forward+ / D3D12",
+      "export_target": "Windows desktop",
+      "revision": "1fbc309a"
+    },
+    "target_minutes": 3.6,
+    "build": {
+      "at": "2026-11-23T22:11:18",
+      "cut": "master",
+      "filled": 15,
+      "of": 15,
+      "slates": [],
+      "skin_warnings": []
+    }
+  },
+  "beats": [
+    {
+      "beat_id": "B00",
+      "act": "COLD OPEN",
+      "narration_text": "This is my game, running: Lappland fighting through a floor of the mine. Everything in the next minute is captured from the build.",
+      "estimated_duration_s": 9,
+      "new_visual_element": "Mine combat to extraction, real play",
+      "shot": {
+        "type": "USER-CAPTURE",
+        "source": "capture",
+        "motion": "static"
+      },
+      "corner_tag": "Real capture · commit 1fbc309a · scripted input",
+      "capture_plan": "mine.avi",
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 11.253,
+      "audio_file": "mp3/beat-B00.mp3",
+      "audio_pad_s": 4.0,
+      "qc": {
+        "full_bleed": true,
+        "contrast_regions": [
+          {
+            "label": "capture label strip (source, commit, setup)",
+            "box": [
+              0.34,
+              0.075,
+              0.66,
+              0.12
+            ]
+          }
+        ],
+        "contrast_reason": "Full-frame gameplay footage: edge-to-edge by design and dark by the game's own lighting. The essential on-screen text is the label strip naming source, commit and setup; contrast is measured there. Footage content is reviewed by eye in _qc."
+      },
+      "render_duration_s": 11.266666666666667,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B00.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B01",
+      "act": "WHAT IS IT",
+      "narration_text": "Rhodes Daily is a single-player extraction action RPG. You take operators down one-way floors, and on every floor you decide: push deeper, or get out. What you bring out feeds a base you run and trade from. Done, it will be a Windows build plus a test suite anyone can rerun from a fresh clone. Godot four point seven, Forward plus on Direct3D twelve.",
+      "estimated_duration_s": 22,
+      "new_visual_element": "One sentence + artifact card",
+      "shot": {
+        "type": "GRAPHIC",
+        "source": "own",
+        "motion": "reveal"
+      },
+      "corner_tag": "Constructed",
+      "graphic": {
+        "production_viz": {
+          "label": "Rhodes Daily",
+          "mechanic": "Title, the one-sentence pitch, then three icons: Windows exe, test suite, test report. Stack line underneath."
+        }
+      },
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 19.29,
+      "audio_file": "mp3/beat-B01.mp3",
+      "render_duration_s": 19.3,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B01.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B02",
+      "act": "WHAT EXISTS",
+      "narration_text": "The core loop already runs. Four regions, with overpasses that stack a map on itself.",
+      "estimated_duration_s": 7,
+      "new_visual_element": "Four regions, quick cuts",
+      "shot": {
+        "type": "USER-CAPTURE",
+        "source": "capture",
+        "motion": "cuts"
+      },
+      "corner_tag": "Real capture · commit 1fbc309a · scripted input",
+      "capture_plan": "regions.avi + bridge.avi (bridge: setup teleport, labelled)",
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 12.483,
+      "audio_file": "mp3/beat-B02.mp3",
+      "audio_pad_s": 7.0,
+      "qc": {
+        "full_bleed": true,
+        "contrast_regions": [
+          {
+            "label": "capture label strip (source, commit, setup)",
+            "box": [
+              0.34,
+              0.075,
+              0.66,
+              0.12
+            ]
+          }
+        ],
+        "contrast_reason": "Full-frame gameplay footage: edge-to-edge by design and dark by the game's own lighting. The essential on-screen text is the label strip naming source, commit and setup; contrast is measured there. Footage content is reviewed by eye in _qc."
+      },
+      "render_duration_s": 12.5,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B02.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B03",
+      "act": "WHAT EXISTS",
+      "narration_text": "Every enemy attack has a four-frame telegraph; the player's strikes land on authored frames.",
+      "estimated_duration_s": 7,
+      "new_visual_element": "Telegraph, dodge, strike",
+      "shot": {
+        "type": "USER-CAPTURE",
+        "source": "capture",
+        "motion": "static"
+      },
+      "corner_tag": "Real capture · commit 1fbc309a · scripted input",
+      "capture_plan": "mine.avi",
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 9.111,
+      "audio_file": "mp3/beat-B03.mp3",
+      "audio_pad_s": 3.5,
+      "qc": {
+        "full_bleed": true,
+        "contrast_regions": [
+          {
+            "label": "capture label strip (source, commit, setup)",
+            "box": [
+              0.34,
+              0.075,
+              0.66,
+              0.12
+            ]
+          }
+        ],
+        "contrast_reason": "Full-frame gameplay footage: edge-to-edge by design and dark by the game's own lighting. The essential on-screen text is the label strip naming source, commit and setup; contrast is measured there. Footage content is reviewed by eye in _qc."
+      },
+      "render_duration_s": 9.133333333333333,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B03.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B04",
+      "act": "WHAT EXISTS",
+      "narration_text": "A route map between floors, a camp every ten, and a settlement screen: kept, insured, lost.",
+      "estimated_duration_s": 8,
+      "new_visual_element": "Route map, extraction, settlement",
+      "shot": {
+        "type": "USER-CAPTURE",
+        "source": "capture",
+        "motion": "cuts"
+      },
+      "corner_tag": "Real capture · commit 1fbc309a · scripted input",
+      "capture_plan": "route.avi + camp.avi (setup: camp unlocked in memory, labelled)",
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 12.717,
+      "audio_file": "mp3/beat-B04.mp3",
+      "audio_pad_s": 7.0,
+      "qc": {
+        "full_bleed": true,
+        "contrast_regions": [
+          {
+            "label": "capture label strip (source, commit, setup)",
+            "box": [
+              0.34,
+              0.075,
+              0.66,
+              0.12
+            ]
+          }
+        ],
+        "contrast_reason": "Full-frame gameplay footage: edge-to-edge by design and dark by the game's own lighting. The essential on-screen text is the label strip naming source, commit and setup; contrast is measured there. Footage content is reviewed by eye in _qc."
+      },
+      "render_duration_s": 12.733333333333333,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B04.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B05",
+      "act": "WHAT EXISTS",
+      "narration_text": "Back at the base: a ship you walk around, a faction exchange, contracts and research.",
+      "estimated_duration_s": 7,
+      "new_visual_element": "Base walk, exchange, contracts",
+      "shot": {
+        "type": "USER-CAPTURE",
+        "source": "capture",
+        "motion": "cuts"
+      },
+      "corner_tag": "Real capture · commit 1fbc309a · scripted input",
+      "capture_plan": "base.avi (setup: facilities set built, labelled)",
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 11.205,
+      "audio_file": "mp3/beat-B05.mp3",
+      "audio_pad_s": 6.0,
+      "qc": {
+        "full_bleed": true,
+        "contrast_regions": [
+          {
+            "label": "capture label strip (source, commit, setup)",
+            "box": [
+              0.34,
+              0.075,
+              0.66,
+              0.12
+            ]
+          }
+        ],
+        "contrast_reason": "Full-frame gameplay footage: edge-to-edge by design and dark by the game's own lighting. The essential on-screen text is the label strip naming source, commit and setup; contrast is measured there. Footage content is reviewed by eye in _qc."
+      },
+      "render_duration_s": 11.233333333333333,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B05.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B06",
+      "act": "WHAT EXISTS",
+      "narration_text": "The course work lives inside it: the GPU particles and the animation rigs.",
+      "estimated_duration_s": 7,
+      "new_visual_element": "A5 fire, A6 particles, A7 rig",
+      "shot": {
+        "type": "USER-CAPTURE",
+        "source": "capture",
+        "motion": "cuts"
+      },
+      "corner_tag": "Real capture · tags a5 4327a7f5 / a6 f92a3cf3 / a7 171a5830",
+      "capture_plan": "cut from tagged A5/A6/A7 evidence",
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 10.992,
+      "audio_file": "mp3/beat-B06.mp3",
+      "audio_pad_s": 6.0,
+      "qc": {
+        "full_bleed": true,
+        "contrast_regions": [
+          {
+            "label": "capture label strip (source, commit, setup)",
+            "box": [
+              0.34,
+              0.075,
+              0.66,
+              0.12
+            ]
+          }
+        ],
+        "contrast_reason": "Full-frame gameplay footage: edge-to-edge by design and dark by the game's own lighting. The essential on-screen text is the label strip naming source, commit and setup; contrast is measured there. Footage content is reviewed by eye in _qc."
+      },
+      "render_duration_s": 11.0,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B06.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B07",
+      "act": "WHY CARE",
+      "narration_text": "Why care? The extraction choice comes back every floor while danger grows with depth, and the loot feeds a base economy that runs on scaled real time.",
+      "estimated_duration_s": 11,
+      "new_visual_element": "Danger curve rising per floor; arrow into base economy",
+      "shot": {
+        "type": "GRAPHIC",
+        "source": "own",
+        "motion": "drawon"
+      },
+      "corner_tag": "Constructed",
+      "graphic": {
+        "production_viz": {
+          "label": "Push or extract",
+          "mechanic": "Floors as a descending stack, danger line rising, an extract arrow at every floor, all arrows feeding one base box."
+        }
+      },
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 9.05,
+      "audio_file": "mp3/beat-B07.mp3",
+      "render_duration_s": 9.066666666666666,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B07.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B08",
+      "act": "DIFFERENT",
+      "narration_text": "Two games I played. In Escape from Duckov a raid is one map; here a run is a stack of floors, so the choice returns every floor. Greedy Cave gave me the one-way descent; this adds telegraphed real-time combat and a nine-faction economy. Whether that is more fun, playtests will decide.",
+      "estimated_duration_s": 19,
+      "new_visual_element": "Two comparison cards",
+      "shot": {
+        "type": "GRAPHIC",
+        "source": "own",
+        "motion": "reveal"
+      },
+      "corner_tag": "Constructed",
+      "graphic": {
+        "production_viz": {
+          "label": "Compared with",
+          "mechanic": "Two text-only cards (no logos, no footage of other games): Duckov one map vs. stacked floors; Greedy Cave descent vs. telegraphed combat + nine-faction economy."
+        }
+      },
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 15.94,
+      "audio_file": "mp3/beat-B08.mp3",
+      "render_duration_s": 15.966666666666667,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B08.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B09",
+      "act": "WHO OPENS IT",
+      "narration_text": "Who opens it? A hiring manager or lead, hiring a gameplay programmer or technical designer. Double-click: title, new save, tutorial, base, first run. A new save walks a short story first; I have not timed it against sixty seconds yet, and I will.",
+      "estimated_duration_s": 17,
+      "new_visual_element": "Title to first run, real capture",
+      "shot": {
+        "type": "USER-CAPTURE",
+        "source": "capture",
+        "motion": "static"
+      },
+      "corner_tag": "Real capture · commit 1fbc309a · not yet timed · scripted input",
+      "capture_plan": "title.avi",
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 17.485,
+      "audio_file": "mp3/beat-B09.mp3",
+      "audio_pad_s": 3.0,
+      "qc": {
+        "full_bleed": true,
+        "contrast_regions": [
+          {
+            "label": "capture label strip (source, commit, setup)",
+            "box": [
+              0.34,
+              0.075,
+              0.66,
+              0.12
+            ]
+          }
+        ],
+        "contrast_reason": "Full-frame gameplay footage: edge-to-edge by design and dark by the game's own lighting. The essential on-screen text is the label strip naming source, commit and setup; contrast is measured there. Footage content is reviewed by eye in _qc."
+      },
+      "render_duration_s": 17.5,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B09.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B10",
+      "act": "WHAT IT PROVES",
+      "narration_text": "What it proves. Shaders: the fire's predicted pixels matched measurement at thirty, sixty and a hundred forty-four frames a second. Particles and animation: assignments six and seven. Profiling: switching to Direct3D twelve took the mine from about nine to about a hundred fifty frames a second on an RTX 4060 laptop; measured once, and I will commit the log. Verification: a headless suite with fixed seeds, a simulation that plays the main story, human checks, and Claude Code directed through written briefs.",
+      "estimated_duration_s": 32,
+      "new_visual_element": "Skill to evidence table",
+      "shot": {
+        "type": "GRAPHIC",
+        "source": "own",
+        "motion": "reveal"
+      },
+      "corner_tag": "Constructed · evidence from A5 TEST-REPORT and repo",
+      "graphic": {
+        "production_viz": {
+          "label": "Skill → evidence",
+          "mechanic": "Five rows: shaders (A5 pixel table excerpt), particles (a6), animation (a7), profiling (9→150 fps, marked 'log to be committed'), verification (run_all output excerpt)."
+        }
+      },
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 27.52,
+      "audio_file": "mp3/beat-B10.mp3",
+      "render_duration_s": 27.533333333333335,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B10.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B11",
+      "act": "SCOPE",
+      "narration_text": "What is left: music, optimising how the systems work together, and bug testing. Out of scope: multiplayer.",
+      "estimated_duration_s": 8,
+      "new_visual_element": "Done / will / out columns",
+      "shot": {
+        "type": "GRAPHIC",
+        "source": "own",
+        "motion": "reveal"
+      },
+      "corner_tag": "Constructed",
+      "graphic": {
+        "production_viz": {
+          "label": "Done · Will · Out",
+          "mechanic": "Three columns. Done: loop, regions, base, A5–A7. Will: music, cross-system optimisation, bug testing. Out: multiplayer."
+        }
+      },
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 6.61,
+      "audio_file": "mp3/beat-B11.mp3",
+      "render_duration_s": 6.633333333333334,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B11.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B12",
+      "act": "RISK",
+      "narration_text": "The risk: the game is big and its systems interlock; change one number and another drifts. The flow simulation already shows money as a bottleneck, and a first voyage near one point oh eight million, simulated, not playtested. So every change gets the economy probe and the flow simulation, a balance log, and human playtests.",
+      "estimated_duration_s": 21,
+      "new_visual_element": "Linked system nodes, one change ripples",
+      "shot": {
+        "type": "GRAPHIC",
+        "source": "own",
+        "motion": "drawon"
+      },
+      "corner_tag": "Constructed · figures from test_flow simulation",
+      "graphic": {
+        "production_viz": {
+          "label": "Interlocking systems",
+          "mechanic": "Nodes: economy, exchange, research, contracts, time scale, voyage. Nudge one, edges light up in sequence."
+        }
+      },
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 17.64,
+      "audio_file": "mp3/beat-B12.mp3",
+      "render_duration_s": 17.666666666666668,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B12.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B13",
+      "act": "WHY THIS PROJECT",
+      "narration_text": "Why this project? A mix. Systems and numbers design I already had; the repo's design documents and simulations show it. Shaders, particles, Blender, animation and Godot itself were new this course, each a tagged assignment.",
+      "estimated_duration_s": 15,
+      "new_visual_element": "Had vs. new, with tags",
+      "shot": {
+        "type": "GRAPHIC",
+        "source": "own",
+        "motion": "reveal"
+      },
+      "corner_tag": "Constructed",
+      "graphic": {
+        "production_viz": {
+          "label": "Had · New",
+          "mechanic": "Two columns. Had: systems/numbers design → repo docs, probe, test_flow. New: a3 Blender, a5 shaders, a6 particles, a7 animation."
+        }
+      },
+      "voice": "am_onyx",
+      "engine": "kokoro",
+      "actual_duration_s": 13.03,
+      "audio_file": "mp3/beat-B13.mp3",
+      "render_duration_s": 13.033333333333333,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B13.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    },
+    {
+      "beat_id": "B14",
+      "act": "OUTRO",
+      "narration_text": "",
+      "estimated_duration_s": 5,
+      "new_visual_element": "Title card",
+      "shot": {
+        "type": "SLATE",
+        "source": "own",
+        "motion": "static"
+      },
+      "corner_tag": "",
+      "outro_note": "Final card shows only 'Rhodes Daily — Final Project Pitch' and the author's name. No instructor handle or credit line.",
+      "voice": "am_onyx",
+      "engine": "silence",
+      "audio_file": "audio/end-silence.wav",
+      "actual_duration_s": 5.0,
+      "reuse_audio": true,
+      "audio_policy": "silence",
+      "render_duration_s": 5.0,
+      "build": {
+        "status": "VIDEO",
+        "src": "media\\B14.mp4",
+        "filled_by": "media",
+        "at": "2026-11-23T22:11:18"
+      }
+    }
+  ]
+}

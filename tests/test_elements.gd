@@ -118,8 +118,9 @@ func _arithmetic() -> void:
 	check("elemental multiplier 1 − res/100, 10% to 150%", is_equal_approx(Elements.multiplier(0), 1.0) and is_equal_approx(Elements.multiplier(80), 0.2)
 		and is_equal_approx(Elements.multiplier(-50), 1.5) and is_equal_approx(Elements.multiplier(-90), 1.5) and is_equal_approx(Elements.multiplier(100), 0.1))
 	check("elements ignore DEF", is_equal_approx(CombatStats.mitigate(100.0, "burn", 9999.0, 0.0), 100.0) and is_equal_approx(CombatStats.mitigate(100.0, "bleed", 9999.0, 50.0), 50.0))
-	check("the depth's 压制: none to 20, −5 every ten floors, −40 at most", Elements.penalty(20) == 0.0 and Elements.penalty(21) == 5.0 and Elements.penalty(45) == 15.0
-		and Elements.penalty(91) == 40.0 and Elements.penalty(300) == 40.0)
+	# 抗性为王修订案 v0.4 §4: −50 at most (was −40).
+	check("the depth's 压制: none to 20, −5 every ten floors, −50 at most", Elements.penalty(20) == 0.0 and Elements.penalty(21) == 5.0 and Elements.penalty(45) == 15.0
+		and Elements.penalty(91) == 40.0 and Elements.penalty(300) == 50.0)
 	var mine := Elements.enemy_resists("mine", false, false)
 	var elite := Elements.enemy_resists("mine", true, false)
 	var boss := Elements.enemy_resists("mine", false, true)
@@ -150,11 +151,15 @@ func _enemies() -> void:
 	var weak := e.take_hit(100.0, "cold")
 	check("a mine thug takes 50% 侵蚀 and 105% 寒冷", is_equal_approx(dealt, 50.0) and is_equal_approx(weak, 105.0), [dealt, weak])
 	e.health = e.max_health
+	# One ring (元素反应策划案 v0.2): the 侵蚀 above would mix in; start clean.
+	e.elements.clear()
 	var threshold := e.gauge_threshold()
-	check("its gauge threshold is 20% of its life", is_equal_approx(threshold, e.max_health * 0.2))
+	# 元素阈值修订案 v0.1: T = 250 × rank × the floor's and the contract's growth, not its life.
+	var growth := Scaling.floor_growth(game.floor_number) * game.contract_life()
+	check("its gauge threshold is 250 × the depth's growth, whatever its life", is_equal_approx(threshold, 250.0 * growth) and not is_equal_approx(threshold, e.max_health * 0.2), [threshold, growth])
 	e.take_hit(threshold / 1.05 + 1.0, "cold")
 	e._tick_elements(0.1)
-	check("a full 寒冷 gauge freezes it", e.stun_timer > 0.0 and e.elements.cooling("cold") and e.statuses.has("frozen"), [e.stun_timer, e.elements.cooldowns])
+	check("a full 寒冷 gauge freezes it", e.stun_timer > 0.0 and e.elements.cooling("cold") and e.statuses.has("frozen"), [e.stun_timer, e.elements.cooldown_left])
 	var before := e.health
 	e.apply_dot("bleed", 400.0, 4.0)
 	for i in range(8): e._tick_elements(0.5)
@@ -224,11 +229,13 @@ func _her() -> void:
 	for i in range(8): p.elements.tick(0.5)
 	check("流血 on her ticks its whole total", absf(p.max_hp - p.hp - 300.0) < 2.0, p.max_hp - p.hp)
 	# Regional affixes that ask about the fight.
-	p.stats["full_hp_dmg"] = 0.25
+	# 对高血量敌人 (元素转化与高血量词条修订案 v0.1 §5): by max life, the whole fight.
+	p.stats["full_hp_dmg"] = 0.15
 	var fresh := enemy("thug")
-	check("对满血敌人 +25%", is_equal_approx(p.elements.damage_mult(fresh), 1.25))
+	check("对高血量敌人: a thug is not one", is_equal_approx(p.elements.damage_mult(fresh), 1.0))
+	fresh.max_health = p.elements.high_hp_threshold() + 1.0
 	fresh.health = fresh.max_health * 0.5
-	check("…not once hurt", is_equal_approx(p.elements.damage_mult(fresh), 1.0))
+	check("…one past the line is, hurt or not", is_equal_approx(p.elements.damage_mult(fresh), 1.15))
 	p.stats["full_hp_dmg"] = 0.0
 	for x in [a, b, caster, fresh]: x.queue_free()
 	await step()

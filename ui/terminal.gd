@@ -19,7 +19,7 @@ const DEPT := {
 }
 const STATION_DEPT := {
 	"contracts": "bridge", "sand_table": "bridge", "personnel": "bridge", "exchange": "bridge",
-	"stash": "eng", "shelves": "eng", "outbound": "eng",
+	"stash": "eng", "shelves": "eng", "board": "eng",
 	"loadout": "log", "insurance": "log", "workshop": "log",
 	"pharmacy": "med", "report": "med", "research": "lab", "store": "store",
 	"construction": "eng", "farm": "med", "canteen": "log", "lift": "bridge",

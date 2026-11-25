@@ -62,7 +62,7 @@ const FUNCTIONS := [
 	["base_workbench", "整备台", "基地站点", {"key": KEY_W}, null],
 	["base_logistics", "后勤柜台", "基地站点", {"key": KEY_I}, null],
 	["base_stash", "仓管台", "基地站点", {"key": KEY_S}, null],
-	["base_outbound", "出库区", "基地站点", {"key": KEY_O}, null],
+	["base_board", "合同板", "基地站点", {"key": KEY_O}, null],
 	["base_reception", "医疗前台", "基地站点", {"key": KEY_H}, null],
 	["base_pharmacy", "药房", "基地站点", {"key": KEY_Y}, null],
 	["base_store", "商店", "基地站点", {"key": KEY_U}, null],

@@ -153,7 +153,7 @@ func upgrade_facility(id: String, remote := false) -> bool:
 ## Stations with something to do get a yellow marker (§5.2).
 func station_needs_attention(id: String) -> bool:
 	match id:
-		"outbound": return is_instance_valid(game.warehouse_view) and game.warehouse_view.orders_fillable()
+		"board": return is_instance_valid(game.warehouse_view) and game.warehouse_view.orders_fillable()
 		"reception": return game.base.report_unread or game.base.any_injured()
-		"exchange": return not game.market.flash.is_empty() or not game.swan_popup.is_empty()
+		"exchange": return not game.market.flash.is_empty()
 	return false

@@ -47,9 +47,6 @@ const REMOTE_FEE := 0.04
 const FEE_STEP := 0.005
 const FEE_MIN := 0.01
 const SLIP_MAX := 0.3
-const QUOTA_STEP := 20000.0
-const QUOTA_REGEN := 0.10          # of the cap every QUOTA_REGEN_SECS
-const QUOTA_REGEN_SECS := 600.0
 ## Forwards (§8): terms in seconds and their premium; leverage needs this rank.
 const TERMS := [3600, 14400, 86400, 259200]
 const TERM_NAMES := ["1 小时", "4 小时", "1 日", "3 日"]
@@ -59,6 +56,10 @@ const TERM_PREMIUM := [0.005, 0.01, 0.02, 0.04]
 ## book and every forward a commodity (20×; contraband the same, 拍板 #7).
 ## The n-th step needs relation rank n.
 const LEVERAGE_STEPS := {"fx": [1, 5, 10, 15, 20, 25], "index": [1, 2, 3, 5, 8, 10], "goods": [1, 3, 5, 10, 15, 20]}
+## 差价合约的杠杆 (用户 2026-11-24: 持仓不设上限，倍率做成滑动选取，最高888，
+## 不再被势力态度限制): any whole number 1–888 on every underlying, at any rank.
+## Forwards keep their steps and ranks.
+const CFD_LEVERAGE_MAX := 888
 ## Opening a forward: of the notional, whatever the leverage (§9.4).
 const FORWARD_FEE := 0.005
 const FORWARD_SLOTS := 3
@@ -76,7 +77,6 @@ const CFD_FEE := 0.0005
 ## A day on goods and composites (≈7% a year, §9.4); rate books pay or charge
 ## the swap of their currency's policy rate instead.
 const CFD_OVERNIGHT := 0.0002
-const CFD_NOTIONAL_STEP := 50000.0
 ## Orders (§7).
 const ORDER_FEE := 0.005
 const ORDER_SLOTS := 3
@@ -106,7 +106,6 @@ var _legacy := {}
 var relations := {}
 ## The ranks whose gift each faction has sent (势力声望解锁策划案 §2.4): faction -> [rank].
 var rank_gifts := {}
-var quota_used := {}          # faction -> 龙门币 equivalent bought
 var orders: Array = []
 var forwards: Array = []
 var cfds: Array = []
@@ -279,12 +278,6 @@ func remote_fee(faction: String, market_id: String = "") -> float:
 	var base_fee := REMOTE_FEE - FEE_STEP * rank(faction) - (0.01 if game.base.researched("remote_fee") else 0.0)   # 商务部 1 阶
 	var fee := maxf(FEE_MIN, base_fee) + float(FactionCatalog.info(faction).get("fee_extra", 0.0))
 	return fee + (market.fee_extra(market_id) if not market_id.is_empty() else 0.0)
-
-func quota_cap(faction: String) -> float:
-	return QUOTA_STEP * (rank(faction) + 1) * market.quota_mult(faction)
-
-func quota_left(faction: String) -> float:
-	return maxf(0.0, quota_cap(faction) - float(quota_used.get(faction, 0.0)))
 
 ## Built at the base (基建设施修订案 v1.1 §三.7; its building waits for 喀兰贸易 R2).
 func unlocked() -> bool:
@@ -533,12 +526,9 @@ func buy_material(faction: String, material: String, count: int, remote: bool = 
 	var unit := float(q.unit) * float(flash.get("mult", 1.0))
 	var fee := remote_fee(faction, str(q.market)) if remote else 0.0
 	var cost := unit * count * (1.0 + fee)
+	# No buy quota (用户 2026-11-24: 取消额度): whatever she can pay for.
 	var eq := lmd_eq(q.currency, cost)
-	if eq > quota_left(faction) + 0.5:
-		_say("%s的买入额度不足" % FactionCatalog.name_of(faction), "refused")
-		return false
 	if not pay(q.currency, cost): return false
-	quota_used[faction] = float(quota_used.get(faction, 0.0)) + eq
 	if not str(q.market).is_empty():
 		var value := float(MaterialCatalog.create(material, 1).unit_value * Economy.LMD_PER_VALUE) * count
 		market.add_flow(str(q.market), value, "rhodes")
@@ -703,10 +693,7 @@ func _fill_buy(o: Dictionary) -> void:
 	var q := quote_buy(str(o.faction), str(o.material))
 	if not q.ok: return
 	var cost := float(q.unit) * int(o.count) * (1.0 + remote_fee(str(o.faction)))
-	var eq := lmd_eq(str(o.currency), cost)
-	if eq > quota_left(str(o.faction)): return
 	orders.erase(o)
-	quota_used[o.faction] = float(quota_used.get(o.faction, 0.0)) + eq
 	credit(str(o.currency), maxf(0.0, float(o.reserve) - cost))
 	_deliver_goods(str(o.material), int(o.count))
 	_log({"kind": "fill", "what": "%s ×%d" % [o.material, o.count], "faction": o.faction, "amount": cost, "currency": o.currency})
@@ -1007,31 +994,30 @@ func cfd_notional_used(issuer: String) -> float:
 		if c.issuer == issuer: total += lmd_eq(str(c.currency), float(c.notional))
 	return total
 
-func cfd_notional_cap(issuer: String) -> float:
-	return CFD_NOTIONAL_STEP * rank(issuer)
+## The margin a CFD's maintenance measures against is notional / cap: the
+## kind's old top step, or its own leverage above that (so a 888× position is
+## called on any loss and closed at half its margin gone).
+static func cfd_cap(underlying: String, lev: int) -> int:
+	return maxi(leverage_cap(underlying), lev)
 
 func cfd_refusal(underlying: String, lev: int, margin: float) -> String:
 	var issuer := cfd_issuer(underlying)
 	if market.cfd_halted(issuer): return "暂停开新仓"
-	var need := rank_for(underlying, lev)
-	if need < 0: return "杠杆不可用"
-	if rank(issuer) < need: return "需要%s关系 %s" % [FactionCatalog.name_of(issuer), rank_name(need)]
+	if lev < 1 or lev > CFD_LEVERAGE_MAX: return "杠杆不可用"
 	var currency := cfd_currency(underlying)
-	var notional := margin * lev
-	if cfd_notional_used(issuer) + lmd_eq(currency, notional) > cfd_notional_cap(issuer) + 0.5: return "持仓上限"
 	if free_for_margin(currency) < margin * (1.0 + cfd_fee() * lev): return "保证金不足"
 	return ""
 
 func open_cfd(underlying: String, dir: int, lev: int, margin: float) -> bool:
 	if blocked(): return false
-	if not underlying in cfd_underlyings() or rank_for(underlying, lev) < 0 or margin <= 0.0 or absi(dir) != 1: return false
+	if not underlying in cfd_underlyings() or lev < 1 or lev > CFD_LEVERAGE_MAX or margin <= 0.0 or absi(dir) != 1: return false
 	if not cfd_refusal(underlying, lev, margin).is_empty(): return false
 	var currency := cfd_currency(underlying)
 	var notional := margin * lev
 	if not pay(currency, margin + notional * cfd_fee()): return false
 	var entry := cfd_price(underlying) * (1.0 + dir * _cfd_half_spread(underlying))
 	cfds.append({"id": _id(), "underlying": underlying, "issuer": cfd_issuer(underlying), "dir": dir, "lev": lev, "margin": margin,
-		"opening": margin, "notional": notional, "cap": leverage_cap(underlying), "entry": entry, "currency": currency, "opened": market.t, "tp": 0.0, "sl": 0.0, "warned": false, "auto": 0.0})
+		"opening": margin, "notional": notional, "cap": cfd_cap(underlying, lev), "entry": entry, "currency": currency, "opened": market.t, "tp": 0.0, "sl": 0.0, "warned": false, "auto": 0.0})
 	_log({"kind": "cfd", "what": "%s %s %d×" % [cfd_name(underlying), "做多" if dir > 0 else "做空", lev], "faction": cfd_issuer(underlying), "amount": margin, "currency": currency})
 	return true
 
@@ -1188,7 +1174,6 @@ func _settle(reward: int) -> int:
 			taken = mini(reward, loan)
 			loan -= taken
 			game.gold -= taken
-	quota_used.clear()
 	for o in orders.duplicate():
 		if int(o.expires) == 0: cancel_order(int(o.id))
 	return taken
@@ -1294,8 +1279,6 @@ func _step_account(dt: int) -> void:
 	if game != null and game.base != null:
 		fin.step()
 		strategies.step()
-	for f in quota_used.keys():
-		quota_used[f] = maxf(0.0, float(quota_used[f]) - quota_cap(f) * QUOTA_REGEN * dt * BaseState.day_share() / QUOTA_REGEN_SECS)
 	if not orders.is_empty(): _tick_orders()
 	if not forwards.is_empty(): _tick_forwards()
 	if not cfds.is_empty(): _tick_cfds()
@@ -1409,7 +1392,7 @@ func migrate_money() -> void:
 # --- Saving ---------------------------------------------------------------------------------
 
 func to_data() -> Dictionary:
-	return {"money_version": money_version, "relations": relations, "quota_used": quota_used, "orders": orders, "forwards": forwards,
+	return {"money_version": money_version, "relations": relations, "orders": orders, "forwards": forwards,
 		"cfds": cfds, "forward_cooldown": forward_cooldown, "loan": loan, "shipments": shipments, "history": history,
 		"watch": watch, "alerts": alerts, "cfd_day": cfd_day, "recent_sales": recent_sales, "next_id": _next_id, "relation_scale": RELATION_SCALE, "rank_gifts": rank_gifts, "start_attitude": start_attitude,
 		"packs_version": packs_version, "fuel_version": fuel_version, "finance": fin.to_data(), "securities": securities.to_data(), "strategies": strategies.to_data(), "relation_mods": relation_mods.duplicate(true), "relation_days": _relation_days}
@@ -1426,7 +1409,6 @@ func load_data(d: Dictionary) -> void:
 	rank_gifts = (d.get("rank_gifts", {}) as Dictionary).duplicate(true)
 	start_attitude = bool(d.get("start_attitude", false))
 	_start_attitude()
-	quota_used = d.get("quota_used", {})
 	orders = d.get("orders", [])
 	forwards = d.get("forwards", [])
 	cfds = d.get("cfds", [])

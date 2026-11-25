@@ -75,18 +75,24 @@ const AFFIX_AMOUNTS := {
 	# 属性伤害与地区装备策划案 v1.1 §7–§8, a weapon's (or the main slot's) size;
 	# the other slots' are in REGION_AFFIXES. Shares: none grows with the tier.
 	ItemModifier.Stat.ADD_BURN: 0.06, ItemModifier.Stat.ADD_COLD: 0.06, ItemModifier.Stat.ADD_CORR: 0.06, ItemModifier.Stat.ADD_NERVE: 0.06,
+	# 元素转化与高血量词条修订案 v0.1 §2–§3: 转化 on the weapon (the hands' in
+	# REGION_AFFIXES); 转为法术 in every weapon pool. One 60% cap for all.
+	ItemModifier.Stat.CONV_BURN: 0.15, ItemModifier.Stat.CONV_COLD: 0.15, ItemModifier.Stat.CONV_CORR: 0.15, ItemModifier.Stat.CONV_NERVE: 0.15,
+	ItemModifier.Stat.CONV_ARTS: 0.15,
 	ItemModifier.Stat.BURN_DMG_PCT: 0.15, ItemModifier.Stat.COLD_DMG_PCT: 0.15, ItemModifier.Stat.CORR_DMG_PCT: 0.15,
 	ItemModifier.Stat.NERVE_DMG_PCT: 0.15, ItemModifier.Stat.NECRO_DMG_PCT: 0.15,
 	ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.BURNOUT_CHANCE: 0.15, ItemModifier.Stat.FROST_CHANCE: 0.15,
 	ItemModifier.Stat.ROT_CHANCE: 0.15, ItemModifier.Stat.NECRO_CHANCE: 0.18,
 	ItemModifier.Stat.DOT_PCT: 0.15, ItemModifier.Stat.DOT_DUR_PCT: 0.12,
-	ItemModifier.Stat.RES_BURN: 10.0, ItemModifier.Stat.RES_COLD: 10.0, ItemModifier.Stat.RES_CORR: 10.0,
-	ItemModifier.Stat.RES_NERVE: 10.0, ItemModifier.Stat.RES_BLEED: 10.0, ItemModifier.Stat.RES_ALL_ELEM: 3.0,
+	# 抗性为王修订案 v0.4 §5.1: twice the old 10, 全抗 3 → 8.
+	ItemModifier.Stat.RES_BURN: 18.0, ItemModifier.Stat.RES_COLD: 18.0, ItemModifier.Stat.RES_CORR: 18.0,
+	ItemModifier.Stat.RES_NERVE: 18.0, ItemModifier.Stat.RES_BLEED: 18.0, ItemModifier.Stat.RES_ALL_ELEM: 8.0,
+	ItemModifier.Stat.SHRED_BURN: 10.0, ItemModifier.Stat.SHRED_COLD: 10.0, ItemModifier.Stat.SHRED_CORR: 10.0, ItemModifier.Stat.SHRED_NERVE: 10.0,
 	ItemModifier.Stat.CROWD_DMG: 0.03, ItemModifier.Stat.CROWD_DR: 0.015, ItemModifier.Stat.CONTAM_SLOW: -0.15,
 	ItemModifier.Stat.BLAST_TAKEN: -0.25, ItemModifier.Stat.ROT_FULL_ASPD: 0.08, ItemModifier.Stat.KILL_HEAL: 0.012, ItemModifier.Stat.ORE_ATK: 0.06,
 	ItemModifier.Stat.AMBUSH_DMG: 0.40, ItemModifier.Stat.MELEE_TAKEN: -0.06, ItemModifier.Stat.HEAL_PCT: 0.12, ItemModifier.Stat.DASH_DEF: 0.30,
 	ItemModifier.Stat.CHAIN_DMG: 0.02, ItemModifier.Stat.DOT_TAKEN_DUR: -0.30,
-	ItemModifier.Stat.FULL_HP_DMG: 0.25, ItemModifier.Stat.COLD_SLOW: -0.15, ItemModifier.Stat.FIRE_REGEN: 0.01,
+	ItemModifier.Stat.FULL_HP_DMG: 0.15, ItemModifier.Stat.COLD_SLOW: -0.15, ItemModifier.Stat.FIRE_REGEN: 0.01,
 	ItemModifier.Stat.LONE_EVASION: 0.02, ItemModifier.Stat.FREEZE_TAKEN: -0.40, ItemModifier.Stat.LONE_SKILL: 0.12,
 	ItemModifier.Stat.STUNNED_DMG: 0.20, ItemModifier.Stat.LOW_HP_DMG: 0.30, ItemModifier.Stat.DEBT_SLOW: -0.15,
 	ItemModifier.Stat.ELITE_TAKEN: -0.08, ItemModifier.Stat.BACK_TAKEN: -0.20, ItemModifier.Stat.ELITE_KILL_ASPD: 0.15,
@@ -100,48 +106,49 @@ const AFFIX_AMOUNTS := {
 const REGION_SHARE := 0.5
 const REGION_AFFIXES := {
 	"mine": {
-		Item.Category.WEAPON: {ItemModifier.Stat.ADD_CORR: 0.06, ItemModifier.Stat.ROT_CHANCE: 0.15, ItemModifier.Stat.CROWD_DMG: 0.03},
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_CORR: 0.06, ItemModifier.Stat.CONV_CORR: 0.15, ItemModifier.Stat.ROT_CHANCE: 0.15, ItemModifier.Stat.CROWD_DMG: 0.03, ItemModifier.Stat.SHRED_CORR: 10.0},
 		Item.Category.CHEST: {ItemModifier.Stat.CROWD_DR: 0.015, ItemModifier.Stat.CONTAM_SLOW: -0.15},
 		Item.Category.LEGS: {ItemModifier.Stat.CROWD_DR: 0.015, ItemModifier.Stat.BLAST_TAKEN: -0.25},
 		Item.Category.HEAD: {ItemModifier.Stat.CONTAM_SLOW: -0.15},
 		Item.Category.FEET: {ItemModifier.Stat.BLAST_TAKEN: -0.25},
-		Item.Category.HANDS: {ItemModifier.Stat.ROT_FULL_ASPD: 0.08},
+		Item.Category.HANDS: {ItemModifier.Stat.ROT_FULL_ASPD: 0.08, ItemModifier.Stat.CONV_CORR: 0.06},
 		Item.Category.AMULET: {ItemModifier.Stat.CORR_DMG_PCT: 0.15, ItemModifier.Stat.ORE_ATK: 0.06},
 		Item.Category.RING: {ItemModifier.Stat.ADD_CORR: 0.025, ItemModifier.Stat.KILL_HEAL: 0.012, ItemModifier.Stat.ORE_ATK: 0.06},
 	},
 	"city": {
-		Item.Category.WEAPON: {ItemModifier.Stat.ADD_BURN: 0.06, ItemModifier.Stat.BURNOUT_CHANCE: 0.15, ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.AMBUSH_DMG: 0.40},
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_BURN: 0.06, ItemModifier.Stat.CONV_BURN: 0.15, ItemModifier.Stat.BURNOUT_CHANCE: 0.15, ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.AMBUSH_DMG: 0.40, ItemModifier.Stat.SHRED_BURN: 10.0},
 		Item.Category.CHEST: {ItemModifier.Stat.MELEE_TAKEN: -0.06},
 		Item.Category.LEGS: {ItemModifier.Stat.MELEE_TAKEN: -0.06},
 		Item.Category.HEAD: {ItemModifier.Stat.HEAL_PCT: 0.12},
 		Item.Category.FEET: {ItemModifier.Stat.DASH_DEF: 0.30},
-		Item.Category.HANDS: {ItemModifier.Stat.CHAIN_DMG: 0.02},
+		Item.Category.HANDS: {ItemModifier.Stat.CHAIN_DMG: 0.02, ItemModifier.Stat.CONV_BURN: 0.06},
 		Item.Category.AMULET: {ItemModifier.Stat.BURN_DMG_PCT: 0.15, ItemModifier.Stat.DOT_TAKEN_DUR: -0.30},
 		Item.Category.RING: {ItemModifier.Stat.ADD_BURN: 0.025, ItemModifier.Stat.DOT_TAKEN_DUR: -0.30},
 	},
 	"snow": {
-		Item.Category.WEAPON: {ItemModifier.Stat.ADD_COLD: 0.06, ItemModifier.Stat.FROST_CHANCE: 0.15, ItemModifier.Stat.NECRO_CHANCE: 0.18, ItemModifier.Stat.FULL_HP_DMG: 0.25},
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_COLD: 0.06, ItemModifier.Stat.CONV_COLD: 0.15, ItemModifier.Stat.FROST_CHANCE: 0.15, ItemModifier.Stat.NECRO_CHANCE: 0.18, ItemModifier.Stat.FULL_HP_DMG: 0.15, ItemModifier.Stat.SHRED_COLD: 10.0},
 		Item.Category.CHEST: {ItemModifier.Stat.COLD_SLOW: -0.15, ItemModifier.Stat.FIRE_REGEN: 0.01},
 		Item.Category.LEGS: {ItemModifier.Stat.LONE_EVASION: 0.02},
 		Item.Category.HEAD: {ItemModifier.Stat.COLD_SLOW: -0.15},
 		Item.Category.FEET: {ItemModifier.Stat.FREEZE_TAKEN: -0.40},
-		Item.Category.HANDS: {ItemModifier.Stat.FULL_HP_DMG: 0.08},
+		Item.Category.HANDS: {ItemModifier.Stat.FULL_HP_DMG: 0.05, ItemModifier.Stat.CONV_COLD: 0.06},
 		Item.Category.AMULET: {ItemModifier.Stat.COLD_DMG_PCT: 0.15, ItemModifier.Stat.NECRO_DMG_PCT: 0.15, ItemModifier.Stat.LONE_SKILL: 0.12},
 		Item.Category.RING: {ItemModifier.Stat.ADD_COLD: 0.025},
 	},
 	"siracusa": {
-		Item.Category.WEAPON: {ItemModifier.Stat.ADD_NERVE: 0.06, ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.STUNNED_DMG: 0.20, ItemModifier.Stat.LOW_HP_DMG: 0.30},
+		Item.Category.WEAPON: {ItemModifier.Stat.ADD_NERVE: 0.06, ItemModifier.Stat.CONV_NERVE: 0.15, ItemModifier.Stat.BLEED_CHANCE: 0.15, ItemModifier.Stat.STUNNED_DMG: 0.20, ItemModifier.Stat.LOW_HP_DMG: 0.30, ItemModifier.Stat.SHRED_NERVE: 10.0},
 		Item.Category.CHEST: {ItemModifier.Stat.DEBT_SLOW: -0.15, ItemModifier.Stat.ELITE_TAKEN: -0.08},
 		Item.Category.LEGS: {ItemModifier.Stat.BACK_TAKEN: -0.20},
 		Item.Category.HEAD: {ItemModifier.Stat.DEBT_SLOW: -0.15},
 		Item.Category.FEET: {ItemModifier.Stat.BACK_TAKEN: -0.20},
-		Item.Category.HANDS: {ItemModifier.Stat.ELITE_KILL_ASPD: 0.15},
+		Item.Category.HANDS: {ItemModifier.Stat.ELITE_KILL_ASPD: 0.15, ItemModifier.Stat.CONV_NERVE: 0.06},
 		Item.Category.AMULET: {ItemModifier.Stat.NERVE_DMG_PCT: 0.15, ItemModifier.Stat.DEBT_DMG: 0.10},
 		Item.Category.RING: {ItemModifier.Stat.ADD_NERVE: 0.025, ItemModifier.Stat.DEBT_DMG: 0.10},
 	},
 }
-## Weapon-only lines by form (§8): bleeding wants an edge or fists, 凋亡 a staff.
-const REGION_FORMS := {ItemModifier.Stat.BLEED_CHANCE: ["blade", "fist"], ItemModifier.Stat.NECRO_CHANCE: ["staff"]}
+## Weapon-only lines by form (§8): bleeding wants an edge or fists (凋亡 on
+## any weapon since 元素转化与高血量词条修订案 v0.1 §4).
+const REGION_FORMS := {ItemModifier.Stat.BLEED_CHANCE: ["blade", "fist"]}
 ## Orange's signature line, by region and group (weapon / armour / jewel).
 const REGION_SIGNATURES := {
 	"mine": [ItemModifier.Stat.SIG_CASCADE, ItemModifier.Stat.SIG_CARRIER, ItemModifier.Stat.SIG_RESONANCE],
@@ -154,7 +161,8 @@ const GENERAL_EXTRA := {Item.Category.AMULET: {ItemModifier.Stat.DOT_PCT: 0.15},
 
 ## The resistance line (§7.2): outside the combat budget, on the seven
 ## non-weapon slots; its chance by rarity, then single / dual / all.
-const RESIST_CHANCE := [0.25, 0.40, 0.60, 1.0, 1.0, 1.0]
+## 抗性为王修订案 v0.4 §5.1: from blue on every piece has one.
+const RESIST_CHANCE := [0.25, 0.40, 1.0, 1.0, 1.0, 1.0]
 const RESIST_KINDS := [[70.0, "single"], [22.0, "dual"], [8.0, "all"]]
 const RESIST_DUAL := 0.6
 ## A single resistance is its region's own three times as often.
@@ -188,7 +196,7 @@ static func signature_for(region: String, slot: int) -> int:
 ## TRINKET are the old pools, kept for old saves' rerolls.
 const AFFIX_POOLS := {
 	Item.Category.WEAPON: [ItemModifier.Stat.ATK_PCT, ItemModifier.Stat.ATK_FLAT, ItemModifier.Stat.ARTS_FLAT, ItemModifier.Stat.ATTACK_SPEED_PCT,
-		ItemModifier.Stat.CRIT_RATE, ItemModifier.Stat.CRIT_DMG],
+		ItemModifier.Stat.CRIT_RATE, ItemModifier.Stat.CRIT_DMG, ItemModifier.Stat.CONV_ARTS],
 	Item.Category.CHEST: [ItemModifier.Stat.MAX_HP_PCT, ItemModifier.Stat.HP_FLAT, ItemModifier.Stat.DEF_FLAT, ItemModifier.Stat.RES_FLAT],
 	Item.Category.LEGS: [ItemModifier.Stat.MAX_HP_PCT, ItemModifier.Stat.DEF_FLAT, ItemModifier.Stat.EVASION],
 	Item.Category.HEAD: [ItemModifier.Stat.RES_FLAT, ItemModifier.Stat.ARTS_PCT, ItemModifier.Stat.SKILL_CD_PCT],

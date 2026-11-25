@@ -60,7 +60,8 @@ func _base_shelf() -> void:
 	# The pharmacy keeps A and B, in the 白舱 skin.
 	game.open_station("pharmacy")
 	await step(2)
-	check("the pharmacy shelf holds A and B", _tiles(game.menu).size() == 2)
+	# 抗性为王修订案 v0.4: and the five resistance flasks.
+	check("the pharmacy shelf holds A, B and the five 防护剂", _tiles(game.menu).size() == TraderScreen.PHARMACY_TYPES.size() and TraderScreen.PHARMACY_TYPES.size() == 7)
 	check("on white plates", _find(game.menu, func(n): return n is TraderScreen.Shelf and n.white) != null)
 	game.close_modal()
 

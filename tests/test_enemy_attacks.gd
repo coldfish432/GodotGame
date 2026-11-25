@@ -25,6 +25,8 @@ func taken(raw: float) -> float:
 	return CombatStats.physical(raw, game.player.defense_value())
 func enemy(type: String) -> Enemy:
 	var e := game._spawn_enemy(origin, type == "elite", false, type)
+	# These checks read plain damage; a rolled element (抗性为王修订案 v0.4) would change it.
+	e.elem_spec = {}
 	e.set_physics_process(false)
 	e.begin_chase()
 	return e

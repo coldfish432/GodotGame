@@ -91,6 +91,8 @@ static func text(game: GameManager, item: Item, detailed: bool, show_worn: bool)
 		if not affixes.is_empty():
 			lines.append("[color=#c9d3db]── 词缀 ──[/color]")
 			for mod in affixes: lines.append("  " + _affix_mark(item, mod) + mod.describe_detailed(detailed))
+		if InlayCatalog.has_slot(item) and not item.inlay.is_empty():
+			lines.append("  [color=#e9e9e9]%s[/color]" % InlayCatalog.line(item))
 		var named: Dictionary = SpecialGear.GEAR.get(item.special, {}) if not item.special.is_empty() else {}
 		if named.has("fx_text"):
 			lines.append("[color=#ee8a24]── 专属效果 ──[/color]")

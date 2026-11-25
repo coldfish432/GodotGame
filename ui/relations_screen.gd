@@ -31,10 +31,7 @@ static func unlocks(ex: Exchange, faction: String) -> Dictionary:
 	if not info.get("transport", false) and not ex.forward_materials(faction).is_empty():
 		var steps := Exchange.leverage_steps("goods")
 		for r in range(1, steps.size()): add.call(r, "远期 %d×" % int(steps[r]))
-	if faction == "karlan":
-		for r in range(1, Exchange.LEVERAGE_STEPS.fx.size()): add.call(r, "外汇 %d× · 货物 %d×" % [int(Exchange.LEVERAGE_STEPS.fx[r]), int(Exchange.LEVERAGE_STEPS.goods[r])])
-	if faction == "kazimierz":
-		for r in range(1, Exchange.LEVERAGE_STEPS.index.size()): add.call(r, "指数 %d×" % int(Exchange.LEVERAGE_STEPS.index[r]))
+	# 差价合约的杠杆不再看关系 (用户 2026-11-24): only forwards' steps are listed.
 	for material in FactionSpecials.ITEMS:
 		if FactionSpecials.faction_of(material) == faction: add.call(FactionSpecials.rank_needed(material), material)
 	for id in BaseCatalog.FACILITIES:
@@ -97,7 +94,7 @@ static func _card(ex: Exchange, stage: Control, f: String, at: Vector2) -> void:
 	rel_line.tooltip_text = "
 ".join(tip)
 	AK.put(stage, rel_line, at + Vector2(14, 64))
-	# §3.8.10 / §3.9.5: its net with Rhodes over 7 days, and how it stands with the others.
+	# §3.9.5: how it stands with the others (用户 2026-11-24: 对罗德岛 7日 删掉).
 	var actors := ex.market.actors
 	if actors != null and actors.factions.has(f) and f != "penguin":
 		var tiers := {"敌对": [], "冷淡": [], "友好": []}
@@ -105,9 +102,10 @@ static func _card(ex: Exchange, stage: Control, f: String, at: Vector2) -> void:
 			if o == f: continue
 			var t := actors.tier(f, o)
 			if tiers.has(t): tiers[t].append(FactionCatalog.name_of(o))
-		var parts: Array[String] = ["对罗德岛 7日 %+d" % roundi(actors.rhodes_net(f))]
+		var parts: Array[String] = []
 		for t in tiers:
 			if not (tiers[t] as Array).is_empty(): parts.append("%s %s" % [t, " ".join(tiers[t])])
+		if parts.is_empty(): parts.append("")
 		var stand := AK.label("  ·  ".join(parts), 11, AK.MUTE)
 		stand.clip_text = true
 		stand.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -118,7 +116,7 @@ static func _card(ex: Exchange, stage: Control, f: String, at: Vector2) -> void:
 		stand.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		AK.put(stage, stand, at + Vector2(maxf(130.0, after), 64), Vector2(CARD.x - maxf(130.0, after) - 14, 0))
 	if not FactionCatalog.info(f).get("transport", false):
-		AK.put(stage, AK.label("远程费 %.1f%%  ·  额度 %s  ·  买入 %+d%%  ·  卖出 %+d%%" % [ex.remote_fee(f) * 100.0, Economy.format(roundi(ex.quota_cap(f))),
+		AK.put(stage, AK.label("远程费 %.1f%%  ·  买入 %+d%%  ·  卖出 %+d%%" % [ex.remote_fee(f) * 100.0,
 			roundi((float(Exchange.RANK_BUY[r]) - 1.0) * 100.0), roundi((float(Exchange.RANK_SELL[r]) - 1.0) * 100.0)], 11, AK.MUTE), at + Vector2(14, 82))
 	var opens := unlocks(ex, f)
 	var y := 102.0

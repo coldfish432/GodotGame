@@ -111,7 +111,11 @@ const MATERIALS := {
 const POTIONS := {"A": "potion_a", "B": "potion_b", "C": "potion_c", "D": "potion_d", "E": "potion_e", "F": "potion_f", "G": "potion_g",
 	"H": "potion_h", "I": "potion_i", "J": "potion_j", "K": "potion_k", "L": "potion_l",
 	"rat": "potion_rat", "reunion": "potion_reunion", "ursus": "potion_ursus", "sami": "potion_sami",
-	"rhine": "rank_rhine_suppressant"}
+	"rhine": "rank_rhine_suppressant",
+	# 抗性为王修订案 v0.4: the resistance flasks are 广谱解毒剂's bottle, recoloured (texture_for).
+	"res_burn": "potion_i", "res_cold": "potion_i", "res_corr": "potion_i", "res_nerve": "potion_i", "res_arts": "potion_i"}
+## Their hue: the element's colour, 法术 the arts violet.
+const RES_POTION_HUE := {"res_burn": Color("ffd25a"), "res_cold": Color("9fe8ff"), "res_corr": Color("e8642c"), "res_nerve": Color("d6f25a"), "res_arts": Color("c49cff")}
 
 static var _cache := {}
 
@@ -202,11 +206,36 @@ static func path_for(item: Item) -> String:
 static func texture_for(item: Item) -> Texture2D:
 	var path := path_for(item)
 	if path.is_empty(): return null
+	if item != null and item.is_potion() and RES_POTION_HUE.has(item.potion_type): return _recoloured(path, item)
 	if not _cache.has(path):
 		var art: Texture2D = load(path) if ResourceLoader.exists(path) else null
 		if art != null and is_hires(art): art = _icon_sized(art, item)
 		_cache[path] = art
 	return _cache[path]
+
+## The bottle at `path` with its coloured pixels turned to the flask's hue
+## (value and saturation kept; greys and outlines untouched).
+static func _recoloured(path: String, item: Item) -> Texture2D:
+	var type := item.potion_type
+	var key := path + "#" + type
+	if _cache.has(key): return _cache[key]
+	var art: Texture2D = load(path) if ResourceLoader.exists(path) else null
+	if art == null:
+		_cache[key] = null
+		return null
+	var image := art.get_image()
+	if image.is_compressed(): image.decompress()
+	image.convert(Image.FORMAT_RGBA8)
+	var hue: Color = RES_POTION_HUE[type]
+	for y in range(image.get_height()):
+		for x in range(image.get_width()):
+			var c := image.get_pixel(x, y)
+			if c.a <= 0.0 or c.s < 0.2: continue
+			image.set_pixel(x, y, Color.from_hsv(hue.h, maxf(c.s, hue.s * 0.8), c.v, c.a))
+	var out: Texture2D = ImageTexture.create_from_image(image)
+	if is_hires(out): out = _icon_sized(out, item)
+	_cache[key] = out
+	return out
 
 ## Hand-painted, not pixel art (用户 2026-10-26: 手办可以是高清图，需要有手办的3d感):
 ## art this big is drawn smoothly — shrunk once to the icon size of its

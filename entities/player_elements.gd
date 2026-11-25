@@ -48,19 +48,48 @@ func _floor() -> int:
 
 # --- Resistances (§4) ---------------------------------------------------------------
 
-## Her resistance to `kind` this floor: gear, minus the depth's 压制, within
-## −50 and her cap (80, up to 90 with 抗性上限).
+## Her resistance to `kind` this floor: gear, minus the depth's 压制 and any
+## 减抗 on her, within −50 and her cap (80, up to 92 with 抗性上限). The 减抗
+## comes off the uncapped figure, so what is over the cap takes it first
+## (抗性为王修订案 v0.4 §6).
 func res(kind: String) -> float:
 	if kind == "necro" or kind == "arts": return player.resistance()
-	var key: String = Elements.RES_KEY.get(kind, "")
-	if key.is_empty(): return 0.0
-	var cap := minf(Elements.RES_CAP_MAX, Elements.RES_CAP + s("res_cap"))
-	return clampf(s(key) + s("res_all_elem") - Elements.penalty(_floor()), Elements.RES_MIN, cap)
+	if str(Elements.RES_KEY.get(kind, "")).is_empty(): return 0.0
+	return clampf(res_uncapped(kind), Elements.RES_MIN, res_cap())
 
-## Before the 压制, for the stat panel's hover.
+func res_cap() -> float:
+	return minf(Elements.RES_CAP_MAX, Elements.RES_CAP + s("res_cap"))
+
+## Gear, potions and research less the 压制 and 减抗, before the cap.
+func res_uncapped(kind: String) -> float:
+	return res_gear(kind) - Elements.penalty(_floor()) - shred_on(kind)
+
+## What is over the cap (the panel's "+n").
+func res_over(kind: String) -> float:
+	return maxf(0.0, res_uncapped(kind) - res_cap())
+
+## Before the 压制, for the stat panel's hover: gear, research and potions.
 func res_gear(kind: String) -> float:
 	var key: String = Elements.RES_KEY.get(kind, "")
-	return 0.0 if key.is_empty() else s(key) + s("res_all_elem")
+	if key.is_empty(): return 0.0
+	return s(key) + s("res_all_elem") + player.hex(key) + player.hex("res_all_elem")
+
+# --- 减抗 on her (§6) --------------------------------------------------------------------
+
+## kind -> {stacks, left}
+var shred := {}
+
+func shred_on(kind: String) -> float:
+	var entry: Dictionary = shred.get(kind, {})
+	if entry.is_empty(): return 0.0
+	return ElementThreat.SHRED * int(entry.stacks) * maxf(0.0, 1.0 + s("shred_taken"))
+
+func add_shred(kind: String) -> void:
+	if not Elements.is_element(kind): return
+	var entry: Dictionary = shred.get(kind, {"stacks": 0, "left": 0.0})
+	entry.stacks = mini(ElementThreat.SHRED_STACKS, int(entry.stacks) + 1)
+	entry.left = ElementThreat.SHRED_SECONDS
+	shred[kind] = entry
 
 # --- Her hits (§3.4, §6) --------------------------------------------------------------
 
@@ -71,7 +100,7 @@ func damage_mult(target: Enemy) -> float:
 	if s("crowd_dmg") > 0.0: pct += s("crowd_dmg") * mini(CROWD_MAX, player.nearby_enemy_count(CROWD_RADIUS))
 	if s("ambush_dmg") > 0.0 and not target.hit_by_player and target.state == Enemy.State.IDLE: pct += s("ambush_dmg")
 	if s("chain_dmg") > 0.0 and target == _chain_target: pct += s("chain_dmg") * mini(CHAIN_MAX, _chain_hits)
-	if s("full_hp_dmg") > 0.0 and target.health >= target.max_health - 0.5: pct += s("full_hp_dmg")
+	if s("full_hp_dmg") > 0.0 and target.max_health >= high_hp_threshold(): pct += s("full_hp_dmg")
 	if s("stunned_dmg") > 0.0 and target.stun_timer > 0.0: pct += s("stunned_dmg")
 	if s("low_hp_dmg") > 0.0 and target.health < target.max_health * LOW_HP: pct += s("low_hp_dmg")
 	if s("ore_atk") > 0.0 and player.ore_count() > 0: pct += s("ore_atk")
@@ -84,29 +113,53 @@ func damage_mult(target: Enemy) -> float:
 		pct += SHATTER
 	return 1.0 + pct
 
-## The share of a direct hit converted away into elements (转化, capped);
-## Player._deal deals the rest as the hit itself.
-func convert_share() -> float:
+## 高血量 (元素转化与高血量词条修订案 v0.1 §5): the life a target needs on
+## this floor, grown as enemy life is.
+func high_hp_threshold() -> float:
+	var game := _game()
+	if game == null: return Elements.HIGH_HP
+	return Elements.HIGH_HP * Scaling.floor_growth(game.floor_number) * game.contract_life()
+
+## Where a direct hit of `kind` goes (转化, one CONV_CAP for all): element or
+## "arts" -> its share. 转为法术 only takes from a physical hit (修订案 §3).
+func convert_parts(kind: String = "phys") -> Dictionary:
+	var parts := {}
 	var total := 0.0
-	for kind in Elements.KINDS: total += s(Elements.CONV_KEY[kind])
-	return minf(Elements.CONV_CAP, total)
+	for element in Elements.KINDS:
+		var v := s(Elements.CONV_KEY[element])
+		if v > 0.0:
+			parts[element] = v
+			total += v
+	if kind == "phys" and s("conv_arts") > 0.0:
+		parts["arts"] = s("conv_arts")
+		total += s("conv_arts")
+	if total > Elements.CONV_CAP:
+		for key in parts: parts[key] = float(parts[key]) * Elements.CONV_CAP / total
+	return parts
+
+## The share of a direct hit of `kind` converted away (capped); Player._deal
+## deals the rest as the hit itself.
+func convert_share(kind: String = "phys") -> float:
+	var total := 0.0
+	for share in convert_parts(kind).values(): total += float(share)
+	return total
 
 ## After a direct hit of `raw` (her hit before the target's mitigation): the
 ## elemental parts it adds (its own 附加 plus the converted share), then the
 ## damage over time it may leave. The parts are their own hits: no lifesteal,
 ## no further procs.
-func on_hit(target: Enemy, raw: float, crit: bool) -> void:
+func on_hit(target: Enemy, raw: float, crit: bool, hit_kind: String = "phys") -> void:
 	if not is_instance_valid(target) or target._dead: return
 	if target == _chain_target: _chain_hits += 1
 	else:
 		_chain_target = target
 		_chain_hits = 1
-	var conv := convert_share()
-	var conv_total := 0.0
-	for kind in Elements.KINDS: conv_total += s(Elements.CONV_KEY[kind])
+	# 抗性为王修订案 v0.4 §6: her weapon's 减抗 line, before the elemental parts land.
 	for kind in Elements.KINDS:
-		var share := s(Elements.ADD_KEY[kind])
-		if conv_total > 0.0: share += s(Elements.CONV_KEY[kind]) / conv_total * conv
+		if s("shred_" + kind) > 0.0: target.apply_res_shred(kind, s("shred_" + kind))
+	var parts := convert_parts(hit_kind)
+	for kind in Elements.KINDS:
+		var share := s(Elements.ADD_KEY[kind]) + float(parts.get(kind, 0.0))
 		if share <= 0.0: continue
 		var part := raw * share * (1.0 + s(Elements.DMG_KEY[kind]))
 		target.take_hit(part, kind, crit)
@@ -140,6 +193,9 @@ func mitigate(amount: float, kind: String, attacker: Enemy) -> float:
 		var hit := amount * Elements.multiplier(res(kind))
 		_fill(kind, hit)
 		return hit
+	# 抗性为王修订案 v0.4: an enemy that rolled elements (or a boss) hits by its own spec.
+	if kind != "true" and is_instance_valid(attacker) and not attacker.elem_spec.is_empty():
+		return _mitigate_armed(amount, kind, attacker)
 	var element := str(spec.get("kind", ""))
 	var share := float(spec.get("share", 0.0)) * Elements.enemy_share_mult(_floor()) if kind != "true" and not element.is_empty() else 0.0
 	var main := CombatStats.mitigate(amount * (1.0 - share), kind, player.defense_value(), player.resistance())
@@ -155,6 +211,7 @@ func taken_mult(attacker: Enemy) -> float:
 	if is_instance_valid(attacker):
 		if s("melee_taken") < 0.0 and not attacker.keeps_distance: cut -= s("melee_taken")
 		if s("elite_taken") < 0.0 and attacker.elite: cut -= s("elite_taken")
+		if s("boss_taken") < 0.0 and attacker is Boss: cut -= s("boss_taken")
 		if s("blast_taken") < 0.0 and (attacker._dead or attacker.enemy_type == "slug_volatile"): cut -= s("blast_taken")
 		if s("back_taken") < 0.0 and _behind(attacker): cut -= s("back_taken")
 	if s("sig_shieldwall") > 0.0 and player.hp_ratio() < SHIELDWALL_AT: cut += SHIELDWALL_CUT
@@ -172,6 +229,43 @@ func _behind(attacker: Enemy) -> bool:
 	if to.length_squared() < 0.0001 or facing.length_squared() < 0.0001: return false
 	return to.normalized().dot(facing.normalized()) < -0.3
 
+## An armed enemy's hit (§3.2–§3.5): its kinds split the elemental part
+## evenly (附带: each adds its own share); a big hit is 80% elements and at
+## least the floor's big-hit size, and an elite's or a boss's shreds her.
+func _mitigate_armed(amount: float, kind: String, attacker: Enemy) -> float:
+	var spec: Dictionary = attacker.elem_spec
+	var kinds: Array = spec.get("kinds", [])
+	if kinds.is_empty(): return CombatStats.mitigate(amount, kind, player.defense_value(), player.resistance())
+	var floor_number := _floor()
+	var share := 0.0
+	var each := 0.0
+	var big := attacker.big_hit_now()
+	if big:
+		amount = maxf(amount, ElementThreat.big_floor(floor_number))
+		share = ElementThreat.BIG_ELEMENT
+		each = amount * share / kinds.size()
+	elif str(spec.get("mode", "")) == "convert":
+		# §8 第 9 题: at the base cap (80) a converted hit costs what it did before —
+		# the elemental part is scaled by what its own kind's mitigation would
+		# have left over the cap's 20%; under the cap it grows from there.
+		share = ElementThreat.convert_share(floor_number)
+		var kept := CombatStats.mitigate(1.0, kind, player.defense_value(), player.resistance())
+		each = amount * share / kinds.size() * kept
+	else:
+		each = amount * ElementThreat.add_share(floor_number)
+	var converted := not big and str(spec.get("mode", "")) == "convert"
+	var total := CombatStats.mitigate(amount * (1.0 - share), kind, player.defense_value(), player.resistance())
+	for element in kinds:
+		# 打的是 (用户 2026-11-25: 先降一档): its own kind's mitigation × ElementThreat.convert_taken.
+		var part := each * (ElementThreat.convert_taken(res(str(element))) if converted else Elements.multiplier(res(str(element))))
+		_fill(str(element), part)
+		total += part
+	if big and (attacker.elite or attacker is Boss):
+		for element in kinds: add_shred(str(element))
+	# A boss's ordinary hit keeps its fairness cap (首领设计 §3.3) with its 附带 in.
+	if not big and attacker is Boss: total = minf(total, player.max_hp * BossCatalog.HIT_CAP)
+	return total
+
 ## A hit of `raw` landed on her: the damage over time its enemy leaves.
 func after_hurt(raw: float, attacker: Enemy) -> void:
 	if not is_instance_valid(attacker): return
@@ -183,20 +277,22 @@ func after_hurt(raw: float, attacker: Enemy) -> void:
 
 func _fill(kind: String, amount: float) -> void:
 	if not kind in Elements.GAUGE_KINDS: return
-	if state.fill(kind, amount, player.max_hp * Elements.HER_THRESHOLD, Elements.HER_COOLDOWN): _burst(kind)
+	amount *= maxf(0.0, 1.0 + s("gauge_taken"))
+	# One ring on her too (元素反应策划案 v0.2): it bursts as its leading kind, no reactions.
+	if state.fill(kind, amount, player.max_hp * Elements.HER_THRESHOLD, Elements.HER_COOLDOWN): _burst(state.last_kind)
 
 ## Her gauge is full (§5.2).
 func _burst(kind: String) -> void:
 	var spec: Dictionary = Elements.HER_BURST[kind]
-	var game := _game()
-	if game != null: DamageNumber.spawn(game, player.global_position, Elements.NAMES[kind], kind, true)
+	# 镶件 元素爆发对她的伤害 (抗性为王修订案 v0.4 §5.3 #18): the damage and the holds.
+	var cut := maxf(0.0, 1.0 + s("burst_taken"))
 	match kind:
-		"burn": player.take_damage(player.max_hp * float(spec.damage), "true")
-		"cold": player.apply_control("stun", Vector3.ZERO, 0.0, float(spec.freeze) * maxf(0.0, 1.0 + s("freeze_taken")))
+		"burn": player.take_damage(player.max_hp * float(spec.damage) * cut, "true")
+		"cold": player.apply_control("stun", Vector3.ZERO, 0.0, float(spec.freeze) * maxf(0.0, 1.0 + s("freeze_taken")) * cut)
 		"corr":
 			var stacks := mini(int(spec.stacks), int(player.hexes.get("corr_burst", {}).get("stacks", 0)) + 1)
 			player.add_hex("corr_burst", {"def": -float(spec.def_down) * stacks, "stacks": stacks}, -1.0)
-		"nerve": player.apply_control("stun", Vector3.ZERO, 0.0, float(spec.stun))
+		"nerve": player.apply_control("stun", Vector3.ZERO, 0.0, float(spec.stun) * cut)
 		"necro": player.add_hex("necro_burst", {"atk": -float(spec.atk_down)}, float(spec.secs))
 
 ## A stun's length on her: 神经抗性 shortens every stun (§4.3).
@@ -248,6 +344,9 @@ func feature_mult(kind: String) -> float:
 # --- Events -----------------------------------------------------------------------------
 
 func tick(delta: float) -> void:
+	for kind in shred.keys():
+		shred[kind].left = float(shred[kind].left) - delta
+		if float(shred[kind].left) <= 0.0: shred.erase(kind)
 	_elite_kill_left = maxf(0.0, _elite_kill_left - delta)
 	_dash_def_left = maxf(0.0, _dash_def_left - delta)
 	if s("fire_regen") > 0.0 and _game() != null and _game().warm_fire() != null: player.heal(player.max_hp * s("fire_regen") * delta)
@@ -282,11 +381,13 @@ func on_signature(first: Enemy) -> void:
 	elif player.is_amiya(): player.shadow_cooldown *= 1.0 - FIRSTBLOOD_REFUND
 	else: player.add_charge(1)
 
-## An enemy's gauge burst (Enemy._burst): the signatures that answer it.
-func on_enemy_burst(enemy: Enemy, kind: String) -> void:
-	if kind == "corr" and s("sig_cascade") > 0.0:
+## An enemy's ring went off (Enemy._burst_once), burst or reaction: the
+## signatures that answer it, each from SIG_SHARE of its element.
+const SIG_SHARE := 0.30
+func on_enemy_burst(enemy: Enemy, split: Dictionary) -> void:
+	if float(split.get("corr", 0.0)) >= SIG_SHARE and s("sig_cascade") > 0.0:
 		for other in _near(enemy.global_position, SPREAD_RADIUS, enemy): other.corr_stacks = mini(int(Elements.BURST.corr.stacks), other.corr_stacks + 1)
-	if kind == "burn" and s("sig_blaze") > 0.0 and player.gear_fx != null:
+	if float(split.get("burn", 0.0)) >= SIG_SHARE and s("sig_blaze") > 0.0 and player.gear_fx != null:
 		player.gear_fx.add_fire_zone(enemy.global_position, 2.5, 3.0, player.arts_power() * 0.15)
 
 func _near(at: Vector3, radius: float, except: Enemy) -> Array[Enemy]:
@@ -300,6 +401,7 @@ func _near(at: Vector3, radius: float, except: Enemy) -> Array[Enemy]:
 
 func reset() -> void:
 	state.clear()
+	shred.clear()
 	_chain_target = null
 	_chain_hits = 0
 	_elite_kill_left = 0.0

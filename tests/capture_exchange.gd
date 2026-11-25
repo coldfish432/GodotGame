@@ -137,9 +137,7 @@ func run() -> void:
 	await capture("closure-loan")
 	game.close_modal()
 	game.watch_widget.set_meta("on", true)
-	game.swan_popup = "乌萨斯主矿脉枯竭，远北矿区停产"
-	await capture("base-watch-swan")
-	game.close_swan_popup()
+	await capture("base-watch")
 	await game.start_contract("snow")
 	await step(10)
 	game.encounter = "post"

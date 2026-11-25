@@ -86,6 +86,13 @@ func _securities() -> void:
 	sec.on_dividend("blacksteel", 2.0)
 	check("a 金券 cash dividend lands as whole 龙门币 at the live rate", game.gold - lmd_before == roundi(Exchange.live_lmd("col", Exchange.from_lmd("col", n * 2.0))))
 	check("its order is on the share book", m.actors.pending.has("s|blacksteel"))
+	# 用户 2026-11-24: 主要持有人只显示势力和其他公司，散户不显示.
+	m.firms.buy_shares(m, "blacksteel", 50000.0, "faction:rhine")
+	for g_id in m.actors.groups: (m.actors.groups[g_id].pos as Dictionary)["blacksteel"] = 1.0e9
+	var names: Array = m.firms.holders(m, "blacksteel").map(func(h): return str(h[0]))
+	check("主要持有人: Rhodes and the factions, none of the crowds", names.has("罗德岛") and names.has(FactionCatalog.name_of("rhine"))
+		and not names.any(func(x): return x in ["价值型", "趋势型", "做市型", "噪声型"]), names)  # i18n: skip
+	for g_id in m.actors.groups: (m.actors.groups[g_id].pos as Dictionary).erase("blacksteel")
 	sec.buy_stock("sunvalley", 200000.0)
 	var bars := game.material_count(Economy.GOLD_ID)
 	sec.on_dividend("sunvalley", 2.0 * Economy.GOLD_BAR_LMD / maxf(sec.held("sunvalley"), 1.0) * sec.held("sunvalley") / sec.held("sunvalley") * 10.0)

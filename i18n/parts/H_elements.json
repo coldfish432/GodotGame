@@ -38,6 +38,7 @@
  "转为寒冷": "to Chill",
  "转为侵蚀": "to Erosion",
  "转为神经": "to Nervous",
+ "转为法术": "to Arts",
  "灼燃伤害": "Burn damage",
  "寒冷伤害": "Chill damage",
  "侵蚀伤害": "Erosion damage",
@@ -75,6 +76,7 @@
  "连续命中同一目标，每次伤害": "Damage per consecutive hit on one target",
  "受到的持续伤害时长": "Duration of damage over time taken",
  "对满血敌人伤害": "Damage vs. enemies at full HP",
+ "对高血量敌人伤害": "Damage vs. high-HP enemies",
  "寒冷上涨": "Chill gain",
  "火堆旁每秒回复": "Near a fire, restore per second",
  "，附近没有其他敌人时再翻倍": ", doubled with no other enemy nearby",
@@ -126,5 +128,15 @@
  "快捷栏：": "Hotbar: ",
  "·  已交付": "·  delivered",
  "先解锁交易所": "Unlock the exchange first",
- "旋转物品": "Rotate item"
+ "旋转物品": "Rotate item",
+ "骤裂": "Thermal Shatter",
+ "源石爆燃": "Originium Flare",
+ "过载": "Overload",
+ "焚身": "Immolate",
+ "脆化": "Embrittle",
+ "僵直": "Rigor",
+ "寂灭": "Stillness",
+ "蚀神": "Mind Rot",
+ "溃散": "Collapse",
+ "崩溃": "Breakdown"
 }

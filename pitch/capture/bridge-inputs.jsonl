@@ -1,0 +1,4 @@
+{"adapter":"NVIDIA GeForce RTX 4060 Laptop GPU","clip":"bridge","driver":"d3d12","engine":"4.7.2-stable (official)","event":"start","frame":0,"renderer":"forward_plus","seed":2026}
+{"event":"setup_teleport","frame":20,"goal":[7.47646951675415,5.09999990463257,1.81702101230621],"seed":1002,"to":[-8.30431365966797,5.09999990463257,4.45650434494019],"why":"start at a bridge end; enemies cleared"}
+{"at":[6.52306127548218,5.05093669891357,1.97648799419403],"event":"walk_done","frame":132}
+{"event":"end","frame":177}
